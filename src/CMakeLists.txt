@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: 2025 Daniel Aimé Valcour <fosssweeper@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+
+target_sources(
+    requite
+    PRIVATE
+        main.cpp
+)
+
+target_sources(
+    librequite
+    PRIVATE
+        alias.cpp
+        anonymous_function.cpp
+        anonymous_object.cpp
+        anonymous_property.cpp
+        attributes.cpp
+        build_ir.cpp
+        builder.cpp
+        compile_objects.cpp
+        const_expression_iterator.cpp
+        context.cpp
+        escape_sequences.cpp
+        expression_iterator.cpp
+        expression_make.cpp
+        expression.cpp
+        filesystem.cpp
+        finalize_locals.cpp
+        finalizer.cpp
+        get_module.cpp
+        label.cpp
+        link_objects.cpp
+        llvm_target.cpp
+        llvm_module.cpp
+        log.cpp
+        lookup_symbols.cpp
+        module_symbols.cpp
+        module.cpp
+        named_procedure_group.cpp
+        node.cpp
+        object.cpp
+        opcode.cpp
+        options.cpp
+        parse_ast.cpp
+        precedence_parser.cpp
+        procedure.cpp
+        resolve_matte_symbol_expressions.cpp
+        resolve_symbols.cpp
+        resolver.cpp
+        root_symbol.cpp
+        run.cpp
+        signature_parameter.cpp
+        signature.cpp
+        scope.cpp
+        situate_ast.cpp
+        source_name.cpp
+        source_ranger.cpp
+        source.cpp
+        specialize_templates.cpp
+        sub_symbol.cpp
+        symbol.cpp
+        table.cpp
+        tabulate_symbols.cpp
+        tabulator.cpp
+        tasks.cpp
+        token_csv.cpp
+        token.cpp
+        tokenize_tokens.cpp
+        tuple.cpp
+        validate_source.cpp
+        variable.cpp
+        write_ast.cpp
+        write_llvm_ir.cpp
+        write_tabulation_tron.cpp
+)
