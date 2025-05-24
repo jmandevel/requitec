@@ -134,9 +134,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   bool mapModules();
 
-  // partition_ast.cpp
-  void partitionAst(requite::Module &module);
-
   // tabulate_symbols.cpp
   [[nodiscard]]
   bool tabulateSymbols(requite::Module &module);
