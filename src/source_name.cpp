@@ -15,6 +15,12 @@
 
 namespace requite {
 
+bool Context::determineModuleNames()
+{
+  // TODO
+  return true;
+}
+
 bool Context::mapModules() {
   struct Entry final {
     llvm::SmallVector<requite::Source *, 1> sources = {};

@@ -15,8 +15,8 @@
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
-#include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/ThreadPool.h>
@@ -38,7 +38,8 @@ struct Token;
 struct SourceLocation;
 struct SourceRange;
 
-// llvm context is in inherited type to ensure that the llvm context is destroyed last.
+// llvm context is in inherited type to ensure that the llvm context is
+// destroyed last.
 struct _ContextLlvmContext {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr = {};
 };
@@ -99,9 +100,9 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   const requite::Module &getModule(llvm::StringRef name) const;
   [[nodiscard]]
-  std::vector<std::unique_ptr<requite::Module>>& getModuleUptrs();
+  std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
   [[nodiscard]]
-  const std::vector<std::unique_ptr<requite::Module>>& getModuleUptrs() const;
+  const std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs() const;
 
   // validate_source.cpp
   [[nodiscard]]
@@ -131,8 +132,20 @@ struct Context final : public requite::_ContextLlvmContext {
   void writeLlvmIr(const requite::Module &module);
 
   // source_name.cpp
-  [[nodiscard]]
-  bool mapModules();
+  [[nodiscard]] bool determineModuleNames();
+  [[nodiscard]] bool mapModules();
+
+  // make_symbols.cpp
+  void makeSymbols();
+
+  // determine_user_symbol_names.cpp
+  [[nodiscard]] bool determineUserSymbolNames();
+
+  // resolve_user_symbols.cpp
+  [[nodiscard]] bool resolveUserSymbols();
+
+  // build_user_symbols.cpp
+  [[nodiscard]] bool buildUserSymbols();
 
   // build_ir.cpp
   [[nodiscard]]
@@ -162,11 +175,11 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   const llvm::Target &getLlvmTarget() const;
   [[nodiscard]]
-  llvm::TargetOptions& getLlvmTargetOptions();
+  llvm::TargetOptions &getLlvmTargetOptions();
   [[nodiscard]]
   const llvm::TargetOptions &getLlvmTargetOptions() const;
   [[nodiscard]]
-  llvm::TargetMachine& getLlvmTargetMachine();
+  llvm::TargetMachine &getLlvmTargetMachine();
   [[nodiscard]]
   const llvm::TargetMachine &getLlvmTargetMachine() const;
   [[nodiscard]]

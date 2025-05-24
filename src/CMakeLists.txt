@@ -17,10 +17,12 @@ target_sources(
         anonymous_property.cpp
         attributes.cpp
         build_ir.cpp
+        build_user_symbols.cpp
         builder.cpp
         compile_objects.cpp
         const_expression_iterator.cpp
         context.cpp
+        determine_user_symbol_names.cpp
         escape_sequences.cpp
         expression_iterator.cpp
         expression_make.cpp
@@ -32,6 +34,7 @@ target_sources(
         llvm_module.cpp
         log.cpp
         lookup_symbols.cpp
+        make_symbols.cpp
         module_symbols.cpp
         module.cpp
         named_procedure_group.cpp
@@ -42,6 +45,7 @@ target_sources(
         parse_ast.cpp
         precedence_parser.cpp
         procedure.cpp
+        resolve_user_symbols.cpp
         root_symbol.cpp
         run.cpp
         signature_parameter.cpp

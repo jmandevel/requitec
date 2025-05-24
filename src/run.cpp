@@ -73,6 +73,42 @@ bool Context::run() {
       }
     });
   }
+  this->initializeLlvmContext();
+  if (!this->determineModuleNames()) {
+    return false;
+  }
+  // find all symbols and allocate data structs for each
+  this->makeSymbols();
+  // loop over symbols over and over until all are named or its impossible to
+  // continue
+  if (!this->determineUserSymbolNames()) {
+    return false;
+  }
+  // loop over symbols over and over until all are resolved or its impossible to
+  // continue
+  if (!this->resolveUserSymbols()) {
+    return false;
+  }
+  // loop over symbols over and over until all are built or its impossible to
+  // continue
+  if (!this->buildUserSymbols()) {
+    return false;
+  }
+  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
+    requite::Module &module = requite::getRef(module_uptr);
+    if (!this->buildIr(module))
+    {
+      is_ok = false;
+      continue;
+    }
+    if (requite::options::INTERMEDIATE_LLVM_IR.getValue()) {
+      this->writeLlvmIr(module);
+    }
+    if (!this->compileObject(module))
+    {
+      is_ok = false;
+    }
+  }
   return is_ok;
 }
 
