@@ -103,24 +103,4 @@ const requite::Expression &Scope::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-std::ranges::subrange<requite::InternalScopeIterator,
-                      requite::InternalScopeIterator,
-                      std::ranges::subrange_kind::unsized>
-Scope::getInternalScopeSubrange() {
-  return std::ranges::subrange(requite::InternalScopeIterator(*this),
-                               requite::InternalScopeIterator());
-}
-
-std::ranges::subrange<requite::ConstInternalScopeIterator,
-                      requite::ConstInternalScopeIterator,
-                      std::ranges::subrange_kind::unsized>
-Scope::getInternalScopeSubrange() const {
-  return std::ranges::subrange(requite::ConstInternalScopeIterator(*this),
-                               requite::ConstInternalScopeIterator());
-}
-
-requite::ScopeWalker Scope::walkScopes(requite::Context &context) {
-  return requite::ScopeWalker(context, *this);
-}
-
 } // namespace requite
