@@ -134,18 +134,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   bool mapModules();
 
-  // tabulate_symbols.cpp
-  [[nodiscard]]
-  bool tabulateSymbols(requite::Module &module);
-
-  // resolve_symbols.cpp
-  [[nodiscard]]
-  bool resolveSymbols();
-
-  // finalize_locals.cpp
-  [[nodiscard]]
-  bool finalizeLocals(requite::Module &module);
-
   // build_ir.cpp
   [[nodiscard]]
   bool buildIr(requite::Module &module);
@@ -153,17 +141,6 @@ struct Context final : public requite::_ContextLlvmContext {
   // compile_objects.cpp
   [[nodiscard]]
   bool compileObject(requite::Module &module);
-
-  // link_objects.cpp
-  [[nodiscard]]
-  bool linkObjects();
-
-  // specialize_templates.cpp
-  [[nodiscard]]
-  bool specializeTemplates(requite::Module &module);
-
-  // write_tabulation_tron.cpp
-  void writeTabulationTron(requite::Module &module);
 
   // get_module.cpp
   [[nodiscard]]

@@ -11,7 +11,6 @@ namespace requite {
 struct SourceRange final {
   requite::SourceLocation start = {};
   requite::SourceLocation end = {};
-
 };
 
-}
+} // namespace requite

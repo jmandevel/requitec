@@ -71,54 +71,7 @@ bool Context::run() {
       if (requite::options::INTERMEDIATE_SITUATED_AST.getValue()) {
         this->writeAst(module.getSource(), ".situated");
       }
-      if (!this->tabulateSymbols(module)) {
-        is_ok_a.store(false);
-        return;
-      }
     });
-  }
-  this->waitForTasks();
-  if (is_ok_a == false) {
-    return false;
-  }
-  if (!this->mapModules()) {
-    return false;
-  }
-  if (!this->resolveSymbols()) {
-    is_ok = false;
-  }
-  if (!is_ok) {
-    return false;
-  }
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    this->scheduleTask([this, &is_ok_a, &is_ready_a, &module]() {
-      if (!this->finalizeLocals(module)) {
-        is_ok_a.store(false);
-        return;
-      }
-    });
-  }
-  this->waitForTasks();
-  if (is_ok_a == false) {
-    return false;
-  }
-  this->initializeLlvmContext();
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    module.initializeLlvmModule(*this);
-    if (!this->buildIr(module)) {
-      return false;
-    }
-    if (requite::options::INTERMEDIATE_LLVM_IR.getValue()) {
-      this->writeLlvmIr(module);
-    }
-    if (!this->compileObject(module)) {
-      return false;
-    }
-  }
-  if (!this->linkObjects()) {
-    return false;
   }
   return is_ok;
 }

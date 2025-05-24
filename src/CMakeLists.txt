@@ -26,11 +26,8 @@ target_sources(
         expression_make.cpp
         expression.cpp
         filesystem.cpp
-        finalize_locals.cpp
-        finalizer.cpp
         get_module.cpp
         label.cpp
-        link_objects.cpp
         llvm_target.cpp
         llvm_module.cpp
         log.cpp
@@ -45,9 +42,6 @@ target_sources(
         parse_ast.cpp
         precedence_parser.cpp
         procedure.cpp
-        resolve_matte_symbol_expressions.cpp
-        resolve_symbols.cpp
-        resolver.cpp
         root_symbol.cpp
         run.cpp
         signature_parameter.cpp
@@ -57,12 +51,9 @@ target_sources(
         source_name.cpp
         source_ranger.cpp
         source.cpp
-        specialize_templates.cpp
         sub_symbol.cpp
         symbol.cpp
         table.cpp
-        tabulate_symbols.cpp
-        tabulator.cpp
         tasks.cpp
         token_csv.cpp
         token.cpp
@@ -72,5 +63,4 @@ target_sources(
         variable.cpp
         write_ast.cpp
         write_llvm_ir.cpp
-        write_tabulation_tron.cpp
 )
