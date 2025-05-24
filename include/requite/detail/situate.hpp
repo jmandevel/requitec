@@ -1663,6 +1663,14 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
+  case requite::Opcode::PACK:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::PACK)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
   case requite::Opcode::SIZE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::SIZE)) {
@@ -2591,8 +2599,7 @@ void Situator::situatePropertyExpression(requite::Expression &expression) {
         requite::Expression::makeOperation(requite::Opcode::INFERENCE);
     inference.setSourceInsertedAfter(first);
     bind_symbol.setBranch(expression.replaceBranch(bind_symbol));
-    if (first.getHasNext())
-    {
+    if (first.getHasNext()) {
       bind_symbol.setNext(first.popNext());
     }
     first.setNext(inference);
@@ -2640,8 +2647,7 @@ void Situator::situateArrayExpression(requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();
   if (!first.getHasNext()) {
     requite::Expression &inferrenced_cardinality_expression =
-        requite::Expression::makeOperation(
-            requite::Opcode::INFERENCED_COUNT);
+        requite::Expression::makeOperation(requite::Opcode::INFERENCED_COUNT);
     first.setNext(inferrenced_cardinality_expression);
     ;
   }

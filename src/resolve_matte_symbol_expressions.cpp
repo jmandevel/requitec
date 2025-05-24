@@ -8,6 +8,7 @@
 #include <requite/numeric.hpp>
 #include <requite/resolver.hpp>
 #include <requite/scope.hpp>
+#include <requite/scope_walker.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol.hpp>
 #include <requite/tuple.hpp>
@@ -137,12 +138,32 @@ bool Resolver::resolveMatteSymbolExpression(requite::Symbol &symbol,
 bool Resolver::resolveMatteSymbolIdentifierLiteralExpression(
     requite::Symbol &symbol, requite::Scope &containing_scope,
     requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_IDENTIFIER_LITERAL);
+  llvm::StringRef name = expression.getDataText();
+  requite::ScopeWalkerResult result =
+      containing_scope.walkScopes(this->getContext())
+          .doSearch([&](requite::Scope &scope) {
+            requite::RootSymbol found = scope.lookupInternalRootSymbol(name);
+            if (found.getIsNone())
+              return requite::ScopeWalkerResultType::NOT_FOUND;
+            symbol.getRoot() = found;
+            return requite::ScopeWalkerResultType::FOUND;
+          });
+  if (result.type == requite::ScopeWalkerResultType::NOT_FOUND) {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        llvm::Twine("symbol not found: \"") +
+                                            name + "\"");
+    this->setNotOk();
+  }
   return true;
 }
 
 bool Resolver::resolveMatteSymbolReflectValueExpression(
     requite::Symbol &symbol, requite::Scope &containing_scope,
     requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::REFLECT_VALUE);
+  // TODO
   return true;
 }
 

@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <requite/const_internal_scope_iterator.hpp>
+#include <requite/internal_scope_iterator.hpp>
+#include <requite/scope_walker.hpp>
 #include <requite/node.hpp>
 #include <requite/symbol.hpp>
 
@@ -11,6 +14,7 @@
 #include <llvm/ADT/StringRef.h>
 
 #include <memory>
+#include <ranges>
 #include <vector>
 
 namespace requite {
@@ -88,13 +92,22 @@ struct Scope {
   requite::Expression &getExpression();
   [[nodiscard]]
   const requite::Expression &getExpression() const;
+  [[nodiscard]] std::ranges::subrange<
+      requite::InternalScopeIterator, requite::InternalScopeIterator,
+      std::ranges::subrange_kind::unsized>
+  getInternalScopeSubrange();
+  [[nodiscard]] std::ranges::subrange<
+      requite::ConstInternalScopeIterator, requite::ConstInternalScopeIterator,
+      std::ranges::subrange_kind::unsized>
+  getInternalScopeSubrange() const;
+  [[nodiscard]] requite::ScopeWalker walkScopes(requite::Context& context);
+
+  // detail/scope_symbol.hpp
+  template <typename SymbolArg> void addSymbol(SymbolArg &symbol);
 
   // lookup_symbols.cpp
   [[nodiscard]]
   requite::RootSymbol lookupInternalRootSymbol(llvm::StringRef name);
-
-  // detail/scope_symbol.hpp
-  template <typename SymbolArg> void addSymbol(SymbolArg &symbol);
 };
 
 } // namespace requite

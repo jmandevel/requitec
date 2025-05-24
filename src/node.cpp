@@ -31,12 +31,4 @@ const requite::Attributes &Node::getAttributes() const {
   return this->_attributes;
 }
 
-std::vector<requite::Scope *> &Node::getScopePtrs() {
-  return this->_scope_ptrs;
-}
-
-const std::vector<requite::Scope *> &Node::getScopePtrs() const {
-  return this->_scope_ptrs;
-}
-
 } // namespace requite

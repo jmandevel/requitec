@@ -20,6 +20,7 @@ target_sources(
         builder.cpp
         compile_objects.cpp
         const_expression_iterator.cpp
+        const_internal_scope_iterator.cpp
         context.cpp
         escape_sequences.cpp
         expression_iterator.cpp
@@ -29,6 +30,7 @@ target_sources(
         finalize_locals.cpp
         finalizer.cpp
         get_module.cpp
+        internal_scope_iterator.cpp
         label.cpp
         link_objects.cpp
         llvm_target.cpp
@@ -47,9 +49,12 @@ target_sources(
         procedure.cpp
         resolve_matte_symbol_expressions.cpp
         resolve_symbols.cpp
+        resolve_symbol_reflective_symbol_expressions.cpp
         resolver.cpp
+        resolve_value_reflective_symbol_expresson.cpp
         root_symbol.cpp
         run.cpp
+        scope_walker.cpp
         signature_parameter.cpp
         signature.cpp
         scope.cpp

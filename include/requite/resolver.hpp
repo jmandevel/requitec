@@ -51,7 +51,9 @@ struct Resolver final {
   void resolveAlias(requite::Alias &alias);
   void resolveProcedure(requite::Procedure &procedure);
   void resolveVariable(requite::Variable &variable);
-  [[nodiscard]] bool resolveCompileTimeUnsignedInteger(unsigned& uint, requite::Expression &expression);
+  [[nodiscard]] bool
+  resolveCompileTimeUnsignedInteger(unsigned &uint,
+                                    requite::Expression &expression);
 
   // resolve_matte_symbol_expressions.cpp
   [[nodiscard]] bool
@@ -83,8 +85,8 @@ struct Resolver final {
                                     requite::Expression &expression);
   [[nodiscard]] bool
   resolveMatteSymbolReferenceExpression(requite::Symbol &symbol,
-                                       requite::Scope &containing_scope,
-                                       requite::Expression &expression);
+                                        requite::Scope &containing_scope,
+                                        requite::Expression &expression);
   [[nodiscard]] bool
   resolveMatteSymbolStolenReferenceExpression(requite::Symbol &symbol,
                                               requite::Scope &containing_scope,
@@ -169,6 +171,18 @@ struct Resolver final {
   [[nodiscard]] bool resolveMatteSymbolVariadicArgumentsExpression(
       requite::Symbol &symbol, requite::Scope &containing_scope,
       requite::Expression &expression);
+
+  // resolve_value_reflective_symbol_expressions.cpp
+  [[nodiscard]] bool
+  resolveValueReflectiveSymbolExpression(requite::Symbol &symbol,
+                                         requite::Scope &scope,
+                                         requite::Expression &expression);
+
+  // resolve_symbol_reflective_symbol_expressions.cpp
+  [[nodiscard]] bool
+  resolveSymbolReflectiveSymbolExpression(requite::Symbol &symbol,
+                                         requite::Scope &scope,
+                                         requite::Expression &expression);
 };
 
 } // namespace requite

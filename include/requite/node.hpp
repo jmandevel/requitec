@@ -9,11 +9,8 @@
 
 #include <llvm/ADT/StringRef.h>
 
-#include <vector>
-
 namespace requite {
 
-struct Scope;
 struct Expression;
 struct RootSymbol;
 
@@ -22,7 +19,6 @@ struct Node final {
 
   requite::NodeType _type = requite::NodeType::NONE;
   requite::Expression *_expression_ptr = nullptr;
-  std::vector<requite::Scope *> _scope_ptrs = {};
   requite::Attributes _attributes = {};
 
   // node.cpp
@@ -46,10 +42,6 @@ struct Node final {
   requite::Attributes &getAttributes();
   [[nodiscard]]
   const requite::Attributes &getAttributes() const;
-  [[nodiscard]]
-  std::vector<requite::Scope *> &getScopePtrs();
-  [[nodiscard]]
-  const std::vector<requite::Scope *> &getScopePtrs() const;
 };
 
 } // namespace requite
