@@ -2685,18 +2685,6 @@ void Situator::situateIdentifyExpression(requite::Expression &expression) {
   this->situateUnaryExpression<SITUATION_PARAM,
                                requite::Situation::MATTE_VALUE>(expression);
   requite::Expression &branch = expression.getBranch();
-  if (!branch.getHasDataText()) {
-    if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME ||
-                  SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
-      this->getContext().logSourceMessage(
-          branch, requite::LogType::ERROR,
-          llvm::Twine("branch of identify operation in \"") +
-              requite::getName<SITUATION_PARAM>() +
-              "\" situation must be instant");
-      this->setNotOk();
-    }
-    return;
-  }
   std::string text = branch.getDataText().str();
   expression.flattenBranch();
   expression.changeOpcode(requite::Opcode::_IDENTIFIER_LITERAL);
