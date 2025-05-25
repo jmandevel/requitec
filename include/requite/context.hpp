@@ -135,11 +135,14 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool determineModuleNames();
   [[nodiscard]] bool mapModules();
 
-  // make_symbols.cpp
-  void makeSymbols();
+  // make_user_symbols.cpp
+  void makeUserSymbols();
+  void makeUnorderedUserSymbols(requite::Module& module, requite::Scope &scope, requite::Expression &body, bool conduits_have_scopes);
+  void makeOrderedUserSymbols(requite::Module& module, requite::Scope& scope, requite::Expression& branch);
+  void makeScopedValues(requite::Module& module, requite::Scope &scope, requite::Expression &expression, bool conduits_have_scopes);
 
-  // determine_user_symbol_names.cpp
-  [[nodiscard]] bool determineUserSymbolNames();
+  // name_user_symbols.cpp
+  [[nodiscard]] bool nameUserSymbols();
 
   // resolve_user_symbols.cpp
   [[nodiscard]] bool resolveUserSymbols();
