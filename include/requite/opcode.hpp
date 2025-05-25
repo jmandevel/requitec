@@ -187,7 +187,6 @@ enum class Opcode : unsigned {
   ANONYMOUS_OBJECT,
   NULL_,
   IGNORE,
-  
 
   // TEMPLATES
   TEMPLATE,
@@ -225,7 +224,6 @@ enum class Opcode : unsigned {
   LOCAL,
   GLOBAL,
   PROPERTY,
-
 
   // VALUES
   // a special variable that is replaced every time it is assigned to. its
@@ -379,6 +377,8 @@ static constexpr unsigned OPCODE_COUNT =
 [[nodiscard]] constexpr bool getHasObjectData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasOverloadData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasVariableData(requite::Opcode opcode);
 

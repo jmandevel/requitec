@@ -18,12 +18,17 @@ struct Table final {
   [[nodiscard]]
   bool getHasName() const;
   void setName(llvm::StringRef name);
-  [[nodiscard]]
-  llvm::StringRef getName() const;
-  [[nodiscard]]
-  requite::Scope &getScope();
-  [[nodiscard]]
-  const requite::Scope &getScope() const;
+  [[nodiscard]] llvm::StringRef getName() const;
+  [[nodiscard]] requite::Scope &getScope();
+  [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] bool getHasExpression() const;
+  void setExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
 };
 
 } // namespace requite

@@ -5,9 +5,9 @@
 #pragma once
 
 #include <requite/attributes.hpp>
+#include <requite/procedure_type.hpp>
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
-#include <requite/procedure_type.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 
@@ -54,72 +54,54 @@ struct Procedure final {
   bool operator==(const Self &rhs) const;
   [[nodiscard]]
   bool operator!=(const Self &rhs) const;
+  [[nodiscard]] bool getHasExpression() const;
+  void setExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope& scope);
+  [[nodiscard]] requite::Scope& getContainingScope();
+  [[nodiscard]] const requite::Scope& getContainingScope() const;
   void setMangledName(llvm::StringRef name);
-  [[nodiscard]]
-  bool getHasMangledName() const;
-  [[nodiscard]]
-  llvm::StringRef getMangledName() const;
+  [[nodiscard]] bool getHasMangledName() const;
+  [[nodiscard]] llvm::StringRef getMangledName() const;
   void setType(requite::ProcedureType type);
-  [[nodiscard]]
-  requite::ProcedureType getType() const;
-  [[nodiscard]]
-  requite::Scope &getScope();
-  [[nodiscard]]
-  const requite::Scope &getScope() const;
-  [[nodiscard]]
-  requite::Signature &getSignature();
-  [[nodiscard]]
-  const requite::Signature &getSignature() const;
-  [[nodiscard]]
-  requite::Attributes &getAttributes();
-  [[nodiscard]]
-  const requite::Attributes &getAttributes() const;
+  [[nodiscard]] requite::ProcedureType getType() const;
+  [[nodiscard]] requite::Scope &getScope();
+  [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] requite::Signature &getSignature();
+  [[nodiscard]] const requite::Signature &getSignature() const;
+  [[nodiscard]] requite::Attributes &getAttributes();
+  [[nodiscard]] const requite::Attributes &getAttributes() const;
   void setAscribe(requite::Expression &ascribe);
-  [[nodiscard]]
-  bool getHasAscribe() const;
-  [[nodiscard]]
-  requite::Expression &getAscribe();
-  [[nodiscard]]
-  const requite::Expression &getAscribe() const;
-  void setNamedProcedureGroup(requite::NamedProcedureGroup &named_procedure_group);
-  [[nodiscard]]
-  bool getHasNamedProcedureGroup() const;
-  [[nodiscard]]
-  requite::NamedProcedureGroup &getNamedProcedureGroup();
-  [[nodiscard]]
-  const requite::NamedProcedureGroup &getNamedProcedureGroup() const;
-  [[nodiscard]]
-  requite::NamedProcedureGroup *getNamedProcedureGroupPtr();
-  [[nodiscard]]
-  const requite::NamedProcedureGroup *getNamedProcedureGroupPtr() const;
+  [[nodiscard]] bool getHasAscribe() const;
+  [[nodiscard]] requite::Expression &getAscribe();
+  [[nodiscard]] const requite::Expression &getAscribe() const;
+  void
+  setNamedProcedureGroup(requite::NamedProcedureGroup &named_procedure_group);
+  [[nodiscard]] bool getHasNamedProcedureGroup() const;
+  [[nodiscard]] requite::NamedProcedureGroup &getNamedProcedureGroup();
+  [[nodiscard]] const requite::NamedProcedureGroup &
+  getNamedProcedureGroup() const;
+  [[nodiscard]] requite::NamedProcedureGroup *getNamedProcedureGroupPtr();
+  [[nodiscard]] const requite::NamedProcedureGroup *
+  getNamedProcedureGroupPtr() const;
   void setNextProcedure(requite::Procedure &procedure);
-  [[nodiscard]]
-  bool getHasNextProcedure() const;
-  [[nodiscard]]
-  requite::Procedure &getNextProcedure();
-  [[nodiscard]]
-  const requite::Procedure &getNextProcedure() const;
-  [[nodiscard]]
-  bool getHasLlvmFunctionType() const;
+  [[nodiscard]] bool getHasNextProcedure() const;
+  [[nodiscard]] requite::Procedure &getNextProcedure();
+  [[nodiscard]] const requite::Procedure &getNextProcedure() const;
+  [[nodiscard]] bool getHasLlvmFunctionType() const;
   void setLlvmFunctionType(llvm::FunctionType &type);
-  [[nodiscard]]
-  llvm::FunctionType &getLlvmFunctionType();
-  [[nodiscard]]
-  const llvm::FunctionType &getLlvmFunctionType() const;
-  [[nodiscard]]
-  bool getHasLlvmFunction() const;
+  [[nodiscard]] llvm::FunctionType &getLlvmFunctionType();
+  [[nodiscard]] const llvm::FunctionType &getLlvmFunctionType() const;
+  [[nodiscard]] bool getHasLlvmFunction() const;
   void setLlvmFunction(llvm::Function &function);
-  [[nodiscard]]
-  llvm::Function &getLlvmFunction();
-  [[nodiscard]]
-  const llvm::Function &getLlvmFunction() const;
-  [[nodiscard]]
-  bool getHasLlvmBlock() const;
+  [[nodiscard]] llvm::Function &getLlvmFunction();
+  [[nodiscard]] const llvm::Function &getLlvmFunction() const;
+  [[nodiscard]] bool getHasLlvmBlock() const;
   void setLlvmBlock(llvm::BasicBlock &block);
-  [[nodiscard]]
-  llvm::BasicBlock &getLlvmBlock();
-  [[nodiscard]]
-  const llvm::BasicBlock &getLlvmBlock() const;
+  [[nodiscard]] llvm::BasicBlock &getLlvmBlock();
+  [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
 };
 
 } // namespace requite

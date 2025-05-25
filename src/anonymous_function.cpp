@@ -7,20 +7,33 @@
 
 namespace requite {
 
-bool AnonymousFunction::operator==(const Self &rhs) const
-{
-    return this == &rhs;
+bool AnonymousFunction::operator==(const Self &rhs) const {
+  return this == &rhs;
 }
 
-bool AnonymousFunction::operator!=(const Self &rhs) const
-{
-    return this != &rhs;
+bool AnonymousFunction::operator!=(const Self &rhs) const {
+  return this != &rhs;
 }
 
 requite::Scope &AnonymousFunction::getScope() { return this->_scope; }
 
 const requite::Scope &AnonymousFunction::getScope() const {
   return this->_scope;
+}
+
+bool AnonymousFunction::getHasContainingScope() const {
+  return this->getScope().getHasContainingScope();
+}
+
+void AnonymousFunction::setContainingScope(requite::Scope &scope) {
+  this->getScope().setContainingScope(scope);
+}
+
+requite::Scope &AnonymousFunction::getContainingScope() {
+  return this->getScope().getContainingScope();
+}
+const requite::Scope &AnonymousFunction::getContainingScope() const {
+  return this->getScope().getContainingScope();
 }
 
 bool AnonymousFunction::getHasExpression() const {

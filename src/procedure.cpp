@@ -16,19 +16,48 @@ bool Procedure::getHasMangledName() const {
   return !this->_mangled_name.empty();
 }
 
-llvm::StringRef Procedure::getMangledName() const { return this->_mangled_name; }
+llvm::StringRef Procedure::getMangledName() const {
+  return this->_mangled_name;
+}
 
-void Procedure::setType(requite::ProcedureType type)
-{
+bool Procedure::getHasContainingScope() const {
+  return this->getScope().getHasContainingScope();
+}
+
+void Procedure::setContainingScope(requite::Scope &scope) {
+  this->getScope().setContainingScope(scope);
+}
+requite::Scope &Procedure::getContainingScope() {
+  return this->getScope().getContainingScope();
+}
+
+const requite::Scope &Procedure::getContainingScope() const {
+  return this->getScope().getContainingScope();
+}
+
+bool Procedure::getHasExpression() const {
+  return this->getScope().getHasExpression();
+}
+
+void Procedure::setExpression(requite::Expression &expression) {
+  this->getScope().setExpression(expression);
+}
+
+requite::Expression &Procedure::getExpression() {
+  return this->getScope().getExpression();
+}
+
+const requite::Expression &Procedure::getExpression() const {
+  return this->getScope().getExpression();
+}
+
+void Procedure::setType(requite::ProcedureType type) {
   REQUITE_ASSERT(this->_type == requite::ProcedureType::NONE);
   REQUITE_ASSERT(type != requite::ProcedureType::NONE);
   this->_type = type;
 }
 
-requite::ProcedureType Procedure::getType() const
-{
-  return this->_type;
-}
+requite::ProcedureType Procedure::getType() const { return this->_type; }
 
 requite::Signature &Procedure::getSignature() { return this->_signature; }
 
@@ -60,11 +89,15 @@ const requite::Expression &Procedure::getAscribe() const {
   return requite::getRef(this->_ascribe_ptr);
 }
 
-void Procedure::setNamedProcedureGroup(requite::NamedProcedureGroup &named_procedure_group) {
-  requite::setSingleRef(this->_named_procedure_group_ptr, named_procedure_group);
+void Procedure::setNamedProcedureGroup(
+    requite::NamedProcedureGroup &named_procedure_group) {
+  requite::setSingleRef(this->_named_procedure_group_ptr,
+                        named_procedure_group);
 }
 
-bool Procedure::getHasNamedProcedureGroup() const { return this->_named_procedure_group_ptr != nullptr; }
+bool Procedure::getHasNamedProcedureGroup() const {
+  return this->_named_procedure_group_ptr != nullptr;
+}
 
 requite::NamedProcedureGroup &Procedure::getNamedProcedureGroup() {
   return requite::getRef(this->_named_procedure_group_ptr);

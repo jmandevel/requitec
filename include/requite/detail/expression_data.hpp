@@ -144,6 +144,30 @@ Expression::getAnonymousFunction() const {
   return requite::getRef(std::get<requite::AnonymousFunction *>(this->_data));
 }
 
+inline bool Expression::getHasAlias() const {
+  REQUITE_ASSERT(requite::getHasAliasData(this->getOpcode()));
+  return std::holds_alternative<requite::Alias *>(this->_data) &&
+         std::get<requite::Alias *>(this->_data) != nullptr;
+}
+
+inline void Expression::setAlias(requite::Alias &alias) {
+  REQUITE_ASSERT(requite::getHasAliasData(this->getOpcode()));
+  REQUITE_ASSERT(!this->getHasAlias());
+  this->_data.emplace<requite::Alias *>(&alias);
+}
+
+inline requite::Alias &Expression::getAlias() {
+  REQUITE_ASSERT(requite::getHasAliasData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasAlias());
+  return requite::getRef(std::get<requite::Alias *>(this->_data));
+}
+
+inline const requite::Alias &Expression::getAlias() const {
+  REQUITE_ASSERT(requite::getHasAliasData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasAlias());
+  return requite::getRef(std::get<requite::Alias *>(this->_data));
+}
+
 inline void Expression::setVariable(requite::Variable &variable) {
   REQUITE_ASSERT(requite::getHasVariableData(this->getOpcode()));
   this->_data.emplace<requite::Variable *>(&variable);

@@ -14,6 +14,12 @@ requite::Table &Module::getTable() { return this->_table; }
 
 const requite::Table &Module::getTable() const { return this->_table; }
 
+requite::Scope &Module::getScope() { return this->getTable().getScope(); }
+
+const requite::Scope &Module::getScope() const {
+  return this->getTable().getScope();
+}
+
 requite::Source &Module::getSource() { return this->_source; }
 
 const requite::Source &Module::getSource() const { return this->_source; }

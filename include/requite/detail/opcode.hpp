@@ -1213,6 +1213,10 @@ constexpr bool getHasOverloadData(requite::Opcode opcode) {
          opcode == requite::Opcode::DESTRUCTOR;
 }
 
+constexpr bool getHasAliasData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::ALIAS;
+}
+
 constexpr bool getHasVariableData(requite::Opcode opcode) {
   return opcode == requite::Opcode::LOCAL ||
          opcode == requite::Opcode::GLOBAL ||

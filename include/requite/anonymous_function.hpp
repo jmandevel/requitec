@@ -35,6 +35,10 @@ struct AnonymousFunction final {
   requite::Scope &getScope();
   [[nodiscard]]
   const requite::Scope &getScope() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope& scope);
+  [[nodiscard]] requite::Scope& getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]]

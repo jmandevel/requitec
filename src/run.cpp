@@ -78,10 +78,10 @@ bool Context::run() {
     return false;
   }
   // find all symbols and allocate data structs for each
-  this->makeSymbols();
+  this->makeUserSymbols();
   // loop over symbols over and over until all are named or its impossible to
   // continue
-  if (!this->determineUserSymbolNames()) {
+  if (!this->nameUserSymbols()) {
     return false;
   }
   // loop over symbols over and over until all are resolved or its impossible to

@@ -27,8 +27,8 @@ struct Table;
 struct Object;
 struct Variable;
 struct Procedure;
-struct InlineScope;
 struct AnonymousFunction;
+struct Alias;
 
 struct Expression final {
   using Self = requite::Expression;
@@ -39,7 +39,7 @@ struct Expression final {
   const char *_source_text_ptr = nullptr;
   unsigned _source_text_length = 0;
   std::variant<std::monostate, std::string, requite::Scope *, requite::Table *,
-               requite::Object *, requite::Procedure *, requite::InlineScope *,
+               requite::Object *, requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Variable *, llvm::APSInt,
                requite::Symbol>
       _data = std::monostate{};
@@ -178,6 +178,10 @@ struct Expression final {
   [[nodiscard]] inline requite::AnonymousFunction &getAnonymousFunction();
   [[nodiscard]] inline const requite::AnonymousFunction &
   getAnonymousFunction() const;
+  [[nodiscard]] inline bool getHasAlias() const;
+  inline void setAlias(requite::Alias &alias);
+  [[nodiscard]] inline requite::Alias &getAlias();
+  [[nodiscard]] inline const requite::Alias &getAlias() const;
   inline void setVariable(requite::Variable &variable);
   [[nodiscard]] inline bool getHasVariable() const;
   [[nodiscard]] inline requite::Variable &getVariable();

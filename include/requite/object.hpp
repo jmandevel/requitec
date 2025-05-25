@@ -26,53 +26,45 @@ struct Object final {
   requite::Expression *_ascribe_ptr = nullptr;
   requite::Module *_module_ptr = nullptr;
   requite::Attributes _attributes = {};
-  std::vector<requite::Variable*> _property_ptrs = {};
+  std::vector<requite::Variable *> _property_ptrs = {};
 
   // object.cpp
   [[nodiscard]]
   bool getHasName() const;
   void setName(llvm::StringRef name);
-  [[nodiscard]]
-  llvm::StringRef getName() const;
-  [[nodiscard]]
-  requite::Table &getTable();
-  [[nodiscard]]
-  const requite::Table &getTable() const;
+  [[nodiscard]] llvm::StringRef getName() const;
+  [[nodiscard]] bool getHasExpression() const;
+  void setExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] requite::Table &getTable();
+  [[nodiscard]] const requite::Table &getTable() const;
+  [[nodiscard]] requite::Scope& getScope();
+  [[nodiscard]] const requite::Scope& getScope() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope& scope);
+  [[nodiscard]] requite::Scope& getContainingScope();
+  [[nodiscard]] const requite::Scope& getContainingScope() const;
   void setMangledName(llvm::StringRef name);
-  [[nodiscard]]
-  llvm::StringRef getMangledName() const;
-  [[nodiscard]]
-  bool getHasMangledName() const;
+  [[nodiscard]] llvm::StringRef getMangledName() const;
+  [[nodiscard]] bool getHasMangledName() const;
   void setDestructor(requite::Procedure &destructor);
-  [[nodiscard]]
-  bool getHasDestructor() const;
-  [[nodiscard]]
-  requite::Procedure &getDestructor();
-  [[nodiscard]]
-  const requite::Procedure &getDestructor() const;
+  [[nodiscard]] bool getHasDestructor() const;
+  [[nodiscard]] requite::Procedure &getDestructor();
+  [[nodiscard]] const requite::Procedure &getDestructor() const;
   void addConstructor(requite::Procedure &constructor);
-  [[nodiscard]]
-  bool getHasConstructor() const;
-  [[nodiscard]]
-  requite::Procedure &getFirstConstructor();
-  [[nodiscard]]
-  const requite::Procedure &getFirstConstructor() const;
+  [[nodiscard]] bool getHasConstructor() const;
+  [[nodiscard]] requite::Procedure &getFirstConstructor();
+  [[nodiscard]] const requite::Procedure &getFirstConstructor() const;
   void setAscribe(requite::Expression &ascribe);
-  [[nodiscard]]
-  bool getHasAscribe() const;
-  [[nodiscard]]
-  requite::Expression &getAscribe();
-  [[nodiscard]]
-  const requite::Expression &getAscribe() const;
+  [[nodiscard]] bool getHasAscribe() const;
+  [[nodiscard]] requite::Expression &getAscribe();
+  [[nodiscard]] const requite::Expression &getAscribe() const;
   void setModule(requite::Module &module);
-  [[nodiscard]]
-  bool getHasModule() const;
-  [[nodiscard]]
-  requite::Module &getModule();
-  [[nodiscard]]
-  const requite::Module &getModule() const;
-  [[nodiscard]]
-  requite::Attributes &getAttributes();
+  [[nodiscard]] bool getHasModule() const;
+  [[nodiscard]] requite::Module &getModule();
+  [[nodiscard]] const requite::Module &getModule() const;
+  [[nodiscard]] requite::Attributes &getAttributes();
 };
 
 } // namespace requite

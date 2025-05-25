@@ -13,9 +13,46 @@ void Object::setName(llvm::StringRef name) { this->getTable().setName(name); }
 
 llvm::StringRef Object::getName() const { return this->getTable().getName(); }
 
+bool Object::getHasExpression() const {
+  return this->getTable().getScope().getHasExpression();
+}
+void Object::setExpression(requite::Expression &expression) {
+  this->getTable().getScope().setExpression(expression);
+}
+
+requite::Expression &Object::getExpression() {
+  return this->getTable().getScope().getExpression();
+}
+
+const requite::Expression &Object::getExpression() const {
+  return this->getTable().getScope().getExpression();
+}
+
 requite::Table &Object::getTable() { return this->_table; }
 
 const requite::Table &Object::getTable() const { return this->_table; }
+
+requite::Scope &Object::getScope() { return this->getTable().getScope(); }
+
+const requite::Scope &Object::getScope() const {
+  return this->getTable().getScope();
+}
+
+bool Object::getHasContainingScope() const {
+  return this->getTable().getScope().getHasContainingScope();
+}
+
+void Object::setContainingScope(requite::Scope &scope) {
+  this->getTable().getScope().setContainingScope(scope);
+}
+
+requite::Scope &Object::getContainingScope() {
+  return this->getTable().getScope().getContainingScope();
+}
+
+const requite::Scope &Object::getContainingScope() const {
+  return this->getTable().getScope().getContainingScope();
+}
 
 void Object::setMangledName(llvm::StringRef name) {
   REQUITE_ASSERT(this->_mangled_name.empty());
