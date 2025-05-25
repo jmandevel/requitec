@@ -1194,7 +1194,15 @@ constexpr bool getHasIntegerData(requite::Opcode opcode) {
 }
 
 constexpr bool getHasScopeData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::SCOPE;
+  return opcode == requite::Opcode::IF || opcode == requite::Opcode::ELSE_IF ||
+         opcode == requite::Opcode::ELSE || opcode == requite::Opcode::SWITCH ||
+         opcode == requite::Opcode::CASE ||
+         opcode == requite::Opcode::DEFAULT_CASE ||
+         opcode == requite::Opcode::FOR || opcode == requite::Opcode::WHILE ||
+         opcode == requite::Opcode::DO_WHILE ||
+         opcode == requite::Opcode::FOR_EACH ||
+         opcode == requite::Opcode::LOOP || opcode == requite::Opcode::SCOPE ||
+         opcode == requite::Opcode::CONDUIT;
 }
 
 constexpr bool getHasTableData(requite::Opcode opcode) {
