@@ -32,14 +32,13 @@ struct Scope {
   requite::Expression *_expression_ptr = nullptr;
   std::vector<requite::Node> _nodes = {};
 
+  // scope.cpp
   Scope() = default;
   Scope(const Self &that) = delete;
   Scope(Self &&that) = delete;
   ~Scope() = default;
   Self &operator=(const Self &rhs) = delete;
   Self &operator=(Self &&rhs) = delete;
-
-  // scope.cpp
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(Self &&rhs) const;
   [[nodiscard]] llvm::StringMap<requite::RootSymbol> &getSymbolMap();
@@ -52,6 +51,10 @@ struct Scope {
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
   [[nodiscard]] bool getIsEmpty() const;
+  [[nodiscard]] bool getHasTable() const;
+  void setTable(requite::Table &table);
+  [[nodiscard]] requite::Table &getTable();
+  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] bool getHasObject() const;
   void setObject(requite::Object &object);
   [[nodiscard]] requite::Object &getObject();

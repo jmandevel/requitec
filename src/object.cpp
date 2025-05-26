@@ -7,6 +7,8 @@
 
 namespace requite {
 
+Object::Object() { this->getTable().getScope().setObject(*this); }
+
 bool Object::getHasName() const { return this->getTable().getHasName(); }
 
 void Object::setName(llvm::StringRef name) { this->getTable().setName(name); }

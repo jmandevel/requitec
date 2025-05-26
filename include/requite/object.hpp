@@ -19,6 +19,8 @@ struct Procedure;
 struct Variable;
 
 struct Object final {
+  using Self = requite::Object;
+
   requite::Table _table = {};
   llvm::StringRef _mangled_name = {};
   requite::Procedure *_destructor_ptr = nullptr;
@@ -29,8 +31,13 @@ struct Object final {
   std::vector<requite::Variable *> _property_ptrs = {};
 
   // object.cpp
-  [[nodiscard]]
-  bool getHasName() const;
+  Object();
+  Object(const Self &) = delete;
+  Object(Self &&) = delete;
+  ~Object() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] bool getHasExpression() const;
@@ -39,12 +46,12 @@ struct Object final {
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Table &getTable();
   [[nodiscard]] const requite::Table &getTable() const;
-  [[nodiscard]] requite::Scope& getScope();
-  [[nodiscard]] const requite::Scope& getScope() const;
+  [[nodiscard]] requite::Scope &getScope();
+  [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope& scope);
-  [[nodiscard]] requite::Scope& getContainingScope();
-  [[nodiscard]] const requite::Scope& getContainingScope() const;
+  void setContainingScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getMangledName() const;
   [[nodiscard]] bool getHasMangledName() const;

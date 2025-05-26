@@ -49,6 +49,18 @@ bool Scope::getIsEmpty() const {
   return this->_symbol_map.empty() && this->_nodes.empty();
 }
 
+bool Scope::getHasTable() const { return this->_table_ptr != nullptr; }
+
+void Scope::setTable(requite::Table &table) {
+  requite::setSingleRef(this->_table_ptr, table);
+}
+
+requite::Table &Scope::getTable() { return requite::getRef(this->_table_ptr); }
+
+const requite::Table &Scope::getTable() const {
+  return requite::getRef(this->_table_ptr);
+}
+
 bool Scope::getHasObject() const { return this->_object_ptr != nullptr; }
 
 void Scope::setObject(requite::Object &object) {
