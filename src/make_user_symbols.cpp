@@ -4,173 +4,352 @@
 
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
+#include <requite/maker.hpp>
 
 namespace requite {
 
-void Context::makeUserSymbols() {
+bool Context::makeUserSymbols() {
+  bool is_ok = true;
   for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
     requite::Module &module = requite::getRef(module_uptr);
-    requite::Table &table = module.getTable();
-    requite::Scope &scope = module.getScope();
-    requite::Expression &root = module.getExpression();
-    REQUITE_ASSERT(!root.getHasNext());
-    requite::Expression &module_name_expression = root.getBranch();
-    if (!module_name_expression.getHasNext()) {
-      return;
+    requite::Maker maker(*this, module);
+    maker.makeUserSymbols();
+    if (!maker.getIsOk()) {
+      is_ok = false;
     }
-    requite::Expression &body = module_name_expression.getNext();
-    this->makeUnorderedUserSymbols(module, scope, body, true);
   }
+  return is_ok;
 }
 
-void Context::makeUnorderedUserSymbols(requite::Module &module,
-                                       requite::Scope &scope,
-                                       requite::Expression &body, bool conduits_have_scopes) {
+void Maker::makeUserSymbols() {
+  requite::Table &table = this->getModule().getTable();
+  requite::Scope &scope = this->getModule().getScope();
+  requite::Expression &root = this->getModule().getExpression();
+  REQUITE_ASSERT(!root.getHasNext());
+  requite::Expression &module_name_expression = root.getBranch();
+  if (!module_name_expression.getHasNext()) {
+    return;
+  }
+  requite::Expression &body = module_name_expression.getNext();
+  this->makeUnorderedUserSymbols(scope, body, true);
+}
+
+void Maker::makeUnorderedUserSymbols(requite::Scope &scope,
+                                     requite::Expression &body,
+                                     bool conduits_have_scopes) {
   for (requite::Expression &branch : body.getHorizontalSubrange()) {
-    switch (const requite::Opcode opcode = branch.getOpcode()) {
-    case requite::Opcode::ALIAS: {
-      requite::Alias &alias = module.makeAlias();
-      alias.setExpression(branch);
-      branch.setAlias(alias);
-      alias.setContainingScope(scope);
-      this->makeScopedValues(module, scope, branch.getBranch(), true);
-    } break;
-    case requite::Opcode::OBJECT: {
-      requite::Object &object = module.makeObject();
-      object.setExpression(branch);
-      branch.setObject(object);
-      object.setContainingScope(scope);
-      this->makeUnorderedUserSymbols(module, object.getScope(), branch.getBranch(), conduits_have_scopes);
-    } break;
-    case requite::Opcode::GLOBAL: {
-      requite::Variable &global = module.makeVariable();
-      global.setType(requite::VariableType::GLOBAL);
-      global.setExpression(branch);
-      branch.setVariable(global);
-      global.setContainingScope(scope);
-      this->makeScopedValues(module, scope, branch.getBranch(), conduits_have_scopes);
-    } break;
-    case requite::Opcode::PROPERTY: {
-      requite::Object &object = module.makeObject();
-      object.setExpression(branch);
-      branch.setObject(object);
-      object.setContainingScope(scope);
-      this->makeUnorderedUserSymbols(module, object.getScope(), branch.getBranch(), true);
-    } break;
-    case requite::Opcode::ENTRY_POINT: {
-      requite::Procedure &entry_point = module.makeProcedure();
-      entry_point.setType(requite::ProcedureType::ENTRY_POINT);
-      entry_point.setExpression(branch);
-      branch.setProcedure(entry_point);
-      entry_point.setContainingScope(scope);
-      this->makeOrderedUserSymbols(module, entry_point.getScope(),
-                                   branch.getBranch());
-    } break;
-    case requite::Opcode::METHOD: {
-      requite::Procedure &method = module.makeProcedure();
-      method.setType(requite::ProcedureType::METHOD);
-      method.setExpression(branch);
-      branch.setProcedure(method);
-      method.setContainingScope(scope);
-      this->makeOrderedUserSymbols(module, method.getScope(),
-                                   branch.getBranch());
-    } break;
-    case requite::Opcode::FUNCTION: {
-      requite::Procedure &function = module.makeProcedure();
-      function.setType(requite::ProcedureType::FUNCTION);
-      function.setExpression(branch);
-      branch.setProcedure(function);
-      function.setContainingScope(scope);
-      this->makeOrderedUserSymbols(module, function.getScope(),
-                                   branch.getBranch());
-    } break;
-    case requite::Opcode::CONSTRUCTOR: {
-      requite::Procedure &constructor = module.makeProcedure();
-      constructor.setType(requite::ProcedureType::CONSTRUCTOR);
-      constructor.setExpression(branch);
-      branch.setProcedure(constructor);
-      constructor.setContainingScope(scope);
-      this->makeOrderedUserSymbols(module, constructor.getScope(),
-                                   branch.getBranch());
-    } break;
-    case requite::Opcode::DESTRUCTOR: {
-      requite::Procedure &destructor = module.makeProcedure();
-      destructor.setType(requite::ProcedureType::DESTRUCTOR);
-      destructor.setExpression(branch);
-      branch.setProcedure(destructor);
-      destructor.setContainingScope(scope);
-      this->makeOrderedUserSymbols(module, destructor.getScope(),
-                                   branch.getBranch());
-    } break;
-    case requite::Opcode::TABLE: {
-      requite::Table &table = module.makeTable();
-      table.setExpression(branch);
-      branch.setTable(table);
-      table.setContainingScope(scope);
-      this->makeUnorderedUserSymbols(module, table.getScope(),
-                                     branch.getBranch(), conduits_have_scopes);
-    } break;
-    default:
-      this->makeScopedValues(module, scope, branch, false);
+    if (branch.getOpcode() == requite::Opcode::ASCRIBE) {
+      requite::MakeAttributesResult result =
+          requite::Attributes::makeAttributes(this->getContext(), branch);
+      if (result.has_error) {
+        this->setNotOk();
+      }
+      this->makeAscribedUnorderedUserSymbol(
+          scope, requite::getRef(result.last_expression_ptr), result.attributes,
+          conduits_have_scopes);
+      continue;
     }
+    this->makeUnorderedUserSymbol(scope, branch, conduits_have_scopes);
   }
 }
 
-void Context::makeOrderedUserSymbols(requite::Module &module,
-                                     requite::Scope &scope,
-                                     requite::Expression &body) {
+void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
+                                            requite::Expression &expression,
+                                            requite::Attributes attributes,
+                                            bool conduits_have_scopes) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::ALIAS: {
+    requite::Alias &alias = this->getModule().makeAlias();
+    alias.setExpression(expression);
+    expression.setAlias(alias);
+    alias.setContainingScope(scope);
+    alias.setAttributes(attributes);
+    this->makeScopedValues(scope, expression.getBranch(), true);
+  } break;
+  case requite::Opcode::OBJECT: {
+    requite::Object &object = this->getModule().makeObject();
+    object.setExpression(expression);
+    expression.setObject(object);
+    object.setContainingScope(scope);
+    object.setAttributes(attributes);
+    this->makeUnorderedUserSymbols(object.getScope(), expression.getBranch(),
+                                   conduits_have_scopes);
+  } break;
+  case requite::Opcode::GLOBAL: {
+    requite::Variable &global = this->getModule().makeVariable();
+    global.setType(requite::VariableType::GLOBAL);
+    global.setExpression(expression);
+    expression.setVariable(global);
+    global.setContainingScope(scope);
+    global.setAttributes(attributes);
+    this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
+  } break;
+  case requite::Opcode::PROPERTY: {
+    requite::Variable &property = this->getModule().makeVariable();
+    property.setType(requite::VariableType::PROPERTY);
+    property.setExpression(expression);
+    expression.setVariable(property);
+    property.setContainingScope(scope);
+    property.setAttributes(attributes);
+    this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
+  } break;
+  case requite::Opcode::ENTRY_POINT: {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "attributes ascribed to entry_point");
+    this->setNotOk();
+  } break;
+  case requite::Opcode::METHOD: {
+    requite::Procedure &method = this->getModule().makeProcedure();
+    method.setType(requite::ProcedureType::METHOD);
+    method.setExpression(expression);
+    expression.setProcedure(method);
+    method.setContainingScope(scope);
+    method.setAttributes(attributes);
+    this->makeOrderedUserSymbols(method.getScope(), expression.getBranch());
+  } break;
+  case requite::Opcode::FUNCTION: {
+    requite::Procedure &function = this->getModule().makeProcedure();
+    function.setType(requite::ProcedureType::FUNCTION);
+    function.setExpression(expression);
+    expression.setProcedure(function);
+    function.setContainingScope(scope);
+    function.setAttributes(attributes);
+    this->makeOrderedUserSymbols(function.getScope(), expression.getBranch());
+  } break;
+  case requite::Opcode::CONSTRUCTOR: {
+    requite::Procedure &constructor = this->getModule().makeProcedure();
+    constructor.setType(requite::ProcedureType::CONSTRUCTOR);
+    constructor.setExpression(expression);
+    expression.setProcedure(constructor);
+    constructor.setContainingScope(scope);
+    constructor.setAttributes(attributes);
+    this->makeOrderedUserSymbols(constructor.getScope(),
+                                 expression.getBranch());
+  } break;
+  case requite::Opcode::DESTRUCTOR: {
+    requite::Procedure &destructor = this->getModule().makeProcedure();
+    destructor.setType(requite::ProcedureType::DESTRUCTOR);
+    destructor.setExpression(expression);
+    expression.setProcedure(destructor);
+    destructor.setContainingScope(scope);
+    destructor.setAttributes(attributes);
+    this->makeOrderedUserSymbols(destructor.getScope(), expression.getBranch());
+  } break;
+  case requite::Opcode::TABLE: {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "attributes ascribed to table");
+    this->setNotOk();
+  } break;
+  default:
+    this->makeScopedValues(scope, expression, false);
+  }
+}
+
+void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
+                                    requite::Expression &expression,
+                                    bool conduits_have_scopes) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::ALIAS: {
+    requite::Alias &alias = this->getModule().makeAlias();
+    alias.setExpression(expression);
+    expression.setAlias(alias);
+    alias.setContainingScope(scope);
+    this->makeScopedValues(scope, expression.getBranch(), true);
+  } break;
+  case requite::Opcode::OBJECT: {
+    requite::Object &object = this->getModule().makeObject();
+    object.setExpression(expression);
+    expression.setObject(object);
+    object.setContainingScope(scope);
+    this->makeUnorderedUserSymbols(object.getScope(), expression.getBranch(),
+                                   conduits_have_scopes);
+  } break;
+  case requite::Opcode::GLOBAL: {
+    requite::Variable &global = this->getModule().makeVariable();
+    global.setType(requite::VariableType::GLOBAL);
+    global.setExpression(expression);
+    expression.setVariable(global);
+    global.setContainingScope(scope);
+    this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
+  } break;
+  case requite::Opcode::PROPERTY: {
+    requite::Variable &property = this->getModule().makeVariable();
+    property.setType(requite::VariableType::PROPERTY);
+    property.setExpression(expression);
+    expression.setVariable(property);
+    property.setContainingScope(scope);
+    this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
+  } break;
+  case requite::Opcode::ENTRY_POINT: {
+    requite::Procedure &entry_point = this->getModule().makeProcedure();
+    entry_point.setType(requite::ProcedureType::ENTRY_POINT);
+    entry_point.setExpression(expression);
+    expression.setProcedure(entry_point);
+    entry_point.setContainingScope(scope);
+    this->makeOrderedUserSymbols(entry_point.getScope(),
+                                 expression.getBranch());
+  } break;
+  case requite::Opcode::METHOD: {
+    requite::Procedure &method = this->getModule().makeProcedure();
+    method.setType(requite::ProcedureType::METHOD);
+    method.setExpression(expression);
+    expression.setProcedure(method);
+    method.setContainingScope(scope);
+    this->makeOrderedUserSymbols(method.getScope(), expression.getBranch());
+  } break;
+  case requite::Opcode::FUNCTION: {
+    requite::Procedure &function = this->getModule().makeProcedure();
+    function.setType(requite::ProcedureType::FUNCTION);
+    function.setExpression(expression);
+    expression.setProcedure(function);
+    function.setContainingScope(scope);
+    this->makeOrderedUserSymbols(function.getScope(), expression.getBranch());
+  } break;
+  case requite::Opcode::CONSTRUCTOR: {
+    requite::Procedure &constructor = this->getModule().makeProcedure();
+    constructor.setType(requite::ProcedureType::CONSTRUCTOR);
+    constructor.setExpression(expression);
+    expression.setProcedure(constructor);
+    constructor.setContainingScope(scope);
+    this->makeOrderedUserSymbols(constructor.getScope(),
+                                 expression.getBranch());
+  } break;
+  case requite::Opcode::DESTRUCTOR: {
+    requite::Procedure &destructor = this->getModule().makeProcedure();
+    destructor.setType(requite::ProcedureType::DESTRUCTOR);
+    destructor.setExpression(expression);
+    expression.setProcedure(destructor);
+    destructor.setContainingScope(scope);
+    this->makeOrderedUserSymbols(destructor.getScope(), expression.getBranch());
+  } break;
+  case requite::Opcode::TABLE: {
+    requite::Table &table = this->getModule().makeTable();
+    table.setExpression(expression);
+    expression.setTable(table);
+    table.setContainingScope(scope);
+    this->makeUnorderedUserSymbols(table.getScope(), expression.getBranch(),
+                                   conduits_have_scopes);
+  } break;
+  default:
+    this->makeScopedValues(scope, expression, false);
+  }
+}
+
+void Maker::makeOrderedUserSymbols(requite::Scope &scope,
+                                   requite::Expression &body) {
   for (requite::Expression &branch : body.getHorizontalSubrange()) {
-    switch (const requite::Opcode opcode = branch.getOpcode()) {
-    case requite::Opcode::LOCAL: {
-      requite::Variable &local = module.makeVariable();
-      local.setType(requite::VariableType::LOCAL);
-      local.setExpression(branch);
-      branch.setVariable(local);
-      local.setContainingScope(scope);
-      this->makeScopedValues(module, scope, branch.getBranch(), false);
-    };
-    case requite::Opcode::IF:
-      [[fallthrough]];
-    case requite::Opcode::ELSE_IF:
-      [[fallthrough]];
-    case requite::Opcode::ELSE:
-      [[fallthrough]];
-    case requite::Opcode::SWITCH:
-      [[fallthrough]];
-    case requite::Opcode::CASE:
-      [[fallthrough]];
-    case requite::Opcode::DEFAULT_CASE:
-      [[fallthrough]];
-    case requite::Opcode::FOR:
-      [[fallthrough]];
-    case requite::Opcode::WHILE:
-      [[fallthrough]];
-    case requite::Opcode::DO_WHILE:
-      [[fallthrough]];
-    case requite::Opcode::FOR_EACH:
-      [[fallthrough]];
-    case requite::Opcode::LOOP:
-      [[fallthrough]];
-    case requite::Opcode::SCOPE: {
-      requite::Scope &new_scope = module.makeScope();
-      branch.setScope(new_scope);
-      new_scope.setExpression(branch);
-      new_scope.setContainingScope(scope);
-    } break;
-    default:
-      this->makeUnorderedUserSymbols(module, scope, branch, false);
+    if (branch.getOpcode() == requite::Opcode::ASCRIBE) {
+      requite::MakeAttributesResult result =
+          requite::Attributes::makeAttributes(this->getContext(), branch);
+      if (result.has_error) {
+        this->setNotOk();
+      }
+      this->makeAscribedOrderedUserSymbol(
+          scope, result.attributes,
+          requite::getRef(result.last_expression_ptr));
+      continue;
     }
+    this->makeOrderedUserSymbol(scope, branch);
   }
 }
 
-void Context::makeScopedValues(requite::Module &module, requite::Scope &scope,
-                               requite::Expression &expression,
-                               bool conduits_have_scopes) {
+void Maker::makeAscribedOrderedUserSymbol(requite::Scope &scope,
+                                          requite::Attributes attributes,
+                                          requite::Expression &expression) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::LOCAL: {
+    requite::Variable &local = this->getModule().makeVariable();
+    local.setType(requite::VariableType::LOCAL);
+    local.setExpression(expression);
+    expression.setVariable(local);
+    local.setContainingScope(scope);
+    local.setAttributes(attributes);
+    this->makeScopedValues(scope, expression.getBranch(), false);
+  };
+  case requite::Opcode::IF:
+    [[fallthrough]];
+  case requite::Opcode::ELSE_IF:
+    [[fallthrough]];
+  case requite::Opcode::ELSE:
+    [[fallthrough]];
+  case requite::Opcode::SWITCH:
+    [[fallthrough]];
+  case requite::Opcode::CASE:
+    [[fallthrough]];
+  case requite::Opcode::DEFAULT_CASE:
+    [[fallthrough]];
+  case requite::Opcode::FOR:
+    [[fallthrough]];
+  case requite::Opcode::WHILE:
+    [[fallthrough]];
+  case requite::Opcode::DO_WHILE:
+    [[fallthrough]];
+  case requite::Opcode::FOR_EACH:
+    [[fallthrough]];
+  case requite::Opcode::LOOP:
+    [[fallthrough]];
+  case requite::Opcode::SCOPE: {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "attributes ascribed to scope");
+    this->setNotOk();
+  } break;
+  default:
+    this->makeAscribedUnorderedUserSymbol(scope, expression, attributes, false);
+  }
+}
+
+void Maker::makeOrderedUserSymbol(requite::Scope &scope,
+                                  requite::Expression &expression) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::LOCAL: {
+    requite::Variable &local = this->getModule().makeVariable();
+    local.setType(requite::VariableType::LOCAL);
+    local.setExpression(expression);
+    expression.setVariable(local);
+    local.setContainingScope(scope);
+    this->makeScopedValues(scope, expression.getBranch(), false);
+  };
+  case requite::Opcode::IF:
+    [[fallthrough]];
+  case requite::Opcode::ELSE_IF:
+    [[fallthrough]];
+  case requite::Opcode::ELSE:
+    [[fallthrough]];
+  case requite::Opcode::SWITCH:
+    [[fallthrough]];
+  case requite::Opcode::CASE:
+    [[fallthrough]];
+  case requite::Opcode::DEFAULT_CASE:
+    [[fallthrough]];
+  case requite::Opcode::FOR:
+    [[fallthrough]];
+  case requite::Opcode::WHILE:
+    [[fallthrough]];
+  case requite::Opcode::DO_WHILE:
+    [[fallthrough]];
+  case requite::Opcode::FOR_EACH:
+    [[fallthrough]];
+  case requite::Opcode::LOOP:
+    [[fallthrough]];
+  case requite::Opcode::SCOPE: {
+    requite::Scope &new_scope = this->getModule().makeScope();
+    expression.setScope(new_scope);
+    new_scope.setExpression(expression);
+    new_scope.setContainingScope(scope);
+  } break;
+  default:
+    this->makeUnorderedUserSymbol(scope, expression, false);
+  }
+}
+
+void Maker::makeScopedValues(requite::Scope &scope,
+                             requite::Expression &expression,
+                             bool conduits_have_scopes) {
   for (requite::Expression &branch : expression.getBranchSubrange()) {
     switch (const requite::Opcode opcode = branch.getOpcode()) {
     case requite::Opcode::ANONYMOUS_FUNCTION: {
       requite::AnonymousFunction &anonymous_function =
-          module.makeAnonymousFunction();
+          this->getModule().makeAnonymousFunction();
       anonymous_function.setExpression(expression);
       expression.setAnonymousFunction(anonymous_function);
       anonymous_function.setContainingScope(scope);
@@ -179,21 +358,21 @@ void Context::makeScopedValues(requite::Module &module, requite::Scope &scope,
       requite::Expression &signature = capture.getNext();
       requite::Expression &body = signature.getNext();
       requite::Scope &scope = anonymous_function.getScope();
-      this->makeScopedValues(module, scope, body, false);
+      this->makeScopedValues(scope, body, false);
     } break;
     case requite::Opcode::CONDUIT: {
       if (conduits_have_scopes) {
-        requite::Scope &new_scope = module.makeScope();
+        requite::Scope &new_scope = this->getModule().makeScope();
         branch.setScope(new_scope);
         new_scope.setExpression(branch);
         new_scope.setContainingScope(scope);
-        this->makeOrderedUserSymbols(module, new_scope, expression.getBranch());
+        this->makeOrderedUserSymbols(new_scope, expression.getBranch());
         break;
       }
-      this->makeOrderedUserSymbols(module, scope, expression.getBranch());
+      this->makeOrderedUserSymbols(scope, expression.getBranch());
     } break;
     default:
-      this->makeScopedValues(module, scope, branch, conduits_have_scopes);
+      this->makeScopedValues(scope, branch, conduits_have_scopes);
     }
   }
 }

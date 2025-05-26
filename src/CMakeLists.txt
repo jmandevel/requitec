@@ -35,6 +35,7 @@ target_sources(
         log.cpp
         lookup_symbols.cpp
         make_user_symbols.cpp
+        maker.cpp
         module_symbols.cpp
         module.cpp
         name_user_symbols.cpp
