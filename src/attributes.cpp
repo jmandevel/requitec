@@ -22,6 +22,7 @@ requite::MakeAttributesResult
 Attributes::makeAttributes(requite::Context &context,
                            requite::Expression &ascribe_expression) {
   requite::MakeAttributesResult result;
+  result.attributes.setExpression(ascribe_expression);
   std::ignore =
       ascribe_expression.walkBranch()
           .doUntilLast([&](requite::Expression &branch) {
@@ -79,6 +80,22 @@ bool Attributes::operator==(const requite::Attributes &other) const {
 
 bool Attributes::operator!=(const requite::Attributes &other) const {
   return !(*this == other);
+}
+
+bool Attributes::getHasExpression() const {
+  return this->_expression_ptr != nullptr;
+}
+
+void Attributes::setExpression(requite::Expression &expression) {
+  requite::setSingleRef(this->_expression_ptr, expression);
+}
+
+requite::Expression &Attributes::getExpression() {
+  return requite::getRef(this->_expression_ptr);
+}
+
+const requite::Expression &Attributes::getExpression() const {
+  return requite::getRef(this->_expression_ptr);
 }
 
 } // namespace requite

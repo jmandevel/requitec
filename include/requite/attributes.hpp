@@ -22,6 +22,7 @@ struct MakeAttributesResult;
 struct Attributes final {
   using Self = requite::Attributes;
 
+  requite::Expression *_expression_ptr = nullptr;
   std::bitset<requite::ATTRIBUTE_TYPE_COUNT> _flags = {};
 
   // detail/attributes.hpp
@@ -40,6 +41,10 @@ struct Attributes final {
   [[nodiscard]] bool getHasAttribute(requite::AttributeType type) const;
   [[nodiscard]] bool operator==(const Self &other) const;
   [[nodiscard]] bool operator!=(const Self &other) const;
+  [[nodiscard]] bool getHasExpression() const;
+  void setExpression(requite::Expression& expression);
+  [[nodiscard]] requite::Expression& getExpression();
+  [[nodiscard]] const requite::Expression& getExpression() const;
 };
 
 struct MakeAttributesResult {
