@@ -2,7 +2,7 @@
 
 namespace requite {
 
-bool Context::determineUserSymbolNames() {
+bool Context::nameUserSymbols() {
   // TODO
   return true;
 }

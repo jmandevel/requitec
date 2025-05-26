@@ -28,21 +28,19 @@ struct ExpressionIterator;
 struct ConstExpressionIterator;
 struct Context;
 
-struct Source final {
-  using Self = requite::Source;
+struct File final {
+  using Self = requite::File;
 
   std::string _path{};
   std::string _relative_path{};
   llvm::MemoryBufferRef _buffer_ref{};
   std::uint_fast32_t _buffer_i = 0;
-  requite::Expression *_root_ptr = nullptr;
-  requite::Expression *_name_ptr = nullptr;
 
-  // source.cpp
-  Source() = default;
-  Source(const Self &) = delete;
-  Source(Self &&) = default;
-  ~Source();
+  // file.cpp
+  File() = default;
+  File(const Self &) = delete;
+  File(Self &&) = default;
+  ~File() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = default;
   [[nodiscard]]
@@ -55,37 +53,12 @@ struct Source final {
   const char *getTextPtr() const;
   [[nodiscard]]
   std::uint_fast32_t getBufferI() const;
-  [[nodiscard]]
-  bool getHasRoot() const;
-  [[nodiscard]]
-  const requite::Expression &getRoot() const;
-  [[nodiscard]]
-  requite::Expression &getRoot();
-  [[nodiscard]]
-  const requite::Expression &getLastRoot() const;
-  [[nodiscard]]
-  requite::Expression &getLastRoot();
-  void setRoot(requite::Expression &expression);
-  [[nodiscard]]
-  requite::Expression &popRoot();
-  [[nodiscard]]
-  requite::Expression &replaceRoot(requite::Expression &expression);
-  [[nodiscard]] std::ranges::subrange<requite::ExpressionIterator,
-                                      requite::ExpressionIterator,
-                                      std::ranges::subrange_kind::unsized>
-  getRootSubrange();
-  [[nodiscard]] std::ranges::subrange<requite::ConstExpressionIterator,
-                                      requite::ConstExpressionIterator,
-                                      std::ranges::subrange_kind::unsized>
-  getRootSubrange() const;
 
   // filesystem.cpp
   [[nodiscard]]
   bool makeIntermediateFilePath(llvm::SmallString<256> &out_path,
                                 requite::Context &context,
                                 llvm::Twine extension) const;
-
-  // ast.cpp
 };
 
 } // namespace requite

@@ -44,6 +44,15 @@ void Table::setExpression(requite::Expression &expression) {
   this->getScope().setExpression(expression);
 }
 
+  requite::Expression &Table::replaceExpression(requite::Expression& expression)
+  {
+    return this->getScope().replaceExpression(expression); 
+  }
+  requite::Expression &Table::popExpression()
+  {
+    return this->getScope().popExpression();
+  }
+
 requite::Expression &Table::getExpression() {
   return this->getScope().getExpression();
 }

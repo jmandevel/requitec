@@ -8,7 +8,7 @@ void Context::makeUserSymbols() {
     requite::Module &module = requite::getRef(module_uptr);
     requite::Table &table = module.getTable();
     requite::Scope &scope = module.getScope();
-    requite::Expression &root = module.getSource().getRoot();
+    requite::Expression &root = module.getExpression();
     REQUITE_ASSERT(!root.getHasNext());
     requite::Expression &module_name_expression = root.getBranch();
     if (!module_name_expression.getHasNext()) {

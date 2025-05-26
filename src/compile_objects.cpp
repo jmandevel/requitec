@@ -15,7 +15,7 @@ namespace requite {
 bool Context::compileObject(requite::Module &module) {
   llvm::StringRef extension = ".o";
   llvm::SmallString<256> path;
-  if (!module.getSource().makeIntermediateFilePath(path, *this, extension)) {
+  if (!module.getFile().makeIntermediateFilePath(path, *this, extension)) {
     return false;
   }
   std::error_code ec;

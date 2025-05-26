@@ -12,17 +12,17 @@
 
 namespace requite {
 
-bool Context::parseAst(requite::Source &source,
+bool Context::parseAst(requite::Module &module,
                        std::vector<requite::Token> &tokens) {
   bool is_ok = true;
-  requite::Parser parser(*this, source, tokens);
+  requite::Parser parser(*this, module, tokens);
   is_ok = parser.parseExpressions();
   return is_ok;
 }
 
-Parser::Parser(requite::Context &context, requite::Source &source,
+Parser::Parser(requite::Context &context, requite::Module &module,
                std::vector<requite::Token> &tokens)
-    : _context_ref(context), _source_ref(source), _is_ok(true),
+    : _context_ref(context), _module_ref(module), _is_ok(true),
       _it(tokens.cbegin()), _end(tokens.cend()) {}
 
 bool Parser::getIsOk() { return this->_is_ok; }
@@ -82,10 +82,10 @@ std::string Parser::getText(llvm::StringRef log_message_type_text,
   return std::string(text);
 }
 
-requite::Source &Parser::getSource() { return this->_source_ref.get(); }
+requite::Module &Parser::getModule() { return this->_module_ref.get(); }
 
-const requite::Source &Parser::getSource() const {
-  return this->_source_ref.get();
+const requite::Module &Parser::getModule() const {
+  return this->_module_ref.get();
 }
 
 requite::Context &Parser::getContext() { return this->_context_ref.get(); }
@@ -130,10 +130,10 @@ bool Parser::parseExpressions() {
     return this->_is_ok;
   }
   requite::Expression *previous_ptr = &this->parseExpression();
-  this->_source_ref.get()._root_ptr = previous_ptr;
+  this->getModule().setExpression(requite::getRef(previous_ptr));
   while (!this->getIsDone()) {
     requite::Expression &next = this->parseExpression();
-    previous_ptr->setNext(next);
+    requite::getRef(previous_ptr).setNext(next);
     previous_ptr = &next;
   }
   return this->_is_ok;

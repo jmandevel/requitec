@@ -31,7 +31,7 @@
 
 namespace requite {
 
-struct Source;
+struct File;
 struct Options;
 struct Expression;
 struct Token;
@@ -77,11 +77,9 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   llvm::StringRef getIntermediatePath() const;
 
-  // source.cpp
+  // file.cpp
   [[nodiscard]]
-  bool loadSourceBuffer(requite::Source &source, llvm::StringRef path);
-  [[nodiscard]]
-  bool mapSources();
+  bool loadFileBuffer(requite::File &file, llvm::StringRef path);
   [[nodiscard]]
   requite::SourceLocation getSourceLocation(llvm::SMLoc loc) const;
   [[nodiscard]]
@@ -106,7 +104,7 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // validate_source.cpp
   [[nodiscard]]
-  bool validateSourceText(requite::Source &source);
+  bool validateSourceFileText(requite::File &file);
 
   // situate_ast.cpp
   [[nodiscard]]
@@ -114,19 +112,19 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // tokenize_tokens.cpp
   [[nodiscard]]
-  bool tokenizeTokens(requite::Source &source,
+  bool tokenizeTokens(requite::Module &module,
                       std::vector<requite::Token> &tokens);
 
   // token_csv.cpp
-  void writeTokenCsv(requite::Source &source,
+  void writeTokenCsv(requite::Module &module,
                      std::vector<requite::Token> &tokens);
 
   // parse_ast.cpp
   [[nodiscard]]
-  bool parseAst(requite::Source &source, std::vector<requite::Token> &token);
+  bool parseAst(requite::Module &module, std::vector<requite::Token> &token);
 
   // write_ast.cpp
-  void writeAst(const requite::Source &source, llvm::StringRef sub_extension);
+  void writeAst(const requite::Module &module, llvm::StringRef sub_extension);
 
   // write_llvm_ir.cpp
   void writeLlvmIr(const requite::Module &module);

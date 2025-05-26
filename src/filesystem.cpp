@@ -4,7 +4,7 @@
 
 #include <requite/context.hpp>
 #include <requite/options.hpp>
-#include <requite/source.hpp>
+#include <requite/file.hpp>
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/FileSystem.h>
@@ -113,7 +113,7 @@ llvm::StringRef Context::getIntermediatePath() const {
   return this->_real_intermediate_directory;
 }
 
-bool Source::makeIntermediateFilePath(llvm::SmallString<256> &out_path,
+bool File::makeIntermediateFilePath(llvm::SmallString<256> &out_path,
                                       requite::Context &context,
                                       llvm::Twine extension) const {
   std::error_code ec;

@@ -22,11 +22,11 @@ target_sources(
         compile_objects.cpp
         const_expression_iterator.cpp
         context.cpp
-        determine_user_symbol_names.cpp
         escape_sequences.cpp
         expression_iterator.cpp
         expression_make.cpp
         expression.cpp
+        file.cpp
         filesystem.cpp
         get_module.cpp
         label.cpp
@@ -37,6 +37,7 @@ target_sources(
         make_user_symbols.cpp
         module_symbols.cpp
         module.cpp
+        name_user_symbols.cpp
         named_procedure_group.cpp
         node.cpp
         object.cpp
@@ -54,7 +55,6 @@ target_sources(
         situate_ast.cpp
         source_name.cpp
         source_ranger.cpp
-        source.cpp
         sub_symbol.cpp
         symbol.cpp
         table.cpp

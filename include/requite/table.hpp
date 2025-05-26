@@ -15,8 +15,7 @@ struct Table final {
   requite::Scope _scope = {};
 
   // table.cpp
-  [[nodiscard]]
-  bool getHasName() const;
+  [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] requite::Scope &getScope();
@@ -27,6 +26,8 @@ struct Table final {
   [[nodiscard]] const requite::Scope &getContainingScope() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &replaceExpression(requite::Expression& expression);
+  [[nodiscard]] requite::Expression &popExpression();
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
 };

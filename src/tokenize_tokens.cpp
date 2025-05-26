@@ -5,7 +5,7 @@
 #include <requite/assert.hpp>
 #include <requite/codeunits.hpp>
 #include <requite/context.hpp>
-#include <requite/source.hpp>
+#include <requite/file.hpp>
 #include <requite/source_ranger.hpp>
 #include <requite/tokenizer.hpp>
 #include <requite/unreachable.hpp>
@@ -17,15 +17,15 @@
 
 namespace requite {
 
-bool Context::tokenizeTokens(requite::Source &source,
+bool Context::tokenizeTokens(requite::Module &module,
                              std::vector<requite::Token> &tokens) {
-  requite::Tokenizer tokenizer(*this, source, tokens);
+  requite::Tokenizer tokenizer(*this, module.getFile(), tokens);
   return tokenizer.tokenizeTokens();
 }
 
-Tokenizer::Tokenizer(requite::Context &context, requite::Source &source,
+Tokenizer::Tokenizer(requite::Context &context, requite::File &file,
                      std::vector<requite::Token> &tokens)
-    : _context_ref(context), _grouping_stack(), _ranger(source.getText()),
+    : _context_ref(context), _grouping_stack(), _ranger(file.getText()),
       _tokens_ref(tokens) {}
 
 bool Tokenizer::getIsOk() const { return this->_is_ok; }

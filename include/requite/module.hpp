@@ -6,13 +6,13 @@
 
 #include <requite/alias.hpp>
 #include <requite/anonymous_function.hpp>
+#include <requite/file.hpp>
 #include <requite/label.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/node.hpp>
 #include <requite/object.hpp>
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
-#include <requite/source.hpp>
 #include <requite/table.hpp>
 #include <requite/variable.hpp>
 
@@ -32,7 +32,7 @@ struct Module final {
   using Self = requite::Module;
 
   requite::Table _table = {};
-  requite::Source _source = {};
+  requite::File _file = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
   std::vector<std::unique_ptr<requite::Scope>> _scopes = {};
   std::vector<std::unique_ptr<requite::Table>> _tables = {};
@@ -46,7 +46,6 @@ struct Module final {
       _anonymous_functions = {};
   std::vector<std::unique_ptr<requite::Label>> _labels = {};
   requite::Procedure *_entry_point_ptr = nullptr;
-  bool _is_ready_for_backend = false;
 
   Module() = default;
   Module(Self &that) = delete;
@@ -97,16 +96,31 @@ struct Module final {
   // module.cpp
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
+  [[nodiscard]] bool getHasName() const;
+  void setName(llvm::StringRef name);
+  [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] requite::Table &getTable();
   [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] requite::Source &getSource();
-  [[nodiscard]] const requite::Source &getSource() const;
+  [[nodiscard]] requite::File &getFile();
+  [[nodiscard]] const requite::File &getFile() const;
   [[nodiscard]] bool getHasEntryPoint() const;
   void setEntryPoint(requite::Procedure &procedure);
   [[nodiscard]] requite::Procedure &getEntryPoint();
   [[nodiscard]] const requite::Procedure &getEntryPoint() const;
+  [[nodiscard]] bool getHasExpression() const;
+  void setExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &
+  replaceExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &popExpression();
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] llvm::StringRef getPath() const;
+  [[nodiscard]] llvm::StringRef getIdentifier() const;
+  [[nodiscard]] llvm::StringRef getText() const;
+  [[nodiscard]] const char *getTextPtr() const;
+  [[nodiscard]] std::uint_fast32_t getBufferI() const;
 
   /// llvm_module.cpp
   void initializeLlvmModule(requite::Context &context);

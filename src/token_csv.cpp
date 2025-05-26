@@ -18,7 +18,7 @@
 
 namespace requite {
 
-void Context::writeTokenCsv(requite::Source &source,
+void Context::writeTokenCsv(requite::Module &module,
                             std::vector<requite::Token> &tokens) {
   llvm::SmallString<64> str_buffer_a;
   llvm::SmallString<64> str_buffer_b;
@@ -35,7 +35,7 @@ void Context::writeTokenCsv(requite::Source &source,
   }
   llvm::SmallString<256> path;
   std::error_code ec;
-  if (!source.makeIntermediateFilePath(path, *this, ".tokens.csv")) {
+  if (!module.getFile().makeIntermediateFilePath(path, *this, ".tokens.csv")) {
     return;
   }
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);

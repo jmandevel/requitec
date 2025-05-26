@@ -11,7 +11,7 @@ namespace requite {
 void Context::writeLlvmIr(const requite::Module &module) {
   llvm::Twine extension = ".ir";
   llvm::SmallString<256> path;
-  if (!module.getSource().makeIntermediateFilePath(path, *this, extension)) {
+  if (!module.getFile().makeIntermediateFilePath(path, *this, extension)) {
     return;
   }
   std::error_code ec;

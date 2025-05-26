@@ -6,9 +6,9 @@
 #include <requite/context.hpp>
 #include <requite/expression_iterator.hpp>
 #include <requite/expression_walker.hpp>
+#include <requite/module.hpp>
 #include <requite/opcode.hpp>
 #include <requite/situator.hpp>
-#include <requite/source.hpp>
 
 namespace requite {
 
@@ -41,39 +41,38 @@ void Situator::setIsOk() { this->_is_ok = true; }
 
 bool Situator::situateAst() {
   this->insertModuleRoot();
-  requite::Source& source = this->getModule().getSource();
-  requite::Expression &base = source.getRoot();
-  REQUITE_ASSERT(base.getOpcode() == requite::Opcode::MODULE);
-  this->situateExpression<requite::Situation::ROOT_STATEMENT>(base);
+  requite::Expression &root = this->getModule().getExpression();
+  REQUITE_ASSERT(root.getOpcode() == requite::Opcode::MODULE);
+  this->situateExpression<requite::Situation::ROOT_STATEMENT>(root);
   return this->getIsOk();
 }
 
 void Situator::insertModuleRoot() {
-  requite::Source &source = this->getModule().getSource();
-  if (!source.getHasRoot() ||
-      source.getRoot().getOpcode() != requite::Opcode::MODULE) {
+  requite::Module &module = this->getModule();
+  if (!module.getHasExpression() ||
+      module.getExpression().getOpcode() != requite::Opcode::MODULE) {
     llvm::SmallString<16> buffer;
     llvm::raw_svector_ostream buffer_stream(buffer);
     buffer.clear();
-    buffer_stream << source.getPath();
+    buffer_stream << module.getPath();
     llvm::StringRef name = buffer_stream.str();
     requite::Expression &module_expression =
         requite::Expression::makeOperation(requite::Opcode::MODULE);
-    module_expression.setSourceInsertedAt(source.getTextPtr());
+    module_expression.setSourceInsertedAt(module.getTextPtr());
     requite::Expression &name_expression =
         requite::Expression::makeIdentifier(name);
-    name_expression.setSourceInsertedAt(source.getTextPtr());
+    name_expression.setSourceInsertedAt(module.getTextPtr());
     module_expression.setBranch(name_expression);
-    if (source.getHasRoot()) {
-      name_expression.setNext(source.replaceRoot(module_expression));
+    if (module.getHasExpression()) {
+      name_expression.setNext(module.replaceExpression(module_expression));
     } else {
-      source.setRoot(module_expression);
+      module.setExpression(module_expression);
     }
   }
-  if (source.getRoot().getHasNext()) {
+  if (module.getExpression().getHasNext()) {
     requite::Expression &last_module_branch =
-        this->getModule().getSource().getRoot().getLastBranch();
-    last_module_branch.setNext(source.getRoot().popNext());
+        this->getModule().getExpression().getLastBranch();
+    last_module_branch.setNext(module.getExpression().popNext());
   }
 }
 

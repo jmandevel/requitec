@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/context.hpp>
-#include <requite/source.hpp>
 #include <requite/token.hpp>
 
 #include <cstdint>

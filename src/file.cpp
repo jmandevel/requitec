@@ -6,8 +6,8 @@
 #include <requite/const_expression_iterator.hpp>
 #include <requite/context.hpp>
 #include <requite/expression_iterator.hpp>
+#include <requite/file.hpp>
 #include <requite/options.hpp>
-#include <requite/source.hpp>
 #include <requite/source_location.hpp>
 #include <requite/source_range.hpp>
 
@@ -16,100 +16,44 @@
 
 namespace requite {
 
-Source::~Source() {
-  if (this->_root_ptr != nullptr) {
-    requite::Expression::deleteExpression(requite::getRef(this->_root_ptr));
-  }
-}
+llvm::StringRef File::getPath() const { return this->_path; }
 
-llvm::StringRef Source::getPath() const { return this->_path; }
-
-llvm::StringRef Source::getIdentifier() const {
+llvm::StringRef File::getIdentifier() const {
   return this->_buffer_ref.getBufferIdentifier();
 }
 
-llvm::StringRef Source::getText() const {
+llvm::StringRef File::getText() const {
   return this->_buffer_ref.getBuffer();
 }
 
-const char *Source::getTextPtr() const {
+const char *File::getTextPtr() const {
   return this->_buffer_ref.getBufferStart();
 }
 
-std::uint_fast32_t Source::getBufferI() const { return this->_buffer_i; }
+std::uint_fast32_t File::getBufferI() const { return this->_buffer_i; }
 
-bool Source::getHasRoot() const { return this->_root_ptr != nullptr; }
-
-const requite::Expression &Source::getRoot() const {
-  return requite::getRef(this->_root_ptr);
-}
-
-requite::Expression &Source::getRoot() {
-  return requite::getRef(this->_root_ptr);
-}
-
-const requite::Expression &Source::getLastRoot() const {
-  return requite::getRef(this->_root_ptr).getLastNext();
-}
-
-requite::Expression &Source::getLastRoot() {
-  return requite::getRef(this->_root_ptr).getLastNext();
-}
-
-void Source::setRoot(requite::Expression &expression) {
-  requite::setSingleRef(this->_root_ptr, expression);
-}
-
-requite::Expression &Source::popRoot() {
-  requite::Expression &root = requite::getRef(this->_root_ptr);
-  this->_root_ptr = nullptr;
-  return root;
-}
-
-requite::Expression &Source::replaceRoot(requite::Expression &expression) {
-  requite::Expression &old_root = requite::getRef(this->_root_ptr);
-  this->_root_ptr = &expression;
-  return old_root;
-}
-
-bool Context::loadSourceBuffer(requite::Source &source, llvm::StringRef path) {
+bool Context::loadFileBuffer(requite::File &file, llvm::StringRef path) {
   llvm::SmallString<256> path_buffer = path;
   llvm::sys::fs::make_absolute(this->getSourcePath(), path_buffer);
-  source._relative_path =
+  file._relative_path =
       path; // This is from a command line option so its lifetime is static.
-  source._path = path_buffer.str();
+  file._path = path_buffer.str();
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
-      llvm::MemoryBuffer::getFile(source.getPath(), true, true, false,
+      llvm::MemoryBuffer::getFile(file.getPath(), true, true, false,
                                   std::nullopt);
   if (!buffer_eo) {
     this->logMessage(
         llvm::Twine(
-            "error: failed to create read buffer for source file\n\tfile: ") +
-        llvm::Twine(source.getPath()) + llvm::Twine("\n\treason: ") +
+            "error: failed to create read buffer for file\n\tfile: ") +
+        llvm::Twine(file.getPath()) + llvm::Twine("\n\treason: ") +
         llvm::Twine(buffer_eo.getError().message()));
     return false;
   }
   std::unique_ptr<llvm::MemoryBuffer> &buffer = buffer_eo.get();
-  source._buffer_ref = buffer->getMemBufferRef();
-  source._buffer_i =
+  file._buffer_ref = buffer->getMemBufferRef();
+  file._buffer_i =
       this->_source_mgr.AddNewSourceBuffer(std::move(buffer), llvm::SMLoc());
   return true;
-}
-
-bool Context::mapSources() {
-  bool is_ok = true;
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    if (this->_module_map.contains(module.getTable().getName())) {
-      this->logSourceMessage(
-          module.getSource().getPath(), requite::LogType::ERROR,
-          "module file has name that is already used by other module file");
-      is_ok = false;
-      continue;
-    }
-    this->_module_map.insert({module.getTable().getName(), &module});
-  }
-  return is_ok;
 }
 
 requite::SourceLocation Context::getSourceLocation(llvm::SMLoc loc) const {
@@ -191,22 +135,6 @@ std::vector<std::unique_ptr<requite::Module>> &Context::getModuleUptrs() {
 const std::vector<std::unique_ptr<requite::Module>> &
 Context::getModuleUptrs() const {
   return this->_module_uptrs;
-}
-
-std::ranges::subrange<requite::ExpressionIterator, requite::ExpressionIterator,
-                      std::ranges::subrange_kind::unsized>
-Source::getRootSubrange() {
-  return std::ranges::subrange(requite::ExpressionIterator(*(this->_root_ptr)),
-                               requite::ExpressionIterator());
-}
-
-std::ranges::subrange<requite::ConstExpressionIterator,
-                      requite::ConstExpressionIterator,
-                      std::ranges::subrange_kind::unsized>
-Source::getRootSubrange() const {
-  return std::ranges::subrange(
-      requite::ConstExpressionIterator(*(this->_root_ptr)),
-      requite::ConstExpressionIterator());
 }
 
 } // namespace requite

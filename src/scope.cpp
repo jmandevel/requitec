@@ -95,6 +95,18 @@ void Scope::setExpression(requite::Expression &expression) {
   requite::setSingleRef(this->_expression_ptr, expression);
 }
 
+requite::Expression &Scope::replaceExpression(requite::Expression &expression) {
+  requite::Expression &old_expression = this->getExpression();
+  this->_expression_ptr = &expression;
+  return old_expression;
+}
+
+requite::Expression &Scope::popExpression() {
+  requite::Expression &old_expression = this->getExpression();
+  this->_expression_ptr = nullptr;
+  return old_expression;
+}
+
 requite::Expression &Scope::getExpression() {
   return requite::getRef(this->_expression_ptr);
 }

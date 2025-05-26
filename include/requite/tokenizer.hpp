@@ -17,7 +17,7 @@
 namespace requite {
 
 struct Context;
-struct Source;
+struct File;
 
 struct Tokenizer final {
   std::reference_wrapper<requite::Context> _context_ref;
@@ -27,7 +27,7 @@ struct Tokenizer final {
   bool _is_ok = true;
 
   // tokenize_tokens.cpp
-  Tokenizer(requite::Context &context, requite::Source &source, std::vector<requite::Token> &tokens);
+  Tokenizer(requite::Context &context, requite::File &file, std::vector<requite::Token> &tokens);
   [[nodiscard]]
   bool getIsOk() const;
   void setNotOk();

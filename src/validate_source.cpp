@@ -5,7 +5,7 @@
 #include <requite/assert.hpp>
 #include <requite/codeunits.hpp>
 #include <requite/context.hpp>
-#include <requite/source.hpp>
+#include <requite/file.hpp>
 
 #include <llvm/ADT/SmallString.h>
 
@@ -13,13 +13,13 @@
 
 namespace requite {
 
-bool Context::validateSourceText(requite::Source &source) {
+bool Context::validateSourceFileText(requite::File &file) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
   llvm::SMLoc location;
   int line = 0;
   int column = 0;
-  for (const char &c : source.getText()) {
+  for (const char &c : file.getText()) {
     if (!requite::getIsValid(c)) {
       llvm::Twine twine = llvm::Twine("invalid utf-8 codeunit. found \"") +
                           requite::getUtf8Name(c) + "\"";

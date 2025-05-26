@@ -6,7 +6,7 @@
 
 #include <requite/context.hpp>
 #include <requite/precedence_parser.hpp>
-#include <requite/source.hpp>
+#include <requite/module.hpp>
 #include <requite/token.hpp>
 #include <requite/token_type.hpp>
 
@@ -20,13 +20,13 @@
 namespace requite {
 
 struct Parser final {
-  std::reference_wrapper<requite::Source> _source_ref;
+  std::reference_wrapper<requite::Module> _module_ref;
   std::reference_wrapper<requite::Context> _context_ref;
   std::vector<requite::Token>::const_iterator _it;
   std::vector<requite::Token>::const_iterator _end;
   bool _is_ok;
 
-  Parser(requite::Context &context, requite::Source &source, std::vector<requite::Token>& tokens);
+  Parser(requite::Context &context, requite::Module &module, std::vector<requite::Token>& tokens);
 
   [[nodiscard]]
   bool getIsOk();
@@ -48,10 +48,10 @@ struct Parser final {
                           llvm::StringRef source_text);
 
   [[nodiscard]]
-  requite::Source &getSource();
+  requite::Module &getModule();
 
   [[nodiscard]]
-  const requite::Source &getSource() const;
+  const requite::Module &getModule() const;
 
   [[nodiscard]]
   requite::Context &getContext();

@@ -4,7 +4,6 @@
 
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
-#include <requite/source.hpp>
 #include <requite/assert.hpp>
 
 #include <llvm/ADT/DenseMap.h>
@@ -17,16 +16,20 @@ namespace requite {
 
 bool Context::determineModuleNames()
 {
-  // TODO
+  for (std::unique_ptr<requite::Module>& module_uptr : this->getModuleUptrs())
+  {
+    requite::Module& module = requite::getRef(module_uptr);
+    requite::Expression& root = module.getExpression();
+  }
   return true;
 }
 
 bool Context::mapModules() {
   struct Entry final {
-    llvm::SmallVector<requite::Source *, 1> sources = {};
+    llvm::SmallVector<requite::Module *, 1> modules = {};
 
     Entry() = default;
-    Entry(requite::Source &source) { this->sources.push_back(&source); }
+    Entry(requite::Module &module) { this->modules.push_back(&module); }
   };
   llvm::DenseMap<llvm::StringRef, Entry> name_map;
   name_map.reserve(this->getModuleUptrs().size());
@@ -37,21 +40,21 @@ bool Context::mapModules() {
     }
     if (name_map.contains(module.getTable().getName())) {
       Entry &entry = name_map[module.getTable().getName()];
-      entry.sources.push_back(&module.getSource());
+      entry.modules.push_back(&module);
       continue;
     }
-    name_map.insert({module.getTable().getName(), Entry(module.getSource())});
+    name_map.insert({module.getTable().getName(), Entry(module)});
   }
   bool is_ok = true;
   for (llvm::detail::DenseMapPair<llvm::StringRef, Entry> &kvp : name_map) {
     Entry &entry = kvp.second;
-    if (entry.sources.size() > 1) {
+    if (entry.modules.size() > 1) {
       is_ok = false;
-      for (requite::Source *module_source_ptr : entry.sources) {
-        requite::Source &source = *module_source_ptr;
-        requite::Expression &base = source.getRoot();
-        REQUITE_ASSERT(base.getOpcode() == requite::Opcode::MODULE);
-        requite::Expression &name = base.getBranch();
+      for (requite::Module *module_ptr : entry.modules) {
+        requite::Module &module = requite::getRef(module_ptr);
+        requite::Expression &root = module.getExpression();
+        REQUITE_ASSERT(root.getOpcode() == requite::Opcode::MODULE);
+        requite::Expression &name = root.getBranch();
         REQUITE_ASSERT(name.getIsIdentifier());
         this->logSourceMessage(name, requite::LogType::ERROR,
                                "module name is not unique");
@@ -60,7 +63,7 @@ bool Context::mapModules() {
   }
   for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
     requite::Module &module = requite::getRef(module_uptr);
-    this->_module_map.insert({module.getTable().getName(), &module});
+    this->_module_map.insert({module.getName(), &module});
   }
   return is_ok;
 }

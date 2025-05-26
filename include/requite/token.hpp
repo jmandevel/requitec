@@ -13,7 +13,6 @@
 namespace requite {
 
 struct Context;
-struct Source;
 
 struct Token final {
   requite::TokenType _type;
