@@ -31,9 +31,23 @@ const requite::Expression &Alias::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-requite::Attributes &Alias::getAttributes() { return this->_attributes; }
+bool Alias::getHasAttributes() const {
+  return this->_attributes.getHasExpression();
+}
+
+void Alias::setAttributes(requite::Attributes attributes) {
+  REQUITE_ASSERT(!this->_attributes.getHasExpression());
+  REQUITE_ASSERT(attributes.getHasExpression());
+  this->_attributes = attributes;
+}
+
+requite::Attributes &Alias::getAttributes() {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  this->_attributes;
+}
 
 const requite::Attributes &Alias::getAttributes() const {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 

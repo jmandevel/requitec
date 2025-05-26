@@ -30,44 +30,29 @@ struct Alias final {
 
   // alias.cpp
   void setName(llvm::StringRef name);
-  [[nodiscard]]
-  llvm::StringRef getName() const;
-  [[nodiscard]]
-  bool getHasName() const;
+  [[nodiscard]] llvm::StringRef getName() const;
+  [[nodiscard]] bool getHasName() const;
   void setExpression(requite::Expression &expression);
-  [[nodiscard]]
-  requite::Expression &getExpression();
-  [[nodiscard]]
-  const requite::Expression &getExpression() const;
-  [[nodiscard]]
-  requite::Attributes &getAttributes();
-  [[nodiscard]]
-  const requite::Attributes &getAttributes() const;
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] bool getHasAttributes() const;
+  void setAttributes(requite::Attributes attributes);
+  [[nodiscard]] requite::Attributes &getAttributes();
+  [[nodiscard]] const requite::Attributes &getAttributes() const;
   void setModule(requite::Module &module);
-  [[nodiscard]]
-  requite::Module &getModule();
-  [[nodiscard]]
-  const requite::Module &getModule() const;
+  [[nodiscard]] requite::Module &getModule();
+  [[nodiscard]] const requite::Module &getModule() const;
   void setObject(requite::Object &object);
-  [[nodiscard]]
-  requite::Object &getObject();
-  [[nodiscard]]
-  const requite::Object &getObject() const;
-  [[nodiscard]]
-  requite::Object *getObjectPtr();
-  [[nodiscard]]
-  const requite::Object *getObjectPtr() const;
-  [[nodiscard]]
-  bool getHasContainingScope() const;
+  [[nodiscard]] requite::Object &getObject();
+  [[nodiscard]] const requite::Object &getObject() const;
+  [[nodiscard]] requite::Object *getObjectPtr();
+  [[nodiscard]] const requite::Object *getObjectPtr() const;
+  [[nodiscard]] bool getHasContainingScope() const;
   void setContainingScope(requite::Scope &scope);
-  [[nodiscard]]
-  requite::Scope &getContainingScope();
-  [[nodiscard]]
-  const requite::Scope &getContainingScope() const;
-  [[nodiscard]]
-  requite::Symbol &getSymbol();
-  [[nodiscard]]
-  const requite::Symbol &getSymbol() const;
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] requite::Symbol &getSymbol();
+  [[nodiscard]] const requite::Symbol &getSymbol() const;
 };
 
 } // namespace requite

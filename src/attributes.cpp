@@ -56,9 +56,13 @@ void Attributes::logErrorDuplicateAttribute(requite::Context &context,
                                requite::getName(type) + "");
 }
 
-void Attributes::clear() { this->_flags.reset(); }
+void Attributes::clear() {
+  this->_flags.reset();
+}
 
-bool Attributes::getHasAnyAttribute() const { return this->_flags.any(); }
+bool Attributes::getHasAnyAttribute() const {
+  return this->_flags.any();
+}
 
 void Attributes::addAttribute(requite::AttributeType type) {
   REQUITE_ASSERT(!this->getHasAttribute(type));

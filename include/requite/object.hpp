@@ -25,7 +25,6 @@ struct Object final {
   llvm::StringRef _mangled_name = {};
   requite::Procedure *_destructor_ptr = nullptr;
   requite::Procedure *_first_constructor_ptr = nullptr;
-  requite::Expression *_ascribe_ptr = nullptr;
   requite::Module *_module_ptr = nullptr;
   requite::Attributes _attributes = {};
   std::vector<requite::Variable *> _property_ptrs = {};
@@ -52,6 +51,10 @@ struct Object final {
   void setContainingScope(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContainingScope();
   [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] bool getHasAttributes() const;
+  void setAttributes(requite::Attributes attributes);
+  [[nodiscard]] requite::Attributes &getAttributes();
+  [[nodiscard]] const requite::Attributes &getAttributes() const;
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getMangledName() const;
   [[nodiscard]] bool getHasMangledName() const;
@@ -63,15 +66,10 @@ struct Object final {
   [[nodiscard]] bool getHasConstructor() const;
   [[nodiscard]] requite::Procedure &getFirstConstructor();
   [[nodiscard]] const requite::Procedure &getFirstConstructor() const;
-  void setAscribe(requite::Expression &ascribe);
-  [[nodiscard]] bool getHasAscribe() const;
-  [[nodiscard]] requite::Expression &getAscribe();
-  [[nodiscard]] const requite::Expression &getAscribe() const;
   void setModule(requite::Module &module);
   [[nodiscard]] bool getHasModule() const;
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
-  [[nodiscard]] requite::Attributes &getAttributes();
 };
 
 } // namespace requite

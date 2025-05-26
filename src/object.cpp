@@ -56,6 +56,26 @@ const requite::Scope &Object::getContainingScope() const {
   return this->getTable().getScope().getContainingScope();
 }
 
+bool Object::getHasAttributes() const {
+  return this->_attributes.getHasExpression();
+}
+
+void Object::setAttributes(requite::Attributes attributes) {
+  REQUITE_ASSERT(!this->_attributes.getHasExpression());
+  REQUITE_ASSERT(attributes.getHasExpression());
+  this->_attributes = attributes;
+}
+
+requite::Attributes &Object::getAttributes() {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  return this->_attributes;
+}
+
+const requite::Attributes &Object::getAttributes() const {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  return this->_attributes;
+}
+
 void Object::setMangledName(llvm::StringRef name) {
   REQUITE_ASSERT(this->_mangled_name.empty());
   this->_mangled_name = name;
@@ -98,20 +118,6 @@ const requite::Procedure &Object::getFirstConstructor() const {
   return requite::getRef(this->_first_constructor_ptr);
 }
 
-void Object::setAscribe(requite::Expression &ascribe) {
-  requite::setSingleRef(this->_ascribe_ptr, ascribe);
-}
-
-bool Object::getHasAscribe() const { return this->_ascribe_ptr != nullptr; }
-
-requite::Expression &Object::getAscribe() {
-  return requite::getRef(this->_ascribe_ptr);
-}
-
-const requite::Expression &Object::getAscribe() const {
-  return requite::getRef(this->_ascribe_ptr);
-}
-
 void Object::setModule(requite::Module &module) {
   requite::setSingleRef(this->_module_ptr, module);
 }
@@ -125,7 +131,5 @@ requite::Module &Object::getModule() {
 const requite::Module &Object::getModule() const {
   return requite::getRef(this->_module_ptr);
 }
-
-requite::Attributes &Object::getAttributes() { return this->_attributes; }
 
 } // namespace requite

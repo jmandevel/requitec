@@ -69,24 +69,25 @@ requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
 
-requite::Attributes &Procedure::getAttributes() { return this->_attributes; }
 
-const requite::Attributes &Procedure::getAttributes() const {
+bool Procedure::getHasAttributes() const {
+  return this->_attributes.getHasExpression();
+}
+
+void Procedure::setAttributes(requite::Attributes attributes) {
+  REQUITE_ASSERT(!this->_attributes.getHasExpression());
+  REQUITE_ASSERT(attributes.getHasExpression());
+  this->_attributes = attributes;
+}
+
+requite::Attributes &Procedure::getAttributes() {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 
-void Procedure::setAscribe(requite::Expression &ascribe) {
-  requite::setSingleRef(this->_ascribe_ptr, ascribe);
-}
-
-bool Procedure::getHasAscribe() const { return this->_ascribe_ptr != nullptr; }
-
-requite::Expression &Procedure::getAscribe() {
-  return requite::getRef(this->_ascribe_ptr);
-}
-
-const requite::Expression &Procedure::getAscribe() const {
-  return requite::getRef(this->_ascribe_ptr);
+const requite::Attributes &Procedure::getAttributes() const {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  return this->_attributes;
 }
 
 void Procedure::setNamedProcedureGroup(

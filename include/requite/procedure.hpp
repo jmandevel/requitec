@@ -36,7 +36,6 @@ struct Procedure final {
   requite::Signature _signature = {};
   requite::Attributes _attributes = {};
   requite::NamedProcedureGroup *_named_procedure_group_ptr = nullptr;
-  requite::Expression *_ascribe_ptr = nullptr;
   requite::Procedure *_prototype_implementation_ptr = nullptr;
   requite::Procedure *_next_procedure_ptr = nullptr;
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
@@ -71,12 +70,10 @@ struct Procedure final {
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::Signature &getSignature();
   [[nodiscard]] const requite::Signature &getSignature() const;
+  [[nodiscard]] bool getHasAttributes() const;
+  void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;
-  void setAscribe(requite::Expression &ascribe);
-  [[nodiscard]] bool getHasAscribe() const;
-  [[nodiscard]] requite::Expression &getAscribe();
-  [[nodiscard]] const requite::Expression &getAscribe() const;
   void
   setNamedProcedureGroup(requite::NamedProcedureGroup &named_procedure_group);
   [[nodiscard]] bool getHasNamedProcedureGroup() const;

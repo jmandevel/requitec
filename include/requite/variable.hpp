@@ -29,36 +29,31 @@ struct Variable final {
   requite::Scope *_containing_scope_ptr = nullptr;
 
   // variable.cpp
-  [[nodiscard]]
-  bool getHasName() const;
+  Variable() = default;
+  Variable(const Self&) = delete;
+  Variable(Self&&) = delete;
+  ~Variable() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
+  [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
-  [[nodiscard]]
-  llvm::StringRef getName() const;
+  [[nodiscard]] llvm::StringRef getName() const;
   void setType(requite::VariableType type);
-  [[nodiscard]]
-  requite::VariableType getType() const;
-  [[nodiscard]]
-  requite::Attributes &getAttributes();
-  [[nodiscard]]
-  const requite::Attributes &getAttributes() const;
-  [[nodiscard]]
-  bool getHasExpression() const;
+  [[nodiscard]] requite::VariableType getType() const;
+  [[nodiscard]] bool getHasAttributes() const;
+  void setAttributes(requite::Attributes attributes);
+  [[nodiscard]] requite::Attributes &getAttributes();
+  [[nodiscard]] const requite::Attributes &getAttributes() const;
+  [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
-  [[nodiscard]]
-  requite::Expression &getExpression();
-  [[nodiscard]]
-  const requite::Expression &getExpression() const;
-  [[nodiscard]]
-  requite::Symbol &getDataType();
-  [[nodiscard]]
-  const requite::Symbol& getDataType() const;
-  [[nodiscard]]
-  bool getHasContainingScope() const;
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] requite::Symbol &getDataType();
+  [[nodiscard]] const requite::Symbol& getDataType() const;
+  [[nodiscard]] bool getHasContainingScope() const;
   void setContainingScope(requite::Scope &scope);
-  [[nodiscard]]
-  requite::Scope &getContainingScope();
-  [[nodiscard]]
-  const requite::Scope &getContainingScope() const;
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
 };
 
 } // namespace requite
