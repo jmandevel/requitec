@@ -29,21 +29,7 @@ Attributes::makeAttributes(requite::Context &context,
                 requite::getAttributeType(branch.getOpcode());
             REQUITE_ASSERT(type !=
                            requite::AttributeType::NONE); // insured by situator
-            if (type == requite::AttributeType::LABEL) {
-              requite::Expression &name_expression = branch.getBranch();
-              llvm::StringRef name = name_expression.getDataText();
-              result.label_names.push_back(name.str());
-              // NOTE:
-              //  if there are duplicate label names, this error is found when
-              //  label instances are created.
-            } else {
-              if (type == requite::AttributeType::MANGLED_NAME) {
-                if (result.mangled_name.empty()) {
-                  llvm::StringRef mangled_name =
-                      branch.getBranch().getDataText();
-                  result.mangled_name = mangled_name;
-                }
-              }
+            if (type != requite::AttributeType::LABEL) {
               if (result.attributes.getHasAttribute(type)) {
                 context.logSourceMessage(
                     branch, requite::LogType::ERROR,
@@ -52,8 +38,8 @@ Attributes::makeAttributes(requite::Context &context,
                 result.has_error = true;
                 return;
               }
-              result.attributes.addAttribute(type);
             }
+            result.attributes.addAttribute(type);
           })
           .doLast([&](requite::Expression &branch) {
             result.last_expression_ptr = &branch;

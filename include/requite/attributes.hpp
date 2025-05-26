@@ -46,8 +46,6 @@ struct MakeAttributesResult {
   bool has_error = false;
   requite::Attributes attributes = {};
   requite::Expression *last_expression_ptr = nullptr;
-  std::string mangled_name = {};
-  std::vector<std::string> label_names = {};
 };
 
 } // namespace requite
