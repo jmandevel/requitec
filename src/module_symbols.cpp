@@ -16,49 +16,49 @@ namespace requite {
 
 requite::Scope &Module::makeScope() {
   std::unique_ptr<requite::Scope> &scope_uptr =
-      this->_scopes.emplace_back(std::make_unique<requite::Scope>());
+      this->_scope_uptrs.emplace_back(std::make_unique<requite::Scope>());
   return requite::getRef(scope_uptr);
 }
 
 requite::Table &Module::makeTable() {
   std::unique_ptr<requite::Table> &table_uptr =
-      this->_tables.emplace_back(std::make_unique<requite::Table>());
+      this->_table_uptrs.emplace_back(std::make_unique<requite::Table>());
   return requite::getRef(table_uptr);
 }
 
 requite::Object &Module::makeObject() {
   std::unique_ptr<requite::Object> &object_uptr =
-      this->_objects.emplace_back(std::make_unique<requite::Object>());
+      this->_object_uptrs.emplace_back(std::make_unique<requite::Object>());
   return requite::getRef(object_uptr);
 }
 
 requite::NamedProcedureGroup &Module::makeNamedProcedureGroup() {
   std::unique_ptr<requite::NamedProcedureGroup> &procedure_uptr =
-      this->_named_procedure_groups.emplace_back(std::make_unique<requite::NamedProcedureGroup>());
+      this->_named_procedure_group_uptrs.emplace_back(std::make_unique<requite::NamedProcedureGroup>());
   return requite::getRef(procedure_uptr);
 }
 
 requite::Procedure &Module::makeProcedure() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
-      this->_procedures.emplace_back(std::make_unique<requite::Procedure>());
+      this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>());
   return requite::getRef(procedure_uptr);
 }
 
 requite::Alias &Module::makeAlias() {
   std::unique_ptr<requite::Alias> &alias_uptr =
-      this->_aliases.emplace_back(std::make_unique<requite::Alias>());
+      this->_alias_uptrs.emplace_back(std::make_unique<requite::Alias>());
   return requite::getRef(alias_uptr);
 }
 
 requite::Variable &Module::makeVariable() {
   std::unique_ptr<requite::Variable> &variable_uptr =
-      this->_variables.emplace_back(std::make_unique<requite::Variable>());
+      this->_variable_uptrs.emplace_back(std::make_unique<requite::Variable>());
   return requite::getRef(variable_uptr);
 }
 
 requite::AnonymousFunction &Module::makeAnonymousFunction() {
   std::unique_ptr<requite::AnonymousFunction> &anonymous_function_uptr =
-      this->_anonymous_functions.emplace_back(
+      this->_anonymous_function_uptrs.emplace_back(
           std::make_unique<requite::AnonymousFunction>());
   return requite::getRef(anonymous_function_uptr);
 }
@@ -66,78 +66,78 @@ requite::AnonymousFunction &Module::makeAnonymousFunction() {
 requite::Label& Module::makeLabel()
 {
   std::unique_ptr<requite::Label> &label_uptr =
-      this->_labels.emplace_back(std::make_unique<requite::Label>());
+      this->_label_uptrs.emplace_back(std::make_unique<requite::Label>());
   return requite::getRef(label_uptr);
 }
 
-std::vector<std::unique_ptr<requite::Scope>> &Module::getScopes() {
-  return this->_scopes;
+std::vector<std::unique_ptr<requite::Scope>> &Module::getScopeUptrs() {
+  return this->_scope_uptrs;
 }
 
-const std::vector<std::unique_ptr<requite::Scope>> &Module::getScopes() const {
-  return this->_scopes;
+const std::vector<std::unique_ptr<requite::Scope>> &Module::getScopeUptrs() const {
+  return this->_scope_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Table>> &Module::getTables() {
-  return this->_tables;
+std::vector<std::unique_ptr<requite::Table>> &Module::getTableUptrs() {
+  return this->_table_uptrs;
 }
 
-const std::vector<std::unique_ptr<requite::Table>> &Module::getTables() const {
-  return this->_tables;
+const std::vector<std::unique_ptr<requite::Table>> &Module::getTableUptrs() const {
+  return this->_table_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Object>> &Module::getObjects() {
-  return this->_objects;
+std::vector<std::unique_ptr<requite::Object>> &Module::getObjectUptrs() {
+  return this->_object_uptrs;
 }
 
 const std::vector<std::unique_ptr<requite::Object>> &
-Module::getObjects() const {
-  return this->_objects;
+Module::getObjectUptrs() const {
+  return this->_object_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &Module::getNamedProcedureGroups() {
-  return this->_named_procedure_groups;
+std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &Module::getNamedProcedureGroupUptrs() {
+  return this->_named_procedure_group_uptrs;
 }
 
 const std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &
-Module::getNamedProcedureGroups() const {
-  return this->_named_procedure_groups;
+Module::getNamedProcedureGroupUptrs() const {
+  return this->_named_procedure_group_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Procedure>> &Module::getProcedures() {
-  return this->_procedures;
+std::vector<std::unique_ptr<requite::Procedure>> &Module::getProcedureUptrs() {
+  return this->_procedure_uptrs;
 }
 
 const std::vector<std::unique_ptr<requite::Procedure>> &
-Module::getProcedures() const {
-  return this->_procedures;
+Module::getProcedureUptrs() const {
+  return this->_procedure_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Alias>> &Module::getAliases() {
-  return this->_aliases;
+std::vector<std::unique_ptr<requite::Alias>> &Module::getAliasUptrs() {
+  return this->_alias_uptrs;
 }
 
-const std::vector<std::unique_ptr<requite::Alias>> &Module::getAliases() const {
-  return this->_aliases;
+const std::vector<std::unique_ptr<requite::Alias>> &Module::getAliasUptrs() const {
+  return this->_alias_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Variable>> &Module::getVariables() {
-  return this->_variables;
+std::vector<std::unique_ptr<requite::Variable>> &Module::getVariableUptrs() {
+  return this->_variable_uptrs;
 }
 
 const std::vector<std::unique_ptr<requite::Variable>> &
-Module::getVariables() const {
-  return this->_variables;
+Module::getVariableUptrs() const {
+  return this->_variable_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::AnonymousFunction>> &
-Module::getAnonymousFunctions() {
-  return this->_anonymous_functions;
+Module::getAnonymousFunctionUptrs() {
+  return this->_anonymous_function_uptrs;
 }
 
 const std::vector<std::unique_ptr<requite::AnonymousFunction>> &
-Module::getAnonymousFunctions() const {
-  return this->_anonymous_functions;
+Module::getAnonymousFunctionUptrs() const {
+  return this->_anonymous_function_uptrs;
 }
 
 } // namespace requite

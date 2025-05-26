@@ -8,7 +8,12 @@
 namespace requite {
 
 bool Context::nameUserSymbols() {
-  // TODO
+  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
+    requite::Module &module = requite::getRef(module_uptr);
+    for (std::unique_ptr<requite::Table> &table_uptr : module.getTableUptrs()) {
+      requite::Table &table = requite::getRef(table_uptr);
+    }
+  }
   return true;
 }
 

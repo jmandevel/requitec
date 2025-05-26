@@ -34,17 +34,17 @@ struct Module final {
   requite::Table _table = {};
   requite::File _file = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
-  std::vector<std::unique_ptr<requite::Scope>> _scopes = {};
-  std::vector<std::unique_ptr<requite::Table>> _tables = {};
-  std::vector<std::unique_ptr<requite::Object>> _objects = {};
+  std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
+  std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
+  std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};
   std::vector<std::unique_ptr<requite::NamedProcedureGroup>>
-      _named_procedure_groups = {};
-  std::vector<std::unique_ptr<requite::Procedure>> _procedures = {};
-  std::vector<std::unique_ptr<requite::Alias>> _aliases = {};
-  std::vector<std::unique_ptr<requite::Variable>> _variables = {};
+      _named_procedure_group_uptrs = {};
+  std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
+  std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
+  std::vector<std::unique_ptr<requite::Variable>> _variable_uptrs = {};
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
-      _anonymous_functions = {};
-  std::vector<std::unique_ptr<requite::Label>> _labels = {};
+      _anonymous_function_uptrs = {};
+  std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
   requite::Procedure *_entry_point_ptr = nullptr;
 
   Module() = default;
@@ -64,34 +64,35 @@ struct Module final {
   [[nodiscard]] requite::Variable &makeVariable();
   [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
   [[nodiscard]] requite::Label &makeLabel();
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopes();
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
-  getScopes() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Table>> &getTables();
+  getScopeUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Table>> &getTableUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Table>> &
-  getTables() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Object>> &getObjects();
+  getTableUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Object>> &getObjectUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Object>> &
-  getObjects() const;
+  getObjectUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &
-  getNamedProcedureGroups();
+  getNamedProcedureGroupUptrs();
   [[nodiscard]] const std::vector<
       std::unique_ptr<requite::NamedProcedureGroup>> &
-  getNamedProcedureGroups() const;
+  getNamedProcedureGroupUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Procedure>> &
-  getProcedures();
+  getProcedureUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Procedure>> &
-  getProcedures() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliases();
+  getProcedureUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliasUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Alias>> &
-  getAliases() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Variable>> &getVariables();
+  getAliasUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Variable>> &
+  getVariableUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Variable>> &
-  getVariables() const;
+  getVariableUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::AnonymousFunction>> &
-  getAnonymousFunctions();
+  getAnonymousFunctionUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::AnonymousFunction>> &
-  getAnonymousFunctions() const;
+  getAnonymousFunctionUptrs() const;
 
   // module.cpp
   [[nodiscard]] bool operator==(const Self &rhs) const;
