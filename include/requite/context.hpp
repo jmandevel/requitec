@@ -130,6 +130,7 @@ struct Context final : public requite::_ContextLlvmContext {
   void writeLlvmIr(const requite::Module &module);
 
   // source_name.cpp
+  [[nodiscard]] bool setupModuleNames();
   [[nodiscard]] bool determineModuleNames();
   [[nodiscard]] bool mapModules();
 

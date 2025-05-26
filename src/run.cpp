@@ -74,7 +74,7 @@ bool Context::run() {
     });
   }
   this->initializeLlvmContext();
-  if (!this->determineModuleNames()) {
+  if (!this->setupModuleNames()) {
     return false;
   }
   // find all symbols and allocate data structs for each
@@ -96,16 +96,14 @@ bool Context::run() {
   }
   for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
     requite::Module &module = requite::getRef(module_uptr);
-    if (!this->buildIr(module))
-    {
+    if (!this->buildIr(module)) {
       is_ok = false;
       continue;
     }
     if (requite::options::INTERMEDIATE_LLVM_IR.getValue()) {
       this->writeLlvmIr(module);
     }
-    if (!this->compileObject(module))
-    {
+    if (!this->compileObject(module)) {
       is_ok = false;
     }
   }

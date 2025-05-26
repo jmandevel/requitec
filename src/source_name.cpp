@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <requite/assert.hpp>
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
-#include <requite/assert.hpp>
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallString.h>
@@ -14,14 +14,27 @@
 
 namespace requite {
 
-bool Context::determineModuleNames()
-{
-  for (std::unique_ptr<requite::Module>& module_uptr : this->getModuleUptrs())
-  {
-    requite::Module& module = requite::getRef(module_uptr);
-    requite::Expression& root = module.getExpression();
+bool Context::setupModuleNames() {
+  const bool determined_ok = this->determineModuleNames();
+  const bool mapped_ok = this->mapModules();
+  return determined_ok && mapped_ok;
+}
+
+bool Context::determineModuleNames() {
+  bool is_ok = true;
+  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
+    requite::Module &module = requite::getRef(module_uptr);
+    requite::Expression &root = module.getExpression();
+    requite::Expression &name_expression = root.getBranch();
+    if (!name_expression.getIsIdentifier()) {
+      this->logSourceMessage(name_expression, requite::LogType::ERROR,
+                             "module name is not instantly determinable");
+      is_ok = false;
+    }
+    llvm::StringRef name = name_expression.getDataText();
+    module.setName(name);
   }
-  return true;
+  return is_ok;
 }
 
 bool Context::mapModules() {
@@ -54,10 +67,12 @@ bool Context::mapModules() {
         requite::Module &module = requite::getRef(module_ptr);
         requite::Expression &root = module.getExpression();
         REQUITE_ASSERT(root.getOpcode() == requite::Opcode::MODULE);
-        requite::Expression &name = root.getBranch();
-        REQUITE_ASSERT(name.getIsIdentifier());
+        requite::Expression &name_expression = root.getBranch();
+        REQUITE_ASSERT(name_expression.getIsIdentifier());
+        llvm::StringRef name = name_expression.getDataText();
         this->logSourceMessage(name, requite::LogType::ERROR,
-                               "module name is not unique");
+                               llvm::Twine("module name \"") + name +
+                                   "\" is not unique");
       }
     }
   }
