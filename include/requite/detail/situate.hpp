@@ -1668,7 +1668,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::PACK)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM> (expression);
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::SIZE:
@@ -2691,6 +2691,9 @@ void Situator::situateIdentifyExpression(requite::Expression &expression) {
   this->situateUnaryExpression<SITUATION_PARAM,
                                requite::Situation::MATTE_VALUE>(expression);
   requite::Expression &branch = expression.getBranch();
+  if (branch.getOpcode() != requite::Opcode::_STRING_LITERAL) {
+    return;
+  }
   std::string text = branch.getDataText().str();
   expression.flattenBranch();
   expression.changeOpcode(requite::Opcode::_IDENTIFIER_LITERAL);
