@@ -11,6 +11,7 @@
 #include <llvm/ADT/StringRef.h>
 
 #include <vector>
+#include <string>
 
 namespace requite {
 
@@ -22,7 +23,7 @@ struct Object final {
   using Self = requite::Object;
 
   requite::Table _table = {};
-  llvm::StringRef _mangled_name = {};
+  std::string _mangled_name = {};
   requite::Procedure *_destructor_ptr = nullptr;
   requite::Procedure *_first_constructor_ptr = nullptr;
   requite::Module *_module_ptr = nullptr;
