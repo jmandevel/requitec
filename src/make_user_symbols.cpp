@@ -93,6 +93,15 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     property.setAttributes(attributes);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
+  case requite::Opcode::CONSTANT: {
+    requite::Variable &constant = this->getModule().makeVariable();
+    constant.setType(requite::VariableType::CONSTANT);
+    constant.setExpression(expression);
+    expression.setVariable(constant);
+    constant.setContainingScope(scope);
+    constant.setAttributes(attributes);
+    this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
+  } break;
   case requite::Opcode::ENTRY_POINT: {
     this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
                                         "attributes ascribed to entry_point");

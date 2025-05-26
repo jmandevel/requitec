@@ -350,6 +350,8 @@ enum _OpcodeFlags : std::uint32_t {
     return "defn";
   case requite::Opcode::PROPERTY:
     return "f";
+  case requite::Opcode::CONSTANT:
+    return "defn";
 
   // VALUES
   case requite::Opcode::TEMP:
@@ -978,6 +980,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "global";
   case requite::Opcode::PROPERTY:
     return "property";
+  case requite::Opcode::CONSTANT:
+    return "constant";
 
   // VALUES
   case requite::Opcode::TEMP:
@@ -1224,7 +1228,8 @@ constexpr bool getHasAliasData(requite::Opcode opcode) {
 constexpr bool getHasVariableData(requite::Opcode opcode) {
   return opcode == requite::Opcode::LOCAL ||
          opcode == requite::Opcode::GLOBAL ||
-         opcode == requite::Opcode::PROPERTY;
+         opcode == requite::Opcode::PROPERTY ||
+         opcode == requite::Opcode::CONSTANT;
 }
 
 constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {

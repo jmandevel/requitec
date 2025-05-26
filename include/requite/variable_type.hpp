@@ -10,7 +10,7 @@
 
 namespace requite {
 
-enum class VariableType { NONE, LOCAL, GLOBAL, PROPERTY };
+enum class VariableType { NONE, LOCAL, GLOBAL, PROPERTY, CONSTANT };
 
 [[nodiscard]] constexpr std::string_view getName(requite::VariableType type);
 

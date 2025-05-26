@@ -223,6 +223,7 @@ enum class Opcode : unsigned {
   LOCAL,
   GLOBAL,
   PROPERTY,
+  CONSTANT,
 
   // VALUES
   // a special variable that is replaced every time it is assigned to. its
