@@ -17,8 +17,6 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode)
       return requite::AttributeType::ATOMIC;
     case requite::Opcode::NULL_TERMINATED:
       return requite::AttributeType::NULL_TERMINATED;
-    case requite::Opcode::BAKED:
-      return requite::AttributeType::BAKED;
     case requite::Opcode::TEMPLATE:
       return requite::AttributeType::TEMPLATE;
     case requite::Opcode::PRIVATE:
@@ -70,8 +68,6 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "atomic";
   case requite::AttributeType::NULL_TERMINATED:
     return "null_terminated";
-  case requite::AttributeType::BAKED:
-    return "baked";
   case requite::AttributeType::TEMPLATE:
     return "template";
   case requite::AttributeType::PRIVATE:

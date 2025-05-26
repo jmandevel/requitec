@@ -180,7 +180,6 @@ enum class Opcode : unsigned {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
-  BAKED,
 
   // TRIPS
   TUPLE,

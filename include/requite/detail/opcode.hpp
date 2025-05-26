@@ -274,8 +274,6 @@ enum _OpcodeFlags : std::uint32_t {
     return "q";
   case requite::Opcode::NULL_TERMINATED:
     return "q";
-  case requite::Opcode::BAKED:
-    return "";
 
   // TRIPS
   case requite::Opcode::TUPLE:
@@ -904,8 +902,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "atomic";
   case requite::Opcode::NULL_TERMINATED:
     return "null_terminated";
-  case requite::Opcode::BAKED:
-    return "baked";
 
   // TRIPS
   case requite::Opcode::TUPLE:

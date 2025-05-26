@@ -730,14 +730,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::BAKED:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BAKED)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
   case requite::Opcode::TUPLE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::TUPLE)) {
