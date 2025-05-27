@@ -35,6 +35,13 @@ const requite::Scope &Procedure::getContainingScope() const {
   return this->getScope().getContainingScope();
 }
 
+void Procedure::setHasDependentName() {
+  REQUITE_ASSERT(this->_dependent_name == false);
+  this->_dependent_name = true;
+}
+
+bool Procedure::getHasDependentName() const { return this->_dependent_name; }
+
 bool Procedure::getHasExpression() const {
   return this->getScope().getHasExpression();
 }
@@ -68,7 +75,6 @@ const requite::Signature &Procedure::getSignature() const {
 requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
-
 
 bool Procedure::getHasAttributes() const {
   return this->_attributes.getHasExpression();

@@ -18,6 +18,13 @@ llvm::StringRef Alias::getName() const { return this->_name; }
 
 bool Alias::getHasName() const { return !this->_name.empty(); }
 
+void Alias::setHasDependentName() {
+  REQUITE_ASSERT(this->_dependent_name == false);
+  this->_dependent_name = true;
+}
+
+bool Alias::getHasDependentName() const { return this->_dependent_name; }
+
 void Alias::setExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
   requite::setSingleRef(this->_expression_ptr, expression);

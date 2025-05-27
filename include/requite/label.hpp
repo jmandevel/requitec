@@ -34,6 +34,8 @@ struct Label final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
+  void setHasDependentName();
+  [[nodiscard]] bool getHasDependentName() const;
   [[nodiscard]] bool getHasAttributeExpression() const;
   void setAttributeExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getAttributeExpression();

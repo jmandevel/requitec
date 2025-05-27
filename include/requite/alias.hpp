@@ -21,6 +21,7 @@ struct Scope;
 
 struct Alias final {
   std::string _name = {};
+  bool _dependent_name = false;
   requite::Module *_module_ptr = nullptr;
   requite::Object *_object_ptr = nullptr;
   requite::Scope *_containing_scope_ptr = nullptr;
@@ -32,6 +33,8 @@ struct Alias final {
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] bool getHasName() const;
+  void setHasDependentName();
+  [[nodiscard]] bool getHasDependentName() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;

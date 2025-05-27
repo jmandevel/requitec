@@ -18,6 +18,13 @@ void Table::setName(llvm::StringRef name) {
 
 llvm::StringRef Table::getName() const { return this->_name; }
 
+void Table::setHasDependentName() {
+  REQUITE_ASSERT(this->_dependent_name == false);
+  this->_dependent_name = true;
+}
+
+bool Table::getHasDependentName() const { return this->_dependent_name; }
+
 requite::Scope &Table::getScope() { return this->_scope; }
 
 const requite::Scope &Table::getScope() const { return this->_scope; }

@@ -25,6 +25,13 @@ llvm::StringRef Label::getName() const {
   return this->_name;
 }
 
+void Label::setHasDependentName() {
+  REQUITE_ASSERT(this->_dependent_name == false);
+  this->_dependent_name = true;
+}
+
+bool Label::getHasDependentName() const { return this->_dependent_name; }
+
 bool Label::getHasAttributeExpression() const {
   return this->_attribute_expression_ptr != nullptr;
 }

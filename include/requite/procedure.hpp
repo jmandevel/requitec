@@ -30,6 +30,7 @@ struct Node;
 struct Procedure final {
   using Self = requite::Procedure;
 
+  bool _dependent_name = false;
   std::string _mangled_name = {};
   requite::ProcedureType _type = requite::ProcedureType::NONE;
   requite::Scope _scope = {};
@@ -53,14 +54,16 @@ struct Procedure final {
   bool operator==(const Self &rhs) const;
   [[nodiscard]]
   bool operator!=(const Self &rhs) const;
+  void setHasDependentName();
+  [[nodiscard]] bool getHasDependentName() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope& scope);
-  [[nodiscard]] requite::Scope& getContainingScope();
-  [[nodiscard]] const requite::Scope& getContainingScope() const;
+  void setContainingScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] bool getHasMangledName() const;
   [[nodiscard]] llvm::StringRef getMangledName() const;

@@ -14,6 +14,7 @@ struct Table final {
   using Self = Table;
 
   std::string _name = {};
+  bool _dependent_name = false;
   requite::Scope _scope = {};
 
   // table.cpp
@@ -26,6 +27,8 @@ struct Table final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
+  void setHasDependentName();
+  [[nodiscard]] bool getHasDependentName() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] bool getHasObject() const;
