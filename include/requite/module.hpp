@@ -93,6 +93,9 @@ struct Module final {
   getAnonymousFunctionUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::AnonymousFunction>> &
   getAnonymousFunctionUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Label>> &getLabelUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Label>> &
+  getLabelUptrs() const;
 
   // module.cpp
   [[nodiscard]] bool operator==(const Self &rhs) const;
