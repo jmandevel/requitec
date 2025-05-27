@@ -23,6 +23,7 @@ llvm::StringRef File::getIdentifier() const {
 }
 
 llvm::StringRef File::getText() const {
+  
   return this->_buffer_ref.getBuffer();
 }
 
