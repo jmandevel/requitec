@@ -253,9 +253,22 @@ void Maker::makeOrderedUserSymbols(requite::Scope &scope,
       if (result.has_error) {
         this->setNotOk();
       }
+      requite::Expression& unascribed_expression = requite::getRef(result.last_expression_ptr);
+      if (result.attributes.getHasAttribute(requite::AttributeType::LABEL)) {
+        for (requite::Expression &attribute_expression : branch.getBranchSubrange()) {
+          if (attribute_expression.getOpcode() != requite::Opcode::LABEL) {
+            continue;
+          }
+          requite::Label &label = this->getModule().makeLabel();
+          label.setAttributeExpression(attribute_expression);
+          attribute_expression.setLabel(label);
+          label.setStatementExpression(branch);
+          label.setContainingScope(scope);
+        }
+      }
       this->makeAscribedOrderedUserSymbol(
           scope, result.attributes,
-          requite::getRef(result.last_expression_ptr));
+          unascribed_expression);
       continue;
     }
     this->makeOrderedUserSymbol(scope, branch);
