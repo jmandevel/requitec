@@ -35,4 +35,23 @@ constexpr std::string_view getName(requite::ProcedureType type) {
   return name;
 }
 
+constexpr bool getIsNamed(requite::ProcedureType type) {
+  switch (type) {
+    case requite::ProcedureType::NONE:
+      return false;
+    case requite::ProcedureType::ENTRY_POINT:
+      return false;
+    case requite::ProcedureType::FUNCTION:
+      return true;
+    case requite::ProcedureType::METHOD:
+      return true;
+    case requite::ProcedureType::CONSTRUCTOR:
+      return false;
+    case requite::ProcedureType::DESTRUCTOR:
+      return false;
+    default:
+      return false;
+  }
+}
+
 } // namespace requite

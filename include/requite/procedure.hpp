@@ -54,6 +54,7 @@ struct Procedure final {
   bool operator==(const Self &rhs) const;
   [[nodiscard]]
   bool operator!=(const Self &rhs) const;
+  [[nodiscard]] bool getIsNamed() const;
   void setHasDependentName();
   [[nodiscard]] bool getHasDependentName() const;
   [[nodiscard]] bool getHasExpression() const;
