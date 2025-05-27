@@ -994,7 +994,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::LOCAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateLocalOrGlobalExpression<SITUATION_PARAM>(expression);
+      this->situateVariableExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::GLOBAL:
@@ -1002,7 +1002,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::GLOBAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateLocalOrGlobalExpression<SITUATION_PARAM>(expression);
+      this->situateVariableExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::PROPERTY:
@@ -1011,6 +1011,14 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situatePropertyExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::CONSTANT:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::CONSTANT)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateVariableExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::NULL_:
@@ -2541,11 +2549,12 @@ void Situator::situateSituationalCallOrSignatureExpression(
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situateLocalOrGlobalExpression(requite::Expression &expression) {
+void Situator::situateVariableExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL ||
-                 expression.getOpcode() == requite::Opcode::LOCAL);
+                 expression.getOpcode() == requite::Opcode::LOCAL ||
+                 expression.getOpcode() == requite::Opcode::CONSTANT);
   if (!expression.getHasBranch()) {
     this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
     this->setNotOk();

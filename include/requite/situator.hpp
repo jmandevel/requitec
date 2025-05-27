@@ -129,7 +129,7 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situateSituationalCallOrSignatureExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateLocalOrGlobalExpression(requite::Expression &expression);
+  inline void situateVariableExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situatePropertyExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
