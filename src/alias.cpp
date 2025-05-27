@@ -43,7 +43,7 @@ void Alias::setAttributes(requite::Attributes attributes) {
 
 requite::Attributes &Alias::getAttributes() {
   REQUITE_ASSERT(this->_attributes.getHasExpression());
-  this->_attributes;
+  return this->_attributes;
 }
 
 const requite::Attributes &Alias::getAttributes() const {
