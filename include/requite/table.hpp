@@ -6,6 +6,8 @@
 
 #include <requite/scope.hpp>
 
+#include <llvm/ADT/StringMap.h>
+
 #include <string>
 
 namespace requite {
@@ -14,8 +16,8 @@ struct Table final {
   using Self = Table;
 
   std::string _name = {};
-  bool _dependent_name = false;
-  requite::Scope _scope = {};
+  requite::Scope _stub_scope = {};
+  requite::Scope* _first_scope_ptr = nullptr;
 
   // table.cpp
   Table();
@@ -27,25 +29,12 @@ struct Table final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  void setHasDependentName();
-  [[nodiscard]] bool getHasDependentName() const;
-  [[nodiscard]] requite::Scope &getScope();
-  [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] bool getHasObject() const;
-  void setObject(requite::Object &object);
-  [[nodiscard]] requite::Object &getObject();
-  [[nodiscard]] const requite::Object &getObject() const;
-  [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContainingScope();
-  [[nodiscard]] const requite::Scope &getContainingScope() const;
-  [[nodiscard]] bool getHasExpression() const;
-  void setExpression(requite::Expression &expression);
-  [[nodiscard]] requite::Expression &
-  replaceExpression(requite::Expression &expression);
-  [[nodiscard]] requite::Expression &popExpression();
-  [[nodiscard]] requite::Expression &getExpression();
-  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] requite::Scope &getStubScope();
+  [[nodiscard]] const requite::Scope &getStubScope() const;
+  [[nodiscard]] bool getHasSubScopes() const;
+  void addSubScope(requite::Scope& scope);
+  [[nodiscard]] requite::Scope& getFirstScope();
+  [[nodiscard]] const requite::Scope& getFirstScope() const;
 };
 
 } // namespace requite

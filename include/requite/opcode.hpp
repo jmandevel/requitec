@@ -372,8 +372,6 @@ static constexpr unsigned OPCODE_COUNT =
 
 [[nodiscard]] constexpr bool getHasScopeData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasTableData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasObjectData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasOverloadData(requite::Opcode opcode);

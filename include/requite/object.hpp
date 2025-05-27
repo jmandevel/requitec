@@ -22,7 +22,8 @@ struct Variable;
 struct Object final {
   using Self = requite::Object;
 
-  requite::Table _table = {};
+  std::string _name = {};
+  requite::Scope _scope = {};
   std::string _mangled_name = {};
   requite::Procedure *_destructor_ptr = nullptr;
   requite::Procedure *_first_constructor_ptr = nullptr;
@@ -44,8 +45,6 @@ struct Object final {
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
-  [[nodiscard]] requite::Table &getTable();
-  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] bool getHasContainingScope() const;

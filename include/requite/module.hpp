@@ -31,7 +31,8 @@ struct Context;
 struct Module final {
   using Self = requite::Module;
 
-  requite::Table _table = {};
+  std::string _name = {};
+  requite::Scope _scope = {};
   requite::File _file = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
   std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
@@ -47,7 +48,7 @@ struct Module final {
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
   requite::Procedure *_entry_point_ptr = nullptr;
 
-  Module() = default;
+  Module();
   Module(Self &that) = delete;
   Module(Self &&that) = delete;
   Self &operator=(Self &rhs) = delete;
@@ -103,8 +104,6 @@ struct Module final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  [[nodiscard]] requite::Table &getTable();
-  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::File &getFile();

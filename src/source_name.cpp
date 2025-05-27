@@ -48,15 +48,15 @@ bool Context::mapModules() {
   name_map.reserve(this->getModuleUptrs().size());
   for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
     requite::Module &module = requite::getRef(module_uptr);
-    if (!module.getTable().getHasName()) {
+    if (!module.getHasName()) {
       continue;
     }
-    if (name_map.contains(module.getTable().getName())) {
-      Entry &entry = name_map[module.getTable().getName()];
+    if (name_map.contains(module.getName())) {
+      Entry &entry = name_map[module.getName()];
       entry.modules.push_back(&module);
       continue;
     }
-    name_map.insert({module.getTable().getName(), Entry(module)});
+    name_map.insert({module.getName(), Entry(module)});
   }
   bool is_ok = true;
   for (llvm::detail::DenseMapPair<llvm::StringRef, Entry> &kvp : name_map) {

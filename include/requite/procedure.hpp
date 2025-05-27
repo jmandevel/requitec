@@ -44,7 +44,7 @@ struct Procedure final {
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
 
   // procedure.cpp
-  Procedure() = default;
+  Procedure();
   Procedure(Self &that) = delete;
   Procedure(Self &&that) = delete;
   ~Procedure() = default;

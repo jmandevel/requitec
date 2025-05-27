@@ -50,28 +50,6 @@ inline void Expression::setScope(requite::Scope &scope) {
   this->_data.emplace<requite::Scope *>(&scope);
 }
 
-bool Expression::getHasTable() const {
-  REQUITE_ASSERT(requite::getHasTableData(this->getOpcode()));
-  return std::holds_alternative<requite::Table *>(this->_data) &&
-         std::get<requite::Table *>(this->_data) != nullptr;
-}
-
-inline requite::Table &Expression::getTable() {
-  REQUITE_ASSERT(requite::getHasTableData(this->getOpcode()));
-  return requite::getRef(std::get<requite::Table *>(this->_data));
-}
-
-inline const requite::Table &Expression::getTable() const {
-  REQUITE_ASSERT(requite::getHasTableData(this->getOpcode()));
-  return requite::getRef(std::get<requite::Table *>(this->_data));
-}
-
-inline void Expression::setTable(requite::Table &table) {
-  REQUITE_ASSERT(requite::getHasTableData(this->getOpcode()));
-  REQUITE_ASSERT(!this->getHasTable());
-  this->_data.emplace<requite::Table *>(&table);
-}
-
 inline bool Expression::getHasObject() const {
   REQUITE_ASSERT(requite::getHasObjectData(this->getOpcode()));
   return std::holds_alternative<requite::Object *>(this->_data) &&

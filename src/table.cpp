@@ -7,7 +7,10 @@
 
 namespace requite {
 
-Table::Table() { this->getScope().setTable(*this); }
+Table::Table() {
+  this->getStubScope().setType(requite::ScopeType::TABLE);
+  this->getStubScope().setTable(*this);
+}
 
 bool Table::getHasName() const { return !this->_name.empty(); }
 
@@ -18,67 +21,25 @@ void Table::setName(llvm::StringRef name) {
 
 llvm::StringRef Table::getName() const { return this->_name; }
 
-void Table::setHasDependentName() {
-  REQUITE_ASSERT(this->_dependent_name == false);
-  this->_dependent_name = true;
+requite::Scope &Table::getStubScope() { return this->_stub_scope; }
+
+const requite::Scope &Table::getStubScope() const { return this->_stub_scope; }
+
+bool Table::getHasSubScopes() const {
+  return this->_first_scope_ptr != nullptr;
 }
 
-bool Table::getHasDependentName() const { return this->_dependent_name; }
-
-requite::Scope &Table::getScope() { return this->_scope; }
-
-const requite::Scope &Table::getScope() const { return this->_scope; }
-
-bool Table::getHasObject() const { return this->getScope().getHasObject(); }
-
-void Table::setObject(requite::Object &object) {
-  this->getScope().setObject(object);
+void Table::addSubScope(requite::Scope &scope) {
+  scope._next_ptr = this->_first_scope_ptr;
+  this->_first_scope_ptr = &scope;
 }
 
-requite::Object &Table::getObject() { return this->getScope().getObject(); }
-
-const requite::Object &Table::getObject() const {
-  return this->getScope().getObject();
+requite::Scope &Table::getFirstScope() {
+  return requite::getRef(this->_first_scope_ptr);
 }
 
-bool Table::getHasContainingScope() const {
-  return this->getScope().getHasContainingScope();
-}
-
-void Table::setContainingScope(requite::Scope &scope) {
-  this->getScope().setContainingScope(scope);
-}
-
-requite::Scope &Table::getContainingScope() {
-  return this->getScope().getContainingScope();
-}
-
-const requite::Scope &Table::getContainingScope() const {
-  return this->getScope().getContainingScope();
-}
-
-bool Table::getHasExpression() const {
-  return this->getScope().getHasExpression();
-}
-
-void Table::setExpression(requite::Expression &expression) {
-  this->getScope().setExpression(expression);
-}
-
-requite::Expression &Table::replaceExpression(requite::Expression &expression) {
-  return this->getScope().replaceExpression(expression);
-}
-
-requite::Expression &Table::popExpression() {
-  return this->getScope().popExpression();
-}
-
-requite::Expression &Table::getExpression() {
-  return this->getScope().getExpression();
-}
-
-const requite::Expression &Table::getExpression() const {
-  return this->getScope().getExpression();
+const requite::Scope &Table::getFirstScope() const {
+  return requite::getRef(this->_first_scope_ptr);
 }
 
 } // namespace requite

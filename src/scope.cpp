@@ -15,6 +15,14 @@ bool Scope::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Scope::operator!=(Self &&rhs) const { return this != &rhs; }
 
+void Scope::setType(requite::ScopeType type) {
+  REQUITE_ASSERT(this->_type == requite::ScopeType::NONE);
+  REQUITE_ASSERT(type != requite::ScopeType::NONE);
+  this->_type = type;
+}
+
+requite::ScopeType Scope::getType() const { return this->_type; }
+
 llvm::StringMap<requite::RootSymbol> &Scope::getSymbolMap() {
   return this->_symbol_map;
 }
@@ -49,54 +57,85 @@ bool Scope::getIsEmpty() const {
   return this->_symbol_map.empty() && this->_nodes.empty();
 }
 
-bool Scope::getHasTable() const { return this->_table_ptr != nullptr; }
-
-void Scope::setTable(requite::Table &table) {
-  requite::setSingleRef(this->_table_ptr, table);
+bool Scope::getHasObject() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT);
+  return this->_object_ptr != nullptr;
 }
-
-requite::Table &Scope::getTable() { return requite::getRef(this->_table_ptr); }
-
-const requite::Table &Scope::getTable() const {
-  return requite::getRef(this->_table_ptr);
-}
-
-bool Scope::getHasObject() const { return this->_object_ptr != nullptr; }
 
 void Scope::setObject(requite::Object &object) {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT);
   requite::setSingleRef(this->_object_ptr, object);
 }
 
 requite::Object &Scope::getObject() {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT);
   return requite::getRef(this->_object_ptr);
 }
 
 const requite::Object &Scope::getObject() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT);
   return requite::getRef(this->_object_ptr);
 }
 
-requite::Object *Scope::getObjectPtr() { return this->_object_ptr; }
+bool Scope::getHasTable() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
+  return this->_table_ptr != nullptr;
+}
 
-const requite::Object *Scope::getObjectPtr() const { return this->_object_ptr; }
+void Scope::setTable(requite::Table &table) {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
+  requite::setSingleRef(this->_table_ptr, table);
+}
+
+requite::Table &Scope::getTable() {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
+  return requite::getRef(this->_table_ptr);
+}
+
+const requite::Table &Scope::getTable() const {
+  return requite::getRef(this->_table_ptr);
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
+}
 
 void Scope::setProcedure(requite::Procedure &procedure) {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::PROCEDURE);
   requite::setSingleRef(this->_procedure_ptr, procedure);
 }
 
-bool Scope::getHasProcedure() const { return this->_procedure_ptr != nullptr; }
+bool Scope::getHasProcedure() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::PROCEDURE);
+  return this->_procedure_ptr != nullptr;
+}
 
 requite::Procedure &Scope::getProcedure() {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::PROCEDURE);
   return requite::getRef(this->_procedure_ptr);
 }
 
 const requite::Procedure &Scope::getProcedure() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::PROCEDURE);
   return requite::getRef(this->_procedure_ptr);
 }
 
-requite::Procedure *Scope::getProcedurePtr() { return this->_procedure_ptr; }
+bool Scope::getHasAnonymousFunction() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::ANONYMOUS_FUNCTION);
+  return this->_anonymous_function_ptr != nullptr;
+}
 
-const requite::Procedure *Scope::getProcedurePtr() const {
-  return this->_procedure_ptr;
+void Scope::setAnonymousFunction(
+    requite::AnonymousFunction &anonymous_function) {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::ANONYMOUS_FUNCTION);
+  requite::setSingleRef(this->_anonymous_function_ptr, anonymous_function);
+}
+
+requite::AnonymousFunction &Scope::getAnonymousFunction() {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::ANONYMOUS_FUNCTION);
+  return requite::getRef(this->_anonymous_function_ptr);
+}
+
+const requite::AnonymousFunction &Scope::getAnonymousFunction() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::ANONYMOUS_FUNCTION);
+  return requite::getRef(this->_anonymous_function_ptr);
 }
 
 bool Scope::getHasExpression() const {
@@ -125,6 +164,18 @@ requite::Expression &Scope::getExpression() {
 
 const requite::Expression &Scope::getExpression() const {
   return requite::getRef(this->_expression_ptr);
+}
+
+bool Scope::getHasNext() const { return this->_next_ptr != nullptr; }
+
+void Scope::setNext(requite::Scope &scope) {
+  requite::setSingleRef(this->_next_ptr, scope);
+}
+
+requite::Scope &Scope::getNext() { return requite::getRef(this->_next_ptr); }
+
+const requite::Scope &Scope::getNext() const {
+  return requite::getRef(this->_next_ptr);
 }
 
 } // namespace requite

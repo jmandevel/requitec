@@ -6,25 +6,27 @@
 
 namespace requite {
 
+Module::Module() { this->_scope.setType(requite::ScopeType::MODULE); }
+
 bool Module::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Module::operator!=(const Self &rhs) const { return this != &rhs; }
 
-bool Module::getHasName() const { return this->getTable().getHasName(); }
+bool Module::getHasName() const { return !this->_name.empty(); }
 
-void Module::setName(llvm::StringRef name) { this->getTable().setName(name); }
-
-llvm::StringRef Module::getName() const { return this->getTable().getName(); }
-
-requite::Table &Module::getTable() { return this->_table; }
-
-const requite::Table &Module::getTable() const { return this->_table; }
-
-requite::Scope &Module::getScope() { return this->getTable().getScope(); }
-
-const requite::Scope &Module::getScope() const {
-  return this->getTable().getScope();
+void Module::setName(llvm::StringRef name) {
+  REQUITE_ASSERT(!this->getHasName());
+  this->_name = name.str();
 }
+
+llvm::StringRef Module::getName() const {
+  REQUITE_ASSERT(this->getHasName());
+  return this->_name;
+}
+
+requite::Scope &Module::getScope() { return this->_scope; }
+
+const requite::Scope &Module::getScope() const { return this->_scope; }
 
 requite::File &Module::getFile() { return this->_file; }
 
@@ -35,6 +37,7 @@ bool Module::getHasEntryPoint() const {
 }
 
 void Module::setEntryPoint(requite::Procedure &procedure) {
+  REQUITE_ASSERT(procedure.getType() == requite::ProcedureType::ENTRY_POINT);
   requite::setSingleRef(this->_entry_point_ptr, procedure);
 }
 
@@ -47,28 +50,28 @@ const requite::Procedure &Module::getEntryPoint() const {
 }
 
 bool Module::getHasExpression() const {
-  return this->getTable().getScope().getHasExpression();
+  return this->getScope().getHasExpression();
 }
 
 void Module::setExpression(requite::Expression &expression) {
-  this->getTable().getScope().setExpression(expression);
+  this->getScope().setExpression(expression);
 }
 
 requite::Expression &
 Module::replaceExpression(requite::Expression &expression) {
-  return this->getTable().getScope().replaceExpression(expression);
+  return this->getScope().replaceExpression(expression);
 }
 
 requite::Expression &Module::popExpression() {
-  return this->getTable().getScope().popExpression();
+  return this->getScope().popExpression();
 }
 
 requite::Expression &Module::getExpression() {
-  return this->getTable().getScope().getExpression();
+  return this->getScope().getExpression();
 }
 
 const requite::Expression &Module::getExpression() const {
-  return this->getTable().getScope().getExpression();
+  return this->getScope().getExpression();
 }
 
 llvm::StringRef Module::getPath() const { return this->getFile().getPath(); }

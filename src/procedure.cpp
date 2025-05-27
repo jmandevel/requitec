@@ -7,6 +7,11 @@
 
 namespace requite {
 
+Procedure::Procedure () {
+  this->getScope().setType(requite::ScopeType::PROCEDURE);
+  this->getScope().setProcedure(*this);
+}
+
 void Procedure::setMangledName(llvm::StringRef name) {
   REQUITE_ASSERT(this->_mangled_name.empty());
   this->_mangled_name = name;

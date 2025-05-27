@@ -10,7 +10,7 @@ namespace requite {
 
 void Module::initializeLlvmModule(requite::Context &context) {
   this->_llvm_module_uptr = std::make_unique<llvm::Module>(
-      this->getTable().getName(), context.getLlvmContext());
+      this->getName(), context.getLlvmContext());
   this->_llvm_module_uptr->setSourceFileName(this->getFile().getPath());
   this->_llvm_module_uptr->setDataLayout(context.getLlvmDataLayout());
   this->_llvm_module_uptr->setTargetTriple(context.getLlvmTargetTriple());

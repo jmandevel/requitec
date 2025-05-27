@@ -21,6 +21,7 @@ target_sources(
         builder.cpp
         compile_objects.cpp
         const_expression_iterator.cpp
+        const_sub_scope_iterator.cpp
         context.cpp
         escape_sequences.cpp
         expression_iterator.cpp
@@ -55,10 +56,12 @@ target_sources(
         situate_ast.cpp
         source_name.cpp
         source_ranger.cpp
+        sub_scope_iterator.cpp
         sub_symbol.cpp
         symbol.cpp
         table.cpp
         tabulate_user_symbols.cpp
+        tabulator.cpp
         tasks.cpp
         token_csv.cpp
         token.cpp

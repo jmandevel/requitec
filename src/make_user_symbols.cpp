@@ -22,7 +22,6 @@ bool Context::makeUserSymbols() {
 }
 
 void Maker::makeUserSymbols() {
-  requite::Table &table = this->getModule().getTable();
   requite::Scope &scope = this->getModule().getScope();
   requite::Expression &root = this->getModule().getExpression();
   REQUITE_ASSERT(!root.getHasNext());
@@ -232,11 +231,12 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     this->makeOrderedUserSymbols(destructor.getScope(), expression.getBranch());
   } break;
   case requite::Opcode::TABLE: {
-    requite::Table &table = this->getModule().makeTable();
-    table.setExpression(expression);
-    expression.setTable(table);
-    table.setContainingScope(scope);
-    this->makeUnorderedUserSymbols(table.getScope(), expression.getBranch(),
+    requite::Scope &new_scope = this->getModule().makeScope();
+    new_scope.setType(requite::ScopeType::TABLE);
+    new_scope.setExpression(expression);
+    expression.setScope(new_scope);
+    new_scope.setContainingScope(scope);
+    this->makeUnorderedUserSymbols(new_scope, expression.getBranch(),
                                    conduits_have_scopes);
   } break;
   default:
@@ -253,9 +253,11 @@ void Maker::makeOrderedUserSymbols(requite::Scope &scope,
       if (result.has_error) {
         this->setNotOk();
       }
-      requite::Expression& unascribed_expression = requite::getRef(result.last_expression_ptr);
+      requite::Expression &unascribed_expression =
+          requite::getRef(result.last_expression_ptr);
       if (result.attributes.getHasAttribute(requite::AttributeType::LABEL)) {
-        for (requite::Expression &attribute_expression : branch.getBranchSubrange()) {
+        for (requite::Expression &attribute_expression :
+             branch.getBranchSubrange()) {
           if (attribute_expression.getOpcode() != requite::Opcode::LABEL) {
             continue;
           }
@@ -266,9 +268,8 @@ void Maker::makeOrderedUserSymbols(requite::Scope &scope,
           label.setContainingScope(scope);
         }
       }
-      this->makeAscribedOrderedUserSymbol(
-          scope, result.attributes,
-          unascribed_expression);
+      this->makeAscribedOrderedUserSymbol(scope, result.attributes,
+                                          unascribed_expression);
       continue;
     }
     this->makeOrderedUserSymbol(scope, branch);
@@ -355,6 +356,7 @@ void Maker::makeOrderedUserSymbol(requite::Scope &scope,
     [[fallthrough]];
   case requite::Opcode::SCOPE: {
     requite::Scope &new_scope = this->getModule().makeScope();
+    new_scope.setType(requite::ScopeType::LOCAL_STATEMENT);
     expression.setScope(new_scope);
     new_scope.setExpression(expression);
     new_scope.setContainingScope(scope);
@@ -385,6 +387,7 @@ void Maker::makeScopedValues(requite::Scope &scope,
     case requite::Opcode::CONDUIT: {
       if (conduits_have_scopes) {
         requite::Scope &new_scope = this->getModule().makeScope();
+        new_scope.setType(requite::ScopeType::CONDUIT);
         branch.setScope(new_scope);
         new_scope.setExpression(branch);
         new_scope.setContainingScope(scope);

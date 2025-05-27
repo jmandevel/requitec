@@ -7,53 +7,56 @@
 
 namespace requite {
 
-Object::Object() { this->getTable().getScope().setObject(*this); }
+Object::Object() {
+  this->getScope().setType(requite::ScopeType::OBJECT);
+  this->getScope().setObject(*this);
+}
 
-bool Object::getHasName() const { return this->getTable().getHasName(); }
+bool Object::getHasName() const { return !this->_name.empty(); }
 
-void Object::setName(llvm::StringRef name) { this->getTable().setName(name); }
+void Object::setName(llvm::StringRef name) {
+  REQUITE_ASSERT(!this->getHasName());
+  this->_name = name.str();
+}
 
-llvm::StringRef Object::getName() const { return this->getTable().getName(); }
+llvm::StringRef Object::getName() const {
+  REQUITE_ASSERT(this->getHasName());
+  return this->_name;
+}
 
 bool Object::getHasExpression() const {
-  return this->getTable().getScope().getHasExpression();
+  return this->getScope().getHasExpression();
 }
 void Object::setExpression(requite::Expression &expression) {
-  this->getTable().getScope().setExpression(expression);
+  this->getScope().setExpression(expression);
 }
 
 requite::Expression &Object::getExpression() {
-  return this->getTable().getScope().getExpression();
+  return this->getScope().getExpression();
 }
 
 const requite::Expression &Object::getExpression() const {
-  return this->getTable().getScope().getExpression();
+  return this->getScope().getExpression();
 }
 
-requite::Table &Object::getTable() { return this->_table; }
+requite::Scope &Object::getScope() { return this->_scope; }
 
-const requite::Table &Object::getTable() const { return this->_table; }
-
-requite::Scope &Object::getScope() { return this->getTable().getScope(); }
-
-const requite::Scope &Object::getScope() const {
-  return this->getTable().getScope();
-}
+const requite::Scope &Object::getScope() const { return this->_scope; }
 
 bool Object::getHasContainingScope() const {
-  return this->getTable().getScope().getHasContainingScope();
+  return this->getScope().getHasContainingScope();
 }
 
 void Object::setContainingScope(requite::Scope &scope) {
-  this->getTable().getScope().setContainingScope(scope);
+  this->getScope().setContainingScope(scope);
 }
 
 requite::Scope &Object::getContainingScope() {
-  return this->getTable().getScope().getContainingScope();
+  return this->getScope().getContainingScope();
 }
 
 const requite::Scope &Object::getContainingScope() const {
-  return this->getTable().getScope().getContainingScope();
+  return this->getScope().getContainingScope();
 }
 
 bool Object::getHasAttributes() const {

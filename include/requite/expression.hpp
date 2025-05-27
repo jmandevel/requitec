@@ -23,7 +23,6 @@ struct Context;
 struct Token;
 struct ExpressionWalker;
 struct Scope;
-struct Table;
 struct Object;
 struct Variable;
 struct Procedure;
@@ -38,7 +37,7 @@ struct Expression final {
   requite::Expression *_branch_ptr = nullptr;
   const char *_source_text_ptr = nullptr;
   unsigned _source_text_length = 0;
-  std::variant<std::monostate, std::string, requite::Scope *, requite::Table *,
+  std::variant<std::monostate, std::string, requite::Scope *,
                requite::Object *, requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Variable *, requite::Label*, llvm::APSInt,
                requite::Symbol>
@@ -162,10 +161,6 @@ struct Expression final {
   [[nodiscard]] inline requite::Scope &getScope();
   [[nodiscard]] inline const requite::Scope &getScope() const;
   void setScope(requite::Scope &scope);
-  [[nodiscard]] inline bool getHasTable() const;
-  [[nodiscard]] inline requite::Table &getTable();
-  [[nodiscard]] inline const requite::Table &getTable() const;
-  inline void setTable(requite::Table &table);
   [[nodiscard]] inline bool getHasObject() const;
   [[nodiscard]] inline requite::Object &getObject();
   [[nodiscard]] inline const requite::Object &getObject() const;
