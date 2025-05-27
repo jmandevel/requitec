@@ -378,6 +378,8 @@ static constexpr unsigned OPCODE_COUNT =
 
 [[nodiscard]] constexpr bool getHasOverloadData(requite::Opcode opcode);
 
+[[nodiscard]] constexpr bool getHasLabelData(requite::Opcode opcode);
+
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasVariableData(requite::Opcode opcode);

@@ -1221,6 +1221,10 @@ constexpr bool getHasOverloadData(requite::Opcode opcode) {
          opcode == requite::Opcode::DESTRUCTOR;
 }
 
+constexpr bool getHasLabelData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::LABEL;
+}
+
 constexpr bool getHasAliasData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ALIAS;
 }

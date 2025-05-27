@@ -118,6 +118,30 @@ inline void Expression::setProcedure(requite::Procedure &procedure) {
   this->_data.emplace<requite::Procedure *>(&procedure);
 }
 
+inline bool Expression::getHasLabel() const {
+  REQUITE_ASSERT(requite::getHasLabelData(this->getOpcode()));
+  return std::holds_alternative<requite::Label *>(this->_data) &&
+         std::get<requite::Label *>(this->_data) != nullptr;
+}
+
+inline void Expression::setLabel(requite::Label &label) {
+  REQUITE_ASSERT(requite::getHasLabelData(this->getOpcode()));
+  REQUITE_ASSERT(!this->getHasLabel());
+  this->_data.emplace<requite::Label *>(&label);
+}
+
+inline requite::Label &Expression::getLabel() {
+  REQUITE_ASSERT(requite::getHasLabelData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasLabel());
+  return requite::getRef(std::get<requite::Label *>(this->_data));
+}
+
+inline const requite::Label &Expression::getLabel() const {
+  REQUITE_ASSERT(requite::getHasLabelData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasLabel());
+  return requite::getRef(std::get<requite::Label *>(this->_data));
+}
+
 inline bool Expression::getHasAnonymousFunction() const {
   REQUITE_ASSERT(requite::getHasAnonymousFunctionData(this->getOpcode()));
   return std::holds_alternative<requite::AnonymousFunction *>(this->_data) &&

@@ -40,7 +40,7 @@ struct Expression final {
   unsigned _source_text_length = 0;
   std::variant<std::monostate, std::string, requite::Scope *, requite::Table *,
                requite::Object *, requite::Procedure *, requite::Alias *,
-               requite::AnonymousFunction *, requite::Variable *, llvm::APSInt,
+               requite::AnonymousFunction *, requite::Variable *, requite::Label*, llvm::APSInt,
                requite::Symbol>
       _data = std::monostate{};
 
@@ -187,6 +187,10 @@ struct Expression final {
   [[nodiscard]] inline requite::Variable &getVariable();
   [[nodiscard]] inline const requite::Variable &getVariable() const;
   inline void setProcedure(requite::Procedure &procedure);
+  [[nodiscard]] inline bool getHasLabel() const;
+  inline void setLabel(requite::Label& label);
+  [[nodiscard]] inline requite::Label &getLabel();
+  [[nodiscard]] inline const requite::Label &getLabel() const;
   [[nodiscard]] inline bool getHasInteger() const;
   [[nodiscard]] inline llvm::APSInt &emplaceInteger();
   [[nodiscard]] inline llvm::APSInt &getInteger();
