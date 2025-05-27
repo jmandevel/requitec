@@ -38,7 +38,6 @@ target_sources(
         maker.cpp
         module_symbols.cpp
         module.cpp
-        name_user_symbols.cpp
         named_procedure_group.cpp
         node.cpp
         object.cpp
@@ -59,6 +58,7 @@ target_sources(
         sub_symbol.cpp
         symbol.cpp
         table.cpp
+        tabulate_user_symbols.cpp
         tasks.cpp
         token_csv.cpp
         token.cpp

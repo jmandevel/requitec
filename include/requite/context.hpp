@@ -137,8 +137,8 @@ struct Context final : public requite::_ContextLlvmContext {
   // make_user_symbols.cpp
   [[nodiscard]] bool makeUserSymbols();
 
-  // name_user_symbols.cpp
-  [[nodiscard]] bool nameUserSymbols();
+  // tabulate_user_symbols.cpp
+  [[nodiscard]] bool tabulateUserSymbols();
 
   // resolve_user_symbols.cpp
   [[nodiscard]] bool resolveUserSymbols();
