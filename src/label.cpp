@@ -8,13 +8,9 @@
 
 namespace requite {
 
-bool Label::operator==(const Self &rhs) const {
-  return this == &rhs;
-}
+bool Label::operator==(const Self &rhs) const { return this == &rhs; }
 
-bool Label::operator!=(const Self &rhs) const {
-  return this != &rhs;
-}
+bool Label::operator!=(const Self &rhs) const { return this != &rhs; }
 
 bool Label::getHasName() const { return !this->_name.empty(); }
 
@@ -29,20 +25,52 @@ llvm::StringRef Label::getName() const {
   return this->_name;
 }
 
-bool Label::getHasExpression() const {
-  return this->_expression_ptr != nullptr;
+bool Label::getHasAttributeExpression() const {
+  return this->_attribute_expression_ptr != nullptr;
 }
 
-void Label::setExpression(requite::Expression &expression) {
-  requite::setSingleRef(this->_expression_ptr, expression);
+void Label::setAttributeExpression(requite::Expression &expression) {
+  requite::setSingleRef(this->_attribute_expression_ptr, expression);
 }
 
-requite::Expression &Label::getExpression() {
-  return requite::getRef(this->_expression_ptr);
+requite::Expression &Label::getAttributeExpression() {
+  return requite::getRef(this->_attribute_expression_ptr);
 }
 
-const requite::Expression &Label::getExpression() const {
-  return requite::getRef(this->_expression_ptr);
+const requite::Expression &Label::getAttributeExpression() const {
+  return requite::getRef(this->_attribute_expression_ptr);
+}
+
+bool Label::getHasStatementExpression() const {
+  return this->_statement_expression_ptr != nullptr;
+}
+
+void Label::setStatementExpression(requite::Expression &expression) {
+  requite::setSingleRef(this->_statement_expression_ptr, expression);
+}
+
+requite::Expression &Label::getStatementExpression() {
+  return requite::getRef(this->_statement_expression_ptr);
+}
+
+const requite::Expression &Label::getStatementExpression() const {
+  return requite::getRef(this->_statement_expression_ptr);
+}
+
+bool Label::getHasContainingScope() const {
+  return this->_containing_scope_ptr != nullptr;
+}
+
+void Label::setContainingScope(requite::Scope &scope) {
+  requite::setSingleRef(this->_containing_scope_ptr, scope);
+}
+
+requite::Scope &Label::getContainingScope() {
+  return requite::getRef(this->_containing_scope_ptr);
+}
+
+const requite::Scope &Label::getContainingScope() const {
+  return requite::getRef(this->_containing_scope_ptr);
 }
 
 } // namespace requite
