@@ -2375,6 +2375,7 @@ void Situator::situateSituationalTripExpression(
         expression);
     if (expression.getHasOneBranch()) {
       expression.flattenBranch();
+      return;
     }
     expression.changeOpcode(requite::Opcode::TUPLE);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
@@ -2397,6 +2398,7 @@ void Situator::situateSituationalTripExpression(
                                 requite::Situation::MATTE_VALUE>(expression);
     if (expression.getHasOneBranch()) {
       expression.flattenBranch();
+      return;
     }
     expression.changeOpcode(requite::Opcode::TUPLE);
   } else if constexpr (SITUATION_PARAM ==
