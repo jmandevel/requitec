@@ -71,28 +71,31 @@ bool Context::run() {
       if (requite::options::INTERMEDIATE_SITUATED_AST.getValue()) {
         this->writeAst(module, ".situated");
       }
+      if (!this->makeUserSymbols(module)) {
+        is_ok_a.store(false);
+        return;
+      }
+      if (!this->determineModuleName(module)) {
+        is_ok_a.store(false);
+        return;
+      }
     });
   }
-  this->initializeLlvmContext();
-  if (!this->setupModuleNames()) {
+  this->waitForTasks();
+  if (is_ok_a == false)
+  {
     return false;
   }
-  // find all symbols and allocate data structs for each
-  if (!this->makeUserSymbols()) {
+  if (!this->mapModules()) {
     return false;
   }
-  // loop over symbols over and over until all are tabulated or its impossible
-  // to continue
+  this->initializeLlvm();
   if (!this->tabulateUserSymbols()) {
     return false;
   }
-  // loop over symbols over and over until all are resolved or its impossible to
-  // continue
   if (!this->resolveUserSymbols()) {
     return false;
   }
-  // loop over symbols over and over until all are built or its impossible to
-  // continue
   if (!this->buildUserSymbols()) {
     return false;
   }

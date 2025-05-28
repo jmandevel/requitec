@@ -14,27 +14,17 @@
 
 namespace requite {
 
-bool Context::setupModuleNames() {
-  const bool determined_ok = this->determineModuleNames();
-  const bool mapped_ok = this->mapModules();
-  return determined_ok && mapped_ok;
-}
-
-bool Context::determineModuleNames() {
-  bool is_ok = true;
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    requite::Expression &root = module.getExpression();
-    requite::Expression &name_expression = root.getBranch();
-    if (!name_expression.getIsIdentifier()) {
-      this->logSourceMessage(name_expression, requite::LogType::ERROR,
-                             "module name is not instantly determinable");
-      is_ok = false;
-    }
-    llvm::StringRef name = name_expression.getDataText();
-    module.setName(name);
+bool Context::determineModuleName(requite::Module &module) {
+  requite::Expression &root = module.getExpression();
+  requite::Expression &name_expression = root.getBranch();
+  if (!name_expression.getIsIdentifier()) {
+    this->logSourceMessage(name_expression, requite::LogType::ERROR,
+                           "module name is not instantly determinable");
+    return false;
   }
-  return is_ok;
+  llvm::StringRef name = name_expression.getDataText();
+  module.setName(name);
+  return true;
 }
 
 bool Context::mapModules() {

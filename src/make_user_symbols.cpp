@@ -8,16 +8,10 @@
 
 namespace requite {
 
-bool Context::makeUserSymbols() {
-  bool is_ok = true;
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    requite::Maker maker(*this, module);
-    maker.makeUserSymbols();
-    if (!maker.getIsOk()) {
-      is_ok = false;
-    }
-  }
+bool Context::makeUserSymbols(requite::Module& module) {
+  requite::Maker maker(*this, module);
+  maker.makeUserSymbols();
+  const bool is_ok = maker.getIsOk();
   return is_ok;
 }
 

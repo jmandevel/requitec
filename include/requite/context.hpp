@@ -130,12 +130,11 @@ struct Context final : public requite::_ContextLlvmContext {
   void writeLlvmIr(const requite::Module &module);
 
   // source_name.cpp
-  [[nodiscard]] bool setupModuleNames();
-  [[nodiscard]] bool determineModuleNames();
+  [[nodiscard]] bool determineModuleName(requite::Module& module);
   [[nodiscard]] bool mapModules();
 
   // make_user_symbols.cpp
-  [[nodiscard]] bool makeUserSymbols();
+  [[nodiscard]] bool makeUserSymbols(requite::Module& module);
 
   // tabulate_user_symbols.cpp
   [[nodiscard]] bool tabulateUserSymbols();
@@ -161,6 +160,7 @@ struct Context final : public requite::_ContextLlvmContext {
   const requite::Module *getModulePtr(llvm::StringRef name) const;
 
   // llvm_target.cpp
+  void initializeLlvm();
   void initializeLlvmContext();
   [[nodiscard]]
   bool getIsLlvmContextInitialized() const;
