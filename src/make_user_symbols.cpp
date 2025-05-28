@@ -142,6 +142,16 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
                                         "attributes ascribed to table");
     this->setNotOk();
   } break;
+  case requite::Opcode::IMPORT: {
+    requite::Node &import = scope.getNodes().emplace_back();
+    import.setType(requite::NodeType::IMPORT);
+    import.setExpression(expression);
+  } break;
+  case requite::Opcode::USE: {
+    requite::Node &use = scope.getNodes().emplace_back();
+    use.setType(requite::NodeType::USE);
+    use.setExpression(expression);
+  } break;
   default:
     this->makeScopedValues(scope, expression, false);
   }
