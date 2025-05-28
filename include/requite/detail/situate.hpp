@@ -512,7 +512,8 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::CONCATINATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateConcatinateExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SITUATION_PARAM, 2,
+                                  requite::Situation::MATTE_VALUE>(expression);
     }
     break;
   case requite::Opcode::FROM_FRONT:
@@ -2701,32 +2702,6 @@ void Situator::situateIdentifyExpression(requite::Expression &expression) {
   expression.flattenBranch();
   expression.changeOpcode(requite::Opcode::_IDENTIFIER_LITERAL);
   expression.setDataText(text);
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situateConcatinateExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONCATINATE);
-  this->situateNaryExpression<SITUATION_PARAM, 2,
-                              requite::Situation::MATTE_VALUE>(expression);
-  if (!this->getIsOk()) {
-    return;
-  }
-  bool found_non_literal_branch = false;
-  for (requite::Expression &branch : expression.getBranchSubrange()) {
-    if (branch.getOpcode() != requite::Opcode::_STRING_LITERAL) {
-      found_non_literal_branch = true;
-      break;
-    }
-  }
-  if (!found_non_literal_branch) {
-    std::string text;
-    for (requite::Expression &branch : expression.getBranchSubrange()) {
-      text += branch.getDataText().str();
-    }
-    requite::Expression::deleteExpression(expression.popBranch());
-    expression.changeOpcode(requite::Opcode::_STRING_LITERAL);
-    expression.setDataText(text);
-  }
 }
 
 } // namespace requite
