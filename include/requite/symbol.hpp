@@ -43,6 +43,7 @@ enum class RootSymbolType {
   ANONYMOUS_OBJECT,
 
   // USER
+  SCOPE,
   OBJECT,
   TABLE,
   ALIAS,
@@ -61,6 +62,7 @@ enum class RootSymbolType {
 struct Signature;
 struct Tuple;
 struct AnonymousObject;
+struct Scope;
 struct Object;
 struct Table;
 struct Alias;
@@ -80,6 +82,7 @@ struct RootSymbol final {
     requite::Signature *_signature_ptr;
     requite::Tuple *_tuple_ptr;
     requite::AnonymousObject *_anonymous_object_ptr;
+    requite::Scope *_scope_ptr;
     requite::Object *_object_ptr;
     requite::Table *_table_ptr;
     requite::Alias *_alias_ptr;
@@ -99,6 +102,7 @@ struct RootSymbol final {
   Self &operator=(Self &&rhs) = default;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
+  [[nodiscard]] static Self makeUser(requite::Scope &scope);
   [[nodiscard]] static Self makeUser(requite::Object &object);
   [[nodiscard]] static Self makeUser(requite::Table &table);
   [[nodiscard]] static Self makeUser(requite::Alias &alias);
@@ -129,6 +133,7 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsSignature() const;
   [[nodiscard]] bool getIsTuple() const;
   [[nodiscard]] bool getIsAnonymousObject() const;
+  [[nodiscard]] bool getIsScope() const;
   [[nodiscard]] bool getIsObject() const;
   [[nodiscard]] bool getIsTable() const;
   [[nodiscard]] bool getIsAlias() const;
@@ -144,6 +149,10 @@ struct RootSymbol final {
   [[nodiscard]] requite::Tuple &getTuple();
   [[nodiscard]] const requite::AnonymousObject &getAnonymousObject() const;
   [[nodiscard]] requite::AnonymousObject &getAnonymousObject();
+  [[nodiscard]] bool getHasScope() const;
+  void setScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getScope();
+  [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] bool getHasObject() const;
   void setObject(requite::Object &object);
   [[nodiscard]] const requite::Object &getObject() const;

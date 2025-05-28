@@ -8,14 +8,14 @@
 #include <requite/expression.hpp>
 #include <requite/label.hpp>
 #include <requite/module.hpp>
+#include <requite/named_procedure_group.hpp>
 #include <requite/object.hpp>
 #include <requite/procedure.hpp>
-#include <requite/named_procedure_group.hpp>
-#include <requite/variable.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol.hpp>
 #include <requite/table.hpp>
 #include <requite/tuple.hpp>
+#include <requite/variable.hpp>
 
 namespace requite {
 
@@ -117,7 +117,8 @@ requite::RootSymbol RootSymbol::makeUser(requite::Procedure &procedure) {
   return requite::RootSymbol(root);
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::NamedProcedureGroup &procedure_group) {
+requite::RootSymbol
+RootSymbol::makeUser(requite::NamedProcedureGroup &procedure_group) {
   requite::RootSymbol root;
   root.setType(requite::RootSymbolType::NAMED_PROCEDURE_GROUP);
   root.setNamedProcedureGroup(procedure_group);
@@ -245,6 +246,10 @@ bool RootSymbol::getIsAnonymousObject() const {
   return this->_type == requite::RootSymbolType::ANONYMOUS_OBJECT;
 }
 
+bool RootSymbol::getIsScope() const {
+  return this->_type == requite::RootSymbolType::SCOPE;
+}
+
 bool RootSymbol::getIsObject() const {
   return this->_type == requite::RootSymbolType::OBJECT;
 }
@@ -305,6 +310,22 @@ const requite::AnonymousObject &RootSymbol::getAnonymousObject() const {
 requite::AnonymousObject &RootSymbol::getAnonymousObject() {
   REQUITE_ASSERT(this->getIsAnonymousObject());
   return requite::getRef(this->_anonymous_object_ptr);
+}
+
+bool RootSymbol::getHasScope() const { return this->_scope_ptr != nullptr; }
+
+void RootSymbol::setScope(requite::Scope &scope) {
+  requite::setSingleRef(this->_scope_ptr, scope);
+}
+
+requite::Scope &RootSymbol::getScope() {
+  REQUITE_ASSERT(this->getIsScope());
+  return requite::getRef(this->_scope_ptr);
+}
+
+const requite::Scope &RootSymbol::getScope() const {
+  REQUITE_ASSERT(this->getIsScope());
+  return requite::getRef(this->_scope_ptr);
 }
 
 bool RootSymbol::getHasObject() const {
@@ -412,9 +433,11 @@ bool RootSymbol::getHasNamedProcedureGroup() const {
   return this->_named_procedure_group_ptr != nullptr;
 }
 
-void RootSymbol::setNamedProcedureGroup(requite::NamedProcedureGroup &named_procedure_group) {
+void RootSymbol::setNamedProcedureGroup(
+    requite::NamedProcedureGroup &named_procedure_group) {
   REQUITE_ASSERT(this->getIsNamedProcedureGroup());
-  requite::setSingleRef(this->_named_procedure_group_ptr, named_procedure_group);
+  requite::setSingleRef(this->_named_procedure_group_ptr,
+                        named_procedure_group);
 }
 
 const requite::NamedProcedureGroup &RootSymbol::getNamedProcedureGroup() const {
