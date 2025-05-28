@@ -33,23 +33,17 @@ struct Node final {
   Self& operator=(const Self& that) = default;
   ~Node() = default;
   void setType(requite::NodeType type);
-  [[nodiscard]]
-  requite::NodeType getType() const;
-  [[nodiscard]]
-  bool getHasExpression() const;
+  [[nodiscard]] requite::NodeType getType() const;
+  [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
-  [[nodiscard]]
-  requite::Expression &getExpression();
-  [[nodiscard]]
-  const requite::Expression &getExpression() const;
-  [[nodiscard]]
-  requite::Attributes &getAttributes();
-  [[nodiscard]]
-  const requite::Attributes &getAttributes() const;
-  [[nodiscard]]
-  std::vector<requite::Scope *> &getScopePtrs();
-  [[nodiscard]]
-  const std::vector<requite::Scope *> &getScopePtrs() const;
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] bool getHasAttributes() const;
+  void setAttributes(requite::Attributes attributes);
+  [[nodiscard]] requite::Attributes &getAttributes();
+  [[nodiscard]] const requite::Attributes &getAttributes() const;
+  [[nodiscard]] std::vector<requite::Scope *> &getScopePtrs();
+  [[nodiscard]] const std::vector<requite::Scope *> &getScopePtrs() const;
 };
 
 } // namespace requite

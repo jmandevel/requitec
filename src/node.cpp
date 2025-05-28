@@ -25,9 +25,24 @@ const requite::Expression &Node::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-requite::Attributes &Node::getAttributes() { return this->_attributes; }
+
+bool Node::getHasAttributes() const {
+  return this->_attributes.getHasExpression();
+}
+
+void Node::setAttributes(requite::Attributes attributes) {
+  REQUITE_ASSERT(!this->_attributes.getHasExpression());
+  REQUITE_ASSERT(attributes.getHasExpression());
+  this->_attributes = attributes;
+}
+
+requite::Attributes &Node::getAttributes() {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  return this->_attributes;
+}
 
 const requite::Attributes &Node::getAttributes() const {
+  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 
