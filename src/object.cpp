@@ -105,7 +105,7 @@ const requite::Procedure &Object::getDestructor() const {
 }
 
 void Object::addConstructor(requite::Procedure &constructor) {
-  constructor._next_procedure_ptr = this->_first_constructor_ptr;
+  constructor._next_ptr = this->_first_constructor_ptr;
   this->_first_constructor_ptr = &constructor;
 }
 
