@@ -110,37 +110,37 @@ const requite::Attributes &Procedure::getAttributes() const {
 }
 
 void Procedure::setNamedProcedureGroup(
-    requite::NamedProcedureGroup &named_procedure_group) {
-  requite::setSingleRef(this->_named_procedure_group_ptr,
-                        named_procedure_group);
+    requite::NamedProcedureGroup &group) {
+  requite::setSingleRef(this->_group_ptr,
+                        group);
 }
 
 bool Procedure::getHasNamedProcedureGroup() const {
-  return this->_named_procedure_group_ptr != nullptr;
+  return this->_group_ptr != nullptr;
 }
 
 requite::NamedProcedureGroup &Procedure::getNamedProcedureGroup() {
-  return requite::getRef(this->_named_procedure_group_ptr);
+  return requite::getRef(this->_group_ptr);
 }
 
 const requite::NamedProcedureGroup &Procedure::getNamedProcedureGroup() const {
-  return requite::getRef(this->_named_procedure_group_ptr);
+  return requite::getRef(this->_group_ptr);
 }
 
 void Procedure::setNextProcedure(requite::Procedure &procedure) {
-  requite::setSingleRef(this->_next_procedure_ptr, procedure);
+  requite::setSingleRef(this->_next_ptr, procedure);
 }
 
 bool Procedure::getHasNextProcedure() const {
-  return this->_next_procedure_ptr != nullptr;
+  return this->_next_ptr != nullptr;
 }
 
 requite::Procedure &Procedure::getNextProcedure() {
-  return requite::getRef(this->_next_procedure_ptr);
+  return requite::getRef(this->_next_ptr);
 }
 
 const requite::Procedure &Procedure::getNextProcedure() const {
-  return requite::getRef(this->_next_procedure_ptr);
+  return requite::getRef(this->_next_ptr);
 }
 
 bool Procedure::getHasLlvmFunctionType() const {

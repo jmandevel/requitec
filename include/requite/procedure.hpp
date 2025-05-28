@@ -36,9 +36,8 @@ struct Procedure final {
   requite::Scope _scope = {};
   requite::Signature _signature = {};
   requite::Attributes _attributes = {};
-  requite::NamedProcedureGroup *_named_procedure_group_ptr = nullptr;
-  requite::Procedure *_prototype_implementation_ptr = nullptr;
-  requite::Procedure *_next_procedure_ptr = nullptr;
+  requite::NamedProcedureGroup *_group_ptr = nullptr;
+  requite::Procedure *_next_ptr = nullptr;
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
   llvm::Function *_llvm_function_ptr = nullptr;
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
@@ -79,7 +78,7 @@ struct Procedure final {
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;
   void
-  setNamedProcedureGroup(requite::NamedProcedureGroup &named_procedure_group);
+  setNamedProcedureGroup(requite::NamedProcedureGroup &group);
   [[nodiscard]] bool getHasNamedProcedureGroup() const;
   [[nodiscard]] requite::NamedProcedureGroup &getNamedProcedureGroup();
   [[nodiscard]] const requite::NamedProcedureGroup &
