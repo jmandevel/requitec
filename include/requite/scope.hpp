@@ -79,7 +79,7 @@ struct Scope {
   void setAnonymousFunction(requite::AnonymousFunction &anonymous_function);
   [[nodiscard]] requite::AnonymousFunction &getAnonymousFunction();
   [[nodiscard]] const requite::AnonymousFunction &getAnonymousFunction() const;
-    [[nodiscard]] bool getHasExpression() const;
+  [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &
   replaceExpression(requite::Expression &expression);
@@ -87,9 +87,9 @@ struct Scope {
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] bool getHasNext() const;
-  void setNext(requite::Scope& scope);
+  void setNext(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getNext();
-  [[nodiscard]] const requite::Scope& getNext() const;
+  [[nodiscard]] const requite::Scope &getNext() const;
 
   // lookup_symbols.cpp
   [[nodiscard]]
