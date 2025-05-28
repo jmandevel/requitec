@@ -25,7 +25,7 @@ struct Procedure;
 struct Table;
 struct Object;
 
-struct Scope {
+struct Scope final {
   using Self = requite::Scope;
 
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
