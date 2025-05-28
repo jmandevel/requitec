@@ -14,7 +14,7 @@ requite::RootSymbol Scope::lookupInternalRootSymbol(llvm::StringRef name) {
   llvm::StringMapIterator<requite::RootSymbol> it =
       this->_symbol_map.find(name);
   if (it != this->_symbol_map.end()) {
-    return requite::RootSymbol(this->_symbol_map.at(name));
+    return requite::RootSymbol(it->second);
   }
   return requite::RootSymbol();
 }
