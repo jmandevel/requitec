@@ -194,6 +194,14 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     property.setContainingScope(scope);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
+  case requite::Opcode::CONSTANT: {
+    requite::Variable &constant = this->getModule().makeVariable();
+    constant.setType(requite::VariableType::CONSTANT);
+    constant.setExpression(expression);
+    expression.setVariable(constant);
+    constant.setContainingScope(scope);
+    this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
+  } break;
   case requite::Opcode::ENTRY_POINT: {
     requite::Procedure &entry_point = this->getModule().makeProcedure();
     entry_point.setType(requite::ProcedureType::ENTRY_POINT);
