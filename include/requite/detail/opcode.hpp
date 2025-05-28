@@ -155,7 +155,7 @@ enum _OpcodeFlags : std::uint32_t {
   case requite::Opcode::REFLECT_VALUE:
     return "aghknv";
   case requite::Opcode::REFLECT_SYMBOL:
-    return "aghknv";
+    return "aghknvy";
 
   // BIND
   case requite::Opcode::BIND_VALUE:
