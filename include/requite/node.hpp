@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <requite/node_type.hpp>
 #include <requite/attributes.hpp>
+#include <requite/node_type.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -24,10 +24,10 @@ struct Node final {
 
   // node.cpp
   Node() = default;
-  Node(const Self& that) = default;
-  Node(Self&& that) = default;
-  Self& operator=(Self&& that) = default;
-  Self& operator=(const Self& that) = default;
+  Node(const Self &that) = default;
+  Node(Self &&that) = default;
+  Self &operator=(Self &&that) = default;
+  Self &operator=(const Self &that) = default;
   ~Node() = default;
   void setType(requite::NodeType type);
   [[nodiscard]] requite::NodeType getType() const;

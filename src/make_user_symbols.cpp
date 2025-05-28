@@ -8,7 +8,7 @@
 
 namespace requite {
 
-bool Context::makeUserSymbols(requite::Module& module) {
+bool Context::makeUserSymbols(requite::Module &module) {
   requite::Maker maker(*this, module);
   maker.makeUserSymbols();
   const bool is_ok = maker.getIsOk();

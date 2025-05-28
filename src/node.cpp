@@ -25,7 +25,6 @@ const requite::Expression &Node::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-
 bool Node::getHasAttributes() const {
   return this->_attributes.getHasExpression();
 }

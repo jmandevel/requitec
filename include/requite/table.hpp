@@ -17,7 +17,7 @@ struct Table final {
 
   std::string _name = {};
   requite::Scope _stub_scope = {};
-  requite::Scope* _first_scope_ptr = nullptr;
+  requite::Scope *_first_scope_ptr = nullptr;
 
   // table.cpp
   Table();
@@ -32,9 +32,9 @@ struct Table final {
   [[nodiscard]] requite::Scope &getStubScope();
   [[nodiscard]] const requite::Scope &getStubScope() const;
   [[nodiscard]] bool getHasSubScopes() const;
-  void addSubScope(requite::Scope& scope);
-  [[nodiscard]] requite::Scope& getFirstScope();
-  [[nodiscard]] const requite::Scope& getFirstScope() const;
+  void addSubScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getFirstScope();
+  [[nodiscard]] const requite::Scope &getFirstScope() const;
 };
 
 } // namespace requite

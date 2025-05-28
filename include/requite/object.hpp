@@ -10,8 +10,8 @@
 
 #include <llvm/ADT/StringRef.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace requite {
 

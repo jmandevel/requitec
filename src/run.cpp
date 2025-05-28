@@ -82,8 +82,7 @@ bool Context::run() {
     });
   }
   this->waitForTasks();
-  if (is_ok_a == false)
-  {
+  if (is_ok_a == false) {
     return false;
   }
   if (!this->mapModules()) {
