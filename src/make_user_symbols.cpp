@@ -146,11 +146,13 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     requite::Node &import = scope.getNodes().emplace_back();
     import.setType(requite::NodeType::IMPORT);
     import.setExpression(expression);
+    import.setAttributes(attributes);
   } break;
   case requite::Opcode::USE: {
     requite::Node &use = scope.getNodes().emplace_back();
     use.setType(requite::NodeType::USE);
     use.setExpression(expression);
+    use.setAttributes(attributes);
   } break;
   default:
     this->makeScopedValues(scope, expression, false);
@@ -242,6 +244,16 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     new_scope.setContainingScope(scope);
     this->makeUnorderedUserSymbols(new_scope, expression.getBranch(),
                                    conduits_have_scopes);
+  } break;
+  case requite::Opcode::IMPORT: {
+    requite::Node &import = scope.getNodes().emplace_back();
+    import.setType(requite::NodeType::IMPORT);
+    import.setExpression(expression);
+  } break;
+  case requite::Opcode::USE: {
+    requite::Node &use = scope.getNodes().emplace_back();
+    use.setType(requite::NodeType::USE);
+    use.setExpression(expression);
   } break;
   default:
     this->makeScopedValues(scope, expression, false);
