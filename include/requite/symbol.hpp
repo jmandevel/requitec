@@ -54,14 +54,7 @@ enum class RootSymbolType {
 };
 
 // detail/symbol.hpp
-[[nodiscard]] constexpr requite::RootSymbolType
-getRootSymbolType(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getIsNullary(requite::RootSymbolType type);
-
 [[nodiscard]] constexpr bool getHasDepth(requite::RootSymbolType type);
-
-[[nodiscard]] constexpr bool getIsUser(requite::RootSymbolType type);
 
 [[nodiscard]] constexpr bool getHasUserAttributes(requite::RootSymbolType type);
 
