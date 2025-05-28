@@ -19,8 +19,8 @@ void Context::writeLlvmIr(const requite::Module &module) {
   if (ec) {
     this->logMessage(
         llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tPath: ") +
-        llvm::Twine(path) + llvm::Twine("\n\tReason: ") +
+            "error: failed to open intermediate file for writing\n\tpath: ") +
+        llvm::Twine(path) + llvm::Twine("\n\treason: ") +
         llvm::Twine(ec.message()));
     return;
   }
