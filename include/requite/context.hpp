@@ -61,9 +61,12 @@ struct Context final : public requite::_ContextLlvmContext {
   const llvm::Target *_llvm_target_ptr = {};
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
+  bool _is_ok = true;
 
   // context.cpp
   Context(std::string &&executable_path);
+  [[nodiscard]] bool getIsOk() const;
+  void setNotOk();
 
   // filesystem.cpp
   [[nodiscard]]
