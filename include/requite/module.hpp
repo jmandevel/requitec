@@ -46,7 +46,6 @@ struct Module final {
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
-  requite::Procedure *_entry_point_ptr = nullptr;
 
   Module();
   Module(Self &that) = delete;
@@ -108,10 +107,6 @@ struct Module final {
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::File &getFile();
   [[nodiscard]] const requite::File &getFile() const;
-  [[nodiscard]] bool getHasEntryPoint() const;
-  void setEntryPoint(requite::Procedure &procedure);
-  [[nodiscard]] requite::Procedure &getEntryPoint();
-  [[nodiscard]] const requite::Procedure &getEntryPoint() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &

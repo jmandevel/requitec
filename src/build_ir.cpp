@@ -21,9 +21,7 @@ bool Context::buildIr(requite::Module &module) {
 }
 
 void Builder::buildModule() {
-  if (this->getModule().getHasEntryPoint()) {
-    this->buildEntryPoint(this->getModule().getEntryPoint());
-  }
+  // TODO
 }
 
 bool Builder::buildEntryPoint(requite::Procedure &procedure) {

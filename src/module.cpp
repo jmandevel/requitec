@@ -32,23 +32,6 @@ requite::File &Module::getFile() { return this->_file; }
 
 const requite::File &Module::getFile() const { return this->_file; }
 
-bool Module::getHasEntryPoint() const {
-  return this->_entry_point_ptr != nullptr;
-}
-
-void Module::setEntryPoint(requite::Procedure &procedure) {
-  REQUITE_ASSERT(procedure.getType() == requite::ProcedureType::ENTRY_POINT);
-  requite::setSingleRef(this->_entry_point_ptr, procedure);
-}
-
-requite::Procedure &Module::getEntryPoint() {
-  return requite::getRef(this->_entry_point_ptr);
-}
-
-const requite::Procedure &Module::getEntryPoint() const {
-  return requite::getRef(this->_entry_point_ptr);
-}
-
 bool Module::getHasExpression() const {
   return this->getScope().getHasExpression();
 }
