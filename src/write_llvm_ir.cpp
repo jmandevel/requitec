@@ -2,11 +2,19 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <requite/assert.hpp>
 #include <requite/context.hpp>
 
 #include <llvm/Support/FileSystem.h>
 
 namespace requite {
+
+void Context::writeLlvmIr() {
+  for (std::unique_ptr<requite::Module> &module_utpr : this->getModuleUptrs()) {
+    requite::Module &module = requite::getRef(module_utpr);
+    this->writeLlvmIr(module);
+  }
+}
 
 void Context::writeLlvmIr(const requite::Module &module) {
   llvm::Twine extension = ".ir";

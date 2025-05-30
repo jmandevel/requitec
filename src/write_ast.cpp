@@ -20,6 +20,14 @@
 
 namespace requite {
 
+void Context::writeAst(llvm::StringRef sub_extension) {
+  for (const std::unique_ptr<requite::Module> &module_uptr :
+       this->getModuleUptrs()) {
+    const requite::Module &module = requite::getRef(module_uptr);
+    this->writeAst(module, sub_extension);
+  }
+}
+
 void Context::writeAst(const requite::Module &module,
                        llvm::StringRef sub_extension) {
   requite::AstWriter writer(*this);
@@ -40,12 +48,14 @@ llvm::raw_string_ostream &AstWriter::getOstream() { return _ostream; }
 void AstWriter::writeAst(const requite::Module &module,
                          llvm::Twine sub_extension) {
   this->_buffer.clear();
-  for (const auto &expression : module.getExpression().getHorizontalSubrange()) {
+  for (const auto &expression :
+       module.getExpression().getHorizontalSubrange()) {
     this->writeExpression(expression);
   }
   llvm::Twine extension = llvm::Twine(sub_extension) + ".ast";
   llvm::SmallString<256> path;
-  if (!module.getFile().makeIntermediateFilePath(path, this->getContext(), extension)) {
+  if (!module.getFile().makeIntermediateFilePath(path, this->getContext(),
+                                                 extension)) {
     return;
   }
   std::error_code ec;

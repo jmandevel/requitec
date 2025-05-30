@@ -40,10 +40,9 @@ bool Context::run() {
     return false;
   }
   std::atomic<bool> is_ok_a = true;
-  std::atomic<bool> is_ready_a = true;
   for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
     requite::Module &module = requite::getRef(module_uptr);
-    this->scheduleTask([this, &is_ok_a, &is_ready_a, &module]() {
+    this->scheduleTask([this, &is_ok_a, &module]() {
       std::vector<requite::Token> tokens;
       if (!this->validateSourceFileText(module.getFile())) {
         is_ok_a.store(false);
@@ -98,20 +97,13 @@ bool Context::run() {
   if (!this->buildUserSymbols()) {
     return false;
   }
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    if (!this->buildIr(module)) {
-      is_ok = false;
-      continue;
-    }
-    if (requite::options::INTERMEDIATE_LLVM_IR.getValue()) {
-      this->writeLlvmIr(module);
-    }
-    if (!this->compileObject(module)) {
-      is_ok = false;
-    }
+  if (requite::options::INTERMEDIATE_LLVM_IR.getValue()) {
+    this->writeLlvmIr();
   }
-  return is_ok;
+  if (!this->compileObjectFiles()) {
+    return false;
+  }
+  return true;
 }
 
 } // namespace requite

@@ -13,11 +13,13 @@ namespace requite {
 
 struct Expression;
 struct Local;
+struct Module;
 
 struct AnonymousFunction final {
   using Self = requite::AnonymousFunction;
 
   requite::Scope _scope = {};
+  requite::Module* _module_ptr = nullptr;
   requite::Expression *_expression_ptr = nullptr;
   requite::Signature _signature = {};
   std::vector<requite::Local *> _captured_ptrs = {};
@@ -35,6 +37,10 @@ struct AnonymousFunction final {
   requite::Scope &getScope();
   [[nodiscard]]
   const requite::Scope &getScope() const;
+  [[nodiscard]] bool getHasModule() const;
+  void setModule(requite::Module &module);
+  [[nodiscard]] requite::Module &getModule();
+  [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] bool getHasContainingScope() const;
   void setContainingScope(requite::Scope& scope);
   [[nodiscard]] requite::Scope& getContainingScope();

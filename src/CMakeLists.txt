@@ -16,10 +16,8 @@ target_sources(
         anonymous_object.cpp
         anonymous_property.cpp
         attributes.cpp
-        build_ir.cpp
         build_user_symbols.cpp
-        builder.cpp
-        compile_objects.cpp
+        compile_object_files.cpp
         const_expression_iterator.cpp
         const_sub_scope_iterator.cpp
         context.cpp

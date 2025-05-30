@@ -128,10 +128,12 @@ struct Context final : public requite::_ContextLlvmContext {
   bool parseAst(requite::Module &module, std::vector<requite::Token> &token);
 
   // write_ast.cpp
+  void writeAst(llvm::StringRef sub_extension);
   void writeAst(const requite::Module &module, llvm::StringRef sub_extension);
 
   // write_llvm_ir.cpp
-  void writeLlvmIr(const requite::Module &module);
+  void writeLlvmIr();
+  void writeLlvmIr(const requite::Module& module);
 
   // source_name.cpp
   [[nodiscard]] bool determineModuleName(requite::Module &module);
@@ -177,13 +179,10 @@ struct Context final : public requite::_ContextLlvmContext {
                                    requite::Expression &value_expression,
                                    const requite::Symbol& type);
 
-  // build_ir.cpp
+  // compile_object_files.cpp
   [[nodiscard]]
-  bool buildIr(requite::Module &module);
-
-  // compile_objects.cpp
-  [[nodiscard]]
-  bool compileObject(requite::Module &module);
+  bool compileObjectFiles();
+  void compileObjectFile(requite::Module& module);
 
   // get_module.cpp
   [[nodiscard]]

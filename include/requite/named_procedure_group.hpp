@@ -22,7 +22,7 @@ struct NamedProcedureGroup final {
   using Self = requite::NamedProcedureGroup;
 
   std::string _name = {};
-  requite::Scope* _containing_scope_ptr = nullptr;
+  requite::Scope *_containing_scope_ptr = nullptr;
   requite::Procedure *_first_ptr = nullptr;
 
   // named_procedure_group.cpp

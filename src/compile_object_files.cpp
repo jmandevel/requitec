@@ -12,11 +12,20 @@
 
 namespace requite {
 
-bool Context::compileObject(requite::Module &module) {
+bool Context::compileObjectFiles() {
+  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
+    requite::Module &module = requite::getRef(module_uptr);
+    this->compileObjectFile(module);
+  }
+  return this->getIsOk();
+}
+
+void Context::compileObjectFile(requite::Module &module) {
   llvm::StringRef extension = ".o";
   llvm::SmallString<256> path;
   if (!module.getFile().makeIntermediateFilePath(path, *this, extension)) {
-    return false;
+    this->setNotOk();
+    return;
   }
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
@@ -26,7 +35,8 @@ bool Context::compileObject(requite::Module &module) {
             "error: failed to open intermediate file for writing\n\tpath: ") +
         llvm::Twine(path) + llvm::Twine("\n\treason: ") +
         llvm::Twine(ec.message()));
-    return false;
+    this->setNotOk();
+    return;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::ObjectFile;
@@ -35,11 +45,12 @@ bool Context::compileObject(requite::Module &module) {
     this->logMessage(
         llvm::Twine("error: failed to add passes to emit file\n\tpath: ") +
         llvm::Twine(path));
-    return false;
+    this->setNotOk();
+    return;
   }
   pass.run(module.getLlvmModule());
   fout.flush();
-  return true;
+  return;
 }
 
 } // namespace requite
