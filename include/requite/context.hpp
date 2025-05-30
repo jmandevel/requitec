@@ -142,8 +142,14 @@ struct Context final : public requite::_ContextLlvmContext {
   // tabulate_user_symbols.cpp
   [[nodiscard]] bool tabulateUserSymbols();
 
-  // resolve_user_symbols.cpp
-  [[nodiscard]] bool resolveUserSymbols();
+  // prototype_user_symbols.cpp
+  [[nodiscard]] bool prototypeAll();
+  void prototype(requite::Module &module);
+  void prototype(requite::Object &object);
+  void prototype(requite::Procedure &procedure);
+  void prototype(requite::Alias &alias);
+  void prototype(requite::Variable &variable);
+  void prototype(requite::AnonymousFunction &anonymous_function);
 
   // build_user_symbols.cpp
   [[nodiscard]] bool buildUserSymbols();
