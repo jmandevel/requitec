@@ -22,8 +22,6 @@ struct Scope;
 struct Alias final {
   std::string _name = {};
   bool _dependent_name = false;
-  requite::Module *_module_ptr = nullptr;
-  requite::Object *_object_ptr = nullptr;
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::Expression *_expression_ptr = nullptr;
   requite::Attributes _attributes = {};
@@ -42,14 +40,6 @@ struct Alias final {
   void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;
-  void setModule(requite::Module &module);
-  [[nodiscard]] requite::Module &getModule();
-  [[nodiscard]] const requite::Module &getModule() const;
-  void setObject(requite::Object &object);
-  [[nodiscard]] requite::Object &getObject();
-  [[nodiscard]] const requite::Object &getObject() const;
-  [[nodiscard]] requite::Object *getObjectPtr();
-  [[nodiscard]] const requite::Object *getObjectPtr() const;
   [[nodiscard]] bool getHasContainingScope() const;
   void setContainingScope(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContainingScope();

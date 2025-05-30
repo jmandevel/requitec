@@ -58,34 +58,6 @@ const requite::Attributes &Alias::getAttributes() const {
   return this->_attributes;
 }
 
-void Alias::setModule(requite::Module &module) {
-  requite::setSingleRef(this->_module_ptr, module);
-}
-
-requite::Module &Alias::getModule() {
-  return requite::getRef(this->_module_ptr);
-}
-
-const requite::Module &Alias::getModule() const {
-  return requite::getRef(this->_module_ptr);
-}
-
-void Alias::setObject(requite::Object &object) {
-  requite::setSingleRef(this->_object_ptr, object);
-}
-
-requite::Object &Alias::getObject() {
-  return requite::getRef(this->_object_ptr);
-}
-
-const requite::Object &Alias::getObject() const {
-  return requite::getRef(this->_object_ptr);
-}
-
-requite::Object *Alias::getObjectPtr() { return this->_object_ptr; }
-
-const requite::Object *Alias::getObjectPtr() const { return this->_object_ptr; }
-
 bool Alias::getHasContainingScope() const {
   return this->_containing_scope_ptr != nullptr;
 }
