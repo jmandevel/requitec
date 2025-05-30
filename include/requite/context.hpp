@@ -62,12 +62,9 @@ struct Context final : public requite::_ContextLlvmContext {
   const llvm::Target *_llvm_target_ptr = {};
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
-  bool _is_ok = true;
 
   // context.cpp
   Context(std::string &&executable_path);
-  [[nodiscard]] bool getIsOk() const;
-  void setNotOk();
 
   // filesystem.cpp
   [[nodiscard]]
@@ -147,21 +144,21 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // prototype_user_symbols.cpp
   [[nodiscard]] bool prototypeUserSymbols();
-  void prototypeUserSymbol(requite::Module &module);
-  void prototypeUserSymbol(requite::Object &object);
-  void prototypeUserSymbol(requite::Procedure &procedure);
-  void prototypeUserSymbol(requite::Alias &alias);
-  void prototypeUserSymbol(requite::Variable &variable);
-  void prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
+  [[nodiscard]] bool prototypeUserSymbol(requite::Module &module);
+  [[nodiscard]] bool prototypeUserSymbol(requite::Object &object);
+  [[nodiscard]] bool prototypeUserSymbol(requite::Procedure &procedure);
+  [[nodiscard]] bool prototypeUserSymbol(requite::Alias &alias);
+  [[nodiscard]] bool prototypeUserSymbol(requite::Variable &variable);
+  [[nodiscard]] bool prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // build_user_symbols.cpp
   [[nodiscard]] bool buildUserSymbols();
-  void buildUserSymbol(requite::Module &module);
-  void buildUserSymbol(requite::Object &object);
-  void buildUserSymbol(requite::Procedure &procedure);
-  void buildUserSymbol(requite::Alias &alias);
-  void buildUserSymbol(requite::Variable &variable);
-  void buildUserSymbol(requite::AnonymousFunction &anonymous_function);
+  [[nodiscard]] bool buildUserSymbol(requite::Module &module);
+  [[nodiscard]] bool buildUserSymbol(requite::Object &object);
+  [[nodiscard]] bool buildUserSymbol(requite::Procedure &procedure);
+  [[nodiscard]] bool buildUserSymbol(requite::Alias &alias);
+  [[nodiscard]] bool buildUserSymbol(requite::Variable &variable);
+  [[nodiscard]] bool buildUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // resolve_symbols.cpp
   [[nodiscard]] bool resolveSymbol(requite::Scope &scope,
@@ -180,9 +177,8 @@ struct Context final : public requite::_ContextLlvmContext {
                                    const requite::Symbol& type);
 
   // compile_object_files.cpp
-  [[nodiscard]]
-  bool compileObjectFiles();
-  void compileObjectFile(requite::Module& module);
+  [[nodiscard]] bool compileObjectFiles();
+  [[nodiscard]] bool compileObjectFile(requite::Module& module);
 
   // get_module.cpp
   [[nodiscard]]
