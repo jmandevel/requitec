@@ -92,7 +92,7 @@ bool Context::run() {
   if (!this->tabulateUserSymbols()) {
     return false;
   }
-  if (!this->prototypeAll()) {
+  if (!this->prototypeUserSymbols()) {
     return false;
   }
   if (!this->buildUserSymbols()) {

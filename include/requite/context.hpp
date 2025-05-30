@@ -37,6 +37,7 @@ struct Expression;
 struct Token;
 struct SourceLocation;
 struct SourceRange;
+struct Value;
 
 // llvm context is in inherited type to ensure that the llvm context is
 // destroyed last.
@@ -143,16 +144,38 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool tabulateUserSymbols();
 
   // prototype_user_symbols.cpp
-  [[nodiscard]] bool prototypeAll();
-  void prototype(requite::Module &module);
-  void prototype(requite::Object &object);
-  void prototype(requite::Procedure &procedure);
-  void prototype(requite::Alias &alias);
-  void prototype(requite::Variable &variable);
-  void prototype(requite::AnonymousFunction &anonymous_function);
+  [[nodiscard]] bool prototypeUserSymbols();
+  void prototypeUserSymbol(requite::Module &module);
+  void prototypeUserSymbol(requite::Object &object);
+  void prototypeUserSymbol(requite::Procedure &procedure);
+  void prototypeUserSymbol(requite::Alias &alias);
+  void prototypeUserSymbol(requite::Variable &variable);
+  void prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // build_user_symbols.cpp
   [[nodiscard]] bool buildUserSymbols();
+  void buildUserSymbol(requite::Module &module);
+  void buildUserSymbol(requite::Object &object);
+  void buildUserSymbol(requite::Procedure &procedure);
+  void buildUserSymbol(requite::Alias &alias);
+  void buildUserSymbol(requite::Variable &variable);
+  void buildUserSymbol(requite::AnonymousFunction &anonymous_function);
+
+  // resolve_symbols.cpp
+  [[nodiscard]] bool resolveSymbol(requite::Scope &scope,
+                                   requite::Expression &symbol_expression);
+  [[nodiscard]] bool resolveSymbol(requite::Scope &scope,
+                                   requite::Expression &symbol_expression,
+                                   requite::Expression &value_expression);
+
+  // choose_overload.cpp
+  [[nodiscard]] bool chooseOverload(requite::Scope &scope,
+                                    requite::Expression &call_expression);
+
+  // evaluate_values.cpp
+  [[nodiscard]] requite::Value evaluateValue(requite::Scope &scope,
+                                   requite::Expression &value_expression,
+                                   const requite::Symbol& type);
 
   // build_ir.cpp
   [[nodiscard]]
