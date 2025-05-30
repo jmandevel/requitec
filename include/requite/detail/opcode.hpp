@@ -470,12 +470,6 @@ enum _OpcodeFlags : std::uint32_t {
   // ERROR HANDLING AND DEBUGGING
   case requite::Opcode::ASSERT:
     return "n";
-  case requite::Opcode::INFO:
-    return "n";
-  case requite::Opcode::WARN:
-    return "n";
-  case requite::Opcode::ERROR:
-    return "n";
   case requite::Opcode::TRY:
     return "n";
   case requite::Opcode::CATCH:
@@ -1100,12 +1094,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // ERROR HANDLING AND DEBUGGING
   case requite::Opcode::ASSERT:
     return "assert";
-  case requite::Opcode::INFO:
-    return "info";
-  case requite::Opcode::WARN:
-    return "warn";
-  case requite::Opcode::ERROR:
-    return "error";
   case requite::Opcode::TRY:
     return "try";
   case requite::Opcode::CATCH:

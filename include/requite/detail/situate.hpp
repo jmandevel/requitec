@@ -1516,33 +1516,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateAssertExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::INFO:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::INFO)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
-  case requite::Opcode::WARN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::WARN)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
-  case requite::Opcode::ERROR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ERROR)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
   case requite::Opcode::TRY:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::TRY)) {

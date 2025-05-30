@@ -320,9 +320,6 @@ enum class Opcode : unsigned {
 
   // ERROR HANDLING AND DEBUGGING
   ASSERT,
-  INFO,
-  WARN,
-  ERROR,
   TRY,
   CATCH,
   THROW,
