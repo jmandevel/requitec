@@ -15,6 +15,19 @@ bool Scope::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Scope::operator!=(Self &&rhs) const { return this != &rhs; }
 
+bool Scope::getHasModule() const { return this->_module_ptr != nullptr; }
+void Scope::setModule(requite::Module &module) {
+  requite::setSingleRef(this->_module_ptr, module);
+}
+
+requite::Module &Scope::getModule() {
+  return requite::getRef(this->_module_ptr);
+}
+
+const requite::Module &Scope::getModule() const {
+  return requite::getRef(this->_module_ptr);
+}
+
 void Scope::setType(requite::ScopeType type) {
   REQUITE_ASSERT(this->_type == requite::ScopeType::NONE);
   REQUITE_ASSERT(type != requite::ScopeType::NONE);

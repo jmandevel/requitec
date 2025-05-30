@@ -17,7 +17,9 @@ namespace requite {
 requite::Scope &Module::makeScope() {
   std::unique_ptr<requite::Scope> &scope_uptr =
       this->_scope_uptrs.emplace_back(std::make_unique<requite::Scope>());
-  return requite::getRef(scope_uptr);
+  requite::Scope &scope = requite::getRef(scope_uptr);
+  scope.setModule(*this);
+  return scope;
 }
 
 requite::Table &Module::makeTable() {

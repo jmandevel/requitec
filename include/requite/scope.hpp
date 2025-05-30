@@ -28,6 +28,7 @@ struct Object;
 struct Scope final {
   using Self = requite::Scope;
 
+  requite::Module* _module_ptr = nullptr;
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::Scope *_next_ptr = nullptr;
@@ -51,6 +52,10 @@ struct Scope final {
   Self &operator=(Self &&rhs) = delete;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(Self &&rhs) const;
+  [[nodiscard]] bool getHasModule() const;
+  void setModule(requite::Module &module);
+  [[nodiscard]] requite::Module &getModule();
+  [[nodiscard]] const requite::Module &getModule() const;
   void setType(requite::ScopeType type);
   [[nodiscard]] requite::ScopeType getType() const;
   [[nodiscard]] llvm::StringMap<requite::RootSymbol> &getSymbolMap();
