@@ -24,16 +24,14 @@ enum class Situation {
   BASE_STATEMENT,
   GLOBAL_STATEMENT,
   OBJECT_STATEMENT,
-  MATTE_DESTINATION,
+  LOCAL_STATEMENT,
+  DESTINATION,
   MATTE_VALUE,
   VALUE_REFLECTIVE_VALUE,
   SYMBOL_REFLECTIVE_VALUE,
   MATTE_SYMBOL,
   VALUE_REFLECTIVE_SYMBOL,
   SYMBOL_REFLECTIVE_SYMBOL,
-  MATTE_STATEMENT,
-  VALUE_REFLECTIVE_STATEMENT,
-  SYMBOL_REFLECTIVE_STATEMENT,
   ATTRIBUTE,
   VALUE_BINDING,
   SYMBOL_BINDING,
@@ -86,6 +84,9 @@ getCanBeBaseStatementSituation(requite::Opcode opcode);
 getCanBeGlobalStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
+getCanBeLocalStatementSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
 getCanBeObjectStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
@@ -108,15 +109,6 @@ getCanBeValueReflectiveSymbolSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolReflectiveSymbolSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeMatteStatementSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeValueReflectiveStatementSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeSymbolReflectiveStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getCanBeAttributeSituation(requite::Opcode opcode);
 

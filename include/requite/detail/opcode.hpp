@@ -19,689 +19,542 @@
 
 namespace requite {
 
+namespace _opcode {
 enum _OpcodeFlags : std::uint32_t {
-  // FLAGS                                                              // TAG
-  _OPCODE_FLAG_NONE =
-      0, //                                                             //
-  _OPCODE_FLAG_CONVERGING =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(0)), // a
-  _OPCODE_FLAG_INTERNAL_USE_ONLY =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(1)), // b
-  _OPCODE_FLAG_ROOT_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(2)), // c
-  _OPCODE_FLAG_BASE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(3)), // d
-  _OPCODE_FLAG_GLOBAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(4)), // e
-  _OPCODE_FLAG_OBJECT_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(5)), // f
-  _OPCODE_FLAG_MATTE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(6)), // g
-  _OPCODE_FLAG_MATTE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(7)), // h
-  _OPCODE_FLAG_VALUE_REFLECTIVE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(8)), // i
-  _OPCODE_FLAG_SYMBOL_REFLECTIVE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(9)), // j
-  _OPCODE_FLAG_MATTE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(10)), // k
-  _OPCODE_FLAG_VALUE_REFLECTIVE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(11)), // l
-  _OPCODE_FLAG_SYMBOL_REFLECTIVE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(12)), // m
-  _OPCODE_FLAG_MATTE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(13)), // n
-  _OPCODE_FLAG_VALUE_REFLECTIVE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(14)), // o
-  _OPCODE_FLAG_SYMBOL_REFLECTIVE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(15)), // p
-  _OPCODE_FLAG_ATTRIBUTE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(16)), // q
-  _OPCODE_FLAG_VALUE_BINDING =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(17)), // r
-  _OPCODE_FLAG_SYMBOL_BINDING =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(18)), // s
-  _OPCODE_FLAG_DESTINATION_BINDING =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(19)), // t
-  _OPCODE_FLAG_NAMED_FIELD =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)), // u
-  _OPCODE_FLAG_POSITIONAL_FIELD =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)), // v
-  _OPCODE_FLAG_TEMPLATE_PARAMETER =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(22)), // w
-  _OPCODE_FLAG_SYMBOL_NAME =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(23)), // x
-  _OPCODE_FLAG_SYMBOL_PATH =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(24)), // y
-  _OPCODE_FLAG_SWITCH_CASE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(25)), // z
-  _OPCODE_FLAG_LAST_SWITCH_CASE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(26)), // A
-  _OPCODE_FLAG_CAPTURE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(27)), // B
+  _NONE = 0,
+  _CONVERGING =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(0)),
+  _INTERNAL_USE_ONLY =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(1)),
+  _ROOT_STATEMENT =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(2)),
+  _BASE_STATEMENT =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(3)),
+  _GLOBAL_STATEMENT =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(4)),
+  _LOCAL_STATEMENT =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(5)),
+  _OBJECT_STATEMENT =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(6)),
+  _DESTINATION =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(7)),
+  _MATTE_VALUE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(8)),
+  _VALUE_REFLECTIVE_VALUE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(9)),
+  _SYMBOL_REFLECTIVE_VALUE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(10)),
+  _MATTE_SYMBOL =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(11)),
+  _VALUE_REFLECTIVE_SYMBOL =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(12)),
+  _SYMBOL_REFLECTIVE_SYMBOL =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(13)),
+  _ATTRIBUTE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(14)),
+  _VALUE_BINDING =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(15)),
+  _SYMBOL_BINDING =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(16)),
+  _DESTINATION_BINDING =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(17)),
+  _NAMED_FIELD =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(18)),
+  _POSITIONAL_FIELD =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(19)),
+  _TEMPLATE_PARAMETER =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
+  _SYMBOL_NAME =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
+  _SYMBOL_PATH =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(22)),
+  _SWITCH_CASE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(23)),
+  _LAST_SWITCH_CASE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(24)),
+  _CAPTURE = (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(25)),
 };
+}
 
-[[nodiscard]] constexpr std::string_view _getFlagsTag(requite::Opcode opcode) {
-  using Flags = requite::_OpcodeFlags;
+[[nodiscard]] constexpr requite::_opcode::_OpcodeFlags
+operator|(requite::_opcode::_OpcodeFlags lhs,
+          requite::_opcode::_OpcodeFlags rhs) {
+  using Underlying = std::underlying_type_t<requite::_opcode::_OpcodeFlags>;
+  return static_cast<requite::_opcode::_OpcodeFlags>(
+      static_cast<Underlying>(lhs) | static_cast<Underlying>(rhs));
+}
+
+[[nodiscard]] constexpr requite::_opcode::_OpcodeFlags
+_getFlags(requite::Opcode opcode) {
+  using namespace requite;
+  using namespace requite::_opcode;
   switch (opcode) {
-  case requite::Opcode::_NONE:
-    return "b";
+  case Opcode::_NONE:
+    return _INTERNAL_USE_ONLY;
 
   // LITERALS
-  case requite::Opcode::_INTEGER_LITERAL:
-    return "bh";
-  case requite::Opcode::_REAL_LITERAL:
-    return "bh";
-  case requite::Opcode::_STRING_LITERAL:
-    return "bh";
-  case requite::Opcode::_CODEUNIT_LITERAL:
-    return "bh";
-  case requite::Opcode::_IDENTIFIER_LITERAL:
-    return "bghijklmvxy";
+  case Opcode::_INTEGER_LITERAL:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
+  case Opcode::_REAL_LITERAL:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
+  case Opcode::_STRING_LITERAL:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
+  case Opcode::_CODEUNIT_LITERAL:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
+  case Opcode::_IDENTIFIER_LITERAL:
+    return _INTERNAL_USE_ONLY | _DESTINATION | _MATTE_VALUE |
+           _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE | _MATTE_SYMBOL |
+           _VALUE_REFLECTIVE_SYMBOL | _VALUE_REFLECTIVE_VALUE | _SYMBOL_NAME |
+           _SYMBOL_PATH;
 
-  // ERRORS
-  case requite::Opcode::_ERROR:
-    return "b";
+  // ERROR
+  case Opcode::_ERROR:
+    return _NONE;
 
   // SITUATIONAL
-  case requite::Opcode::SITUATIONAL_LOGICAL_AND_OR_DOUBLE_REFERENCE:
-    return "hkv";
-  case requite::Opcode::SITUATIONAL_ADD_OR_NULL_TERMINATED:
-    return "hkv";
-  case requite::Opcode::SITUATIONAL_SUBTRACT_OR_NEGATE:
-    return "h";
-  case requite::Opcode::SITUATIONAL_MULTIPLY_OR_POINTER:
-    return "hkv";
-  case requite::Opcode::SITUATIONAL_DIVIDE_OR_FAT_POINTER:
-    return "hkv";
-  case requite::Opcode::SITUATIONAL_MODULUS_OR_ARRAY:
-    return "hkv";
-  case requite::Opcode::SITUATIONAL_BITWISE_AND_OR_REFERENCE:
-    return "hkv";
-  case requite::Opcode::SITUATIONAL_CALL_OR_SIGNATURE:
-    return "hknv";
-  case requite::Opcode::SITUATIONAL_BIND_VALUE_OR_DEFAULT_VALUE:
-    return "ruvw";
-  case requite::Opcode::SITUATIONAL_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
-    return "suw";
-  case requite::Opcode::SITUATIONAL_TRIP:
-    return "ghkv";
-  case requite::Opcode::SITUATIONAL_INFERENCE_OR_INDETERMINATE:
-    return "hkv";
+  case Opcode::SITUATIONAL_LOGICAL_AND_OR_DOUBLE_REFERENCE:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_SUBTRACT_OR_NEGATE:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_MULTIPLY_OR_POINTER:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_DIVIDE_OR_FAT_POINTER:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_MODULUS_OR_ARRAY:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_BITWISE_AND_OR_REFERENCE:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_CALL_OR_SIGNATURE:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_BIND_VALUE_OR_DEFAULT_VALUE:
+    return _VALUE_BINDING | _NAMED_FIELD | _POSITIONAL_FIELD |
+           _TEMPLATE_PARAMETER;
+  case Opcode::SITUATIONAL_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
+    return _SYMBOL_BINDING | _NAMED_FIELD | _TEMPLATE_PARAMETER;
+  case Opcode::SITUATIONAL_TRIP:
+    return _DESTINATION | _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SITUATIONAL_INFERENCE_OR_INDETERMINATE:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
 
   // LOGICAL
-  case requite::Opcode::LOGICAL_AND:
-    return "ah";
-  case requite::Opcode::LOGICAL_OR:
-    return "ah";
-  case requite::Opcode::LOGICAL_COMPLEMENT:
-    return "h";
+  case Opcode::LOGICAL_AND:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::LOGICAL_OR:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::LOGICAL_COMPLEMENT:
+    return _MATTE_VALUE;
 
-  // COMPARISON
-  case requite::Opcode::GREATER:
-    return "ah";
-  case requite::Opcode::GREATER_EQUAL:
-    return "ah";
-  case requite::Opcode::LESS:
-    return "ah";
-  case requite::Opcode::LESS_EQUAL:
-    return "ah";
-  case requite::Opcode::EQUAL:
-    return "ah";
-  case requite::Opcode::NOT_EQUAL:
-    return "ah";
+  // COMPAIRSON
+  case Opcode::GREATER:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::GREATER_EQUAL:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::LESS:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::LESS_EQUAL:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::EQUAL:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::NOT_EQUAL:
+    return _CONVERGING | _MATTE_VALUE;
 
   // REFLECT
-  case requite::Opcode::REFLECT_VALUE:
-    return "aghknv";
-  case requite::Opcode::REFLECT_SYMBOL:
-    return "aghknvy";
+  case Opcode::REFLECT_VALUE:
+    return _CONVERGING | _DESTINATION | _MATTE_VALUE | _MATTE_SYMBOL |
+           _POSITIONAL_FIELD;
+  case Opcode::REFLECT_SYMBOL:
+    return _CONVERGING | _DESTINATION | _MATTE_VALUE | _MATTE_SYMBOL |
+           _POSITIONAL_FIELD | _SYMBOL_PATH;
 
   // BIND
-  case requite::Opcode::BIND_VALUE:
-    return "rw";
-  case requite::Opcode::BIND_SYMBOL:
-    return "suw";
-  case requite::Opcode::DEFAULT_VALUE:
-    return "uvw";
-  case requite::Opcode::DEFAULT_SYMBOL:
-    return "w";
+  case Opcode::BIND_VALUE:
+    return _VALUE_BINDING | _TEMPLATE_PARAMETER;
+  case Opcode::BIND_SYMBOL:
+    return _SYMBOL_BINDING | _NAMED_FIELD | _TEMPLATE_PARAMETER;
+  case Opcode::DEFAULT_VALUE:
+    return _NAMED_FIELD | _POSITIONAL_FIELD | _TEMPLATE_PARAMETER;
+  case Opcode::DEFAULT_SYMBOL:
+    return _TEMPLATE_PARAMETER;
 
   // APPLY
-  case requite::Opcode::ASCRIBE:
-    return "defhkv";
-  case requite::Opcode::CAST:
-    return "h";
-  case requite::Opcode::STRINGIFY:
-    return "h";
-  case requite::Opcode::CODEUNIFY:
-    return "h";
-  case requite::Opcode::IDENTIFY:
-    return "bghijklmxyv";
-  case requite::Opcode::BAKE:
-    return "";
+  case Opcode::ASCRIBE:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::CAST:
+    return _MATTE_VALUE;
+  case Opcode::STRINGIFY:
+    return _MATTE_VALUE;
+  case Opcode::CODEUNIFY:
+    return _MATTE_VALUE;
+  case Opcode::IDENTIFY:
+    return _INTERNAL_USE_ONLY | _DESTINATION | _MATTE_VALUE |
+           _VALUE_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_SYMBOL | _MATTE_SYMBOL |
+           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL | _SYMBOL_NAME |
+           _SYMBOL_PATH | _POSITIONAL_FIELD;
+  case Opcode::BAKE:
+    return _INTERNAL_USE_ONLY | _DESTINATION | _MATTE_VALUE |
+           _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE | _MATTE_SYMBOL |
+           _VALUE_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_PATH |
+           _POSITIONAL_FIELD;
 
   // ARITHMETIC
-  case requite::Opcode::ADD:
-    return "ah";
-  case requite::Opcode::SUBTRACT:
-    return "ah";
-  case requite::Opcode::MULTIPLY:
-    return "ah";
-  case requite::Opcode::DIVIDE:
-    return "ah";
-  case requite::Opcode::MODULUS:
-    return "ah";
-  case requite::Opcode::NEGATE:
-    return "h";
+  case Opcode::ADD:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::SUBTRACT:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::MULTIPLY:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::DIVIDE:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::MODULUS:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::NEGATE:
+    return _MATTE_VALUE;
 
   // BITWISE
-  case requite::Opcode::BITWISE_CAST:
-    return "h";
-  case requite::Opcode::BITWISE_OR:
-    return "ah";
-  case requite::Opcode::BITWISE_AND:
-    return "ah";
-  case requite::Opcode::BITWISE_XOR:
-    return "ah";
-  case requite::Opcode::BITWISE_COMPLEMENT:
-    return "h";
-  case requite::Opcode::BITWISE_SHIFT_LEFT:
-    return "h";
-  case requite::Opcode::BITWISE_SHIFT_RIGHT:
-    return "h";
-  case requite::Opcode::BITWISE_ROTATE_LEFT:
-    return "h";
-  case requite::Opcode::BITWISE_ROTATE_RIGHT:
-    return "h";
+  case Opcode::BITWISE_CAST:
+    return _MATTE_VALUE;
+  case Opcode::BITWISE_OR:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::BITWISE_AND:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::BITWISE_XOR:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::BITWISE_COMPLEMENT:
+    return _MATTE_VALUE;
+  case Opcode::BITWISE_SHIFT_LEFT:
+    return _MATTE_VALUE;
+  case Opcode::BITWISE_SHIFT_RIGHT:
+    return _MATTE_VALUE;
+  case Opcode::BITWISE_ROTATE_LEFT:
+    return _MATTE_VALUE;
+  case Opcode::BITWISE_ROTATE_RIGHT:
+    return _MATTE_VALUE;
 
   // MEMORY
-  case requite::Opcode::CONCATINATE:
-    return "ah";
-  case requite::Opcode::FROM_FRONT:
-    return "h";
-  case requite::Opcode::FROM_BACK:
-    return "h";
-  case requite::Opcode::TRUNCATE_FRONT:
-    return "h";
-  case requite::Opcode::TRUNCATE_BACK:
-    return "h";
-  case requite::Opcode::AT:
-    return "gh";
-  case requite::Opcode::DEREFERENCE:
-    return "gh";
+  case Opcode::CONCATINATE:
+    return _CONVERGING | _MATTE_VALUE;
+  case Opcode::FROM_FRONT:
+    return _MATTE_VALUE;
+  case Opcode::FROM_BACK:
+    return _MATTE_VALUE;
+  case Opcode::TRUNCATE_FRONT:
+    return _MATTE_VALUE;
+  case Opcode::TRUNCATE_BACK:
+    return _MATTE_VALUE;
+  case Opcode::AT:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::DEREFERENCE:
+    return _DESTINATION | _MATTE_VALUE;
 
   // ASSIGNMENT
-  case requite::Opcode::ASSIGN:
-    return "aghn";
-  case requite::Opcode::ASSIGN_ADD:
-    return "ghn";
-  case requite::Opcode::ASSIGN_SUBTRACT:
-    return "ghn";
-  case requite::Opcode::ASSIGN_MULTIPLY:
-    return "ghn";
-  case requite::Opcode::ASSIGN_DIVIDE:
-    return "ghn";
-  case requite::Opcode::ASSIGN_MODULUS:
-    return "ghn";
+  case Opcode::ASSIGN:
+    return _CONVERGING | _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::ASSIGN_ADD:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::ASSIGN_SUBTRACT:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::ASSIGN_MULTIPLY:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::ASSIGN_DIVIDE:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::ASSIGN_MODULUS:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
 
   // MOVE SEMANTICS
-  case requite::Opcode::COPY:
-    return "i";
-  case requite::Opcode::MOVE:
-    return "i";
-  case requite::Opcode::SWAP:
-    return "n";
+  case Opcode::COPY:
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::MOVE:
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::SWAP:
+    return _LOCAL_STATEMENT;
 
   // SUBTYPE
-  case requite::Opcode::ARRAY:
-    return "kv";
-  case requite::Opcode::REFERENCE:
-    return "kv";
-  case requite::Opcode::STOLEN_REFERENCE:
-    return "kv";
-  case requite::Opcode::POINTER:
-    return "kv";
-  case requite::Opcode::FAT_POINTER:
-    return "kv";
+  case Opcode::ARRAY:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::REFERENCE:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::STOLEN_REFERENCE:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::POINTER:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::FAT_POINTER:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
 
   // TYPE MODIFIER
-  case requite::Opcode::MUTABLE:
-    return "q";
-  case requite::Opcode::VOLATILE:
-    return "q";
-  case requite::Opcode::ATOMIC:
-    return "q";
-  case requite::Opcode::NULL_TERMINATED:
-    return "q";
+  case Opcode::MUTABLE:
+    return _ATTRIBUTE;
+  case Opcode::VOLATILE:
+    return _ATTRIBUTE;
+  case Opcode::ATOMIC:
+    return _ATTRIBUTE;
+  case Opcode::NULL_TERMINATED:
+    return _ATTRIBUTE;
 
   // TRIPS
-  case requite::Opcode::TUPLE:
-    return "h";
-  case requite::Opcode::ANONYMOUS_OBJECT:
-    return "h";
-  case requite::Opcode::NULL_:
-    return "hkv";
-  case requite::Opcode::IGNORE:
-    return "g";
+  case Opcode::TUPLE:
+    return _MATTE_VALUE;
+  case Opcode::ANONYMOUS_OBJECT:
+    return _MATTE_VALUE;
+  case Opcode::NULL_:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::IGNORE:
+    return _DESTINATION;
 
   // TEMPLATES
-  case requite::Opcode::TEMPLATE:
-    return "q";
-  case requite::Opcode::SPECIALIZATION:
-    return "hkv";
+  case Opcode::TEMPLATE:
+    return _ATTRIBUTE;
+  case Opcode::SPECIALIZATION:
+    return _MATTE_VALUE | _MATTE_SYMBOL | _POSITIONAL_FIELD;
 
   // PROCEDURES
-  case requite::Opcode::NO_PARAMETER_SIGNATURE:
-    return "kv";
-  case requite::Opcode::NAMED_PARAMETER_SIGNATURE:
-    return "kv";
-  case requite::Opcode::POSITIONAL_PARAMETER_SIGNATURE:
-    return "kv";
-  case requite::Opcode::NO_ARGUMENT_CALL:
-    return "ghn";
-  case requite::Opcode::NAMED_ARGUMENT_CALL:
-    return "ghn";
-  case requite::Opcode::POSITIONAL_ARGUMENT_CALL:
-    return "ghn";
-  case requite::Opcode::DESTROY:
-    return "i";
-  case requite::Opcode::ENTRY_POINT:
-    return "d";
-  case requite::Opcode::FUNCTION:
-    return "def";
-  case requite::Opcode::METHOD:
-    return "f";
-  case requite::Opcode::CONSTRUCTOR:
-    return "f";
-  case requite::Opcode::DESTRUCTOR:
-    return "f";
-  case requite::Opcode::ANONYMOUS_FUNCTION:
-    return "h";
-  case requite::Opcode::CAPTURE:
-    return "B";
+  case Opcode::NO_PARAMETER_SIGNATURE:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::NAMED_PARAMETER_SIGNATURE:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::POSITIONAL_PARAMETER_SIGNATURE:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::NO_ARGUMENT_CALL:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::NAMED_ARGUMENT_CALL:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::POSITIONAL_ARGUMENT_CALL:
+    return _DESTINATION | _MATTE_VALUE | _LOCAL_STATEMENT;
+  case Opcode::DESTROY:
+    return _LOCAL_STATEMENT;
+  case Opcode::ENTRY_POINT:
+    return _BASE_STATEMENT;
+  case Opcode::FUNCTION:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
+  case Opcode::METHOD:
+    return _OBJECT_STATEMENT;
+  case Opcode::CONSTRUCTOR:
+    return _OBJECT_STATEMENT;
+  case Opcode::DESTRUCTOR:
+    return _OBJECT_STATEMENT;
+  case Opcode::ANONYMOUS_FUNCTION:
+    return _MATTE_VALUE;
+  case Opcode::CAPTURE:
+    return _CAPTURE;
 
-  // CONTROL FLOW
-  case requite::Opcode::RETURN:
-    return "n";
-  case requite::Opcode::BREAK:
-    return "n";
-  case requite::Opcode::CONTINUE:
-    return "n";
-  case requite::Opcode::FALLTHROUGH:
-    return "n";
-  case requite::Opcode::EXIT:
-    return "n";
-  case requite::Opcode::GOTO:
-    return "n";
-  case requite::Opcode::LABEL:
-    return "q";
+  // CONTROL FOLW
+  case Opcode::RETURN:
+    return _LOCAL_STATEMENT;
+  case Opcode::BREAK:
+    return _LOCAL_STATEMENT;
+  case Opcode::CONTINUE:
+    return _LOCAL_STATEMENT;
+  case Opcode::FALLTHROUGH:
+    return _LOCAL_STATEMENT;
+  case Opcode::EXIT:
+    return _LOCAL_STATEMENT;
+  case Opcode::GOTO:
+    return _LOCAL_STATEMENT;
+  case Opcode::LABEL:
+    return _LOCAL_STATEMENT;
 
   // SYMBOLS
-  case requite::Opcode::OBJECT:
-    return "defn";
-  case requite::Opcode::TABLE:
-    return "defn";
-  case requite::Opcode::ALIAS:
-    return "defn";
-  case requite::Opcode::LOCAL:
-    return "n";
-  case requite::Opcode::GLOBAL:
-    return "defn";
-  case requite::Opcode::PROPERTY:
-    return "f";
-  case requite::Opcode::CONSTANT:
-    return "defn";
+  case Opcode::OBJECT:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
+  case Opcode::TABLE:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
+  case Opcode::ALIAS:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
+  case Opcode::LOCAL:
+    return _LOCAL_STATEMENT;
+  case Opcode::GLOBAL:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
+  case Opcode::PROPERTY:
+    return _OBJECT_STATEMENT;
+  case Opcode::CONSTANT:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
 
   // VALUES
-  case requite::Opcode::TEMP:
-    return "gh";
-  case requite::Opcode::TRUE:
-    return "h";
-  case requite::Opcode::FALSE:
-    return "h";
-  case requite::Opcode::VALUE:
-    return "gh";
-  case requite::Opcode::INDEX:
-    return "h";
-  case requite::Opcode::EXCEPTION:
-    return "gh";
-  case requite::Opcode::INDETERMINATE:
-    return "h";
-  case requite::Opcode::NO_DEFAULT_VALUE:
-    return "h";
-  case requite::Opcode::INFERENCED_COUNT:
-    return "h";
-  case requite::Opcode::THIS:
-    return "gh";
-  case requite::Opcode::RESULT:
-    return "gh";
-  case requite::Opcode::INPUT:
-    return "gh";
-  case requite::Opcode::OUTPUT:
-    return "gh";
-  case requite::Opcode::ADDRESS_SIZE:
-    return "h";
-  case requite::Opcode::ADDRESS_DEPTH:
-    return "h";
-  case requite::Opcode::BITS_PER_BYTE:
-    return "h";
+  case Opcode::TEMP:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::TRUE:
+    return _MATTE_VALUE;
+  case Opcode::FALSE:
+    return _MATTE_VALUE;
+  case Opcode::VALUE:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::INDEX:
+    return _MATTE_VALUE;
+  case Opcode::EXCEPTION:
+    return _MATTE_VALUE;
+  case Opcode::INDETERMINATE:
+    return _MATTE_VALUE;
+  case Opcode::NO_DEFAULT_VALUE:
+    return _MATTE_VALUE;
+  case Opcode::INFERENCED_COUNT:
+    return _MATTE_VALUE;
+  case Opcode::THIS:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::RESULT:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::INPUT:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::OUTPUT:
+    return _DESTINATION | _MATTE_VALUE;
+  case Opcode::ADDRESS_SIZE:
+    return _MATTE_VALUE;
+  case Opcode::ADDRESS_DEPTH:
+    return _MATTE_VALUE;
+  case Opcode::BITS_PER_BYTE:
+    return _MATTE_VALUE;
 
   // BUILTIN TYPES
-  case requite::Opcode::INFERENCE:
-    return "kv";
-  case requite::Opcode::VOID:
-    return "kv";
-  case requite::Opcode::BOOLEAN:
-    return "kv";
-  case requite::Opcode::WORD:
-    return "kv";
-  case requite::Opcode::SIGNED_INTEGER:
-    return "kv";
-  case requite::Opcode::UNSIGNED_INTEGER:
-    return "kv";
-  case requite::Opcode::BINARY_HALF_FLOAT:
-    return "kv";
-  case requite::Opcode::BINARY_SINGLE_FLOAT:
-    return "kv";
-  case requite::Opcode::BINARY_DOUBLE_FLOAT:
-    return "kv";
-  case requite::Opcode::BINARY_QUAD_FLOAT:
-    return "kv";
-  case requite::Opcode::C_CHAR:
-    return "kv";
-  case requite::Opcode::UTF8:
-    return "kv";
+  case Opcode::INFERENCE:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::VOID:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::BOOLEAN:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::WORD:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::SIGNED_INTEGER:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::UNSIGNED_INTEGER:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::BINARY_HALF_FLOAT:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::BINARY_SINGLE_FLOAT:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::BINARY_DOUBLE_FLOAT:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::BINARY_QUAD_FLOAT:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::C_CHAR:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::UTF8:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
 
   // VARIADIC ARGUMENTS
-  case requite::Opcode::VARIADIC_ARGUMENTS:
-    return "kv";
-  case requite::Opcode::START_VARIADIC_ARGUMENT:
-    return "i";
-  case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
-    return "i";
+  case Opcode::VARIADIC_ARGUMENTS:
+    return _MATTE_SYMBOL | _POSITIONAL_FIELD;
+  case Opcode::START_VARIADIC_ARGUMENT:
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::NEXT_VARIADIC_ARGUMENT:
+    return _VALUE_REFLECTIVE_VALUE;
 
   // SCOPES
-  case requite::Opcode::IF:
-    return "n";
-  case requite::Opcode::ELSE_IF:
-    return "n";
-  case requite::Opcode::ELSE:
-    return "n";
-  case requite::Opcode::SWITCH:
-    return "n";
-  case requite::Opcode::CASE:
-    return "zA";
-  case requite::Opcode::DEFAULT_CASE:
-    return "A";
-  case requite::Opcode::FOR:
-    return "n";
-  case requite::Opcode::WHILE:
-    return "n";
-  case requite::Opcode::DO_WHILE:
-    return "n";
-  case requite::Opcode::FOR_EACH:
-    return "n";
-  case requite::Opcode::LOOP:
-    return "n";
-  case requite::Opcode::SCOPE:
-    return "n";
-  case requite::Opcode::CONDUIT:
-    return "gh";
+  case Opcode::IF:
+    return _LOCAL_STATEMENT;
+  case Opcode::ELSE_IF:
+    return _LOCAL_STATEMENT;
+  case Opcode::ELSE:
+    return _LOCAL_STATEMENT;
+  case Opcode::SWITCH:
+    return _LOCAL_STATEMENT;
+  case Opcode::CASE:
+    return _SWITCH_CASE | _LAST_SWITCH_CASE;
+  case Opcode::DEFAULT_CASE:
+    return _LAST_SWITCH_CASE;
+  case Opcode::FOR:
+    return _LOCAL_STATEMENT;
+  case Opcode::WHILE:
+    return _LOCAL_STATEMENT;
+  case Opcode::DO_WHILE:
+    return _LOCAL_STATEMENT;
+  case Opcode::FOR_EACH:
+    return _LOCAL_STATEMENT;
+  case Opcode::LOOP:
+    return _LOCAL_STATEMENT;
+  case Opcode::SCOPE:
+    return _LOCAL_STATEMENT;
+  case Opcode::CONDUIT:
+    return _DESTINATION | _MATTE_VALUE;
 
   // ACCESS MODIFIERS
-  case requite::Opcode::PRIVATE:
-    return "q";
-  case requite::Opcode::PROTECTED:
-    return "q";
-  case requite::Opcode::EXPORT:
-    return "q";
+  case Opcode::PRIVATE:
+    return _ATTRIBUTE;
+  case Opcode::PROTECTED:
+    return _ATTRIBUTE;
+  case Opcode::EXPORT:
+    return _ATTRIBUTE;
 
   // SYMBOL GRAPH
-  case requite::Opcode::IMPORT:
-    return "defn";
-  case requite::Opcode::USE:
-    return "defn";
+  case Opcode::IMPORT:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
+  case Opcode::USE:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _LOCAL_STATEMENT;
 
   // SOURCES
-  case requite::Opcode::MODULE:
-    return "c";
+  case Opcode::MODULE:
+    return _ROOT_STATEMENT;
 
   // ERROR HANDLING AND DEBUGGING
-  case requite::Opcode::ASSERT:
-    return "n";
-  case requite::Opcode::TRY:
-    return "n";
-  case requite::Opcode::CATCH:
-    return "n";
-  case requite::Opcode::THROW:
-    return "n";
-  case requite::Opcode::MAY_THROW:
-    return "q";
-  case requite::Opcode::THROWS:
-    return "q";
+  case Opcode::ASSERT:
+    return _LOCAL_STATEMENT;
+  case Opcode::TRY:
+    return _LOCAL_STATEMENT;
+  case Opcode::CATCH:
+    return _LOCAL_STATEMENT;
+  case Opcode::THROW:
+    return _LOCAL_STATEMENT;
+  case Opcode::MAY_THROW:
+    return _ATTRIBUTE;
+  case Opcode::THROWS:
+    return _ATTRIBUTE;
 
   // ATTRIBUTES
-  case requite::Opcode::EXTERNAL:
-    return "q";
-  case requite::Opcode::C:
-    return "q";
-  case requite::Opcode::POSITIONAL_ARGUMENTS:
-    return "q";
-  case requite::Opcode::NOT_FINAL:
-    return "q";
-  case requite::Opcode::MAY_DISCARD:
-    return "q";
-  case requite::Opcode::NO_SHORT_CIRCUIT:
-    return "q";
-  case requite::Opcode::NO_REMAINDER:
-    return "q";
-  case requite::Opcode::INLINE:
-    return "q";
-  case requite::Opcode::MANGLED_NAME:
-    return "jq";
-  case requite::Opcode::PACK:
-    return "q";
+  case Opcode::EXTERNAL:
+    return _ATTRIBUTE;
+  case Opcode::C:
+    return _ATTRIBUTE;
+  case Opcode::POSITIONAL_ARGUMENTS:
+    return _ATTRIBUTE;
+  case Opcode::NOT_FINAL:
+    return _ATTRIBUTE;
+  case Opcode::MAY_DISCARD:
+    return _ATTRIBUTE;
+  case Opcode::NO_SHORT_CIRCUIT:
+    return _ATTRIBUTE;
+  case Opcode::NO_REMAINDER:
+    return _ATTRIBUTE;
+  case Opcode::INLINE:
+    return _ATTRIBUTE;
+  case Opcode::MANGLED_NAME:
+    return _SYMBOL_REFLECTIVE_VALUE | _ATTRIBUTE;
+  case Opcode::PACK:
+    return _ATTRIBUTE;
 
   // REFLECTION
-  case requite::Opcode::SIZE:
-    return "j";
-  case requite::Opcode::DEPTH:
-    return "j";
-  case requite::Opcode::COUNT:
-    return "j";
-  case requite::Opcode::TYPE:
-    return "lm";
-  case requite::Opcode::NAME:
-    return "hj";
-  case requite::Opcode::LINE:
-    return "hj";
-  case requite::Opcode::COLUMN:
-    return "j";
-  case requite::Opcode::UNDERLYING:
-    return "lm";
-  case requite::Opcode::IS:
-    return "j";
-
-  case requite::Opcode::_LAST:
+  case Opcode::SIZE:
+    return _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::DEPTH:
+    return _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::COUNT:
+    return _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::TYPE:
+    return _VALUE_REFLECTIVE_SYMBOL;
+  case Opcode::NAME:
+    return _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::LINE:
+    return _MATTE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::COLUMN:
+    return _MATTE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::UNDERLYING:
+    return _SYMBOL_REFLECTIVE_SYMBOL;
+  case Opcode::IS:
+    return _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::_LAST:
     break;
   }
-  return "";
+  return _NONE;
 }
 
-[[nodiscard]] constexpr requite::_OpcodeFlags
-_getFlags(requite::Opcode opcode) {
-  std::string_view tag = requite::_getFlagsTag(opcode);
-  using Flags = requite::_OpcodeFlags;
-  Flags flags = Flags::_OPCODE_FLAG_NONE;
-  for (char c : tag) {
-    switch (c) {
-    case 'a':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_CONVERGING) |
-          requite::getUnderlying(flags));
-      break;
-    case 'b':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_INTERNAL_USE_ONLY) |
-          requite::getUnderlying(flags));
-      break;
-    case 'c':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_ROOT_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'd':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_BASE_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'e':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_GLOBAL_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'f':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_OBJECT_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'g':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_MATTE_DESTINATION) |
-          requite::getUnderlying(flags));
-      break;
-    case 'h':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_MATTE_VALUE) |
-          requite::getUnderlying(flags));
-      break;
-    case 'i':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_VALUE_REFLECTIVE_VALUE) |
-          requite::getUnderlying(flags));
-      break;
-    case 'j':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_SYMBOL_REFLECTIVE_VALUE) |
-          requite::getUnderlying(flags));
-      break;
-    case 'k':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_MATTE_SYMBOL) |
-          requite::getUnderlying(flags));
-      break;
-    case 'l':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_VALUE_REFLECTIVE_SYMBOL) |
-          requite::getUnderlying(flags));
-      break;
-    case 'm':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_SYMBOL_REFLECTIVE_SYMBOL) |
-          requite::getUnderlying(flags));
-      break;
-    case 'n':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_MATTE_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'o':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(
-              Flags::_OPCODE_FLAG_VALUE_REFLECTIVE_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'p':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(
-              Flags::_OPCODE_FLAG_SYMBOL_REFLECTIVE_STATEMENT) |
-          requite::getUnderlying(flags));
-      break;
-    case 'q':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_ATTRIBUTE) |
-          requite::getUnderlying(flags));
-      break;
-    case 'r':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_VALUE_BINDING) |
-          requite::getUnderlying(flags));
-      break;
-    case 's':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_SYMBOL_BINDING) |
-          requite::getUnderlying(flags));
-      break;
-    case 't':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_DESTINATION_BINDING) |
-          requite::getUnderlying(flags));
-      break;
-    case 'u':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_NAMED_FIELD) |
-          requite::getUnderlying(flags));
-      break;
-    case 'v':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_POSITIONAL_FIELD) |
-          requite::getUnderlying(flags));
-      break;
-    case 'w':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_TEMPLATE_PARAMETER) |
-          requite::getUnderlying(flags));
-      break;
-    case 'x':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_SYMBOL_NAME) |
-          requite::getUnderlying(flags));
-      break;
-    case 'y':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_SYMBOL_PATH) |
-          requite::getUnderlying(flags));
-      break;
-    case 'z':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_SWITCH_CASE) |
-          requite::getUnderlying(flags));
-      break;
-    case 'A':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_LAST_SWITCH_CASE) |
-          requite::getUnderlying(flags));
-      break;
-    case 'B':
-      flags = static_cast<Flags>(
-          requite::getUnderlying(Flags::_OPCODE_FLAG_CAPTURE) |
-          requite::getUnderlying(flags));
-      break;
-    }
-  }
-  return flags;
-}
-
-[[nodiscard]] constexpr std::array<requite::_OpcodeFlags, requite::OPCODE_COUNT>
-_getOpcodeFlagArray() {
-  std::array<requite::_OpcodeFlags, requite::OPCODE_COUNT> flags{};
-  for (unsigned opcode_i = 0;
-       opcode_i < static_cast<unsigned>(requite::Opcode::_LAST); ++opcode_i) {
-    const requite::Opcode opcode = static_cast<requite::Opcode>(opcode_i);
-    flags[opcode_i] = requite::_getFlags(opcode);
-  }
-  return flags;
-}
-
-constexpr std::array<requite::_OpcodeFlags, requite::OPCODE_COUNT>
-    _OPCODE_FLAGS = requite::_getOpcodeFlagArray();
-
-[[nodiscard]] constexpr bool _getHasFlags(requite::Opcode opcode,
-                                          requite::_OpcodeFlags flags) {
-  const unsigned opcode_i = static_cast<unsigned>(opcode);
-  REQUITE_ASSERT(opcode_i < requite::OPCODE_COUNT);
-  requite::_OpcodeFlags opcode_flags = requite::_OPCODE_FLAGS[opcode_i];
+[[nodiscard]] constexpr bool
+_getHasFlags(requite::Opcode opcode, requite::_opcode::_OpcodeFlags flags) {
+  requite::_opcode::_OpcodeFlags opcode_flags = requite::_getFlags(opcode);
   const bool has_flags = (opcode_flags & flags) == flags;
   return has_flags;
 }
@@ -730,8 +583,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // SITUATIONAL
   case requite::Opcode::SITUATIONAL_LOGICAL_AND_OR_DOUBLE_REFERENCE:
     return "situational_logical_and_or_double_reference";
-  case requite::Opcode::SITUATIONAL_ADD_OR_NULL_TERMINATED:
-    return "situational_add_or_null_terminated";
   case requite::Opcode::SITUATIONAL_SUBTRACT_OR_NEGATE:
     return "situational_subtract_or_negate";
   case requite::Opcode::SITUATIONAL_MULTIPLY_OR_POINTER:
@@ -1161,13 +1012,13 @@ constexpr bool getIsValid(requite::Opcode opcode) {
 
 constexpr bool getIsInternalUseOnly(requite::Opcode opcode) {
   const bool has_flags =
-      requite::_getHasFlags(opcode, requite::_OPCODE_FLAG_INTERNAL_USE_ONLY);
+      requite::_getHasFlags(opcode, requite::_opcode::_INTERNAL_USE_ONLY);
   return has_flags;
 }
 
 constexpr bool getIsConverging(requite::Opcode opcode) {
   const bool has_flags =
-      requite::_getHasFlags(opcode, requite::_OPCODE_FLAG_CONVERGING);
+      requite::_getHasFlags(opcode, requite::_opcode::_CONVERGING);
   return has_flags;
 }
 
@@ -1190,8 +1041,7 @@ constexpr bool getHasScopeData(requite::Opcode opcode) {
          opcode == requite::Opcode::DO_WHILE ||
          opcode == requite::Opcode::FOR_EACH ||
          opcode == requite::Opcode::LOOP || opcode == requite::Opcode::SCOPE ||
-         opcode == requite::Opcode::CONDUIT ||
-         opcode == requite::Opcode::TABLE;
+         opcode == requite::Opcode::CONDUIT || opcode == requite::Opcode::TABLE;
 }
 
 constexpr bool getHasObjectData(requite::Opcode opcode) {

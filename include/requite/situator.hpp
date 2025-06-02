@@ -89,9 +89,6 @@ struct Situator final {
   situateSituationalLogicalAndOrDoubleReferenceExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
-  situateSituationalAddOrNullTerminatedExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void
   situateSituationalSubtractOrNegateExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
