@@ -90,7 +90,7 @@ constexpr requite::Opcode getPrefixNotationOpcode(requite::TokenType token) {
   case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR:
     return requite::Opcode::BITWISE_CAST;
   case requite::TokenType::PLUS_OPERATOR:
-    return requite::Opcode::SITUATIONAL_ADD_OR_NULL_TERMINATED;
+    return requite::Opcode::ADD;
   case requite::TokenType::DASH_OPERATOR:
     return requite::Opcode::SITUATIONAL_SUBTRACT_OR_NEGATE;
   case requite::TokenType::STAR_OPERATOR:

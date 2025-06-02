@@ -46,10 +46,6 @@ enum class Opcode : unsigned {
   // operations
   // with one nested inside the other.
   SITUATIONAL_LOGICAL_AND_OR_DOUBLE_REFERENCE,
-  // a situational opcode that occurs when a PLUS_OPERATOR token is used as a
-  // prefix notation opcode. in VALUE situation, it is situated to add. in
-  // ATTRIBUTE situation, it is situated to null_terminated.
-  SITUATIONAL_ADD_OR_NULL_TERMINATED,
   // a situational opcode that occurs when a DASH_OPERATOR token is used as a
   // prefix notation opcode. this opcode is only valid in VALUE situation. if it
   // has one branch, it is situated to negate. if it has two or more branches,

@@ -500,15 +500,6 @@ requite::Expression &Parser::parsePrecedence2() {
                                                 unary_ptr, 1);
       new_ascribe_needed = true;
       continue;
-    case requite::TokenType::PLUS_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
-      precedence_parser.parseAttribute(*this, requite::Opcode::NULL_TERMINATED,
-                                       new_ascribe_needed, unary_ptr);
-      new_ascribe_needed = false;
-      unary_ptr = nullptr;
-      continue;
     case requite::TokenType::GRAVE_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
