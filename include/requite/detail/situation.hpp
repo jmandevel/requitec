@@ -12,8 +12,6 @@ template <requite::Situation SITUATION_PARAM>
 constexpr llvm::StringRef getName() {
   if constexpr (SITUATION_PARAM == requite::Situation::NONE) {
     return "NONE";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::CONVERGING) {
-    return "CONVERGING";
   } else if constexpr (SITUATION_PARAM == requite::Situation::ROOT_STATEMENT) {
     return "ROOT_STATEMENT";
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
@@ -21,13 +19,27 @@ constexpr llvm::StringRef getName() {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::GLOBAL_STATEMENT) {
     return "GLOBAL_STATEMENT";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::LOCAL_STATEMENT) {
-    return "LOCAL_STATEMENT";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::MATTE_LOCAL_STATEMENT) {
+    return "MATTE_LOCAL_STATEMENT";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT) {
+    return "VALUE_REFLECTIVE_LOCAL_STATEMENT";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT) {
+    return "SYMBOL_REFLECTIVE_LOCAL_STATEMENT";
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::OBJECT_STATEMENT) {
     return "OBJECT_STATEMENT";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::DESTINATION) {
-    return "DESTINATION";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::MATTE_DESTINATION) {
+    return "MATTE_DESTINATION";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::VALUE_REFLECTIVE_DESTINATION) {
+    return "VALUE_REFLECTIVE_DESTINATION";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
+    return "SYMBOL_REFLECTIVE_DESTINATION";
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     return "MATTE_VALUE";
   } else if constexpr (SITUATION_PARAM ==
@@ -36,6 +48,14 @@ constexpr llvm::StringRef getName() {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
     return "SYMBOL_REFLECTIVE_VALUE";
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
+    return "MATTE_JUNCTION";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::VALUE_REFLECTIVE_JUNCTION) {
+    return "VALUE_REFLECTIVE_JUNCTION";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SYMBOL_REFLECTIVE_JUNCTION) {
+    return "SYMBOL_REFLECTIVE_JUNCTION";
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL) {
     return "MATTE_SYMBOL";
   } else if constexpr (SITUATION_PARAM ==
@@ -81,8 +101,6 @@ template <requite::Situation SITUATION_PARAM>
 constexpr bool getCanBeSituation(requite::Opcode opcode) {
   if constexpr (SITUATION_PARAM == requite::Situation::NONE) {
     return false;
-  } else if constexpr (SITUATION_PARAM == requite::Situation::CONVERGING) {
-    return requite::getCanBeConvergingSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::ROOT_STATEMENT) {
     return requite::getCanBeRootStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
@@ -90,13 +108,27 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::GLOBAL_STATEMENT) {
     return requite::getCanBeGlobalStatementSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::LOCAL_STATEMENT) {
-    return requite::getCanBeLocalStatementSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::MATTE_LOCAL_STATEMENT) {
+    return requite::getCanBeMatteLocalStatementSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT) {
+    return requite::getCanBeValueReflectiveLocalStatementSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT) {
+    return requite::getCanBeSymbolReflectiveLocalStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::OBJECT_STATEMENT) {
     return requite::getCanBeObjectStatementSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::DESTINATION) {
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::MATTE_DESTINATION) {
     return requite::getCanBeMatteDestinationSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::VALUE_REFLECTIVE_DESTINATION) {
+    return requite::getCanBeValueReflectiveDestinationSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
+    return requite::getCanBeSymbolReflectiveDestinationSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     return requite::getCanBeMatteValueSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
@@ -105,6 +137,14 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
     return requite::getCanBeSymbolReflectiveValueSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
+    return requite::getCanBeMatteJunctionSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::VALUE_REFLECTIVE_JUNCTION) {
+    return requite::getCanBeValueReflectiveJunctionSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SYMBOL_REFLECTIVE_JUNCTION) {
+    return requite::getCanBeSymbolReflectiveJunctionSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL) {
     return requite::getCanBeMatteSymbolSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
@@ -156,21 +196,40 @@ constexpr requite::Situation getNextScopeStatementSituation() {
                            requite::Situation::GLOBAL_STATEMENT ||
                        SITUATION_PARAM ==
                            requite::Situation::OBJECT_STATEMENT ||
-                       SITUATION_PARAM == requite::Situation::LOCAL_STATEMENT) {
+                       SITUATION_PARAM ==
+                           requite::Situation::MATTE_LOCAL_STATEMENT) {
     return SITUATION_PARAM;
   } else {
-    return requite::Situation::LOCAL_STATEMENT;
+    return requite::Situation::MATTE_LOCAL_STATEMENT;
   }
 }
 
 template <requite::Situation SITUATION_PARAM>
 constexpr requite::Situation getNextValueReflectiveSituation() {
-  if constexpr (SITUATION_PARAM == requite::Situation::DESTINATION ||
-                SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_VALUE ||
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
                 SITUATION_PARAM ==
-                    requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
+                    requite::Situation::VALUE_REFLECTIVE_DESTINATION ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
+    return requite::Situation::VALUE_REFLECTIVE_DESTINATION;
+  } else if constexpr (
+      SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT ||
+      SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT ||
+      SITUATION_PARAM ==
+          requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT) {
+    return requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT;
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::VALUE_REFLECTIVE_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
     return requite::Situation::VALUE_REFLECTIVE_VALUE;
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
+                       SITUATION_PARAM ==
+                           requite::Situation::VALUE_REFLECTIVE_JUNCTION ||
+                       SITUATION_PARAM ==
+                           requite::Situation::SYMBOL_REFLECTIVE_JUNCTION) {
+    return requite::Situation::VALUE_REFLECTIVE_JUNCTION;
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM ==
                            requite::Situation::VALUE_REFLECTIVE_SYMBOL ||
@@ -186,12 +245,30 @@ constexpr requite::Situation getNextValueReflectiveSituation() {
 
 template <requite::Situation SITUATION_PARAM>
 constexpr requite::Situation getNextSymbolReflectiveSituation() {
-  if constexpr (SITUATION_PARAM == requite::Situation::DESTINATION ||
-                SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_VALUE ||
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
                 SITUATION_PARAM ==
-                    requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
+                    requite::Situation::VALUE_REFLECTIVE_DESTINATION ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
+    return requite::Situation::SYMBOL_REFLECTIVE_DESTINATION;
+  } else if constexpr (
+      SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT ||
+      SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT ||
+      SITUATION_PARAM ==
+          requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT) {
+    return requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT;
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::VALUE_REFLECTIVE_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
     return requite::Situation::SYMBOL_REFLECTIVE_VALUE;
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
+                       SITUATION_PARAM ==
+                           requite::Situation::VALUE_REFLECTIVE_JUNCTION ||
+                       SITUATION_PARAM ==
+                           requite::Situation::SYMBOL_REFLECTIVE_JUNCTION) {
+    return requite::Situation::SYMBOL_REFLECTIVE_JUNCTION;
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM ==
                            requite::Situation::VALUE_REFLECTIVE_SYMBOL ||
@@ -203,6 +280,19 @@ constexpr requite::Situation getNextSymbolReflectiveSituation() {
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME ||
                        SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
     return SITUATION_PARAM;
+  } else {
+    static_assert(false, "invalid situation");
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+constexpr requite::Situation getNextAssignLvalueSitaution() {
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT ||
+                SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
+    return requite::Situation::MATTE_DESTINATION;
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
+                       SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
+    return requite::Situation::MATTE_JUNCTION;
   } else {
     static_assert(false, "invalid situation");
   }
@@ -225,8 +315,21 @@ constexpr bool getCanBeGlobalStatementSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_GLOBAL_STATEMENT);
 }
 
-constexpr bool getCanBeLocalStatementSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode, requite::_opcode::_LOCAL_STATEMENT);
+constexpr bool getCanBeMatteLocalStatementSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode,
+                               requite::_opcode::_MATTE_LOCAL_STATEMENT);
+}
+
+constexpr bool
+getCanBeValueReflectiveLocalStatementSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(
+      opcode, requite::_opcode::_VALUE_REFLECTIVE_LOCAL_STATEMENT);
+}
+
+constexpr bool
+getCanBeSymbolReflectiveLocalStatementSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(
+      opcode, requite::_opcode::_SYMBOL_REFLECTIVE_LOCAL_STATEMENT);
 }
 
 constexpr bool getCanBeObjectStatementSituation(requite::Opcode opcode) {
@@ -234,7 +337,19 @@ constexpr bool getCanBeObjectStatementSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeMatteDestinationSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode, requite::_opcode::_DESTINATION);
+  return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_DESTINATION);
+}
+
+constexpr bool
+getCanBeValueReflectiveDestinationSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode,
+                               requite::_opcode::_VALUE_REFLECTIVE_DESTINATION);
+}
+
+constexpr bool
+getCanBeSymbolReflectiveDestinationSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(
+      opcode, requite::_opcode::_SYMBOL_REFLECTIVE_DESTINATION);
 }
 
 constexpr bool getCanBeMatteValueSituation(requite::Opcode opcode) {
@@ -249,6 +364,22 @@ constexpr bool getCanBeValueReflectiveValueSituation(requite::Opcode opcode) {
 constexpr bool getCanBeSymbolReflectiveValueSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode,
                                requite::_opcode::_SYMBOL_REFLECTIVE_VALUE);
+}
+
+constexpr bool getCanBeMatteJunctionSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_JUNCTION);
+}
+
+constexpr bool
+getCanBeValueReflectiveJunctionSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode,
+                               requite::_opcode::_VALUE_REFLECTIVE_JUNCTION);
+}
+
+constexpr bool
+getCanBeSymbolReflectiveJunctionSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode,
+                               requite::_opcode::_SYMBOL_REFLECTIVE_JUNCTION);
 }
 
 constexpr bool getCanBeMatteSymbolSituation(requite::Opcode opcode) {
@@ -278,8 +409,7 @@ constexpr bool getCanBeSymbolBindingSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeDestinationBindingSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                               requite::_opcode::_DESTINATION_BINDING);
+  return requite::_getHasFlags(opcode, requite::_opcode::_DESTINATION_BINDING);
 }
 
 constexpr bool getCanBeNamedFieldSituation(requite::Opcode opcode) {
@@ -291,8 +421,7 @@ constexpr bool getCanBePositionalFieldSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeTemplateParameterSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                               requite::_opcode::_TEMPLATE_PARAMETER);
+  return requite::_getHasFlags(opcode, requite::_opcode::_TEMPLATE_PARAMETER);
 }
 
 constexpr bool getCanBeSymbolNameSituation(requite::Opcode opcode) {
@@ -312,7 +441,7 @@ constexpr bool getCanBeLastSwitchCaseSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeCaptureSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode, requite::_opcode::_CAPTURE);
+  return opcode == requite::Opcode::CAPTURE;
 }
 
 } // namespace requite

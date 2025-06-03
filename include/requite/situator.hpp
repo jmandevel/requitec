@@ -137,6 +137,10 @@ struct Situator final {
   inline void situateAssertExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateIdentifyExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateSituationalConduitExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateMangledNameExpression(requite::Expression &expression);
 };
 
 } // namespace requite

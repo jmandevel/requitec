@@ -64,6 +64,13 @@ bool Context::buildUserSymbol(requite::Object &object) {
 }
 
 bool Context::buildUserSymbol(requite::Procedure &procedure) {
+  switch (const requite::ProcedureType type = procedure.getType()) {
+    case requite::ProcedureType::ENTRY_POINT: {
+      
+    } break;
+    default:
+      break;
+  }
   requite::Expression &expression = procedure.getExpression();
   this->logNotSupportedYet(expression);
   return false;

@@ -73,7 +73,8 @@ enum class Opcode : unsigned {
   SITUATIONAL_BIND_VALUE_OR_DEFAULT_VALUE,
   SITUATIONAL_BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   SITUATIONAL_TRIP,
-  SITUATIONAL_INFERENCE_OR_INDETERMINATE,
+  SITUATIONAL_CONDUIT,
+  SITUATIONAL_INFERENCED_TYPE_OR_INDETERMINATE,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.
@@ -108,6 +109,12 @@ enum class Opcode : unsigned {
   // a nary reflect operation that reflects on symbols to get a resulting symbol
   // or value.
   REFLECT_SYMBOL,
+
+  // MEMBERS
+  MEMBER_VALUE_OF_VALUE,
+  MEMBER_SYMBOL_OF_VALUE,
+  MEMBER_VALUE_OF_SYMBOL,
+  MEMBER_SYMBOL_OF_SYMBOL,
 
   // BIND
   BIND_VALUE,
@@ -145,11 +152,17 @@ enum class Opcode : unsigned {
   // MEMORY
   CONCATINATE,
   FROM_FRONT,
+  FROM_FRONT_OF_VALUE,
   FROM_BACK,
+  FROM_BACK_OF_VALUE,
   TRUNCATE_FRONT,
+  TRUNCATE_FRONT_OF_VALUE,
   TRUNCATE_BACK,
+  TRUNCATE_BACK_OF_VALUE,
   AT,
+  AT_OFFSET_FROM_VALUE,
   DEREFERENCE,
+  DEREFERNECE_VALUE,
 
   // ASSIGNMENT
   ASSIGN,
@@ -161,7 +174,9 @@ enum class Opcode : unsigned {
 
   // MOVE SEMANTICS
   COPY,
+  COPY_VALUE,
   MOVE,
+  MOVE_VALUE,
   SWAP,
 
   // SUBTYPE
@@ -195,6 +210,7 @@ enum class Opcode : unsigned {
   NAMED_ARGUMENT_CALL,
   POSITIONAL_ARGUMENT_CALL,
   DESTROY,
+  DESTROY_VALUE,
   ENTRY_POINT,
   FUNCTION,
   METHOD,
@@ -257,9 +273,9 @@ enum class Opcode : unsigned {
   THIS,
   // a reference to the return value of a procedure.
   RESULT,
-  // value returned into a inlet.
+  // value returned into a circuit.
   INPUT,
-  // value returned from an outlet.
+  // value returned from an circuit.
   OUTPUT,
   // the byte size of memory addresses on the current architecture.
   ADDRESS_SIZE,
@@ -269,7 +285,7 @@ enum class Opcode : unsigned {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  INFERENCE,
+  INFERENCED_TYPE,
   VOID,
   BOOLEAN,
   WORD,
@@ -279,13 +295,15 @@ enum class Opcode : unsigned {
   BINARY_SINGLE_FLOAT,
   BINARY_DOUBLE_FLOAT,
   BINARY_QUAD_FLOAT,
-  C_CHAR,
+  CHARACTER,
   UTF8,
 
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
-  START_VARIADIC_ARGUMENT,
+  FIRST_VARIADIC_ARGUMENT,
+  FIRST_VARIADIC_ARGUMENT_OF_VALUE,
   NEXT_VARIADIC_ARGUMENT,
+  NEXT_VARIADIC_ARGUMENT_OF_VALUE,
 
   // SCOPES
   IF,
@@ -300,7 +318,9 @@ enum class Opcode : unsigned {
   FOR_EACH,
   LOOP,
   SCOPE,
-  CONDUIT,
+  VALUE_CONDUIT,
+  JUNCTION_CONDUIT,
+  DESTINATION_CONDUIT,
 
   // ACCESS MODIFIERS
   PRIVATE,
@@ -332,18 +352,36 @@ enum class Opcode : unsigned {
   NO_REMAINDER,
   INLINE,
   MANGLED_NAME,
+  MANGLED_NAME_OF_SYMBOL,
   PACK,
 
-  // REFLECTION
+  // REFLECTED VALUES
   SIZE,
+  SIZE_OF_VALUE,
+  SIZE_OF_TYPE,
   DEPTH,
+  DEPTH_OF_VALUE,
+  DEPTH_OF_TYPE,
   COUNT,
-  TYPE,
+  COUNT_OF_VALUE,
+  COUNT_OF_TYPE,
   NAME,
+  NAME_OF_VALUE,
+  NAME_OF_SYMBOL,
   LINE,
+  LINE_OF_VALUE,
+  LINE_OF_SYMBOL,
   COLUMN,
-  UNDERLYING,
+  COLUMN_OF_VALUE,
+  COLUMN_OF_SYMBOL,
   IS,
+  ARE_SAME,
+
+  // REFLECTED SYMBOLS
+  TYPE,
+  TYPE_OF_VALUE,
+  UNDERLYING,
+  UNDERLYING_OF_TYPE,
 
   _LAST
 };
@@ -358,6 +396,10 @@ static constexpr unsigned OPCODE_COUNT =
 [[nodiscard]] constexpr bool getIsInternalUseOnly(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getIsUniveralizableSymbol(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getIsUniversalizableValue(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
 

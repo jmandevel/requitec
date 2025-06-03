@@ -132,7 +132,7 @@ constexpr requite::Opcode getPrefixNotationOpcode(requite::TokenType token) {
   case requite::TokenType::DOLLAR_OPERATOR:
     return requite::Opcode::STOLEN_REFERENCE;
   case requite::TokenType::QUESTION_OPERATOR:
-    return requite::Opcode::SITUATIONAL_INFERENCE_OR_INDETERMINATE;
+    return requite::Opcode::SITUATIONAL_INFERENCED_TYPE_OR_INDETERMINATE;
   case requite::TokenType::GRAVE_OPERATOR:
     return requite::Opcode::MUTABLE;
   case requite::TokenType::ARROW_OPERATOR:

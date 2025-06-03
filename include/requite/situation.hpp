@@ -19,16 +19,22 @@ namespace requite {
 
 enum class Situation {
   NONE,
-  CONVERGING,
   ROOT_STATEMENT,
   BASE_STATEMENT,
   GLOBAL_STATEMENT,
   OBJECT_STATEMENT,
-  LOCAL_STATEMENT,
-  DESTINATION,
+  MATTE_LOCAL_STATEMENT,
+  VALUE_REFLECTIVE_LOCAL_STATEMENT,
+  SYMBOL_REFLECTIVE_LOCAL_STATEMENT,
+  MATTE_DESTINATION,
+  VALUE_REFLECTIVE_DESTINATION,
+  SYMBOL_REFLECTIVE_DESTINATION,
   MATTE_VALUE,
   VALUE_REFLECTIVE_VALUE,
   SYMBOL_REFLECTIVE_VALUE,
+  MATTE_JUNCTION,
+  VALUE_REFLECTIVE_JUNCTION,
+  SYMBOL_REFLECTIVE_JUNCTION,
   MATTE_SYMBOL,
   VALUE_REFLECTIVE_SYMBOL,
   SYMBOL_REFLECTIVE_SYMBOL,
@@ -62,7 +68,7 @@ template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr requite::Situation getNextSymbolReflectiveSituation();
 
 template <requite::Situation SITUATION_PARAM>
-[[nodiscard]] constexpr requite::Situation getNextSymbolBindingSitaution();
+[[nodiscard]] constexpr requite::Situation getNextAssignLvalueSitaution();
 
 template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr bool getCanBeSituation(requite::Opcode opcode);
@@ -84,13 +90,25 @@ getCanBeBaseStatementSituation(requite::Opcode opcode);
 getCanBeGlobalStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeLocalStatementSituation(requite::Opcode opcode);
+getCanBeMatteLocalStatementSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeValueReflectiveLocalStatementSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeSymbolReflectiveLocalStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeObjectStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteDestinationSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeValueReflectiveDestinationSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeSymbolReflectiveDestinationSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteValueSituation(requite::Opcode opcode);
@@ -100,6 +118,15 @@ getCanBeValueReflectiveValueSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolReflectiveValueSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeMatteJunctionSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeValueReflectiveJunctionSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeSymbolReflectiveJunctionSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteSymbolSituation(requite::Opcode opcode);

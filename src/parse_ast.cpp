@@ -544,7 +544,7 @@ requite::Expression &Parser::parsePrecedence2() {
               ? requite::Opcode::CAST
               : requite::Opcode::BITWISE_CAST;
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::INFERENCE);
+          requite::Expression::makeOperation(requite::Opcode::INFERENCED_TYPE);
       inference.setSource(token);
       if (unary_ptr != nullptr) {
         requite::getRef(unary_ptr).setBranch(inference);
@@ -621,7 +621,7 @@ requite::Expression &Parser::parsePrecedence0() {
     return this->parseCloven(requite::Opcode::SITUATIONAL_TRIP,
                              requite::TokenType::RIGHT_TRIP_GROUPING);
   case requite::TokenType::LEFT_CAP_GROUPING:
-    return this->parseCloven(requite::Opcode::CONDUIT,
+    return this->parseCloven(requite::Opcode::SITUATIONAL_CONDUIT,
                              requite::TokenType::RIGHT_CAP_GROUPING);
   case requite::TokenType::BACKSLASH_OPERATOR:
     return this->parseIdentify();
@@ -909,7 +909,7 @@ requite::Expression& Parser::parseSituationalInferenceOrIndeterminate()
   const requite::Token &token = this->getToken();
   REQUITE_ASSERT(token.getType() == requite::TokenType::QUESTION_OPERATOR);
   requite::Expression &expression =
-      requite::Expression::makeOperation(requite::Opcode::SITUATIONAL_INFERENCE_OR_INDETERMINATE);
+      requite::Expression::makeOperation(requite::Opcode::SITUATIONAL_INFERENCED_TYPE_OR_INDETERMINATE);
   expression.setSource(token);
   this->incrementToken(1);
   return expression;
