@@ -41,7 +41,6 @@ enum class Situation {
   ATTRIBUTE,
   VALUE_BINDING,
   SYMBOL_BINDING,
-  DESTINATION_BINDING,
   NAMED_FIELD,
   POSITIONAL_FIELD,
   TEMPLATE_PARAMETER,
@@ -69,6 +68,12 @@ template <requite::Situation SITUATION_PARAM>
 
 template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr requite::Situation getNextAssignLvalueSitaution();
+
+template <requite::Situation SITUATION_PARAM>
+[[nodiscard]] constexpr bool getIsValueSituation();
+
+template <requite::Situation SITUATION_PARAM>
+[[nodiscard]] constexpr bool getIsSymbolSituation();
 
 template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr bool getCanBeSituation(requite::Opcode opcode);
@@ -144,9 +149,6 @@ getCanBeValueBindingSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolBindingSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeDestinationBindingSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeNamedFieldSituation(requite::Opcode opcode);

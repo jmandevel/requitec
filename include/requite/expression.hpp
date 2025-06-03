@@ -120,7 +120,9 @@ struct Expression final {
   [[nodiscard]] inline requite::Expression &
   replaceNext(requite::Expression &replacement);
   [[nodiscard]] inline requite::Expression &popBranch();
+  [[nodiscard]] inline requite::Expression *popBranchPtr();
   [[nodiscard]] inline requite::Expression &popNext();
+  [[nodiscard]] inline requite::Expression *popNextPtr();
   inline void flattenBranch();
   inline void replaceWithRecursiveCopy(requite::Expression &replacement);
 

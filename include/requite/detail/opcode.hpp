@@ -70,22 +70,20 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(22)),
   _SYMBOL_BINDING =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(23)),
-  _DESTINATION_BINDING =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(24)),
   _NAMED_FIELD =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(25)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(24)),
   _POSITIONAL_FIELD =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(26)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(25)),
   _TEMPLATE_PARAMETER =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(27)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(26)),
   _SYMBOL_NAME =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(28)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(27)),
   _SYMBOL_PATH =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(29)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(28)),
   _SWITCH_CASE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(30)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(29)),
   _LAST_SWITCH_CASE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(31))
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(30))
 };
 }
 
@@ -120,7 +118,7 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
            _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
            _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _VALUE_REFLECTIVE_VALUE | _SYMBOL_NAME |
+           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL | _SYMBOL_NAME |
            _SYMBOL_PATH;
 
   // ERROR
