@@ -408,18 +408,6 @@ void Maker::makeScopedValues(requite::Scope &scope,
       requite::Scope &scope = anonymous_function.getScope();
       this->makeScopedValues(scope, body, false);
     } break;
-    case requite::Opcode::CONDUIT: {
-      if (conduits_have_scopes) {
-        requite::Scope &new_scope = this->getModule().makeScope();
-        new_scope.setType(requite::ScopeType::CONDUIT);
-        branch.setScope(new_scope);
-        new_scope.setExpression(branch);
-        new_scope.setContainingScope(scope);
-        this->makeOrderedUserSymbols(new_scope, expression.getBranch());
-        break;
-      }
-      this->makeOrderedUserSymbols(scope, expression.getBranch());
-    } break;
     default:
       this->makeScopedValues(scope, branch, conduits_have_scopes);
     }

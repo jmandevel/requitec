@@ -1041,7 +1041,7 @@ constexpr bool getHasScopeData(requite::Opcode opcode) {
          opcode == requite::Opcode::DO_WHILE ||
          opcode == requite::Opcode::FOR_EACH ||
          opcode == requite::Opcode::LOOP || opcode == requite::Opcode::SCOPE ||
-         opcode == requite::Opcode::CONDUIT || opcode == requite::Opcode::TABLE;
+         opcode == requite::Opcode::TABLE;
 }
 
 constexpr bool getHasObjectData(requite::Opcode opcode) {
