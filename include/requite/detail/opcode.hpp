@@ -1188,6 +1188,74 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   return "_error";
 }
 
+constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
+  switch (opcode) {
+  case requite::Opcode::FROM_FRONT:
+    return requite::Opcode::FROM_FRONT_OF_VALUE;
+  case requite::Opcode::FROM_BACK:
+    return requite::Opcode::FROM_BACK_OF_VALUE;
+  case requite::Opcode::TRUNCATE_FRONT:
+    return requite::Opcode::TRUNCATE_FRONT_OF_VALUE;
+  case requite::Opcode::TRUNCATE_BACK:
+    return requite::Opcode::TRUNCATE_BACK_OF_VALUE;
+  case requite::Opcode::AT:
+    return requite::Opcode::AT_OFFSET_FROM_VALUE;
+  case requite::Opcode::DEREFERENCE:
+    return requite::Opcode::DEREFERNECE_VALUE;
+  case requite::Opcode::COPY:
+    return requite::Opcode::COPY_VALUE;
+  case requite::Opcode::MOVE:
+    return requite::Opcode::MOVE_VALUE;
+  case requite::Opcode::DESTROY:
+    return requite::Opcode::DESTROY_VALUE;
+  case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
+    return requite::Opcode::FIRST_VARIADIC_ARGUMENT_OF_VALUE;
+  case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
+    return requite::Opcode::NEXT_VARIADIC_ARGUMENT_OF_VALUE;
+  case requite::Opcode::SIZE:
+    return requite::Opcode::SIZE_OF_VALUE;
+  case requite::Opcode::DEPTH:
+    return requite::Opcode::DEPTH_OF_VALUE;
+  case requite::Opcode::COUNT:
+    return requite::Opcode::COUNT_OF_VALUE;
+  case requite::Opcode::NAME:
+    return requite::Opcode::NAME_OF_VALUE;
+  case requite::Opcode::LINE:
+    return requite::Opcode::LINE_OF_VALUE;
+  case requite::Opcode::COLUMN:
+    return requite::Opcode::COLUMN_OF_VALUE;
+  case requite::Opcode::TYPE:
+    return requite::Opcode::TYPE_OF_VALUE;
+  default:
+    break;
+  }
+  return requite::Opcode::_ERROR;
+}
+
+constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
+  switch (opcode) {
+    case requite::Opcode::MANGLED_NAME:
+      return requite::Opcode::MANGLED_NAME_OF_SYMBOL;
+    case requite::Opcode::SIZE:
+      return requite::Opcode::SIZE_OF_TYPE;
+    case requite::Opcode::DEPTH:
+      return requite::Opcode::DEPTH_OF_TYPE;
+    case requite::Opcode::COUNT:
+      return requite::Opcode::COUNT_OF_TYPE;
+    case requite::Opcode::NAME:
+      return requite::Opcode::NAME_OF_SYMBOL;
+    case requite::Opcode::COLUMN:
+      return requite::Opcode::COLUMN_OF_SYMBOL;
+    case requite::Opcode::IS:
+      return requite::Opcode::ARE_SAME;
+    case requite::Opcode::UNDERLYING:
+      return requite::Opcode::UNDERLYING_OF_TYPE;
+    default:
+      break;
+  }
+  return requite::Opcode::_NONE;
+}
+
 constexpr bool getIsValid(requite::Opcode opcode) {
   return opcode != requite::Opcode::_NONE &&
          opcode != requite::Opcode::_ERROR &&

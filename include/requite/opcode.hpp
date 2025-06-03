@@ -391,15 +391,15 @@ static constexpr unsigned OPCODE_COUNT =
 
 [[nodiscard]] constexpr std::string_view getName(requite::Opcode opcode);
 
+[[nodiscard]] constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode);
+
+[[nodiscard]] constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode);
+
 [[nodiscard]] constexpr bool getIsValid(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsInternalUseOnly(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getIsUniveralizableSymbol(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getIsUniversalizableValue(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
 
