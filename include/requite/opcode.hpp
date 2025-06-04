@@ -10,181 +10,152 @@
 namespace requite {
 
 // NOTE:
-//  an underscore at the front means that the opcode is for internal use
-//  only, and is a compile error if it is written in Requite source code.
+//  one underscore at the front means that the opcode is for intermediate use
+//  only, and can not normally be written in source files at the head of an
+//  operation unless -intermediate-form compiler flag is set.
 
 // NOTE:
-//  underscores are added to the end of opcode names to prevent name collisions
-//  with c++ keywords. Trailing underscores are not included in the opcode name
-//  in the source code
+//  two underscores at the front means that the opcode is for internal use
+//  only, and is a compile error if it is written in Requite source code.
 
 enum class Opcode : unsigned {
   // this should never occur.
-  _NONE,
+  __NONE,
 
   // LITERALS
   // a literal that represents an integer value. May have a base.
-  _INTEGER_LITERAL,
+  __INTEGER_LITERAL,
   // a literal that represents a real value with a decimal point.
-  _REAL_LITERAL,
+  __REAL_LITERAL,
   // a literal that represents a string of text characters.
-  _STRING_LITERAL,
+  __STRING_LITERAL,
   // a literal that represents a single text character.
-  _CODEUNIT_LITERAL,
+  __CODEUNIT_LITERAL,
   // a literal that is used to refeer to user defined symbols.
-  _IDENTIFIER_LITERAL,
+  __IDENTIFIER_LITERAL,
 
   // ERRORS
   // this opcode is used whenever something goes wrong to denote that an error
   // occured.
-  _ERROR,
+  __ERROR,
 
   // SITUATIONAL
-  // a situational opcode that occurs when a DOUBLE_AMBERSAND_OPERATOR token is
-  // used as a prefix notation opcode. in VALUE sitation, it is situated to
-  // logical_and. in SYMBOL situation, it is situated to two reference
-  // operations
-  // with one nested inside the other.
-  SITUATIONAL_LOGICAL_AND_OR_DOUBLE_REFERENCE,
-  // a situational opcode that occurs when a DASH_OPERATOR token is used as a
-  // prefix notation opcode. this opcode is only valid in VALUE situation. if it
-  // has one branch, it is situated to negate. if it has two or more branches,
-  // it
-  // is situated to subtract.
-  SITUATIONAL_SUBTRACT_OR_NEGATE,
-  // a situational opcode that occurs when a STAR_OPERATOR token is used as a
-  // prefix notation opcode. in SYMBOL situation, it is situated to pointer. in
-  // VALUE situation, it is situated to multiply.
-  SITUATIONAL_MULTIPLY_OR_POINTER,
-  // a situational opcode that occurs when a SLASH_OPERATOR token is used as a
-  // prefix notation opcode. in SYMBOL situation, it is situated to slice. in
-  // VALUE situation, it is situated to divide.
-  SITUATIONAL_DIVIDE_OR_FAT_POINTER,
-  // a situational opcode that occurs when a PERCENT_OPERATOR token is used as
-  // a prefix notation opcode. in SYMBOL situation, it is situated to array. in
-  // VALUE situation, it is situated to modulus.
-  SITUATIONAL_MODULUS_OR_ARRAY,
-  // a situational opcode that occurs when a AMBERSAND_OPERATOR token is used
-  // as a prefix notation opcode. in SYMBOL situation, it is situated to
-  // reference.
-  // in VALUE situation, it is situated to bitwise_and.
-  SITUATIONAL_BITWISE_AND_OR_REFERENCE,
-  SITUATIONAL_CALL_OR_SIGNATURE,
-  SITUATIONAL_BIND_VALUE_OR_DEFAULT_VALUE,
-  SITUATIONAL_BIND_SYMBOL_OR_DEFAULT_SYMBOL,
-  SITUATIONAL_TRIP,
-  SITUATIONAL_CONDUIT,
-  SITUATIONAL_INFERENCED_TYPE_OR_INDETERMINATE,
+  _CALL_OR_SIGNATURE,
+  _BIND_VALUE_OR_DEFAULT_VALUE,
+  _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
+  _TRIP,
+  _CONDUIT,
+  _INFERENCED_TYPE_OR__INDETERMINATE,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.
-  LOGICAL_AND,
+  _LOGICAL_AND,
   // a nary logical operation that returns if any branch is true or not zero.
-  LOGICAL_OR,
+  _LOGICAL_OR,
   // a unary logical operation that returns if the branch is false or zero.
-  LOGICAL_COMPLEMENT,
+  _LOGICAL_COMPLEMENT,
 
   // COMPARISON
   // a nary comparison operation that returns if each branch is less than the
   // previous.
-  GREATER,
+  _GREATER,
   // a nary comparison operation that returns if each branch is less than or
   // equal to the previous.
-  GREATER_EQUAL,
+  _GREATER_EQUAL,
   // a nary comparison operation that returns if each branch is greater than the
   // previous.
-  LESS,
+  _LESS,
   // a nary comparison operation that returns if each branch is greater than or
   // equal to the previous.
-  LESS_EQUAL,
+  _LESS_EQUAL,
   // a nary comparison operation that returns if all branches are equal.
-  EQUAL,
+  _EQUAL,
   // a nary comparison operation that returns if all branches are not equal.
-  NOT_EQUAL,
+  _NOT_EQUAL,
 
   // REFLECT
   // a nary reflect operation that reflects on values to get a resulting symbol
   // or value.
-  REFLECT_VALUE,
+  _REFLECT_VALUE,
   // a nary reflect operation that reflects on symbols to get a resulting symbol
   // or value.
-  REFLECT_SYMBOL,
+  _REFLECT_SYMBOL,
 
   // MEMBERS
-  MEMBER_VALUE_OF_VALUE,
-  MEMBER_SYMBOL_OF_VALUE,
-  MEMBER_VALUE_OF_SYMBOL,
-  MEMBER_SYMBOL_OF_SYMBOL,
+  _MEMBER_VALUE_OF_VALUE,
+  _MEMBER_SYMBOL_OF_VALUE,
+  _MEMBER_VALUE_OF_SYMBOL,
+  _MEMBER_SYMBOL_OF_SYMBOL,
 
   // BIND
-  BIND_VALUE,
-  BIND_SYMBOL,
-  DEFAULT_VALUE,
-  DEFAULT_SYMBOL,
+  _BIND_VALUE,
+  _BIND_SYMBOL,
+  _DEFAULT_VALUE,
+  _DEFAULT_SYMBOL,
 
   // APPLY
-  ASCRIBE,
-  CAST,
+  _ASCRIBE,
+  _CAST,
   STRINGIFY,
   CODEUNIFY,
-  IDENTIFY,
-  BAKE,
+  _IDENTIFY,
+  _BAKE,
 
   // ARITHMETIC
-  ADD,
-  SUBTRACT,
-  MULTIPLY,
-  DIVIDE,
-  MODULUS,
-  NEGATE,
+  _ADD,
+  _SUBTRACT,
+  _MULTIPLY,
+  _DIVIDE,
+  _MODULUS,
+  _NEGATE,
 
   // BITWISE
-  BITWISE_CAST,
-  BITWISE_OR,
-  BITWISE_AND,
-  BITWISE_XOR,
-  BITWISE_COMPLEMENT,
-  BITWISE_SHIFT_LEFT,
-  BITWISE_SHIFT_RIGHT,
-  BITWISE_ROTATE_LEFT,
-  BITWISE_ROTATE_RIGHT,
+  _BITWISE_CAST,
+  _BITWISE_OR,
+  _BITWISE_AND,
+  _BITWISE_XOR,
+  _BITWISE_COMPLEMENT,
+  _BITWISE_SHIFT_LEFT,
+  _BITWISE_SHIFT_RIGHT,
+  _BITWISE_ROTATE_LEFT,
+  _BITWISE_ROTATE_RIGHT,
 
   // MEMORY
-  CONCATINATE,
+  _CONCATINATE,
   FROM_FRONT,
-  FROM_FRONT_OF_VALUE,
+  _FROM_FRONT_OF_VALUE,
   FROM_BACK,
-  FROM_BACK_OF_VALUE,
+  _FROM_BACK_OF_VALUE,
   TRUNCATE_FRONT,
-  TRUNCATE_FRONT_OF_VALUE,
+  _TRUNCATE_FRONT_OF_VALUE,
   TRUNCATE_BACK,
-  TRUNCATE_BACK_OF_VALUE,
+  _TRUNCATE_BACK_OF_VALUE,
   AT,
-  AT_OFFSET_FROM_VALUE,
-  DEREFERENCE,
-  DEREFERNECE_VALUE,
+  _AT_OFFSET_FROM_VALUE,
+  ADDRESS,
+  _ADDRESS_OF_VALUE,
 
   // ASSIGNMENT
-  ASSIGN,
-  ASSIGN_ADD,
-  ASSIGN_SUBTRACT,
-  ASSIGN_MULTIPLY,
-  ASSIGN_DIVIDE,
-  ASSIGN_MODULUS,
+  _ASSIGN,
+  _ASSIGN_ADD,
+  _ASSIGN_SUBTRACT,
+  _ASSIGN_MULTIPLY,
+  _ASSIGN_DIVIDE,
+  _ASSIGN_MODULUS,
 
   // MOVE SEMANTICS
   COPY,
-  COPY_VALUE,
+  _COPY_VALUE,
   MOVE,
-  MOVE_VALUE,
+  _MOVE_VALUE,
   SWAP,
 
   // SUBTYPE
   ARRAY,
-  REFERENCE,
-  STOLEN_REFERENCE,
-  POINTER,
-  FAT_POINTER,
+  _REFERENCE,
+  _STOLEN_REFERENCE,
+  _POINTER,
+  _FAT_POINTER,
 
   // TYPE MODIFIER
   MUTABLE,
@@ -193,31 +164,34 @@ enum class Opcode : unsigned {
   NULL_TERMINATED,
 
   // TRIPS
-  TUPLE,
-  ANONYMOUS_OBJECT,
-  NULL_,
-  IGNORE,
+  _TUPLE_VALUE,
+  _TUPLE_TYPE,
+  _ANONYMOUS_OBJECT_VALUE,
+  _ANONYMOUS_OBJECT_TYPE,
+  _NULL_VALUE,
+  _NULL_TYPE,
+  _IGNORE,
 
   // TEMPLATES
   TEMPLATE,
-  SPECIALIZATION,
+  _SPECIALIZATION,
 
   // PROCEDURES
-  NO_PARAMETER_SIGNATURE,
-  NAMED_PARAMETER_SIGNATURE,
-  POSITIONAL_PARAMETER_SIGNATURE,
-  NO_ARGUMENT_CALL,
-  NAMED_ARGUMENT_CALL,
-  POSITIONAL_ARGUMENT_CALL,
+  _NO_PARAMETER_SIGNATURE,
+  _NAMED_PARAMETER_SIGNATURE,
+  _POSITIONAL_PARAMETER_SIGNATURE,
+  _NO_ARGUMENT_CALL,
+  _NAMED_ARGUMENT_CALL,
+  _POSITIONAL_ARGUMENT_CALL,
   DESTROY,
-  DESTROY_VALUE,
+  _DESTROY_VALUE,
   ENTRY_POINT,
   FUNCTION,
   METHOD,
   CONSTRUCTOR,
   DESTRUCTOR,
-  ANONYMOUS_FUNCTION,
-  CAPTURE,
+  _ANONYMOUS_FUNCTION,
+  _CAPTURE,
 
   // CONTROL FLOW
   RETURN,
@@ -232,7 +206,7 @@ enum class Opcode : unsigned {
   OBJECT,
   TABLE,
   ALIAS,
-  LOCAL,
+  _LOCAL,
   GLOBAL,
   PROPERTY,
   CONSTANT,
@@ -259,7 +233,7 @@ enum class Opcode : unsigned {
   // its memory should not be initialized and should be left containing garbage
   // memory. This is implicitly inserted into local and global operations when
   // no value branch is provided.
-  INDETERMINATE,
+  _INDETERMINATE,
   // a value to be assigned to a property, denoting that it has no default value
   // and needs to be explicitly initialized in each constructor. This is
   // implicitly inserted into property operations when no value branch is
@@ -285,7 +259,7 @@ enum class Opcode : unsigned {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  INFERENCED_TYPE,
+  _INFERENCED_TYPE,
   VOID,
   BOOLEAN,
   WORD,
@@ -301,9 +275,9 @@ enum class Opcode : unsigned {
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
   FIRST_VARIADIC_ARGUMENT,
-  FIRST_VARIADIC_ARGUMENT_OF_VALUE,
+  _FIRST_VARIADIC_ARGUMENT_OF_VALUE,
   NEXT_VARIADIC_ARGUMENT,
-  NEXT_VARIADIC_ARGUMENT_OF_VALUE,
+  _NEXT_VARIADIC_ARGUMENT_OF_VALUE,
 
   // SCOPES
   IF,
@@ -318,9 +292,9 @@ enum class Opcode : unsigned {
   FOR_EACH,
   LOOP,
   SCOPE,
-  VALUE_CONDUIT,
-  JUNCTION_CONDUIT,
-  DESTINATION_CONDUIT,
+  _VALUE_CONDUIT,
+  _JUNCTION_CONDUIT,
+  _DESTINATION_CONDUIT,
 
   // ACCESS MODIFIERS
   PRIVATE,
@@ -352,52 +326,56 @@ enum class Opcode : unsigned {
   NO_REMAINDER,
   INLINE,
   MANGLED_NAME,
-  MANGLED_NAME_OF_SYMBOL,
+  _MANGLED_NAME_OF_SYMBOL,
   PACK,
 
   // REFLECTED VALUES
   SIZE,
-  SIZE_OF_VALUE,
-  SIZE_OF_TYPE,
+  _SIZE_OF_VALUE,
+  _SIZE_OF_TYPE,
   DEPTH,
-  DEPTH_OF_VALUE,
-  DEPTH_OF_TYPE,
+  _DEPTH_OF_VALUE,
+  _DEPTH_OF_TYPE,
   COUNT,
-  COUNT_OF_VALUE,
-  COUNT_OF_TYPE,
+  _COUNT_OF_VALUE,
+  _COUNT_OF_TYPE,
   NAME,
-  NAME_OF_VALUE,
-  NAME_OF_SYMBOL,
+  _NAME_OF_VALUE,
+  _NAME_OF_SYMBOL,
   LINE,
-  LINE_OF_VALUE,
-  LINE_OF_SYMBOL,
+  _LINE_OF_VALUE,
+  _LINE_OF_SYMBOL,
   COLUMN,
-  COLUMN_OF_VALUE,
-  COLUMN_OF_SYMBOL,
+  _COLUMN_OF_VALUE,
+  _COLUMN_OF_SYMBOL,
   IS,
   ARE_SAME,
 
   // REFLECTED SYMBOLS
   TYPE,
-  TYPE_OF_VALUE,
+  _TYPE_OF_VALUE,
   UNDERLYING,
-  UNDERLYING_OF_TYPE,
+  _UNDERLYING_OF_TYPE,
 
-  _LAST
+  __LAST
 };
 
 static constexpr unsigned OPCODE_COUNT =
-    static_cast<std::size_t>(requite::Opcode::_LAST);
+    static_cast<std::size_t>(requite::Opcode::__LAST);
 
 [[nodiscard]] constexpr std::string_view getName(requite::Opcode opcode);
 
-[[nodiscard]] constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode);
+[[nodiscard]] constexpr requite::Opcode
+getUniversalizedValue(requite::Opcode opcode);
 
-[[nodiscard]] constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode);
+[[nodiscard]] constexpr requite::Opcode
+getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsValid(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsInternalUseOnly(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getIsIntermediateOperation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
 

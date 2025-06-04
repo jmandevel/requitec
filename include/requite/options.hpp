@@ -79,6 +79,11 @@ inline llvm::cl::list<std::string>
                  // check to output custom error message.
                  llvm::cl::value_desc("filename"));
 
+inline llvm::cl::opt<bool> INTERMEDIATE_FORM(
+    "intermediate-form",
+    llvm::cl::desc("Allow copmilation of intermediate operation opcodes"),
+    llvm::cl::Optional, llvm::cl::init(false));
+
 inline llvm::cl::opt<bool> NAME_INTERMEDIATE_OPCODES(
     "name-intermediate-opcodes",
     llvm::cl::desc("Name the opcodes output to intermediate source files"),

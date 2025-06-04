@@ -36,7 +36,7 @@ requite::Expression& Expression::copyExpression(const requite::Expression& expre
 requite::Expression &Expression::makeError()
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::_ERROR;
+    expression._opcode = requite::Opcode::__ERROR;
     return expression;
 }
 
@@ -50,21 +50,21 @@ requite::Expression & Expression::makeOperation(requite::Opcode opcode)
 requite::Expression &Expression::makeInteger()
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::_INTEGER_LITERAL;
+    expression._opcode = requite::Opcode::__INTEGER_LITERAL;
     return expression;
 }
 
 requite::Expression &Expression::makeReal()
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::_REAL_LITERAL;
+    expression._opcode = requite::Opcode::__REAL_LITERAL;
     return expression;
 }
 
 requite::Expression &Expression::makeString(llvm::StringRef text)
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::_STRING_LITERAL;
+    expression._opcode = requite::Opcode::__STRING_LITERAL;
     expression._data.emplace<std::string>(text.str());
     return expression;
 }
@@ -72,7 +72,7 @@ requite::Expression &Expression::makeString(llvm::StringRef text)
 requite::Expression &Expression::makeCodeunit(llvm::StringRef text)
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::_CODEUNIT_LITERAL;
+    expression._opcode = requite::Opcode::__CODEUNIT_LITERAL;
     expression._data.emplace<std::string>(text.str());
     return expression;
 }
@@ -80,7 +80,7 @@ requite::Expression &Expression::makeCodeunit(llvm::StringRef text)
 requite::Expression& Expression::makeIdentifier(llvm::StringRef text)
 {
     requite::Expression& expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::_IDENTIFIER_LITERAL;
+    expression._opcode = requite::Opcode::__IDENTIFIER_LITERAL;
     expression._data.emplace<std::string>(text.str());
     return expression;
 }

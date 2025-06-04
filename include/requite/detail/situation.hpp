@@ -454,7 +454,7 @@ constexpr bool getCanBeLastSwitchCaseSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeCaptureSituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::CAPTURE;
+  return opcode == requite::Opcode::_CAPTURE;
 }
 
 } // namespace requite

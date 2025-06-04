@@ -72,7 +72,7 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
     return;
   }
   requite::Expression &operation =
-      requite::Expression::makeOperation(requite::Opcode::ASCRIBE);
+      requite::Expression::makeOperation(requite::Opcode::_ASCRIBE);
   operation.setSource(token);
   operation.setBranch(attribute);
   if (unary_ptr != nullptr) {
@@ -85,7 +85,7 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
 
 requite::Opcode PrecedenceParser::getOuterOpcode() const {
   if (this->_outer_ptr == nullptr) {
-    return requite::Opcode::_NONE;
+    return requite::Opcode::__NONE;
   }
   return requite::getRef(this->_outer_ptr).getOpcode();
 }

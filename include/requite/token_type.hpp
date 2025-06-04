@@ -109,9 +109,6 @@ enum class TokenType {
 [[nodiscard]] constexpr requite::TokenType
 getUnmatched(requite::TokenType token);
 
-[[nodiscard]] constexpr requite::Opcode
-getPrefixNotationOpcode(requite::TokenType token);
-
 } // namespace requite
 
 #include <requite/detail/token_type.hpp>

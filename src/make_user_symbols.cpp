@@ -31,7 +31,7 @@ void Maker::makeUnorderedUserSymbols(requite::Scope &scope,
                                      requite::Expression &body,
                                      bool conduits_have_scopes) {
   for (requite::Expression &branch : body.getHorizontalSubrange()) {
-    if (branch.getOpcode() == requite::Opcode::ASCRIBE) {
+    if (branch.getOpcode() == requite::Opcode::_ASCRIBE) {
       requite::MakeAttributesResult result =
           requite::Attributes::makeAttributes(this->getContext(), branch);
       if (result.has_error) {
@@ -271,7 +271,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
 void Maker::makeOrderedUserSymbols(requite::Scope &scope,
                                    requite::Expression &body) {
   for (requite::Expression &branch : body.getHorizontalSubrange()) {
-    if (branch.getOpcode() == requite::Opcode::ASCRIBE) {
+    if (branch.getOpcode() == requite::Opcode::_ASCRIBE) {
       requite::MakeAttributesResult result =
           requite::Attributes::makeAttributes(this->getContext(), branch);
       if (result.has_error) {
@@ -304,7 +304,7 @@ void Maker::makeAscribedOrderedUserSymbol(requite::Scope &scope,
                                           requite::Attributes attributes,
                                           requite::Expression &expression) {
   switch (const requite::Opcode opcode = expression.getOpcode()) {
-  case requite::Opcode::LOCAL: {
+  case requite::Opcode::_LOCAL: {
     requite::Variable &local = this->getModule().makeVariable();
     local.setType(requite::VariableType::LOCAL);
     local.setExpression(expression);
@@ -348,14 +348,14 @@ void Maker::makeAscribedOrderedUserSymbol(requite::Scope &scope,
 void Maker::makeOrderedUserSymbol(requite::Scope &scope,
                                   requite::Expression &expression) {
   switch (const requite::Opcode opcode = expression.getOpcode()) {
-  case requite::Opcode::LOCAL: {
+  case requite::Opcode::_LOCAL: {
     requite::Variable &local = this->getModule().makeVariable();
     local.setType(requite::VariableType::LOCAL);
     local.setExpression(expression);
     expression.setVariable(local);
     local.setContainingScope(scope);
     this->makeScopedValues(scope, expression.getBranch(), false);
-  };
+  } break;
   case requite::Opcode::IF:
     [[fallthrough]];
   case requite::Opcode::ELSE_IF:
@@ -395,14 +395,14 @@ void Maker::makeScopedValues(requite::Scope &scope,
                              bool conduits_have_scopes) {
   for (requite::Expression &branch : expression.getBranchSubrange()) {
     switch (const requite::Opcode opcode = branch.getOpcode()) {
-    case requite::Opcode::ANONYMOUS_FUNCTION: {
+    case requite::Opcode::_ANONYMOUS_FUNCTION: {
       requite::AnonymousFunction &anonymous_function =
           this->getModule().makeAnonymousFunction();
       anonymous_function.setExpression(expression);
       expression.setAnonymousFunction(anonymous_function);
       anonymous_function.setContainingScope(scope);
       requite::Expression &capture = expression.getBranch();
-      REQUITE_ASSERT(capture.getOpcode() == requite::Opcode::CAPTURE);
+      REQUITE_ASSERT(capture.getOpcode() == requite::Opcode::_CAPTURE);
       requite::Expression &signature = capture.getNext();
       requite::Expression &body = signature.getNext();
       requite::Scope &scope = anonymous_function.getScope();

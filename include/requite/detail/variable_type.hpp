@@ -19,12 +19,12 @@ namespace requtite {
   case requite::VariableType::CONSTANT:
     return "CONSTANT";
   }
-  return "_ERROR";
+  return "ERROR";
 }
 
 constexpr requite::VariableType getVariableType(requite::Opcode opcode) {
   switch (opcode) {
-  case requite::Opcode::LOCAL:
+  case requite::Opcode::_LOCAL:
     return requite::VariableType::LOCAL;
   case requite::Opcode::GLOBAL:
     return requite::VariableType::GLOBAL;
@@ -33,14 +33,15 @@ constexpr requite::VariableType getVariableType(requite::Opcode opcode) {
   case requite::Opcode::CONSTANT:
     return requite::VariableType::CONSTANT;
   default:
-    return requite::VariableType::NONE;
+    break;
   }
+  return requite::VariableType::NONE;
 }
 
 constexpr requite::Opcode getOpcode(requite::VariableType type) {
   switch (type) {
   case requite::VariableType::LOCAL:
-    return requite::Opcode::LOCAL;
+    return requite::Opcode::_LOCAL;
   case requite::VariableType::GLOBAL:
     return requite::Opcode::GLOBAL;
   case requite::VariableType::PROPERTY:
@@ -48,8 +49,9 @@ constexpr requite::Opcode getOpcode(requite::VariableType type) {
   case requite::VariableType::CONSTANT:
     return requite::Opcode::CONSTANT;
   default:
-    return requite::Opcode::_ERROR;
-  }
+    break;
+}
+return requite::Opcode::__ERROR;
 }
 
 } // namespace requtite

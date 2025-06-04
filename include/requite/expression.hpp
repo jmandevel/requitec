@@ -32,7 +32,7 @@ struct Alias;
 struct Expression final {
   using Self = requite::Expression;
 
-  requite::Opcode _opcode = requite::Opcode::_NONE;
+  requite::Opcode _opcode = requite::Opcode::__NONE;
   requite::Expression *_next_ptr = nullptr;
   requite::Expression *_branch_ptr = nullptr;
   const char *_source_text_ptr = nullptr;

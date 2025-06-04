@@ -12,8 +12,6 @@ namespace requite {
 
 constexpr requite::ProcedureType getProcedureType(requite::Opcode opcode) {
   switch (opcode) {
-  case requite::Opcode::_NONE:
-    return requite::ProcedureType::NONE;
   case requite::Opcode::ENTRY_POINT:
     return requite::ProcedureType::ENTRY_POINT;
   case requite::Opcode::FUNCTION:
@@ -27,7 +25,7 @@ constexpr requite::ProcedureType getProcedureType(requite::Opcode opcode) {
   default:
     break;
   }
-  REQUITE_UNREACHABLE();
+  return requite::ProcedureType::NONE;
 }
 
 constexpr std::string_view getName(requite::ProcedureType type) {
@@ -37,21 +35,22 @@ constexpr std::string_view getName(requite::ProcedureType type) {
 
 constexpr bool getIsNamed(requite::ProcedureType type) {
   switch (type) {
-    case requite::ProcedureType::NONE:
-      return false;
-    case requite::ProcedureType::ENTRY_POINT:
-      return false;
-    case requite::ProcedureType::FUNCTION:
-      return true;
-    case requite::ProcedureType::METHOD:
-      return true;
-    case requite::ProcedureType::CONSTRUCTOR:
-      return false;
-    case requite::ProcedureType::DESTRUCTOR:
-      return false;
-    default:
-      return false;
+  case requite::ProcedureType::NONE:
+    return false;
+  case requite::ProcedureType::ENTRY_POINT:
+    return false;
+  case requite::ProcedureType::FUNCTION:
+    return true;
+  case requite::ProcedureType::METHOD:
+    return true;
+  case requite::ProcedureType::CONSTRUCTOR:
+    return false;
+  case requite::ProcedureType::DESTRUCTOR:
+    return false;
+  default:
+    break;
   }
+  return false;
 }
 
 } // namespace requite

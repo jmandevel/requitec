@@ -9,7 +9,7 @@
 namespace requite {
 
 inline void Expression::clear() {
-  this->_opcode = requite::Opcode::_NONE;
+  this->_opcode = requite::Opcode::__NONE;
   this->_next_ptr = nullptr;
   this->_branch_ptr = nullptr;
   this->_source_text_ptr = nullptr;
@@ -169,14 +169,14 @@ const requite::Expression &Expression::getLastNext() const {
 }
 
 requite::Expression &Expression::getUnascribed() {
-  if (this->getOpcode() == requite::Opcode::ASCRIBE) {
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
     return this->getLastBranch().getUnascribed();
   }
   return *this;
 }
 
 const requite::Expression &Expression::getUnascribed() const {
-  if (this->getOpcode() == requite::Opcode::ASCRIBE) {
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
     return this->getLastBranch().getUnascribed();
   }
   return *this;

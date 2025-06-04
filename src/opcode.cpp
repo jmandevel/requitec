@@ -15,7 +15,7 @@ namespace requite {
 requite::Opcode Context::getOpcode(llvm::StringRef text) const {
   REQUITE_ASSERT(!this->_opcode_table.empty());
   if (!this->_opcode_table.contains(text)) {
-    return requite::Opcode::_NONE;
+    return requite::Opcode::__NONE;
   }
   return this->_opcode_table.at(text);
 }

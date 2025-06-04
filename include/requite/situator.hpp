@@ -84,54 +84,33 @@ struct Situator final {
             requite::Situation BRANCH_SITUATION_N_PARAM,
             requite::Situation BRANCH_SITUATION_LAST_PARAM>
   inline void situateNaryWithLastExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateSituationalLogicalAndOrDoubleReferenceExpression(
-      requite::Expression &expression);
+
   template <requite::Situation SITUATION_PARAM>
   inline void
-  situateSituationalSubtractOrNegateExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateSituationalMultiplyOrPointerExpression(
-      requite::Expression &expression);
+  situate_BindValueOrDefaultValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
-  situateSituationalDivideOrSliceExpression(requite::Expression &expression);
+  situate_BindSymbolOrDefaultSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void
-  situateSituationalModulusOrArrayExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateSituationalBitwiseAndOrReferenceExpression(
+  inline void situate_InferencedTypeOr_INDETERMINATE(
       requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateSituationalBindValueOrDefaultValueExpression(
-      requite::Expression &expression);
+  inline void situate_ReflectValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateSituationalBindSymbolOrDefaultSymbolExpression(
-      requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void
-  situateSituationalInferenceOrIndeterminate(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateReflectValueExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateReflectSymbolExpression(requite::Expression &expression);
+  inline void situate_ReflectSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
   situateAssignArithmeticExpression(requite::Expression &expression,
-                                    requite::Opcode arithmetic_opcode);
+                                     requite::Opcode arithmetic_opcode);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateDefaultValueExpression(requite::Expression &expression);
+  inline void situate_DefaultValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateDefaultSymbolExpression(requite::Expression &expression);
+  inline void situate_DefaultSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateSituationalTripExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateTupleExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateAnonymousObjectExpression(requite::Expression &expression);
+  inline void situate_TripExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
-  situateSituationalCallOrSignatureExpression(requite::Expression &expression);
+  situate_CallOrSignatureExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateVariableExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -143,10 +122,9 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situateAssertExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateIdentifyExpression(requite::Expression &expression);
+  inline void situate_IdentifyExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void
-  situateSituationalConduitExpression(requite::Expression &expression);
+  inline void situate_ConduitExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateMangledNameExpression(requite::Expression &expression);
 };

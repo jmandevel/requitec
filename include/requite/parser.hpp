@@ -158,7 +158,7 @@ struct Parser final {
   requite::Expression &parseIdentify();
 
   [[nodiscard]]
-  requite::Expression &parseSituationalInferenceOrIndeterminate();
+  requite::Expression &parseSituationalInferenceOr_INDETERMINATE();
 
   [[nodiscard]]
   requite::Expression &parseIntegerLiteral();
