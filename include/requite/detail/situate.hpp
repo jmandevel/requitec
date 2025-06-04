@@ -788,8 +788,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_TUPLE_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      // TODO
     }
     break;
   case requite::Opcode::_TUPLE_TYPE:
@@ -797,28 +796,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_TUPLE_TYPE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::POSITIONAL_FIELD>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_ANONYMOUS_OBJECT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ANONYMOUS_OBJECT_VALUE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::VALUE_BINDING>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_ANONYMOUS_OBJECT_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ANONYMOUS_OBJECT_TYPE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::NAMED_FIELD>(expression);
+      // TODO
     }
     break;
   case requite::Opcode::TEMPLATE:
@@ -842,66 +820,46 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_NO_PARAMETER_SIGNATURE:
+  case requite::Opcode::_CALL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NO_PARAMETER_SIGNATURE)) {
+                      requite::Opcode::_CALL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      // TODO
     }
     break;
-  case requite::Opcode::_NAMED_PARAMETER_SIGNATURE:
+  case requite::Opcode::_SIGNATURE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NAMED_PARAMETER_SIGNATURE)) {
+                      requite::Opcode::_SIGNATURE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::NAMED_FIELD>(expression);
+      // TODO
     }
     break;
-  case requite::Opcode::_POSITIONAL_PARAMETER_SIGNATURE:
+  case requite::Opcode::_POSITIONAL_PARAMETERS_END:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POSITIONAL_PARAMETER_SIGNATURE)) {
+                      requite::Opcode::_POSITIONAL_PARAMETERS_END)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::POSITIONAL_FIELD>(
-          expression);
+      // TODO
     }
     break;
-  case requite::Opcode::_NO_ARGUMENT_CALL:
+  case requite::Opcode::_NAMED_PARAMETERS_BEGIN:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NO_ARGUMENT_CALL)) {
+                      requite::Opcode::_NAMED_PARAMETERS_BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      // TODO
     }
     break;
-  case requite::Opcode::_NAMED_ARGUMENT_CALL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NAMED_ARGUMENT_CALL)) {
+  case requite::Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN:
+    if constexpr (
+        !requite::getCanBeSituation<SITUATION_PARAM>(
+            requite::Opcode::
+                _POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::VALUE_BINDING>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_POSITIONAL_ARGUMENT_CALL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POSITIONAL_ARGUMENT_CALL)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      // TODO
     }
     break;
   case requite::Opcode::DESTROY:
@@ -2515,104 +2473,7 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TRIP);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                SITUATION_PARAM == requite::Situation::POSITIONAL_FIELD) {
-    if (!expression.getHasBranch()) {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-      expression.changeOpcode(requite::Opcode::_NULL_TYPE);
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    if (branch.getOpcode() == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-        branch.getOpcode() == requite::Opcode::_DEFAULT_VALUE) {
-      if (!branch.getHasBranch()) {
-        this->getContext().logNotExactBranchCount<requite::Situation::NONE>(
-            branch, 2);
-        this->setNotOk();
-        return;
-      }
-      requite::Expression &sub_branch = branch.getBranch();
-      if (sub_branch.getOpcode() ==
-              requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
-          sub_branch.getOpcode() == requite::Opcode::_BIND_SYMBOL) {
-        this->situateNaryExpression<SITUATION_PARAM, 0,
-                                    requite::Situation::NAMED_FIELD>(
-            expression);
-        expression.changeOpcode(requite::Opcode::_ANONYMOUS_OBJECT_TYPE);
-        return;
-      }
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::POSITIONAL_FIELD>(
-          expression);
-      return;
-    }
-    if (branch.getOpcode() == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
-        branch.getOpcode() == requite::Opcode::_BIND_SYMBOL) {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::NAMED_FIELD>(expression);
-      expression.changeOpcode(requite::Opcode::_ANONYMOUS_OBJECT_TYPE);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 0,
-                                requite::Situation::POSITIONAL_FIELD>(
-        expression);
-    if (expression.getHasOneBranch()) {
-      expression.flattenBranch();
-      return;
-    }
-    expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    if (!expression.getHasBranch()) {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-      expression.changeOpcode(requite::Opcode::_NULL_VALUE);
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    if (branch.getOpcode() == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-        branch.getOpcode() == requite::Opcode::_BIND_VALUE) {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::VALUE_BINDING>(
-          expression);
-      expression.changeOpcode(requite::Opcode::_ANONYMOUS_OBJECT_VALUE);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 0,
-                                requite::Situation::MATTE_VALUE>(expression);
-    if (expression.getHasOneBranch()) {
-      expression.flattenBranch();
-      return;
-    }
-    expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    if (!expression.getHasBranch()) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression,
-                                                                   1);
-      this->setNotOk();
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    if (branch.getOpcode() == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-        branch.getOpcode() == requite::Opcode::_BIND_VALUE) {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::VALUE_BINDING>(
-          expression);
-      expression.changeOpcode(requite::Opcode::_ANONYMOUS_OBJECT_VALUE);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 0,
-                                requite::Situation::MATTE_VALUE>(expression);
-    if (expression.getHasOneBranch()) {
-      expression.flattenBranch();
-      return;
-    }
-    expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::MATTE_DESTINATION) {
-    this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    expression.changeOpcode(requite::Opcode::_IGNORE);
-  } else {
-    static_assert(false, "invalid situation");
-  }
+  // TODO
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -2620,76 +2481,7 @@ void Situator::situate_CallOrSignatureExpression(
     requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
-                SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT ||
-                SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    if (!expression.getHasBranch()) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression,
-                                                                   1);
-      this->setNotOk();
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    if (!branch.getHasNext()) {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-      expression.changeOpcode(requite::Opcode::_NO_ARGUMENT_CALL);
-      return;
-    }
-    requite::Expression &first_argument = branch.getNext();
-    if (first_argument.getOpcode() ==
-            requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-        first_argument.getOpcode() == requite::Opcode::_BIND_VALUE) {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::VALUE_BINDING>(
-          expression);
-      expression.changeOpcode(requite::Opcode::_NAMED_ARGUMENT_CALL);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 2,
-                                requite::Situation::MATTE_SYMBOL,
-                                requite::Situation::MATTE_VALUE>(expression);
-    expression.changeOpcode(requite::Opcode::_POSITIONAL_ARGUMENT_CALL);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                       SITUATION_PARAM ==
-                           requite::Situation::POSITIONAL_FIELD) {
-    if (!expression.getHasBranch()) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression,
-                                                                   1);
-      this->setNotOk();
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    if (!branch.getHasNext()) {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-      expression.changeOpcode(requite::Opcode::_NO_PARAMETER_SIGNATURE);
-      return;
-    }
-    requite::Expression &first_parameter = branch.getNext();
-    if (first_parameter.getOpcode() ==
-            requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
-        first_parameter.getOpcode() == requite::Opcode::_BIND_SYMBOL ||
-        first_parameter.getOpcode() ==
-            requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-        first_parameter.getOpcode() == requite::Opcode::_DEFAULT_VALUE) {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::NAMED_FIELD>(expression);
-      expression.changeOpcode(requite::Opcode::_NAMED_PARAMETER_SIGNATURE);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 2,
-                                requite::Situation::MATTE_SYMBOL,
-                                requite::Situation::POSITIONAL_FIELD>(
-        expression);
-    expression.changeOpcode(requite::Opcode::_POSITIONAL_PARAMETER_SIGNATURE);
-  } else {
-    static_assert(false, "invalid situation");
-  }
+  // TODO
 }
 
 template <requite::Situation SITUATION_PARAM>

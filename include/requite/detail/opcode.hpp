@@ -359,10 +359,6 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_TUPLE_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_ANONYMOUS_OBJECT_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_ANONYMOUS_OBJECT_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_NULL_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_NULL_TYPE:
@@ -378,21 +374,16 @@ _getFlags(requite::Opcode opcode) {
            _POSITIONAL_FIELD;
 
   // PROCEDURES
-  case Opcode::_NO_PARAMETER_SIGNATURE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL | _POSITIONAL_FIELD;
-  case Opcode::_NAMED_PARAMETER_SIGNATURE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL | _POSITIONAL_FIELD;
-  case Opcode::_POSITIONAL_PARAMETER_SIGNATURE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL | _POSITIONAL_FIELD;
-  case Opcode::_NO_ARGUMENT_CALL:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_NAMED_ARGUMENT_CALL:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::_POSITIONAL_ARGUMENT_CALL:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
+  case Opcode::_CALL:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::_SIGNATURE:
+    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
+  case Opcode::_POSITIONAL_PARAMETERS_END:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_NAMED_PARAMETERS_BEGIN:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN:
+    return _INTERMEDIATE_OPERATION;
   case Opcode::DESTROY:
     return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
   case Opcode::_DESTROY_VALUE:
@@ -887,10 +878,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_tuple_value";
   case requite::Opcode::_TUPLE_TYPE:
     return "_tuple_type";
-  case requite::Opcode::_ANONYMOUS_OBJECT_VALUE:
-    return "_anonymous_object_value";
-  case requite::Opcode::_ANONYMOUS_OBJECT_TYPE:
-    return "_anonymous_object_type";
   case requite::Opcode::_NULL_VALUE:
     return "_null_value";
   case requite::Opcode::_NULL_TYPE:
@@ -905,18 +892,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_specialization";
 
   // PROCEDURES
-  case requite::Opcode::_NO_PARAMETER_SIGNATURE:
-    return "_no_parameter_signature";
-  case requite::Opcode::_NAMED_PARAMETER_SIGNATURE:
-    return "_named_parameter_signature";
-  case requite::Opcode::_POSITIONAL_PARAMETER_SIGNATURE:
-    return "_positional_parameter_signature";
-  case requite::Opcode::_NO_ARGUMENT_CALL:
-    return "_no_argument_call";
-  case requite::Opcode::_NAMED_ARGUMENT_CALL:
-    return "_named_argument_call";
-  case requite::Opcode::_POSITIONAL_ARGUMENT_CALL:
-    return "_positional_argument_call";
+  case requite::Opcode::_CALL:
+    return "_call";
+  case requite::Opcode::_SIGNATURE:
+    return "_signature";
   case requite::Opcode::_POSITIONAL_PARAMETERS_END:
     return "_positional_parameters_end";
   case requite::Opcode::_NAMED_PARAMETERS_BEGIN:
