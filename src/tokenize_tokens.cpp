@@ -409,9 +409,11 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeLengthToken(requite::TokenType::WALRUS_OPERATOR, 2);
         break;
       case '}':
-        this->tokenizeRightGrouping(
-            requite::GroupingType::CAP,
-            requite::TokenType::RIGHT_CAP_GROUPING, 2);
+        this->tokenizeRightGrouping(requite::GroupingType::CAP,
+                                    requite::TokenType::RIGHT_CAP_GROUPING, 2);
+        break;
+      case '>':
+        this->tokenizeLengthToken(requite::TokenType::RIGHT_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::COLON_OPERATOR, 1);
@@ -436,10 +438,21 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_LESS_OPERATOR, 2);
         break;
       case ')':
-        this->tokenizeRightGrouping(requite::GroupingType::COMPAS, requite::TokenType::RIGHT_COMPAS_GROUPING, 2);
+        this->tokenizeRightGrouping(requite::GroupingType::COMPAS,
+                                    requite::TokenType::RIGHT_COMPAS_GROUPING,
+                                    2);
         break;
       case '=':
         this->tokenizeLengthToken(requite::TokenType::LESS_EQUAL_OPERATOR, 2);
+        break;
+      case ':':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '>':
+          this->tokenizeLengthToken(requite::TokenType::LEFT_RIGHT_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(requite::TokenType::LEFT_OPERATOR, 2);
+        }
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::LESS_OPERATOR, 1);
@@ -618,13 +631,11 @@ void Tokenizer::_tokenizeTokens() {
     case '{':
       switch (const char c1 = this->getRanger().getChar(1)) {
       case ':':
-        this->tokenizeLengthToken(
-            requite::TokenType::LEFT_CAP_GROUPING, 2);
+        this->tokenizeLengthToken(requite::TokenType::LEFT_CAP_GROUPING, 2);
         this->pushGrouping(requite::GroupingType::CAP);
         break;
       default:
-        this->tokenizeLengthToken(
-            requite::TokenType::LEFT_TRIP_GROUPING, 1);
+        this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);
         this->pushGrouping(requite::GroupingType::TRIP);
       }
       continue;
@@ -641,15 +652,12 @@ void Tokenizer::_tokenizeTokens() {
       if (!this->getHasGrouping()) {
         this->tokenizeUnmatchedLengthToken(
             requite::TokenType::RIGHT_TRIP_GROUPING, 1);
-      } else if (this->getTopGrouping().type ==
-                 requite::GroupingType::TRIP) {
-        this->tokenizeLengthToken(
-            requite::TokenType::RIGHT_TRIP_GROUPING, 1);
+      } else if (this->getTopGrouping().type == requite::GroupingType::TRIP) {
+        this->tokenizeLengthToken(requite::TokenType::RIGHT_TRIP_GROUPING, 1);
         this->popGrouping();
       } else if (this->getTopGrouping().type ==
                  requite::GroupingType::VALUE_INTERPOLATION) {
-        this->tokenizeLengthToken(
-            requite::TokenType::RIGHT_TRIP_GROUPING, 1);
+        this->tokenizeLengthToken(requite::TokenType::RIGHT_TRIP_GROUPING, 1);
         this->popGrouping();
         this->getRanger().startSubToken();
         while (true) {
@@ -677,8 +685,8 @@ void Tokenizer::_tokenizeTokens() {
           } else if (sub_c0 == '{') {
             this->getTokens().push_back(this->getRanger().getSubToken(
                 requite::TokenType::MIDDLE_INTERPOLATED_STRING_LITERAL));
-            this->tokenizeLengthToken(
-                requite::TokenType::LEFT_TRIP_GROUPING, 1);
+            this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING,
+                                      1);
             this->pushGrouping(requite::GroupingType::VALUE_INTERPOLATION);
             break;
           } else if (sub_c0 == '\n') {

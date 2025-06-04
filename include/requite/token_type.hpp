@@ -60,6 +60,9 @@ enum class TokenType {
   GRAVE_OPERATOR,            // `
   ARROW_OPERATOR,            // ->
   CONCATENATE_OPERATOR,      // +>
+  LEFT_OPERATOR,             // <:
+  RIGHT_OPERATOR,            // :>
+  LEFT_RIGHT_OPERATOR,       // <:>
 
   // GROUPING SYMBOLS
   LEFT_BRACKET_GROUPING,      // [
