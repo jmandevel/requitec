@@ -593,8 +593,6 @@ _getFlags(requite::Opcode opcode) {
     return _ATTRIBUTE;
   case Opcode::C:
     return _ATTRIBUTE;
-  case Opcode::POSITIONAL_ARGUMENTS:
-    return _ATTRIBUTE;
   case Opcode::NOT_FINAL:
     return _ATTRIBUTE;
   case Opcode::MAY_DISCARD:
@@ -1111,8 +1109,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "external";
   case requite::Opcode::C:
     return "c";
-  case requite::Opcode::POSITIONAL_ARGUMENTS:
-    return "positional_arguments";
   case requite::Opcode::NOT_FINAL:
     return "not_final";
   case requite::Opcode::MAY_DISCARD:

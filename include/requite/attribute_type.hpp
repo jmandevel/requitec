@@ -23,7 +23,6 @@ enum class AttributeType {
   THROWS,
   EXTERNAL,
   C,
-  POSITIONAL_ARGUMENTS,
   NOT_FINAL,
   MAY_DISCARD,
   NO_SHORT_CIRCUIT,

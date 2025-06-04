@@ -319,7 +319,6 @@ enum class Opcode : unsigned {
   // ATTRIBUTES
   EXTERNAL,
   C,
-  POSITIONAL_ARGUMENTS,
   NOT_FINAL,
   MAY_DISCARD,
   NO_SHORT_CIRCUIT,

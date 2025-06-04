@@ -1711,14 +1711,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::POSITIONAL_ARGUMENTS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::POSITIONAL_ARGUMENTS)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
   case requite::Opcode::NOT_FINAL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::NOT_FINAL)) {

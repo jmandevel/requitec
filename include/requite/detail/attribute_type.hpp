@@ -33,8 +33,6 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode)
       return requite::AttributeType::EXTERNAL;
     case requite::Opcode::C:
       return requite::AttributeType::C;
-    case requite::Opcode::POSITIONAL_ARGUMENTS:
-      return requite::AttributeType::POSITIONAL_ARGUMENTS;
     case requite::Opcode::NOT_FINAL:
       return requite::AttributeType::NOT_FINAL;
     case requite::Opcode::MAY_DISCARD:
@@ -84,8 +82,6 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "external";
   case requite::AttributeType::C:
     return "c";
-  case requite::AttributeType::POSITIONAL_ARGUMENTS:
-    return "positional_arguments";
   case requite::AttributeType::NOT_FINAL:
     return "not_final";
   case requite::AttributeType::MAY_DISCARD:
