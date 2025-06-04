@@ -917,6 +917,12 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_named_argument_call";
   case requite::Opcode::_POSITIONAL_ARGUMENT_CALL:
     return "_positional_argument_call";
+  case requite::Opcode::_POSITIONAL_PARAMETERS_END:
+    return "_positional_parameters_end";
+  case requite::Opcode::_NAMED_PARAMETERS_BEGIN:
+    return "_named_parameters_begin";
+  case requite::Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN:
+    return "_positional_parameters_end_and_named_parameters_begin";
   case requite::Opcode::DESTROY:
     return "destroy";
   case requite::Opcode::_DESTROY_VALUE:

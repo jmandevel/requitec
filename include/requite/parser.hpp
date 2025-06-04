@@ -174,6 +174,15 @@ struct Parser final {
 
   [[nodiscard]]
   requite::Expression &parseInterpolatedString();
+
+  [[nodiscard]]
+  requite::Expression &parseLeftOperator();
+
+  [[nodiscard]]
+  requite::Expression &parseRightOperator();
+
+  [[nodiscard]]
+  requite::Expression &parseLeftRightOperator();
 };
 
 } // namespace requite

@@ -642,6 +642,12 @@ requite::Expression &Parser::parsePrecedence0() {
     return this->parseRealLiteral();
   case requite::TokenType::LEFT_INTERPOLATED_STRING_LITERAL:
     return this->parseInterpolatedString();
+  case requite::TokenType::LEFT_OPERATOR:
+    return this->parseLeftOperator();
+  case requite::TokenType::RIGHT_OPERATOR:
+    return this->parseRightOperator();
+  case requite::TokenType::LEFT_RIGHT_OPERATOR:
+    return this->parseLeftRightOperator();
   default: {
     this->incrementToken(1);
     this->logErrorUnexpectedToken(token);
@@ -797,10 +803,10 @@ requite::Opcode Parser::parseOpcode() {
         token, requite::LogType::ERROR,
         llvm::Twine("intermediate operation opcode not allowed: \"") +
             token.getSourceText() + "\"");
-    this->getContext().logSourceMessage(
-        token, requite::LogType::NOTE,
-        "can compile operation with opcode if -intermediate-form compiler flag is "
-        "set");
+    this->getContext().logSourceMessage(token, requite::LogType::NOTE,
+                                        "can compile operation with opcode if "
+                                        "-intermediate-form compiler flag is "
+                                        "set");
     return requite::Opcode::__ERROR;
   }
   return opcode;
@@ -1040,6 +1046,47 @@ requite::Expression &Parser::parseInterpolatedString() {
                                       "Found unterminated interpolated string");
   this->setNotOk();
   return requite::Expression::makeError();
+}
+
+requite::Expression &Parser::parseLeftOperator() {
+  const requite::Token &token = this->getToken();
+  REQUITE_ASSERT(token.getType() == requite::TokenType::LEFT_OPERATOR);
+  this->incrementToken(1);
+  if (!this->getIsDone()) {
+    const requite::Token &next_token = this->getToken();
+    if (next_token.getType() == requite::TokenType::RIGHT_OPERATOR) {
+      this->incrementToken(1);
+      requite::Expression &operation = requite::Expression::makeOperation(
+          requite::Opcode::
+              _POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN);
+      operation.setSource(token, next_token);
+      return operation;
+    }
+  }
+  requite::Expression &operation = requite::Expression::makeOperation(
+      requite::Opcode::_POSITIONAL_PARAMETERS_END);
+  operation.setSource(token);
+  return operation;
+}
+
+requite::Expression &Parser::parseRightOperator() {
+  const requite::Token &token = this->getToken();
+  REQUITE_ASSERT(token.getType() == requite::TokenType::RIGHT_OPERATOR);
+  this->incrementToken(1);
+  requite::Expression &operation = requite::Expression::makeOperation(
+      requite::Opcode::_NAMED_PARAMETERS_BEGIN);
+  operation.setSource(token);
+  return operation;
+}
+
+requite::Expression &Parser::parseLeftRightOperator() {
+  const requite::Token &token = this->getToken();
+  REQUITE_ASSERT(token.getType() == requite::TokenType::LEFT_RIGHT_OPERATOR);
+  this->incrementToken(1);
+  requite::Expression &operation = requite::Expression::makeOperation(
+      requite::Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN);
+  operation.setSource(token);
+  return operation;
 }
 
 } // namespace requite
