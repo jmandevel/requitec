@@ -92,9 +92,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situate_ConduitExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_INFERENCED_TYPE_OR__INDETERMINATE:
+  case requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_INFERENCED_TYPE_OR__INDETERMINATE)) {
+                      requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situate_InferencedTypeOr_INDETERMINATE<SITUATION_PARAM>(expression);

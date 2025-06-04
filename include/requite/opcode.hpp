@@ -45,7 +45,7 @@ enum class Opcode : unsigned {
   _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   _TRIP,
   _CONDUIT,
-  _INFERENCED_TYPE_OR__INDETERMINATE,
+  _INFERENCED_TYPE_OR_INDETERMINATE,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.

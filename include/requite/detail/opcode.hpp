@@ -142,7 +142,7 @@ _getFlags(requite::Opcode opcode) {
            _POSITIONAL_FIELD;
   case Opcode::_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_JUNCTION;
-  case Opcode::_INFERENCED_TYPE_OR__INDETERMINATE:
+  case Opcode::_INFERENCED_TYPE_OR_INDETERMINATE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL |
            _POSITIONAL_FIELD;
 
@@ -698,8 +698,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_trip";
   case requite::Opcode::_CONDUIT:
     return "_conduit";
-  case requite::Opcode::_INFERENCED_TYPE_OR__INDETERMINATE:
-    return "_inferenced_type_or__indeterminate";
+  case requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE:
+    return "_INFERENCED_TYPE_OR_INDETERMINATE";
 
   // LOGICAL
   case requite::Opcode::_LOGICAL_AND:

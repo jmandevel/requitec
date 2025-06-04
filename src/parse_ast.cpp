@@ -934,7 +934,7 @@ requite::Expression &Parser::parseSituationalInferenceOr_INDETERMINATE() {
   const requite::Token &token = this->getToken();
   REQUITE_ASSERT(token.getType() == requite::TokenType::QUESTION_OPERATOR);
   requite::Expression &expression = requite::Expression::makeOperation(
-      requite::Opcode::_INFERENCED_TYPE_OR__INDETERMINATE);
+      requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
   expression.setSource(token);
   this->incrementToken(1);
   return expression;
