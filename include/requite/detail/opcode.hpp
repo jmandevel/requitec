@@ -699,7 +699,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   case requite::Opcode::_CONDUIT:
     return "_conduit";
   case requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE:
-    return "_INFERENCED_TYPE_OR_INDETERMINATE";
+    return "_inferenced_type_or_indeterminate";
 
   // LOGICAL
   case requite::Opcode::_LOGICAL_AND:
