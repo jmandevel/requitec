@@ -574,7 +574,7 @@ requite::Expression &Parser::parsePrecedence2() {
     const requite::Token &next_token = this->getToken();
     switch (const requite::TokenType next_type = next_token.getType()) {
     case requite::TokenType::COMMA_OPERATOR:
-      if (!token.getHasBinaryOperatorSpacing()) {
+      if (!next_token.getHasBinaryOperatorSpacing()) {
         break;
       }
       precedence_parser.parseNary(*this, requite::Opcode::_ASCRIBE);
