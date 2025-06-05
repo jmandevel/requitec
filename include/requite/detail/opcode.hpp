@@ -130,7 +130,7 @@ _getFlags(requite::Opcode opcode) {
   // SITUATIONAL
   case Opcode::_CALL_OR_SIGNATURE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL |
-           _POSITIONAL_FIELD;
+           _POSITIONAL_FIELD | _MATTE_LOCAL_STATEMENT;
   case Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
     return _INTERMEDIATE_OPERATION | _VALUE_BINDING | _NAMED_FIELD |
            _POSITIONAL_FIELD | _TEMPLATE_PARAMETER;
@@ -138,10 +138,11 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _SYMBOL_BINDING | _NAMED_FIELD |
            _TEMPLATE_PARAMETER;
   case Opcode::_TRIP:
-    return _INTERMEDIATE_OPERATION | _MATTE_JUNCTION | _MATTE_SYMBOL |
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL |
            _POSITIONAL_FIELD;
   case Opcode::_CONDUIT:
-    return _INTERMEDIATE_OPERATION | _MATTE_JUNCTION;
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
+           _MATTE_VALUE;
   case Opcode::_INFERENCED_TYPE_OR_INDETERMINATE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL |
            _POSITIONAL_FIELD;
@@ -354,11 +355,23 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::NULL_TERMINATED:
     return _ATTRIBUTE;
 
+  // NAMING RULES
+  case Opcode::_POSITIONAL_ENTRIES_END:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_NAMED_ENTRIES_BEGIN:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN:
+    return _INTERMEDIATE_OPERATION;
+
   // TRIPS
   case Opcode::_TUPLE_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_TUPLE_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
+  case Opcode::_STATIC_TUPLE_VALUE:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_STATIC_TUPLE_TYPE:
+    return _INTERMEDIATE_OPERATION;
   case Opcode::_NULL_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_NULL_TYPE:
@@ -378,12 +391,6 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_SIGNATURE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_POSITIONAL_PARAMETERS_END:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_NAMED_PARAMETERS_BEGIN:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN:
-    return _INTERMEDIATE_OPERATION;
   case Opcode::DESTROY:
     return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
   case Opcode::_DESTROY_VALUE:
@@ -873,11 +880,23 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   case requite::Opcode::NULL_TERMINATED:
     return "null_terminated";
 
+  // NAMING RULES
+  case requite::Opcode::_POSITIONAL_ENTRIES_END:
+    return "_positional_entries_end";
+  case requite::Opcode::_NAMED_ENTRIES_BEGIN:
+    return "_named_entries_begin";
+  case requite::Opcode::_POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN:
+    return "_positional_entries_end_and_named_entries_begin";
+
   // TRIPS
   case requite::Opcode::_TUPLE_VALUE:
     return "_tuple_value";
   case requite::Opcode::_TUPLE_TYPE:
     return "_tuple_type";
+  case requite::Opcode::_STATIC_TUPLE_VALUE:
+    return "_static_tuple_value";
+  case requite::Opcode::_STATIC_TUPLE_TYPE:
+    return "_static_tuple_type";
   case requite::Opcode::_NULL_VALUE:
     return "_null_value";
   case requite::Opcode::_NULL_TYPE:
@@ -896,12 +915,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_call";
   case requite::Opcode::_SIGNATURE:
     return "_signature";
-  case requite::Opcode::_POSITIONAL_PARAMETERS_END:
-    return "_positional_parameters_end";
-  case requite::Opcode::_NAMED_PARAMETERS_BEGIN:
-    return "_named_parameters_begin";
-  case requite::Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN:
-    return "_positional_parameters_end_and_named_parameters_begin";
   case requite::Opcode::DESTROY:
     return "destroy";
   case requite::Opcode::_DESTROY_VALUE:

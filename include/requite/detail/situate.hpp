@@ -836,27 +836,27 @@ void Situator::situateExpression(requite::Expression &expression) {
       // TODO
     }
     break;
-  case requite::Opcode::_POSITIONAL_PARAMETERS_END:
+  case requite::Opcode::_POSITIONAL_ENTRIES_END:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POSITIONAL_PARAMETERS_END)) {
+                      requite::Opcode::_POSITIONAL_ENTRIES_END)) {
       REQUITE_UNREACHABLE();
     } else {
       // TODO
     }
     break;
-  case requite::Opcode::_NAMED_PARAMETERS_BEGIN:
+  case requite::Opcode::_NAMED_ENTRIES_BEGIN:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NAMED_PARAMETERS_BEGIN)) {
+                      requite::Opcode::_NAMED_ENTRIES_BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
       // TODO
     }
     break;
-  case requite::Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN:
+  case requite::Opcode::_POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN:
     if constexpr (
         !requite::getCanBeSituation<SITUATION_PARAM>(
             requite::Opcode::
-                _POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN)) {
+                _POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
       // TODO

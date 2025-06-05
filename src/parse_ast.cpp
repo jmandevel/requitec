@@ -1058,13 +1058,13 @@ requite::Expression &Parser::parseLeftOperator() {
       this->incrementToken(1);
       requite::Expression &operation = requite::Expression::makeOperation(
           requite::Opcode::
-              _POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN);
+              _POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN);
       operation.setSource(token, next_token);
       return operation;
     }
   }
   requite::Expression &operation = requite::Expression::makeOperation(
-      requite::Opcode::_POSITIONAL_PARAMETERS_END);
+      requite::Opcode::_POSITIONAL_ENTRIES_END);
   operation.setSource(token);
   return operation;
 }
@@ -1074,7 +1074,7 @@ requite::Expression &Parser::parseRightOperator() {
   REQUITE_ASSERT(token.getType() == requite::TokenType::RIGHT_OPERATOR);
   this->incrementToken(1);
   requite::Expression &operation = requite::Expression::makeOperation(
-      requite::Opcode::_NAMED_PARAMETERS_BEGIN);
+      requite::Opcode::_NAMED_ENTRIES_BEGIN);
   operation.setSource(token);
   return operation;
 }
@@ -1084,7 +1084,7 @@ requite::Expression &Parser::parseLeftRightOperator() {
   REQUITE_ASSERT(token.getType() == requite::TokenType::LEFT_RIGHT_OPERATOR);
   this->incrementToken(1);
   requite::Expression &operation = requite::Expression::makeOperation(
-      requite::Opcode::_POSITIONAL_PARAMETERS_END_AND_NAMED_PARAMETERS_BEGIN);
+      requite::Opcode::_POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN);
   operation.setSource(token);
   return operation;
 }
