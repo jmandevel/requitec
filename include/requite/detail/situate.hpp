@@ -804,9 +804,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::TEMPLATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::TEMPLATE_PARAMETER>(
-          expression);
+      // TODO
     }
     break;
   case requite::Opcode::_SPECIALIZATION:
@@ -814,10 +812,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_SPECIALIZATION)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::TEMPLATE_PARAMETER>(
-          expression);
+      // TODO
     }
     break;
   case requite::Opcode::_CALL:
@@ -853,10 +848,9 @@ void Situator::situateExpression(requite::Expression &expression) {
     }
     break;
   case requite::Opcode::_POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN:
-    if constexpr (
-        !requite::getCanBeSituation<SITUATION_PARAM>(
-            requite::Opcode::
-                _POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN)) {
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::
+                          _POSITIONAL_ENTRIES_END_AND_NAMED_ENTRIES_BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
       // TODO
@@ -2237,9 +2231,6 @@ void Situator::situate_BindValueOrDefaultValueExpression(
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_VALUE>(expression);
     expression.changeOpcode(requite::Opcode::_DEFAULT_VALUE);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::TEMPLATE_PARAMETER) {
-    REQUITE_UNREACHABLE(); // TODO
   } else {
     static_assert(false, "invalid situation");
   }
@@ -2262,9 +2253,6 @@ void Situator::situate_BindSymbolOrDefaultSymbolExpression(
                                   requite::Situation::SYMBOL_NAME,
                                   requite::Situation::MATTE_SYMBOL>(expression);
     expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::TEMPLATE_PARAMETER) {
-    REQUITE_UNREACHABLE(); // TODO
   } else {
     static_assert(false, "invalid situation");
   }
@@ -2443,9 +2431,6 @@ void Situator::situate_DefaultValueExpression(requite::Expression &expression) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_VALUE>(expression);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::TEMPLATE_PARAMETER) {
-    REQUITE_UNREACHABLE(); // TODO
   } else {
     static_assert(false, "invalid situation");
   }
@@ -2457,11 +2442,6 @@ void Situator::situate_DefaultSymbolExpression(
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_DEFAULT_SYMBOL);
-  if constexpr (SITUATION_PARAM == requite::Situation::TEMPLATE_PARAMETER) {
-    REQUITE_UNREACHABLE(); // TODO
-  } else {
-    static_assert(false, "invalid situation");
-  }
 }
 
 template <requite::Situation SITUATION_PARAM>

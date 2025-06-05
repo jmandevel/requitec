@@ -32,18 +32,19 @@ enum class Situation {
   MATTE_VALUE,
   VALUE_REFLECTIVE_VALUE,
   SYMBOL_REFLECTIVE_VALUE,
+  STATIC_VALUE,
   MATTE_JUNCTION,
   VALUE_REFLECTIVE_JUNCTION,
   SYMBOL_REFLECTIVE_JUNCTION,
   MATTE_SYMBOL,
   VALUE_REFLECTIVE_SYMBOL,
   SYMBOL_REFLECTIVE_SYMBOL,
+  STATIC_SYMBOL,
   ATTRIBUTE,
   VALUE_BINDING,
   SYMBOL_BINDING,
   NAMED_FIELD,
   POSITIONAL_FIELD,
-  TEMPLATE_PARAMETER,
   SYMBOL_NAME,
   SYMBOL_PATH,
   SWITCH_CASE,
@@ -125,6 +126,9 @@ getCanBeValueReflectiveValueSituation(requite::Opcode opcode);
 getCanBeSymbolReflectiveValueSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
+getCanBeStaticValueSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
 getCanBeMatteJunctionSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
@@ -142,6 +146,9 @@ getCanBeValueReflectiveSymbolSituation(requite::Opcode opcode);
 [[nodiscard]] constexpr bool
 getCanBeSymbolReflectiveSymbolSituation(requite::Opcode opcode);
 
+[[nodiscard]] constexpr bool
+getCanBeStaticSymbolSituation(requite::Opcode opcode);
+
 [[nodiscard]] constexpr bool getCanBeAttributeSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
@@ -155,9 +162,6 @@ getCanBeNamedFieldSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBePositionalFieldSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeTemplateParameterSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolNameSituation(requite::Opcode opcode);

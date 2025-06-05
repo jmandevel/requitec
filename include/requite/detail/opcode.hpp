@@ -28,31 +28,31 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(1)),
   _INTERMEDIATE_OPERATION =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(2)),
-  _ROOT_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(3)),
   _BASE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(4)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(3)),
   _GLOBAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(5)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(4)),
   _MATTE_LOCAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(6)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(5)),
   _VALUE_REFLECTIVE_LOCAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(7)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(6)),
   _SYMBOL_REFLECTIVE_LOCAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(8)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(7)),
   _OBJECT_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(9)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(8)),
   _MATTE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(10)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(9)),
   _VALUE_REFLECTIVE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(11)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(10)),
   _SYMBOL_REFLECTIVE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(12)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(11)),
   _MATTE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(13)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(12)),
   _VALUE_REFLECTIVE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(14)),
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(13)),
   _SYMBOL_REFLECTIVE_VALUE =
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(14)),
+  _STATIC_VALUE =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(15)),
   _MATTE_JUNCTION =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(16)),
@@ -66,17 +66,17 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
   _SYMBOL_REFLECTIVE_SYMBOL =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
-  _ATTRIBUTE =
+  _STATIC_SYMBOL =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(22)),
-  _VALUE_BINDING =
+  _ATTRIBUTE =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(23)),
-  _SYMBOL_BINDING =
+  _VALUE_BINDING =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(24)),
-  _NAMED_FIELD =
+  _SYMBOL_BINDING =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(25)),
-  _POSITIONAL_FIELD =
+  _NAMED_FIELD =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(26)),
-  _TEMPLATE_PARAMETER =
+  _POSITIONAL_FIELD =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(27)),
   _SYMBOL_NAME =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(28)),
@@ -133,10 +133,9 @@ _getFlags(requite::Opcode opcode) {
            _POSITIONAL_FIELD | _MATTE_LOCAL_STATEMENT;
   case Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
     return _INTERMEDIATE_OPERATION | _VALUE_BINDING | _NAMED_FIELD |
-           _POSITIONAL_FIELD | _TEMPLATE_PARAMETER;
+           _POSITIONAL_FIELD;
   case Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _SYMBOL_BINDING | _NAMED_FIELD |
-           _TEMPLATE_PARAMETER;
+    return _INTERMEDIATE_OPERATION | _SYMBOL_BINDING | _NAMED_FIELD;
   case Opcode::_TRIP:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL |
            _POSITIONAL_FIELD;
@@ -201,15 +200,13 @@ _getFlags(requite::Opcode opcode) {
 
   // BIND
   case Opcode::_BIND_VALUE:
-    return _INTERMEDIATE_OPERATION | _VALUE_BINDING | _TEMPLATE_PARAMETER;
+    return _INTERMEDIATE_OPERATION | _VALUE_BINDING;
   case Opcode::_BIND_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _SYMBOL_BINDING | _NAMED_FIELD |
-           _TEMPLATE_PARAMETER;
+    return _INTERMEDIATE_OPERATION | _SYMBOL_BINDING | _NAMED_FIELD;
   case Opcode::_DEFAULT_VALUE:
-    return _INTERMEDIATE_OPERATION | _NAMED_FIELD | _POSITIONAL_FIELD |
-           _TEMPLATE_PARAMETER;
+    return _INTERMEDIATE_OPERATION | _NAMED_FIELD | _POSITIONAL_FIELD;
   case Opcode::_DEFAULT_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _TEMPLATE_PARAMETER;
+    return _INTERMEDIATE_OPERATION;
 
   // APPLY
   case Opcode::_ASCRIBE:
@@ -570,7 +567,7 @@ _getFlags(requite::Opcode opcode) {
 
   // SOURCES
   case Opcode::MODULE:
-    return _ROOT_STATEMENT;
+    return _NONE;
 
   // ERROR HANDLING AND DEBUGGING
   case Opcode::ASSERT:
