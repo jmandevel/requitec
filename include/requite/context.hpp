@@ -274,6 +274,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                  requite::Opcode outer_opcode,
                                  requite::Opcode branch_opcode,
                                  unsigned branch_i, llvm::Twine log_context);
+  inline void logInvalidOperation(requite::Expression& expression);
 };
 
 } // namespace requite
