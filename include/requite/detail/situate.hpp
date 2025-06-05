@@ -1999,7 +1999,7 @@ void Situator::situateUnaryExpression(requite::Expression &expression) {
   requite::ExpressionWalkResult result =
       expression.walkBranch()
           .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_PARAM>("the first branch",
+            this->situateBranch<BRANCH_SITUATION_PARAM>("first branch",
                                                         expression, 0, branch);
           })
           .getResult();
@@ -2018,7 +2018,7 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doSome<2>([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_PARAM>(
-                "the first and second branches", expression, branch_i, branch);
+                "first and second branches", expression, branch_i, branch);
           })
           .getResult();
   if (!result.getWalkedExactly(2)) {
@@ -2037,11 +2037,11 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "the first branch", expression, 0, branch);
+                "first branch", expression, 0, branch);
           })
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_B_PARAM>(
-                "the second branch", expression, 1, branch);
+                "second branch", expression, 1, branch);
           })
           .getResult();
   if (!result.getWalkedExactly(2)) {
@@ -2079,12 +2079,11 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "the first branch", expression, 0, branch);
+                "first branch", expression, 0, branch);
           })
           .doAll([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "the second and subsequent branches", expression, branch_i,
-                branch);
+                "second and subsequent branches", expression, branch_i, branch);
           });
   if constexpr (MIN_COUNT_PARAM != 0) {
     if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
@@ -2106,16 +2105,15 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "the first branch", expression, 0, branch);
+                "first branch", expression, 0, branch);
           })
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_B_PARAM>(
-                "the second branch", expression, 1, branch);
+                "second branch", expression, 1, branch);
           })
           .doAll([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "the third and subsequent branches", expression, branch_i,
-                branch);
+                "third and subsequent branches", expression, branch_i, branch);
           });
   if constexpr (MIN_COUNT_PARAM != 0) {
     if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
@@ -2138,20 +2136,19 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "the first branch", expression, 0, branch);
+                "first branch", expression, 0, branch);
           })
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_B_PARAM>(
-                "the second branch", expression, 1, branch);
+                "second branch", expression, 1, branch);
           })
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_C_PARAM>(
-                "the third branch", expression, 2, branch);
+                "third branch", expression, 2, branch);
           })
           .doAll([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "the fourth and subsequent branches", expression, branch_i,
-                branch);
+                "fourth and subsequent branches", expression, branch_i, branch);
           });
   if constexpr (MIN_COUNT_PARAM != 0) {
     if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
@@ -2172,12 +2169,11 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doUntilLast([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "from the first to the penultimate branch", expression,
-                branch_i, branch);
+                "first to penultimate branch", expression, branch_i, branch);
           })
-          .doLast([&](requite::Expression &branch) {
+          .doLast([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
-                "the last branch", expression, 2, branch);
+                "last branch", expression, branch_i, branch);
           });
   if constexpr (MIN_COUNT_PARAM != 0) {
     if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
@@ -2199,15 +2195,15 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
       expression.walkBranch()
           .doOne([&](requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "the first branch", expression, 0, branch);
+                "first branch", expression, 0, branch);
           })
           .doUntilLast([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "the middle branch", expression, branch_i, branch);
+                "middle branch", expression, branch_i, branch);
           })
-          .doLast([&](requite::Expression &branch) {
+          .doLast([&](unsigned branch_i, requite::Expression &branch) {
             this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
-                "the last branch", expression, 2, branch);
+                "last branch", expression, branch_i, branch);
           });
   if constexpr (MIN_COUNT_PARAM != 0) {
     if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
