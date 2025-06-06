@@ -292,8 +292,8 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryWithLastExpression<
-          SITUATION_PARAM, 2, requite::Situation::MATTE_VALUE,
-          SITUATION_PARAM>(expression);
+          SITUATION_PARAM, 2, requite::Situation::MATTE_VALUE, SITUATION_PARAM>(
+          expression);
     }
     break;
   case requite::Opcode::_CAST:
@@ -2378,8 +2378,7 @@ inline void Situator::situate_InferencedTypeOrIndeterminateExpression(
     this->situateNullaryExpression<SITUATION_PARAM>(expression);
     expression.changeOpcode(requite::Opcode::_INFERENCED_TYPE);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::MATTE_VALUE) {
+                       SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     this->situateNullaryExpression<SITUATION_PARAM>(expression);
     expression.changeOpcode(requite::Opcode::_INDETERMINATE);
   } else {
@@ -2464,7 +2463,6 @@ template <requite::Situation SITUATION_PARAM>
 void Situator::situateParameterBranches(requite::Expression &expression,
                                         requite::Expression &first,
                                         unsigned branch_i) {
-  bool must_be_named = false;
   bool found_positional_fields_end = false;
   bool found_named_fields_begin = false;
   for (requite::Expression &branch : first.getHorizontalSubrange()) {
@@ -2475,7 +2473,6 @@ void Situator::situateParameterBranches(requite::Expression &expression,
         continue;
       }
       found_positional_fields_end = true;
-      must_be_named = true;
       continue;
     } else if (branch.getOpcode() == requite::Opcode::_NAMED_FIELDS_BEGIN) {
       if (found_named_fields_begin) {
@@ -2485,7 +2482,6 @@ void Situator::situateParameterBranches(requite::Expression &expression,
       }
       found_positional_fields_end = true;
       found_named_fields_begin = true;
-      must_be_named = true;
       continue;
     } else if (branch.getOpcode() ==
                requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN) {
@@ -2496,27 +2492,28 @@ void Situator::situateParameterBranches(requite::Expression &expression,
       }
       found_positional_fields_end = true;
       found_named_fields_begin = true;
-      must_be_named = true;
       continue;
-    } else if (found_named_fields_begin || must_be_named ||
-               branch.getOpcode() ==
+    } else if (found_named_fields_begin) {
+      this->situateBranch<requite::Situation::NAMED_FIELD>(
+          "branch after named fields begin", expression, branch_i, branch);
+      branch_i++;
+      continue;
+    } else if (branch.getOpcode() ==
                    requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
                branch.getOpcode() == requite::Opcode::_DEFAULT_VALUE ||
                branch.getOpcode() ==
                    requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
                branch.getOpcode() == requite::Opcode::_BIND_SYMBOL) {
       this->situateBranch<requite::Situation::NAMED_FIELD>(
-          "first named branch to final branch", expression, branch_i, branch);
-      must_be_named = true;
+          "named branch", expression, branch_i, branch);
       branch_i++;
       continue;
     }
     this->situateBranch<requite::Situation::POSITIONAL_FIELD>(
-        "first branch to last positional branch", expression, branch_i, branch);
+        "positional branch", expression, branch_i, branch);
     branch_i++;
   }
 }
-
 
 template <requite::Situation SITUATION_PARAM>
 void Situator::situate_TupleValue(requite::Expression &expression) {
@@ -2672,8 +2669,7 @@ void Situator::situateConstantExpression(requite::Expression &expression) {
   }
   this->situateNaryExpression<SITUATION_PARAM, 2,
                               requite::Situation::SYMBOL_BINDING,
-                              requite::Situation::MATTE_VALUE>(
-      expression);
+                              requite::Situation::MATTE_VALUE>(expression);
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -2767,8 +2763,7 @@ Situator::situate_ConduitExpression(requite::Expression &expression) {
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
     expression.changeOpcode(requite::Opcode::_DESTINATION_CONDUIT);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::MATTE_VALUE) {
+                       SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     expression.changeOpcode(requite::Opcode::_VALUE_CONDUIT);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
     expression.changeOpcode(requite::Opcode::_JUNCTION_CONDUIT);
