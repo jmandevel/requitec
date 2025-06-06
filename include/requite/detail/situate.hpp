@@ -1174,7 +1174,8 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::ARGUMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM, requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
     }
     break;
   case requite::Opcode::OUTPUT:
