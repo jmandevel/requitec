@@ -73,6 +73,9 @@ constexpr llvm::StringRef getName() {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::POSITIONAL_FIELD) {
     return "POSITIONAL_FIELD";
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STRUCTURED_BINDING) {
+    return "STRUCTURED_BINDING";
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME) {
     return "SYMBOL_NAME";
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
@@ -176,6 +179,9 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::POSITIONAL_FIELD) {
     return requite::getCanBePositionalFieldSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STRUCTURED_BINDING) {
+    return requite::getCanBeStructuredBindingSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME) {
     return requite::getCanBeSymbolNameSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
@@ -293,19 +299,6 @@ constexpr requite::Situation getNextSymbolReflectiveSituation() {
   }
 }
 
-template <requite::Situation SITUATION_PARAM>
-constexpr requite::Situation getNextAssignLvalueSitaution() {
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT ||
-                SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
-    return requite::Situation::MATTE_DESTINATION;
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                       SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    return requite::Situation::MATTE_JUNCTION;
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
 constexpr bool getCanBeNoneSituation(requite::Opcode opcode) { return false; }
 
 constexpr bool getCanBeRootStatementSituation(requite::Opcode opcode) {
@@ -374,15 +367,6 @@ constexpr bool getCanBeSymbolReflectiveValueSituation(requite::Opcode opcode) {
                                requite::_opcode::_SYMBOL_REFLECTIVE_VALUE);
 }
 
-constexpr bool getCanBeStaticValueSituation(requite::Opcode opcode) {
-  return requite::getCanBeMatteValueSituation(opcode);
-}
-
-constexpr bool getCanBeStaticOrMatteValueSituation(requite::Opcode opcode) {
-  return requite::getCanBeStaticValueSituation(opcode) ||
-         requite::getCanBeMatteValueSituation(opcode);
-}
-
 constexpr bool getCanBeMatteJunctionSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_JUNCTION);
 }
@@ -413,26 +397,12 @@ constexpr bool getCanBeSymbolReflectiveSymbolSituation(requite::Opcode opcode) {
                                requite::_opcode::_SYMBOL_REFLECTIVE_SYMBOL);
 }
 
-constexpr bool getCanBeStaticSymbolSituation(requite::Opcode opcode) {
-  return requite::getCanBeMatteSymbolSituation(opcode);
-}
-
 constexpr bool getCanBeValueBindingSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::_BIND_VALUE ||
          opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE;
 }
 
-constexpr bool getCanBeStaticValueBindingSituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_BIND_VALUE ||
-         opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE;
-}
-
 constexpr bool getCanBeSymbolBindingSituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_BIND_SYMBOL ||
-         opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL;
-}
-
-constexpr bool getCanBeStaticSymbolBindingSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::_BIND_SYMBOL ||
          opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL;
 }
@@ -443,24 +413,13 @@ constexpr bool getCanBePositionalFieldSituation(requite::Opcode opcode) {
          opcode == requite::Opcode::_DEFAULT_VALUE;
 }
 
+constexpr bool getCanBeStructuredBindingSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_LOCAL ||
+         opcode == requite::Opcode::_ASSIGN;
+}
+
 constexpr bool getCanBeNamedFieldSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::_BIND_SYMBOL ||
-         opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
-         opcode == requite::Opcode::_DEFAULT_VALUE ||
-         opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE;
-}
-
-constexpr bool getCanBeStaticPositionalFieldSituation(requite::Opcode opcode) {
-  return requite::getCanBeStaticSymbolSituation(opcode) ||
-         opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-         opcode == requite::Opcode::_DEFAULT_VALUE ||
-         opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
-         opcode == requite::Opcode::_DEFAULT_SYMBOL;
-}
-
-constexpr bool getCanBeStaticNamedFieldSituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_BIND_SYMBOL ||
-         opcode == requite::Opcode::_DEFAULT_SYMBOL ||
          opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
          opcode == requite::Opcode::_DEFAULT_VALUE ||
          opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE;

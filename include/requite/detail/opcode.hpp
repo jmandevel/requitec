@@ -342,8 +342,10 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_NULL_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
+  case Opcode::_STRUCTURED_BINDING:
+    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::_IGNORE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION;
+    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
 
   // TEMPLATES
   case Opcode::TEMPLATE:
@@ -863,6 +865,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_null_value";
   case requite::Opcode::_NULL_TYPE:
     return "_null_type";
+  case requite::Opcode::_STRUCTURED_BINDING:
+    return "_structured_binding";
   case requite::Opcode::_IGNORE:
     return "_ignore";
 

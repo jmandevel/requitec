@@ -160,7 +160,7 @@ requite::Expression &Parser::parsePrecedence11() {
       precedence_parser.appendBranch(this->parsePrecedence10());
       continue;
     case requite::TokenType::EQUAL_OPERATOR:
-      precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN);
+      precedence_parser.parseNary(*this, requite::Opcode::_ASSIGN);
       precedence_parser.appendBranch(this->parsePrecedence10());
       continue;
     case requite::TokenType::PLUS_EQUAL_OPERATOR:

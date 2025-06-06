@@ -42,6 +42,7 @@ enum class Situation {
   SYMBOL_BINDING,
   NAMED_FIELD,
   POSITIONAL_FIELD,
+  STRUCTURED_BINDING,
   SYMBOL_NAME,
   SYMBOL_PATH,
   SWITCH_CASE,
@@ -63,9 +64,6 @@ template <requite::Situation SITUATION_PARAM>
 
 template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr requite::Situation getNextSymbolReflectiveSituation();
-
-template <requite::Situation SITUATION_PARAM>
-[[nodiscard]] constexpr requite::Situation getNextAssignLvalueSitaution();
 
 template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr bool getIsValueSituation();
@@ -123,16 +121,7 @@ getCanBeValueReflectiveValueSituation(requite::Opcode opcode);
 getCanBeSymbolReflectiveValueSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeStaticValueSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeStaticOrMatteValueSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
 getCanBeValueBindingSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeStaticValueBindingSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteJunctionSituation(requite::Opcode opcode);
@@ -153,25 +142,16 @@ getCanBeValueReflectiveSymbolSituation(requite::Opcode opcode);
 getCanBeSymbolReflectiveSymbolSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeStaticSymbolSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
 getCanBeSymbolBindingSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeStaticSymbolBindingSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeNamedFieldSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeStaticNamedFieldSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
 getCanBePositionalFieldSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeStaticPositionalFieldSituation(requite::Opcode opcode);
+getCanBeStructuredBindingSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolNameSituation(requite::Opcode opcode);

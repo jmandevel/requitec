@@ -145,6 +145,8 @@ struct Situator final {
   inline void situate_ConduitExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateMangledNameExpression(requite::Expression &expression);
+    template <requite::Situation SITUATION_PARAM>
+  inline void situateAssignExpression(requite::Expression &expression);
 };
 
 } // namespace requite

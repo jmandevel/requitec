@@ -173,6 +173,7 @@ enum class Opcode : unsigned {
   _TUPLE_TYPE,
   _NULL_VALUE,
   _NULL_TYPE,
+  _STRUCTURED_BINDING,
   _IGNORE,
 
   // TEMPLATES
