@@ -2580,7 +2580,28 @@ void Situator::situate_CallOrSignatureExpression(
     requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  // TODO
+  if (!expression.getHasBranch()) {
+    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    return;
+  }
+  requite::Expression &branch = expression.getBranch();
+  this->situateBranch<requite::Situation::MATTE_SYMBOL>("first branch",
+                                                        expression, 0, branch);
+
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
+                SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
+    this->situateArgumentBranches<SITUATION_PARAM>(expression, branch.getNext(),
+                                                   1);
+    expression.changeOpcode(requite::Opcode::_CALL);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
+                       SITUATION_PARAM ==
+                           requite::Situation::POSITIONAL_FIELD) {
+    this->situateParameterBranches<SITUATION_PARAM>(expression,
+                                                    branch.getNext(), 1);
+    expression.changeOpcode(requite::Opcode::_SIGNATURE);
+  } else {
+    static_assert(false, "invalid situation");
+  }
 }
 
 template <requite::Situation SITUATION_PARAM>
