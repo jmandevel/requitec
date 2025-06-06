@@ -2588,7 +2588,9 @@ void Situator::situate_CallOrSignatureExpression(
   requite::Expression &branch = expression.getBranch();
   this->situateBranch<requite::Situation::MATTE_SYMBOL>("first branch",
                                                         expression, 0, branch);
-
+  if (!branch.getHasNext()) {
+    return;
+  }
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
                 SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
     this->situateArgumentBranches<SITUATION_PARAM>(expression, branch.getNext(),
