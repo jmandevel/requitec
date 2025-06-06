@@ -437,6 +437,8 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::RESULT:
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
+  case Opcode::ARGUMENT:
+    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::INPUT:
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::OUTPUT:
@@ -949,6 +951,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "this";
   case requite::Opcode::RESULT:
     return "result";
+  case requite::Opcode::ARGUMENT:
+    return "argument";
   case requite::Opcode::INPUT:
     return "input";
   case requite::Opcode::OUTPUT:

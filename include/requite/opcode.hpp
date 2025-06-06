@@ -246,6 +246,8 @@ enum class Opcode : unsigned {
   THIS,
   // a reference to the return value of a procedure.
   RESULT,
+  // retrieve an argument of the current procedure at an index.
+  ARGUMENT,
   // value returned into a circuit.
   INPUT,
   // value returned from an circuit.
