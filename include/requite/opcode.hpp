@@ -171,8 +171,6 @@ enum class Opcode : unsigned {
   // TRIPS
   _TUPLE_VALUE,
   _TUPLE_TYPE,
-  _STATIC_TUPLE_VALUE,
-  _STATIC_TUPLE_TYPE,
   _NULL_VALUE,
   _NULL_TYPE,
   _IGNORE,

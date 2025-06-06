@@ -51,8 +51,6 @@ enum _OpcodeFlags : std::uint32_t {
   _VALUE_REFLECTIVE_VALUE =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(13)),
   _SYMBOL_REFLECTIVE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(14)),
-  _STATIC_VALUE =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(15)),
   _MATTE_JUNCTION =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(16)),
@@ -204,7 +202,7 @@ _getFlags(requite::Opcode opcode) {
            _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
            _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
   case Opcode::_BAKE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _STATIC_VALUE;
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
 
   // ARITHMETIC
   case Opcode::_ADD:
@@ -319,13 +317,13 @@ _getFlags(requite::Opcode opcode) {
 
   // TYPE MODIFIER
   case Opcode::MUTABLE:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
   case Opcode::VOLATILE:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
   case Opcode::ATOMIC:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
   case Opcode::NULL_TERMINATED:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
 
   // FIELD RULES
   case Opcode::_POSITIONAL_FIELDS_END:
@@ -340,10 +338,6 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_TUPLE_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_STATIC_TUPLE_VALUE:
-    return _INTERMEDIATE_OPERATION | _STATIC_VALUE;
-  case Opcode::_STATIC_TUPLE_TYPE:
-    return _INTERMEDIATE_OPERATION;
   case Opcode::_NULL_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_NULL_TYPE:
@@ -353,7 +347,7 @@ _getFlags(requite::Opcode opcode) {
 
   // TEMPLATES
   case Opcode::TEMPLATE:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
   case Opcode::_SPECIALIZATION:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE |
            _MATTE_SYMBOL;
@@ -397,7 +391,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::GOTO:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::LABEL:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
 
   // SYMBOLS
   case Opcode::OBJECT:
@@ -526,11 +520,11 @@ _getFlags(requite::Opcode opcode) {
 
   // ACCESS MODIFIERS
   case Opcode::PRIVATE:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
   case Opcode::PROTECTED:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
   case Opcode::EXPORT:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
 
   // SYMBOL GRAPH
   case Opcode::IMPORT:
@@ -554,7 +548,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::THROW:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::MAY_THROW:
-    return _STATIC_VALUE;
+    return _MATTE_VALUE;
 
   // ATTRIBUTES
   case Opcode::EXTERNAL:
@@ -572,7 +566,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::INLINE:
     return _MATTE_VALUE;
   case Opcode::MANGLED_NAME:
-    return _SYMBOL_REFLECTIVE_VALUE | _STATIC_VALUE;
+    return _SYMBOL_REFLECTIVE_VALUE | _MATTE_VALUE;
   case Opcode::_MANGLED_NAME_OF_SYMBOL:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::PACK:
@@ -863,10 +857,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_tuple_value";
   case requite::Opcode::_TUPLE_TYPE:
     return "_tuple_type";
-  case requite::Opcode::_STATIC_TUPLE_VALUE:
-    return "_static_tuple_value";
-  case requite::Opcode::_STATIC_TUPLE_TYPE:
-    return "_static_tuple_type";
   case requite::Opcode::_NULL_VALUE:
     return "_null_value";
   case requite::Opcode::_NULL_TYPE:
