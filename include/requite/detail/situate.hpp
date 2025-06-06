@@ -821,7 +821,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_CALL)) {
       REQUITE_UNREACHABLE();
     } else {
-      // TODO
+      this->situate_CallExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::_SIGNATURE:
@@ -829,7 +829,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_SIGNATURE)) {
       REQUITE_UNREACHABLE();
     } else {
-      // TODO
+      this->situate_SignatureExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::_POSITIONAL_FIELDS_END:
@@ -2574,6 +2574,40 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
   } else {
     static_assert(false, "invalid situation");
   }
+}
+
+template <requite::Situation SITUATION_PARAM>
+void Situator::situate_CallExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CALL);
+  if (!expression.getHasBranch()) {
+    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    return;
+  }
+  requite::Expression &branch = expression.getBranch();
+  this->situateBranch<requite::Situation::MATTE_SYMBOL>("first branch",
+                                                        expression, 0, branch);
+  if (!branch.getHasNext()) {
+    return;
+  }
+  this->situateArgumentBranches<SITUATION_PARAM>(expression, branch.getNext(),
+                                                 1);
+}
+
+template <requite::Situation SITUATION_PARAM>
+void Situator::situate_SignatureExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_SIGNATURE);
+  if (!expression.getHasBranch()) {
+    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    return;
+  }
+  requite::Expression &branch = expression.getBranch();
+  this->situateBranch<requite::Situation::MATTE_SYMBOL>("first branch",
+                                                        expression, 0, branch);
+  if (!branch.getHasNext()) {
+    return;
+  }
+  this->situateParameterBranches<SITUATION_PARAM>(expression, branch.getNext(),
+                                                  1);
 }
 
 template <requite::Situation SITUATION_PARAM>

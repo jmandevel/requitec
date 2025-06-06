@@ -120,6 +120,10 @@ struct Situator final {
   inline void situate_TupleType(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_TripExpression(requite::Expression &expression);
+    template <requite::Situation SITUATION_PARAM>
+  inline void situate_CallExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_SignatureExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
   situate_CallOrSignatureExpression(requite::Expression &expression);
