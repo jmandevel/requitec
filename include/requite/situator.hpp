@@ -92,8 +92,8 @@ struct Situator final {
   inline void
   situate_BindSymbolOrDefaultSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_InferencedTypeOr_INDETERMINATE(
-      requite::Expression &expression);
+  inline void
+  situate_InferencedTypeOrIndeterminateExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_ReflectValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -101,11 +101,35 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void
   situateAssignArithmeticExpression(requite::Expression &expression,
-                                     requite::Opcode arithmetic_opcode);
+                                    requite::Opcode arithmetic_opcode);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_DefaultValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_DefaultSymbolExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateArgumentBranches(requite::Expression &expression,
+                                      requite::Expression &first,
+                                      unsigned branch_i);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateParameterBranches(requite::Expression &expression,
+                                       requite::Expression &first,
+                                       unsigned branch_i);
+  template <requite::Situation SITUATION_PARAM>
+  [[nodiscard]] inline bool situateStaticArgumentBranches(requite::Expression &expression,
+                                            requite::Expression &first,
+                                            unsigned branch_i);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateStaticParameterBranches(requite::Expression &expression,
+                                             requite::Expression &first,
+                                             unsigned branch_i);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_TupleValue(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_TupleType(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_StaticTupleValue(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_StaticTupleType(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_TripExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -115,6 +139,8 @@ struct Situator final {
   inline void situateVariableExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situatePropertyExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateConstantExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateSizedPrimitiveExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -127,6 +153,10 @@ struct Situator final {
   inline void situate_ConduitExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateMangledNameExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateBindValueExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateBindSymbolExpression(requite::Expression &expression);
 };
 
 } // namespace requite

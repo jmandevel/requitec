@@ -20,7 +20,6 @@ enum class AttributeType {
   PROTECTED,
   EXPORT,
   MAY_THROW,
-  THROWS,
   EXTERNAL,
   C,
   NOT_FINAL,

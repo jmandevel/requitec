@@ -27,8 +27,6 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode)
       return requite::AttributeType::EXPORT;
     case requite::Opcode::MAY_THROW:
       return requite::AttributeType::MAY_THROW;
-    case requite::Opcode::THROWS:
-      return requite::AttributeType::THROWS;
     case requite::Opcode::EXTERNAL:
       return requite::AttributeType::EXTERNAL;
     case requite::Opcode::C:
@@ -76,8 +74,6 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "export";
   case requite::AttributeType::MAY_THROW:
     return "may_throw";
-  case requite::AttributeType::THROWS:
-    return "throws";
   case requite::AttributeType::EXTERNAL:
     return "external";
   case requite::AttributeType::C:
