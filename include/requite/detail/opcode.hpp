@@ -106,22 +106,19 @@ _getFlags(requite::Opcode opcode) {
 
   // SITUATIONAL
   case Opcode::_CALL_OR_SIGNATURE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE |
-           _MATTE_SYMBOL |
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
     return _INTERMEDIATE_OPERATION;
   case Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
     return _INTERMEDIATE_OPERATION;
   case Opcode::_TRIP:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE |
-           _MATTE_SYMBOL;
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
   case Opcode::_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE;
   case Opcode::_INFERENCED_TYPE_OR_INDETERMINATE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE |
-           _MATTE_SYMBOL;
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
 
   // LOGICAL
   case Opcode::_LOGICAL_AND:
@@ -273,8 +270,7 @@ _getFlags(requite::Opcode opcode) {
   // ASSIGNMENT
   case Opcode::_ASSIGN:
     return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _MATTE_VALUE | _MATTE_JUNCTION |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
   case Opcode::_ASSIGN_ADD:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
@@ -351,8 +347,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::TEMPLATE:
     return _MATTE_VALUE;
   case Opcode::_SPECIALIZATION:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE |
-           _MATTE_SYMBOL;
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
 
   // PROCEDURES
   case Opcode::_CALL:
@@ -417,8 +412,12 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_LOCAL_STATEMENT;
 
   // VALUES
-  case Opcode::TEMP:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
+  case Opcode::_TEMPORARY:
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
+           _MATTE_JUNCTION;
+  case Opcode::__TEMPORARY_WITH_DATA_ID:
+    return _INTERNAL_USE_ONLY | _MATTE_DESTINATION | _MATTE_VALUE |
+           _MATTE_JUNCTION;
   case Opcode::TRUE:
     return _MATTE_VALUE;
   case Opcode::FALSE:
@@ -933,8 +932,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "constant";
 
   // VALUES
-  case requite::Opcode::TEMP:
-    return "temp";
+  case requite::Opcode::_TEMPORARY:
+    return "_temporary";
+  case requite::Opcode::__TEMPORARY_WITH_DATA_ID:
+    return "__temporary_with_data_id";
   case requite::Opcode::TRUE:
     return "true";
   case requite::Opcode::FALSE:
@@ -1248,6 +1249,10 @@ constexpr bool getHasTextData(requite::Opcode opcode) {
 
 constexpr bool getHasIntegerData(requite::Opcode opcode) {
   return opcode == requite::Opcode::__INTEGER_LITERAL;
+}
+
+constexpr bool getHasUnsignedIntegerData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::__TEMPORARY_WITH_DATA_ID;
 }
 
 constexpr bool getHasScopeData(requite::Opcode opcode) {

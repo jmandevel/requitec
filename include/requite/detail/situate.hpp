@@ -7,6 +7,7 @@
 #include <requite/context.hpp>
 #include <requite/expression_walk_result.hpp>
 #include <requite/expression_walker.hpp>
+#include <requite/numeric.hpp>
 #include <requite/source_location.hpp>
 
 #include <llvm/Support/FormatVariadic.h>
@@ -609,7 +610,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_ASSIGN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssignExpression<SITUATION_PARAM>(expression);
+      this->situate_AssignExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::_ASSIGN_ADD:
@@ -1070,14 +1071,16 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::TEMP:
+  case requite::Opcode::_TEMPORARY:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TEMP)) {
+                      requite::Opcode::_TEMPORARY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situate_TemporaryExpression<SITUATION_PARAM>(expression);
     }
     break;
+  case requite::Opcode::__TEMPORARY_WITH_DATA_ID:
+    REQUITE_UNREACHABLE();
   case requite::Opcode::TRUE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::TRUE)) {
@@ -2882,7 +2885,8 @@ Situator::situateMangledNameExpression(requite::Expression &expression) {
 }
 
 template <requite::Situation SITUATION_PARAM>
-inline void Situator::situateAssignExpression(requite::Expression &expression) {
+inline void
+Situator::situate_AssignExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ASSIGN);
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     this->situateNaryWithLastExpression<SITUATION_PARAM, 2,
@@ -2965,6 +2969,29 @@ inline void Situator::situateAssignExpression(requite::Expression &expression) {
   } else {
     static_assert("invalid situation");
   }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situate_TemporaryExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TEMPORARY);
+  this->situateUnaryExpression<SITUATION_PARAM,
+                               requite::Situation::INTEGER_LITERAL>(expression);
+  requite::Expression &id_expression = expression.getBranch();
+  unsigned id;
+  requite::NumericResult result =
+      requite::getNumericValue(id_expression.getSourceText(), id);
+  if (result != requite::NumericResult::OK) {
+    this->setNotOk();
+    this->getContext().logSourceMessage(
+        id_expression, requite::LogType::ERROR,
+        llvm::Twine("failed to parse temporary id: \"") +
+            requite::getDescription(result) + "\"");
+    return;
+  }
+  requite::Expression::deleteExpression(id_expression);
+  expression.changeOpcode(requite::Opcode::__TEMPORARY_WITH_DATA_ID);
+  expression.setDataUnsignedInteger(id);
 }
 
 } // namespace requite

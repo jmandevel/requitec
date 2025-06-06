@@ -16,7 +16,8 @@ namespace requite {
 
 // NOTE:
 //  two underscores at the front means that the opcode is for internal use
-//  only, and is a compile error if it is written in Requite source code.
+//  only, and is a compile error if it is written in source files at the head of
+//  an operation.
 
 enum class Opcode : unsigned {
   // this should never occur.
@@ -212,12 +213,11 @@ enum class Opcode : unsigned {
   CONSTANT,
 
   // VALUES
-  // a special variable that is replaced every time it is assigned to. its
-  // previous value is destroyed. its type can change on each assignment. a
-  // positive numeric integer literal can be passed into the first branch to
-  // differentiate between multiple temp values. if no index is provided, this
-  // temp is sitauted to default_temp.
-  TEMP,
+  // for variables inserted during circuiting stage. situates into
+  // __temporary_with_data_id.
+  _TEMPORARY,
+  // a temporary with its id stored in the expression data.
+  __TEMPORARY_WITH_DATA_ID,
   // the boolean value of true.
   TRUE,
   // the boolean value of false.
@@ -380,6 +380,8 @@ getUniversalizedSymbol(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasUnsignedIntegerData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasIntegerData(requite::Opcode opcode);
 

@@ -83,13 +83,69 @@ void AstWriter::writeIndentation() {
 
 void AstWriter::writeExpression(const requite::Expression &expression) {
   this->writeIndentation();
-  if (expression.getIsOperation()) {
-    this->getOstream() << "[";
-    if (requite::options::NAME_INTERMEDIATE_OPCODES.getValue()) {
-      this->getOstream() << requite::getName(expression.getOpcode());
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::__INTEGER_LITERAL:
+    [[fallthrough]];
+  case requite::Opcode::__REAL_LITERAL: {
+    this->getOstream() << expression.getSourceText();
+    this->getOstream() << "\" // from ";
+    this->getOstream() << requite::getName(
+        opcode);
+    this->writeExpressionLocationComment(expression);
+  } break;
+  case requite::Opcode::__STRING_LITERAL: {
+    this->getOstream() << "\" // from ";
+    this->getOstream() << requite::getName(
+        opcode);
+    if (expression.getHasDataText()) {
+      for (char c : expression.getDataText()) {
+        this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
+      }
     } else {
-      this->getOstream() << requite::getUnderlying(expression.getOpcode());
+      this->getOstream() << expression.getSourceText();
     }
+    this->getOstream() << "\" // from ";
+    this->getOstream() << requite::getName(
+        requite::Opcode::__STRING_LITERAL);
+    this->writeExpressionLocationComment(expression);
+  } break;
+  case requite::Opcode::__CODEUNIT_LITERAL: {
+    this->getOstream() << "\'";
+    if (expression.getHasDataText()) {
+      for (char c : expression.getDataText()) {
+        this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
+      }
+    } else {
+      this->getOstream() << expression.getSourceText();
+    }
+    this->getOstream() << "\' // from ";
+    this->getOstream() << requite::getName(
+        requite::Opcode::__CODEUNIT_LITERAL);
+    this->writeExpressionLocationComment(expression);
+  } break;
+  case requite::Opcode::__IDENTIFIER_LITERAL: {
+    this->getOstream() << "\\\"";
+    for (char c : expression.getDataText()) {
+      this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
+    }
+    this->getOstream() << "\" // from ";
+    this->getOstream() << requite::getName(
+        requite::Opcode::__IDENTIFIER_LITERAL);
+    this->writeExpressionLocationComment(expression);
+  } break;
+  case requite::Opcode::__TEMPORARY_WITH_DATA_ID: {
+    this->getOstream() << "[";
+    this->getOstream() << requite::getName(requite::Opcode::_TEMPORARY);
+    this->getOstream() << " ";
+    this->getOstream() << expression.getDataUnsignedInteger();
+    this->getOstream() << "] // from ";
+    this->getOstream() << requite::getName(
+        requite::Opcode::__TEMPORARY_WITH_DATA_ID);
+    this->writeExpressionLocationComment(expression);
+  } break;
+  default: {
+    this->getOstream() << "[";
+    this->getOstream() << requite::getName(expression.getOpcode());
     if (!expression.getHasBranch()) {
       this->getOstream() << "]";
       this->writeExpressionLocationComment(expression);
@@ -104,40 +160,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
       this->writeIndentation();
       this->getOstream() << "]\n";
     }
-  } else if (expression.getIsNumeric()) {
-    this->getOstream() << expression.getSourceText();
-    this->writeExpressionLocationComment(expression);
-  } else if (expression.getIsString()) {
-    this->getOstream() << "\"";
-    if (expression.getHasDataText()) {
-      for (char c : expression.getDataText()) {
-        this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
-      }
-    } else {
-      this->getOstream() << expression.getSourceText();
-    }
-    this->getOstream() << "\"";
-    this->writeExpressionLocationComment(expression);
-  } else if (expression.getIsCodeunit()) {
-    this->getOstream() << "\'";
-    if (expression.getHasDataText()) {
-      for (char c : expression.getDataText()) {
-        this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
-      }
-    } else {
-      this->getOstream() << expression.getSourceText();
-    }
-    this->getOstream() << "\'";
-    this->writeExpressionLocationComment(expression);
-  } else if (expression.getIsIdentifier()) {
-    this->getOstream() << "\\\"";
-    for (char c : expression.getDataText()) {
-      this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
-    }
-    this->getOstream() << "\"";
-    this->writeExpressionLocationComment(expression);
-  } else {
-    REQUITE_UNREACHABLE();
+  }
   }
 }
 

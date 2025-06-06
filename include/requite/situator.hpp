@@ -92,8 +92,8 @@ struct Situator final {
   inline void
   situate_BindSymbolOrDefaultSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void
-  situate_InferencedTypeOrIndeterminateExpression(requite::Expression &expression);
+  inline void situate_InferencedTypeOrIndeterminateExpression(
+      requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_ReflectValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -120,7 +120,7 @@ struct Situator final {
   inline void situate_TupleType(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_TripExpression(requite::Expression &expression);
-    template <requite::Situation SITUATION_PARAM>
+  template <requite::Situation SITUATION_PARAM>
   inline void situate_CallExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_SignatureExpression(requite::Expression &expression);
@@ -145,8 +145,10 @@ struct Situator final {
   inline void situate_ConduitExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateMangledNameExpression(requite::Expression &expression);
-    template <requite::Situation SITUATION_PARAM>
-  inline void situateAssignExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_AssignExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_TemporaryExpression(requite::Expression &expression);
 };
 
 } // namespace requite

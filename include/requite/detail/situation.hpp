@@ -87,6 +87,8 @@ constexpr llvm::StringRef getName() {
     return "LAST_SWITCH_CASE";
   } else if constexpr (SITUATION_PARAM == requite::Situation::CAPTURE) {
     return "CAPTURE";
+  } else if constexpr (SITUATION_PARAM == requite::Situation::INTEGER_LITERAL) {
+    return "INTEGER_LITERAL";
   } else {
     static_assert(false, "invalid situation");
   }
@@ -193,6 +195,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeLastSwitchCaseSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::CAPTURE) {
     return requite::getCanBeCaptureSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::INTEGER_LITERAL) {
+    return requite::getCanBeIntegerLiteralSituation(opcode);
   } else {
     static_assert(false, "invalid situation");
   }
@@ -447,6 +451,10 @@ constexpr bool getCanBeLastSwitchCaseSituation(requite::Opcode opcode) {
 
 constexpr bool getCanBeCaptureSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::_CAPTURE;
+}
+
+constexpr bool getCanBeIntegerLiteralSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::__INTEGER_LITERAL;
 }
 
 } // namespace requite

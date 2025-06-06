@@ -37,7 +37,7 @@ struct Expression final {
   requite::Expression *_branch_ptr = nullptr;
   const char *_source_text_ptr = nullptr;
   unsigned _source_text_length = 0;
-  std::variant<std::monostate, std::string, requite::Scope *,
+  std::variant<std::monostate, unsigned, std::string, requite::Scope *,
                requite::Object *, requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Variable *, requite::Label*, llvm::APSInt,
                requite::Symbol>
@@ -159,6 +159,9 @@ struct Expression final {
   [[nodiscard]] inline llvm::StringRef getDataText() const;
   inline void setDataText(llvm::StringRef text);
   inline void changeDataText(llvm::StringRef text);
+  [[nodiscard]] inline bool getHasDataUnsignedInteger() const;
+  inline void setDataUnsignedInteger(unsigned integer);
+  [[nodiscard]] inline unsigned getDataUnsignedInteger() const;
   [[nodiscard]] inline bool getHasScope() const;
   [[nodiscard]] inline requite::Scope &getScope();
   [[nodiscard]] inline const requite::Scope &getScope() const;
