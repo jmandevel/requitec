@@ -2941,9 +2941,11 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
         }
         this->situateBranch<requite::Situation::MATTE_VALUE>(
             "last branch", destination, branch_i++, value_next);
-      } else {
+      } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
         this->situateBranch<requite::Situation::MATTE_JUNCTION>(
             "any branch", destination, branch_i++, value_next);
+      } else {
+        static_assert(false, "not implemented");
       }
     }
     if (destination.getOpcode() == requite::Opcode::_TRIP) {
