@@ -1121,15 +1121,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_IGNORE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_IGNORE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
   case requite::Opcode::_STRUCTURED_BINDING:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_STRUCTURED_BINDING)) {
@@ -1138,6 +1129,15 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNaryExpression<SITUATION_PARAM, 1,
                                   requite::Situation::STRUCTURED_BINDING>(
           expression);
+    }
+    break;
+  case requite::Opcode::_IGNORE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_IGNORE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
     }
     break;
   case requite::Opcode::_INDETERMINATE:
@@ -2941,7 +2941,8 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
         }
         this->situateBranch<requite::Situation::MATTE_VALUE>(
             "last branch", destination, branch_i++, value_next);
-      } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
+      } else if constexpr (SITUATION_PARAM ==
+                           requite::Situation::MATTE_DESTINATION) {
         this->situateBranch<requite::Situation::MATTE_JUNCTION>(
             "any branch", destination, branch_i++, value_next);
       } else {
