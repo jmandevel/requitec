@@ -123,7 +123,7 @@ struct Expression final {
   [[nodiscard]] inline requite::Expression *popBranchPtr();
   [[nodiscard]] inline requite::Expression &popNext();
   [[nodiscard]] inline requite::Expression *popNextPtr();
-  inline void flattenBranch();
+  inline void mergeBranch();
   inline void replaceWithRecursiveCopy(requite::Expression &replacement);
 
   // detail/expression_source.hpp

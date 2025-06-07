@@ -1962,7 +1962,7 @@ void Situator::situateExpression(requite::Expression &expression) {
   if (expression.getIsConverging()) {
     for (requite::Expression &branch : expression.getBranchSubrange()) {
       if (expression.getOpcode() == branch.getOpcode()) {
-        branch.flattenBranch();
+        branch.mergeBranch();
       }
     }
   }
@@ -2845,7 +2845,7 @@ void Situator::situate_IdentifyExpression(requite::Expression &expression) {
     return;
   }
   std::string text = branch.getDataText().str();
-  expression.flattenBranch();
+  expression.mergeBranch();
   expression.changeOpcode(requite::Opcode::__IDENTIFIER_LITERAL);
   expression.setDataText(text);
 }

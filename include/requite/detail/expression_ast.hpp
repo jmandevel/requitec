@@ -244,7 +244,7 @@ requite::Expression *Expression::popNextPtr() {
   return old_next_ptr;
 }
 
-void Expression::flattenBranch() {
+void Expression::mergeBranch() {
   requite::Expression &branch = this->popBranch();
   if (this->getHasNext()) {
     requite::Expression &branch_last_next = branch.getLastNext();
