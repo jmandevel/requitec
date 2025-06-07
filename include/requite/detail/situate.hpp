@@ -2822,7 +2822,7 @@ void Situator::situateAssertExpression(requite::Expression &expression) {
     requite::SourceLocation location =
         this->getContext().getSourceStartLocation(expression);
     std::string assertion_text = llvm::formatv(
-        "assertion failure for expression: \n\n{0}\n\n at {1}:{2}:{2}\"",
+        "assertion failure for expression: \n\n{0}\n\n at {1}:{2}:{3}\"",
         first.getSourceText(), location.file, location.line, location.column);
 
     requite::Expression &next = requite::Expression::makeString(assertion_text);
