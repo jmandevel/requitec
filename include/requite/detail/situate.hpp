@@ -484,9 +484,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_CONCATINATE:
+  case requite::Opcode::_COMPILE_TIME_CONCATINATE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CONCATINATE)) {
+                      requite::Opcode::_COMPILE_TIME_CONCATINATE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 2,

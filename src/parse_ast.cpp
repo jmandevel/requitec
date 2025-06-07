@@ -366,7 +366,7 @@ requite::Expression &Parser::parsePrecedence5() {
       precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     case requite::TokenType::CONCATENATE_OPERATOR:
-      precedence_parser.parseNary(*this, requite::Opcode::_CONCATINATE);
+      precedence_parser.parseNary(*this, requite::Opcode::_COMPILE_TIME_CONCATINATE);
       precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     default:

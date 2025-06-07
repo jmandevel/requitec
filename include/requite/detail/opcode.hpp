@@ -236,7 +236,7 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
 
   // MEMORY
-  case Opcode::_CONCATINATE:
+  case Opcode::_COMPILE_TIME_CONCATINATE:
     return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::FROM_FRONT:
     return _VALUE_REFLECTIVE_VALUE;
@@ -772,8 +772,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_bitwise_rotate_right";
 
   // MEMORY
-  case requite::Opcode::_CONCATINATE:
-    return "_concatinate";
+  case requite::Opcode::_COMPILE_TIME_CONCATINATE:
+    return "_compile_time_concatinate";
   case requite::Opcode::FROM_FRONT:
     return "from_front";
   case requite::Opcode::_FROM_FRONT_OF_VALUE:
