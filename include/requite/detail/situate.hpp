@@ -2980,7 +2980,13 @@ Situator::situate_TemporaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TEMPORARY);
   this->situateUnaryExpression<SITUATION_PARAM,
                                requite::Situation::INTEGER_LITERAL>(expression);
+  if (!expression.getHasBranch()) {
+    return;
+  }
   requite::Expression &id_expression = expression.getBranch();
+  if (!id_expression.getIsInteger()) {
+    return;
+  }
   unsigned id;
   requite::NumericResult result =
       requite::getNumericValue(id_expression.getSourceText(), id);
