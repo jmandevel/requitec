@@ -489,8 +489,8 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_COMPILE_TIME_CONCATINATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situate_CompileTimeConcatinateExpression<SITUATION_PARAM>(
+          expression);
     }
     break;
   case requite::Opcode::FROM_FRONT:
@@ -3018,6 +3018,34 @@ inline void Situator::situateTableExpression(requite::Expression &expression) {
         previous_name_expression_ptr = &name_expression;
       }
     }
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void Situator::situate_CompileTimeConcatinateExpression(
+    requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_COMPILE_TIME_CONCATINATE);
+  this->situateNaryExpression<SITUATION_PARAM, 2,
+                              requite::Situation::MATTE_VALUE>(expression);
+  requite::Expression &first_branch = expression.getBranch();
+  for (requite::Expression &branch : first_branch.getHorizontalSubrange()) {
+    if (branch.getOpcode() == requite::Opcode::__STRING_LITERAL) {
+      while (branch.getHasNext() && branch.getNext().getOpcode() ==
+                                        requite::Opcode::__STRING_LITERAL) {
+        requite::Expression &next = branch.popNext();
+        llvm::StringRef cur_text = branch.getDataText();
+        llvm::StringRef next_text = next.getDataText();
+        std::string concatinated_text =
+            llvm::formatv("{}{}", cur_text, next_text);
+        branch.changeDataText(concatinated_text);
+        branch.setNextPtr(next.getNextPtr());
+        requite::Expression::deleteExpression(next);
+      }
+    }
+  }
+  if (!first_branch.getHasNext()) {
+    expression.mergeBranch();
   }
 }
 
