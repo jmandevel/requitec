@@ -88,7 +88,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
     [[fallthrough]];
   case requite::Opcode::__REAL_LITERAL: {
     this->getOstream() << expression.getSourceText();
-    this->getOstream() << "\" // from ";
+    this->getOstream() << " // from ";
     this->getOstream() << requite::getName(
         opcode);
     this->writeExpressionLocationComment(expression);
