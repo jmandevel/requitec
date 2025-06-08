@@ -28,21 +28,6 @@ inline void Expression::changeDataText(llvm::StringRef text) {
   std::get<std::string>(this->_data).assign(text.str());
 }
 
-inline bool Expression::getHasDataUnsignedInteger() const {
-  return std::holds_alternative<unsigned>(this->_data);
-}
-
-inline void Expression::setDataUnsignedInteger(unsigned integer) {
-  REQUITE_ASSERT(requite::getHasUnsignedIntegerData(this->getOpcode()));
-  this->_data = integer;
-}
-
-inline unsigned Expression::getDataUnsignedInteger() const {
-  REQUITE_ASSERT(requite::getHasUnsignedIntegerData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasDataUnsignedInteger());
-  return std::get<unsigned>(this->_data);
-}
-
 inline bool Expression::getHasScope() const {
   REQUITE_ASSERT(requite::getHasScopeData(this->getOpcode()));
   return std::holds_alternative<requite::Scope *>(this->_data) &&

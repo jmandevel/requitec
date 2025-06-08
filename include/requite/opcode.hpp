@@ -375,8 +375,6 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasUnsignedIntegerData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasIntegerData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasScopeData(requite::Opcode opcode);
