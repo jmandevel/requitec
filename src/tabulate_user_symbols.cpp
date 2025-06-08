@@ -60,13 +60,6 @@ void Tabulator::tabulateInstantNamedSymbols() {
           this->setNotOk();
           continue;
         }
-      } else if (name_expression.getOpcode() ==
-                 requite::Opcode::_REFLECT_SYMBOL) {
-        this->getContext().logSourceMessage(
-            name_expression, requite::LogType::ERROR,
-            "table path names not supported in current version of requitec");
-        this->setNotOk();
-        continue;
       }
       this->getContext().logSourceMessage(
           expression, requite::LogType::ERROR,
