@@ -19,7 +19,6 @@ target_sources(
         build_user_symbols.cpp
         compile_object_files.cpp
         const_expression_iterator.cpp
-        const_sub_scope_iterator.cpp
         context.cpp
         escape_sequences.cpp
         expression_iterator.cpp
@@ -54,7 +53,6 @@ target_sources(
         situate_ast.cpp
         source_name.cpp
         source_ranger.cpp
-        sub_scope_iterator.cpp
         sub_symbol.cpp
         symbol.cpp
         table.cpp
