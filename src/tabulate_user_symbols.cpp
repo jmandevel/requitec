@@ -159,9 +159,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
       requite::Variable &variable = requite::getRef(variable_uptr);
       requite::Scope &containing_scope = variable.getContainingScope();
       requite::Expression &expression = variable.getExpression();
-      requite::Expression &symbol_binding_expression = expression.getBranch();
-      requite::Expression &name_expression =
-          symbol_binding_expression.getBranch();
+      requite::Expression &name_expression = expression.getBranch();
       if (name_expression.getIsIdentifier()) {
         llvm::StringRef name = name_expression.getDataText();
         requite::RootSymbol found =

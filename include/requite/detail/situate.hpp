@@ -1041,7 +1041,10 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_LOCAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateVariableExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::SYMBOL_NAME,
+                                    requite::Situation::MATTE_VALUE>(
+          expression);
     }
     break;
   case requite::Opcode::GLOBAL:
@@ -1049,7 +1052,10 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::GLOBAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateVariableExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::SYMBOL_NAME,
+                                    requite::Situation::MATTE_VALUE>(
+          expression);
     }
     break;
   case requite::Opcode::PROPERTY:
@@ -1057,7 +1063,10 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::PROPERTY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situatePropertyExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::SYMBOL_NAME,
+                                    requite::Situation::MATTE_VALUE>(
+          expression);
     }
     break;
   case requite::Opcode::CONSTANT:
@@ -1065,7 +1074,10 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::CONSTANT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateConstantExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::SYMBOL_NAME,
+                                    requite::Situation::MATTE_VALUE>(
+          expression);
     }
     break;
   case requite::Opcode::_NULL_TYPE:
@@ -2701,103 +2713,6 @@ void Situator::situate_CallOrSignatureExpression(
   } else {
     static_assert(false, "invalid situation");
   }
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situateVariableExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL ||
-                 expression.getOpcode() == requite::Opcode::_LOCAL);
-  if (!expression.getHasBranch()) {
-    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &first = expression.getBranch();
-  if (first.getOpcode() != requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL &&
-      first.getOpcode() != requite::Opcode::_BIND_SYMBOL) {
-    requite::Expression &bind_symbol =
-        requite::Expression::makeOperation(requite::Opcode::_BIND_SYMBOL);
-    bind_symbol.setSourceInsertedAt(first.getSourceTextPtr());
-    requite::Expression &inference =
-        requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
-    inference.setSourceInsertedAt(first.getSourceTextPtr());
-    bind_symbol.setBranch(expression.replaceBranch(bind_symbol));
-    if (first.getHasNext()) {
-      bind_symbol.setNext(first.popNext());
-    }
-    first.setNext(inference);
-  }
-  this->situateNaryExpression<SITUATION_PARAM, 2,
-                              requite::Situation::SYMBOL_BINDING,
-                              requite::Situation::MATTE_VALUE>(expression);
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situatePropertyExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
-  if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &first = expression.getBranch();
-  if (first.getOpcode() != requite::Opcode::_BIND_SYMBOL) {
-    requite::Expression &bind_symbol =
-        requite::Expression::makeOperation(requite::Opcode::_BIND_SYMBOL);
-    bind_symbol.setSourceInsertedAfter(first);
-    requite::Expression &inference =
-        requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
-    inference.setSourceInsertedAfter(first);
-    bind_symbol.setBranch(expression.replaceBranch(bind_symbol));
-    if (first.getHasNext()) {
-      bind_symbol.setNext(first.popNext());
-    }
-    first.setNext(inference);
-  }
-  requite::Expression &new_first = expression.getBranch();
-  if (!new_first.getHasNext()) {
-    requite::Expression &no_default_value =
-        requite::Expression::makeOperation(requite::Opcode::NO_DEFAULT_VALUE);
-    no_default_value.setSourceInsertedAfter(new_first);
-    new_first.setNext(no_default_value);
-  }
-  this->situateNaryExpression<SITUATION_PARAM, 2,
-                              requite::Situation::SYMBOL_BINDING,
-                              requite::Situation::MATTE_VALUE>(expression);
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situateConstantExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONSTANT);
-  if (!expression.getHasBranch()) {
-    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &first = expression.getBranch();
-  if (first.getOpcode() != requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL &&
-      first.getOpcode() != requite::Opcode::_BIND_SYMBOL) {
-    requite::Expression &bind_symbol =
-        requite::Expression::makeOperation(requite::Opcode::_BIND_SYMBOL);
-    bind_symbol.setSourceInsertedAt(first.getSourceTextPtr());
-    requite::Expression &inference =
-        requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
-    inference.setSourceInsertedAt(first.getSourceTextPtr());
-    bind_symbol.setBranch(expression.replaceBranch(bind_symbol));
-    if (first.getHasNext()) {
-      bind_symbol.setNext(first.popNext());
-    }
-    first.setNext(inference);
-  }
-  this->situateNaryExpression<SITUATION_PARAM, 2,
-                              requite::Situation::SYMBOL_BINDING,
-                              requite::Situation::MATTE_VALUE>(expression);
 }
 
 template <requite::Situation SITUATION_PARAM>
