@@ -29,7 +29,6 @@ enum class Situation {
   MATTE_DESTINATION,
   VALUE_REFLECTIVE_DESTINATION,
   SYMBOL_REFLECTIVE_DESTINATION,
-  MATTE_DESTINATION_NOT_TRIP,
   MATTE_VALUE,
   VALUE_REFLECTIVE_VALUE,
   SYMBOL_REFLECTIVE_VALUE,
@@ -112,9 +111,6 @@ getCanBeValueReflectiveDestinationSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolReflectiveDestinationSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeMatteArithmeticDestinationSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteValueSituation(requite::Opcode opcode);

@@ -2420,12 +2420,11 @@ void Situator::situateAssignArithmeticExpression(
     requite::Expression &expression, requite::Opcode arithmetic_opcode) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
-                SITUATION_PARAM ==
-                    requite::Situation::MATTE_DESTINATION_NOT_TRIP) {
-    this->situateBinaryExpression<
-        SITUATION_PARAM, requite::Situation::MATTE_DESTINATION_NOT_TRIP,
-        requite::Situation::MATTE_JUNCTION>(expression);
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_DESTINATION,
+                                  requite::Situation::MATTE_JUNCTION>(
+        expression);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::MATTE_JUNCTION,
@@ -2436,9 +2435,9 @@ void Situator::situateAssignArithmeticExpression(
         expression);
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::MATTE_LOCAL_STATEMENT) {
-    this->situateBinaryExpression<
-        SITUATION_PARAM, requite::Situation::MATTE_DESTINATION_NOT_TRIP,
-        requite::Situation::MATTE_VALUE>(expression);
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_DESTINATION,
+                                  requite::Situation::MATTE_VALUE>(expression);
   } else {
     static_assert(false, "invalid situation");
   }
@@ -2889,9 +2888,7 @@ template <requite::Situation SITUATION_PARAM>
 inline void
 Situator::situate_ConduitExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CONDUIT);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
-                SITUATION_PARAM ==
-                    requite::Situation::MATTE_DESTINATION_NOT_TRIP) {
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
     expression.changeOpcode(requite::Opcode::_DESTINATION_CONDUIT);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
                        SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
@@ -2936,7 +2933,9 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
   } else if constexpr (SITUATION_PARAM ==
                            requite::Situation::MATTE_DESTINATION ||
                        SITUATION_PARAM ==
-                           requite::Situation::MATTE_LOCAL_STATEMENT) {
+                           requite::Situation::MATTE_LOCAL_STATEMENT ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STRUCTURED_BINDING) {
     if (!expression.getHasBranch()) {
       this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression,
                                                                    2);
@@ -2970,7 +2969,8 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
     unsigned branch_i = 0;
     for (requite::Expression &value_next : value.getHorizontalSubrange()) {
       if constexpr (SITUATION_PARAM ==
-                    requite::Situation::MATTE_LOCAL_STATEMENT) {
+                        requite::Situation::MATTE_LOCAL_STATEMENT ||
+                    SITUATION_PARAM == requite::Situation::STRUCTURED_BINDING) {
         if (value_next.getHasNext()) {
           this->situateBranch<requite::Situation::MATTE_JUNCTION>(
               "middle branch", destination, branch_i++, value_next);
@@ -3001,11 +3001,6 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
       requite::Expression::deleteExpression(destination);
       return;
     }
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::STRUCTURED_BINDING) {
-    this->situateBinaryExpression<
-        SITUATION_PARAM, requite::Situation::MATTE_DESTINATION_NOT_TRIP,
-        requite::Situation::SYMBOL_NAME>(expression);
   } else {
     static_assert("invalid situation");
   }
