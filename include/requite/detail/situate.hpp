@@ -2545,8 +2545,14 @@ void Situator::situate_TupleValue(requite::Expression &expression) {
     this->setNotOk();
     return;
   }
-  this->situateArgumentBranches<SITUATION_PARAM>(expression,
-                                                 expression.getBranch(), 0);
+  requite::Expression &branch = expression.getBranch();
+  this->situateArgumentBranches<SITUATION_PARAM>(expression, branch, 0);
+  if (branch.getOpcode() != requite::Opcode::_BIND_VALUE &&
+      !branch.getHasNext()) {
+    expression.mergeBranch();
+  } else {
+    expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
+  }
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -2557,8 +2563,15 @@ void Situator::situate_TupleType(requite::Expression &expression) {
     this->setNotOk();
     return;
   }
-  this->situateParameterBranches<SITUATION_PARAM>(expression,
-                                                  expression.getBranch(), 0);
+  requite::Expression &branch = expression.getBranch();
+  this->situateParameterBranches<SITUATION_PARAM>(expression, branch, 0);
+  if (branch.getOpcode() != requite::Opcode::_BIND_SYMBOL &&
+      branch.getOpcode() != requite::Opcode::_DEFAULT_VALUE &&
+      !branch.getHasNext()) {
+    expression.mergeBranch();
+  } else {
+    expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
+  }
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -2566,14 +2579,25 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TRIP);
+  // NOTE:
+  //  for Situation::MATTE_DESTINATION to situate to _ignore and
+  //  _structured_binding, this function is never called because situation is
+  //  done in sitaute_AssignExpression. this is to prevent _structured_binding
+  //  nesting in assignments inside _structured_binding without having to add
+  //  more situations.
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     if (!expression.getHasBranch()) {
       expression.changeOpcode(requite::Opcode::_NULL_VALUE);
       return;
     }
-    this->situateArgumentBranches<SITUATION_PARAM>(expression,
-                                                   expression.getBranch(), 0);
-    expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
+    requite::Expression &branch = expression.getBranch();
+    this->situateArgumentBranches<SITUATION_PARAM>(expression, branch, 0);
+    if (branch.getOpcode() != requite::Opcode::_BIND_VALUE &&
+        !branch.getHasNext()) {
+      expression.mergeBranch();
+    } else {
+      expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
+    }
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM ==
                            requite::Situation::POSITIONAL_FIELD) {
@@ -2581,9 +2605,13 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
       expression.changeOpcode(requite::Opcode::_NULL_TYPE);
       return;
     }
-    this->situateParameterBranches<SITUATION_PARAM>(expression,
-                                                    expression.getBranch(), 0);
-    expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
+    requite::Expression &branch = expression.getBranch();
+    this->situateParameterBranches<SITUATION_PARAM>(expression, branch, 0);
+    if (!branch.getHasNext()) {
+      expression.mergeBranch();
+    } else {
+      expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
+    }
   } else {
     static_assert(false, "invalid situation");
   }
