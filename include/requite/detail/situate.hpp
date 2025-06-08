@@ -3009,7 +3009,8 @@ inline void Situator::situateTableExpression(requite::Expression &expression) {
           requite::Expression::makeOperation(requite::Opcode::TABLE);
       table_expression.setSourceInsertedAfter(expression);
       table_expression.setBranch(name_expression);
-      std::ignore = requite::getRef(previous_name_expression_ptr).replaceNext(table_expression);
+      std::ignore = requite::getRef(previous_name_expression_ptr)
+                        .replaceNext(table_expression);
       if (!name_expression.getHasNext()) {
         name_expression.setNextPtr(table_body_ptr);
         break;
