@@ -437,7 +437,7 @@ constexpr bool getCanBeSymbolNameSituation(requite::Opcode opcode) {
 constexpr bool getCanBeSymbolPathSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::__IDENTIFIER_LITERAL ||
          opcode == requite::Opcode::_IDENTIFY ||
-         opcode == requite::Opcode::_BIND_SYMBOL;
+         opcode == requite::Opcode::_REFLECT_SYMBOL;
 }
 
 constexpr bool getCanBeSwitchCaseSituation(requite::Opcode opcode) {
