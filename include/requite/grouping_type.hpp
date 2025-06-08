@@ -16,7 +16,8 @@ enum class GroupingType {
   TRIP,
   CAP,
   COMPAS,
-  PARENTHESIS
+  PARENTHESIS,
+  QUOTE
 };
 
 [[nodiscard]] constexpr std::string_view getName(requite::GroupingType grouping);

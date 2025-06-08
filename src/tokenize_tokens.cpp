@@ -412,6 +412,11 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeRightGrouping(requite::GroupingType::CAP,
                                     requite::TokenType::RIGHT_CAP_GROUPING, 2);
         break;
+      case ']':
+        this->tokenizeRightGrouping(requite::GroupingType::QUOTE,
+                                    requite::TokenType::RIGHT_QUOTE_GROUPING,
+                                    2);
+        break;
       case '>':
         this->tokenizeLengthToken(requite::TokenType::RIGHT_OPERATOR, 2);
         break;
@@ -544,8 +549,21 @@ void Tokenizer::_tokenizeTokens() {
     case 'Z':
       break;
     case '[':
-      this->tokenizeLengthToken(requite::TokenType::LEFT_BRACKET_GROUPING, 1);
-      this->pushGrouping(requite::GroupingType::BRACKET);
+      switch (const char c1 = this->getRanger().getChar(1)) {
+      case ':':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case ']':
+          this->tokenizeLengthToken(requite::TokenType::EMPTY_QUOTE_OPERATOR,
+                                    3);
+        default:
+          this->tokenizeLengthToken(requite::TokenType::LEFT_QUOTE_GROUPING, 2);
+          this->pushGrouping(requite::GroupingType::QUOTE);
+        }
+        break;
+      default:
+        this->tokenizeLengthToken(requite::TokenType::LEFT_BRACKET_GROUPING, 1);
+        this->pushGrouping(requite::GroupingType::BRACKET);
+      }
       continue;
     case '\\':
       switch (const char c1 = this->getRanger().getChar(1)) {

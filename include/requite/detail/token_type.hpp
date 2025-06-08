@@ -37,6 +37,10 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     return requite::TokenType::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING;
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING;
+  case requite::TokenType::LEFT_QUOTE_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_LEFT_QUOTE_GROUPING;
+  case requite::TokenType::RIGHT_QUOTE_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_RIGHT_QUOTE_GROUPING;
   default:
     break;
   }
