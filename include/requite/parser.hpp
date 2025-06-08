@@ -5,8 +5,8 @@
 #pragma once
 
 #include <requite/context.hpp>
-#include <requite/precedence_parser.hpp>
 #include <requite/module.hpp>
+#include <requite/precedence_parser.hpp>
 #include <requite/token.hpp>
 #include <requite/token_type.hpp>
 
@@ -14,8 +14,8 @@
 
 #include <array>
 #include <functional>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace requite {
 
@@ -26,7 +26,8 @@ struct Parser final {
   std::vector<requite::Token>::const_iterator _end;
   bool _is_ok;
 
-  Parser(requite::Context &context, requite::Module &module, std::vector<requite::Token>& tokens);
+  Parser(requite::Context &context, requite::Module &module,
+         std::vector<requite::Token> &tokens);
 
   [[nodiscard]]
   bool getIsOk();
@@ -44,8 +45,7 @@ struct Parser final {
 
   [[nodiscard]]
   std::string getText(llvm::StringRef log_message_type_text,
-                          const requite::Token &token,
-                          llvm::StringRef source_text);
+                      const requite::Token &token, llvm::StringRef source_text);
 
   [[nodiscard]]
   requite::Module &getModule();
@@ -158,7 +158,10 @@ struct Parser final {
   requite::Expression &parseIdentify();
 
   [[nodiscard]]
-  requite::Expression &parseSituationalInferenceOr_INDETERMINATE();
+  requite::Expression &parseInferedTypeOrIndeterminate();
+
+  [[nodiscard]]
+  requite::Expression &parseEmptyQuote();
 
   [[nodiscard]]
   requite::Expression &parseIntegerLiteral();

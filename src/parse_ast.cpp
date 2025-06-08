@@ -366,7 +366,8 @@ requite::Expression &Parser::parsePrecedence5() {
       precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     case requite::TokenType::CONCATENATE_OPERATOR:
-      precedence_parser.parseNary(*this, requite::Opcode::_COMPILE_TIME_CONCATINATE);
+      precedence_parser.parseNary(*this,
+                                  requite::Opcode::_COMPILE_TIME_CONCATINATE);
       precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     default:
@@ -403,6 +404,13 @@ requite::Expression &Parser::parsePrecedence4() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_BAKE,
+                                                unary_ptr, 1);
+      continue;
+    case requite::TokenType::HASH_OPERATOR:
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
+      unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_EXPAND,
                                                 unary_ptr, 1);
       continue;
     default:
@@ -626,10 +634,15 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::LEFT_CAP_GROUPING:
     return this->parseCloven(requite::Opcode::_CONDUIT,
                              requite::TokenType::RIGHT_CAP_GROUPING);
+  case requite::TokenType::LEFT_QUOTE_GROUPING:
+    return this->parseCloven(requite::Opcode::_QUOTE,
+                             requite::TokenType::RIGHT_QUOTE_GROUPING);
   case requite::TokenType::BACKSLASH_OPERATOR:
     return this->parseIdentify();
   case requite::TokenType::QUESTION_OPERATOR:
-    return this->parseSituationalInferenceOr_INDETERMINATE();
+    return this->parseInferedTypeOrIndeterminate();
+  case requite::TokenType::EMPTY_QUOTE_OPERATOR:
+      return this->parseEmptyQuote();
   case requite::TokenType::IDENTIFIER_LITERAL:
     return this->parseIdentifierLiteral();
   case requite::TokenType::CODEUNIT_LITERAL:
@@ -929,12 +942,23 @@ requite::Expression &Parser::parseIdentify() {
   return identify;
 }
 
-requite::Expression &Parser::parseSituationalInferenceOr_INDETERMINATE() {
+requite::Expression &Parser::parseInferedTypeOrIndeterminate() {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &token = this->getToken();
   REQUITE_ASSERT(token.getType() == requite::TokenType::QUESTION_OPERATOR);
   requite::Expression &expression = requite::Expression::makeOperation(
       requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
+  expression.setSource(token);
+  this->incrementToken(1);
+  return expression;
+}
+
+requite::Expression &Parser::parseEmptyQuote() {
+  REQUITE_ASSERT(!this->getIsDone());
+  const requite::Token &token = this->getToken();
+  REQUITE_ASSERT(token.getType() == requite::TokenType::EMPTY_QUOTE_OPERATOR);
+  requite::Expression &expression = requite::Expression::makeOperation(
+      requite::Opcode::_QUOTE);
   expression.setSource(token);
   this->incrementToken(1);
   return expression;
@@ -1057,8 +1081,7 @@ requite::Expression &Parser::parseLeftOperator() {
     if (next_token.getType() == requite::TokenType::RIGHT_OPERATOR) {
       this->incrementToken(1);
       requite::Expression &operation = requite::Expression::makeOperation(
-          requite::Opcode::
-              _POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN);
+          requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN);
       operation.setSource(token, next_token);
       return operation;
     }
@@ -1073,8 +1096,8 @@ requite::Expression &Parser::parseRightOperator() {
   const requite::Token &token = this->getToken();
   REQUITE_ASSERT(token.getType() == requite::TokenType::RIGHT_OPERATOR);
   this->incrementToken(1);
-  requite::Expression &operation = requite::Expression::makeOperation(
-      requite::Opcode::_NAMED_FIELDS_BEGIN);
+  requite::Expression &operation =
+      requite::Expression::makeOperation(requite::Opcode::_NAMED_FIELDS_BEGIN);
   operation.setSource(token);
   return operation;
 }
