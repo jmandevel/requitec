@@ -63,7 +63,8 @@ enum _OpcodeFlags : std::uint32_t {
   _VALUE_REFLECTIVE_SYMBOL =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
   _SYMBOL_REFLECTIVE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21))
+      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
+  _ALL = std::numeric_limits<std::uint32_t>::max()
 };
 }
 
@@ -343,11 +344,15 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_IGNORE:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
 
-  // TEMPLATES
+  // STATIC POLYMORPHISM
   case Opcode::TEMPLATE:
     return _MATTE_VALUE;
   case Opcode::_SPECIALIZATION:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
+  case Opcode::_QUOTE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::_EXPAND:
+    return _ALL;
 
   // PROCEDURES
   case Opcode::_CALL:
@@ -863,11 +868,15 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   case requite::Opcode::_IGNORE:
     return "_ignore";
 
-  // TEMPLATES
+  // STATIC POLYMORPHISM
   case requite::Opcode::TEMPLATE:
     return "template";
   case requite::Opcode::_SPECIALIZATION:
     return "_specialization";
+  case requite::Opcode::_QUOTE:
+    return "_quote";
+  case requite::Opcode::_EXPAND:
+    return "_expand";
 
   // PROCEDURES
   case requite::Opcode::_CALL:

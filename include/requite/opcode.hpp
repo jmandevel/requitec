@@ -177,9 +177,11 @@ enum class Opcode : unsigned {
   _STRUCTURED_BINDING,
   _IGNORE,
 
-  // TEMPLATES
+  // STATIC POLYMORPHISM
   TEMPLATE,
   _SPECIALIZATION,
+  _QUOTE,
+  _EXPAND,
 
   // PROCEDURES
   _CALL,
