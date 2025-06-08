@@ -158,10 +158,7 @@ struct Parser final {
   requite::Expression &parseIdentify();
 
   [[nodiscard]]
-  requite::Expression &parseInferedTypeOrIndeterminate();
-
-  [[nodiscard]]
-  requite::Expression &parseEmptyQuote();
+  requite::Expression &parseNullaryOperator(requite::Opcode opcode);
 
   [[nodiscard]]
   requite::Expression &parseIntegerLiteral();

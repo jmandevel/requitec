@@ -640,9 +640,9 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::BACKSLASH_OPERATOR:
     return this->parseIdentify();
   case requite::TokenType::QUESTION_OPERATOR:
-    return this->parseInferedTypeOrIndeterminate();
+    return this->parseNullaryOperator(requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
   case requite::TokenType::EMPTY_QUOTE_OPERATOR:
-      return this->parseEmptyQuote();
+    return this->parseNullaryOperator(requite::Opcode::_QUOTE);
   case requite::TokenType::IDENTIFIER_LITERAL:
     return this->parseIdentifierLiteral();
   case requite::TokenType::CODEUNIT_LITERAL:
@@ -942,23 +942,10 @@ requite::Expression &Parser::parseIdentify() {
   return identify;
 }
 
-requite::Expression &Parser::parseInferedTypeOrIndeterminate() {
+requite::Expression &Parser::parseNullaryOperator(requite::Opcode opcode) {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::QUESTION_OPERATOR);
-  requite::Expression &expression = requite::Expression::makeOperation(
-      requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
-  expression.setSource(token);
-  this->incrementToken(1);
-  return expression;
-}
-
-requite::Expression &Parser::parseEmptyQuote() {
-  REQUITE_ASSERT(!this->getIsDone());
-  const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::EMPTY_QUOTE_OPERATOR);
-  requite::Expression &expression = requite::Expression::makeOperation(
-      requite::Opcode::_QUOTE);
+  requite::Expression &expression = requite::Expression::makeOperation(opcode);
   expression.setSource(token);
   this->incrementToken(1);
   return expression;
