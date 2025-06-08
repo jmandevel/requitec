@@ -94,9 +94,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
     this->writeExpressionLocationComment(expression);
   } break;
   case requite::Opcode::__STRING_LITERAL: {
-    this->getOstream() << "\" // from ";
-    this->getOstream() << requite::getName(
-        opcode);
+    this->getOstream() << "\"";
     if (expression.getHasDataText()) {
       for (char c : expression.getDataText()) {
         this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
