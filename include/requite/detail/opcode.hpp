@@ -412,12 +412,6 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_LOCAL_STATEMENT;
 
   // VALUES
-  case Opcode::_TEMPORARY:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
-  case Opcode::__TEMPORARY_WITH_DATA_ID:
-    return _INTERNAL_USE_ONLY | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
   case Opcode::TRUE:
     return _MATTE_VALUE;
   case Opcode::FALSE:
@@ -932,10 +926,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "constant";
 
   // VALUES
-  case requite::Opcode::_TEMPORARY:
-    return "_temporary";
-  case requite::Opcode::__TEMPORARY_WITH_DATA_ID:
-    return "__temporary_with_data_id";
   case requite::Opcode::TRUE:
     return "true";
   case requite::Opcode::FALSE:
@@ -1249,10 +1239,6 @@ constexpr bool getHasTextData(requite::Opcode opcode) {
 
 constexpr bool getHasIntegerData(requite::Opcode opcode) {
   return opcode == requite::Opcode::__INTEGER_LITERAL;
-}
-
-constexpr bool getHasUnsignedIntegerData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::__TEMPORARY_WITH_DATA_ID;
 }
 
 constexpr bool getHasScopeData(requite::Opcode opcode) {

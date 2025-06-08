@@ -1068,24 +1068,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_TEMPORARY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TEMPORARY)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_TemporaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::__TEMPORARY_WITH_DATA_ID:
-    REQUITE_UNREACHABLE();
-  case requite::Opcode::TRUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TRUE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
   case requite::Opcode::FALSE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::FALSE)) {
@@ -2975,35 +2957,6 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
   } else {
     static_assert("invalid situation");
   }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_TemporaryExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TEMPORARY);
-  this->situateUnaryExpression<SITUATION_PARAM,
-                               requite::Situation::INTEGER_LITERAL>(expression);
-  if (!expression.getHasBranch()) {
-    return;
-  }
-  requite::Expression &id_expression = expression.getBranch();
-  if (!id_expression.getIsInteger()) {
-    return;
-  }
-  unsigned id;
-  requite::NumericResult result =
-      requite::getNumericValue(id_expression.getSourceText(), id);
-  if (result != requite::NumericResult::OK) {
-    this->setNotOk();
-    this->getContext().logSourceMessage(
-        id_expression, requite::LogType::ERROR,
-        llvm::Twine("failed to parse temporary id: \"") +
-            requite::getDescription(result) + "\"");
-    return;
-  }
-  requite::Expression::deleteExpression(id_expression);
-  expression.changeOpcode(requite::Opcode::__TEMPORARY_WITH_DATA_ID);
-  expression.setDataUnsignedInteger(id);
 }
 
 template <requite::Situation SITUATION_PARAM>

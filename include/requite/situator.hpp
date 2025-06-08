@@ -148,8 +148,6 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situate_AssignExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_TemporaryExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
   inline void situateTableExpression(requite::Expression &expression);
 };
 

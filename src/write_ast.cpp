@@ -133,16 +133,6 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
         requite::Opcode::__IDENTIFIER_LITERAL);
     this->writeExpressionLocationComment(expression);
   } break;
-  case requite::Opcode::__TEMPORARY_WITH_DATA_ID: {
-    this->getOstream() << "[";
-    this->getOstream() << requite::getName(requite::Opcode::_TEMPORARY);
-    this->getOstream() << " ";
-    this->getOstream() << expression.getDataUnsignedInteger();
-    this->getOstream() << "] // from ";
-    this->getOstream() << requite::getName(
-        requite::Opcode::__TEMPORARY_WITH_DATA_ID);
-    this->writeExpressionLocationComment(expression);
-  } break;
   default: {
     this->getOstream() << "[";
     this->getOstream() << requite::getName(expression.getOpcode());

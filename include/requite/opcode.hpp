@@ -213,12 +213,6 @@ enum class Opcode : unsigned {
   CONSTANT,
 
   // VALUES
-  // for variables inserted during circuiting stage. situates into
-  // __temporary_with_data_id.
-  _TEMPORARY,
-  // a temporary with its id stored in the expression data.
-  __TEMPORARY_WITH_DATA_ID,
-  // the boolean value of true.
   TRUE,
   // the boolean value of false.
   FALSE,
