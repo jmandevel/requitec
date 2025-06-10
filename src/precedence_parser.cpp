@@ -77,6 +77,10 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
   this->_last_branch_ptr = &attribute;
 }
 
+bool PrecedenceParser::getHasOuter() const {
+  return this->_outer_ptr != nullptr;
+}
+
 requite::Opcode PrecedenceParser::getOuterOpcode() const {
   if (this->_outer_ptr == nullptr) {
     return requite::Opcode::__NONE;
