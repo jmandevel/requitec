@@ -64,7 +64,14 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
   _SYMBOL_REFLECTIVE_SYMBOL =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
-  _ALL = std::numeric_limits<std::uint32_t>::max()
+  _ALL_SITUATIONS =
+      _BASE_STATEMENT | _GLOBAL_STATEMENT | _MATTE_LOCAL_STATEMENT |
+      _VALUE_REFLECTIVE_LOCAL_STATEMENT | _SYMBOL_REFLECTIVE_LOCAL_STATEMENT |
+      _OBJECT_STATEMENT | _MATTE_DESTINATION | _VALUE_REFLECTIVE_DESTINATION |
+      _SYMBOL_REFLECTIVE_DESTINATION | _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE |
+      _SYMBOL_REFLECTIVE_VALUE | _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
+      _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL | _VALUE_REFLECTIVE_SYMBOL |
+      _SYMBOL_REFLECTIVE_SYMBOL
 };
 }
 
@@ -352,7 +359,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_QUOTE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_EXPAND:
-    return _ALL;
+    return _INTERMEDIATE_OPERATION | _ALL_SITUATIONS;
 
   // PROCEDURES
   case Opcode::_CALL:
