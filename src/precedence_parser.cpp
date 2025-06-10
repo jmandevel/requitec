@@ -10,24 +10,18 @@ namespace requite {
 
 requite::Expression &
 PrecedenceParser::parseUnary(requite::Parser &parser, requite::Opcode opcode,
-                             requite::Expression *unary_ptr, unsigned count) {
+                             requite::Expression *unary_ptr) {
   const requite::Token &token = parser.getToken();
   parser.incrementToken(1);
-  unsigned i = 0;
-  while (true) {
-    requite::Expression &operation = requite::Expression::makeOperation(opcode);
-    operation.setSource(token);
-    if (unary_ptr == nullptr) {
-      this->appendBranch(operation);
-    } else {
-      requite::getRef(unary_ptr).setBranch(operation);
-    }
-    unary_ptr = &operation;
-    if (++i == count) {
-      return operation;
-    }
+  requite::Expression &operation = requite::Expression::makeOperation(opcode);
+  operation.setSource(token);
+  if (unary_ptr == nullptr) {
+    this->appendBranch(operation);
+  } else {
+    requite::getRef(unary_ptr).setBranch(operation);
   }
-  REQUITE_UNREACHABLE();
+  unary_ptr = &operation;
+  return operation;
 }
 
 void PrecedenceParser::parseBinary(requite::Parser &parser,

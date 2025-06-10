@@ -19,7 +19,7 @@ struct PrecedenceParser final {
   [[nodiscard]]
   requite::Expression &parseUnary(requite::Parser &parser,
                                   requite::Opcode opcode,
-                                  requite::Expression *unary_ptr, unsigned count);
+                                  requite::Expression *unary_ptr);
 
   void parseBinary(requite::Parser &parser, requite::Opcode opcode);
 

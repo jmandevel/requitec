@@ -390,28 +390,28 @@ requite::Expression &Parser::parsePrecedence4() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_LOGICAL_COMPLEMENT, unary_ptr, 1);
+          *this, requite::Opcode::_LOGICAL_COMPLEMENT, unary_ptr);
       continue;
     case requite::TokenType::DASH_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE,
-                                                unary_ptr, 1);
+                                                unary_ptr);
       continue;
     case requite::TokenType::AT_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_BAKE,
-                                                unary_ptr, 1);
+                                                unary_ptr);
       continue;
     case requite::TokenType::HASH_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_EXPAND,
-                                                unary_ptr, 1);
+                                                unary_ptr);
       continue;
     default:
       break;
@@ -465,7 +465,7 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_FAT_POINTER, unary_ptr, 1);
+          *this, requite::Opcode::_FAT_POINTER, unary_ptr);
       new_ascribe_needed = true;
       continue;
     case requite::TokenType::PERCENT_OPERATOR:
@@ -473,7 +473,7 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::ARRAY,
-                                                unary_ptr, 1);
+                                                unary_ptr);
       new_ascribe_needed = true;
       continue;
     case requite::TokenType::AMBERSAND_OPERATOR:
@@ -481,7 +481,7 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_REFERENCE, unary_ptr, 1);
+          *this, requite::Opcode::_REFERENCE, unary_ptr);
       new_ascribe_needed = true;
       continue;
     case requite::TokenType::DOUBLE_AMPERSAND_OPERATOR:
@@ -489,9 +489,9 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_REFERENCE, unary_ptr, 1);
+          *this, requite::Opcode::_REFERENCE, unary_ptr);
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_REFERENCE, unary_ptr, 1);
+          *this, requite::Opcode::_REFERENCE, unary_ptr);
       new_ascribe_needed = true;
       continue;
     case requite::TokenType::DOLLAR_OPERATOR:
@@ -499,7 +499,7 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_STOLEN_REFERENCE, unary_ptr, 1);
+          *this, requite::Opcode::_STOLEN_REFERENCE, unary_ptr);
       new_ascribe_needed = true;
       continue;
 
@@ -508,7 +508,7 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_POINTER, unary_ptr, 1);
+          *this, requite::Opcode::_POINTER, unary_ptr);
       new_ascribe_needed = true;
       continue;
     case requite::TokenType::GRAVE_OPERATOR:
