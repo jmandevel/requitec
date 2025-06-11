@@ -612,6 +612,32 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
+  case requite::Opcode::_INITIALIZE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_INITIALIZE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situate_InitializeExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::_INITIALIZE_RESULT:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_INITIALIZE_RESULT)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
+  case requite::Opcode::_INITIALIZE_OUTPUT:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_INITIALIZE_OUTPUT)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
   case requite::Opcode::_ASSIGN:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_ASSIGN)) {
@@ -1049,7 +1075,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::LOCAL_DESTINATION,
+                                    requite::Situation::SYMBOL_NAME,
                                     requite::Situation::MATTE_VALUE>(
           expression);
     }
@@ -2995,13 +3021,59 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
       previous_branch_ptr = &branch;
       continue;
     }
-    this->situateBranch<SITUATION_PARAM>(
-        "last branch", expression, branch_i, branch);
+    this->situateBranch<SITUATION_PARAM>("last branch", expression, branch_i,
+                                         branch);
     requite::Expression &previous_branch = requite::getRef(previous_branch_ptr);
     branch.setNext(expression.replaceBranch(previous_branch.popNext()));
     break;
   }
   expression.changeOpcode(requite::Opcode::_ASCRIBE_FIRST_BRANCH);
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situate_InitializeExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_INITIALIZE);
+  if (!expression.getHasBranch()) {
+    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &destination = expression.getBranch();
+  this->situateBranch<requite::Situation::INITIALIZE_DESTINATION>(
+      "first branch", expression, 0, destination);
+  if (!destination.getHasNext()) {
+    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &value = destination.getNext();
+  this->situateBranch<requite::Situation::MATTE_VALUE>("second branch",
+                                                       expression, 1, value);
+  if (value.getHasNext()) {
+    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+    this->setNotOk();
+    return;
+  }
+  switch (const requite::Opcode opcode = destination.getOpcode()) {
+  case requite::Opcode::__IDENTIFIER_LITERAL:
+    [[fallthrough]];
+  case requite::Opcode::_IDENTIFY:
+    expression.changeOpcode(requite::Opcode::_LOCAL);
+    break;
+  case requite::Opcode::OUTPUT:
+    requite::Expression::deleteExpression(
+        expression.replaceBranch(destination.popNext()));
+    expression.changeOpcode(requite::Opcode::_INITIALIZE_OUTPUT);
+    break;
+  case requite::Opcode::RESULT:
+    requite::Expression::deleteExpression(
+        expression.replaceBranch(destination.popNext()));
+    expression.changeOpcode(requite::Opcode::_INITIALIZE_RESULT);
+    break;
+  default:
+      REQUITE_UNREACHABLE();
+  }
 }
 
 } // namespace requite

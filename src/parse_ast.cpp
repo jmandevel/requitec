@@ -156,7 +156,7 @@ requite::Expression &Parser::parsePrecedence11() {
     }
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::WALRUS_OPERATOR:
-      precedence_parser.parseBinary(*this, requite::Opcode::_LOCAL);
+      precedence_parser.parseBinary(*this, requite::Opcode::_INITIALIZE);
       precedence_parser.appendBranch(this->parsePrecedence10());
       continue;
     case requite::TokenType::EQUAL_OPERATOR:

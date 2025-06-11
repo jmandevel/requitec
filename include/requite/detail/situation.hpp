@@ -41,8 +41,8 @@ constexpr llvm::StringRef getName() {
                        requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
     return "SYMBOL_REFLECTIVE_DESTINATION";
   } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::LOCAL_DESTINATION) {
-    return "LOCAL_DESTINATION";
+                       requite::Situation::INITIALIZE_DESTINATION) {
+    return "INITIALIZE_DESTINATION";
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     return "MATTE_VALUE";
   } else if constexpr (SITUATION_PARAM ==
@@ -151,7 +151,7 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
                        requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
     return requite::getCanBeSymbolReflectiveDestinationSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::LOCAL_DESTINATION) {
+                       requite::Situation::INITIALIZE_DESTINATION) {
     return requite::getCanBeLocalDestinationSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
     return requite::getCanBeMatteValueSituation(opcode);
