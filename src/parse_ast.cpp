@@ -148,7 +148,7 @@ requite::Expression &Parser::parseExpression() {
 // ASSIGNMENTS
 requite::Expression &Parser::parsePrecedence11() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence10());
+  precedence_parser.appendBranch(this->parsePrecedence10());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -198,7 +198,7 @@ requite::Expression &Parser::parsePrecedence11() {
 // BINDINGS
 requite::Expression &Parser::parsePrecedence10() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence9());
+  precedence_parser.appendBranch(this->parsePrecedence9());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -226,7 +226,7 @@ requite::Expression &Parser::parsePrecedence10() {
 // BINARY CAST
 requite::Expression &Parser::parsePrecedence9() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence8());
+  precedence_parser.appendBranch(this->parsePrecedence8());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -252,7 +252,7 @@ requite::Expression &Parser::parsePrecedence9() {
 // NARY LOGICAL
 requite::Expression &Parser::parsePrecedence8() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence7());
+  precedence_parser.appendBranch(this->parsePrecedence7());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -278,7 +278,7 @@ requite::Expression &Parser::parsePrecedence8() {
 // NARY COMPARISON
 requite::Expression &Parser::parsePrecedence7() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence6());
+  precedence_parser.appendBranch(this->parsePrecedence6());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -320,7 +320,7 @@ requite::Expression &Parser::parsePrecedence7() {
 // NARY MULTIPLICATIVE ARITHMETIC
 requite::Expression &Parser::parsePrecedence6() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence5());
+  precedence_parser.appendBranch(this->parsePrecedence5());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -350,7 +350,7 @@ requite::Expression &Parser::parsePrecedence6() {
 // NARY ADDITIVE ARITHMETIC
 requite::Expression &Parser::parsePrecedence5() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence4());
+  precedence_parser.appendBranch(this->parsePrecedence4());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -381,7 +381,6 @@ requite::Expression &Parser::parsePrecedence5() {
 // EARLY UNARY OPERATORS
 requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
-  requite::Expression *unary_ptr = nullptr;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
@@ -389,73 +388,62 @@ requite::Expression &Parser::parsePrecedence4() {
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_LOGICAL_COMPLEMENT, unary_ptr);
+      precedence_parser.parseUnary(*this, requite::Opcode::_LOGICAL_COMPLEMENT);
       continue;
     case requite::TokenType::DASH_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE,
-                                                unary_ptr);
+      precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
       continue;
     case requite::TokenType::AT_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_BAKE,
-                                                unary_ptr);
+      precedence_parser.parseUnary(*this, requite::Opcode::_BAKE);
       continue;
     case requite::TokenType::HASH_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::_EXPAND,
-                                                unary_ptr);
+      precedence_parser.parseUnary(*this, requite::Opcode::_EXPAND);
       continue;
     default:
       break;
     }
-    if (unary_ptr != nullptr) {
-      requite::getRef(unary_ptr).setBranch(this->parsePrecedence3());
-      break;
-    } else {
-      precedence_parser.appendBranch(this->parsePrecedence3());
-      break;
-    }
+    precedence_parser.appendBranch(this->parsePrecedence3());
+    break;
   }
   return precedence_parser.getOuter();
 }
 
 // EARLY GROUPINGS
 requite::Expression &Parser::parsePrecedence3() {
-  requite::Expression *outer_ptr = &this->parsePrecedence2();
+  requite::PrecedenceParser precedence_parser;
+  precedence_parser.appendBranch(this->parsePrecedence2());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
-      outer_ptr = &this->parseHorned(
-          requite::getRef(outer_ptr), requite::Opcode::_CALL_OR_SIGNATURE,
+      precedence_parser.parseHorned(
+          *this, requite::Opcode::_CALL_OR_SIGNATURE,
           requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
       continue;
     case requite::TokenType::LEFT_COMPAS_GROUPING:
-      outer_ptr = &this->parseHorned(requite::getRef(outer_ptr),
-                                     requite::Opcode::_SPECIALIZATION,
-                                     requite::TokenType::RIGHT_COMPAS_GROUPING);
+      precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
+                                    requite::TokenType::RIGHT_COMPAS_GROUPING);
       continue;
     default:
       break;
     }
     break;
   }
-  return requite::getRef(outer_ptr);
+  return precedence_parser.getOuter();
 }
 
 // LATE UNARY OPERATORS (things get wierd here)
 requite::Expression &Parser::parsePrecedence2() {
   requite::PrecedenceParser precedence_parser;
-  requite::Expression *unary_ptr = nullptr;
-  bool new_ascribe_needed = true;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     const requite::TokenType type = token.getType();
@@ -464,61 +452,45 @@ requite::Expression &Parser::parsePrecedence2() {
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_FAT_POINTER, unary_ptr);
-      new_ascribe_needed = true;
+      precedence_parser.parseUnary(*this, requite::Opcode::_FAT_POINTER);
       continue;
     case requite::TokenType::PERCENT_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(*this, requite::Opcode::ARRAY,
-                                                unary_ptr);
-      new_ascribe_needed = true;
+      precedence_parser.parseUnary(*this, requite::Opcode::ARRAY);
       continue;
     case requite::TokenType::AMBERSAND_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_REFERENCE, unary_ptr);
-      new_ascribe_needed = true;
+      precedence_parser.parseUnary(*this, requite::Opcode::_REFERENCE);
       continue;
     case requite::TokenType::DOUBLE_AMPERSAND_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_REFERENCE, unary_ptr);
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_REFERENCE, unary_ptr);
-      new_ascribe_needed = true;
+      precedence_parser.parseUnary(*this, requite::Opcode::_REFERENCE);
+      precedence_parser.parseUnary(*this, requite::Opcode::_REFERENCE);
       continue;
     case requite::TokenType::DOLLAR_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_STOLEN_REFERENCE, unary_ptr);
-      new_ascribe_needed = true;
+      precedence_parser.parseUnary(*this, requite::Opcode::_STOLEN_REFERENCE);
       continue;
 
     case requite::TokenType::STAR_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      unary_ptr = &precedence_parser.parseUnary(
-          *this, requite::Opcode::_POINTER, unary_ptr);
-      new_ascribe_needed = true;
+      precedence_parser.parseUnary(*this, requite::Opcode::_POINTER);
       continue;
     case requite::TokenType::GRAVE_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
-      precedence_parser.parseAttribute(*this, requite::Opcode::MUTABLE,
-                                       new_ascribe_needed, unary_ptr);
-      new_ascribe_needed = false;
-      unary_ptr = nullptr;
+      precedence_parser.parseAttribute(*this, requite::Opcode::MUTABLE);
       continue;
     default:
       break;
@@ -527,7 +499,7 @@ requite::Expression &Parser::parsePrecedence2() {
         type == requite::TokenType::DOUBLE_SEMICOLON_OPERATOR) {
       // NOTE:
       //  cast operators are parsed here a second time in order to handle
-      //  implicit inferenceences. implicit inferenceences must be added when
+      //  implicit inferencences. implicit inferenceences must be added when
       //  casting with no root type and only ascriptions and/or subtypes. this
       //  happens only when a unary or ascription operator occurs directly
       //  before a cast.
@@ -538,11 +510,11 @@ requite::Expression &Parser::parsePrecedence2() {
       //
       // this parses as:
       //
-      //  [cast         // this is from the ;
-      //    [ascribe    // this is created to apply the mutable modifier
-      //      [mutable] // this is from the `
-      //      [reference   // this is from the &
-      //        [inference] // this inference is implicit!
+      //  [_cast         // this is from the ;
+      //    [_ascribe    // this is created to apply the mutable attribute
+      //      [_mutable] // this is from the `
+      //      [_reference   // this is from the &
+      //        [_inferenced_type] // this is implicit!
       //      ]
       //    ]
       //    0
@@ -557,26 +529,19 @@ requite::Expression &Parser::parsePrecedence2() {
       requite::Expression &inference =
           requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
       inference.setSource(token);
-      if (unary_ptr != nullptr) {
-        requite::getRef(unary_ptr).setBranch(inference);
-        unary_ptr = nullptr;
-      } else {
-        precedence_parser.appendBranch(inference);
-      }
-      precedence_parser.parseBinary(*this, opcode);
+      precedence_parser.appendBranch(inference);
+      precedence_parser.parseBinaryCombination(*this, opcode);
       // NOTE:
       //  this is a bit of a clever hack...
-      //  we need to go back down to precedence 1 for whatever follows the
+      //  we need to go up to precedence 7 for whatever follows the
       //  cast. this wierdness is required because casts are technically in
-      //  precedence 1.
+      //  precedence 7.
       precedence_parser.appendBranch(this->parsePrecedence7());
-    } else if (unary_ptr != nullptr) {
-      requite::getRef(unary_ptr).setBranch(this->parsePrecedence1());
-      unary_ptr = nullptr;
-    } else {
-      precedence_parser.appendBranch(this->parsePrecedence1());
+      break;
     }
+    requite::Expression &next = this->parsePrecedence1();
     if (this->getIsDone()) {
+      precedence_parser.appendBranch(next);
       break;
     }
     const requite::Token &next_token = this->getToken();
@@ -585,12 +550,13 @@ requite::Expression &Parser::parsePrecedence2() {
       if (!next_token.getHasBinaryOperatorSpacing()) {
         break;
       }
-      precedence_parser.parseNary(*this, requite::Opcode::_ASCRIBE);
-      new_ascribe_needed = false;
+      precedence_parser.parseNestedNary(*this, requite::Opcode::_ASCRIBE);
+      precedence_parser.appendBranch(next);
       continue;
     default:
       break;
     }
+    precedence_parser.appendBranch(next);
     break;
   }
   return precedence_parser.getOuter();
@@ -599,7 +565,7 @@ requite::Expression &Parser::parsePrecedence2() {
 // NARY REFLECTION
 requite::Expression &Parser::parsePrecedence1() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setInitialOuter(this->parsePrecedence0());
+  precedence_parser.appendBranch(this->parsePrecedence0());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -640,7 +606,8 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::BACKSLASH_OPERATOR:
     return this->parseIdentify();
   case requite::TokenType::QUESTION_OPERATOR:
-    return this->parseNullaryOperator(requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
+    return this->parseNullaryOperator(
+        requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
   case requite::TokenType::EMPTY_QUOTE_OPERATOR:
     return this->parseNullaryOperator(requite::Opcode::_QUOTE);
   case requite::TokenType::IDENTIFIER_LITERAL:
@@ -661,16 +628,15 @@ requite::Expression &Parser::parsePrecedence0() {
     return this->parseRightOperator();
   case requite::TokenType::LEFT_RIGHT_OPERATOR:
     return this->parseLeftRightOperator();
-  default: {
-    this->incrementToken(1);
-    this->logErrorUnexpectedToken(token);
-    this->setNotOk();
-    requite::Expression &error = requite::Expression::makeError();
-    error.setSource(token);
-    return error;
+  default:
+    break;
   }
-  }
-  REQUITE_UNREACHABLE();
+  this->incrementToken(1);
+  this->logErrorUnexpectedToken(token);
+  this->setNotOk();
+  requite::Expression &error = requite::Expression::makeError();
+  error.setSource(token);
+  return error;
 }
 
 requite::Expression *Parser::parseBranches(const requite::Token &left_token,
