@@ -585,14 +585,22 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
-  case requite::Opcode::_AT_OFFSET_FROM_VALUE:
+  case requite::Opcode::_VALUE_AT_OFFSET_FROM_VALUE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_AT_OFFSET_FROM_VALUE)) {
+                      requite::Opcode::_VALUE_AT_OFFSET_FROM_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNaryExpression<SITUATION_PARAM, 2,
+                                  requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
+  case requite::Opcode::_VALUE_AT_VALUE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_VALUE_AT_VALUE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
     }
     break;
   case requite::Opcode::ADDRESS:
@@ -2320,7 +2328,18 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
     if (second.getHasBranch()) {
       first.setNext(second.popBranch());
     }
-    expression.changeOpcode(requite::getUniversalizedValue(second.getOpcode()));
+    requite::Opcode universalized;
+    if (second.getOpcode() == requite::Opcode::AT) {
+      if (first.getHasNext()) { // check next of first instead of branch of
+                                // second because we moved it above
+        universalized = requite::Opcode::_VALUE_AT_OFFSET_FROM_VALUE;
+      } else {
+        universalized = requite::Opcode::_VALUE_AT_VALUE;
+      }
+    } else {
+      universalized = requite::getUniversalizedValue(second.getOpcode());
+    }
+    expression.changeOpcode(universalized);
     requite::Expression::deleteExpression(second);
   }
   while (branch_ptr != nullptr) {
@@ -2345,8 +2364,17 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
     } else {
       branch.setNextPtr(branch.popBranchPtr());
       branch.setBranch(expression.replaceBranch(branch));
-      requite::Opcode universalized =
-          requite::getUniversalizedValue(branch.getOpcode());
+      requite::Opcode universalized;
+      if (branch.getOpcode() == requite::Opcode::AT) {
+        if (branch.getHasNext()) { // check next instead of branch because we
+                                   // moved it above
+          universalized = requite::Opcode::_VALUE_AT_OFFSET_FROM_VALUE;
+        } else {
+          universalized = requite::Opcode::_VALUE_AT_VALUE;
+        }
+      } else {
+        universalized = requite::getUniversalizedValue(branch.getOpcode());
+      }
       branch.changeOpcode(expression.getOpcode());
       expression.changeOpcode(universalized);
     }
@@ -3072,7 +3100,7 @@ Situator::situate_InitializeExpression(requite::Expression &expression) {
     expression.changeOpcode(requite::Opcode::_INITIALIZE_RESULT);
     break;
   default:
-      REQUITE_UNREACHABLE();
+    REQUITE_UNREACHABLE();
   }
 }
 
