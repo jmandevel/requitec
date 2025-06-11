@@ -383,29 +383,20 @@ requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
+    if (!token.getHasUnaryOperatorSpacing()) {
+      break;
+    }
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::BANG_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
       precedence_parser.parseUnary(*this, requite::Opcode::_LOGICAL_COMPLEMENT);
       continue;
     case requite::TokenType::DASH_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
       precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
       continue;
     case requite::TokenType::AT_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
       precedence_parser.parseUnary(*this, requite::Opcode::_BAKE);
       continue;
     case requite::TokenType::HASH_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
       precedence_parser.parseUnary(*this, requite::Opcode::_EXPAND);
       continue;
     default:
