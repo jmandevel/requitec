@@ -563,15 +563,9 @@ _getFlags(requite::Opcode opcode) {
   // ATTRIBUTES
   case Opcode::EXTERNAL:
     return _MATTE_VALUE;
-  case Opcode::C:
-    return _MATTE_VALUE;
   case Opcode::NOT_FINAL:
     return _MATTE_VALUE;
   case Opcode::MAY_DISCARD:
-    return _MATTE_VALUE;
-  case Opcode::NO_SHORT_CIRCUIT:
-    return _MATTE_VALUE;
-  case Opcode::NO_REMAINDER:
     return _MATTE_VALUE;
   case Opcode::INLINE:
     return _MATTE_VALUE;
@@ -1079,16 +1073,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // ATTRIBUTES
   case requite::Opcode::EXTERNAL:
     return "external";
-  case requite::Opcode::C:
-    return "c";
   case requite::Opcode::NOT_FINAL:
     return "not_final";
   case requite::Opcode::MAY_DISCARD:
     return "may_discard";
-  case requite::Opcode::NO_SHORT_CIRCUIT:
-    return "no_short_circuit";
-  case requite::Opcode::NO_REMAINDER:
-    return "no_remainder";
   case requite::Opcode::INLINE:
     return "inline";
   case requite::Opcode::MANGLED_NAME:

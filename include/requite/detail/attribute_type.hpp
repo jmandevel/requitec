@@ -29,16 +29,10 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode)
       return requite::AttributeType::MAY_THROW;
     case requite::Opcode::EXTERNAL:
       return requite::AttributeType::EXTERNAL;
-    case requite::Opcode::C:
-      return requite::AttributeType::C;
     case requite::Opcode::NOT_FINAL:
       return requite::AttributeType::NOT_FINAL;
     case requite::Opcode::MAY_DISCARD:
       return requite::AttributeType::MAY_DISCARD;
-    case requite::Opcode::NO_SHORT_CIRCUIT:
-      return requite::AttributeType::NO_SHORT_CIRCUIT;
-    case requite::Opcode::NO_REMAINDER:
-      return requite::AttributeType::NO_REMAINDER;
     case requite::Opcode::INLINE:
       return requite::AttributeType::INLINE;
     case requite::Opcode::MANGLED_NAME:
@@ -76,16 +70,10 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "may_throw";
   case requite::AttributeType::EXTERNAL:
     return "external";
-  case requite::AttributeType::C:
-    return "c";
   case requite::AttributeType::NOT_FINAL:
     return "not_final";
   case requite::AttributeType::MAY_DISCARD:
     return "may_discard";
-  case requite::AttributeType::NO_SHORT_CIRCUIT:
-    return "no_short_circuit";
-  case requite::AttributeType::NO_REMAINDER:
-    return "no_remainder";
   case requite::AttributeType::INLINE:
     return "inline";
   case requite::AttributeType::MANGLED_NAME:

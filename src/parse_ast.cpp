@@ -490,7 +490,7 @@ requite::Expression &Parser::parsePrecedence2() {
         type == requite::TokenType::DOUBLE_SEMICOLON_OPERATOR) {
       // NOTE:
       //  cast operators are parsed here a second time in order to handle
-      //  implicit inferencences. implicit inferenceences must be added when
+      //  implicit inferencences. implicit inferencences must be added when
       //  casting with no root type and only ascriptions and/or subtypes. this
       //  happens only when a unary or ascription operator occurs directly
       //  before a cast.
@@ -700,13 +700,13 @@ Parser::parseOperationBranches(const requite::Token &left_token,
         this->incrementToken(1);
       }
     } break;
-    default: {
-      requite::Expression &next = this->parseExpression();
-      requite::getRef(previous_ptr).setNext(next);
-      previous_ptr = &next;
-      continue;
+    default:
+      break;
     }
-    }
+    requite::Expression &next = this->parseExpression();
+    requite::getRef(previous_ptr).setNext(next);
+    previous_ptr = &next;
+    continue;
   }
   this->getContext().logSourceMessage(left_token, requite::LogType::ERROR,
                                       "Found unterminated operation");
