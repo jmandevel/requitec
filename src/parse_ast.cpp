@@ -541,7 +541,7 @@ requite::Expression &Parser::parsePrecedence2() {
       if (!next_token.getHasBinaryOperatorSpacing()) {
         break;
       }
-      precedence_parser.parseNestedNary(*this, requite::Opcode::_ASCRIBE);
+      precedence_parser.parseNestedNary(*this, requite::Opcode::_ASCRIBE_LAST_BRANCH);
       precedence_parser.appendBranch(next);
       continue;
     default:

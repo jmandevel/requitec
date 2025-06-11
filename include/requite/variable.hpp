@@ -40,7 +40,6 @@ struct Variable final {
   [[nodiscard]] llvm::StringRef getName() const;
   void setType(requite::VariableType type);
   [[nodiscard]] requite::VariableType getType() const;
-  [[nodiscard]] bool getHasAttributes() const;
   void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;

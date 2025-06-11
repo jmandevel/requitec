@@ -20,31 +20,14 @@ Attributes::Attributes(llvm::ArrayRef<requite::AttributeType> attributes) {
 
 requite::MakeAttributesResult
 Attributes::makeAttributes(requite::Context &context,
-                           requite::Expression &ascribe_expression) {
+                           requite::Expression &first_attribute) {
   requite::MakeAttributesResult result;
-  result.attributes.setExpression(ascribe_expression);
-  std::ignore =
-      ascribe_expression.walkBranch()
-          .doUntilLast([&](requite::Expression &branch) {
-            requite::AttributeType type =
-                requite::getAttributeType(branch.getOpcode());
-            REQUITE_ASSERT(type !=
-                           requite::AttributeType::NONE); // insured by situator
-            if (type != requite::AttributeType::LABEL) {
-              if (result.attributes.getHasAttribute(type)) {
-                context.logSourceMessage(
-                    branch, requite::LogType::ERROR,
-                    llvm::Twine("duplicate attribute of type \"") +
-                        requite::getName(type) + "\"");
-                result.has_error = true;
-                return;
-              }
-            }
-            result.attributes.addAttribute(type);
-          })
-          .doLast([&](requite::Expression &branch) {
-            result.last_expression_ptr = &branch;
-          });
+  result.attributes.setFirstExpression(first_attribute);
+  for (requite::Expression &attribute : first_attribute.getHorizontalSubrange()) {
+    const requite::Opcode opcode = attribute.getOpcode();
+    const requite::AttributeType type = requite::getAttributeType(opcode);
+    result.attributes.addAttribute(type);
+  }
   return result;
 }
 
@@ -86,20 +69,20 @@ bool Attributes::operator!=(const requite::Attributes &other) const {
   return !(*this == other);
 }
 
-bool Attributes::getHasExpression() const {
-  return this->_expression_ptr != nullptr;
+bool Attributes::getHasFirstExpression() const {
+  return this->_first_expression_ptr != nullptr;
 }
 
-void Attributes::setExpression(requite::Expression &expression) {
-  requite::setSingleRef(this->_expression_ptr, expression);
+void Attributes::setFirstExpression(requite::Expression &expression) {
+  requite::setSingleRef(this->_first_expression_ptr, expression);
 }
 
-requite::Expression &Attributes::getExpression() {
-  return requite::getRef(this->_expression_ptr);
+requite::Expression &Attributes::getFirstExpression() {
+  return requite::getRef(this->_first_expression_ptr);
 }
 
-const requite::Expression &Attributes::getExpression() const {
-  return requite::getRef(this->_expression_ptr);
+const requite::Expression &Attributes::getFirstExpression() const {
+  return requite::getRef(this->_first_expression_ptr);
 }
 
 } // namespace requite

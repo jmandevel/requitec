@@ -31,14 +31,15 @@ void Maker::makeUnorderedUserSymbols(requite::Scope &scope,
                                      requite::Expression &body,
                                      bool conduits_have_scopes) {
   for (requite::Expression &branch : body.getHorizontalSubrange()) {
-    if (branch.getOpcode() == requite::Opcode::_ASCRIBE) {
+    if (branch.getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+      requite::Expression& symbol_expression = branch.getBranch();
       requite::MakeAttributesResult result =
-          requite::Attributes::makeAttributes(this->getContext(), branch);
+          requite::Attributes::makeAttributes(this->getContext(), symbol_expression.getNext());
       if (result.has_error) {
         this->setNotOk();
       }
       this->makeAscribedUnorderedUserSymbol(
-          scope, requite::getRef(result.last_expression_ptr), result.attributes,
+          scope, symbol_expression, result.attributes,
           conduits_have_scopes);
       continue;
     }
@@ -271,14 +272,13 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
 void Maker::makeOrderedUserSymbols(requite::Scope &scope,
                                    requite::Expression &body) {
   for (requite::Expression &branch : body.getHorizontalSubrange()) {
-    if (branch.getOpcode() == requite::Opcode::_ASCRIBE) {
+    if (branch.getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+      requite::Expression& symbol_expression = branch.getBranch();
       requite::MakeAttributesResult result =
-          requite::Attributes::makeAttributes(this->getContext(), branch);
+          requite::Attributes::makeAttributes(this->getContext(), symbol_expression.getNext());
       if (result.has_error) {
         this->setNotOk();
       }
-      requite::Expression &unascribed_expression =
-          requite::getRef(result.last_expression_ptr);
       if (result.attributes.getHasAttribute(requite::AttributeType::LABEL)) {
         for (requite::Expression &attribute_expression :
              branch.getBranchSubrange()) {
@@ -293,7 +293,7 @@ void Maker::makeOrderedUserSymbols(requite::Scope &scope,
         }
       }
       this->makeAscribedOrderedUserSymbol(scope, result.attributes,
-                                          unascribed_expression);
+                                          symbol_expression);
       continue;
     }
     this->makeOrderedUserSymbol(scope, branch);

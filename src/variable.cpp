@@ -23,23 +23,15 @@ requite::VariableType Variable::getType() const { return this->_type; }
 
 llvm::StringRef Variable::getName() const { return this->_name; }
 
-bool Variable::getHasAttributes() const {
-  return this->_attributes.getHasExpression();
-}
-
 void Variable::setAttributes(requite::Attributes attributes) {
-  REQUITE_ASSERT(!this->_attributes.getHasExpression());
-  REQUITE_ASSERT(attributes.getHasExpression());
   this->_attributes = attributes;
 }
 
 requite::Attributes &Variable::getAttributes() {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 
 const requite::Attributes &Variable::getAttributes() const {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 

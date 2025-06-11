@@ -190,7 +190,11 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION;
 
   // APPLY
-  case Opcode::_ASCRIBE:
+  case Opcode::_ASCRIBE_LAST_BRANCH:
+    return _INTERMEDIATE_OPERATION | _BASE_STATEMENT | _GLOBAL_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_DESTINATION | _MATTE_VALUE |
+           _MATTE_JUNCTION | _MATTE_SYMBOL;
+  case Opcode::_ASCRIBE_FIRST_BRANCH:
     return _INTERMEDIATE_OPERATION | _BASE_STATEMENT | _GLOBAL_STATEMENT |
            _OBJECT_STATEMENT | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION | _MATTE_SYMBOL;
@@ -725,8 +729,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_default_symbol";
 
   // APPLY
-  case requite::Opcode::_ASCRIBE:
-    return "_ascribe";
+  case requite::Opcode::_ASCRIBE_LAST_BRANCH:
+    return "_ascribe_last_branch";
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
+    return "_ascribe_first_branch";
   case requite::Opcode::_CAST:
     return "_cast";
   case requite::Opcode::STRINGIFY:

@@ -287,14 +287,21 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_ASCRIBE:
+  case requite::Opcode::_ASCRIBE_LAST_BRANCH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASCRIBE)) {
+                      requite::Opcode::_ASCRIBE_LAST_BRANCH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryWithLastExpression<
-          SITUATION_PARAM, 2, requite::Situation::MATTE_VALUE, SITUATION_PARAM>(
-          expression);
+      this->situate_AscribeLastBranchExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_ASCRIBE_FIRST_BRANCH)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SITUATION_PARAM, 2, SITUATION_PARAM,
+                                  requite::Situation::MATTE_VALUE>(expression);
     }
     break;
   case requite::Opcode::_CAST:
@@ -2676,8 +2683,7 @@ void Situator::situate_CallOrSignatureExpression(
                 SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
     if (branch.getHasNext()) {
       requite::Expression &next = branch.getNext();
-      this->situateArgumentBranches<SITUATION_PARAM>(expression,
-                                                     next, 1);
+      this->situateArgumentBranches<SITUATION_PARAM>(expression, next, 1);
     }
     expression.changeOpcode(requite::Opcode::_CALL);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
@@ -2685,8 +2691,7 @@ void Situator::situate_CallOrSignatureExpression(
                            requite::Situation::POSITIONAL_FIELD) {
     if (branch.getHasNext()) {
       requite::Expression &next = branch.getNext();
-      this->situateParameterBranches<SITUATION_PARAM>(expression,
-                                                      next, 1);
+      this->situateParameterBranches<SITUATION_PARAM>(expression, next, 1);
     }
     expression.changeOpcode(requite::Opcode::_SIGNATURE);
   } else {
@@ -2960,6 +2965,43 @@ inline void Situator::situate_CompileTimeConcatinateExpression(
   if (!first_branch.getHasNext()) {
     expression.mergeBranch();
   }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_ASCRIBE_LAST_BRANCH);
+  if (!expression.getHasBranch()) {
+    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &first_branch = expression.getBranch();
+  this->situateBranch<requite::Situation::MATTE_VALUE>(
+      "first branch", expression, 0, first_branch);
+  if (!first_branch.getHasNext()) {
+    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &next_branch = first_branch.getNext();
+  requite::Expression *previous_branch_ptr = &first_branch;
+  unsigned branch_i = 1;
+  for (requite::Expression &branch : next_branch.getHorizontalSubrange()) {
+    if (branch.getHasNext()) {
+      this->situateBranch<requite::Situation::MATTE_VALUE>(
+          "second to penultimate branches", expression, branch_i++, branch);
+      previous_branch_ptr = &branch;
+      continue;
+    }
+    this->situateBranch<SITUATION_PARAM>(
+        "last branch", expression, branch_i, branch);
+    requite::Expression &previous_branch = requite::getRef(previous_branch_ptr);
+    branch.setNext(expression.replaceBranch(previous_branch.popNext()));
+    break;
+  }
+  expression.changeOpcode(requite::Opcode::_ASCRIBE_FIRST_BRANCH);
 }
 
 } // namespace requite

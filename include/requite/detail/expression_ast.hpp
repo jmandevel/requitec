@@ -169,16 +169,16 @@ const requite::Expression &Expression::getLastNext() const {
 }
 
 requite::Expression &Expression::getUnascribed() {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
-    return this->getLastBranch().getUnascribed();
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+    return this->getBranch().getUnascribed();
   }
   return *this;
 }
 
 const requite::Expression &Expression::getUnascribed() const {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
-    return this->getLastBranch().getUnascribed();
-  }
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+    return this->getBranch().getUnascribed();
+  } 
   return *this;
 }
 

@@ -89,23 +89,15 @@ requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
 
-bool Procedure::getHasAttributes() const {
-  return this->_attributes.getHasExpression();
-}
-
 void Procedure::setAttributes(requite::Attributes attributes) {
-  REQUITE_ASSERT(!this->_attributes.getHasExpression());
-  REQUITE_ASSERT(attributes.getHasExpression());
   this->_attributes = attributes;
 }
 
 requite::Attributes &Procedure::getAttributes() {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 
 const requite::Attributes &Procedure::getAttributes() const {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 

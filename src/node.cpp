@@ -26,22 +26,22 @@ const requite::Expression &Node::getExpression() const {
 }
 
 bool Node::getHasAttributes() const {
-  return this->_attributes.getHasExpression();
+  return this->_attributes.getHasFirstExpression();
 }
 
 void Node::setAttributes(requite::Attributes attributes) {
-  REQUITE_ASSERT(!this->_attributes.getHasExpression());
-  REQUITE_ASSERT(attributes.getHasExpression());
+  REQUITE_ASSERT(!this->_attributes.getHasFirstExpression());
+  REQUITE_ASSERT(attributes.getHasFirstExpression());
   this->_attributes = attributes;
 }
 
 requite::Attributes &Node::getAttributes() {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  REQUITE_ASSERT(this->_attributes.getHasFirstExpression());
   return this->_attributes;
 }
 
 const requite::Attributes &Node::getAttributes() const {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
+  REQUITE_ASSERT(this->_attributes.getHasFirstExpression());
   return this->_attributes;
 }
 

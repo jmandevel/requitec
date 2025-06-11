@@ -51,7 +51,6 @@ struct Object final {
   void setContainingScope(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContainingScope();
   [[nodiscard]] const requite::Scope &getContainingScope() const;
-  [[nodiscard]] bool getHasAttributes() const;
   void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;

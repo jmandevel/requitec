@@ -145,6 +145,8 @@ struct Situator final {
   inline void situateTableExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_CompileTimeConcatinateExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_AscribeLastBranchExpression(requite::Expression &expression);
 };
 
 } // namespace requite

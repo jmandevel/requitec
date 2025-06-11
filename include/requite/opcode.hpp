@@ -95,7 +95,8 @@ enum class Opcode : unsigned {
   _DEFAULT_SYMBOL,
 
   // APPLY
-  _ASCRIBE,
+  _ASCRIBE_LAST_BRANCH,
+  _ASCRIBE_FIRST_BRANCH,
   _CAST,
   STRINGIFY,
   CODEUNIFY,

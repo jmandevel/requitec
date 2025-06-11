@@ -59,23 +59,15 @@ const requite::Scope &Object::getContainingScope() const {
   return this->getScope().getContainingScope();
 }
 
-bool Object::getHasAttributes() const {
-  return this->_attributes.getHasExpression();
-}
-
 void Object::setAttributes(requite::Attributes attributes) {
-  REQUITE_ASSERT(!this->_attributes.getHasExpression());
-  REQUITE_ASSERT(attributes.getHasExpression());
   this->_attributes = attributes;
 }
 
 requite::Attributes &Object::getAttributes() {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 
 const requite::Attributes &Object::getAttributes() const {
-  REQUITE_ASSERT(this->_attributes.getHasExpression());
   return this->_attributes;
 }
 

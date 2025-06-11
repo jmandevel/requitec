@@ -73,7 +73,6 @@ struct Procedure final {
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::Signature &getSignature();
   [[nodiscard]] const requite::Signature &getSignature() const;
-  [[nodiscard]] bool getHasAttributes() const;
   void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;

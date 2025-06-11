@@ -119,9 +119,9 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
   parser.incrementToken(1);
   if (this->getHasOperation()) {
     requite::Expression &old_operation = this->getOperation();
-    if (old_operation.getOpcode() != requite::Opcode::_ASCRIBE) {
+    if (old_operation.getOpcode() != requite::Opcode::_ASCRIBE_LAST_BRANCH) {
       requite::Expression &new_operation =
-          requite::Expression::makeOperation(requite::Opcode::_ASCRIBE);
+          requite::Expression::makeOperation(requite::Opcode::_ASCRIBE_LAST_BRANCH);
       new_operation.setSource(old_operation, token);
       this->appendBranch(new_operation);
       if (!this->getHasOuter()) {
@@ -132,7 +132,7 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
     }
   } else {
     requite::Expression &operation =
-        requite::Expression::makeOperation(requite::Opcode::_ASCRIBE);
+        requite::Expression::makeOperation(requite::Opcode::_ASCRIBE_LAST_BRANCH);
     if (this->getHasLast()) {
       requite::Expression &last = this->getLast();
       operation.setSource(last);
@@ -149,7 +149,7 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
   attribute.setSource(token);
   this->appendBranch(attribute);
   requite::Expression &ascribe = this->getOperation();
-  REQUITE_ASSERT(ascribe.getOpcode() == requite::Opcode::_ASCRIBE);
+  REQUITE_ASSERT(ascribe.getOpcode() == requite::Opcode::_ASCRIBE_LAST_BRANCH);
   ascribe.extendSourceOver(attribute);
 }
 
