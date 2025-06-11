@@ -1049,7 +1049,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
+                                    requite::Situation::LOCAL_DESTINATION,
                                     requite::Situation::MATTE_VALUE>(
           expression);
     }
