@@ -383,7 +383,7 @@ requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
-    if (!token.getHasUnaryOperatorSpacing()) {
+    if (!token.getHasUnaryOperatorSpacing()) {      
       break;
     }
     switch (const requite::TokenType type = token.getType()) {
@@ -402,9 +402,9 @@ requite::Expression &Parser::parsePrecedence4() {
     default:
       break;
     }
-    precedence_parser.appendBranch(this->parsePrecedence3());
     break;
   }
+  precedence_parser.appendBranch(this->parsePrecedence3());
   return precedence_parser.getOuter();
 }
 
@@ -541,7 +541,8 @@ requite::Expression &Parser::parsePrecedence2() {
       if (!next_token.getHasBinaryOperatorSpacing()) {
         break;
       }
-      precedence_parser.parseNestedNary(*this, requite::Opcode::_ASCRIBE_LAST_BRANCH);
+      precedence_parser.parseNestedNary(*this,
+                                        requite::Opcode::_ASCRIBE_LAST_BRANCH);
       precedence_parser.appendBranch(next);
       continue;
     default:
