@@ -33,7 +33,6 @@ target_sources(
         log.cpp
         lookup_symbols.cpp
         make_user_symbols.cpp
-        maker.cpp
         module_symbols.cpp
         module.cpp
         named_procedure_group.cpp
@@ -57,7 +56,6 @@ target_sources(
         symbol.cpp
         table.cpp
         tabulate_user_symbols.cpp
-        tabulator.cpp
         tasks.cpp
         token_csv.cpp
         token.cpp
