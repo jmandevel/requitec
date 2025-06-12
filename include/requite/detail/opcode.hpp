@@ -387,6 +387,10 @@ _getFlags(requite::Opcode opcode) {
     return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
   case Opcode::_DESTROY_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
+  case Opcode::DROP:
+    return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
+  case Opcode::_DROP_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::ENTRY_POINT:
     return _BASE_STATEMENT;
   case Opcode::FUNCTION:
@@ -915,6 +919,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "destroy";
   case requite::Opcode::_DESTROY_VALUE:
     return "_destroy_value";
+  case requite::Opcode::DROP:
+    return "drop";
+  case requite::Opcode::_DROP_VALUE:
+    return "_drop_value";
   case requite::Opcode::ENTRY_POINT:
     return "entry_point";
   case requite::Opcode::FUNCTION:
@@ -1190,6 +1198,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_MOVE_VALUE;
   case requite::Opcode::DESTROY:
     return requite::Opcode::_DESTROY_VALUE;
+  case requite::Opcode::DROP:
+    return requite::Opcode::_DROP_VALUE;
   case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
     return requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE;
   case requite::Opcode::NEXT_VARIADIC_ARGUMENT:

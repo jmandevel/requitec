@@ -193,6 +193,8 @@ enum class Opcode : unsigned {
   _SIGNATURE,
   DESTROY,
   _DESTROY_VALUE,
+  DROP,
+  _DROP_VALUE,
   ENTRY_POINT,
   FUNCTION,
   METHOD,

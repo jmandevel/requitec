@@ -929,6 +929,23 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
+  case requite::Opcode::DROP:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::DROP)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::_DROP_VALUE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_DROP_VALUE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
   case requite::Opcode::ENTRY_POINT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::ENTRY_POINT)) {
