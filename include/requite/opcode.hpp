@@ -34,6 +34,10 @@ enum class Opcode : unsigned {
   __CODEUNIT_LITERAL,
   // a literal that is used to refeer to user defined symbols.
   __IDENTIFIER_LITERAL,
+  // a handle to a symbol that was resolved.
+  __RESOLVED_SYMBOL,
+  // a handle to a value that was evaluated.
+  __EVALUATED_VALUE,
 
   // ERRORS
   // this opcode is used whenever something goes wrong to denote that an error
@@ -196,11 +200,17 @@ enum class Opcode : unsigned {
   DROP,
   _DROP_VALUE,
   ENTRY_POINT,
+  __SITUATED_ENTRY_POINT,
   FUNCTION,
+  __SITUATED_FUNCTION,
   METHOD,
+  __SITUATED_METHOD,
   CONSTRUCTOR,
+  __SITUATED_CONSTRUCTOR,
   DESTRUCTOR,
+  __SITUATED_DESTRUCTOR,
   _ANONYMOUS_FUNCTION,
+  __SITUATED_ANONYMOUS_FUNCTION,
   _CAPTURE,
 
   // CONTROL FLOW
@@ -211,15 +221,23 @@ enum class Opcode : unsigned {
   EXIT,
   GOTO,
   LABEL,
+  __SITUATED_LABEL,
 
   // SYMBOLS
   OBJECT,
+  __SITUATED_OBJECT,
   TABLE,
+  __SITUATED_TABLE,
   ALIAS,
+  __SITUATED_ALIAS,
   _LOCAL,
+  __SITUATED_LOCAL,
   GLOBAL,
+  __SITUATED_GLOBAL,
   PROPERTY,
+  __SITUATED_PROPERTY,
   CONSTANT,
+  __SITUATED_CONSTANT,
 
   // VALUES
   TRUE,
@@ -286,17 +304,29 @@ enum class Opcode : unsigned {
 
   // SCOPES
   IF,
+  __SITUATED_IF,
   ELSE_IF,
+  __SITUATED_ELSE_IF,
   ELSE,
+  __SITUATED_ELSE,
   SWITCH,
+  __SITUATED_SWITCH,
   CASE,
+  __SITUATED_CASE,
   DEFAULT_CASE,
+  __SITUATED_DEFAULT_CASE,
   FOR,
+  __SITUATED_FOR,
   WHILE,
+  __SITUATED_WHILE,
   DO_WHILE,
+  __SITUATED_DO_WHILE,
   FOR_EACH,
+  __SITUATED_FOR_EACH,
   LOOP,
+  __SITUATED_LOOP,
   SCOPE,
+  __SITUATED_SCOPE,
   _VALUE_CONDUIT,
   _JUNCTION_CONDUIT,
   _DESTINATION_CONDUIT,
@@ -308,6 +338,7 @@ enum class Opcode : unsigned {
 
   // SYMBOL GRAPH
   IMPORT,
+  __SITUATED_IMPORT,
   USE,
 
   // SOURCES

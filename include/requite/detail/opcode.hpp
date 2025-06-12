@@ -107,6 +107,10 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
            _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
            _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
+  case Opcode::__RESOLVED_SYMBOL:
+    return _INTERNAL_USE_ONLY | _MATTE_DESTINATION | _MATTE_JUNCTION| _MATTE_VALUE | _MATTE_SYMBOL;
+  case Opcode::__EVALUATED_VALUE:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
 
   // ERROR
   case Opcode::__ERROR:
@@ -393,17 +397,30 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::ENTRY_POINT:
     return _BASE_STATEMENT;
+  case Opcode::__SITUATED_ENTRY_POINT:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT;
   case Opcode::FUNCTION:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_FUNCTION:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::METHOD:
     return _OBJECT_STATEMENT;
+  case Opcode::__SITUATED_METHOD:
+    return _INTERNAL_USE_ONLY | _OBJECT_STATEMENT;
   case Opcode::CONSTRUCTOR:
     return _OBJECT_STATEMENT;
+  case Opcode::__SITUATED_CONSTRUCTOR:
+    return _INTERNAL_USE_ONLY | _OBJECT_STATEMENT;
   case Opcode::DESTRUCTOR:
     return _OBJECT_STATEMENT;
+  case Opcode::__SITUATED_DESTRUCTOR:
+    return _INTERNAL_USE_ONLY | _OBJECT_STATEMENT;
   case Opcode::_ANONYMOUS_FUNCTION:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::__SITUATED_ANONYMOUS_FUNCTION:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
   case Opcode::_CAPTURE:
     return _NONE;
 
@@ -422,26 +439,47 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::LABEL:
     return _MATTE_VALUE;
+  case Opcode::__SITUATED_LABEL:
+    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
 
   // SYMBOLS
   case Opcode::OBJECT:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_OBJECT:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::TABLE:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_TABLE:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::ALIAS:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_ALIAS:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::_LOCAL:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_LOCAL:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::GLOBAL:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_GLOBAL:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::PROPERTY:
     return _OBJECT_STATEMENT;
+  case Opcode::__SITUATED_PROPERTY:
+    return _INTERNAL_USE_ONLY | _OBJECT_STATEMENT;
   case Opcode::CONSTANT:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_CONSTANT:
+    return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
 
   // VALUES
@@ -519,28 +557,52 @@ _getFlags(requite::Opcode opcode) {
   // SCOPES
   case Opcode::IF:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_IF:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::ELSE_IF:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_ELSE_IF:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::ELSE:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_ELSE:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::SWITCH:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_SWITCH:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::CASE:
     return _NONE;
+  case Opcode::__SITUATED_CASE:
+    return _INTERNAL_USE_ONLY;
   case Opcode::DEFAULT_CASE:
     return _NONE;
+  case Opcode::__SITUATED_DEFAULT_CASE:
+    return _INTERNAL_USE_ONLY;
   case Opcode::FOR:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_FOR:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::WHILE:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_WHILE:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::DO_WHILE:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_DO_WHILE:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::FOR_EACH:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_FOR_EACH:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::LOOP:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_LOOP:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::SCOPE:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_SCOPE:
+    return _INTERNAL_USE_ONLY | _MATTE_LOCAL_STATEMENT;
   case Opcode::_VALUE_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_JUNCTION_CONDUIT:
@@ -559,6 +621,9 @@ _getFlags(requite::Opcode opcode) {
   // SYMBOL GRAPH
   case Opcode::IMPORT:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
+  case Opcode::__SITUATED_IMPORT:
+        return _INTERNAL_USE_ONLY | _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::USE:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
@@ -677,6 +742,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "__codeunit_literal";
   case requite::Opcode::__IDENTIFIER_LITERAL:
     return "__identifier_literal";
+  case requite::Opcode::__RESOLVED_SYMBOL:
+    return "__RESOLVED_SYMBOL";
+  case requite::Opcode::__EVALUATED_VALUE:
+    return "__EVALUATED_VALUE";
 
   // ERRORS
   case requite::Opcode::__ERROR:
@@ -925,16 +994,28 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_drop_value";
   case requite::Opcode::ENTRY_POINT:
     return "entry_point";
+  case requite::Opcode::__SITUATED_ENTRY_POINT:
+    return "__situated_entry_point";
   case requite::Opcode::FUNCTION:
     return "function";
+  case requite::Opcode::__SITUATED_FUNCTION:
+    return "__situated_function";
   case requite::Opcode::METHOD:
     return "method";
+  case requite::Opcode::__SITUATED_METHOD:
+    return "__situated_method";
   case requite::Opcode::CONSTRUCTOR:
     return "constructor";
+  case requite::Opcode::__SITUATED_CONSTRUCTOR:
+    return "__situated_constructor";
   case requite::Opcode::DESTRUCTOR:
     return "destructor";
+  case requite::Opcode::__SITUATED_DESTRUCTOR:
+    return "__situated_destructor";
   case requite::Opcode::_ANONYMOUS_FUNCTION:
     return "_anonymous_function";
+  case requite::Opcode::__SITUATED_ANONYMOUS_FUNCTION:
+    return "__situated_anonymous_function";
   case requite::Opcode::_CAPTURE:
     return "_capture";
 
@@ -953,22 +1034,38 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "goto";
   case requite::Opcode::LABEL:
     return "label";
+  case requite::Opcode::__SITUATED_LABEL:
+    return "__situated_label";
 
   // SYMBOLS
   case requite::Opcode::OBJECT:
     return "object";
+  case requite::Opcode::__SITUATED_OBJECT:
+    return "__situated_object";
   case requite::Opcode::TABLE:
     return "table";
+  case requite::Opcode::__SITUATED_TABLE:
+    return "__situated_table";
   case requite::Opcode::ALIAS:
     return "alias";
+  case requite::Opcode::__SITUATED_ALIAS:
+    return "__situated_alias";
   case requite::Opcode::_LOCAL:
     return "_local";
+  case requite::Opcode::__SITUATED_LOCAL:
+    return "__situated_local";
   case requite::Opcode::GLOBAL:
     return "global";
+  case requite::Opcode::__SITUATED_GLOBAL:
+    return "__situated_global";
   case requite::Opcode::PROPERTY:
     return "property";
+  case requite::Opcode::__SITUATED_PROPERTY:
+    return "__situated_property";
   case requite::Opcode::CONSTANT:
     return "constant";
+  case requite::Opcode::__SITUATED_CONSTANT:
+    return "__situated_constant";
 
   // VALUES
   case requite::Opcode::TRUE:
@@ -1045,28 +1142,52 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // SCOPES
   case requite::Opcode::IF:
     return "if";
+  case requite::Opcode::__SITUATED_IF:
+    return "__situated_if";
   case requite::Opcode::ELSE_IF:
     return "else_if";
+  case requite::Opcode::__SITUATED_ELSE_IF:
+    return "__situated_else_if";
   case requite::Opcode::ELSE:
     return "else";
+  case requite::Opcode::__SITUATED_ELSE:
+    return "__situated_else";
   case requite::Opcode::SWITCH:
     return "switch";
+  case requite::Opcode::__SITUATED_SWITCH:
+    return "__situated_switch";
   case requite::Opcode::CASE:
     return "case";
+  case requite::Opcode::__SITUATED_CASE:
+    return "__situated_case";
   case requite::Opcode::DEFAULT_CASE:
     return "default_case";
+  case requite::Opcode::__SITUATED_DEFAULT_CASE:
+    return "__situated_default_case";
   case requite::Opcode::FOR:
     return "for";
+  case requite::Opcode::__SITUATED_FOR:
+    return "__situated_for";
   case requite::Opcode::WHILE:
     return "while";
+  case requite::Opcode::__SITUATED_WHILE:
+    return "__situated_while";
   case requite::Opcode::DO_WHILE:
     return "do_while";
+  case requite::Opcode::__SITUATED_DO_WHILE:
+    return "__situated_do_while";
   case requite::Opcode::FOR_EACH:
     return "for_each";
+  case requite::Opcode::__SITUATED_FOR_EACH:
+    return "__situated_for_each";
   case requite::Opcode::LOOP:
     return "loop";
+  case requite::Opcode::__SITUATED_LOOP:
+    return "__situated_loop";
   case requite::Opcode::SCOPE:
     return "scope";
+  case requite::Opcode::__SITUATED_SCOPE:
+    return "__situated_scope";
   case requite::Opcode::_VALUE_CONDUIT:
     return "_value_conduit";
   case requite::Opcode::_JUNCTION_CONDUIT:
@@ -1085,6 +1206,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // SYMBOL GRAPH
   case requite::Opcode::IMPORT:
     return "import";
+  case requite::Opcode::__SITUATED_IMPORT:
+    return "__situated_import";
   case requite::Opcode::USE:
     return "use";
 
