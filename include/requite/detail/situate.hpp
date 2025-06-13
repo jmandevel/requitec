@@ -49,18 +49,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     }
     break;
-  case requite::Opcode::__RESOLVED_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__RESOLVED_SYMBOL)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
-  case requite::Opcode::__EVALUATED_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__EVALUATED_VALUE)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::__ERROR:
     REQUITE_UNREACHABLE();
   case requite::Opcode::_CALL_OR_SIGNATURE:
@@ -968,12 +956,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_ENTRY_POINT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_ENTRY_POINT)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::FUNCTION:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::FUNCTION)) {
@@ -984,12 +966,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_LOCAL_STATEMENT>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_FUNCTION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_FUNCTION)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::METHOD:
@@ -1004,12 +980,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_METHOD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_METHOD)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::CONSTRUCTOR:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::CONSTRUCTOR)) {
@@ -1019,12 +989,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_LOCAL_STATEMENT>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_CONSTRUCTOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_CONSTRUCTOR)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::DESTRUCTOR:
@@ -1037,12 +1001,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_DESTRUCTOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_DESTRUCTOR)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::_ANONYMOUS_FUNCTION:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_ANONYMOUS_FUNCTION)) {
@@ -1053,12 +1011,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_LOCAL_STATEMENT>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_ANONYMOUS_FUNCTION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_ANONYMOUS_FUNCTION)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::_CAPTURE:
@@ -1124,24 +1076,12 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_OBJECT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_OBJECT)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::TABLE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::TABLE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateTableExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_TABLE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_TABLE)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::ALIAS:
@@ -1152,12 +1092,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateBinaryExpression<SITUATION_PARAM,
                                     requite::Situation::MATTE_SYMBOL>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_ALIAS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_ALIAS)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::_LOCAL:
@@ -1171,12 +1105,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_LOCAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_LOCAL)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::GLOBAL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::GLOBAL)) {
@@ -1186,12 +1114,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                     requite::Situation::SYMBOL_NAME,
                                     requite::Situation::MATTE_VALUE>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_GLOBAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_GLOBAL)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::PROPERTY:
@@ -1205,12 +1127,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_PROPERTY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_PROPERTY)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::CONSTANT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::CONSTANT)) {
@@ -1220,12 +1136,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                     requite::Situation::SYMBOL_NAME,
                                     requite::Situation::MATTE_VALUE>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_CONSTANT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_CONSTANT)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::_NULL_TYPE:
@@ -1549,12 +1459,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_IF:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_IF)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::ELSE_IF:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::ELSE_IF)) {
@@ -1566,12 +1470,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_ELSE_IF:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_ELSE_IF)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::ELSE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::ELSE)) {
@@ -1581,12 +1479,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           SITUATION_PARAM, 0,
           requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_ELSE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_ELSE)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::SWITCH:
@@ -1601,12 +1493,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_SWITCH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_SWITCH)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::CASE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::CASE)) {
@@ -1618,12 +1504,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_CASE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_CASE)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::DEFAULT_CASE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::DEFAULT_CASE)) {
@@ -1633,12 +1513,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           SITUATION_PARAM, 0,
           requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_DEFAULT_CASE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_DEFAULT_CASE)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::FOR:
@@ -1654,12 +1528,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_FOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_FOR)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::WHILE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::WHILE)) {
@@ -1669,12 +1537,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
           requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_WHILE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_WHILE)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::DO_WHILE:
@@ -1688,12 +1550,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_DO_WHILE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_DO_WHILE)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::FOR_EACH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::FOR_EACH)) {
@@ -1703,12 +1559,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
           requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_FOR_EACH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_FOR_EACH)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::LOOP:
@@ -1722,12 +1572,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::__SITUATED_LOOP:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_LOOP)) {
-      REQUITE_UNREACHABLE();
-    }
-    break;
   case requite::Opcode::SCOPE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::SCOPE)) {
@@ -1737,12 +1581,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           SITUATION_PARAM, 0,
           requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
           expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_SCOPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_SCOPE)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::_VALUE_CONDUIT:
@@ -1782,12 +1620,6 @@ void Situator::situateExpression(requite::Expression &expression) {
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
                                    requite::Situation::SYMBOL_NAME>(expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_LABEL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_LABEL)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::GOTO:
@@ -1831,12 +1663,6 @@ void Situator::situateExpression(requite::Expression &expression) {
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 1,
                                   requite::Situation::SYMBOL_NAME>(expression);
-    }
-    break;
-  case requite::Opcode::__SITUATED_IMPORT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__SITUATED_IMPORT)) {
-      REQUITE_UNREACHABLE();
     }
     break;
   case requite::Opcode::USE:
