@@ -45,6 +45,7 @@ target_sources(
         precedence_parser.cpp
         procedure.cpp
         prototype_user_symbols.cpp
+        resolve_symbols.cpp
         root_symbol.cpp
         run.cpp
         signature_parameter.cpp

@@ -161,10 +161,15 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool buildUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // resolve_symbols.cpp
-  [[nodiscard]] bool resolveSymbol(requite::Scope &scope,
+  // resolve a symbol.
+  [[nodiscard]] bool resolveSymbol(requite::Symbol& out_symbol, requite::Scope &scope,
                                    requite::Expression &symbol_expression);
-  [[nodiscard]] bool resolveSymbol(requite::Scope &scope,
+  // resolve a symbol with an associated value that could be partially inferenced.
+  [[nodiscard]] bool resolveTypeOfValue(requite::Symbol& out_symbol,requite::Scope &scope,
                                    requite::Expression &symbol_expression,
+                                   requite::Expression &value_expression);
+  // inference the type of a value.
+  [[nodiscard]] bool inferenceTypeOfValue(requite::Symbol& out_symbol,requite::Scope &scope,
                                    requite::Expression &value_expression);
 
   // choose_overload.cpp
