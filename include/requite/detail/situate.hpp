@@ -199,48 +199,44 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situate_ReflectSymbolExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_VALUE_OF_VALUE:
+  case requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_VALUE_OF_VALUE)) {
+                      requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::SYMBOL_NAME>(
-          expression);
+      this->situateNaryExpression<SITUATION_PARAM, 2,
+                                  requite::Situation::MATTE_VALUE,
+                                  requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_SYMBOL_OF_VALUE:
+  case requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_SYMBOL_OF_VALUE)) {
+                      requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::SYMBOL_NAME>(
-          expression);
+      this->situateNaryExpression<SITUATION_PARAM, 2,
+                                  requite::Situation::MATTE_VALUE,
+                                  requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_VALUE_OF_SYMBOL:
+  case requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_VALUE_OF_SYMBOL)) {
+                      requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
-                                    requite::Situation::SYMBOL_NAME>(
-          expression);
+      this->situateNaryExpression<SITUATION_PARAM, 2,
+                                  requite::Situation::MATTE_SYMBOL,
+                                  requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL:
+  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL)) {
+                      requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
-                                    requite::Situation::SYMBOL_NAME>(
-          expression);
+      this->situateNaryExpression<SITUATION_PARAM, 2,
+                                  requite::Situation::MATTE_SYMBOL,
+                                  requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
   case requite::Opcode::_BIND_VALUE:
@@ -2330,17 +2326,19 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();
   requite::Expression &second = first.popNext();
   requite::Expression *branch_ptr = second.popNextPtr();
+  requite::Expression *outer_member_ptr = nullptr;
   if (requite::getCanBeSymbolNameSituation(second.getOpcode())) {
     if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
       if (branch_ptr == nullptr) {
-        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_VALUE);
+        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH);
         return;
       }
-      expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE);
+      expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
     } else {
-      expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE);
+      expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
     }
     first.setNext(second);
+    outer_member_ptr = &second;
   } else {
     if (second.getHasBranch()) {
       first.setNext(second.popBranch());
@@ -2364,20 +2362,26 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
     branch_ptr = branch.popNextPtr();
     requite::Opcode branch_opcode = branch.getOpcode();
     if (requite::getCanBeSymbolNameSituation(branch.getOpcode())) {
-      requite::Expression &new_expression =
-          requite::Expression::makeOperation(expression.getOpcode());
-      new_expression.setSourceInsertedAfter(branch);
-      new_expression.setBranch(expression.replaceBranch(new_expression));
-      if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-        if (branch_ptr == nullptr) {
-          expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_VALUE);
-          return;
-        }
-        expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE);
+      if (outer_member_ptr != nullptr) {
+        requite::Expression &outer_member = requite::getRef(outer_member_ptr);
+        outer_member.setNext(branch);
       } else {
-        expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE);
+        requite::Expression &new_expression =
+            requite::Expression::makeOperation(expression.getOpcode());
+        new_expression.setSourceInsertedAfter(branch);
+        new_expression.setBranch(expression.replaceBranch(new_expression));
+        if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
+          if (branch_ptr == nullptr) {
+            expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH);
+            return;
+          }
+          expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
+        } else {
+          expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
+        }
+        new_expression.setNext(branch);
       }
-      new_expression.setNext(branch);
+      outer_member_ptr = &branch;
     } else {
       branch.setNextPtr(branch.popBranchPtr());
       branch.setBranch(expression.replaceBranch(branch));
@@ -2394,6 +2398,7 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
       }
       branch.changeOpcode(expression.getOpcode());
       expression.changeOpcode(universalized);
+      outer_member_ptr = nullptr;
     }
   }
 }
@@ -2405,6 +2410,7 @@ Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
   if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
     this->situateNaryExpression<SITUATION_PARAM, 2,
                                 requite::Situation::SYMBOL_PATH>(expression);
+    expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
   } else {
     this->situateNaryWithLastExpression<
         SITUATION_PARAM, 2, requite::Situation::MATTE_SYMBOL,
@@ -2414,17 +2420,19 @@ Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
     requite::Expression &first = expression.getBranch();
     requite::Expression &second = first.popNext();
     requite::Expression *branch_ptr = second.popNextPtr();
+    requite::Expression *outer_member_ptr = nullptr;
     if (requite::getCanBeSymbolNameSituation(second.getOpcode())) {
       if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
         if (branch_ptr == nullptr) {
-          expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_SYMBOL);
+          expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH);
           return;
         }
-        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL);
+        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
       } else {
-        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL);
+        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
       }
       first.setNext(second);
+      outer_member_ptr = &second;
     } else {
       if (second.getHasBranch()) {
         first.setNext(second.popBranch());
@@ -2438,20 +2446,26 @@ Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
       branch_ptr = branch.popNextPtr();
       requite::Opcode branch_opcode = branch.getOpcode();
       if (requite::getCanBeSymbolNameSituation(branch.getOpcode())) {
-        requite::Expression &new_expression =
-            requite::Expression::makeOperation(expression.getOpcode());
-        new_expression.setSourceInsertedAfter(branch);
-        new_expression.setBranch(expression.replaceBranch(new_expression));
-        if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-          if (branch_ptr == nullptr) {
-            expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_SYMBOL);
-            return;
-          }
-          expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL);
+        if (outer_member_ptr != nullptr) {
+          requite::Expression &outer_member = requite::getRef(outer_member_ptr);
+          outer_member.setNext(branch);
         } else {
-          expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL);
+          requite::Expression &new_expression =
+              requite::Expression::makeOperation(expression.getOpcode());
+          new_expression.setSourceInsertedAfter(branch);
+          new_expression.setBranch(expression.replaceBranch(new_expression));
+          if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
+            if (branch_ptr == nullptr) {
+              expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH);
+              return;
+            }
+            expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
+          } else {
+            expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
+          }
+          new_expression.setNext(branch);
         }
-        new_expression.setNext(branch);
+        outer_member_ptr = &branch;
       } else {
         branch.setNextPtr(branch.popBranchPtr());
         branch.setBranch(expression.replaceBranch(branch));
@@ -2459,6 +2473,7 @@ Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
             requite::getUniversalizedSymbol(branch.getOpcode());
         branch.changeOpcode(expression.getOpcode());
         expression.changeOpcode(universalized);
+        outer_member_ptr = nullptr;
       }
     }
   }
@@ -2983,7 +2998,7 @@ inline void Situator::situateTableExpression(requite::Expression &expression) {
       SITUATION_PARAM, 1, requite::Situation::SYMBOL_PATH,
       requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(expression);
   requite::Expression &path_expression = expression.getBranch();
-  if (path_expression.getOpcode() == requite::Opcode::_REFLECT_SYMBOL) {
+  if (path_expression.getOpcode() == requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH) {
     requite::Expression *table_body_ptr = path_expression.popNextPtr();
     requite::Expression &first_name_expression = path_expression.popBranch();
     std::ignore = expression.replaceBranch(first_name_expression);

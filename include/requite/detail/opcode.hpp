@@ -168,15 +168,15 @@ _getFlags(requite::Opcode opcode) {
            _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
 
   // MEMBERS
-  case Opcode::_MEMBER_VALUE_OF_VALUE:
+  case Opcode::_MEMBER_VALUE_OF_VALUE_PATH:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
-  case Opcode::_MEMBER_SYMBOL_OF_VALUE:
+  case Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_MEMBER_VALUE_OF_SYMBOL:
+  case Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
-  case Opcode::_MEMBER_SYMBOL_OF_SYMBOL:
+  case Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
 
   // BIND
@@ -725,14 +725,14 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_reflect_symbol";
 
   // MEMBERS
-  case requite::Opcode::_MEMBER_VALUE_OF_VALUE:
-    return "_member_value_of_value";
-  case requite::Opcode::_MEMBER_SYMBOL_OF_VALUE:
-    return "_member_symbol_of_value";
-  case requite::Opcode::_MEMBER_VALUE_OF_SYMBOL:
-    return "_member_value_of_symbol";
-  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL:
-    return "_member_symbol_of_symbol";
+  case requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH:
+    return "_member_value_of_value_path";
+  case requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH:
+    return "_member_symbol_of_value_path";
+  case requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH:
+    return "_member_value_of_symbol_path";
+  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH:
+    return "_member_symbol_of_symbol_path";
 
   // BIND
   case requite::Opcode::_BIND_VALUE:
