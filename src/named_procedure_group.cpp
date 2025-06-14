@@ -44,19 +44,19 @@ void NamedProcedureGroup::addProcedure(requite::Procedure &procedure) {
   this->_first_ptr = &procedure;
 }
 
-bool NamedProcedureGroup::getHasContainingScope() const {
+bool NamedProcedureGroup::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void NamedProcedureGroup::setContainingScope(requite::Scope &scope) {
+void NamedProcedureGroup::setContaining(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &NamedProcedureGroup::getContainingScope() {
+requite::Scope &NamedProcedureGroup::getContaining() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &NamedProcedureGroup::getContainingScope() const {
+const requite::Scope &NamedProcedureGroup::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 

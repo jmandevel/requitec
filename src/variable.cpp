@@ -57,19 +57,19 @@ const requite::Symbol &Variable::getDataType() const {
   return this->_data_type;
 }
 
-bool Variable::getHasContainingScope() const {
+bool Variable::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Variable::setContainingScope(requite::Scope &scope) {
+void Variable::setContaining(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Variable::getContainingScope() {
+requite::Scope &Variable::getContaining() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Variable::getContainingScope() const {
+const requite::Scope &Variable::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 

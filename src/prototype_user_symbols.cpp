@@ -90,7 +90,7 @@ bool Context::prototypeUserSymbol(requite::Alias &alias) {
     return true;
   }
   requite::Expression &expression = alias.getExpression();
-  requite::Scope& scope = alias.getContainingScope();
+  requite::Scope& scope = alias.getContaining();
   requite::Expression &symbol_expression = expression.getBranch(1);
   if (!this->resolveSymbol(symbol, scope, symbol_expression))
   {
@@ -101,7 +101,7 @@ bool Context::prototypeUserSymbol(requite::Alias &alias) {
 
 bool Context::prototypeUserSymbol(requite::Variable &variable) {
   requite::Expression& expression = variable.getExpression();
-  requite::Scope &scope = variable.getContainingScope();
+  requite::Scope &scope = variable.getContaining();
   requite::Expression& value_expression = expression.getBranch(1);
   requite::Symbol &type = variable.getDataType();
   if (!this->inferenceTypeOfValue(type, scope, value_expression))

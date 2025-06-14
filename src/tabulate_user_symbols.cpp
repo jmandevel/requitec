@@ -33,7 +33,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
       if (scope.getType() != requite::ScopeType::TABLE) {
         continue;
       }
-      requite::Scope &containing_scope = scope.getContainingScope();
+      requite::Scope &containing_scope = scope.getContaining();
       requite::Expression &expression = scope.getExpression();
       requite::Expression &name_expression = expression.getBranch();
       if (name_expression.getIsIdentifier()) {
@@ -42,7 +42,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
             containing_scope.lookupInternalRootSymbol(name);
         if (found.getIsNone()) {
           requite::Table &table = module.makeTable();
-          table.addSubScope(scope);
+          table.addScope(scope);
           scope.setTable(table);
           table.setName(name.str());
           containing_scope.addSymbol(table);
@@ -50,7 +50,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
         } else if (found.getIsTable()) {
           requite::Table &table = found.getTable();
           REQUITE_ASSERT(name == table.getName());
-          table.addSubScope(scope);
+          table.addScope(scope);
           scope.setTable(table);
           continue;
         } else {
@@ -69,7 +69,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
     for (std::unique_ptr<requite::Object> &object_uptr :
          module.getObjectUptrs()) {
       requite::Object &object = requite::getRef(object_uptr);
-      requite::Scope &containing_scope = object.getContainingScope();
+      requite::Scope &containing_scope = object.getContaining();
       requite::Expression &expression = object.getExpression();
       requite::Expression &name_expression = expression.getBranch();
       if (name_expression.getIsIdentifier()) {
@@ -98,7 +98,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
       if (!procedure.getIsNamed()) {
         continue;
       }
-      requite::Scope &containing_scope = procedure.getContainingScope();
+      requite::Scope &containing_scope = procedure.getContaining();
       requite::Expression &expression = procedure.getExpression();
       requite::Expression &name_expression = expression.getBranch();
       llvm::StringRef name = name_expression.getDataText();
@@ -109,7 +109,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
         group.setName(name);
         procedure.setNamedProcedureGroup(group);
         group.addProcedure(procedure);
-        group.setContainingScope(containing_scope);
+        group.setContaining(containing_scope);
         containing_scope.addSymbol(group);
         continue;
       } else if (found.getIsNamedProcedureGroup()) {
@@ -131,7 +131,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
     }
     for (std::unique_ptr<requite::Alias> &alias_uptr : module.getAliasUptrs()) {
       requite::Alias &alias = requite::getRef(alias_uptr);
-      requite::Scope &containing_scope = alias.getContainingScope();
+      requite::Scope &containing_scope = alias.getContaining();
       requite::Expression &expression = alias.getExpression();
       requite::Expression &name_expression = expression.getBranch();
       if (name_expression.getIsIdentifier()) {
@@ -157,7 +157,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
     for (std::unique_ptr<requite::Variable> &variable_uptr :
          module.getVariableUptrs()) {
       requite::Variable &variable = requite::getRef(variable_uptr);
-      requite::Scope &containing_scope = variable.getContainingScope();
+      requite::Scope &containing_scope = variable.getContaining();
       requite::Expression &expression = variable.getExpression();
       requite::Expression &name_expression = expression.getBranch();
       if (name_expression.getIsIdentifier()) {
@@ -182,7 +182,7 @@ void Tabulator::tabulateInstantNamedSymbols() {
     }
     for (std::unique_ptr<requite::Label> &label_uptr : module.getLabelUptrs()) {
       requite::Label &label = requite::getRef(label_uptr);
-      requite::Scope &containing_scope = label.getContainingScope();
+      requite::Scope &containing_scope = label.getContaining();
       requite::Expression &expression = label.getAttributeExpression();
       requite::Expression &name_expression = expression.getBranch();
       if (name_expression.getIsIdentifier()) {

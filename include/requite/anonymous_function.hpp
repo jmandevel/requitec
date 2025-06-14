@@ -41,10 +41,10 @@ struct AnonymousFunction final {
   void setModule(requite::Module &module);
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
-  [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope& scope);
-  [[nodiscard]] requite::Scope& getContainingScope();
-  [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope& scope);
+  [[nodiscard]] requite::Scope& getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]]

@@ -60,10 +60,10 @@ struct Procedure final {
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
-  [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContainingScope();
-  [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] bool getHasMangledName() const;
   [[nodiscard]] llvm::StringRef getMangledName() const;

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <requite/scope.hpp>
+#include <requite/scope_iterator.hpp>
 
 #include <llvm/ADT/StringMap.h>
 
@@ -17,7 +18,6 @@ struct Table final {
 
   std::string _name = {};
   requite::Scope _stub_scope = {};
-  requite::Scope *_first_scope_ptr = nullptr;
 
   // table.cpp
   Table();
@@ -31,10 +31,15 @@ struct Table final {
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] requite::Scope &getStubScope();
   [[nodiscard]] const requite::Scope &getStubScope() const;
-  [[nodiscard]] bool getHasSubScopes() const;
-  void addSubScope(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getFirstScope();
-  [[nodiscard]] const requite::Scope &getFirstScope() const;
+  void addScope(requite::Scope& scope);
+
+    // detail/table_subrange.hpp
+  [[nodiscard]] inline std::ranges::subrange<
+      requite::ScopeIterator, requite::ScopeIterator,
+      std::ranges::subrange_kind::unsized>
+  getScopeSubrange();
 };
 
 } // namespace requite
+
+#include <requite/detail/table_subrange.hpp>

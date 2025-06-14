@@ -44,27 +44,27 @@ const llvm::StringMap<requite::RootSymbol> &Scope::getSymbolMap() const {
   return this->_symbol_map;
 }
 
-bool Scope::getHasContainingScope() const {
+bool Scope::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Scope::setContainingScope(requite::Scope &scope) {
+void Scope::setContaining(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Scope::getContainingScope() {
+requite::Scope &Scope::getContaining() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Scope::getContainingScope() const {
+const requite::Scope &Scope::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-requite::Scope *Scope::getContainingScopePtr() {
+requite::Scope *Scope::getContainingPtr() {
   return this->_containing_scope_ptr;
 }
 
-const requite::Scope *Scope::getContainingScopePtr() const {
+const requite::Scope *Scope::getContainingPtr() const {
   return this->_containing_scope_ptr;
 }
 
@@ -198,5 +198,9 @@ requite::Scope &Scope::getNext() { return requite::getRef(this->_next_ptr); }
 const requite::Scope &Scope::getNext() const {
   return requite::getRef(this->_next_ptr);
 }
+
+requite::Scope *Scope::getNextPtr() { return this->_next_ptr; }
+
+const requite::Scope *Scope::getNextPtr() const { return this->_next_ptr; }
 
 } // namespace requite

@@ -50,6 +50,7 @@ target_sources(
         resolve_symbols.cpp
         root_symbol.cpp
         run.cpp
+        scope_iterator.cpp
         signature_parameter.cpp
         signature.cpp
         scope.cpp

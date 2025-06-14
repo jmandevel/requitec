@@ -43,20 +43,20 @@ requite::Scope &Object::getScope() { return this->_scope; }
 
 const requite::Scope &Object::getScope() const { return this->_scope; }
 
-bool Object::getHasContainingScope() const {
-  return this->getScope().getHasContainingScope();
+bool Object::getHasContaining() const {
+  return this->getScope().getHasContaining();
 }
 
-void Object::setContainingScope(requite::Scope &scope) {
-  this->getScope().setContainingScope(scope);
+void Object::setContaining(requite::Scope &scope) {
+  this->getScope().setContaining(scope);
 }
 
-requite::Scope &Object::getContainingScope() {
-  return this->getScope().getContainingScope();
+requite::Scope &Object::getContaining() {
+  return this->getScope().getContaining();
 }
 
-const requite::Scope &Object::getContainingScope() const {
-  return this->getScope().getContainingScope();
+const requite::Scope &Object::getContaining() const {
+  return this->getScope().getContaining();
 }
 
 void Object::setAttributes(requite::Attributes attributes) {

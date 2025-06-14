@@ -47,10 +47,10 @@ struct Object final {
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContainingScope();
-  [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
   void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;

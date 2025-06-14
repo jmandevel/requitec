@@ -39,10 +39,10 @@ struct Alias final {
   void setAttributes(requite::Attributes attributes);
   [[nodiscard]] requite::Attributes &getAttributes();
   [[nodiscard]] const requite::Attributes &getAttributes() const;
-  [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContainingScope();
-  [[nodiscard]] const requite::Scope &getContainingScope() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
   [[nodiscard]] requite::Symbol &getSymbol();
   [[nodiscard]] const requite::Symbol &getSymbol() const;
 };

@@ -56,7 +56,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     requite::Alias &alias = this->getModule().makeAlias();
     alias.setExpression(expression);
     expression.setAlias(alias);
-    alias.setContainingScope(scope);
+    alias.setContaining(scope);
     alias.setAttributes(attributes);
     this->makeScopedValues(scope, expression.getBranch(), true);
   } break;
@@ -64,7 +64,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     requite::Object &object = this->getModule().makeObject();
     object.setExpression(expression);
     expression.setObject(object);
-    object.setContainingScope(scope);
+    object.setContaining(scope);
     object.setAttributes(attributes);
     this->makeUnorderedUserSymbols(object.getScope(), expression.getBranch(),
                                    conduits_have_scopes);
@@ -74,7 +74,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     global.setType(requite::VariableType::GLOBAL);
     global.setExpression(expression);
     expression.setVariable(global);
-    global.setContainingScope(scope);
+    global.setContaining(scope);
     global.setAttributes(attributes);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
@@ -83,7 +83,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     property.setType(requite::VariableType::PROPERTY);
     property.setExpression(expression);
     expression.setVariable(property);
-    property.setContainingScope(scope);
+    property.setContaining(scope);
     property.setAttributes(attributes);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
@@ -92,7 +92,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     constant.setType(requite::VariableType::CONSTANT);
     constant.setExpression(expression);
     expression.setVariable(constant);
-    constant.setContainingScope(scope);
+    constant.setContaining(scope);
     constant.setAttributes(attributes);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
@@ -106,7 +106,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     method.setType(requite::ProcedureType::METHOD);
     method.setExpression(expression);
     expression.setProcedure(method);
-    method.setContainingScope(scope);
+    method.setContaining(scope);
     method.setAttributes(attributes);
     this->makeOrderedUserSymbols(method.getScope(), expression.getBranch());
   } break;
@@ -115,7 +115,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     function.setType(requite::ProcedureType::FUNCTION);
     function.setExpression(expression);
     expression.setProcedure(function);
-    function.setContainingScope(scope);
+    function.setContaining(scope);
     function.setAttributes(attributes);
     this->makeOrderedUserSymbols(function.getScope(), expression.getBranch());
   } break;
@@ -124,7 +124,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     constructor.setType(requite::ProcedureType::CONSTRUCTOR);
     constructor.setExpression(expression);
     expression.setProcedure(constructor);
-    constructor.setContainingScope(scope);
+    constructor.setContaining(scope);
     constructor.setAttributes(attributes);
     this->makeOrderedUserSymbols(constructor.getScope(),
                                  expression.getBranch());
@@ -134,7 +134,7 @@ void Maker::makeAscribedUnorderedUserSymbol(requite::Scope &scope,
     destructor.setType(requite::ProcedureType::DESTRUCTOR);
     destructor.setExpression(expression);
     expression.setProcedure(destructor);
-    destructor.setContainingScope(scope);
+    destructor.setContaining(scope);
     destructor.setAttributes(attributes);
     this->makeOrderedUserSymbols(destructor.getScope(), expression.getBranch());
   } break;
@@ -168,14 +168,14 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     requite::Alias &alias = this->getModule().makeAlias();
     alias.setExpression(expression);
     expression.setAlias(alias);
-    alias.setContainingScope(scope);
+    alias.setContaining(scope);
     this->makeScopedValues(scope, expression.getBranch(), true);
   } break;
   case requite::Opcode::OBJECT: {
     requite::Object &object = this->getModule().makeObject();
     object.setExpression(expression);
     expression.setObject(object);
-    object.setContainingScope(scope);
+    object.setContaining(scope);
     this->makeUnorderedUserSymbols(object.getScope(), expression.getBranch(),
                                    conduits_have_scopes);
   } break;
@@ -184,7 +184,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     global.setType(requite::VariableType::GLOBAL);
     global.setExpression(expression);
     expression.setVariable(global);
-    global.setContainingScope(scope);
+    global.setContaining(scope);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
   case requite::Opcode::PROPERTY: {
@@ -192,7 +192,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     property.setType(requite::VariableType::PROPERTY);
     property.setExpression(expression);
     expression.setVariable(property);
-    property.setContainingScope(scope);
+    property.setContaining(scope);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
   case requite::Opcode::CONSTANT: {
@@ -200,7 +200,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     constant.setType(requite::VariableType::CONSTANT);
     constant.setExpression(expression);
     expression.setVariable(constant);
-    constant.setContainingScope(scope);
+    constant.setContaining(scope);
     this->makeScopedValues(scope, expression.getBranch(), conduits_have_scopes);
   } break;
   case requite::Opcode::ENTRY_POINT: {
@@ -208,7 +208,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     entry_point.setType(requite::ProcedureType::ENTRY_POINT);
     entry_point.setExpression(expression);
     expression.setProcedure(entry_point);
-    entry_point.setContainingScope(scope);
+    entry_point.setContaining(scope);
     this->makeOrderedUserSymbols(entry_point.getScope(),
                                  expression.getBranch());
   } break;
@@ -217,7 +217,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     method.setType(requite::ProcedureType::METHOD);
     method.setExpression(expression);
     expression.setProcedure(method);
-    method.setContainingScope(scope);
+    method.setContaining(scope);
     this->makeOrderedUserSymbols(method.getScope(), expression.getBranch());
   } break;
   case requite::Opcode::FUNCTION: {
@@ -225,7 +225,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     function.setType(requite::ProcedureType::FUNCTION);
     function.setExpression(expression);
     expression.setProcedure(function);
-    function.setContainingScope(scope);
+    function.setContaining(scope);
     this->makeOrderedUserSymbols(function.getScope(), expression.getBranch());
   } break;
   case requite::Opcode::CONSTRUCTOR: {
@@ -233,7 +233,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     constructor.setType(requite::ProcedureType::CONSTRUCTOR);
     constructor.setExpression(expression);
     expression.setProcedure(constructor);
-    constructor.setContainingScope(scope);
+    constructor.setContaining(scope);
     this->makeOrderedUserSymbols(constructor.getScope(),
                                  expression.getBranch());
   } break;
@@ -242,7 +242,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     destructor.setType(requite::ProcedureType::DESTRUCTOR);
     destructor.setExpression(expression);
     expression.setProcedure(destructor);
-    destructor.setContainingScope(scope);
+    destructor.setContaining(scope);
     this->makeOrderedUserSymbols(destructor.getScope(), expression.getBranch());
   } break;
   case requite::Opcode::TABLE: {
@@ -250,7 +250,7 @@ void Maker::makeUnorderedUserSymbol(requite::Scope &scope,
     new_scope.setType(requite::ScopeType::TABLE);
     new_scope.setExpression(expression);
     expression.setScope(new_scope);
-    new_scope.setContainingScope(scope);
+    new_scope.setContaining(scope);
     this->makeUnorderedUserSymbols(new_scope, expression.getBranch(),
                                    conduits_have_scopes);
   } break;
@@ -289,7 +289,7 @@ void Maker::makeOrderedUserSymbols(requite::Scope &scope,
           label.setAttributeExpression(attribute_expression);
           attribute_expression.setLabel(label);
           label.setStatementExpression(branch);
-          label.setContainingScope(scope);
+          label.setContaining(scope);
         }
       }
       this->makeAscribedOrderedUserSymbol(scope, result.attributes,
@@ -309,7 +309,7 @@ void Maker::makeAscribedOrderedUserSymbol(requite::Scope &scope,
     local.setType(requite::VariableType::LOCAL);
     local.setExpression(expression);
     expression.setVariable(local);
-    local.setContainingScope(scope);
+    local.setContaining(scope);
     local.setAttributes(attributes);
     this->makeScopedValues(scope, expression.getBranch(), false);
   };
@@ -353,7 +353,7 @@ void Maker::makeOrderedUserSymbol(requite::Scope &scope,
     local.setType(requite::VariableType::LOCAL);
     local.setExpression(expression);
     expression.setVariable(local);
-    local.setContainingScope(scope);
+    local.setContaining(scope);
     this->makeScopedValues(scope, expression.getBranch(), false);
   } break;
   case requite::Opcode::IF:
@@ -383,7 +383,7 @@ void Maker::makeOrderedUserSymbol(requite::Scope &scope,
     new_scope.setType(requite::ScopeType::LOCAL_STATEMENT);
     expression.setScope(new_scope);
     new_scope.setExpression(expression);
-    new_scope.setContainingScope(scope);
+    new_scope.setContaining(scope);
   } break;
   default:
     this->makeUnorderedUserSymbol(scope, expression, false);
@@ -400,7 +400,7 @@ void Maker::makeScopedValues(requite::Scope &scope,
           this->getModule().makeAnonymousFunction();
       anonymous_function.setExpression(expression);
       expression.setAnonymousFunction(anonymous_function);
-      anonymous_function.setContainingScope(scope);
+      anonymous_function.setContaining(scope);
       requite::Expression &capture = expression.getBranch();
       REQUITE_ASSERT(capture.getOpcode() == requite::Opcode::_CAPTURE);
       requite::Expression &signature = capture.getNext();

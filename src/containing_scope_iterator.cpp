@@ -13,7 +13,7 @@ ContainingScopeIterator::ContainingScopeIterator(requite::Scope &scope)
 
 requite::ContainingScopeIterator &ContainingScopeIterator::operator++() {
   requite::Scope &scope = requite::getRef(this->_scope_ptr);
-  this->_scope_ptr = scope.getContainingScopePtr();
+  this->_scope_ptr = scope.getContainingPtr();
   return *this;
 }
 

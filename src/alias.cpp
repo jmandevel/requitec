@@ -50,19 +50,19 @@ const requite::Attributes &Alias::getAttributes() const {
   return this->_attributes;
 }
 
-bool Alias::getHasContainingScope() const {
+bool Alias::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Alias::setContainingScope(requite::Scope &scope) {
+void Alias::setContaining(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Alias::getContainingScope() {
+requite::Scope &Alias::getContaining() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Alias::getContainingScope() const {
+const requite::Scope &Alias::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 

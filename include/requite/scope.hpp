@@ -63,12 +63,12 @@ struct Scope final {
   [[nodiscard]] llvm::StringMap<requite::RootSymbol> &getSymbolMap();
   [[nodiscard]] const llvm::StringMap<requite::RootSymbol> &
   getSymbolMap() const;
-  [[nodiscard]] bool getHasContainingScope() const;
-  void setContainingScope(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContainingScope();
-  [[nodiscard]] const requite::Scope &getContainingScope() const;
-  [[nodiscard]] requite::Scope *getContainingScopePtr();
-  [[nodiscard]] const requite::Scope *getContainingScopePtr() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] requite::Scope *getContainingPtr();
+  [[nodiscard]] const requite::Scope *getContainingPtr() const;
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
   [[nodiscard]] bool getIsEmpty() const;
@@ -99,6 +99,8 @@ struct Scope final {
   void setNext(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getNext();
   [[nodiscard]] const requite::Scope &getNext() const;
+  [[nodiscard]] requite::Scope *getNextPtr();
+  [[nodiscard]] const requite::Scope *getNextPtr() const;
 
   // lookup_symbols.cpp
   [[nodiscard]]

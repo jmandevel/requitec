@@ -25,19 +25,19 @@ llvm::StringRef Procedure::getMangledName() const {
   return this->_mangled_name;
 }
 
-bool Procedure::getHasContainingScope() const {
-  return this->getScope().getHasContainingScope();
+bool Procedure::getHasContaining() const {
+  return this->getScope().getHasContaining();
 }
 
-void Procedure::setContainingScope(requite::Scope &scope) {
-  this->getScope().setContainingScope(scope);
+void Procedure::setContaining(requite::Scope &scope) {
+  this->getScope().setContaining(scope);
 }
-requite::Scope &Procedure::getContainingScope() {
-  return this->getScope().getContainingScope();
+requite::Scope &Procedure::getContaining() {
+  return this->getScope().getContaining();
 }
 
-const requite::Scope &Procedure::getContainingScope() const {
-  return this->getScope().getContainingScope();
+const requite::Scope &Procedure::getContaining() const {
+  return this->getScope().getContaining();
 }
 
 bool Procedure::getIsNamed() const {

@@ -25,21 +25,12 @@ requite::Scope &Table::getStubScope() { return this->_stub_scope; }
 
 const requite::Scope &Table::getStubScope() const { return this->_stub_scope; }
 
-bool Table::getHasSubScopes() const {
-  return this->_first_scope_ptr != nullptr;
-}
-
-void Table::addSubScope(requite::Scope &scope) {
-  scope._next_ptr = this->_first_scope_ptr;
-  this->_first_scope_ptr = &scope;
-}
-
-requite::Scope &Table::getFirstScope() {
-  return requite::getRef(this->_first_scope_ptr);
-}
-
-const requite::Scope &Table::getFirstScope() const {
-  return requite::getRef(this->_first_scope_ptr);
+void Table::addScope(requite::Scope& scope) {
+  REQUITE_ASSERT(scope.getType() == requite::ScopeType::TABLE);
+  requite::Scope* previous_next_ptr = this->getStubScope().getNextPtr();
+  this->_stub_scope._next_ptr = &scope;
+  REQUITE_ASSERT(!scope.getHasNext());
+  scope._next_ptr = previous_next_ptr;
 }
 
 } // namespace requite
