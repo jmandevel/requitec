@@ -7,12 +7,14 @@
 #include <requite/node.hpp>
 #include <requite/scope_type.hpp>
 #include <requite/symbol.hpp>
+#include <requite/containing_scope_iterator.hpp>
 
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
 
 #include <memory>
 #include <vector>
+#include <ranges>
 
 namespace requite {
 
@@ -104,8 +106,15 @@ struct Scope final {
 
   // detail/scope_symbol.hpp
   template <typename SymbolArg> void addSymbol(SymbolArg &symbol);
+
+  // detail/scope_subrange.hpp
+  [[nodiscard]] inline std::ranges::subrange<
+      requite::ContainingScopeIterator, requite::ContainingScopeIterator,
+      std::ranges::subrange_kind::unsized>
+  getContainingSubrange();
 };
 
 } // namespace requite
 
+#include <requite/detail/scope_subrange.hpp>
 #include <requite/detail/scope_symbol.hpp>
