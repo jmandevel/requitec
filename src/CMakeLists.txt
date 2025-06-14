@@ -19,6 +19,7 @@ target_sources(
         build_user_symbols.cpp
         compile_object_files.cpp
         const_expression_iterator.cpp
+        containing_scope_iterator.cpp
         context.cpp
         escape_sequences.cpp
         evaluate_values.cpp

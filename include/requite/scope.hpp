@@ -65,6 +65,8 @@ struct Scope final {
   void setContainingScope(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContainingScope();
   [[nodiscard]] const requite::Scope &getContainingScope() const;
+[[nodiscard]] requite::Scope *getContainingScopePtr();
+  [[nodiscard]] const requite::Scope *getContainingScopePtr() const;
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
   [[nodiscard]] bool getIsEmpty() const;

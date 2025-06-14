@@ -60,6 +60,14 @@ const requite::Scope &Scope::getContainingScope() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
+requite::Scope *Scope::getContainingScopePtr() {
+  return this->_containing_scope_ptr;
+}
+
+const requite::Scope *Scope::getContainingScopePtr() const {
+  return this->_containing_scope_ptr;
+}
+
 std::vector<requite::Node> &Scope::getNodes() { return this->_nodes; }
 
 const std::vector<requite::Node> &Scope::getNodes() const {
