@@ -8,10 +8,10 @@ bool Context::evaluateConstantUnsigned(unsigned& out_unsigned, requite::Scope& s
             out_unsigned = 32;
         } return true;      
         case requite::Opcode::ADDRESS_DEPTH: {
-            out_unsigned = this->getPointerDepth();
+            out_unsigned = this->getAddressDepth();
         } return true;
         case requite::Opcode::ADDRESS_SIZE: {
-            out_unsigned = this->getPointerDepth() / 8;
+            out_unsigned = this->getAddressSize();
         } return true;
         default:
             break;

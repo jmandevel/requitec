@@ -76,7 +76,7 @@ bool Context::prototypeUserSymbol(requite::Procedure &procedure) {
     requite::Symbol &return_type = signature.getReturnType();
     requite::RootSymbol &return_root = return_type.getRoot();
     return_root.setType(requite::RootSymbolType::SIGNED_INTEGER);
-    const unsigned pointer_depth = this->getPointerDepth();
+    const unsigned pointer_depth = this->getAddressDepth();
     return_root.setDepth(pointer_depth);
     return true;
   }

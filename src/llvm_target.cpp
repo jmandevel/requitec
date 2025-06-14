@@ -123,8 +123,12 @@ bool Context::getFitsInLegalIntegerDepth(unsigned depth) const {
   return this->getLlvmDataLayout().fitsInLegalInteger(depth);
 }
 
-unsigned Context::getPointerDepth() const {
+unsigned Context::getAddressDepth() const {
   return this->getLlvmDataLayout().getPointerSizeInBits();
+}
+
+unsigned Context::getAddressSize() const {
+  return this->getLlvmDataLayout().getPointerSize();
 }
 
 unsigned Context::getLargestLegalIntegerDepth() const {

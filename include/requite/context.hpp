@@ -239,7 +239,9 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   bool getFitsInLegalIntegerDepth(unsigned depth) const;
   [[nodiscard]]
-  unsigned getPointerDepth() const;
+  unsigned getAddressDepth() const;
+  [[nodiscard]]
+  unsigned getAddressSize() const;
   [[nodiscard]]
   unsigned getLargestLegalIntegerDepth() const;
   [[nodiscard]]
