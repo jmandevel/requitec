@@ -65,8 +65,7 @@ bool Context::prototypeUserSymbol(requite::Module &module) {
 
 bool Context::prototypeUserSymbol(requite::Object &object) {
   requite::Expression &expression = object.getExpression();
-  this->logNotSupportedYet(expression);
-  return false;
+  return true;
 }
 
 bool Context::prototypeUserSymbol(requite::Procedure &procedure) {
@@ -86,10 +85,13 @@ bool Context::prototypeUserSymbol(requite::Procedure &procedure) {
 }
 
 bool Context::prototypeUserSymbol(requite::Alias &alias) {
+  requite::Symbol &symbol = alias.getSymbol();
+  if (!symbol.getIsEmpty()) {
+    return true;
+  }
   requite::Expression &expression = alias.getExpression();
   requite::Scope& scope = alias.getContainingScope();
   requite::Expression &symbol_expression = expression.getBranch(1);
-  requite::Symbol &symbol = alias.getSymbol();
   if (!this->resolveSymbol(symbol, scope, symbol_expression))
   {
     return false;

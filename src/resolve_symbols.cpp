@@ -10,17 +10,17 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
         scope.lookupInternalRootSymbol(symbol_expression.getDataText());
     if (user.getIsNone()) {
       return false;
-    }
-    else if (user.getIsAlias()) {
+    } else if (user.getIsAlias()) {
       requite::Alias &alias = user.getAlias();
-      if (alias.getSymbol().getIsEmpty()) {
-        if (!this->prototypeUserSymbol(alias)) {
-          return false;
-        }
+      if (!this->prototypeUserSymbol(alias)) {
+        return false;
       }
       out_symbol.wrapSymbol(alias.getSymbol());
     } else if (user.getIsObject()) {
       requite::Object &object = user.getObject();
+      if (!this->prototypeUserSymbol(object)) {
+        return false;
+      }
       out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
       out_symbol.getRoot().setObject(object);
     }
