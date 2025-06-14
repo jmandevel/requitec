@@ -4,17 +4,17 @@
 
 #pragma once
 
+#include <requite/containing_scope_iterator.hpp>
 #include <requite/node.hpp>
 #include <requite/scope_type.hpp>
 #include <requite/symbol.hpp>
-#include <requite/containing_scope_iterator.hpp>
 
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
 
 #include <memory>
-#include <vector>
 #include <ranges>
+#include <vector>
 
 namespace requite {
 
@@ -30,7 +30,7 @@ struct Object;
 struct Scope final {
   using Self = requite::Scope;
 
-  requite::Module* _module_ptr = nullptr;
+  requite::Module *_module_ptr = nullptr;
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::Scope *_next_ptr = nullptr;
@@ -67,7 +67,7 @@ struct Scope final {
   void setContainingScope(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContainingScope();
   [[nodiscard]] const requite::Scope &getContainingScope() const;
-[[nodiscard]] requite::Scope *getContainingScopePtr();
+  [[nodiscard]] requite::Scope *getContainingScopePtr();
   [[nodiscard]] const requite::Scope *getContainingScopePtr() const;
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
@@ -105,6 +105,7 @@ struct Scope final {
   requite::RootSymbol lookupInternalRootSymbol(llvm::StringRef name);
 
   // detail/scope_symbol.hpp
+  [[nodiscard]] inline bool getHasSymbolOfName(llvm::StringRef name);
   template <typename SymbolArg> void addSymbol(SymbolArg &symbol);
 
   // detail/scope_subrange.hpp
