@@ -130,7 +130,7 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // write_llvm_ir.cpp
   void writeLlvmIr();
-  void writeLlvmIr(const requite::Module& module);
+  void writeLlvmIr(const requite::Module &module);
 
   // source_name.cpp
   [[nodiscard]] bool determineModuleName(requite::Module &module);
@@ -149,7 +149,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool prototypeUserSymbol(requite::Procedure &procedure);
   [[nodiscard]] bool prototypeUserSymbol(requite::Alias &alias);
   [[nodiscard]] bool prototypeUserSymbol(requite::Variable &variable);
-  [[nodiscard]] bool prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
+  [[nodiscard]] bool
+  prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // build_user_symbols.cpp
   [[nodiscard]] bool buildUserSymbols();
@@ -158,32 +159,40 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool buildUserSymbol(requite::Procedure &procedure);
   [[nodiscard]] bool buildUserSymbol(requite::Alias &alias);
   [[nodiscard]] bool buildUserSymbol(requite::Variable &variable);
-  [[nodiscard]] bool buildUserSymbol(requite::AnonymousFunction &anonymous_function);
+  [[nodiscard]] bool
+  buildUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // resolve_symbols.cpp
   // resolve a symbol.
-  [[nodiscard]] bool resolveSymbol(requite::Symbol& out_symbol, requite::Scope &scope,
+  [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
+                                   requite::Scope &scope,
                                    requite::Expression &symbol_expression);
-  // resolve a symbol with an associated value that could be partially inferenced.
-  [[nodiscard]] bool resolveTypeOfValue(requite::Symbol& out_symbol,requite::Scope &scope,
-                                   requite::Expression &symbol_expression,
-                                   requite::Expression &value_expression);
+  // resolve a symbol with an associated value that could be partially
+  // inferenced.
+  [[nodiscard]] bool resolveTypeOfValue(requite::Symbol &out_symbol,
+                                        requite::Scope &scope,
+                                        requite::Expression &symbol_expression,
+                                        requite::Expression &value_expression);
   // inference the type of a value.
-  [[nodiscard]] bool inferenceTypeOfValue(requite::Symbol& out_symbol,requite::Scope &scope,
-                                   requite::Expression &value_expression);
+  [[nodiscard]] bool
+  inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
+                       requite::Expression &value_expression);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,
                                     requite::Expression &call_expression);
 
   // evaluate_values.cpp
-  [[nodiscard]] requite::Value evaluateValue(requite::Scope &scope,
-                                   requite::Expression &value_expression,
-                                   const requite::Symbol& type);
+  [[nodiscard]] bool
+  evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
+                           requite::Expression &value_expression);
+  [[nodiscard]] requite::Value
+  evaluateValue(requite::Scope &scope, requite::Expression &value_expression,
+                const requite::Symbol &type);
 
   // compile_object_files.cpp
   [[nodiscard]] bool compileObjectFiles();
-  [[nodiscard]] bool compileObjectFile(requite::Module& module);
+  [[nodiscard]] bool compileObjectFile(requite::Module &module);
 
   // get_module.cpp
   [[nodiscard]]
@@ -279,7 +288,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                  requite::Opcode outer_opcode,
                                  requite::Opcode branch_opcode,
                                  unsigned branch_i, llvm::Twine log_context);
-  inline void logInvalidOperation(requite::Expression& expression);
+  inline void logInvalidOperation(requite::Expression &expression);
 };
 
 } // namespace requite

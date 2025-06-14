@@ -21,6 +21,7 @@ target_sources(
         const_expression_iterator.cpp
         context.cpp
         escape_sequences.cpp
+        evaluate_values.cpp
         expression_iterator.cpp
         expression_make.cpp
         expression.cpp

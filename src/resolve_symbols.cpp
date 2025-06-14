@@ -4,7 +4,18 @@ namespace requite {
 
 bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
                             requite::Expression &symbol_expression) {
-  // TODO
+  switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
+  case requite::Opcode::SIGNED_INTEGER: {
+    out_symbol.getRoot().setType(requite::RootSymbolType::SIGNED_INTEGER);
+    unsigned depth;
+    if (!this->evaluateConstantUnsigned(depth, scope, symbol_expression.getBranch())) {
+        return false;
+    }
+    out_symbol.getRoot().setDepth(depth);
+  } return true;
+  default:
+    break;
+  }
   return false;
 }
 
