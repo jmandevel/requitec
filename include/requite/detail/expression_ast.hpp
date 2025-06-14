@@ -74,7 +74,7 @@ requite::Expression &Expression::getBranch(unsigned branch_i) {
   unsigned count = 0;
   while (expression_ptr != nullptr) {
     ++count;
-    expression_ptr = expression_ptr->_branch_ptr;
+    expression_ptr = expression_ptr->_next_ptr;
     if (count == branch_i) {
       return requite::getRef(expression_ptr);
     }
