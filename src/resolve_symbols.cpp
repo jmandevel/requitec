@@ -6,25 +6,29 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
                             requite::Expression &symbol_expression) {
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
-    requite::RootSymbol user =
-        scope.lookupInternalRootSymbol(symbol_expression.getDataText());
-    if (user.getIsNone()) {
-      return false;
-    } else if (user.getIsAlias()) {
-      requite::Alias &alias = user.getAlias();
-      if (!this->prototypeUserSymbol(alias)) {
-        return false;
+    for (requite::Scope &cur_scope : scope.getContainingSubrange()) {
+      requite::RootSymbol user =
+          cur_scope.lookupInternalRootSymbol(symbol_expression.getDataText());
+      if (user.getIsNone()) {
+        continue;
+      } else if (user.getIsAlias()) {
+        requite::Alias &alias = user.getAlias();
+        if (!this->prototypeUserSymbol(alias)) {
+          return false;
+        }
+        out_symbol.wrapSymbol(alias.getSymbol());
+        return true;
+      } else if (user.getIsObject()) {
+        requite::Object &object = user.getObject();
+        if (!this->prototypeUserSymbol(object)) {
+          return false;
+        }
+        out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
+        out_symbol.getRoot().setObject(object);
+        return true;
       }
-      out_symbol.wrapSymbol(alias.getSymbol());
-    } else if (user.getIsObject()) {
-      requite::Object &object = user.getObject();
-      if (!this->prototypeUserSymbol(object)) {
-        return false;
-      }
-      out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
-      out_symbol.getRoot().setObject(object);
     }
-    return true;
+    return false;
   }
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     requite::Expression &ascribed = symbol_expression.getBranch();
