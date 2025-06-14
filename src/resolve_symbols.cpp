@@ -6,9 +6,9 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
                             requite::Expression &symbol_expression) {
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
-    for (requite::Scope &cur_scope : scope.getContainingSubrange()) {
+    for (requite::Scope &containing_scope : scope.getContainingSubrange()) {
       requite::RootSymbol user =
-          cur_scope.lookupInternalRootSymbol(symbol_expression.getDataText());
+          containing_scope.lookupInternalRootSymbol(symbol_expression.getDataText());
       if (user.getIsNone()) {
         continue;
       } else if (user.getIsAlias()) {
