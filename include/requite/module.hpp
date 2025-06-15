@@ -46,6 +46,7 @@ struct Module final {
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
+  requite::Procedure *_entry_point_ptr = nullptr;
 
   Module();
   Module(Self &that) = delete;
@@ -119,6 +120,10 @@ struct Module final {
   [[nodiscard]] llvm::StringRef getText() const;
   [[nodiscard]] const char *getTextPtr() const;
   [[nodiscard]] std::uint_fast32_t getBufferI() const;
+  [[nodiscard]] bool getHasEntryPoint() const;
+  void setEntryPoint(requite::Procedure& entry_point);
+  [[nodiscard]] requite::Procedure& getEntryPoint();
+  [[nodiscard]] const requite::Procedure& getEntryPoint() const;
 
   /// llvm_module.cpp
   void initializeLlvmModule(requite::Context &context);

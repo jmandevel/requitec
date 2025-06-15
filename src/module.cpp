@@ -71,4 +71,20 @@ std::uint_fast32_t Module::getBufferI() const {
   return this->getFile().getBufferI();
 }
 
+bool Module::getHasEntryPoint() const {
+  return this->_entry_point_ptr != nullptr;
+}
+
+void Module::setEntryPoint(requite::Procedure &entry_point) {
+  requite::setSingleRef(this->_entry_point_ptr, entry_point);
+}
+
+requite::Procedure &Module::getEntryPoint() {
+  return requite::getRef(this->_entry_point_ptr);
+}
+
+const requite::Procedure &Module::getEntryPoint() const {
+  return requite::getRef(this->_entry_point_ptr);
+}
+
 } // namespace requite
