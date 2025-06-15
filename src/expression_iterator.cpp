@@ -8,8 +8,8 @@
 
 namespace requite {
 
-ExpressionIterator::ExpressionIterator(requite::Expression &expression)
-    : _expression_ptr(&expression) {}
+ExpressionIterator::ExpressionIterator(requite::Expression *expression_ptr)
+    : _expression_ptr(expression_ptr) {}
 
 requite::ExpressionIterator &ExpressionIterator::operator++() {
   requite::Expression &expression = requite::getRef(this->_expression_ptr);

@@ -9,8 +9,8 @@
 namespace requite {
 
 ConstExpressionIterator::ConstExpressionIterator(
-    const requite::Expression &expression)
-    : _expression_ptr(&expression) {}
+    const requite::Expression *expression_ptr)
+    : _expression_ptr(expression_ptr) {}
 
 requite::ConstExpressionIterator &ConstExpressionIterator::operator++() {
   const requite::Expression &expression =

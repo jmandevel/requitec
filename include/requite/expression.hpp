@@ -209,6 +209,14 @@ struct Expression final {
   [[nodiscard]] inline std::ranges::subrange<
       requite::ExpressionIterator, requite::ExpressionIterator,
       std::ranges::subrange_kind::unsized>
+  getNextSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      requite::ConstExpressionIterator, requite::ConstExpressionIterator,
+      std::ranges::subrange_kind::unsized>
+  getNextSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      requite::ExpressionIterator, requite::ExpressionIterator,
+      std::ranges::subrange_kind::unsized>
   getBranchSubrange();
   [[nodiscard]] inline std::ranges::subrange<
       requite::ConstExpressionIterator, requite::ConstExpressionIterator,

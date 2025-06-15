@@ -21,7 +21,7 @@ struct ExpressionIterator final {
   requite::Expression *_expression_ptr = nullptr;
 
   ExpressionIterator() = default;
-  ExpressionIterator(requite::Expression &expression);
+  ExpressionIterator(requite::Expression *expression_ptr);
 
   requite::ExpressionIterator &operator++();
 

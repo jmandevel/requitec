@@ -21,8 +21,7 @@ struct ConstExpressionIterator final {
   const requite::Expression *_expression_ptr = nullptr;
 
   ConstExpressionIterator() = default;
-  ConstExpressionIterator(const requite::Expression &expression);
-
+  ConstExpressionIterator(const requite::Expression *expression_ptr);
   requite::ConstExpressionIterator &operator++();
 
   requite::ConstExpressionIterator operator++(int);
