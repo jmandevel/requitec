@@ -55,13 +55,14 @@ void Context::logSourceMessage(const requite::Expression &expression,
       true);
 }
 
-void Context::logNotSupportedYet(requite::Expression &expression)
-{
-  this->logSourceMessage(
-    expression,
-    requite::LogType::ERROR,
-    "not supported yet"
-  );
+void Context::logErrorNonInstantEvaluatableName(requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         "symbol names must be instantly evaluatable");
+}
+
+void Context::logNotSupportedYet(requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         "not supported yet");
 }
 
 } // namespace requite

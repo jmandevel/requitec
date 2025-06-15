@@ -274,6 +274,7 @@ struct Context final : public requite::_ContextLlvmContext {
                         requite::LogType type, llvm::Twine message,
                         llvm::ArrayRef<llvm::SMRange> ranges = {},
                         llvm::ArrayRef<llvm::SMFixIt> fixits = {});
+  void logErrorNonInstantEvaluatableName(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
 
   // detail/log.hpp
