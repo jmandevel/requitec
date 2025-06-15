@@ -70,7 +70,7 @@ bool Context::run() {
       if (requite::options::INTERMEDIATE_SITUATED_AST.getValue()) {
         this->writeAst(module, ".situated");
       }
-      if (!this->makeUserSymbols(module)) {
+      if (!this->tabulateUserSymbols()) {
         is_ok_a.store(false);
         return;
       }
@@ -88,9 +88,7 @@ bool Context::run() {
     return false;
   }
   this->initializeLlvm();
-  if (!this->tabulateUserSymbols()) {
-    return false;
-  }
+
   if (!this->prototypeUserSymbols()) {
     return false;
   }

@@ -190,20 +190,4 @@ const requite::Expression &Scope::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-bool Scope::getHasNext() const { return this->_next_ptr != nullptr; }
-
-void Scope::setNext(requite::Scope &scope) {
-  requite::setSingleRef(this->_next_ptr, scope);
-}
-
-requite::Scope &Scope::getNext() { return requite::getRef(this->_next_ptr); }
-
-const requite::Scope &Scope::getNext() const {
-  return requite::getRef(this->_next_ptr);
-}
-
-requite::Scope *Scope::getNextPtr() { return this->_next_ptr; }
-
-const requite::Scope *Scope::getNextPtr() const { return this->_next_ptr; }
-
 } // namespace requite

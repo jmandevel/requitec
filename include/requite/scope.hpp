@@ -34,7 +34,6 @@ struct Scope final {
   unsigned _depth = 0;
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
   requite::Scope *_containing_scope_ptr = nullptr;
-  requite::Scope *_next_ptr = nullptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
   union {
     void *_nothing_ptr = nullptr;
@@ -97,12 +96,6 @@ struct Scope final {
   [[nodiscard]] requite::Expression &popExpression();
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
-  [[nodiscard]] bool getHasNext() const;
-  void setNext(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getNext();
-  [[nodiscard]] const requite::Scope &getNext() const;
-  [[nodiscard]] requite::Scope *getNextPtr();
-  [[nodiscard]] const requite::Scope *getNextPtr() const;
 
   // lookup_symbols.cpp
   [[nodiscard]]

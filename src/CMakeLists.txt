@@ -34,8 +34,6 @@ target_sources(
         llvm_module.cpp
         log.cpp
         lookup_symbols.cpp
-        make_user_symbols.cpp
-        maker.cpp
         module_symbols.cpp
         module.cpp
         named_procedure_group.cpp
@@ -50,7 +48,6 @@ target_sources(
         resolve_symbols.cpp
         root_symbol.cpp
         run.cpp
-        scope_iterator.cpp
         signature_parameter.cpp
         signature.cpp
         scope.cpp
@@ -61,7 +58,6 @@ target_sources(
         symbol.cpp
         table.cpp
         tabulate_user_symbols.cpp
-        tabulator.cpp
         tasks.cpp
         token_csv.cpp
         token.cpp

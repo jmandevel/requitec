@@ -136,9 +136,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool determineModuleName(requite::Module &module);
   [[nodiscard]] bool mapModules();
 
-  // make_user_symbols.cpp
-  [[nodiscard]] bool makeUserSymbols(requite::Module &module);
-
   // tabulate_user_symbols.cpp
   [[nodiscard]] bool tabulateUserSymbols();
 
