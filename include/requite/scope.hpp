@@ -31,7 +31,7 @@ struct Scope final {
   using Self = requite::Scope;
 
   requite::Module *_module_ptr = nullptr;
-  unsigned _depth = 0;
+  unsigned _scope_depth = 0;
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
@@ -67,7 +67,7 @@ struct Scope final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
-  [[nodiscard]] unsigned getDepth() const;
+  [[nodiscard]] unsigned getScopeDepth() const;
   [[nodiscard]] requite::Scope *getContainingPtr();
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
   [[nodiscard]] std::vector<requite::Node> &getNodes();

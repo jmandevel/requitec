@@ -30,6 +30,13 @@ struct Table final {
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] unsigned getScopeDepth() const;
+  [[nodiscard]] requite::Scope *getContainingPtr();
+  [[nodiscard]] const requite::Scope *getContainingPtr() const;
 };
 
 } // namespace requite

@@ -50,7 +50,7 @@ bool Scope::getHasContaining() const {
 
 void Scope::setContaining(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
-  this->_depth = scope.getDepth();
+  this->_scope_depth = scope.getScopeDepth();
 }
 
 requite::Scope &Scope::getContaining() {
@@ -61,7 +61,7 @@ const requite::Scope &Scope::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-unsigned Scope::getDepth() const { return this->_depth; }
+unsigned Scope::getScopeDepth() const { return this->_scope_depth; }
 
 requite::Scope *Scope::getContainingPtr() {
   return this->_containing_scope_ptr;

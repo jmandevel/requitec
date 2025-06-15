@@ -16,4 +16,36 @@ void Table::setName(llvm::StringRef name) {
 
 llvm::StringRef Table::getName() const { return this->_name; }
 
+requite::Scope &Table::getScope() { return this->_scope; }
+
+const requite::Scope &Table::getScope() const { return this->_scope; }
+
+bool Table::getHasContaining() const {
+  return this->getScope().getHasContaining();
+}
+
+void Table::setContaining(requite::Scope &scope) {
+  this->getScope().setContaining(scope);
+}
+
+requite::Scope &Table::getContaining() {
+  return this->getScope().getContaining();
+}
+
+const requite::Scope &Table::getContaining() const {
+  return this->getScope().getContaining();
+}
+
+unsigned Table::getScopeDepth() const {
+  return this->getScope().getScopeDepth();
+}
+
+requite::Scope *Table::getContainingPtr() {
+  return this->getScope().getContainingPtr();
+}
+
+const requite::Scope *Table::getContainingPtr() const {
+  return this->getScope().getContainingPtr();
+}
+
 } // namespace requite
