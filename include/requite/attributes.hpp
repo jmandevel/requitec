@@ -7,7 +7,6 @@
 #include <requite/attribute_type.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
-#include <llvm/Support/ErrorOr.h>
 
 #include <bitset>
 #include <optional>
@@ -17,7 +16,6 @@ namespace requite {
 
 struct Context;
 struct Expression;
-struct MakeAttributesResult;
 
 struct Attributes final {
   using Self = requite::Attributes;
@@ -28,7 +26,7 @@ struct Attributes final {
   // detail/attributes.hpp
   Attributes() = default;
   inline Attributes(llvm::ArrayRef<requite::AttributeType> attributes);
-  [[nodiscard]] static requite::MakeAttributesResult
+  [[nodiscard]] static std::optional<requite::Attributes>
   makeAttributes(requite::Context &context,
                  requite::Expression &first_expression);
   static void logErrorDuplicateAttribute(requite::Context &context,
@@ -45,11 +43,6 @@ struct Attributes final {
   void setFirstExpression(requite::Expression& expression);
   [[nodiscard]] requite::Expression& getFirstExpression();
   [[nodiscard]] const requite::Expression& getFirstExpression() const;
-};
-
-struct MakeAttributesResult {
-  bool has_error = false;
-  requite::Attributes attributes = {};
 };
 
 } // namespace requite

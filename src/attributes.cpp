@@ -18,17 +18,31 @@ Attributes::Attributes(llvm::ArrayRef<requite::AttributeType> attributes) {
   }
 }
 
-requite::MakeAttributesResult
+std::optional<requite::Attributes>
 Attributes::makeAttributes(requite::Context &context,
                            requite::Expression &first_attribute) {
-  requite::MakeAttributesResult result;
-  result.attributes.setFirstExpression(first_attribute);
-  for (requite::Expression &attribute : first_attribute.getHorizontalSubrange()) {
+  requite::Attributes attributes;
+  attributes.setFirstExpression(first_attribute);
+  bool is_ok = true;
+  for (requite::Expression &attribute :
+       first_attribute.getHorizontalSubrange()) {
     const requite::Opcode opcode = attribute.getOpcode();
     const requite::AttributeType type = requite::getAttributeType(opcode);
-    result.attributes.addAttribute(type);
+    if (type != requite::AttributeType::NONE) {
+      if (attributes.getHasAttribute(type)) {
+        context.logSourceMessage(attribute, requite::LogType::ERROR,
+                                 llvm::Twine("duplicate attribute of type \"") +
+                                     requite::getName(type) + "\"");
+        is_ok = false;
+      } else if (is_ok) {
+        attributes.addAttribute(type);
+      }
+    }
   }
-  return result;
+  if (!is_ok) {
+    return std::nullopt;
+  }
+  return attributes;
 }
 
 void Attributes::logErrorDuplicateAttribute(requite::Context &context,
@@ -39,13 +53,9 @@ void Attributes::logErrorDuplicateAttribute(requite::Context &context,
                                requite::getName(type) + "");
 }
 
-void Attributes::clear() {
-  this->_flags.reset();
-}
+void Attributes::clear() { this->_flags.reset(); }
 
-bool Attributes::getHasAnyAttribute() const {
-  return this->_flags.any();
-}
+bool Attributes::getHasAnyAttribute() const { return this->_flags.any(); }
 
 void Attributes::addAttribute(requite::AttributeType type) {
   REQUITE_ASSERT(!this->getHasAttribute(type));

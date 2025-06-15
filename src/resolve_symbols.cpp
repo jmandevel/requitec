@@ -32,12 +32,12 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   }
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     requite::Expression &ascribed = symbol_expression.getBranch();
-    requite::MakeAttributesResult result =
+    std::optional<requite::Attributes> result =
         requite::Attributes::makeAttributes(*this, ascribed.getNext());
-    if (result.has_error) {
+    if (!result.has_value()) {
       return false;
     }
-    out_symbol.applyAttributes(result.attributes);
+    out_symbol.applyAttributes(result.value());
     return this->resolveSymbol(out_symbol, scope, ascribed);
   }
   case requite::Opcode::SIGNED_INTEGER: {
