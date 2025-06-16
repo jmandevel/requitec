@@ -43,17 +43,6 @@ bool Procedure::getIsNamed() const {
   return requite::getIsNamed(this->getType());
 }
 
-void Procedure::setHasDependentName() {
-  REQUITE_ASSERT(this->_dependent_name == false);
-  REQUITE_ASSERT(this->getIsNamed());
-  this->_dependent_name = true;
-}
-
-bool Procedure::getHasDependentName() const {
-  REQUITE_ASSERT(this->getIsNamed());
-  return this->_dependent_name;
-}
-
 bool Procedure::getHasExpression() const {
   return this->_expression_ptr != nullptr;
 }

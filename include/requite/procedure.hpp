@@ -30,7 +30,6 @@ struct Node;
 struct Procedure final {
   using Self = requite::Procedure;
 
-  bool _dependent_name = false;
   std::string _mangled_name = {};
   requite::Expression* _expression_ptr = nullptr;
   requite::ProcedureType _type = requite::ProcedureType::NONE;
@@ -55,8 +54,6 @@ struct Procedure final {
   [[nodiscard]]
   bool operator!=(const Self &rhs) const;
   [[nodiscard]] bool getIsNamed() const;
-  void setHasDependentName();
-  [[nodiscard]] bool getHasDependentName() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();

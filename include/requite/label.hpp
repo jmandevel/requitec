@@ -17,7 +17,6 @@ struct Label final {
   using Self = requite::Label;
 
   std::string _name = {};
-  bool _dependent_name = false;
   requite::Expression *_attribute_expression_ptr = nullptr;
   requite::Expression *_statement_expression_ptr = nullptr;
   requite::Scope *_containing_scope_ptr = nullptr;
@@ -34,8 +33,6 @@ struct Label final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  void setHasDependentName();
-  [[nodiscard]] bool getHasDependentName() const;
   [[nodiscard]] bool getHasAttributeExpression() const;
   void setAttributeExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getAttributeExpression();
