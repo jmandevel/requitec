@@ -438,6 +438,10 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::GLOBAL:
     return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::_ORDERED_GLOBAL:
+  return _MATTE_LOCAL_STATEMENT;
+  case Opcode::_UNORDERED_GLOBAL:
+    return _BASE_STATEMENT | _GLOBAL_STATEMENT | _OBJECT_STATEMENT;
   case Opcode::PROPERTY:
     return _OBJECT_STATEMENT;
   case Opcode::CONSTANT:
@@ -965,6 +969,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_local";
   case requite::Opcode::GLOBAL:
     return "global";
+  case requite::Opcode::_ORDERED_GLOBAL:
+    return "_ordered_global";
+  case requite::Opcode::_UNORDERED_GLOBAL:
+    return "_unordered_global";
   case requite::Opcode::PROPERTY:
     return "property";
   case requite::Opcode::CONSTANT:
@@ -1314,9 +1322,13 @@ constexpr bool getHasAliasData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ALIAS;
 }
 
-constexpr bool getHasVariableData(requite::Opcode opcode) {
+constexpr bool getHasOrderedVariableData(requite::Opcode opcode) {
   return opcode == requite::Opcode::_LOCAL ||
-         opcode == requite::Opcode::GLOBAL ||
+         opcode == requite::Opcode::_ORDERED_GLOBAL;
+}
+
+constexpr bool getHasUnorderedVariableData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_UNORDERED_GLOBAL ||
          opcode == requite::Opcode::PROPERTY ||
          opcode == requite::Opcode::CONSTANT;
 }

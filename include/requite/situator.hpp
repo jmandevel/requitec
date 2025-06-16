@@ -149,6 +149,8 @@ struct Situator final {
   inline void situate_AscribeLastBranchExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_InitializeExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateGlobalExpression(requite::Expression &expression);
 };
 
 } // namespace requite

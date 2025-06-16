@@ -218,6 +218,8 @@ enum class Opcode : unsigned {
   ALIAS,
   _LOCAL,
   GLOBAL,
+  _ORDERED_GLOBAL,
+  _UNORDERED_GLOBAL,
   PROPERTY,
   CONSTANT,
 
@@ -393,7 +395,9 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasVariableData(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getHasUnorderedVariableData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasOrderedVariableData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getHasAnonymousFunctionData(requite::Opcode opcode);
