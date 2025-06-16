@@ -97,34 +97,31 @@ bool Context::prototypeUserSymbol(requite::Alias &alias) {
     return true;
   }
   requite::Expression &expression = alias.getExpression();
-  requite::Scope& scope = alias.getContaining();
+  requite::Scope &scope = alias.getContaining();
   requite::Expression &symbol_expression = expression.getBranch(1);
-  if (!this->resolveSymbol(symbol, scope, symbol_expression))
-  {
+  if (!this->resolveSymbol(symbol, scope, symbol_expression)) {
     return false;
   }
   return true;
 }
 
 bool Context::prototypeUserSymbol(requite::OrderedVariable &variable) {
-  requite::Expression& expression = variable.getExpression();
+  requite::Expression &expression = variable.getExpression();
   requite::Scope &scope = variable.getContaining();
-  requite::Expression& value_expression = expression.getBranch(1);
+  requite::Expression &value_expression = expression.getBranch(1);
   requite::Symbol &type = variable.getDataType();
-  if (!this->inferenceTypeOfValue(type, scope, value_expression))
-  {
+  if (!this->inferenceTypeOfValue(type, scope, value_expression)) {
     return false;
   }
   return true;
 }
 
 bool Context::prototypeUserSymbol(requite::UnorderedVariable &variable) {
-  requite::Expression& expression = variable.getExpression();
+  requite::Expression &expression = variable.getExpression();
   requite::Scope &scope = variable.getScope();
-  requite::Expression& value_expression = expression.getBranch(1);
+  requite::Expression &value_expression = expression.getBranch(1);
   requite::Symbol &type = variable.getDataType();
-  if (!this->inferenceTypeOfValue(type, scope, value_expression))
-  {
+  if (!this->inferenceTypeOfValue(type, scope, value_expression)) {
     return false;
   }
   return true;

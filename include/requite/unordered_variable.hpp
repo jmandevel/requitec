@@ -23,6 +23,7 @@ struct UnorderedVariable final {
   using Self = requite::UnorderedVariable;
 
   std::string _name = {};
+  requite::Expression* _expression_ptr = nullptr;
   requite::VariableType _type = requite::VariableType::NONE;
   requite::AttributeFlags _attributes = {};
   requite::Scope _scope = {};

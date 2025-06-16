@@ -8,7 +8,6 @@
 namespace requite {
 
 Procedure::Procedure () {
-  this->getScope().setType(requite::ScopeType::PROCEDURE);
   this->getScope().setProcedure(*this);
 }
 
@@ -56,19 +55,19 @@ bool Procedure::getHasDependentName() const {
 }
 
 bool Procedure::getHasExpression() const {
-  return this->getScope().getHasExpression();
+  return this->_expression_ptr != nullptr;
 }
 
 void Procedure::setExpression(requite::Expression &expression) {
-  this->getScope().setExpression(expression);
+  requite::setSingleRef(this->_expression_ptr, expression);
 }
 
 requite::Expression &Procedure::getExpression() {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 const requite::Expression &Procedure::getExpression() const {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 void Procedure::setType(requite::ProcedureType type) {

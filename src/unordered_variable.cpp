@@ -36,19 +36,19 @@ const requite::AttributeFlags &UnorderedVariable::getAttributeFlags() const {
 llvm::StringRef UnorderedVariable::getName() const { return this->_name; }
 
 bool UnorderedVariable::getHasExpression() const {
-  return this->getScope().getHasExpression();
+  return this->_expression_ptr != nullptr;
 }
 
 void UnorderedVariable::setExpression(requite::Expression &expression) {
-  this->getScope().setExpression(expression);
+  requite::setSingleRef(this->_expression_ptr, expression);
 }
 
 requite::Expression &UnorderedVariable::getExpression() {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 const requite::Expression &UnorderedVariable::getExpression() const {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 requite::Symbol &UnorderedVariable::getDataType() { return this->_data_type; }

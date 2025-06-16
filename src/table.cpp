@@ -7,6 +7,8 @@
 
 namespace requite {
 
+Table::Table() { this->_scope.setTable(*this); }
+
 bool Table::getHasName() const { return !this->_name.empty(); }
 
 void Table::setName(llvm::StringRef name) {

@@ -3,14 +3,14 @@
 namespace requite {
 
 enum class ScopeType {
-    NONE,
-    LOCAL_STATEMENT,
-    MODULE,
-    TABLE,
-    OBJECT,
-    PROCEDURE,
-    ANONYMOUS_FUNCTION,
-    CONDUIT
+  NONE,
+  MODULE,
+  TABLE,
+  OBJECT,
+  PROCEDURE,
+  ANONYMOUS_FUNCTION,
+  LOCAL_STATEMENT,
+  UNORDERED_VARIABLE
 };
 
 }

@@ -8,7 +8,6 @@
 namespace requite {
 
 Object::Object() {
-  this->getScope().setType(requite::ScopeType::OBJECT);
   this->getScope().setObject(*this);
 }
 
@@ -25,18 +24,18 @@ llvm::StringRef Object::getName() const {
 }
 
 bool Object::getHasExpression() const {
-  return this->getScope().getHasExpression();
+  return this->_expression_ptr != nullptr;
 }
 void Object::setExpression(requite::Expression &expression) {
-  this->getScope().setExpression(expression);
+  requite::setSingleRef(this->_expression_ptr, expression);
 }
 
 requite::Expression &Object::getExpression() {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 const requite::Expression &Object::getExpression() const {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 requite::Scope &Object::getScope() { return this->_scope; }

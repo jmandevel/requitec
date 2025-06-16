@@ -6,7 +6,7 @@
 
 namespace requite {
 
-Module::Module() { this->_scope.setType(requite::ScopeType::MODULE); }
+Module::Module() { this->_scope.setModule(*this); }
 
 bool Module::operator==(const Self &rhs) const { return this == &rhs; }
 
@@ -33,28 +33,32 @@ requite::File &Module::getFile() { return this->_file; }
 const requite::File &Module::getFile() const { return this->_file; }
 
 bool Module::getHasExpression() const {
-  return this->getScope().getHasExpression();
+  return this->_expression_ptr != nullptr;
 }
 
 void Module::setExpression(requite::Expression &expression) {
-  this->getScope().setExpression(expression);
+  requite::setSingleRef(this->_expression_ptr, expression);
 }
 
 requite::Expression &
 Module::replaceExpression(requite::Expression &expression) {
-  return this->getScope().replaceExpression(expression);
+  requite::Expression* old_expression_ptr = this->_expression_ptr;
+  this->_expression_ptr = &expression;
+  return requite::getRef(old_expression_ptr);
 }
 
 requite::Expression &Module::popExpression() {
-  return this->getScope().popExpression();
+  requite::Expression* old_expression_ptr = this->_expression_ptr;
+  this->_expression_ptr = nullptr;
+  return requite::getRef(old_expression_ptr);
 }
 
 requite::Expression &Module::getExpression() {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 const requite::Expression &Module::getExpression() const {
-  return this->getScope().getExpression();
+  return requite::getRef(this->_expression_ptr);
 }
 
 llvm::StringRef Module::getPath() const { return this->getFile().getPath(); }

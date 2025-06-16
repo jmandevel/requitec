@@ -30,19 +30,20 @@ struct Object;
 struct Scope final {
   using Self = requite::Scope;
 
-  requite::Module *_module_ptr = nullptr;
   unsigned _scope_depth = 0;
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
   union {
     void *_nothing_ptr = nullptr;
+    requite::Module *_module_ptr;
     requite::Object *_object_ptr;
     requite::Table *_table_ptr;
     requite::Procedure *_procedure_ptr;
     requite::AnonymousFunction *_anonymous_function_ptr;
+    requite::Expression* _local_statement_ptr;
+    requite::UnorderedVariable* _unordered_variable_ptr;
   };
-  requite::Expression *_expression_ptr = nullptr;
   std::vector<requite::Node> _nodes = {};
 
   // scope.cpp
@@ -58,7 +59,6 @@ struct Scope final {
   void setModule(requite::Module &module);
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
-  void setType(requite::ScopeType type);
   [[nodiscard]] requite::ScopeType getType() const;
   [[nodiscard]] llvm::StringMap<requite::RootSymbol> &getSymbolMap();
   [[nodiscard]] const llvm::StringMap<requite::RootSymbol> &
@@ -73,29 +73,24 @@ struct Scope final {
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
   [[nodiscard]] bool getIsEmpty() const;
-  [[nodiscard]] bool getHasObject() const;
   void setObject(requite::Object &object);
   [[nodiscard]] requite::Object &getObject();
   [[nodiscard]] const requite::Object &getObject() const;
-  [[nodiscard]] bool getHasTable() const;
   void setTable(requite::Table &table);
   [[nodiscard]] requite::Table &getTable();
   [[nodiscard]] const requite::Table &getTable() const;
   void setProcedure(requite::Procedure &procedure);
-  [[nodiscard]] bool getHasProcedure() const;
   [[nodiscard]] requite::Procedure &getProcedure();
   [[nodiscard]] const requite::Procedure &getProcedure() const;
-  [[nodiscard]] bool getHasAnonymousFunction() const;
   void setAnonymousFunction(requite::AnonymousFunction &anonymous_function);
   [[nodiscard]] requite::AnonymousFunction &getAnonymousFunction();
   [[nodiscard]] const requite::AnonymousFunction &getAnonymousFunction() const;
-  [[nodiscard]] bool getHasExpression() const;
-  void setExpression(requite::Expression &expression);
-  [[nodiscard]] requite::Expression &
-  replaceExpression(requite::Expression &expression);
-  [[nodiscard]] requite::Expression &popExpression();
-  [[nodiscard]] requite::Expression &getExpression();
-  [[nodiscard]] const requite::Expression &getExpression() const;
+  void setLocalStatement(requite::Expression &expression);
+  [[nodiscard]] requite::Expression& getLocalStatement();
+  [[nodiscard]] const requite::Expression& getLocalStatement() const;
+  void setUnorderedVariable(requite::UnorderedVariable &variable);
+  [[nodiscard]] requite::UnorderedVariable & getUnorderedVariable();
+  [[nodiscard]] const requite::UnorderedVariable & getUnorderedVariable() const;
 
   // lookup_symbols.cpp
   [[nodiscard]]

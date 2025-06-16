@@ -23,6 +23,7 @@ struct Object final {
   using Self = requite::Object;
 
   std::string _name = {};
+  requite::Expression* _expression_ptr = nullptr;
   requite::Scope _scope = {};
   std::string _mangled_name = {};
   requite::Procedure *_destructor_ptr = nullptr;

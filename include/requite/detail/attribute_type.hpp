@@ -10,6 +10,7 @@
 namespace requite {
 
 constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
+  REQUITE_ASSERT(requite::getCanBeMatteValueSituation(opcode));
   switch (opcode) {
   case requite::Opcode::MUTABLE:
     return requite::AttributeType::MUTABLE;
@@ -46,10 +47,7 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
   default:
     break;
   }
-  if (requite::getCanBeMatteValueSituation(opcode)) {
-    return requite::AttributeType::USER;
-  }
-  return requite::AttributeType::NONE;
+  return requite::AttributeType::USER;
 }
 
 constexpr std::string_view getName(requite::AttributeType type) {

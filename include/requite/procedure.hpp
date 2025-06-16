@@ -32,6 +32,7 @@ struct Procedure final {
 
   bool _dependent_name = false;
   std::string _mangled_name = {};
+  requite::Expression* _expression_ptr = nullptr;
   requite::ProcedureType _type = requite::ProcedureType::NONE;
   requite::Scope _scope = {};
   requite::Signature _signature = {};

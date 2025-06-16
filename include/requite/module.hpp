@@ -33,6 +33,7 @@ struct Module final {
   using Self = requite::Module;
 
   std::string _name = {};
+  requite::Expression* _expression_ptr = nullptr;
   requite::Scope _scope = {};
   requite::File _file = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;

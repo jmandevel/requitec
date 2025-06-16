@@ -19,7 +19,7 @@ struct Table final {
   requite::Scope _scope = {};
 
   // table.cpp
-  Table() = default;
+  Table();
   Table(const Self &) = delete;
   Table(Self &&) = delete;
   ~Table() = default;

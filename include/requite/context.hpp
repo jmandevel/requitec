@@ -170,7 +170,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool tabulateTable(requite::Module &module,
                                    requite::Scope &scope,
                                    requite::Expression &expression);
-  [[nodiscard]] bool tabulateScope(requite::Module &module,
+  [[nodiscard]] bool tabulateLocalStatementScope(requite::Module &module,
                                    requite::Scope &scope,
                                    requite::Expression &expression);
   [[nodiscard]] bool tabulateObject(requite::Module &module,
@@ -183,8 +183,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                    requite::AttributeFlags attributes);
   [[nodiscard]] bool tabulateOrderedGlobal(requite::Module &module,
                                            requite::Scope &scope,
-                                           requite::Expression &expression,
-                                           requite::AttributeFlags attributes);
+                                           requite::Expression &expression);
   [[nodiscard]] bool tabulateUnorderedGlobal(requite::Module &module,
                                              requite::Scope &scope,
                                              requite::Expression &expression,
@@ -355,6 +354,7 @@ struct Context final : public requite::_ContextLlvmContext {
                         llvm::ArrayRef<llvm::SMRange> ranges = {},
                         llvm::ArrayRef<llvm::SMFixIt> fixits = {});
   void logErrorNonInstantEvaluatableName(requite::Expression &expression);
+  void logErrorAlreadySymbolOfName(requite::Expression &expression);
   void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
 

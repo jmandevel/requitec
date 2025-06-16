@@ -39,7 +39,6 @@ bool Context::tabulateBaseUserSymbol(requite::Module &module,
     const bool attributes_ok = !attributes.getHasAnyAttribute();
     if (!attributes_ok) {
       this->logErrorMustNotHaveAttributeFlags(expression);
-
     }
     return this->tabulateTable(module, scope, expression) && attributes_ok;
   }
@@ -76,7 +75,6 @@ bool Context::tabulateGlobalUserSymbol(requite::Module &module,
     const bool attributes_ok = !attributes.getHasAnyAttribute();
     if (!attributes_ok) {
       this->logErrorMustNotHaveAttributeFlags(expression);
-
     }
     return this->tabulateTable(module, scope, expression) && attributes_ok;
   }
@@ -95,7 +93,6 @@ bool Context::tabulateGlobalUserSymbol(requite::Module &module,
   }
   return !attributes.getHasAnyAttribute();
 }
-
 bool Context::tabulateMemberUserSymbol(requite::Module &module,
                                        requite::Scope &scope,
                                        requite::Expression &expression,
@@ -103,7 +100,12 @@ bool Context::tabulateMemberUserSymbol(requite::Module &module,
   switch (const requite::Opcode opcode = expression.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     REQUITE_ASSERT(!attributes.getHasAnyAttribute());
-    // TODO
+    requite::Expression &unascribed = expression.getBranch();
+    for (requite::Expression &attribute : unascribed.getNextSubrange()) {
+      requite::AttributeType type =
+          requite::getAttributeType(attribute.getOpcode());
+      REQUITE_ASSERT(type != requite::AttributeType::NONE);
+    }
   }
   case requite::Opcode::PROPERTY:
     return this->tabulateProperty(module, scope, expression, attributes);
@@ -147,11 +149,48 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
   switch (const requite::Opcode opcode = expression.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     REQUITE_ASSERT(!attributes.getHasAnyAttribute());
-    // TODO
+    requite::Expression &unascribed = expression.getBranch();
+    bool is_ok = true;
+    for (requite::Expression &attribute : unascribed.getNextSubrange()) {
+      if (attribute.getOpcode() == requite::Opcode::LABEL) {
+        requite::Label &label = module.makeLabel();
+        label.setAttributeExpression(attribute);
+        label.setStatementExpression(unascribed);
+        label.setContaining(scope);
+        requite::Expression &name_expression = attribute.getBranch();
+        if (name_expression.getOpcode() !=
+            requite::Opcode::__IDENTIFIER_LITERAL) {
+          this->logErrorNonInstantEvaluatableName(name_expression);
+          is_ok = false;
+        } else {
+          llvm::StringRef name = name_expression.getSourceText();
+          if (scope.getHasSymbolOfName(name)) {
+            this->logErrorAlreadySymbolOfName(name_expression);
+            is_ok = false;
+          } else {
+            label.setName(name);
+            scope.addSymbol(label);
+          }
+        }
+        continue;
+      }
+      requite::AttributeType type =
+          requite::getAttributeType(attribute.getOpcode());
+      REQUITE_ASSERT(type != requite::AttributeType::NONE);
+      if (type != requite::AttributeType::USER && attributes.getHasAttribute(type)) {
+         this->logSourceMessage(attribute, requite::LogType::ERROR,
+                               llvm::Twine(requite::getName(type)) +
+                                   " attribute is ascribed more than once");
+        is_ok = false;
+        continue;
+      }
+      attributes.addAttribute(type);
+    }
+    return this->tabulateLocalUserSymbol(module, scope, unascribed, attributes) && is_ok;
   }
   case requite::Opcode::_LOCAL: {
     const bool attributes_ok = !attributes.getHasAnyAttribute();
-    return this->tabulateScope(module, scope, expression) && attributes_ok;
+    return this->tabulateLocal(module, scope, expression) && attributes_ok;
   }
   case requite::Opcode::IF:
     [[fallthrough]];
@@ -169,7 +208,8 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
     [[fallthrough]];
   case requite::Opcode::SCOPE: {
     const bool attributes_ok = !attributes.getHasAnyAttribute();
-    return this->tabulateScope(module, scope, expression) && attributes_ok;
+    return this->tabulateLocalStatementScope(module, scope, expression) &&
+           attributes_ok;
   }
   case requite::Opcode::IMPORT:
     return this->tabulateImport(module, scope, expression, attributes);
@@ -186,8 +226,14 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
     return this->tabulateAlias(module, scope, expression, attributes);
-  case requite::Opcode::_ORDERED_GLOBAL:
-    return this->tabulateOrderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::_ORDERED_GLOBAL: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    if (!attributes_ok) {
+      this->logErrorMustNotHaveAttributeFlags(expression);
+    }
+    return this->tabulateOrderedGlobal(module, scope, expression) &&
+           attributes_ok;
+  }
   case requite::Opcode::CONSTANT:
     return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
@@ -309,42 +355,160 @@ bool Context::tabulateTable(requite::Module &module, requite::Scope &scope,
   return is_ok;
 }
 
-bool Context::tabulateScope(requite::Module &module, requite::Scope &scope,
-                            requite::Expression &expression) {
-
-  return false;
+bool Context::tabulateLocalStatementScope(requite::Module &module,
+                                          requite::Scope &scope,
+                                          requite::Expression &expression) {
+  requite::Scope &new_scope = module.makeScope();
+  new_scope.setContaining(scope);
+  new_scope.setLocalStatement(expression);
+  expression.setScope(new_scope);
+  bool is_ok = true;
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    if (!this->tabulateLocalUserSymbol(module, new_scope, statement,
+                                       requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateObject(requite::Module &module, requite::Scope &scope,
                              requite::Expression &expression,
                              requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::OBJECT);
+  requite::Object &object = module.makeObject();
+  object.setContaining(scope);
+  object.setExpression(expression);
+  object.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      object.setName(name);
+      scope.addSymbol(object);
+    }
+  }
+  for (requite::Expression &statement : name_expression.getNextSubrange()) {
+    if (!this->tabulateMemberUserSymbol(module, object.getScope(), statement,
+                                        requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateAlias(requite::Module &module, requite::Scope &scope,
                             requite::Expression &expression,
                             requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
+  requite::Alias &alias = module.makeAlias();
+  alias.setExpression(expression);
+  alias.setContaining(scope);
+  alias.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      alias.setName(name);
+      scope.addSymbol(alias);
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateOrderedGlobal(requite::Module &module,
                                     requite::Scope &scope,
-                                    requite::Expression &expression,
-                                    requite::AttributeFlags attributes) {
-  return false;
+                                    requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ORDERED_GLOBAL);
+  requite::OrderedVariable &variable = module.makeOrderedVariable();
+  variable.setType(requite::VariableType::GLOBAL);
+  variable.setExpression(expression);
+  variable.setContaining(scope);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      variable.setName(name);
+      scope.addSymbol(variable);
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateUnorderedGlobal(requite::Module &module,
                                       requite::Scope &scope,
                                       requite::Expression &expression,
                                       requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_UNORDERED_GLOBAL);
+  requite::UnorderedVariable &variable = module.makeUnorderedVariable();
+  variable.setType(requite::VariableType::GLOBAL);
+  variable.setExpression(expression);
+  variable.setContaining(scope);
+  variable.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      variable.setName(name);
+      scope.addSymbol(variable);
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateConstant(requite::Module &module, requite::Scope &scope,
                                requite::Expression &expression,
                                requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONSTANT);
+  requite::UnorderedVariable &variable = module.makeUnorderedVariable();
+  variable.setType(requite::VariableType::CONSTANT);
+  variable.setExpression(expression);
+  variable.setContaining(scope);
+  variable.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      variable.setName(name);
+      scope.addSymbol(variable);
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateFunction(requite::Module &module, requite::Scope &scope,

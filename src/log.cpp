@@ -61,7 +61,13 @@ void Context::logErrorNonInstantEvaluatableName(
                          "symbol names must be instantly evaluatable");
 }
 
-void Context::logErrorMustNotHaveAttributeFlags(requite::Expression &expression) {
+void Context::logErrorAlreadySymbolOfName(requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         "already symbol of name");
+}
+
+void Context::logErrorMustNotHaveAttributeFlags(
+    requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          llvm::Twine(requite::getName(expression.getOpcode())) +
                              " must not have attributes");
