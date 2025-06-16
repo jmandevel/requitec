@@ -58,7 +58,7 @@ bool Context::tabulateBaseUserSymbol(requite::Module &module,
   return !attributes.getHasAnyAttribute();
 }
 
-bool Context::tabulateGlobalUserSymbol(requite::Module &module,
+bool Context::tabulateTableUserSymbol(requite::Module &module,
                                        requite::Scope &scope,
                                        requite::Expression &expression,
                                        requite::AttributeFlags attributes) {
@@ -119,13 +119,6 @@ bool Context::tabulateMemberUserSymbol(requite::Module &module,
     return this->tabulateImport(module, scope, expression, attributes);
   case requite::Opcode::USE:
     return this->tabulateUse(module, scope, expression, attributes);
-  case requite::Opcode::TABLE: {
-    const bool attributes_ok = !attributes.getHasAnyAttribute();
-    if (!attributes_ok) {
-      this->logErrorMustNotHaveAttributeFlags(expression);
-    }
-    return this->tabulateTable(module, scope, expression) && attributes_ok;
-  }
   case requite::Opcode::OBJECT:
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
@@ -218,13 +211,6 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
     return this->tabulateImport(module, scope, expression, attributes);
   case requite::Opcode::USE:
     return this->tabulateUse(module, scope, expression, attributes);
-  case requite::Opcode::TABLE: {
-    const bool attributes_ok = !attributes.getHasAnyAttribute();
-    if (!attributes_ok) {
-      this->logErrorMustNotHaveAttributeFlags(expression);
-    }
-    return this->tabulateTable(module, scope, expression) && attributes_ok;
-  }
   case requite::Opcode::OBJECT:
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
@@ -328,7 +314,7 @@ bool Context::tabulateTable(requite::Module &module, requite::Scope &scope,
     if (name_expression.getHasNext()) {
       requite::Expression &next = name_expression.getNext();
       for (requite::Expression &statement : next.getHorizontalSubrange()) {
-        std::ignore = this->tabulateGlobalUserSymbol(
+        std::ignore = this->tabulateTableUserSymbol(
             module, table.getScope(), statement, requite::AttributeFlags());
       }
     }
@@ -350,7 +336,7 @@ bool Context::tabulateTable(requite::Module &module, requite::Scope &scope,
   requite::Table &table = requite::getRef(table_ptr);
   bool is_ok = true;
   for (requite::Expression &statement : name_expression.getNextSubrange()) {
-    if (!this->tabulateGlobalUserSymbol(module, table.getScope(), statement,
+    if (!this->tabulateTableUserSymbol(module, table.getScope(), statement,
                                         requite::AttributeFlags())) {
       is_ok = false;
     }

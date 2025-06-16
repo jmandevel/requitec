@@ -3171,7 +3171,7 @@ inline void Situator::situateGlobalExpression(requite::Expression &expression) {
     expression.changeOpcode(requite::Opcode::_ORDERED_GLOBAL);
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT ||
                        SITUATION_PARAM ==
-                           requite::Situation::GLOBAL_STATEMENT ||
+                           requite::Situation::TABLE_STATEMENT ||
                        SITUATION_PARAM ==
                            requite::Situation::OBJECT_STATEMENT) {
     expression.changeOpcode(requite::Opcode::_UNORDERED_GLOBAL);

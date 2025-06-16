@@ -142,7 +142,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                             requite::Scope &scope,
                                             requite::Expression &expression,
                                             requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateGlobalUserSymbol(requite::Module &module,
+  [[nodiscard]] bool tabulateTableUserSymbol(requite::Module &module,
                                               requite::Scope &scope,
                                               requite::Expression &expression,
                                               requite::AttributeFlags attributes);

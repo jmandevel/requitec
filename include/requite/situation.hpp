@@ -21,7 +21,7 @@ enum class Situation {
   NONE,
   ROOT_STATEMENT,
   BASE_STATEMENT,
-  GLOBAL_STATEMENT,
+  TABLE_STATEMENT,
   OBJECT_STATEMENT,
   MATTE_LOCAL_STATEMENT,
   VALUE_REFLECTIVE_LOCAL_STATEMENT,
@@ -90,7 +90,7 @@ getCanBeRootStatementSituation(requite::Opcode opcode);
 getCanBeBaseStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeGlobalStatementSituation(requite::Opcode opcode);
+getCanBeTableStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteLocalStatementSituation(requite::Opcode opcode);

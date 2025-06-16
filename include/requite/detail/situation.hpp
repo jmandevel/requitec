@@ -17,8 +17,8 @@ constexpr llvm::StringRef getName() {
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
     return "BASE_STATEMENT";
   } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::GLOBAL_STATEMENT) {
-    return "GLOBAL_STATEMENT";
+                       requite::Situation::TABLE_STATEMENT) {
+    return "TABLE_STATEMENT";
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::OBJECT_STATEMENT) {
     return "OBJECT_STATEMENT";
@@ -127,8 +127,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
     return requite::getCanBeBaseStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::GLOBAL_STATEMENT) {
-    return requite::getCanBeGlobalStatementSituation(opcode);
+                       requite::Situation::TABLE_STATEMENT) {
+    return requite::getCanBeTableStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::MATTE_LOCAL_STATEMENT) {
     return requite::getCanBeMatteLocalStatementSituation(opcode);
@@ -212,9 +212,9 @@ constexpr requite::Situation getNextScopeStatementSituation() {
   if constexpr (SITUATION_PARAM == requite::Situation::ROOT_STATEMENT) {
     return requite::Situation::BASE_STATEMENT;
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
-    return requite::Situation::GLOBAL_STATEMENT;
+    return requite::Situation::TABLE_STATEMENT;
   } else if constexpr (SITUATION_PARAM ==
-                           requite::Situation::GLOBAL_STATEMENT ||
+                           requite::Situation::TABLE_STATEMENT ||
                        SITUATION_PARAM ==
                            requite::Situation::OBJECT_STATEMENT ||
                        SITUATION_PARAM ==
@@ -321,8 +321,8 @@ constexpr bool getCanBeBaseStatementSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_BASE_STATEMENT);
 }
 
-constexpr bool getCanBeGlobalStatementSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode, requite::_opcode::_GLOBAL_STATEMENT);
+constexpr bool getCanBeTableStatementSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_TABLE_STATEMENT);
 }
 
 constexpr bool getCanBeMatteLocalStatementSituation(requite::Opcode opcode) {
