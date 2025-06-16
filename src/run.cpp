@@ -70,7 +70,7 @@ bool Context::run() {
       if (requite::options::INTERMEDIATE_SITUATED_AST.getValue()) {
         this->writeAst(module, ".situated");
       }
-      if (!this->tabulateUserSymbols()) {
+      if (!this->tabulateUserSymbols(module)) {
         is_ok_a.store(false);
         return;
       }

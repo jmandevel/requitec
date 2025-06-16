@@ -89,15 +89,15 @@ requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
 
-void Procedure::setAttributes(requite::Attributes attributes) {
+void Procedure::setAttributeFlags(requite::AttributeFlags attributes) {
   this->_attributes = attributes;
 }
 
-requite::Attributes &Procedure::getAttributes() {
+requite::AttributeFlags &Procedure::getAttributeFlags() {
   return this->_attributes;
 }
 
-const requite::Attributes &Procedure::getAttributes() const {
+const requite::AttributeFlags &Procedure::getAttributeFlags() const {
   return this->_attributes;
 }
 

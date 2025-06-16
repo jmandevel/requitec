@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/assert.hpp>
-#include <requite/attributes.hpp>
+#include <requite/attribute_flags.hpp>
 #include <requite/label.hpp>
 
 namespace requite {

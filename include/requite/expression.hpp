@@ -24,7 +24,8 @@ struct Token;
 struct ExpressionWalker;
 struct Scope;
 struct Object;
-struct Variable;
+struct OrderedVariable;
+struct UnorderedVariable;
 struct Procedure;
 struct AnonymousFunction;
 struct Alias;
@@ -39,7 +40,7 @@ struct Expression final {
   unsigned _source_text_length = 0;
   std::variant<std::monostate, std::string, requite::Scope *,
                requite::Object *, requite::Procedure *, requite::Alias *,
-               requite::AnonymousFunction *, requite::Variable *, requite::Label*, llvm::APSInt,
+               requite::AnonymousFunction *, requite::UnorderedVariable *, requite::OrderedVariable*,  requite::Label*, llvm::APSInt,
                requite::Symbol>
       _data = std::monostate{};
 
@@ -179,10 +180,14 @@ struct Expression final {
   inline void setAlias(requite::Alias &alias);
   [[nodiscard]] inline requite::Alias &getAlias();
   [[nodiscard]] inline const requite::Alias &getAlias() const;
-  inline void setVariable(requite::Variable &variable);
-  [[nodiscard]] inline bool getHasVariable() const;
-  [[nodiscard]] inline requite::Variable &getVariable();
-  [[nodiscard]] inline const requite::Variable &getVariable() const;
+  inline void setUnorderedVariable(requite::UnorderedVariable &variable);
+  [[nodiscard]] inline bool getHasUnorderedVariable() const;
+  [[nodiscard]] inline requite::UnorderedVariable &getUnorderedVariable();
+  [[nodiscard]] inline const requite::UnorderedVariable &getUnorderedVariable() const;
+  inline void setOrderedVariable(requite::OrderedVariable &variable);
+  [[nodiscard]] inline bool getHasOrderedVariable() const;
+  [[nodiscard]] inline requite::OrderedVariable &getOrderedVariable();
+  [[nodiscard]] inline const requite::OrderedVariable &getOrderedVariable() const;
   inline void setProcedure(requite::Procedure &procedure);
   [[nodiscard]] inline bool getHasLabel() const;
   inline void setLabel(requite::Label& label);

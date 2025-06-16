@@ -10,12 +10,13 @@
 #include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/object.hpp>
+#include <requite/ordered_variable.hpp>
 #include <requite/procedure.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol.hpp>
 #include <requite/table.hpp>
 #include <requite/tuple.hpp>
-#include <requite/variable.hpp>
+#include <requite/unordered_variable.hpp>
 
 namespace requite {
 
@@ -103,10 +104,17 @@ requite::RootSymbol RootSymbol::makeUser(requite::Alias &alias) {
   return requite::RootSymbol(root);
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Variable &variable) {
+requite::RootSymbol RootSymbol::makeUser(requite::OrderedVariable &variable) {
   requite::RootSymbol root;
-  root.setType(requite::RootSymbolType::VARIABLE);
-  root.setVariable(variable);
+  root.setType(requite::RootSymbolType::ORDERED_VARIABLE);
+  root.setOrderedVariable(variable);
+  return requite::RootSymbol(root);
+}
+
+requite::RootSymbol RootSymbol::makeUser(requite::UnorderedVariable &variable) {
+  requite::RootSymbol root;
+  root.setType(requite::RootSymbolType::UNORDERED_VARIABLE);
+  root.setUnorderedVariable(variable);
   return requite::RootSymbol(root);
 }
 
@@ -262,8 +270,12 @@ bool RootSymbol::getIsAlias() const {
   return this->_type == requite::RootSymbolType::ALIAS;
 }
 
-bool RootSymbol::getIsVariable() const {
-  return this->_type == requite::RootSymbolType::VARIABLE;
+bool RootSymbol::getIsOrderedVariable() const {
+  return this->_type == requite::RootSymbolType::ORDERED_VARIABLE;
+}
+
+bool RootSymbol::getIsUnorderedVariable() const {
+  return this->_type == requite::RootSymbolType::UNORDERED_VARIABLE;
 }
 
 bool RootSymbol::getIsProcedure() const {
@@ -388,24 +400,44 @@ requite::Alias &RootSymbol::getAlias() {
   return requite::getRef(this->_alias_ptr);
 }
 
-bool RootSymbol::getHasVariable() const {
-  REQUITE_ASSERT(this->getIsVariable());
-  return this->_variable_ptr != nullptr;
+bool RootSymbol::getHasOrderedVariable() const {
+  REQUITE_ASSERT(this->getIsOrderedVariable());
+  return this->_ordered_variable_ptr != nullptr;
 }
 
-void RootSymbol::setVariable(requite::Variable &variable) {
-  REQUITE_ASSERT(this->getIsVariable());
-  requite::setSingleRef(this->_variable_ptr, variable);
+void RootSymbol::setOrderedVariable(requite::OrderedVariable &variable) {
+  REQUITE_ASSERT(this->getIsOrderedVariable());
+  requite::setSingleRef(this->_ordered_variable_ptr, variable);
 }
 
-requite::Variable &RootSymbol::getVariable() {
-  REQUITE_ASSERT(this->getIsVariable());
-  return requite::getRef(this->_variable_ptr);
+requite::OrderedVariable &RootSymbol::getOrderedVariable() {
+  REQUITE_ASSERT(this->getIsOrderedVariable());
+  return requite::getRef(this->_ordered_variable_ptr);
 }
 
-const requite::Variable &RootSymbol::getVariable() const {
-  REQUITE_ASSERT(this->getIsVariable());
-  return requite::getRef(this->_variable_ptr);
+const requite::OrderedVariable &RootSymbol::getOrderedVariable() const {
+  REQUITE_ASSERT(this->getIsOrderedVariable());
+  return requite::getRef(this->_ordered_variable_ptr);
+}
+
+bool RootSymbol::getHasUnorderedVariable() const {
+  REQUITE_ASSERT(this->getIsUnorderedVariable());
+  return this->_unordered_variable_ptr != nullptr;
+}
+
+void RootSymbol::setUnorderedVariable(requite::UnorderedVariable &variable) {
+  REQUITE_ASSERT(this->getIsUnorderedVariable());
+  requite::setSingleRef(this->_unordered_variable_ptr, variable);
+}
+
+requite::UnorderedVariable &RootSymbol::getUnorderedVariable() {
+  REQUITE_ASSERT(this->getIsUnorderedVariable());
+  return requite::getRef(this->_unordered_variable_ptr);
+}
+
+const requite::UnorderedVariable &RootSymbol::getUnorderedVariable() const {
+  REQUITE_ASSERT(this->getIsUnorderedVariable());
+  return requite::getRef(this->_unordered_variable_ptr);
 }
 
 bool RootSymbol::getHasProcedure() const {
@@ -490,24 +522,24 @@ requite::Label &RootSymbol::getLabel() {
   return requite::getRef(this->_label_ptr);
 }
 
-requite::Attributes &RootSymbol::getUserAttributes() {
-  REQUITE_ASSERT(requite::getHasUserAttributes(this->getType()));
+requite::AttributeFlags &RootSymbol::getUserAttributeFlags() {
+  REQUITE_ASSERT(requite::getHasUserAttributeFlags(this->getType()));
   switch (this->getType()) {
   case requite::RootSymbolType::OBJECT: {
     requite::Object &object = this->getObject();
-    return object.getAttributes();
+    return object.getAttributeFlags();
   } break;
   case requite::RootSymbolType::ALIAS: {
     requite::Alias &alias = this->getAlias();
-    return alias.getAttributes();
+    return alias.getAttributeFlags();
   } break;
-  case requite::RootSymbolType::VARIABLE: {
-    requite::Variable &variable = this->getVariable();
-    return variable.getAttributes();
+  case requite::RootSymbolType::UNORDERED_VARIABLE: {
+    requite::UnorderedVariable &variable = this->getUnorderedVariable();
+    return variable.getAttributeFlags();
   } break;
   case requite::RootSymbolType::PROCEDURE: {
     requite::Procedure &procedure = this->getProcedure();
-    return procedure.getAttributes();
+    return procedure.getAttributeFlags();
   } break;
   default:
     break;

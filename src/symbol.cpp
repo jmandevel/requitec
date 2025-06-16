@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/assert.hpp>
-#include <requite/attributes.hpp>
+#include <requite/attribute_flags.hpp>
 #include <requite/symbol.hpp>
 
 namespace requite {
@@ -31,11 +31,11 @@ requite::RootSymbol &Symbol::getRoot() { return this->_root; }
 
 const requite::RootSymbol &Symbol::getRoot() const { return this->_root; }
 
-requite::Attributes &Symbol::getRootAttributes() {
+requite::AttributeFlags &Symbol::getRootAttributeFlags() {
   return this->_root_attributes;
 }
 
-const requite::Attributes &Symbol::getRootAttributes() const {
+const requite::AttributeFlags &Symbol::getRootAttributeFlags() const {
   return this->_root_attributes;
 }
 
@@ -53,7 +53,7 @@ void Symbol::wrapSymbol(const requite::Symbol &symbol) {
   this->getRoot() = requite::RootSymbol(symbol.getRoot());
 }
 
-void Symbol::applyAttributes(const requite::Attributes &attributes) {
+void Symbol::applyAttributeFlags(const requite::AttributeFlags &attributes) {
   REQUITE_ASSERT(!this->_root_attributes.getHasAnyAttribute());
   // NOTE:
   //  when resolving, we don't know if an ascription is applied to a sub or a
@@ -67,7 +67,7 @@ requite::SubSymbol &Symbol::makeSubSymbol() {
   // NOTE:
   //  we found a sub, so move the attributes from the root to the new subtype
   //  as explained in Symbol::applyAttirbutes() comment.
-  sub.getAttributes() = this->getRootAttributes();
+  sub.getAttributeFlags() = this->getRootAttributeFlags();
   this->_root_attributes.clear();
   return sub;
 }

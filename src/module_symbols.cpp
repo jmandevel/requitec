@@ -10,7 +10,8 @@
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
 #include <requite/table.hpp>
-#include <requite/variable.hpp>
+#include <requite/ordered_variable.hpp>
+#include <requite/unordered_variable.hpp>
 
 namespace requite {
 
@@ -54,10 +55,16 @@ requite::Alias &Module::makeAlias() {
   return requite::getRef(alias_uptr);
 }
 
-requite::Variable &Module::makeVariable() {
-  std::unique_ptr<requite::Variable> &variable_uptr =
-      this->_variable_uptrs.emplace_back(std::make_unique<requite::Variable>());
-  return requite::getRef(variable_uptr);
+requite::OrderedVariable &Module::makeOrderedVariable() {
+  std::unique_ptr<requite::OrderedVariable> &ordered_variable_uptr =
+      this->_ordered_variable_uptrs.emplace_back(std::make_unique<requite::OrderedVariable>());
+  return requite::getRef(ordered_variable_uptr);
+}
+
+requite::UnorderedVariable &Module::makeUnorderedVariable() {
+  std::unique_ptr<requite::UnorderedVariable> &unordered_variable_uptr =
+      this->_unordered_variable_uptrs.emplace_back(std::make_unique<requite::UnorderedVariable>());
+  return requite::getRef(unordered_variable_uptr);
 }
 
 requite::AnonymousFunction &Module::makeAnonymousFunction() {
@@ -128,13 +135,22 @@ Module::getAliasUptrs() const {
   return this->_alias_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Variable>> &Module::getVariableUptrs() {
-  return this->_variable_uptrs;
+std::vector<std::unique_ptr<requite::OrderedVariable>> &Module::getOrderedVariableUptrs() {
+  return this->_ordered_variable_uptrs;
 }
 
-const std::vector<std::unique_ptr<requite::Variable>> &
-Module::getVariableUptrs() const {
-  return this->_variable_uptrs;
+const std::vector<std::unique_ptr<requite::OrderedVariable>> &
+Module::getOrderedVariableUptrs() const {
+  return this->_ordered_variable_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::UnorderedVariable>> &Module::getUnorderedVariableUptrs() {
+  return this->_unordered_variable_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::UnorderedVariable>> &
+Module::getUnorderedVariableUptrs() const {
+  return this->_unordered_variable_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::AnonymousFunction>> &

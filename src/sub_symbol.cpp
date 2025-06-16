@@ -25,9 +25,9 @@ void SubSymbol::setType(requite::SubSymbolType type) {
 
 requite::SubSymbolType SubSymbol::getType() const { return this->_type; }
 
-requite::Attributes &SubSymbol::getAttributes() { return this->_attributes; }
+requite::AttributeFlags &SubSymbol::getAttributeFlags() { return this->_attributes; }
 
-const requite::Attributes &SubSymbol::getAttributes() const {
+const requite::AttributeFlags &SubSymbol::getAttributeFlags() const {
   return this->_attributes;
 }
 

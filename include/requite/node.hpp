@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <requite/attributes.hpp>
+#include <requite/attribute_flags.hpp>
 #include <requite/node_type.hpp>
 
 #include <llvm/ADT/StringRef.h>
@@ -20,7 +20,7 @@ struct Node final {
 
   requite::NodeType _type = requite::NodeType::NONE;
   requite::Expression *_expression_ptr = nullptr;
-  requite::Attributes _attributes = {};
+  requite::AttributeFlags _attributes = {};
 
   // node.cpp
   Node() = default;
@@ -35,10 +35,9 @@ struct Node final {
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
-  [[nodiscard]] bool getHasAttributes() const;
-  void setAttributes(requite::Attributes attributes);
-  [[nodiscard]] requite::Attributes &getAttributes();
-  [[nodiscard]] const requite::Attributes &getAttributes() const;
+  void setAttributeFlags(requite::AttributeFlags attributes);
+  [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
+  [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
 };
 
 } // namespace requite

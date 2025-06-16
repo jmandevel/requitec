@@ -45,9 +45,16 @@ bool Context::prototypeUserSymbol(requite::Module &module) {
       is_ok = false;
     }
   }
-  for (std::unique_ptr<requite::Variable> &variable_uptr :
-       module.getVariableUptrs()) {
-    requite::Variable &variable = requite::getRef(variable_uptr);
+  for (std::unique_ptr<requite::OrderedVariable> &variable_uptr :
+       module.getOrderedVariableUptrs()) {
+    requite::OrderedVariable &variable = requite::getRef(variable_uptr);
+    if (!this->prototypeUserSymbol(variable)) {
+      is_ok = false;
+    }
+  }
+  for (std::unique_ptr<requite::UnorderedVariable> &variable_uptr :
+       module.getUnorderedVariableUptrs()) {
+    requite::UnorderedVariable &variable = requite::getRef(variable_uptr);
     if (!this->prototypeUserSymbol(variable)) {
       is_ok = false;
     }
@@ -99,9 +106,21 @@ bool Context::prototypeUserSymbol(requite::Alias &alias) {
   return true;
 }
 
-bool Context::prototypeUserSymbol(requite::Variable &variable) {
+bool Context::prototypeUserSymbol(requite::OrderedVariable &variable) {
   requite::Expression& expression = variable.getExpression();
   requite::Scope &scope = variable.getContaining();
+  requite::Expression& value_expression = expression.getBranch(1);
+  requite::Symbol &type = variable.getDataType();
+  if (!this->inferenceTypeOfValue(type, scope, value_expression))
+  {
+    return false;
+  }
+  return true;
+}
+
+bool Context::prototypeUserSymbol(requite::UnorderedVariable &variable) {
+  requite::Expression& expression = variable.getExpression();
+  requite::Scope &scope = variable.getScope();
   requite::Expression& value_expression = expression.getBranch(1);
   requite::Symbol &type = variable.getDataType();
   if (!this->inferenceTypeOfValue(type, scope, value_expression))

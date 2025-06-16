@@ -137,7 +137,88 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool mapModules();
 
   // tabulate_user_symbols.cpp
-  [[nodiscard]] bool tabulateUserSymbols();
+  [[nodiscard]] bool tabulateUserSymbols(requite::Module &module);
+  [[nodiscard]] bool tabulateBaseUserSymbol(requite::Module &module,
+                                            requite::Scope &scope,
+                                            requite::Expression &expression,
+                                            requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateGlobalUserSymbol(requite::Module &module,
+                                              requite::Scope &scope,
+                                              requite::Expression &expression,
+                                              requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateMemberUserSymbol(requite::Module &module,
+                                              requite::Scope &scope,
+                                              requite::Expression &expression,
+                                              requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateLocalUserSymbol(requite::Module &module,
+                                             requite::Scope &scope,
+                                             requite::Expression &expression,
+                                             requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateScopedValues(requite::Module &module,
+                                          requite::Scope &scope,
+                                          requite::Expression &expression);
+  [[nodiscard]] bool tabulateEntryPoint(requite::Module &module,
+                                        requite::Scope &scope,
+                                        requite::Expression &expression);
+  [[nodiscard]] bool tabulateImport(requite::Module &module,
+                                    requite::Scope &scope,
+                                    requite::Expression &expression,
+                                    requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateUse(requite::Module &module, requite::Scope &scope,
+                                 requite::Expression &expression,
+                                 requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateTable(requite::Module &module,
+                                   requite::Scope &scope,
+                                   requite::Expression &expression);
+  [[nodiscard]] bool tabulateScope(requite::Module &module,
+                                   requite::Scope &scope,
+                                   requite::Expression &expression);
+  [[nodiscard]] bool tabulateObject(requite::Module &module,
+                                    requite::Scope &scope,
+                                    requite::Expression &expression,
+                                    requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateAlias(requite::Module &module,
+                                   requite::Scope &scope,
+                                   requite::Expression &expression,
+                                   requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateOrderedGlobal(requite::Module &module,
+                                           requite::Scope &scope,
+                                           requite::Expression &expression,
+                                           requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateUnorderedGlobal(requite::Module &module,
+                                             requite::Scope &scope,
+                                             requite::Expression &expression,
+                                             requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateConstant(requite::Module &module,
+                                      requite::Scope &scope,
+                                      requite::Expression &expression,
+                                      requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateFunction(requite::Module &module,
+                                      requite::Scope &scope,
+                                      requite::Expression &expression,
+                                      requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateProperty(requite::Module &module,
+                                      requite::Scope &scope,
+                                      requite::Expression &expression,
+                                      requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateConstructor(requite::Module &module,
+                                         requite::Scope &scope,
+                                         requite::Expression &expression,
+                                         requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateDestructor(requite::Module &module,
+                                        requite::Scope &scope,
+                                        requite::Expression &expression,
+                                        requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateMethod(requite::Module &module,
+                                    requite::Scope &scope,
+                                    requite::Expression &expression,
+                                    requite::AttributeFlags attributes);
+  [[nodiscard]] bool tabulateLocal(requite::Module &module,
+                                   requite::Scope &scope,
+                                   requite::Expression &expression);
+  [[nodiscard]] bool tabulateAnonymousFunction(requite::Module &module,
+                                               requite::Scope &scope,
+                                               requite::Expression &expression);
 
   // prototype_user_symbols.cpp
   [[nodiscard]] bool prototypeUserSymbols();
@@ -145,7 +226,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool prototypeUserSymbol(requite::Object &object);
   [[nodiscard]] bool prototypeUserSymbol(requite::Procedure &procedure);
   [[nodiscard]] bool prototypeUserSymbol(requite::Alias &alias);
-  [[nodiscard]] bool prototypeUserSymbol(requite::Variable &variable);
+  [[nodiscard]] bool prototypeUserSymbol(requite::OrderedVariable &variable);
+  [[nodiscard]] bool prototypeUserSymbol(requite::UnorderedVariable &variable);
   [[nodiscard]] bool
   prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
 
@@ -155,25 +237,23 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool buildUserSymbol(requite::Object &object);
   [[nodiscard]] bool buildUserSymbol(requite::Procedure &procedure);
   [[nodiscard]] bool buildUserSymbol(requite::Alias &alias);
-  [[nodiscard]] bool buildUserSymbol(requite::Variable &variable);
+  [[nodiscard]] bool buildUserSymbol(requite::UnorderedVariable &variable);
   [[nodiscard]] bool
   buildUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // resolve_symbols.cpp
-  // resolve a symbol.
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
                                    requite::Scope &scope,
                                    requite::Expression &symbol_expression);
-  // resolve a symbol with an associated value that could be partially
-  // inferenced.
   [[nodiscard]] bool resolveTypeOfValue(requite::Symbol &out_symbol,
                                         requite::Scope &scope,
                                         requite::Expression &symbol_expression,
                                         requite::Expression &value_expression);
-  // inference the type of a value.
   [[nodiscard]] bool
   inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
                        requite::Expression &value_expression);
+  [[nodiscard]] bool
+  resolveTypeAttributes(requite::AttributeFlags flags, requite::Expression& first);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,
@@ -275,6 +355,7 @@ struct Context final : public requite::_ContextLlvmContext {
                         llvm::ArrayRef<llvm::SMRange> ranges = {},
                         llvm::ArrayRef<llvm::SMFixIt> fixits = {});
   void logErrorNonInstantEvaluatableName(requite::Expression &expression);
+  void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
 
   // detail/log.hpp

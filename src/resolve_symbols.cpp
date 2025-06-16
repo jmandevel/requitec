@@ -7,8 +7,8 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
     for (requite::Scope &containing_scope : scope.getContainingSubrange()) {
-      requite::RootSymbol user =
-          containing_scope.lookupInternalRootSymbol(symbol_expression.getDataText());
+      requite::RootSymbol user = containing_scope.lookupInternalRootSymbol(
+          symbol_expression.getDataText());
       if (user.getIsNone()) {
         continue;
       } else if (user.getIsAlias()) {
@@ -31,14 +31,15 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
     return false;
   }
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
-    requite::Expression &ascribed = symbol_expression.getBranch();
-    std::optional<requite::Attributes> result =
-        requite::Attributes::makeAttributes(*this, ascribed.getNext());
-    if (!result.has_value()) {
-      return false;
-    }
-    out_symbol.applyAttributes(result.value());
-    return this->resolveSymbol(out_symbol, scope, ascribed);
+    requite::AttributeFlags flags = {};
+    requite::Expression &unascribed = symbol_expression.getBranch();
+    requite::Expression &first_attribute = unascribed.getNext();
+    const bool attributes_ok =
+        this->resolveTypeAttributes(flags, first_attribute);
+    out_symbol.applyAttributeFlags(flags);
+    const bool next_resolve_ok =
+        this->resolveSymbol(out_symbol, scope, unascribed);
+    return attributes_ok && next_resolve_ok;
   }
   case requite::Opcode::SIGNED_INTEGER: {
     out_symbol.getRoot().setType(requite::RootSymbolType::SIGNED_INTEGER);
@@ -75,6 +76,33 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Expression &value_expression) {
   // TODO
   return false;
+}
+
+bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
+                                    requite::Expression &first) {
+  bool is_ok = true;
+  for (requite::Expression &attribute : first.getHorizontalSubrange()) {
+    const requite::Opcode opcode = attribute.getOpcode();
+    const requite::AttributeType type = requite::getAttributeType(opcode);
+    if (!requite::getIsTypeAttribute(type)) {
+      this->logSourceMessage(attribute, requite::LogType::ERROR,
+                             llvm::Twine(requite::getName(type)) +
+                                 " attribute is not type attribute");
+      is_ok = false;
+      continue;
+    }
+    if (type != requite::AttributeType::NONE) {
+      if (flags.getHasAttribute(type)) {
+        this->logSourceMessage(attribute, requite::LogType::ERROR,
+                               llvm::Twine(requite::getName(type)) +
+                                   " attribute is ascribed more than once");
+        is_ok = false;
+        continue;
+      }
+      flags.addAttribute(type);
+    }
+  }
+  return is_ok;
 }
 
 } // namespace requite

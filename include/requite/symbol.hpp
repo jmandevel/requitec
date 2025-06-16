@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <requite/attributes.hpp>
+#include <requite/attribute_flags.hpp>
 #include <requite/opcode.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -47,7 +47,8 @@ enum class RootSymbolType {
   OBJECT,
   TABLE,
   ALIAS,
-  VARIABLE,
+  ORDERED_VARIABLE,
+  UNORDERED_VARIABLE,
   PROCEDURE,
   NAMED_PROCEDURE_GROUP,
   MODULE,
@@ -57,7 +58,7 @@ enum class RootSymbolType {
 // detail/symbol.hpp
 [[nodiscard]] constexpr bool getHasDepth(requite::RootSymbolType type);
 
-[[nodiscard]] constexpr bool getHasUserAttributes(requite::RootSymbolType type);
+[[nodiscard]] constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type);
 
 struct Signature;
 struct Tuple;
@@ -66,7 +67,8 @@ struct Scope;
 struct Object;
 struct Table;
 struct Alias;
-struct Variable;
+struct OrderedVariable;
+struct UnorderedVariable;
 struct Procedure;
 struct NamedProcedureGroup;
 struct Module;
@@ -86,7 +88,8 @@ struct RootSymbol final {
     requite::Object *_object_ptr;
     requite::Table *_table_ptr;
     requite::Alias *_alias_ptr;
-    requite::Variable *_variable_ptr;
+    requite::OrderedVariable *_ordered_variable_ptr;
+    requite::UnorderedVariable *_unordered_variable_ptr;
     requite::Procedure *_procedure_ptr;
     requite::NamedProcedureGroup *_named_procedure_group_ptr;
     requite::Module *_module_ptr;
@@ -106,9 +109,11 @@ struct RootSymbol final {
   [[nodiscard]] static Self makeUser(requite::Object &object);
   [[nodiscard]] static Self makeUser(requite::Table &table);
   [[nodiscard]] static Self makeUser(requite::Alias &alias);
-  [[nodiscard]] static Self makeUser(requite::Variable &variable);
+  [[nodiscard]] static Self makeUser(requite::OrderedVariable &variable);
+  [[nodiscard]] static Self makeUser(requite::UnorderedVariable &variable);
   [[nodiscard]] static Self makeUser(requite::Procedure &procedure);
-  [[nodiscard]] static Self makeUser(requite::NamedProcedureGroup &procedure_group);
+  [[nodiscard]] static Self
+  makeUser(requite::NamedProcedureGroup &procedure_group);
   [[nodiscard]] static Self makeUser(requite::Module &module);
   [[nodiscard]] static Self makeUser(requite::Label &label);
   void setType(requite::RootSymbolType type);
@@ -137,7 +142,8 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsObject() const;
   [[nodiscard]] bool getIsTable() const;
   [[nodiscard]] bool getIsAlias() const;
-  [[nodiscard]] bool getIsVariable() const;
+  [[nodiscard]] bool getIsOrderedVariable() const;
+  [[nodiscard]] bool getIsUnorderedVariable() const;
   [[nodiscard]] bool getIsProcedure() const;
   [[nodiscard]] bool getIsNamedProcedureGroup() const;
   [[nodiscard]] bool getIsModule() const;
@@ -165,10 +171,14 @@ struct RootSymbol final {
   void setAlias(requite::Alias &alias);
   [[nodiscard]] const requite::Alias &getAlias() const;
   [[nodiscard]] requite::Alias &getAlias();
-  [[nodiscard]] bool getHasVariable() const;
-  void setVariable(requite::Variable &variable);
-  [[nodiscard]] requite::Variable &getVariable();
-  [[nodiscard]] const requite::Variable &getVariable() const;
+  [[nodiscard]] bool getHasOrderedVariable() const;
+  void setOrderedVariable(requite::OrderedVariable &variable);
+  [[nodiscard]] requite::OrderedVariable &getOrderedVariable();
+  [[nodiscard]] const requite::OrderedVariable &getOrderedVariable() const;
+  [[nodiscard]] bool getHasUnorderedVariable() const;
+  void setUnorderedVariable(requite::UnorderedVariable &variable);
+  [[nodiscard]] requite::UnorderedVariable &getUnorderedVariable();
+  [[nodiscard]] const requite::UnorderedVariable &getUnorderedVariable() const;
   [[nodiscard]] bool getHasProcedure() const;
   void setProcedure(requite::Procedure &procedure);
   [[nodiscard]] const requite::Procedure &getProcedure() const;
@@ -187,7 +197,7 @@ struct RootSymbol final {
   void setLabel(requite::Label &label);
   [[nodiscard]] const requite::Label &getLabel() const;
   [[nodiscard]] requite::Label &getLabel();
-  [[nodiscard]] requite::Attributes &getUserAttributes();
+  [[nodiscard]] requite::AttributeFlags &getUserAttributeFlags();
 };
 
 enum class SubSymbolType {
@@ -208,7 +218,7 @@ struct SubSymbol final {
   using Self = requite::SubSymbol;
 
   requite::SubSymbolType _type = requite::SubSymbolType::NONE;
-  requite::Attributes _attributes = {};
+  requite::AttributeFlags _attributes = {};
   unsigned _count = 0;
   bool _has_inferenced_count = false;
 
@@ -223,8 +233,8 @@ struct SubSymbol final {
   [[nodiscard]] bool operator!=(const Self &symrhsbol) const;
   void setType(requite::SubSymbolType type);
   [[nodiscard]] requite::SubSymbolType getType() const;
-  [[nodiscard]] requite::Attributes &getAttributes();
-  [[nodiscard]] const requite::Attributes &getAttributes() const;
+  [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
+  [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   void setCount(unsigned count);
   [[nodiscard]] unsigned getCount() const;
   void setHasInferencedCount();
@@ -235,7 +245,7 @@ struct Symbol {
   using Self = requite::Symbol;
 
   requite::RootSymbol _root = {};
-  requite::Attributes _root_attributes = {};
+  requite::AttributeFlags _root_attributes = {};
   std::vector<requite::SubSymbol> _subs = {};
 
   // symbol.cpp
@@ -253,13 +263,13 @@ struct Symbol {
   [[nodiscard]] bool getIsEmpty() const;
   [[nodiscard]] requite::RootSymbol &getRoot();
   [[nodiscard]] const requite::RootSymbol &getRoot() const;
-  [[nodiscard]] requite::Attributes &getRootAttributes();
-  [[nodiscard]] const requite::Attributes &getRootAttributes() const;
+  [[nodiscard]] requite::AttributeFlags &getRootAttributeFlags();
+  [[nodiscard]] const requite::AttributeFlags &getRootAttributeFlags() const;
   [[nodiscard]] std::vector<requite::SubSymbol> &getSubs();
   [[nodiscard]] const std::vector<requite::SubSymbol> &getSubs() const;
   void wrapSymbol(const requite::Symbol &symbol);
-  void applyAttributes(const requite::Attributes &attributes);
-  [[nodiscard]] requite::SubSymbol& makeSubSymbol();
+  void applyAttributeFlags(const requite::AttributeFlags &attributes);
+  [[nodiscard]] requite::SubSymbol &makeSubSymbol();
 };
 
 } // namespace requite

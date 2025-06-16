@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <requite/attributes.hpp>
+#include <requite/attribute_flags.hpp>
 #include <requite/procedure_type.hpp>
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
@@ -35,7 +35,7 @@ struct Procedure final {
   requite::ProcedureType _type = requite::ProcedureType::NONE;
   requite::Scope _scope = {};
   requite::Signature _signature = {};
-  requite::Attributes _attributes = {};
+  requite::AttributeFlags _attributes = {};
   requite::NamedProcedureGroup *_group_ptr = nullptr;
   requite::Procedure *_next_ptr = nullptr;
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
@@ -73,9 +73,9 @@ struct Procedure final {
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::Signature &getSignature();
   [[nodiscard]] const requite::Signature &getSignature() const;
-  void setAttributes(requite::Attributes attributes);
-  [[nodiscard]] requite::Attributes &getAttributes();
-  [[nodiscard]] const requite::Attributes &getAttributes() const;
+  void setAttributeFlags(requite::AttributeFlags attributes);
+  [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
+  [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   void
   setNamedProcedureGroup(requite::NamedProcedureGroup &group);
   [[nodiscard]] bool getHasNamedProcedureGroup() const;

@@ -55,9 +55,16 @@ void Context::logSourceMessage(const requite::Expression &expression,
       true);
 }
 
-void Context::logErrorNonInstantEvaluatableName(requite::Expression &expression) {
+void Context::logErrorNonInstantEvaluatableName(
+    requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          "symbol names must be instantly evaluatable");
+}
+
+void Context::logErrorMustNotHaveAttributeFlags(requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine(requite::getName(expression.getOpcode())) +
+                             " must not have attributes");
 }
 
 void Context::logNotSupportedYet(requite::Expression &expression) {

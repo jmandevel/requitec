@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <requite/attributes.hpp>
+#include <requite/attribute_flags.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/table.hpp>
 
@@ -17,7 +17,7 @@ namespace requite {
 
 struct Expression;
 struct Procedure;
-struct Variable;
+struct UnorderedVariable;
 
 struct Object final {
   using Self = requite::Object;
@@ -28,8 +28,8 @@ struct Object final {
   requite::Procedure *_destructor_ptr = nullptr;
   requite::Procedure *_first_constructor_ptr = nullptr;
   requite::Module *_module_ptr = nullptr;
-  requite::Attributes _attributes = {};
-  std::vector<requite::Variable *> _property_ptrs = {};
+  requite::AttributeFlags _attributes = {};
+  std::vector<requite::UnorderedVariable *> _property_ptrs = {};
 
   // object.cpp
   Object();
@@ -51,9 +51,9 @@ struct Object final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
-  void setAttributes(requite::Attributes attributes);
-  [[nodiscard]] requite::Attributes &getAttributes();
-  [[nodiscard]] const requite::Attributes &getAttributes() const;
+  void setAttributeFlags(requite::AttributeFlags attributes);
+  [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
+  [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getMangledName() const;
   [[nodiscard]] bool getHasMangledName() const;

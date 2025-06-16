@@ -39,9 +39,9 @@ bool Context::buildUserSymbol(requite::Module &module) {
       is_ok = false;
     }
   }
-  for (std::unique_ptr<requite::Variable> &variable_uptr :
-       module.getVariableUptrs()) {
-    requite::Variable &variable = requite::getRef(variable_uptr);
+  for (std::unique_ptr<requite::UnorderedVariable> &unordered_variable_uptr :
+       module.getUnorderedVariableUptrs()) {
+    requite::UnorderedVariable &variable = requite::getRef(unordered_variable_uptr);
     if (!this->buildUserSymbol(variable)) {
       is_ok = false;
     }
@@ -82,7 +82,7 @@ bool Context::buildUserSymbol(requite::Alias &alias) {
   return false;
 }
 
-bool Context::buildUserSymbol(requite::Variable &variable) {
+bool Context::buildUserSymbol(requite::UnorderedVariable &variable) {
   requite::Expression &expression = variable.getExpression();
   this->logNotSupportedYet(expression);
   return false;

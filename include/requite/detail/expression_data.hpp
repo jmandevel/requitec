@@ -170,27 +170,50 @@ inline const requite::Alias &Expression::getAlias() const {
   return requite::getRef(std::get<requite::Alias *>(this->_data));
 }
 
-inline void Expression::setVariable(requite::Variable &variable) {
-  REQUITE_ASSERT(requite::getHasVariableData(this->getOpcode()));
-  this->_data.emplace<requite::Variable *>(&variable);
+inline void Expression::setUnorderedVariable(requite::UnorderedVariable &variable) {
+  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
+  this->_data.emplace<requite::UnorderedVariable *>(&variable);
 }
 
-inline bool Expression::getHasVariable() const {
-  REQUITE_ASSERT(requite::getHasVariableData(this->getOpcode()));
-  return std::holds_alternative<requite::Variable *>(this->_data) &&
-         std::get<requite::Variable *>(this->_data) != nullptr;
+inline bool Expression::getHasUnorderedVariable() const {
+  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
+  return std::holds_alternative<requite::UnorderedVariable *>(this->_data) &&
+         std::get<requite::UnorderedVariable *>(this->_data) != nullptr;
 }
 
-inline requite::Variable &Expression::getVariable() {
-  REQUITE_ASSERT(requite::getHasVariableData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasVariable());
-  return requite::getRef(std::get<requite::Variable *>(this->_data));
+inline requite::UnorderedVariable &Expression::getUnorderedVariable() {
+  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasUnorderedVariable());
+  return requite::getRef(std::get<requite::UnorderedVariable *>(this->_data));
 }
 
-inline const requite::Variable &Expression::getVariable() const {
-  REQUITE_ASSERT(requite::getHasVariableData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasVariable());
-  return requite::getRef(std::get<requite::Variable *>(this->_data));
+inline const requite::UnorderedVariable &Expression::getUnorderedVariable() const {
+  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasUnorderedVariable());
+  return requite::getRef(std::get<requite::UnorderedVariable *>(this->_data));
+}
+
+inline void Expression::setOrderedVariable(requite::OrderedVariable &variable) {
+  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
+  this->_data.emplace<requite::OrderedVariable *>(&variable);
+}
+
+inline bool Expression::getHasOrderedVariable() const {
+  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
+  return std::holds_alternative<requite::OrderedVariable *>(this->_data) &&
+         std::get<requite::OrderedVariable *>(this->_data) != nullptr;
+}
+
+inline requite::OrderedVariable &Expression::getOrderedVariable() {
+  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasOrderedVariable());
+  return requite::getRef(std::get<requite::OrderedVariable *>(this->_data));
+}
+
+inline const requite::OrderedVariable &Expression::getOrderedVariable() const {
+  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasOrderedVariable());
+  return requite::getRef(std::get<requite::OrderedVariable *>(this->_data));
 }
 
 inline bool Expression::getHasInteger() const {

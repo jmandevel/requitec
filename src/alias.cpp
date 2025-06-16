@@ -38,15 +38,15 @@ const requite::Expression &Alias::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-void Alias::setAttributes(requite::Attributes attributes) {
+void Alias::setAttributeFlags(requite::AttributeFlags attributes) {
   this->_attributes = attributes;
 }
 
-requite::Attributes &Alias::getAttributes() {
+requite::AttributeFlags &Alias::getAttributeFlags() {
   return this->_attributes;
 }
 
-const requite::Attributes &Alias::getAttributes() const {
+const requite::AttributeFlags &Alias::getAttributeFlags() const {
   return this->_attributes;
 }
 

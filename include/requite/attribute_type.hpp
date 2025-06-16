@@ -12,6 +12,8 @@ namespace requite {
 
 enum class AttributeType {
   NONE,
+  USER,
+  MUTABLE,
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
@@ -37,6 +39,8 @@ static constexpr unsigned ATTRIBUTE_TYPE_COUNT =
 [[nodiscard]] constexpr requite::AttributeType getAttributeType(requite::Opcode opcode);
 
 [[nodiscard]] constexpr std::string_view getName(requite::AttributeType type);
+
+[[nodiscard]] constexpr bool getIsTypeAttribute(requite::AttributeType type);
 
 } // namespace requite
 

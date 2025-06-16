@@ -2,9 +2,391 @@
 
 namespace requite {
 
-bool Context::tabulateUserSymbols() {
-  // TODO
+bool Context::tabulateUserSymbols(requite::Module &module) {
+  requite::Scope &scope = module.getScope();
+  requite::Expression &root = module.getExpression();
+  bool is_ok = true;
+  for (requite::Expression &branch : root.getBranchSubrange()) {
+    if (!this->tabulateBaseUserSymbol(module, scope, branch,
+                                      requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Context::tabulateBaseUserSymbol(requite::Module &module,
+                                     requite::Scope &scope,
+                                     requite::Expression &expression,
+                                     requite::AttributeFlags attributes) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+    REQUITE_ASSERT(!attributes.getHasAnyAttribute());
+    // TODO
+  }
+  case requite::Opcode::ENTRY_POINT: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    if (!attributes_ok) {
+      this->logErrorMustNotHaveAttributeFlags(expression);
+    }
+    return this->tabulateEntryPoint(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::IMPORT:
+    return this->tabulateImport(module, scope, expression, attributes);
+  case requite::Opcode::USE:
+    return this->tabulateUse(module, scope, expression, attributes);
+  case requite::Opcode::TABLE: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    if (!attributes_ok) {
+      this->logErrorMustNotHaveAttributeFlags(expression);
+
+    }
+    return this->tabulateTable(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::OBJECT:
+    return this->tabulateObject(module, scope, expression, attributes);
+  case requite::Opcode::ALIAS:
+    return this->tabulateAlias(module, scope, expression, attributes);
+  case requite::Opcode::_UNORDERED_GLOBAL:
+    return this->tabulateUnorderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::CONSTANT:
+    return this->tabulateConstant(module, scope, expression, attributes);
+  case requite::Opcode::FUNCTION:
+    return this->tabulateFunction(module, scope, expression, attributes);
+  default:
+    break;
+  }
+  return !attributes.getHasAnyAttribute();
+}
+
+bool Context::tabulateGlobalUserSymbol(requite::Module &module,
+                                       requite::Scope &scope,
+                                       requite::Expression &expression,
+                                       requite::AttributeFlags attributes) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+    REQUITE_ASSERT(!attributes.getHasAnyAttribute());
+    // TODO
+  }
+  case requite::Opcode::IMPORT:
+    return this->tabulateImport(module, scope, expression, attributes);
+  case requite::Opcode::USE:
+    return this->tabulateUse(module, scope, expression, attributes);
+  case requite::Opcode::TABLE: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    if (!attributes_ok) {
+      this->logErrorMustNotHaveAttributeFlags(expression);
+
+    }
+    return this->tabulateTable(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::OBJECT:
+    return this->tabulateObject(module, scope, expression, attributes);
+  case requite::Opcode::ALIAS:
+    return this->tabulateAlias(module, scope, expression, attributes);
+  case requite::Opcode::_UNORDERED_GLOBAL:
+    return this->tabulateUnorderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::CONSTANT:
+    return this->tabulateConstant(module, scope, expression, attributes);
+  case requite::Opcode::FUNCTION:
+    return this->tabulateFunction(module, scope, expression, attributes);
+  default:
+    break;
+  }
+  return !attributes.getHasAnyAttribute();
+}
+
+bool Context::tabulateMemberUserSymbol(requite::Module &module,
+                                       requite::Scope &scope,
+                                       requite::Expression &expression,
+                                       requite::AttributeFlags attributes) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+    REQUITE_ASSERT(!attributes.getHasAnyAttribute());
+    // TODO
+  }
+  case requite::Opcode::PROPERTY:
+    return this->tabulateProperty(module, scope, expression, attributes);
+  case requite::Opcode::CONSTRUCTOR:
+    return this->tabulateConstructor(module, scope, expression, attributes);
+  case requite::Opcode::DESTRUCTOR:
+    return this->tabulateDestructor(module, scope, expression, attributes);
+  case requite::Opcode::METHOD:
+    return this->tabulateMethod(module, scope, expression, attributes);
+  case requite::Opcode::IMPORT:
+    return this->tabulateImport(module, scope, expression, attributes);
+  case requite::Opcode::USE:
+    return this->tabulateUse(module, scope, expression, attributes);
+  case requite::Opcode::TABLE: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    if (!attributes_ok) {
+      this->logErrorMustNotHaveAttributeFlags(expression);
+    }
+    return this->tabulateTable(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::OBJECT:
+    return this->tabulateObject(module, scope, expression, attributes);
+  case requite::Opcode::ALIAS:
+    return this->tabulateAlias(module, scope, expression, attributes);
+  case requite::Opcode::_UNORDERED_GLOBAL:
+    return this->tabulateUnorderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::CONSTANT:
+    return this->tabulateConstant(module, scope, expression, attributes);
+  case requite::Opcode::FUNCTION:
+    return this->tabulateFunction(module, scope, expression, attributes);
+  default:
+    break;
+  }
+  return !attributes.getHasAnyAttribute();
+}
+
+bool Context::tabulateLocalUserSymbol(requite::Module &module,
+                                      requite::Scope &scope,
+                                      requite::Expression &expression,
+                                      requite::AttributeFlags attributes) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+    REQUITE_ASSERT(!attributes.getHasAnyAttribute());
+    // TODO
+  }
+  case requite::Opcode::_LOCAL: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    return this->tabulateScope(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::IF:
+    [[fallthrough]];
+  case requite::Opcode::ELSE_IF:
+    [[fallthrough]];
+  case requite::Opcode::ELSE:
+    [[fallthrough]];
+  case requite::Opcode::SWITCH:
+    [[fallthrough]];
+  case requite::Opcode::DO_WHILE:
+    [[fallthrough]];
+  case requite::Opcode::FOR_EACH:
+    [[fallthrough]];
+  case requite::Opcode::LOOP:
+    [[fallthrough]];
+  case requite::Opcode::SCOPE: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    return this->tabulateScope(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::IMPORT:
+    return this->tabulateImport(module, scope, expression, attributes);
+  case requite::Opcode::USE:
+    return this->tabulateUse(module, scope, expression, attributes);
+  case requite::Opcode::TABLE: {
+    const bool attributes_ok = !attributes.getHasAnyAttribute();
+    if (!attributes_ok) {
+      this->logErrorMustNotHaveAttributeFlags(expression);
+    }
+    return this->tabulateTable(module, scope, expression) && attributes_ok;
+  }
+  case requite::Opcode::OBJECT:
+    return this->tabulateObject(module, scope, expression, attributes);
+  case requite::Opcode::ALIAS:
+    return this->tabulateAlias(module, scope, expression, attributes);
+  case requite::Opcode::_ORDERED_GLOBAL:
+    return this->tabulateOrderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::CONSTANT:
+    return this->tabulateConstant(module, scope, expression, attributes);
+  case requite::Opcode::FUNCTION:
+    return this->tabulateFunction(module, scope, expression, attributes);
+  default:
+    break;
+  }
+  const bool scoped_values_ok =
+      this->tabulateScopedValues(module, scope, expression);
+  return !attributes.getHasAnyAttribute() && scoped_values_ok;
+}
+
+bool Context::tabulateScopedValues(requite::Module &module,
+                                   requite::Scope &scope,
+                                   requite::Expression &expression) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ANONYMOUS_FUNCTION:
+    return this->tabulateAnonymousFunction(module, scope, expression);
+  case requite::Opcode::_LOCAL:
+    return this->tabulateLocal(module, scope, expression);
+  default:
+    break;
+  }
+  bool is_ok = true;
+  for (requite::Expression &branch : expression.getBranchSubrange()) {
+    if (!this->tabulateScopedValues(module, scope, expression)) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Context::tabulateEntryPoint(requite::Module &module, requite::Scope &scope,
+                                 requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ENTRY_POINT);
+  REQUITE_ASSERT(scope.getModule() == module);
+  REQUITE_ASSERT(module.getScope() == scope);
+  if (module.getHasEntryPoint()) {
+    this->logSourceMessage(expression, requite::LogType::ERROR,
+                           "duplicate entry_point in module");
+    return false;
+  }
+  requite::Procedure &procedure = module.makeProcedure();
+  procedure.setType(requite::ProcedureType::ENTRY_POINT);
+  procedure.setExpression(expression);
+  procedure.setContaining(scope);
+  module.setEntryPoint(procedure);
+  bool is_ok = true;
+  for (requite::Expression &branch : expression.getBranchSubrange()) {
+    if (!this->tabulateLocalUserSymbol(module, procedure.getScope(), branch,
+                                       requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Context::tabulateImport(requite::Module &module, requite::Scope &scope,
+                             requite::Expression &expression,
+                             requite::AttributeFlags attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::IMPORT);
+  requite::Node &node = scope.getNodes().emplace_back();
+  node.setType(requite::NodeType::IMPORT);
+  node.setExpression(expression);
+  node.setAttributeFlags(attributes);
   return true;
+}
+
+bool Context::tabulateUse(requite::Module &module, requite::Scope &scope,
+                          requite::Expression &expression,
+                          requite::AttributeFlags attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::USE);
+  requite::Node &node = scope.getNodes().emplace_back();
+  node.setType(requite::NodeType::USE);
+  node.setExpression(expression);
+  node.setAttributeFlags(attributes);
+  return true;
+}
+
+bool Context::tabulateTable(requite::Module &module, requite::Scope &scope,
+                            requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE);
+  requite::Expression &name_expression = expression.getBranch();
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    requite::Table &table = module.makeTable();
+    requite::Expression &name_expression = expression.getBranch();
+    table.setContaining(scope);
+    this->logErrorNonInstantEvaluatableName(expression);
+    if (name_expression.getHasNext()) {
+      requite::Expression &next = name_expression.getNext();
+      for (requite::Expression &statement : next.getHorizontalSubrange()) {
+        std::ignore = this->tabulateGlobalUserSymbol(
+            module, table.getScope(), statement, requite::AttributeFlags());
+      }
+    }
+    return false;
+  }
+  llvm::StringRef name = name_expression.getDataText();
+  requite::Table *table_ptr = nullptr;
+  if (scope.getHasSymbolOfName(name)) {
+    requite::Table &table = scope.lookupInternalRootSymbol(name).getTable();
+    REQUITE_ASSERT(table.getName() == name);
+    REQUITE_ASSERT(table.getContaining() == scope);
+    table_ptr = &table;
+  } else {
+    requite::Table &table = module.makeTable();
+    table.setName(name);
+    table.setContaining(scope);
+    table_ptr = &table;
+  }
+  requite::Table &table = requite::getRef(table_ptr);
+  bool is_ok = true;
+  for (requite::Expression &statement : name_expression.getNextSubrange()) {
+    if (!this->tabulateGlobalUserSymbol(module, table.getScope(), statement,
+                                        requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Context::tabulateScope(requite::Module &module, requite::Scope &scope,
+                            requite::Expression &expression) {
+
+  return false;
+}
+
+bool Context::tabulateObject(requite::Module &module, requite::Scope &scope,
+                             requite::Expression &expression,
+                             requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateAlias(requite::Module &module, requite::Scope &scope,
+                            requite::Expression &expression,
+                            requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateOrderedGlobal(requite::Module &module,
+                                    requite::Scope &scope,
+                                    requite::Expression &expression,
+                                    requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateUnorderedGlobal(requite::Module &module,
+                                      requite::Scope &scope,
+                                      requite::Expression &expression,
+                                      requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateConstant(requite::Module &module, requite::Scope &scope,
+                               requite::Expression &expression,
+                               requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateFunction(requite::Module &module, requite::Scope &scope,
+                               requite::Expression &expression,
+                               requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateProperty(requite::Module &module, requite::Scope &scope,
+                               requite::Expression &expression,
+                               requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateConstructor(requite::Module &module,
+                                  requite::Scope &scope,
+                                  requite::Expression &expression,
+                                  requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateDestructor(requite::Module &module, requite::Scope &scope,
+                                 requite::Expression &expression,
+                                 requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateMethod(requite::Module &module, requite::Scope &scope,
+                             requite::Expression &expression,
+                             requite::AttributeFlags attributes) {
+  return false;
+}
+
+bool Context::tabulateLocal(requite::Module &module, requite::Scope &scope,
+                            requite::Expression &expression) {
+  return false;
+}
+
+bool Context::tabulateAnonymousFunction(requite::Module &module,
+                                        requite::Scope &scope,
+                                        requite::Expression &expression) {
+  return false;
 }
 
 } // namespace requite

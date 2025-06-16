@@ -14,7 +14,8 @@
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
 #include <requite/table.hpp>
-#include <requite/variable.hpp>
+#include <requite/ordered_variable.hpp>
+#include <requite/unordered_variable.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
@@ -42,7 +43,8 @@ struct Module final {
       _named_procedure_group_uptrs = {};
   std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
   std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
-  std::vector<std::unique_ptr<requite::Variable>> _variable_uptrs = {};
+  std::vector<std::unique_ptr<requite::UnorderedVariable>> _unordered_variable_uptrs = {};
+  std::vector<std::unique_ptr<requite::OrderedVariable>> _ordered_variable_uptrs = {};  
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
@@ -62,7 +64,8 @@ struct Module final {
   [[nodiscard]] requite::NamedProcedureGroup &makeNamedProcedureGroup();
   [[nodiscard]] requite::Procedure &makeProcedure();
   [[nodiscard]] requite::Alias &makeAlias();
-  [[nodiscard]] requite::Variable &makeVariable();
+  [[nodiscard]] requite::OrderedVariable &makeOrderedVariable();
+  [[nodiscard]] requite::UnorderedVariable &makeUnorderedVariable();
   [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
   [[nodiscard]] requite::Label &makeLabel();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
@@ -86,10 +89,14 @@ struct Module final {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliasUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Alias>> &
   getAliasUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Variable>> &
-  getVariableUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Variable>> &
-  getVariableUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::OrderedVariable>> &
+  getOrderedVariableUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::OrderedVariable>> &
+  getOrderedVariableUptrs() const;
+    [[nodiscard]] std::vector<std::unique_ptr<requite::UnorderedVariable>> &
+  getUnorderedVariableUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::UnorderedVariable>> &
+  getUnorderedVariableUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::AnonymousFunction>> &
   getAnonymousFunctionUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::AnonymousFunction>> &

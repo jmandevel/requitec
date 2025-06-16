@@ -15,7 +15,7 @@ target_sources(
         anonymous_function.cpp
         anonymous_object.cpp
         anonymous_property.cpp
-        attributes.cpp
+        attribute_flags.cpp
         build_user_symbols.cpp
         compile_object_files.cpp
         const_expression_iterator.cpp
@@ -41,6 +41,7 @@ target_sources(
         object.cpp
         opcode.cpp
         options.cpp
+        ordered_variable.cpp
         parse_ast.cpp
         precedence_parser.cpp
         procedure.cpp
@@ -63,8 +64,8 @@ target_sources(
         token.cpp
         tokenize_tokens.cpp
         tuple.cpp
+        unordered_variable.cpp
         validate_source.cpp
-        variable.cpp
         write_ast.cpp
         write_llvm_ir.cpp
 )

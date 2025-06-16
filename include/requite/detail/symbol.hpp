@@ -46,7 +46,9 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::ALIAS:
     return false;
-  case requite::RootSymbolType::VARIABLE:
+  case requite::RootSymbolType::ORDERED_VARIABLE:
+    return false;
+  case requite::RootSymbolType::UNORDERED_VARIABLE:
     return false;
   case requite::RootSymbolType::SIGNATURE:
     return false;
@@ -66,7 +68,7 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
   REQUITE_UNREACHABLE();
 }
 
-constexpr bool getHasUserAttributes(requite::RootSymbolType type) {
+constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
   switch (type) {
   case requite::RootSymbolType::NONE:
     return false;
@@ -106,7 +108,9 @@ constexpr bool getHasUserAttributes(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::ALIAS:
     return true;
-  case requite::RootSymbolType::VARIABLE:
+  case requite::RootSymbolType::ORDERED_VARIABLE:
+    return false;
+  case requite::RootSymbolType::UNORDERED_VARIABLE:
     return true;
   case requite::RootSymbolType::SIGNATURE:
     return false;
