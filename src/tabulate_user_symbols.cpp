@@ -177,8 +177,9 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
       requite::AttributeType type =
           requite::getAttributeType(attribute.getOpcode());
       REQUITE_ASSERT(type != requite::AttributeType::NONE);
-      if (type != requite::AttributeType::USER && attributes.getHasAttribute(type)) {
-         this->logSourceMessage(attribute, requite::LogType::ERROR,
+      if (type != requite::AttributeType::USER &&
+          attributes.getHasAttribute(type)) {
+        this->logSourceMessage(attribute, requite::LogType::ERROR,
                                llvm::Twine(requite::getName(type)) +
                                    " attribute is ascribed more than once");
         is_ok = false;
@@ -186,7 +187,9 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
       }
       attributes.addAttribute(type);
     }
-    return this->tabulateLocalUserSymbol(module, scope, unascribed, attributes) && is_ok;
+    return this->tabulateLocalUserSymbol(module, scope, unascribed,
+                                         attributes) &&
+           is_ok;
   }
   case requite::Opcode::_LOCAL: {
     const bool attributes_ok = !attributes.getHasAnyAttribute();
@@ -387,11 +390,11 @@ bool Context::tabulateObject(requite::Module &module, requite::Scope &scope,
     is_ok = false;
   } else {
     llvm::StringRef name = name_expression.getSourceText();
+    object.setName(name);
     if (scope.getHasSymbolOfName(name)) {
       this->logErrorAlreadySymbolOfName(name_expression);
       is_ok = false;
     } else {
-      object.setName(name);
       scope.addSymbol(object);
     }
   }
@@ -419,11 +422,11 @@ bool Context::tabulateAlias(requite::Module &module, requite::Scope &scope,
     is_ok = false;
   } else {
     llvm::StringRef name = name_expression.getSourceText();
+    alias.setName(name);
     if (scope.getHasSymbolOfName(name)) {
       this->logErrorAlreadySymbolOfName(name_expression);
       is_ok = false;
     } else {
-      alias.setName(name);
       scope.addSymbol(alias);
     }
   }
@@ -445,11 +448,11 @@ bool Context::tabulateOrderedGlobal(requite::Module &module,
     is_ok = false;
   } else {
     llvm::StringRef name = name_expression.getSourceText();
+    variable.setName(name);
     if (scope.getHasSymbolOfName(name)) {
       this->logErrorAlreadySymbolOfName(name_expression);
       is_ok = false;
     } else {
-      variable.setName(name);
       scope.addSymbol(variable);
     }
   }
@@ -473,11 +476,11 @@ bool Context::tabulateUnorderedGlobal(requite::Module &module,
     is_ok = false;
   } else {
     llvm::StringRef name = name_expression.getSourceText();
+    variable.setName(name);
     if (scope.getHasSymbolOfName(name)) {
       this->logErrorAlreadySymbolOfName(name_expression);
       is_ok = false;
     } else {
-      variable.setName(name);
       scope.addSymbol(variable);
     }
   }
@@ -500,11 +503,11 @@ bool Context::tabulateConstant(requite::Module &module, requite::Scope &scope,
     is_ok = false;
   } else {
     llvm::StringRef name = name_expression.getSourceText();
+    variable.setName(name);
     if (scope.getHasSymbolOfName(name)) {
       this->logErrorAlreadySymbolOfName(name_expression);
       is_ok = false;
     } else {
-      variable.setName(name);
       scope.addSymbol(variable);
     }
   }
