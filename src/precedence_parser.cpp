@@ -109,6 +109,9 @@ void PrecedenceParser::parseNestedNary(requite::Parser &parser,
   } else {
     operation.setSource(token);
   }
+  if (this->_outer_ptr == nullptr) {
+    this->_outer_ptr = &operation;
+  }
   this->_operation_ptr = &operation;
   this->_last_ptr = nullptr;
 }
