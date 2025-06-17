@@ -20,6 +20,8 @@ inline bool Scope::getHasSymbolOfName(llvm::StringRef name) {
 template <typename SymbolArg> void Scope::addSymbol(SymbolArg &symbol) {
   REQUITE_ASSERT(symbol.getHasName());
   REQUITE_ASSERT(!this->getHasSymbolOfName(symbol.getName()));
+  REQUITE_ASSERT(!symbol.getHasContaining());
+  symbol.setContaining(*this);
   this->_symbol_map.insert(std::pair<llvm::StringRef, requite::RootSymbol>(
       symbol.getName(), requite::RootSymbol::makeUser(symbol)));
 }

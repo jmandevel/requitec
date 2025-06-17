@@ -38,12 +38,6 @@ const requite::Procedure &NamedProcedureGroup::getFirstProcedure() const {
   return requite::getRef(this->_first_ptr);
 }
 
-void NamedProcedureGroup::addProcedure(requite::Procedure &procedure) {
-  REQUITE_ASSERT(procedure._next_ptr == nullptr);
-  procedure._next_ptr = this->_first_ptr;
-  this->_first_ptr = &procedure;
-}
-
 bool NamedProcedureGroup::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
 }

@@ -40,7 +40,6 @@ struct NamedProcedureGroup final {
   [[nodiscard]] bool getHasProcedures() const;
   [[nodiscard]] requite::Procedure &getFirstProcedure();
   [[nodiscard]] const requite::Procedure &getFirstProcedure() const;
-  void addProcedure(requite::Procedure &procedure);
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();

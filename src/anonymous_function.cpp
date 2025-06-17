@@ -7,6 +7,10 @@
 
 namespace requite {
 
+AnonymousFunction::AnonymousFunction() {
+  this->_scope.setAnonymousFunction(*this);
+}
+
 bool AnonymousFunction::operator==(const Self &rhs) const {
   return this == &rhs;
 }

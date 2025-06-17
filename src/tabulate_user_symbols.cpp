@@ -22,7 +22,21 @@ bool Context::tabulateBaseUserSymbol(requite::Module &module,
   switch (const requite::Opcode opcode = expression.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     REQUITE_ASSERT(!attributes.getHasAnyAttribute());
-    // TODO
+    requite::Expression &unascribed = expression.getBranch();
+    bool is_ok = true;
+    for (requite::Expression &attribute : unascribed.getNextSubrange()) {
+      requite::AttributeType type =
+          requite::getAttributeType(attribute.getOpcode());
+      if (attributes.getHasAttribute(type) && type != requite::AttributeType::USER) {
+        this->logErrorDuplicateAttribute(attribute, type);
+        is_ok = false;
+        continue;
+      }
+    }
+    if (!this->tabulateBaseUserSymbol(module, scope, unascribed, attributes)) {
+      is_ok = false;
+    }
+    return is_ok;
   }
   case requite::Opcode::ENTRY_POINT: {
     const bool attributes_ok = !attributes.getHasAnyAttribute();
@@ -65,7 +79,21 @@ bool Context::tabulateTableUserSymbol(requite::Module &module,
   switch (const requite::Opcode opcode = expression.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     REQUITE_ASSERT(!attributes.getHasAnyAttribute());
-    // TODO
+    requite::Expression &unascribed = expression.getBranch();
+    bool is_ok = true;
+    for (requite::Expression &attribute : unascribed.getNextSubrange()) {
+      requite::AttributeType type =
+          requite::getAttributeType(attribute.getOpcode());
+      if (attributes.getHasAttribute(type) && type != requite::AttributeType::USER) {
+        this->logErrorDuplicateAttribute(attribute, type);
+        is_ok = false;
+        continue;
+      }
+    }
+    if (!this->tabulateTableUserSymbol(module, scope, unascribed, attributes)) {
+      is_ok = false;
+    }
+    return is_ok;
   }
   case requite::Opcode::IMPORT:
     return this->tabulateImport(module, scope, expression, attributes);
@@ -101,11 +129,20 @@ bool Context::tabulateMemberUserSymbol(requite::Module &module,
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     REQUITE_ASSERT(!attributes.getHasAnyAttribute());
     requite::Expression &unascribed = expression.getBranch();
+    bool is_ok = true;
     for (requite::Expression &attribute : unascribed.getNextSubrange()) {
       requite::AttributeType type =
           requite::getAttributeType(attribute.getOpcode());
-      REQUITE_ASSERT(type != requite::AttributeType::NONE);
+      if (attributes.getHasAttribute(type) && type != requite::AttributeType::USER) {
+        this->logErrorDuplicateAttribute(attribute, type);
+        is_ok = false;
+        continue;
+      }
     }
+    if (!this->tabulateMemberUserSymbol(module, scope, unascribed, attributes)) {
+      is_ok = false;
+    }
+    return is_ok;
   }
   case requite::Opcode::PROPERTY:
     return this->tabulateProperty(module, scope, expression, attributes);
@@ -149,7 +186,6 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
         requite::Label &label = module.makeLabel();
         label.setAttributeExpression(attribute);
         label.setStatementExpression(unascribed);
-        label.setContaining(scope);
         requite::Expression &name_expression = attribute.getBranch();
         if (name_expression.getOpcode() !=
             requite::Opcode::__IDENTIFIER_LITERAL) {
@@ -169,12 +205,9 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
       }
       requite::AttributeType type =
           requite::getAttributeType(attribute.getOpcode());
-      REQUITE_ASSERT(type != requite::AttributeType::NONE);
       if (type != requite::AttributeType::USER &&
           attributes.getHasAttribute(type)) {
-        this->logSourceMessage(attribute, requite::LogType::ERROR,
-                               llvm::Twine(requite::getName(type)) +
-                                   " attribute is ascribed more than once");
+        this->logErrorDuplicateAttribute(attribute, type);
         is_ok = false;
         continue;
       }
@@ -268,7 +301,6 @@ bool Context::tabulateEntryPoint(requite::Module &module, requite::Scope &scope,
   requite::Procedure &procedure = module.makeProcedure();
   procedure.setType(requite::ProcedureType::ENTRY_POINT);
   procedure.setExpression(expression);
-  procedure.setContaining(scope);
   module.setEntryPoint(procedure);
   bool is_ok = true;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
@@ -309,7 +341,6 @@ bool Context::tabulateTable(requite::Module &module, requite::Scope &scope,
   if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
     requite::Table &table = module.makeTable();
     requite::Expression &name_expression = expression.getBranch();
-    table.setContaining(scope);
     this->logErrorNonInstantEvaluatableName(expression);
     if (name_expression.getHasNext()) {
       requite::Expression &next = name_expression.getNext();
@@ -322,19 +353,25 @@ bool Context::tabulateTable(requite::Module &module, requite::Scope &scope,
   }
   llvm::StringRef name = name_expression.getDataText();
   requite::Table *table_ptr = nullptr;
-  if (scope.getHasSymbolOfName(name)) {
-    requite::Table &table = scope.lookupInternalRootSymbol(name).getTable();
+  requite::RootSymbol found = scope.lookupInternalRootSymbol(name);
+  bool is_ok = true;
+  if (found.getIsTable()) {
+    requite::Table &table = found.getTable();
     REQUITE_ASSERT(table.getName() == name);
     REQUITE_ASSERT(table.getContaining() == scope);
     table_ptr = &table;
   } else {
     requite::Table &table = module.makeTable();
     table.setName(name);
-    table.setContaining(scope);
     table_ptr = &table;
+    if (found.getIsNone()) {
+      scope.addSymbol(table);
+    } else {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    }
   }
   requite::Table &table = requite::getRef(table_ptr);
-  bool is_ok = true;
   for (requite::Expression &statement : name_expression.getNextSubrange()) {
     if (!this->tabulateTableUserSymbol(module, table.getScope(), statement,
                                         requite::AttributeFlags())) {
@@ -348,7 +385,6 @@ bool Context::tabulateLocalStatementScope(requite::Module &module,
                                           requite::Scope &scope,
                                           requite::Expression &expression) {
   requite::Scope &new_scope = module.makeScope();
-  new_scope.setContaining(scope);
   new_scope.setLocalStatement(expression);
   expression.setScope(new_scope);
   bool is_ok = true;
@@ -366,7 +402,6 @@ bool Context::tabulateObject(requite::Module &module, requite::Scope &scope,
                              requite::AttributeFlags attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::OBJECT);
   requite::Object &object = module.makeObject();
-  object.setContaining(scope);
   object.setExpression(expression);
   object.setAttributeFlags(attributes);
   requite::Expression &name_expression = expression.getBranch();
@@ -399,7 +434,6 @@ bool Context::tabulateAlias(requite::Module &module, requite::Scope &scope,
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
   requite::Alias &alias = module.makeAlias();
   alias.setExpression(expression);
-  alias.setContaining(scope);
   alias.setAttributeFlags(attributes);
   requite::Expression &name_expression = expression.getBranch();
   bool is_ok = true;
@@ -426,7 +460,6 @@ bool Context::tabulateOrderedGlobal(requite::Module &module,
   requite::OrderedVariable &variable = module.makeOrderedVariable();
   variable.setType(requite::VariableType::GLOBAL);
   variable.setExpression(expression);
-  variable.setContaining(scope);
   requite::Expression &name_expression = expression.getBranch();
   bool is_ok = true;
   if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
@@ -453,7 +486,6 @@ bool Context::tabulateUnorderedGlobal(requite::Module &module,
   requite::UnorderedVariable &variable = module.makeUnorderedVariable();
   variable.setType(requite::VariableType::GLOBAL);
   variable.setExpression(expression);
-  variable.setContaining(scope);
   variable.setAttributeFlags(attributes);
   requite::Expression &name_expression = expression.getBranch();
   bool is_ok = true;
@@ -480,7 +512,6 @@ bool Context::tabulateConstant(requite::Module &module, requite::Scope &scope,
   requite::UnorderedVariable &variable = module.makeUnorderedVariable();
   variable.setType(requite::VariableType::CONSTANT);
   variable.setExpression(expression);
-  variable.setContaining(scope);
   variable.setAttributeFlags(attributes);
   requite::Expression &name_expression = expression.getBranch();
   bool is_ok = true;
@@ -503,43 +534,186 @@ bool Context::tabulateConstant(requite::Module &module, requite::Scope &scope,
 bool Context::tabulateFunction(requite::Module &module, requite::Scope &scope,
                                requite::Expression &expression,
                                requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::FUNCTION);
+  requite::Procedure &function = module.makeProcedure();
+  function.setType(requite::ProcedureType::FUNCTION);
+  function.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    requite::RootSymbol found = scope.lookupInternalRootSymbol(name);
+    if (found.getIsNone()) {
+      requite::NamedProcedureGroup &group = module.makeNamedProcedureGroup();
+      group.setName(name);
+      scope.addSymbol(group);
+      function.setNamedProcedureGroup(group);
+    } else if (found.getIsNamedProcedureGroup()) {
+      requite::NamedProcedureGroup &group = found.getNamedProcedureGroup();
+      REQUITE_ASSERT(name == group.getName());
+      function.setNamedProcedureGroup(group);
+    } else {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    }
+  }
+  requite::Expression &signature_expression = name_expression.getNext();
+  for (requite::Expression &statement :
+       signature_expression.getNextSubrange()) {
+    if (!this->tabulateLocalUserSymbol(module, function.getScope(), statement,
+                                       requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateProperty(requite::Module &module, requite::Scope &scope,
                                requite::Expression &expression,
                                requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
+  REQUITE_ASSERT(scope.getType() == requite::ScopeType::TABLE);
+  requite::UnorderedVariable &variable = module.makeUnorderedVariable();
+  variable.setType(requite::VariableType::PROPERTY);
+  variable.setExpression(expression);
+  variable.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    variable.setName(name);
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      scope.addSymbol(variable);
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateConstructor(requite::Module &module,
                                   requite::Scope &scope,
                                   requite::Expression &expression,
                                   requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONSTRUCTOR);
+  REQUITE_ASSERT(scope.getType() == requite::ScopeType::OBJECT);
+  requite::Procedure &constructor = module.makeProcedure();
+  constructor.setType(requite::ProcedureType::CONSTRUCTOR);
+  constructor.setContaining(scope);
+  requite::Object &object = scope.getObject();
+  object.addConstructor(constructor);
+  return true;
 }
 
 bool Context::tabulateDestructor(requite::Module &module, requite::Scope &scope,
                                  requite::Expression &expression,
                                  requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::DESTRUCTOR);
+  REQUITE_ASSERT(scope.getType() == requite::ScopeType::OBJECT);
+  requite::Procedure &destructor = module.makeProcedure();
+  destructor.setType(requite::ProcedureType::DESTRUCTOR);
+  destructor.setContaining(scope);
+  requite::Object &object = scope.getObject();
+  if (object.getHasDestructor()) {
+    this->logSourceMessage(expression, requite::LogType::ERROR,
+                           "more than one destructor");
+    return false;
+  }
+  object.setDestructor(destructor);
+  return true;
 }
 
 bool Context::tabulateMethod(requite::Module &module, requite::Scope &scope,
                              requite::Expression &expression,
                              requite::AttributeFlags attributes) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::METHOD);
+  REQUITE_ASSERT(scope.getType() == requite::ScopeType::OBJECT);
+  requite::Procedure &method = module.makeProcedure();
+  method.setType(requite::ProcedureType::METHOD);
+  method.setAttributeFlags(attributes);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    requite::RootSymbol found = scope.lookupInternalRootSymbol(name);
+    if (found.getIsNone()) {
+      requite::NamedProcedureGroup &group = module.makeNamedProcedureGroup();
+      group.setName(name);
+      scope.addSymbol(group);
+      method.setNamedProcedureGroup(group);
+    } else if (found.getIsNamedProcedureGroup()) {
+      requite::NamedProcedureGroup &group = found.getNamedProcedureGroup();
+      REQUITE_ASSERT(name == group.getName());
+      method.setNamedProcedureGroup(group);
+    } else {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    }
+  }
+  requite::Expression &signature_expression = name_expression.getNext();
+  for (requite::Expression &statement :
+       signature_expression.getNextSubrange()) {
+    if (!this->tabulateLocalUserSymbol(module, method.getScope(), statement,
+                                       requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateLocal(requite::Module &module, requite::Scope &scope,
                             requite::Expression &expression) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_LOCAL);
+  requite::OrderedVariable &variable = module.makeOrderedVariable();
+  variable.setType(requite::VariableType::LOCAL);
+  variable.setExpression(expression);
+  requite::Expression &name_expression = expression.getBranch();
+  bool is_ok = true;
+  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
+    this->logErrorNonInstantEvaluatableName(name_expression);
+    is_ok = false;
+  } else {
+    llvm::StringRef name = name_expression.getSourceText();
+    variable.setName(name);
+    if (scope.getHasSymbolOfName(name)) {
+      this->logErrorAlreadySymbolOfName(name_expression);
+      is_ok = false;
+    } else {
+      scope.addSymbol(variable);
+    }
+  }
+  return is_ok;
 }
 
 bool Context::tabulateAnonymousFunction(requite::Module &module,
                                         requite::Scope &scope,
                                         requite::Expression &expression) {
-  return false;
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_ANONYMOUS_FUNCTION);
+  requite::AnonymousFunction &anonymous_function =
+      module.makeAnonymousFunction();
+  anonymous_function.setExpression(expression);
+  anonymous_function.setContaining(scope);
+  bool is_ok = true;
+  requite::Expression &capture = expression.getBranch();
+  requite::Expression &signature = capture.getNext();
+  for (requite::Expression &branch : signature.getNextSubrange()) {
+    if (!this->tabulateLocalUserSymbol(module, anonymous_function.getScope(),
+                                       branch, requite::AttributeFlags())) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
 }
 
 } // namespace requite

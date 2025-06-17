@@ -3,13 +3,12 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/assert.hpp>
+#include <requite/named_procedure_group.hpp>
 #include <requite/procedure.hpp>
 
 namespace requite {
 
-Procedure::Procedure () {
-  this->getScope().setProcedure(*this);
-}
+Procedure::Procedure() { this->getScope().setProcedure(*this); }
 
 void Procedure::setMangledName(llvm::StringRef name) {
   REQUITE_ASSERT(this->_mangled_name.empty());
@@ -89,10 +88,11 @@ const requite::AttributeFlags &Procedure::getAttributeFlags() const {
   return this->_attributes;
 }
 
-void Procedure::setNamedProcedureGroup(
-    requite::NamedProcedureGroup &group) {
-  requite::setSingleRef(this->_group_ptr,
-                        group);
+void Procedure::setNamedProcedureGroup(requite::NamedProcedureGroup &group) {
+  REQUITE_ASSERT(group.getContaining() == this->getContaining());
+  requite::setSingleRef(this->_group_ptr, group);
+  this->_next_ptr = group._first_ptr;
+  group._first_ptr = this;
 }
 
 bool Procedure::getHasNamedProcedureGroup() const {

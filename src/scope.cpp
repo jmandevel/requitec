@@ -16,7 +16,7 @@ bool Scope::operator==(const Self &rhs) const { return this == &rhs; }
 bool Scope::operator!=(Self &&rhs) const { return this != &rhs; }
 
 bool Scope::getHasModule() const {
-  this->getType() == requite::ScopeType::MODULE;
+  return this->getType() == requite::ScopeType::MODULE;
 }
 
 void Scope::setModule(requite::Module &module) {

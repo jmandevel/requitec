@@ -25,7 +25,7 @@ struct AnonymousFunction final {
   std::vector<requite::Local *> _captured_ptrs = {};
 
   // anonymous_function.cpp
-  AnonymousFunction() = default;
+  AnonymousFunction();
   AnonymousFunction(const Self &) = delete;
   AnonymousFunction(Self &&) = delete;
   ~AnonymousFunction() = default;
@@ -37,10 +37,6 @@ struct AnonymousFunction final {
   requite::Scope &getScope();
   [[nodiscard]]
   const requite::Scope &getScope() const;
-  [[nodiscard]] bool getHasModule() const;
-  void setModule(requite::Module &module);
-  [[nodiscard]] requite::Module &getModule();
-  [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope& scope);
   [[nodiscard]] requite::Scope& getContaining();
