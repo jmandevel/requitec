@@ -93,9 +93,7 @@ bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
     }
     if (type != requite::AttributeType::NONE) {
       if (flags.getHasAttribute(type)) {
-        this->logSourceMessage(attribute, requite::LogType::ERROR,
-                               llvm::Twine(requite::getName(type)) +
-                                   " attribute is ascribed more than once");
+        this->logErrorDuplicateAttribute(attribute, type);
         is_ok = false;
         continue;
       }

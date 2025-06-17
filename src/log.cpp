@@ -66,6 +66,13 @@ void Context::logErrorAlreadySymbolOfName(requite::Expression &expression) {
                          "already symbol of name");
 }
 
+void Context::logErrorDuplicateAttribute(requite::Expression &expression,
+                                         requite::AttributeType type) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine(requite::getName(type)) +
+                             " attribute is ascribed more than once");
+}
+
 void Context::logErrorMustNotHaveAttributeFlags(
     requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,

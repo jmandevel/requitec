@@ -355,6 +355,7 @@ struct Context final : public requite::_ContextLlvmContext {
                         llvm::ArrayRef<llvm::SMFixIt> fixits = {});
   void logErrorNonInstantEvaluatableName(requite::Expression &expression);
   void logErrorAlreadySymbolOfName(requite::Expression &expression);
+  void logErrorDuplicateAttribute(requite::Expression &expression, requite::AttributeType type);
   void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
 
