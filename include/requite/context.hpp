@@ -38,6 +38,7 @@ struct Token;
 struct SourceLocation;
 struct SourceRange;
 struct Value;
+struct SymbolPath;
 
 // llvm context is in inherited type to ensure that the llvm context is
 // destroyed last.
@@ -241,6 +242,9 @@ struct Context final : public requite::_ContextLlvmContext {
   buildUserSymbol(requite::AnonymousFunction &anonymous_function);
 
   // resolve_symbols.cpp
+  [[nodiscard]] bool resolveSymbolPath(requite::SymbolPath &out_path,
+                                       requite::Scope &scope,
+                                       requite::Expression &expression);
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
                                    requite::Scope &scope,
                                    requite::Expression &symbol_expression);
