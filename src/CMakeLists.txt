@@ -56,8 +56,8 @@ target_sources(
         source_name.cpp
         source_ranger.cpp
         sub_symbol.cpp
+        symbol_path.cpp
         symbol.cpp
-        table_path.cpp
         table.cpp
         tabulate_user_symbols.cpp
         tasks.cpp
