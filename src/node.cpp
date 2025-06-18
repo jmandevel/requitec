@@ -7,7 +7,11 @@
 
 namespace requite {
 
-void Node::setType(requite::NodeType type) { this->_type = type; }
+void Node::setType(requite::NodeType type) {
+  REQUITE_ASSERT(this->_type == requite::NodeType::NONE);
+  REQUITE_ASSERT(type != requite::NodeType::NONE);
+  this->_type = type;
+}
 
 requite::NodeType Node::getType() const { return this->_type; }
 
@@ -30,9 +34,7 @@ void Node::setAttributeFlags(requite::AttributeFlags attributes) {
   this->_attributes = attributes;
 }
 
-requite::AttributeFlags &Node::getAttributeFlags() {
-  return this->_attributes;
-}
+requite::AttributeFlags &Node::getAttributeFlags() { return this->_attributes; }
 
 const requite::AttributeFlags &Node::getAttributeFlags() const {
   return this->_attributes;
