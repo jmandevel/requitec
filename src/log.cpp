@@ -61,6 +61,13 @@ void Context::logErrorNonInstantEvaluatableName(
                          "symbol names must be instantly evaluatable");
 }
 
+void Context::logErrorNonExternallyAccessableTable(
+    requite::Expression &expression) {
+  this->logSourceMessage(
+      expression, requite::LogType::ERROR,
+      "symbol does not have externally accessable lookup table");
+}
+
 void Context::logErrorAlreadySymbolOfName(requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          "already symbol of name");
