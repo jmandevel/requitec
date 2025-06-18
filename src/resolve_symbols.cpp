@@ -1,79 +1,35 @@
 #include <requite/context.hpp>
-#include <requite/symbol_path.hpp>
-
-#include <llvm/ADT/SmallPtrSet.h>
 
 namespace requite {
-
-bool Context::resolveSymbolPath(requite::SymbolPath &out_path,
-                                requite::Scope &scope,
-                                requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() ==
-                 requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
-  requite::Expression &branch = expression.getBranch();
-  if (branch.getOpcode() == requite::Opcode::_IDENTIFY) {
-    this->logErrorNonInstantEvaluatableName(branch);
-    return false;
-  }
-  if (branch.getOpcode() == requite::Opcode::__IDENTIFIER_LITERAL) {
-    llvm::StringRef text = branch.getDataText();
-    out_path.getBody().push_back(text);
-  } else {
-    requite::Symbol symbol;
-    if (!this->resolveSymbol(symbol, scope, branch)) {
-      return false;
-    }
-    if (!symbol.getSubs().empty()) {
-      this->logErrorNonExternallyAccessableTable(branch);
-      this->logSourceMessage(branch, requite::LogType::NOTE,
-                             "types with subtypes have no lookup tables");
-      // TODO add note saying where symbol is declared and what type it is
-      // TODO add note about using symbol..[root] to get the root type if its
-      // object or table.
-      return false;
-    }
-    requite::RootSymbol &root = symbol.getRoot();
-    if (root.getIsTable()) {
-      requite::Table &table = root.getTable();
-      requite::Scope &table_scope = table.getScope();
-      out_path.setHeadScope(table_scope);
-    } else if (root.getIsObject()) {
-      requite::Object &object = root.getObject();
-      requite::Scope &object_scope = object.getScope();
-      out_path.setHeadScope(object_scope);
-    } else {
-      this->logErrorNonExternallyAccessableTable(branch);
-      // TODO add note saying where symbol is declared and what type it is
-      return false;
-    }
-    // TODO check accessibility modifiers here
-  }
-  for (requite::Expression &next : branch.getNextSubrange()) {
-    if (next.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
-      this->logErrorNonInstantEvaluatableName(next);
-      return false;
-    }
-    llvm::StringRef name = next.getDataText();
-    out_path.getBody().push_back(name);
-  }
-  return true;
-}
 
 bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
                             requite::Expression &symbol_expression) {
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
-    // TODO
+    for (requite::Scope &containing_scope : scope.getContainingSubrange()) {
+      requite::RootSymbol user = containing_scope.lookupInternalRootSymbol(
+          symbol_expression.getDataText());
+      if (user.getIsNone()) {
+        continue;
+      } else if (user.getIsAlias()) {
+        requite::Alias &alias = user.getAlias();
+        if (!this->prototypeUserSymbol(alias)) {
+          return false;
+        }
+        out_symbol.wrapSymbol(alias.getSymbol());
+        return true;
+      } else if (user.getIsObject()) {
+        requite::Object &object = user.getObject();
+        if (!this->prototypeUserSymbol(object)) {
+          return false;
+        }
+        out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
+        out_symbol.getRoot().setObject(object);
+        return true;
+      }
+    }
     return false;
   }
-  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH: {
-    requite::SymbolPath path;
-    if (!this->resolveSymbolPath(path, scope, symbol_expression)) {
-      return false;
-    }
-    // TODO
-    return false;
-  };
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
     requite::AttributeFlags flags = {};
     requite::Expression &unascribed = symbol_expression.getBranch();
