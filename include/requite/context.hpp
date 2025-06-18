@@ -251,8 +251,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool
   inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
                        requite::Expression &value_expression);
-  [[nodiscard]] bool
-  resolveTypeAttributes(requite::AttributeFlags flags, requite::Expression& first);
+  [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags flags,
+                                           requite::Expression &first);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,
