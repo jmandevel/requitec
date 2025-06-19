@@ -394,8 +394,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::ENTRY_POINT:
     return _BASE_STATEMENT;
   case Opcode::FUNCTION:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
+    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
   case Opcode::METHOD:
     return _OBJECT_STATEMENT;
   case Opcode::CONSTRUCTOR:
@@ -425,8 +424,7 @@ _getFlags(requite::Opcode opcode) {
 
   // SYMBOLS
   case Opcode::OBJECT:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
+    return _BASE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::TABLE:
     return _BASE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::ALIAS:
