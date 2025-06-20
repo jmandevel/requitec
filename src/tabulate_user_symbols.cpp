@@ -60,8 +60,8 @@ bool Context::tabulateBaseUserSymbol(requite::Module &module,
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
     return this->tabulateAlias(module, scope, expression, attributes);
-  case requite::Opcode::_UNORDERED_GLOBAL:
-    return this->tabulateUnorderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::GLOBAL:
+    return this->tabulateGlobal(module, scope, expression, attributes);
   case requite::Opcode::CONSTANT:
     return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
@@ -110,8 +110,8 @@ bool Context::tabulateTableUserSymbol(requite::Module &module,
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
     return this->tabulateAlias(module, scope, expression, attributes);
-  case requite::Opcode::_UNORDERED_GLOBAL:
-    return this->tabulateUnorderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::GLOBAL:
+    return this->tabulateGlobal(module, scope, expression, attributes);
   case requite::Opcode::CONSTANT:
     return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
@@ -160,8 +160,8 @@ bool Context::tabulateMemberUserSymbol(requite::Module &module,
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
     return this->tabulateAlias(module, scope, expression, attributes);
-  case requite::Opcode::_UNORDERED_GLOBAL:
-    return this->tabulateUnorderedGlobal(module, scope, expression, attributes);
+  case requite::Opcode::GLOBAL:
+    return this->tabulateGlobal(module, scope, expression, attributes);
   case requite::Opcode::CONSTANT:
     return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
@@ -248,12 +248,12 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
     return this->tabulateAlias(module, scope, expression, attributes);
-  case requite::Opcode::_ORDERED_GLOBAL: {
+  case requite::Opcode::STASH: {
     const bool attributes_ok = !attributes.getHasAnyAttribute();
     if (!attributes_ok) {
       this->logErrorMustNotHaveAttributeFlags(expression);
     }
-    return this->tabulateOrderedGlobal(module, scope, expression) &&
+    return this->tabulateStash(module, scope, expression) &&
            attributes_ok;
   }
   case requite::Opcode::CONSTANT:
@@ -453,12 +453,12 @@ bool Context::tabulateAlias(requite::Module &module, requite::Scope &scope,
   return is_ok;
 }
 
-bool Context::tabulateOrderedGlobal(requite::Module &module,
+bool Context::tabulateStash(requite::Module &module,
                                     requite::Scope &scope,
                                     requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ORDERED_GLOBAL);
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::STASH);
   requite::OrderedVariable &variable = module.makeOrderedVariable();
-  variable.setType(requite::VariableType::GLOBAL);
+  variable.setType(requite::VariableType::STASH);
   variable.setExpression(expression);
   requite::Expression &name_expression = expression.getBranch();
   bool is_ok = true;
@@ -478,11 +478,11 @@ bool Context::tabulateOrderedGlobal(requite::Module &module,
   return is_ok;
 }
 
-bool Context::tabulateUnorderedGlobal(requite::Module &module,
+bool Context::tabulateGlobal(requite::Module &module,
                                       requite::Scope &scope,
                                       requite::Expression &expression,
                                       requite::AttributeFlags attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_UNORDERED_GLOBAL);
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL);
   requite::UnorderedVariable &variable = module.makeUnorderedVariable();
   variable.setType(requite::VariableType::GLOBAL);
   variable.setExpression(expression);

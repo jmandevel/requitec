@@ -14,6 +14,8 @@ namespace requtite {
     return "LOCAL";
   case requite::VariableType::GLOBAL:
     return "GLOBAL";
+  case requite::VariableType::STASH:
+    return "STASH";
   case requite::VariableType::PROPERTY:
     return "PROPERTY";
   case requite::VariableType::CONSTANT:
@@ -28,6 +30,8 @@ constexpr requite::VariableType getVariableType(requite::Opcode opcode) {
     return requite::VariableType::LOCAL;
   case requite::Opcode::GLOBAL:
     return requite::VariableType::GLOBAL;
+  case requite::Opcode::STASH:
+    return requite::VariableType::STASH;
   case requite::Opcode::PROPERTY:
     return requite::VariableType::PROPERTY;
   case requite::Opcode::CONSTANT:

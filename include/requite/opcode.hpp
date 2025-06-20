@@ -218,8 +218,7 @@ enum class Opcode : unsigned {
   ALIAS,
   _LOCAL,
   GLOBAL,
-  _ORDERED_GLOBAL,
-  _UNORDERED_GLOBAL,
+  STASH,
   PROPERTY,
   CONSTANT,
 

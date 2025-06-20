@@ -1106,23 +1106,15 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::GLOBAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateGlobalExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::_UNORDERED_GLOBAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_UNORDERED_GLOBAL)) {
-      REQUITE_UNREACHABLE();
-    } else {
       this->situateBinaryExpression<SITUATION_PARAM,
                                     requite::Situation::SYMBOL_NAME,
                                     requite::Situation::MATTE_VALUE>(
           expression);
     }
     break;
-  case requite::Opcode::_ORDERED_GLOBAL:
+  case requite::Opcode::STASH:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ORDERED_GLOBAL)) {
+                      requite::Opcode::STASH)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
@@ -3158,25 +3150,6 @@ Situator::situate_InitializeExpression(requite::Expression &expression) {
     break;
   default:
     REQUITE_UNREACHABLE();
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void Situator::situateGlobalExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL);
-  this->situateBinaryExpression<SITUATION_PARAM,
-                                requite::Situation::SYMBOL_NAME,
-                                requite::Situation::MATTE_VALUE>(expression);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
-    expression.changeOpcode(requite::Opcode::_ORDERED_GLOBAL);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT ||
-                       SITUATION_PARAM ==
-                           requite::Situation::TABLE_STATEMENT ||
-                       SITUATION_PARAM ==
-                           requite::Situation::OBJECT_STATEMENT) {
-    expression.changeOpcode(requite::Opcode::_UNORDERED_GLOBAL);
-  } else {
-    static_assert(false, "invalid situation");
   }
 }
 
