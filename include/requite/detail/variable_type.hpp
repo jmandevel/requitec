@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace requtite {
+namespace requite {
 
 [[nodiscard]] constexpr std::string_view getName(requite::VariableType type) {
   switch (type) {
