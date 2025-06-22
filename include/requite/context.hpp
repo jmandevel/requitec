@@ -181,11 +181,8 @@ struct Context final : public requite::_ContextLlvmContext {
                                    requite::Scope &scope,
                                    requite::Expression &expression,
                                    requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateOrderedGlobal(requite::Module &module,
-                                           requite::Scope &scope,
-                                           requite::Expression &expression);
   [[nodiscard]] bool
-  tabulateUnorderedGlobal(requite::Module &module, requite::Scope &scope,
+  tabulateGlobal(requite::Module &module, requite::Scope &scope,
                           requite::Expression &expression,
                           requite::AttributeFlags attributes);
   [[nodiscard]] bool tabulateConstant(requite::Module &module,
