@@ -48,9 +48,11 @@ llvm::raw_string_ostream &AstWriter::getOstream() { return _ostream; }
 void AstWriter::writeAst(const requite::Module &module,
                          llvm::Twine sub_extension) {
   this->_buffer.clear();
-  for (const auto &expression :
-       module.getExpression().getHorizontalSubrange()) {
-    this->writeExpression(expression);
+  if (module.getHasExpression()) {
+    for (const auto &expression :
+         module.getExpression().getHorizontalSubrange()) {
+      this->writeExpression(expression);
+    }
   }
   llvm::Twine extension = llvm::Twine(sub_extension) + ".ast";
   llvm::SmallString<256> path;
@@ -63,8 +65,8 @@ void AstWriter::writeAst(const requite::Module &module,
   if (ec) {
     this->getContext().logMessage(
         llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tPath: ") +
-        llvm::Twine(path) + llvm::Twine("\n\tReason: ") +
+            "error: failed to open intermediate file for writing\n\tpath: ") +
+        llvm::Twine(path) + llvm::Twine("\n\treason: ") +
         llvm::Twine(ec.message()));
     return;
   }
@@ -89,8 +91,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
   case requite::Opcode::__REAL_LITERAL: {
     this->getOstream() << expression.getSourceText();
     this->getOstream() << " // from ";
-    this->getOstream() << requite::getName(
-        opcode);
+    this->getOstream() << requite::getName(opcode);
     this->writeExpressionLocationComment(expression);
   } break;
   case requite::Opcode::__STRING_LITERAL: {
@@ -103,8 +104,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
       this->getOstream() << expression.getSourceText();
     }
     this->getOstream() << "\" // from ";
-    this->getOstream() << requite::getName(
-        requite::Opcode::__STRING_LITERAL);
+    this->getOstream() << requite::getName(requite::Opcode::__STRING_LITERAL);
     this->writeExpressionLocationComment(expression);
   } break;
   case requite::Opcode::__CODEUNIT_LITERAL: {
@@ -117,8 +117,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
       this->getOstream() << expression.getSourceText();
     }
     this->getOstream() << "\' // from ";
-    this->getOstream() << requite::getName(
-        requite::Opcode::__CODEUNIT_LITERAL);
+    this->getOstream() << requite::getName(requite::Opcode::__CODEUNIT_LITERAL);
     this->writeExpressionLocationComment(expression);
   } break;
   case requite::Opcode::__IDENTIFIER_LITERAL: {

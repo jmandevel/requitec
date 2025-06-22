@@ -13,6 +13,7 @@
 namespace requite {
 
 bool Context::situateAst(requite::Module &module) {
+
   requite::Situator Situator(*this, module);
   const bool is_ok = Situator.situateAst();
   return is_ok;
