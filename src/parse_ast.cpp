@@ -228,7 +228,7 @@ requite::Expression &Parser::parsePrecedence10() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
-    if (!token.getHasUnaryOperatorSpacing()) {      
+    if (!token.getHasUnaryOperatorSpacing()) {
       break;
     }
     switch (const requite::TokenType type = token.getType()) {
@@ -404,7 +404,7 @@ requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
-    if (!token.getHasUnaryOperatorSpacing()) {      
+    if (!token.getHasUnaryOperatorSpacing()) {
       break;
     }
     switch (const requite::TokenType type = token.getType()) {
@@ -522,7 +522,9 @@ requite::Expression &Parser::parsePrecedence2() {
       //    ]
       //    0
       //  ]
-      if (!token.getHasBinaryOperatorSpacing()) {
+      if (!token.getHasBinaryOperatorSpacing() ||
+          !precedence_parser.getHasOuter()) {
+        precedence_parser.appendBranch(this->parsePrecedence1());
         break;
       }
       const requite::Opcode opcode =
@@ -607,8 +609,7 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::BACKSLASH_OPERATOR:
     return this->parseIdentify();
   case requite::TokenType::QUESTION_OPERATOR:
-    return this->parseNullaryOperator(
-        requite::Opcode::_QUESTION);
+    return this->parseNullaryOperator(requite::Opcode::_QUESTION);
   case requite::TokenType::EMPTY_QUOTE_OPERATOR:
     return this->parseNullaryOperator(requite::Opcode::_QUOTE);
   case requite::TokenType::IDENTIFIER_LITERAL:
