@@ -244,7 +244,7 @@ requite::Expression &Parser::parsePrecedence10() {
   return precedence_parser.getOuter();
 }
 
-// BINARY CAST
+// BINARY CAST AND ELEMENT TYPES
 requite::Expression &Parser::parsePrecedence9() {
   requite::PrecedenceParser precedence_parser;
   precedence_parser.appendBranch(this->parsePrecedence8());
@@ -544,10 +544,10 @@ requite::Expression &Parser::parsePrecedence2() {
       precedence_parser.parseBinaryCombination(*this, opcode);
       // NOTE:
       //  this is a bit of a clever hack...
-      //  we need to go up to precedence 10 for whatever follows the
+      //  we need to go up to precedence 9 for whatever follows the
       //  cast. this wierdness is required because casts are technically in
-      //  precedence 10.
-      precedence_parser.appendBranch(this->parsePrecedence10());
+      //  precedence 9.
+      precedence_parser.appendBranch(this->parsePrecedence9());
       break;
     }
     requite::Expression &next = this->parsePrecedence1();
@@ -586,11 +586,11 @@ requite::Expression &Parser::parsePrecedence2() {
         inference.setSource(following_token);
         precedence_parser.appendBranch(inference);
         precedence_parser.parseBinaryCombination(*this, cast_opcode);
-        precedence_parser.appendBranch(this->parsePrecedence10());
+        precedence_parser.appendBranch(this->parsePrecedence9());
         break;
       }
       default:
-        break;
+        continue;
       }
       break;
     }
