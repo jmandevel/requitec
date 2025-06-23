@@ -211,8 +211,6 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
            _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
            _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
-  case Opcode::_BAKE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
 
   // ARITHMETIC
   case Opcode::_ADD:
@@ -750,8 +748,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "codeunify";
   case requite::Opcode::_IDENTIFY:
     return "_identify";
-  case requite::Opcode::_BAKE:
-    return "_bake";
 
   // ARITHMETIC
   case requite::Opcode::_ADD:

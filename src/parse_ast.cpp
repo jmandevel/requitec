@@ -393,9 +393,9 @@ requite::Expression &Parser::parsePrecedence4() {
     case requite::TokenType::DASH_OPERATOR:
       precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
       continue;
-    case requite::TokenType::AT_OPERATOR:
-      precedence_parser.parseUnary(*this, requite::Opcode::_BAKE);
-      continue;
+    //case requite::TokenType::AT_OPERATOR:
+    //  precedence_parser.parseUnary(*this, requite::Opcode::_BAKE);
+    //  continue;
     case requite::TokenType::HASH_OPERATOR:
       precedence_parser.parseUnary(*this, requite::Opcode::_EXPAND);
       continue;
