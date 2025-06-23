@@ -607,6 +607,15 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
+  case requite::Opcode::_NEW_:
+        if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_NEW_)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
   case requite::Opcode::_INITIALIZE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_INITIALIZE)) {

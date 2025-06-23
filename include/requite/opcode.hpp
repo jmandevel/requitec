@@ -101,7 +101,6 @@ enum class Opcode : unsigned {
   STRINGIFY,
   CODEUNIFY,
   _IDENTIFY,
-  _BAKE,
 
   // ARITHMETIC
   _ADD,
@@ -137,6 +136,7 @@ enum class Opcode : unsigned {
   _VALUE_AT_VALUE,
   ADDRESS,
   _ADDRESS_OF_VALUE,
+  _NEW_,
 
   // ASSIGNMENT
   _INITIALIZE,

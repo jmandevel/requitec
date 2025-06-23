@@ -280,6 +280,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_ADDRESS_OF_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
+  case Opcode::_NEW_:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
 
   // ASSIGNMENT
   case Opcode::_INITIALIZE:
@@ -812,6 +814,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "address";
   case requite::Opcode::_ADDRESS_OF_VALUE:
     return "_address_of_value";
+  case requite::Opcode::_NEW_:
+    return "_new";
 
   // ASSIGNMENT
   case requite::Opcode::_INITIALIZE:
