@@ -16,8 +16,6 @@ namespace requite {
     return "GLOBAL";
   case requite::VariableType::PROPERTY:
     return "PROPERTY";
-  case requite::VariableType::CONSTANT:
-    return "CONSTANT";
   }
   return "ERROR";
 }
@@ -30,8 +28,6 @@ constexpr requite::VariableType getVariableType(requite::Opcode opcode) {
     return requite::VariableType::GLOBAL;
   case requite::Opcode::PROPERTY:
     return requite::VariableType::PROPERTY;
-  case requite::Opcode::CONSTANT:
-    return requite::VariableType::CONSTANT;
   default:
     break;
   }
@@ -46,8 +42,6 @@ constexpr requite::Opcode getOpcode(requite::VariableType type) {
     return requite::Opcode::GLOBAL;
   case requite::VariableType::PROPERTY:
     return requite::Opcode::PROPERTY;
-  case requite::VariableType::CONSTANT:
-    return requite::Opcode::CONSTANT;
   default:
     break;
 }

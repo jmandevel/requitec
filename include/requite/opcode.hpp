@@ -219,7 +219,6 @@ enum class Opcode : unsigned {
   _LOCAL,
   GLOBAL,
   PROPERTY,
-  CONSTANT,
 
   // VALUES
   TRUE,

@@ -62,8 +62,6 @@ bool Context::tabulateBaseUserSymbol(requite::Module &module,
     return this->tabulateAlias(module, scope, expression, attributes);
   case requite::Opcode::GLOBAL:
     return this->tabulateGlobal(module, scope, expression, attributes);
-  case requite::Opcode::CONSTANT:
-    return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
     return this->tabulateFunction(module, scope, expression, attributes);
   default:
@@ -112,8 +110,6 @@ bool Context::tabulateTableUserSymbol(requite::Module &module,
     return this->tabulateAlias(module, scope, expression, attributes);
   case requite::Opcode::GLOBAL:
     return this->tabulateGlobal(module, scope, expression, attributes);
-  case requite::Opcode::CONSTANT:
-    return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
     return this->tabulateFunction(module, scope, expression, attributes);
   default:
@@ -162,8 +158,6 @@ bool Context::tabulateMemberUserSymbol(requite::Module &module,
     return this->tabulateAlias(module, scope, expression, attributes);
   case requite::Opcode::GLOBAL:
     return this->tabulateGlobal(module, scope, expression, attributes);
-  case requite::Opcode::CONSTANT:
-    return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
     return this->tabulateFunction(module, scope, expression, attributes);
   default:
@@ -248,8 +242,6 @@ bool Context::tabulateLocalUserSymbol(requite::Module &module,
     return this->tabulateObject(module, scope, expression, attributes);
   case requite::Opcode::ALIAS:
     return this->tabulateAlias(module, scope, expression, attributes);
-  case requite::Opcode::CONSTANT:
-    return this->tabulateConstant(module, scope, expression, attributes);
   case requite::Opcode::FUNCTION:
     return this->tabulateFunction(module, scope, expression, attributes);
   default:
@@ -452,32 +444,6 @@ bool Context::tabulateGlobal(requite::Module &module,
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL);
   requite::UnorderedVariable &variable = module.makeUnorderedVariable();
   variable.setType(requite::VariableType::GLOBAL);
-  variable.setExpression(expression);
-  variable.setAttributeFlags(attributes);
-  requite::Expression &name_expression = expression.getBranch();
-  bool is_ok = true;
-  if (name_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
-    this->logErrorNonInstantEvaluatableName(name_expression);
-    is_ok = false;
-  } else {
-    llvm::StringRef name = name_expression.getSourceText();
-    variable.setName(name);
-    if (scope.getHasSymbolOfName(name)) {
-      this->logErrorAlreadySymbolOfName(name_expression);
-      is_ok = false;
-    } else {
-      scope.addSymbol(variable);
-    }
-  }
-  return is_ok;
-}
-
-bool Context::tabulateConstant(requite::Module &module, requite::Scope &scope,
-                               requite::Expression &expression,
-                               requite::AttributeFlags attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONSTANT);
-  requite::UnorderedVariable &variable = module.makeUnorderedVariable();
-  variable.setType(requite::VariableType::CONSTANT);
   variable.setExpression(expression);
   variable.setAttributeFlags(attributes);
   requite::Expression &name_expression = expression.getBranch();

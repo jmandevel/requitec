@@ -434,11 +434,8 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::GLOBAL:
     return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
-      case Opcode::PROPERTY:
+  case Opcode::PROPERTY:
     return _OBJECT_STATEMENT;
-  case Opcode::CONSTANT:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
 
   // VALUES
   case Opcode::TRUE:
@@ -963,8 +960,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "global";
   case requite::Opcode::PROPERTY:
     return "property";
-  case requite::Opcode::CONSTANT:
-    return "constant";
 
   // VALUES
   case requite::Opcode::TRUE:
@@ -1316,7 +1311,7 @@ constexpr bool getHasOrderedVariableData(requite::Opcode opcode) {
 
 constexpr bool getHasUnorderedVariableData(requite::Opcode opcode) {
   return opcode == requite::Opcode::PROPERTY ||
-         opcode == requite::Opcode::CONSTANT;
+         opcode == requite::Opcode::GLOBAL;
 }
 
 constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {

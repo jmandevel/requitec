@@ -1123,17 +1123,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::CONSTANT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::CONSTANT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
-    }
-    break;
   case requite::Opcode::_NULL_TYPE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_NULL_TYPE)) {

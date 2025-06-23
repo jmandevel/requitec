@@ -185,10 +185,6 @@ struct Context final : public requite::_ContextLlvmContext {
   tabulateGlobal(requite::Module &module, requite::Scope &scope,
                           requite::Expression &expression,
                           requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateConstant(requite::Module &module,
-                                      requite::Scope &scope,
-                                      requite::Expression &expression,
-                                      requite::AttributeFlags attributes);
   [[nodiscard]] bool tabulateFunction(requite::Module &module,
                                       requite::Scope &scope,
                                       requite::Expression &expression,
