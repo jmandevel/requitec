@@ -743,9 +743,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_FAT_POINTER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateElementTypeExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::_ARRAY:
@@ -753,7 +751,7 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_ARRAY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_ArrayExpression<SITUATION_PARAM>(expression);
+      this->situateElementTypeExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::_REFERENCE:
@@ -2813,24 +2811,28 @@ void Situator::situateSizedPrimitiveExpression(
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situate_ArrayExpression(requite::Expression &expression) {
+void Situator::situateElementTypeExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ARRAY);
   if (!expression.getHasBranch()) {
-    requite::Expression &inferenced_type_expression =
+    requite::Expression &count_expression =
         requite::Expression::makeOperation(requite::Opcode::_INFERENCED_COUNT);
-    expression.setBranch(inferenced_type_expression);
-  }
-  requite::Expression &first = expression.getBranch();
-  if (!first.getHasNext()) {
-    requite::Expression &inferrenced =
+    expression.setBranch(count_expression);
+    requite::Expression &type_expression =
         requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
-    first.setNext(inferrenced);
+    count_expression.setNext(type_expression);
+  } else {
+    requite::Expression &first = expression.getBranch();
+    if (!first.getHasNext()) {
+      requite::Expression &count_expression =
+          requite::Expression::makeOperation(requite::Opcode::_INFERENCED_COUNT);
+      count_expression.setNext(expression.replaceBranch(count_expression));
+    }
   }
   this->situateBinaryExpression<SITUATION_PARAM,
                                 requite::Situation::MATTE_VALUE,
                                 requite::Situation::MATTE_SYMBOL>(expression);
+  requite::Expression &first = expression.getBranch();
   if (first.getOpcode() == requite::Opcode::_INDETERMINATE) {
     first.changeOpcode(requite::Opcode::_INFERENCED_COUNT);
   }

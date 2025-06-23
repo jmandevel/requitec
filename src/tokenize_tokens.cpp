@@ -197,10 +197,6 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeLengthToken(requite::TokenType::PERCENT_EQUAL_OPERATOR,
                                   2);
         break;
-      case '%':
-        this->tokenizeLengthToken(requite::TokenType::DOUBLE_PERCENT_OPERATOR,
-                                  2);
-        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::PERCENT_OPERATOR, 1);
       }
@@ -665,6 +661,12 @@ void Tokenizer::_tokenizeTokens() {
       switch (const char c1 = this->getRanger().getChar(1)) {
       case '|':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_PIPE_OPERATOR, 2);
+        continue;
+      case '%':
+        this->tokenizeLengthToken(requite::TokenType::PIPE_PERCENT_OPERATOR, 2);
+        continue;
+      case '^':
+        this->tokenizeLengthToken(requite::TokenType::PIPE_CAROT_OPERATOR, 2);
         continue;
       default:
         this->tokenizeLengthToken(requite::TokenType::PIPE_OPERATOR, 1);

@@ -460,14 +460,20 @@ requite::Expression &Parser::parsePrecedence3() {
       break;
     }
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::DOUBLE_PERCENT_OPERATOR: {
-      precedence_parser.parseBinaryNesting(*this, requite::Opcode::_ARRAY);
+    case requite::TokenType::PIPE_PERCENT_OPERATOR:
+      [[fallthrough]];
+    case requite::TokenType::PIPE_CAROT_OPERATOR: {
+      const requite::Opcode subtype_opcode =
+          type == requite::TokenType::PIPE_PERCENT_OPERATOR
+              ? requite::Opcode::_ARRAY
+              : requite::Opcode::_FAT_POINTER;
+      precedence_parser.parseBinaryNesting(*this, subtype_opcode);
       const requite::Token &next_token = this->getToken();
       switch (const requite::TokenType next_type = next_token.getType()) {
       case requite::TokenType::SEMICOLON_OPERATOR:
         [[fallthrough]];
       case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR: {
-        const requite::Opcode opcode =
+        const requite::Opcode cast_opcode =
             next_type == requite::TokenType::SEMICOLON_OPERATOR
                 ? requite::Opcode::_CAST
                 : requite::Opcode::_BITWISE_CAST;
@@ -475,7 +481,7 @@ requite::Expression &Parser::parsePrecedence3() {
             requite::Opcode::_INFERENCED_TYPE);
         inference.setSource(next_token);
         precedence_parser.appendBranch(inference);
-        precedence_parser.parseBinaryCombination(*this, opcode);
+        precedence_parser.parseBinaryCombination(*this, cast_opcode);
         precedence_parser.appendBranch(this->parsePrecedence10());
       } break;
       default:
@@ -498,7 +504,13 @@ requite::Expression &Parser::parsePrecedence2() {
     const requite::Token &token = this->getToken();
     const requite::TokenType type = token.getType();
     switch (type) {
-    case requite::TokenType::SLASH_OPERATOR:
+    case requite::TokenType::PERCENT_OPERATOR:
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseUnary(*this, requite::Opcode::_ARRAY);
+      continue;
+    case requite::TokenType::CAROT_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
