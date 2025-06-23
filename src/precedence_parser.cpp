@@ -48,7 +48,7 @@ void PrecedenceParser::parseBinary(requite::Parser &parser,
   this->_operation_ptr = &new_operation;
 }
 
-void PrecedenceParser::parseBinaryNesting(requite::Parser &parser,
+void PrecedenceParser::parseNestedBinary(requite::Parser &parser,
                                           requite::Opcode opcode) {
   const requite::Token &token = parser.getToken();
   parser.incrementToken(1);

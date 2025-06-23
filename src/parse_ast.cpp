@@ -467,7 +467,7 @@ requite::Expression &Parser::parsePrecedence3() {
           type == requite::TokenType::PIPE_PERCENT_OPERATOR
               ? requite::Opcode::_ARRAY
               : requite::Opcode::_FAT_POINTER;
-      precedence_parser.parseBinaryNesting(*this, subtype_opcode);
+      precedence_parser.parseNestedBinary(*this, subtype_opcode);
       const requite::Token &next_token = this->getToken();
       switch (const requite::TokenType next_type = next_token.getType()) {
       case requite::TokenType::SEMICOLON_OPERATOR:
