@@ -265,7 +265,7 @@ bool Context::tabulateScopedValues(requite::Module &module,
   }
   bool is_ok = true;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
-    if (!this->tabulateScopedValues(module, scope, expression)) {
+    if (!this->tabulateScopedValues(module, scope, branch)) {
       is_ok = false;
     }
   }
