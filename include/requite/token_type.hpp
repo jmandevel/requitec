@@ -40,6 +40,7 @@ enum class TokenType {
   STAR_OPERATOR,             // *
   SLASH_OPERATOR,            // /
   PERCENT_OPERATOR,          // %
+  DOUBLE_PERCENT_OPERATOR,   // %%
   CAROT_OPERATOR,            // ^
   PIPE_OPERATOR,             // |
   TILDE_OPERATOR,            // ~

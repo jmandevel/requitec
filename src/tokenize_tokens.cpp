@@ -197,6 +197,10 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeLengthToken(requite::TokenType::PERCENT_EQUAL_OPERATOR,
                                   2);
         break;
+      case '%':
+        this->tokenizeLengthToken(requite::TokenType::DOUBLE_PERCENT_OPERATOR,
+                                  2);
+        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::PERCENT_OPERATOR, 1);
       }

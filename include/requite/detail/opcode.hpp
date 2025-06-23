@@ -326,8 +326,8 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
 
   // SUBTYPE
-  case Opcode::ARRAY:
-    return _MATTE_SYMBOL;
+  case Opcode::_ARRAY:
+    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_REFERENCE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_STOLEN_REFERENCE:
@@ -855,8 +855,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "swap";
 
   // SUBTYPE
-  case requite::Opcode::ARRAY:
-    return "array";
+  case requite::Opcode::_ARRAY:
+    return "_array";
   case requite::Opcode::_REFERENCE:
     return "_reference";
   case requite::Opcode::_STOLEN_REFERENCE:

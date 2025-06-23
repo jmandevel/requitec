@@ -157,7 +157,7 @@ enum class Opcode : unsigned {
   SWAP,
 
   // SUBTYPE
-  ARRAY,
+  _ARRAY,
   _REFERENCE,
   _STOLEN_REFERENCE,
   _POINTER,

@@ -244,7 +244,7 @@ requite::Expression &Parser::parsePrecedence10() {
   return precedence_parser.getOuter();
 }
 
-// BINARY CAST
+// BINARY CAST AND ARRAYS
 requite::Expression &Parser::parsePrecedence9() {
   requite::PrecedenceParser precedence_parser;
   precedence_parser.appendBranch(this->parsePrecedence8());
@@ -262,6 +262,29 @@ requite::Expression &Parser::parsePrecedence9() {
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_CAST);
       precedence_parser.appendBranch(this->parsePrecedence8());
       continue;
+    case requite::TokenType::DOUBLE_PERCENT_OPERATOR: {
+      precedence_parser.parseBinary(*this, requite::Opcode::_ARRAY);
+      const requite::Token &next_token = this->getToken();
+      switch (const requite::TokenType next_type = next_token.getType()) {
+      case requite::TokenType::SEMICOLON_OPERATOR:
+        [[fallthrough]];
+      case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR: {
+        const requite::Opcode opcode =
+            next_type == requite::TokenType::SEMICOLON_OPERATOR
+                ? requite::Opcode::_CAST
+                : requite::Opcode::_BITWISE_CAST;
+        requite::Expression &inference = requite::Expression::makeOperation(
+            requite::Opcode::_INFERENCED_TYPE);
+        inference.setSource(next_token);
+        precedence_parser.appendBranch(inference);
+        precedence_parser.parseBinaryCombination(*this, opcode);
+      } break;
+      default:
+        break;
+      }
+      precedence_parser.appendBranch(this->parsePrecedence8());
+      continue;
+    }
     default:
       break;
     }
