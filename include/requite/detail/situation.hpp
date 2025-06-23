@@ -16,8 +16,7 @@ constexpr llvm::StringRef getName() {
     return "ROOT_STATEMENT";
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
     return "BASE_STATEMENT";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::TABLE_STATEMENT) {
+  } else if constexpr (SITUATION_PARAM == requite::Situation::TABLE_STATEMENT) {
     return "TABLE_STATEMENT";
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::OBJECT_STATEMENT) {
@@ -126,8 +125,7 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeRootStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
     return requite::getCanBeBaseStatementSituation(opcode);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::TABLE_STATEMENT) {
+  } else if constexpr (SITUATION_PARAM == requite::Situation::TABLE_STATEMENT) {
     return requite::getCanBeTableStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::MATTE_LOCAL_STATEMENT) {
@@ -213,8 +211,7 @@ constexpr requite::Situation getNextScopeStatementSituation() {
     return requite::Situation::BASE_STATEMENT;
   } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
     return requite::Situation::TABLE_STATEMENT;
-  } else if constexpr (SITUATION_PARAM ==
-                           requite::Situation::TABLE_STATEMENT ||
+  } else if constexpr (SITUATION_PARAM == requite::Situation::TABLE_STATEMENT ||
                        SITUATION_PARAM ==
                            requite::Situation::OBJECT_STATEMENT ||
                        SITUATION_PARAM ==

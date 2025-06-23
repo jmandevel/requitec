@@ -92,7 +92,7 @@ struct Situator final {
   inline void
   situate_BindSymbolOrDefaultSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_InferencedTypeOrIndeterminateExpression(
+  inline void situate_QuestionExpression(
       requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_ReflectValueExpression(requite::Expression &expression);

@@ -608,7 +608,7 @@ requite::Expression &Parser::parsePrecedence0() {
     return this->parseIdentify();
   case requite::TokenType::QUESTION_OPERATOR:
     return this->parseNullaryOperator(
-        requite::Opcode::_INFERENCED_TYPE_OR_INDETERMINATE);
+        requite::Opcode::_QUESTION);
   case requite::TokenType::EMPTY_QUOTE_OPERATOR:
     return this->parseNullaryOperator(requite::Opcode::_QUOTE);
   case requite::TokenType::IDENTIFIER_LITERAL:

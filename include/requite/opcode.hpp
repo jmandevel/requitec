@@ -46,7 +46,7 @@ enum class Opcode : unsigned {
   _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   _TRIP,
   _CONDUIT,
-  _INFERENCED_TYPE_OR_INDETERMINATE,
+  _QUESTION,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.
@@ -244,7 +244,7 @@ enum class Opcode : unsigned {
   // an element count for casted arrays, denoting that the count should be
   // inferenced from the casted value. This is implicitly inserted into array
   // operations when no count branch is provided.
-  INFERENCED_COUNT,
+  _INFERENCED_COUNT,
   // a variable for accessing the instance an object from within members.
   THIS,
   // a reference to the return value of a procedure.
