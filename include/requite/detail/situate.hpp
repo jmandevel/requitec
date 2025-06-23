@@ -2803,16 +2803,15 @@ void Situator::situateArrayExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ARRAY);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
-    this->setNotOk();
-    return;
+    requite::Expression &inferenced_type_expression =
+        requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
+    expression.setBranch(inferenced_type_expression);
   }
   requite::Expression &first = expression.getBranch();
   if (!first.getHasNext()) {
     requite::Expression &inferrenced_cardinality_expression =
         requite::Expression::makeOperation(requite::Opcode::INFERENCED_COUNT);
     first.setNext(inferrenced_cardinality_expression);
-    ;
   }
   this->situateBinaryExpression<SITUATION_PARAM,
                                 requite::Situation::MATTE_SYMBOL,
