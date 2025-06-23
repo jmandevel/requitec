@@ -195,6 +195,8 @@ enum class Opcode : unsigned {
   _DESTROY_VALUE,
   DROP,
   _DROP_VALUE,
+  DELETE,
+  _DELETE_VALUE,
   ENTRY_POINT,
   FUNCTION,
   METHOD,
