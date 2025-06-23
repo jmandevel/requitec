@@ -54,7 +54,19 @@ void PrecedenceParser::parseNestedBinary(requite::Parser &parser,
   parser.incrementToken(1);
   requite::Expression &new_operation =
       requite::Expression::makeOperation(opcode);
-  if (this->getHasOperation()) {
+  if (this->getHasLast()) {
+    requite::Expression &last = this->getLast();
+    new_operation.setSource(last, token);
+    new_operation.setBranch(last);
+  } else {
+    new_operation.setSource(token);
+  }
+  if (this->getHasUnary()) {
+    this->appendBranch(new_operation);
+    this->_operation_ptr = &new_operation;
+    this->_last_ptr = nullptr;
+    return;
+  } else if (this->getHasOperation()) {
     requite::Expression &old_operation = this->getOperation();
     if (old_operation.getOpcode() == opcode) {
       requite::Expression& old_branch = old_operation.getBranch();
@@ -71,13 +83,6 @@ void PrecedenceParser::parseNestedBinary(requite::Parser &parser,
     new_operation.setSource(old_operation, token);
     this->_operation_ptr = &new_operation;
     return;
-  }
-  if (this->getHasLast()) {
-    requite::Expression &last = this->getLast();
-    new_operation.setSource(last, token);
-    new_operation.setBranch(last);
-  } else {
-    new_operation.setSource(token);
   }
   this->_outer_ptr = &new_operation;
   this->_operation_ptr = &new_operation;

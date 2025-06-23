@@ -142,13 +142,13 @@ bool Parser::parseExpressions() {
 
 requite::Expression &Parser::parseExpression() {
   REQUITE_ASSERT(!this->getIsDone());
-  return this->parsePrecedence13();
+  return this->parsePrecedence12();
 }
 
 // ASSIGNMENTS
-requite::Expression &Parser::parsePrecedence13() {
+requite::Expression &Parser::parsePrecedence12() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence12());
+  precedence_parser.appendBranch(this->parsePrecedence11());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -157,35 +157,35 @@ requite::Expression &Parser::parsePrecedence13() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::WALRUS_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_INITIALIZE);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::EQUAL_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_ASSIGN);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::PLUS_EQUAL_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_ADD);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::DASH_EQUAL_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_SUBTRACT);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::STAR_EQUAL_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_MULTIPLY);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::SLASH_EQUAL_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_DIVIDE);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::PERCENT_EQUAL_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_MODULUS);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     case requite::TokenType::SWAP_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::SWAP);
-      precedence_parser.appendBranch(this->parsePrecedence12());
+      precedence_parser.appendBranch(this->parsePrecedence11());
       continue;
     default:
       break;
@@ -196,9 +196,9 @@ requite::Expression &Parser::parsePrecedence13() {
 }
 
 // BINDINGS
-requite::Expression &Parser::parsePrecedence12() {
+requite::Expression &Parser::parsePrecedence11() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence11());
+  precedence_parser.appendBranch(this->parsePrecedence10());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -208,12 +208,12 @@ requite::Expression &Parser::parsePrecedence12() {
     case requite::TokenType::COLON_OPERATOR:
       precedence_parser.parseBinary(
           *this, requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE);
-      precedence_parser.appendBranch(this->parsePrecedence11());
+      precedence_parser.appendBranch(this->parsePrecedence10());
       continue;
     case requite::TokenType::DOUBLE_COLON_OPERATOR:
       precedence_parser.parseBinary(
           *this, requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL);
-      precedence_parser.appendBranch(this->parsePrecedence11());
+      precedence_parser.appendBranch(this->parsePrecedence10());
       continue;
     default:
       break;
@@ -224,7 +224,7 @@ requite::Expression &Parser::parsePrecedence12() {
 }
 
 // EARLY UNARY OPERATORS
-requite::Expression &Parser::parsePrecedence11() {
+requite::Expression &Parser::parsePrecedence10() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
@@ -240,14 +240,14 @@ requite::Expression &Parser::parsePrecedence11() {
     }
     break;
   }
-  precedence_parser.appendBranch(this->parsePrecedence10());
+  precedence_parser.appendBranch(this->parsePrecedence9());
   return precedence_parser.getOuter();
 }
 
 // BINARY CAST
-requite::Expression &Parser::parsePrecedence10() {
+requite::Expression &Parser::parsePrecedence9() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence9());
+  precedence_parser.appendBranch(this->parsePrecedence8());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -256,11 +256,11 @@ requite::Expression &Parser::parsePrecedence10() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::SEMICOLON_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_CAST);
-      precedence_parser.appendBranch(this->parsePrecedence9());
+      precedence_parser.appendBranch(this->parsePrecedence8());
       continue;
     case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR:
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_CAST);
-      precedence_parser.appendBranch(this->parsePrecedence9());
+      precedence_parser.appendBranch(this->parsePrecedence8());
       continue;
     default:
       break;
@@ -271,9 +271,9 @@ requite::Expression &Parser::parsePrecedence10() {
 }
 
 // NARY LOGICAL
-requite::Expression &Parser::parsePrecedence9() {
+requite::Expression &Parser::parsePrecedence8() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence8());
+  precedence_parser.appendBranch(this->parsePrecedence7());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -282,11 +282,11 @@ requite::Expression &Parser::parsePrecedence9() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::DOUBLE_AMPERSAND_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_LOGICAL_AND);
-      precedence_parser.appendBranch(this->parsePrecedence8());
+      precedence_parser.appendBranch(this->parsePrecedence7());
       continue;
     case requite::TokenType::DOUBLE_PIPE_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_LOGICAL_OR);
-      precedence_parser.appendBranch(this->parsePrecedence8());
+      precedence_parser.appendBranch(this->parsePrecedence7());
       continue;
     default:
       break;
@@ -297,9 +297,9 @@ requite::Expression &Parser::parsePrecedence9() {
 }
 
 // NARY COMPARISON
-requite::Expression &Parser::parsePrecedence8() {
+requite::Expression &Parser::parsePrecedence7() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence7());
+  precedence_parser.appendBranch(this->parsePrecedence6());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -308,27 +308,27 @@ requite::Expression &Parser::parsePrecedence8() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::GREATER_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_GREATER);
-      precedence_parser.appendBranch(this->parsePrecedence7());
+      precedence_parser.appendBranch(this->parsePrecedence6());
       continue;
     case requite::TokenType::GREATER_EQUAL_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_GREATER_EQUAL);
-      precedence_parser.appendBranch(this->parsePrecedence7());
+      precedence_parser.appendBranch(this->parsePrecedence6());
       continue;
     case requite::TokenType::LESS_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_LESS);
-      precedence_parser.appendBranch(this->parsePrecedence7());
+      precedence_parser.appendBranch(this->parsePrecedence6());
       continue;
     case requite::TokenType::LESS_EQUAL_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_LESS_EQUAL);
-      precedence_parser.appendBranch(this->parsePrecedence7());
+      precedence_parser.appendBranch(this->parsePrecedence6());
       continue;
     case requite::TokenType::DOUBLE_EQUAL_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_EQUAL);
-      precedence_parser.appendBranch(this->parsePrecedence7());
+      precedence_parser.appendBranch(this->parsePrecedence6());
       continue;
     case requite::TokenType::BANG_EQUAL_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_NOT_EQUAL);
-      precedence_parser.appendBranch(this->parsePrecedence7());
+      precedence_parser.appendBranch(this->parsePrecedence6());
       continue;
     default:
       break;
@@ -339,9 +339,9 @@ requite::Expression &Parser::parsePrecedence8() {
 }
 
 // NARY MULTIPLICATIVE ARITHMETIC
-requite::Expression &Parser::parsePrecedence7() {
+requite::Expression &Parser::parsePrecedence6() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence6());
+  precedence_parser.appendBranch(this->parsePrecedence5());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -350,15 +350,15 @@ requite::Expression &Parser::parsePrecedence7() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::STAR_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_MULTIPLY);
-      precedence_parser.appendBranch(this->parsePrecedence6());
+      precedence_parser.appendBranch(this->parsePrecedence5());
       continue;
     case requite::TokenType::SLASH_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_DIVIDE);
-      precedence_parser.appendBranch(this->parsePrecedence6());
+      precedence_parser.appendBranch(this->parsePrecedence5());
       continue;
     case requite::TokenType::PERCENT_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_MODULUS);
-      precedence_parser.appendBranch(this->parsePrecedence6());
+      precedence_parser.appendBranch(this->parsePrecedence5());
       continue;
     default:
       break;
@@ -369,9 +369,9 @@ requite::Expression &Parser::parsePrecedence7() {
 }
 
 // NARY ADDITIVE ARITHMETIC
-requite::Expression &Parser::parsePrecedence6() {
+requite::Expression &Parser::parsePrecedence5() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence5());
+  precedence_parser.appendBranch(this->parsePrecedence4());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -380,16 +380,16 @@ requite::Expression &Parser::parsePrecedence6() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::PLUS_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_ADD);
-      precedence_parser.appendBranch(this->parsePrecedence5());
+      precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     case requite::TokenType::DASH_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_SUBTRACT);
-      precedence_parser.appendBranch(this->parsePrecedence5());
+      precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     case requite::TokenType::CONCATENATE_OPERATOR:
       precedence_parser.parseNary(*this,
                                   requite::Opcode::_COMPILE_TIME_CONCATINATE);
-      precedence_parser.appendBranch(this->parsePrecedence5());
+      precedence_parser.appendBranch(this->parsePrecedence4());
       continue;
     default:
       break;
@@ -400,7 +400,7 @@ requite::Expression &Parser::parsePrecedence6() {
 }
 
 // MIDDLE UNARY OPERATORS
-requite::Expression &Parser::parsePrecedence5() {
+requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
@@ -422,14 +422,14 @@ requite::Expression &Parser::parsePrecedence5() {
     }
     break;
   }
-  precedence_parser.appendBranch(this->parsePrecedence4());
+  precedence_parser.appendBranch(this->parsePrecedence3());
   return precedence_parser.getOuter();
 }
 
 // EARLY GROUPINGS
-requite::Expression &Parser::parsePrecedence4() {
+requite::Expression &Parser::parsePrecedence3() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence3());
+  precedence_parser.appendBranch(this->parsePrecedence2());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
@@ -442,53 +442,6 @@ requite::Expression &Parser::parsePrecedence4() {
       precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
                                     requite::TokenType::RIGHT_COMPAS_GROUPING);
       continue;
-    default:
-      break;
-    }
-    break;
-  }
-  return precedence_parser.getOuter();
-}
-
-// BINARY ARRAY
-requite::Expression &Parser::parsePrecedence3() {
-  requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence2());
-  while (!this->getIsDone()) {
-    const requite::Token &token = this->getToken();
-    if (!token.getHasBinaryOperatorSpacing()) {
-      break;
-    }
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::PIPE_PERCENT_OPERATOR:
-      [[fallthrough]];
-    case requite::TokenType::PIPE_CAROT_OPERATOR: {
-      const requite::Opcode subtype_opcode =
-          type == requite::TokenType::PIPE_PERCENT_OPERATOR
-              ? requite::Opcode::_ARRAY
-              : requite::Opcode::_FAT_POINTER;
-      precedence_parser.parseNestedBinary(*this, subtype_opcode);
-      const requite::Token &next_token = this->getToken();
-      switch (const requite::TokenType next_type = next_token.getType()) {
-      case requite::TokenType::SEMICOLON_OPERATOR:
-        [[fallthrough]];
-      case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR: {
-        const requite::Opcode cast_opcode =
-            next_type == requite::TokenType::SEMICOLON_OPERATOR
-                ? requite::Opcode::_CAST
-                : requite::Opcode::_BITWISE_CAST;
-        requite::Expression &inference = requite::Expression::makeOperation(
-            requite::Opcode::_INFERENCED_TYPE);
-        inference.setSource(next_token);
-        precedence_parser.appendBranch(inference);
-        precedence_parser.parseBinaryCombination(*this, cast_opcode);
-        precedence_parser.appendBranch(this->parsePrecedence10());
-      } break;
-      default:
-        precedence_parser.appendBranch(this->parsePrecedence2());
-      }
-      continue;
-    }
     default:
       break;
     }
@@ -602,17 +555,49 @@ requite::Expression &Parser::parsePrecedence2() {
       precedence_parser.appendBranch(next);
       break;
     }
-    const requite::Token &next_token = this->getToken();
-    switch (const requite::TokenType next_type = next_token.getType()) {
+    const requite::Token &post_token = this->getToken();
+    switch (const requite::TokenType post_type = post_token.getType()) {
     case requite::TokenType::COMMA_OPERATOR:
       precedence_parser.parseNestedNary(*this,
                                         requite::Opcode::_ASCRIBE_LAST_BRANCH);
       precedence_parser.appendBranch(next);
       continue;
-    default:
+    case requite::TokenType::PIPE_PERCENT_OPERATOR:
+      [[fallthrough]];
+    case requite::TokenType::PIPE_CAROT_OPERATOR: {
+      const requite::Opcode subtype_opcode =
+          type == requite::TokenType::PIPE_PERCENT_OPERATOR
+              ? requite::Opcode::_ARRAY
+              : requite::Opcode::_FAT_POINTER;
+      precedence_parser.parseNestedBinary(*this, subtype_opcode);
+      precedence_parser.appendBranch(next);
+      const requite::Token &following_token = this->getToken();
+      switch (const requite::TokenType following_type =
+                  following_token.getType()) {
+      case requite::TokenType::SEMICOLON_OPERATOR:
+        [[fallthrough]];
+      case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR: {
+        const requite::Opcode cast_opcode =
+            following_type == requite::TokenType::SEMICOLON_OPERATOR
+                ? requite::Opcode::_CAST
+                : requite::Opcode::_BITWISE_CAST;
+        requite::Expression &inference = requite::Expression::makeOperation(
+            requite::Opcode::_INFERENCED_TYPE);
+        inference.setSource(following_token);
+        precedence_parser.appendBranch(inference);
+        precedence_parser.parseBinaryCombination(*this, cast_opcode);
+        precedence_parser.appendBranch(this->parsePrecedence10());
+        break;
+      }
+      default:
+        break;
+      }
       break;
     }
-    precedence_parser.appendBranch(next);
+    default:
+      precedence_parser.appendBranch(next);
+      break;
+    }
     break;
   }
   return precedence_parser.getOuter();
