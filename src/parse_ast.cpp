@@ -463,12 +463,6 @@ requite::Expression &Parser::parsePrecedence2() {
       }
       precedence_parser.parseUnary(*this, requite::Opcode::_FAT_POINTER);
       continue;
-    case requite::TokenType::PERCENT_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
-      precedence_parser.parseUnary(*this, requite::Opcode::ARRAY);
-      continue;
     case requite::TokenType::AMBERSAND_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
