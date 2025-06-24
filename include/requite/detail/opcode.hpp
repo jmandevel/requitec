@@ -281,8 +281,14 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_ADDRESS_OF_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
-  case Opcode::_NEW_:
+  case Opcode::ALLOCATE:
+    return _SYMBOL_REFLECTIVE_VALUE;
+  case Opcode::_ALLOCATE_VALUE_OF_SYMBOL:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::DEALLOCATE:
+    return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
+  case Opcode::_DEALLOCATE_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
 
   // ASSIGNMENT
   case Opcode::_INITIALIZE:
@@ -376,8 +382,12 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
   case Opcode::_QUOTE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_EXPAND:
-    return _INTERMEDIATE_OPERATION | _ALL_SITUATIONS;
+  case Opcode::EXPAND:
+    return _ALL_SITUATIONS;
+  case Opcode::BAKE:
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::_BAKE_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
 
   // PROCEDURES
   case Opcode::_CALL:
@@ -391,10 +401,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::DROP:
     return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
   case Opcode::_DROP_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::DELETE:
-    return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
-  case Opcode::_DELETE_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::ENTRY_POINT:
     return _BASE_STATEMENT;
@@ -819,9 +825,15 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "address";
   case requite::Opcode::_ADDRESS_OF_VALUE:
     return "_address_of_value";
-  case requite::Opcode::_NEW_:
-    return "_new";
-
+  case requite::Opcode::ALLOCATE:
+    return "allocate";
+  case requite::Opcode::_ALLOCATE_VALUE_OF_SYMBOL:
+    return "_allocate_value_of_symbol";
+  case requite::Opcode::DEALLOCATE:
+    return "deallocate";
+  case requite::Opcode::_DEALLOCATE_VALUE:
+    return "_deallocate_value";
+  
   // ASSIGNMENT
   case requite::Opcode::_INITIALIZE:
     return "_initialize";
@@ -905,8 +917,12 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_specialization";
   case requite::Opcode::_QUOTE:
     return "_quote";
-  case requite::Opcode::_EXPAND:
-    return "_expand";
+  case requite::Opcode::EXPAND:
+    return "expand";
+  case requite::Opcode::BAKE:
+    return "bake";
+  case requite::Opcode::_BAKE_VALUE:
+    return "_bake_value";
 
   // PROCEDURES
   case requite::Opcode::_CALL:
@@ -921,10 +937,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "drop";
   case requite::Opcode::_DROP_VALUE:
     return "_drop_value";
-  case requite::Opcode::DELETE:
-    return "delete";
-  case requite::Opcode::_DELETE_VALUE:
-    return "_delete_value";
   case requite::Opcode::ENTRY_POINT:
     return "entry_point";
   case requite::Opcode::FUNCTION:
@@ -1192,6 +1204,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::__ERROR;
   case requite::Opcode::ADDRESS:
     return requite::Opcode::_ADDRESS_OF_VALUE;
+  case requite::Opcode::DEALLOCATE:
+    return requite::Opcode::_DEALLOCATE_VALUE;
   case requite::Opcode::COPY:
     return requite::Opcode::_COPY_VALUE;
   case requite::Opcode::MOVE:
@@ -1200,8 +1214,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_DESTROY_VALUE;
   case requite::Opcode::DROP:
     return requite::Opcode::_DROP_VALUE;
-  case requite::Opcode::DELETE:
-    return requite::Opcode::_DELETE_VALUE;
+  case requite::Opcode::BAKE:
+    return requite::Opcode::_BAKE_VALUE;
   case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
     return requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE;
   case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
@@ -1228,6 +1242,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
 
 constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
   switch (opcode) {
+  case requite::Opcode::ALLOCATE:
+    return requite::Opcode::_ALLOCATE_VALUE_OF_SYMBOL;
   case requite::Opcode::MANGLED_NAME:
     return requite::Opcode::_MANGLED_NAME_OF_SYMBOL;
   case requite::Opcode::SIZE:

@@ -136,7 +136,11 @@ enum class Opcode : unsigned {
   _VALUE_AT_VALUE,
   ADDRESS,
   _ADDRESS_OF_VALUE,
-  _NEW_,
+  ALLOCATE,
+  _ALLOCATE_VALUE_OF_SYMBOL,
+  DEALLOCATE,
+  _DEALLOCATE_VALUE,
+
 
   // ASSIGNMENT
   _INITIALIZE,
@@ -186,7 +190,9 @@ enum class Opcode : unsigned {
   TEMPLATE,
   _SPECIALIZATION,
   _QUOTE,
-  _EXPAND,
+  EXPAND,
+  BAKE,
+  _BAKE_VALUE,
 
   // PROCEDURES
   _CALL,
@@ -195,8 +201,6 @@ enum class Opcode : unsigned {
   _DESTROY_VALUE,
   DROP,
   _DROP_VALUE,
-  DELETE,
-  _DELETE_VALUE,
   ENTRY_POINT,
   FUNCTION,
   METHOD,

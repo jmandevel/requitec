@@ -82,9 +82,6 @@ struct Parser final {
   requite::Expression &parseExpression();
 
   [[nodiscard]]
-  requite::Expression &parsePrecedence12();
-
-  [[nodiscard]]
   requite::Expression &parsePrecedence11();
 
   [[nodiscard]]

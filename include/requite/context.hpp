@@ -361,6 +361,9 @@ struct Context final : public requite::_ContextLlvmContext {
   template <requite::Situation SITUATION_PARAM>
   void logNotExactBranchCount(requite::Expression &expression, unsigned count);
   template <requite::Situation SITUATION_PARAM>
+  void logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
+                                unsigned count);
+  template <requite::Situation SITUATION_PARAM>
   void logInvalidBranchSituation(requite::Expression &branch,
                                  requite::Opcode outer_opcode,
                                  requite::Opcode branch_opcode,

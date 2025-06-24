@@ -31,6 +31,17 @@ void Context::logNotExactBranchCount(requite::Expression &expression,
 }
 
 template <requite::Situation SITUATION_PARAM>
+void Context::logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
+                                                unsigned count) {
+  this->logSourceMessage(
+      expression, requite::LogType::ERROR,
+      llvm::Twine("expression with opcode \"") +
+          requite::getName(expression.getOpcode()) + "\" in situation \"" +
+          requite::getName<SITUATION_PARAM>() + "\" must have no more than " +
+          llvm::Twine(count) + " branches.");
+}
+
+template <requite::Situation SITUATION_PARAM>
 void Context::logInvalidBranchSituation(requite::Expression &branch,
                                         requite::Opcode outer_opcode,
                                         requite::Opcode branch_opcode,

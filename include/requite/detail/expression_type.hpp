@@ -45,8 +45,7 @@ inline bool Expression::getIsConverging() const {
   return requite::getIsConverging(this->getOpcode());
 }
 
-inline bool Expression::getIsInternalUseOnly() const
-{
+inline bool Expression::getIsInternalUseOnly() const {
   return requite::getIsInternalUseOnly(this->getOpcode());
 }
 
