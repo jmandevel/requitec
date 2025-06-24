@@ -2334,6 +2334,7 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
     if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
       if (branch_ptr == nullptr) {
         expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH);
+        first.setNext(second);
         return;
       }
       expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
@@ -2430,6 +2431,7 @@ Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
         if (branch_ptr == nullptr) {
           expression.changeOpcode(
               requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH);
+          first.setNext(second);
           return;
         }
         expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
