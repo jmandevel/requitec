@@ -433,15 +433,43 @@ requite::Expression &Parser::parsePrecedence3() {
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
+    case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
       precedence_parser.parseHorned(
           *this, requite::Opcode::_CALL_OR_SIGNATURE,
           requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
+      const requite::Token &next_token = this->getToken();
+      switch (const requite::TokenType type = next_token.getType()) {
+      case requite::TokenType::DOT_OPERATOR:
+        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      case requite::TokenType::DOUBLE_DOT_OPERATOR:
+        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      default:
+        break;
+      }
       continue;
-    case requite::TokenType::LEFT_COMPAS_GROUPING:
+    }
+    case requite::TokenType::LEFT_COMPAS_GROUPING: {
       precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
                                     requite::TokenType::RIGHT_COMPAS_GROUPING);
+      const requite::Token &next_token = this->getToken();
+      switch (const requite::TokenType type = next_token.getType()) {
+      case requite::TokenType::DOT_OPERATOR:
+        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      case requite::TokenType::DOUBLE_DOT_OPERATOR:
+        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      default:
+        break;
+      }
       continue;
+    }
     default:
       break;
     }
