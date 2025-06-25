@@ -21,7 +21,6 @@ enum class AttributeType {
   PRIVATE,
   PROTECTED,
   EXPORT,
-  MAY_THROW,
   EXTERNAL,
   NOT_FINAL,
   MAY_DISCARD,

@@ -28,8 +28,6 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
     return requite::AttributeType::PROTECTED;
   case requite::Opcode::EXPORT:
     return requite::AttributeType::EXPORT;
-  case requite::Opcode::MAY_THROW:
-    return requite::AttributeType::MAY_THROW;
   case requite::Opcode::EXTERNAL:
     return requite::AttributeType::EXTERNAL;
   case requite::Opcode::NOT_FINAL:
@@ -72,8 +70,6 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "builtin protected";
   case requite::AttributeType::EXPORT:
     return "builtin export";
-  case requite::AttributeType::MAY_THROW:
-    return "builtin may_throw";
   case requite::AttributeType::EXTERNAL:
     return "builtin external";
   case requite::AttributeType::NOT_FINAL:
@@ -113,8 +109,6 @@ constexpr bool getIsTypeAttribute(requite::AttributeType type) {
   case requite::AttributeType::PROTECTED:
     return false;
   case requite::AttributeType::EXPORT:
-    return false;
-  case requite::AttributeType::MAY_THROW:
     return false;
   case requite::AttributeType::EXTERNAL:
     return false;

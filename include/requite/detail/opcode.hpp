@@ -278,14 +278,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_ADDRESS_OF_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
-  case Opcode::ALLOCATE:
-    return _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_ALLOCATE_VALUE_OF_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::DEALLOCATE:
-    return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
-  case Opcode::_DEALLOCATE_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
 
   // ASSIGNMENT
   case Opcode::_INITIALIZE:
@@ -572,14 +564,6 @@ _getFlags(requite::Opcode opcode) {
   // ERROR HANDLING AND DEBUGGING
   case Opcode::ASSERT:
     return _MATTE_LOCAL_STATEMENT;
-  case Opcode::TRY:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::CATCH:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::THROW:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::MAY_THROW:
-    return _MATTE_VALUE;
 
   // ATTRIBUTES
   case Opcode::EXTERNAL:
@@ -820,14 +804,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "address";
   case requite::Opcode::_ADDRESS_OF_VALUE:
     return "_address_of_value";
-  case requite::Opcode::ALLOCATE:
-    return "allocate";
-  case requite::Opcode::_ALLOCATE_VALUE_OF_SYMBOL:
-    return "_allocate_value_of_symbol";
-  case requite::Opcode::DEALLOCATE:
-    return "deallocate";
-  case requite::Opcode::_DEALLOCATE_VALUE:
-    return "_deallocate_value";
   
   // ASSIGNMENT
   case requite::Opcode::_INITIALIZE:
@@ -1102,14 +1078,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // ERROR HANDLING AND DEBUGGING
   case requite::Opcode::ASSERT:
     return "assert";
-  case requite::Opcode::TRY:
-    return "try";
-  case requite::Opcode::CATCH:
-    return "catch";
-  case requite::Opcode::THROW:
-    return "throw";
-  case requite::Opcode::MAY_THROW:
-    return "may_throw";
 
   // ATTRIBUTES
   case requite::Opcode::EXTERNAL:
@@ -1199,8 +1167,6 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_AT_VALUE;
   case requite::Opcode::ADDRESS:
     return requite::Opcode::_ADDRESS_OF_VALUE;
-  case requite::Opcode::DEALLOCATE:
-    return requite::Opcode::_DEALLOCATE_VALUE;
   case requite::Opcode::COPY:
     return requite::Opcode::_COPY_VALUE;
   case requite::Opcode::MOVE:
@@ -1237,8 +1203,6 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
 
 constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
   switch (opcode) {
-  case requite::Opcode::ALLOCATE:
-    return requite::Opcode::_ALLOCATE_VALUE_OF_SYMBOL;
   case requite::Opcode::MANGLED_NAME:
     return requite::Opcode::_MANGLED_NAME_OF_SYMBOL;
   case requite::Opcode::SIZE:

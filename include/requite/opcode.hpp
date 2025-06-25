@@ -135,11 +135,6 @@ enum class Opcode : unsigned {
   _AT_VALUE,
   ADDRESS,
   _ADDRESS_OF_VALUE,
-  ALLOCATE,
-  _ALLOCATE_VALUE_OF_SYMBOL,
-  DEALLOCATE,
-  _DEALLOCATE_VALUE,
-
 
   // ASSIGNMENT
   _INITIALIZE,
@@ -319,10 +314,6 @@ enum class Opcode : unsigned {
 
   // ERROR HANDLING AND DEBUGGING
   ASSERT,
-  TRY,
-  CATCH,
-  THROW,
-  MAY_THROW,
 
   // ATTRIBUTES
   EXTERNAL,

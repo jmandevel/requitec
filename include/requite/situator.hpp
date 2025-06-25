@@ -84,7 +84,6 @@ struct Situator final {
             requite::Situation BRANCH_SITUATION_N_PARAM,
             requite::Situation BRANCH_SITUATION_LAST_PARAM>
   inline void situateNaryWithLastExpression(requite::Expression &expression);
-
   template <requite::Situation SITUATION_PARAM>
   inline void
   situate_BindValueOrDefaultValueExpression(requite::Expression &expression);
@@ -149,8 +148,6 @@ struct Situator final {
   inline void situate_AscribeLastBranchExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_InitializeExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateAllocateExpression(requite::Expression &expression);
 };
 
 } // namespace requite
