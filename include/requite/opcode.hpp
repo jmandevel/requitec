@@ -314,6 +314,7 @@ enum class Opcode : unsigned {
 
   // ERROR HANDLING AND DEBUGGING
   ASSERT,
+  UNREACHABLE,
 
   // ATTRIBUTES
   EXTERNAL,

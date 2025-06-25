@@ -564,6 +564,8 @@ _getFlags(requite::Opcode opcode) {
   // ERROR HANDLING AND DEBUGGING
   case Opcode::ASSERT:
     return _MATTE_LOCAL_STATEMENT;
+  case Opcode::UNREACHABLE:
+    return _MATTE_LOCAL_STATEMENT;
 
   // ATTRIBUTES
   case Opcode::EXTERNAL:
@@ -1078,6 +1080,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // ERROR HANDLING AND DEBUGGING
   case requite::Opcode::ASSERT:
     return "assert";
+  case requite::Opcode::UNREACHABLE:
+    return "unreachable";
 
   // ATTRIBUTES
   case requite::Opcode::EXTERNAL:
