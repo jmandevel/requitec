@@ -9,7 +9,7 @@
             [result] := "failure!"
         ][case CRASH
             [result] := "crash!"
-        ]z
+        ]
     ]
 ]
 

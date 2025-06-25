@@ -14,6 +14,7 @@ enum class AttributeType {
   NONE,
   USER,
   MUTABLE,
+  CONSTANT,
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,

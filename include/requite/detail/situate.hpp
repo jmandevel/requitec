@@ -798,6 +798,14 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
+  case requite::Opcode::CONSTANT:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::CONSTANT)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
   case requite::Opcode::VOLATILE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::VOLATILE)) {

@@ -341,6 +341,8 @@ _getFlags(requite::Opcode opcode) {
   // TYPE MODIFIER
   case Opcode::MUTABLE:
     return _MATTE_VALUE;
+  case Opcode::CONSTANT:
+    return _MATTE_VALUE;
   case Opcode::VOLATILE:
     return _MATTE_VALUE;
   case Opcode::ATOMIC:
@@ -868,6 +870,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // TYPE MODIFIER
   case requite::Opcode::MUTABLE:
     return "mutable";
+  case requite::Opcode::CONSTANT:
+    return "constant";
   case requite::Opcode::VOLATILE:
     return "volatile";
   case requite::Opcode::ATOMIC:

@@ -167,6 +167,7 @@ enum class Opcode : unsigned {
 
   // TYPE MODIFIER
   MUTABLE,
+  CONSTANT,
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,

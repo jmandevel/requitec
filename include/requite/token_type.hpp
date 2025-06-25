@@ -58,6 +58,7 @@ enum class TokenType {
   DOLLAR_OPERATOR,           // $
   QUESTION_OPERATOR,         // ?
   GRAVE_OPERATOR,            // `
+  DOUBLE_GRAVE_OPERATOR,     // ``
   ARROW_OPERATOR,            // ->
   LONG_ARROW_OPERATOR,       // -->
   CONCATENATE_OPERATOR,      // +>

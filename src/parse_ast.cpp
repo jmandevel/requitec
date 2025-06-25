@@ -378,27 +378,59 @@ requite::Expression &Parser::parsePrecedence5() {
   return precedence_parser.getOuter();
 }
 
-// MIDDLE UNARY OPERATORS
+// BITWISE AND EARLY UNARY OPERATORS
 requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
+  precedence_parser.appendBranch(this->parsePrecedence3());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
-    if (!token.getHasUnaryOperatorSpacing()) {
-      break;
-    }
     switch (const requite::TokenType type = token.getType()) {
+    case requite::TokenType::TILDE_OPERATOR:
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseUnary(*this, requite::Opcode::_BITWISE_COMPLEMENT);
+      precedence_parser.appendBranch(this->parsePrecedence3());
+      continue;
+    case requite::TokenType::PIPE_OPERATOR:
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_OR);
+      precedence_parser.appendBranch(this->parsePrecedence3());
+      continue;
+    case requite::TokenType::AMBERSAND_OPERATOR:
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_AND);
+      precedence_parser.appendBranch(this->parsePrecedence3());
+      continue;
+    case requite::TokenType::CAROT_LESS_OPERATOR:
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_XOR);
+      precedence_parser.appendBranch(this->parsePrecedence3());
+      continue;
     case requite::TokenType::BANG_OPERATOR:
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
       precedence_parser.parseUnary(*this, requite::Opcode::_LOGICAL_COMPLEMENT);
+      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     case requite::TokenType::DASH_OPERATOR:
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
       precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
+      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     default:
       break;
     }
-    break;
   }
-  precedence_parser.appendBranch(this->parsePrecedence3());
   return precedence_parser.getOuter();
 }
 
@@ -424,8 +456,8 @@ requite::Expression &Parser::parsePrecedence3() {
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       case requite::TokenType::ARROW_OPERATOR:
-        precedence_parser.parseBinary(*this,
-                                      requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
+        precedence_parser.parseBinary(
+            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       case requite::TokenType::LONG_ARROW_OPERATOR:
@@ -452,8 +484,8 @@ requite::Expression &Parser::parsePrecedence3() {
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       case requite::TokenType::ARROW_OPERATOR:
-        precedence_parser.parseBinary(*this,
-                                      requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
+        precedence_parser.parseBinary(
+            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       case requite::TokenType::LONG_ARROW_OPERATOR:
@@ -529,6 +561,12 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       precedence_parser.parseAttribute(*this, requite::Opcode::MUTABLE);
+      continue;
+    case requite::TokenType::DOUBLE_GRAVE_OPERATOR:
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseAttribute(*this, requite::Opcode::CONSTANT);
       continue;
     default:
       break;
@@ -645,13 +683,13 @@ requite::Expression &Parser::parsePrecedence1() {
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     case requite::TokenType::ARROW_OPERATOR:
-      precedence_parser.parseBinary(*this,
-                                    requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
+      precedence_parser.parseBinary(
+          *this, requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     case requite::TokenType::LONG_ARROW_OPERATOR:
-      precedence_parser.parseBinary(*this,
-                                    requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
+      precedence_parser.parseBinary(
+          *this, requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     default:

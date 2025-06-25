@@ -601,7 +601,13 @@ void Tokenizer::_tokenizeTokens() {
     case '_':
       break;
     case '`':
-      this->tokenizeLengthToken(requite::TokenType::GRAVE_OPERATOR, 1);
+      switch (const char c2 = this->getRanger().getChar(1)) {
+      case '`':
+        this->tokenizeLengthToken(requite::TokenType::DOUBLE_GRAVE_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeLengthToken(requite::TokenType::GRAVE_OPERATOR, 1);
+      }
       continue;
     case 'a':
       break;

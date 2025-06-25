@@ -14,6 +14,8 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
   switch (opcode) {
   case requite::Opcode::MUTABLE:
     return requite::AttributeType::MUTABLE;
+  case requite::Opcode::CONSTANT:
+    return requite::AttributeType::CONSTANT;
   case requite::Opcode::VOLATILE:
     return requite::AttributeType::VOLATILE;
   case requite::Opcode::ATOMIC:
@@ -56,6 +58,8 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "user defined";
   case requite::AttributeType::MUTABLE:
     return "bulitin mutable";
+  case requite::AttributeType::CONSTANT:
+    return "builtin constant";
   case requite::AttributeType::VOLATILE:
     return "builtin volatile";
   case requite::AttributeType::ATOMIC:
@@ -97,6 +101,8 @@ constexpr bool getIsTypeAttribute(requite::AttributeType type) {
   case requite::AttributeType::USER:
     return false;
   case requite::AttributeType::MUTABLE:
+    return true;
+  case requite::AttributeType::CONSTANT:
     return true;
   case requite::AttributeType::VOLATILE:
     return true;
