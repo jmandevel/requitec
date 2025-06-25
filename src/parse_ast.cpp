@@ -448,23 +448,13 @@ requite::Expression &Parser::parsePrecedence3() {
       const requite::Token &next_token = this->getToken();
       switch (const requite::TokenType type = next_token.getType()) {
       case requite::TokenType::DOT_OPERATOR:
-        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        [[fallthrough]];
       case requite::TokenType::DOUBLE_DOT_OPERATOR:
-        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        [[fallthrough]];
       case requite::TokenType::ARROW_OPERATOR:
-        precedence_parser.parseBinary(
-            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        [[fallthrough]];
       case requite::TokenType::LONG_ARROW_OPERATOR:
-        precedence_parser.parseBinary(
-            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        precedence_parser.appendBranch(this->parsePrecedence1());
       default:
         break;
       }
@@ -476,23 +466,13 @@ requite::Expression &Parser::parsePrecedence3() {
       const requite::Token &next_token = this->getToken();
       switch (const requite::TokenType type = next_token.getType()) {
       case requite::TokenType::DOT_OPERATOR:
-        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        [[fallthrough]];
       case requite::TokenType::DOUBLE_DOT_OPERATOR:
-        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        [[fallthrough]];
       case requite::TokenType::ARROW_OPERATOR:
-        precedence_parser.parseBinary(
-            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        [[fallthrough]];
       case requite::TokenType::LONG_ARROW_OPERATOR:
-        precedence_parser.parseBinary(
-            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
-        precedence_parser.appendBranch(this->parsePrecedence0());
-        continue;
+        precedence_parser.appendBranch(this->parsePrecedence1());
       default:
         break;
       }
