@@ -1,0 +1,6 @@
+[import std]
+
+[entry_point
+    std..print(line:"Hello, world!")
+]
+
