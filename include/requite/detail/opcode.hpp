@@ -269,10 +269,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::AT:
     return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
            _VALUE_REFLECTIVE_JUNCTION;
-  case Opcode::_VALUE_AT_OFFSET_FROM_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
-  case Opcode::_VALUE_AT_VALUE:
+  case Opcode::_AT_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
   case Opcode::ADDRESS:
@@ -817,10 +814,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_truncate_back_of_value";
   case requite::Opcode::AT:
     return "at";
-  case requite::Opcode::_VALUE_AT_OFFSET_FROM_VALUE:
-    return "_value_at_offset_from_value";
-  case requite::Opcode::_VALUE_AT_VALUE:
-    return "_value_at_value";
+  case requite::Opcode::_AT_VALUE:
+    return "_at_value";
   case requite::Opcode::ADDRESS:
     return "address";
   case requite::Opcode::_ADDRESS_OF_VALUE:
@@ -1201,7 +1196,7 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
   case requite::Opcode::TRUNCATE_BACK:
     return requite::Opcode::_TRUNCATE_BACK_OF_VALUE;
   case requite::Opcode::AT:
-    return requite::Opcode::__ERROR;
+    return requite::Opcode::_AT_VALUE;
   case requite::Opcode::ADDRESS:
     return requite::Opcode::_ADDRESS_OF_VALUE;
   case requite::Opcode::DEALLOCATE:
