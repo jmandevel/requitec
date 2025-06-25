@@ -968,7 +968,8 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::METHOD)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
+      this->situateNaryExpression<SITUATION_PARAM, 3,
+                                  requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_LOCAL_STATEMENT>(
