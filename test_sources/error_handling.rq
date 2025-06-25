@@ -1,0 +1,25 @@
+[error_category Category
+    FAIL
+    CRASH
+]
+
+[extension_method Category toString @[utf8]()
+    [switch [this]
+        [case FAIL
+            [result] := "failure!"
+        ][case CRASH
+            [result] := "crash!"
+        ]
+    ]
+]
+
+[function doSomethingBad ![void]()
+    [throw Category..FAIL]
+]
+
+[entry_point
+    doSomethingBad().[catch 
+            Category
+            std..print(line:"failed because of error: {[error]->toString()}.")
+        ]
+]
