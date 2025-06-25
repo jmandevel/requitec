@@ -223,7 +223,7 @@ requite::Expression &Parser::parsePrecedence10() {
   return precedence_parser.getOuter();
 }
 
-// BINARY CAST AND ELEMENT TYPES
+// BINARY CAST
 requite::Expression &Parser::parsePrecedence9() {
   requite::PrecedenceParser precedence_parser;
   precedence_parser.appendBranch(this->parsePrecedence8());
