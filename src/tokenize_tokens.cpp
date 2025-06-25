@@ -259,6 +259,15 @@ void Tokenizer::_tokenizeTokens() {
       continue;
     case '-':
       switch (const char c1 = this->getRanger().getChar(1)) {
+      case '-':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '>':
+          this->tokenizeLengthToken(requite::TokenType::LONG_ARROW_OPERATOR, 3);
+          break;
+        default:
+          break;
+        }
+        break;
       case '=':
         this->tokenizeLengthToken(requite::TokenType::DASH_EQUAL_OPERATOR, 2);
         break;

@@ -59,6 +59,7 @@ enum class TokenType {
   QUESTION_OPERATOR,         // ?
   GRAVE_OPERATOR,            // `
   ARROW_OPERATOR,            // ->
+  LONG_ARROW_OPERATOR,       // -->
   CONCATENATE_OPERATOR,      // +>
   LEFT_OPERATOR,             // <:
   RIGHT_OPERATOR,            // :>

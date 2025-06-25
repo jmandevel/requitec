@@ -238,6 +238,28 @@ void Situator::situateExpression(requite::Expression &expression) {
                                   requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
+  case requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::MATTE_VALUE,
+                                    requite::Situation::MATTE_SYMBOL>(
+          expression);
+    }
+    break;
+  case requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::MATTE_SYMBOL,
+                                    requite::Situation::MATTE_SYMBOL>(
+          expression);
+    }
+    break;
   case requite::Opcode::_BIND_VALUE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_BIND_VALUE)) {
@@ -2709,7 +2731,9 @@ void Situator::situate_CallOrSignatureExpression(
   requite::Expression &branch = expression.getBranch();
   this->situateBranch<requite::Situation::MATTE_SYMBOL>("first branch",
                                                         expression, 0, branch);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
+                SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
+                SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
                 SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
     if (branch.getHasNext()) {
       requite::Expression &next = branch.getNext();

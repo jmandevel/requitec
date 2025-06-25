@@ -423,6 +423,16 @@ requite::Expression &Parser::parsePrecedence3() {
         precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
+      case requite::TokenType::ARROW_OPERATOR:
+        precedence_parser.parseBinary(*this,
+                                      requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      case requite::TokenType::LONG_ARROW_OPERATOR:
+        precedence_parser.parseBinary(
+            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
       default:
         break;
       }
@@ -439,6 +449,16 @@ requite::Expression &Parser::parsePrecedence3() {
         continue;
       case requite::TokenType::DOUBLE_DOT_OPERATOR:
         precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      case requite::TokenType::ARROW_OPERATOR:
+        precedence_parser.parseBinary(*this,
+                                      requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
+        precedence_parser.appendBranch(this->parsePrecedence0());
+        continue;
+      case requite::TokenType::LONG_ARROW_OPERATOR:
+        precedence_parser.parseBinary(
+            *this, requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       default:
@@ -466,7 +486,8 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       precedence_parser.parseNestedNary(*this, requite::Opcode::_ARRAY);
-      requite::Expression& operation = requite::Expression::makeOperation(requite::Opcode::_INFERENCED_COUNT);
+      requite::Expression &operation = requite::Expression::makeOperation(
+          requite::Opcode::_INFERENCED_COUNT);
       operation.setSourceInsertedBefore(token);
       precedence_parser.appendBranch(operation);
       continue;
@@ -570,7 +591,7 @@ requite::Expression &Parser::parsePrecedence2() {
                                         requite::Opcode::_ASCRIBE_LAST_BRANCH);
       precedence_parser.appendBranch(next);
       continue;
-    case requite::TokenType::HASH_OPERATOR:{
+    case requite::TokenType::HASH_OPERATOR: {
       precedence_parser.parseNestedNary(*this, requite::Opcode::_ARRAY);
       precedence_parser.appendBranch(next);
       const requite::Token &following_token = this->getToken();
@@ -621,6 +642,16 @@ requite::Expression &Parser::parsePrecedence1() {
       continue;
     case requite::TokenType::DOUBLE_DOT_OPERATOR:
       precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+      precedence_parser.appendBranch(this->parsePrecedence0());
+      continue;
+    case requite::TokenType::ARROW_OPERATOR:
+      precedence_parser.parseBinary(*this,
+                                    requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
+      precedence_parser.appendBranch(this->parsePrecedence0());
+      continue;
+    case requite::TokenType::LONG_ARROW_OPERATOR:
+      precedence_parser.parseBinary(*this,
+                                    requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     default:

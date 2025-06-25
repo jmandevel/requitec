@@ -4,12 +4,12 @@
 ]
 
 [extension_method toString Category @[utf8]()
-    [switch [this]
+    [switch [this]methods
         [case FAIL
             [result] := "failure!"
         ][case CRASH
             [result] := "crash!"
-        ]
+        ]z
     ]
 ]
 
