@@ -430,6 +430,7 @@ requite::Expression &Parser::parsePrecedence4() {
     default:
       break;
     }
+    break;
   }
   return precedence_parser.getOuter();
 }
