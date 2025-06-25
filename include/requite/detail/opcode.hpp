@@ -403,6 +403,8 @@ _getFlags(requite::Opcode opcode) {
     return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
   case Opcode::METHOD:
     return _OBJECT_STATEMENT;
+  case Opcode::EXTENSION:
+    return _BASE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::CONSTRUCTOR:
     return _OBJECT_STATEMENT;
   case Opcode::DESTRUCTOR:
@@ -928,6 +930,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "function";
   case requite::Opcode::METHOD:
     return "method";
+  case requite::Opcode::EXTENSION:
+    return "EXTENSION";
   case requite::Opcode::CONSTRUCTOR:
     return "constructor";
   case requite::Opcode::DESTRUCTOR:
@@ -1295,6 +1299,7 @@ constexpr bool getHasOverloadData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ENTRY_POINT ||
          opcode == requite::Opcode::FUNCTION ||
          opcode == requite::Opcode::METHOD ||
+         opcode == requite::Opcode::EXTENSION ||
          opcode == requite::Opcode::CONSTRUCTOR ||
          opcode == requite::Opcode::DESTRUCTOR;
 }

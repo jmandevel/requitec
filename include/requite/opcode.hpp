@@ -202,6 +202,7 @@ enum class Opcode : unsigned {
   ENTRY_POINT,
   FUNCTION,
   METHOD,
+  EXTENSION,
   CONSTRUCTOR,
   DESTRUCTOR,
   _ANONYMOUS_FUNCTION,

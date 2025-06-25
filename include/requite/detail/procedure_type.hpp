@@ -18,6 +18,8 @@ constexpr requite::ProcedureType getProcedureType(requite::Opcode opcode) {
     return requite::ProcedureType::FUNCTION;
   case requite::Opcode::METHOD:
     return requite::ProcedureType::METHOD;
+  case requite::Opcode::EXTENSION:
+    return requite::ProcedureType::EXTENSION;
   case requite::Opcode::CONSTRUCTOR:
     return requite::ProcedureType::CONSTRUCTOR;
   case requite::Opcode::DESTRUCTOR:
