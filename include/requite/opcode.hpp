@@ -190,6 +190,7 @@ enum class Opcode : unsigned {
   _SPECIALIZATION,
   _QUOTE,
   EXPAND,
+  _EXPAND_VALUE,
   BAKE,
   _BAKE_VALUE,
 

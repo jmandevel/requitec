@@ -91,6 +91,10 @@ constexpr llvm::StringRef getName() {
     return "CAPTURE";
   } else if constexpr (SITUATION_PARAM == requite::Situation::INTEGER_LITERAL) {
     return "INTEGER_LITERAL";
+  } else if constexpr (SITUATION_PARAM == requite::Situation::ANY) {
+    return "ANY";
+  } else if constexpr (SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_ANY) {
+    return "VALUE_REFLECTIVE_ANY";
   } else {
     static_assert(false, "invalid situation");
   }
@@ -200,6 +204,10 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeCaptureSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::INTEGER_LITERAL) {
     return requite::getCanBeIntegerLiteralSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::ANY) {
+    return requite::getCanBeAnySituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_ANY) {
+    return requite::getCanBeValueReflectiveAnySituation(opcode);
   } else {
     static_assert(false, "invalid situation");
   }
@@ -259,7 +267,7 @@ constexpr requite::Situation getNextValueReflectiveSituation() {
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
     return requite::Situation::SYMBOL_PATH;
   } else {
-    static_assert(false, "invalid situation");
+    return requite::Situation::VALUE_REFLECTIVE_ANY;
   }
 }
 
@@ -463,6 +471,14 @@ constexpr bool getCanBeCaptureSituation(requite::Opcode opcode) {
 
 constexpr bool getCanBeIntegerLiteralSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::__INTEGER_LITERAL;
+}
+
+constexpr bool getCanBeAnySituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_EXPAND_VALUE; 
+}
+
+constexpr bool getCanBeValueReflectiveAnySituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::EXPAND; 
 }
 
 } // namespace requite

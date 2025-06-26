@@ -64,14 +64,14 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
   _SYMBOL_REFLECTIVE_SYMBOL =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
-  _ALL_SITUATIONS =
-      _BASE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT |
-      _VALUE_REFLECTIVE_LOCAL_STATEMENT | _SYMBOL_REFLECTIVE_LOCAL_STATEMENT |
-      _OBJECT_STATEMENT | _MATTE_DESTINATION | _VALUE_REFLECTIVE_DESTINATION |
-      _SYMBOL_REFLECTIVE_DESTINATION | _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE |
-      _SYMBOL_REFLECTIVE_VALUE | _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-      _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL | _VALUE_REFLECTIVE_SYMBOL |
-      _SYMBOL_REFLECTIVE_SYMBOL
+  _ANY = _BASE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT |
+         _VALUE_REFLECTIVE_LOCAL_STATEMENT |
+         _SYMBOL_REFLECTIVE_LOCAL_STATEMENT | _OBJECT_STATEMENT |
+         _MATTE_DESTINATION | _VALUE_REFLECTIVE_DESTINATION |
+         _SYMBOL_REFLECTIVE_DESTINATION | _MATTE_VALUE |
+         _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE | _MATTE_JUNCTION |
+         _VALUE_REFLECTIVE_JUNCTION | _SYMBOL_REFLECTIVE_JUNCTION |
+         _MATTE_SYMBOL | _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL
 };
 }
 
@@ -114,7 +114,8 @@ _getFlags(requite::Opcode opcode) {
 
   // SITUATIONAL
   case Opcode::_CALL_OR_SIGNATURE:
-    return _INTERMEDIATE_OPERATION |  _MATTE_DESTINATION | _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_LOCAL_STATEMENT | _MATTE_SYMBOL |
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_DESTINATION |
+           _MATTE_VALUE | _MATTE_LOCAL_STATEMENT | _MATTE_SYMBOL |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
     return _INTERMEDIATE_OPERATION;
@@ -153,13 +154,9 @@ _getFlags(requite::Opcode opcode) {
 
   // REFLECT
   case Opcode::_REFLECT_VALUE:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL |
-           _MATTE_LOCAL_STATEMENT;
+    return _CONVERGING | _INTERMEDIATE_OPERATION |
+           _ANY; // NOTE: is all situations because could be for an
+                 // .[expand] at the end
   case Opcode::_REFLECT_SYMBOL:
     return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
            _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
@@ -380,7 +377,11 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_QUOTE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::EXPAND:
-    return _ALL_SITUATIONS;
+    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_JUNCTION |
+           _VALUE_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_LOCAL_STATEMENT |
+           _VALUE_REFLECTIVE_SYMBOL;
+  case Opcode::_EXPAND_VALUE:
+    return _INTERMEDIATE_OPERATION | _ANY;
   case Opcode::BAKE:
     return _VALUE_REFLECTIVE_VALUE;
   case Opcode::_BAKE_VALUE:
@@ -388,7 +389,8 @@ _getFlags(requite::Opcode opcode) {
 
   // PROCEDURES
   case Opcode::_CALL:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_LOCAL_STATEMENT;
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_DESTINATION |
+           _MATTE_VALUE | _MATTE_LOCAL_STATEMENT;
   case Opcode::_SIGNATURE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::DESTROY:
@@ -822,7 +824,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "address";
   case requite::Opcode::_ADDRESS_OF_VALUE:
     return "_address_of_value";
-  
+
   // ASSIGNMENT
   case requite::Opcode::_INITIALIZE:
     return "_initialize";
@@ -910,6 +912,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_quote";
   case requite::Opcode::EXPAND:
     return "expand";
+  case requite::Opcode::_EXPAND_VALUE:
+    return "_expand_value";
   case requite::Opcode::BAKE:
     return "bake";
   case requite::Opcode::_BAKE_VALUE:
@@ -1199,6 +1203,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_DESTROY_VALUE;
   case requite::Opcode::DROP:
     return requite::Opcode::_DROP_VALUE;
+  case requite::Opcode::EXPAND:
+    return requite::Opcode::_EXPAND_VALUE;
   case requite::Opcode::BAKE:
     return requite::Opcode::_BAKE_VALUE;
   case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
@@ -1227,6 +1233,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
 
 constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
   switch (opcode) {
+  case requite::Opcode::EXPAND:
+    return requite::Opcode::_EXPAND_VALUE;
   case requite::Opcode::MANGLED_NAME:
     return requite::Opcode::_MANGLED_NAME_OF_SYMBOL;
   case requite::Opcode::SIZE:

@@ -49,7 +49,9 @@ enum class Situation {
   SWITCH_CASE,
   LAST_SWITCH_CASE,
   CAPTURE,
-  INTEGER_LITERAL
+  INTEGER_LITERAL,
+  ANY,
+  VALUE_REFLECTIVE_ANY
 };
 
 template <requite::Situation SITUATION_PARAM>
@@ -173,6 +175,11 @@ getCanBeLastSwitchCaseSituation(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeCaptureSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getCanBeIntegerLiteralSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getCanBeAnySituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getCanBeValueReflectiveAnySituation(requite::Opcode opcode);
+
 
 } // namespace requite
 

@@ -858,21 +858,27 @@ void Situator::situateExpression(requite::Expression &expression) {
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_SPECIALIZATION)) {
       REQUITE_UNREACHABLE();
-    } else {
-      // TODO
     }
+    // do nothing!
     break;
   case requite::Opcode::_QUOTE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_QUOTE)) {
       REQUITE_UNREACHABLE();
-    } else {
-      // TODO
     }
+    // do nothing!
     break;
   case requite::Opcode::EXPAND:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::EXPAND)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::_EXPAND_VALUE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_EXPAND_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
@@ -2332,8 +2338,14 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
         return;
       }
       expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
-    } else {
+    } else if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
       expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
+    } else {
+      this->getContext().logInvalidBranchSituation<SITUATION_PARAM>(
+          second, requite::Opcode::_REFLECT_VALUE, second.getOpcode(), 1,
+          "last branch");
+      this->setNotOk();
+      return;
     }
     first.setNext(second);
     outer_member_ptr = &second;
@@ -2346,6 +2358,7 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
     expression.changeOpcode(universalized);
     requite::Expression::deleteExpression(second);
   }
+  unsigned branch_i = 2;
   while (branch_ptr != nullptr) {
     requite::Expression &branch = requite::getRef(branch_ptr);
     branch_ptr = branch.popNextPtr();
@@ -2366,8 +2379,14 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
             return;
           }
           expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
-        } else {
+        } else if (requite::getIsValueSituation<SITUATION_PARAM>()) {
           expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
+        } else {
+          this->getContext().logInvalidBranchSituation<SITUATION_PARAM>(
+              second, requite::Opcode::_REFLECT_VALUE, second.getOpcode(), branch_i,
+              "last branch");
+          this->setNotOk();
+          return;
         }
         new_expression.setNext(branch);
       }
@@ -2381,6 +2400,7 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
       expression.changeOpcode(universalized);
       outer_member_ptr = nullptr;
     }
+    branch_i++;
   }
 }
 
