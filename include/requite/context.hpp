@@ -47,9 +47,6 @@ struct _ContextLlvmContext {
 
 struct Context final : public requite::_ContextLlvmContext {
   std::string _executable_path;
-  llvm::SmallString<256> _real_source_directory = {};
-  llvm::SmallString<256> _real_build_directory = {};
-  llvm::SmallString<256> _real_intermediate_directory = {};
   llvm::SourceMgr _source_mgr = {};
   mutable std::mutex _mutex = {};
   std::unique_ptr<llvm::ThreadPoolInterface> _scheduler_ptr = {};
@@ -65,18 +62,8 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // context.cpp
   Context(std::string &&executable_path);
-
-  // filesystem.cpp
-  [[nodiscard]]
-  bool determineDirectoryPaths();
   [[nodiscard]]
   llvm::StringRef getExecutablePath() const;
-  [[nodiscard]]
-  llvm::StringRef getSourcePath() const;
-  [[nodiscard]]
-  llvm::StringRef getBuildPath() const;
-  [[nodiscard]]
-  llvm::StringRef getIntermediatePath() const;
 
   // file.cpp
   [[nodiscard]]

@@ -54,23 +54,17 @@ void AstWriter::writeAst(const requite::Module &module,
       this->writeExpression(expression);
     }
   }
-  llvm::Twine extension = llvm::Twine(sub_extension) + ".ast";
-  llvm::SmallString<256> path;
-  if (!module.getFile().makeIntermediateFilePath(path, this->getContext(),
-                                                 extension)) {
-    return;
-  }
-  std::error_code ec;
-  llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  if (ec) {
-    this->getContext().logMessage(
-        llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tpath: ") +
-        llvm::Twine(path) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()));
-    return;
-  }
-  fout << this->_buffer;
+  //std::error_code ec;
+  //llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
+  //if (ec) {
+  //  this->getContext().logMessage(
+  //      llvm::Twine(
+  //          "error: failed to open intermediate file for writing\n\tpath: ") +
+  //      llvm::Twine(path) + llvm::Twine("\n\treason: ") +
+  //      llvm::Twine(ec.message()));
+  //  return;
+  //}
+  //fout << this->_buffer;
 }
 
 void AstWriter::addIndentation() { this->_indentation++; }

@@ -35,19 +35,16 @@ void Context::writeTokenCsv(requite::Module &module,
   }
   llvm::SmallString<256> path;
   std::error_code ec;
-  if (!module.getFile().makeIntermediateFilePath(path, *this, ".tokens.csv")) {
-    return;
-  }
-  llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tPath: ") +
-        llvm::Twine(path) + llvm::Twine("\n\tReason: ") +
-        llvm::Twine(ec.message()));
-    return;
-  }
-  fout << str_buffer_a_ostream.str();
+  //llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
+  //if (ec) {
+  //  this->logMessage(
+  //      llvm::Twine(
+  //          "error: failed to open intermediate file for writing\n\tPath: ") +
+  //      llvm::Twine(path) + llvm::Twine("\n\tReason: ") +
+  //      llvm::Twine(ec.message()));
+  //  return;
+  //}
+  //fout << str_buffer_a_ostream.str();
 }
 
 } // namespace requite

@@ -19,17 +19,8 @@ namespace requite {
 
 void Context::startScheduler() {
   REQUITE_ASSERT(this->_scheduler_ptr.get() == nullptr);
-  if (requite::options::SINGLE_THREAD_EXECUTION.getValue()) {
-    return;
-  }
   llvm::ThreadPoolStrategy strategy;
-  strategy.Limit = requite::options::LIMIT_THREADS_TO_CORES.getValue();
-  if (requite::options::THREAD_COUNT.getNumOccurrences() == 1) {
-    strategy.ThreadsRequested = requite::options::THREAD_COUNT.getValue();
-  } else {
-    strategy.ThreadsRequested = std::thread::hardware_concurrency();
-  }
-  strategy.UseHyperThreads = requite::options::USE_HYPER_THREADS.getValue();
+  strategy.ThreadsRequested = std::thread::hardware_concurrency();
   this->_scheduler_ptr = std::make_unique<llvm::StdThreadPool>(strategy);
 }
 

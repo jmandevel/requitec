@@ -17,23 +17,18 @@ void Context::writeLlvmIr() {
 }
 
 void Context::writeLlvmIr(const requite::Module &module) {
-  llvm::Twine extension = ".ir";
-  llvm::SmallString<256> path;
-  if (!module.getFile().makeIntermediateFilePath(path, *this, extension)) {
-    return;
-  }
-  std::error_code ec;
-  llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tpath: ") +
-        llvm::Twine(path) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()));
-    return;
-  }
-  std::string ir_text = module.getLlvmIrSourceText();
-  fout << ir_text;
+  //std::error_code ec;
+  //llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
+  //if (ec) {
+  //  this->logMessage(
+  //      llvm::Twine(
+  //          "error: failed to open intermediate file for writing\n\tpath: ") +
+  //      llvm::Twine(path) + llvm::Twine("\n\treason: ") +
+  //      llvm::Twine(ec.message()));
+  //  return;
+  //}
+  //std::string ir_text = module.getLlvmIrSourceText();
+  //fout << ir_text;
 }
 
 } // namespace requite

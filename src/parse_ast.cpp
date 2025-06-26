@@ -867,8 +867,8 @@ requite::Opcode Parser::parseOpcode() {
             token.getSourceText() + "\"");
     return requite::Opcode::__ERROR;
   }
-  if (!requite::options::INTERMEDIATE_FORM.getValue() &&
-      requite::getIsIntermediateOperation(opcode)) {
+  if (false &&
+      requite::getIsIntermediateOperation(opcode)) { // TODO check if intermediate option set
     this->setNotOk();
     this->getContext().logSourceMessage(
         token, requite::LogType::ERROR,

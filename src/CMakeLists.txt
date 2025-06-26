@@ -27,7 +27,6 @@ target_sources(
         expression_make.cpp
         expression.cpp
         file.cpp
-        filesystem.cpp
         get_module.cpp
         label.cpp
         llvm_target.cpp

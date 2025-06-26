@@ -9,4 +9,9 @@ namespace requite {
 Context::Context(std::string &&executable_path)
     : _executable_path(std::move(executable_path)) {}
 
+llvm::StringRef Context::getExecutablePath() const {
+  REQUITE_ASSERT(!this->_executable_path.empty());
+  return this->_executable_path;
+}
+
 } // namespace requite

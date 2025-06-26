@@ -53,12 +53,6 @@ struct File final {
   const char *getTextPtr() const;
   [[nodiscard]]
   std::uint_fast32_t getBufferI() const;
-
-  // filesystem.cpp
-  [[nodiscard]]
-  bool makeIntermediateFilePath(llvm::SmallString<256> &out_path,
-                                requite::Context &context,
-                                llvm::Twine extension) const;
 };
 
 } // namespace requite
