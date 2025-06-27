@@ -33,7 +33,7 @@ target_sources(
         llvm_module.cpp
         log.cpp
         lookup_symbols.cpp
-        module_symbols.cpp
+        make_symbols.cpp
         module.cpp
         named_procedure_group.cpp
         node.cpp

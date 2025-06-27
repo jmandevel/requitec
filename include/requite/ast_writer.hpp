@@ -30,7 +30,7 @@ struct AstWriter final {
   const requite::Context &getContext() const;
   [[nodiscard]]
   llvm::raw_string_ostream &getOstream();
-  void writeAst(const requite::Module &module, llvm::Twine sub_extension);
+  void writeAst(const requite::Module &module, llvm::StringRef out_path);
   void writeIndentation();
   void addIndentation();
   void removeIndentation();

@@ -183,6 +183,12 @@ struct Parser final {
 
   [[nodiscard]]
   requite::Expression &parseLeftRightOperator();
+
+  [[nodiscard]]
+  bool checkIsNormativeRequiteOk();
+
+  [[nodiscard]] 
+  bool checkIsIntermediateRequiteOk();
 };
 
 } // namespace requite

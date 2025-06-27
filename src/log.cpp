@@ -8,6 +8,7 @@
 
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
+#include <requite/options.hpp>
 #include <requite/token.hpp>
 
 #include <llvm/Support/raw_ostream.h>
@@ -19,6 +20,11 @@ namespace requite {
 void Context::logMessage(llvm::Twine message) {
   std::scoped_lock guard(this->_mutex);
   llvm::outs() << message << "\n";
+}
+
+void Context::logInputFileMessage(requite::LogType type, llvm::Twine message) {
+  llvm::StringRef input_path = requite::getInputFilePath();
+  this->logSourceMessage(input_path, type, message);
 }
 
 void Context::logSourceMessage(llvm::Twine filename, requite::LogType type,

@@ -6,6 +6,7 @@
 #include <requite/options.hpp>
 
 #include <llvm/Support/FileSystem.h>
+#include <llvm/Support/CommandLine.h>
 
 int main(int argc, const char **argv) {
   std::string executable_path =

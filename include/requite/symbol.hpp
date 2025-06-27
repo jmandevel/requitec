@@ -98,8 +98,8 @@ struct RootSymbol final {
 
   // root_symbol.cpp
   RootSymbol() = default;
-  explicit RootSymbol(const Self &that);
-  explicit RootSymbol(Self &&that) = default;
+  RootSymbol(const Self &that);
+  RootSymbol(Self &&that) = default;
   ~RootSymbol();
   Self &operator=(const Self &rhs);
   Self &operator=(Self &&rhs) = default;
@@ -224,8 +224,8 @@ struct SubSymbol final {
 
   // sub_symbol.cpp
   SubSymbol() = default;
-  explicit SubSymbol(const Self &symbol) = default;
-  explicit SubSymbol(Self &&symbol) = default;
+  SubSymbol(const Self &symbol) = default;
+  SubSymbol(Self &&symbol) = default;
   ~SubSymbol() = default;
   [[nodiscard]] Self &operator=(const Self &rhs) = default;
   [[nodiscard]] Self &operator=(Self &&rhs) = default;
@@ -250,11 +250,11 @@ struct Symbol {
 
   // symbol.cpp
   Symbol() = default;
-  explicit Symbol(requite::RootSymbol &root);
-  explicit Symbol(requite::RootSymbol &root,
+  Symbol(requite::RootSymbol &root);
+  Symbol(requite::RootSymbol &root,
                   llvm::ArrayRef<requite::SubSymbol> subs);
-  explicit Symbol(const Self &that) = default;
-  explicit Symbol(Self &&that) = default;
+  Symbol(const Self &that) = default;
+  Symbol(Self &&that) = default;
   ~Symbol() = default;
   Self &operator=(const Self &rhs) = default;
   Self &operator=(Self &&rhs) = default;

@@ -4,11 +4,23 @@
 
 #pragma once
 
+#include <requite/alias.hpp>
+#include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
+#include <requite/file.hpp>
+#include <requite/label.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
+#include <requite/named_procedure_group.hpp>
+#include <requite/node.hpp>
+#include <requite/object.hpp>
 #include <requite/opcode.hpp>
+#include <requite/ordered_variable.hpp>
+#include <requite/procedure.hpp>
+#include <requite/scope.hpp>
 #include <requite/situation.hpp>
+#include <requite/table.hpp>
+#include <requite/unordered_variable.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -17,6 +29,7 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/ThreadPool.h>
@@ -52,6 +65,22 @@ struct Context final : public requite::_ContextLlvmContext {
   std::unique_ptr<llvm::ThreadPoolInterface> _scheduler_ptr = {};
   llvm::StringMap<requite::Opcode> _opcode_table = {};
   std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
+  requite::Module _source_module = {};
+  requite::ExportTable _base_export_table = {};
+  std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
+  std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
+  std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};
+  std::vector<std::unique_ptr<requite::NamedProcedureGroup>>
+      _named_procedure_group_uptrs = {};
+  std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
+  std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
+  std::vector<std::unique_ptr<requite::UnorderedVariable>>
+      _unordered_variable_uptrs = {};
+  std::vector<std::unique_ptr<requite::OrderedVariable>>
+      _ordered_variable_uptrs = {};
+  std::vector<std::unique_ptr<requite::AnonymousFunction>>
+      _anonymous_function_uptrs = {};
+  std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
@@ -59,11 +88,60 @@ struct Context final : public requite::_ContextLlvmContext {
   const llvm::Target *_llvm_target_ptr = {};
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
+  std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
 
   // context.cpp
   Context(std::string &&executable_path);
   [[nodiscard]]
   llvm::StringRef getExecutablePath() const;
+
+  // make_symbols.cpp
+  [[nodiscard]] requite::Scope &makeScope();
+  [[nodiscard]] requite::Table &makeTable();
+  [[nodiscard]] requite::Object &makeObject();
+  [[nodiscard]] requite::NamedProcedureGroup &makeNamedProcedureGroup();
+  [[nodiscard]] requite::Procedure &makeProcedure();
+  [[nodiscard]] requite::Alias &makeAlias();
+  [[nodiscard]] requite::OrderedVariable &makeOrderedVariable();
+  [[nodiscard]] requite::UnorderedVariable &makeUnorderedVariable();
+  [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
+  [[nodiscard]] requite::Label &makeLabel();
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
+  getScopeUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Table>> &getTableUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Table>> &
+  getTableUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Object>> &getObjectUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Object>> &
+  getObjectUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &
+  getNamedProcedureGroupUptrs();
+  [[nodiscard]] const std::vector<
+      std::unique_ptr<requite::NamedProcedureGroup>> &
+  getNamedProcedureGroupUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Procedure>> &
+  getProcedureUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Procedure>> &
+  getProcedureUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliasUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Alias>> &
+  getAliasUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::OrderedVariable>> &
+  getOrderedVariableUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::OrderedVariable>> &
+  getOrderedVariableUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::UnorderedVariable>> &
+  getUnorderedVariableUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::UnorderedVariable>> &
+  getUnorderedVariableUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::AnonymousFunction>> &
+  getAnonymousFunctionUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::AnonymousFunction>> &
+  getAnonymousFunctionUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Label>> &getLabelUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Label>> &
+  getLabelUptrs() const;
 
   // file.cpp
   [[nodiscard]]
@@ -112,113 +190,22 @@ struct Context final : public requite::_ContextLlvmContext {
   bool parseAst(requite::Module &module, std::vector<requite::Token> &token);
 
   // write_ast.cpp
-  void writeAst(llvm::StringRef sub_extension);
-  void writeAst(const requite::Module &module, llvm::StringRef sub_extension);
+  void writeAst(const requite::Module &module,  llvm::StringRef output_path);
 
   // write_llvm_ir.cpp
-  void writeLlvmIr();
-  void writeLlvmIr(const requite::Module &module);
+  void writeLlvmIr(llvm::StringRef output_path);
 
   // source_name.cpp
   [[nodiscard]] bool determineModuleName(requite::Module &module);
-  [[nodiscard]] bool mapModules();
 
   // tabulate_user_symbols.cpp
-  [[nodiscard]] bool tabulateUserSymbols(requite::Module &module);
-  [[nodiscard]] bool tabulateBaseUserSymbol(requite::Module &module,
-                                            requite::Scope &scope,
-                                            requite::Expression &expression,
-                                            requite::AttributeFlags attributes);
-  [[nodiscard]] bool
-  tabulateTableUserSymbol(requite::Module &module, requite::Scope &scope,
-                          requite::Expression &expression,
-                          requite::AttributeFlags attributes);
-  [[nodiscard]] bool
-  tabulateMemberUserSymbol(requite::Module &module, requite::Scope &scope,
-                           requite::Expression &expression,
-                           requite::AttributeFlags attributes);
-  [[nodiscard]] bool
-  tabulateLocalUserSymbol(requite::Module &module, requite::Scope &scope,
-                          requite::Expression &expression,
-                          requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateScopedValues(requite::Module &module,
-                                          requite::Scope &scope,
-                                          requite::Expression &expression);
-  [[nodiscard]] bool tabulateEntryPoint(requite::Module &module,
-                                        requite::Scope &scope,
-                                        requite::Expression &expression);
-  [[nodiscard]] bool tabulateImport(requite::Module &module,
-                                    requite::Scope &scope,
-                                    requite::Expression &expression,
-                                    requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateUse(requite::Module &module, requite::Scope &scope,
-                                 requite::Expression &expression,
-                                 requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateTable(requite::Module &module,
-                                   requite::Scope &scope,
-                                   requite::Expression &expression);
-  [[nodiscard]] bool
-  tabulateLocalStatementScope(requite::Module &module, requite::Scope &scope,
-                              requite::Expression &expression);
-  [[nodiscard]] bool tabulateObject(requite::Module &module,
-                                    requite::Scope &scope,
-                                    requite::Expression &expression,
-                                    requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateAlias(requite::Module &module,
-                                   requite::Scope &scope,
-                                   requite::Expression &expression,
-                                   requite::AttributeFlags attributes);
-  [[nodiscard]] bool
-  tabulateGlobal(requite::Module &module, requite::Scope &scope,
-                          requite::Expression &expression,
-                          requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateFunction(requite::Module &module,
-                                      requite::Scope &scope,
-                                      requite::Expression &expression,
-                                      requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateProperty(requite::Module &module,
-                                      requite::Scope &scope,
-                                      requite::Expression &expression,
-                                      requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateConstructor(requite::Module &module,
-                                         requite::Scope &scope,
-                                         requite::Expression &expression,
-                                         requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateDestructor(requite::Module &module,
-                                        requite::Scope &scope,
-                                        requite::Expression &expression,
-                                        requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateMethod(requite::Module &module,
-                                    requite::Scope &scope,
-                                    requite::Expression &expression,
-                                    requite::AttributeFlags attributes);
-  [[nodiscard]] bool tabulateLocal(requite::Module &module,
-                                   requite::Scope &scope,
-                                   requite::Expression &expression);
-  [[nodiscard]] bool tabulateAnonymousFunction(requite::Module &module,
-                                               requite::Scope &scope,
-                                               requite::Expression &expression);
+  // TODO
 
   // prototype_user_symbols.cpp
-  [[nodiscard]] bool prototypeUserSymbols();
-  [[nodiscard]] bool prototypeUserSymbol(requite::Module &module);
-  [[nodiscard]] bool prototypeUserSymbol(requite::Object &object);
-  [[nodiscard]] bool prototypeUserSymbol(requite::Procedure &procedure);
-  [[nodiscard]] bool prototypeUserSymbol(requite::Alias &alias);
-  [[nodiscard]] bool prototypeUserSymbol(requite::OrderedVariable &variable);
-  [[nodiscard]] bool prototypeUserSymbol(requite::UnorderedVariable &variable);
-  [[nodiscard]] bool
-  prototypeUserSymbol(requite::AnonymousFunction &anonymous_function);
+  // TODO
 
   // build_user_symbols.cpp
-  [[nodiscard]] bool buildUserSymbols();
-  [[nodiscard]] bool buildUserSymbol(requite::Module &module);
-  [[nodiscard]] bool buildUserSymbol(requite::Object &object);
-  [[nodiscard]] bool buildUserSymbol(requite::Procedure &procedure);
-  [[nodiscard]] bool buildUserSymbol(requite::Alias &alias);
-  [[nodiscard]] bool buildUserSymbol(requite::UnorderedVariable &variable);
-  [[nodiscard]] bool
-  buildUserSymbol(requite::AnonymousFunction &anonymous_function);
+  // TODO
 
   // resolve_symbols.cpp
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
@@ -240,6 +227,9 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // evaluate_values.cpp
   [[nodiscard]] bool
+  evaluateName(llvm::StringRef &name, requite::Scope &scope,
+                           requite::Expression &value_expression);
+  [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
                            requite::Expression &value_expression);
   [[nodiscard]] requite::Value
@@ -252,12 +242,17 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // get_module.cpp
   [[nodiscard]]
-  requite::Module *getModulePtr(llvm::StringRef name);
+  requite::Module &getSourceModule();
   [[nodiscard]]
-  const requite::Module *getModulePtr(llvm::StringRef name) const;
+  const requite::Module &getSourceModule() const;
+  [[nodiscard]]
+  requite::Module *getModulePtr(llvm::StringRef import_path);
+  [[nodiscard]]
+  const requite::Module *getModulePtr(llvm::StringRef import_path) const;
 
   // llvm_target.cpp
   void initializeLlvm();
+  void initializeLlvmBuilder();
   void initializeLlvmContext();
   [[nodiscard]]
   bool getIsLlvmContextInitialized() const;
@@ -305,6 +300,14 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   unsigned getIndexDepth() const;
 
+  // llvm_module.cpp
+  void initializeLlvmModule();
+  [[nodiscard]] bool getIsLlvmModuleInitialized() const;
+  void terminateLlvmModule();
+  [[nodiscard]] llvm::Module &getLlvmModule();
+  [[nodiscard]] const llvm::Module &getLlvmModule() const;
+  [[nodiscard]] std::string getLlvmIrSourceText() const;
+
   // run.cpp
   [[nodiscard]]
   bool run();
@@ -323,6 +326,8 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // log.cpp
   void logMessage(llvm::Twine message);
+  void logInputFileMessage(requite::LogType type,
+                        llvm::Twine message);
   void logSourceMessage(llvm::Twine filename, requite::LogType type,
                         llvm::Twine message);
   void logSourceMessage(const requite::Token &token, requite::LogType type,
@@ -349,7 +354,7 @@ struct Context final : public requite::_ContextLlvmContext {
   void logNotExactBranchCount(requite::Expression &expression, unsigned count);
   template <requite::Situation SITUATION_PARAM>
   void logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
-                                unsigned count);
+                                         unsigned count);
   template <requite::Situation SITUATION_PARAM>
   void logInvalidBranchSituation(requite::Expression &branch,
                                  requite::Opcode outer_opcode,

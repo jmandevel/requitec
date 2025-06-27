@@ -14,16 +14,17 @@ namespace requite {
 
 void Context::initializeLlvm() {
   this->initializeLlvmContext();
-  for (std::unique_ptr<requite::Module> &module_uptr : this->getModuleUptrs()) {
-    requite::Module &module = requite::getRef(module_uptr);
-    module.initializeLlvmModule(*this);
-  }
+  this->initializeLlvmBuilder();
+  this->initializeLlvmModule();
+}
+
+void Context::initializeLlvmBuilder() {
+  this->_llvm_builder_uptr = std::make_unique<llvm::IRBuilder<>>(
+      requite::getRef(this->_llvm_context_uptr));
 }
 
 void Context::initializeLlvmContext() {
   this->_llvm_context_uptr = std::make_unique<llvm::LLVMContext>();
-  this->_llvm_builder_uptr = std::make_unique<llvm::IRBuilder<>>(
-      requite::getRef(this->_llvm_context_uptr));
 }
 
 bool Context::getIsLlvmContextInitialized() const {

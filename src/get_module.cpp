@@ -7,6 +7,14 @@
 
 namespace requite {
 
+requite::Module &Context::getSourceModule() {
+  return this->_source_module;
+}
+
+const requite::Module &Context::getSourceModule() const {
+  return this->_source_module;
+}
+
 requite::Module *Context::getModulePtr(llvm::StringRef name) {
   if (!this->_module_map.contains(name)) {
     return nullptr;

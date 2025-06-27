@@ -7,22 +7,22 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
     for (requite::Scope &containing_scope : scope.getContainingSubrange()) {
-      requite::RootSymbol user = containing_scope.lookupInternalRootSymbol(
+      requite::RootSymbol user = containing_scope.lookupInternalUserSymbol(
           symbol_expression.getDataText());
       if (user.getIsNone()) {
         continue;
       } else if (user.getIsAlias()) {
         requite::Alias &alias = user.getAlias();
-        if (!this->prototypeUserSymbol(alias)) {
-          return false;
-        }
+        //if (!this->prototypeUserSymbol(alias)) {
+        //  return false;
+        //}
         out_symbol.wrapSymbol(alias.getSymbol());
         return true;
       } else if (user.getIsObject()) {
         requite::Object &object = user.getObject();
-        if (!this->prototypeUserSymbol(object)) {
-          return false;
-        }
+        //if (!this->prototypeUserSymbol(object)) {
+        //  return false;
+        //}
         out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
         out_symbol.getRoot().setObject(object);
         return true;

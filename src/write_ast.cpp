@@ -20,18 +20,10 @@
 
 namespace requite {
 
-void Context::writeAst(llvm::StringRef sub_extension) {
-  for (const std::unique_ptr<requite::Module> &module_uptr :
-       this->getModuleUptrs()) {
-    const requite::Module &module = requite::getRef(module_uptr);
-    this->writeAst(module, sub_extension);
-  }
-}
-
 void Context::writeAst(const requite::Module &module,
-                       llvm::StringRef sub_extension) {
+                       llvm::StringRef out_path) {
   requite::AstWriter writer(*this);
-  writer.writeAst(module, sub_extension);
+  writer.writeAst(module, out_path);
 }
 
 AstWriter::AstWriter(requite::Context &context)
@@ -46,7 +38,7 @@ const requite::Context &AstWriter::getContext() const {
 llvm::raw_string_ostream &AstWriter::getOstream() { return _ostream; }
 
 void AstWriter::writeAst(const requite::Module &module,
-                         llvm::Twine sub_extension) {
+                         llvm::StringRef out_path) {
   this->_buffer.clear();
   if (module.getHasExpression()) {
     for (const auto &expression :
@@ -54,17 +46,18 @@ void AstWriter::writeAst(const requite::Module &module,
       this->writeExpression(expression);
     }
   }
-  //std::error_code ec;
-  //llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  //if (ec) {
-  //  this->getContext().logMessage(
-  //      llvm::Twine(
-  //          "error: failed to open intermediate file for writing\n\tpath: ") +
-  //      llvm::Twine(path) + llvm::Twine("\n\treason: ") +
-  //      llvm::Twine(ec.message()));
-  //  return;
-  //}
-  //fout << this->_buffer;
+  std::error_code ec;
+  llvm::raw_fd_ostream fout(out_path, ec, llvm::sys::fs::OF_Text);
+  if (ec) {
+    this->getContext().logMessage(
+        llvm::Twine(
+            "error: failed to open output file for writing\n\tpath: ")
+            +
+        llvm::Twine(out_path) + llvm::Twine("\n\treason: ") +
+        llvm::Twine(ec.message()));
+    return;
+  }
+  fout << this->_buffer;
 }
 
 void AstWriter::addIndentation() { this->_indentation++; }

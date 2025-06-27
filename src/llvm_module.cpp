@@ -4,36 +4,40 @@
 
 #include <requite/assert.hpp>
 #include <requite/context.hpp>
-#include <requite/module.hpp>
 
 namespace requite {
 
-void Module::initializeLlvmModule(requite::Context &context) {
-  this->_llvm_module_uptr = std::make_unique<llvm::Module>(
-      this->getName(), context.getLlvmContext());
-  this->_llvm_module_uptr->setSourceFileName(this->getFile().getPath());
-  this->_llvm_module_uptr->setDataLayout(context.getLlvmDataLayout());
-  this->_llvm_module_uptr->setTargetTriple(context.getLlvmTargetTriple());
+void Context::initializeLlvmModule() {
+  requite::Module &source_module = this->getSourceModule();
+  llvm::StringRef source_name = source_module.getName();
+  llvm::LLVMContext &llvm_context = this->getLlvmContext();
+  this->_llvm_module_uptr =
+      std::make_unique<llvm::Module>(source_name, llvm_context);
+  llvm::StringRef source_path = source_module.getFile().getPath();
+  this->_llvm_module_uptr->setSourceFileName(source_path);
+  this->_llvm_module_uptr->setDataLayout(this->getLlvmDataLayout());
+  this->_llvm_module_uptr->setTargetTriple(this->getLlvmTargetTriple());
 }
 
-bool Module::getIsLlvmModuleInitialized() const {
+bool Context::getIsLlvmModuleInitialized() const {
   return this->_llvm_module_uptr.get() != nullptr;
 }
 
-void Module::terminateLlvmModule() { this->_llvm_module_uptr.reset(); }
+void Context::terminateLlvmModule() { this->_llvm_module_uptr.reset(); }
 
-llvm::Module &Module::getLlvmModule() {
+llvm::Module &Context::getLlvmModule() {
   return requite::getRef(this->_llvm_module_uptr);
 }
 
-const llvm::Module &Module::getLlvmModule() const {
+const llvm::Module &Context::getLlvmModule() const {
   return requite::getRef(this->_llvm_module_uptr);
 }
 
-std::string Module::getLlvmIrSourceText() const {
+std::string Context::getLlvmIrSourceText() const {
   std::string ir_text;
   llvm::raw_string_ostream ir_stream(ir_text);
-  this->getLlvmModule().print(ir_stream, nullptr);
+  const llvm::Module& module = this->getLlvmModule();
+  module.print(ir_stream, nullptr);
   ir_stream.flush();
   return ir_text;
 }
