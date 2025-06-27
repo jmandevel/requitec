@@ -36,7 +36,7 @@ std::uint_fast32_t File::getBufferI() const { return this->_buffer_i; }
 bool Context::loadFileBuffer(requite::File &file, llvm::StringRef path) {
   llvm::SmallString<256> path_buffer = path;
   std::error_code ec = llvm::sys::fs::make_absolute(path_buffer);
-  if (!ec) {
+  if (ec) {
     this->logMessage(
         llvm::Twine(
             "error: failed to determine source file path\n\tfile: ") +

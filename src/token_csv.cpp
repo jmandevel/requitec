@@ -18,8 +18,8 @@
 
 namespace requite {
 
-void Context::writeTokenCsv(requite::Module &module,
-                            std::vector<requite::Token> &tokens) {
+bool Context::writeTokenCsv(requite::Module &module,
+                            std::vector<requite::Token> &tokens, llvm::StringRef out_path) {
   llvm::SmallString<64> str_buffer_a;
   llvm::SmallString<64> str_buffer_b;
   llvm::raw_svector_ostream str_buffer_a_ostream(str_buffer_a);
@@ -33,18 +33,18 @@ void Context::writeTokenCsv(requite::Module &module,
         token.getSourceTextLength(), requite::getName(token.getType()),
         csv_value_text);
   }
-  llvm::SmallString<256> path;
   std::error_code ec;
-  //llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  //if (ec) {
-  //  this->logMessage(
-  //      llvm::Twine(
-  //          "error: failed to open intermediate file for writing\n\tPath: ") +
-  //      llvm::Twine(path) + llvm::Twine("\n\tReason: ") +
-  //      llvm::Twine(ec.message()));
-  //  return;
-  //}
-  //fout << str_buffer_a_ostream.str();
+  llvm::raw_fd_ostream fout(out_path, ec, llvm::sys::fs::OF_Text);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine(
+            "error: failed to open output file for writing\n\tPath: ") +
+        llvm::Twine(out_path) + llvm::Twine("\n\tReason: ") +
+        llvm::Twine(ec.message()));
+    return false;
+  }
+  fout << str_buffer_a_ostream.str();
+  return true;
 }
 
 } // namespace requite

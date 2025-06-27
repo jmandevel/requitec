@@ -182,15 +182,15 @@ struct Context final : public requite::_ContextLlvmContext {
                       std::vector<requite::Token> &tokens);
 
   // token_csv.cpp
-  void writeTokenCsv(requite::Module &module,
-                     std::vector<requite::Token> &tokens);
+  [[nodiscard]] bool writeTokenCsv(requite::Module &module,
+                     std::vector<requite::Token> &tokens, llvm::StringRef out_path);
 
   // parse_ast.cpp
   [[nodiscard]]
   bool parseAst(requite::Module &module, std::vector<requite::Token> &token);
 
   // write_ast.cpp
-  void writeAst(const requite::Module &module,  llvm::StringRef output_path);
+  [[nodiscard]] bool writeAst(const requite::Module &module,  llvm::StringRef output_path);
 
   // write_llvm_ir.cpp
   void writeLlvmIr(llvm::StringRef output_path);
@@ -309,8 +309,14 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::string getLlvmIrSourceText() const;
 
   // run.cpp
-  [[nodiscard]]
-  bool run();
+  [[nodiscard]] bool run();
+  [[nodiscard]] bool emitTokens();
+  [[nodiscard]] bool emitParsed();
+  [[nodiscard]] bool emitSituated();
+  [[nodiscard]] bool emitExpanded();
+  [[nodiscard]] bool emitIr();
+  [[nodiscard]] bool emitAssembly();
+  [[nodiscard]] bool emitObject();
 
   // opcode.cpp
   [[nodiscard]]

@@ -20,10 +20,10 @@
 
 namespace requite {
 
-void Context::writeAst(const requite::Module &module,
+bool Context::writeAst(const requite::Module &module,
                        llvm::StringRef out_path) {
   requite::AstWriter writer(*this);
-  writer.writeAst(module, out_path);
+  return writer.writeAst(module, out_path);
 }
 
 AstWriter::AstWriter(requite::Context &context)
@@ -37,7 +37,7 @@ const requite::Context &AstWriter::getContext() const {
 
 llvm::raw_string_ostream &AstWriter::getOstream() { return _ostream; }
 
-void AstWriter::writeAst(const requite::Module &module,
+bool AstWriter::writeAst(const requite::Module &module,
                          llvm::StringRef out_path) {
   this->_buffer.clear();
   if (module.getHasExpression()) {
@@ -55,9 +55,10 @@ void AstWriter::writeAst(const requite::Module &module,
             +
         llvm::Twine(out_path) + llvm::Twine("\n\treason: ") +
         llvm::Twine(ec.message()));
-    return;
+    return false;
   }
   fout << this->_buffer;
+  return true;
 }
 
 void AstWriter::addIndentation() { this->_indentation++; }

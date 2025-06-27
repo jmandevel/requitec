@@ -1200,6 +1200,7 @@ bool Parser::checkIsNormativeRequiteOk() {
     this->setNotOk();
     return false;
   }
+  return true;
 }
 
 bool Parser::checkIsIntermediateRequiteOk() {
@@ -1215,6 +1216,7 @@ bool Parser::checkIsIntermediateRequiteOk() {
     this->setNotOk();
     return false;
   }
+  return true;
 }
 
 } // namespace requite
