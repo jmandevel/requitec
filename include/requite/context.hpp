@@ -190,6 +190,7 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // contextualize.cpp
   [[nodiscard]] bool contextualizeModule(requite::Module &module);
+  [[nodiscard]] bool checkEntryPointCount();
 
   // tabulate.cpp
   void tabulateEntryPoint(requite::Module &module,

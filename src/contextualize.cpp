@@ -137,4 +137,23 @@ bool Context::contextualizeModule(requite::Module &module) {
   return is_ok;
 }
 
+bool Context::checkEntryPointCount() {
+  requite::Module& source_module = this->getSourceModule();
+  if (!source_module.getHasEntryPoint()) {
+    return true;
+  }
+  requite::Procedure &entry_point = source_module.getEntryPoint();
+  if (!entry_point.getHasNextProcedure()) {
+    return true;
+  }
+  for (requite::Procedure &overload : entry_point.getOverloadSubrange()) {
+    this->logSourceMessage(
+      overload.getExpression(),
+      requite::LogType::ERROR,
+      "multiple entry points in module."
+    );
+  }
+  return false;
+}
+
 } // namespace requite

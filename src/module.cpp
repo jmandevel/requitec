@@ -86,7 +86,7 @@ void Module::addEntryPoint(requite::Procedure &entry_point) {
     entry_point.setNextProcedure(this->getEntryPoint());
     this->_entry_point_ptr = &entry_point;
   }
-  requite::setSingleRef(this->_entry_point_ptr, entry_point);
+  this->_entry_point_ptr = &entry_point;
 }
 
 requite::Procedure &Module::getEntryPoint() {

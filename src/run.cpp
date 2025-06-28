@@ -76,6 +76,9 @@ bool Context::run() {
     }
     return true;
   }
+  if (!this->checkEntryPointCount()) {
+    return false;
+  }
   if (!this->buildIr()) {
     return false;
   }
