@@ -188,11 +188,15 @@ struct Context final : public requite::_ContextLlvmContext {
   // source_name.cpp
   [[nodiscard]] bool determineModuleName(requite::Module &module);
 
-  // expand_ast.cpp
-  [[nodiscard]] bool expandAst(requite::Module &module);
+  // contextualize.cpp
+  [[nodiscard]] bool contextualizeModule(requite::Module &module);
+  
+  // tabulate.cpp
+  [[nodiscard]] bool tabulateEntryPoint(requite::Scope &containing_scope,
+                                        requite::Expression &expression);
 
   // prototype.cpp
-  [[nodiscard]] bool prototypeUserSymbols(requite::Module &module);
+  [[nodiscard]] bool prototypeEntryPoint(requite::Procedure& procedure);
 
   // build.cpp
   [[nodiscard]] bool buildIr();
@@ -231,10 +235,12 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // write_tokens.cpp
   [[nodiscard]] bool writeTokens(requite::Module &module,
-                                 std::vector<requite::Token> &tokens, llvm::StringRef output_path);
+                                 std::vector<requite::Token> &tokens,
+                                 llvm::StringRef output_path);
 
   // write_ast.cpp
-  [[nodiscard]] bool writeAst(const requite::Module &module, llvm::StringRef output_path);
+  [[nodiscard]] bool writeAst(const requite::Module &module,
+                              llvm::StringRef output_path);
 
   // write_user_symbols.cpp
   [[nodiscard]] bool writeUserSymbols(llvm::StringRef output_path);

@@ -58,17 +58,14 @@ bool Context::run() {
   if (!this->determineModuleName(source_module)) {
     return false;
   }
-  if (!this->expandAst(source_module)) {
+  if (!this->contextualizeModule(source_module)) {
     return false;
   }
-  if (requite::getEmitMode() == requite::EMIT_EXPANDED) {
+  if (requite::getEmitMode() == requite::EMIT_CONTEXTUALIZED) {
     if (!this->writeAst(source_module, output_path)) {
       return false;
     }
     return true;
-  }
-  if (!this->prototypeUserSymbols(source_module)) {
-    return false;
   }
   if (requite::getEmitMode() == requite::EMIT_SYMBOLS) {
     if (!this->writeUserSymbols(output_path)) {

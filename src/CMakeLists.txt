@@ -21,6 +21,7 @@ target_sources(
         const_expression_iterator.cpp
         containing_scope_iterator.cpp
         context.cpp
+        contextualize.cpp
         escape_sequences.cpp
         evaluate_values.cpp
         expression_iterator.cpp
@@ -63,8 +64,11 @@ target_sources(
         tokenize_tokens.cpp
         tuple.cpp
         unordered_variable.cpp
+        write_assembly.cpp
         validate_source.cpp
         write_ast.cpp
         write_llvm_ir.cpp
+        write_object.cpp
         write_tokens.cpp
+        write_user_symbols.cpp
 )

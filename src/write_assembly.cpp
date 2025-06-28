@@ -2,6 +2,6 @@
 
 namespace requite {
 
-bool Context::buildIr() { return false; }
+bool Context::writeAssembly(llvm::StringRef output_path) { return false; }
 
 } // namespace requite
