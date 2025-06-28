@@ -16,107 +16,46 @@
 namespace requite {
 
 bool Context::run() {
-  bool is_ok;
-  switch (requite::getEmitMode()) {
-  case requite::EMIT_TOKENS:
-    is_ok = this->emitTokens();
-    break;
-  case requite::EMIT_PARSED:
-    is_ok = this->emitParsed();
-    break;
-  case requite::EMIT_SITUATED:
-    is_ok = this->emitSituated();
-    break;
-  case requite::EMIT_EXPANDED:
-    is_ok = this->emitExpanded();
-    break;
-  case requite::EMIT_IR:
-    is_ok = this->emitIr();
-    break;
-  case requite::EMIT_ASSEMBLY:
-    is_ok = this->emitAssembly();
-    break;
-  case requite::EMIT_OBJECT:
-    is_ok = this->emitObject();
-    break;
-  default:
-    this->logMessage("[error] invalid emit mode");
-    is_ok = false;
-  }
-  return true;
-}
-
-bool Context::emitTokens() {
   requite::Module &source_module = this->getSourceModule();
   requite::File &source_file = source_module.getFile();
   llvm::StringRef input_path = requite::getInputFilePath();
+  llvm::StringRef output_path = requite::getOutputFilePath();
   if (!this->loadFileBuffer(source_file, input_path)) {
+    return false;
+  }
+  if (!this->validateSourceFileText(source_file)) {
     return false;
   }
   std::vector<requite::Token> tokens = {};
   if (!this->tokenizeTokens(this->getSourceModule(), tokens)) {
     return false;
   }
-  llvm::StringRef out_path = requite::getOutputFilePath();
-  if (!this->writeTokenCsv(source_module, tokens, out_path)) {
-    return false;
-  }
-  return true;
-}
-
-bool Context::emitParsed() {
-  requite::Module &source_module = this->getSourceModule();
-  requite::File &source_file = source_module.getFile();
-  llvm::StringRef input_path = requite::getInputFilePath();
-  if (!this->loadFileBuffer(source_file, input_path)) {
-    return false;
-  }
-  std::vector<requite::Token> tokens = {};
-  if (!this->tokenizeTokens(this->getSourceModule(), tokens)) {
-    return false;
+  if (requite::getEmitMode() == requite::EMIT_TOKENS) {
+    if (!this->writeTokenCsv(source_module, tokens, output_path)) {
+      return false;
+    }
+    return true;
   }
   this->createOpcodeTable();
   if (!this->parseAst(source_module, tokens)) {
     return false;
   }
-  llvm::StringRef out_path = requite::getOutputFilePath();
-  if (!this->writeAst(source_module, out_path)) {
-    return false;
-  }
-  return true;
-}
-
-bool Context::emitSituated() {
-  requite::Module &source_module = this->getSourceModule();
-  requite::File &source_file = source_module.getFile();
-  llvm::StringRef input_path = requite::getInputFilePath();
-  if (!this->loadFileBuffer(source_file, input_path)) {
-    return false;
-  }
-  std::vector<requite::Token> tokens = {};
-  if (!this->tokenizeTokens(this->getSourceModule(), tokens)) {
-    return false;
-  }
-  this->createOpcodeTable();
-  if (!this->parseAst(source_module, tokens)) {
-    return false;
+  if (requite::getEmitMode() == requite::EMIT_PARSED) {
+    if (!this->writeAst(source_module, output_path)) {
+      return false;
+    }
+    return true;
   }
   if (!this->situateAst(source_module)) {
     return false;
   }
-  llvm::StringRef out_path = requite::getOutputFilePath();
-  if (!this->writeAst(source_module, out_path)) {
-    return false;
+  if (requite::getEmitMode() == requite::EMIT_SITUATED) {
+    if (!this->writeAst(source_module, output_path)) {
+      return false;
+    }
+    return true;
   }
   return true;
 }
-
-bool Context::emitExpanded() { return false; }
-
-bool Context::emitIr() { return false; }
-
-bool Context::emitAssembly() { return false; }
-
-bool Context::emitObject() { return false; }
 
 } // namespace requite

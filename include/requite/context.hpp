@@ -310,13 +310,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // run.cpp
   [[nodiscard]] bool run();
-  [[nodiscard]] bool emitTokens();
-  [[nodiscard]] bool emitParsed();
-  [[nodiscard]] bool emitSituated();
-  [[nodiscard]] bool emitExpanded();
-  [[nodiscard]] bool emitIr();
-  [[nodiscard]] bool emitAssembly();
-  [[nodiscard]] bool emitObject();
 
   // opcode.cpp
   [[nodiscard]]
