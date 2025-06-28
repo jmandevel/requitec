@@ -1,9 +1,12 @@
 #pragma once
 
-#include <requite/expression_ranger.hpp>
+#include <requite/symbol.hpp>
+
+#include <llvm/IR/Value.h>
 
 #include <functional>
 #include <string_view>
+#include <vector>
 
 namespace llvm {
 
@@ -33,7 +36,6 @@ struct Builder final {
   std::reference_wrapper<requite::Context> _context_ref;
   llvm::BasicBlock *_current_llvm_block_ptr = nullptr;
   requite::Scope *_current_scope_ptr = nullptr;
-  requite::ExpressionRanger _ranger = {};
 
   // builder.cpp
   Builder(requite::Context &context);
@@ -50,51 +52,47 @@ struct Builder final {
   void exitScope();
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] requite::ExpressionRanger &getRanger();
-  [[nociscard]] const requite::ExpressionRanger &getRanger() const;
 
-  // build_user_symbols.cpp
-  [[nodiscard]] bool buildUserSymbol(requite::Procedure &procedure);
-  [[nodiscard]] bool
-  buildUserSymbol(requite::AnonymousFunction &anonymous_function);
-  [[nodiscard]] bool buildUserSymbol(requite::Variable &variable);
+  // build.cpp
+ [[nodiscard]] bool buildEntryPoint(requite::Procedure& entry_point);
 
-  // builder_blocks.cpp
-  llvm::BasicBlock &createLlvmBlock(std::string_view name);
+ llvm::BasicBlock &createLlvmBlock(std::string_view name);
   void setCurrentLlvmBlock(llvm::BasicBlock &llvm_block);
   void changeCurrentLlvmBlock(llvm::BasicBlock &llvm_block);
   [[nodiscard]] bool getHasLlvmBlock() const;
   [[nodiscard]] llvm::BasicBlock &getLlvmBlock();
   [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
 
-  // build_statements.cpp
-  [[nodiscard]] bool buildStatement();
-  [[nodiscard]] bool buildStatementAssign();
-  [[nodiscard]] bool buildStatementSwap();
-  [[nodiscard]] bool buildStatementCall();
-  [[nodiscard]] bool buildStatementDestroy();
-  [[nodiscard]] bool buildStatementReturn();
-  [[nodiscard]] bool buildStatementBreak();
-  [[nodiscard]] bool buildStatementContinue();
-  [[nodiscard]] bool buildStatementFallthrough();
-  [[nodiscard]] bool buildStatementExit();
-  [[nodiscard]] bool buildStatementGoto();
-  [[nodiscard]] bool buildStatementLocal();
-  [[nodiscard]] bool buildStatementGlobal();
-  [[nodiscard]] bool buildStatementIf();
-  [[nodiscard]] bool buildStatementElseIf();
-  [[nodiscard]] bool buildStatementElse();
-  [[nodiscard]] bool buildStatementSwitch();
-  [[nodiscard]] bool buildStatementFor();
-  [[nodiscard]] bool buildStatementWhile();
-  [[nodiscard]] bool buildStatementDoWhile();
-  [[nodiscard]] bool buildStatementForEach();
-  [[nodiscard]] bool buildStatementLoop();
-  [[nodiscard]] bool buildStatementScope();
-  [[nodiscard]] bool buildStatementAssert();
-  [[nodiscard]] bool buildStatementTry();
-  [[nodiscard]] bool buildStatementCatch();
-  [[nodiscard]] bool buildStatementThrow();
+  [[nodiscard]] bool buildStatement(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementAssign(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementSwap(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementCall(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementDestroy(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementReturn(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementBreak(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementContinue(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementFallthrough(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementExit(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementGoto(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementLocal(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementGlobal(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementIf(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementElseIf(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementElse(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementSwitch(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementFor(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementWhile(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementDoWhile(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementForEach(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementLoop(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementScope(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementAssert(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementTry(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementCatch(requite::Expression& statement);
+  [[nodiscard]] bool buildStatementThrow(requite::Expression& statement);
+
+  [[nodiscard]] llvm::Value* buildValue(requite::Expression& expression, const requite::Symbol& expected_type);
+  [[nodiscard]] llvm::Value* buildValue__IntegerLiteral(requite::Expression& expression, const requite::Symbol& expected_type);
 };
 
 } // namespace requite

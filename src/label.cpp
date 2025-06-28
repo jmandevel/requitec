@@ -69,4 +69,16 @@ const requite::Scope &Label::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
+void Label::setLlvmBlockPtr(llvm::BasicBlock *llvm_block_ptr) {
+  this->_llvm_block_ptr = llvm_block_ptr;
+}
+
+llvm::BasicBlock *Label::getLllvmBlockPtr() {
+  return this->_llvm_block_ptr;
+}
+
+const llvm::BasicBlock *Label::getLlvmBlockPtr() const {
+  return this->_llvm_block_ptr;
+}
+
 } // namespace requite

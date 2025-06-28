@@ -50,4 +50,8 @@ const requite::Expression *ExpressionIterator::operator->() const {
   return this->_expression_ptr;
 }
 
+const bool ExpressionIterator::getIsDone() const {
+  return this->_expression_ptr == nullptr;
+}
+
 } // namespace requite

@@ -40,6 +40,8 @@ struct ExpressionIterator final {
   requite::Expression *operator->();
 
   const requite::Expression *operator->() const;
+
+  const bool getIsDone() const;
 };
 
 } // namespace requite

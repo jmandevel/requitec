@@ -201,14 +201,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // build.cpp
   [[nodiscard]] bool buildIr();
-  [[nodiscard]] bool buildEntryPoint(requite::Procedure &entry_point);
-  [[nodiscard]] bool buildStatement(requite::Expression &statement);
-  [[nodiscard]] bool buildStatementExit(requite::Expression &statement);
-  [[nodiscard]] llvm::Value *buildValue(requite::Expression &expression,
-                                        const requite::Symbol &expected_type);
-  [[nodiscard]] llvm::Value *
-  buildValue_IntegerLiteral(requite::Expression &expression,
-                            const requite::Symbol &expected_type);
 
   // resolve_symbols.cpp
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <llvm/ADT/StringRef.h>
+#include <llvm/IR/BasicBlock.h>
 
 #include <string>
 
@@ -20,6 +21,7 @@ struct Label final {
   requite::Expression *_attribute_expression_ptr = nullptr;
   requite::Expression *_statement_expression_ptr = nullptr;
   requite::Scope *_containing_scope_ptr = nullptr;
+  llvm::BasicBlock* _llvm_block_ptr = nullptr;
 
   // label.cpp
   Label() = default;
@@ -45,6 +47,9 @@ struct Label final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
+  void setLlvmBlockPtr(llvm::BasicBlock* llvm_block_ptr);
+  [[nodiscard]] llvm::BasicBlock* getLllvmBlockPtr();
+  [[nodiscard]] const llvm::BasicBlock* getLlvmBlockPtr() const;
 };
 
 } // namespace requite
