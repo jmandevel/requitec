@@ -31,7 +31,7 @@ bool Context::run() {
     return false;
   }
   if (requite::getEmitMode() == requite::EMIT_TOKENS) {
-    if (!this->writeTokenCsv(source_module, tokens, output_path)) {
+    if (!this->writeTokens(source_module, tokens, output_path)) {
       return false;
     }
     return true;
@@ -51,6 +51,48 @@ bool Context::run() {
   }
   if (requite::getEmitMode() == requite::EMIT_SITUATED) {
     if (!this->writeAst(source_module, output_path)) {
+      return false;
+    }
+    return true;
+  }
+  if (!this->determineModuleName(source_module)) {
+    return false;
+  }
+  if (!this->expandAst(source_module)) {
+    return false;
+  }
+  if (requite::getEmitMode() == requite::EMIT_EXPANDED) {
+    if (!this->writeAst(source_module, output_path)) {
+      return false;
+    }
+    return true;
+  }
+  if (!this->prototypeUserSymbols(source_module)) {
+    return false;
+  }
+  if (requite::getEmitMode() == requite::EMIT_SYMBOLS) {
+    if (!this->writeUserSymbols(output_path)) {
+      return false;
+    }
+    return true;
+  }
+  if (!this->buildIr()) {
+    return false;
+  }
+  if (requite::getEmitMode() == requite::EMIT_IR) {
+    if (!this->writeLlvmIr(output_path)) {
+      return false;
+    }
+    return true;
+  }
+  if (requite::getEmitMode() == requite::EMIT_ASSEMBLY) {
+    if (!this->writeAssembly(output_path)) {
+      return false;
+    }
+    return true;
+  }
+  if (requite::getEmitMode() == requite::EMIT_OBJECT) {
+    if (!this->writeObject(output_path)) {
       return false;
     }
     return true;

@@ -181,31 +181,21 @@ struct Context final : public requite::_ContextLlvmContext {
   bool tokenizeTokens(requite::Module &module,
                       std::vector<requite::Token> &tokens);
 
-  // token_csv.cpp
-  [[nodiscard]] bool writeTokenCsv(requite::Module &module,
-                     std::vector<requite::Token> &tokens, llvm::StringRef out_path);
-
   // parse_ast.cpp
   [[nodiscard]]
   bool parseAst(requite::Module &module, std::vector<requite::Token> &token);
 
-  // write_ast.cpp
-  [[nodiscard]] bool writeAst(const requite::Module &module,  llvm::StringRef output_path);
-
-  // write_llvm_ir.cpp
-  void writeLlvmIr(llvm::StringRef output_path);
-
   // source_name.cpp
   [[nodiscard]] bool determineModuleName(requite::Module &module);
 
-  // tabulate_user_symbols.cpp
-  // TODO
+  // expand_ast.cpp
+  [[nodiscard]] bool expandAst(requite::Module &module);
 
-  // prototype_user_symbols.cpp
-  // TODO
+  // prototype.cpp
+  [[nodiscard]] bool prototypeUserSymbols(requite::Module &module);
 
-  // build_user_symbols.cpp
-  // TODO
+  // build.cpp
+  [[nodiscard]] bool buildIr();
 
   // resolve_symbols.cpp
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
@@ -226,9 +216,8 @@ struct Context final : public requite::_ContextLlvmContext {
                                     requite::Expression &call_expression);
 
   // evaluate_values.cpp
-  [[nodiscard]] bool
-  evaluateName(llvm::StringRef &name, requite::Scope &scope,
-                           requite::Expression &value_expression);
+  [[nodiscard]] bool evaluateName(llvm::StringRef &name, requite::Scope &scope,
+                                  requite::Expression &value_expression);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
                            requite::Expression &value_expression);
@@ -239,6 +228,25 @@ struct Context final : public requite::_ContextLlvmContext {
   // compile_object_files.cpp
   [[nodiscard]] bool compileObjectFiles();
   [[nodiscard]] bool compileObjectFile(requite::Module &module);
+
+  // write_tokens.cpp
+  [[nodiscard]] bool writeTokens(requite::Module &module,
+                                 std::vector<requite::Token> &tokens, llvm::StringRef output_path);
+
+  // write_ast.cpp
+  [[nodiscard]] bool writeAst(const requite::Module &module, llvm::StringRef output_path);
+
+  // write_user_symbols.cpp
+  [[nodiscard]] bool writeUserSymbols(llvm::StringRef output_path);
+
+  // write_llvm_ir.cpp
+  [[nodiscard]] bool writeLlvmIr(llvm::StringRef output_path);
+
+  // write_assembly.cpp
+  [[nodiscard]] bool writeAssembly(llvm::StringRef output_path);
+
+  // write_object.cpp
+  [[nodiscard]] bool writeObject(llvm::StringRef output_path);
 
   // get_module.cpp
   [[nodiscard]]
@@ -325,8 +333,7 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // log.cpp
   void logMessage(llvm::Twine message);
-  void logInputFileMessage(requite::LogType type,
-                        llvm::Twine message);
+  void logInputFileMessage(requite::LogType type, llvm::Twine message);
   void logSourceMessage(llvm::Twine filename, requite::LogType type,
                         llvm::Twine message);
   void logSourceMessage(const requite::Token &token, requite::LogType type,

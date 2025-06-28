@@ -10,7 +10,16 @@
 
 namespace requite {
 
-enum Emit { EMIT_TOKENS, EMIT_PARSED, EMIT_SITUATED, EMIT_EXPANDED, EMIT_IR, EMIT_ASSEMBLY, EMIT_OBJECT };
+enum Emit {
+  EMIT_TOKENS,
+  EMIT_PARSED,
+  EMIT_SITUATED,
+  EMIT_EXPANDED,
+  EMIT_SYMBOLS,
+  EMIT_IR,
+  EMIT_ASSEMBLY,
+  EMIT_OBJECT
+};
 
 enum Form {
   FORM_NORMATIVE = (1 << 0),
@@ -30,4 +39,4 @@ enum Form {
 
 [[nodiscard]] bool getIsIntermediateRequiteOk();
 
-} // namespace requite::options
+} // namespace requite

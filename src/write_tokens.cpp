@@ -18,7 +18,7 @@
 
 namespace requite {
 
-bool Context::writeTokenCsv(requite::Module &module,
+bool Context::writeTokens(requite::Module &module,
                             std::vector<requite::Token> &tokens, llvm::StringRef out_path) {
   llvm::SmallString<64> str_buffer_a;
   llvm::SmallString<64> str_buffer_b;

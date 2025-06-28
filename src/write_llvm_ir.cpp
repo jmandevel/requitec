@@ -9,7 +9,7 @@
 
 namespace requite {
 
-void Context::writeLlvmIr(llvm::StringRef output_path) {
+bool Context::writeLlvmIr(llvm::StringRef output_path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(output_path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
@@ -18,10 +18,11 @@ void Context::writeLlvmIr(llvm::StringRef output_path) {
             "error: failed to open intermediate file for writing\n\tpath: ") +
         llvm::Twine(output_path) + llvm::Twine("\n\treason: ") +
         llvm::Twine(ec.message()));
-    return;
+    return false;
   }
   std::string ir_text = this->getLlvmIrSourceText();
   fout << ir_text;
+  return true;
 }
 
 } // namespace requite

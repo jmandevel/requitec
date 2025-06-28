@@ -16,7 +16,7 @@ target_sources(
         anonymous_object.cpp
         anonymous_property.cpp
         attribute_flags.cpp
-        build_user_symbols.cpp
+        build.cpp
         compile_object_files.cpp
         const_expression_iterator.cpp
         containing_scope_iterator.cpp
@@ -44,7 +44,7 @@ target_sources(
         parse_ast.cpp
         precedence_parser.cpp
         procedure.cpp
-        prototype_user_symbols.cpp
+        prototype.cpp
         resolve_symbols.cpp
         root_symbol.cpp
         run.cpp
@@ -57,9 +57,8 @@ target_sources(
         sub_symbol.cpp
         symbol.cpp
         table.cpp
-        tabulate_user_symbols.cpp
+        tabulate_and_expand.cpp
         tasks.cpp
-        token_csv.cpp
         token.cpp
         tokenize_tokens.cpp
         tuple.cpp
@@ -67,4 +66,5 @@ target_sources(
         validate_source.cpp
         write_ast.cpp
         write_llvm_ir.cpp
+        write_tokens.cpp
 )
