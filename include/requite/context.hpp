@@ -190,16 +190,24 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // contextualize.cpp
   [[nodiscard]] bool contextualizeModule(requite::Module &module);
-  
+
   // tabulate.cpp
-  [[nodiscard]] bool tabulateEntryPoint(requite::Scope &containing_scope,
-                                        requite::Expression &expression);
+  void tabulateEntryPoint(requite::Module &module,
+                          requite::Expression &expression);
 
   // prototype.cpp
-  [[nodiscard]] bool prototypeEntryPoint(requite::Procedure& procedure);
+  [[nodiscard]] bool prototypeEntryPoint(requite::Procedure &procedure);
 
   // build.cpp
   [[nodiscard]] bool buildIr();
+  [[nodiscard]] bool buildEntryPoint(requite::Procedure &entry_point);
+  [[nodiscard]] bool buildStatement(requite::Expression &statement);
+  [[nodiscard]] bool buildStatementExit(requite::Expression &statement);
+  [[nodiscard]] llvm::Value *buildValue(requite::Expression &expression,
+                                        const requite::Symbol &expected_type);
+  [[nodiscard]] llvm::Value *
+  buildValue_IntegerLiteral(requite::Expression &expression,
+                            const requite::Symbol &expected_type);
 
   // resolve_symbols.cpp
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
@@ -228,10 +236,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Value
   evaluateValue(requite::Scope &scope, requite::Expression &value_expression,
                 const requite::Symbol &type);
-
-  // compile_object_files.cpp
-  [[nodiscard]] bool compileObjectFiles();
-  [[nodiscard]] bool compileObjectFile(requite::Module &module);
 
   // write_tokens.cpp
   [[nodiscard]] bool writeTokens(requite::Module &module,
@@ -265,7 +269,7 @@ struct Context final : public requite::_ContextLlvmContext {
   const requite::Module *getModulePtr(llvm::StringRef import_path) const;
 
   // llvm_target.cpp
-  void initializeLlvm();
+  [[nodiscard]] bool initializeLlvm();
   void initializeLlvmBuilder();
   void initializeLlvmContext();
   [[nodiscard]]

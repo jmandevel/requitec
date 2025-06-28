@@ -5,6 +5,7 @@
 #pragma once
 
 #include <requite/attribute_flags.hpp>
+#include <requite/procedure_iterator.hpp>
 #include <requite/procedure_type.hpp>
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
@@ -31,7 +32,8 @@ struct Procedure final {
   using Self = requite::Procedure;
 
   std::string _mangled_name = {};
-  requite::Expression* _expression_ptr = nullptr;
+  requite::Module *_module_ptr = nullptr;
+  requite::Expression *_expression_ptr = nullptr;
   requite::ProcedureType _type = requite::ProcedureType::NONE;
   requite::Scope _scope = {};
   requite::Signature _signature = {};
@@ -74,8 +76,7 @@ struct Procedure final {
   void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
-  void
-  setNamedProcedureGroup(requite::NamedProcedureGroup &group);
+  void setNamedProcedureGroup(requite::NamedProcedureGroup &group);
   [[nodiscard]] bool getHasNamedProcedureGroup() const;
   [[nodiscard]] requite::NamedProcedureGroup &getNamedProcedureGroup();
   [[nodiscard]] const requite::NamedProcedureGroup &
@@ -87,6 +88,10 @@ struct Procedure final {
   [[nodiscard]] bool getHasNextProcedure() const;
   [[nodiscard]] requite::Procedure &getNextProcedure();
   [[nodiscard]] const requite::Procedure &getNextProcedure() const;
+  [[nodiscard]] bool getHasModule() const;
+  void setModule(requite::Module &module);
+  [[nodiscard]] requite::Module &getModule();
+  [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] bool getHasLlvmFunctionType() const;
   void setLlvmFunctionType(llvm::FunctionType &type);
   [[nodiscard]] llvm::FunctionType &getLlvmFunctionType();
@@ -99,6 +104,14 @@ struct Procedure final {
   void setLlvmBlock(llvm::BasicBlock &block);
   [[nodiscard]] llvm::BasicBlock &getLlvmBlock();
   [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
+
+  // detail/procedure_subrange.hpp
+  [[nodiscard]] inline std::ranges::subrange<
+      requite::ProcedureIterator, requite::ProcedureIterator,
+      std::ranges::subrange_kind::unsized>
+  getOverloadSubrange();
 };
 
 } // namespace requite
+
+#include <requite/detail/procedure_subrange.hpp>

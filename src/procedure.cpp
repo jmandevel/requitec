@@ -123,6 +123,20 @@ const requite::Procedure &Procedure::getNextProcedure() const {
   return requite::getRef(this->_next_ptr);
 }
 
+bool Procedure::getHasModule() const { return this->_module_ptr != nullptr; }
+
+void Procedure::setModule(requite::Module &module) {
+  requite::setSingleRef(this->_module_ptr, module);
+}
+
+requite::Module &Procedure::getModule() {
+  return requite::getRef(this->_module_ptr);
+}
+
+const requite::Module &Procedure::getModule() const {
+  return requite::getRef(this->_module_ptr);
+}
+
 bool Procedure::getHasLlvmFunctionType() const {
   return this->_llvm_function_type_ptr != nullptr;
 }

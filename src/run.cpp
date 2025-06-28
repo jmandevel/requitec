@@ -58,6 +58,9 @@ bool Context::run() {
   if (!this->determineModuleName(source_module)) {
     return false;
   }
+  if (!this->initializeLlvm()) {
+    return false;
+  }
   if (!this->contextualizeModule(source_module)) {
     return false;
   }

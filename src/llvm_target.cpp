@@ -12,10 +12,14 @@
 
 namespace requite {
 
-void Context::initializeLlvm() {
+bool Context::initializeLlvm() {
   this->initializeLlvmContext();
   this->initializeLlvmBuilder();
+  if (!this->initializeLlvmTarget()) {
+    return false;
+  }
   this->initializeLlvmModule();
+  return true;
 }
 
 void Context::initializeLlvmBuilder() {
@@ -49,8 +53,6 @@ bool Context::initializeLlvmTarget() {
   llvm::InitializeNativeTargetAsmParser();
   llvm::InitializeNativeTargetAsmPrinter();
   this->_target_triple = llvm::sys::getDefaultTargetTriple();
-  this->logMessage(llvm::Twine("Target: ") +
-                   llvm::Twine(this->_target_triple.c_str()));
   std::string error;
   this->_llvm_target_ptr =
       llvm::TargetRegistry::lookupTarget(this->_target_triple, error);

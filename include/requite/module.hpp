@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <requite/scope.hpp>
 #include <requite/file.hpp>
+#include <requite/scope.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
@@ -24,10 +24,11 @@ struct Module final {
   using Self = requite::Module;
 
   std::string _name = {};
-  requite::Expression* _expression_ptr = nullptr;
+  requite::Expression *_expression_ptr = nullptr;
   requite::Scope _scope = {};
   requite::File _file = {};
-  requite::ExportTable* _export_tble_ptr = nullptr;
+  requite::ExportTable *_export_tble_ptr = nullptr;
+  requite::Procedure *_entry_point_ptr = nullptr;
 
   Module();
   Module(Self &that) = delete;
@@ -60,6 +61,10 @@ struct Module final {
   [[nodiscard]] llvm::StringRef getText() const;
   [[nodiscard]] const char *getTextPtr() const;
   [[nodiscard]] std::uint_fast32_t getBufferI() const;
+  [[nodiscard]] bool getHasEntryPoint() const;
+  void addEntryPoint(requite::Procedure &entry_point);
+  [[nodiscard]] requite::Procedure &getEntryPoint();
+  [[nodiscard]] const requite::Procedure &getEntryPoint() const;
 };
 
 } // namespace requite

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/module.hpp>
+#include <requite/procedure.hpp>
 
 namespace requite {
 
@@ -42,13 +43,13 @@ void Module::setExpression(requite::Expression &expression) {
 
 requite::Expression &
 Module::replaceExpression(requite::Expression &expression) {
-  requite::Expression* old_expression_ptr = this->_expression_ptr;
+  requite::Expression *old_expression_ptr = this->_expression_ptr;
   this->_expression_ptr = &expression;
   return requite::getRef(old_expression_ptr);
 }
 
 requite::Expression &Module::popExpression() {
-  requite::Expression* old_expression_ptr = this->_expression_ptr;
+  requite::Expression *old_expression_ptr = this->_expression_ptr;
   this->_expression_ptr = nullptr;
   return requite::getRef(old_expression_ptr);
 }
@@ -73,6 +74,27 @@ const char *Module::getTextPtr() const { return this->getFile().getTextPtr(); }
 
 std::uint_fast32_t Module::getBufferI() const {
   return this->getFile().getBufferI();
+}
+
+bool Module::getHasEntryPoint() const {
+  return this->_entry_point_ptr != nullptr;
+}
+
+void Module::addEntryPoint(requite::Procedure &entry_point) {
+  entry_point.setContaining(this->getScope());
+  if (this->getHasEntryPoint()) {
+    entry_point.setNextProcedure(this->getEntryPoint());
+    this->_entry_point_ptr = &entry_point;
+  }
+  requite::setSingleRef(this->_entry_point_ptr, entry_point);
+}
+
+requite::Procedure &Module::getEntryPoint() {
+  return requite::getRef(this->_entry_point_ptr);
+}
+
+const requite::Procedure &Module::getEntryPoint() const {
+  return requite::getRef(this->_entry_point_ptr);
 }
 
 } // namespace requite
