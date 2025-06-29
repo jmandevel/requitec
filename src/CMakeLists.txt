@@ -24,6 +24,7 @@ target_sources(
         contextualize.cpp
         escape_sequences.cpp
         evaluate_values.cpp
+        export_table.cpp
         expression_iterator.cpp
         expression_make.cpp
         expression.cpp

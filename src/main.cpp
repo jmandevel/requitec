@@ -14,7 +14,7 @@ int main(int argc, const char **argv) {
   const char* fake_argv[] = {
     "./requite", "--emit=ir", "test.rq", "-o", "test.ir"
   };
-  llvm::cl::ParseCommandLineOptions(argc, argv);
+  llvm::cl::ParseCommandLineOptions(5, fake_argv);
   requite::Context context(std::move(executable_path));
   if (!context.run()) {
     return 1;

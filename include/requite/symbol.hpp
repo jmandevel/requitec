@@ -270,6 +270,8 @@ struct Symbol {
   void wrapSymbol(const requite::Symbol &symbol);
   void applyAttributeFlags(const requite::AttributeFlags &attributes);
   [[nodiscard]] requite::SubSymbol &makeSubSymbol();
+
+  [[nodiscard]] bool getIsInteger() const;
 };
 
 } // namespace requite

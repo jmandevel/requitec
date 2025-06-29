@@ -1,6 +1,7 @@
 #pragma once
 
 #include <requite/symbol.hpp>
+#include <requite/temporary.hpp>
 
 #include <llvm/IR/Value.h>
 
@@ -36,6 +37,7 @@ struct Builder final {
   std::reference_wrapper<requite::Context> _context_ref;
   llvm::BasicBlock *_current_llvm_block_ptr = nullptr;
   requite::Scope *_current_scope_ptr = nullptr;
+  std::vector<requite::Temporary> _temporary_list = {};
 
   // builder.cpp
   Builder(requite::Context &context);
@@ -53,46 +55,56 @@ struct Builder final {
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
 
-  // build.cpp
- [[nodiscard]] bool buildEntryPoint(requite::Procedure& entry_point);
+  /*
+    "build" functions are used to generate IR with LLVM. There are 4
+     main categories of generate functions:
 
- llvm::BasicBlock &createLlvmBlock(std::string_view name);
+     1. statement functions - generate a statement that does not return
+        anything. These are always for top level operations of a scope.
+     2. value expression functions - generate an expression that returns
+        result as llvm::Value*. These are mainly used for non-aggregate
+        types.
+     3. store expression functions - generate an expression that stores the
+        result in a memory location passed in as an llvm::Value*. these are
+        mainly used for aggregate types.
+     4. symbol builders - generate all code associated with an unordered symbol
+    in base, table, or object scope.
+
+     Some opcodes have different functions bellow associated with them that
+     belong to a different category. The appropriate builder function must
+     be choosen based on the opcode and expected return.
+
+     The reason for the separetion between value expressions and store
+     expressions is performance of generated IR:
+
+     https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-creating-values-of-aggregate-type
+   */
+
+  // build.cpp
+  [[nodiscard]] bool buildSymbolEntryPoint(requite::Procedure &entry_point);
+
+  llvm::BasicBlock &createLlvmBlock(std::string_view name);
   void setCurrentLlvmBlock(llvm::BasicBlock &llvm_block);
   void changeCurrentLlvmBlock(llvm::BasicBlock &llvm_block);
   [[nodiscard]] bool getHasLlvmBlock() const;
   [[nodiscard]] llvm::BasicBlock &getLlvmBlock();
   [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
 
-  [[nodiscard]] bool buildStatement(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementAssign(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementSwap(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementCall(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementDestroy(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementReturn(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementBreak(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementContinue(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementFallthrough(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementExit(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementGoto(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementLocal(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementGlobal(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementIf(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementElseIf(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementElse(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementSwitch(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementFor(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementWhile(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementDoWhile(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementForEach(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementLoop(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementScope(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementAssert(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementTry(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementCatch(requite::Expression& statement);
-  [[nodiscard]] bool buildStatementThrow(requite::Expression& statement);
+  [[nodiscard]] bool buildStatement(requite::Expression &statement);
+  [[nodiscard]] bool buildStatementExit(requite::Expression &statement);
+  [[nodiscard]] bool buildStatement_Local(requite::Expression &statement);
 
-  [[nodiscard]] llvm::Value* buildValue(requite::Expression& expression, const requite::Symbol& expected_type);
-  [[nodiscard]] llvm::Value* buildValue__IntegerLiteral(requite::Expression& expression, const requite::Symbol& expected_type);
+  [[nodiscard]] llvm::Value *buildValue(requite::Expression &expression,
+                                        const requite::Symbol &expected_type);
+  [[nodiscard]] llvm::Value *storeValue(requite::Expression &expression,
+                                        const requite::Symbol &expected_type,
+                                        llvm::Value *location_ptr);
+  [[nodiscard]] llvm::Value *
+  buildValue__IntegerLiteral(requite::Expression &expression,
+                             const requite::Symbol &expected_type);
+  llvm::Value *
+  buildValue_Add(requite::Expression& expression,
+                                const requite::Symbol &expected_type);
 };
 
 } // namespace requite

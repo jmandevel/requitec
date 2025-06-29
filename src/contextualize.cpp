@@ -57,7 +57,9 @@ bool Context::contextualizeModule(requite::Module &module) {
       break;
     }
     case requite::Opcode::ENTRY_POINT:
-      this->tabulateEntryPoint(module, expression);
+      if (!this->tabulateEntryPoint(module, expression)) {
+        is_ok = false;
+      }
       break;
     case requite::Opcode::FUNCTION:
       this->logNotSupportedYet(expression);
@@ -133,12 +135,12 @@ bool Context::contextualizeModule(requite::Module &module) {
       REQUITE_UNREACHABLE();
     }
   }
-  
+
   return is_ok;
 }
 
 bool Context::checkEntryPointCount() {
-  requite::Module& source_module = this->getSourceModule();
+  requite::Module &source_module = this->getSourceModule();
   if (!source_module.getHasEntryPoint()) {
     return true;
   }
@@ -147,11 +149,8 @@ bool Context::checkEntryPointCount() {
     return true;
   }
   for (requite::Procedure &overload : entry_point.getOverloadSubrange()) {
-    this->logSourceMessage(
-      overload.getExpression(),
-      requite::LogType::ERROR,
-      "multiple entry points in module."
-    );
+    this->logSourceMessage(overload.getExpression(), requite::LogType::ERROR,
+                           "multiple entry points in module.");
   }
   return false;
 }
