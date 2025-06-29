@@ -61,4 +61,16 @@ const requite::Scope &OrderedVariable::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
+void OrderedVariable::setLlvmAllocaPtr(llvm::AllocaInst *llvm_alloca) {
+  this->_llvm_alloca_ptr = llvm_alloca;
+}
+
+llvm::AllocaInst *OrderedVariable::getLlvmAllocaPtr() {
+  return this->_llvm_alloca_ptr;
+}
+
+const llvm::AllocaInst *OrderedVariable::getLlvmAllocaPtr() const {
+  return this->_llvm_alloca_ptr;
+}
+
 } // namespace requite

@@ -10,6 +10,7 @@
 #include <requite/expression.hpp>
 #include <requite/options.hpp>
 #include <requite/token.hpp>
+#include <requite/symbol.hpp>
 
 #include <llvm/Support/raw_ostream.h>
 
@@ -96,6 +97,16 @@ void Context::logErrorMustNotHaveAttributeFlags(
 void Context::logNotSupportedYet(requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          "not supported yet");
+}
+
+void Context::logErrorInvalidExpectedTypeForOperation(
+    requite::Expression &expression, const requite::Symbol &expected_type) {
+  llvm::SmallString<32> buffer;
+  llvm::StringRef type_name = expected_type.getName(buffer);
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine("operation of opcode \"") +
+                             requite::getName(expression.getOpcode()) +
+                             "\" can not result in value of type" + type_name);
 }
 
 } // namespace requite

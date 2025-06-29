@@ -60,7 +60,7 @@ bool Context::prototypeProcedureBody(requite::Procedure &procedure,
       break;
     }
   }
-  return true;
+  return is_ok;
 }
 
 } // namespace requite

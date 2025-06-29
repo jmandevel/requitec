@@ -8,6 +8,8 @@
 #include <requite/opcode.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/SmallString.h>
+#include <llvm/ADT/StringRef.h>
 
 #include <memory>
 #include <string>
@@ -271,7 +273,13 @@ struct Symbol {
   void applyAttributeFlags(const requite::AttributeFlags &attributes);
   [[nodiscard]] requite::SubSymbol &makeSubSymbol();
 
+  [[nodiscard]] bool getIsPointer() const;
   [[nodiscard]] bool getIsInteger() const;
+  [[nodiscard]] bool getIsFloat() const;
+
+  // detail/symbol.hpp
+  template<unsigned BUFFER_SIZE_PARAM>
+  [[nodiscard]] llvm::StringRef getName(llvm::SmallString<BUFFER_SIZE_PARAM>& buffer) const;
 };
 
 } // namespace requite

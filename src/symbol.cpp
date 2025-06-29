@@ -72,11 +72,31 @@ requite::SubSymbol &Symbol::makeSubSymbol() {
   return sub;
 }
 
+bool Symbol::getIsPointer() const {
+  if (this->getSubs().empty()) {
+    return false;
+  }
+  const requite::SubSymbol& outer = this->getSubs().front();
+  if (outer.getType() == requite::SubSymbolType::POINTER) {
+    return true;
+  }
+  return false;
+}
+
 bool Symbol::getIsInteger() const {
   requite::RootSymbolType type = this->getRoot().getType();
   return this->getSubs().size() == 0 &&
          (type == requite::RootSymbolType::SIGNED_INTEGER ||
           type == requite::RootSymbolType::UNSIGNED_INTEGER);
+}
+
+bool Symbol::getIsFloat() const {
+  requite::RootSymbolType type = this->getRoot().getType();
+  return this->getSubs().size() == 0 &&
+         (type == requite::RootSymbolType::BINARY_HALF_FLOAT ||
+          type == requite::RootSymbolType::BINARY_SINGLE_FLOAT ||
+          type == requite::RootSymbolType::BINARY_DOUBLE_FLOAT ||
+          type == requite::RootSymbolType::BINARY_DOUBLE_FLOAT);
 }
 
 } // namespace requite

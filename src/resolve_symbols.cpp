@@ -13,16 +13,16 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
         continue;
       } else if (user.getIsAlias()) {
         requite::Alias &alias = user.getAlias();
-        //if (!this->prototypeUserSymbol(alias)) {
-        //  return false;
-        //}
+        // if (!this->prototypeUserSymbol(alias)) {
+        //   return false;
+        // }
         out_symbol.wrapSymbol(alias.getSymbol());
         return true;
       } else if (user.getIsObject()) {
         requite::Object &object = user.getObject();
-        //if (!this->prototypeUserSymbol(object)) {
-        //  return false;
-        //}
+        // if (!this->prototypeUserSymbol(object)) {
+        //   return false;
+        // }
         out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
         out_symbol.getRoot().setObject(object);
         return true;
@@ -74,9 +74,26 @@ bool Context::resolveTypeOfValue(requite::Symbol &out_symbol,
 bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Scope &scope,
                                    requite::Expression &value_expression) {
-  // TODO
+  switch (const requite::Opcode opcode = value_expression.getOpcode()) {
+  case requite::Opcode::__INTEGER_LITERAL: {
+    requite::RootSymbol &root = out_symbol.getRoot();
+    root.setType(requite::RootSymbolType::SIGNED_INTEGER);
+    root.setDepth(this->getAddressDepth());
+    return true;
+  }
+  case requite::Opcode::_ADD:
+    return this->inferenceTypeOfNaryValue(out_symbol, scope, value_expression.getBranch());
+  }
+  this->logSourceMessage(value_expression, requite::LogType::ERROR,
+                         "failed to inference type of value");
   return false;
 }
+
+bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
+                                       requite::Scope &scope,
+                                       requite::Expression &first) {
+
+                                       }
 
 bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
                                     requite::Expression &first) {

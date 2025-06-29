@@ -10,6 +10,7 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <magic_enum.hpp>
+#include <llvm/Support/raw_ostream.h>
 
 #include <array>
 #include <cstddef>

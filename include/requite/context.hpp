@@ -199,7 +199,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                    requite::Scope &scope,
                                    requite::Expression &expression);
   [[nodiscard]] bool
-  tabulateProcedureBody(requite::Module& module, requite::Procedure &procedure,
+  tabulateProcedureBody(requite::Module &module, requite::Procedure &procedure,
                         requite::Expression &first_statement);
 
   // prototype.cpp
@@ -208,7 +208,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                     requite::OrderedVariable &variable);
   [[nodiscard]] bool
   prototypeProcedureBody(requite::Procedure &procedure,
-                        requite::Expression &first_statement);
+                         requite::Expression &first_statement);
 
   // build.cpp
   [[nodiscard]] bool buildIr();
@@ -224,6 +224,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool
   inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
                        requite::Expression &value_expression);
+  [[nodiscard]] bool
+  inferenceTypeOfNaryValue(requite::Symbol &out_symbol, requite::Scope& scope, requite::Expression& first);
   [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags flags,
                                            requite::Expression &first);
 
@@ -365,6 +367,9 @@ struct Context final : public requite::_ContextLlvmContext {
                                   requite::AttributeType type);
   void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
+  void
+  logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
+                                          const requite::Symbol &expected_type);
 
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>

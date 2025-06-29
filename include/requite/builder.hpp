@@ -26,15 +26,11 @@ struct Symbol;
 struct Expression;
 struct Value;
 
-// NOTE:
-//  the Builder should be designed with these tips in mind:
-//
-//  https://llvm.org/docs/Frontend/PerformanceTips.html
-
 struct Builder final {
   using Self = requite::Builder;
 
   std::reference_wrapper<requite::Context> _context_ref;
+  requite::Procedure* _procedure_ptr = nullptr;
   llvm::BasicBlock *_current_llvm_block_ptr = nullptr;
   requite::Scope *_current_scope_ptr = nullptr;
   std::vector<requite::Temporary> _temporary_list = {};
@@ -54,6 +50,9 @@ struct Builder final {
   void exitScope();
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] bool getHasProcedure() const;
+  [[nodiscard]] requite::Procedure& getProcedure();
+  [[nodiscard]] const requite::Procedure& getProcedure() const;
 
   /*
     "build" functions are used to generate IR with LLVM. There are 4
@@ -94,11 +93,17 @@ struct Builder final {
   [[nodiscard]] bool buildStatementExit(requite::Expression &statement);
   [[nodiscard]] bool buildStatement_Local(requite::Expression &statement);
 
+  [[nodiscard]] llvm::Type* makeLlvmType(const requite::Symbol& type);
+  void buildAssignment(llvm::Value* llvm_value, llvm::AllocaInst* llvm_alloca);
+  [[nodiscard]] llvm::AllocaInst* buildLlvmAlloca(llvm::Type* llvm_type, llvm::StringRef name);
   [[nodiscard]] llvm::Value *buildValue(requite::Expression &expression,
                                         const requite::Symbol &expected_type);
   [[nodiscard]] llvm::Value *storeValue(requite::Expression &expression,
                                         const requite::Symbol &expected_type,
                                         llvm::Value *location_ptr);
+  [[nodiscard]] llvm::Value *
+  buildValue__IdentifierLiteral(requite::Expression &expression,
+                             const requite::Symbol &expected_type);
   [[nodiscard]] llvm::Value *
   buildValue__IntegerLiteral(requite::Expression &expression,
                              const requite::Symbol &expected_type);

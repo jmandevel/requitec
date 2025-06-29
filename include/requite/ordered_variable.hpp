@@ -11,6 +11,12 @@
 
 #include <string>
 
+namespace llvm {
+
+struct AllocaInst;
+
+}
+
 namespace requite {
 
 struct Expression;
@@ -25,6 +31,7 @@ struct OrderedVariable final {
   requite::Expression *_expression_ptr = nullptr;
   requite::Symbol _data_type = {};
   requite::Scope *_containing_scope_ptr = nullptr;
+  llvm::AllocaInst* _llvm_alloca_ptr = nullptr;
 
   // ordered_variable.cpp
   OrderedVariable() = default;
@@ -48,6 +55,9 @@ struct OrderedVariable final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
+  void setLlvmAllocaPtr(llvm::AllocaInst* llvm_alloca);
+  [[nodiscard]] llvm::AllocaInst* getLlvmAllocaPtr();
+  [[nodiscard]] const llvm::AllocaInst* getLlvmAllocaPtr() const;
 };
 
 } // namespace requite

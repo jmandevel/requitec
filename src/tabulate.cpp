@@ -60,7 +60,7 @@ bool Context::tabulateProcedureBody(requite::Module& module, requite::Procedure 
         break;
     }
   }
-  return true;
+  return is_ok;
 }
 
 } // namespace requite
