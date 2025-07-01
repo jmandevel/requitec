@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <requite/alias.hpp>
 #include <requite/assert.hpp>
 #include <requite/attribute_flags.hpp>
 #include <requite/symbol.hpp>
@@ -46,7 +47,8 @@ const std::vector<requite::SubSymbol> &Symbol::getSubs() const {
 }
 
 void Symbol::wrapSymbol(const requite::Symbol &symbol) {
-  REQUITE_ASSERT(this->getRoot().getIsNone());
+  REQUITE_ASSERT(this->getRoot().getIsNone() || this->getRoot().getIsAlias() ||
+                 this->getRoot().getIsInference());
   for (const requite::SubSymbol &sub : symbol.getSubs()) {
     this->getSubs().emplace_back(sub);
   }
@@ -72,11 +74,33 @@ requite::SubSymbol &Symbol::makeSubSymbol() {
   return sub;
 }
 
+void Symbol::resolveAlias() {
+  REQUITE_ASSERT(this->_resolved_alias_ptr == nullptr);
+  if (this->getRoot().getIsAlias()) {
+    requite::setSingleRef(this->_resolved_alias_ptr, this->getRoot().getAlias());
+    while (this->getRoot().getIsAlias()) {
+      this->wrapSymbol(this->getRoot().getAlias().getSymbol());
+    }
+  }
+}
+
+bool Symbol::getHasResolvedAlias() const {
+  return this->_resolved_alias_ptr != nullptr;
+}
+
+requite::Alias& Symbol::getResolvedAlias() {
+  return requite::getRef(this->_resolved_alias_ptr);
+}
+
+const requite::Alias& Symbol::getResolvedAlias() const {
+  return requite::getRef(this->_resolved_alias_ptr);
+}
+
 bool Symbol::getIsPointer() const {
   if (this->getSubs().empty()) {
     return false;
   }
-  const requite::SubSymbol& outer = this->getSubs().front();
+  const requite::SubSymbol &outer = this->getSubs().front();
   if (outer.getType() == requite::SubSymbolType::POINTER) {
     return true;
   }

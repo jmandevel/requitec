@@ -263,6 +263,7 @@ struct Symbol {
   requite::RootSymbol _root = {};
   requite::AttributeFlags _root_attributes = {};
   std::vector<requite::SubSymbol> _subs = {};
+  requite::Alias* _resolved_alias_ptr = nullptr;
 
   // symbol.cpp
   Symbol() = default;
@@ -286,6 +287,10 @@ struct Symbol {
   void wrapSymbol(const requite::Symbol &symbol);
   void applyAttributeFlags(const requite::AttributeFlags &attributes);
   [[nodiscard]] requite::SubSymbol &makeSubSymbol();
+  void resolveAlias();
+  [[nodiscard]] bool getHasResolvedAlias() const;
+  [[nodiscard]] requite::Alias& getResolvedAlias();
+  [[nodiscard]] const requite::Alias& getResolvedAlias() const;
 
   [[nodiscard]] bool getIsPointer() const;
   [[nodiscard]] bool getIsInteger() const;
