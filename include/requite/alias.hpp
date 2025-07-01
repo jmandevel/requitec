@@ -20,6 +20,8 @@ struct Object;
 struct Scope;
 
 struct Alias final {
+  using Self = Alias;
+
   std::string _name = {};
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::Expression *_expression_ptr = nullptr;
@@ -27,6 +29,14 @@ struct Alias final {
   requite::Symbol _symbol = {};
 
   // alias.cpp
+  Alias() = default;
+  Alias(const Self&) = delete;
+  Alias(Self&&) = delete;
+  ~Alias() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
+  [[nodiscard]] bool operator==(const Self &) const;
+  [[nodiscard]] bool operator!=(const Self &) const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] bool getHasName() const;

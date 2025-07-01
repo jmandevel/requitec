@@ -17,8 +17,7 @@ bool Context::prototypeEntryPoint(requite::Procedure &procedure) {
   procedure.setMangledName(requite::ENTRY_POINT_MANGLED_NAME);
   requite::Signature &signature = procedure.getSignature();
   requite::Symbol &return_type = signature.getReturnType();
-  return_type.getRoot() =
-      requite::RootSymbol::makeSigned(this->getAddressDepth());
+  return_type.getRoot().setAsSigned(this->getAddressDepth());
   requite::Expression &expression = procedure.getExpression();
   if (!expression.getHasBranch()) {
     return true;

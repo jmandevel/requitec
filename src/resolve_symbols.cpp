@@ -23,7 +23,7 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
         // if (!this->prototypeUserSymbol(object)) {
         //   return false;
         // }
-        out_symbol.getRoot() = requite::RootSymbol::makeUser(object);
+        out_symbol.getRoot().setAsUser(object);
         return true;
       }
     }
@@ -46,7 +46,7 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
                                         symbol_expression.getBranch())) {
       return false;
     }
-    out_symbol.getRoot() = requite::RootSymbol::makeSigned(depth);
+    out_symbol.getRoot().setAsSigned(depth);
     return true;
   }
   case requite::Opcode::_REFERENCE: {
@@ -74,7 +74,7 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__INTEGER_LITERAL: {
-    out_symbol.getRoot() = requite::RootSymbol::makeIntegerLiteral();
+    out_symbol.getRoot().setAsIntegerLiteral();
     return true;
   }
   case requite::Opcode::_ADD:
@@ -140,19 +140,19 @@ bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
 void Context::finalizeIfLiteralType(requite::Symbol& symbol) {
     switch (const requite::RootSymbolType type = symbol.getRoot().getType()) {
       case requite::RootSymbolType::INTEGER_LITERAL:
-        symbol.getRoot() = requite::RootSymbol::makeSigned(this->getAddressDepth());
+        symbol.getRoot().setAsSigned(this->getAddressDepth());
         break;
       case requite::RootSymbolType::FRACTIONAL_LITERAL:
-        symbol.getRoot() = requite::RootSymbol::makeBinary64();
+        symbol.getRoot().setAsBinary64();
         break;
       case requite::RootSymbolType::CODEUNIT_LITERAL:
-        symbol.getRoot() = requite::RootSymbol::makeUtf8();
+        symbol.getRoot().setAsUtf8();
         break;
       case requite::RootSymbolType::STRING_LITERAL: {
         requite::SubSymbol& sub = symbol.makeSubSymbol();
         sub.setType(requite::SubSymbolType::FAT_POINTER);
         sub.getAttributeFlags().addAttribute(requite::AttributeType::NULL_TERMINATED);
-        symbol.getRoot() = requite::RootSymbol::makeUtf8();
+        symbol.getRoot().setAsUtf8();
         symbol.getRootAttributeFlags().addAttribute(requite::AttributeType::CONSTANT);
         break;
       }

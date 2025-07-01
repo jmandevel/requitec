@@ -19,9 +19,11 @@ template <typename SymbolArg> void ExportTable::addExportSymbol(SymbolArg &symbo
   REQUITE_ASSERT(!this->getHasExportSymbolOfName(symbol.getName()));
   REQUITE_ASSERT(!symbol.getHasContaining());
   symbol.setContaining(*this);
+  requite::RootSymbol root;
+  root.setAsUser(symbol);
   this->getSymbolMap().insert(
       std::pair<llvm::StringRef, requite::RootSymbol>(
-          symbol.getName(), requite::RootSymbol::makeUser(symbol)));
+          symbol.getName(), root));
 }
 
 }

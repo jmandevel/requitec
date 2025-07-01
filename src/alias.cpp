@@ -8,6 +8,10 @@
 
 namespace requite {
 
+bool Alias::operator==(const Self &rhs) const { return this == &rhs; }
+
+bool Alias::operator!=(const Self &rhs) const { return this != &rhs; }
+
 void Alias::setName(llvm::StringRef name) {
   REQUITE_ASSERT(!name.empty());
   REQUITE_ASSERT(this->_name.empty());

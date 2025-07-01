@@ -9,6 +9,10 @@ namespace requite {
 
 Table::Table() { this->_scope.setTable(*this); }
 
+bool Table::operator==(const Self &rhs) const { return this == &rhs; }
+
+bool Table::operator!=(const Self &rhs) const { return this != &rhs; }
+
 bool Table::getHasName() const { return !this->_name.empty(); }
 
 void Table::setName(llvm::StringRef name) {

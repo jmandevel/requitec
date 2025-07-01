@@ -7,9 +7,11 @@
 
 namespace requite {
 
-Object::Object() {
-  this->getScope().setObject(*this);
-}
+Object::Object() { this->getScope().setObject(*this); }
+
+bool Object::operator==(const Self &rhs) const { return this == &rhs; }
+
+bool Object::operator!=(const Self &rhs) const { return this != &rhs; }
 
 bool Object::getHasName() const { return !this->_name.empty(); }
 

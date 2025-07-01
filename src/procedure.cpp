@@ -38,6 +38,10 @@ const requite::Scope &Procedure::getContaining() const {
   return this->getScope().getContaining();
 }
 
+bool Procedure::operator==(const Self &rhs) const { return this == &rhs; }
+
+bool Procedure::operator!=(const Self &rhs) const { return this != &rhs; }
+
 bool Procedure::getIsNamed() const {
   return requite::getIsNamed(this->getType());
 }

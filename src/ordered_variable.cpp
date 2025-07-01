@@ -7,6 +7,10 @@
 
 namespace requite {
 
+bool OrderedVariable::operator==(const Self &rhs) const { return this == &rhs; }
+
+bool OrderedVariable::operator!=(const Self &rhs) const { return this != &rhs; }
+
 bool OrderedVariable::getHasName() const { return !this->_name.empty(); }
 
 void OrderedVariable::setName(llvm::StringRef name) {

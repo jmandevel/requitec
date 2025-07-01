@@ -39,6 +39,8 @@ struct Object final {
   ~Object() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] bool operator==(const Self&) const;
+  [[nodiscard]] bool operator!=(const Self&) const;
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;

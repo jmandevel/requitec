@@ -7,6 +7,14 @@
 
 namespace requite {
 
+bool UnorderedVariable::operator==(const Self &rhs) const {
+  return this == &rhs;
+}
+
+bool UnorderedVariable::operator!=(const Self &rhs) const {
+  return this != &rhs;
+}
+
 bool UnorderedVariable::getHasName() const { return !this->_name.empty(); }
 
 void UnorderedVariable::setName(llvm::StringRef name) {

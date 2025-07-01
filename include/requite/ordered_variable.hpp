@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <requite/variable_type.hpp>
 #include <requite/symbol.hpp>
+#include <requite/variable_type.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -31,15 +31,17 @@ struct OrderedVariable final {
   requite::Expression *_expression_ptr = nullptr;
   requite::Symbol _data_type = {};
   requite::Scope *_containing_scope_ptr = nullptr;
-  llvm::AllocaInst* _llvm_alloca_ptr = nullptr;
+  llvm::AllocaInst *_llvm_alloca_ptr = nullptr;
 
   // ordered_variable.cpp
   OrderedVariable() = default;
-  OrderedVariable(const Self&) = delete;
-  OrderedVariable(Self&&) = delete;
+  OrderedVariable(const Self &) = delete;
+  OrderedVariable(Self &&) = delete;
   ~OrderedVariable() = default;
-  Self& operator=(const Self&) = delete;
-  Self& operator=(Self&&) = delete;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] bool operator==(const Self &) const;
+  [[nodiscard]] bool operator!=(const Self &) const;
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
@@ -50,14 +52,14 @@ struct OrderedVariable final {
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Symbol &getDataType();
-  [[nodiscard]] const requite::Symbol& getDataType() const;
+  [[nodiscard]] const requite::Symbol &getDataType() const;
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
-  void setLlvmAllocaPtr(llvm::AllocaInst* llvm_alloca);
-  [[nodiscard]] llvm::AllocaInst* getLlvmAllocaPtr();
-  [[nodiscard]] const llvm::AllocaInst* getLlvmAllocaPtr() const;
+  void setLlvmAllocaPtr(llvm::AllocaInst *llvm_alloca);
+  [[nodiscard]] llvm::AllocaInst *getLlvmAllocaPtr();
+  [[nodiscard]] const llvm::AllocaInst *getLlvmAllocaPtr() const;
 };
 
 } // namespace requite

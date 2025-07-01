@@ -33,21 +33,51 @@ RootSymbol::RootSymbol(const requite::RootSymbol &that)
     this->_anonymous_object_ptr =
         new requite::AnonymousObject(that.getAnonymousObject());
     break;
+  case requite::RootSymbolType::SCOPE:
+    this->_scope_ptr = that._scope_ptr;
+    break;
+  case requite::RootSymbolType::OBJECT:
+    this->_object_ptr = that._object_ptr;
+    break;
+  case requite::RootSymbolType::TABLE:
+    this->_table_ptr = that._table_ptr;
+    break;
+  case requite::RootSymbolType::ALIAS:
+    this->_alias_ptr = that._alias_ptr;
+    break;
+  case requite::RootSymbolType::ORDERED_VARIABLE:
+    this->_ordered_variable_ptr = that._ordered_variable_ptr;
+    break;
+  case requite::RootSymbolType::UNORDERED_VARIABLE:
+    this->_unordered_variable_ptr = that._unordered_variable_ptr;
+    break;
+  case requite::RootSymbolType::PROCEDURE:
+    this->_procedure_ptr = that._procedure_ptr;
+    break;
+  case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
+    this->_named_procedure_group_ptr = that._named_procedure_group_ptr;
+    break;
+  case requite::RootSymbolType::MODULE:
+    this->_module_ptr = that._module_ptr;
+    break;
+  case requite::RootSymbolType::LABEL:
+    this->_label_ptr = that._label_ptr;
+    break;
   default:
-    this->_data_ptr = that._data_ptr;
+    break;
   }
 }
 
 RootSymbol::~RootSymbol() {
   switch (const requite::RootSymbolType type = this->getType()) {
-  case requite::RootSymbolType::SIGNATURE:
-    delete this->_signature_ptr;
+  case requite::RootSymbolType::ANONYMOUS_OBJECT:
+    delete this->_anonymous_object_ptr;
     break;
   case requite::RootSymbolType::TUPLE:
     delete this->_tuple_ptr;
     break;
-  case requite::RootSymbolType::ANONYMOUS_OBJECT:
-    delete this->_anonymous_object_ptr;
+  case requite::RootSymbolType::SIGNATURE:
+    delete this->_signature_ptr;
     break;
   default:
     break;
@@ -74,6 +104,26 @@ bool RootSymbol::operator==(const requite::RootSymbol &rhs) const {
     return this->getTuple() == rhs.getTuple();
   case requite::RootSymbolType::ANONYMOUS_OBJECT:
     return this->getAnonymousObject() == rhs.getAnonymousObject();
+  case requite::RootSymbolType::SCOPE:
+    return this->getScope() == rhs.getScope();
+  case requite::RootSymbolType::OBJECT:
+    return this->getObject() == rhs.getObject();
+  case requite::RootSymbolType::TABLE:
+    return this->getTable() == rhs.getTable();
+  case requite::RootSymbolType::ALIAS:
+    return this->getAlias() == rhs.getAlias();
+  case requite::RootSymbolType::ORDERED_VARIABLE:
+    return this->getOrderedVariable() == rhs.getOrderedVariable();
+  case requite::RootSymbolType::UNORDERED_VARIABLE:
+    return this->getUnorderedVariable() == rhs.getUnorderedVariable();
+  case requite::RootSymbolType::PROCEDURE:
+    return this->getProcedure() == rhs.getProcedure();
+  case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
+    return this->getNamedProcedureGroup() == rhs.getNamedProcedureGroup();
+  case requite::RootSymbolType::MODULE:
+    return this->getModule() == rhs.getModule();
+  case requite::RootSymbolType::LABEL:
+    return this->getLabel() == rhs.getLabel();
   default:
     REQUITE_UNREACHABLE();
   }
@@ -83,197 +133,169 @@ bool RootSymbol::operator!=(const requite::RootSymbol &rhs) const {
   return !(*this == rhs);
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Object &object) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::OBJECT;
-  root.setObject(object);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::Object &object) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::OBJECT;
+  this->_object_ptr = &object;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Table &table) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::TABLE;
-  root.setTable(table);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::Table &table) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::TABLE;
+  this->_table_ptr = &table;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Alias &alias) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::ALIAS;
-  root.setAlias(alias);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::Alias &alias) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::ALIAS;
+  this->_alias_ptr = &alias;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::OrderedVariable &variable) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::ORDERED_VARIABLE;
-  root.setOrderedVariable(variable);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::OrderedVariable &variable) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::ORDERED_VARIABLE;
+  this->_ordered_variable_ptr = &variable;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::UnorderedVariable &variable) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::UNORDERED_VARIABLE;
-  root.setUnorderedVariable(variable);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::UnorderedVariable &variable) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::UNORDERED_VARIABLE;
+  this->_unordered_variable_ptr = &variable;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Procedure &procedure) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::PROCEDURE;
-  root.setProcedure(procedure);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::Procedure &procedure) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::PROCEDURE;
+  this->_procedure_ptr = &procedure;
 }
 
-requite::RootSymbol
-RootSymbol::makeUser(requite::NamedProcedureGroup &procedure_group) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::NAMED_PROCEDURE_GROUP;
-  root.setNamedProcedureGroup(procedure_group);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::NamedProcedureGroup &procedure_group) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::NAMED_PROCEDURE_GROUP;
+  this->_named_procedure_group_ptr = &procedure_group;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Module &module) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::MODULE;
-  root.setModule(module);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::Module &module) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::MODULE;
+  this->_module_ptr = &module;
 }
 
-requite::RootSymbol RootSymbol::makeUser(requite::Label &label) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::LABEL;
-  root.setLabel(label);
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUser(requite::Label &label) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::LABEL;
+  this->_label_ptr = &label;
 }
 
-requite::RootSymbol RootSymbol::makeInference() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::INFERENCE;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsInference() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::INFERENCE;
 }
 
-requite::RootSymbol RootSymbol::makeVoid() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::VOID;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsVoid() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::VOID;
 }
 
-requite::RootSymbol RootSymbol::makeVariadicArguments() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::VARIADIC_ARGUMENTS;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsVariadicArguments() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::VARIADIC_ARGUMENTS;
 }
 
-requite::RootSymbol RootSymbol::makeNull_() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::NULL_;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsNull_() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::NULL_;
 }
 
-requite::RootSymbol RootSymbol::makeIntegerLiteral() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::INTEGER_LITERAL;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsIntegerLiteral() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::INTEGER_LITERAL;
 }
 
-requite::RootSymbol RootSymbol::makeFractionalLiteral() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::FRACTIONAL_LITERAL;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsFractionalLiteral() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::FRACTIONAL_LITERAL;
 }
 
-requite::RootSymbol RootSymbol::makeCodeunitLiteral() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::CODEUNIT_LITERAL;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsCodeunitLiteral() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::CODEUNIT_LITERAL;
 }
 
-requite::RootSymbol RootSymbol::makeStringLiteral() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::STRING_LITERAL;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsStringLiteral() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::STRING_LITERAL;
 }
 
-requite::RootSymbol RootSymbol::makeBoolean() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::BOOLEAN;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsBoolean() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::BOOLEAN;
 }
 
-requite::RootSymbol RootSymbol::makeWord(unsigned depth) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::WORD;
-  root._depth = depth;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsWord(unsigned depth) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::WORD;
+  this->_depth = depth;
 }
 
-requite::RootSymbol RootSymbol::makeSigned(unsigned depth) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::SIGNED;
-  root._depth = depth;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsSigned(unsigned depth) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::SIGNED;
+  this->_depth = depth;
 }
 
-requite::RootSymbol RootSymbol::makeUnsigned(unsigned depth) {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::UNSIGNED;
-  root._depth = depth;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUnsigned(unsigned depth) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::UNSIGNED;
+  this->_depth = depth;
 }
 
-requite::RootSymbol RootSymbol::makeBFloat16() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::BFLOAT16;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsBFloat16() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::BFLOAT16;
 }
 
-requite::RootSymbol RootSymbol::makeBinary16() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::BFLOAT16;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsBinary16() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::BFLOAT16;
 }
 
-requite::RootSymbol RootSymbol::makeBinary32() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::BINARY32;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsBinary32() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::BINARY32;
 }
 
-requite::RootSymbol RootSymbol::makeBinary64() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::BINARY64;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsBinary64() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::BINARY64;
 }
 
-requite::RootSymbol RootSymbol::makeBinary128() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::BINARY128;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsBinary128() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::BINARY128;
 }
 
-requite::RootSymbol RootSymbol::makeUtf8() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::UTF8;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsUtf8() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::UTF8;
 }
 
-requite::RootSymbol RootSymbol::makeSignature() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::SIGNATURE;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsSignature() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::SIGNATURE;
+  this->_signature_ptr = new requite::Signature();
 }
 
-requite::RootSymbol RootSymbol::makeTuple() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::TUPLE;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsTuple() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::TUPLE;
+  this->_tuple_ptr = new requite::Tuple();
 }
 
-requite::RootSymbol RootSymbol::makeAnonymousObject() {
-  requite::RootSymbol root;
-  root._type = requite::RootSymbolType::ANONYMOUS_OBJECT;
-  return requite::RootSymbol(root);
+void RootSymbol::setAsAnonymousObject() {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::ANONYMOUS_OBJECT;
+  this->_anonymous_object_ptr = new requite::AnonymousObject();
 }
 
 requite::RootSymbolType RootSymbol::getType() const { return this->_type; }
@@ -397,6 +419,11 @@ bool RootSymbol::getIsLabel() const {
   return this->_type == requite::RootSymbolType::LABEL;
 }
 
+bool RootSymbol::getHasAllocation() const {
+  return this->getIsAnonymousObject() || this->getIsTuple() ||
+         this->getIsSignature();
+}
+
 const requite::Signature &RootSymbol::getSignature() const {
   REQUITE_ASSERT(this->getIsSignature());
   return requite::getRef(this->_signature_ptr);
@@ -429,10 +456,6 @@ requite::AnonymousObject &RootSymbol::getAnonymousObject() {
 
 bool RootSymbol::getHasScope() const { return this->_scope_ptr != nullptr; }
 
-void RootSymbol::setScope(requite::Scope &scope) {
-  requite::setSingleRef(this->_scope_ptr, scope);
-}
-
 requite::Scope &RootSymbol::getScope() {
   REQUITE_ASSERT(this->getIsScope());
   return requite::getRef(this->_scope_ptr);
@@ -446,11 +469,6 @@ const requite::Scope &RootSymbol::getScope() const {
 bool RootSymbol::getHasObject() const {
   REQUITE_ASSERT(this->getIsObject());
   return this->_object_ptr != nullptr;
-}
-
-void RootSymbol::setObject(requite::Object &object) {
-  REQUITE_ASSERT(this->getIsObject());
-  requite::setSingleRef(this->_object_ptr, object);
 }
 
 const requite::Object &RootSymbol::getObject() const {
@@ -468,11 +486,6 @@ bool RootSymbol::getHasTable() const {
   return this->_table_ptr != nullptr;
 }
 
-void RootSymbol::setTable(requite::Table &table) {
-  REQUITE_ASSERT(this->getIsTable());
-  requite::setSingleRef(this->_table_ptr, table);
-}
-
 const requite::Table &RootSymbol::getTable() const {
   REQUITE_ASSERT(this->getIsTable());
   return requite::getRef(this->_table_ptr);
@@ -486,11 +499,6 @@ requite::Table &RootSymbol::getTable() {
 bool RootSymbol::getHasAlias() const {
   REQUITE_ASSERT(this->getIsAlias());
   return this->_alias_ptr != nullptr;
-}
-
-void RootSymbol::setAlias(requite::Alias &alias) {
-  REQUITE_ASSERT(this->getIsAlias());
-  requite::setSingleRef(this->_alias_ptr, alias);
 }
 
 const requite::Alias &RootSymbol::getAlias() const {
@@ -508,11 +516,6 @@ bool RootSymbol::getHasOrderedVariable() const {
   return this->_ordered_variable_ptr != nullptr;
 }
 
-void RootSymbol::setOrderedVariable(requite::OrderedVariable &variable) {
-  REQUITE_ASSERT(this->getIsOrderedVariable());
-  requite::setSingleRef(this->_ordered_variable_ptr, variable);
-}
-
 requite::OrderedVariable &RootSymbol::getOrderedVariable() {
   REQUITE_ASSERT(this->getIsOrderedVariable());
   return requite::getRef(this->_ordered_variable_ptr);
@@ -526,11 +529,6 @@ const requite::OrderedVariable &RootSymbol::getOrderedVariable() const {
 bool RootSymbol::getHasUnorderedVariable() const {
   REQUITE_ASSERT(this->getIsUnorderedVariable());
   return this->_unordered_variable_ptr != nullptr;
-}
-
-void RootSymbol::setUnorderedVariable(requite::UnorderedVariable &variable) {
-  REQUITE_ASSERT(this->getIsUnorderedVariable());
-  requite::setSingleRef(this->_unordered_variable_ptr, variable);
 }
 
 requite::UnorderedVariable &RootSymbol::getUnorderedVariable() {
@@ -548,11 +546,6 @@ bool RootSymbol::getHasProcedure() const {
   return this->_procedure_ptr != nullptr;
 }
 
-void RootSymbol::setProcedure(requite::Procedure &procedure) {
-  REQUITE_ASSERT(this->getIsProcedure());
-  requite::setSingleRef(this->_procedure_ptr, procedure);
-}
-
 const requite::Procedure &RootSymbol::getProcedure() const {
   REQUITE_ASSERT(this->getIsProcedure());
   return requite::getRef(this->_procedure_ptr);
@@ -566,13 +559,6 @@ requite::Procedure &RootSymbol::getProcedure() {
 bool RootSymbol::getHasNamedProcedureGroup() const {
   REQUITE_ASSERT(this->getIsNamedProcedureGroup());
   return this->_named_procedure_group_ptr != nullptr;
-}
-
-void RootSymbol::setNamedProcedureGroup(
-    requite::NamedProcedureGroup &named_procedure_group) {
-  REQUITE_ASSERT(this->getIsNamedProcedureGroup());
-  requite::setSingleRef(this->_named_procedure_group_ptr,
-                        named_procedure_group);
 }
 
 const requite::NamedProcedureGroup &RootSymbol::getNamedProcedureGroup() const {
@@ -590,11 +576,6 @@ bool RootSymbol::getHasModule() const {
   return this->_module_ptr != nullptr;
 }
 
-void RootSymbol::setModule(requite::Module &module) {
-  REQUITE_ASSERT(this->getIsModule());
-  requite::setSingleRef(this->_module_ptr, module);
-}
-
 const requite::Module &RootSymbol::getModule() const {
   REQUITE_ASSERT(this->getIsModule());
   return requite::getRef(this->_module_ptr);
@@ -608,11 +589,6 @@ requite::Module &RootSymbol::getModule() {
 bool RootSymbol::getHasLabel() const {
   REQUITE_ASSERT(this->getIsLabel());
   return this->_label_ptr != nullptr;
-}
-
-void RootSymbol::setLabel(requite::Label &label) {
-  REQUITE_ASSERT(this->getIsLabel());
-  requite::setSingleRef(this->_label_ptr, label);
 }
 
 const requite::Label &RootSymbol::getLabel() const {

@@ -24,9 +24,11 @@ template <typename SymbolArg> void Scope::addInternalSymbol(SymbolArg &symbol) {
   REQUITE_ASSERT(!this->getHasInternalSymbolOfName(symbol.getName()));
   REQUITE_ASSERT(!symbol.getHasContaining());
   symbol.setContaining(*this);
+  requite::RootSymbol root;
+  root.setAsUser(symbol);
   this->getInternalSymbolMap().insert(
       std::pair<llvm::StringRef, requite::RootSymbol>(
-          symbol.getName(), requite::RootSymbol::makeUser(symbol)));
+          symbol.getName(), root));
 }
 
 inline bool Scope::getHasExportSymbolOfName(llvm::StringRef name) const {
@@ -45,9 +47,11 @@ template <typename SymbolArg> void Scope::addExportSymbol(SymbolArg &symbol) {
   REQUITE_ASSERT(!symbol.getHasContaining());
   symbol.setContaining(*this);
   requite::ExportTable &export_table = this->getExportTable();
+  requite::RootSymbol root;
+  root.setAsUser(symbol);
   export_table.getSymbolMap().insert(
       std::pair<llvm::StringRef, requite::RootSymbol>(
-          symbol.getName(), requite::RootSymbol::makeUser(symbol)));
+          symbol.getName(), root));
 }
 
 inline bool Scope::getHasSymbolOfName(llvm::StringRef name) const {
