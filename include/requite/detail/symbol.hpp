@@ -16,6 +16,13 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::NULL_:
     return false;
+  case requite::RootSymbolType::INTEGER_LITERAL:
+    return false;
+  case requite::RootSymbolType::FRACTIONAL_LITERAL:
+    return false;
+  case requite::RootSymbolType::CODEUNIT_LITERAL:
+    return false;
+  case requite::RootSymbolType::STRING_LITERAL:
     return false;
   case requite::RootSymbolType::BOOLEAN:
     return false;
@@ -82,6 +89,14 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
   case requite::RootSymbolType::VOID:
     return false;
   case requite::RootSymbolType::NULL_:
+    return false;
+  case requite::RootSymbolType::INTEGER_LITERAL:
+    return false;
+  case requite::RootSymbolType::FRACTIONAL_LITERAL:
+    return false;
+  case requite::RootSymbolType::CODEUNIT_LITERAL:
+    return false;
+  case requite::RootSymbolType::STRING_LITERAL:
     return false;
   case requite::RootSymbolType::BOOLEAN:
     return false;

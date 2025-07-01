@@ -77,8 +77,7 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__INTEGER_LITERAL: {
     requite::RootSymbol &root = out_symbol.getRoot();
-    root.setType(requite::RootSymbolType::SIGNED);
-    root.setDepth(this->getAddressDepth());
+    root.setType(requite::RootSymbolType::INTEGER_LITERAL);
     return true;
   }
   case requite::Opcode::_ADD:
@@ -114,7 +113,9 @@ bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
 }
 
 bool Context::inferenceImplicitCommonType(requite::Symbol &out_symbol_a,
-                                          const requite::Symbol &symbol_b) {}
+                                          const requite::Symbol &symbol_b) {
+                                            
+                                          }
 
 bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
                                     requite::Expression &first) {
