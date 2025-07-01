@@ -43,7 +43,7 @@ enum class TokenType {
   CAROT_OPERATOR,            // ^
   PIPE_OPERATOR,             // |
   TILDE_OPERATOR,            // ~
-  AMBERSAND_OPERATOR,        // &
+  AMPERSAND_OPERATOR,        // &
   DOUBLE_AMPERSAND_OPERATOR, // &&
   DOUBLE_PIPE_OPERATOR,      // ||
   EQUAL_OPERATOR,            // =

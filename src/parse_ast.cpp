@@ -427,7 +427,7 @@ requite::Expression &Parser::parsePrecedence4() {
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_OR);
       precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
-    case requite::TokenType::AMBERSAND_OPERATOR:
+    case requite::TokenType::AMPERSAND_OPERATOR:
       if (!token.getHasBinaryOperatorSpacing()) {
         break;
       }
@@ -547,27 +547,26 @@ requite::Expression &Parser::parsePrecedence2() {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_FAT_POINTER);
       continue;
-    case requite::TokenType::AMBERSAND_OPERATOR:
+    case requite::TokenType::AMPERSAND_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseUnary(*this, requite::Opcode::_REFERENCE);
+      precedence_parser.parseUnary(*this, requite::Opcode::_BORROWING_REFERENCE);
       continue;
     case requite::TokenType::DOUBLE_AMPERSAND_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseUnary(*this, requite::Opcode::_REFERENCE);
-      precedence_parser.parseUnary(*this, requite::Opcode::_REFERENCE);
+      precedence_parser.parseUnary(*this, requite::Opcode::_MOVING_REFERENCE);
       continue;
     case requite::TokenType::DOLLAR_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseUnary(*this, requite::Opcode::_STOLEN_REFERENCE);
+      precedence_parser.parseUnary(*this, requite::Opcode::_STEALING_REFERENCE);
       continue;
     case requite::TokenType::STAR_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {

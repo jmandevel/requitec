@@ -220,8 +220,9 @@ struct RootSymbol final {
 enum class SubSymbolType {
   NONE,
   ARRAY,
-  REFERENCE,
-  STOLEN_REFERENCE,
+  BORROWING_REFERENCE,
+  MOVING_REFERENCE,
+  STEALING_REFERENCE,
   POINTER,
   FAT_POINTER
 };
@@ -278,6 +279,7 @@ struct Symbol {
   Self &operator=(Self &&rhs) = default;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
+  [[nodiscard]] bool getIsSameDecayed(const Self& rhs) const;
   [[nodiscard]] bool getIsEmpty() const;
   [[nodiscard]] requite::RootSymbol &getRoot();
   [[nodiscard]] const requite::RootSymbol &getRoot() const;

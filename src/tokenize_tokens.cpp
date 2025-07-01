@@ -208,7 +208,7 @@ void Tokenizer::_tokenizeTokens() {
                                   2);
         break;
       default:
-        this->tokenizeLengthToken(requite::TokenType::AMBERSAND_OPERATOR, 1);
+        this->tokenizeLengthToken(requite::TokenType::AMPERSAND_OPERATOR, 1);
       }
       continue;
     case '\'':

@@ -49,9 +49,9 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
     out_symbol.getRoot().setAsSigned(depth);
     return true;
   }
-  case requite::Opcode::_REFERENCE: {
+  case requite::Opcode::_BORROWING_REFERENCE: {
     requite::SubSymbol &sub = out_symbol.makeSubSymbol();
-    sub.setType(requite::SubSymbolType::REFERENCE);
+    sub.setType(requite::SubSymbolType::BORROWING_REFERENCE);
     return this->resolveSymbol(out_symbol, scope,
                                symbol_expression.getBranch());
   }

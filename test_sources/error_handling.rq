@@ -3,7 +3,7 @@
     CRASH
 ]
 
-[extension toString Category @[utf8]()
+[extension toString Category->@[utf8]()
     [switch [this] 
         [case FAIL
             [result] := "failure!"

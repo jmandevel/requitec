@@ -16,11 +16,17 @@ Symbol::Symbol(requite::RootSymbol &root,
     : _root(root), _subs(subs.begin(), subs.end()) {}
 
 bool Symbol::operator==(const requite::Symbol &rhs) const {
+  // NOTE: dont care about equality of resolved alias
   return rhs._root == this->_root && rhs._subs == this->_subs;
 }
 
 bool Symbol::operator!=(const requite::Symbol &rhs) const {
+  // NOTE: dont care about inequality of resolved alias
   return rhs._root != this->_root || rhs._subs != this->_subs;
+}
+
+bool Symbol::getIsSameDecayed(const Self &rhs) const {
+  return false; // TODO
 }
 
 bool Symbol::getIsEmpty() const {
@@ -77,7 +83,8 @@ requite::SubSymbol &Symbol::makeSubSymbol() {
 void Symbol::resolveAlias() {
   REQUITE_ASSERT(this->_resolved_alias_ptr == nullptr);
   if (this->getRoot().getIsAlias()) {
-    requite::setSingleRef(this->_resolved_alias_ptr, this->getRoot().getAlias());
+    requite::setSingleRef(this->_resolved_alias_ptr,
+                          this->getRoot().getAlias());
     while (this->getRoot().getIsAlias()) {
       this->wrapSymbol(this->getRoot().getAlias().getSymbol());
     }
@@ -88,11 +95,11 @@ bool Symbol::getHasResolvedAlias() const {
   return this->_resolved_alias_ptr != nullptr;
 }
 
-requite::Alias& Symbol::getResolvedAlias() {
+requite::Alias &Symbol::getResolvedAlias() {
   return requite::getRef(this->_resolved_alias_ptr);
 }
 
-const requite::Alias& Symbol::getResolvedAlias() const {
+const requite::Alias &Symbol::getResolvedAlias() const {
   return requite::getRef(this->_resolved_alias_ptr);
 }
 
