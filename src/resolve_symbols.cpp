@@ -156,6 +156,8 @@ void Context::finalizeIfLiteralType(requite::Symbol &symbol) {
         requite::AttributeType::CONSTANT);
     break;
   }
+  default:
+    break;
   }
 }
 
