@@ -13,15 +13,15 @@ getLlvmSemantics(requite::FloatSemantics semantics) {
   switch (semantics) {
   case requite::FloatSemantics::NONE:
     REQUITE_UNREACHABLE();
-  case requite::FloatSemantics::BRAIN:
+  case requite::FloatSemantics::BFLOAT16:
     return llvm::APFloat::BFloat();
-  case requite::FloatSemantics::BINARY_HALF:
+  case requite::FloatSemantics::BINARY16:
     return llvm::APFloat::IEEEhalf();
-  case requite::FloatSemantics::BINARY_SINGLE:
+  case requite::FloatSemantics::BINARY32:
     return llvm::APFloat::IEEEsingle();
-  case requite::FloatSemantics::BINARY_DOUBLE:
+  case requite::FloatSemantics::BINARY64:
     return llvm::APFloat::IEEEdouble();
-  case requite::FloatSemantics::BINARY_QUAD:
+  case requite::FloatSemantics::BINARY128:
     return llvm::APFloat::IEEEquad();
   }
   REQUITE_UNREACHABLE();

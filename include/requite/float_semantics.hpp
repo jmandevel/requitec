@@ -10,11 +10,11 @@ namespace requite {
 
 enum class FloatSemantics {
   NONE,
-  BRAIN,
-  BINARY_HALF,
-  BINARY_SINGLE,
-  BINARY_DOUBLE,
-  BINARY_QUAD
+  BFLOAT16,
+  BINARY16,
+  BINARY32,
+  BINARY64,
+  BINARY128
 };
 
 [[nodiscard]] inline const llvm::fltSemantics &

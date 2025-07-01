@@ -497,13 +497,13 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_SYMBOL;
   case Opcode::UNSIGNED_INTEGER:
     return _MATTE_SYMBOL;
-  case Opcode::BINARY_HALF_FLOAT:
+  case Opcode::BINARY16:
     return _MATTE_SYMBOL;
-  case Opcode::BINARY_SINGLE_FLOAT:
+  case Opcode::BINARY32:
     return _MATTE_SYMBOL;
-  case Opcode::BINARY_DOUBLE_FLOAT:
+  case Opcode::BINARY64:
     return _MATTE_SYMBOL;
-  case Opcode::BINARY_QUAD_FLOAT:
+  case Opcode::BINARY128:
     return _MATTE_SYMBOL;
   case Opcode::CHARACTER:
     return _MATTE_SYMBOL;
@@ -1027,14 +1027,14 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "signed_integer";
   case requite::Opcode::UNSIGNED_INTEGER:
     return "unsigned_integer";
-  case requite::Opcode::BINARY_HALF_FLOAT:
-    return "binary_half_float";
-  case requite::Opcode::BINARY_SINGLE_FLOAT:
-    return "binary_single_float";
-  case requite::Opcode::BINARY_DOUBLE_FLOAT:
-    return "binary_double_float";
-  case requite::Opcode::BINARY_QUAD_FLOAT:
-    return "binary_quad_float";
+  case requite::Opcode::BINARY16:
+    return "binary16";
+  case requite::Opcode::BINARY32:
+    return "binary32";
+  case requite::Opcode::BINARY64:
+    return "binary64";
+  case requite::Opcode::BINARY128:
+    return "binary128";
   case requite::Opcode::CHARACTER:
     return "character";
   case requite::Opcode::UTF8:

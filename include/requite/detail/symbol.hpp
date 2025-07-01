@@ -22,13 +22,13 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return true;
   case requite::RootSymbolType::UNSIGNED_INTEGER:
     return true;
-  case requite::RootSymbolType::BINARY_HALF_FLOAT:
+  case requite::RootSymbolType::BINARY16:
     return false;
-  case requite::RootSymbolType::BINARY_SINGLE_FLOAT:
+  case requite::RootSymbolType::BINARY32:
     return false;
-  case requite::RootSymbolType::BINARY_DOUBLE_FLOAT:
+  case requite::RootSymbolType::BINARY64:
     return false;
-  case requite::RootSymbolType::BINARY_QUAD_FLOAT:
+  case requite::RootSymbolType::BINARY128:
     return false;
   case requite::RootSymbolType::C_CHAR:
     return false;
@@ -84,13 +84,13 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::UNSIGNED_INTEGER:
     return false;
-  case requite::RootSymbolType::BINARY_HALF_FLOAT:
+  case requite::RootSymbolType::BINARY16:
     return false;
-  case requite::RootSymbolType::BINARY_SINGLE_FLOAT:
+  case requite::RootSymbolType::BINARY32:
     return false;
-  case requite::RootSymbolType::BINARY_DOUBLE_FLOAT:
+  case requite::RootSymbolType::BINARY64:
     return false;
-  case requite::RootSymbolType::BINARY_QUAD_FLOAT:
+  case requite::RootSymbolType::BINARY128:
     return false;
   case requite::RootSymbolType::C_CHAR:
     return false;
@@ -242,16 +242,16 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
   case requite::RootSymbolType::UNSIGNED_INTEGER:
     ostream << "unsigned integer with depth" << root.getDepth();
     break;
-  case requite::RootSymbolType::BINARY_HALF_FLOAT:
+  case requite::RootSymbolType::BINARY16:
     ostream << "IEEE 754 binary half floating point";
     break;
-  case requite::RootSymbolType::BINARY_SINGLE_FLOAT:
+  case requite::RootSymbolType::BINARY32:
     ostream << "IEEE 754 binary single floating point";
     break;
-  case requite::RootSymbolType::BINARY_DOUBLE_FLOAT:
+  case requite::RootSymbolType::BINARY64:
     ostream << "IEEE 754 binary double floating point";
     break;
-  case requite::RootSymbolType::BINARY_QUAD_FLOAT:
+  case requite::RootSymbolType::BINARY128:
     ostream << "IEEE 754 binary quad floating point";
     break;
   case requite::RootSymbolType::C_CHAR:

@@ -218,20 +218,20 @@ bool RootSymbol::getIsUnsignedInteger() const {
   return this->_type == requite::RootSymbolType::UNSIGNED_INTEGER;
 }
 
-bool RootSymbol::getIsBinaryHalfFloat() const {
-  return this->_type == requite::RootSymbolType::BINARY_HALF_FLOAT;
+bool RootSymbol::getIsBinary16() const {
+  return this->_type == requite::RootSymbolType::BINARY16;
 }
 
-bool RootSymbol::getIsBinarySingleFloat() const {
-  return this->_type == requite::RootSymbolType::BINARY_SINGLE_FLOAT;
+bool RootSymbol::getIsBinary32() const {
+  return this->_type == requite::RootSymbolType::BINARY32;
 }
 
-bool RootSymbol::getIsBinaryDoubleFloat() const {
-  return this->_type == requite::RootSymbolType::BINARY_DOUBLE_FLOAT;
+bool RootSymbol::getIsBinary64() const {
+  return this->_type == requite::RootSymbolType::BINARY64;
 }
 
-bool RootSymbol::getIsBinaryQuadFloat() const {
-  return this->_type == requite::RootSymbolType::BINARY_QUAD_FLOAT;
+bool RootSymbol::getIsBinary128() const {
+  return this->_type == requite::RootSymbolType::BINARY128;
 }
 
 bool RootSymbol::getIsCChar() const {

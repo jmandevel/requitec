@@ -1380,33 +1380,33 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::BINARY_HALF_FLOAT:
+  case requite::Opcode::BINARY16:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY_HALF_FLOAT)) {
+                      requite::Opcode::BINARY16)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::BINARY_SINGLE_FLOAT:
+  case requite::Opcode::BINARY32:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY_SINGLE_FLOAT)) {
+                      requite::Opcode::BINARY32)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::BINARY_DOUBLE_FLOAT:
+  case requite::Opcode::BINARY64:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY_DOUBLE_FLOAT)) {
+                      requite::Opcode::BINARY64)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::BINARY_QUAD_FLOAT:
+  case requite::Opcode::BINARY128:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY_QUAD_FLOAT)) {
+                      requite::Opcode::BINARY128)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);

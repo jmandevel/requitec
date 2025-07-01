@@ -93,10 +93,10 @@ bool Symbol::getIsInteger() const {
 bool Symbol::getIsFloat() const {
   requite::RootSymbolType type = this->getRoot().getType();
   return this->getSubs().size() == 0 &&
-         (type == requite::RootSymbolType::BINARY_HALF_FLOAT ||
-          type == requite::RootSymbolType::BINARY_SINGLE_FLOAT ||
-          type == requite::RootSymbolType::BINARY_DOUBLE_FLOAT ||
-          type == requite::RootSymbolType::BINARY_DOUBLE_FLOAT);
+         (type == requite::RootSymbolType::BINARY16 ||
+          type == requite::RootSymbolType::BINARY32 ||
+          type == requite::RootSymbolType::BINARY64 ||
+          type == requite::RootSymbolType::BINARY64);
 }
 
 } // namespace requite

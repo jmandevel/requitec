@@ -32,10 +32,10 @@ enum class RootSymbolType {
   WORD,
   SIGNED_INTEGER,
   UNSIGNED_INTEGER,
-  BINARY_HALF_FLOAT,
-  BINARY_SINGLE_FLOAT,
-  BINARY_DOUBLE_FLOAT,
-  BINARY_QUAD_FLOAT,
+  BINARY16,
+  BINARY32,
+  BINARY64,
+  BINARY128,
   C_CHAR,
   UTF8,
 
@@ -131,10 +131,10 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsWord() const;
   [[nodiscard]] bool getIsSignedInteger() const;
   [[nodiscard]] bool getIsUnsignedInteger() const;
-  [[nodiscard]] bool getIsBinaryHalfFloat() const;
-  [[nodiscard]] bool getIsBinarySingleFloat() const;
-  [[nodiscard]] bool getIsBinaryDoubleFloat() const;
-  [[nodiscard]] bool getIsBinaryQuadFloat() const;
+  [[nodiscard]] bool getIsBinary16() const;
+  [[nodiscard]] bool getIsBinary32() const;
+  [[nodiscard]] bool getIsBinary64() const;
+  [[nodiscard]] bool getIsBinary128() const;
   [[nodiscard]] bool getIsCChar() const;
   [[nodiscard]] bool getIsUTF8() const;
   [[nodiscard]] bool getIsSignature() const;
