@@ -86,8 +86,8 @@ bool Symbol::getIsPointer() const {
 bool Symbol::getIsInteger() const {
   requite::RootSymbolType type = this->getRoot().getType();
   return this->getSubs().size() == 0 &&
-         (type == requite::RootSymbolType::SIGNED_INTEGER ||
-          type == requite::RootSymbolType::UNSIGNED_INTEGER);
+         (type == requite::RootSymbolType::SIGNED ||
+          type == requite::RootSymbolType::UNSIGNED);
 }
 
 bool Symbol::getIsFloat() const {

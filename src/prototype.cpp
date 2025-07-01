@@ -18,7 +18,7 @@ bool Context::prototypeEntryPoint(requite::Procedure &procedure) {
   requite::Signature &signature = procedure.getSignature();
   requite::Symbol &return_type = signature.getReturnType();
   requite::RootSymbol &return_root = return_type.getRoot();
-  return_root.setType(requite::RootSymbolType::SIGNED_INTEGER);
+  return_root.setType(requite::RootSymbolType::SIGNED);
   const unsigned pointer_depth = this->getAddressDepth();
   return_root.setDepth(pointer_depth);
   requite::Expression &expression = procedure.getExpression();

@@ -60,7 +60,7 @@ bool Builder::buildStatementExit(requite::Expression &statement) {
   // TODO: check inside entry_point
   requite::Expression &branch = statement.getBranch();
   requite::Symbol return_type;
-  return_type.getRoot().setType(requite::RootSymbolType::SIGNED_INTEGER);
+  return_type.getRoot().setType(requite::RootSymbolType::SIGNED);
   return_type.getRoot().setDepth(32);
   llvm::Value *value = this->buildValue(branch, return_type);
   this->getContext().getLlvmBuilder().CreateRet(value);
@@ -71,7 +71,7 @@ llvm::Type *Builder::makeLlvmType(const requite::Symbol &type) {
   llvm::Type *llvm_type = nullptr;
   const requite::RootSymbol &root = type.getRoot();
   switch (const requite::RootSymbolType type = root.getType()) {
-  case requite::RootSymbolType::SIGNED_INTEGER: {
+  case requite::RootSymbolType::SIGNED: {
     llvm_type = this->getContext().getLlvmBuilder().getIntNTy(root.getDepth());
     break;
   }

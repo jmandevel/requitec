@@ -18,9 +18,9 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::WORD:
     return true;
-  case requite::RootSymbolType::SIGNED_INTEGER:
+  case requite::RootSymbolType::SIGNED:
     return true;
-  case requite::RootSymbolType::UNSIGNED_INTEGER:
+  case requite::RootSymbolType::UNSIGNED:
     return true;
   case requite::RootSymbolType::BFLOAT16:
     return false;
@@ -82,9 +82,9 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::WORD:
     return false;
-  case requite::RootSymbolType::SIGNED_INTEGER:
+  case requite::RootSymbolType::SIGNED:
     return false;
-  case requite::RootSymbolType::UNSIGNED_INTEGER:
+  case requite::RootSymbolType::UNSIGNED:
     return false;
   case requite::RootSymbolType::BFLOAT16:
     return false;
@@ -240,10 +240,10 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
   case requite::RootSymbolType::WORD:
     ostream << "word with depth " << root.getDepth();
     break;
-  case requite::RootSymbolType::SIGNED_INTEGER:
+  case requite::RootSymbolType::SIGNED:
     ostream << "signed integer with depth" << root.getDepth();
     break;
-  case requite::RootSymbolType::UNSIGNED_INTEGER:
+  case requite::RootSymbolType::UNSIGNED:
     ostream << "unsigned integer with depth" << root.getDepth();
     break;
   case requite::RootSymbolType::BFLOAT16:

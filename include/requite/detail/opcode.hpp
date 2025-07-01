@@ -493,9 +493,9 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_SYMBOL;
   case Opcode::WORD:
     return _MATTE_SYMBOL;
-  case Opcode::SIGNED_INTEGER:
+  case Opcode::SIGNED:
     return _MATTE_SYMBOL;
-  case Opcode::UNSIGNED_INTEGER:
+  case Opcode::UNSIGNED:
     return _MATTE_SYMBOL;
   case Opcode::BFLOAT16:
     return _MATTE_SYMBOL;
@@ -1025,10 +1025,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "boolean";
   case requite::Opcode::WORD:
     return "word";
-  case requite::Opcode::SIGNED_INTEGER:
-    return "signed_integer";
-  case requite::Opcode::UNSIGNED_INTEGER:
-    return "unsigned_integer";
+  case requite::Opcode::SIGNED:
+    return "signed";
+  case requite::Opcode::UNSIGNED:
+    return "unsigned";
   case requite::Opcode::BINARY16:
     return "binary16";
   case requite::Opcode::BINARY32:

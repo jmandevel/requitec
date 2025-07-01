@@ -211,11 +211,11 @@ bool RootSymbol::getIsWord() const {
 }
 
 bool RootSymbol::getIsSignedInteger() const {
-  return this->_type == requite::RootSymbolType::SIGNED_INTEGER;
+  return this->_type == requite::RootSymbolType::SIGNED;
 }
 
 bool RootSymbol::getIsUnsignedInteger() const {
-  return this->_type == requite::RootSymbolType::UNSIGNED_INTEGER;
+  return this->_type == requite::RootSymbolType::UNSIGNED;
 }
 
 bool RootSymbol::getIsBFloat16() const {

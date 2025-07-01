@@ -1364,17 +1364,17 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::SIGNED_INTEGER:
+  case requite::Opcode::SIGNED:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::SIGNED_INTEGER)) {
+                      requite::Opcode::SIGNED)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::UNSIGNED_INTEGER:
+  case requite::Opcode::UNSIGNED:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::UNSIGNED_INTEGER)) {
+                      requite::Opcode::UNSIGNED)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
@@ -2805,8 +2805,8 @@ void Situator::situateSizedPrimitiveExpression(
     requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SIGNED_INTEGER ||
-                 expression.getOpcode() == requite::Opcode::UNSIGNED_INTEGER ||
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SIGNED ||
+                 expression.getOpcode() == requite::Opcode::UNSIGNED ||
                  expression.getOpcode() == requite::Opcode::WORD);
   if (!expression.getHasBranch()) {
     requite::Expression &first =

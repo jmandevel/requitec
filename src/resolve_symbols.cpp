@@ -41,8 +41,8 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
         this->resolveSymbol(out_symbol, scope, unascribed);
     return attributes_ok && next_resolve_ok;
   }
-  case requite::Opcode::SIGNED_INTEGER: {
-    out_symbol.getRoot().setType(requite::RootSymbolType::SIGNED_INTEGER);
+  case requite::Opcode::SIGNED: {
+    out_symbol.getRoot().setType(requite::RootSymbolType::SIGNED);
     unsigned depth;
     if (!this->evaluateConstantUnsigned(depth, scope,
                                         symbol_expression.getBranch())) {
@@ -77,7 +77,7 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__INTEGER_LITERAL: {
     requite::RootSymbol &root = out_symbol.getRoot();
-    root.setType(requite::RootSymbolType::SIGNED_INTEGER);
+    root.setType(requite::RootSymbolType::SIGNED);
     root.setDepth(this->getAddressDepth());
     return true;
   }
