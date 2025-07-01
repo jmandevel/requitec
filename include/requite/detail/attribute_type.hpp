@@ -18,8 +18,6 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
     return requite::AttributeType::CONSTANT;
   case requite::Opcode::VOLATILE:
     return requite::AttributeType::VOLATILE;
-  case requite::Opcode::STOLEN:
-    return requite::AttributeType::STOLEN;
   case requite::Opcode::ATOMIC:
     return requite::AttributeType::ATOMIC;
   case requite::Opcode::NULL_TERMINATED:
@@ -64,8 +62,6 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "builtin constant";
   case requite::AttributeType::VOLATILE:
     return "builtin volatile";
-  case requite::AttributeType::STOLEN:
-    return "builtin stolen";
   case requite::AttributeType::ATOMIC:
     return "builtin atomic";
   case requite::AttributeType::NULL_TERMINATED:
@@ -109,8 +105,6 @@ constexpr bool getIsTypeAttribute(requite::AttributeType type) {
   case requite::AttributeType::CONSTANT:
     return true;
   case requite::AttributeType::VOLATILE:
-    return true;
-  case requite::AttributeType::STOLEN:
     return true;
   case requite::AttributeType::NULL_TERMINATED:
     return true;

@@ -329,6 +329,8 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_REFERENCE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
+  case Opcode::_STOLEN_REFERENCE:
+    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_POINTER:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_FAT_POINTER:
@@ -340,8 +342,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::CONSTANT:
     return _MATTE_VALUE;
   case Opcode::VOLATILE:
-    return _MATTE_VALUE;
-  case Opcode::STOLEN:
     return _MATTE_VALUE;
   case Opcode::ATOMIC:
     return _MATTE_VALUE;
@@ -863,6 +863,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_array";
   case requite::Opcode::_REFERENCE:
     return "_reference";
+  case requite::Opcode::_STOLEN_REFERENCE:
+    return "_stolen_reference";
   case requite::Opcode::_POINTER:
     return "_pointer";
   case requite::Opcode::_FAT_POINTER:
@@ -875,8 +877,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "constant";
   case requite::Opcode::VOLATILE:
     return "volatile";
-  case requite::Opcode::STOLEN:
-    return "stolen";
   case requite::Opcode::ATOMIC:
     return "atomic";
   case requite::Opcode::NULL_TERMINATED:

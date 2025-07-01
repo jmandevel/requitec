@@ -567,7 +567,7 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseAttribute(*this, requite::Opcode::STOLEN);
+      precedence_parser.parseUnary(*this, requite::Opcode::_STOLEN_REFERENCE);
       continue;
     case requite::TokenType::STAR_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {

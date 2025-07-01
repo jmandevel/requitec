@@ -161,6 +161,7 @@ enum class Opcode : unsigned {
   // SUBTYPE
   _ARRAY,
   _REFERENCE,
+  _STOLEN_REFERENCE,
   _POINTER,
   _FAT_POINTER,
 
@@ -168,7 +169,6 @@ enum class Opcode : unsigned {
   MUTABLE,
   CONSTANT,
   VOLATILE,
-  STOLEN,
   ATOMIC,
   NULL_TERMINATED,
 
