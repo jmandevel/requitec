@@ -281,7 +281,6 @@ enum class Opcode : unsigned {
   BINARY32,
   BINARY64,
   BINARY128,
-  CHARACTER,
   UTF8,
 
   // VARIADIC ARGUMENTS

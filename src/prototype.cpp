@@ -17,10 +17,8 @@ bool Context::prototypeEntryPoint(requite::Procedure &procedure) {
   procedure.setMangledName(requite::ENTRY_POINT_MANGLED_NAME);
   requite::Signature &signature = procedure.getSignature();
   requite::Symbol &return_type = signature.getReturnType();
-  requite::RootSymbol &return_root = return_type.getRoot();
-  return_root.setType(requite::RootSymbolType::SIGNED);
-  const unsigned pointer_depth = this->getAddressDepth();
-  return_root.setDepth(pointer_depth);
+  return_type.getRoot() =
+      requite::RootSymbol::makeSigned(this->getAddressDepth());
   requite::Expression &expression = procedure.getExpression();
   if (!expression.getHasBranch()) {
     return true;

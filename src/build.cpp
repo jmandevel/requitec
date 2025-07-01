@@ -60,8 +60,7 @@ bool Builder::buildStatementExit(requite::Expression &statement) {
   // TODO: check inside entry_point
   requite::Expression &branch = statement.getBranch();
   requite::Symbol return_type;
-  return_type.getRoot().setType(requite::RootSymbolType::SIGNED);
-  return_type.getRoot().setDepth(32);
+  return_type.getRoot() = requite::RootSymbol::makeSigned(32);
   llvm::Value *value = this->buildValue(branch, return_type);
   this->getContext().getLlvmBuilder().CreateRet(value);
   return true;

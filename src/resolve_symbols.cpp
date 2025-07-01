@@ -23,8 +23,7 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
         // if (!this->prototypeUserSymbol(object)) {
         //   return false;
         // }
-        out_symbol.getRoot().setType(requite::RootSymbolType::OBJECT);
-        out_symbol.getRoot().setObject(object);
+        out_symbol.getRoot() = requite::RootSymbol::makeUser(object);
         return true;
       }
     }
@@ -42,13 +41,12 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
     return attributes_ok && next_resolve_ok;
   }
   case requite::Opcode::SIGNED: {
-    out_symbol.getRoot().setType(requite::RootSymbolType::SIGNED);
     unsigned depth;
     if (!this->evaluateConstantUnsigned(depth, scope,
                                         symbol_expression.getBranch())) {
       return false;
     }
-    out_symbol.getRoot().setDepth(depth);
+    out_symbol.getRoot() = requite::RootSymbol::makeSigned(depth);
     return true;
   }
   case requite::Opcode::_REFERENCE: {
@@ -76,8 +74,7 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__INTEGER_LITERAL: {
-    requite::RootSymbol &root = out_symbol.getRoot();
-    root.setType(requite::RootSymbolType::INTEGER_LITERAL);
+    out_symbol.getRoot() = requite::RootSymbol::makeIntegerLiteral();
     return true;
   }
   case requite::Opcode::_ADD:
@@ -113,9 +110,7 @@ bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
 }
 
 bool Context::inferenceImplicitCommonType(requite::Symbol &out_symbol_a,
-                                          const requite::Symbol &symbol_b) {
-                                            
-                                          }
+                                          const requite::Symbol &symbol_b) {}
 
 bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
                                     requite::Expression &first) {

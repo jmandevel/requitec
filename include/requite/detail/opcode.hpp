@@ -507,8 +507,6 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_SYMBOL;
   case Opcode::BINARY128:
     return _MATTE_SYMBOL;
-  case Opcode::CHARACTER:
-    return _MATTE_SYMBOL;
   case Opcode::UTF8:
     return _MATTE_SYMBOL;
 
@@ -1039,8 +1037,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "binary64";
   case requite::Opcode::BINARY128:
     return "binary128";
-  case requite::Opcode::CHARACTER:
-    return "character";
   case requite::Opcode::UTF8:
     return "utf8";
 

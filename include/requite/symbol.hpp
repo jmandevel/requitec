@@ -43,7 +43,6 @@ enum class RootSymbolType {
   BINARY32,
   BINARY64,
   BINARY128,
-  C_CHAR,
   UTF8,
 
   // STRUCTURED
@@ -125,10 +124,29 @@ struct RootSymbol final {
   makeUser(requite::NamedProcedureGroup &procedure_group);
   [[nodiscard]] static Self makeUser(requite::Module &module);
   [[nodiscard]] static Self makeUser(requite::Label &label);
-  void setType(requite::RootSymbolType type);
+  [[nodiscard]] static Self makeInference();
+  [[nodiscard]] static Self makeVoid();
+  [[nodiscard]] static Self makeVariadicArguments();
+  [[nodiscard]] static Self makeNull_();
+  [[nodiscard]] static Self makeIntegerLiteral();
+  [[nodiscard]] static Self makeFractionalLiteral();
+  [[nodiscard]] static Self makeCodeunitLiteral();
+  [[nodiscard]] static Self makeStringLiteral();
+  [[nodiscard]] static Self makeBoolean();
+  [[nodiscard]] static Self makeWord(unsigned depth);
+  [[nodiscard]] static Self makeSigned(unsigned depth);
+  [[nodiscard]] static Self makeUnsigned(unsigned depth);
+  [[nodiscard]] static Self makeBFloat16();
+  [[nodiscard]] static Self makeBinary16();
+  [[nodiscard]] static Self makeBinary32();
+  [[nodiscard]] static Self makeBinary64();
+  [[nodiscard]] static Self makeBinary128();
+  [[nodiscard]] static Self makeUtf8();
+  [[nodiscard]] static Self makeSignature();
+  [[nodiscard]] static Self makeTuple();
+  [[nodiscard]] static Self makeAnonymousObject();
   [[nodiscard]] requite::RootSymbolType getType() const;
   [[nodiscard]] bool getHasDepth() const;
-  void setDepth(unsigned depth);
   [[nodiscard]] unsigned getDepth() const;
   [[nodiscard]] bool getIsNone() const;
   [[nodiscard]] bool getIsInference() const;
@@ -143,7 +161,6 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsBinary32() const;
   [[nodiscard]] bool getIsBinary64() const;
   [[nodiscard]] bool getIsBinary128() const;
-  [[nodiscard]] bool getIsCChar() const;
   [[nodiscard]] bool getIsUTF8() const;
   [[nodiscard]] bool getIsSignature() const;
   [[nodiscard]] bool getIsTuple() const;

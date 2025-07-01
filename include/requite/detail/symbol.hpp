@@ -42,13 +42,9 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::BINARY128:
     return false;
-  case requite::RootSymbolType::C_CHAR:
-    return false;
   case requite::RootSymbolType::UTF8:
     return false;
   case requite::RootSymbolType::VARIADIC_ARGUMENTS:
-    return false;
-  case requite::RootSymbolType::NULL_:
     return false;
   case requite::RootSymbolType::SCOPE:
     return false;
@@ -116,13 +112,9 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::BINARY128:
     return false;
-  case requite::RootSymbolType::C_CHAR:
-    return false;
   case requite::RootSymbolType::UTF8:
     return false;
   case requite::RootSymbolType::VARIADIC_ARGUMENTS:
-    return false;
-  case requite::RootSymbolType::NULL_:
     return false;
   case requite::RootSymbolType::SCOPE:
     return false;
@@ -275,9 +267,6 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
     break;
   case requite::RootSymbolType::BINARY128:
     ostream << "IEEE 754 binary quad floating point";
-    break;
-  case requite::RootSymbolType::C_CHAR:
-    ostream << "C char";
     break;
   case requite::RootSymbolType::UTF8:
     ostream << "utf8 codeunit";
