@@ -9,8 +9,8 @@
 #include <requite/utility.hpp>
 
 #include <llvm/ADT/StringRef.h>
-#include <magic_enum.hpp>
 #include <llvm/Support/raw_ostream.h>
+#include <magic_enum.hpp>
 
 #include <array>
 #include <cstddef>
@@ -279,7 +279,19 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::ADDRESS:
     return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
            _VALUE_REFLECTIVE_JUNCTION;
-  case Opcode::_ADDRESS_OF_VALUE:
+  case Opcode::_ADDRESS_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
+           _MATTE_JUNCTION;
+  case Opcode::BORROW:
+    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
+           _VALUE_REFLECTIVE_JUNCTION;
+  case Opcode::_BORROW_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
+           _MATTE_JUNCTION;
+  case Opcode::STEAL:
+    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
+           _VALUE_REFLECTIVE_JUNCTION;
+  case Opcode::_STEAL_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
 
@@ -823,8 +835,16 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_at_value";
   case requite::Opcode::ADDRESS:
     return "address";
-  case requite::Opcode::_ADDRESS_OF_VALUE:
-    return "_address_of_value";
+  case requite::Opcode::_ADDRESS_VALUE:
+    return "_address_value";
+  case requite::Opcode::BORROW:
+    return "borrow";
+  case requite::Opcode::_BORROW_VALUE:
+    return "_borrow_value";
+  case requite::Opcode::STEAL:
+    return "steal";
+  case requite::Opcode::_STEAL_VALUE:
+    return "_steal_value";
 
   // ASSIGNMENT
   case requite::Opcode::_INITIALIZE:
@@ -1195,7 +1215,11 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
   case requite::Opcode::AT:
     return requite::Opcode::_AT_VALUE;
   case requite::Opcode::ADDRESS:
-    return requite::Opcode::_ADDRESS_OF_VALUE;
+    return requite::Opcode::_ADDRESS_VALUE;
+  case requite::Opcode::BORROW:
+    return requite::Opcode::_BORROW_VALUE;
+  case requite::Opcode::STEAL:
+    return requite::Opcode::_STEAL_VALUE;
   case requite::Opcode::COPY:
     return requite::Opcode::_COPY_VALUE;
   case requite::Opcode::MOVE:

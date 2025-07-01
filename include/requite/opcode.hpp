@@ -138,7 +138,11 @@ enum class Opcode : unsigned {
   AT,
   _AT_VALUE,
   ADDRESS,
-  _ADDRESS_OF_VALUE,
+  _ADDRESS_VALUE,
+  BORROW,
+  _BORROW_VALUE,
+  STEAL,
+  _STEAL_VALUE,
 
   // ASSIGNMENT
   _INITIALIZE,
@@ -396,7 +400,8 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasUnorderedVariableData(requite::Opcode opcode);
+[[nodiscard]] constexpr bool
+getHasUnorderedVariableData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasOrderedVariableData(requite::Opcode opcode);
 

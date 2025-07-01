@@ -610,9 +610,43 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_ADDRESS_OF_VALUE:
+  case requite::Opcode::_ADDRESS_VALUE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ADDRESS_OF_VALUE)) {
+                      requite::Opcode::_ADDRESS_VALUE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
+  case requite::Opcode::BORROW:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::BORROW)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::_BORROW_VALUE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_BORROW_VALUE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
+  case requite::Opcode::STEAL:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::STEAL)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::_STEAL_VALUE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_STEAL_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
