@@ -1029,6 +1029,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "signed";
   case requite::Opcode::UNSIGNED:
     return "unsigned";
+  case requite::Opcode::BFLOAT16:
+    return "bfloat16";
   case requite::Opcode::BINARY16:
     return "binary16";
   case requite::Opcode::BINARY32:
