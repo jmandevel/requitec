@@ -154,8 +154,6 @@ enum class Opcode : unsigned {
   // MOVE SEMANTICS
   COPY,
   _COPY_VALUE,
-  BORROW,
-  _BORROW_VALUE,
   MOVE,
   _MOVE_VALUE,
   STEAL,

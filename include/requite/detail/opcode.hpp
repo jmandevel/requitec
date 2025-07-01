@@ -282,12 +282,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_ADDRESS_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION;
-  case Opcode::BORROW:
-    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
-           _VALUE_REFLECTIVE_JUNCTION;
-  case Opcode::_BORROW_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
   case Opcode::STEAL:
     return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
            _VALUE_REFLECTIVE_JUNCTION;
@@ -865,10 +859,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "copy";
   case requite::Opcode::_COPY_VALUE:
     return "_copy_value";
-  case requite::Opcode::BORROW:
-    return "borrow";
-  case requite::Opcode::_BORROW_VALUE:
-    return "_borrow_value";
   case requite::Opcode::MOVE:
     return "move";
   case requite::Opcode::_MOVE_VALUE:
@@ -1222,8 +1212,6 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_ADDRESS_VALUE;
   case requite::Opcode::COPY:
     return requite::Opcode::_COPY_VALUE;
-  case requite::Opcode::BORROW:
-    return requite::Opcode::_BORROW_VALUE;
   case requite::Opcode::STEAL:
     return requite::Opcode::_STEAL_VALUE;
   case requite::Opcode::MOVE:
