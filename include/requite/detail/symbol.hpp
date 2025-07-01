@@ -142,8 +142,6 @@ constexpr bool getHasCount(requite::SubSymbolType type) {
     return true;
   case requite::SubSymbolType::REFERENCE:
     return false;
-  case requite::SubSymbolType::STOLEN_REFERENCE:
-    return false;
   case requite::SubSymbolType::FAT_POINTER:
     return false;
   case requite::SubSymbolType::POINTER:
@@ -205,9 +203,6 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
       break;
     case requite::SubSymbolType::REFERENCE:
       ostream << "reference to ";
-      break;
-    case requite::SubSymbolType::STOLEN_REFERENCE:
-      ostream << "stolen reference to ";
       break;
     case requite::SubSymbolType::POINTER:
       ostream << "pointer to ";

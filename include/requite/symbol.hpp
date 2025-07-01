@@ -208,7 +208,6 @@ enum class SubSymbolType {
   NONE,
   ARRAY,
   REFERENCE,
-  STOLEN_REFERENCE,
   POINTER,
   FAT_POINTER
 };

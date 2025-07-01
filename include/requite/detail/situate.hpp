@@ -770,16 +770,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_STOLEN_REFERENCE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_STOLEN_REFERENCE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-    }
-    break;
   case requite::Opcode::_POINTER:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_POINTER)) {
@@ -809,6 +799,14 @@ void Situator::situateExpression(requite::Expression &expression) {
   case requite::Opcode::VOLATILE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::VOLATILE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::STOLEN:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::STOLEN)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
