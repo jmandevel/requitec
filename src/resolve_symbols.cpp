@@ -82,7 +82,7 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
     return true;
   }
   case requite::Opcode::_ADD:
-    return this->inferenceTypeOfNaryValue(out_symbol, scope, value_expression.getBranch());
+    return this->inferenceTypeOfNaryValue(out_symbol, scope, value_expression);
   }
   this->logSourceMessage(value_expression, requite::LogType::ERROR,
                          "failed to inference type of value");
@@ -91,9 +91,30 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
 
 bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
                                        requite::Scope &scope,
-                                       requite::Expression &first) {
+                                       requite::Expression &expression) {
+  requite::Expression &first = expression.getBranch();
+  if (!this->inferenceTypeOfValue(out_symbol, scope, first)) {
+    return false;
+  }
+  for (requite::Expression &branch : first.getNextSubrange()) {
+    requite::Symbol branch_symbol;
+    if (!this->inferenceTypeOfValue(branch_symbol, scope, branch)) {
+      return false;
+    }
+    if (!this->inferenceImplicitCommonType(out_symbol, branch_symbol)) {
+      this->logSourceMessage(
+        expression,
+        requite::LogType::ERROR,
+        "failed to inference implicit common type of nary expression"
+      );
+      return false;
+    }
+  }
+  return true;
+}
 
-                                       }
+bool Context::inferenceImplicitCommonType(requite::Symbol &out_symbol_a,
+                                          const requite::Symbol &symbol_b) {}
 
 bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
                                     requite::Expression &first) {

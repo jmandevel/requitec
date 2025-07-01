@@ -225,7 +225,9 @@ struct Context final : public requite::_ContextLlvmContext {
   inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
                        requite::Expression &value_expression);
   [[nodiscard]] bool
-  inferenceTypeOfNaryValue(requite::Symbol &out_symbol, requite::Scope& scope, requite::Expression& first);
+  inferenceTypeOfNaryValue(requite::Symbol &out_symbol, requite::Scope& scope, requite::Expression& expression);
+  [[nodiscard]] bool
+  inferenceImplicitCommonType(requite::Symbol& out_symbol_a, const requite::Symbol& symbol_b);
   [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags flags,
                                            requite::Expression &first);
 
