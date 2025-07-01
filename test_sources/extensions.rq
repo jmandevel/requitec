@@ -1,0 +1,9 @@
+[function f [signed]->[signed](num:[signed])-->[signed]
+
+    [output] := [input] * [this] * num
+
+]
+
+[entry_point
+    var_with_72 := 4.f(2) := 9
+]
