@@ -99,10 +99,8 @@ bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
     }
     if (!this->inferenceImplicitCommonType(out_symbol, branch_symbol)) {
       this->logSourceMessage(
-        expression,
-        requite::LogType::ERROR,
-        "failed to inference implicit common type of nary expression"
-      );
+          expression, requite::LogType::ERROR,
+          "failed to inference implicit common type of nary expression");
       return false;
     }
   }
@@ -137,26 +135,28 @@ bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
   return is_ok;
 }
 
-void Context::finalizeIfLiteralType(requite::Symbol& symbol) {
-    switch (const requite::RootSymbolType type = symbol.getRoot().getType()) {
-      case requite::RootSymbolType::INTEGER_LITERAL:
-        symbol.getRoot().setAsSigned(this->getAddressDepth());
-        break;
-      case requite::RootSymbolType::FRACTIONAL_LITERAL:
-        symbol.getRoot().setAsBinary64();
-        break;
-      case requite::RootSymbolType::CODEUNIT_LITERAL:
-        symbol.getRoot().setAsUtf8();
-        break;
-      case requite::RootSymbolType::STRING_LITERAL: {
-        requite::SubSymbol& sub = symbol.makeSubSymbol();
-        sub.setType(requite::SubSymbolType::FAT_POINTER);
-        sub.getAttributeFlags().addAttribute(requite::AttributeType::NULL_TERMINATED);
-        symbol.getRoot().setAsUtf8();
-        symbol.getRootAttributeFlags().addAttribute(requite::AttributeType::CONSTANT);
-        break;
-      }
-    }
+void Context::finalizeIfLiteralType(requite::Symbol &symbol) {
+  switch (const requite::RootSymbolType type = symbol.getRoot().getType()) {
+  case requite::RootSymbolType::INTEGER_LITERAL:
+    symbol.getRoot().setAsSigned(this->getAddressDepth());
+    break;
+  case requite::RootSymbolType::FRACTIONAL_LITERAL:
+    symbol.getRoot().setAsBinary64();
+    break;
+  case requite::RootSymbolType::CODEUNIT_LITERAL:
+    symbol.getRoot().setAsUtf8();
+    break;
+  case requite::RootSymbolType::STRING_LITERAL: {
+    requite::SubSymbol &sub = symbol.makeSubSymbol();
+    sub.setType(requite::SubSymbolType::FAT_POINTER);
+    sub.getAttributeFlags().addAttribute(
+        requite::AttributeType::NULL_TERMINATED);
+    symbol.getRoot().setAsUtf8();
+    symbol.getRootAttributeFlags().addAttribute(
+        requite::AttributeType::CONSTANT);
+    break;
   }
+  }
+}
 
 } // namespace requite
