@@ -137,4 +137,26 @@ bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
   return is_ok;
 }
 
+void Context::finalizeIfLiteralType(requite::Symbol& symbol) {
+    switch (const requite::RootSymbolType type = symbol.getRoot().getType()) {
+      case requite::RootSymbolType::INTEGER_LITERAL:
+        symbol.getRoot() = requite::RootSymbol::makeSigned(this->getAddressDepth());
+        break;
+      case requite::RootSymbolType::FRACTIONAL_LITERAL:
+        symbol.getRoot() = requite::RootSymbol::makeBinary64();
+        break;
+      case requite::RootSymbolType::CODEUNIT_LITERAL:
+        symbol.getRoot() = requite::RootSymbol::makeUtf8();
+        break;
+      case requite::RootSymbolType::STRING_LITERAL: {
+        requite::SubSymbol& sub = symbol.makeSubSymbol();
+        sub.setType(requite::SubSymbolType::FAT_POINTER);
+        sub.getAttributeFlags().addAttribute(requite::AttributeType::NULL_TERMINATED);
+        symbol.getRoot() = requite::RootSymbol::makeUtf8();
+        symbol.getRootAttributeFlags().addAttribute(requite::AttributeType::CONSTANT);
+        break;
+      }
+    }
+  }
+
 } // namespace requite

@@ -230,6 +230,7 @@ struct Context final : public requite::_ContextLlvmContext {
   inferenceImplicitCommonType(requite::Symbol& out_symbol_a, const requite::Symbol& symbol_b);
   [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags flags,
                                            requite::Expression &first);
+  void finalizeIfLiteralType(requite::Symbol& symbol);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,
