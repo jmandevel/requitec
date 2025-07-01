@@ -25,9 +25,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     }
     break;
-  case requite::Opcode::__REAL_LITERAL:
+  case requite::Opcode::__FRACTIONAL_LITERAL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__REAL_LITERAL)) {
+                      requite::Opcode::__FRACTIONAL_LITERAL)) {
       REQUITE_UNREACHABLE();
     }
     break;

@@ -62,7 +62,7 @@ struct Expression final {
   [[nodiscard]] static requite::Expression &
   makeOperation(requite::Opcode opcode);
   [[nodiscard]] static requite::Expression &makeInteger();
-  [[nodiscard]] static requite::Expression &makeReal();
+  [[nodiscard]] static requite::Expression &makeFractional();
   [[nodiscard]] static requite::Expression &makeString(llvm::StringRef text);
   [[nodiscard]] static requite::Expression &makeCodeunit(llvm::StringRef text);
   [[nodiscard]] static requite::Expression &
@@ -72,7 +72,7 @@ struct Expression final {
   [[nodiscard]] inline bool getIsNone() const;
   [[nodiscard]] inline bool getIsOperation() const;
   [[nodiscard]] inline bool getIsInteger() const;
-  [[nodiscard]] inline bool getIsReal() const;
+  [[nodiscard]] inline bool getIsFractional() const;
   [[nodiscard]] inline bool getIsNumeric() const;
   [[nodiscard]] inline bool getIsString() const;
   [[nodiscard]] inline bool getIsCodeunit() const;

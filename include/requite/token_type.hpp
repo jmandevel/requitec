@@ -88,7 +88,7 @@ enum class TokenType {
   CODEUNIT_LITERAL, // 'a'
   STRING_LITERAL,   // "Hello, world!"
   INTEGER_LITERAL,  // 12345 16xDEADBEEF 2x1010_0110
-  REAL_LITERAL,     // 3.14 9000.00000000001 10_020.434
+  FRACTIONAL_LITERAL,     // 3.14 9000.00000000001 10_020.434
 
   // "My_name_is_{name}._I_am_{age}_years_old."
 

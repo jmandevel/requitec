@@ -95,7 +95,7 @@ _getFlags(requite::Opcode opcode) {
   // LITERALS
   case Opcode::__INTEGER_LITERAL:
     return _INTERNAL_USE_ONLY | _MATTE_VALUE;
-  case Opcode::__REAL_LITERAL:
+  case Opcode::__FRACTIONAL_LITERAL:
     return _INTERNAL_USE_ONLY | _MATTE_VALUE;
   case Opcode::__STRING_LITERAL:
     return _INTERNAL_USE_ONLY | _MATTE_VALUE;
@@ -669,8 +669,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // LITERALS
   case requite::Opcode::__INTEGER_LITERAL:
     return "__integer_literal";
-  case requite::Opcode::__REAL_LITERAL:
-    return "__real_literal";
+  case requite::Opcode::__FRACTIONAL_LITERAL:
+    return "__fractional_literal";
   case requite::Opcode::__STRING_LITERAL:
     return "__string_literal";
   case requite::Opcode::__CODEUNIT_LITERAL:

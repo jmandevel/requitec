@@ -101,7 +101,7 @@ requite::NumericResult getNumericValue(llvm::StringRef text,
 
   } else if constexpr (std::floating_point<Numeric>) {
     llvm::SmallString<16> clean_text;
-    requite::NumericResult result = requite::cleanRealText(text, clean_text);
+    requite::NumericResult result = requite::cleanFractionalText(text, clean_text);
     std::from_chars(clean_text.begin(), clean_text.end(), out_value, 10);
   } else {
     static_assert(false, "type not supported");
@@ -113,7 +113,7 @@ inline requite::NumericResult
 getNumericValue(llvm::StringRef text, llvm::APFloat &out_value,
                 requite::FloatSemantics semantics) {
   llvm::SmallString<16> buffer;
-  requite::NumericResult result = requite::cleanRealText(text, buffer);
+  requite::NumericResult result = requite::cleanFractionalText(text, buffer);
   if (result != requite::NumericResult::OK) {
     return result;
   }
@@ -123,7 +123,7 @@ getNumericValue(llvm::StringRef text, llvm::APFloat &out_value,
   return result;
 }
 
-requite::NumericResult cleanRealText(llvm::StringRef text,
+requite::NumericResult cleanFractionalText(llvm::StringRef text,
                                       llvm::SmallString<16> &out_clean) {
   bool found_decimal = false;
   for (const char c : text) {

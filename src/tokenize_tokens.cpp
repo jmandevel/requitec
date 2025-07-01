@@ -390,13 +390,13 @@ void Tokenizer::_tokenizeTokens() {
       this->getRanger().startSubToken();
       this->getRanger().incrementChar(1);
       this->getRanger().addColumns(1);
-      bool is_real = false;
+      bool is_fractional = false;
       while (this->getRanger().getIsNumeric()) {
         const char sub_c0 = this->getRanger().getChar(0);
         if (sub_c0 == '.') {
           const char sub_c1 = this->getRanger().getChar(1);
           if (requite::getIsDecimalDigit(sub_c1)) {
-            is_real = true;
+            is_fractional = true;
           } else {
             break;
           }
@@ -404,7 +404,7 @@ void Tokenizer::_tokenizeTokens() {
         this->getRanger().incrementChar(1);
         this->getRanger().addColumns(1);
       }
-      requite::TokenType type = (is_real) ? requite::TokenType::REAL_LITERAL
+      requite::TokenType type = (is_fractional) ? requite::TokenType::FRACTIONAL_LITERAL
                                           : requite::TokenType::INTEGER_LITERAL;
       this->getTokens().push_back(this->getRanger().getSubToken(type));
       continue;

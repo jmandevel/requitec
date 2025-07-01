@@ -765,8 +765,8 @@ requite::Expression &Parser::parsePrecedence0() {
     return this->parseStringLiteral();
   case requite::TokenType::INTEGER_LITERAL:
     return this->parseIntegerLiteral();
-  case requite::TokenType::REAL_LITERAL:
-    return this->parseRealLiteral();
+  case requite::TokenType::FRACTIONAL_LITERAL:
+    return this->parseFractionalLiteral();
   case requite::TokenType::LEFT_INTERPOLATED_STRING_LITERAL:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseInterpolatedString();
@@ -1049,14 +1049,14 @@ requite::Expression &Parser::parseIntegerLiteral() {
   return integer;
 }
 
-requite::Expression &Parser::parseRealLiteral() {
+requite::Expression &Parser::parseFractionalLiteral() {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::REAL_LITERAL);
-  requite::Expression &real = requite::Expression::makeReal();
-  real.setSource(token);
+  REQUITE_ASSERT(token.getType() == requite::TokenType::FRACTIONAL_LITERAL);
+  requite::Expression &fractional = requite::Expression::makeFractional();
+  fractional.setSource(token);
   this->incrementToken(1);
-  return real;
+  return fractional;
 }
 
 requite::Expression &Parser::parseStringLiteral() {

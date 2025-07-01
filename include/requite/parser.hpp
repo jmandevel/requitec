@@ -164,7 +164,7 @@ struct Parser final {
   requite::Expression &parseIntegerLiteral();
 
   [[nodiscard]]
-  requite::Expression &parseRealLiteral();
+  requite::Expression &parseFractionalLiteral();
 
   [[nodiscard]]
   requite::Expression &parseStringLiteral();

@@ -21,12 +21,12 @@ inline bool Expression::getIsInteger() const {
   return this->getOpcode() == requite::Opcode::__INTEGER_LITERAL;
 }
 
-inline bool Expression::getIsReal() const {
-  return this->getOpcode() == requite::Opcode::__REAL_LITERAL;
+inline bool Expression::getIsFractional() const {
+  return this->getOpcode() == requite::Opcode::__FRACTIONAL_LITERAL;
 }
 
 inline bool Expression::getIsNumeric() const {
-  return this->getIsInteger() || this->getIsReal();
+  return this->getIsInteger() || this->getIsFractional();
 }
 
 inline bool Expression::getIsString() const {

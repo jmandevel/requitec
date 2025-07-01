@@ -19,7 +19,7 @@ enum class NumericResult {
   ERROR_BASE_TOO_BIG,
   ERROR_MULTIPLE_DECIMAL_POINT,
   ERROR_INTEGER_WITH_DECIMAL_POINT,
-  ERROR_FLOAT_WITH_BASE
+  ERROR_FRACTIONAL_WITH_BASE
 };
 
 [[nodiscard]] constexpr llvm::StringRef

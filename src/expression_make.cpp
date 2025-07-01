@@ -54,10 +54,10 @@ requite::Expression &Expression::makeInteger()
     return expression;
 }
 
-requite::Expression &Expression::makeReal()
+requite::Expression &Expression::makeFractional()
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::__REAL_LITERAL;
+    expression._opcode = requite::Opcode::__FRACTIONAL_LITERAL;
     return expression;
 }
 
