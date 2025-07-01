@@ -332,10 +332,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_ARRAY:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_BORROWING_REFERENCE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_MOVING_REFERENCE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;    
-  case Opcode::_STEALING_REFERENCE:
+    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL; 
+  case Opcode::_OWNING_REFERENCE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_POINTER:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
@@ -871,10 +869,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_array";
   case requite::Opcode::_BORROWING_REFERENCE:
     return "_borrowing_reference";
-  case requite::Opcode::_MOVING_REFERENCE:
-    return "_moving_reference";
-  case requite::Opcode::_STEALING_REFERENCE:
-    return "_stolen_reference";
+  case requite::Opcode::_OWNING_REFERENCE:
+    return "_owning_reference";
   case requite::Opcode::_POINTER:
     return "_pointer";
   case requite::Opcode::_FAT_POINTER:

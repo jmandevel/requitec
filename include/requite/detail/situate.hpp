@@ -776,19 +776,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_MOVING_REFERENCE:
+  case requite::Opcode::_OWNING_REFERENCE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MOVING_REFERENCE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_STEALING_REFERENCE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_STEALING_REFERENCE)) {
+                      requite::Opcode::_OWNING_REFERENCE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
