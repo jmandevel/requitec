@@ -14,6 +14,9 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::VOID:
     return false;
+  case requite::RootSymbolType::NULL_:
+    return false;
+    return false;
   case requite::RootSymbolType::BOOLEAN:
     return false;
   case requite::RootSymbolType::WORD:
@@ -77,6 +80,8 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
   case requite::RootSymbolType::INFERENCE:
     return false;
   case requite::RootSymbolType::VOID:
+    return false;
+  case requite::RootSymbolType::NULL_:
     return false;
   case requite::RootSymbolType::BOOLEAN:
     return false;
