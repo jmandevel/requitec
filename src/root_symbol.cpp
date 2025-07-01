@@ -218,6 +218,10 @@ bool RootSymbol::getIsUnsignedInteger() const {
   return this->_type == requite::RootSymbolType::UNSIGNED_INTEGER;
 }
 
+bool RootSymbol::getIsBFloat16() const {
+  return this->_type == requite::RootSymbolType::BFLOAT16;
+}
+
 bool RootSymbol::getIsBinary16() const {
   return this->_type == requite::RootSymbolType::BINARY16;
 }

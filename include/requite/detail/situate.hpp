@@ -1380,6 +1380,14 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
     }
     break;
+  case requite::Opcode::BFLOAT16:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::BFLOAT16)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
   case requite::Opcode::BINARY16:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::BINARY16)) {

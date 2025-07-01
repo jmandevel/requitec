@@ -276,6 +276,7 @@ enum class Opcode : unsigned {
   WORD,
   SIGNED_INTEGER,
   UNSIGNED_INTEGER,
+  BFLOAT16,
   BINARY16,
   BINARY32,
   BINARY64,

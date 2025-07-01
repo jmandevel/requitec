@@ -497,6 +497,8 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_SYMBOL;
   case Opcode::UNSIGNED_INTEGER:
     return _MATTE_SYMBOL;
+  case Opcode::BFLOAT16:
+    return _MATTE_SYMBOL;
   case Opcode::BINARY16:
     return _MATTE_SYMBOL;
   case Opcode::BINARY32:

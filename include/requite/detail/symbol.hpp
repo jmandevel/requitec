@@ -22,6 +22,8 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return true;
   case requite::RootSymbolType::UNSIGNED_INTEGER:
     return true;
+  case requite::RootSymbolType::BFLOAT16:
+    return false;
   case requite::RootSymbolType::BINARY16:
     return false;
   case requite::RootSymbolType::BINARY32:
@@ -83,6 +85,8 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
   case requite::RootSymbolType::SIGNED_INTEGER:
     return false;
   case requite::RootSymbolType::UNSIGNED_INTEGER:
+    return false;
+  case requite::RootSymbolType::BFLOAT16:
     return false;
   case requite::RootSymbolType::BINARY16:
     return false;
@@ -241,6 +245,9 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
     break;
   case requite::RootSymbolType::UNSIGNED_INTEGER:
     ostream << "unsigned integer with depth" << root.getDepth();
+    break;
+  case requite::RootSymbolType::BFLOAT16:
+    ostream << "IEEE 754 binary half floating point";
     break;
   case requite::RootSymbolType::BINARY16:
     ostream << "IEEE 754 binary half floating point";
