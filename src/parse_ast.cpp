@@ -487,8 +487,6 @@ requite::Expression &Parser::parsePrecedence3() {
         [[fallthrough]];
       case requite::TokenType::ARROW_OPERATOR:
         [[fallthrough]];
-      case requite::TokenType::LONG_ARROW_OPERATOR:
-        precedence_parser.appendBranch(this->parsePrecedence1());
       default:
         break;
       }
@@ -506,8 +504,6 @@ requite::Expression &Parser::parsePrecedence3() {
         [[fallthrough]];
       case requite::TokenType::ARROW_OPERATOR:
         [[fallthrough]];
-      case requite::TokenType::LONG_ARROW_OPERATOR:
-        precedence_parser.appendBranch(this->parsePrecedence1());
       default:
         break;
       }
@@ -712,13 +708,7 @@ requite::Expression &Parser::parsePrecedence1() {
     case requite::TokenType::ARROW_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(
-          *this, requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE);
-      precedence_parser.appendBranch(this->parsePrecedence0());
-      continue;
-    case requite::TokenType::LONG_ARROW_OPERATOR:
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseBinary(
-          *this, requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL);
+          *this, requite::Opcode::_EXTEND);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     default:

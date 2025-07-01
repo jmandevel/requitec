@@ -179,9 +179,7 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
 
   // EXTENSIONS
-  case Opcode::_EXTENSION_SYMBOL_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_EXTENSION_SYMBOL_OF_SYMBOL:
+  case Opcode::_EXTEND:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
 
   // BIND
@@ -743,10 +741,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_member_symbol_of_symbol_path";
 
   // EXTENSIONS
-  case requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE:
-    return "_EXTENSION_symbol_of_value";
-  case requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL:
-    return "_EXTENSION_symbol_of_symbol";
+  case requite::Opcode::_EXTEND:
+    return "_extend";
 
   // BIND
   case requite::Opcode::_BIND_VALUE:

@@ -238,24 +238,13 @@ void Situator::situateExpression(requite::Expression &expression) {
                                   requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
-  case requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE:
+  case requite::Opcode::_EXTEND:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXTENSION_SYMBOL_OF_VALUE)) {
+                      requite::Opcode::_EXTEND)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
                                     requite::Situation::MATTE_VALUE,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXTENSION_SYMBOL_OF_SYMBOL)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
                                     requite::Situation::MATTE_SYMBOL>(
           expression);
     }
@@ -1020,7 +1009,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_SYMBOL,
+                                  requite::Situation::SYMBOL_NAME,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_LOCAL_STATEMENT>(
           expression);
@@ -1032,8 +1021,8 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<
-          SITUATION_PARAM, 3, requite::Situation::MATTE_SYMBOL,
-          requite::Situation::MATTE_SYMBOL, requite::Situation::MATTE_SYMBOL,
+          SITUATION_PARAM, 2, requite::Situation::SYMBOL_NAME,
+          requite::Situation::MATTE_SYMBOL,
           requite::Situation::MATTE_LOCAL_STATEMENT>(expression);
     }
     break;
@@ -1043,8 +1032,8 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<
-          SITUATION_PARAM, 3, requite::Situation::MATTE_SYMBOL,
-          requite::Situation::MATTE_SYMBOL, requite::Situation::MATTE_SYMBOL,
+          SITUATION_PARAM, 2, requite::Situation::SYMBOL_NAME,
+          requite::Situation::MATTE_SYMBOL,
           requite::Situation::MATTE_LOCAL_STATEMENT>(expression);
     }
     break;
