@@ -49,9 +49,9 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
     out_symbol.getRoot().setAsSigned(depth);
     return true;
   }
-  case requite::Opcode::_BORROWING_REFERENCE: {
+  case requite::Opcode::_REFERENCE: {
     requite::SubSymbol &sub = out_symbol.makeSubSymbol();
-    sub.setType(requite::SubSymbolType::BORROWING_REFERENCE);
+    sub.setType(requite::SubSymbolType::REFERENCE);
     return this->resolveSymbol(out_symbol, scope,
                                symbol_expression.getBranch());
   }
@@ -108,7 +108,9 @@ bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
 }
 
 bool Context::inferenceImplicitCommonType(requite::Symbol &out_symbol_a,
-                                          const requite::Symbol &symbol_b) {}
+                                          const requite::Symbol &symbol_b) {
+                                            return true;
+                                          }
 
 bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
                                     requite::Expression &first) {

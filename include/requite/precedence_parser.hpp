@@ -17,6 +17,7 @@ struct PrecedenceParser final {
   requite::Expression *_operation_ptr = nullptr;
   requite::Expression *_last_ptr = nullptr;
 
+  void parseDoubleUnary(requite::Parser &parser, requite::Opcode opcode);
   void parseUnary(requite::Parser &parser, requite::Opcode opcode);
   void parseBinary(requite::Parser &parser, requite::Opcode opcode);
   void parseBinaryCombination(requite::Parser &parser, requite::Opcode opcode);

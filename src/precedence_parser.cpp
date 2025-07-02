@@ -8,6 +8,28 @@
 
 namespace requite {
 
+void PrecedenceParser::parseDoubleUnary(requite::Parser &parser,
+                                        requite::Opcode opcode) {
+  const requite::Token &token = parser.getToken();
+  parser.incrementToken(1);
+  requite::Expression &operation0 = requite::Expression::makeOperation(opcode);
+  operation0.setSource(token);
+  this->appendBranch(operation0);
+  if (!this->getHasOuter()) {
+    this->_outer_ptr = &operation0;
+  }
+  this->_operation_ptr = &operation0;
+  this->_last_ptr = nullptr;
+  requite::Expression &operation1 = requite::Expression::makeOperation(opcode);
+  operation1.setSource(token);
+  this->appendBranch(operation1);
+  if (!this->getHasOuter()) {
+    this->_outer_ptr = &operation1;
+  }
+  this->_operation_ptr = &operation1;
+  this->_last_ptr = nullptr;
+}
+
 void PrecedenceParser::parseUnary(requite::Parser &parser,
                                   requite::Opcode opcode) {
   const requite::Token &token = parser.getToken();

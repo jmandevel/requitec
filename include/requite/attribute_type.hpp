@@ -18,6 +18,7 @@ enum class AttributeType {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
+  OWNING,
   TEMPLATE,
   PRIVATE,
   PROTECTED,

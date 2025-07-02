@@ -22,6 +22,8 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
     return requite::AttributeType::ATOMIC;
   case requite::Opcode::NULL_TERMINATED:
     return requite::AttributeType::NULL_TERMINATED;
+  case requite::Opcode::OWNING:
+    return requite::AttributeType::OWNING;
   case requite::Opcode::TEMPLATE:
     return requite::AttributeType::TEMPLATE;
   case requite::Opcode::PRIVATE:
@@ -66,6 +68,8 @@ constexpr std::string_view getName(requite::AttributeType type) {
     return "builtin atomic";
   case requite::AttributeType::NULL_TERMINATED:
     return "builtin null_terminated";
+  case requite::AttributeType::OWNING:
+    return "builtin owning";
   case requite::AttributeType::TEMPLATE:
     return "builtin template";
   case requite::AttributeType::PRIVATE:
@@ -107,6 +111,8 @@ constexpr bool getIsTypeAttribute(requite::AttributeType type) {
   case requite::AttributeType::VOLATILE:
     return true;
   case requite::AttributeType::NULL_TERMINATED:
+    return true;
+  case requite::AttributeType::OWNING:
     return true;
   case requite::AttributeType::TEMPLATE:
     return false;

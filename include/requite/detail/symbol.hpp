@@ -152,9 +152,7 @@ constexpr bool getHasCount(requite::SubSymbolType type) {
     return false;
   case requite::SubSymbolType::ARRAY:
     return true;
-  case requite::SubSymbolType::BORROWING_REFERENCE:
-    return false;
-  case requite::SubSymbolType::OWNING_REFERENCE:
+  case requite::SubSymbolType::REFERENCE:
     return false;
   case requite::SubSymbolType::FAT_POINTER:
     return false;
@@ -182,6 +180,9 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
     }
     if (attributes.getHasAttribute(requite::AttributeType::ATOMIC)) {
       ostream << "atomic ";
+    }
+    if (attributes.getHasAttribute(requite::AttributeType::OWNING)) {
+      ostream << "owning ";
     }
     if (attributes.getHasAttribute(requite::AttributeType::NULL_TERMINATED)) {
       ostream << "null-terminated ";
@@ -215,11 +216,8 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
         ostream << sub.getCount() << " count array of ";
       }
       break;
-    case requite::SubSymbolType::BORROWING_REFERENCE:
-      ostream << "borrowing reference to ";
-      break;
-    case requite::SubSymbolType::OWNING_REFERENCE:
-      ostream << "owning reference to ";
+    case requite::SubSymbolType::REFERENCE:
+      ostream << "reference to ";
       break;
     case requite::SubSymbolType::POINTER:
       ostream << "pointer to ";

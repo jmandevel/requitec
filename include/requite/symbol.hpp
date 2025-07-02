@@ -220,8 +220,7 @@ struct RootSymbol final {
 enum class SubSymbolType {
   NONE,
   ARRAY,
-  BORROWING_REFERENCE,
-  OWNING_REFERENCE,
+  REFERENCE,
   POINTER,
   FAT_POINTER
 };

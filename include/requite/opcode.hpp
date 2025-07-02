@@ -161,8 +161,7 @@ enum class Opcode : unsigned {
 
   // SUBTYPE
   _ARRAY,
-  _BORROWING_REFERENCE,
-  _OWNING_REFERENCE,
+  _REFERENCE,
   _POINTER,
   _FAT_POINTER,
 
@@ -172,6 +171,7 @@ enum class Opcode : unsigned {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
+  OWNING,
 
   // FIELD RULES
   _POSITIONAL_FIELDS_END,

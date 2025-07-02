@@ -331,10 +331,8 @@ _getFlags(requite::Opcode opcode) {
   // SUBTYPE
   case Opcode::_ARRAY:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_BORROWING_REFERENCE:
+  case Opcode::_REFERENCE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL; 
-  case Opcode::_OWNING_REFERENCE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_POINTER:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_FAT_POINTER:
@@ -350,6 +348,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::ATOMIC:
     return _MATTE_VALUE;
   case Opcode::NULL_TERMINATED:
+    return _MATTE_VALUE;
+  case Opcode::OWNING:
     return _MATTE_VALUE;
 
   // FIELD RULES
@@ -867,10 +867,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // SUBTYPE
   case requite::Opcode::_ARRAY:
     return "_array";
-  case requite::Opcode::_BORROWING_REFERENCE:
-    return "_borrowing_reference";
-  case requite::Opcode::_OWNING_REFERENCE:
-    return "_owning_reference";
+  case requite::Opcode::_REFERENCE:
+    return "_reference";
   case requite::Opcode::_POINTER:
     return "_pointer";
   case requite::Opcode::_FAT_POINTER:
@@ -887,6 +885,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "atomic";
   case requite::Opcode::NULL_TERMINATED:
     return "null_terminated";
+  case requite::Opcode::OWNING:
+    return "owning";
 
   // FIELD RULES
   case requite::Opcode::_POSITIONAL_FIELDS_END:

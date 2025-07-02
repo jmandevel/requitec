@@ -766,19 +766,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situate_ArrayExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_BORROWING_REFERENCE:
+  case requite::Opcode::_REFERENCE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BORROWING_REFERENCE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_OWNING_REFERENCE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_OWNING_REFERENCE)) {
+                      requite::Opcode::_REFERENCE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
@@ -831,6 +821,14 @@ void Situator::situateExpression(requite::Expression &expression) {
   case requite::Opcode::NULL_TERMINATED:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::NULL_TERMINATED)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+    }
+    break;
+  case requite::Opcode::OWNING:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::OWNING)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
