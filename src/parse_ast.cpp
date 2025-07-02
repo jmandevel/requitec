@@ -713,8 +713,7 @@ requite::Expression &Parser::parsePrecedence1() {
       continue;
     case requite::TokenType::ARROW_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseBinary(
-          *this, requite::Opcode::_EXTEND);
+      precedence_parser.parseBinary(*this, requite::Opcode::_EXTEND);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     default:
