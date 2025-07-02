@@ -78,39 +78,74 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
     return true;
   }
   case requite::Opcode::_ADD:
-    return this->inferenceTypeOfNaryValue(out_symbol, scope, value_expression);
+    return this->inferenceTypeOfNaryArithmeticValue(out_symbol, scope,
+                                                    value_expression);
   }
   this->logSourceMessage(value_expression, requite::LogType::ERROR,
                          "failed to inference type of value");
   return false;
 }
 
-bool Context::inferenceTypeOfNaryValue(requite::Symbol &out_symbol,
-                                       requite::Scope &scope,
-                                       requite::Expression &expression) {
+bool Context::inferenceTypeOfNaryArithmeticValue(
+    requite::Symbol &out_symbol, requite::Scope &scope,
+    requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();
   if (!this->inferenceTypeOfValue(out_symbol, scope, first)) {
     return false;
   }
+  if (!out_symbol.getHasOnlyReferenceSubtypes()) {
+    return false;
+  }
+  out_symbol.getSubs().clear();
+  out_symbol.getRootAttributeFlags().clear();
+  out_symbol.getRootAttributeFlags().addAttribute(
+      requite::AttributeType::CONSTANT);
   for (requite::Expression &branch : first.getNextSubrange()) {
     requite::Symbol branch_symbol;
     if (!this->inferenceTypeOfValue(branch_symbol, scope, branch)) {
       return false;
     }
-    if (!this->inferenceImplicitCommonType(out_symbol, branch_symbol)) {
-      this->logSourceMessage(
-          expression, requite::LogType::ERROR,
-          "failed to inference implicit common type of nary expression");
+    if (!branch_symbol.getHasOnlyReferenceSubtypes()) {
       return false;
     }
+    const requite::RootSymbolType a_type = out_symbol.getRoot().getType();
+    const requite::RootSymbolType b_type = branch_symbol.getRoot().getType();
+    if (requite::getIsLiteral(a_type) && requite::getIsLiteral(b_type)) {
+      if (a_type != b_type) {
+        return false;
+      }
+      continue;
+    }
+    if (a_type == requite::RootSymbolType::INTEGER_LITERAL) {
+      if (!requite::getIsInteger(b_type)) {
+        return false;
+      }
+      out_symbol.getRoot() = branch_symbol.getRoot();
+      continue;
+    }
+    if (b_type == requite::RootSymbolType::INTEGER_LITERAL) {
+      if (!requite::getIsInteger(a_type)) {
+        return false;
+      }
+      continue;
+    }
+    if (a_type == requite::RootSymbolType::FRACTIONAL_LITERAL) {
+      if (!requite::getIsFloat(b_type)) {
+        return false;
+      }
+      out_symbol.getRoot() = branch_symbol.getRoot();
+      continue;
+    }
+    if (b_type == requite::RootSymbolType::FRACTIONAL_LITERAL) {
+      if (!requite::getIsFloat(a_type)) {
+        return false;
+      }
+      continue;
+    }
+    return false;
   }
   return true;
 }
-
-bool Context::inferenceImplicitCommonType(requite::Symbol &out_symbol_a,
-                                          const requite::Symbol &symbol_b) {
-                                            return true;
-                                          }
 
 bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
                                     requite::Expression &first) {

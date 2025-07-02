@@ -68,6 +68,14 @@ enum class RootSymbolType {
 
 [[nodiscard]] constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type);
 
+[[nodiscard]] constexpr bool getIsLiteral(requite::RootSymbolType type);
+
+[[nodiscard]] constexpr bool getIsInteger(requite::RootSymbolType type);
+
+[[nodiscard]] constexpr bool getIsFloat(requite::RootSymbolType type);
+
+[[nodiscard]] constexpr bool getIsCodeunit(requite::RootSymbolType type);
+
 struct Signature;
 struct Tuple;
 struct AnonymousObject;
@@ -277,8 +285,8 @@ struct Symbol {
   Self &operator=(Self &&rhs) = default;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
-  [[nodiscard]] bool getIsSameDecayed(const Self& rhs) const;
   [[nodiscard]] bool getIsEmpty() const;
+  [[nodiscard]] bool getHasOnlyReferenceSubtypes() const;
   [[nodiscard]] requite::RootSymbol &getRoot();
   [[nodiscard]] const requite::RootSymbol &getRoot() const;
   [[nodiscard]] requite::AttributeFlags &getRootAttributeFlags();
@@ -292,7 +300,6 @@ struct Symbol {
   [[nodiscard]] bool getHasResolvedAlias() const;
   [[nodiscard]] requite::Alias& getResolvedAlias();
   [[nodiscard]] const requite::Alias& getResolvedAlias() const;
-
   [[nodiscard]] bool getIsPointer() const;
   [[nodiscard]] bool getIsInteger() const;
   [[nodiscard]] bool getIsFloat() const;

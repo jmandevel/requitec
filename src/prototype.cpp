@@ -38,6 +38,7 @@ bool Context::prototypeLocal(requite::Scope &scope,
   if (!this->inferenceTypeOfValue(type, scope, value_expression)) {
     return false;
   }
+  this->finalizeIfLiteralType(type);
   return true;
 }
 

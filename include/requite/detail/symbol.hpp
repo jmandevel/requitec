@@ -146,6 +146,30 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
   REQUITE_UNREACHABLE();
 }
 
+constexpr bool getIsLiteral(requite::RootSymbolType type) {
+  return type == requite::RootSymbolType::INTEGER_LITERAL ||
+         type == requite::RootSymbolType::FRACTIONAL_LITERAL ||
+         type == requite::RootSymbolType::CODEUNIT_LITERAL ||
+         type == requite::RootSymbolType::STRING_LITERAL;
+}
+
+constexpr bool getIsInteger(requite::RootSymbolType type) {
+  return type == requite::RootSymbolType::SIGNED ||
+         type == requite::RootSymbolType::UNSIGNED;
+}
+
+constexpr bool getIsFloat(requite::RootSymbolType type) {
+  return type == requite::RootSymbolType::BFLOAT16 ||
+         type == requite::RootSymbolType::BINARY16 ||
+         type == requite::RootSymbolType::BINARY32 ||
+         type == requite::RootSymbolType::BINARY64 ||
+         type == requite::RootSymbolType::BINARY128;
+}
+
+constexpr bool getIsCodeunit(requite::RootSymbolType type) {
+  return type == requite::RootSymbolType::UTF8;
+}
+
 constexpr bool getHasCount(requite::SubSymbolType type) {
   switch (type) {
   case requite::SubSymbolType::NONE:

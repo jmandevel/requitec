@@ -25,13 +25,18 @@ bool Symbol::operator!=(const requite::Symbol &rhs) const {
   return rhs._root != this->_root || rhs._subs != this->_subs;
 }
 
-bool Symbol::getIsSameDecayed(const Self &rhs) const {
-  return false; // TODO
-}
-
 bool Symbol::getIsEmpty() const {
   return this->_root.getIsNone() &&
          !this->_root_attributes.getHasAnyAttribute() && this->_subs.empty();
+}
+
+bool Symbol::getHasOnlyReferenceSubtypes() const {
+  for (const requite::SubSymbol& sub : this->getSubs()) {
+    if (sub.getType() != requite::SubSymbolType::REFERENCE) {
+      return false;
+    }
+  }
+  return true;
 }
 
 requite::RootSymbol &Symbol::getRoot() { return this->_root; }
