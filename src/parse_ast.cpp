@@ -555,19 +555,6 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       std::ignore = this->checkIsNormativeRequiteOk();
-      this->getContext().logSourceMessage(
-        token,
-        requite::LogType::ERROR,
-        "double reference"
-      );
-      this->setNotOk();
-      precedence_parser.parseUnary(*this, requite::Opcode::__ERROR);
-      continue;
-    case requite::TokenType::DOLLAR_OPERATOR:
-      if (!token.getHasUnaryOperatorSpacing()) {
-        break;
-      }
-      std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_OWNING_REFERENCE);
       continue;
     case requite::TokenType::STAR_OPERATOR:
