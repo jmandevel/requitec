@@ -41,6 +41,26 @@ bool Context::prototypeLocal(requite::Local &local) {
   return true;
 }
 
+bool Context::prototypeExit(requite::Procedure &procedure,
+                            requite::Scope &scope,
+                            requite::Expression &expression) {
+  requite::Symbol type;
+  requite::Expression& branch = expression.getBranch();
+  if (!this->inferenceTypeOfValue(type, scope, branch)) {
+    return false;
+  }
+  if (!type.getIsInteger() ||
+      type.getRoot().getDepth() != this->getAddressDepth()) {
+    this->logSourceMessage(
+      branch,
+      requite::LogType::ERROR,
+      "invalid exit type"      
+    );
+    return false;
+  }
+  return true;
+}
+
 bool Context::prototypeProcedureBody(requite::Procedure &procedure,
                                      requite::Expression &first_statement) {
   bool is_ok = true;
@@ -53,6 +73,10 @@ bool Context::prototypeProcedureBody(requite::Procedure &procedure,
         is_ok = false;
       }
       break;
+    case requite::Opcode::EXIT:
+      if (!this->prototypeExit(procedure, scope, statement)) {
+        is_ok = false;
+      }
     default:
       break;
     }

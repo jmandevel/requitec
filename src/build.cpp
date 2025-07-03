@@ -59,7 +59,6 @@ bool Builder::buildStatement(requite::Expression &statement) {
 
 bool Builder::buildStatementExit(requite::Expression &statement) {
   REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::EXIT);
-  // TODO: check inside entry_point
   requite::Expression &branch = statement.getBranch();
   requite::Symbol return_type;
   return_type.getRoot().setAsSigned(64);

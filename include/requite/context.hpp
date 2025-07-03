@@ -201,13 +201,15 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool tabulate_Initialize(requite::Module &module,
                                          requite::Scope &scope,
                                          requite::Expression &expression);
-  [[nodiscard]] bool
-  tabulateLocalExpressions(requite::Module &module, requite::Scope& scope,
-                        requite::Expression &first);
+  [[nodiscard]] bool tabulateLocalExpressions(requite::Module &module,
+                                              requite::Scope &scope,
+                                              requite::Expression &first);
 
   // prototype.cpp
   [[nodiscard]] bool prototypeEntryPoint(requite::Procedure &procedure);
   [[nodiscard]] bool prototypeLocal(requite::Local &local);
+  [[nodiscard]] bool prototypeExit(requite::Procedure &procedure, requite::Scope& scope,
+                                   requite::Expression &expression);
   [[nodiscard]] bool
   prototypeProcedureBody(requite::Procedure &procedure,
                          requite::Expression &first_statement);
@@ -239,7 +241,8 @@ struct Context final : public requite::_ContextLlvmContext {
                                     requite::Expression &call_expression);
 
   // evaluate_values.cpp
-  [[nodiscard]] bool evaluateName(llvm::StringRef &out_name, requite::Scope &scope,
+  [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
+                                  requite::Scope &scope,
                                   requite::Expression &value_expression);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
