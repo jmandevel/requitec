@@ -100,7 +100,7 @@ requite::NumericResult getNumericValue(llvm::StringRef text,
     llvm::APInt min_upper_base =
         llvm::APInt(bit_width, requite::MIN_UPPER_BASE);
     const llvm::APInt unsigned_max = llvm::APInt::getMaxValue(bit_width);
-    llvm::APInt base = llvm::APInt(10, 0);
+    llvm::APInt base = llvm::APInt(bit_width, 10);
     llvm::APInt max_digit_multiplier = base - 1;
     llvm::APInt max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
     llvm::APInt max_before_add = unsigned_max - max_digit_multiplier;
