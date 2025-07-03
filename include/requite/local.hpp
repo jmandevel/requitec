@@ -5,7 +5,6 @@
 #pragma once
 
 #include <requite/symbol.hpp>
-#include <requite/variable_type.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -23,21 +22,20 @@ struct Expression;
 struct Node;
 struct Scope;
 
-struct OrderedVariable final {
-  using Self = requite::OrderedVariable;
+struct Local final {
+  using Self = requite::Local;
 
   std::string _name = {};
-  requite::VariableType _type = requite::VariableType::NONE;
   requite::Expression *_expression_ptr = nullptr;
   requite::Symbol _data_type = {};
   requite::Scope *_containing_scope_ptr = nullptr;
   llvm::AllocaInst *_llvm_alloca_ptr = nullptr;
 
-  // ordered_variable.cpp
-  OrderedVariable() = default;
-  OrderedVariable(const Self &) = delete;
-  OrderedVariable(Self &&) = delete;
-  ~OrderedVariable() = default;
+  // local.cpp
+  Local() = default;
+  Local(const Self &) = delete;
+  Local(Self &&) = delete;
+  ~Local() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] bool operator==(const Self &) const;
@@ -45,8 +43,6 @@ struct OrderedVariable final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  void setType(requite::VariableType type);
-  [[nodiscard]] requite::VariableType getType() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();

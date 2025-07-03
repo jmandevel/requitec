@@ -10,8 +10,8 @@
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
 #include <requite/table.hpp>
-#include <requite/ordered_variable.hpp>
-#include <requite/unordered_variable.hpp>
+#include <requite/local.hpp>
+#include <requite/global.hpp>
 
 namespace requite {
 
@@ -54,16 +54,22 @@ requite::Alias &Context::makeAlias() {
   return requite::getRef(alias_uptr);
 }
 
-requite::OrderedVariable &Context::makeOrderedVariable() {
-  std::unique_ptr<requite::OrderedVariable> &ordered_variable_uptr =
-      this->_ordered_variable_uptrs.emplace_back(std::make_unique<requite::OrderedVariable>());
-  return requite::getRef(ordered_variable_uptr);
+requite::Local &Context::makeLocal() {
+  std::unique_ptr<requite::Local> &local_uptr =
+      this->_local_uptrs.emplace_back(std::make_unique<requite::Local>());
+  return requite::getRef(local_uptr);
 }
 
-requite::UnorderedVariable &Context::makeUnorderedVariable() {
-  std::unique_ptr<requite::UnorderedVariable> &unordered_variable_uptr =
-      this->_unordered_variable_uptrs.emplace_back(std::make_unique<requite::UnorderedVariable>());
-  return requite::getRef(unordered_variable_uptr);
+requite::Global &Context::makeGlobal() {
+  std::unique_ptr<requite::Global> &global_uptr =
+      this->_global_uptrs.emplace_back(std::make_unique<requite::Global>());
+  return requite::getRef(global_uptr);
+}
+
+requite::Property &Context::makeProperty() {
+  std::unique_ptr<requite::Property> &property_uptr =
+      this->_property_uptrs.emplace_back(std::make_unique<requite::Property>());
+  return requite::getRef(property_uptr);
 }
 
 requite::AnonymousFunction &Context::makeAnonymousFunction() {
@@ -134,22 +140,31 @@ Context::getAliasUptrs() const {
   return this->_alias_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::OrderedVariable>> &Context::getOrderedVariableUptrs() {
-  return this->_ordered_variable_uptrs;
+std::vector<std::unique_ptr<requite::Local>> &Context::getLocalUptrs() {
+  return this->_local_uptrs;
 }
 
-const std::vector<std::unique_ptr<requite::OrderedVariable>> &
-Context::getOrderedVariableUptrs() const {
-  return this->_ordered_variable_uptrs;
+const std::vector<std::unique_ptr<requite::Local>> &
+Context::getLocalUptrs() const {
+  return this->_local_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::UnorderedVariable>> &Context::getUnorderedVariableUptrs() {
-  return this->_unordered_variable_uptrs;
+std::vector<std::unique_ptr<requite::Global>> &Context::getGlobalUptrs() {
+  return this->_global_uptrs;
 }
 
-const std::vector<std::unique_ptr<requite::UnorderedVariable>> &
-Context::getUnorderedVariableUptrs() const {
-  return this->_unordered_variable_uptrs;
+const std::vector<std::unique_ptr<requite::Global>> &
+Context::getGlobalUptrs() const {
+  return this->_global_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::Property>> &Context::getPropertyUptrs() {
+  return this->_property_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::Property>> &
+Context::getPropertyUptrs() const {
+  return this->_property_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::AnonymousFunction>> &

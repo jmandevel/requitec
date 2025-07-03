@@ -17,7 +17,7 @@ namespace requite {
 
 struct Expression;
 struct Procedure;
-struct UnorderedVariable;
+struct Global;
 
 struct Object final {
   using Self = requite::Object;
@@ -30,7 +30,7 @@ struct Object final {
   requite::Procedure *_first_constructor_ptr = nullptr;
   requite::Module *_module_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
-  std::vector<requite::UnorderedVariable *> _property_ptrs = {};
+  std::vector<requite::Global *> _property_ptrs = {};
 
   // object.cpp
   Object();

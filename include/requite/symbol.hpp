@@ -55,8 +55,8 @@ enum class RootSymbolType {
   OBJECT,
   TABLE,
   ALIAS,
-  ORDERED_VARIABLE,
-  UNORDERED_VARIABLE,
+  LOCAL,
+  GLOBAL,
   PROCEDURE,
   NAMED_PROCEDURE_GROUP,
   MODULE,
@@ -83,8 +83,8 @@ struct Scope;
 struct Object;
 struct Table;
 struct Alias;
-struct OrderedVariable;
-struct UnorderedVariable;
+struct Local;
+struct Global;
 struct Procedure;
 struct NamedProcedureGroup;
 struct Module;
@@ -104,8 +104,8 @@ struct RootSymbol final {
     requite::Object *_object_ptr;
     requite::Table *_table_ptr;
     requite::Alias *_alias_ptr;
-    requite::OrderedVariable *_ordered_variable_ptr;
-    requite::UnorderedVariable *_unordered_variable_ptr;
+    requite::Local *_local_ptr;
+    requite::Global *_global_ptr;
     requite::Procedure *_procedure_ptr;
     requite::NamedProcedureGroup *_named_procedure_group_ptr;
     requite::Module *_module_ptr;
@@ -125,8 +125,8 @@ struct RootSymbol final {
   void setAsUser(requite::Object &object);
   void setAsUser(requite::Table &table);
   void setAsUser(requite::Alias &alias);
-  void setAsUser(requite::OrderedVariable &variable);
-  void setAsUser(requite::UnorderedVariable &variable);
+  void setAsUser(requite::Local &variable);
+  void setAsUser(requite::Global &variable);
   void setAsUser(requite::Procedure &procedure);
   void
   setAsUser(requite::NamedProcedureGroup &procedure_group);
@@ -177,8 +177,8 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsObject() const;
   [[nodiscard]] bool getIsTable() const;
   [[nodiscard]] bool getIsAlias() const;
-  [[nodiscard]] bool getIsOrderedVariable() const;
-  [[nodiscard]] bool getIsUnorderedVariable() const;
+  [[nodiscard]] bool getIsLocal() const;
+  [[nodiscard]] bool getIsGlobal() const;
   [[nodiscard]] bool getIsProcedure() const;
   [[nodiscard]] bool getIsNamedProcedureGroup() const;
   [[nodiscard]] bool getIsModule() const;
@@ -203,12 +203,12 @@ struct RootSymbol final {
   [[nodiscard]] bool getHasAlias() const;
   [[nodiscard]] const requite::Alias &getAlias() const;
   [[nodiscard]] requite::Alias &getAlias();
-  [[nodiscard]] bool getHasOrderedVariable() const;
-  [[nodiscard]] requite::OrderedVariable &getOrderedVariable();
-  [[nodiscard]] const requite::OrderedVariable &getOrderedVariable() const;
-  [[nodiscard]] bool getHasUnorderedVariable() const;
-  [[nodiscard]] requite::UnorderedVariable &getUnorderedVariable();
-  [[nodiscard]] const requite::UnorderedVariable &getUnorderedVariable() const;
+  [[nodiscard]] bool getHasLocal() const;
+  [[nodiscard]] requite::Local &getLocal();
+  [[nodiscard]] const requite::Local &getLocal() const;
+  [[nodiscard]] bool getHasGlobal() const;
+  [[nodiscard]] requite::Global &getGlobal();
+  [[nodiscard]] const requite::Global &getGlobal() const;
   [[nodiscard]] bool getHasProcedure() const;
   [[nodiscard]] const requite::Procedure &getProcedure() const;
   [[nodiscard]] requite::Procedure &getProcedure();

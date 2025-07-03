@@ -1,6 +1,6 @@
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
-#include <requite/ordered_variable.hpp>
+#include <requite/local.hpp>
 #include <requite/scope.hpp>
 
 namespace requite {
@@ -35,10 +35,9 @@ bool Context::tabulateLocal(requite::Module &module, requite::Scope &scope,
     this->logErrorAlreadySymbolOfName(name_expression);
     return false;
   }
-  requite::OrderedVariable &local = this->makeOrderedVariable();
-  local.setType(requite::VariableType::LOCAL);
+  requite::Local &local = this->makeLocal();
   local.setExpression(expression);
-  expression.setOrderedVariable(local);
+  expression.setLocal(local);
   local.setName(name);
   scope.addInternalSymbol(local);
   return true;

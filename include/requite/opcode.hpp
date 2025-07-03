@@ -398,9 +398,9 @@ getUniversalizedSymbol(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getHasUnorderedVariableData(requite::Opcode opcode);
+getHasGlobalData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasOrderedVariableData(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getHasLocalData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getHasAnonymousFunctionData(requite::Opcode opcode);

@@ -15,12 +15,13 @@
 #include <requite/node.hpp>
 #include <requite/object.hpp>
 #include <requite/opcode.hpp>
-#include <requite/ordered_variable.hpp>
+#include <requite/local.hpp>
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
-#include <requite/unordered_variable.hpp>
+#include <requite/global.hpp>
+#include <requite/property.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -74,10 +75,12 @@ struct Context final : public requite::_ContextLlvmContext {
       _named_procedure_group_uptrs = {};
   std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
   std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
-  std::vector<std::unique_ptr<requite::UnorderedVariable>>
-      _unordered_variable_uptrs = {};
-  std::vector<std::unique_ptr<requite::OrderedVariable>>
-      _ordered_variable_uptrs = {};
+  std::vector<std::unique_ptr<requite::Global>>
+      _global_uptrs = {};
+  std::vector<std::unique_ptr<requite::Property>>
+      _property_uptrs = {};
+  std::vector<std::unique_ptr<requite::Local>>
+      _local_uptrs = {};
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
@@ -102,8 +105,9 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::NamedProcedureGroup &makeNamedProcedureGroup();
   [[nodiscard]] requite::Procedure &makeProcedure();
   [[nodiscard]] requite::Alias &makeAlias();
-  [[nodiscard]] requite::OrderedVariable &makeOrderedVariable();
-  [[nodiscard]] requite::UnorderedVariable &makeUnorderedVariable();
+  [[nodiscard]] requite::Local &makeLocal();
+  [[nodiscard]] requite::Global &makeGlobal();
+  [[nodiscard]] requite::Property &makeProperty();
   [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
   [[nodiscard]] requite::Label &makeLabel();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
@@ -127,14 +131,18 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliasUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Alias>> &
   getAliasUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::OrderedVariable>> &
-  getOrderedVariableUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::OrderedVariable>> &
-  getOrderedVariableUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::UnorderedVariable>> &
-  getUnorderedVariableUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::UnorderedVariable>> &
-  getUnorderedVariableUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &
+  getLocalUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Local>> &
+  getLocalUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Global>> &
+  getGlobalUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Global>> &
+  getGlobalUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Property>> &
+  getPropertyUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Property>> &
+  getPropertyUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::AnonymousFunction>> &
   getAnonymousFunctionUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::AnonymousFunction>> &
@@ -205,7 +213,7 @@ struct Context final : public requite::_ContextLlvmContext {
   // prototype.cpp
   [[nodiscard]] bool prototypeEntryPoint(requite::Procedure &procedure);
   [[nodiscard]] bool prototypeLocal(requite::Scope &scope,
-                                    requite::OrderedVariable &variable);
+                                    requite::Local &local);
   [[nodiscard]] bool
   prototypeProcedureBody(requite::Procedure &procedure,
                          requite::Expression &first_statement);

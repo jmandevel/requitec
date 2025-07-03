@@ -1333,11 +1333,11 @@ constexpr bool getHasAliasData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ALIAS;
 }
 
-constexpr bool getHasOrderedVariableData(requite::Opcode opcode) {
+constexpr bool getHasLocalData(requite::Opcode opcode) {
   return opcode == requite::Opcode::_LOCAL;
 }
 
-constexpr bool getHasUnorderedVariableData(requite::Opcode opcode) {
+constexpr bool getHasGlobalData(requite::Opcode opcode) {
   return opcode == requite::Opcode::PROPERTY ||
          opcode == requite::Opcode::GLOBAL;
 }

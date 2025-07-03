@@ -89,7 +89,7 @@ void Builder::buildAssignment(llvm::Value *llvm_value,
 
 bool Builder::buildStatement_Local(requite::Expression &statement) {
   REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::_LOCAL);
-  requite::OrderedVariable &local = statement.getOrderedVariable();
+  requite::Local &local = statement.getLocal();
   requite::Symbol &type = local.getDataType();
   llvm::Type *llvm_type = this->makeLlvmType(type);
   llvm::AllocaInst *llvm_alloca =

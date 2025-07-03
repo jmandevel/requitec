@@ -29,12 +29,11 @@ bool Context::prototypeEntryPoint(requite::Procedure &procedure) {
 }
 
 bool Context::prototypeLocal(requite::Scope &scope,
-                             requite::OrderedVariable &variable) {
-  REQUITE_ASSERT(variable.getType() == requite::VariableType::LOCAL);
-  requite::Expression &expression = variable.getExpression();
+                             requite::Local &local) {
+  requite::Expression &expression = local.getExpression();
   requite::Expression &name_expression = expression.getBranch();
   requite::Expression &value_expression = name_expression.getNext();
-  requite::Symbol &type = variable.getDataType();
+  requite::Symbol &type = local.getDataType();
   if (!this->inferenceTypeOfValue(type, scope, value_expression)) {
     return false;
   }
@@ -50,7 +49,7 @@ bool Context::prototypeProcedureBody(requite::Procedure &procedure,
        first_statement.getHorizontalSubrange()) {
     switch (const requite::Opcode opcode = statement.getOpcode()) {
     case requite::Opcode::_LOCAL:
-      if (!this->prototypeLocal(scope, statement.getOrderedVariable())) {
+      if (!this->prototypeLocal(scope, statement.getLocal())) {
         is_ok = false;
       }
       break;

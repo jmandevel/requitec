@@ -180,20 +180,20 @@ const requite::Expression &Scope::getLocalStatement() const {
   return requite::getRef(this->_local_statement_ptr);
 }
 
-void Scope::setUnorderedVariable(requite::UnorderedVariable &variable) {
+void Scope::setGlobal(requite::Global &variable) {
   REQUITE_ASSERT(this->getIsEmpty());
-  this->_type = requite::ScopeType::UNORDERED_VARIABLE;
-  requite::setSingleRef(this->_unordered_variable_ptr, variable);
+  this->_type = requite::ScopeType::GLOBAL;
+  requite::setSingleRef(this->_global_ptr, variable);
 }
 
-requite::UnorderedVariable &Scope::getUnorderedVariable() {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::UNORDERED_VARIABLE);
-  return requite::getRef(this->_unordered_variable_ptr);
+requite::Global &Scope::getGlobal() {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::GLOBAL);
+  return requite::getRef(this->_global_ptr);
 }
 
-const requite::UnorderedVariable &Scope::getUnorderedVariable() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::UNORDERED_VARIABLE);
-  return requite::getRef(this->_unordered_variable_ptr);
+const requite::Global &Scope::getGlobal() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::GLOBAL);
+  return requite::getRef(this->_global_ptr);
 }
 
 } // namespace requite

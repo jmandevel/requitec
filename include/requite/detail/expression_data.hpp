@@ -170,50 +170,50 @@ inline const requite::Alias &Expression::getAlias() const {
   return requite::getRef(std::get<requite::Alias *>(this->_data));
 }
 
-inline void Expression::setUnorderedVariable(requite::UnorderedVariable &variable) {
-  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
-  this->_data.emplace<requite::UnorderedVariable *>(&variable);
+inline void Expression::setGlobal(requite::Global &variable) {
+  REQUITE_ASSERT(requite::getHasGlobalData(this->getOpcode()));
+  this->_data.emplace<requite::Global *>(&variable);
 }
 
-inline bool Expression::getHasUnorderedVariable() const {
-  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
-  return std::holds_alternative<requite::UnorderedVariable *>(this->_data) &&
-         std::get<requite::UnorderedVariable *>(this->_data) != nullptr;
+inline bool Expression::getHasGlobal() const {
+  REQUITE_ASSERT(requite::getHasGlobalData(this->getOpcode()));
+  return std::holds_alternative<requite::Global *>(this->_data) &&
+         std::get<requite::Global *>(this->_data) != nullptr;
 }
 
-inline requite::UnorderedVariable &Expression::getUnorderedVariable() {
-  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasUnorderedVariable());
-  return requite::getRef(std::get<requite::UnorderedVariable *>(this->_data));
+inline requite::Global &Expression::getGlobal() {
+  REQUITE_ASSERT(requite::getHasGlobalData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasGlobal());
+  return requite::getRef(std::get<requite::Global *>(this->_data));
 }
 
-inline const requite::UnorderedVariable &Expression::getUnorderedVariable() const {
-  REQUITE_ASSERT(requite::getHasUnorderedVariableData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasUnorderedVariable());
-  return requite::getRef(std::get<requite::UnorderedVariable *>(this->_data));
+inline const requite::Global &Expression::getGlobal() const {
+  REQUITE_ASSERT(requite::getHasGlobalData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasGlobal());
+  return requite::getRef(std::get<requite::Global *>(this->_data));
 }
 
-inline void Expression::setOrderedVariable(requite::OrderedVariable &variable) {
-  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
-  this->_data.emplace<requite::OrderedVariable *>(&variable);
+inline void Expression::setLocal(requite::Local &variable) {
+  REQUITE_ASSERT(requite::getHasLocalData(this->getOpcode()));
+  this->_data.emplace<requite::Local *>(&variable);
 }
 
-inline bool Expression::getHasOrderedVariable() const {
-  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
-  return std::holds_alternative<requite::OrderedVariable *>(this->_data) &&
-         std::get<requite::OrderedVariable *>(this->_data) != nullptr;
+inline bool Expression::getHasLocal() const {
+  REQUITE_ASSERT(requite::getHasLocalData(this->getOpcode()));
+  return std::holds_alternative<requite::Local *>(this->_data) &&
+         std::get<requite::Local *>(this->_data) != nullptr;
 }
 
-inline requite::OrderedVariable &Expression::getOrderedVariable() {
-  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasOrderedVariable());
-  return requite::getRef(std::get<requite::OrderedVariable *>(this->_data));
+inline requite::Local &Expression::getLocal() {
+  REQUITE_ASSERT(requite::getHasLocalData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasLocal());
+  return requite::getRef(std::get<requite::Local *>(this->_data));
 }
 
-inline const requite::OrderedVariable &Expression::getOrderedVariable() const {
-  REQUITE_ASSERT(requite::getHasOrderedVariableData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasOrderedVariable());
-  return requite::getRef(std::get<requite::OrderedVariable *>(this->_data));
+inline const requite::Local &Expression::getLocal() const {
+  REQUITE_ASSERT(requite::getHasLocalData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasLocal());
+  return requite::getRef(std::get<requite::Local *>(this->_data));
 }
 
 inline bool Expression::getHasInteger() const {

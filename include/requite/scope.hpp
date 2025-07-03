@@ -44,7 +44,7 @@ struct Scope final {
     requite::Procedure *_procedure_ptr;
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
-    requite::UnorderedVariable *_unordered_variable_ptr;
+    requite::Global *_global_ptr;
   };
   std::vector<requite::Node> _nodes = {};
 
@@ -94,9 +94,9 @@ struct Scope final {
   void setLocalStatement(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getLocalStatement();
   [[nodiscard]] const requite::Expression &getLocalStatement() const;
-  void setUnorderedVariable(requite::UnorderedVariable &variable);
-  [[nodiscard]] requite::UnorderedVariable &getUnorderedVariable();
-  [[nodiscard]] const requite::UnorderedVariable &getUnorderedVariable() const;
+  void setGlobal(requite::Global &variable);
+  [[nodiscard]] requite::Global &getGlobal();
+  [[nodiscard]] const requite::Global &getGlobal() const;
 
   // lookup_symbols.cpp
   [[nodiscard]]

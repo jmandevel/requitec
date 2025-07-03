@@ -30,9 +30,11 @@ target_sources(
         expression.cpp
         file.cpp
         get_module.cpp
+        global.cpp
         label.cpp
         llvm_target.cpp
         llvm_module.cpp
+        local.cpp
         log.cpp
         lookup_symbols.cpp
         make_symbols.cpp
@@ -42,11 +44,11 @@ target_sources(
         object.cpp
         opcode.cpp
         options.cpp
-        ordered_variable.cpp
         parse_ast.cpp
         precedence_parser.cpp
         procedure_iterator.cpp
         procedure.cpp
+        property.cpp
         prototype.cpp
         resolve_symbols.cpp
         root_symbol.cpp
@@ -65,7 +67,7 @@ target_sources(
         token.cpp
         tokenize_tokens.cpp
         tuple.cpp
-        unordered_variable.cpp
+        global.cpp
         write_assembly.cpp
         validate_source.cpp
         write_ast.cpp

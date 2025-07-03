@@ -10,13 +10,13 @@
 #include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/object.hpp>
-#include <requite/ordered_variable.hpp>
+#include <requite/local.hpp>
 #include <requite/procedure.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol.hpp>
 #include <requite/table.hpp>
 #include <requite/tuple.hpp>
-#include <requite/unordered_variable.hpp>
+#include <requite/global.hpp>
 
 namespace requite {
 
@@ -45,11 +45,11 @@ RootSymbol::RootSymbol(const requite::RootSymbol &that)
   case requite::RootSymbolType::ALIAS:
     this->_alias_ptr = that._alias_ptr;
     break;
-  case requite::RootSymbolType::ORDERED_VARIABLE:
-    this->_ordered_variable_ptr = that._ordered_variable_ptr;
+  case requite::RootSymbolType::LOCAL:
+    this->_local_ptr = that._local_ptr;
     break;
-  case requite::RootSymbolType::UNORDERED_VARIABLE:
-    this->_unordered_variable_ptr = that._unordered_variable_ptr;
+  case requite::RootSymbolType::GLOBAL:
+    this->_global_ptr = that._global_ptr;
     break;
   case requite::RootSymbolType::PROCEDURE:
     this->_procedure_ptr = that._procedure_ptr;
@@ -112,10 +112,10 @@ bool RootSymbol::operator==(const requite::RootSymbol &rhs) const {
     return this->getTable() == rhs.getTable();
   case requite::RootSymbolType::ALIAS:
     return this->getAlias() == rhs.getAlias();
-  case requite::RootSymbolType::ORDERED_VARIABLE:
-    return this->getOrderedVariable() == rhs.getOrderedVariable();
-  case requite::RootSymbolType::UNORDERED_VARIABLE:
-    return this->getUnorderedVariable() == rhs.getUnorderedVariable();
+  case requite::RootSymbolType::LOCAL:
+    return this->getLocal() == rhs.getLocal();
+  case requite::RootSymbolType::GLOBAL:
+    return this->getGlobal() == rhs.getGlobal();
   case requite::RootSymbolType::PROCEDURE:
     return this->getProcedure() == rhs.getProcedure();
   case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
@@ -151,16 +151,16 @@ void RootSymbol::setAsUser(requite::Alias &alias) {
   this->_alias_ptr = &alias;
 }
 
-void RootSymbol::setAsUser(requite::OrderedVariable &variable) {
+void RootSymbol::setAsUser(requite::Local &variable) {
   REQUITE_ASSERT(!this->getHasAllocation());
-  this->_type = requite::RootSymbolType::ORDERED_VARIABLE;
-  this->_ordered_variable_ptr = &variable;
+  this->_type = requite::RootSymbolType::LOCAL;
+  this->_local_ptr = &variable;
 }
 
-void RootSymbol::setAsUser(requite::UnorderedVariable &variable) {
+void RootSymbol::setAsUser(requite::Global &variable) {
   REQUITE_ASSERT(!this->getHasAllocation());
-  this->_type = requite::RootSymbolType::UNORDERED_VARIABLE;
-  this->_unordered_variable_ptr = &variable;
+  this->_type = requite::RootSymbolType::GLOBAL;
+  this->_global_ptr = &variable;
 }
 
 void RootSymbol::setAsUser(requite::Procedure &procedure) {
@@ -395,12 +395,12 @@ bool RootSymbol::getIsAlias() const {
   return this->_type == requite::RootSymbolType::ALIAS;
 }
 
-bool RootSymbol::getIsOrderedVariable() const {
-  return this->_type == requite::RootSymbolType::ORDERED_VARIABLE;
+bool RootSymbol::getIsLocal() const {
+  return this->_type == requite::RootSymbolType::LOCAL;
 }
 
-bool RootSymbol::getIsUnorderedVariable() const {
-  return this->_type == requite::RootSymbolType::UNORDERED_VARIABLE;
+bool RootSymbol::getIsGlobal() const {
+  return this->_type == requite::RootSymbolType::GLOBAL;
 }
 
 bool RootSymbol::getIsProcedure() const {
@@ -511,34 +511,34 @@ requite::Alias &RootSymbol::getAlias() {
   return requite::getRef(this->_alias_ptr);
 }
 
-bool RootSymbol::getHasOrderedVariable() const {
-  REQUITE_ASSERT(this->getIsOrderedVariable());
-  return this->_ordered_variable_ptr != nullptr;
+bool RootSymbol::getHasLocal() const {
+  REQUITE_ASSERT(this->getIsLocal());
+  return this->_local_ptr != nullptr;
 }
 
-requite::OrderedVariable &RootSymbol::getOrderedVariable() {
-  REQUITE_ASSERT(this->getIsOrderedVariable());
-  return requite::getRef(this->_ordered_variable_ptr);
+requite::Local &RootSymbol::getLocal() {
+  REQUITE_ASSERT(this->getIsLocal());
+  return requite::getRef(this->_local_ptr);
 }
 
-const requite::OrderedVariable &RootSymbol::getOrderedVariable() const {
-  REQUITE_ASSERT(this->getIsOrderedVariable());
-  return requite::getRef(this->_ordered_variable_ptr);
+const requite::Local &RootSymbol::getLocal() const {
+  REQUITE_ASSERT(this->getIsLocal());
+  return requite::getRef(this->_local_ptr);
 }
 
-bool RootSymbol::getHasUnorderedVariable() const {
-  REQUITE_ASSERT(this->getIsUnorderedVariable());
-  return this->_unordered_variable_ptr != nullptr;
+bool RootSymbol::getHasGlobal() const {
+  REQUITE_ASSERT(this->getIsGlobal());
+  return this->_global_ptr != nullptr;
 }
 
-requite::UnorderedVariable &RootSymbol::getUnorderedVariable() {
-  REQUITE_ASSERT(this->getIsUnorderedVariable());
-  return requite::getRef(this->_unordered_variable_ptr);
+requite::Global &RootSymbol::getGlobal() {
+  REQUITE_ASSERT(this->getIsGlobal());
+  return requite::getRef(this->_global_ptr);
 }
 
-const requite::UnorderedVariable &RootSymbol::getUnorderedVariable() const {
-  REQUITE_ASSERT(this->getIsUnorderedVariable());
-  return requite::getRef(this->_unordered_variable_ptr);
+const requite::Global &RootSymbol::getGlobal() const {
+  REQUITE_ASSERT(this->getIsGlobal());
+  return requite::getRef(this->_global_ptr);
 }
 
 bool RootSymbol::getHasProcedure() const {
@@ -612,8 +612,8 @@ requite::AttributeFlags &RootSymbol::getUserAttributeFlags() {
     requite::Alias &alias = this->getAlias();
     return alias.getAttributeFlags();
   } break;
-  case requite::RootSymbolType::UNORDERED_VARIABLE: {
-    requite::UnorderedVariable &variable = this->getUnorderedVariable();
+  case requite::RootSymbolType::GLOBAL: {
+    requite::Global &variable = this->getGlobal();
     return variable.getAttributeFlags();
   } break;
   case requite::RootSymbolType::PROCEDURE: {

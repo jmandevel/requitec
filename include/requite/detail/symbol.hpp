@@ -54,9 +54,9 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::ALIAS:
     return false;
-  case requite::RootSymbolType::ORDERED_VARIABLE:
+  case requite::RootSymbolType::LOCAL:
     return false;
-  case requite::RootSymbolType::UNORDERED_VARIABLE:
+  case requite::RootSymbolType::GLOBAL:
     return false;
   case requite::RootSymbolType::SIGNATURE:
     return false;
@@ -124,9 +124,9 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::ALIAS:
     return true;
-  case requite::RootSymbolType::ORDERED_VARIABLE:
+  case requite::RootSymbolType::LOCAL:
     return false;
-  case requite::RootSymbolType::UNORDERED_VARIABLE:
+  case requite::RootSymbolType::GLOBAL:
     return true;
   case requite::RootSymbolType::SIGNATURE:
     return false;
@@ -315,7 +315,7 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
   case requite::RootSymbolType::TABLE:
     ostream << "table";
     break;
-  case requite::RootSymbolType::ORDERED_VARIABLE:
+  case requite::RootSymbolType::LOCAL:
     ostream << "local variable";
     break;
   default:
