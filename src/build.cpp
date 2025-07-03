@@ -145,8 +145,7 @@ Builder::buildValue__LocalHandle(requite::Expression &expression,
   requite::Local &local = expression.getLocal();
   llvm::StringRef name = local.getName();
   llvm::AllocaInst *llvm_alloca = local.getLlvmAllocaPtr();
-  return this->getContext().getLlvmBuilder().CreateLoad(
-      llvm_alloca->getAllocatedType(), llvm_alloca, name);
+  return llvm_alloca;
 }
 
 llvm::Value *
