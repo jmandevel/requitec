@@ -19,6 +19,12 @@ void Situator::situateExpression(requite::Expression &expression) {
   switch (const requite::Opcode opcode = expression.getOpcode()) {
   case requite::Opcode::__NONE:
     REQUITE_UNREACHABLE();
+  case requite::Opcode::__LOCAL_HANDLE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::__INTEGER_LITERAL)) {
+      REQUITE_UNREACHABLE();
+    }
+    break;
   case requite::Opcode::__INTEGER_LITERAL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::__INTEGER_LITERAL)) {

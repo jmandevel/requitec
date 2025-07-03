@@ -22,22 +22,18 @@ bool Context::prototypeEntryPoint(requite::Procedure &procedure) {
   if (!expression.getHasBranch()) {
     return true;
   }
-  if (!this->tabulateLocalExpressions(procedure.getModule(),
-                                      procedure.getScope(),
-                                      expression.getBranch())) {
-    return false;
-  }
   if (!this->prototypeProcedureBody(procedure, expression.getBranch())) {
     return false;
   }
   return true;
 }
 
-bool Context::prototypeLocal(requite::Scope &scope, requite::Local &local) {
+bool Context::prototypeLocal(requite::Local &local) {
   requite::Expression &expression = local.getExpression();
   requite::Expression &name_expression = expression.getBranch();
   requite::Expression &value_expression = name_expression.getNext();
   requite::Symbol &type = local.getDataType();
+  requite::Scope &scope = local.getContaining();
   if (!this->inferenceTypeOfValue(type, scope, value_expression)) {
     return false;
   }
@@ -53,7 +49,7 @@ bool Context::prototypeProcedureBody(requite::Procedure &procedure,
        first_statement.getHorizontalSubrange()) {
     switch (const requite::Opcode opcode = statement.getOpcode()) {
     case requite::Opcode::_LOCAL:
-      if (!this->prototypeLocal(scope, statement.getLocal())) {
+      if (!this->prototypeLocal(statement.getLocal())) {
         is_ok = false;
       }
       break;

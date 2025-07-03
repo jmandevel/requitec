@@ -6,7 +6,9 @@
 
 namespace requite {
 
-inline void Expression::clearData() { this->_data.emplace<std::monostate>(); }
+inline void Expression::clearData() {
+  this->_data.emplace<std::monostate>();
+}
 
 inline bool Expression::getHasDataText() const {
   return std::holds_alternative<std::string>(this->_data);

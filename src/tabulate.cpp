@@ -5,7 +5,7 @@
 
 namespace requite {
 
-void Context::tabulateEntryPoint(requite::Module &module,
+bool Context::tabulateEntryPoint(requite::Module &module,
                                  requite::Expression &expression) {
   requite::Procedure &procedure = this->makeProcedure();
   procedure.setType(requite::ProcedureType::ENTRY_POINT);
@@ -13,6 +13,12 @@ void Context::tabulateEntryPoint(requite::Module &module,
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
   module.addEntryPoint(procedure);
+  if (!this->tabulateLocalExpressions(procedure.getModule(),
+                                      procedure.getScope(),
+                                      expression.getBranch())) {
+    return false;
+  }
+  return true;
 }
 
 bool Context::tabulate_Initialize(requite::Module &module,

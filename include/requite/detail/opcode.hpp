@@ -92,6 +92,15 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::__NONE:
     return _INTERNAL_USE_ONLY;
 
+  // HANDLES
+  case Opcode::__LOCAL_HANDLE:
+    return _INTERNAL_USE_ONLY | _MATTE_DESTINATION |
+           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
+           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
+           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
+           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
+           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
+
   // LITERALS
   case Opcode::__INTEGER_LITERAL:
     return _INTERNAL_USE_ONLY | _MATTE_VALUE;
@@ -326,7 +335,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_ARRAY:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_REFERENCE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL; 
+    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_POINTER:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_FAT_POINTER:
@@ -661,6 +670,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   switch (opcode) {
   case requite::Opcode::__NONE:
     return "__none";
+
+  // HANDLES
+  case requite::Opcode::__LOCAL_HANDLE:
+    return "__local_handle";
 
   // LITERALS
   case requite::Opcode::__INTEGER_LITERAL:
@@ -1320,7 +1333,8 @@ constexpr bool getHasAliasData(requite::Opcode opcode) {
 }
 
 constexpr bool getHasLocalData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_LOCAL;
+  return opcode == requite::Opcode::__LOCAL_HANDLE ||
+         opcode == requite::Opcode::_LOCAL;
 }
 
 constexpr bool getHasGlobalData(requite::Opcode opcode) {

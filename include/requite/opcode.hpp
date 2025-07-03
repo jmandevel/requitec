@@ -23,6 +23,9 @@ enum class Opcode : unsigned {
   // this should never occur.
   __NONE,
 
+  // HANDLES
+  __LOCAL_HANDLE,
+
   // LITERALS
   // a literal that represents an integer value. May have a base.
   __INTEGER_LITERAL,

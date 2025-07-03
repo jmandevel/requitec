@@ -50,9 +50,7 @@ bool AstWriter::writeAst(const requite::Module &module,
   llvm::raw_fd_ostream fout(out_path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
     this->getContext().logMessage(
-        llvm::Twine(
-            "error: failed to open output file for writing\n\tpath: ")
-            +
+        llvm::Twine("error: failed to open output file for writing\n\tpath: ") +
         llvm::Twine(out_path) + llvm::Twine("\n\treason: ") +
         llvm::Twine(ec.message()));
     return false;
@@ -74,6 +72,15 @@ void AstWriter::writeIndentation() {
 void AstWriter::writeExpression(const requite::Expression &expression) {
   this->writeIndentation();
   switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::__LOCAL_HANDLE: {
+    const requite::Local &local = expression.getLocal();
+    llvm::StringRef name = local.getName();
+    this->getOstream() << "\\\"";
+    this->getOstream() << name;
+    this->getOstream() << "\" // from ";
+    this->getOstream() << requite::getName(opcode);
+    this->writeExpressionLocationComment(expression);
+  } break;
   case requite::Opcode::__INTEGER_LITERAL:
     [[fallthrough]];
   case requite::Opcode::__FRACTIONAL_LITERAL: {

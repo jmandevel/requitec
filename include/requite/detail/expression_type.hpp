@@ -58,9 +58,6 @@ inline void Expression::setOpcode(requite::Opcode opcode) {
 
 inline void Expression::changeOpcode(requite::Opcode opcode) {
   REQUITE_ASSERT(this->_opcode != requite::Opcode::__NONE);
-  REQUITE_ASSERT(this->getIsOperation() ||
-                 (requite::getHasTextData(opcode) &&
-                  requite::getHasTextData(this->_opcode)));
   this->_opcode = opcode;
 }
 

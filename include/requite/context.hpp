@@ -196,7 +196,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool checkEntryPointCount();
 
   // tabulate.cpp
-  void tabulateEntryPoint(requite::Module &module,
+  [[nodiscard]] bool tabulateEntryPoint(requite::Module &module,
                                         requite::Expression &expression);
   [[nodiscard]] bool tabulate_Initialize(requite::Module &module,
                                          requite::Scope &scope,
@@ -207,8 +207,7 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // prototype.cpp
   [[nodiscard]] bool prototypeEntryPoint(requite::Procedure &procedure);
-  [[nodiscard]] bool prototypeLocal(requite::Scope &scope,
-                                    requite::Local &local);
+  [[nodiscard]] bool prototypeLocal(requite::Local &local);
   [[nodiscard]] bool
   prototypeProcedureBody(requite::Procedure &procedure,
                          requite::Expression &first_statement);

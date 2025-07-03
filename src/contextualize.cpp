@@ -57,7 +57,9 @@ bool Context::contextualizeModule(requite::Module &module) {
       break;
     }
     case requite::Opcode::ENTRY_POINT:
-      this->tabulateEntryPoint(module, expression);
+      if (!this->tabulateEntryPoint(module, expression)) {
+        is_ok = false;
+      }
       break;
     case requite::Opcode::FUNCTION:
       this->logNotSupportedYet(expression);

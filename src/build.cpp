@@ -137,7 +137,7 @@ llvm::Value *Builder::buildValue(requite::Expression &expression,
 llvm::Value *
 Builder::buildValue__IdentifierLiteral(requite::Expression &expression,
                                        const requite::Symbol &expected_type) {
-  return nullptr;
+  
 }
 
 llvm::Value *

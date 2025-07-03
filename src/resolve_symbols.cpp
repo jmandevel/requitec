@@ -77,6 +77,24 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
     out_symbol.getRoot().setAsIntegerLiteral();
     return true;
   }
+  case requite::Opcode::__IDENTIFIER_LITERAL: {
+    llvm::StringRef name = value_expression.getDataText();
+    requite::RootSymbol found = scope.lookupUserSymbol(name);
+    if (found.getIsNone()) {
+      break;
+    }
+    if (found.getIsLocal()) {
+      requite::Local &local = found.getLocal();
+      if (!this->prototypeLocal(local)) {
+        break;
+      }
+      out_symbol = local.getDataType();
+      value_expression.clearData();
+      value_expression.changeOpcode(requite::Opcode::__LOCAL_HANDLE);
+      value_expression.setLocal(local);
+      return true;
+    }
+  }
   case requite::Opcode::_ADD:
     return this->inferenceTypeOfNaryArithmeticValue(out_symbol, scope,
                                                     value_expression);
