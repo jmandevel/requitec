@@ -3092,22 +3092,23 @@ inline void
 Situator::situate_InitializeExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_INITIALIZE);
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION,
-                                  requite::Situation::MATTE_VALUE>(expression);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION>(
+    this->situateNaryWithLastExpression<SITUATION_PARAM, 2,
+                                        requite::Situation::MATTE_JUNCTION,
+                                        requite::Situation::MATTE_VALUE>(
         expression);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
+    this->situateNaryExpression<SITUATION_PARAM, 2,
+                                requite::Situation::MATTE_JUNCTION>(expression);
   } else if constexpr (SITUATION_PARAM ==
                            requite::Situation::MATTE_DESTINATION ||
                        SITUATION_PARAM ==
                            requite::Situation::MATTE_LOCAL_STATEMENT ||
                        SITUATION_PARAM ==
                            requite::Situation::STRUCTURED_BINDING) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_DESTINATION,
-                                  requite::Situation::MATTE_VALUE>(expression);
+    this->situateNaryWithLastExpression<
+        SITUATION_PARAM, 2, requite::Situation::MATTE_DESTINATION,
+        requite::Situation::MATTE_JUNCTION, requite::Situation::MATTE_VALUE>(
+        expression);
   } else {
     static_assert("invalid situation");
   }

@@ -15,17 +15,11 @@ void PrecedenceParser::parseDoubleUnary(requite::Parser &parser,
   requite::Expression &operation0 = requite::Expression::makeOperation(opcode);
   operation0.setSource(token);
   this->appendBranch(operation0);
-  if (!this->getHasOuter()) {
-    this->_outer_ptr = &operation0;
-  }
   this->_operation_ptr = &operation0;
   this->_last_ptr = nullptr;
   requite::Expression &operation1 = requite::Expression::makeOperation(opcode);
   operation1.setSource(token);
   this->appendBranch(operation1);
-  if (!this->getHasOuter()) {
-    this->_outer_ptr = &operation1;
-  }
   this->_operation_ptr = &operation1;
   this->_last_ptr = nullptr;
 }
@@ -37,9 +31,6 @@ void PrecedenceParser::parseUnary(requite::Parser &parser,
   requite::Expression &operation = requite::Expression::makeOperation(opcode);
   operation.setSource(token);
   this->appendBranch(operation);
-  if (!this->getHasOuter()) {
-    this->_outer_ptr = &operation;
-  }
   this->_operation_ptr = &operation;
   this->_last_ptr = nullptr;
 }
@@ -50,31 +41,24 @@ void PrecedenceParser::parseBinary(requite::Parser &parser,
   parser.incrementToken(1);
   requite::Expression &new_operation =
       requite::Expression::makeOperation(opcode);
-  if (this->getHasOperation()) {
-    requite::Expression &old_operation = this->getOperation();
-    new_operation.setSource(old_operation, token);
-    new_operation.setBranch(old_operation);
-    this->_outer_ptr = &new_operation;
-    this->_operation_ptr = &new_operation;
-    this->_last_ptr = &old_operation;
-    return;
-  }
-  if (this->getHasLast()) {
-    requite::Expression &last = this->getLast();
-    new_operation.setSource(last, token);
-    new_operation.setBranch(last);
-  } else {
-    new_operation.setSource(token);
-  }
-  this->_outer_ptr = &new_operation;
+  new_operation.setSource(this->getRecent(), token);
+  this->appendBranch(new_operation);
   this->_operation_ptr = &new_operation;
+  this->_last_ptr = nullptr;
+  this->appendRecent();
 }
 
 void PrecedenceParser::parseBinaryCombination(requite::Parser &parser,
-                                              requite::Opcode opcode) {
+                                   requite::Opcode opcode) {
+  const requite::Token &token = parser.getToken();
+  parser.incrementToken(1);
+  requite::Expression &new_operation =
+      requite::Expression::makeOperation(opcode);
+  new_operation.setSource(this->getOuter(), token);
+  new_operation.setBranch(this->getOuter());
   this->_last_ptr = this->_outer_ptr;
   this->_operation_ptr = nullptr;
-  this->parseBinary(parser, opcode);
+  this->_outer_ptr = &new_operation;
 }
 
 void PrecedenceParser::parseNary(requite::Parser &parser,
@@ -82,60 +66,26 @@ void PrecedenceParser::parseNary(requite::Parser &parser,
   const requite::Token &token = parser.getToken();
   parser.incrementToken(1);
   if (this->getHasOperation()) {
-    requite::Expression &old_operation = this->getOperation();
-    if (old_operation.getOpcode() == opcode) {
+    requite::Expression &existing_operation = this->getOperation();
+    if (existing_operation.getOpcode() == opcode) {
+      // the existing operation already has this opcode, so we can keep
+      // appending to this one
+      this->appendRecent();
       return;
     }
-    requite::Expression &new_operation =
-        requite::Expression::makeOperation(opcode);
-    new_operation.setSource(old_operation, token);
-    new_operation.setBranch(old_operation);
-    this->_outer_ptr = &new_operation;
-    this->_operation_ptr = &new_operation;
-    this->_last_ptr = &old_operation;
-    return;
   }
-  requite::Expression &operation = requite::Expression::makeOperation(opcode);
-  if (this->getHasLast()) {
-    requite::Expression &last = this->getLast();
-    operation.setSource(last, token);
-    operation.setBranch(last);
-  } else {
-    operation.setSource(token);
-  }
-  this->_outer_ptr = &operation;
-  this->_operation_ptr = &operation;
+  // need to make a new operation of this opcode because one does not exist yet
+  requite::Expression &new_operation =
+      requite::Expression::makeOperation(opcode);
+  new_operation.setSource(this->getRecent(), token);
+  this->appendBranch(new_operation);
+  this->_operation_ptr = &new_operation;
+  this->_last_ptr = nullptr;
+  this->appendRecent();
 }
 
 void PrecedenceParser::parseNestedNary(requite::Parser &parser,
-                                       requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
-  if (this->getHasOperation()) {
-    requite::Expression &old_operation = this->getOperation();
-    if (old_operation.getOpcode() == opcode) {
-      return;
-    }
-  }
-  requite::Expression &operation = requite::Expression::makeOperation(opcode);
-  if (this->getHasLast()) {
-    requite::Expression &last = this->getLast();
-    operation.setSource(last, token);
-    last.setBranch(operation);
-  } else if (this->getHasOperation()) {
-    operation.setSource(token);
-    requite::Expression &old_operation = this->getOperation();
-    old_operation.extendSourceOver(token);
-    old_operation.setBranch(operation);
-  } else {
-    operation.setSource(token);
-  }
-  if (this->_outer_ptr == nullptr) {
-    this->_outer_ptr = &operation;
-  }
-  this->_operation_ptr = &operation;
-  this->_last_ptr = nullptr;
-}
+                                       requite::Opcode opcode) {}
 
 void PrecedenceParser::parseAttribute(requite::Parser &parser,
                                       requite::Opcode opcode) {
@@ -224,6 +174,15 @@ void PrecedenceParser::appendBranch(requite::Expression &branch) {
   this->_last_ptr = &branch;
 }
 
+void PrecedenceParser::setRecent(requite::Expression &branch) {
+  requite::setSingleRef(this->_recent_ptr, branch);
+}
+
+void PrecedenceParser::appendRecent() {
+  this->appendBranch(this->getRecent());
+  this->_recent_ptr = nullptr;
+}
+
 const requite::Expression &PrecedenceParser::getOuter() const {
   return requite::getRef(this->_outer_ptr);
 }
@@ -242,6 +201,18 @@ const requite::Expression &PrecedenceParser::getOperation() const {
 
 requite::Expression &PrecedenceParser::getOperation() {
   return requite::getRef(this->_operation_ptr);
+}
+
+bool PrecedenceParser::getHasRecent() const {
+  return this->_recent_ptr != nullptr;
+}
+
+const requite::Expression &PrecedenceParser::getRecent() const {
+  return requite::getRef(this->_recent_ptr);
+}
+
+requite::Expression &PrecedenceParser::getRecent() {
+  return requite::getRef(this->_recent_ptr);
 }
 
 bool PrecedenceParser::getHasLast() const { return this->_last_ptr != nullptr; }
