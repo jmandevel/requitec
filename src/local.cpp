@@ -38,9 +38,7 @@ const requite::Expression &Local::getExpression() const {
 
 requite::Symbol &Local::getDataType() { return this->_data_type; }
 
-const requite::Symbol &Local::getDataType() const {
-  return this->_data_type;
-}
+const requite::Symbol &Local::getDataType() const { return this->_data_type; }
 
 bool Local::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
@@ -58,13 +56,13 @@ const requite::Scope &Local::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
+bool Local::getHasLlvmAllocaPtr() const { return this->_llvm_alloca_ptr != nullptr; }
+
 void Local::setLlvmAllocaPtr(llvm::AllocaInst *llvm_alloca) {
   this->_llvm_alloca_ptr = llvm_alloca;
 }
 
-llvm::AllocaInst *Local::getLlvmAllocaPtr() {
-  return this->_llvm_alloca_ptr;
-}
+llvm::AllocaInst *Local::getLlvmAllocaPtr() { return this->_llvm_alloca_ptr; }
 
 const llvm::AllocaInst *Local::getLlvmAllocaPtr() const {
   return this->_llvm_alloca_ptr;

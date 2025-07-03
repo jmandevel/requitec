@@ -102,7 +102,7 @@ struct Builder final {
                                         const requite::Symbol &expected_type,
                                         llvm::Value *location_ptr);
   [[nodiscard]] llvm::Value *
-  buildValue__IdentifierLiteral(requite::Expression &expression,
+  buildValue__LocalHandle(requite::Expression &expression,
                              const requite::Symbol &expected_type);
   [[nodiscard]] llvm::Value *
   buildValue__IntegerLiteral(requite::Expression &expression,

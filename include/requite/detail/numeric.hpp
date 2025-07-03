@@ -27,7 +27,6 @@ template <typename NumericParam>
 requite::NumericResult getNumericValue(llvm::StringRef text,
                                        NumericParam &out_value) {
   using Numeric = NumericParam;
-
   text = text.trim();
   if (text.empty()) {
     return requite::NumericResult::ERROR_EMPTY;
@@ -95,13 +94,67 @@ requite::NumericResult getNumericValue(llvm::StringRef text,
     }
     out_value = std::bit_cast<Numeric>(unsigned_value);
     return requite::NumericResult::OK;
-  } else if constexpr (std::same_as<Numeric, llvm::APInt> ||
-                       std::same_as<Numeric, llvm::APSInt>) {
-    // TODO
-
+  } else if constexpr (std::same_as<Numeric, llvm::APInt>) {
+    const unsigned bit_width = out_value.getBitWidth();
+    llvm::APInt max_base = llvm::APInt(bit_width, requite::MAX_BASE);
+    llvm::APInt min_upper_base =
+        llvm::APInt(bit_width, requite::MIN_UPPER_BASE);
+    const llvm::APInt unsigned_max = llvm::APInt::getMaxValue(bit_width);
+    llvm::APInt base = llvm::APInt(10, 0);
+    llvm::APInt max_digit_multiplier = base - 1;
+    llvm::APInt max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
+    llvm::APInt max_before_add = unsigned_max - max_digit_multiplier;
+    bool explicit_base = false;
+    bool digit_found = false;
+    llvm::APInt unsigned_value = llvm::APInt(bit_width, 0);
+    for (const char c : text) {
+      if (!explicit_base && c == 'x') {
+        base = unsigned_value;
+        unsigned_value = 0;
+        max_digit_multiplier = base - 1;
+        max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
+        max_before_add = unsigned_max - max_digit_multiplier;
+        if (base == 0) {
+          return requite::NumericResult::ERROR_ZERO_BASE;
+        } else if (base.ugt(max_base)) {
+          return requite::NumericResult::ERROR_BASE_TOO_BIG;
+        }
+        explicit_base = true;
+        digit_found = false;
+      } else if (c == '.') {
+        return requite::NumericResult::ERROR_INTEGER_WITH_DECIMAL_POINT;
+      } else if (c == '_') {
+        continue;
+      } else {
+        char lower_c = c;
+        if (base.ugt(min_upper_base)) {
+          lower_c = requite::getLowercase(c);
+        }
+        const llvm::APInt digit_base_multiplier =
+            llvm::APInt(bit_width, requite::getDigitBaseMultiplier(lower_c));
+        if (digit_base_multiplier.uge(base)) {
+          return requite::NumericResult::ERROR_INVALID_DIGIT;
+        }
+        if (unsigned_value.ugt(max_before_multiply)) {
+          return requite::NumericResult::ERROR_VALUE_TOO_BIG;
+        }
+        unsigned_value *= base;
+        if (unsigned_value.ugt(max_before_add)) {
+          return requite::NumericResult::ERROR_VALUE_TOO_BIG;
+        }
+        unsigned_value += digit_base_multiplier;
+        digit_found = true;
+      }
+    }
+    if (!digit_found) {
+      return requite::NumericResult::ERROR_NO_DIGITS;
+    }
+    out_value = unsigned_value;
+    return requite::NumericResult::OK;
   } else if constexpr (std::floating_point<Numeric>) {
     llvm::SmallString<16> clean_text;
-    requite::NumericResult result = requite::cleanFractionalText(text, clean_text);
+    requite::NumericResult result =
+        requite::cleanFractionalText(text, clean_text);
     std::from_chars(clean_text.begin(), clean_text.end(), out_value, 10);
   } else {
     static_assert(false, "type not supported");
@@ -124,7 +177,7 @@ getNumericValue(llvm::StringRef text, llvm::APFloat &out_value,
 }
 
 requite::NumericResult cleanFractionalText(llvm::StringRef text,
-                                      llvm::SmallString<16> &out_clean) {
+                                           llvm::SmallString<16> &out_clean) {
   bool found_decimal = false;
   for (const char c : text) {
     switch (c) {

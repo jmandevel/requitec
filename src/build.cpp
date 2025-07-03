@@ -25,7 +25,9 @@ bool Builder::buildSymbolEntryPoint(requite::Procedure &entry_point) {
   this->setScope(entry_point.getScope());
   bool is_ok = true;
   entry_point.setLlvmFunctionType(requite::getRef(llvm::FunctionType::get(
-      llvm::Type::getInt32Ty(this->getContext().getLlvmContext()), false)));
+      llvm::Type::getIntNTy(this->getContext().getLlvmContext(),
+                            this->getContext().getAddressDepth()),
+      false)));
   entry_point.setLlvmFunction(requite::getRef(llvm::Function::Create(
       &entry_point.getLlvmFunctionType(), llvm::Function::ExternalLinkage,
       entry_point.getMangledName(), this->getContext().getLlvmModule())));
@@ -60,7 +62,7 @@ bool Builder::buildStatementExit(requite::Expression &statement) {
   // TODO: check inside entry_point
   requite::Expression &branch = statement.getBranch();
   requite::Symbol return_type;
-  return_type.getRoot().setAsSigned(32);
+  return_type.getRoot().setAsSigned(64);
   llvm::Value *value = this->buildValue(branch, return_type);
   this->getContext().getLlvmBuilder().CreateRet(value);
   return true;
@@ -122,8 +124,10 @@ llvm::AllocaInst *Builder::buildLlvmAlloca(llvm::Type *llvm_type,
 llvm::Value *Builder::buildValue(requite::Expression &expression,
                                  const requite::Symbol &expected_type) {
   switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::__LOCAL_HANDLE:
+    return this->buildValue__LocalHandle(expression, expected_type);
   case requite::Opcode::__IDENTIFIER_LITERAL:
-    return this->buildValue__IdentifierLiteral(expression, expected_type);
+    REQUITE_UNREACHABLE();
   case requite::Opcode::__INTEGER_LITERAL:
     return this->buildValue__IntegerLiteral(expression, expected_type);
   case requite::Opcode::_ADD:
@@ -135,21 +139,25 @@ llvm::Value *Builder::buildValue(requite::Expression &expression,
 }
 
 llvm::Value *
-Builder::buildValue__IdentifierLiteral(requite::Expression &expression,
-                                       const requite::Symbol &expected_type) {
-  
+Builder::buildValue__LocalHandle(requite::Expression &expression,
+                                 const requite::Symbol &expected_type) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::__LOCAL_HANDLE);
+  requite::Local &local = expression.getLocal();
+  llvm::StringRef name = local.getName();
+  llvm::AllocaInst *llvm_alloca = local.getLlvmAllocaPtr();
+  return this->getContext().getLlvmBuilder().CreateLoad(
+      llvm_alloca->getAllocatedType(), llvm_alloca, name);
 }
 
 llvm::Value *
 Builder::buildValue__IntegerLiteral(requite::Expression &expression,
                                     const requite::Symbol &expected_type) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::__INTEGER_LITERAL);
-  // TODO: check expected type
-  // TODO: load integer of expected type size using APInt
-  unsigned integer;
+  unsigned depth = expected_type.getRoot().getDepth();
+  llvm::APInt integer(depth, {});
   requite::NumericResult result =
       requite::getNumericValue(expression.getSourceText(), integer);
-  llvm::Value *value = this->getContext().getLlvmBuilder().getInt32(integer);
+  llvm::Value *value = this->getContext().getLlvmBuilder().getInt(integer);
   return value;
 }
 

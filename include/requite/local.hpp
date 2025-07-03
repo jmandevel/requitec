@@ -53,6 +53,7 @@ struct Local final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] bool getHasLlvmAllocaPtr() const;
   void setLlvmAllocaPtr(llvm::AllocaInst *llvm_alloca);
   [[nodiscard]] llvm::AllocaInst *getLlvmAllocaPtr();
   [[nodiscard]] const llvm::AllocaInst *getLlvmAllocaPtr() const;

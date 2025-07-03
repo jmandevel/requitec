@@ -73,6 +73,11 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Scope &scope,
                                    requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
+  case requite::Opcode::__LOCAL_HANDLE: {
+    requite::Local& local = value_expression.getLocal();
+    out_symbol = local.getDataType();
+    return true;
+  }
   case requite::Opcode::__INTEGER_LITERAL: {
     out_symbol.getRoot().setAsIntegerLiteral();
     return true;
