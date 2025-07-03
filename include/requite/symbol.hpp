@@ -21,6 +21,14 @@ namespace requite {
 enum class RootSymbolType {
   NONE,
 
+  // BUILTIN VALUE SYMBOL
+  RESULT,
+  INPUT,
+  OUTPUT,
+  THIS,
+  VALUE,
+  INDEX,
+
   // SPECIAL
   INFERENCE,
   VOID,

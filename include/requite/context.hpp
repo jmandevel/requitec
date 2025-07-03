@@ -8,20 +8,20 @@
 #include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
 #include <requite/file.hpp>
+#include <requite/global.hpp>
 #include <requite/label.hpp>
+#include <requite/local.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/node.hpp>
 #include <requite/object.hpp>
 #include <requite/opcode.hpp>
-#include <requite/local.hpp>
 #include <requite/procedure.hpp>
+#include <requite/property.hpp>
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
-#include <requite/global.hpp>
-#include <requite/property.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -75,12 +75,9 @@ struct Context final : public requite::_ContextLlvmContext {
       _named_procedure_group_uptrs = {};
   std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
   std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
-  std::vector<std::unique_ptr<requite::Global>>
-      _global_uptrs = {};
-  std::vector<std::unique_ptr<requite::Property>>
-      _property_uptrs = {};
-  std::vector<std::unique_ptr<requite::Local>>
-      _local_uptrs = {};
+  std::vector<std::unique_ptr<requite::Global>> _global_uptrs = {};
+  std::vector<std::unique_ptr<requite::Property>> _property_uptrs = {};
+  std::vector<std::unique_ptr<requite::Local>> _local_uptrs = {};
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
@@ -131,12 +128,10 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliasUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Alias>> &
   getAliasUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &
-  getLocalUptrs();
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &getLocalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Local>> &
   getLocalUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Global>> &
-  getGlobalUptrs();
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Global>> &getGlobalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Global>> &
   getGlobalUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Property>> &
@@ -201,14 +196,14 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool checkEntryPointCount();
 
   // tabulate.cpp
-  [[nodiscard]] bool tabulateEntryPoint(requite::Module &module,
+  void tabulateEntryPoint(requite::Module &module,
                                         requite::Expression &expression);
-  [[nodiscard]] bool tabulateLocal(requite::Module &module,
-                                   requite::Scope &scope,
-                                   requite::Expression &expression);
+  [[nodiscard]] bool tabulate_Initialize(requite::Module &module,
+                                         requite::Scope &scope,
+                                         requite::Expression &expression);
   [[nodiscard]] bool
-  tabulateProcedureBody(requite::Module &module, requite::Procedure &procedure,
-                        requite::Expression &first_statement);
+  tabulateLocalExpressions(requite::Module &module, requite::Scope& scope,
+                        requite::Expression &first);
 
   // prototype.cpp
   [[nodiscard]] bool prototypeEntryPoint(requite::Procedure &procedure);
@@ -233,17 +228,19 @@ struct Context final : public requite::_ContextLlvmContext {
   inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
                        requite::Expression &value_expression);
   [[nodiscard]] bool
-  inferenceTypeOfNaryArithmeticValue(requite::Symbol &out_symbol, requite::Scope& scope, requite::Expression& expression);
+  inferenceTypeOfNaryArithmeticValue(requite::Symbol &out_symbol,
+                                     requite::Scope &scope,
+                                     requite::Expression &expression);
   [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags flags,
                                            requite::Expression &first);
-  void finalizeIfLiteralType(requite::Symbol& symbol);
+  void finalizeIfLiteralType(requite::Symbol &symbol);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,
                                     requite::Expression &call_expression);
 
   // evaluate_values.cpp
-  [[nodiscard]] bool evaluateName(llvm::StringRef &name, requite::Scope &scope,
+  [[nodiscard]] bool evaluateName(llvm::StringRef &out_name, requite::Scope &scope,
                                   requite::Expression &value_expression);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,

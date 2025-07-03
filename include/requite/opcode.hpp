@@ -141,8 +141,6 @@ enum class Opcode : unsigned {
 
   // ASSIGNMENT
   _INITIALIZE,
-  _INITIALIZE_RESULT,
-  _INITIALIZE_OUTPUT,
   _ASSIGN,
   _ASSIGN_ADD,
   _ASSIGN_SUBTRACT,
@@ -237,8 +235,6 @@ enum class Opcode : unsigned {
   // a value that contains the iteration index of for, while, for_each, and loop
   // blocks.
   INDEX,
-  // a value that contains the caught exception within a catch block.
-  EXCEPTION,
   // a value that can be assigned to any variable on declaration to denote that
   // its memory should not be initialized and should be left containing garbage
   // memory. This is implicitly inserted into local and global operations when

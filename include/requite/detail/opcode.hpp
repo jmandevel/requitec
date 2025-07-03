@@ -291,12 +291,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_INITIALIZE:
     return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
            _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_INITIALIZE_RESULT:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_INITIALIZE_OUTPUT:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
   case Opcode::_ASSIGN:
     return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
            _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
@@ -462,8 +456,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::VALUE:
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::INDEX:
-    return _MATTE_VALUE;
-  case Opcode::EXCEPTION:
     return _MATTE_VALUE;
   case Opcode::_INDETERMINATE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
@@ -831,10 +823,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // ASSIGNMENT
   case requite::Opcode::_INITIALIZE:
     return "_initialize";
-  case requite::Opcode::_INITIALIZE_RESULT:
-    return "_initialize_result";
-  case requite::Opcode::_INITIALIZE_OUTPUT:
-    return "_initialize_output";
   case requite::Opcode::_ASSIGN:
     return "_assign";
   case requite::Opcode::_ASSIGN_ADD:
@@ -995,8 +983,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "value";
   case requite::Opcode::INDEX:
     return "index";
-  case requite::Opcode::EXCEPTION:
-    return "exception";
   case requite::Opcode::_INDETERMINATE:
     return "_indeterminate";
   case requite::Opcode::NO_DEFAULT_VALUE:
