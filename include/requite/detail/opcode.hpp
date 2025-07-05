@@ -1345,4 +1345,8 @@ constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {
   return opcode == requite::Opcode::_ANONYMOUS_FUNCTION;
 }
 
+constexpr bool getHasSituationData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_EXPAND_VALUE;
+}
+
 } // namespace requite

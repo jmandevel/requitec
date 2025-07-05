@@ -8,6 +8,7 @@
 #include <requite/expression_iterator.hpp>
 #include <requite/opcode.hpp>
 #include <requite/symbol.hpp>
+#include <requite/situation.hpp>
 
 #include <llvm/ADT/APSInt.h>
 #include <llvm/ADT/StringRef.h>
@@ -41,7 +42,7 @@ struct Expression final {
   std::variant<std::monostate, std::string, requite::Scope *,
                requite::Object *, requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Global *, requite::Local*,  requite::Label*, llvm::APSInt,
-               requite::Symbol>
+               requite::Symbol, requite::Situation>
       _data = std::monostate{};
 
   // expression.cpp
@@ -197,6 +198,9 @@ struct Expression final {
   [[nodiscard]] inline llvm::APSInt &emplaceInteger();
   [[nodiscard]] inline llvm::APSInt &getInteger();
   [[nodiscard]] inline const llvm::APSInt &getInteger() const;
+  [[nodiscard]] inline bool getHasSituation() const;
+  void setSituation(requite::Situation situation);
+  inline requite::Situation getSituation() const;
 
   // detail/expression_walk.hpp
   [[nodiscard]] inline requite::ExpressionWalker walkBranch();

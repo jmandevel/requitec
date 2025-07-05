@@ -2000,6 +2000,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       }
     }
   }
+  if (requite::getHasSituationData(expression.getOpcode())) {
+    expression.setSituation(SITUATION_PARAM); 
+  }
 }
 
 template <requite::Situation SITUATION_PARAM>

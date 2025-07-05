@@ -404,6 +404,8 @@ getHasGlobalData(requite::Opcode opcode);
 [[nodiscard]] constexpr bool
 getHasAnonymousFunctionData(requite::Opcode opcode);
 
+[[nodiscard]] constexpr bool getHasSituationData(requite::Opcode opcode);
+
 } // namespace requite
 
 #include <requite/detail/opcode.hpp>

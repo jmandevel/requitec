@@ -6,9 +6,7 @@
 
 namespace requite {
 
-inline void Expression::clearData() {
-  this->_data.emplace<std::monostate>();
-}
+inline void Expression::clearData() { this->_data.emplace<std::monostate>(); }
 
 inline bool Expression::getHasDataText() const {
   return std::holds_alternative<std::string>(this->_data);
@@ -237,6 +235,21 @@ inline llvm::APSInt &Expression::getInteger() {
 inline const llvm::APSInt &Expression::getInteger() const {
   REQUITE_ASSERT(this->getHasInteger());
   return std::get<llvm::APSInt>(this->_data);
+}
+
+inline bool Expression::getHasSituation() const {
+  REQUITE_ASSERT(requite::getHasSituationData(this->getOpcode()));
+  return std::holds_alternative<requite::Situation>(this->_data);
+}
+
+void Expression::setSituation(requite::Situation situation) {
+  REQUITE_ASSERT(requite::getHasSituationData(this->getOpcode()));
+  this->_data = situation;
+}
+
+inline requite::Situation Expression::getSituation() const {
+  REQUITE_ASSERT(this->getHasSituation());
+  return std::get<requite::Situation>(this->_data);
 }
 
 } // namespace requite
