@@ -6,7 +6,7 @@
 namespace requite {
 
 bool Contextualizer0::expandMacroExpression(requite::Expression &expression) {
-  if (expression.getOpcode() != requite::Opcode::_EXPAND_MACRO_VALUE) {
+  if (expression.getOpcode() != requite::Opcode::_MACRO_EXPAND_VALUE) {
     return true;
   }
   requite::Expression &value_expression = expression.getBranch();
