@@ -89,6 +89,7 @@ struct Context final : public requite::_ContextLlvmContext {
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
+  bool _contextualize0_done = false;
 
   // context.cpp
   Context(std::string &&executable_path);
@@ -194,14 +195,15 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool determineModuleName(requite::Module &module);
 
   // contextualize.cpp
-  [[nodiscard]] bool contextualizeModule(requite::Module &module);
+  [[nodiscard]] bool contextualizeAll();
   [[nodiscard]] bool checkEntryPointCount();
-
-  // tabulate.cpp
-  [[nodiscard]] bool tabulateModuleGlobalUserSymbols(requite::Module& module);
+  [[nodiscard]] bool passContextualize0();
+  [[nodiscard]] bool contextualize0Module(requite::Module& module);
+  [[nodiscard]] bool passContextualize1();
+  [[nodiscard]] bool getIsContextualize0Done() const;
+  void setContextualize0Done();
 
   // implement.cpp
-  [[nodiscard]] bool implementGlobalUserSymbols();
   [[nodiscard]] bool implementProcedure(requite::Procedure &procedure);
   [[nodiscard]] bool implementEntryPoint(requite::Procedure &procedure);
   [[nodiscard]] bool implementFunction(requite::Procedure &procedure);

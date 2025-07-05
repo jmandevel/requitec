@@ -22,6 +22,8 @@ target_sources(
         containing_scope_iterator.cpp
         context.cpp
         contextualize.cpp
+        contextualizer0.cpp
+        contextualizer1.cpp
         escape_sequences.cpp
         evaluate.cpp
         expand.cpp
@@ -31,12 +33,10 @@ target_sources(
         expression.cpp
         file.cpp
         get_module.cpp
-        global_tabulator.cpp
         global.cpp
         label.cpp
         llvm_target.cpp
         llvm_module.cpp
-        local_implementor.cpp
         local.cpp
         log.cpp
         lookup_symbols.cpp

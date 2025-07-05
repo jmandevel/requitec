@@ -10,18 +10,18 @@ struct Scope;
 struct Object;
 struct Expression;
 
-struct GlobalTabulator final {
-  using Self = requite::GlobalTabulator;
+struct Contextualizer0 final {
+  using Self = requite::Contextualizer0;
 
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<requite::Module> _module_ref;
   requite::Scope *_scope_ptr = nullptr;
 
-  // global_tabulator.cpp
-  GlobalTabulator(requite::Context &constext, requite::Module &module);
-  GlobalTabulator(const Self &) = delete;
-  GlobalTabulator(Self &&) = delete;
-  ~GlobalTabulator() = default;
+  // contextualizer0.cpp
+  Contextualizer0(requite::Context &constext, requite::Module &module);
+  Contextualizer0(const Self &) = delete;
+  Contextualizer0(Self &&) = delete;
+  ~Contextualizer0() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] requite::Context &getContext();

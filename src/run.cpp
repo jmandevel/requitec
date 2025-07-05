@@ -61,7 +61,7 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->contextualizeModule(source_module)) {
+  if (!this->contextualizeAll()) {
     return false;
   }
   if (requite::getEmitMode() == requite::EMIT_CONTEXTUALIZED) {

@@ -1,43 +1,43 @@
-#include <requite/global_tabulator.hpp>
+#include <requite/contextualizer0.hpp>
 #include <requite/assert.hpp>
 #include <requite/scope.hpp>
 #include <requite/module.hpp>
 
 namespace requite {
 
-GlobalTabulator::GlobalTabulator(requite::Context &context, requite::Module &module)
+Contextualizer0::Contextualizer0(requite::Context &context, requite::Module &module)
     : _context_ref(context), _module_ref(module), _scope_ptr(&module.getScope()) {}
 
-requite::Context &GlobalTabulator::getContext() {
+requite::Context &Contextualizer0::getContext() {
     return this->_context_ref.get();
 }
 
-const requite::Context &GlobalTabulator::getContext() const {
+const requite::Context &Contextualizer0::getContext() const {
     return this->_context_ref.get();
 }
 
-requite::Module &GlobalTabulator::getModule() {
+requite::Module &Contextualizer0::getModule() {
     return this->_module_ref.get();
 }
 
-const requite::Module &GlobalTabulator::getModule() const {
+const requite::Module &Contextualizer0::getModule() const {
     return this->_module_ref.get();
 }
 
-requite::Scope &GlobalTabulator::getScope() {
+requite::Scope &Contextualizer0::getScope() {
     return requite::getRef(this->_scope_ptr);
 }
 
-const requite::Scope &GlobalTabulator::getScope() const {
+const requite::Scope &Contextualizer0::getScope() const {
     return requite::getRef(this->_scope_ptr);
 }
 
-void GlobalTabulator::enterScope(requite::Scope &scope) {
+void Contextualizer0::enterScope(requite::Scope &scope) {
     REQUITE_ASSERT(this->getScope().getContaining() == scope);
     this->_scope_ptr = &scope;
 }
 
-void GlobalTabulator::leaveScope() {
+void Contextualizer0::leaveScope() {
     this->_scope_ptr = &this->getScope().getContaining();
 }
 

@@ -1,11 +1,11 @@
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
-#include <requite/global_tabulator.hpp>
+#include <requite/contextualizer0.hpp>
 #include <requite/unreachable.hpp>
 
 namespace requite {
 
-bool GlobalTabulator::expandExpression(requite::Expression &expression) {
+bool Contextualizer0::expandExpression(requite::Expression &expression) {
   if (expression.getOpcode() != requite::Opcode::_EXPAND_VALUE) {
     return true;
   }
@@ -17,7 +17,7 @@ bool GlobalTabulator::expandExpression(requite::Expression &expression) {
   return true;
 }
 
-bool GlobalTabulator::expandBranchTree(requite::Expression &expression) {
+bool Contextualizer0::expandBranchTree(requite::Expression &expression) {
   if (!expression.getHasBranch()) {
     return true;
   }
@@ -25,7 +25,7 @@ bool GlobalTabulator::expandBranchTree(requite::Expression &expression) {
   return this->expandExpression(branch);
 }
 
-bool GlobalTabulator::expandTree(requite::Expression &expression) {
+bool Contextualizer0::expandTree(requite::Expression &expression) {
     if (!this->expandExpression(expression)) {
         return false;
     }
@@ -39,7 +39,7 @@ bool GlobalTabulator::expandTree(requite::Expression &expression) {
     return true;
 }
 
-bool GlobalTabulator::expandForest(requite::Expression &expression) {
+bool Contextualizer0::expandForest(requite::Expression &expression) {
     if (!this->expandExpression(expression)) {
         return false;
     }

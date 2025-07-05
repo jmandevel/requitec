@@ -1,5 +1,5 @@
 #include <requite/context.hpp>
-#include <requite/local_implementor.hpp>
+#include <requite/contextualizer1.hpp>
 
 namespace requite {
 
@@ -62,14 +62,14 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   return false;
 }
 
-bool LocalImplementor::resolveTypeOfValue(requite::Symbol &out_symbol,
+bool Contextualizer1::resolveTypeOfValue(requite::Symbol &out_symbol,
                                  requite::Expression &symbol_expression,
                                  requite::Expression &value_expression) {
   // TODO
   return false;
 }
 
-bool LocalImplementor::inferenceTypeOfValue(requite::Symbol &out_symbol,
+bool Contextualizer1::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__LOCAL_HANDLE: {
@@ -105,7 +105,7 @@ bool LocalImplementor::inferenceTypeOfValue(requite::Symbol &out_symbol,
   return false;
 }
 
-bool LocalImplementor::inferenceTypeOfNaryArithmeticValue(
+bool Contextualizer1::inferenceTypeOfNaryArithmeticValue(
     requite::Symbol &out_symbol,
     requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();

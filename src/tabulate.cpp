@@ -1,22 +1,15 @@
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
-#include <requite/global_tabulator.hpp>
+#include <requite/contextualizer0.hpp>
 #include <requite/local.hpp>
-#include <requite/local_implementor.hpp>
+#include <requite/contextualizer0.hpp>
+#include <requite/contextualizer1.hpp>
 #include <requite/module.hpp>
 #include <requite/scope.hpp>
 
 namespace requite {
 
-bool Context::tabulateModuleGlobalUserSymbols(requite::Module &module) {
-  requite::GlobalTabulator tabulator(*this, module);
-  if (!tabulator.tabulateModule()) {
-    return false;
-  }
-  return true;
-}
-
-bool GlobalTabulator::tabulateModule() {
+bool Contextualizer0::tabulateModule() {
   requite::Expression &root = this->getModule().getExpression();
   REQUITE_ASSERT(!root.getHasNext());
   requite::Expression &module_name = root.getBranch();
@@ -29,14 +22,14 @@ bool GlobalTabulator::tabulateModule() {
   return is_ok;
 }
 
-bool GlobalTabulator::tabulateStatement(requite::Expression &statement) {
+bool Contextualizer0::tabulateStatement(requite::Expression &statement) {
   if (!this->expandExpression(statement)) {
     return false;
   }
   return this->tabulateStatement(statement, false);
 }
 
-bool GlobalTabulator::tabulateStatement(requite::Expression &statement,
+bool Contextualizer0::tabulateStatement(requite::Expression &statement,
                                         bool has_attributes) {
   switch (const requite::Opcode opcode = statement.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
@@ -72,7 +65,7 @@ bool GlobalTabulator::tabulateStatement(requite::Expression &statement,
   REQUITE_UNREACHABLE();
 }
 
-bool GlobalTabulator::tabulateEntryPoint(requite::Expression &expression,
+bool Contextualizer0::tabulateEntryPoint(requite::Expression &expression,
                                          bool has_attributes) {
   requite::Procedure &procedure = this->getContext().makeProcedure();
   procedure.setType(requite::ProcedureType::ENTRY_POINT);
@@ -92,62 +85,62 @@ bool GlobalTabulator::tabulateEntryPoint(requite::Expression &expression,
   return is_ok;
 }
 
-bool GlobalTabulator::tabulateFunction(requite::Expression &expression,
+bool Contextualizer0::tabulateFunction(requite::Expression &expression,
                                        bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateMethod(requite::Expression &expression,
+bool Contextualizer0::tabulateMethod(requite::Expression &expression,
                                      bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateExtension(requite::Expression &expression,
+bool Contextualizer0::tabulateExtension(requite::Expression &expression,
                                         bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateConstructor(requite::Expression &expression,
+bool Contextualizer0::tabulateConstructor(requite::Expression &expression,
                                           bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateDestructor(requite::Expression &expression,
+bool Contextualizer0::tabulateDestructor(requite::Expression &expression,
                                          bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateObject(requite::Expression &expression,
+bool Contextualizer0::tabulateObject(requite::Expression &expression,
                                      bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateAlias(requite::Expression &expression,
+bool Contextualizer0::tabulateAlias(requite::Expression &expression,
                                     bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateImport(requite::Expression &import,
+bool Contextualizer0::tabulateImport(requite::Expression &import,
                                      bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateUse(requite::Expression &use,
+bool Contextualizer0::tabulateUse(requite::Expression &use,
                                   bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateGlobal(requite::Expression &expression,
+bool Contextualizer0::tabulateGlobal(requite::Expression &expression,
                                      bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool GlobalTabulator::tabulateProperty(requite::Expression &expression,
+bool Contextualizer0::tabulateProperty(requite::Expression &expression,
                                        bool has_attributes) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool LocalImplementor::tabulate_Local(requite::Local *&out_local_ptr,
+bool Contextualizer1::tabulate_Local(requite::Local *&out_local_ptr,
                                       llvm::StringRef name,
                                       requite::Expression &statement) {
   REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::_LOCAL);
@@ -160,15 +153,15 @@ bool LocalImplementor::tabulate_Local(requite::Local *&out_local_ptr,
   return true;
 }
 
-bool LocalImplementor::tabulateAlias(requite::Expression &expression) {
+bool Contextualizer1::tabulateAlias(requite::Expression &expression) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool LocalImplementor::tabulateImport(requite::Expression &import) {
+bool Contextualizer1::tabulateImport(requite::Expression &import) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool LocalImplementor::tabulateUse(requite::Expression &use) {
+bool Contextualizer1::tabulateUse(requite::Expression &use) {
   REQUITE_UNREACHABLE(); // TODO
 }
 

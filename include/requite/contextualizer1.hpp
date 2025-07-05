@@ -14,20 +14,20 @@ struct Expression;
 struct Symbol;
 struct Local;
 
-struct LocalImplementor final {
-  using Self = requite::LocalImplementor;
+struct Contextualizer1 final {
+  using Self = requite::Contextualizer1;
 
   std::reference_wrapper<requite::Context> _context_ref;
   requite::Global *_global_ptr = nullptr;
   requite::Procedure *_procedure_ptr = nullptr;
   requite::Scope *_scope_ptr = nullptr;
 
-  // local_implementor.cpp
-  LocalImplementor(requite::Context &context, requite::Global &global);
-  LocalImplementor(requite::Context &context, requite::Procedure &procedure);
-  LocalImplementor(const Self &) = delete;
-  LocalImplementor(Self &&) = delete;
-  ~LocalImplementor() = default;
+  // contextualizer0.cpp
+  Contextualizer1(requite::Context &context, requite::Global &global);
+  Contextualizer1(requite::Context &context, requite::Procedure &procedure);
+  Contextualizer1(const Self &) = delete;
+  Contextualizer1(Self &&) = delete;
+  ~Contextualizer1() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] requite::Context &getContext();
