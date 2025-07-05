@@ -387,6 +387,8 @@ _getFlags(requite::Opcode opcode) {
     return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_JUNCTION |
            _VALUE_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_LOCAL_STATEMENT |
            _VALUE_REFLECTIVE_SYMBOL;
+  case Opcode::MACRO_DEFINE:
+    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::_MACRO_EXPAND_VALUE:
     return _INTERMEDIATE_OPERATION | _ANY;
   case Opcode::BAKE:
@@ -917,6 +919,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_specialization";
   case requite::Opcode::_QUOTE:
     return "_quote";
+  case requite::Opcode::MACRO_DEFINE:
+    return "macro_define";
   case requite::Opcode::MACRO_EXPAND:
     return "macro_expand";
   case requite::Opcode::_MACRO_EXPAND_VALUE:

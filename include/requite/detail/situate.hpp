@@ -15,7 +15,7 @@
 namespace requite {
 
 inline bool Situator::situateExpression(requite::Expression &expression,
-                              requite::Situation situation) {
+                                        requite::Situation situation) {
   switch (situation) {
   case requite::Situation::NONE:
     this->situateExpression<requite::Situation::NONE>(expression);
@@ -942,8 +942,19 @@ void Situator::situateExpression(requite::Expression &expression) {
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_QUOTE)) {
       REQUITE_UNREACHABLE();
-    }
+    } 
     // do nothing!
+    break;
+  case requite::Opcode::MACRO_DEFINE:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::MACRO_DEFINE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::SYMBOL_NAME,
+                                    requite::Situation::MATTE_VALUE>(
+          expression);
+    }
     break;
   case requite::Opcode::MACRO_EXPAND:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
