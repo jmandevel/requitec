@@ -62,10 +62,10 @@ struct Contextualizer0 final {
                                       bool has_attributes);
 
   // expand.cpp
-  [[nodiscard]] bool expandExpression(requite::Expression& expression);
-  [[nodiscard]] bool expandBranchTree(requite::Expression& expression);
-  [[nodiscard]] bool expandTree(requite::Expression& expression);
-  [[nodiscard]] bool expandForest(requite::Expression& expression);
+  [[nodiscard]] bool expandMacroExpression(requite::Expression& expression);
+  [[nodiscard]] bool expandMacroBranchTree(requite::Expression& expression);
+  [[nodiscard]] bool expandMacroTree(requite::Expression& expression);
+  [[nodiscard]] bool expandMacroForest(requite::Expression& expression);
 };
 
 } // namespace requite

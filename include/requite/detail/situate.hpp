@@ -860,17 +860,17 @@ void Situator::situateExpression(requite::Expression &expression) {
     }
     // do nothing!
     break;
-  case requite::Opcode::EXPAND:
+  case requite::Opcode::EXPAND_MACRO:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::EXPAND)) {
+                      requite::Opcode::EXPAND_MACRO)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_EXPAND_VALUE:
+  case requite::Opcode::_EXPAND_MACRO_VALUE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXPAND_VALUE)) {
+                      requite::Opcode::_EXPAND_MACRO_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,

@@ -191,8 +191,8 @@ enum class Opcode : unsigned {
   TEMPLATE,
   _SPECIALIZATION,
   _QUOTE,
-  EXPAND,
-  _EXPAND_VALUE,
+  EXPAND_MACRO,
+  _EXPAND_MACRO_VALUE,
   BAKE,
   _BAKE_VALUE,
 

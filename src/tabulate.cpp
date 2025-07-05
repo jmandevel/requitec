@@ -23,7 +23,7 @@ bool Contextualizer0::tabulateModule() {
 }
 
 bool Contextualizer0::tabulateStatement(requite::Expression &statement) {
-  if (!this->expandExpression(statement)) {
+  if (!this->expandMacroExpression(statement)) {
     return false;
   }
   return this->tabulateStatement(statement, false);
@@ -79,7 +79,7 @@ bool Contextualizer0::tabulateEntryPoint(requite::Expression &expression,
                                         "entry_point must not have attributes");
     is_ok = false;
   }
-  if (!this->expandBranchTree(expression)) {
+  if (!this->expandMacroBranchTree(expression)) {
     is_ok = false;
   }
   return is_ok;
