@@ -22,12 +22,11 @@ bool Context::situateAst(requite::Module &module) {
 }
 
 bool Context::situateTree(requite::Module &module,
-                          requite::Expression &expression) {
+                          requite::Expression &expression, requite::Situation situation) {
   requite::Situator situator(*this, module);
-  // if (!situator.situateExpression(expression)) { // TODO determine situation
-  // somehow
-  //   return false;
-  // }
+  if (!situator.situateExpression(expression, situation)) {
+    return false;
+  }
   return true;
 }
 

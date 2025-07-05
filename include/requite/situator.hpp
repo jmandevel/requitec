@@ -40,6 +40,8 @@ struct Situator final {
   void insertModuleRoot();
 
   // detail/situate/situate.hpp
+  [[nodiscard]] inline bool situateExpression(requite::Expression &expression,
+                                              requite::Situation situation);
   template <requite::Situation SITUATION_PARAM>
   inline void situateExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -91,8 +93,7 @@ struct Situator final {
   inline void
   situate_BindSymbolOrDefaultSymbolExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_QuestionExpression(
-      requite::Expression &expression);
+  inline void situate_QuestionExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_ReflectValueExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
@@ -143,9 +144,11 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situateTableExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_CompileTimeConcatinateExpression(requite::Expression &expression);
+  inline void
+  situate_CompileTimeConcatinateExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_AscribeLastBranchExpression(requite::Expression &expression);
+  inline void
+  situate_AscribeLastBranchExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_InitializeExpression(requite::Expression &expression);
 };

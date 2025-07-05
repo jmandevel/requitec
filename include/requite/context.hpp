@@ -180,7 +180,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   bool situateAst(requite::Module &module);
   [[nodiscard]]
-  bool situateTree(requite::Module& module, requite::Expression& expression);
+  bool situateTree(requite::Module& module, requite::Expression& expression, requite::Situation situation);
 
   // tokenize_tokens.cpp
   [[nodiscard]]

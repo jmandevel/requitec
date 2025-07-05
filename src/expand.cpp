@@ -1,6 +1,6 @@
 #include <requite/context.hpp>
-#include <requite/expression.hpp>
 #include <requite/contextualizer0.hpp>
+#include <requite/expression.hpp>
 #include <requite/unreachable.hpp>
 
 namespace requite {
@@ -10,8 +10,10 @@ bool Contextualizer0::expandMacroExpression(requite::Expression &expression) {
     return true;
   }
   requite::Expression &value_expression = expression.getBranch();
+  requite::Situation situation = expression.getSituation();
   REQUITE_UNREACHABLE(); // TODO expand
-  if (!this->getContext().situateTree(this->getModule(), expression)) {
+  if (!this->getContext().situateTree(this->getModule(), expression,
+                                      situation)) {
     return false;
   }
   return true;
@@ -26,38 +28,38 @@ bool Contextualizer0::expandMacroBranchTree(requite::Expression &expression) {
 }
 
 bool Contextualizer0::expandMacroTree(requite::Expression &expression) {
-    if (!this->expandMacroExpression(expression)) {
-        return false;
-    }
-    if (!expression.getHasBranch()) {
-        return true;
-    }
-    requite::Expression& branch = expression.getBranch();
-    if (!this->expandMacroForest(branch)) {
-        return false;
-    }
+  if (!this->expandMacroExpression(expression)) {
+    return false;
+  }
+  if (!expression.getHasBranch()) {
     return true;
+  }
+  requite::Expression &branch = expression.getBranch();
+  if (!this->expandMacroForest(branch)) {
+    return false;
+  }
+  return true;
 }
 
 bool Contextualizer0::expandMacroForest(requite::Expression &expression) {
-    if (!this->expandMacroExpression(expression)) {
-        return false;
+  if (!this->expandMacroExpression(expression)) {
+    return false;
+  }
+  bool is_ok = true;
+  if (expression.getHasBranch()) {
+    requite::Expression &branch = expression.getBranch();
+    if (!this->expandMacroForest(branch)) {
+      is_ok = false;
     }
-    bool is_ok = true;
-    if (expression.getHasBranch()) {
-        requite::Expression& branch = expression.getBranch();
-        if (!this->expandMacroForest(branch)) {
-            is_ok = false;
-        }
-    }
-    if (!expression.getHasNext()) {
-        return is_ok;
-    }
-    requite::Expression& next = expression.getNext();
-    if (!this->expandMacroForest(next)) {
-        is_ok = false;
-    }
+  }
+  if (!expression.getHasNext()) {
     return is_ok;
+  }
+  requite::Expression &next = expression.getNext();
+  if (!this->expandMacroForest(next)) {
+    is_ok = false;
+  }
+  return is_ok;
 }
 
 } // namespace requite

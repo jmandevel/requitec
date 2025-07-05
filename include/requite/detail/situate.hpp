@@ -14,6 +14,91 @@
 
 namespace requite {
 
+inline bool Situator::situateExpression(requite::Expression &expression,
+                              requite::Situation situation) {
+  switch (situation) {
+  case requite::Situation::NONE:
+    this->situateExpression<requite::Situation::NONE>(expression);
+  case requite::Situation::ROOT_STATEMENT:
+    this->situateExpression<requite::Situation::ROOT_STATEMENT>(expression);
+  case requite::Situation::BASE_STATEMENT:
+    this->situateExpression<requite::Situation::BASE_STATEMENT>(expression);
+  case requite::Situation::TABLE_STATEMENT:
+    this->situateExpression<requite::Situation::TABLE_STATEMENT>(expression);
+  case requite::Situation::OBJECT_STATEMENT:
+    this->situateExpression<requite::Situation::OBJECT_STATEMENT>(expression);
+  case requite::Situation::MATTE_LOCAL_STATEMENT:
+    this->situateExpression<requite::Situation::MATTE_LOCAL_STATEMENT>(
+        expression);
+  case requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT:
+    this->situateExpression<
+        requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT>(expression);
+  case requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT:
+    this->situateExpression<
+        requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT>(expression);
+  case requite::Situation::MATTE_DESTINATION:
+    this->situateExpression<requite::Situation::MATTE_DESTINATION>(expression);
+  case requite::Situation::VALUE_REFLECTIVE_DESTINATION:
+    this->situateExpression<requite::Situation::VALUE_REFLECTIVE_DESTINATION>(
+        expression);
+  case requite::Situation::SYMBOL_REFLECTIVE_DESTINATION:
+    this->situateExpression<requite::Situation::SYMBOL_REFLECTIVE_DESTINATION>(
+        expression);
+  case requite::Situation::MATTE_VALUE:
+    this->situateExpression<requite::Situation::MATTE_VALUE>(expression);
+  case requite::Situation::VALUE_REFLECTIVE_VALUE:
+    this->situateExpression<requite::Situation::VALUE_REFLECTIVE_VALUE>(
+        expression);
+  case requite::Situation::SYMBOL_REFLECTIVE_VALUE:
+    this->situateExpression<requite::Situation::SYMBOL_REFLECTIVE_VALUE>(
+        expression);
+  case requite::Situation::VALUE_BINDING:
+    this->situateExpression<requite::Situation::VALUE_BINDING>(expression);
+  case requite::Situation::MATTE_JUNCTION:
+    this->situateExpression<requite::Situation::MATTE_JUNCTION>(expression);
+  case requite::Situation::VALUE_REFLECTIVE_JUNCTION:
+    this->situateExpression<requite::Situation::VALUE_REFLECTIVE_JUNCTION>(
+        expression);
+  case requite::Situation::SYMBOL_REFLECTIVE_JUNCTION:
+    this->situateExpression<requite::Situation::SYMBOL_REFLECTIVE_JUNCTION>(
+        expression);
+  case requite::Situation::MATTE_SYMBOL:
+    this->situateExpression<requite::Situation::MATTE_SYMBOL>(expression);
+  case requite::Situation::VALUE_REFLECTIVE_SYMBOL:
+    this->situateExpression<requite::Situation::VALUE_REFLECTIVE_SYMBOL>(
+        expression);
+  case requite::Situation::SYMBOL_REFLECTIVE_SYMBOL:
+    this->situateExpression<requite::Situation::SYMBOL_REFLECTIVE_SYMBOL>(
+        expression);
+  case requite::Situation::SYMBOL_BINDING:
+    this->situateExpression<requite::Situation::SYMBOL_BINDING>(expression);
+  case requite::Situation::NAMED_FIELD:
+    this->situateExpression<requite::Situation::NAMED_FIELD>(expression);
+  case requite::Situation::POSITIONAL_FIELD:
+    this->situateExpression<requite::Situation::POSITIONAL_FIELD>(expression);
+  case requite::Situation::STRUCTURED_BINDING:
+    this->situateExpression<requite::Situation::STRUCTURED_BINDING>(expression);
+  case requite::Situation::SYMBOL_NAME:
+    this->situateExpression<requite::Situation::SYMBOL_NAME>(expression);
+  case requite::Situation::SYMBOL_PATH:
+    this->situateExpression<requite::Situation::SYMBOL_PATH>(expression);
+  case requite::Situation::SWITCH_CASE:
+    this->situateExpression<requite::Situation::SWITCH_CASE>(expression);
+  case requite::Situation::LAST_SWITCH_CASE:
+    this->situateExpression<requite::Situation::LAST_SWITCH_CASE>(expression);
+  case requite::Situation::CAPTURE:
+    this->situateExpression<requite::Situation::CAPTURE>(expression);
+  case requite::Situation::INTEGER_LITERAL:
+    this->situateExpression<requite::Situation::INTEGER_LITERAL>(expression);
+  case requite::Situation::ANY:
+    this->situateExpression<requite::Situation::ANY>(expression);
+  case requite::Situation::VALUE_REFLECTIVE_ANY:
+    this->situateExpression<requite::Situation::VALUE_REFLECTIVE_ANY>(
+        expression);
+  }
+  return this->getIsOk();
+}
+
 template <requite::Situation SITUATION_PARAM>
 void Situator::situateExpression(requite::Expression &expression) {
   switch (const requite::Opcode opcode = expression.getOpcode()) {
@@ -2001,7 +2086,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     }
   }
   if (requite::getHasSituationData(expression.getOpcode())) {
-    expression.setSituation(SITUATION_PARAM); 
+    expression.setSituation(SITUATION_PARAM);
   }
 }
 
