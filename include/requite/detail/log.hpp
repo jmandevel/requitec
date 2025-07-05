@@ -15,7 +15,7 @@ void Context::logNotAtLeastBranchCount(requite::Expression &expression,
       expression, requite::LogType::ERROR,
       llvm::Twine("expression with opcode \"") +
           requite::getName(expression.getOpcode()) + "\" in situation \"" +
-          requite::getName<SITUATION_PARAM>() + "\" must have at least " +
+          requite::getName(SITUATION_PARAM) + "\" must have at least " +
           llvm::Twine(count) + " branches.");
 }
 
@@ -26,7 +26,7 @@ void Context::logNotExactBranchCount(requite::Expression &expression,
       expression, requite::LogType::ERROR,
       llvm::Twine("expression with opcode \"") +
           requite::getName(expression.getOpcode()) + "\" in situation \"" +
-          requite::getName<SITUATION_PARAM>() + "\" must have exactly " +
+          requite::getName(SITUATION_PARAM) + "\" must have exactly " +
           llvm::Twine(count) + " branches.");
 }
 
@@ -37,7 +37,7 @@ void Context::logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
       expression, requite::LogType::ERROR,
       llvm::Twine("expression with opcode \"") +
           requite::getName(expression.getOpcode()) + "\" in situation \"" +
-          requite::getName<SITUATION_PARAM>() + "\" must have no more than " +
+          requite::getName(SITUATION_PARAM) + "\" must have no more than " +
           llvm::Twine(count) + " branches.");
 }
 
@@ -53,7 +53,7 @@ void Context::logInvalidBranchSituation(requite::Expression &branch,
           "\" has branch with opcode \"" + requite::getName(branch_opcode) +
           "\" at index " + llvm::Twine(branch_i) +
           ". this is not valid in expected situation \"" +
-          requite::getName<SITUATION_PARAM>() + "\" for " + log_context + ".");
+          requite::getName(SITUATION_PARAM) + "\" for " + log_context + ".");
 }
 
 void Context::logInvalidOperation(requite::Expression &expression) {

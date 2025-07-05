@@ -242,7 +242,7 @@ inline bool Expression::getHasSituation() const {
   return std::holds_alternative<requite::Situation>(this->_data);
 }
 
-void Expression::setSituation(requite::Situation situation) {
+inline void Expression::setSituation(requite::Situation situation) {
   REQUITE_ASSERT(requite::getHasSituationData(this->getOpcode()));
   this->_data = situation;
 }

@@ -199,7 +199,7 @@ struct Expression final {
   [[nodiscard]] inline llvm::APSInt &getInteger();
   [[nodiscard]] inline const llvm::APSInt &getInteger() const;
   [[nodiscard]] inline bool getHasSituation() const;
-  void setSituation(requite::Situation situation);
+  inline void setSituation(requite::Situation situation);
   inline requite::Situation getSituation() const;
 
   // detail/expression_walk.hpp

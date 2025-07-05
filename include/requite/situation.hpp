@@ -53,8 +53,7 @@ enum class Situation {
   VALUE_REFLECTIVE_ANY
 };
 
-template <requite::Situation SITUATION_PARAM>
-[[nodiscard]] constexpr llvm::StringRef getName();
+[[nodiscard]] constexpr llvm::StringRef getName(requite::Situation situation);
 
 template <requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr bool getIsValue();

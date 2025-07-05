@@ -8,93 +8,77 @@
 
 namespace requite {
 
-template <requite::Situation SITUATION_PARAM>
-constexpr llvm::StringRef getName() {
-  if constexpr (SITUATION_PARAM == requite::Situation::NONE) {
-    return "NONE";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::ROOT_STATEMENT) {
-    return "ROOT_STATEMENT";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
-    return "BASE_STATEMENT";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::TABLE_STATEMENT) {
-    return "TABLE_STATEMENT";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::OBJECT_STATEMENT) {
-    return "OBJECT_STATEMENT";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::MATTE_LOCAL_STATEMENT) {
-    return "MATTE_LOCAL_STATEMENT";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT) {
-    return "VALUE_REFLECTIVE_LOCAL_STATEMENT";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT) {
-    return "SYMBOL_REFLECTIVE_LOCAL_STATEMENT";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::MATTE_DESTINATION) {
-    return "MATTE_DESTINATION";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::VALUE_REFLECTIVE_DESTINATION) {
-    return "VALUE_REFLECTIVE_DESTINATION";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::SYMBOL_REFLECTIVE_DESTINATION) {
-    return "SYMBOL_REFLECTIVE_DESTINATION";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    return "MATTE_VALUE";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::VALUE_REFLECTIVE_VALUE) {
-    return "VALUE_REFLECTIVE_VALUE";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
-    return "SYMBOL_REFLECTIVE_VALUE";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    return "MATTE_JUNCTION";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::VALUE_REFLECTIVE_JUNCTION) {
-    return "VALUE_REFLECTIVE_JUNCTION";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::SYMBOL_REFLECTIVE_JUNCTION) {
-    return "SYMBOL_REFLECTIVE_JUNCTION";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL) {
-    return "MATTE_SYMBOL";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::VALUE_REFLECTIVE_SYMBOL) {
-    return "VALUE_REFLECTIVE_SYMBOL";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::SYMBOL_REFLECTIVE_SYMBOL) {
-    return "SYMBOL_REFLECTIVE_SYMBOL";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::VALUE_BINDING) {
-    return "VALUE_BINDING";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_BINDING) {
-    return "SYMBOL_BINDING";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::NAMED_FIELD) {
-    return "NAMED_FIELD";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::POSITIONAL_FIELD) {
-    return "POSITIONAL_FIELD";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::STRUCTURED_BINDING) {
-    return "STRUCTURED_BINDING";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME) {
-    return "SYMBOL_NAME";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
-    return "SYMBOL_PATH";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::SWITCH_CASE) {
-    return "SWITCH_CASE";
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::LAST_SWITCH_CASE) {
-    return "LAST_SWITCH_CASE";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::CAPTURE) {
-    return "CAPTURE";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::INTEGER_LITERAL) {
-    return "INTEGER_LITERAL";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::ANY) {
-    return "ANY";
-  } else if constexpr (SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_ANY) {
-    return "VALUE_REFLECTIVE_ANY";
-  } else {
-    static_assert(false, "invalid situation");
+constexpr llvm::StringRef getName(requite::Situation situation) {
+  using namespace requite;
+  switch (situation) {
+    case Situation::NONE:
+      return "NONE";
+    case Situation::ROOT_STATEMENT:
+      return "ROOT_STATEMENT";
+    case Situation::BASE_STATEMENT:
+      return "BASE_STATEMENT";
+    case Situation::TABLE_STATEMENT:
+      return "TABLE_STATEMENT";
+    case Situation::OBJECT_STATEMENT:
+      return "OBJECT_STATEMENT";
+    case Situation::MATTE_LOCAL_STATEMENT:
+      return "MATTE_LOCAL_STATEMENT";
+    case Situation::VALUE_REFLECTIVE_LOCAL_STATEMENT:
+      return "VALUE_REFLECTIVE_LOCAL_STATEMENT";
+    case Situation::SYMBOL_REFLECTIVE_LOCAL_STATEMENT:
+      return "SYMBOL_REFLECTIVE_LOCAL_STATEMENT";
+    case Situation::MATTE_DESTINATION:
+      return "MATTE_DESTINATION";
+    case Situation::VALUE_REFLECTIVE_DESTINATION:
+      return "VALUE_REFLECTIVE_DESTINATION";
+    case Situation::SYMBOL_REFLECTIVE_DESTINATION:
+      return "SYMBOL_REFLECTIVE_DESTINATION";
+    case Situation::MATTE_VALUE:
+      return "MATTE_VALUE";
+    case Situation::VALUE_REFLECTIVE_VALUE:
+      return "VALUE_REFLECTIVE_VALUE";
+    case Situation::SYMBOL_REFLECTIVE_VALUE:
+      return "SYMBOL_REFLECTIVE_VALUE";
+    case Situation::VALUE_BINDING:
+      return "VALUE_BINDING";
+    case Situation::MATTE_JUNCTION:
+      return "MATTE_JUNCTION";
+    case Situation::VALUE_REFLECTIVE_JUNCTION:
+      return "VALUE_REFLECTIVE_JUNCTION";
+    case Situation::SYMBOL_REFLECTIVE_JUNCTION:
+      return "SYMBOL_REFLECTIVE_JUNCTION";
+    case Situation::MATTE_SYMBOL:
+      return "MATTE_SYMBOL";
+    case Situation::VALUE_REFLECTIVE_SYMBOL:
+      return "VALUE_REFLECTIVE_SYMBOL";
+    case Situation::SYMBOL_REFLECTIVE_SYMBOL:
+      return "SYMBOL_REFLECTIVE_SYMBOL";
+    case Situation::SYMBOL_BINDING:
+      return "SYMBOL_BINDING";
+    case Situation::NAMED_FIELD:
+      return "NAMED_FIELD";
+    case Situation::POSITIONAL_FIELD:
+      return "POSITIONAL_FIELD";
+    case Situation::STRUCTURED_BINDING:
+      return "STRUCTURED_BINDING";
+    case Situation::SYMBOL_NAME:
+      return "SYMBOL_NAME";
+    case Situation::SYMBOL_PATH:
+      return "SYMBOL_PATH";
+    case Situation::SWITCH_CASE:
+      return "SWITCH_CASE";
+    case Situation::LAST_SWITCH_CASE:
+      return "LAST_SWITCH_CASE";
+    case Situation::CAPTURE:
+      return "CAPTURE";
+    case Situation::INTEGER_LITERAL:
+      return "INTEGER_LITERAL";
+    case Situation::ANY:
+      return "ANY";
+    case Situation::VALUE_REFLECTIVE_ANY:
+      return "VALUE_REFLECTIVE_ANY";
   }
+  return "NONE";
 }
 
 template <requite::Situation SITUATION_PARAM>

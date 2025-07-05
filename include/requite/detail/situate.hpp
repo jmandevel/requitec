@@ -2029,7 +2029,7 @@ void Situator::situateNullaryExpression(requite::Expression &expression) {
         expression, requite::LogType::ERROR,
         llvm::Twine("expression with opcode \"") +
             requite::getName(expression.getOpcode()) + "\" in situation \"" +
-            requite::getName<SITUATION_PARAM>() + "\" must not have branches");
+            requite::getName(SITUATION_PARAM) + "\" must not have branches");
     this->setNotOk();
   }
 }
