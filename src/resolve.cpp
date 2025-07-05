@@ -1,4 +1,5 @@
 #include <requite/context.hpp>
+#include <requite/local_implementor.hpp>
 
 namespace requite {
 
@@ -61,16 +62,14 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   return false;
 }
 
-bool Context::resolveTypeOfValue(requite::Symbol &out_symbol,
-                                 requite::Scope &scope,
+bool LocalImplementor::resolveTypeOfValue(requite::Symbol &out_symbol,
                                  requite::Expression &symbol_expression,
                                  requite::Expression &value_expression) {
   // TODO
   return false;
 }
 
-bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
-                                   requite::Scope &scope,
+bool LocalImplementor::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                    requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__LOCAL_HANDLE: {
@@ -84,15 +83,12 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
   }
   case requite::Opcode::__IDENTIFIER_LITERAL: {
     llvm::StringRef name = value_expression.getDataText();
-    requite::RootSymbol found = scope.lookupUserSymbol(name);
+    requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
     if (found.getIsNone()) {
       break;
     }
     if (found.getIsLocal()) {
       requite::Local &local = found.getLocal();
-      if (!this->prototypeLocal(local)) {
-        break;
-      }
       out_symbol = local.getDataType();
       value_expression.clearData();
       value_expression.changeOpcode(requite::Opcode::__LOCAL_HANDLE);
@@ -101,19 +97,19 @@ bool Context::inferenceTypeOfValue(requite::Symbol &out_symbol,
     }
   }
   case requite::Opcode::_ADD:
-    return this->inferenceTypeOfNaryArithmeticValue(out_symbol, scope,
+    return this->inferenceTypeOfNaryArithmeticValue(out_symbol,
                                                     value_expression);
   }
-  this->logSourceMessage(value_expression, requite::LogType::ERROR,
+  this->getContext().logSourceMessage(value_expression, requite::LogType::ERROR,
                          "failed to inference type of value");
   return false;
 }
 
-bool Context::inferenceTypeOfNaryArithmeticValue(
-    requite::Symbol &out_symbol, requite::Scope &scope,
+bool LocalImplementor::inferenceTypeOfNaryArithmeticValue(
+    requite::Symbol &out_symbol,
     requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();
-  if (!this->inferenceTypeOfValue(out_symbol, scope, first)) {
+  if (!this->inferenceTypeOfValue(out_symbol, first)) {
     return false;
   }
   if (!out_symbol.getHasOnlyReferenceSubtypes()) {
@@ -125,7 +121,7 @@ bool Context::inferenceTypeOfNaryArithmeticValue(
       requite::AttributeType::CONSTANT);
   for (requite::Expression &branch : first.getNextSubrange()) {
     requite::Symbol branch_symbol;
-    if (!this->inferenceTypeOfValue(branch_symbol, scope, branch)) {
+    if (!this->inferenceTypeOfValue(branch_symbol, branch)) {
       return false;
     }
     if (!branch_symbol.getHasOnlyReferenceSubtypes()) {
@@ -170,7 +166,7 @@ bool Context::inferenceTypeOfNaryArithmeticValue(
   return true;
 }
 
-bool Context::resolveTypeAttributes(requite::AttributeFlags flags,
+bool Context::resolveTypeAttributes(requite::AttributeFlags& flags,
                                     requite::Expression &first) {
   bool is_ok = true;
   for (requite::Expression &attribute : first.getHorizontalSubrange()) {

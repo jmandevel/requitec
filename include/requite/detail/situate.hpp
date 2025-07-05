@@ -2910,13 +2910,13 @@ inline void
 Situator::situate_AssignExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ASSIGN);
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    this->situateNaryWithLastExpression<SITUATION_PARAM, 2,
-                                        requite::Situation::MATTE_JUNCTION,
-                                        requite::Situation::MATTE_VALUE>(
-        expression);
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_JUNCTION,
+                                  requite::Situation::MATTE_VALUE>(expression);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    this->situateNaryExpression<SITUATION_PARAM, 2,
-                                requite::Situation::MATTE_JUNCTION>(expression);
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_JUNCTION>(
+        expression);
   } else if constexpr (SITUATION_PARAM ==
                            requite::Situation::MATTE_DESTINATION ||
                        SITUATION_PARAM ==
@@ -2924,8 +2924,7 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
                        SITUATION_PARAM ==
                            requite::Situation::STRUCTURED_BINDING) {
     if (!expression.getHasBranch()) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression,
-                                                                   2);
+      this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
       this->setNotOk();
       return;
     }
@@ -2946,32 +2945,10 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
       this->situateBranch<requite::Situation::MATTE_DESTINATION>(
           "first branch", expression, 0, destination);
     }
-    if (!destination.getHasNext()) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression,
-                                                                   2);
+    if (destination.getHasNext()) {
+      this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
       this->setNotOk();
       return;
-    }
-    requite::Expression &value = destination.getNext();
-    unsigned branch_i = 0;
-    for (requite::Expression &value_next : value.getHorizontalSubrange()) {
-      if constexpr (SITUATION_PARAM ==
-                        requite::Situation::MATTE_LOCAL_STATEMENT ||
-                    SITUATION_PARAM == requite::Situation::STRUCTURED_BINDING) {
-        if (value_next.getHasNext()) {
-          this->situateBranch<requite::Situation::MATTE_JUNCTION>(
-              "middle branch", destination, branch_i++, value_next);
-          continue;
-        }
-        this->situateBranch<requite::Situation::MATTE_VALUE>(
-            "last branch", destination, branch_i++, value_next);
-      } else if constexpr (SITUATION_PARAM ==
-                           requite::Situation::MATTE_DESTINATION) {
-        this->situateBranch<requite::Situation::MATTE_JUNCTION>(
-            "any branch", destination, branch_i++, value_next);
-      } else {
-        static_assert(false, "not implemented");
-      }
     }
     if (destination.getOpcode() == requite::Opcode::_TRIP) {
       if (last_destination_branch_ptr == nullptr) {
@@ -3098,23 +3075,22 @@ inline void
 Situator::situate_InitializeExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_INITIALIZE);
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    this->situateNaryWithLastExpression<SITUATION_PARAM, 2,
-                                        requite::Situation::MATTE_JUNCTION,
-                                        requite::Situation::MATTE_VALUE>(
-        expression);
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_JUNCTION,
+                                  requite::Situation::MATTE_VALUE>(expression);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    this->situateNaryExpression<SITUATION_PARAM, 2,
-                                requite::Situation::MATTE_JUNCTION>(expression);
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_JUNCTION>(
+        expression);
   } else if constexpr (SITUATION_PARAM ==
                            requite::Situation::MATTE_DESTINATION ||
                        SITUATION_PARAM ==
                            requite::Situation::MATTE_LOCAL_STATEMENT ||
                        SITUATION_PARAM ==
                            requite::Situation::STRUCTURED_BINDING) {
-    this->situateNaryWithLastExpression<
-        SITUATION_PARAM, 2, requite::Situation::MATTE_DESTINATION,
-        requite::Situation::MATTE_JUNCTION, requite::Situation::MATTE_VALUE>(
-        expression);
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_DESTINATION,
+                                  requite::Situation::MATTE_VALUE>(expression);
   } else {
     static_assert("invalid situation");
   }

@@ -14,9 +14,21 @@ namespace requite {
 
 bool Context::situateAst(requite::Module &module) {
 
-  requite::Situator Situator(*this, module);
-  const bool is_ok = Situator.situateAst();
-  return is_ok;
+  requite::Situator situator(*this, module);
+  if (!situator.situateAst()) {
+    return false;
+  }
+  return true;
+}
+
+bool Context::situateTree(requite::Module &module,
+                          requite::Expression &expression) {
+  requite::Situator situator(*this, module);
+  // if (!situator.situateExpression(expression)) { // TODO determine situation
+  // somehow
+  //   return false;
+  // }
+  return true;
 }
 
 Situator::Situator(requite::Context &context, requite::Module &module)

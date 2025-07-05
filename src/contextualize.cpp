@@ -13,129 +13,16 @@ bool Context::contextualizeModule(requite::Module &module) {
   requite::Expression &module_name = root.getBranch();
   REQUITE_ASSERT(module_name.getOpcode() ==
                  requite::Opcode::__IDENTIFIER_LITERAL);
-  bool is_ok = true;
-  for (requite::Expression &expression : module_name.getNextSubrange()) {
-    switch (const requite::Opcode opcode = expression.getOpcode()) {
-    case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
-      requite::Expression &ascribed = expression.getBranch();
-      switch (const requite::Opcode ascribed_opcode = ascribed.getOpcode()) {
-      case requite::Opcode::ENTRY_POINT:
-        this->logErrorMustNotHaveAttributeFlags(ascribed);
-        is_ok = false;
-        break;
-      case requite::Opcode::FUNCTION:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      case requite::Opcode::GLOBAL:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      case requite::Opcode::OBJECT:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      case requite::Opcode::TABLE:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      case requite::Opcode::IMPORT:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      case requite::Opcode::USE:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      case requite::Opcode::_EXPAND_VALUE:
-        this->logNotSupportedYet(expression);
-        is_ok = false;
-        break;
-      default:
-        REQUITE_UNREACHABLE();
-      }
-      break;
-    }
-    case requite::Opcode::ENTRY_POINT:
-      if (!this->tabulateEntryPoint(module, expression)) {
-        is_ok = false;
-      }
-      break;
-    case requite::Opcode::FUNCTION:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::GLOBAL:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::OBJECT:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::TABLE:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::IMPORT:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::USE:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::_EXPAND_VALUE:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    default:
-      REQUITE_UNREACHABLE();
-    }
-  }
-  if (!is_ok) {
+  if (!this->tabulateModuleGlobalUserSymbols(module)) {
     return false;
   }
-  for (requite::Expression &expression : module_name.getNextSubrange()) {
-    switch (const requite::Opcode opcode = expression.getOpcode()) {
-    case requite::Opcode::ENTRY_POINT:
-      if (!this->prototypeEntryPoint(expression.getProcedure())) {
-        is_ok = false;
-      }
-      break;
-    case requite::Opcode::FUNCTION:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::GLOBAL:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::OBJECT:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::TABLE:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::IMPORT:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::USE:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    case requite::Opcode::_EXPAND_VALUE:
-      this->logNotSupportedYet(expression);
-      is_ok = false;
-      break;
-    default:
-      REQUITE_UNREACHABLE();
-    }
+  bool is_ok = true;
+  if (!this->implementGlobalUserSymbols()) {
+    is_ok = false;
   }
-
+  if (!this->checkEntryPointCount()) {
+    return false;
+  }
   return is_ok;
 }
 

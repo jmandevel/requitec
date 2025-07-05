@@ -1,73 +1,175 @@
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
+#include <requite/global_tabulator.hpp>
 #include <requite/local.hpp>
+#include <requite/local_implementor.hpp>
+#include <requite/module.hpp>
 #include <requite/scope.hpp>
 
 namespace requite {
 
-bool Context::tabulateEntryPoint(requite::Module &module,
-                                 requite::Expression &expression) {
-  requite::Procedure &procedure = this->makeProcedure();
-  procedure.setType(requite::ProcedureType::ENTRY_POINT);
-  procedure.setModule(module);
-  procedure.setExpression(expression);
-  expression.setProcedure(procedure);
-  module.addEntryPoint(procedure);
-  if (!this->tabulateLocalExpressions(procedure.getModule(),
-                                      procedure.getScope(),
-                                      expression.getBranch())) {
+bool Context::tabulateModuleGlobalUserSymbols(requite::Module &module) {
+  requite::GlobalTabulator tabulator(*this, module);
+  if (!tabulator.tabulateModule()) {
     return false;
   }
   return true;
 }
 
-bool Context::tabulate_Initialize(requite::Module &module,
-                                  requite::Scope &scope,
-                                  requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_INITIALIZE);
-  requite::Expression &lhs = expression.getBranch();
-  if (requite::getCanBeSymbolNameSituation(lhs.getOpcode())) {
-    llvm::StringRef name;
-    if (!this->evaluateName(name, scope, lhs)) {
-      return false;
-    }
-    requite::RootSymbol found;
-    found = scope.lookupUserSymbol(name);
-    if (found.getIsNone()) {
-      expression.changeOpcode(requite::Opcode::_LOCAL);
-      requite::Local &local = this->makeLocal();
-      local.setExpression(expression);
-      expression.setLocal(local);
-      local.setName(name);
-      scope.addInternalSymbol(local);
-    }
-  }
-  return this->tabulateLocalExpressions(module, scope, lhs);
-}
-
-bool Context::tabulateLocalExpressions(requite::Module &module,
-                                       requite::Scope &scope,
-                                       requite::Expression &first) {
+bool GlobalTabulator::tabulateModule() {
+  requite::Expression &root = this->getModule().getExpression();
+  REQUITE_ASSERT(!root.getHasNext());
+  requite::Expression &module_name = root.getBranch();
   bool is_ok = true;
-  for (requite::Expression &expression : first.getHorizontalSubrange()) {
-    switch (const requite::Opcode opcode = expression.getOpcode()) {
-    case requite::Opcode::_INITIALIZE:
-      if (!this->tabulate_Initialize(module, scope, expression)) {
-        is_ok = false;
-      }
-      break;
-    default:
-      if (!expression.getHasBranch()) {
-        break;
-      }
-      if (!this->tabulateLocalExpressions(module, scope,
-                                          expression.getBranch())) {
-        is_ok = false;
-      }
-      break;
+  for (requite::Expression &base_statement : module_name.getNextSubrange()) {
+    if (!this->tabulateStatement(base_statement)) {
+      is_ok = false;
     }
   }
   return is_ok;
+}
+
+bool GlobalTabulator::tabulateStatement(requite::Expression &statement) {
+  if (!this->expandExpression(statement)) {
+    return false;
+  }
+  return this->tabulateStatement(statement, false);
+}
+
+bool GlobalTabulator::tabulateStatement(requite::Expression &statement,
+                                        bool has_attributes) {
+  switch (const requite::Opcode opcode = statement.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
+    REQUITE_ASSERT(!has_attributes);
+    return this->tabulateStatement(statement.getBranch(), true);
+  case requite::Opcode::ENTRY_POINT:
+    return this->tabulateEntryPoint(statement, has_attributes);
+  case requite::Opcode::FUNCTION:
+    return this->tabulateFunction(statement, has_attributes);
+  case requite::Opcode::METHOD:
+    return this->tabulateMethod(statement, has_attributes);
+  case requite::Opcode::EXTENSION:
+    return this->tabulateExtension(statement, has_attributes);
+  case requite::Opcode::CONSTRUCTOR:
+    return this->tabulateConstructor(statement, has_attributes);
+  case requite::Opcode::DESTRUCTOR:
+    return this->tabulateDestructor(statement, has_attributes);
+  case requite::Opcode::OBJECT:
+    return this->tabulateObject(statement, has_attributes);
+  case requite::Opcode::ALIAS:
+    return this->tabulateAlias(statement, has_attributes);
+  case requite::Opcode::IMPORT:
+    return this->tabulateImport(statement, has_attributes);
+  case requite::Opcode::USE:
+    return this->tabulateUse(statement, has_attributes);
+  case requite::Opcode::GLOBAL:
+    return this->tabulateGlobal(statement, has_attributes);
+  case requite::Opcode::PROPERTY:
+    return this->tabulateProperty(statement, has_attributes);
+  default:
+    break;
+  }
+  REQUITE_UNREACHABLE();
+}
+
+bool GlobalTabulator::tabulateEntryPoint(requite::Expression &expression,
+                                         bool has_attributes) {
+  requite::Procedure &procedure = this->getContext().makeProcedure();
+  procedure.setType(requite::ProcedureType::ENTRY_POINT);
+  procedure.setModule(this->getModule());
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  this->getModule().addEntryPoint(procedure);
+  bool is_ok = true;
+  if (has_attributes) {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "entry_point must not have attributes");
+    is_ok = false;
+  }
+  if (!this->expandBranchTree(expression)) {
+    is_ok = false;
+  }
+  return is_ok;
+}
+
+bool GlobalTabulator::tabulateFunction(requite::Expression &expression,
+                                       bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateMethod(requite::Expression &expression,
+                                     bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateExtension(requite::Expression &expression,
+                                        bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateConstructor(requite::Expression &expression,
+                                          bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateDestructor(requite::Expression &expression,
+                                         bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateObject(requite::Expression &expression,
+                                     bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateAlias(requite::Expression &expression,
+                                    bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateImport(requite::Expression &import,
+                                     bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateUse(requite::Expression &use,
+                                  bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateGlobal(requite::Expression &expression,
+                                     bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool GlobalTabulator::tabulateProperty(requite::Expression &expression,
+                                       bool has_attributes) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool LocalImplementor::tabulate_Local(requite::Local *&out_local_ptr,
+                                      llvm::StringRef name,
+                                      requite::Expression &statement) {
+  REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::_LOCAL);
+  requite::Local &local = this->getContext().makeLocal();
+  local.setExpression(statement);
+  statement.setLocal(local);
+  local.setName(name);
+  this->getScope().addInternalSymbol(local);
+  out_local_ptr = &local;
+  return true;
+}
+
+bool LocalImplementor::tabulateAlias(requite::Expression &expression) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool LocalImplementor::tabulateImport(requite::Expression &import) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool LocalImplementor::tabulateUse(requite::Expression &use) {
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 } // namespace requite

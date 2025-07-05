@@ -1,0 +1,71 @@
+#pragma once
+
+#include <functional>
+
+namespace requite {
+
+struct Context;
+struct Module;
+struct Scope;
+struct Object;
+struct Expression;
+
+struct GlobalTabulator final {
+  using Self = requite::GlobalTabulator;
+
+  std::reference_wrapper<requite::Context> _context_ref;
+  std::reference_wrapper<requite::Module> _module_ref;
+  requite::Scope *_scope_ptr = nullptr;
+
+  // global_tabulator.cpp
+  GlobalTabulator(requite::Context &constext, requite::Module &module);
+  GlobalTabulator(const Self &) = delete;
+  GlobalTabulator(Self &&) = delete;
+  ~GlobalTabulator() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] requite::Context &getContext();
+  [[nodiscard]] const requite::Context &getContext() const;
+  [[nodiscard]] requite::Module &getModule();
+  [[nodiscard]] const requite::Module &getModule() const;
+  [[nodiscard]] requite::Scope &getScope();
+  [[nodiscard]] const requite::Scope &getScope() const;
+  void enterScope(requite::Scope &scope);
+  void leaveScope();
+
+  // tabulate.cpp
+  [[nodiscard]] bool tabulateModule();
+  [[nodiscard]] bool tabulateStatement(requite::Expression &statement);
+  [[nodiscard]] bool tabulateStatement(requite::Expression &statement,
+                                       bool has_attributes);
+  [[nodiscard]] bool tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
+  [[nodiscard]] bool tabulateFunction(requite::Expression &expression,
+                                      bool has_attributes);
+  [[nodiscard]] bool tabulateMethod(requite::Expression &expression,
+                                    bool has_attributes);
+  [[nodiscard]] bool tabulateExtension(requite::Expression &expression,
+                                       bool has_attributes);
+  [[nodiscard]] bool tabulateConstructor(requite::Expression &expression,
+                                         bool has_attributes);
+  [[nodiscard]] bool tabulateDestructor(requite::Expression &expression,
+                                        bool has_attributes);
+  [[nodiscard]] bool tabulateObject(requite::Expression &expression,
+                                    bool has_attributes);
+  [[nodiscard]] bool tabulateAlias(requite::Expression &expression,
+                                   bool has_attributes);
+  [[nodiscard]] bool tabulateImport(requite::Expression &import,
+                                    bool has_attributes);
+  [[nodiscard]] bool tabulateUse(requite::Expression &use, bool has_attributes);
+  [[nodiscard]] bool tabulateGlobal(requite::Expression &expression,
+                                    bool has_attributes);
+  [[nodiscard]] bool tabulateProperty(requite::Expression &expression,
+                                      bool has_attributes);
+
+  // expand.cpp
+  [[nodiscard]] bool expandExpression(requite::Expression& expression);
+  [[nodiscard]] bool expandBranchTree(requite::Expression& expression);
+  [[nodiscard]] bool expandTree(requite::Expression& expression);
+  [[nodiscard]] bool expandForest(requite::Expression& expression);
+};
+
+} // namespace requite

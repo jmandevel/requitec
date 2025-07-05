@@ -178,6 +178,8 @@ struct Context final : public requite::_ContextLlvmContext {
   // situate_ast.cpp
   [[nodiscard]]
   bool situateAst(requite::Module &module);
+  [[nodiscard]]
+  bool situateTree(requite::Module& module, requite::Expression& expression);
 
   // tokenize_tokens.cpp
   [[nodiscard]]
@@ -196,51 +198,34 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool checkEntryPointCount();
 
   // tabulate.cpp
-  [[nodiscard]] bool tabulateEntryPoint(requite::Module &module,
-                                        requite::Expression &expression);
-  [[nodiscard]] bool tabulate_Initialize(requite::Module &module,
-                                         requite::Scope &scope,
-                                         requite::Expression &expression);
-  [[nodiscard]] bool tabulateLocalExpressions(requite::Module &module,
-                                              requite::Scope &scope,
-                                              requite::Expression &first);
+  [[nodiscard]] bool tabulateModuleGlobalUserSymbols(requite::Module& module);
 
-  // prototype.cpp
-  [[nodiscard]] bool prototypeEntryPoint(requite::Procedure &procedure);
-  [[nodiscard]] bool prototypeLocal(requite::Local &local);
-  [[nodiscard]] bool prototypeExit(requite::Procedure &procedure, requite::Scope& scope,
-                                   requite::Expression &expression);
-  [[nodiscard]] bool
-  prototypeProcedureBody(requite::Procedure &procedure,
-                         requite::Expression &first_statement);
+  // implement.cpp
+  [[nodiscard]] bool implementGlobalUserSymbols();
+  [[nodiscard]] bool implementProcedure(requite::Procedure &procedure);
+  [[nodiscard]] bool implementEntryPoint(requite::Procedure &procedure);
+  [[nodiscard]] bool implementFunction(requite::Procedure &procedure);
+  [[nodiscard]] bool implementMethod(requite::Procedure &procedure);
+  [[nodiscard]] bool implementExtension(requite::Procedure &procedure);
+  [[nodiscard]] bool implementConstructor(requite::Procedure &procedure);
+  [[nodiscard]] bool implementDestructor(requite::Procedure &procedure);
+  [[nodiscard]] bool implementObject(requite::Object& object);
+  [[nodiscard]] bool implementAlias(requite::Alias& alias);
+  [[nodiscard]] bool implementGlobal(requite::Global& global);
+  [[nodiscard]] bool implementProperty(requite::Property& property);
 
   // build.cpp
   [[nodiscard]] bool buildIr();
 
-  // resolve_symbols.cpp
+  // resolve.cpp
   [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
                                    requite::Scope &scope,
                                    requite::Expression &symbol_expression);
-  [[nodiscard]] bool resolveTypeOfValue(requite::Symbol &out_symbol,
-                                        requite::Scope &scope,
-                                        requite::Expression &symbol_expression,
-                                        requite::Expression &value_expression);
-  [[nodiscard]] bool
-  inferenceTypeOfValue(requite::Symbol &out_symbol, requite::Scope &scope,
-                       requite::Expression &value_expression);
-  [[nodiscard]] bool
-  inferenceTypeOfNaryArithmeticValue(requite::Symbol &out_symbol,
-                                     requite::Scope &scope,
-                                     requite::Expression &expression);
-  [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags flags,
+  [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags &flags,
                                            requite::Expression &first);
   void finalizeIfLiteralType(requite::Symbol &symbol);
 
-  // choose_overload.cpp
-  [[nodiscard]] bool chooseOverload(requite::Scope &scope,
-                                    requite::Expression &call_expression);
-
-  // evaluate_values.cpp
+  // evaluate.cpp
   [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
                                   requite::Scope &scope,
                                   requite::Expression &value_expression);
@@ -250,6 +235,10 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Value
   evaluateValue(requite::Scope &scope, requite::Expression &value_expression,
                 const requite::Symbol &type);
+
+  // choose_overload.cpp
+  [[nodiscard]] bool chooseOverload(requite::Scope &scope,
+                                    requite::Expression &call_expression);
 
   // write_tokens.cpp
   [[nodiscard]] bool writeTokens(requite::Module &module,

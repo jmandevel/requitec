@@ -23,17 +23,20 @@ target_sources(
         context.cpp
         contextualize.cpp
         escape_sequences.cpp
-        evaluate_values.cpp
+        evaluate.cpp
+        expand.cpp
         export_table.cpp
         expression_iterator.cpp
         expression_make.cpp
         expression.cpp
         file.cpp
         get_module.cpp
+        global_tabulator.cpp
         global.cpp
         label.cpp
         llvm_target.cpp
         llvm_module.cpp
+        local_implementor.cpp
         local.cpp
         log.cpp
         lookup_symbols.cpp
@@ -49,8 +52,7 @@ target_sources(
         procedure_iterator.cpp
         procedure.cpp
         property.cpp
-        prototype.cpp
-        resolve_symbols.cpp
+        resolve.cpp
         root_symbol.cpp
         run.cpp
         signature_parameter.cpp
@@ -68,6 +70,7 @@ target_sources(
         tokenize_tokens.cpp
         tuple.cpp
         global.cpp
+        implement.cpp
         write_assembly.cpp
         validate_source.cpp
         write_ast.cpp
