@@ -971,6 +971,15 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
+  case requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
   case requite::Opcode::BAKE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::BAKE)) {
@@ -2095,9 +2104,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       }
     }
   }
-  if (requite::getHasSituationData(expression.getOpcode())) {
-    expression.setSituation(SITUATION_PARAM);
-  }
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -2178,7 +2184,7 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   unsigned branch_i = 0;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
-    this->situateBranch<SITUATION_PARAM>("all branches", expression, branch_i++,
+    this->situateBranch<BRANCH_SITUATION_N_PARAM>("all branches", expression, branch_i++,
                                          branch);
   }
   if (branch_i < MIN_COUNT_PARAM) {
@@ -2233,7 +2239,7 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       break;
     }
     requite::Expression &second = first.getNext();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("second branch", expression,
+    this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression,
                                                   branch_i++, second);
     for (requite::Expression &branch : second.getNextSubrange()) {
       this->situateBranch<BRANCH_SITUATION_N_PARAM>(
@@ -2267,13 +2273,13 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       break;
     }
     requite::Expression &second = first.getNext();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("second branch", expression,
+    this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression,
                                                   branch_i++, second);
     if (!second.getHasNext()) {
       break;
     }
     requite::Expression &third = second.getNext();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("third branch", expression,
+    this->situateBranch<BRANCH_SITUATION_C_PARAM>("third branch", expression,
                                                   branch_i++, second);
     for (requite::Expression &branch : third.getNextSubrange()) {
       this->situateBranch<BRANCH_SITUATION_N_PARAM>(
@@ -2296,11 +2302,11 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
   unsigned branch_i = 0;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
     if (!branch.getHasNext()) {
-      this->situateBranch<SITUATION_PARAM>("last branch", expression,
+      this->situateBranch<BRANCH_SITUATION_LAST_PARAM>("last branch", expression,
                                            branch_i++, branch);
       break;
     }
-    this->situateBranch<SITUATION_PARAM>("first to penultimate branch",
+    this->situateBranch<BRANCH_SITUATION_N_PARAM>("first to penultimate branch",
                                          expression, branch_i++, branch);
   }
   if (branch_i < MIN_COUNT_PARAM) {
@@ -2327,11 +2333,11 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
                                                   branch_i++, first);
     for (requite::Expression &branch : expression.getBranchSubrange()) {
       if (!branch.getHasNext()) {
-        this->situateBranch<SITUATION_PARAM>("last branch", expression,
+        this->situateBranch<BRANCH_SITUATION_LAST_PARAM>("last branch", expression,
                                              branch_i++, branch);
         break;
       }
-      this->situateBranch<SITUATION_PARAM>("second to penultimate branch",
+      this->situateBranch<BRANCH_SITUATION_N_PARAM>("second to penultimate branch",
                                            expression, branch_i++, branch);
     }
   } while (false);

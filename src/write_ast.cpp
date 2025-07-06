@@ -149,8 +149,10 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
 void AstWriter::writeExpressionLocationComment(
     const requite::Expression &expression) {
   this->getOstream() << "                // ";
-  if (expression.getHasSituation()) {
-    this->getOstream() << "situation: \"" << requite::getName(expression.getSituation()) << "\" ";
+  if (requite::getHasSituationData(expression.getOpcode()) &&
+      expression.getHasSituation()) {
+    this->getOstream() << "situation: \""
+                       << requite::getName(expression.getSituation()) << "\" ";
   }
   if (expression.getHasSourceText()) {
     requite::SourceRange source_range =
