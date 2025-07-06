@@ -80,6 +80,7 @@ struct Expression final {
   [[nodiscard]] inline bool getIsConverging() const;
   [[nodiscard]] inline bool getIsExpanding() const;
   [[nodiscard]] inline bool getIsInternalUseOnly() const;
+  [[nodiscard]] inline bool getIsUniversalizedExpansion() const;
   [[nodiscard]] inline requite::Opcode getOpcode() const;
   inline void setOpcode(requite::Opcode opcode);
   inline void changeOpcode(requite::Opcode opcode);

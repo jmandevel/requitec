@@ -1291,6 +1291,12 @@ constexpr bool getIsIntermediateOperation(requite::Opcode opcode) {
   return has_flags;
 }
 
+constexpr bool getIsUniversalizedExpansion(requite::Opcode opcode) {
+  return 
+    opcode == requite::Opcode::_MACRO_EXPAND_VALUE ||
+    opcode == requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT;
+}
+
 constexpr bool getIsConverging(requite::Opcode opcode) {
   const bool has_flags =
       requite::_getHasFlags(opcode, requite::_opcode::_CONVERGING);
