@@ -943,37 +943,17 @@ void Situator::situateExpression(requite::Expression &expression) {
     }
     // do nothing!
     break;
-  case requite::Opcode::MACRO_DEFINE:
+  case requite::Opcode::EXPAND:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::MACRO_DEFINE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
-    }
-    break;
-  case requite::Opcode::MACRO_EXPAND:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::MACRO_EXPAND)) {
+                      requite::Opcode::EXPAND)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_MACRO_EXPAND_VALUE:
+  case requite::Opcode::_EXPAND_VALUE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MACRO_EXPAND_VALUE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
-  case requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT)) {
+                      requite::Opcode::_EXPAND_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
@@ -1782,7 +1762,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::SYMBOL_NAME>(expression);
+                                  requite::Situation::MATTE_VALUE>(expression);
     }
     break;
   case requite::Opcode::USE:

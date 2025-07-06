@@ -446,11 +446,11 @@ constexpr bool getCanBeIntegerLiteralSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeAnySituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_MACRO_EXPAND_VALUE; 
+  return opcode == requite::Opcode::_EXPAND_VALUE; 
 }
 
 constexpr bool getCanBeValueReflectiveAnySituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::MACRO_EXPAND; 
+  return opcode == requite::Opcode::EXPAND; 
 }
 
 } // namespace requite

@@ -37,14 +37,6 @@ const requite::Module &Scope::getModule() const {
 
 requite::ScopeType Scope::getType() const { return this->_type; }
 
-llvm::StringMap<requite::RootSymbol> &Scope::getInternalSymbolMap() {
-  return this->_internal_symbol_map;
-}
-
-const llvm::StringMap<requite::RootSymbol> &Scope::getInternalSymbolMap() const {
-  return this->_internal_symbol_map;
-}
-
 bool Scope::getHasContaining() const {
   return this->_containing_scope_ptr != nullptr;
 }
@@ -78,25 +70,25 @@ const std::vector<requite::Node> &Scope::getNodes() const {
   return this->_nodes;
 }
 
-bool Scope::getHasExportTable() const {
-  return this->_export_table_ptr != nullptr;
+bool Scope::getHasSymbolTable() const {
+  return this->_symbol_table_ptr != nullptr;
 }
 
-void Scope::setExportTable(requite::ExportTable &table) {
-  requite::setSingleRef(this->_export_table_ptr, table);
+void Scope::setSymbolTable(requite::SymbolTable &table) {
+  requite::setSingleRef(this->_symbol_table_ptr, table);
 }
 
-requite::ExportTable &Scope::getExportTable() {
-  return requite::getRef(this->_export_table_ptr);
+requite::SymbolTable &Scope::getSymbolTable() {
+  return requite::getRef(this->_symbol_table_ptr);
 }
 
-const requite::ExportTable &Scope::getExportTable() const {
-  return requite::getRef(this->_export_table_ptr);
+const requite::SymbolTable &Scope::getSymbolTable() const {
+  return requite::getRef(this->_symbol_table_ptr);
 }
 
 bool Scope::getIsEmpty() const {
-  return this->getInternalSymbolMap().empty() && this->getNodes().empty() &&
-         !this->getHasExportTable();
+  return this->getNodes().empty() &&
+         (!this->getHasSymbolTable() || this->getSymbolTable().getIsEmpty());
 }
 
 void Scope::setObject(requite::Object &object) {

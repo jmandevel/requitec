@@ -49,10 +49,6 @@ inline bool Expression::getIsInternalUseOnly() const {
   return requite::getIsInternalUseOnly(this->getOpcode());
 }
 
-inline bool Expression::getIsUniversalizedExpansion() const {
-  return requite::getIsUniversalizedExpansion(this->getOpcode());
-}
-
 inline requite::Opcode Expression::getOpcode() const { return this->_opcode; }
 
 inline void Expression::setOpcode(requite::Opcode opcode) {

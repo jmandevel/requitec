@@ -383,16 +383,11 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
   case Opcode::_QUOTE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::MACRO_EXPAND:
+  case Opcode::EXPAND:
     return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_JUNCTION |
            _VALUE_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_LOCAL_STATEMENT |
            _VALUE_REFLECTIVE_SYMBOL;
-  case Opcode::MACRO_DEFINE:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::_MACRO_EXPAND_VALUE:
-    return _INTERMEDIATE_OPERATION | _ANY;
-  case Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT:
+  case Opcode::_EXPAND_VALUE:
     return _INTERMEDIATE_OPERATION | _ANY;
   case Opcode::BAKE:
     return _VALUE_REFLECTIVE_VALUE;
@@ -922,14 +917,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_specialization";
   case requite::Opcode::_QUOTE:
     return "_quote";
-  case requite::Opcode::MACRO_DEFINE:
-    return "macro_define";
-  case requite::Opcode::MACRO_EXPAND:
-    return "macro_expand";
-  case requite::Opcode::_MACRO_EXPAND_VALUE:
-    return "_macro_expand_value";
-  case requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT:
-    return "_macro_expand_value_situate_parent";
+  case requite::Opcode::EXPAND:
+    return "expand";
+  case requite::Opcode::_EXPAND_VALUE:
+    return "_expand_value";
   case requite::Opcode::BAKE:
     return "bake";
   case requite::Opcode::_BAKE_VALUE:
@@ -1219,8 +1210,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_DESTROY_VALUE;
   case requite::Opcode::DROP:
     return requite::Opcode::_DROP_VALUE;
-  case requite::Opcode::MACRO_EXPAND:
-    return requite::Opcode::_MACRO_EXPAND_VALUE;
+  case requite::Opcode::EXPAND:
+    return requite::Opcode::_EXPAND_VALUE;
   case requite::Opcode::BAKE:
     return requite::Opcode::_BAKE_VALUE;
   case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
@@ -1249,8 +1240,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
 
 constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
   switch (opcode) {
-  case requite::Opcode::MACRO_EXPAND:
-    return requite::Opcode::_MACRO_EXPAND_VALUE;
+  case requite::Opcode::EXPAND:
+    return requite::Opcode::_EXPAND_VALUE;
   case requite::Opcode::MANGLED_NAME:
     return requite::Opcode::_MANGLED_NAME_OF_SYMBOL;
   case requite::Opcode::SIZE:
@@ -1355,8 +1346,7 @@ constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {
 }
 
 constexpr bool getHasSituationData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_MACRO_EXPAND_VALUE ||
-         opcode == requite::Opcode::_MACRO_EXPAND_VALUE_SITUATE_PARENT;
+  return opcode == requite::Opcode::_EXPAND_VALUE;
 }
 
 } // namespace requite

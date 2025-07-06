@@ -22,6 +22,7 @@
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
+#include <requite/symbol_table.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -69,7 +70,7 @@ struct Context final : public requite::_ContextLlvmContext {
   llvm::StringMap<requite::Opcode> _opcode_table = {};
   std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   requite::Module _source_module = {};
-  requite::ExportTable _base_export_table = {};
+  requite::SymbolTable _base_table = {};
   std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
   std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
   std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};

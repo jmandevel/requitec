@@ -26,15 +26,14 @@ struct AnonymousFunction;
 struct Procedure;
 struct Table;
 struct Object;
-struct ExportTable;
+struct SymbolTable;
 
 struct Scope final {
   using Self = requite::Scope;
 
   unsigned _scope_depth = 0;
   requite::Scope *_containing_scope_ptr = nullptr;
-  requite::ExportTable *_export_table_ptr = nullptr;
-  llvm::StringMap<requite::RootSymbol> _internal_symbol_map = {};
+  requite::SymbolTable *_symbol_table_ptr = nullptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
   union {
     void *_nothing_ptr = nullptr;
@@ -62,9 +61,6 @@ struct Scope final {
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] requite::ScopeType getType() const;
-  [[nodiscard]] llvm::StringMap<requite::RootSymbol> &getInternalSymbolMap();
-  [[nodiscard]] const llvm::StringMap<requite::RootSymbol> &
-  getInternalSymbolMap() const;
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
@@ -74,10 +70,10 @@ struct Scope final {
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
-  [[nodiscard]] bool getHasExportTable() const;
-  void setExportTable(requite::ExportTable& table);
-  [[nodiscard]] requite::ExportTable& getExportTable();
-  [[nodiscard]] const requite::ExportTable& getExportTable() const;
+  [[nodiscard]] bool getHasSymbolTable() const;
+  void setSymbolTable(requite::SymbolTable& table);
+  [[nodiscard]] requite::SymbolTable& getSymbolTable();
+  [[nodiscard]] const requite::SymbolTable& getSymbolTable() const;
   [[nodiscard]] bool getIsEmpty() const;
   void setObject(requite::Object &object);
   [[nodiscard]] requite::Object &getObject();
@@ -100,18 +96,11 @@ struct Scope final {
 
   // lookup_symbols.cpp
   [[nodiscard]]
-  requite::RootSymbol lookupInternalUserSymbol(llvm::StringRef name);
-  [[nodiscard]]
-  requite::RootSymbol lookupExportUserSymbol(llvm::StringRef name);
-  [[nodiscard]]
   requite::RootSymbol lookupUserSymbol(llvm::StringRef name);
+  [[nodiscard]] bool getHasUserSymbolOfName(llvm::StringRef name) const;
 
   // detail/scope_symbol_map.hpp
-  [[nodiscard]] inline bool getHasInternalSymbolOfName(llvm::StringRef name) const;
-  template <typename SymbolArg> void addInternalSymbol(SymbolArg &symbol);
-  [[nodiscard]] inline bool getHasExportSymbolOfName(llvm::StringRef name) const;
-  template <typename SymbolArg> void addExportSymbol(SymbolArg &symbol);
-  [[nodiscard]] inline bool getHasSymbolOfName(llvm::StringRef name) const;
+  template <typename SymbolArg> void addUserSymbol(SymbolArg &symbol);
   
   // detail/scope_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<
@@ -122,5 +111,5 @@ struct Scope final {
 
 } // namespace requite
 
-#include <requite/detail/scope_subrange.hpp>
 #include <requite/detail/scope_symbol_map.hpp>
+#include <requite/detail/scope_subrange.hpp>

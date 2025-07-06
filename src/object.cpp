@@ -7,7 +7,10 @@
 
 namespace requite {
 
-Object::Object() { this->getScope().setObject(*this); }
+Object::Object() {
+  this->getScope().setObject(*this);
+  this->getScope().setSymbolTable(this->getSymbolTable());
+}
 
 bool Object::operator==(const Self &rhs) const { return this == &rhs; }
 
@@ -43,6 +46,12 @@ const requite::Expression &Object::getExpression() const {
 requite::Scope &Object::getScope() { return this->_scope; }
 
 const requite::Scope &Object::getScope() const { return this->_scope; }
+
+requite::SymbolTable &Object::getSymbolTable() { return this->_symbol_table; }
+
+const requite::SymbolTable &Object::getSymbolTable() const {
+  return this->_symbol_table;
+}
 
 bool Object::getHasContaining() const {
   return this->getScope().getHasContaining();
@@ -81,20 +90,34 @@ llvm::StringRef Object::getMangledName() const { return this->_mangled_name; }
 
 bool Object::getHasMangledName() const { return !this->_mangled_name.empty(); }
 
-void Object::setDestructor(requite::Procedure &destructor) {
-  requite::setSingleRef(this->_destructor_ptr, destructor);
+void Object::addDestructor(requite::Procedure &destructor) {
+  // NOTE: objects in should have at most one destructor. if more are added, this
+  // should eventually cause a compiler error.
+  destructor._next_ptr = this->_first_destructor_ptr;
+  this->_first_constructor_ptr = &destructor;
 }
 
 bool Object::getHasDestructor() const {
-  return this->_destructor_ptr != nullptr;
+  return this->_first_destructor_ptr != nullptr;
+}
+
+bool Object::getHasMultipleDestructors() const {
+  if (!this->getHasDestructor()) {
+    return false;
+  }
+  const requite::Procedure &destructor = this->getDestructor();
+  if (destructor.getHasNextProcedure()) {
+    return true;
+  }
+  return false;
 }
 
 requite::Procedure &Object::getDestructor() {
-  return requite::getRef(this->_destructor_ptr);
+  return requite::getRef(this->_first_destructor_ptr);
 }
 
 const requite::Procedure &Object::getDestructor() const {
-  return requite::getRef(this->_destructor_ptr);
+  return requite::getRef(this->_first_destructor_ptr);
 }
 
 void Object::addConstructor(requite::Procedure &constructor) {

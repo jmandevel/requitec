@@ -1,5 +1,8 @@
 #pragma once
 
+#include <requite/symbol.hpp>
+
+#include <unordered_map>
 #include <functional>
 
 namespace requite {
@@ -9,6 +12,7 @@ struct Module;
 struct Scope;
 struct Object;
 struct Expression;
+struct Property;
 
 struct Contextualizer0 final {
   using Self = requite::Contextualizer0;
@@ -16,6 +20,7 @@ struct Contextualizer0 final {
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<requite::Module> _module_ref;
   requite::Scope *_scope_ptr = nullptr;
+  std::unordered_map<void*, requite::RootSymbol> _yieliding_symbol_map = {};
 
   // contextualizer0.cpp
   Contextualizer0(requite::Context &constext, requite::Module &module);
@@ -35,7 +40,6 @@ struct Contextualizer0 final {
 
   // tabulate.cpp
   [[nodiscard]] bool tabulateModule();
-  [[nodiscard]] bool tabulateStatement(requite::Expression &statement);
   [[nodiscard]] bool tabulateStatement(requite::Expression &statement,
                                        bool has_attributes);
   [[nodiscard]] bool tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
@@ -63,7 +67,6 @@ struct Contextualizer0 final {
 
   // expand.cpp
   [[nodiscard]] bool expandMacroExpression(requite::Expression& expression);
-  [[nodiscard]] bool expandMacroBranchTree(requite::Expression& expression);
   [[nodiscard]] bool expandMacroTree(requite::Expression& expression);
   [[nodiscard]] bool expandMacroForest(requite::Expression& expression);
 };

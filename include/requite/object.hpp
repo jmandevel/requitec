@@ -6,7 +6,7 @@
 
 #include <requite/attribute_flags.hpp>
 #include <requite/named_procedure_group.hpp>
-#include <requite/table.hpp>
+#include <requite/symbol_table.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -25,8 +25,9 @@ struct Object final {
   std::string _name = {};
   requite::Expression* _expression_ptr = nullptr;
   requite::Scope _scope = {};
+  requite::SymbolTable _symbol_table = {};
   std::string _mangled_name = {};
-  requite::Procedure *_destructor_ptr = nullptr;
+  requite::Procedure *_first_destructor_ptr = nullptr;
   requite::Procedure *_first_constructor_ptr = nullptr;
   requite::Module *_module_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
@@ -50,6 +51,8 @@ struct Object final {
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] requite::SymbolTable &getSymbolTable();
+  [[nodiscard]] const requite::SymbolTable &getSymbolTable() const;
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
@@ -60,8 +63,9 @@ struct Object final {
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getMangledName() const;
   [[nodiscard]] bool getHasMangledName() const;
-  void setDestructor(requite::Procedure &destructor);
+  void addDestructor(requite::Procedure &destructor);
   [[nodiscard]] bool getHasDestructor() const;
+  [[nodiscard]] bool getHasMultipleDestructors() const;
   [[nodiscard]] requite::Procedure &getDestructor();
   [[nodiscard]] const requite::Procedure &getDestructor() const;
   void addConstructor(requite::Procedure &constructor);

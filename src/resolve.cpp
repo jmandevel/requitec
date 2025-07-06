@@ -8,8 +8,8 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
     for (requite::Scope &containing_scope : scope.getContainingSubrange()) {
-      requite::RootSymbol user = containing_scope.lookupInternalUserSymbol(
-          symbol_expression.getDataText());
+      requite::RootSymbol user =
+          containing_scope.lookupUserSymbol(symbol_expression.getDataText());
       if (user.getIsNone()) {
         continue;
       } else if (user.getIsAlias()) {
@@ -62,18 +62,18 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   return false;
 }
 
-bool Contextualizer1::resolveTypeOfValue(requite::Symbol &out_symbol,
-                                 requite::Expression &symbol_expression,
-                                 requite::Expression &value_expression) {
+bool Contextualizer1::resolveTypeOfValue(
+    requite::Symbol &out_symbol, requite::Expression &symbol_expression,
+    requite::Expression &value_expression) {
   // TODO
   return false;
 }
 
-bool Contextualizer1::inferenceTypeOfValue(requite::Symbol &out_symbol,
-                                   requite::Expression &value_expression) {
+bool Contextualizer1::inferenceTypeOfValue(
+    requite::Symbol &out_symbol, requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__LOCAL_HANDLE: {
-    requite::Local& local = value_expression.getLocal();
+    requite::Local &local = value_expression.getLocal();
     out_symbol = local.getDataType();
     return true;
   }
@@ -101,13 +101,12 @@ bool Contextualizer1::inferenceTypeOfValue(requite::Symbol &out_symbol,
                                                     value_expression);
   }
   this->getContext().logSourceMessage(value_expression, requite::LogType::ERROR,
-                         "failed to inference type of value");
+                                      "failed to inference type of value");
   return false;
 }
 
 bool Contextualizer1::inferenceTypeOfNaryArithmeticValue(
-    requite::Symbol &out_symbol,
-    requite::Expression &expression) {
+    requite::Symbol &out_symbol, requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();
   if (!this->inferenceTypeOfValue(out_symbol, first)) {
     return false;
@@ -166,7 +165,7 @@ bool Contextualizer1::inferenceTypeOfNaryArithmeticValue(
   return true;
 }
 
-bool Context::resolveTypeAttributes(requite::AttributeFlags& flags,
+bool Context::resolveTypeAttributes(requite::AttributeFlags &flags,
                                     requite::Expression &first) {
   bool is_ok = true;
   for (requite::Expression &attribute : first.getHorizontalSubrange()) {
