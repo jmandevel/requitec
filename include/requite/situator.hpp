@@ -21,7 +21,7 @@ struct Situator final {
   std::reference_wrapper<requite::Module> _module_ref;
   bool _is_ok;
 
-  // situate_ast.cpp
+  // situator.cpp
   Situator(requite::Context &context, requite::Module &module);
   [[nodiscard]]
   requite::Context &getContext();
@@ -35,6 +35,8 @@ struct Situator final {
   [[nodiscard]]
   bool getIsOk() const;
   void setIsOk();
+
+  // situate.cpp
   [[nodiscard]]
   bool situateAst();
   void insertModuleRoot();

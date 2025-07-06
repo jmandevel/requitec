@@ -59,6 +59,7 @@ target_sources(
         signature.cpp
         scope.cpp
         situate.cpp
+        situator.cpp
         source_name.cpp
         source_ranger.cpp
         sub_symbol.cpp
