@@ -47,7 +47,7 @@ target_sources(
         object.cpp
         opcode.cpp
         options.cpp
-        parse_ast.cpp
+        parse.cpp
         precedence_parser.cpp
         procedure_iterator.cpp
         procedure.cpp
@@ -58,7 +58,7 @@ target_sources(
         signature_parameter.cpp
         signature.cpp
         scope.cpp
-        situate_ast.cpp
+        situate.cpp
         source_name.cpp
         source_ranger.cpp
         sub_symbol.cpp
@@ -67,7 +67,7 @@ target_sources(
         tabulate.cpp
         tasks.cpp
         token.cpp
-        tokenize_tokens.cpp
+        tokenize.cpp
         tuple.cpp
         global.cpp
         implement.cpp
