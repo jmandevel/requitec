@@ -22,7 +22,6 @@ namespace requite {
 
 struct Context;
 struct Token;
-struct ExpressionWalker;
 struct Scope;
 struct Object;
 struct Local;
@@ -202,10 +201,6 @@ struct Expression final {
   inline void setSituation(requite::Situation situation);
   inline requite::Situation getSituation() const;
 
-  // detail/expression_walk.hpp
-  [[nodiscard]] inline requite::ExpressionWalker walkBranch();
-  [[nodiscard]] inline requite::ExpressionWalker walkHorizontal();
-
   // detail/expression_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<
       requite::ExpressionIterator, requite::ExpressionIterator,
@@ -240,4 +235,3 @@ struct Expression final {
 #include <requite/detail/expression_source.hpp>
 #include <requite/detail/expression_subrange.hpp>
 #include <requite/detail/expression_type.hpp>
-#include <requite/detail/expression_walk.hpp>

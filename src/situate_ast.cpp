@@ -5,7 +5,6 @@
 #include <requite/assert.hpp>
 #include <requite/context.hpp>
 #include <requite/expression_iterator.hpp>
-#include <requite/expression_walker.hpp>
 #include <requite/module.hpp>
 #include <requite/opcode.hpp>
 #include <requite/situator.hpp>

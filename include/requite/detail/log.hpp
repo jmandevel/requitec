@@ -9,7 +9,7 @@
 namespace requite {
 
 template <requite::Situation SITUATION_PARAM>
-void Context::logNotAtLeastBranchCount(requite::Expression &expression,
+void Context::logErrorNotAtLeastBranchCount(requite::Expression &expression,
                                        unsigned count) {
   this->logSourceMessage(
       expression, requite::LogType::ERROR,
@@ -20,7 +20,7 @@ void Context::logNotAtLeastBranchCount(requite::Expression &expression,
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Context::logNotExactBranchCount(requite::Expression &expression,
+void Context::logErrorNotExactBranchCount(requite::Expression &expression,
                                      unsigned count) {
   this->logSourceMessage(
       expression, requite::LogType::ERROR,
@@ -31,7 +31,7 @@ void Context::logNotExactBranchCount(requite::Expression &expression,
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Context::logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
+void Context::logErrorTooNotLessOrEqualToBranchCount(requite::Expression &expression,
                                                 unsigned count) {
   this->logSourceMessage(
       expression, requite::LogType::ERROR,
@@ -42,7 +42,7 @@ void Context::logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Context::logInvalidBranchSituation(requite::Expression &branch,
+void Context::logErrorInvalidBranchSituation(requite::Expression &branch,
                                         requite::Opcode outer_opcode,
                                         requite::Opcode branch_opcode,
                                         unsigned branch_i,
@@ -56,7 +56,7 @@ void Context::logInvalidBranchSituation(requite::Expression &branch,
           requite::getName(SITUATION_PARAM) + "\" for " + log_context + ".");
 }
 
-void Context::logInvalidOperation(requite::Expression &expression) {
+void Context::logErrorInvalidOperation(requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          "invalid operation.");
 }

@@ -372,19 +372,19 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>
-  void logNotAtLeastBranchCount(requite::Expression &expression,
+  void logErrorNotAtLeastBranchCount(requite::Expression &expression,
                                 unsigned count);
   template <requite::Situation SITUATION_PARAM>
-  void logNotExactBranchCount(requite::Expression &expression, unsigned count);
+  void logErrorNotExactBranchCount(requite::Expression &expression, unsigned count);
   template <requite::Situation SITUATION_PARAM>
-  void logTooNotLessOrEqualToBranchCount(requite::Expression &expression,
+  void logErrorTooNotLessOrEqualToBranchCount(requite::Expression &expression,
                                          unsigned count);
   template <requite::Situation SITUATION_PARAM>
-  void logInvalidBranchSituation(requite::Expression &branch,
+  void logErrorInvalidBranchSituation(requite::Expression &branch,
                                  requite::Opcode outer_opcode,
                                  requite::Opcode branch_opcode,
                                  unsigned branch_i, llvm::Twine log_context);
-  inline void logInvalidOperation(requite::Expression &expression);
+  inline void logErrorInvalidOperation(requite::Expression &expression);
 };
 
 } // namespace requite

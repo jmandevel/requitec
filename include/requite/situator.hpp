@@ -53,11 +53,8 @@ struct Situator final {
             requite::Situation BRANCH_SITUATION_PARAM>
   inline void situateUnaryExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM,
-            requite::Situation BRANCH_SITUATION_PARAM>
-  inline void situateBinaryExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM,
             requite::Situation BRANCH_SITUATION_A_PARAM,
-            requite::Situation BRANCH_SITUATION_B_PARAM>
+            requite::Situation BRANCH_SITUATION_B_PARAM = BRANCH_SITUATION_A_PARAM>
   inline void situateBinaryExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
             requite::Situation BRANCH_SITUATION_N_PARAM>

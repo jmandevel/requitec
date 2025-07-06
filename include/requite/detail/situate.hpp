@@ -5,8 +5,6 @@
 #pragma once
 
 #include <requite/context.hpp>
-#include <requite/expression_walk_result.hpp>
-#include <requite/expression_walker.hpp>
 #include <requite/numeric.hpp>
 #include <requite/source_location.hpp>
 
@@ -942,7 +940,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_QUOTE)) {
       REQUITE_UNREACHABLE();
-    } 
+    }
     // do nothing!
     break;
   case requite::Opcode::MACRO_DEFINE:
@@ -1221,6 +1219,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
+                                    requite::Situation::SYMBOL_NAME,
                                     requite::Situation::MATTE_SYMBOL>(
           expression);
     }
@@ -2108,7 +2107,7 @@ void Situator::situateBranch(llvm::Twine log_context,
   const bool is_ok =
       requite::getCanBeSituation<SITUATION_PARAM>(branch.getOpcode());
   if (!is_ok) {
-    this->getContext().logInvalidBranchSituation<SITUATION_PARAM>(
+    this->getContext().logErrorInvalidBranchSituation<SITUATION_PARAM>(
         branch, outer.getOpcode(), branch.getOpcode(), branch_i, log_context);
     this->setNotOk();
     return;
@@ -2135,35 +2134,15 @@ template <requite::Situation SITUATION_PARAM,
 void Situator::situateUnaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_PARAM>("first branch",
-                                                        expression, 0, branch);
-          })
-          .getResult();
-  if (!result.getWalkedExactly(1)) {
-    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 1);
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     this->setNotOk();
+    return;
   }
-}
-
-template <requite::Situation SITUATION_PARAM,
-          requite::Situation BRANCH_SITUATION_PARAM>
-void Situator::situateBinaryExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doSome<2>([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_PARAM>(
-                "first and second branches", expression, branch_i, branch);
-          })
-          .getResult();
-  if (!result.getWalkedExactly(2)) {
-    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
-    this->setNotOk();
-  }
+  requite::Expression &first = expression.getBranch();
+  this->situateBranch<BRANCH_SITUATION_PARAM>("first branch", expression, 0,
+                                              first);
 }
 
 template <requite::Situation SITUATION_PARAM,
@@ -2172,21 +2151,24 @@ template <requite::Situation SITUATION_PARAM,
 void Situator::situateBinaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "first branch", expression, 0, branch);
-          })
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_B_PARAM>(
-                "second branch", expression, 1, branch);
-          })
-          .getResult();
-  if (!result.getWalkedExactly(2)) {
-    this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
     this->setNotOk();
+    return;
   }
+  requite::Expression &first = expression.getBranch();
+  this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression, 0,
+                                                first);
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &second = expression.getBranch();
+  this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression, 1,
+                                                second);
 }
 
 template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
@@ -2194,17 +2176,15 @@ template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
 void Situator::situateNaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result = expression.walkBranch().doAll(
-      [&](unsigned branch_i, requite::Expression &branch) {
-        this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-            "all branches", expression, branch_i, branch);
-      });
-  if constexpr (MIN_COUNT_PARAM != 0) {
-    if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
-      this->getContext().logNotExactBranchCount<SITUATION_PARAM>(
-          expression, MIN_COUNT_PARAM);
-      this->setNotOk();
-    }
+  unsigned branch_i = 0;
+  for (requite::Expression &branch : expression.getBranchSubrange()) {
+    this->situateBranch<SITUATION_PARAM>("all branches", expression, branch_i++,
+                                         branch);
+  }
+  if (branch_i < MIN_COUNT_PARAM) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, branch_i);
+    this->setNotOk();
   }
 }
 
@@ -2214,22 +2194,23 @@ template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
 void Situator::situateNaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "first branch", expression, 0, branch);
-          })
-          .doAll([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "second and subsequent branches", expression, branch_i, branch);
-          });
-  if constexpr (MIN_COUNT_PARAM != 0) {
-    if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(
-          expression, MIN_COUNT_PARAM);
-      this->setNotOk();
+  unsigned branch_i = 0;
+  do {
+    if (!expression.getHasBranch()) {
+      break;
     }
+    requite::Expression &first = expression.getBranch();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
+                                                  branch_i++, first);
+    for (requite::Expression &branch : first.getNextSubrange()) {
+      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+          "second and subsequent branches", expression, branch_i++, branch);
+    }
+  } while (false);
+  if (branch_i < MIN_COUNT_PARAM) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, branch_i);
+    this->setNotOk();
   }
 }
 
@@ -2240,26 +2221,29 @@ template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
 void Situator::situateNaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "first branch", expression, 0, branch);
-          })
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_B_PARAM>(
-                "second branch", expression, 1, branch);
-          })
-          .doAll([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "third and subsequent branches", expression, branch_i, branch);
-          });
-  if constexpr (MIN_COUNT_PARAM != 0) {
-    if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(
-          expression, MIN_COUNT_PARAM);
-      this->setNotOk();
+  unsigned branch_i = 0;
+  do {
+    if (!expression.getHasBranch()) {
+      break;
     }
+    requite::Expression &first = expression.getBranch();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
+                                                  branch_i++, first);
+    if (!first.getHasNext()) {
+      break;
+    }
+    requite::Expression &second = first.getNext();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("second branch", expression,
+                                                  branch_i++, second);
+    for (requite::Expression &branch : second.getNextSubrange()) {
+      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+          "third and subsequent branches", expression, branch_i++, branch);
+    }
+  } while (false);
+  if (branch_i < MIN_COUNT_PARAM) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, branch_i);
+    this->setNotOk();
   }
 }
 
@@ -2271,30 +2255,35 @@ template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
 void Situator::situateNaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "first branch", expression, 0, branch);
-          })
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_B_PARAM>(
-                "second branch", expression, 1, branch);
-          })
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_C_PARAM>(
-                "third branch", expression, 2, branch);
-          })
-          .doAll([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "fourth and subsequent branches", expression, branch_i, branch);
-          });
-  if constexpr (MIN_COUNT_PARAM != 0) {
-    if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(
-          expression, MIN_COUNT_PARAM);
-      this->setNotOk();
+  unsigned branch_i = 0;
+  do {
+    if (!expression.getHasBranch()) {
+      break;
     }
+    requite::Expression &first = expression.getBranch();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
+                                                  branch_i++, first);
+    if (!first.getHasNext()) {
+      break;
+    }
+    requite::Expression &second = first.getNext();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("second branch", expression,
+                                                  branch_i++, second);
+    if (!second.getHasNext()) {
+      break;
+    }
+    requite::Expression &third = second.getNext();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("third branch", expression,
+                                                  branch_i++, second);
+    for (requite::Expression &branch : third.getNextSubrange()) {
+      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+          "fourth and subsequent branches", expression, branch_i++, branch);
+    }
+  } while (false);
+  if (branch_i < MIN_COUNT_PARAM) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, branch_i);
+    this->setNotOk();
   }
 }
 
@@ -2304,22 +2293,20 @@ template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
 void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doUntilLast([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "first to penultimate branch", expression, branch_i, branch);
-          })
-          .doLast([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
-                "last branch", expression, branch_i, branch);
-          });
-  if constexpr (MIN_COUNT_PARAM != 0) {
-    if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(
-          expression, MIN_COUNT_PARAM);
-      this->setNotOk();
+  unsigned branch_i = 0;
+  for (requite::Expression &branch : expression.getBranchSubrange()) {
+    if (!branch.getHasNext()) {
+      this->situateBranch<SITUATION_PARAM>("last branch", expression,
+                                           branch_i++, branch);
+      break;
     }
+    this->situateBranch<SITUATION_PARAM>("first to penultimate branch",
+                                         expression, branch_i++, branch);
+  }
+  if (branch_i < MIN_COUNT_PARAM) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, branch_i);
+    this->setNotOk();
   }
 }
 
@@ -2330,26 +2317,28 @@ template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
 void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  requite::ExpressionWalkResult result =
-      expression.walkBranch()
-          .doOne([&](requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_A_PARAM>(
-                "first branch", expression, 0, branch);
-          })
-          .doUntilLast([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_N_PARAM>(
-                "middle branch", expression, branch_i, branch);
-          })
-          .doLast([&](unsigned branch_i, requite::Expression &branch) {
-            this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
-                "last branch", expression, branch_i, branch);
-          });
-  if constexpr (MIN_COUNT_PARAM != 0) {
-    if (!result.getWalkedAtLeast(MIN_COUNT_PARAM)) {
-      this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(
-          expression, MIN_COUNT_PARAM);
-      this->setNotOk();
+  unsigned branch_i = 0;
+  do {
+    if (!expression.getHasBranch()) {
+      break;
     }
+    requite::Expression &first = expression.getBranch();
+    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
+                                                  branch_i++, first);
+    for (requite::Expression &branch : expression.getBranchSubrange()) {
+      if (!branch.getHasNext()) {
+        this->situateBranch<SITUATION_PARAM>("last branch", expression,
+                                             branch_i++, branch);
+        break;
+      }
+      this->situateBranch<SITUATION_PARAM>("second to penultimate branch",
+                                           expression, branch_i++, branch);
+    }
+  } while (false);
+  if (branch_i < MIN_COUNT_PARAM) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, branch_i);
+    this->setNotOk();
   }
 }
 
@@ -2426,7 +2415,7 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
     } else if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
       expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
     } else {
-      this->getContext().logInvalidBranchSituation<SITUATION_PARAM>(
+      this->getContext().logErrorInvalidBranchSituation<SITUATION_PARAM>(
           second, requite::Opcode::_REFLECT_VALUE, second.getOpcode(), 1,
           "last branch");
       this->setNotOk();
@@ -2467,7 +2456,7 @@ Situator::situate_ReflectValueExpression(requite::Expression &expression) {
         } else if (requite::getIsValueSituation<SITUATION_PARAM>()) {
           expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
         } else {
-          this->getContext().logInvalidBranchSituation<SITUATION_PARAM>(
+          this->getContext().logErrorInvalidBranchSituation<SITUATION_PARAM>(
               second, requite::Opcode::_REFLECT_VALUE, second.getOpcode(),
               branch_i, "last branch");
           this->setNotOk();
@@ -2685,7 +2674,7 @@ void Situator::situateParameterBranches(requite::Expression &expression,
   for (requite::Expression &branch : first.getHorizontalSubrange()) {
     if (branch.getOpcode() == requite::Opcode::_POSITIONAL_FIELDS_END) {
       if (found_positional_fields_end) {
-        this->getContext().logInvalidOperation(branch);
+        this->getContext().logErrorInvalidOperation(branch);
         this->setNotOk();
         continue;
       }
@@ -2693,7 +2682,7 @@ void Situator::situateParameterBranches(requite::Expression &expression,
       continue;
     } else if (branch.getOpcode() == requite::Opcode::_NAMED_FIELDS_BEGIN) {
       if (found_named_fields_begin) {
-        this->getContext().logInvalidOperation(branch);
+        this->getContext().logErrorInvalidOperation(branch);
         this->setNotOk();
         continue;
       }
@@ -2703,7 +2692,7 @@ void Situator::situateParameterBranches(requite::Expression &expression,
     } else if (branch.getOpcode() ==
                requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN) {
       if (found_positional_fields_end || found_named_fields_begin) {
-        this->getContext().logInvalidOperation(branch);
+        this->getContext().logErrorInvalidOperation(branch);
         this->setNotOk();
         continue;
       }
@@ -2736,7 +2725,8 @@ template <requite::Situation SITUATION_PARAM>
 void Situator::situate_TupleValue(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TUPLE_VALUE);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     this->setNotOk();
     return;
   }
@@ -2754,7 +2744,8 @@ template <requite::Situation SITUATION_PARAM>
 void Situator::situate_TupleType(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TUPLE_TYPE);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     this->setNotOk();
     return;
   }
@@ -2813,7 +2804,8 @@ template <requite::Situation SITUATION_PARAM>
 void Situator::situate_CallExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CALL);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     return;
   }
   requite::Expression &branch = expression.getBranch();
@@ -2830,7 +2822,8 @@ template <requite::Situation SITUATION_PARAM>
 void Situator::situate_SignatureExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_SIGNATURE);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     return;
   }
   requite::Expression &branch = expression.getBranch();
@@ -2849,7 +2842,8 @@ void Situator::situate_CallOrSignatureExpression(
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     return;
   }
   requite::Expression &branch = expression.getBranch();
@@ -2901,13 +2895,15 @@ void Situator::situate_ArrayExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ARRAY);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
     this->setNotOk();
     return;
   }
   requite::Expression &first = expression.getBranch();
   if (!first.getHasNext()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
     this->setNotOk();
     return;
   }
@@ -2932,7 +2928,8 @@ void Situator::situateAssertExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ASSERT);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
     this->setNotOk();
     return;
   }
@@ -3023,7 +3020,8 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
                        SITUATION_PARAM ==
                            requite::Situation::STRUCTURED_BINDING) {
     if (!expression.getHasBranch()) {
-      this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
+          expression, 2);
       this->setNotOk();
       return;
     }
@@ -3045,7 +3043,8 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
           "first branch", expression, 0, destination);
     }
     if (destination.getHasNext()) {
-      this->getContext().logNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
+          expression, 2);
       this->setNotOk();
       return;
     }
@@ -3138,7 +3137,8 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() ==
                  requite::Opcode::_ASCRIBE_LAST_BRANCH);
   if (!expression.getHasBranch()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
     this->setNotOk();
     return;
   }
@@ -3146,7 +3146,8 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
   this->situateBranch<requite::Situation::MATTE_VALUE>(
       "first branch", expression, 0, first_branch);
   if (!first_branch.getHasNext()) {
-    this->getContext().logNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
     this->setNotOk();
     return;
   }
