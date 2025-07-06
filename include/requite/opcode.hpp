@@ -193,11 +193,7 @@ enum class Opcode : unsigned {
   _QUOTE,
   MACRO_DEFINE,
   MACRO_EXPAND,
-  // this is used for expansions that can be situated after expansion starting
-  // from the expression itself.
   _MACRO_EXPAND_VALUE,
-  // this is used for expansions which require the situating after expansion to
-  // situate from the parent expression.
   _MACRO_EXPAND_VALUE_SITUATE_PARENT,
   BAKE,
   _BAKE_VALUE,
@@ -386,9 +382,6 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsIntermediateOperation(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool
-getIsUniversalizedExpansion(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
@@ -405,7 +398,8 @@ getIsUniversalizedExpansion(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasGlobalData(requite::Opcode opcode);
+[[nodiscard]] constexpr bool
+getHasGlobalData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasLocalData(requite::Opcode opcode);
 
