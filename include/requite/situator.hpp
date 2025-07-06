@@ -17,12 +17,19 @@ struct Context;
 struct Module;
 
 struct Situator final {
+  using Self = requite::Situator;
+
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<requite::Module> _module_ref;
   bool _is_ok;
 
   // situator.cpp
   Situator(requite::Context &context, requite::Module &module);
+  Situator(const Self&) = delete;
+  Situator(Self&&) = delete;
+  ~Situator() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
   [[nodiscard]]
   requite::Context &getContext();
   [[nodiscard]]

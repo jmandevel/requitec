@@ -13,6 +13,8 @@ struct Expression;
 struct Parser;
 
 struct PrecedenceParser final {
+  using Self = requite::PrecedenceParser;
+
   // the outermost operation that is returned at the end of the precedence
   requite::Expression *_outer_ptr = nullptr;
   // the current operation that is being filled with branches
@@ -23,6 +25,14 @@ struct PrecedenceParser final {
   // the last branch that was appended to the operation
   requite::Expression *_last_ptr = nullptr;
 
+  PrecedenceParser() = default;
+  PrecedenceParser(const Self&) = delete;
+  PrecedenceParser(Self&&) = delete;
+  ~PrecedenceParser() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
+
+  // parse.cpp
   void parseDoubleUnary(requite::Parser &parser, requite::Opcode opcode);
   void parseUnary(requite::Parser &parser, requite::Opcode opcode);
   void parseBinary(requite::Parser &parser, requite::Opcode opcode);

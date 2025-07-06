@@ -21,52 +21,6 @@ bool Context::parseAst(requite::Module &module,
   return is_ok;
 }
 
-Parser::Parser(requite::Context &context, requite::Module &module,
-               std::vector<requite::Token> &tokens)
-    : _context_ref(context), _module_ref(module), _is_ok(true),
-      _it(tokens.cbegin()), _end(tokens.cend()) {}
-
-bool Parser::getIsOk() { return this->_is_ok; }
-
-void Parser::setNotOk() { this->_is_ok = false; }
-
-void Parser::logErrorBinaryNoLValue(const requite::Token &token) {
-  this->getContext().logSourceMessage(
-      token, requite::LogType::ERROR,
-      llvm::Twine("Found binary operator token of type \"") +
-          requite::getName(token.getType()) + "\" with no l-value");
-}
-
-void Parser::logErrorHornedNoFirstBranch(const requite::Token &token) {
-  this->getContext().logSourceMessage(
-      token, requite::LogType::ERROR,
-      llvm::Twine("Found horned grouping token of type \"") +
-          requite::getName(token.getType()) +
-          "\" with no preceding first branch");
-}
-
-void Parser::logErrorFoundErrorToken(const requite::Token &token) {
-  this->getContext().logSourceMessage(
-      token, requite::LogType::ERROR,
-      llvm::Twine("Found error token of type \"") +
-          requite::getName(token.getType()) + "\"");
-}
-
-void Parser::logErrorUnexpectedToken(const requite::Token &token) {
-  this->getContext().logSourceMessage(
-      token, requite::LogType::ERROR,
-      llvm::Twine("Found unexpected token of type \"") +
-          requite::getName(token.getType()) + "\"");
-}
-
-void Parser::logErrorInvalidOperatorSpacing(const requite::Token &token) {
-  this->getContext().logSourceMessage(
-      token, requite::LogType::ERROR,
-      llvm::Twine("Found operator token of type \"") +
-          requite::getName(token.getType()) + "\" with " +
-          requite::getDescription(token.getSpacing()) + "");
-}
-
 std::string Parser::getText(llvm::StringRef log_message_type_text,
                             const requite::Token &token,
                             llvm::StringRef source_text) {
@@ -81,18 +35,6 @@ std::string Parser::getText(llvm::StringRef log_message_type_text,
   }
   const char *text = buffer.c_str();
   return std::string(text);
-}
-
-requite::Module &Parser::getModule() { return this->_module_ref.get(); }
-
-const requite::Module &Parser::getModule() const {
-  return this->_module_ref.get();
-}
-
-requite::Context &Parser::getContext() { return this->_context_ref.get(); }
-
-const requite::Context &Parser::getContext() const {
-  return this->_context_ref.get();
 }
 
 bool Parser::getIsDone() const { return this->_it >= this->_end; }
@@ -1211,6 +1153,44 @@ bool Parser::checkIsIntermediateRequiteOk() {
     return false;
   }
   return true;
+}
+
+
+void Parser::logErrorBinaryNoLValue(const requite::Token &token) {
+  this->getContext().logSourceMessage(
+      token, requite::LogType::ERROR,
+      llvm::Twine("Found binary operator token of type \"") +
+          requite::getName(token.getType()) + "\" with no l-value");
+}
+
+void Parser::logErrorHornedNoFirstBranch(const requite::Token &token) {
+  this->getContext().logSourceMessage(
+      token, requite::LogType::ERROR,
+      llvm::Twine("Found horned grouping token of type \"") +
+          requite::getName(token.getType()) +
+          "\" with no preceding first branch");
+}
+
+void Parser::logErrorFoundErrorToken(const requite::Token &token) {
+  this->getContext().logSourceMessage(
+      token, requite::LogType::ERROR,
+      llvm::Twine("Found error token of type \"") +
+          requite::getName(token.getType()) + "\"");
+}
+
+void Parser::logErrorUnexpectedToken(const requite::Token &token) {
+  this->getContext().logSourceMessage(
+      token, requite::LogType::ERROR,
+      llvm::Twine("Found unexpected token of type \"") +
+          requite::getName(token.getType()) + "\"");
+}
+
+void Parser::logErrorInvalidOperatorSpacing(const requite::Token &token) {
+  this->getContext().logSourceMessage(
+      token, requite::LogType::ERROR,
+      llvm::Twine("Found operator token of type \"") +
+          requite::getName(token.getType()) + "\" with " +
+          requite::getDescription(token.getSpacing()) + "");
 }
 
 } // namespace requite

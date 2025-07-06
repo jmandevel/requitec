@@ -48,7 +48,8 @@ target_sources(
         opcode.cpp
         options.cpp
         parse.cpp
-        precedence_parser.cpp
+        parse_precedence.cpp
+        parser.cpp
         procedure_iterator.cpp
         procedure.cpp
         property.cpp
@@ -69,6 +70,7 @@ target_sources(
         tasks.cpp
         token.cpp
         tokenize.cpp
+        tokenizer.cpp
         tuple.cpp
         global.cpp
         implement.cpp

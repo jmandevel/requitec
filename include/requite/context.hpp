@@ -60,6 +60,8 @@ struct _ContextLlvmContext {
 };
 
 struct Context final : public requite::_ContextLlvmContext {
+  using Self = requite::Context;
+
   std::string _executable_path;
   llvm::SourceMgr _source_mgr = {};
   mutable std::mutex _mutex = {};
@@ -92,7 +94,13 @@ struct Context final : public requite::_ContextLlvmContext {
   bool _contextualize0_done = false;
 
   // context.cpp
+  Context() = delete;
   Context(std::string &&executable_path);
+  Context(const Self&) = delete;
+  Context(Self&&) = delete;
+  ~Context() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
   [[nodiscard]]
   llvm::StringRef getExecutablePath() const;
 

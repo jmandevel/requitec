@@ -20,18 +20,24 @@ struct Context;
 struct File;
 
 struct Tokenizer final {
+  using Self = requite::Tokenizer;
+
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<std::vector<requite::Token>> _tokens_ref;
   llvm::SmallVector<requite::Grouping, 128> _grouping_stack;
   requite::SourceRanger _ranger;
   bool _is_ok = true;
 
-  // tokenize_tokens.cpp
+  // tokenizer.cpp
   Tokenizer(requite::Context &context, requite::File &file, std::vector<requite::Token> &tokens);
+  Tokenizer(const Self&) = delete;
+  Tokenizer(Self&&) = delete;
+  ~Tokenizer() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
   [[nodiscard]]
   bool getIsOk() const;
   void setNotOk();
-  void logErrorUnmatchedRightToken(const requite::Token &token);
   [[nodiscard]]
   requite::Context &getContext();
   [[nodiscard]]
@@ -50,6 +56,8 @@ struct Tokenizer final {
   const requite::Grouping &getTopGrouping() const;
   void pushGrouping(requite::GroupingType grouping);
   void popGrouping();
+
+  // tokenize_tokens.cpp
   void _tokenizeTokens();
   [[nodiscard]]
   bool tokenizeTokens();
@@ -58,6 +66,7 @@ struct Tokenizer final {
   void tokenizeRightGrouping(requite::GroupingType grouping,
                              requite::TokenType type, unsigned length);
   void checkFinalGroupings();
+  void logErrorUnmatchedRightToken(const requite::Token &token);
 
   // detail/tokenize_tokens.hpp
   template <bool CAN_HAVE_INTERPOLATION_PARAM, char END_QUOTE_PARAM,
