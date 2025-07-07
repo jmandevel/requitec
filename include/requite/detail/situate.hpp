@@ -1683,6 +1683,35 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
+  case requite::Opcode::_BASE_OR_TABLE_BLOCK:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_BASE_OR_TABLE_BLOCK)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SITUATION_PARAM, 0, SITUATION_PARAM>(
+          expression);
+    }
+    break;
+  case requite::Opcode::_OBJECT_BLOCK:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_OBJECT_BLOCK)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SITUATION_PARAM, 0,
+                                  requite::Situation::OBJECT_STATEMENT>(
+          expression);
+    }
+    break;
+  case requite::Opcode::_LOCAL_BLOCK:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_LOCAL_BLOCK)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SITUATION_PARAM, 0,
+                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
+          expression);
+    }
+    break;
   case requite::Opcode::_VALUE_CONDUIT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_VALUE_CONDUIT)) {
@@ -2164,8 +2193,8 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   unsigned branch_i = 0;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
-    this->situateBranch<BRANCH_SITUATION_N_PARAM>("all branches", expression, branch_i++,
-                                         branch);
+    this->situateBranch<BRANCH_SITUATION_N_PARAM>("all branches", expression,
+                                                  branch_i++, branch);
   }
   if (branch_i < MIN_COUNT_PARAM) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
@@ -2282,12 +2311,12 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
   unsigned branch_i = 0;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
     if (!branch.getHasNext()) {
-      this->situateBranch<BRANCH_SITUATION_LAST_PARAM>("last branch", expression,
-                                           branch_i++, branch);
+      this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
+          "last branch", expression, branch_i++, branch);
       break;
     }
-    this->situateBranch<BRANCH_SITUATION_N_PARAM>("first to penultimate branch",
-                                         expression, branch_i++, branch);
+    this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+        "first to penultimate branch", expression, branch_i++, branch);
   }
   if (branch_i < MIN_COUNT_PARAM) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
@@ -2313,12 +2342,12 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
                                                   branch_i++, first);
     for (requite::Expression &branch : expression.getBranchSubrange()) {
       if (!branch.getHasNext()) {
-        this->situateBranch<BRANCH_SITUATION_LAST_PARAM>("last branch", expression,
-                                             branch_i++, branch);
+        this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
+            "last branch", expression, branch_i++, branch);
         break;
       }
-      this->situateBranch<BRANCH_SITUATION_N_PARAM>("second to penultimate branch",
-                                           expression, branch_i++, branch);
+      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+          "second to penultimate branch", expression, branch_i++, branch);
     }
   } while (false);
   if (branch_i < MIN_COUNT_PARAM) {
@@ -2781,6 +2810,23 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
     } else {
       expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
     }
+  } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT ||
+                       SITUATION_PARAM == requite::Situation::TABLE_STATEMENT) {
+    this->situateNaryExpression<SITUATION_PARAM, 0, SITUATION_PARAM>(
+        expression);
+    expression.changeOpcode(requite::Opcode::_BASE_OR_TABLE_BLOCK);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::OBJECT_STATEMENT) {
+    this->situateNaryExpression<SITUATION_PARAM, 0,
+                                requite::Situation::OBJECT_STATEMENT>(
+        expression);
+    expression.changeOpcode(requite::Opcode::_OBJECT_BLOCK);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::MATTE_LOCAL_STATEMENT) {
+    this->situateNaryExpression<SITUATION_PARAM, 0,
+                                requite::Situation::MATTE_LOCAL_STATEMENT>(
+        expression);
+    expression.changeOpcode(requite::Opcode::_LOCAL_BLOCK);
   } else {
     static_assert(false, "invalid situation");
   }

@@ -81,6 +81,8 @@ struct Contextualizer0 final {
                                     bool has_attributes);
   [[nodiscard]] bool tabulateProperty(requite::Expression &expression,
                                       bool has_attributes);
+  [[nodiscard]] bool tabulateBaseOrTableBlock(requite::Expression& expression, bool has_attributes);
+  [[nodiscard]] bool tabulateObjectBlock(requite::Expression& expression, bool has_attributes);
 
   // expand.cpp
   [[nodiscard]] bool expandMacroExpression(requite::Expression& expression);

@@ -26,6 +26,7 @@ struct Property final {
   requite::AttributeFlags _attributes = {};
   requite::Scope _scope = {};
   requite::Symbol _data_type = {};
+  requite::Property *_next_ptr = nullptr;
 
   // property.cpp
   Property() = default;
@@ -54,6 +55,10 @@ struct Property final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] bool getHasNext() const;
+  void setNext(requite::Property& property);
+  [[nodiscard]] requite::Property& getNext();
+  [[nodiscard]] const requite::Property& getNext() const;
 };
 
 } // namespace requite

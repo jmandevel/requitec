@@ -7,13 +7,9 @@
 
 namespace requite {
 
-bool Global::operator==(const Self &rhs) const {
-  return this == &rhs;
-}
+bool Global::operator==(const Self &rhs) const { return this == &rhs; }
 
-bool Global::operator!=(const Self &rhs) const {
-  return this != &rhs;
-}
+bool Global::operator!=(const Self &rhs) const { return this != &rhs; }
 
 bool Global::getHasName() const { return !this->_name.empty(); }
 
@@ -54,15 +50,11 @@ const requite::Expression &Global::getExpression() const {
 
 requite::Symbol &Global::getDataType() { return this->_data_type; }
 
-const requite::Symbol &Global::getDataType() const {
-  return this->_data_type;
-}
+const requite::Symbol &Global::getDataType() const { return this->_data_type; }
 
 requite::Scope &Global::getScope() { return this->_scope; }
 
-const requite::Scope &Global::getScope() const {
-  return this->_scope;
-}
+const requite::Scope &Global::getScope() const { return this->_scope; }
 
 bool Global::getHasContaining() const {
   return this->getScope().getHasContaining();
@@ -78,6 +70,18 @@ requite::Scope &Global::getContaining() {
 
 const requite::Scope &Global::getContaining() const {
   return this->getScope().getContaining();
+}
+
+bool Global::getHasNext() const { return this->_next_ptr != nullptr; }
+
+void Global::setNext(requite::Global &global) {
+  requite::setSingleRef(this->_next_ptr, global);
+}
+
+requite::Global &Global::getNext() { return requite::getRef(this->_next_ptr); }
+
+const requite::Global &Global::getNext() const {
+  return requite::getRef(this->_next_ptr);
 }
 
 } // namespace requite

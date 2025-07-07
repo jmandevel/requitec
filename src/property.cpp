@@ -7,13 +7,9 @@
 
 namespace requite {
 
-bool Property::operator==(const Self &rhs) const {
-  return this == &rhs;
-}
+bool Property::operator==(const Self &rhs) const { return this == &rhs; }
 
-bool Property::operator!=(const Self &rhs) const {
-  return this != &rhs;
-}
+bool Property::operator!=(const Self &rhs) const { return this != &rhs; }
 
 bool Property::getHasName() const { return !this->_name.empty(); }
 
@@ -60,9 +56,7 @@ const requite::Symbol &Property::getDataType() const {
 
 requite::Scope &Property::getScope() { return this->_scope; }
 
-const requite::Scope &Property::getScope() const {
-  return this->_scope;
-}
+const requite::Scope &Property::getScope() const { return this->_scope; }
 
 bool Property::getHasContaining() const {
   return this->getScope().getHasContaining();
@@ -78,6 +72,20 @@ requite::Scope &Property::getContaining() {
 
 const requite::Scope &Property::getContaining() const {
   return this->getScope().getContaining();
+}
+
+bool Property::getHasNext() const { return this->_next_ptr != nullptr; }
+
+void Property::setNext(requite::Property &property) {
+  requite::setSingleRef(this->_next_ptr, property);
+}
+
+requite::Property &Property::getNext() {
+  return requite::getRef(this->_next_ptr);
+}
+
+const requite::Property &Property::getNext() const {
+  return requite::getRef(this->_next_ptr);
 }
 
 } // namespace requite

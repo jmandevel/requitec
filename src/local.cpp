@@ -56,7 +56,9 @@ const requite::Scope &Local::getContaining() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-bool Local::getHasLlvmAllocaPtr() const { return this->_llvm_alloca_ptr != nullptr; }
+bool Local::getHasLlvmAllocaPtr() const {
+  return this->_llvm_alloca_ptr != nullptr;
+}
 
 void Local::setLlvmAllocaPtr(llvm::AllocaInst *llvm_alloca) {
   this->_llvm_alloca_ptr = llvm_alloca;
@@ -66,6 +68,18 @@ llvm::AllocaInst *Local::getLlvmAllocaPtr() { return this->_llvm_alloca_ptr; }
 
 const llvm::AllocaInst *Local::getLlvmAllocaPtr() const {
   return this->_llvm_alloca_ptr;
+}
+
+bool Local::getHasNext() const { return this->_next_ptr != nullptr; }
+
+void Local::setNext(requite::Local &local) {
+  requite::setSingleRef(this->_next_ptr, local);
+}
+
+requite::Local &Local::getNext() { return requite::getRef(this->_next_ptr); }
+
+const requite::Local &Local::getNext() const {
+  return requite::getRef(this->_next_ptr);
 }
 
 } // namespace requite

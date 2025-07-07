@@ -27,6 +27,9 @@ struct Procedure;
 struct Table;
 struct Object;
 struct SymbolTable;
+struct BaseOrTableBlock;
+struct ObjectBlock;
+struct LocalBlock;
 
 struct Scope final {
   using Self = requite::Scope;
@@ -44,6 +47,9 @@ struct Scope final {
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
     requite::Global *_global_ptr;
+    requite::BaseOrTableBlock *_base_or_table_block_ptr;
+    requite::ObjectBlock *_object_block_ptr;
+    requite::LocalBlock *_local_block_ptr;
   };
   std::vector<requite::Node> _nodes = {};
 
@@ -71,28 +77,42 @@ struct Scope final {
   [[nodiscard]] std::vector<requite::Node> &getNodes();
   [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
   [[nodiscard]] bool getHasSymbolTable() const;
-  void setSymbolTable(requite::SymbolTable& table);
-  [[nodiscard]] requite::SymbolTable& getSymbolTable();
-  [[nodiscard]] const requite::SymbolTable& getSymbolTable() const;
+  void setSymbolTable(requite::SymbolTable &table);
+  [[nodiscard]] requite::SymbolTable &getSymbolTable();
+  [[nodiscard]] const requite::SymbolTable &getSymbolTable() const;
   [[nodiscard]] bool getIsEmpty() const;
+  [[nodiscard]] bool getHasObject() const;
   void setObject(requite::Object &object);
   [[nodiscard]] requite::Object &getObject();
   [[nodiscard]] const requite::Object &getObject() const;
+  [[nodiscard]] bool getHasTable() const;
   void setTable(requite::Table &table);
   [[nodiscard]] requite::Table &getTable();
   [[nodiscard]] const requite::Table &getTable() const;
+  [[nodiscard]] bool getHasProcedure() const;
   void setProcedure(requite::Procedure &procedure);
   [[nodiscard]] requite::Procedure &getProcedure();
   [[nodiscard]] const requite::Procedure &getProcedure() const;
+  [[nodiscard]] bool getHasAnonymousFunction() const;
   void setAnonymousFunction(requite::AnonymousFunction &anonymous_function);
   [[nodiscard]] requite::AnonymousFunction &getAnonymousFunction();
   [[nodiscard]] const requite::AnonymousFunction &getAnonymousFunction() const;
-  void setLocalStatement(requite::Expression &expression);
-  [[nodiscard]] requite::Expression &getLocalStatement();
-  [[nodiscard]] const requite::Expression &getLocalStatement() const;
+  [[nodiscard]] bool getHasGlobal() const;
   void setGlobal(requite::Global &variable);
   [[nodiscard]] requite::Global &getGlobal();
   [[nodiscard]] const requite::Global &getGlobal() const;
+  [[nodiscard]] bool getHasBaseOrTableBlock() const;
+  void setBaseOrTableBlock(requite::BaseOrTableBlock &block);
+  [[nodiscard]] requite::BaseOrTableBlock &getBaseOrTableBlock();
+  [[nodiscard]] const requite::BaseOrTableBlock &getBaseOrTableBlock() const;
+  [[nodiscard]] bool getHasObjectBlock() const;
+  void setObjectBlock(requite::ObjectBlock &block);
+  [[nodiscard]] requite::ObjectBlock &getObjectBlock();
+  [[nodiscard]] const requite::ObjectBlock &getObjectBlock() const;
+  [[nodiscard]] bool getHasLocalBlock() const;
+  void setLocalBlock(requite::LocalBlock &block);
+  [[nodiscard]] requite::LocalBlock &getLocalBlock();
+  [[nodiscard]] const requite::LocalBlock &getLocalBlock() const;
 
   // lookup_symbols.cpp
   [[nodiscard]]
@@ -101,7 +121,7 @@ struct Scope final {
 
   // detail/scope_symbol_map.hpp
   template <typename SymbolArg> void addUserSymbol(SymbolArg &symbol);
-  
+
   // detail/scope_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<
       requite::ContainingScopeIterator, requite::ContainingScopeIterator,
@@ -111,5 +131,5 @@ struct Scope final {
 
 } // namespace requite
 
-#include <requite/detail/scope_symbol_map.hpp>
 #include <requite/detail/scope_subrange.hpp>
+#include <requite/detail/scope_symbol_map.hpp>

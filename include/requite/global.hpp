@@ -26,6 +26,7 @@ struct Global final {
   requite::AttributeFlags _attributes = {};
   requite::Scope _scope = {};
   requite::Symbol _data_type = {};
+  requite::Global *_next_ptr = nullptr;
 
   // global.cpp
   Global() = default;
@@ -54,6 +55,10 @@ struct Global final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] bool getHasNext() const;
+  void setNext(requite::Global& global);
+  [[nodiscard]] requite::Global& getNext();
+  [[nodiscard]] const requite::Global& getNext() const;
 };
 
 } // namespace requite
