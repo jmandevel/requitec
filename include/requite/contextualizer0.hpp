@@ -1,6 +1,6 @@
 #pragma once
 
-#include <requite/symbol.hpp>
+#include <requite/yield_symbol.hpp>
 
 #include <unordered_map>
 #include <functional>
@@ -20,7 +20,7 @@ struct Contextualizer0 final {
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<requite::Module> _module_ref;
   requite::Scope *_scope_ptr = nullptr;
-  std::unordered_map<void*, requite::RootSymbol> _yieliding_symbol_map = {};
+  std::unordered_map<void*, requite::YieldSymbol> _yiel_symbol_map = {};
 
   // contextualizer0.cpp
   Contextualizer0(requite::Context &constext, requite::Module &module);
@@ -37,6 +37,23 @@ struct Contextualizer0 final {
   [[nodiscard]] const requite::Scope &getScope() const;
   void enterScope(requite::Scope &scope);
   void leaveScope();
+  [[nodiscard]] const std::unordered_map<void*, requite::YieldSymbol>& getYieldSymbolMap() const;
+  [[nodiscard]] std::unordered_map<void*, requite::YieldSymbol>& getYieldSymbolMap();
+
+  // yielding.cpp
+  void addYieldSymbol(requite::Object& object);
+  void removeYieldSymbol(requite::Object& object);
+  void addYieldSymbol(requite::Procedure& procedure);
+  void removeYieldSymbol(requite::Procedure& procedure);
+  void addYieldSymbol(requite::Table& table);
+  void removeYieldSymbol(requite::Table& table);
+  void addYieldSymbol(requite::Property& property);
+  void removeYieldSymbol(requite::Property& property);
+  void addYieldSymbol(requite::Global& global);
+  void removeYieldSymbol(requite::Global& global);
+  void addYieldSymbol(requite::Alias& alias);
+  void removeYieldSymbol(requite::Alias& alias);
+  [[nodiscard]] bool passYieldSymbols();
 
   // tabulate.cpp
   [[nodiscard]] bool tabulateModule();
