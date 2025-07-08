@@ -15,8 +15,8 @@ constexpr llvm::StringRef getName(requite::Situation situation) {
       return "NONE";
     case Situation::ROOT_STATEMENT:
       return "ROOT_STATEMENT";
-    case Situation::BASE_STATEMENT:
-      return "BASE_STATEMENT";
+    case Situation::MODULE_STATEMENT:
+      return "MODULE_STATEMENT";
     case Situation::TABLE_STATEMENT:
       return "TABLE_STATEMENT";
     case Situation::OBJECT_STATEMENT:
@@ -108,7 +108,7 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return false;
   } else if constexpr (SITUATION_PARAM == requite::Situation::ROOT_STATEMENT) {
     return requite::getCanBeRootStatementSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MODULE_STATEMENT) {
     return requite::getCanBeBaseStatementSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::TABLE_STATEMENT) {
     return requite::getCanBeTableStatementSituation(opcode);
@@ -194,8 +194,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
 template <requite::Situation SITUATION_PARAM>
 constexpr requite::Situation getNextScopeStatementSituation() {
   if constexpr (SITUATION_PARAM == requite::Situation::ROOT_STATEMENT) {
-    return requite::Situation::BASE_STATEMENT;
-  } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT) {
+    return requite::Situation::MODULE_STATEMENT;
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MODULE_STATEMENT) {
     return requite::Situation::TABLE_STATEMENT;
   } else if constexpr (SITUATION_PARAM == requite::Situation::TABLE_STATEMENT ||
                        SITUATION_PARAM ==
@@ -301,7 +301,7 @@ constexpr bool getCanBeConvergingSituation(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeBaseStatementSituation(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode, requite::_opcode::_BASE_STATEMENT);
+  return requite::_getHasFlags(opcode, requite::_opcode::_MODULE_STATEMENT);
 }
 
 constexpr bool getCanBeTableStatementSituation(requite::Opcode opcode) {

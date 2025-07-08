@@ -2,13 +2,12 @@
 
 namespace requite {
 
-enum class YieldState {
-    NONE,
-    DONE,
-    ERROR,
+enum class SymbolStatus {
     EXPAND_NAME,
     EVALUATE_NAME,
-    EXPAND_BODY
+    EXPAND_TREE,
+    IMPLEMENT,
+    DONE
 };
 
 }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <requite/symbol.hpp>
+#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -31,6 +32,7 @@ struct Local final {
   requite::Scope *_containing_scope_ptr = nullptr;
   llvm::AllocaInst *_llvm_alloca_ptr = nullptr;
   requite::Local * _next_ptr = nullptr;
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // local.cpp
   Local() = default;

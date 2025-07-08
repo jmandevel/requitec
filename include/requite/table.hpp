@@ -5,6 +5,7 @@
 #pragma once
 
 #include <requite/scope.hpp>
+#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringMap.h>
 
@@ -17,6 +18,7 @@ struct Table final {
 
   std::string _name = {};
   requite::Scope _scope = {};
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // table.cpp
   Table();

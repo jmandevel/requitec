@@ -29,7 +29,7 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(1)),
   _INTERMEDIATE_OPERATION =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(2)),
-  _BASE_STATEMENT =
+  _MODULE_STATEMENT =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(3)),
   _TABLE_STATEMENT =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(4)),
@@ -65,7 +65,7 @@ enum _OpcodeFlags : std::uint32_t {
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
   _SYMBOL_REFLECTIVE_SYMBOL =
       (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
-  _ANY = _BASE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT |
+  _ANY = _MODULE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT |
          _VALUE_REFLECTIVE_LOCAL_STATEMENT |
          _SYMBOL_REFLECTIVE_LOCAL_STATEMENT | _OBJECT_STATEMENT |
          _MATTE_DESTINATION | _VALUE_REFLECTIVE_DESTINATION |
@@ -132,7 +132,7 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION;
   case Opcode::_TRIP:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_SYMBOL | _BASE_STATEMENT | _TABLE_STATEMENT |
+           _MATTE_SYMBOL | _MODULE_STATEMENT | _TABLE_STATEMENT |
            _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
@@ -203,11 +203,11 @@ _getFlags(requite::Opcode opcode) {
 
   // APPLY
   case Opcode::_ASCRIBE_LAST_BRANCH:
-    return _INTERMEDIATE_OPERATION | _BASE_STATEMENT | _TABLE_STATEMENT |
+    return _INTERMEDIATE_OPERATION | _MODULE_STATEMENT | _TABLE_STATEMENT |
            _OBJECT_STATEMENT | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION | _MATTE_SYMBOL;
   case Opcode::_ASCRIBE_FIRST_BRANCH:
-    return _INTERMEDIATE_OPERATION | _BASE_STATEMENT | _TABLE_STATEMENT |
+    return _INTERMEDIATE_OPERATION | _MODULE_STATEMENT | _TABLE_STATEMENT |
            _OBJECT_STATEMENT | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_JUNCTION | _MATTE_SYMBOL;
   case Opcode::_CAST:
@@ -410,13 +410,13 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_DROP_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::ENTRY_POINT:
-    return _BASE_STATEMENT;
+    return _MODULE_STATEMENT;
   case Opcode::FUNCTION:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
   case Opcode::METHOD:
     return _OBJECT_STATEMENT;
   case Opcode::EXTENSION:
-    return _BASE_STATEMENT | _TABLE_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::CONSTRUCTOR:
     return _OBJECT_STATEMENT;
   case Opcode::DESTRUCTOR:
@@ -444,16 +444,16 @@ _getFlags(requite::Opcode opcode) {
 
   // SYMBOLS
   case Opcode::OBJECT:
-    return _BASE_STATEMENT | _TABLE_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::TABLE:
-    return _BASE_STATEMENT | _TABLE_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::ALIAS:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::_LOCAL:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::GLOBAL:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
   case Opcode::PROPERTY:
     return _OBJECT_STATEMENT;
 
@@ -553,7 +553,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::SCOPE:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::_BASE_OR_TABLE_BLOCK:
-    return _BASE_STATEMENT | _TABLE_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::_OBJECT_BLOCK:
     return _OBJECT_STATEMENT;
   case Opcode::_LOCAL_BLOCK:
@@ -575,10 +575,10 @@ _getFlags(requite::Opcode opcode) {
 
   // SYMBOL GRAPH
   case Opcode::IMPORT:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::USE:
-    return _BASE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
 
   // SOURCES
@@ -1360,6 +1360,10 @@ constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {
 
 constexpr bool getHasSituationData(requite::Opcode opcode) {
   return opcode == requite::Opcode::_EXPAND_VALUE;
+}
+
+constexpr bool getHasNodeData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::USE || opcode == requite::Opcode::IMPORT;
 }
 
 } // namespace requite

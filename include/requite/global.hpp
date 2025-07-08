@@ -7,6 +7,7 @@
 #include <requite/attribute_flags.hpp>
 #include <requite/symbol.hpp>
 #include <requite/scope.hpp>
+#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -27,6 +28,7 @@ struct Global final {
   requite::Scope _scope = {};
   requite::Symbol _data_type = {};
   requite::Global *_next_ptr = nullptr;
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // global.cpp
   Global() = default;

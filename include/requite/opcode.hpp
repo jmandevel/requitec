@@ -399,8 +399,7 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool
-getHasGlobalData(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getHasGlobalData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasLocalData(requite::Opcode opcode);
 
@@ -408,6 +407,8 @@ getHasGlobalData(requite::Opcode opcode);
 getHasAnonymousFunctionData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasSituationData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasNodeData(requite::Opcode opcode);
 
 } // namespace requite
 

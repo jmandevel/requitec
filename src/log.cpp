@@ -94,6 +94,11 @@ void Context::logErrorMustNotHaveAttributeFlags(
                              " must not have attributes");
 }
 
+void Context::logErrorNumericParse(requite::Expression &expression, requite::NumericResult result) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         requite::getDescription(result));
+}
+
 void Context::logNotSupportedYet(requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          "not supported yet");

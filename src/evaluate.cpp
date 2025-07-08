@@ -4,24 +4,33 @@
 namespace requite {
 
 bool Context::evaluateName(llvm::StringRef &out_name, requite::Scope &scope,
-                           requite::Expression &value_expression) {
+                           requite::Expression &value_expression,
+                           requite::LogMode log_mode) {
   // TODO evaluate names
   if (value_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
-    this->logErrorNonInstantEvaluatableName(value_expression);
-    return false;
+    if (log_mode == requite::LogMode::ECHO)
+        [[unlikely]] // unlikely because of yielding expressions in
+                     // contextualizer0 {
+      this->logErrorNonInstantEvaluatableName(value_expression);
   }
-  out_name = value_expression.getDataText();
-  return true;
+  return false;
+}
+out_name = value_expression.getDataText();
+return true;
 }
 
 bool Context::evaluateConstantUnsigned(unsigned &out_unsigned,
                                        requite::Scope &scope,
-                                       requite::Expression &value_expression) {
+                                       requite::Expression &value_expression,
+                                       requite::LogMode log_mode) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__INTEGER_LITERAL: {
     requite::NumericResult result = requite::getNumericValue(
         value_expression.getSourceText(), out_unsigned);
     if (result != requite::NumericResult::OK) {
+      if (log_mode == requite::LogMode::ECHO) [[likely]] {
+        this->logErrorNumericParse(value_expression, result);
+      }
       return false;
     }
   }

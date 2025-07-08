@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <requite/symbol_status.hpp>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/BasicBlock.h>
 
@@ -22,6 +24,7 @@ struct Label final {
   requite::Expression *_statement_expression_ptr = nullptr;
   requite::Scope *_containing_scope_ptr = nullptr;
   llvm::BasicBlock* _llvm_block_ptr = nullptr;
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // label.cpp
   Label() = default;

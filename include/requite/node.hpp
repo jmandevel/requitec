@@ -6,6 +6,7 @@
 
 #include <requite/attribute_flags.hpp>
 #include <requite/node_type.hpp>
+#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -21,6 +22,7 @@ struct Node final {
   requite::NodeType _type = requite::NodeType::NONE;
   requite::Expression *_expression_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // node.cpp
   Node() = default;

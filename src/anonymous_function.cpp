@@ -69,8 +69,16 @@ std::vector<requite::Local *> &AnonymousFunction::getCapturedPtrs() {
 }
 
 const std::vector<requite::Local *> &
-AnonymousFunction::AnonymousFunction::getCapturedPtrs() const {
+AnonymousFunction::getCapturedPtrs() const {
   return this->_captured_ptrs;
+}
+
+requite::SymbolStatus AnonymousFunction::getStatus() const { return this->_status; }
+
+void AnonymousFunction::incrementStatus() {
+  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
+  this->_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_status) + 1);
 }
 
 } // namespace requite

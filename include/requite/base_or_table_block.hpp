@@ -1,6 +1,7 @@
 #pragma once
 
 #include <requite/scope.hpp>
+#include <requite/symbol_status.hpp>
 
 namespace requite {
 
@@ -14,6 +15,7 @@ struct BaseOrTableBlock final {
   requite::Expression *_expression_ptr = nullptr;
   requite::Global *_first_global_ptr = nullptr;
   requite::AttributeFlags _attribute_flags = {};
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // base_or_global_block.cpp
   BaseOrTableBlock() = default;

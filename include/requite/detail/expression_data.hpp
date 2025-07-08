@@ -252,4 +252,27 @@ inline requite::Situation Expression::getSituation() const {
   return std::get<requite::Situation>(this->_data);
 }
 
+inline bool Expression::getHasNode() const {
+  REQUITE_ASSERT(requite::getHasNodeData(this->getOpcode()));
+  return std::holds_alternative<requite::Node *>(this->_data) &&
+         std::get<requite::Node *>(this->_data) != nullptr;
+}
+
+inline void Expression::setNode(requite::Node &node) {
+  REQUITE_ASSERT(requite::getHasNodeData(this->getOpcode()));
+  this->_data.emplace<requite::Node *>(&node);
+}
+
+inline requite::Node &Expression::getNode() {
+  REQUITE_ASSERT(requite::getHasNodeData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasNode());
+  return requite::getRef(std::get<requite::Node *>(this->_data));
+}
+
+inline const requite::Node &Expression::getNode() const {
+  REQUITE_ASSERT(requite::getHasNodeData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasNode());
+  return requite::getRef(std::get<requite::Node *>(this->_data));
+}
+
 } // namespace requite

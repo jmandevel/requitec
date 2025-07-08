@@ -67,4 +67,15 @@ requite::Symbol &Alias::getSymbol() { return this->_symbol; }
 
 const requite::Symbol &Alias::getSymbol() const { return this->_symbol; }
 
+requite::SymbolStatus Alias::getStatus() const {
+  return this->_status;
+}
+
+requite::SymbolStatus Alias::getStatus() const { return this->_status; }
+void Alias::incrementStatus() {
+  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
+  this->_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_status) + 1);
+}
+
 } // namespace requite

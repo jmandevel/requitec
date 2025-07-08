@@ -7,8 +7,8 @@
 #include <requite/const_expression_iterator.hpp>
 #include <requite/expression_iterator.hpp>
 #include <requite/opcode.hpp>
-#include <requite/symbol.hpp>
 #include <requite/situation.hpp>
+#include <requite/symbol.hpp>
 
 #include <llvm/ADT/APSInt.h>
 #include <llvm/ADT/StringRef.h>
@@ -29,6 +29,7 @@ struct Global;
 struct Procedure;
 struct AnonymousFunction;
 struct Alias;
+struct Node;
 
 struct Expression final {
   using Self = requite::Expression;
@@ -38,10 +39,11 @@ struct Expression final {
   requite::Expression *_branch_ptr = nullptr;
   const char *_source_text_ptr = nullptr;
   unsigned _source_text_length = 0;
-  std::variant<std::monostate, std::string, requite::Scope *,
-               requite::Object *, requite::Procedure *, requite::Alias *,
-               requite::AnonymousFunction *, requite::Global *, requite::Local*,  requite::Label*, llvm::APSInt,
-               requite::Symbol, requite::Situation>
+  std::variant<std::monostate, std::string, requite::Scope *, requite::Object *,
+               requite::Procedure *, requite::Alias *,
+               requite::AnonymousFunction *, requite::Global *,
+               requite::Local *, requite::Label *, llvm::APSInt,
+               requite::Symbol, requite::Situation, requite::Node *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -190,7 +192,7 @@ struct Expression final {
   [[nodiscard]] inline const requite::Local &getLocal() const;
   inline void setProcedure(requite::Procedure &procedure);
   [[nodiscard]] inline bool getHasLabel() const;
-  inline void setLabel(requite::Label& label);
+  inline void setLabel(requite::Label &label);
   [[nodiscard]] inline requite::Label &getLabel();
   [[nodiscard]] inline const requite::Label &getLabel() const;
   [[nodiscard]] inline bool getHasInteger() const;
@@ -200,6 +202,10 @@ struct Expression final {
   [[nodiscard]] inline bool getHasSituation() const;
   inline void setSituation(requite::Situation situation);
   inline requite::Situation getSituation() const;
+  [[nodiscard]] inline bool getHasNode() const;
+  inline void setNode(requite::Node &node);
+  [[nodiscard]] inline requite::Node &getNode();
+  [[nodiscard]] inline const requite::Node &getNode() const;
 
   // detail/expression_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

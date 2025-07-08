@@ -200,4 +200,14 @@ const llvm::BasicBlock &Procedure::getLlvmBlock() const {
   return requite::getRef(this->_llvm_block_ptr);
 }
 
+requite::SymbolStatus Procedure::getStatus() const {
+  return this->_status;
+}
+
+void Procedure::incrementStatus() {
+  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
+  this->_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_status) + 1);
+}
+
 } // namespace requite

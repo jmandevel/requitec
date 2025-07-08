@@ -23,6 +23,8 @@
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
 #include <requite/symbol_table.hpp>
+#include <requite/log_mode.hpp>
+#include <requite/numeric.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -239,10 +241,10 @@ struct Context final : public requite::_ContextLlvmContext {
   // evaluate.cpp
   [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
                                   requite::Scope &scope,
-                                  requite::Expression &value_expression);
+                                  requite::Expression &value_expression, requite::LogMode log_mode);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
-                           requite::Expression &value_expression);
+                           requite::Expression &value_expression, requite::LogMode log_mode);
   [[nodiscard]] requite::Value
   evaluateValue(requite::Scope &scope, requite::Expression &value_expression,
                 const requite::Symbol &type);
@@ -375,6 +377,7 @@ struct Context final : public requite::_ContextLlvmContext {
                                   requite::AttributeType type);
   void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
+  void logErrorNumericParse(requite::Expression &expression, requite::NumericResult result);
   void
   logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
                                           const requite::Symbol &expected_type);

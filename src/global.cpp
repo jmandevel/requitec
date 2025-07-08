@@ -84,4 +84,14 @@ const requite::Global &Global::getNext() const {
   return requite::getRef(this->_next_ptr);
 }
 
+requite::SymbolStatus Global::getStatus() const {
+  return this->_status;
+}
+
+void Global::incrementStatus() {
+  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
+  this->_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_status) + 1);
+}
+
 } // namespace requite

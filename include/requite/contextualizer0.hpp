@@ -1,9 +1,11 @@
 #pragma once
 
-#include <requite/yield_symbol.hpp>
+#include <requite/log_mode.hpp>
+#include <requite/situation.hpp>
+#include <requite/yield.hpp>
 
-#include <unordered_map>
 #include <functional>
+#include <unordered_map>
 
 namespace requite {
 
@@ -20,7 +22,8 @@ struct Contextualizer0 final {
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<requite::Module> _module_ref;
   requite::Scope *_scope_ptr = nullptr;
-  std::unordered_map<void*, requite::YieldSymbol> _yiel_symbol_map = {};
+  bool _is_ok = true;
+  std::unordered_map<void *, requite::Yield> _yield_map = {};
 
   // contextualizer0.cpp
   Contextualizer0(requite::Context &constext, requite::Module &module);
@@ -35,59 +38,74 @@ struct Contextualizer0 final {
   [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] requite::Object &getObject();
+  [[nodiscard]] const requite::Object &getObject() const;
   void enterScope(requite::Scope &scope);
   void leaveScope();
-  [[nodiscard]] const std::unordered_map<void*, requite::YieldSymbol>& getYieldSymbolMap() const;
-  [[nodiscard]] std::unordered_map<void*, requite::YieldSymbol>& getYieldSymbolMap();
+  [[nodiscard]] bool getIsNotOk() const;
+  void setNotOk();
+  [[nodiscard]] const std::unordered_map<void *, requite::Yield> &
+  getYieldMap() const;
+  [[nodiscard]] std::unordered_map<void *, requite::Yield> &getYieldMap();
 
   // yielding.cpp
-  void addYieldSymbol(requite::Object& object);
-  void removeYieldSymbol(requite::Object& object);
-  void addYieldSymbol(requite::Procedure& procedure);
-  void removeYieldSymbol(requite::Procedure& procedure);
-  void addYieldSymbol(requite::Table& table);
-  void removeYieldSymbol(requite::Table& table);
-  void addYieldSymbol(requite::Property& property);
-  void removeYieldSymbol(requite::Property& property);
-  void addYieldSymbol(requite::Global& global);
-  void removeYieldSymbol(requite::Global& global);
-  void addYieldSymbol(requite::Alias& alias);
-  void removeYieldSymbol(requite::Alias& alias);
-  [[nodiscard]] bool passYieldSymbols();
+  void addYield(requite::Object &object, requite::Situation situation);
+  void removeYield(requite::Object &object, requite::Situation situation);
+  void addYield(requite::Procedure &procedure, requite::Situation situation);
+  void removeYield(requite::Procedure &procedure, requite::Situation situation);
+  void addYield(requite::Table &table, requite::Situation situation);
+  void removeYield(requite::Table &table, requite::Situation situation);
+  void addYield(requite::Property &property, requite::Situation situation);
+  void removeYield(requite::Property &property, requite::Situation situation);
+  void addYield(requite::Global &global, requite::Situation situation);
+  void removeYield(requite::Global &global, requite::Situation situation);
+  void addYield(requite::Alias &alias, requite::Situation situation);
+  void removeYield(requite::Alias &alias, requite::Situation situation);
+  [[nodiscard]] bool passYields();
 
   // tabulate.cpp
-  [[nodiscard]] bool tabulateModule();
-  [[nodiscard]] bool tabulateStatement(requite::Expression &statement,
-                                       bool has_attributes);
-  [[nodiscard]] bool tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
-  [[nodiscard]] bool tabulateFunction(requite::Expression &expression,
-                                      bool has_attributes);
-  [[nodiscard]] bool tabulateMethod(requite::Expression &expression,
-                                    bool has_attributes);
-  [[nodiscard]] bool tabulateExtension(requite::Expression &expression,
-                                       bool has_attributes);
-  [[nodiscard]] bool tabulateConstructor(requite::Expression &expression,
-                                         bool has_attributes);
-  [[nodiscard]] bool tabulateDestructor(requite::Expression &expression,
-                                        bool has_attributes);
-  [[nodiscard]] bool tabulateObject(requite::Expression &expression,
-                                    bool has_attributes);
-  [[nodiscard]] bool tabulateAlias(requite::Expression &expression,
-                                   bool has_attributes);
-  [[nodiscard]] bool tabulateImport(requite::Expression &import,
-                                    bool has_attributes);
-  [[nodiscard]] bool tabulateUse(requite::Expression &use, bool has_attributes);
-  [[nodiscard]] bool tabulateGlobal(requite::Expression &expression,
-                                    bool has_attributes);
-  [[nodiscard]] bool tabulateProperty(requite::Expression &expression,
-                                      bool has_attributes);
-  [[nodiscard]] bool tabulateBaseOrTableBlock(requite::Expression& expression, bool has_attributes);
-  [[nodiscard]] bool tabulateObjectBlock(requite::Expression& expression, bool has_attributes);
+  void tabulateModule();
+  void tabulateStatement(requite::Expression &statement,
+                         requite::Situation situation, bool has_attributes);
+  void tabulateEntryPoint(requite::Expression &expression,
+                          requite::Situation situation, bool has_attributes);
+  void tabulateFunction(requite::Expression &expression,
+                        requite::Situation situation, bool has_attributes);
+  void tabulateMethod(requite::Expression &expression,
+                      requite::Situation situation, bool has_attributes);
+  void tabulateExtension(requite::Expression &expression,
+                         requite::Situation situation, bool has_attributes);
+  void tabulateConstructor(requite::Expression &expression,
+                           requite::Situation situation, bool has_attributes);
+  void tabulateDestructor(requite::Expression &expression,
+                          requite::Situation situation, bool has_attributes);
+  void tabulateObject(requite::Expression &expression,
+                      requite::Situation situation, bool has_attributes);
+  void tabulateAlias(requite::Expression &expression,
+                     requite::Situation situation, bool has_attributes);
+  void tabulateImport(requite::Expression &expression,
+                      requite::Situation situation, bool has_attributes);
+  void tabulateUse(requite::Expression &expression,
+                   requite::Situation situation, bool has_attributes);
+  void tabulateGlobal(requite::Expression &expression,
+                      requite::Situation situation, bool has_attributes);
+  void tabulateProperty(requite::Expression &expression,
+                        requite::Situation situation, bool has_attributes);
+  void tabulateBaseOrTableBlock(requite::Expression &expression,
+                                requite::Situation situation,
+                                bool has_attributes);
+  void tabulateObjectBlock(requite::Expression &expression,
+                           requite::Situation situation, bool has_attributes);
+  void tabulate_ExpandValue(requite::Expression &expression,
+                            requite::Situation situation, bool has_attributes);
 
   // expand.cpp
-  [[nodiscard]] bool expandMacroExpression(requite::Expression& expression);
-  [[nodiscard]] bool expandMacroTree(requite::Expression& expression);
-  [[nodiscard]] bool expandMacroForest(requite::Expression& expression);
+  [[nodiscard]] bool expandExpression(requite::Expression &expression,
+                                      requite::Situation situation,
+                                      requite::LogMode log_mode);
+  [[nodiscard]] bool expandNameBranch(requite::Expression &expression,
+                                      requite::Situation situation,
+                                      requite::LogMode log_mode);
 };
 
 } // namespace requite

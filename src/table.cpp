@@ -54,4 +54,15 @@ const requite::Scope *Table::getContainingPtr() const {
   return this->getScope().getContainingPtr();
 }
 
+
+requite::SymbolStatus Table::getStatus() const {
+  return this->_status;
+}
+
+void Table::incrementStatus() {
+  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
+  this->_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_status) + 1);
+}
+
 } // namespace requite

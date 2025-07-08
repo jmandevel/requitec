@@ -19,8 +19,8 @@ inline bool Situator::situateExpression(requite::Expression &expression,
     this->situateExpression<requite::Situation::NONE>(expression);
   case requite::Situation::ROOT_STATEMENT:
     this->situateExpression<requite::Situation::ROOT_STATEMENT>(expression);
-  case requite::Situation::BASE_STATEMENT:
-    this->situateExpression<requite::Situation::BASE_STATEMENT>(expression);
+  case requite::Situation::MODULE_STATEMENT:
+    this->situateExpression<requite::Situation::MODULE_STATEMENT>(expression);
   case requite::Situation::TABLE_STATEMENT:
     this->situateExpression<requite::Situation::TABLE_STATEMENT>(expression);
   case requite::Situation::OBJECT_STATEMENT:
@@ -2810,7 +2810,7 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
     } else {
       expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
     }
-  } else if constexpr (SITUATION_PARAM == requite::Situation::BASE_STATEMENT ||
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MODULE_STATEMENT ||
                        SITUATION_PARAM == requite::Situation::TABLE_STATEMENT) {
     this->situateNaryExpression<SITUATION_PARAM, 0, SITUATION_PARAM>(
         expression);

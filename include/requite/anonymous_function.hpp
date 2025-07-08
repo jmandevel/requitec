@@ -6,6 +6,7 @@
 
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
+#include <requite/symbol_status.hpp>
 
 #include <vector>
 
@@ -19,10 +20,11 @@ struct AnonymousFunction final {
   using Self = requite::AnonymousFunction;
 
   requite::Scope _scope = {};
-  requite::Module* _module_ptr = nullptr;
+  requite::Module *_module_ptr = nullptr;
   requite::Expression *_expression_ptr = nullptr;
   requite::Signature _signature = {};
   std::vector<requite::Local *> _captured_ptrs = {};
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_TREE;
 
   // anonymous_function.cpp
   AnonymousFunction();
@@ -38,8 +40,8 @@ struct AnonymousFunction final {
   [[nodiscard]]
   const requite::Scope &getScope() const;
   [[nodiscard]] bool getHasContaining() const;
-  void setContaining(requite::Scope& scope);
-  [[nodiscard]] requite::Scope& getContaining();
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
@@ -55,6 +57,8 @@ struct AnonymousFunction final {
   std::vector<requite::Local *> &getCapturedPtrs();
   [[nodiscard]]
   const std::vector<requite::Local *> &getCapturedPtrs() const;
+  [[nodiscard]] requite::SymbolStatus getStatus() const;
+  void incrementStatus();
 };
 
 } // namespace requite

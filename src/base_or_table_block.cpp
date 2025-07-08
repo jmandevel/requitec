@@ -44,4 +44,14 @@ requite::AttributeFlags &BaseOrTableBlock::getAttributeFlags() {
   return this->_attribute_flags;
 }
 
+requite::SymbolStatus BaseOrTableBlock::getStatus() const {
+  return this->_status;
+}
+
+void BaseOrTableBlock::incrementStatus() {
+  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
+  this->_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_status) + 1);
+}
+
 } // namespace requtite

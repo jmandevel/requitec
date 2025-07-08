@@ -10,6 +10,7 @@
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol_table.hpp>
+#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 
@@ -45,6 +46,7 @@ struct Procedure final {
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
   llvm::Function *_llvm_function_ptr = nullptr;
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
+  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
 
   // procedure.cpp
   Procedure();
