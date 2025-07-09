@@ -45,9 +45,6 @@ struct Contextualizer1 final {
 
   // tabulate.cpp
   [[nodiscard]] bool tabulate_Local(requite::Local*& out_local_ptr, llvm::StringRef name, requite::Expression &statement);
-  [[nodiscard]] bool tabulateAlias(requite::Expression &statement);
-  [[nodiscard]] bool tabulateImport(requite::Expression &statement);
-  [[nodiscard]] bool tabulateUse(requite::Expression &statement);
 
   // implement.cpp
   // [[nodiscard]] bool implementProcedureSignature(requite::Expression&

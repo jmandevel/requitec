@@ -4,14 +4,14 @@
 
 #include <requite/assert.hpp>
 #include <requite/context.hpp>
+#include <requite/global.hpp>
+#include <requite/local.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/node.hpp>
 #include <requite/object.hpp>
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
 #include <requite/table.hpp>
-#include <requite/local.hpp>
-#include <requite/global.hpp>
 
 namespace requite {
 
@@ -85,6 +85,18 @@ requite::Label &Context::makeLabel() {
   return requite::getRef(label_uptr);
 }
 
+requite::Node &Context::makeNode() {
+  std::unique_ptr<requite::Node> &node_uptr =
+      this->_node_uptrs.emplace_back(std::make_unique<requite::Node>());
+  return requite::getRef(node_uptr);
+}
+
+requite::Block &Context::makeBlock() {
+  std::unique_ptr<requite::Block> &block_uptr =
+      this->_block_uptrs.emplace_back(std::make_unique<requite::Block>());
+  return requite::getRef(block_uptr);
+}
+
 std::vector<std::unique_ptr<requite::Scope>> &Context::getScopeUptrs() {
   return this->_scope_uptrs;
 }
@@ -147,6 +159,24 @@ std::vector<std::unique_ptr<requite::Local>> &Context::getLocalUptrs() {
 const std::vector<std::unique_ptr<requite::Local>> &
 Context::getLocalUptrs() const {
   return this->_local_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::Node>> &Context::getNodeUptrs() {
+  return this->_node_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::Node>> &
+Context::getNodeUptrs() const {
+  return this->_node_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::Block>> &Context::getBlockUptrs() {
+  return this->_block_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::Block>> &
+Context::getBlockUptrs() const {
+  return this->_block_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::Global>> &Context::getGlobalUptrs() {

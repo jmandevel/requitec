@@ -18,7 +18,7 @@ struct Table final {
 
   std::string _name = {};
   requite::Scope _scope = {};
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // table.cpp
   Table();
@@ -41,6 +41,8 @@ struct Table final {
   [[nodiscard]] unsigned getScopeDepth() const;
   [[nodiscard]] requite::Scope *getContainingPtr();
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite

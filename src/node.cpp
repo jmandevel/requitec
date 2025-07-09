@@ -40,14 +40,30 @@ const requite::AttributeFlags &Node::getAttributeFlags() const {
   return this->_attributes;
 }
 
-requite::SymbolStatus Node::getStatus() const {
-  return this->_status;
+bool Node::getHasNext() const {
+  return this->_next_ptr != nullptr;
 }
 
-void Node::incrementStatus() {
-  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
-  this->_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_status) + 1);
+void Node::setNext(requite::Node& node) {
+  requite::setSingleRef(this->_next_ptr, node);
+}
+
+requite::Node& Node::getNext() {
+  return requite::getRef(this->_next_ptr);
+}
+
+const requite::Node& Node::getNext() const {
+  return requite::getRef(this->_next_ptr);
+}
+
+requite::SymbolStatus Node::getSymbolStatus() const {
+  return this->_symbol_status;
+}
+
+void Node::incrementSymbolStatus() {
+  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
+  this->_symbol_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
 } // namespace requite

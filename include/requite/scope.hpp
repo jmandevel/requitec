@@ -51,7 +51,7 @@ struct Scope final {
     requite::ObjectBlock *_object_block_ptr;
     requite::LocalBlock *_local_block_ptr;
   };
-  std::vector<requite::Node> _nodes = {};
+  requite::Node* _first_node_ptr = nullptr;
 
   // scope.cpp
   Scope() = default;
@@ -74,8 +74,10 @@ struct Scope final {
   [[nodiscard]] unsigned getScopeDepth() const;
   [[nodiscard]] requite::Scope *getContainingPtr();
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
-  [[nodiscard]] std::vector<requite::Node> &getNodes();
-  [[nodiscard]] const std::vector<requite::Node> &getNodes() const;
+  [[nodiscard]] bool getHasNodes() const;
+  void addNode(requite::Node& node);
+  [[nodiscard]] requite::Node& getFirstNode();
+  [[nodiscard]] const requite::Node& getFirstNode() const; 
   [[nodiscard]] bool getHasSymbolTable() const;
   void setSymbolTable(requite::SymbolTable &table);
   [[nodiscard]] requite::SymbolTable &getSymbolTable();
@@ -113,6 +115,8 @@ struct Scope final {
   void setLocalBlock(requite::LocalBlock &block);
   [[nodiscard]] requite::LocalBlock &getLocalBlock();
   [[nodiscard]] const requite::LocalBlock &getLocalBlock() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 
   // lookup_symbols.cpp
   [[nodiscard]]

@@ -88,14 +88,14 @@ const requite::Property &Property::getNext() const {
   return requite::getRef(this->_next_ptr);
 }
 
-requite::SymbolStatus Property::getStatus() const {
-  return this->_status;
+requite::SymbolStatus Property::getSymbolStatus() const {
+  return this->_symbol_status;
 }
 
-void Property::incrementStatus() {
-  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
-  this->_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_status) + 1);
+void Property::incrementSymbolStatus() {
+  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
+  this->_symbol_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
 } // namespace requite

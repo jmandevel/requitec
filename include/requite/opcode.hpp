@@ -186,6 +186,7 @@ enum class Opcode : unsigned {
   _NULL_TYPE,
   _STRUCTURED_BINDING,
   _IGNORE,
+  _BLOCK,
 
   // STATIC POLYMORPHISM
   TEMPLATE,
@@ -303,9 +304,6 @@ enum class Opcode : unsigned {
   FOR_EACH,
   LOOP,
   SCOPE,
-  _BASE_OR_TABLE_BLOCK,
-  _OBJECT_BLOCK,
-  _LOCAL_BLOCK,
   _VALUE_CONDUIT,
   _JUNCTION_CONDUIT,
   _DESTINATION_CONDUIT,

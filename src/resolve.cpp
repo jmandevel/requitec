@@ -44,7 +44,8 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   case requite::Opcode::SIGNED: {
     unsigned depth;
     if (!this->evaluateConstantUnsigned(depth, scope,
-                                        symbol_expression.getBranch())) {
+                                        symbol_expression.getBranch(),
+                                        requite::LogMode::ECHO)) {
       return false;
     }
     out_symbol.getRoot().setAsSigned(depth);
@@ -99,6 +100,8 @@ bool Contextualizer1::inferenceTypeOfValue(
   case requite::Opcode::_ADD:
     return this->inferenceTypeOfNaryArithmeticValue(out_symbol,
                                                     value_expression);
+  default:
+      REQUITE_UNREACHABLE();
   }
   this->getContext().logSourceMessage(value_expression, requite::LogType::ERROR,
                                       "failed to inference type of value");

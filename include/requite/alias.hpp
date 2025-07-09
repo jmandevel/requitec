@@ -28,7 +28,7 @@ struct Alias final {
   requite::Expression *_expression_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
   requite::Symbol _symbol = {};
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // alias.cpp
   Alias() = default;
@@ -54,8 +54,8 @@ struct Alias final {
   [[nodiscard]] const requite::Scope &getContaining() const;
   [[nodiscard]] requite::Symbol &getSymbol();
   [[nodiscard]] const requite::Symbol &getSymbol() const;
-  [[nodiscard]] requite::SymbolStatus getStatus() const;
-  void incrementStatus();
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite

@@ -55,7 +55,7 @@ bool Context::passContextualize0() {
 
 bool Context::contextualize0Module(requite::Module &module) {
   requite::Contextualizer0 contextualizer0(*this, module);
-  if (!contextualizer0.tabulateModule()) {
+  if (!contextualizer0.contextualizeModule()) {
     return false;
   }
   return true;

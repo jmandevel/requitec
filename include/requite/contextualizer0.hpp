@@ -15,6 +15,7 @@ struct Scope;
 struct Object;
 struct Expression;
 struct Property;
+struct Block;
 
 struct Contextualizer0 final {
   using Self = requite::Contextualizer0;
@@ -42,7 +43,7 @@ struct Contextualizer0 final {
   [[nodiscard]] const requite::Object &getObject() const;
   void enterScope(requite::Scope &scope);
   void leaveScope();
-  [[nodiscard]] bool getIsNotOk() const;
+  [[nodiscard]] bool getIsOk() const;
   void setNotOk();
   [[nodiscard]] const std::unordered_map<void *, requite::Yield> &
   getYieldMap() const;
@@ -50,21 +51,34 @@ struct Contextualizer0 final {
 
   // yielding.cpp
   void addYield(requite::Object &object, requite::Situation situation);
-  void removeYield(requite::Object &object, requite::Situation situation);
+  void removeYield(requite::Object &object);
   void addYield(requite::Procedure &procedure, requite::Situation situation);
-  void removeYield(requite::Procedure &procedure, requite::Situation situation);
+  void removeYield(requite::Procedure &procedure);
   void addYield(requite::Table &table, requite::Situation situation);
-  void removeYield(requite::Table &table, requite::Situation situation);
+  void removeYield(requite::Table &table);
   void addYield(requite::Property &property, requite::Situation situation);
-  void removeYield(requite::Property &property, requite::Situation situation);
+  void removeYield(requite::Property &property);
   void addYield(requite::Global &global, requite::Situation situation);
-  void removeYield(requite::Global &global, requite::Situation situation);
+  void removeYield(requite::Global &global);
   void addYield(requite::Alias &alias, requite::Situation situation);
-  void removeYield(requite::Alias &alias, requite::Situation situation);
-  [[nodiscard]] bool passYields();
+  void removeYield(requite::Alias &alias);
+  void addYield(requite::Block &block, requite::Situation situation);
+  void removeYield(requite::Block &block);
+  void addYield(requite::Expression &expand_statement,
+                requite::Situation situation);
+  void removeYield(requite::Expression &expand_statement);
+  [[nodiscard]] bool tryFinishYields();
+  [[nodiscard]] bool tryFinishObject(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishProcedure(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishTable(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishProperty(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishGlobal(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishAlias(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishBlock(requite::Yield &yield);
+  [[nodiscard]] bool tryFinishExpandStatement(requite::Yield &yield);
 
   // tabulate.cpp
-  void tabulateModule();
+  [[nodiscard]] bool contextualizeModule();
   void tabulateStatement(requite::Expression &statement,
                          requite::Situation situation, bool has_attributes);
   void tabulateEntryPoint(requite::Expression &expression,
@@ -91,18 +105,18 @@ struct Contextualizer0 final {
                       requite::Situation situation, bool has_attributes);
   void tabulateProperty(requite::Expression &expression,
                         requite::Situation situation, bool has_attributes);
-  void tabulateBaseOrTableBlock(requite::Expression &expression,
-                                requite::Situation situation,
-                                bool has_attributes);
-  void tabulateObjectBlock(requite::Expression &expression,
-                           requite::Situation situation, bool has_attributes);
+  void tabulateBlock(requite::Expression &expression,
+                     requite::Situation situation, bool has_attributes);
   void tabulate_ExpandValue(requite::Expression &expression,
                             requite::Situation situation, bool has_attributes);
 
   // expand.cpp
-  [[nodiscard]] bool expandExpression(requite::Expression &expression,
-                                      requite::Situation situation,
-                                      requite::LogMode log_mode);
+  [[nodiscard]] bool expandTree(requite::Expression &expression,
+                                requite::Situation situation,
+                                requite::LogMode log_mode);
+  [[nodiscard]] bool expandForest(requite::Expression &expression,
+                                requite::Situation situation,
+                                requite::LogMode log_mode);
   [[nodiscard]] bool expandNameBranch(requite::Expression &expression,
                                       requite::Situation situation,
                                       requite::LogMode log_mode);

@@ -12,11 +12,10 @@ bool Context::evaluateName(llvm::StringRef &out_name, requite::Scope &scope,
         [[unlikely]] // unlikely because of yielding expressions in
                      // contextualizer0 {
       this->logErrorNonInstantEvaluatableName(value_expression);
+      return false;
   }
-  return false;
-}
-out_name = value_expression.getDataText();
-return true;
+  out_name = value_expression.getDataText();
+  return true;
 }
 
 bool Context::evaluateConstantUnsigned(unsigned &out_unsigned,

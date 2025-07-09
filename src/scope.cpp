@@ -64,10 +64,19 @@ const requite::Scope *Scope::getContainingPtr() const {
   return this->_containing_scope_ptr;
 }
 
-std::vector<requite::Node> &Scope::getNodes() { return this->_nodes; }
+bool Scope::getHasNodes() const { return this->_first_node_ptr != nullptr; }
 
-const std::vector<requite::Node> &Scope::getNodes() const {
-  return this->_nodes;
+void Scope::addNode(requite::Node &node) {
+  node._next_ptr = this->_first_node_ptr;
+  this->_first_node_ptr = &node;
+}
+
+requite::Node &Scope::getFirstNode() {
+  return requite::getRef(this->_first_node_ptr);
+}
+
+const requite::Node &Scope::getFirstNode() const {
+  return requite::getRef(this->_first_node_ptr);
 }
 
 bool Scope::getHasSymbolTable() const {
@@ -87,7 +96,7 @@ const requite::SymbolTable &Scope::getSymbolTable() const {
 }
 
 bool Scope::getIsEmpty() const {
-  return this->getNodes().empty() &&
+  return !this->getHasNodes() &&
          (!this->getHasSymbolTable() || this->getSymbolTable().getIsEmpty());
 }
 

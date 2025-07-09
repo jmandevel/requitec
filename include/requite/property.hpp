@@ -28,7 +28,7 @@ struct Property final {
   requite::Scope _scope = {};
   requite::Symbol _data_type = {};
   requite::Property *_next_ptr = nullptr;
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // property.cpp
   Property() = default;
@@ -61,6 +61,8 @@ struct Property final {
   void setNext(requite::Property& property);
   [[nodiscard]] requite::Property& getNext();
   [[nodiscard]] const requite::Property& getNext() const;
+    [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite

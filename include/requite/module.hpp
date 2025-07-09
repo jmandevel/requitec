@@ -30,16 +30,13 @@ struct Module final {
   requite::ExportTable *_export_tble_ptr = nullptr;
   requite::Procedure *_entry_point_ptr = nullptr;
 
+  // module.cpp
   Module();
   Module(Self &that) = delete;
   Module(Self &&that) = delete;
   Self &operator=(Self &rhs) = delete;
   Self &operator=(Self &&rhs) = delete;
   ~Module() = default;
-
-  // module_symbols.cpp
-
-  // module.cpp
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
   [[nodiscard]] bool getHasName() const;

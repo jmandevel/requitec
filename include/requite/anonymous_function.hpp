@@ -24,7 +24,7 @@ struct AnonymousFunction final {
   requite::Expression *_expression_ptr = nullptr;
   requite::Signature _signature = {};
   std::vector<requite::Local *> _captured_ptrs = {};
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_TREE;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_TREE;
 
   // anonymous_function.cpp
   AnonymousFunction();
@@ -57,8 +57,8 @@ struct AnonymousFunction final {
   std::vector<requite::Local *> &getCapturedPtrs();
   [[nodiscard]]
   const std::vector<requite::Local *> &getCapturedPtrs() const;
-  [[nodiscard]] requite::SymbolStatus getStatus() const;
-  void incrementStatus();
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite

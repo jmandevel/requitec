@@ -81,14 +81,14 @@ const llvm::BasicBlock *Label::getLlvmBlockPtr() const {
   return this->_llvm_block_ptr;
 }
 
-requite::SymbolStatus Label::getStatus() const {
-  return this->_status;
+requite::SymbolStatus Label::getSymbolStatus() const {
+  return this->_symbol_status;
 }
 
-void Label::incrementStatus() {
-  REQUITE_ASSERT(this->_status != requite::SymbolStatus::DONE);
-  this->_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_status) + 1);
+void Label::incrementSymbolStatus() {
+  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
+  this->_symbol_status = static_cast<requite::SymbolStatus>(
+      static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
 } // namespace requite

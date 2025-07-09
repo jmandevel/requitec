@@ -51,7 +51,7 @@ void Contextualizer0::leaveScope() {
   this->_scope_ptr = &this->getScope().getContaining();
 }
 
-bool Contextualizer0::getIsNotOk() const { return this->_is_ok; }
+bool Contextualizer0::getIsOk() const { return this->_is_ok; }
 
 void Contextualizer0::setNotOk() { this->_is_ok = false; }
 

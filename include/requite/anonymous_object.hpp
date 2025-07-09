@@ -22,7 +22,7 @@ struct AnonymousProperty final {
   std::string _name = {};
   requite::Symbol _symbol = {};
   requite::Expression *_default_value_expression_ptr = nullptr;
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // anonymous_property.cpp
   AnonymousProperty() = default;

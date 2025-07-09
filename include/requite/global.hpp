@@ -28,7 +28,7 @@ struct Global final {
   requite::Scope _scope = {};
   requite::Symbol _data_type = {};
   requite::Global *_next_ptr = nullptr;
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // global.cpp
   Global() = default;
@@ -61,6 +61,8 @@ struct Global final {
   void setNext(requite::Global& global);
   [[nodiscard]] requite::Global& getNext();
   [[nodiscard]] const requite::Global& getNext() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite

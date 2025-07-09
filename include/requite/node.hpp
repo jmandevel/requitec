@@ -22,7 +22,8 @@ struct Node final {
   requite::NodeType _type = requite::NodeType::NONE;
   requite::Expression *_expression_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_TREE;
+  requite::Node* _next_ptr = nullptr;
 
   // node.cpp
   Node() = default;
@@ -40,6 +41,12 @@ struct Node final {
   void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void setNext(requite::Node& node);
+  [[nodiscard]] requite::Node& getNext();
+  [[nodiscard]] const requite::Node& getNext() const;
+  void incrementSymbolStatus();
+  [[nodiscard]] bool getHasNext() const;
 };
 
 } // namespace requite

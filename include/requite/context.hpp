@@ -11,20 +11,21 @@
 #include <requite/global.hpp>
 #include <requite/label.hpp>
 #include <requite/local.hpp>
+#include <requite/log_mode.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/node.hpp>
+#include <requite/numeric.hpp>
 #include <requite/object.hpp>
 #include <requite/opcode.hpp>
 #include <requite/procedure.hpp>
 #include <requite/property.hpp>
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
-#include <requite/table.hpp>
 #include <requite/symbol_table.hpp>
-#include <requite/log_mode.hpp>
-#include <requite/numeric.hpp>
+#include <requite/table.hpp>
+#include <requite/block.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -86,6 +87,8 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
+  std::vector<std::unique_ptr<requite::Node>> _node_uptrs = {};
+    std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
@@ -99,11 +102,11 @@ struct Context final : public requite::_ContextLlvmContext {
   // context.cpp
   Context() = delete;
   Context(std::string &&executable_path);
-  Context(const Self&) = delete;
-  Context(Self&&) = delete;
+  Context(const Self &) = delete;
+  Context(Self &&) = delete;
   ~Context() = default;
-  Self& operator=(const Self&) = delete;
-  Self& operator=(Self&&) = delete;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
   [[nodiscard]]
   llvm::StringRef getExecutablePath() const;
 
@@ -119,6 +122,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Property &makeProperty();
   [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
   [[nodiscard]] requite::Label &makeLabel();
+  [[nodiscard]] requite::Node &makeNode();
+  [[nodiscard]] requite::Block &makeBlock();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
   getScopeUptrs() const;
@@ -143,6 +148,12 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &getLocalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Local>> &
   getLocalUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Node>> &getNodeUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Node>> &
+  getNodeUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
+  getBlockUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Global>> &getGlobalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Global>> &
   getGlobalUptrs() const;
@@ -191,7 +202,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   bool situateAst(requite::Module &module);
   [[nodiscard]]
-  bool situateTree(requite::Module& module, requite::Expression& expression, requite::Situation situation);
+  bool situateTree(requite::Module &module, requite::Expression &expression,
+                   requite::Situation situation);
 
   // tokenize_tokens.cpp
   [[nodiscard]]
@@ -209,7 +221,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool contextualizeAll();
   [[nodiscard]] bool checkEntryPointCount();
   [[nodiscard]] bool passContextualize0();
-  [[nodiscard]] bool contextualize0Module(requite::Module& module);
+  [[nodiscard]] bool contextualize0Module(requite::Module &module);
   [[nodiscard]] bool passContextualize1();
   [[nodiscard]] bool getIsContextualize0Done() const;
   void setContextualize0Done();
@@ -222,10 +234,10 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] bool implementExtension(requite::Procedure &procedure);
   [[nodiscard]] bool implementConstructor(requite::Procedure &procedure);
   [[nodiscard]] bool implementDestructor(requite::Procedure &procedure);
-  [[nodiscard]] bool implementObject(requite::Object& object);
-  [[nodiscard]] bool implementAlias(requite::Alias& alias);
-  [[nodiscard]] bool implementGlobal(requite::Global& global);
-  [[nodiscard]] bool implementProperty(requite::Property& property);
+  [[nodiscard]] bool implementObject(requite::Object &object);
+  [[nodiscard]] bool implementAlias(requite::Alias &alias);
+  [[nodiscard]] bool implementGlobal(requite::Global &global);
+  [[nodiscard]] bool implementProperty(requite::Property &property);
 
   // build.cpp
   [[nodiscard]] bool buildIr();
@@ -241,10 +253,12 @@ struct Context final : public requite::_ContextLlvmContext {
   // evaluate.cpp
   [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
                                   requite::Scope &scope,
-                                  requite::Expression &value_expression, requite::LogMode log_mode);
+                                  requite::Expression &value_expression,
+                                  requite::LogMode log_mode);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
-                           requite::Expression &value_expression, requite::LogMode log_mode);
+                           requite::Expression &value_expression,
+                           requite::LogMode log_mode);
   [[nodiscard]] requite::Value
   evaluateValue(requite::Scope &scope, requite::Expression &value_expression,
                 const requite::Symbol &type);
@@ -377,7 +391,8 @@ struct Context final : public requite::_ContextLlvmContext {
                                   requite::AttributeType type);
   void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
-  void logErrorNumericParse(requite::Expression &expression, requite::NumericResult result);
+  void logErrorNumericParse(requite::Expression &expression,
+                            requite::NumericResult result);
   void
   logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
                                           const requite::Symbol &expected_type);
@@ -385,17 +400,19 @@ struct Context final : public requite::_ContextLlvmContext {
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>
   void logErrorNotAtLeastBranchCount(requite::Expression &expression,
-                                unsigned count);
+                                     unsigned count);
   template <requite::Situation SITUATION_PARAM>
-  void logErrorNotExactBranchCount(requite::Expression &expression, unsigned count);
+  void logErrorNotExactBranchCount(requite::Expression &expression,
+                                   unsigned count);
   template <requite::Situation SITUATION_PARAM>
   void logErrorTooNotLessOrEqualToBranchCount(requite::Expression &expression,
-                                         unsigned count);
+                                              unsigned count);
   template <requite::Situation SITUATION_PARAM>
   void logErrorInvalidBranchSituation(requite::Expression &branch,
-                                 requite::Opcode outer_opcode,
-                                 requite::Opcode branch_opcode,
-                                 unsigned branch_i, llvm::Twine log_context);
+                                      requite::Opcode outer_opcode,
+                                      requite::Opcode branch_opcode,
+                                      unsigned branch_i,
+                                      llvm::Twine log_context);
   inline void logErrorInvalidOperation(requite::Expression &expression);
 };
 

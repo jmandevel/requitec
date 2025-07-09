@@ -257,7 +257,8 @@ bool Contextualizer1::implement_Initialize(requite::Expression &statement) {
     return true;
   }
   llvm::StringRef name;
-  if (!this->getContext().evaluateName(name, this->getScope(), lhs)) {
+  if (!this->getContext().evaluateName(name, this->getScope(), lhs,
+                                       requite::LogMode::ECHO)) {
     return false;
   }
   requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
@@ -269,7 +270,7 @@ bool Contextualizer1::implement_Initialize(requite::Expression &statement) {
   if (!this->tabulate_Local(local_ptr, name, statement)) {
     return false;
   }
-  requite::Local& local = requite::getRef(local_ptr);
+  requite::Local &local = requite::getRef(local_ptr);
   requite::Expression &rhs = lhs.getNext();
   requite::Symbol &type = local.getDataType();
   if (!this->inferenceTypeOfValue(type, rhs)) {

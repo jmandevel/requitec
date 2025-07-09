@@ -376,6 +376,8 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::_IGNORE:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
+  case Opcode::_BLOCK:
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT;
 
   // STATIC POLYMORPHISM
   case Opcode::TEMPLATE:
@@ -551,12 +553,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::LOOP:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::SCOPE:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::_BASE_OR_TABLE_BLOCK:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT;
-  case Opcode::_OBJECT_BLOCK:
-    return _OBJECT_STATEMENT;
-  case Opcode::_LOCAL_BLOCK:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::_VALUE_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
@@ -916,6 +912,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_structured_binding";
   case requite::Opcode::_IGNORE:
     return "_ignore";
+  case requite::Opcode::_BLOCK:
+    return "_block";
 
   // STATIC POLYMORPHISM
   case requite::Opcode::TEMPLATE:
@@ -1088,12 +1086,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "loop";
   case requite::Opcode::SCOPE:
     return "scope";
-  case requite::Opcode::_BASE_OR_TABLE_BLOCK:
-    return "_base_or_table_block";
-  case requite::Opcode::_OBJECT_BLOCK:
-    return "_object_block";
-  case requite::Opcode::_LOCAL_BLOCK:
-    return "_local_block";
   case requite::Opcode::_VALUE_CONDUIT:
     return "_value_conduit";
   case requite::Opcode::_JUNCTION_CONDUIT:

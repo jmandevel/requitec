@@ -9,8 +9,8 @@
 #include <requite/procedure_type.hpp>
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
-#include <requite/symbol_table.hpp>
 #include <requite/symbol_status.hpp>
+#include <requite/symbol_table.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 
@@ -46,7 +46,7 @@ struct Procedure final {
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
   llvm::Function *_llvm_function_ptr = nullptr;
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // procedure.cpp
   Procedure();
@@ -110,6 +110,8 @@ struct Procedure final {
   void setLlvmBlock(llvm::BasicBlock &block);
   [[nodiscard]] llvm::BasicBlock &getLlvmBlock();
   [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 
   // detail/procedure_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

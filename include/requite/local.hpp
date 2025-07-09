@@ -32,7 +32,7 @@ struct Local final {
   requite::Scope *_containing_scope_ptr = nullptr;
   llvm::AllocaInst *_llvm_alloca_ptr = nullptr;
   requite::Local * _next_ptr = nullptr;
-  requite::SymbolStatus _status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // local.cpp
   Local() = default;
@@ -64,6 +64,8 @@ struct Local final {
   void setNext(requite::Local& local);
   [[nodiscard]] requite::Local& getNext();
   [[nodiscard]] const requite::Local& getNext() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite

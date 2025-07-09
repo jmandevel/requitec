@@ -23,7 +23,7 @@ struct Object final {
   using Self = requite::Object;
 
   std::string _name = {};
-  requite::Expression* _expression_ptr = nullptr;
+  requite::Expression *_expression_ptr = nullptr;
   requite::Scope _scope = {};
   requite::SymbolTable _symbol_table = {};
   std::string _mangled_name = {};
@@ -32,6 +32,7 @@ struct Object final {
   requite::Module *_module_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
   std::vector<requite::Global *> _property_ptrs = {};
+  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // object.cpp
   Object();
@@ -40,8 +41,8 @@ struct Object final {
   ~Object() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] bool operator==(const Self&) const;
-  [[nodiscard]] bool operator!=(const Self&) const;
+  [[nodiscard]] bool operator==(const Self &) const;
+  [[nodiscard]] bool operator!=(const Self &) const;
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
@@ -76,6 +77,8 @@ struct Object final {
   [[nodiscard]] bool getHasModule() const;
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
+  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
+  void incrementSymbolStatus();
 };
 
 } // namespace requite
