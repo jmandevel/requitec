@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <requite/scope.hpp>
 #include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringMap.h>
@@ -17,11 +16,10 @@ struct Table final {
   using Self = Table;
 
   std::string _name = {};
-  requite::Scope _scope = {};
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // table.cpp
-  Table();
+  Table() = default;
   Table(const Self &) = delete;
   Table(Self &&) = delete;
   ~Table() = default;
@@ -32,15 +30,6 @@ struct Table final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  [[nodiscard]] requite::Scope &getScope();
-  [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] bool getHasContaining() const;
-  void setContaining(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContaining();
-  [[nodiscard]] const requite::Scope &getContaining() const;
-  [[nodiscard]] unsigned getScopeDepth() const;
-  [[nodiscard]] requite::Scope *getContainingPtr();
-  [[nodiscard]] const requite::Scope *getContainingPtr() const;
   [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void incrementSymbolStatus();
 };
