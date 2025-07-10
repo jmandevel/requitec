@@ -46,6 +46,7 @@ struct Procedure final {
   llvm::Function *_llvm_function_ptr = nullptr;
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
+  bool _has_generated_name = false;
 
   // procedure.cpp
   Procedure();
