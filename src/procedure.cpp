@@ -10,7 +10,7 @@ namespace requite {
 
 Procedure::Procedure() {
   this->getScope().setProcedure(*this);
-  this->getScope().setSymbolTable(this->getSymbolTable());
+  this->getScope().setTable(this->getTable());
 }
 
 void Procedure::setMangledName(llvm::StringRef name) {
@@ -83,12 +83,12 @@ requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
 
-requite::SymbolTable &Procedure::getSymbolTable() {
-  return this->_symbol_table;
+requite::Table &Procedure::getTable() {
+  return this->_table;
 }
 
-const requite::SymbolTable &Procedure::getSymbolTable() const {
-  return this->_symbol_table;
+const requite::Table &Procedure::getTable() const {
+  return this->_table;
 }
 
 void Procedure::setAttributeFlags(requite::AttributeFlags attributes) {

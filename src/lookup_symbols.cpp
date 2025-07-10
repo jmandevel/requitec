@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/assert.hpp>
-#include <requite/symbol_table.hpp>
+#include <requite/table.hpp>
 #include <requite/scope.hpp>
 #include <requite/symbol.hpp>
 
@@ -11,7 +11,7 @@
 
 namespace requite {
 
-requite::RootSymbol SymbolTable::lookupUserSymbol(llvm::StringRef name) {
+requite::RootSymbol Table::lookupUserSymbol(llvm::StringRef name) {
   REQUITE_ASSERT(!name.empty());
   llvm::StringMapIterator<requite::RootSymbol> it = this->getSymbolMap().find(name);
   if (it == this->getSymbolMap().end()) {
@@ -20,18 +20,18 @@ requite::RootSymbol SymbolTable::lookupUserSymbol(llvm::StringRef name) {
   return it->second;
 }
 
-inline bool SymbolTable::getHasUserSymbolOfName(llvm::StringRef name) const {
+inline bool Table::getHasUserSymbolOfName(llvm::StringRef name) const {
   return this->getSymbolMap().contains(name);
 }
 
 requite::RootSymbol Scope::lookupUserSymbol(llvm::StringRef name) {
   REQUITE_ASSERT(!name.empty());
-  requite::SymbolTable &table = this->getSymbolTable();
+  requite::Table &table = this->getTable();
   return table.lookupUserSymbol(name);
 }
 
 bool Scope::getHasUserSymbolOfName(llvm::StringRef name) const {
-    return this->getSymbolTable().getHasUserSymbolOfName(name);
+    return this->getTable().getHasUserSymbolOfName(name);
 }
 
 } // namespace requite

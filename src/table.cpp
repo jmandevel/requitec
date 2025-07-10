@@ -18,7 +18,20 @@ void Table::setName(llvm::StringRef name) {
   this->_name = name;
 }
 
-llvm::StringRef Table::getName() const { return this->_name; }
+llvm::StringRef Table::getName() const {
+  REQUITE_ASSERT(!this->_name.empty());
+  return this->_name;
+}
+
+llvm::StringMap<requite::RootSymbol> &Table::getSymbolMap() {
+  return this->_symbol_map;
+}
+
+const llvm::StringMap<requite::RootSymbol> &Table::getSymbolMap() const {
+  return this->_symbol_map;
+}
+
+bool Table::getIsEmpty() const { return this->_symbol_map.empty(); }
 
 requite::SymbolStatus Table::getSymbolStatus() const {
   return this->_symbol_status;

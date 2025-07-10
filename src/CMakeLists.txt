@@ -28,7 +28,6 @@ target_sources(
         escape_sequences.cpp
         evaluate.cpp
         expand.cpp
-        symbol_table.cpp
         expression_iterator.cpp
         expression_make.cpp
         expression.cpp

@@ -4,15 +4,14 @@
 
 namespace requite {
 
-template <typename SymbolArg>
-void SymbolTable::addUserSymbol(SymbolArg &symbol) {
+template <typename SymbolArg> void Table::addUserSymbol(SymbolArg &symbol) {
   llvm::StringRef name = symbol.getName();
   REQUITE_ASSERT(!name.empty());
   REQUITE_ASSERT(!this->getHasUserSymbolOfName(name));
   requite::RootSymbol root;
   root.setAsUser(symbol);
-  this->getSymbolMap().insert(std::pair<llvm::StringRef, requite::RootSymbol>(
-      name, root));
+  this->getSymbolMap().insert(
+      std::pair<llvm::StringRef, requite::RootSymbol>(name, root));
 }
 
 } // namespace requite

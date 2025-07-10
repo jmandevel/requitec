@@ -26,7 +26,6 @@ struct AnonymousFunction;
 struct Procedure;
 struct Table;
 struct Object;
-struct SymbolTable;
 struct BaseOrTableBlock;
 struct ObjectBlock;
 struct LocalBlock;
@@ -36,13 +35,12 @@ struct Scope final {
 
   unsigned _scope_depth = 0;
   requite::Scope *_containing_scope_ptr = nullptr;
-  requite::SymbolTable *_symbol_table_ptr = nullptr;
+  requite::Table *_table_ptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
   union {
     void *_nothing_ptr = nullptr;
     requite::Module *_module_ptr;
     requite::Object *_object_ptr;
-    requite::Table *_table_ptr;
     requite::Procedure *_procedure_ptr;
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
@@ -51,7 +49,7 @@ struct Scope final {
     requite::ObjectBlock *_object_block_ptr;
     requite::LocalBlock *_local_block_ptr;
   };
-  requite::Node* _first_node_ptr = nullptr;
+  requite::Node *_first_node_ptr = nullptr;
 
   // scope.cpp
   Scope() = default;
@@ -75,13 +73,9 @@ struct Scope final {
   [[nodiscard]] requite::Scope *getContainingPtr();
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
   [[nodiscard]] bool getHasNodes() const;
-  void addNode(requite::Node& node);
-  [[nodiscard]] requite::Node& getFirstNode();
-  [[nodiscard]] const requite::Node& getFirstNode() const; 
-  [[nodiscard]] bool getHasSymbolTable() const;
-  void setSymbolTable(requite::SymbolTable &table);
-  [[nodiscard]] requite::SymbolTable &getSymbolTable();
-  [[nodiscard]] const requite::SymbolTable &getSymbolTable() const;
+  void addNode(requite::Node &node);
+  [[nodiscard]] requite::Node &getFirstNode();
+  [[nodiscard]] const requite::Node &getFirstNode() const;
   [[nodiscard]] bool getIsEmpty() const;
   [[nodiscard]] bool getHasObject() const;
   void setObject(requite::Object &object);

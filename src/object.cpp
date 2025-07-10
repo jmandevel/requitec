@@ -9,7 +9,7 @@ namespace requite {
 
 Object::Object() {
   this->getScope().setObject(*this);
-  this->getScope().setSymbolTable(this->getSymbolTable());
+  this->getScope().setTable(this->getTable());
 }
 
 bool Object::operator==(const Self &rhs) const { return this == &rhs; }
@@ -47,10 +47,10 @@ requite::Scope &Object::getScope() { return this->_scope; }
 
 const requite::Scope &Object::getScope() const { return this->_scope; }
 
-requite::SymbolTable &Object::getSymbolTable() { return this->_symbol_table; }
+requite::Table &Object::getTable() { return this->_table; }
 
-const requite::SymbolTable &Object::getSymbolTable() const {
-  return this->_symbol_table;
+const requite::Table &Object::getTable() const {
+  return this->_table;
 }
 
 bool Object::getHasContaining() const {

@@ -10,7 +10,6 @@
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol_status.hpp>
-#include <requite/symbol_table.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 
@@ -38,7 +37,7 @@ struct Procedure final {
   requite::Expression *_expression_ptr = nullptr;
   requite::ProcedureType _type = requite::ProcedureType::NONE;
   requite::Scope _scope = {};
-  requite::SymbolTable _symbol_table = {};
+  requite::Table _table = {};
   requite::Signature _signature = {};
   requite::AttributeFlags _attributes = {};
   requite::NamedProcedureGroup *_group_ptr = nullptr;
@@ -75,8 +74,8 @@ struct Procedure final {
   [[nodiscard]] requite::ProcedureType getType() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] requite::SymbolTable &getSymbolTable();
-  [[nodiscard]] const requite::SymbolTable &getSymbolTable() const;
+  [[nodiscard]] requite::Table &getTable();
+  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::Signature &getSignature();
   [[nodiscard]] const requite::Signature &getSignature() const;
   void setAttributeFlags(requite::AttributeFlags attributes);

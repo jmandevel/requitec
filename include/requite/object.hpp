@@ -6,7 +6,7 @@
 
 #include <requite/attribute_flags.hpp>
 #include <requite/named_procedure_group.hpp>
-#include <requite/symbol_table.hpp>
+#include <requite/table.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -25,7 +25,7 @@ struct Object final {
   std::string _name = {};
   requite::Expression *_expression_ptr = nullptr;
   requite::Scope _scope = {};
-  requite::SymbolTable _symbol_table = {};
+  requite::Table _table = {};
   std::string _mangled_name = {};
   requite::Procedure *_first_destructor_ptr = nullptr;
   requite::Procedure *_first_constructor_ptr = nullptr;
@@ -52,8 +52,8 @@ struct Object final {
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] requite::SymbolTable &getSymbolTable();
-  [[nodiscard]] const requite::SymbolTable &getSymbolTable() const;
+  [[nodiscard]] requite::Table &getTable();
+  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();

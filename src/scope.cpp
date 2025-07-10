@@ -79,25 +79,9 @@ const requite::Node &Scope::getFirstNode() const {
   return requite::getRef(this->_first_node_ptr);
 }
 
-bool Scope::getHasSymbolTable() const {
-  return this->_symbol_table_ptr != nullptr;
-}
-
-void Scope::setSymbolTable(requite::SymbolTable &table) {
-  requite::setSingleRef(this->_symbol_table_ptr, table);
-}
-
-requite::SymbolTable &Scope::getSymbolTable() {
-  return requite::getRef(this->_symbol_table_ptr);
-}
-
-const requite::SymbolTable &Scope::getSymbolTable() const {
-  return requite::getRef(this->_symbol_table_ptr);
-}
-
 bool Scope::getIsEmpty() const {
   return !this->getHasNodes() &&
-         (!this->getHasSymbolTable() || this->getSymbolTable().getIsEmpty());
+         (!this->getHasTable() || this->getTable().getIsEmpty());
 }
 
 bool Scope::getHasObject() const {
@@ -122,23 +106,21 @@ const requite::Object &Scope::getObject() const {
 }
 
 bool Scope::getHasTable() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
   return this->_table_ptr != nullptr;
 }
 
 void Scope::setTable(requite::Table &table) {
-  REQUITE_ASSERT(this->getIsEmpty());
-  this->_type = requite::ScopeType::TABLE;
+  if (this->_type == requite::ScopeType::NONE) {
+    this->_type = requite::ScopeType::TABLE;
+  }
   requite::setSingleRef(this->_table_ptr, table);
 }
 
 requite::Table &Scope::getTable() {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
   return requite::getRef(this->_table_ptr);
 }
 
 const requite::Table &Scope::getTable() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::TABLE);
   return requite::getRef(this->_table_ptr);
 }
 

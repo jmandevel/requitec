@@ -23,7 +23,6 @@
 #include <requite/property.hpp>
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
-#include <requite/symbol_table.hpp>
 #include <requite/table.hpp>
 #include <requite/block.hpp>
 
@@ -73,7 +72,7 @@ struct Context final : public requite::_ContextLlvmContext {
   llvm::StringMap<requite::Opcode> _opcode_table = {};
   std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   requite::Module _source_module = {};
-  requite::SymbolTable _base_table = {};
+  requite::Table _base_table = {};
   std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
   std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
   std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};
@@ -107,8 +106,9 @@ struct Context final : public requite::_ContextLlvmContext {
   ~Context() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]]
-  llvm::StringRef getExecutablePath() const;
+  [[nodiscard]] llvm::StringRef getExecutablePath() const;
+  [[nodiscard]] requite::Table& getBaseTable();
+  [[nodiscard]] const requite::Table& getBaseTable() const;
 
   // make_symbols.cpp
   [[nodiscard]] requite::Scope &makeScope();
