@@ -29,6 +29,7 @@ struct Property final {
   requite::Symbol _data_type = {};
   requite::Property *_next_ptr = nullptr;
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
+  bool _has_generated_name = false;
 
   // property.cpp
   Property() = default;

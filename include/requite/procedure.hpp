@@ -111,6 +111,8 @@ struct Procedure final {
   [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
   [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void incrementSymbolStatus();
+  [[nodiscard]] bool getHasGeneratedName() const;
+  void setHasGeneratedName();
 
   // detail/procedure_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

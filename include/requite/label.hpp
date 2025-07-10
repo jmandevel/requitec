@@ -25,6 +25,7 @@ struct Label final {
   requite::Scope *_containing_scope_ptr = nullptr;
   llvm::BasicBlock* _llvm_block_ptr = nullptr;
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
+  bool _has_generated_name = false;
 
   // label.cpp
   Label() = default;
@@ -55,6 +56,8 @@ struct Label final {
   [[nodiscard]] const llvm::BasicBlock* getLlvmBlockPtr() const;
   [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void incrementSymbolStatus();
+  [[nodiscard]] bool getHasGeneratedName() const;
+  void setHasGeneratedName();
 };
 
 } // namespace requite

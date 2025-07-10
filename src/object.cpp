@@ -161,4 +161,11 @@ void Object::incrementSymbolStatus() {
       static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
+bool Object::getHasGeneratedName() const { return this->_has_generated_name; }
+
+void Object::setHasGeneratedName() {
+  REQUITE_ASSERT(!this->_has_generated_name);
+  this->_has_generated_name = true;
+}
+
 } // namespace requite

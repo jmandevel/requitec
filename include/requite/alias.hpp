@@ -29,6 +29,7 @@ struct Alias final {
   requite::AttributeFlags _attributes = {};
   requite::Symbol _symbol = {};
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
+  bool _has_generated_name = false;
 
   // alias.cpp
   Alias() = default;
@@ -56,6 +57,8 @@ struct Alias final {
   [[nodiscard]] const requite::Symbol &getSymbol() const;
   [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void incrementSymbolStatus();
+  [[nodiscard]] bool getHasGeneratedName() const;
+  void setHasGeneratedName();
 };
 
 } // namespace requite

@@ -29,6 +29,7 @@ struct Global final {
   requite::Symbol _data_type = {};
   requite::Global *_next_ptr = nullptr;
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
+  bool _has_generated_name = false;
 
   // global.cpp
   Global() = default;
@@ -63,6 +64,8 @@ struct Global final {
   [[nodiscard]] const requite::Global& getNext() const;
   [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void incrementSymbolStatus();
+  [[nodiscard]] bool getHasGeneratedName() const;
+  void setHasGeneratedName();
 };
 
 } // namespace requite

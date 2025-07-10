@@ -24,6 +24,7 @@ struct Node final {
   requite::AttributeFlags _attributes = {};
   requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_TREE;
   requite::Node* _next_ptr = nullptr;
+  bool _has_generated_name = false;
 
   // node.cpp
   Node() = default;
@@ -47,6 +48,8 @@ struct Node final {
   [[nodiscard]] const requite::Node& getNext() const;
   void incrementSymbolStatus();
   [[nodiscard]] bool getHasNext() const;
+  [[nodiscard]] bool getHasGeneratedName() const;
+  void setHasGeneratedName();
 };
 
 } // namespace requite

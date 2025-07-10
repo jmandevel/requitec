@@ -66,4 +66,11 @@ void Node::incrementSymbolStatus() {
       static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
+bool Node::getHasGeneratedName() const { return this->_has_generated_name; }
+
+void Node::setHasGeneratedName() {
+  REQUITE_ASSERT(!this->_has_generated_name);
+  this->_has_generated_name = true;
+}
+
 } // namespace requite
