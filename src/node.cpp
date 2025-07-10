@@ -40,19 +40,15 @@ const requite::AttributeFlags &Node::getAttributeFlags() const {
   return this->_attributes;
 }
 
-bool Node::getHasNext() const {
-  return this->_next_ptr != nullptr;
-}
+bool Node::getHasNext() const { return this->_next_ptr != nullptr; }
 
-void Node::setNext(requite::Node& node) {
+void Node::setNext(requite::Node &node) {
   requite::setSingleRef(this->_next_ptr, node);
 }
 
-requite::Node& Node::getNext() {
-  return requite::getRef(this->_next_ptr);
-}
+requite::Node &Node::getNext() { return requite::getRef(this->_next_ptr); }
 
-const requite::Node& Node::getNext() const {
+const requite::Node &Node::getNext() const {
   return requite::getRef(this->_next_ptr);
 }
 
@@ -66,11 +62,13 @@ void Node::incrementSymbolStatus() {
       static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
-bool Node::getHasGeneratedName() const { return this->_has_generated_name; }
+bool Node::getHasGeneratedNameOrValue() const {
+  return this->_has_generated_name_or_value;
+}
 
-void Node::setHasGeneratedName() {
-  REQUITE_ASSERT(!this->_has_generated_name);
-  this->_has_generated_name = true;
+void Node::setHasGeneratedNameOrValue() {
+  REQUITE_ASSERT(!this->_has_generated_name_or_value);
+  this->_has_generated_name_or_value = true;
 }
 
 } // namespace requite
