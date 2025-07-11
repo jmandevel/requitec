@@ -26,6 +26,7 @@ struct Module final {
   std::string _name = {};
   requite::Expression *_expression_ptr = nullptr;
   requite::Scope _scope = {};
+  requite::Table _table = {};
   requite::File _file = {};
   requite::ExportTable *_export_tble_ptr = nullptr;
   requite::Procedure *_entry_point_ptr = nullptr;
@@ -44,6 +45,8 @@ struct Module final {
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
+  [[nodiscard]] requite::Table &getTable();
+  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::File &getFile();
   [[nodiscard]] const requite::File &getFile() const;
   [[nodiscard]] bool getHasExpression() const;

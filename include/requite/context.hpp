@@ -72,7 +72,6 @@ struct Context final : public requite::_ContextLlvmContext {
   llvm::StringMap<requite::Opcode> _opcode_table = {};
   std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   requite::Module _source_module = {};
-  requite::Table _base_table = {};
   std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
   std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
   std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};
@@ -107,8 +106,6 @@ struct Context final : public requite::_ContextLlvmContext {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] llvm::StringRef getExecutablePath() const;
-  [[nodiscard]] requite::Table& getBaseTable();
-  [[nodiscard]] const requite::Table& getBaseTable() const;
 
   // make_symbols.cpp
   [[nodiscard]] requite::Scope &makeScope();

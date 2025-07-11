@@ -29,6 +29,10 @@ requite::Scope &Module::getScope() { return this->_scope; }
 
 const requite::Scope &Module::getScope() const { return this->_scope; }
 
+requite::Table &Module::getTable() { return this->_table; }
+
+const requite::Table &Module::getTable() const { return this->_table; }
+
 requite::File &Module::getFile() { return this->_file; }
 
 const requite::File &Module::getFile() const { return this->_file; }

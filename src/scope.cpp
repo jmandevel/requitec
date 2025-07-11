@@ -4,6 +4,7 @@
 
 #include <requite/alias.hpp>
 #include <requite/assert.hpp>
+#include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
 #include <requite/object.hpp>
 #include <requite/scope.hpp>
@@ -23,6 +24,7 @@ void Scope::setModule(requite::Module &module) {
   REQUITE_ASSERT(this->getIsEmpty());
   this->_type = requite::ScopeType::MODULE;
   requite::setSingleRef(this->_module_ptr, module);
+  requite::setSingleRef(this->_table_ptr, module.getTable());
 }
 
 requite::Module &Scope::getModule() {
@@ -93,6 +95,7 @@ void Scope::setObject(requite::Object &object) {
   REQUITE_ASSERT(this->getIsEmpty());
   this->_type = requite::ScopeType::OBJECT;
   requite::setSingleRef(this->_object_ptr, object);
+  requite::setSingleRef(this->_table_ptr, object.getTable());
 }
 
 requite::Object &Scope::getObject() {
@@ -105,20 +108,14 @@ const requite::Object &Scope::getObject() const {
   return requite::getRef(this->_object_ptr);
 }
 
-bool Scope::getHasTable() const {
-  return this->_table_ptr != nullptr;
-}
+bool Scope::getHasTable() const { return this->_table_ptr != nullptr; }
 
 void Scope::setTable(requite::Table &table) {
-  if (this->_type == requite::ScopeType::NONE) {
-    this->_type = requite::ScopeType::TABLE;
-  }
+  REQUITE_ASSERT(this->getIsEmpty());
   requite::setSingleRef(this->_table_ptr, table);
 }
 
-requite::Table &Scope::getTable() {
-  return requite::getRef(this->_table_ptr);
-}
+requite::Table &Scope::getTable() { return requite::getRef(this->_table_ptr); }
 
 const requite::Table &Scope::getTable() const {
   return requite::getRef(this->_table_ptr);
@@ -188,64 +185,16 @@ const requite::Global &Scope::getGlobal() const {
   return requite::getRef(this->_global_ptr);
 }
 
-bool Scope::getHasBaseOrTableBlock() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::BASE_OR_TABLE_BLOCK);
-  return this->_base_or_table_block_ptr != nullptr;
+bool Scope::getHasBlock() const { return this->_block_ptr != nullptr; }
+
+void Scope::setBlock(requite::Block &block) {
+  requite::setSingleRef(this->_block_ptr, block);
 }
 
-void Scope::setBaseOrTableBlock(requite::BaseOrTableBlock &block) {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::BASE_OR_TABLE_BLOCK);
-  requite::setSingleRef(this->_base_or_table_block_ptr, block);
-}
+requite::Block &Scope::getBlock() { return requite::getRef(this->_block_ptr); }
 
-requite::BaseOrTableBlock &Scope::getBaseOrTableBlock() {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::BASE_OR_TABLE_BLOCK);
-  return requite::getRef(this->_base_or_table_block_ptr);
-}
-
-const requite::BaseOrTableBlock &Scope::getBaseOrTableBlock() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::BASE_OR_TABLE_BLOCK);
-  return requite::getRef(this->_base_or_table_block_ptr);
-}
-
-bool Scope::getHasObjectBlock() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT_BLOCK);
-  return this->_object_block_ptr != nullptr;
-}
-
-void Scope::setObjectBlock(requite::ObjectBlock &block) {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT_BLOCK);
-  requite::setSingleRef(this->_object_block_ptr, block);
-}
-
-requite::ObjectBlock &Scope::getObjectBlock() {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT_BLOCK);
-  return requite::getRef(this->_object_block_ptr);
-}
-
-const requite::ObjectBlock &Scope::getObjectBlock() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT_BLOCK);
-  return requite::getRef(this->_object_block_ptr);
-}
-
-bool Scope::getHasLocalBlock() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::LOCAL_BLOCK);
-  return this->_local_block_ptr != nullptr;
-}
-
-void Scope::setLocalBlock(requite::LocalBlock &block) {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::LOCAL_BLOCK);
-  requite::setSingleRef(this->_local_block_ptr, block);
-}
-
-requite::LocalBlock &Scope::getLocalBlock() {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::LOCAL_BLOCK);
-  return requite::getRef(this->_local_block_ptr);
-}
-
-const requite::LocalBlock &Scope::getLocalBlock() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::LOCAL_BLOCK);
-  return requite::getRef(this->_local_block_ptr);
+const requite::Block &Scope::getBlock() const {
+  return requite::getRef(this->_block_ptr);
 }
 
 bool Scope::getHasGeneratedName() const { return this->_has_generated_name; }

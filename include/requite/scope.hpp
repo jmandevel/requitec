@@ -27,8 +27,7 @@ struct Procedure;
 struct Table;
 struct Object;
 struct BaseOrTableBlock;
-struct ObjectBlock;
-struct LocalBlock;
+struct Block;
 
 struct Scope final {
   using Self = requite::Scope;
@@ -45,9 +44,7 @@ struct Scope final {
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
     requite::Global *_global_ptr;
-    requite::BaseOrTableBlock *_base_or_table_block_ptr;
-    requite::ObjectBlock *_object_block_ptr;
-    requite::LocalBlock *_local_block_ptr;
+    requite::Block * _block_ptr;
   };
   requite::Node *_first_node_ptr = nullptr;
   bool _has_generated_name = false;
@@ -98,18 +95,10 @@ struct Scope final {
   void setGlobal(requite::Global &variable);
   [[nodiscard]] requite::Global &getGlobal();
   [[nodiscard]] const requite::Global &getGlobal() const;
-  [[nodiscard]] bool getHasBaseOrTableBlock() const;
-  void setBaseOrTableBlock(requite::BaseOrTableBlock &block);
-  [[nodiscard]] requite::BaseOrTableBlock &getBaseOrTableBlock();
-  [[nodiscard]] const requite::BaseOrTableBlock &getBaseOrTableBlock() const;
-  [[nodiscard]] bool getHasObjectBlock() const;
-  void setObjectBlock(requite::ObjectBlock &block);
-  [[nodiscard]] requite::ObjectBlock &getObjectBlock();
-  [[nodiscard]] const requite::ObjectBlock &getObjectBlock() const;
-  [[nodiscard]] bool getHasLocalBlock() const;
-  void setLocalBlock(requite::LocalBlock &block);
-  [[nodiscard]] requite::LocalBlock &getLocalBlock();
-  [[nodiscard]] const requite::LocalBlock &getLocalBlock() const;
+  [[nodiscard]] bool getHasBlock() const;
+  void setBlock(requite::Block &block);
+  [[nodiscard]] requite::Block &getBlock();
+  [[nodiscard]] const requite::Block &getBlock() const;
   [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void incrementSymbolStatus();
   [[nodiscard]] bool getHasGeneratedName() const;
