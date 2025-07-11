@@ -3,7 +3,7 @@
 #include <requite/contextualizer1.hpp>
 #include <requite/expression.hpp>
 #include <requite/local.hpp>
-#include <requite/log_mode.hpp>
+#include <requite/lookup_mode.hpp>
 #include <requite/module.hpp>
 #include <requite/scope.hpp>
 #include <requite/situator.hpp>
@@ -79,13 +79,87 @@ void Contextualizer0::tabulateStatement(requite::Expression &statement,
 void Contextualizer0::tabulateEntryPoint(requite::Expression &expression,
                                          requite::Situation situation,
                                          bool has_attributes) {
-  // TODO
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ENTRY_POINT);
+  requite::Procedure &procedure = this->getContext().makeEntryPoint();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  if (has_attributes) {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "entry point must not have attributes");
+    this->setNotOk();
+  }
+  switch (const requite::ExpandResult result =
+              this->expandForest(expression, situation,
+                                 requite::LookupMode::UNFOUND_SYMBOL_IS_OK)) {
+  case requite::ExpandResult::DONE:
+    break;
+  case requite::ExpandResult::NOT_DONE:
+    this->addYield(procedure, situation);
+    return;
+  case requite::ExpandResult::ERROR:
+    this->setNotOk();
+    return;
+  }
+  procedure.incrementSymbolStatus();
 }
 
 void Contextualizer0::tabulateFunction(requite::Expression &expression,
                                        requite::Situation situation,
                                        bool has_attributes) {
-  // TODO
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::FUNCTION);
+  requite::Procedure &procedure = this->getContext().makeFunction();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  requite::AttributeStatus attribute_status = requite::AttributeStatus::DONE;
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  if (!this->expandNameBranch(expression, situation,
+                              requite::LookupMode::UNFOUND_SYMBOL_IS_OK)) {
+    this->addYield(procedure, situation, attribute_status);
+    return;
+  }
+  procedure.incrementSymbolStatus();
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  requite::EvaluationResult name_result = this->getContext().evaluateName(
+      name, this->getScope(), name_expression,
+      requite::LookupMode::UNFOUND_SYMBOL_IS_OK);
+  if (requite::getIsGenerated(name_result)) {
+    procedure.setHasGeneratedName();
+  }
+  if (name_result == requite::EvaluationResult::GENERATED_NOT_DONE)
+      [[unlikely]] {
+    this->addYield(procedure, situation, attribute_status);
+    return;
+  } else if (name_result == requite::EvaluationResult::ERROR) [[unlikely]] {
+    this->setNotOk();
+    return;
+  }
+  procedure.incrementSymbolStatus();
+  requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
+  if (found.getIsNone()) {
+    requite::NamedProcedureGroup &group =
+        this->getContext().makeNamedProcedureGroup();
+    group.setName(name);
+    procedure.setNamedProcedureGroup(group);
+    this->getScope().addUserSymbol(group);
+  } else if (found.getIsNamedProcedureGroup()) {
+    requite::NamedProcedureGroup &group = found.getNamedProcedureGroup();
+    procedure.setNamedProcedureGroup(group);
+    this->getScope().addUserSymbol(group);
+  } else {
+    this->getContext().logErrorAlreadySymbolOfName(expression);
+    this->setNotOk();
+    return;
+  }
+  procedure.incrementSymbolStatus();
+  if (!this->expandTree(expression, situation,
+                        requite::LookupMode::UNFOUND_SYMBOL_IS_OK)) {
+    this->addYield(expression, situation, attribute_status);
+    return;
+  }
+  procedure.incrementSymbolStatus();
 }
 
 void Contextualizer0::tabulateMethod(requite::Expression &expression,
@@ -149,14 +223,14 @@ void Contextualizer0::tabulateProperty(requite::Expression &expression,
 }
 
 void Contextualizer0::tabulateBlock(requite::Expression &expression,
-                                       requite::Situation situation,
-                                       bool has_attributes) {
+                                    requite::Situation situation,
+                                    bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulate_ExpandValue(requite::Expression &expression,
-                                       requite::Situation situation,
-                                       bool has_attributes) {
+                                           requite::Situation situation,
+                                           bool has_attributes) {
   // TODO
 }
 

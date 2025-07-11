@@ -35,7 +35,7 @@ struct Procedure final {
   std::string _mangled_name = {};
   requite::Module *_module_ptr = nullptr;
   requite::Expression *_expression_ptr = nullptr;
-  requite::ProcedureType _type = requite::ProcedureType::NONE;
+  requite::ProcedureType _type;
   requite::Scope _scope = {};
   requite::Table _table = {};
   requite::Signature _signature = {};
@@ -45,20 +45,18 @@ struct Procedure final {
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
   llvm::Function *_llvm_function_ptr = nullptr;
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
+  requite::SymbolStatus _symbol_status;
   bool _has_generated_name = false;
 
   // procedure.cpp
-  Procedure();
+  Procedure(requite::ProcedureType type, requite::SymbolStatus status);
   Procedure(Self &that) = delete;
   Procedure(Self &&that) = delete;
   ~Procedure() = default;
   Self &operator=(Self &rhs) = delete;
   Self &operator=(Self &&rhs) = delete;
-  [[nodiscard]]
-  bool operator==(const Self &rhs) const;
-  [[nodiscard]]
-  bool operator!=(const Self &rhs) const;
+  [[nodiscard]] bool operator==(const Self &rhs) const;
+  [[nodiscard]] bool operator!=(const Self &rhs) const;
   [[nodiscard]] bool getIsNamed() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
@@ -71,7 +69,6 @@ struct Procedure final {
   void setMangledName(llvm::StringRef name);
   [[nodiscard]] bool getHasMangledName() const;
   [[nodiscard]] llvm::StringRef getMangledName() const;
-  void setType(requite::ProcedureType type);
   [[nodiscard]] requite::ProcedureType getType() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;

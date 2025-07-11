@@ -11,7 +11,7 @@
 #include <requite/global.hpp>
 #include <requite/label.hpp>
 #include <requite/local.hpp>
-#include <requite/log_mode.hpp>
+#include <requite/lookup_mode.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
@@ -25,6 +25,7 @@
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
 #include <requite/block.hpp>
+#include <requite/evaluation_result.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -112,7 +113,12 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Table &makeTable();
   [[nodiscard]] requite::Object &makeObject();
   [[nodiscard]] requite::NamedProcedureGroup &makeNamedProcedureGroup();
-  [[nodiscard]] requite::Procedure &makeProcedure();
+  [[nodiscard]] requite::Procedure &makeEntryPoint();
+  [[nodiscard]] requite::Procedure &makeFunction();
+  [[nodiscard]] requite::Procedure &makeMethod();
+  [[nodiscard]] requite::Procedure &makeExtension();
+  [[nodiscard]] requite::Procedure &makeConstructor();
+  [[nodiscard]] requite::Procedure &makeDestructor(); 
   [[nodiscard]] requite::Alias &makeAlias();
   [[nodiscard]] requite::Local &makeLocal();
   [[nodiscard]] requite::Global &makeGlobal();
@@ -248,17 +254,14 @@ struct Context final : public requite::_ContextLlvmContext {
   void finalizeIfLiteralType(requite::Symbol &symbol);
 
   // evaluate.cpp
-  [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
+  [[nodiscard]] requite::EvaluationResult evaluateName(llvm::StringRef &out_name,
                                   requite::Scope &scope,
                                   requite::Expression &value_expression,
-                                  requite::LogMode log_mode);
-  [[nodiscard]] bool
+                                  requite::LookupMode lookup_mode);
+  [[nodiscard]] requite::EvaluationResult
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
                            requite::Expression &value_expression,
-                           requite::LogMode log_mode);
-  [[nodiscard]] requite::Value
-  evaluateValue(requite::Scope &scope, requite::Expression &value_expression,
-                const requite::Symbol &type);
+                           requite::LookupMode lookup_mode);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,

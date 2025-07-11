@@ -1,6 +1,6 @@
 #pragma once
 
-#include <requite/log_mode.hpp>
+#include <requite/lookup_mode.hpp>
 #include <requite/situation.hpp>
 #include <requite/yield.hpp>
 
@@ -113,13 +113,13 @@ struct Contextualizer0 final {
   // expand.cpp
   [[nodiscard]] bool expandTree(requite::Expression &expression,
                                 requite::Situation situation,
-                                requite::LogMode log_mode);
+                                requite::LookupMode mode);
   [[nodiscard]] bool expandForest(requite::Expression &expression,
-                                requite::Situation situation,
-                                requite::LogMode log_mode);
+                                  requite::Situation situation,
+                                  requite::LookupMode mode);
   [[nodiscard]] bool expandNameBranch(requite::Expression &expression,
                                       requite::Situation situation,
-                                      requite::LogMode log_mode);
+                                      requite::LookupMode mode);
 };
 
 } // namespace requite

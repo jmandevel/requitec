@@ -53,39 +53,39 @@ bool Context::implementEntryPoint(requite::Procedure &procedure) {
 }
 
 bool Context::implementFunction(requite::Procedure &procedure) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementMethod(requite::Procedure &procedure) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementExtension(requite::Procedure &procedure) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementConstructor(requite::Procedure &procedure) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementDestructor(requite::Procedure &procedure) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementObject(requite::Object &object) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementAlias(requite::Alias &alias) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementGlobal(requite::Global &global) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementProperty(requite::Property &property) {
-  REQUITE_UNREACHABLE(); // TODO // TODO
+  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Contextualizer1::implementLocalScope(
@@ -257,8 +257,17 @@ bool Contextualizer1::implement_Initialize(requite::Expression &statement) {
     return true;
   }
   llvm::StringRef name;
-  if (!this->getContext().evaluateName(name, this->getScope(), lhs,
-                                       requite::LogMode::ECHO)) {
+  switch (const requite::EvaluationResult result =
+              this->getContext().evaluateName(
+                  name, this->getScope(), lhs,
+                  requite::LookupMode::UNFOUND_SYMBOL_IS_ERROR)) {
+  case requite::EvaluationResult::LITERAL:
+    [[fallthrough]];
+  case requite::EvaluationResult::GENERATED:
+    break;
+  case requite::EvaluationResult::GENERATED_NOT_DONE:
+    [[fallthrough]];
+  case requite::EvaluationResult::ERROR:
     return false;
   }
   requite::RootSymbol found = this->getScope().lookupUserSymbol(name);

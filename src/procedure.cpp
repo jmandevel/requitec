@@ -8,7 +8,8 @@
 
 namespace requite {
 
-Procedure::Procedure() {
+Procedure::Procedure(requite::ProcedureType type, requite::SymbolStatus status)
+    : _type(type), _symbol_status(status) {
   this->getScope().setProcedure(*this);
   this->getScope().setTable(this->getTable());
 }
@@ -65,12 +66,6 @@ const requite::Expression &Procedure::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-void Procedure::setType(requite::ProcedureType type) {
-  REQUITE_ASSERT(this->_type == requite::ProcedureType::NONE);
-  REQUITE_ASSERT(type != requite::ProcedureType::NONE);
-  this->_type = type;
-}
-
 requite::ProcedureType Procedure::getType() const { return this->_type; }
 
 requite::Signature &Procedure::getSignature() { return this->_signature; }
@@ -83,13 +78,9 @@ requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
 
-requite::Table &Procedure::getTable() {
-  return this->_table;
-}
+requite::Table &Procedure::getTable() { return this->_table; }
 
-const requite::Table &Procedure::getTable() const {
-  return this->_table;
-}
+const requite::Table &Procedure::getTable() const { return this->_table; }
 
 void Procedure::setAttributeFlags(requite::AttributeFlags attributes) {
   this->_attributes = attributes;
@@ -210,7 +201,9 @@ void Procedure::incrementSymbolStatus() {
       static_cast<unsigned>(this->_symbol_status) + 1);
 }
 
-bool Procedure::getHasGeneratedName() const { return this->_has_generated_name; }
+bool Procedure::getHasGeneratedName() const {
+  return this->_has_generated_name;
+}
 
 void Procedure::setHasGeneratedName() {
   REQUITE_ASSERT(!this->_has_generated_name);
