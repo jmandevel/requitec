@@ -7,7 +7,6 @@
 #include <requite/const_expression_iterator.hpp>
 #include <requite/expression_iterator.hpp>
 #include <requite/opcode.hpp>
-#include <requite/situation.hpp>
 #include <requite/symbol.hpp>
 
 #include <llvm/ADT/APSInt.h>
@@ -43,7 +42,7 @@ struct Expression final {
                requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Global *,
                requite::Local *, requite::Label *, llvm::APSInt,
-               requite::Symbol, requite::Situation, requite::Node *>
+               requite::Symbol, requite::Node *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -199,9 +198,6 @@ struct Expression final {
   [[nodiscard]] inline llvm::APSInt &emplaceInteger();
   [[nodiscard]] inline llvm::APSInt &getInteger();
   [[nodiscard]] inline const llvm::APSInt &getInteger() const;
-  [[nodiscard]] inline bool getHasSituation() const;
-  inline void setSituation(requite::Situation situation);
-  inline requite::Situation getSituation() const;
   [[nodiscard]] inline bool getHasNode() const;
   inline void setNode(requite::Node &node);
   [[nodiscard]] inline requite::Node &getNode();

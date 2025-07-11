@@ -11,7 +11,6 @@
 #include <requite/global.hpp>
 #include <requite/label.hpp>
 #include <requite/local.hpp>
-#include <requite/lookup_mode.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/named_procedure_group.hpp>
@@ -25,7 +24,6 @@
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
 #include <requite/block.hpp>
-#include <requite/evaluation_result.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -254,14 +252,12 @@ struct Context final : public requite::_ContextLlvmContext {
   void finalizeIfLiteralType(requite::Symbol &symbol);
 
   // evaluate.cpp
-  [[nodiscard]] requite::EvaluationResult evaluateName(llvm::StringRef &out_name,
+  [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
                                   requite::Scope &scope,
-                                  requite::Expression &value_expression,
-                                  requite::LookupMode lookup_mode);
-  [[nodiscard]] requite::EvaluationResult
+                                  requite::Expression &value_expression);
+  [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
-                           requite::Expression &value_expression,
-                           requite::LookupMode lookup_mode);
+                           requite::Expression &value_expression);
 
   // choose_overload.cpp
   [[nodiscard]] bool chooseOverload(requite::Scope &scope,

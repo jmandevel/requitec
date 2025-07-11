@@ -48,9 +48,7 @@ enum class Situation {
   SWITCH_CASE,
   LAST_SWITCH_CASE,
   CAPTURE,
-  INTEGER_LITERAL,
-  ANY,
-  VALUE_REFLECTIVE_ANY
+  INTEGER_LITERAL
 };
 
 [[nodiscard]] constexpr llvm::StringRef getName(requite::Situation situation);
@@ -173,11 +171,6 @@ getCanBeLastSwitchCaseSituation(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeCaptureSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getCanBeIntegerLiteralSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getCanBeAnySituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getCanBeValueReflectiveAnySituation(requite::Opcode opcode);
-
 
 } // namespace requite
 

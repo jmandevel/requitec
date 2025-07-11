@@ -6,7 +6,6 @@
 
 #include <requite/attribute_flags.hpp>
 #include <requite/node_type.hpp>
-#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -22,9 +21,7 @@ struct Node final {
   requite::NodeType _type = requite::NodeType::NONE;
   requite::Expression *_expression_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_TREE;
   requite::Node* _next_ptr = nullptr;
-  bool _has_generated_name_or_value = false;
 
   // node.cpp
   Node() = default;
@@ -42,14 +39,10 @@ struct Node final {
   void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
   void setNext(requite::Node& node);
   [[nodiscard]] requite::Node& getNext();
   [[nodiscard]] const requite::Node& getNext() const;
-  void incrementSymbolStatus();
   [[nodiscard]] bool getHasNext() const;
-  [[nodiscard]] bool getHasGeneratedNameOrValue() const;
-  void setHasGeneratedNameOrValue();
 };
 
 } // namespace requite

@@ -52,23 +52,4 @@ const requite::Node &Node::getNext() const {
   return requite::getRef(this->_next_ptr);
 }
 
-requite::SymbolStatus Node::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Node::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
-bool Node::getHasGeneratedNameOrValue() const {
-  return this->_has_generated_name_or_value;
-}
-
-void Node::setHasGeneratedNameOrValue() {
-  REQUITE_ASSERT(!this->_has_generated_name_or_value);
-  this->_has_generated_name_or_value = true;
-}
-
 } // namespace requite

@@ -33,14 +33,4 @@ const llvm::StringMap<requite::RootSymbol> &Table::getSymbolMap() const {
 
 bool Table::getIsEmpty() const { return this->_symbol_map.empty(); }
 
-requite::SymbolStatus Table::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Table::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
 } // namespace requite

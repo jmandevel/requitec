@@ -257,17 +257,7 @@ bool Contextualizer1::implement_Initialize(requite::Expression &statement) {
     return true;
   }
   llvm::StringRef name;
-  switch (const requite::EvaluationResult result =
-              this->getContext().evaluateName(
-                  name, this->getScope(), lhs,
-                  requite::LookupMode::UNFOUND_SYMBOL_IS_ERROR)) {
-  case requite::EvaluationResult::LITERAL:
-    [[fallthrough]];
-  case requite::EvaluationResult::GENERATED:
-    break;
-  case requite::EvaluationResult::GENERATED_NOT_DONE:
-    [[fallthrough]];
-  case requite::EvaluationResult::ERROR:
+  if (!this->getContext().evaluateName(name, this->getScope(), lhs)) {
     return false;
   }
   requite::RootSymbol found = this->getScope().lookupUserSymbol(name);

@@ -32,8 +32,6 @@ struct Object final {
   requite::Module *_module_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
   std::vector<requite::Global *> _property_ptrs = {};
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
-  bool _has_generated_name = false;
 
   // object.cpp
   Object();
@@ -78,10 +76,6 @@ struct Object final {
   [[nodiscard]] bool getHasModule() const;
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
-  [[nodiscard]] bool getHasGeneratedName() const;
-  void setHasGeneratedName();
 };
 
 } // namespace requite

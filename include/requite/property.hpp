@@ -7,7 +7,6 @@
 #include <requite/attribute_flags.hpp>
 #include <requite/symbol.hpp>
 #include <requite/scope.hpp>
-#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -28,8 +27,6 @@ struct Property final {
   requite::Scope _scope = {};
   requite::Symbol _data_type = {};
   requite::Property *_next_ptr = nullptr;
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
-  bool _has_generated_name = false;
 
   // property.cpp
   Property() = default;
@@ -62,8 +59,6 @@ struct Property final {
   void setNext(requite::Property& property);
   [[nodiscard]] requite::Property& getNext();
   [[nodiscard]] const requite::Property& getNext() const;
-    [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
 };
 
 } // namespace requite

@@ -82,21 +82,4 @@ const requite::Local &Local::getNext() const {
   return requite::getRef(this->_next_ptr);
 }
 
-requite::SymbolStatus Local::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Local::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
-bool Local::getHasGeneratedName() const { return this->_has_generated_name; }
-
-void Local::setHasGeneratedName() {
-  REQUITE_ASSERT(!this->_has_generated_name);
-  this->_has_generated_name = true;
-}
-
 } // namespace requite

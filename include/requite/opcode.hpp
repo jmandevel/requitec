@@ -191,9 +191,6 @@ enum class Opcode : unsigned {
   // STATIC POLYMORPHISM
   TEMPLATE,
   _SPECIALIZATION,
-  _QUOTE,
-  EXPAND,
-  _EXPAND_VALUE,
   BAKE,
   _BAKE_VALUE,
 
@@ -403,8 +400,6 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getHasAnonymousFunctionData(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getHasSituationData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasNodeData(requite::Opcode opcode);
 

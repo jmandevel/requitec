@@ -67,21 +67,4 @@ requite::Symbol &Alias::getSymbol() { return this->_symbol; }
 
 const requite::Symbol &Alias::getSymbol() const { return this->_symbol; }
 
-requite::SymbolStatus Alias::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Alias::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
-bool Alias::getHasGeneratedName() const { return this->_has_generated_name; }
-
-void Alias::setHasGeneratedName() {
-  REQUITE_ASSERT(!this->_has_generated_name);
-  this->_has_generated_name = true;
-}
-
 } // namespace requite

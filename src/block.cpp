@@ -25,14 +25,4 @@ const requite::Expression &Block::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-requite::SymbolStatus Block::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Block::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
 } // namespace requtite

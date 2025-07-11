@@ -1,7 +1,6 @@
 #pragma once
 
 #include <requite/scope.hpp>
-#include <requite/symbol_status.hpp>
 
 namespace requite {
 
@@ -12,7 +11,6 @@ struct Block final {
 
   requite::Scope _scope = {};
   requite::Expression *_expression_ptr = nullptr;
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // block.cpp
   Block() = default;
@@ -27,8 +25,6 @@ struct Block final {
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
 };
 
 } // namespace requite

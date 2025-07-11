@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <requite/symbol_status.hpp>
 #include <requite/symbol.hpp>
 
 #include <llvm/ADT/StringMap.h>
@@ -19,7 +18,6 @@ struct Table final {
   using Self = Table;
 
   std::string _name = {};
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
   llvm::StringMap<requite::RootSymbol> _symbol_map = {};
 
   // table.cpp
@@ -38,8 +36,6 @@ struct Table final {
   [[nodiscard]] const llvm::StringMap<requite::RootSymbol> &
   getSymbolMap() const;
   bool getIsEmpty() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
 
   // lookup_symbols.cpp
   [[nodiscard]] requite::RootSymbol lookupUserSymbol(llvm::StringRef name);

@@ -3,7 +3,6 @@
 #include <requite/contextualizer1.hpp>
 #include <requite/expression.hpp>
 #include <requite/local.hpp>
-#include <requite/lookup_mode.hpp>
 #include <requite/module.hpp>
 #include <requite/scope.hpp>
 #include <requite/situator.hpp>
@@ -15,61 +14,56 @@ bool Contextualizer0::contextualizeModule() {
   REQUITE_ASSERT(!root.getHasNext());
   requite::Expression &module_name = root.getBranch();
   for (requite::Expression &module_statement : module_name.getNextSubrange()) {
-    this->tabulateStatement(module_statement,
-                            requite::Situation::MODULE_STATEMENT, false);
+    this->tabulateStatement(module_statement, false);
   }
   return this->getIsOk();
 }
 
 void Contextualizer0::tabulateStatement(requite::Expression &statement,
-                                        requite::Situation situation,
                                         bool has_attributes) {
   switch (const requite::Opcode opcode = statement.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
     REQUITE_ASSERT(!has_attributes);
-    this->tabulateStatement(statement.getBranch(), situation, true);
+    this->tabulateStatement(statement.getBranch(), true);
     break;
   case requite::Opcode::ENTRY_POINT:
-    this->tabulateEntryPoint(statement, situation, has_attributes);
+    this->tabulateEntryPoint(statement, has_attributes);
     break;
   case requite::Opcode::FUNCTION:
-    this->tabulateFunction(statement, situation, has_attributes);
+    this->tabulateFunction(statement, has_attributes);
     break;
   case requite::Opcode::METHOD:
-    this->tabulateMethod(statement, situation, has_attributes);
+    this->tabulateMethod(statement, has_attributes);
     break;
   case requite::Opcode::EXTENSION:
-    this->tabulateExtension(statement, situation, has_attributes);
+    this->tabulateExtension(statement, has_attributes);
     break;
   case requite::Opcode::CONSTRUCTOR:
-    this->tabulateConstructor(statement, situation, has_attributes);
+    this->tabulateConstructor(statement, has_attributes);
     break;
   case requite::Opcode::DESTRUCTOR:
-    this->tabulateDestructor(statement, situation, has_attributes);
+    this->tabulateDestructor(statement, has_attributes);
     break;
   case requite::Opcode::OBJECT:
-    this->tabulateObject(statement, situation, has_attributes);
+    this->tabulateObject(statement, has_attributes);
     break;
   case requite::Opcode::ALIAS:
-    this->tabulateAlias(statement, situation, has_attributes);
+    this->tabulateAlias(statement, has_attributes);
     break;
   case requite::Opcode::IMPORT:
-    this->tabulateImport(statement, situation, has_attributes);
+    this->tabulateImport(statement, has_attributes);
     break;
   case requite::Opcode::USE:
-    this->tabulateUse(statement, situation, has_attributes);
+    this->tabulateUse(statement, has_attributes);
     break;
   case requite::Opcode::GLOBAL:
-    this->tabulateGlobal(statement, situation, has_attributes);
+    this->tabulateGlobal(statement, has_attributes);
     break;
   case requite::Opcode::PROPERTY:
-    this->tabulateProperty(statement, situation, has_attributes);
+    this->tabulateProperty(statement, has_attributes);
     break;
   case requite::Opcode::_BLOCK:
-    this->tabulateBlock(statement, situation, has_attributes);
-    break;
-  case requite::Opcode::_EXPAND_VALUE:
-    this->tabulate_ExpandValue(statement, situation, has_attributes);
+    this->tabulateBlock(statement, has_attributes);
     break;
   default:
     REQUITE_UNREACHABLE();
@@ -77,7 +71,6 @@ void Contextualizer0::tabulateStatement(requite::Expression &statement,
 }
 
 void Contextualizer0::tabulateEntryPoint(requite::Expression &expression,
-                                         requite::Situation situation,
                                          bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ENTRY_POINT);
   requite::Procedure &procedure = this->getContext().makeEntryPoint();
@@ -88,55 +81,25 @@ void Contextualizer0::tabulateEntryPoint(requite::Expression &expression,
                                         "entry point must not have attributes");
     this->setNotOk();
   }
-  switch (const requite::ExpandResult result =
-              this->expandForest(expression, situation,
-                                 requite::LookupMode::UNFOUND_SYMBOL_IS_OK)) {
-  case requite::ExpandResult::DONE:
-    break;
-  case requite::ExpandResult::NOT_DONE:
-    this->addYield(procedure, situation);
-    return;
-  case requite::ExpandResult::ERROR:
-    this->setNotOk();
-    return;
-  }
-  procedure.incrementSymbolStatus();
 }
 
 void Contextualizer0::tabulateFunction(requite::Expression &expression,
-                                       requite::Situation situation,
                                        bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::FUNCTION);
   requite::Procedure &procedure = this->getContext().makeFunction();
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
-  requite::AttributeStatus attribute_status = requite::AttributeStatus::DONE;
   if (has_attributes) {
     // TODO parse attributes
   }
-  if (!this->expandNameBranch(expression, situation,
-                              requite::LookupMode::UNFOUND_SYMBOL_IS_OK)) {
-    this->addYield(procedure, situation, attribute_status);
-    return;
-  }
-  procedure.incrementSymbolStatus();
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
-  requite::EvaluationResult name_result = this->getContext().evaluateName(
-      name, this->getScope(), name_expression,
-      requite::LookupMode::UNFOUND_SYMBOL_IS_OK);
-  if (requite::getIsGenerated(name_result)) {
-    procedure.setHasGeneratedName();
-  }
-  if (name_result == requite::EvaluationResult::GENERATED_NOT_DONE)
+  if (!this->getContext().evaluateName(
+      name, this->getScope(), name_expression))
       [[unlikely]] {
-    this->addYield(procedure, situation, attribute_status);
-    return;
-  } else if (name_result == requite::EvaluationResult::ERROR) [[unlikely]] {
     this->setNotOk();
     return;
   }
-  procedure.incrementSymbolStatus();
   requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
   if (found.getIsNone()) {
     requite::NamedProcedureGroup &group =
@@ -153,84 +116,60 @@ void Contextualizer0::tabulateFunction(requite::Expression &expression,
     this->setNotOk();
     return;
   }
-  procedure.incrementSymbolStatus();
-  if (!this->expandTree(expression, situation,
-                        requite::LookupMode::UNFOUND_SYMBOL_IS_OK)) {
-    this->addYield(expression, situation, attribute_status);
-    return;
-  }
-  procedure.incrementSymbolStatus();
 }
 
 void Contextualizer0::tabulateMethod(requite::Expression &expression,
-                                     requite::Situation situation,
                                      bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateExtension(requite::Expression &expression,
-                                        requite::Situation situation,
                                         bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateConstructor(requite::Expression &expression,
-                                          requite::Situation situation,
                                           bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateDestructor(requite::Expression &expression,
-                                         requite::Situation situation,
                                          bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateObject(requite::Expression &expression,
-                                     requite::Situation situation,
                                      bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateAlias(requite::Expression &expression,
-                                    requite::Situation situation,
                                     bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateImport(requite::Expression &expression,
-                                     requite::Situation situation,
                                      bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateUse(requite::Expression &expression,
-                                  requite::Situation situation,
                                   bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateGlobal(requite::Expression &expression,
-                                     requite::Situation situation,
                                      bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateProperty(requite::Expression &expression,
-                                       requite::Situation situation,
                                        bool has_attributes) {
   // TODO
 }
 
 void Contextualizer0::tabulateBlock(requite::Expression &expression,
-                                    requite::Situation situation,
                                     bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulate_ExpandValue(requite::Expression &expression,
-                                           requite::Situation situation,
-                                           bool has_attributes) {
   // TODO
 }
 

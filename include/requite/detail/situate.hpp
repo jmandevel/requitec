@@ -88,11 +88,6 @@ inline bool Situator::situateExpression(requite::Expression &expression,
     this->situateExpression<requite::Situation::CAPTURE>(expression);
   case requite::Situation::INTEGER_LITERAL:
     this->situateExpression<requite::Situation::INTEGER_LITERAL>(expression);
-  case requite::Situation::ANY:
-    this->situateExpression<requite::Situation::ANY>(expression);
-  case requite::Situation::VALUE_REFLECTIVE_ANY:
-    this->situateExpression<requite::Situation::VALUE_REFLECTIVE_ANY>(
-        expression);
   }
   return this->getIsOk();
 }
@@ -935,30 +930,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     }
     // do nothing!
-    break;
-  case requite::Opcode::_QUOTE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_QUOTE)) {
-      REQUITE_UNREACHABLE();
-    }
-    // do nothing!
-    break;
-  case requite::Opcode::EXPAND:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::EXPAND)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::_EXPAND_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXPAND_VALUE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
     break;
   case requite::Opcode::BAKE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(

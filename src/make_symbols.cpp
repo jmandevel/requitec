@@ -44,48 +44,42 @@ requite::NamedProcedureGroup &Context::makeNamedProcedureGroup() {
 requite::Procedure &Context::makeEntryPoint() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::ENTRY_POINT,
-          requite::SymbolStatus::EXPAND_TREE));
+          requite::ProcedureType::ENTRY_POINT));
   return requite::getRef(procedure_uptr);
 }
 
 requite::Procedure &Context::makeFunction() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::FUNCTION,
-          requite::SymbolStatus::EXPAND_NAME));
+          requite::ProcedureType::FUNCTION));
   return requite::getRef(procedure_uptr);
 }
 
 requite::Procedure &Context::makeMethod() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::METHOD,
-          requite::SymbolStatus::EXPAND_NAME));
+          requite::ProcedureType::METHOD));
   return requite::getRef(procedure_uptr);
 }
 
 requite::Procedure &Context::makeExtension() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::EXTENSION,
-          requite::SymbolStatus::EXPAND_NAME));
+          requite::ProcedureType::EXTENSION));
   return requite::getRef(procedure_uptr);
 }
 
 requite::Procedure &Context::makeConstructor() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::CONSTRUCTOR,
-          requite::SymbolStatus::EXPAND_TREE));
+          requite::ProcedureType::CONSTRUCTOR));
   return requite::getRef(procedure_uptr);
 }
 
 requite::Procedure &Context::makeDestructor() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::DESTRUCTOR,
-          requite::SymbolStatus::EXPAND_TREE));
+          requite::ProcedureType::DESTRUCTOR));
   return requite::getRef(procedure_uptr);
 }
 

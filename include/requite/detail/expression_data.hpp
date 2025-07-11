@@ -237,21 +237,6 @@ inline const llvm::APSInt &Expression::getInteger() const {
   return std::get<llvm::APSInt>(this->_data);
 }
 
-inline bool Expression::getHasSituation() const {
-  REQUITE_ASSERT(requite::getHasSituationData(this->getOpcode()));
-  return std::holds_alternative<requite::Situation>(this->_data);
-}
-
-inline void Expression::setSituation(requite::Situation situation) {
-  REQUITE_ASSERT(requite::getHasSituationData(this->getOpcode()));
-  this->_data = situation;
-}
-
-inline requite::Situation Expression::getSituation() const {
-  REQUITE_ASSERT(this->getHasSituation());
-  return std::get<requite::Situation>(this->_data);
-}
-
 inline bool Expression::getHasNode() const {
   REQUITE_ASSERT(requite::getHasNodeData(this->getOpcode()));
   return std::holds_alternative<requite::Node *>(this->_data) &&

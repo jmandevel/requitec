@@ -47,7 +47,6 @@ struct Scope final {
     requite::Block * _block_ptr;
   };
   requite::Node *_first_node_ptr = nullptr;
-  bool _has_generated_name = false;
 
   // scope.cpp
   Scope() = default;
@@ -99,10 +98,6 @@ struct Scope final {
   void setBlock(requite::Block &block);
   [[nodiscard]] requite::Block &getBlock();
   [[nodiscard]] const requite::Block &getBlock() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
-  [[nodiscard]] bool getHasGeneratedName() const;
-  void setHasGeneratedName();
 
   // lookup_symbols.cpp
   [[nodiscard]]

@@ -73,12 +73,4 @@ AnonymousFunction::getCapturedPtrs() const {
   return this->_captured_ptrs;
 }
 
-requite::SymbolStatus AnonymousFunction::getSymbolStatus() const { return this->_symbol_status; }
-
-void AnonymousFunction::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
 } // namespace requite

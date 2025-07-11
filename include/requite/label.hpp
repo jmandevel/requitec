@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <requite/symbol_status.hpp>
-
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/BasicBlock.h>
 
@@ -24,8 +22,6 @@ struct Label final {
   requite::Expression *_statement_expression_ptr = nullptr;
   requite::Scope *_containing_scope_ptr = nullptr;
   llvm::BasicBlock* _llvm_block_ptr = nullptr;
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
-  bool _has_generated_name = false;
 
   // label.cpp
   Label() = default;
@@ -54,10 +50,6 @@ struct Label final {
   void setLlvmBlockPtr(llvm::BasicBlock* llvm_block_ptr);
   [[nodiscard]] llvm::BasicBlock* getLllvmBlockPtr();
   [[nodiscard]] const llvm::BasicBlock* getLlvmBlockPtr() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
-  [[nodiscard]] bool getHasGeneratedName() const;
-  void setHasGeneratedName();
 };
 
 } // namespace requite

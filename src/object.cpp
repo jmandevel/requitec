@@ -151,21 +151,4 @@ const requite::Module &Object::getModule() const {
   return requite::getRef(this->_module_ptr);
 }
 
-requite::SymbolStatus Object::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Object::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
-bool Object::getHasGeneratedName() const { return this->_has_generated_name; }
-
-void Object::setHasGeneratedName() {
-  REQUITE_ASSERT(!this->_has_generated_name);
-  this->_has_generated_name = true;
-}
-
 } // namespace requite

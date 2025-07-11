@@ -8,8 +8,8 @@
 
 namespace requite {
 
-Procedure::Procedure(requite::ProcedureType type, requite::SymbolStatus status)
-    : _type(type), _symbol_status(status) {
+Procedure::Procedure(requite::ProcedureType type)
+    : _type(type) {
   this->getScope().setProcedure(*this);
   this->getScope().setTable(this->getTable());
 }
@@ -189,25 +189,6 @@ llvm::BasicBlock &Procedure::getLlvmBlock() {
 
 const llvm::BasicBlock &Procedure::getLlvmBlock() const {
   return requite::getRef(this->_llvm_block_ptr);
-}
-
-requite::SymbolStatus Procedure::getSymbolStatus() const {
-  return this->_symbol_status;
-}
-
-void Procedure::incrementSymbolStatus() {
-  REQUITE_ASSERT(this->_symbol_status != requite::SymbolStatus::DONE);
-  this->_symbol_status = static_cast<requite::SymbolStatus>(
-      static_cast<unsigned>(this->_symbol_status) + 1);
-}
-
-bool Procedure::getHasGeneratedName() const {
-  return this->_has_generated_name;
-}
-
-void Procedure::setHasGeneratedName() {
-  REQUITE_ASSERT(!this->_has_generated_name);
-  this->_has_generated_name = true;
 }
 
 } // namespace requite

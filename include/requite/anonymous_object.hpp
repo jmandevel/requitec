@@ -5,7 +5,6 @@
 #pragma once
 
 #include <requite/symbol.hpp>
-#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -22,7 +21,6 @@ struct AnonymousProperty final {
   std::string _name = {};
   requite::Symbol _symbol = {};
   requite::Expression *_default_value_expression_ptr = nullptr;
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_NAME;
 
   // anonymous_property.cpp
   AnonymousProperty() = default;

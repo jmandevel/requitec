@@ -3,47 +3,41 @@
 
 namespace requite {
 
-requite::EvaluationResult Context::evaluateName(llvm::StringRef &out_name, requite::Scope &scope,
-                           requite::Expression &value_expression,
-                           requite::LookupMode mode) {
-  // TODO evaluate names
+bool Context::evaluateName(llvm::StringRef &out_name, requite::Scope &scope,
+                           requite::Expression &value_expression) {
   if (value_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
-    if (mode == requite::LookupMode::UNFOUND_SYMBOL_IS_ERROR)
-        [[unlikely]] // unlikely because of yielding expressions in
-                     // contextualizer0 {
       this->logErrorNonInstantEvaluatableName(value_expression);
-      return requite::EvaluationResult::GENERATED_NOT_DONE;
+      return false;
   }
   out_name = value_expression.getDataText();
-  return requite::EvaluationResult::LITERAL;
+  return true;
 }
 
-requite::EvaluationResult Context::evaluateConstantUnsigned(unsigned &out_unsigned,
+bool Context::evaluateConstantUnsigned(unsigned &out_unsigned,
                                        requite::Scope &scope,
-                                       requite::Expression &value_expression,
-                                       requite::LookupMode mode) {
+                                       requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__INTEGER_LITERAL: {
     requite::NumericResult result = requite::getNumericValue(
         value_expression.getSourceText(), out_unsigned);
     if (result != requite::NumericResult::OK) {
       this->logErrorNumericParse(value_expression, result);
-      return requite::EvaluationResult::ERROR;
+      return false;
     }
   }
-    return requite::EvaluationResult::LITERAL;
+    return true;
   case requite::Opcode::ADDRESS_DEPTH: {
     out_unsigned = this->getAddressDepth();
   }
-    return requite::EvaluationResult::LITERAL;
+    return true;
   case requite::Opcode::ADDRESS_SIZE: {
     out_unsigned = this->getAddressSize();
   }
-    return requite::EvaluationResult::LITERAL;
+    return true;
   default:
     break;
   }
-    return requite::EvaluationResult::ERROR;
+    return true;
 }
 
 } // namespace requite

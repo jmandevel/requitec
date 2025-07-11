@@ -680,19 +680,12 @@ requite::Expression &Parser::parsePrecedence0() {
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseCloven(requite::Opcode::_CONDUIT,
                              requite::TokenType::RIGHT_CAP_GROUPING);
-  case requite::TokenType::LEFT_QUOTE_GROUPING:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseCloven(requite::Opcode::_QUOTE,
-                             requite::TokenType::RIGHT_QUOTE_GROUPING);
   case requite::TokenType::BACKSLASH_OPERATOR:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseIdentify();
   case requite::TokenType::QUESTION_OPERATOR:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseNullaryOperator(requite::Opcode::_QUESTION);
-  case requite::TokenType::EMPTY_QUOTE_OPERATOR:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseNullaryOperator(requite::Opcode::_QUOTE);
   case requite::TokenType::IDENTIFIER_LITERAL:
     return this->parseIdentifierLiteral();
   case requite::TokenType::CODEUNIT_LITERAL:

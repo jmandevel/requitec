@@ -43,17 +43,8 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   }
   case requite::Opcode::SIGNED: {
     unsigned depth;
-    switch (const requite::EvaluationResult result =
-                this->evaluateConstantUnsigned(depth, scope,
-                                               symbol_expression.getBranch(),
-                                               requite::LookupMode::UNFOUND_SYMBOL_IS_ERROR)) {
-    case requite::EvaluationResult::LITERAL:
-      [[fallthrough]];
-    case requite::EvaluationResult::GENERATED:
-      break;
-    case requite::EvaluationResult::GENERATED_NOT_DONE:
-      [[fallthrough]];
-    case requite::EvaluationResult::ERROR:
+    if (!this->evaluateConstantUnsigned(depth, scope,
+                                        symbol_expression.getBranch())) {
       return false;
     }
     out_symbol.getRoot().setAsSigned(depth);

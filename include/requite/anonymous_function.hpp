@@ -6,7 +6,6 @@
 
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
-#include <requite/symbol_status.hpp>
 
 #include <vector>
 
@@ -24,7 +23,6 @@ struct AnonymousFunction final {
   requite::Expression *_expression_ptr = nullptr;
   requite::Signature _signature = {};
   std::vector<requite::Local *> _captured_ptrs = {};
-  requite::SymbolStatus _symbol_status = requite::SymbolStatus::EXPAND_TREE;
 
   // anonymous_function.cpp
   AnonymousFunction();
@@ -57,8 +55,6 @@ struct AnonymousFunction final {
   std::vector<requite::Local *> &getCapturedPtrs();
   [[nodiscard]]
   const std::vector<requite::Local *> &getCapturedPtrs() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
 };
 
 } // namespace requite

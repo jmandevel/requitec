@@ -9,7 +9,6 @@
 #include <requite/procedure_type.hpp>
 #include <requite/scope.hpp>
 #include <requite/signature.hpp>
-#include <requite/symbol_status.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 
@@ -45,11 +44,9 @@ struct Procedure final {
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
   llvm::Function *_llvm_function_ptr = nullptr;
   llvm::BasicBlock *_llvm_block_ptr = nullptr;
-  requite::SymbolStatus _symbol_status;
-  bool _has_generated_name = false;
 
   // procedure.cpp
-  Procedure(requite::ProcedureType type, requite::SymbolStatus status);
+  Procedure(requite::ProcedureType type);
   Procedure(Self &that) = delete;
   Procedure(Self &&that) = delete;
   ~Procedure() = default;
@@ -107,10 +104,6 @@ struct Procedure final {
   void setLlvmBlock(llvm::BasicBlock &block);
   [[nodiscard]] llvm::BasicBlock &getLlvmBlock();
   [[nodiscard]] const llvm::BasicBlock &getLlvmBlock() const;
-  [[nodiscard]] requite::SymbolStatus getSymbolStatus() const;
-  void incrementSymbolStatus();
-  [[nodiscard]] bool getHasGeneratedName() const;
-  void setHasGeneratedName();
 
   // detail/procedure_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<
