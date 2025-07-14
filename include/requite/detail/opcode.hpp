@@ -1300,6 +1300,10 @@ constexpr bool getHasScopeData(requite::Opcode opcode) {
          opcode == requite::Opcode::TABLE;
 }
 
+constexpr bool getHasTableData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::TABLE;
+}
+
 constexpr bool getHasObjectData(requite::Opcode opcode) {
   return opcode == requite::Opcode::OBJECT;
 }

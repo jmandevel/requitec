@@ -1,5 +1,8 @@
 #pragma once
 
+#include <requite/user_symbol.hpp>
+#include <requite/attribute_flags.hpp>
+
 #include <functional>
 #include <unordered_map>
 
@@ -51,12 +54,19 @@ struct Tabulator final {
   void tabulateConstructor(requite::Expression &expression, bool has_attributes);
   void tabulateDestructor(requite::Expression &expression, bool has_attributes);
   void tabulateObject(requite::Expression &expression, bool has_attributes);
+  void tabulateTable(requite::Expression &expression, bool has_attributes);
   void tabulateAlias(requite::Expression &expression, bool has_attributes);
   void tabulateImport(requite::Expression &expression, bool has_attributes);
   void tabulateUse(requite::Expression &expression, bool has_attributes);
   void tabulateGlobal(requite::Expression &expression, bool has_attributes);
   void tabulateProperty(requite::Expression &expression, bool has_attributes);
   void tabulateBlock(requite::Expression &expression, bool has_attributes);
+
+  // detail/tabulate_attributes.hpp
+  template<requite::UserSymbolType TYPE_PARAM>
+  void tabulateAttributes(requite::AttributeFlags& out_flags, requite::Expression &expression);
 };
 
 } // namespace requite
+
+#include <requite/detail/tabulate_attributes.hpp>

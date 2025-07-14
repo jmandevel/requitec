@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <requite/user_symbol.hpp>
 #include <requite/scope.hpp>
+#include <requite/user_symbol.hpp>
 
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
 
-#include <string>
 #include <set>
+#include <string>
 
 namespace requite {
 
@@ -20,6 +20,7 @@ struct Table final {
 
   std::string _name = {};
   requite::Scope _scope = {};
+  requite::Expression *_expression_ptr = nullptr;
 
   // table.cpp
   Table();
@@ -28,14 +29,22 @@ struct Table final {
   ~Table() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] bool operator==(const Self&) const;
-  [[nodiscard]] bool operator!=(const Self&) const;
+  [[nodiscard]] bool operator==(const Self &) const;
+  [[nodiscard]] bool operator!=(const Self &) const;
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  [[nodiscard]] requite::Scope& getScope();
-  [[nodiscard]] const requite::Scope& getScope() const;
+  [[nodiscard]] requite::Scope &getScope();
+  [[nodiscard]] const requite::Scope &getScope() const;
   bool getIsEmpty() const;
+  [[nodiscard]] bool getHasExpression() const;
+  void setExpression(requite::Expression &expression);
+  [[nodiscard]] requite::Expression &getExpression();
+  [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
 };
 
 } // namespace requite

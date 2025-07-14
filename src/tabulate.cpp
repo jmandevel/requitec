@@ -5,6 +5,7 @@
 #include <requite/scope.hpp>
 #include <requite/situator.hpp>
 #include <requite/tabulator.hpp>
+#include <requite/table.hpp>
 
 namespace requite {
 
@@ -54,6 +55,9 @@ void Tabulator::tabulateStatement(requite::Expression &statement,
   case requite::Opcode::OBJECT:
     this->tabulateObject(statement, has_attributes);
     break;
+  case requite::Opcode::TABLE:
+    this->tabulateTable(statement, has_attributes);
+    break;
   case requite::Opcode::ALIAS:
     this->tabulateAlias(statement, has_attributes);
     break;
@@ -100,7 +104,8 @@ void Tabulator::tabulateFunction(requite::Expression &expression,
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::FUNCTION>(
+        procedure.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
@@ -121,7 +126,8 @@ void Tabulator::tabulateMethod(requite::Expression &expression,
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::METHOD>(
+        procedure.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
@@ -142,7 +148,8 @@ void Tabulator::tabulateExtension(requite::Expression &expression,
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::EXTENSION>(
+        procedure.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
@@ -163,7 +170,8 @@ void Tabulator::tabulateConstructor(requite::Expression &expression,
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::CONSTRUCTOR>(
+        procedure.getAttributeFlags(), expression.getNext());
   }
   this->getObject().addConstructor(procedure);
 }
@@ -176,7 +184,8 @@ void Tabulator::tabulateDestructor(requite::Expression &expression,
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::DESTRUCTOR>(
+        procedure.getAttributeFlags(), expression.getNext());
   }
   this->getObject().addDestructor(procedure);
 }
@@ -189,7 +198,8 @@ void Tabulator::tabulateObject(requite::Expression &expression,
   expression.setObject(object);
   object.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::OBJECT>(
+        object.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
@@ -207,6 +217,34 @@ void Tabulator::tabulateObject(requite::Expression &expression,
   this->leaveScope();
 }
 
+void Tabulator::tabulateTable(requite::Expression &expression,
+                               bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE);
+  requite::Table &table = this->getContext().makeTable();
+  table.setExpression(expression);
+  expression.setTable(table);
+  table.setContaining(this->getScope());
+  if (has_attributes) {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "table must not have attributes");
+    this->setNotOk();
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
+    this->setNotOk();
+  } else {
+    table.setName(name);
+    this->getScope().addUserSymbol(table);
+  }
+  this->enterScope(table.getScope());
+  for (requite::Expression &statement : name_expression.getNextSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
+}
+
 void Tabulator::tabulateAlias(requite::Expression &expression,
                               bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
@@ -215,7 +253,8 @@ void Tabulator::tabulateAlias(requite::Expression &expression,
   expression.setAlias(alias);
   alias.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::ALIAS>(
+        alias.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
@@ -235,7 +274,8 @@ void Tabulator::tabulateImport(requite::Expression &expression,
   import.setExpression(expression);
   expression.setImport(import);
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::IMPORT>(
+        import.getAttributeFlags(), expression.getNext());
   }
   this->getScope().addImport(import);
 }
@@ -247,7 +287,8 @@ void Tabulator::tabulateUse(requite::Expression &expression,
   use.setExpression(expression);
   expression.setUse(use);
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::USE>(
+        use.getAttributeFlags(), expression.getNext());
   }
   this->getScope().addUse(use);
 }
@@ -260,7 +301,8 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
   expression.setGlobal(global);
   global.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::GLOBAL>(
+        global.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
@@ -281,7 +323,8 @@ void Tabulator::tabulateProperty(requite::Expression &expression,
   expression.setProperty(property);
   property.setContaining(this->getScope());
   if (has_attributes) {
-    // TODO parse attributes
+    this->tabulateAttributes<requite::UserSymbolType::PROPERTY>(
+        property.getAttributeFlags(), expression.getNext());
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;

@@ -4,16 +4,16 @@
 namespace requite {
 
 UserSymbol::UserSymbol(requite::RootSymbol root)
-    : _type(requite::UserSymbolType::INTERNAL), _symbol(root) {}
+    : _origin(requite::UserSymbolOrigin::INTERNAL), _symbol(root) {}
 
 UserSymbol::UserSymbol(requite::RootSymbol root, requite::Use &use)
-    : _type(requite::UserSymbolType::USED), _symbol(root), _use_ptr(&use) {}
+    : _origin(requite::UserSymbolOrigin::USED), _symbol(root), _use_ptr(&use) {}
 
 UserSymbol::UserSymbol(requite::RootSymbol root, requite::Import &import)
-    : _type(requite::UserSymbolType::IMPORTED), _symbol(root),
+    : _origin(requite::UserSymbolOrigin::IMPORTED), _symbol(root),
       _import_ptr(&import) {}
 
-requite::UserSymbolType UserSymbol::getType() const { return this->_type; }
+requite::UserSymbolOrigin UserSymbol::getOrigin() const { return this->_origin; }
 
 requite::RootSymbol &UserSymbol::getRoot() { return this->_symbol; }
 
