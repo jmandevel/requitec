@@ -1,58 +1,58 @@
 #include <requite/assert.hpp>
-#include <requite/contextualizer0.hpp>
+#include <requite/tabulator.hpp>
 #include <requite/module.hpp>
 #include <requite/scope.hpp>
 
 namespace requite {
 
-Contextualizer0::Contextualizer0(requite::Context &context,
+Tabulator::Tabulator(requite::Context &context,
                                  requite::Module &module)
     : _context_ref(context), _module_ref(module),
       _scope_ptr(&module.getScope()) {}
 
-requite::Context &Contextualizer0::getContext() {
+requite::Context &Tabulator::getContext() {
   return this->_context_ref.get();
 }
 
-const requite::Context &Contextualizer0::getContext() const {
+const requite::Context &Tabulator::getContext() const {
   return this->_context_ref.get();
 }
 
-requite::Module &Contextualizer0::getModule() {
+requite::Module &Tabulator::getModule() {
   return this->_module_ref.get();
 }
 
-const requite::Module &Contextualizer0::getModule() const {
+const requite::Module &Tabulator::getModule() const {
   return this->_module_ref.get();
 }
 
-requite::Scope &Contextualizer0::getScope() {
+requite::Scope &Tabulator::getScope() {
   return requite::getRef(this->_scope_ptr);
 }
 
-const requite::Scope &Contextualizer0::getScope() const {
+const requite::Scope &Tabulator::getScope() const {
   return requite::getRef(this->_scope_ptr);
 }
 
-requite::Object &Contextualizer0::getObject() {
+requite::Object &Tabulator::getObject() {
   return this->getScope().getObject();
 }
 
-const requite::Object &Contextualizer0::getObject() const {
+const requite::Object &Tabulator::getObject() const {
   return this->getScope().getObject();
 }
 
-void Contextualizer0::enterScope(requite::Scope &scope) {
+void Tabulator::enterScope(requite::Scope &scope) {
   REQUITE_ASSERT(this->getScope().getContaining() == scope);
   this->_scope_ptr = &scope;
 }
 
-void Contextualizer0::leaveScope() {
+void Tabulator::leaveScope() {
   this->_scope_ptr = &this->getScope().getContaining();
 }
 
-bool Contextualizer0::getIsOk() const { return this->_is_ok; }
+bool Tabulator::getIsOk() const { return this->_is_ok; }
 
-void Contextualizer0::setNotOk() { this->_is_ok = false; }
+void Tabulator::setNotOk() { this->_is_ok = false; }
 
 } // namespace requite

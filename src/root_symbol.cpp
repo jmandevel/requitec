@@ -6,17 +6,16 @@
 #include <requite/anonymous_object.hpp>
 #include <requite/assert.hpp>
 #include <requite/expression.hpp>
+#include <requite/global.hpp>
 #include <requite/label.hpp>
-#include <requite/module.hpp>
-#include <requite/named_procedure_group.hpp>
-#include <requite/object.hpp>
 #include <requite/local.hpp>
+#include <requite/module.hpp>
+#include <requite/object.hpp>
 #include <requite/procedure.hpp>
 #include <requite/signature.hpp>
 #include <requite/symbol.hpp>
 #include <requite/table.hpp>
 #include <requite/tuple.hpp>
-#include <requite/global.hpp>
 
 namespace requite {
 
@@ -53,9 +52,6 @@ RootSymbol::RootSymbol(const requite::RootSymbol &that)
     break;
   case requite::RootSymbolType::PROCEDURE:
     this->_procedure_ptr = that._procedure_ptr;
-    break;
-  case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
-    this->_named_procedure_group_ptr = that._named_procedure_group_ptr;
     break;
   case requite::RootSymbolType::MODULE:
     this->_module_ptr = that._module_ptr;
@@ -118,8 +114,6 @@ bool RootSymbol::operator==(const requite::RootSymbol &rhs) const {
     return this->getGlobal() == rhs.getGlobal();
   case requite::RootSymbolType::PROCEDURE:
     return this->getProcedure() == rhs.getProcedure();
-  case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
-    return this->getNamedProcedureGroup() == rhs.getNamedProcedureGroup();
   case requite::RootSymbolType::MODULE:
     return this->getModule() == rhs.getModule();
   case requite::RootSymbolType::LABEL:
@@ -163,16 +157,16 @@ void RootSymbol::setAsUser(requite::Global &variable) {
   this->_global_ptr = &variable;
 }
 
+void RootSymbol::setAsUser(requite::Property &property) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::PROPERTY;
+  this->_property_ptr = &property;
+}
+
 void RootSymbol::setAsUser(requite::Procedure &procedure) {
   REQUITE_ASSERT(!this->getHasAllocation());
   this->_type = requite::RootSymbolType::PROCEDURE;
   this->_procedure_ptr = &procedure;
-}
-
-void RootSymbol::setAsUser(requite::NamedProcedureGroup &procedure_group) {
-  REQUITE_ASSERT(!this->getHasAllocation());
-  this->_type = requite::RootSymbolType::NAMED_PROCEDURE_GROUP;
-  this->_named_procedure_group_ptr = &procedure_group;
 }
 
 void RootSymbol::setAsUser(requite::Module &module) {
@@ -185,6 +179,18 @@ void RootSymbol::setAsUser(requite::Label &label) {
   REQUITE_ASSERT(!this->getHasAllocation());
   this->_type = requite::RootSymbolType::LABEL;
   this->_label_ptr = &label;
+}
+
+void RootSymbol::setAsUser(requite::Import &import) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::IMPORT;
+  this->_import_ptr = &import;
+}
+
+void RootSymbol::setAsUser(requite::Use &use) {
+  REQUITE_ASSERT(!this->getHasAllocation());
+  this->_type = requite::RootSymbolType::USE;
+  this->_use_ptr = &use;
 }
 
 void RootSymbol::setAsInference() {
@@ -407,16 +413,20 @@ bool RootSymbol::getIsProcedure() const {
   return this->_type == requite::RootSymbolType::PROCEDURE;
 }
 
-bool RootSymbol::getIsNamedProcedureGroup() const {
-  return this->_type == requite::RootSymbolType::NAMED_PROCEDURE_GROUP;
-}
-
 bool RootSymbol::getIsModule() const {
   return this->_type == requite::RootSymbolType::MODULE;
 }
 
 bool RootSymbol::getIsLabel() const {
   return this->_type == requite::RootSymbolType::LABEL;
+}
+
+bool RootSymbol::getIsImport() const {
+  return this->_type == requite::RootSymbolType::IMPORT;
+}
+
+bool RootSymbol::getIsUse() const {
+  return this->_type == requite::RootSymbolType::USE;
 }
 
 bool RootSymbol::getHasAllocation() const {
@@ -556,21 +566,6 @@ requite::Procedure &RootSymbol::getProcedure() {
   return requite::getRef(this->_procedure_ptr);
 }
 
-bool RootSymbol::getHasNamedProcedureGroup() const {
-  REQUITE_ASSERT(this->getIsNamedProcedureGroup());
-  return this->_named_procedure_group_ptr != nullptr;
-}
-
-const requite::NamedProcedureGroup &RootSymbol::getNamedProcedureGroup() const {
-  REQUITE_ASSERT(this->getIsNamedProcedureGroup());
-  return requite::getRef(this->_named_procedure_group_ptr);
-}
-
-requite::NamedProcedureGroup &RootSymbol::getNamedProcedureGroup() {
-  REQUITE_ASSERT(this->getIsNamedProcedureGroup());
-  return requite::getRef(this->_named_procedure_group_ptr);
-}
-
 bool RootSymbol::getHasModule() const {
   REQUITE_ASSERT(this->getIsModule());
   return this->_module_ptr != nullptr;
@@ -599,6 +594,26 @@ const requite::Label &RootSymbol::getLabel() const {
 requite::Label &RootSymbol::getLabel() {
   REQUITE_ASSERT(this->getIsLabel());
   return requite::getRef(this->_label_ptr);
+}
+
+const requite::Import &RootSymbol::getImport() const {
+  REQUITE_ASSERT(this->getIsImport());
+  return requite::getRef(this->_import_ptr);
+}
+
+requite::Import &RootSymbol::getImport() {
+  REQUITE_ASSERT(this->getIsImport());
+  return requite::getRef(this->_import_ptr);
+}
+
+const requite::Use &RootSymbol::getUse() const {
+  REQUITE_ASSERT(this->getIsUse());
+  return requite::getRef(this->_use_ptr);
+}
+
+requite::Use &RootSymbol::getUse() {
+  REQUITE_ASSERT(this->getIsUse());
+  return requite::getRef(this->_use_ptr);
 }
 
 requite::AttributeFlags &RootSymbol::getUserAttributeFlags() {

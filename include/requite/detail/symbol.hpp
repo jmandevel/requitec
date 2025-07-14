@@ -58,6 +58,8 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::GLOBAL:
     return false;
+  case requite::RootSymbolType::PROPERTY:
+    return false;
   case requite::RootSymbolType::SIGNATURE:
     return false;
   case requite::RootSymbolType::TUPLE:
@@ -66,11 +68,13 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::PROCEDURE:
     return false;
-  case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
-    return false;
   case requite::RootSymbolType::MODULE:
     return false;
   case requite::RootSymbolType::LABEL:
+    return false;
+  case requite::RootSymbolType::IMPORT:
+    return false;
+  case requite::RootSymbolType::USE:
     return false;
   }
   REQUITE_UNREACHABLE();
@@ -128,6 +132,8 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::GLOBAL:
     return true;
+  case requite::RootSymbolType::PROPERTY:
+    return true;
   case requite::RootSymbolType::SIGNATURE:
     return false;
   case requite::RootSymbolType::TUPLE:
@@ -136,12 +142,14 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::PROCEDURE:
     return true;
-  case requite::RootSymbolType::NAMED_PROCEDURE_GROUP:
-    return false;
   case requite::RootSymbolType::MODULE:
     return false;
   case requite::RootSymbolType::LABEL:
     return false;
+  case requite::RootSymbolType::IMPORT:
+    return true;
+  case requite::RootSymbolType::USE:
+    return true;
   }
   REQUITE_UNREACHABLE();
 }

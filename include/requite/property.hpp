@@ -15,7 +15,6 @@
 namespace requite {
 
 struct Expression;
-struct Node;
 struct Scope;
 
 struct Property final {

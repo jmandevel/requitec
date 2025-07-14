@@ -27,11 +27,11 @@ static llvm::cl::opt<Emit> EMIT(
         clEnumValN(EMIT_SITUATED, "situated",
                    "Output intermediate requite source code of "
                    "the ast immediatly situating."),
-        clEnumValN(EMIT_CONTEXTUALIZED, "contextualized",
-                   "Output intermediate requite source code of "
-                   "the ast immediatly after contextualizing."),
         clEnumValN(EMIT_SYMBOLS, "symbols",
                    "Output a trip markup language file listing user symbols."),
+        clEnumValN(EMIT_IMPLEMENTED, "implemented",
+                   "Output intermediate requite source code of "
+                   "the ast immediatly after they are implemented."),
         clEnumValN(EMIT_IR, "ir", "Output an llvm ir source file."),
         clEnumValN(EMIT_ASSEMBLY, "assembly",
                    "Output an assembly source file."),

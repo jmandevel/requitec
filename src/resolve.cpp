@@ -1,5 +1,5 @@
 #include <requite/context.hpp>
-#include <requite/contextualizer1.hpp>
+#include <requite/implementor.hpp>
 
 namespace requite {
 
@@ -7,27 +7,7 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
                             requite::Expression &symbol_expression) {
   switch (const requite::Opcode opcode = symbol_expression.getOpcode()) {
   case requite::Opcode::__IDENTIFIER_LITERAL: {
-    for (requite::Scope &containing_scope : scope.getContainingSubrange()) {
-      requite::RootSymbol user =
-          containing_scope.lookupUserSymbol(symbol_expression.getDataText());
-      if (user.getIsNone()) {
-        continue;
-      } else if (user.getIsAlias()) {
-        requite::Alias &alias = user.getAlias();
-        // if (!this->prototypeUserSymbol(alias)) {
-        //   return false;
-        // }
-        out_symbol.wrapSymbol(alias.getSymbol());
-        return true;
-      } else if (user.getIsObject()) {
-        requite::Object &object = user.getObject();
-        // if (!this->prototypeUserSymbol(object)) {
-        //   return false;
-        // }
-        out_symbol.getRoot().setAsUser(object);
-        return true;
-      }
-    }
+    // TODO
     return false;
   }
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
@@ -62,14 +42,14 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
   return false;
 }
 
-bool Contextualizer1::resolveTypeOfValue(
+bool Implementor::resolveTypeOfValue(
     requite::Symbol &out_symbol, requite::Expression &symbol_expression,
     requite::Expression &value_expression) {
   // TODO
   return false;
 }
 
-bool Contextualizer1::inferenceTypeOfValue(
+bool Implementor::inferenceTypeOfValue(
     requite::Symbol &out_symbol, requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__LOCAL_HANDLE: {
@@ -81,21 +61,8 @@ bool Contextualizer1::inferenceTypeOfValue(
     out_symbol.getRoot().setAsIntegerLiteral();
     return true;
   }
-  case requite::Opcode::__IDENTIFIER_LITERAL: {
-    llvm::StringRef name = value_expression.getDataText();
-    requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
-    if (found.getIsNone()) {
-      break;
-    }
-    if (found.getIsLocal()) {
-      requite::Local &local = found.getLocal();
-      out_symbol = local.getDataType();
-      value_expression.clearData();
-      value_expression.changeOpcode(requite::Opcode::__LOCAL_HANDLE);
-      value_expression.setLocal(local);
-      return true;
-    }
-  }
+  case requite::Opcode::__IDENTIFIER_LITERAL: 
+    return false; // TODO
   case requite::Opcode::_ADD:
     return this->inferenceTypeOfNaryArithmeticValue(out_symbol,
                                                     value_expression);
@@ -107,7 +74,7 @@ bool Contextualizer1::inferenceTypeOfValue(
   return false;
 }
 
-bool Contextualizer1::inferenceTypeOfNaryArithmeticValue(
+bool Implementor::inferenceTypeOfNaryArithmeticValue(
     requite::Symbol &out_symbol, requite::Expression &expression) {
   requite::Expression &first = expression.getBranch();
   if (!this->inferenceTypeOfValue(out_symbol, first)) {

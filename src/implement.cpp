@@ -4,8 +4,7 @@
 
 #include <requite/assert.hpp>
 #include <requite/context.hpp>
-#include <requite/contextualizer0.hpp>
-#include <requite/contextualizer1.hpp>
+#include <requite/implementor.hpp>
 #include <requite/signature.hpp>
 #include <requite/strings.hpp>
 #include <requite/symbol.hpp>
@@ -13,6 +12,60 @@
 #include <vector>
 
 namespace requite {
+  
+bool Context::implementAll() {
+  // implement them in order to try to decrease recursive implementations
+  bool is_ok = true;
+  for (std::unique_ptr<requite::Alias> &alias_uptr : this->getAliasUptrs()) {
+    requite::Alias &alias = requite::getRef(alias_uptr);
+    if (!this->implementAlias(alias)) {
+      return false;
+    }
+  }
+  for (std::unique_ptr<requite::Global> &global_uptr : this->getGlobalUptrs()) {
+    requite::Global &global = requite::getRef(global_uptr);
+    if (!this->implementGlobal(global)) {
+      is_ok = false;
+    }
+  }
+  for (std::unique_ptr<requite::Property> &property_uptr :
+       this->getPropertyUptrs()) {
+    requite::Property &property = requite::getRef(property_uptr);
+    if (!this->implementProperty(property)) {
+      is_ok = false;
+    }
+  }
+  for (std::unique_ptr<requite::Procedure> &procedure_uptr :
+       this->getProcedureUptrs()) {
+    requite::Procedure &procedure = requite::getRef(procedure_uptr);
+    if (!this->implementProcedure(procedure)) {
+      is_ok = false;
+    }
+  }
+  for (std::unique_ptr<requite::Object> &object_uptr : this->getObjectUptrs()) {
+    requite::Object &object = requite::getRef(object_uptr);
+    if (!this->implementObject(object)) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Context::checkEntryPointCount() {
+  requite::Module &source_module = this->getSourceModule();
+  if (!source_module.getHasEntryPoint()) {
+    return true;
+  }
+  requite::Procedure &entry_point = source_module.getEntryPoint();
+  if (!entry_point.getHasNextProcedure()) {
+    return true;
+  }
+  for (requite::Procedure &overload : entry_point.getOverloadSubrange()) {
+    this->logSourceMessage(overload.getExpression(), requite::LogType::ERROR,
+                           "multiple entry points in module.");
+  }
+  return false;
+}
 
 bool Context::implementProcedure(requite::Procedure &procedure) {
   switch (const requite::ProcedureType type = procedure.getType()) {
@@ -45,8 +98,8 @@ bool Context::implementEntryPoint(requite::Procedure &procedure) {
     return true;
   }
   requite::Expression &first_statement = expression.getBranch();
-  requite::Contextualizer1 contextualizer1(*this, procedure);
-  if (!contextualizer1.implementLocalScope(first_statement)) {
+  requite::Implementor implementor(*this, procedure);
+  if (!implementor.implementLocalScope(first_statement)) {
     return false;
   }
   return true;
@@ -88,7 +141,7 @@ bool Context::implementProperty(requite::Property &property) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementLocalScope(
+bool Implementor::implementLocalScope(
     requite::Expression &first_statement) {
   bool is_ok = true;
   for (requite::Expression &branch : first_statement.getHorizontalSubrange()) {
@@ -250,81 +303,56 @@ bool Contextualizer1::implementLocalScope(
   return is_ok;
 }
 
-bool Contextualizer1::implement_Initialize(requite::Expression &statement) {
-  REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::_INITIALIZE);
-  requite::Expression &lhs = statement.getBranch();
-  if (!requite::getCanBeSymbolBindingSituation(lhs.getOpcode())) {
-    return true;
-  }
-  llvm::StringRef name;
-  if (!this->getContext().evaluateName(name, this->getScope(), lhs)) {
-    return false;
-  }
-  requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
-  if (!found.getIsNone()) {
-    return true;
-  }
-  statement.changeOpcode(requite::Opcode::_LOCAL);
-  requite::Local *local_ptr;
-  if (!this->tabulate_Local(local_ptr, name, statement)) {
-    return false;
-  }
-  requite::Local &local = requite::getRef(local_ptr);
-  requite::Expression &rhs = lhs.getNext();
-  requite::Symbol &type = local.getDataType();
-  if (!this->inferenceTypeOfValue(type, rhs)) {
-    return false;
-  }
-  this->getContext().finalizeIfLiteralType(type);
-  return true;
-}
-
-bool Contextualizer1::implement_Assign(requite::Expression &statement) {
+bool Implementor::implement_Initialize(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementSwap(requite::Expression &statement) {
+bool Implementor::implement_Assign(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implement_StructuredBinding(
+bool Implementor::implementSwap(requite::Expression &statement) {
+  REQUITE_UNREACHABLE(); // TODO
+}
+
+bool Implementor::implement_StructuredBinding(
     requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implement_Ignore(requite::Expression &statement) {
+bool Implementor::implement_Ignore(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implement_Call(requite::Expression &statement) {
+bool Implementor::implement_Call(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implement_DestroyValue(requite::Expression &statement) {
+bool Implementor::implement_DestroyValue(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implement_DropValue(requite::Expression &statement) {
+bool Implementor::implement_DropValue(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementReturn(requite::Expression &statement) {
+bool Implementor::implementReturn(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementBreak(requite::Expression &statement) {
+bool Implementor::implementBreak(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementContinue(requite::Expression &statement) {
+bool Implementor::implementContinue(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementFallthrough(requite::Expression &statement) {
+bool Implementor::implementFallthrough(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementExit(requite::Expression &statement) {
+bool Implementor::implementExit(requite::Expression &statement) {
   requite::Symbol type;
   requite::Expression &branch = statement.getBranch();
   if (!this->inferenceTypeOfValue(type, branch)) {
@@ -339,71 +367,71 @@ bool Contextualizer1::implementExit(requite::Expression &statement) {
   return true;
 }
 
-bool Contextualizer1::implementGoto(requite::Expression &statement) {
+bool Implementor::implementGoto(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementAlias(requite::Expression &statement) {
+bool Implementor::implementAlias(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementIf(requite::Expression &statement) {
+bool Implementor::implementIf(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementElseIf(requite::Expression &statement) {
+bool Implementor::implementElseIf(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementElse(requite::Expression &statement) {
+bool Implementor::implementElse(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementSwitch(requite::Expression &statement) {
+bool Implementor::implementSwitch(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementCase(requite::Expression &statement) {
+bool Implementor::implementCase(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementFor(requite::Expression &statement) {
+bool Implementor::implementFor(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementWhile(requite::Expression &statement) {
+bool Implementor::implementWhile(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementDoWhile(requite::Expression &statement) {
+bool Implementor::implementDoWhile(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementForEach(requite::Expression &statement) {
+bool Implementor::implementForEach(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementLoop(requite::Expression &statement) {
+bool Implementor::implementLoop(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementScope(requite::Expression &statement) {
+bool Implementor::implementScope(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementImport(requite::Expression &statement) {
+bool Implementor::implementImport(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementUse(requite::Expression &statement) {
+bool Implementor::implementUse(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementAssert(requite::Expression &statement) {
+bool Implementor::implementAssert(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Contextualizer1::implementUnreachable(requite::Expression &statement) {
+bool Implementor::implementUnreachable(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 

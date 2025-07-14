@@ -7,6 +7,8 @@
 
 namespace requite {
 
+Table::Table() { this->getScope().setTable(*this); }
+
 bool Table::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Table::operator!=(const Self &rhs) const { return this != &rhs; }
@@ -23,14 +25,10 @@ llvm::StringRef Table::getName() const {
   return this->_name;
 }
 
-llvm::StringMap<requite::RootSymbol> &Table::getSymbolMap() {
-  return this->_symbol_map;
-}
+requite::Scope &Table::getScope() { return this->_scope; }
 
-const llvm::StringMap<requite::RootSymbol> &Table::getSymbolMap() const {
-  return this->_symbol_map;
-}
+const requite::Scope &Table::getScope() const { return this->_scope; }
 
-bool Table::getIsEmpty() const { return this->_symbol_map.empty(); }
+bool Table::getIsEmpty() const { return this->getScope().getIsEmpty(); }
 
 } // namespace requite

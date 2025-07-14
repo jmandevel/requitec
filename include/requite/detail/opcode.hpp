@@ -1321,22 +1321,33 @@ constexpr bool getHasAliasData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ALIAS;
 }
 
+constexpr bool getHasBlockData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_BLOCK;
+}
+
 constexpr bool getHasLocalData(requite::Opcode opcode) {
   return opcode == requite::Opcode::__LOCAL_HANDLE ||
          opcode == requite::Opcode::_LOCAL;
 }
 
 constexpr bool getHasGlobalData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::PROPERTY ||
-         opcode == requite::Opcode::GLOBAL;
+  return opcode == requite::Opcode::GLOBAL;
+}
+
+constexpr bool getHasPropertyData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::PROPERTY;
 }
 
 constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {
   return opcode == requite::Opcode::_ANONYMOUS_FUNCTION;
 }
 
-constexpr bool getHasNodeData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::USE || opcode == requite::Opcode::IMPORT;
+constexpr bool getHasImportData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::IMPORT;
+}
+
+constexpr bool getHasUseData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::USE;
 }
 
 } // namespace requite

@@ -25,7 +25,7 @@ getProcedureType(requite::Opcode opcode);
 
 [[nodiscard]] constexpr std::string_view getName(requite::ProcedureType type);
 
-[[nodiscard]] constexpr bool getIsNamed(requite::ProcedureType type);
+[[nodiscard]] constexpr bool getCanHaveName(requite::ProcedureType type);
 
 } // namespace requite
 

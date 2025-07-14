@@ -61,14 +61,8 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->contextualizeAll()) {
+  if (!this->tabulateModule(source_module)) {
     return false;
-  }
-  if (requite::getEmitMode() == requite::EMIT_CONTEXTUALIZED) {
-    if (!this->writeAst(source_module, output_path)) {
-      return false;
-    }
-    return true;
   }
   if (requite::getEmitMode() == requite::EMIT_SYMBOLS) {
     if (!this->writeUserSymbols(output_path)) {
@@ -76,6 +70,16 @@ bool Context::run() {
     }
     return true;
   }
+  if (!this->implementAll()) {
+    return false;
+  }
+  if (requite::getEmitMode() == requite::EMIT_IMPLEMENTED) {
+    if (!this->writeAst(source_module, output_path)) {
+      return false;
+    }
+    return true;
+  }
+
   if (!this->checkEntryPointCount()) {
     return false;
   }

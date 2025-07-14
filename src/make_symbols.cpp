@@ -6,8 +6,6 @@
 #include <requite/context.hpp>
 #include <requite/global.hpp>
 #include <requite/local.hpp>
-#include <requite/named_procedure_group.hpp>
-#include <requite/node.hpp>
 #include <requite/object.hpp>
 #include <requite/procedure.hpp>
 #include <requite/scope.hpp>
@@ -34,13 +32,6 @@ requite::Object &Context::makeObject() {
   return requite::getRef(object_uptr);
 }
 
-requite::NamedProcedureGroup &Context::makeNamedProcedureGroup() {
-  std::unique_ptr<requite::NamedProcedureGroup> &procedure_uptr =
-      this->_named_procedure_group_uptrs.emplace_back(
-          std::make_unique<requite::NamedProcedureGroup>());
-  return requite::getRef(procedure_uptr);
-}
-
 requite::Procedure &Context::makeEntryPoint() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
@@ -57,8 +48,8 @@ requite::Procedure &Context::makeFunction() {
 
 requite::Procedure &Context::makeMethod() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
-      this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::METHOD));
+      this->_procedure_uptrs.emplace_back(
+          std::make_unique<requite::Procedure>(requite::ProcedureType::METHOD));
   return requite::getRef(procedure_uptr);
 }
 
@@ -120,16 +111,22 @@ requite::Label &Context::makeLabel() {
   return requite::getRef(label_uptr);
 }
 
-requite::Node &Context::makeNode() {
-  std::unique_ptr<requite::Node> &node_uptr =
-      this->_node_uptrs.emplace_back(std::make_unique<requite::Node>());
-  return requite::getRef(node_uptr);
-}
-
 requite::Block &Context::makeBlock() {
   std::unique_ptr<requite::Block> &block_uptr =
       this->_block_uptrs.emplace_back(std::make_unique<requite::Block>());
   return requite::getRef(block_uptr);
+}
+
+requite::Import &Context::makeImport() {
+  std::unique_ptr<requite::Import> &import_ptr =
+      this->_import_uptrs.emplace_back(std::make_unique<requite::Import>());
+  return requite::getRef(import_ptr);
+}
+
+requite::Use &Context::makeUse() {
+  std::unique_ptr<requite::Use> &use_uptr =
+      this->_use_uptrs.emplace_back(std::make_unique<requite::Use>());
+  return requite::getRef(use_uptr);
 }
 
 std::vector<std::unique_ptr<requite::Scope>> &Context::getScopeUptrs() {
@@ -159,16 +156,6 @@ Context::getObjectUptrs() const {
   return this->_object_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &
-Context::getNamedProcedureGroupUptrs() {
-  return this->_named_procedure_group_uptrs;
-}
-
-const std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &
-Context::getNamedProcedureGroupUptrs() const {
-  return this->_named_procedure_group_uptrs;
-}
-
 std::vector<std::unique_ptr<requite::Procedure>> &Context::getProcedureUptrs() {
   return this->_procedure_uptrs;
 }
@@ -194,15 +181,6 @@ std::vector<std::unique_ptr<requite::Local>> &Context::getLocalUptrs() {
 const std::vector<std::unique_ptr<requite::Local>> &
 Context::getLocalUptrs() const {
   return this->_local_uptrs;
-}
-
-std::vector<std::unique_ptr<requite::Node>> &Context::getNodeUptrs() {
-  return this->_node_uptrs;
-}
-
-const std::vector<std::unique_ptr<requite::Node>> &
-Context::getNodeUptrs() const {
-  return this->_node_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::Block>> &Context::getBlockUptrs() {
@@ -249,6 +227,23 @@ std::vector<std::unique_ptr<requite::Label>> &Context::getLabelUptrs() {
 const std::vector<std::unique_ptr<requite::Label>> &
 Context::getLabelUptrs() const {
   return this->_label_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::Import>> &Context::getImportUptrs() {
+  return this->_import_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::Import>> &
+Context::getImportUptrs() const {
+  return this->_import_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::Use>> &Context::getUseUptrs() {
+  return this->_use_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::Use>> &Context::getUseUptrs() const {
+  return this->_use_uptrs;
 }
 
 } // namespace requite

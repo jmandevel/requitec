@@ -7,14 +7,14 @@
 #include <requite/alias.hpp>
 #include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
+#include <requite/block.hpp>
 #include <requite/file.hpp>
 #include <requite/global.hpp>
+#include <requite/import.hpp>
 #include <requite/label.hpp>
 #include <requite/local.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
-#include <requite/named_procedure_group.hpp>
-#include <requite/node.hpp>
 #include <requite/numeric.hpp>
 #include <requite/object.hpp>
 #include <requite/opcode.hpp>
@@ -23,7 +23,7 @@
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
-#include <requite/block.hpp>
+#include <requite/use.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -74,8 +74,6 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
   std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
   std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};
-  std::vector<std::unique_ptr<requite::NamedProcedureGroup>>
-      _named_procedure_group_uptrs = {};
   std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
   std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
   std::vector<std::unique_ptr<requite::Global>> _global_uptrs = {};
@@ -84,8 +82,9 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
-  std::vector<std::unique_ptr<requite::Node>> _node_uptrs = {};
-    std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
+  std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
+  std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
+  std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
@@ -94,7 +93,6 @@ struct Context final : public requite::_ContextLlvmContext {
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
-  bool _contextualize0_done = false;
 
   // context.cpp
   Context() = delete;
@@ -110,21 +108,21 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Scope &makeScope();
   [[nodiscard]] requite::Table &makeTable();
   [[nodiscard]] requite::Object &makeObject();
-  [[nodiscard]] requite::NamedProcedureGroup &makeNamedProcedureGroup();
   [[nodiscard]] requite::Procedure &makeEntryPoint();
   [[nodiscard]] requite::Procedure &makeFunction();
   [[nodiscard]] requite::Procedure &makeMethod();
   [[nodiscard]] requite::Procedure &makeExtension();
   [[nodiscard]] requite::Procedure &makeConstructor();
-  [[nodiscard]] requite::Procedure &makeDestructor(); 
+  [[nodiscard]] requite::Procedure &makeDestructor();
   [[nodiscard]] requite::Alias &makeAlias();
   [[nodiscard]] requite::Local &makeLocal();
   [[nodiscard]] requite::Global &makeGlobal();
   [[nodiscard]] requite::Property &makeProperty();
   [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
   [[nodiscard]] requite::Label &makeLabel();
-  [[nodiscard]] requite::Node &makeNode();
   [[nodiscard]] requite::Block &makeBlock();
+  [[nodiscard]] requite::Import &makeImport();
+  [[nodiscard]] requite::Use &makeUse();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
   getScopeUptrs() const;
@@ -134,11 +132,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Object>> &getObjectUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Object>> &
   getObjectUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::NamedProcedureGroup>> &
-  getNamedProcedureGroupUptrs();
-  [[nodiscard]] const std::vector<
-      std::unique_ptr<requite::NamedProcedureGroup>> &
-  getNamedProcedureGroupUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Procedure>> &
   getProcedureUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Procedure>> &
@@ -149,9 +142,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &getLocalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Local>> &
   getLocalUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Node>> &getNodeUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Node>> &
-  getNodeUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
   getBlockUptrs() const;
@@ -169,6 +159,12 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Label>> &getLabelUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Label>> &
   getLabelUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Import>> &getImportUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Import>> &
+  getImportUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Use>> &getUseUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Use>> &
+  getUseUptrs() const;
 
   // file.cpp
   [[nodiscard]]
@@ -218,16 +214,12 @@ struct Context final : public requite::_ContextLlvmContext {
   // source_name.cpp
   [[nodiscard]] bool determineModuleName(requite::Module &module);
 
-  // contextualize.cpp
-  [[nodiscard]] bool contextualizeAll();
-  [[nodiscard]] bool checkEntryPointCount();
-  [[nodiscard]] bool passContextualize0();
-  [[nodiscard]] bool contextualize0Module(requite::Module &module);
-  [[nodiscard]] bool passContextualize1();
-  [[nodiscard]] bool getIsContextualize0Done() const;
-  void setContextualize0Done();
+  // tabulate.cpp
+  [[nodiscard]] bool tabulateModule(requite::Module &module);
 
   // implement.cpp
+  [[nodiscard]] bool implementAll();
+  [[nodiscard]] bool checkEntryPointCount();
   [[nodiscard]] bool implementProcedure(requite::Procedure &procedure);
   [[nodiscard]] bool implementEntryPoint(requite::Procedure &procedure);
   [[nodiscard]] bool implementFunction(requite::Procedure &procedure);
@@ -252,9 +244,9 @@ struct Context final : public requite::_ContextLlvmContext {
   void finalizeIfLiteralType(requite::Symbol &symbol);
 
   // evaluate.cpp
-  [[nodiscard]] bool evaluateName(llvm::StringRef &out_name,
-                                  requite::Scope &scope,
-                                  requite::Expression &value_expression);
+  [[nodiscard]] bool evaluateInstantName(llvm::StringRef &out_name,
+                                         requite::Scope &scope,
+                                         requite::Expression &value_expression);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
                            requite::Expression &value_expression);

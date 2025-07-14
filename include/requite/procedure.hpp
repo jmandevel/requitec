@@ -25,21 +25,18 @@ class BasicBlock;
 namespace requite {
 
 struct Expression;
-struct NamedProcedureGroup;
-struct Node;
 
 struct Procedure final {
   using Self = requite::Procedure;
 
+  std::string _name = {};
   std::string _mangled_name = {};
   requite::Module *_module_ptr = nullptr;
   requite::Expression *_expression_ptr = nullptr;
   requite::ProcedureType _type;
   requite::Scope _scope = {};
-  requite::Table _table = {};
   requite::Signature _signature = {};
   requite::AttributeFlags _attributes = {};
-  requite::NamedProcedureGroup *_group_ptr = nullptr;
   requite::Procedure *_next_ptr = nullptr;
   llvm::FunctionType *_llvm_function_type_ptr = nullptr;
   llvm::Function *_llvm_function_ptr = nullptr;
@@ -54,7 +51,10 @@ struct Procedure final {
   Self &operator=(Self &&rhs) = delete;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
-  [[nodiscard]] bool getIsNamed() const;
+  [[nodiscard]] bool getCanHaveName() const;
+  [[nodiscard]] bool getHasName() const;
+  void setName(llvm::StringRef name);
+  [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
@@ -69,21 +69,11 @@ struct Procedure final {
   [[nodiscard]] requite::ProcedureType getType() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
-  [[nodiscard]] requite::Table &getTable();
-  [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::Signature &getSignature();
   [[nodiscard]] const requite::Signature &getSignature() const;
   void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
-  void setNamedProcedureGroup(requite::NamedProcedureGroup &group);
-  [[nodiscard]] bool getHasNamedProcedureGroup() const;
-  [[nodiscard]] requite::NamedProcedureGroup &getNamedProcedureGroup();
-  [[nodiscard]] const requite::NamedProcedureGroup &
-  getNamedProcedureGroup() const;
-  [[nodiscard]] requite::NamedProcedureGroup *getNamedProcedureGroupPtr();
-  [[nodiscard]] const requite::NamedProcedureGroup *
-  getNamedProcedureGroupPtr() const;
   void setNextProcedure(requite::Procedure &procedure);
   [[nodiscard]] bool getHasNextProcedure() const;
   [[nodiscard]] requite::Procedure &getNextProcedure();

@@ -1,63 +1,63 @@
 #include <requite/assert.hpp>
-#include <requite/contextualizer1.hpp>
+#include <requite/implementor.hpp>
 #include <requite/scope.hpp>
 
 namespace requite {
 
-Contextualizer1::Contextualizer1(requite::Context &context,
+Implementor::Implementor(requite::Context &context,
                                    requite::Global &global)
     : _context_ref(context), _global_ptr(&global) {}
 
-Contextualizer1::Contextualizer1(requite::Context &context,
+Implementor::Implementor(requite::Context &context,
                                    requite::Procedure &procedure)
     : _context_ref(context), _procedure_ptr(&procedure) {}
 
-requite::Context &Contextualizer1::getContext() {
+requite::Context &Implementor::getContext() {
   return this->_context_ref.get();
 }
 
-const requite::Context &Contextualizer1::getContext() const {
+const requite::Context &Implementor::getContext() const {
   return this->_context_ref.get();
 }
 
-bool Contextualizer1::getIsImplementingGlobal() const {
+bool Implementor::getIsImplementingGlobal() const {
   return this->_global_ptr != nullptr;
 }
 
-requite::Global &Contextualizer1::getGlobal() {
+requite::Global &Implementor::getGlobal() {
   return requite::getRef(this->_global_ptr);
 }
 
-const requite::Global &Contextualizer1::getGlobal() const {
+const requite::Global &Implementor::getGlobal() const {
   return requite::getRef(this->_global_ptr);
 }
 
-bool Contextualizer1::getIsImplementingProcedure() const {
+bool Implementor::getIsImplementingProcedure() const {
   return this->_procedure_ptr != nullptr;
 }
 
-requite::Procedure &Contextualizer1::getProcedure() {
+requite::Procedure &Implementor::getProcedure() {
   return requite::getRef(this->_procedure_ptr);
 }
 
-const requite::Procedure &Contextualizer1::getProcedure() const {
+const requite::Procedure &Implementor::getProcedure() const {
   return requite::getRef(this->_procedure_ptr);
 }
 
-requite::Scope &Contextualizer1::getScope() {
+requite::Scope &Implementor::getScope() {
   return requite::getRef(this->_scope_ptr);
 }
 
-const requite::Scope &Contextualizer1::getScope() const {
+const requite::Scope &Implementor::getScope() const {
   return requite::getRef(this->_scope_ptr);
 }
 
-void Contextualizer1::enterScope(requite::Scope &scope) {
+void Implementor::enterScope(requite::Scope &scope) {
   REQUITE_ASSERT(scope.getContaining() == this->getScope());
   this->_scope_ptr = &scope;
 }
 
-void Contextualizer1::leaveScope() {
+void Implementor::leaveScope() {
   this->_scope_ptr = &this->getScope().getContaining();
 }
 

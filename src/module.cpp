@@ -29,10 +29,6 @@ requite::Scope &Module::getScope() { return this->_scope; }
 
 const requite::Scope &Module::getScope() const { return this->_scope; }
 
-requite::Table &Module::getTable() { return this->_table; }
-
-const requite::Table &Module::getTable() const { return this->_table; }
-
 requite::File &Module::getFile() { return this->_file; }
 
 const requite::File &Module::getFile() const { return this->_file; }
@@ -85,7 +81,6 @@ bool Module::getHasEntryPoint() const {
 }
 
 void Module::addEntryPoint(requite::Procedure &entry_point) {
-  entry_point.setContaining(this->getScope());
   if (this->getHasEntryPoint()) {
     entry_point.setNextProcedure(this->getEntryPoint());
     this->_entry_point_ptr = &entry_point;

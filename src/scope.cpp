@@ -4,11 +4,12 @@
 
 #include <requite/alias.hpp>
 #include <requite/assert.hpp>
+#include <requite/import.hpp>
 #include <requite/module.hpp>
-#include <requite/named_procedure_group.hpp>
 #include <requite/object.hpp>
 #include <requite/scope.hpp>
 #include <requite/table.hpp>
+#include <requite/use.hpp>
 
 namespace requite {
 
@@ -24,7 +25,6 @@ void Scope::setModule(requite::Module &module) {
   REQUITE_ASSERT(this->getIsEmpty());
   this->_type = requite::ScopeType::MODULE;
   requite::setSingleRef(this->_module_ptr, module);
-  requite::setSingleRef(this->_table_ptr, module.getTable());
 }
 
 requite::Module &Scope::getModule() {
@@ -66,25 +66,39 @@ const requite::Scope *Scope::getContainingPtr() const {
   return this->_containing_scope_ptr;
 }
 
-bool Scope::getHasNodes() const { return this->_first_node_ptr != nullptr; }
+bool Scope::getHasImport() const { return this->_first_import_ptr != nullptr; }
 
-void Scope::addNode(requite::Node &node) {
-  node._next_ptr = this->_first_node_ptr;
-  this->_first_node_ptr = &node;
+void Scope::addImport(requite::Import &import) {
+  REQUITE_ASSERT(!import.getHasNext());
+  import._next_ptr = this->_first_import_ptr;
+  this->_first_import_ptr = &import;
 }
 
-requite::Node &Scope::getFirstNode() {
-  return requite::getRef(this->_first_node_ptr);
+requite::Import &Scope::getFirstImport() {
+  return requite::getRef(this->_first_import_ptr);
 }
 
-const requite::Node &Scope::getFirstNode() const {
-  return requite::getRef(this->_first_node_ptr);
+const requite::Import &Scope::getFirstImport() const {
+  return requite::getRef(this->_first_import_ptr);
 }
 
-bool Scope::getIsEmpty() const {
-  return !this->getHasNodes() &&
-         (!this->getHasTable() || this->getTable().getIsEmpty());
+bool Scope::getHasUse() const { return this->_first_import_ptr != nullptr; }
+
+void Scope::addUse(requite::Use &use) {
+  REQUITE_ASSERT(!use.getHasNext());
+  use._next_ptr = this->_first_use_ptr;
+  this->_first_use_ptr = &use;
 }
+
+requite::Use &Scope::getFirstUse() {
+  return requite::getRef(this->_first_use_ptr);
+}
+
+const requite::Use &Scope::getFirstUse() const {
+  return requite::getRef(this->_first_use_ptr);
+}
+
+bool Scope::getIsEmpty() const { return this->_symbol_map.empty(); }
 
 bool Scope::getHasObject() const {
   REQUITE_ASSERT(this->getType() == requite::ScopeType::OBJECT);
@@ -95,7 +109,6 @@ void Scope::setObject(requite::Object &object) {
   REQUITE_ASSERT(this->getIsEmpty());
   this->_type = requite::ScopeType::OBJECT;
   requite::setSingleRef(this->_object_ptr, object);
-  requite::setSingleRef(this->_table_ptr, object.getTable());
 }
 
 requite::Object &Scope::getObject() {

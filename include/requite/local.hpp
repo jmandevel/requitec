@@ -19,7 +19,6 @@ struct AllocaInst;
 namespace requite {
 
 struct Expression;
-struct Node;
 struct Scope;
 
 struct Local final {

@@ -35,7 +35,7 @@ constexpr std::string_view getName(requite::ProcedureType type) {
   return name;
 }
 
-constexpr bool getIsNamed(requite::ProcedureType type) {
+constexpr bool getCanHaveName(requite::ProcedureType type) {
   switch (type) {
   case requite::ProcedureType::NONE:
     return false;

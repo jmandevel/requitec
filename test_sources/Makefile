@@ -1,4 +1,4 @@
-all: tokens parsed situated contextualized symbols ir assembly object
+all: tokens parsed situated implemented symbols ir assembly object
 
 tokens:
 	./requite --emit=tokens test.rq -o test.tokens.csv
@@ -9,11 +9,11 @@ parsed:
 situated:
 	./requite --emit=situated test.rq -o test.situated.rq
 
-contextualized:
-	./requite --emit=contextualized test.rq -o test.contextualized.rq
-
 symbols:
 	./requite --emit=symbols test.rq -o test.symbols.trip
+
+implemented:
+	./requite --emit=implemented test.rq -o test.implemented.rq
 
 ir:
 	./requite --emit=ir test.rq -o test.ir

@@ -4,12 +4,12 @@
 
 #include <requite/assert.hpp>
 #include <requite/object.hpp>
+#include <requite/procedure.hpp>
 
 namespace requite {
 
 Object::Object() {
   this->getScope().setObject(*this);
-  this->getScope().setTable(this->getTable());
 }
 
 bool Object::operator==(const Self &rhs) const { return this == &rhs; }
@@ -46,12 +46,6 @@ const requite::Expression &Object::getExpression() const {
 requite::Scope &Object::getScope() { return this->_scope; }
 
 const requite::Scope &Object::getScope() const { return this->_scope; }
-
-requite::Table &Object::getTable() { return this->_table; }
-
-const requite::Table &Object::getTable() const {
-  return this->_table;
-}
 
 bool Object::getHasContaining() const {
   return this->getScope().getHasContaining();

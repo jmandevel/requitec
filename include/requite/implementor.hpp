@@ -14,20 +14,20 @@ struct Expression;
 struct Symbol;
 struct Local;
 
-struct Contextualizer1 final {
-  using Self = requite::Contextualizer1;
+struct Implementor final {
+  using Self = requite::Implementor;
 
   std::reference_wrapper<requite::Context> _context_ref;
   requite::Global *_global_ptr = nullptr;
   requite::Procedure *_procedure_ptr = nullptr;
   requite::Scope *_scope_ptr = nullptr;
 
-  // contextualizer0.cpp
-  Contextualizer1(requite::Context &context, requite::Global &global);
-  Contextualizer1(requite::Context &context, requite::Procedure &procedure);
-  Contextualizer1(const Self &) = delete;
-  Contextualizer1(Self &&) = delete;
-  ~Contextualizer1() = default;
+  // implementor.cpp
+  Implementor(requite::Context &context, requite::Global &global);
+  Implementor(requite::Context &context, requite::Procedure &procedure);
+  Implementor(const Self &) = delete;
+  Implementor(Self &&) = delete;
+  ~Implementor() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] requite::Context &getContext();
@@ -42,9 +42,6 @@ struct Contextualizer1 final {
   [[nodiscard]] const requite::Scope &getScope() const;
   void enterScope(requite::Scope &scope);
   void leaveScope();
-
-  // tabulate.cpp
-  [[nodiscard]] bool tabulate_Local(requite::Local*& out_local_ptr, llvm::StringRef name, requite::Expression &statement);
 
   // implement.cpp
   // [[nodiscard]] bool implementProcedureSignature(requite::Expression&

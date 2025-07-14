@@ -57,10 +57,12 @@ enum class RootSymbolType {
   ALIAS,
   LOCAL,
   GLOBAL,
+  PROPERTY,
   PROCEDURE,
-  NAMED_PROCEDURE_GROUP,
   MODULE,
-  LABEL
+  LABEL,
+  IMPORT,
+  USE
 };
 
 // detail/symbol.hpp
@@ -85,10 +87,12 @@ struct Table;
 struct Alias;
 struct Local;
 struct Global;
+struct Property;
 struct Procedure;
-struct NamedProcedureGroup;
 struct Module;
 struct Label;
+struct Import;
+struct Use;
 
 struct RootSymbol final {
   using Self = requite::RootSymbol;
@@ -106,10 +110,12 @@ struct RootSymbol final {
     requite::Alias *_alias_ptr;
     requite::Local *_local_ptr;
     requite::Global *_global_ptr;
+    requite::Property *_property_ptr;
     requite::Procedure *_procedure_ptr;
-    requite::NamedProcedureGroup *_named_procedure_group_ptr;
     requite::Module *_module_ptr;
     requite::Label *_label_ptr;
+    requite::Import *_import_ptr;
+    requite::Use *_use_ptr;
   };
 
   // root_symbol.cpp
@@ -127,11 +133,12 @@ struct RootSymbol final {
   void setAsUser(requite::Alias &alias);
   void setAsUser(requite::Local &variable);
   void setAsUser(requite::Global &variable);
+  void setAsUser(requite::Property &variable);
   void setAsUser(requite::Procedure &procedure);
-  void
-  setAsUser(requite::NamedProcedureGroup &procedure_group);
   void setAsUser(requite::Module &module);
   void setAsUser(requite::Label &label);
+  void setAsUser(requite::Import &import);
+  void setAsUser(requite::Use& use);
   void setAsInference();
   void setAsVoid();
   void setAsVariadicArguments();
@@ -180,10 +187,11 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsLocal() const;
   [[nodiscard]] bool getIsGlobal() const;
   [[nodiscard]] bool getIsProcedure() const;
-  [[nodiscard]] bool getIsNamedProcedureGroup() const;
   [[nodiscard]] bool getIsModule() const;
   [[nodiscard]] bool getIsHeader() const;
   [[nodiscard]] bool getIsLabel() const;
+  [[nodiscard]] bool getIsImport() const;
+  [[nodiscard]] bool getIsUse() const;
   [[nodiscard]] bool getHasAllocation() const;
   [[nodiscard]] const requite::Signature &getSignature() const;
   [[nodiscard]] requite::Signature &getSignature();
@@ -212,16 +220,16 @@ struct RootSymbol final {
   [[nodiscard]] bool getHasProcedure() const;
   [[nodiscard]] const requite::Procedure &getProcedure() const;
   [[nodiscard]] requite::Procedure &getProcedure();
-  [[nodiscard]] bool getHasNamedProcedureGroup() const;
-  [[nodiscard]] const requite::NamedProcedureGroup &
-  getNamedProcedureGroup() const;
-  [[nodiscard]] requite::NamedProcedureGroup &getNamedProcedureGroup();
   [[nodiscard]] bool getHasModule() const;
   [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] bool getHasLabel() const;
   [[nodiscard]] const requite::Label &getLabel() const;
   [[nodiscard]] requite::Label &getLabel();
+  [[nodiscard]] const requite::Import &getImport() const;
+  [[nodiscard]] requite::Import &getImport();
+  [[nodiscard]] const requite::Use &getUse() const;
+  [[nodiscard]] requite::Use &getUse();
   [[nodiscard]] requite::AttributeFlags &getUserAttributeFlags();
 };
 

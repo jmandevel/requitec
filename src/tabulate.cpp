@@ -1,15 +1,22 @@
 #include <requite/context.hpp>
-#include <requite/contextualizer0.hpp>
-#include <requite/contextualizer1.hpp>
 #include <requite/expression.hpp>
 #include <requite/local.hpp>
 #include <requite/module.hpp>
 #include <requite/scope.hpp>
 #include <requite/situator.hpp>
+#include <requite/tabulator.hpp>
 
 namespace requite {
 
-bool Contextualizer0::contextualizeModule() {
+bool Context::tabulateModule(requite::Module &module) {
+  requite::Tabulator tabulator(*this, module);
+  if (!tabulator.tabulateModule()) {
+    return false;
+  }
+  return true;
+}
+
+bool Tabulator::tabulateModule() {
   requite::Expression &root = this->getModule().getExpression();
   REQUITE_ASSERT(!root.getHasNext());
   requite::Expression &module_name = root.getBranch();
@@ -19,8 +26,8 @@ bool Contextualizer0::contextualizeModule() {
   return this->getIsOk();
 }
 
-void Contextualizer0::tabulateStatement(requite::Expression &statement,
-                                        bool has_attributes) {
+void Tabulator::tabulateStatement(requite::Expression &statement,
+                                  bool has_attributes) {
   switch (const requite::Opcode opcode = statement.getOpcode()) {
   case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
     REQUITE_ASSERT(!has_attributes);
@@ -70,120 +77,234 @@ void Contextualizer0::tabulateStatement(requite::Expression &statement,
   }
 }
 
-void Contextualizer0::tabulateEntryPoint(requite::Expression &expression,
-                                         bool has_attributes) {
+void Tabulator::tabulateEntryPoint(requite::Expression &expression,
+                                   bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ENTRY_POINT);
   requite::Procedure &procedure = this->getContext().makeEntryPoint();
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
   if (has_attributes) {
     this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
                                         "entry point must not have attributes");
     this->setNotOk();
   }
+  this->getModule().addEntryPoint(procedure);
 }
 
-void Contextualizer0::tabulateFunction(requite::Expression &expression,
-                                       bool has_attributes) {
+void Tabulator::tabulateFunction(requite::Expression &expression,
+                                 bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::FUNCTION);
   requite::Procedure &procedure = this->getContext().makeFunction();
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
   if (has_attributes) {
     // TODO parse attributes
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
-  if (!this->getContext().evaluateName(
-      name, this->getScope(), name_expression))
-      [[unlikely]] {
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
     this->setNotOk();
     return;
   }
-  requite::RootSymbol found = this->getScope().lookupUserSymbol(name);
-  if (found.getIsNone()) {
-    requite::NamedProcedureGroup &group =
-        this->getContext().makeNamedProcedureGroup();
-    group.setName(name);
-    procedure.setNamedProcedureGroup(group);
-    this->getScope().addUserSymbol(group);
-  } else if (found.getIsNamedProcedureGroup()) {
-    requite::NamedProcedureGroup &group = found.getNamedProcedureGroup();
-    procedure.setNamedProcedureGroup(group);
-    this->getScope().addUserSymbol(group);
-  } else {
-    this->getContext().logErrorAlreadySymbolOfName(expression);
+  procedure.setName(name);
+  this->getScope().addUserSymbol(procedure);
+}
+
+void Tabulator::tabulateMethod(requite::Expression &expression,
+                               bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::METHOD);
+  requite::Procedure &procedure = this->getContext().makeMethod();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
     this->setNotOk();
     return;
   }
+  procedure.setName(name);
+  this->getScope().addUserSymbol(procedure);
 }
 
-void Contextualizer0::tabulateMethod(requite::Expression &expression,
-                                     bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateExtension(requite::Expression &expression,
-                                        bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateConstructor(requite::Expression &expression,
-                                          bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateDestructor(requite::Expression &expression,
-                                         bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateObject(requite::Expression &expression,
-                                     bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateAlias(requite::Expression &expression,
-                                    bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateImport(requite::Expression &expression,
-                                     bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateUse(requite::Expression &expression,
+void Tabulator::tabulateExtension(requite::Expression &expression,
                                   bool has_attributes) {
-  // TODO
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::EXTENSION);
+  requite::Procedure &procedure = this->getContext().makeExtension();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
+    this->setNotOk();
+    return;
+  }
+  procedure.setName(name);
+  this->getScope().addUserSymbol(procedure);
 }
 
-void Contextualizer0::tabulateGlobal(requite::Expression &expression,
-                                     bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateProperty(requite::Expression &expression,
-                                       bool has_attributes) {
-  // TODO
-}
-
-void Contextualizer0::tabulateBlock(requite::Expression &expression,
+void Tabulator::tabulateConstructor(requite::Expression &expression,
                                     bool has_attributes) {
-  // TODO
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONSTRUCTOR);
+  requite::Procedure &procedure = this->getContext().makeExtension();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  this->getObject().addConstructor(procedure);
 }
 
-bool Contextualizer1::tabulate_Local(requite::Local *&out_local_ptr,
-                                     llvm::StringRef name,
-                                     requite::Expression &statement) {
-  REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::_LOCAL);
-  requite::Local &local = this->getContext().makeLocal();
-  local.setExpression(statement);
-  statement.setLocal(local);
-  local.setName(name);
-  this->getScope().addUserSymbol(local);
-  out_local_ptr = &local;
-  return true;
+void Tabulator::tabulateDestructor(requite::Expression &expression,
+                                   bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::DESTRUCTOR);
+  requite::Procedure &procedure = this->getContext().makeExtension();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  this->getObject().addDestructor(procedure);
+}
+
+void Tabulator::tabulateObject(requite::Expression &expression,
+                               bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::OBJECT);
+  requite::Object &object = this->getContext().makeObject();
+  object.setExpression(expression);
+  expression.setObject(object);
+  object.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
+    this->setNotOk();
+  } else {
+    object.setName(name);
+    this->getScope().addUserSymbol(object);
+  }
+  this->enterScope(object.getScope());
+  for (requite::Expression &statement : name_expression.getNextSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
+}
+
+void Tabulator::tabulateAlias(requite::Expression &expression,
+                              bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
+  requite::Alias &alias = this->getContext().makeAlias();
+  alias.setExpression(expression);
+  expression.setAlias(alias);
+  alias.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
+    this->setNotOk();
+    return;
+  }
+  alias.setName(name);
+  this->getScope().addUserSymbol(alias);
+}
+
+void Tabulator::tabulateImport(requite::Expression &expression,
+                               bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::IMPORT);
+  requite::Import &import = this->getContext().makeImport();
+  import.setExpression(expression);
+  expression.setImport(import);
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  this->getScope().addImport(import);
+}
+
+void Tabulator::tabulateUse(requite::Expression &expression,
+                            bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::USE);
+  requite::Use &use = this->getContext().makeUse();
+  use.setExpression(expression);
+  expression.setUse(use);
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  this->getScope().addUse(use);
+}
+
+void Tabulator::tabulateGlobal(requite::Expression &expression,
+                               bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL);
+  requite::Global &global = this->getContext().makeGlobal();
+  global.setExpression(expression);
+  expression.setGlobal(global);
+  global.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
+    this->setNotOk();
+    return;
+  }
+  global.setName(name);
+  this->getScope().addUserSymbol(global);
+}
+
+void Tabulator::tabulateProperty(requite::Expression &expression,
+                                 bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
+  requite::Property &property = this->getContext().makeProperty();
+  property.setExpression(expression);
+  expression.setProperty(property);
+  property.setContaining(this->getScope());
+  if (has_attributes) {
+    // TODO parse attributes
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, this->getScope(),
+                                              name_expression)) [[unlikely]] {
+    this->setNotOk();
+    return;
+  }
+  property.setName(name);
+  this->getScope().addUserSymbol(property);
+}
+
+void Tabulator::tabulateBlock(requite::Expression &expression,
+                              bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
+  requite::Block &block = this->getContext().makeBlock();
+  block.setExpression(expression);
+  expression.setBlock(block);
+  block.setContaining(this->getScope());
+  if (has_attributes) {
+    this->getContext().logErrorMustNotHaveAttributeFlags(expression);
+    this->setNotOk();
+  }
 }
 
 } // namespace requite

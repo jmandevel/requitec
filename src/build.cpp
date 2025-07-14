@@ -74,6 +74,8 @@ llvm::Type *Builder::makeLlvmType(const requite::Symbol &type) {
   case requite::RootSymbolType::SIGNED: {
     llvm_type = this->getContext().getLlvmBuilder().getIntNTy(root.getDepth());
     break;
+  default:
+    REQUITE_UNREACHABLE(); // TODO other types
   }
   }
   // TODO do more stuff

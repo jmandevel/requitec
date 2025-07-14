@@ -13,19 +13,19 @@ struct Expression;
 struct Property;
 struct Block;
 
-struct Contextualizer0 final {
-  using Self = requite::Contextualizer0;
+struct Tabulator final {
+  using Self = requite::Tabulator;
 
   std::reference_wrapper<requite::Context> _context_ref;
   std::reference_wrapper<requite::Module> _module_ref;
   requite::Scope *_scope_ptr = nullptr;
   bool _is_ok = true;
 
-  // contextualizer0.cpp
-  Contextualizer0(requite::Context &constext, requite::Module &module);
-  Contextualizer0(const Self &) = delete;
-  Contextualizer0(Self &&) = delete;
-  ~Contextualizer0() = default;
+  // tabulator.cpp
+  Tabulator(requite::Context &constext, requite::Module &module);
+  Tabulator(const Self &) = delete;
+  Tabulator(Self &&) = delete;
+  ~Tabulator() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] requite::Context &getContext();
@@ -42,7 +42,7 @@ struct Contextualizer0 final {
   void setNotOk();
 
   // tabulate.cpp
-  [[nodiscard]] bool contextualizeModule();
+  [[nodiscard]] bool tabulateModule();
   void tabulateStatement(requite::Expression &statement, bool has_attributes);
   void tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
   void tabulateFunction(requite::Expression &expression, bool has_attributes);

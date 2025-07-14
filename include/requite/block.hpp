@@ -25,6 +25,10 @@ struct Block final {
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
+  [[nodiscard]] bool getHasContaining() const;
+  void setContaining(requite::Scope &scope);
+  [[nodiscard]] requite::Scope& getContaining();
+  [[nodiscard]] const requite::Scope &getContaining() const;
 };
 
 } // namespace requite

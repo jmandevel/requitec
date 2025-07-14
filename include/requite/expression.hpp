@@ -25,10 +25,13 @@ struct Scope;
 struct Object;
 struct Local;
 struct Global;
+struct Property;
 struct Procedure;
 struct AnonymousFunction;
 struct Alias;
-struct Node;
+struct Block;
+struct Import;
+struct Use;
 
 struct Expression final {
   using Self = requite::Expression;
@@ -41,8 +44,8 @@ struct Expression final {
   std::variant<std::monostate, std::string, requite::Scope *, requite::Object *,
                requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Global *,
-               requite::Local *, requite::Label *, llvm::APSInt,
-               requite::Symbol, requite::Node *>
+               requite::Property *, requite::Local *, requite::Label *,
+               llvm::APSInt, requite::Symbol, requite::Block *, requite::Import *, requite::Use *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -185,6 +188,10 @@ struct Expression final {
   [[nodiscard]] inline bool getHasGlobal() const;
   [[nodiscard]] inline requite::Global &getGlobal();
   [[nodiscard]] inline const requite::Global &getGlobal() const;
+  inline void setProperty(requite::Property &property);
+  [[nodiscard]] inline bool getHasProperty() const;
+  [[nodiscard]] inline requite::Property &getProperty();
+  [[nodiscard]] inline const requite::Property &getProperty() const;
   inline void setLocal(requite::Local &variable);
   [[nodiscard]] inline bool getHasLocal() const;
   [[nodiscard]] inline requite::Local &getLocal();
@@ -198,10 +205,18 @@ struct Expression final {
   [[nodiscard]] inline llvm::APSInt &emplaceInteger();
   [[nodiscard]] inline llvm::APSInt &getInteger();
   [[nodiscard]] inline const llvm::APSInt &getInteger() const;
-  [[nodiscard]] inline bool getHasNode() const;
-  inline void setNode(requite::Node &node);
-  [[nodiscard]] inline requite::Node &getNode();
-  [[nodiscard]] inline const requite::Node &getNode() const;
+  [[nodiscard]] inline bool getHasBlock() const;
+  inline void setBlock(requite::Block &block);
+  [[nodiscard]] inline requite::Block &getBlock();
+  [[nodiscard]] inline const requite::Block &getBlock() const;
+  [[nodiscard]] inline bool getHasImport() const;
+  inline void setImport(requite::Import &import);
+  [[nodiscard]] inline requite::Import &getImport();
+  [[nodiscard]] inline const requite::Import &getImport() const;
+  [[nodiscard]] inline bool getHasUse() const;
+  inline void setUse(requite::Use &use);
+  [[nodiscard]] inline requite::Use &getUse();
+  [[nodiscard]] inline const requite::Use &getUse() const;
 
   // detail/expression_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

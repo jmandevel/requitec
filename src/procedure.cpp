@@ -3,15 +3,12 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/assert.hpp>
-#include <requite/named_procedure_group.hpp>
 #include <requite/procedure.hpp>
 
 namespace requite {
 
-Procedure::Procedure(requite::ProcedureType type)
-    : _type(type) {
+Procedure::Procedure(requite::ProcedureType type) : _type(type) {
   this->getScope().setProcedure(*this);
-  this->getScope().setTable(this->getTable());
 }
 
 void Procedure::setMangledName(llvm::StringRef name) {
@@ -46,8 +43,21 @@ bool Procedure::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Procedure::operator!=(const Self &rhs) const { return this != &rhs; }
 
-bool Procedure::getIsNamed() const {
-  return requite::getIsNamed(this->getType());
+bool Procedure::getHasName() const { return !this->_name.empty(); }
+
+void Procedure::setName(llvm::StringRef name) {
+  REQUITE_ASSERT(this->getCanHaveName());
+  REQUITE_ASSERT(this->_name.empty());
+  this->_name = name;
+}
+
+llvm::StringRef Procedure::getName() const {
+  REQUITE_ASSERT(!this->_name.empty());
+  return this->_name;
+}
+
+bool Procedure::getCanHaveName() const {
+  return requite::getCanHaveName(this->getType());
 }
 
 bool Procedure::getHasExpression() const {
@@ -78,10 +88,6 @@ requite::Scope &Procedure::getScope() { return this->_scope; }
 
 const requite::Scope &Procedure::getScope() const { return this->_scope; }
 
-requite::Table &Procedure::getTable() { return this->_table; }
-
-const requite::Table &Procedure::getTable() const { return this->_table; }
-
 void Procedure::setAttributeFlags(requite::AttributeFlags attributes) {
   this->_attributes = attributes;
 }
@@ -92,25 +98,6 @@ requite::AttributeFlags &Procedure::getAttributeFlags() {
 
 const requite::AttributeFlags &Procedure::getAttributeFlags() const {
   return this->_attributes;
-}
-
-void Procedure::setNamedProcedureGroup(requite::NamedProcedureGroup &group) {
-  REQUITE_ASSERT(group.getContaining() == this->getContaining());
-  requite::setSingleRef(this->_group_ptr, group);
-  this->_next_ptr = group._first_ptr;
-  group._first_ptr = this;
-}
-
-bool Procedure::getHasNamedProcedureGroup() const {
-  return this->_group_ptr != nullptr;
-}
-
-requite::NamedProcedureGroup &Procedure::getNamedProcedureGroup() {
-  return requite::getRef(this->_group_ptr);
-}
-
-const requite::NamedProcedureGroup &Procedure::getNamedProcedureGroup() const {
-  return requite::getRef(this->_group_ptr);
 }
 
 void Procedure::setNextProcedure(requite::Procedure &procedure) {

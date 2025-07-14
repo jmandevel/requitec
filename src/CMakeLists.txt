@@ -22,9 +22,6 @@ target_sources(
         const_expression_iterator.cpp
         containing_scope_iterator.cpp
         context.cpp
-        contextualize.cpp
-        contextualizer0.cpp
-        contextualizer1.cpp
         escape_sequences.cpp
         evaluate.cpp
         expression_iterator.cpp
@@ -39,10 +36,10 @@ target_sources(
         local.cpp
         log.cpp
         lookup_symbols.cpp
+        lookup_table_entry.cpp
+        lookup_table_result.cpp
         make_symbols.cpp
         module.cpp
-        named_procedure_group.cpp
-        node.cpp
         object.cpp
         opcode.cpp
         options.cpp
@@ -65,14 +62,19 @@ target_sources(
         sub_symbol.cpp
         symbol.cpp
         table.cpp
+        tabulator.cpp
         tabulate.cpp
         tasks.cpp
         token.cpp
         tokenize.cpp
         tokenizer.cpp
         tuple.cpp
+        use.cpp
+        user_symbol.cpp
         global.cpp
         implement.cpp
+        implementor.cpp
+        import.cpp
         write_assembly.cpp
         validate_source.cpp
         write_ast.cpp
