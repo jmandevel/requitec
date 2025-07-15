@@ -465,7 +465,7 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_VALUE;
   case Opcode::NO_DEFAULT_VALUE:
     return _MATTE_VALUE;
-  case Opcode::_INFERENCED_COUNT:
+  case Opcode::_TACIT_COUNT:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::THIS:
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
@@ -485,7 +485,7 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_VALUE;
 
   // BUILTIN TYPES
-  case Opcode::INFERENCED_TYPE:
+  case Opcode::TACIT:
     return  _MATTE_SYMBOL;
   case Opcode::VOID:
     return _MATTE_SYMBOL;
@@ -988,8 +988,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "indeterminate";
   case requite::Opcode::NO_DEFAULT_VALUE:
     return "no_default_value";
-  case requite::Opcode::_INFERENCED_COUNT:
-    return "_inferenced_count";
+  case requite::Opcode::_TACIT_COUNT:
+    return "_tacit_count";
   case requite::Opcode::THIS:
     return "this";
   case requite::Opcode::RESULT:
@@ -1008,8 +1008,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "bits_per_byte";
 
   // BUILTIN TYPES
-  case requite::Opcode::INFERENCED_TYPE:
-    return "inferenced_type";
+  case requite::Opcode::TACIT:
+    return "tacit";
   case requite::Opcode::VOID:
     return "void";
   case requite::Opcode::BOOLEAN:

@@ -242,8 +242,8 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
       ostream << "invalid subtype of ";
       break;
     case requite::SubSymbolType::ARRAY:
-      if (sub.getHasInferencedCount()) {
-        ostream << "inferenced count array of ";
+      if (sub.getHasTacitCount()) {
+        ostream << "tacit count array of ";
       } else {
         ostream << sub.getCount() << " count array of ";
       }

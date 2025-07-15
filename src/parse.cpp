@@ -559,7 +559,7 @@ requite::Expression &Parser::parsePrecedence2() {
       //  ]
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::INFERENCED_TYPE);
+          requite::Expression::makeOperation(requite::Opcode::TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
       precedence_parser.parseBinaryCombination(*this, requite::Opcode::_CAST);
@@ -569,7 +569,7 @@ requite::Expression &Parser::parsePrecedence2() {
     case requite::TokenType::DOUBLE_PIPE_OPERATOR: {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::INFERENCED_TYPE);
+          requite::Expression::makeOperation(requite::Opcode::TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
       precedence_parser.parseBinaryCombination(*this, requite::Opcode::_BITWISE_CAST);

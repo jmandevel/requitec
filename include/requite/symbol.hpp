@@ -252,7 +252,7 @@ struct SubSymbol final {
   requite::SubSymbolType _type = requite::SubSymbolType::NONE;
   requite::AttributeFlags _attributes = {};
   unsigned _count = 0;
-  bool _has_inferenced_count = false;
+  bool _has_tacit_count = false;
 
   // sub_symbol.cpp
   SubSymbol() = default;
@@ -269,8 +269,8 @@ struct SubSymbol final {
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   void setCount(unsigned count);
   [[nodiscard]] unsigned getCount() const;
-  void setHasInferencedCount();
-  [[nodiscard]] bool getHasInferencedCount() const;
+  void setHasTacitCount();
+  [[nodiscard]] bool getHasTacitCount() const;
 };
 
 struct Symbol {

@@ -39,14 +39,14 @@ void SubSymbol::setCount(unsigned count) {
 
 unsigned SubSymbol::getCount() const { return this->_count; }
 
-void SubSymbol::setHasInferencedCount() {
+void SubSymbol::setHasTacitCount() {
   REQUITE_ASSERT(this->getCount() == 0);
-  REQUITE_ASSERT(this->_has_inferenced_count = false);
-  this->_has_inferenced_count = true;
+  REQUITE_ASSERT(this->_has_tacit_count = false);
+  this->_has_tacit_count = true;
 }
 
-bool SubSymbol::getHasInferencedCount() const {
-  return this->_has_inferenced_count;
+bool SubSymbol::getHasTacitCount() const {
+  return this->_has_tacit_count;
 }
 
 } // namespace requite

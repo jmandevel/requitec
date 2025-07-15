@@ -1301,9 +1301,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_INFERENCED_COUNT:
+  case requite::Opcode::_TACIT_COUNT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_INFERENCED_COUNT)) {
+                      requite::Opcode::_TACIT_COUNT)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
@@ -1374,9 +1374,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::INFERENCED_TYPE:
+  case requite::Opcode::TACIT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::INFERENCED_TYPE)) {
+                      requite::Opcode::TACIT)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
@@ -2869,7 +2869,7 @@ void Situator::situate_ArrayExpression(requite::Expression &expression) {
     this->situateBranch<requite::Situation::MATTE_VALUE>(
         "first to penultimate branches", expression, branch_i++, branch);
     if (branch.getOpcode() == requite::Opcode::INDETERMINATE) {
-      branch.changeOpcode(requite::Opcode::_INFERENCED_COUNT);
+      branch.changeOpcode(requite::Opcode::_TACIT_COUNT);
     }
   }
 }

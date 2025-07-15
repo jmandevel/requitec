@@ -246,9 +246,9 @@ enum class Opcode : unsigned {
   // provided.
   NO_DEFAULT_VALUE,
   // an element count for casted arrays, denoting that the count should be
-  // inferenced from the casted value. This is implicitly inserted into array
+  // inferred from the casted value. This is implicitly inserted into array
   // operations when no count branch is provided.
-  _INFERENCED_COUNT,
+  _TACIT_COUNT,
   // a variable for accessing the instance an object from within members.
   THIS,
   // a reference to the return value of a procedure.
@@ -267,7 +267,7 @@ enum class Opcode : unsigned {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  INFERENCED_TYPE,
+  TACIT,
   VOID,
   BOOLEAN,
   WORD,
