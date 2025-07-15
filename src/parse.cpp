@@ -534,11 +534,7 @@ requite::Expression &Parser::parsePrecedence2() {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseAttribute(*this, requite::Opcode::OWNING);
       continue;
-    default:
-      break;
-    }
-    if (type == requite::TokenType::SEMICOLON_OPERATOR ||
-        type == requite::TokenType::DOUBLE_SEMICOLON_OPERATOR) {
+    case requite::TokenType::SEMICOLON_OPERATOR: {
       // NOTE:
       //  cast operators are parsed here a second time in order to handle
       //  implicit inferencences. implicit inferencences must be added when
@@ -562,26 +558,25 @@ requite::Expression &Parser::parsePrecedence2() {
       //    0
       //  ]
       std::ignore = this->checkIsNormativeRequiteOk();
-      if (!token.getHasBinaryOperatorSpacing() ||
-          !precedence_parser.getHasOuter()) {
-        precedence_parser.appendBranch(this->parsePrecedence1());
-        break;
-      }
-      const requite::Opcode opcode =
-          type == requite::TokenType::SEMICOLON_OPERATOR
-              ? requite::Opcode::_CAST
-              : requite::Opcode::_BITWISE_CAST;
       requite::Expression &inference =
           requite::Expression::makeOperation(requite::Opcode::INFERENCED_TYPE);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
-      precedence_parser.parseBinaryCombination(*this, opcode);
-      // NOTE:
-      //  this is a bit of a clever hack...
-      //  we need to go up to precedence 9 for whatever follows the
-      //  cast. this wierdness is required because casts are technically in
-      //  precedence 9.
+      precedence_parser.parseBinaryCombination(*this, requite::Opcode::_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
+      break;
+    }
+    case requite::TokenType::DOUBLE_PIPE_OPERATOR: {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      requite::Expression &inference =
+          requite::Expression::makeOperation(requite::Opcode::INFERENCED_TYPE);
+      inference.setSource(token);
+      precedence_parser.appendBranch(inference);
+      precedence_parser.parseBinaryCombination(*this, requite::Opcode::_BITWISE_CAST);
+      precedence_parser.appendBranch(this->parsePrecedence9());
+      break;
+    }
+    default:
       break;
     }
     precedence_parser.setRecent(this->parsePrecedence1());
