@@ -2124,7 +2124,7 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
     this->setNotOk();
     return;
   }
-  requite::Expression &second = expression.getBranch();
+  requite::Expression &second = first.getNext();
   this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression, 1,
                                                 second);
 }
