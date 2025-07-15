@@ -137,8 +137,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE;
-  case Opcode::_QUESTION:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
 
   // LOGICAL
   case Opcode::_LOGICAL_AND:
@@ -463,8 +461,8 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::INDEX:
     return _MATTE_VALUE;
-  case Opcode::_INDETERMINATE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::INDETERMINATE:
+    return _MATTE_VALUE;
   case Opcode::NO_DEFAULT_VALUE:
     return _MATTE_VALUE;
   case Opcode::_INFERENCED_COUNT:
@@ -487,8 +485,8 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_VALUE;
 
   // BUILTIN TYPES
-  case Opcode::_INFERENCED_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
+  case Opcode::INFERENCED_TYPE:
+    return  _MATTE_SYMBOL;
   case Opcode::VOID:
     return _MATTE_SYMBOL;
   case Opcode::BOOLEAN:
@@ -699,9 +697,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_trip";
   case requite::Opcode::_CONDUIT:
     return "_conduit";
-  case requite::Opcode::_QUESTION:
-    return "_question";
-
   // LOGICAL
   case requite::Opcode::_LOGICAL_AND:
     return "_logical_and";
@@ -989,8 +984,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "value";
   case requite::Opcode::INDEX:
     return "index";
-  case requite::Opcode::_INDETERMINATE:
-    return "_indeterminate";
+  case requite::Opcode::INDETERMINATE:
+    return "indeterminate";
   case requite::Opcode::NO_DEFAULT_VALUE:
     return "no_default_value";
   case requite::Opcode::_INFERENCED_COUNT:
@@ -1013,8 +1008,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "bits_per_byte";
 
   // BUILTIN TYPES
-  case requite::Opcode::_INFERENCED_TYPE:
-    return "_inferenced_type";
+  case requite::Opcode::INFERENCED_TYPE:
+    return "inferenced_type";
   case requite::Opcode::VOID:
     return "void";
   case requite::Opcode::BOOLEAN:

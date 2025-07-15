@@ -556,7 +556,7 @@ requite::Expression &Parser::parsePrecedence2() {
       //    [_ascribe    // this is created to apply the mutable attribute
       //      [_mutable] // this is from the `
       //      [_reference   // this is from the &
-      //        [_inferenced_type] // this is implicit!
+      //        [inferenced_type] // this is implicit!
       //      ]
       //    ]
       //    0
@@ -572,7 +572,7 @@ requite::Expression &Parser::parsePrecedence2() {
               ? requite::Opcode::_CAST
               : requite::Opcode::_BITWISE_CAST;
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::_INFERENCED_TYPE);
+          requite::Expression::makeOperation(requite::Opcode::INFERENCED_TYPE);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
       precedence_parser.parseBinaryCombination(*this, opcode);
@@ -611,7 +611,7 @@ requite::Expression &Parser::parsePrecedence2() {
                 ? requite::Opcode::_CAST
                 : requite::Opcode::_BITWISE_CAST;
         requite::Expression &inference = requite::Expression::makeOperation(
-            requite::Opcode::_INFERENCED_TYPE);
+            requite::Opcode::INFERENCED_TYPE);
         inference.setSource(following_token);
         precedence_parser.appendBranch(inference);
         precedence_parser.parseBinaryCombination(*this, cast_opcode);
@@ -683,9 +683,6 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::BACKSLASH_OPERATOR:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseIdentify();
-  case requite::TokenType::QUESTION_OPERATOR:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseNullaryOperator(requite::Opcode::_QUESTION);
   case requite::TokenType::IDENTIFIER_LITERAL:
     return this->parseIdentifierLiteral();
   case requite::TokenType::CODEUNIT_LITERAL:

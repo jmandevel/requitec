@@ -177,14 +177,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situate_ConduitExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_QUESTION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_QUESTION)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_QuestionExpression<SITUATION_PARAM>(expression);
-    }
-    break;
   case requite::Opcode::_LOGICAL_AND:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_LOGICAL_AND)) {
@@ -1293,9 +1285,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_INDETERMINATE:
+  case requite::Opcode::INDETERMINATE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_INDETERMINATE)) {
+                      requite::Opcode::INDETERMINATE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
@@ -1382,9 +1374,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_INFERENCED_TYPE:
+  case requite::Opcode::INFERENCED_TYPE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_INFERENCED_TYPE)) {
+                      requite::Opcode::INFERENCED_TYPE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
@@ -2526,22 +2518,6 @@ Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
 }
 
 template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_QuestionExpression(requite::Expression &expression) {
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                SITUATION_PARAM == requite::Situation::POSITIONAL_FIELD ||
-                SITUATION_PARAM == requite::Situation::MATTE_SYMBOL) {
-    this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    expression.changeOpcode(requite::Opcode::_INFERENCED_TYPE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    expression.changeOpcode(requite::Opcode::_INDETERMINATE);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
 void Situator::situateAssignArithmeticExpression(
     requite::Expression &expression, requite::Opcode arithmetic_opcode) {
   REQUITE_ASSERT(
@@ -2892,7 +2868,7 @@ void Situator::situate_ArrayExpression(requite::Expression &expression) {
     }
     this->situateBranch<requite::Situation::MATTE_VALUE>(
         "first to penultimate branches", expression, branch_i++, branch);
-    if (branch.getOpcode() == requite::Opcode::_INDETERMINATE) {
+    if (branch.getOpcode() == requite::Opcode::INDETERMINATE) {
       branch.changeOpcode(requite::Opcode::_INFERENCED_COUNT);
     }
   }

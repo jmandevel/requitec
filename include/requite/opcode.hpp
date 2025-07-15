@@ -49,7 +49,6 @@ enum class Opcode : unsigned {
   _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   _TRIP,
   _CONDUIT,
-  _QUESTION,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.
@@ -240,7 +239,7 @@ enum class Opcode : unsigned {
   // its memory should not be initialized and should be left containing garbage
   // memory. This is implicitly inserted into local and global operations when
   // no value branch is provided.
-  _INDETERMINATE,
+  INDETERMINATE,
   // a value to be assigned to a property, denoting that it has no default value
   // and needs to be explicitly initialized in each constructor. This is
   // implicitly inserted into property operations when no value branch is
@@ -268,7 +267,7 @@ enum class Opcode : unsigned {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  _INFERENCED_TYPE,
+  INFERENCED_TYPE,
   VOID,
   BOOLEAN,
   WORD,
