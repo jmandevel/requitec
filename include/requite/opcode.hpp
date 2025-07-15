@@ -164,6 +164,7 @@ enum class Opcode : unsigned {
   _REFERENCE,
   _POINTER,
   _FAT_POINTER,
+  _VARIANT,
 
   // TYPE MODIFIER
   MUTABLE,

@@ -416,58 +416,8 @@ requite::Expression &Parser::parsePrecedence4() {
   return precedence_parser.getOuter();
 }
 
-// EARLY GROUPINGS
-requite::Expression &Parser::parsePrecedence3() {
-  requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence2());
-  while (!this->getIsDone()) {
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseHorned(
-          *this, requite::Opcode::_CALL_OR_SIGNATURE,
-          requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
-      const requite::Token &next_token = this->getToken();
-      switch (const requite::TokenType type = next_token.getType()) {
-      case requite::TokenType::DOT_OPERATOR:
-        [[fallthrough]];
-      case requite::TokenType::DOUBLE_DOT_OPERATOR:
-        [[fallthrough]];
-      case requite::TokenType::ARROW_OPERATOR:
-        [[fallthrough]];
-      default:
-        break;
-      }
-      continue;
-    }
-    case requite::TokenType::LEFT_COMPAS_GROUPING: {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
-                                    requite::TokenType::RIGHT_COMPAS_GROUPING);
-      const requite::Token &next_token = this->getToken();
-      switch (const requite::TokenType type = next_token.getType()) {
-      case requite::TokenType::DOT_OPERATOR:
-        [[fallthrough]];
-      case requite::TokenType::DOUBLE_DOT_OPERATOR:
-        [[fallthrough]];
-      case requite::TokenType::ARROW_OPERATOR:
-        [[fallthrough]];
-      default:
-        break;
-      }
-      continue;
-    }
-    default:
-      break;
-    }
-    break;
-  }
-  return precedence_parser.getOuter();
-}
-
 // LATE UNARY OPERATORS (things get wierd here)
-requite::Expression &Parser::parsePrecedence2() {
+requite::Expression &Parser::parsePrecedence3() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
@@ -478,11 +428,23 @@ requite::Expression &Parser::parsePrecedence2() {
         break;
       }
       std::ignore = this->checkIsNormativeRequiteOk();
-      requite::Expression &operation = requite::Expression::makeOperation(
-          requite::Opcode::_INFERENCED_COUNT);
+      requite::Expression &operation =
+          requite::Expression::makeOperation(requite::Opcode::_TACIT_COUNT);
       operation.setSourceInsertedBefore(token);
       precedence_parser.setRecent(operation);
       precedence_parser.parseNary(*this, requite::Opcode::_ARRAY);
+      continue;
+    }
+    case requite::TokenType::QUESTION_OPERATOR: {
+      if (!token.getHasUnaryOperatorSpacing()) {
+        break;
+      }
+      std::ignore = this->checkIsNormativeRequiteOk();
+      requite::Expression &operation =
+          requite::Expression::makeOperation(requite::Opcode::_NULL_TYPE);
+      operation.setSourceInsertedBefore(token);
+      precedence_parser.setRecent(operation);
+      precedence_parser.parseNary(*this, requite::Opcode::_VARIANT);
       continue;
     }
     case requite::TokenType::AT_OPERATOR:
@@ -534,7 +496,10 @@ requite::Expression &Parser::parsePrecedence2() {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseAttribute(*this, requite::Opcode::OWNING);
       continue;
-    case requite::TokenType::SEMICOLON_OPERATOR: {
+    default:
+      break;
+    }
+    if (type == requite::TokenType::SEMICOLON_OPERATOR) {
       // NOTE:
       //  cast operators are parsed here a second time in order to handle
       //  implicit inferencences. implicit inferencences must be added when
@@ -552,7 +517,7 @@ requite::Expression &Parser::parsePrecedence2() {
       //    [_ascribe    // this is created to apply the mutable attribute
       //      [_mutable] // this is from the `
       //      [_reference   // this is from the &
-      //        [inferenced_type] // this is implicit!
+      //        [tacit] // this is implicit!
       //      ]
       //    ]
       //    0
@@ -565,21 +530,18 @@ requite::Expression &Parser::parsePrecedence2() {
       precedence_parser.parseBinaryCombination(*this, requite::Opcode::_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
       break;
-    }
-    case requite::TokenType::DOUBLE_PIPE_OPERATOR: {
+    } else if (type == requite::TokenType::DOUBLE_PIPE_OPERATOR) {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
           requite::Expression::makeOperation(requite::Opcode::TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
-      precedence_parser.parseBinaryCombination(*this, requite::Opcode::_BITWISE_CAST);
+      precedence_parser.parseBinaryCombination(*this,
+                                               requite::Opcode::_BITWISE_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
       break;
     }
-    default:
-      break;
-    }
-    precedence_parser.setRecent(this->parsePrecedence1());
+    precedence_parser.setRecent(this->parsePrecedence2());
     if (this->getIsDone()) {
       precedence_parser.appendRecent();
       break;
@@ -588,38 +550,46 @@ requite::Expression &Parser::parsePrecedence2() {
     switch (const requite::TokenType post_type = post_token.getType()) {
     case requite::TokenType::COMMA_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseNary(*this,
-                                        requite::Opcode::_ASCRIBE_LAST_BRANCH);
+      precedence_parser.parseNary(*this, requite::Opcode::_ASCRIBE_LAST_BRANCH);
       continue;
-    case requite::TokenType::HASH_OPERATOR: {
+    case requite::TokenType::HASH_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNary(*this, requite::Opcode::_ARRAY);
-      const requite::Token &following_token = this->getToken();
-      switch (const requite::TokenType following_type =
-                  following_token.getType()) {
-      case requite::TokenType::SEMICOLON_OPERATOR:
-        [[fallthrough]];
-      case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR: {
-        std::ignore = this->checkIsNormativeRequiteOk();
-        const requite::Opcode cast_opcode =
-            following_type == requite::TokenType::SEMICOLON_OPERATOR
-                ? requite::Opcode::_CAST
-                : requite::Opcode::_BITWISE_CAST;
-        requite::Expression &inference = requite::Expression::makeOperation(
-            requite::Opcode::INFERENCED_TYPE);
-        inference.setSource(following_token);
-        precedence_parser.appendBranch(inference);
-        precedence_parser.parseBinaryCombination(*this, cast_opcode);
-        precedence_parser.appendBranch(this->parsePrecedence9());
-        break;
-      }
-      default:
-        continue;
-      }
-      break;
-    }
+      continue;
+    case requite::TokenType::QUESTION_OPERATOR:
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseNary(*this, requite::Opcode::_VARIANT);
+      continue;
     default:
       precedence_parser.appendRecent();
+      break;
+    }
+    break;
+  }
+  return precedence_parser.getOuter();
+}
+
+// EARLY GROUPINGS
+requite::Expression &Parser::parsePrecedence2() {
+  requite::PrecedenceParser precedence_parser;
+  precedence_parser.appendBranch(this->parsePrecedence1());
+  while (!this->getIsDone()) {
+    const requite::Token &token = this->getToken();
+    switch (const requite::TokenType type = token.getType()) {
+    case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseHorned(
+          *this, requite::Opcode::_CALL_OR_SIGNATURE,
+          requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
+      continue;
+    }
+    case requite::TokenType::LEFT_COMPAS_GROUPING: {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
+                                    requite::TokenType::RIGHT_COMPAS_GROUPING);
+      continue;
+    }
+    default:
       break;
     }
     break;
@@ -1139,7 +1109,6 @@ bool Parser::checkIsIntermediateRequiteOk() {
   }
   return true;
 }
-
 
 void Parser::logErrorBinaryNoLValue(const requite::Token &token) {
   this->getContext().logSourceMessage(
