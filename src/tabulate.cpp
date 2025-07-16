@@ -240,8 +240,7 @@ void Tabulator::tabulateEntryPoint(requite::Expression &expression,
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
   if (has_attributes) {
-    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
-                                        "entry_point must not have attributes");
+    this->getContext().logErrorMustNotHaveAttributes(expression);
     this->setNotOk();
   }
   this->getModule().addEntryPoint(procedure);
@@ -436,8 +435,7 @@ void Tabulator::tabulateTable(requite::Expression &expression,
   expression.setTable(table);
   table.setContaining(this->getScope());
   if (has_attributes) {
-    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
-                                        "table must not have attributes");
+    this->getContext().logErrorMustNotHaveAttributes(expression);
     this->setNotOk();
   }
   requite::Expression &name_expression = expression.getBranch();
@@ -560,8 +558,7 @@ void Tabulator::tabulate_Local(requite::Expression &expression, bool has_attribu
   expression.setLocal(local);
   local.setContaining(this->getScope());
   if (has_attributes) {
-    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
-                                        "_local must not have attributes");
+    this->getContext().logErrorMustNotHaveAttributes(expression);
     this->setNotOk();
   }
   requite::Expression &name_expression = expression.getBranch();
