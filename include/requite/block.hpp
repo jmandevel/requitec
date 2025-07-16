@@ -2,6 +2,7 @@
 
 #include <requite/scope.hpp>
 #include <requite/attribute_flags.hpp>
+#include <requite/block_type.hpp>
 
 namespace requite {
 
@@ -10,6 +11,7 @@ struct Expression;
 struct Block final {
     using Self = requite::Block;
 
+    requite::BlockType _type = requite::BlockType::NONE;
     requite::Scope _scope = {};
     requite::Expression *_expression_ptr = nullptr;
     requite::AttributeFlags _attributes = {};
@@ -21,6 +23,8 @@ struct Block final {
     ~Block() = default;
     Self& operator=(const Self&) = delete;
     Self& operator=(Self&&) = delete;
+    [[nodiscard]] requite::BlockType getType();
+    void setType(requite::BlockType type);
     [[nodiscard]] requite::Scope& getScope();
     [[nodiscard]] const requite::Scope& getScope() const;
     [[nodiscard]] bool getHasContaining() const;

@@ -3,6 +3,15 @@
 
 namespace requite {
 
+requite::BlockType Block::getType() {
+  return this->_type;
+}
+
+void Block::setType(requite::BlockType type) {
+  REQUITE_ASSERT(this->_type == requite::BlockType::NONE);
+  this->_type = type;
+}
+
 Block::Block() { this->getScope().setBlock(*this); }
 
 requite::Scope &Block::getScope() { return this->_scope; }

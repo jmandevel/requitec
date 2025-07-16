@@ -602,6 +602,7 @@ void Tabulator::tabulateIf(requite::Expression &expression,
                            bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::IF);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::IF);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -616,6 +617,7 @@ void Tabulator::tabulateElseIf(requite::Expression &expression,
                                bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ELSE_IF);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::ELSE_IF);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -630,6 +632,7 @@ void Tabulator::tabulateElse(requite::Expression &expression,
                              bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ELSE);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::ELSE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -644,6 +647,7 @@ void Tabulator::tabulateSwitch(requite::Expression &expression,
                                bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SWITCH);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::SWITCH);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -658,6 +662,7 @@ void Tabulator::tabulateCase(requite::Expression &expression,
                              bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CASE);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::CASE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -672,6 +677,7 @@ void Tabulator::tabulateDefaultCase(requite::Expression &expression,
                                     bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::DEFAULT_CASE);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::DEFAULT_CASE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -686,6 +692,7 @@ void Tabulator::tabulateFor(requite::Expression &expression,
                             bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::FOR);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::FOR);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -700,6 +707,7 @@ void Tabulator::tabulateWhile(requite::Expression &expression,
                               bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::WHILE);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::WHILE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -714,6 +722,7 @@ void Tabulator::tabulateDoWhile(requite::Expression &expression,
                                 bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::DO_WHILE);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::DO_WHILE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -728,6 +737,7 @@ void Tabulator::tabulateLoop(requite::Expression &expression,
                              bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::LOOP);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::LOOP);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
@@ -742,6 +752,7 @@ void Tabulator::tabulateScope(requite::Expression &expression,
                               bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SCOPE);
   requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::SCOPE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
