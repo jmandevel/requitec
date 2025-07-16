@@ -9,8 +9,8 @@
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
 #include <requite/options.hpp>
-#include <requite/token.hpp>
 #include <requite/symbol.hpp>
+#include <requite/token.hpp>
 
 #include <llvm/Support/raw_ostream.h>
 
@@ -87,14 +87,8 @@ void Context::logErrorDuplicateAttribute(requite::Expression &expression,
                              " attribute is ascribed more than once");
 }
 
-void Context::logErrorMustNotHaveAttributeFlags(
-    requite::Expression &expression) {
-  this->logSourceMessage(expression, requite::LogType::ERROR,
-                         llvm::Twine(requite::getName(expression.getOpcode())) +
-                             " must not have attributes");
-}
-
-void Context::logErrorNumericParse(requite::Expression &expression, requite::NumericResult result) {
+void Context::logErrorNumericParse(requite::Expression &expression,
+                                   requite::NumericResult result) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          requite::getDescription(result));
 }
@@ -112,6 +106,13 @@ void Context::logErrorInvalidExpectedTypeForOperation(
                          llvm::Twine("operation of opcode \"") +
                              requite::getName(expression.getOpcode()) +
                              "\" can not result in value of type" + type_name);
+}
+
+void Context::logErrorMustNotHaveAttributes(requite::Expression &expression) {
+  llvm::SmallString<32> buffer;
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine(requite::getName(expression.getOpcode())) +
+                             " must not have attributes");
 }
 
 } // namespace requite

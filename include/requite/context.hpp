@@ -377,13 +377,13 @@ struct Context final : public requite::_ContextLlvmContext {
   void logErrorAlreadySymbolOfName(requite::Expression &expression);
   void logErrorDuplicateAttribute(requite::Expression &expression,
                                   requite::AttributeType type);
-  void logErrorMustNotHaveAttributeFlags(requite::Expression &expression);
   void logNotSupportedYet(requite::Expression &expression);
   void logErrorNumericParse(requite::Expression &expression,
                             requite::NumericResult result);
   void
   logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
                                           const requite::Symbol &expected_type);
+  void logErrorMustNotHaveAttributes(requite::Expression &expression);
 
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>
