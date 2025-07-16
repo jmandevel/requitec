@@ -15,8 +15,6 @@ getName(requite::UserSymbolType type) {
     return "module";
   case requite::UserSymbolType::ALIAS:
     return "alias";
-  case requite::UserSymbolType::BLOCK:
-    return "block";
   case requite::UserSymbolType::GLOBAL:
     return "global";
   case requite::UserSymbolType::IMPORT:

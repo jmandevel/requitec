@@ -140,10 +140,10 @@ bool Context::resolveTypeAttributes(requite::AttributeFlags &flags,
   for (requite::Expression &attribute : first.getHorizontalSubrange()) {
     const requite::Opcode opcode = attribute.getOpcode();
     const requite::AttributeType type = requite::getAttributeType(opcode);
-    if (!requite::getIsTypeAttribute(type)) {
+    if (!requite::getCanBeTypeAttribute(type)) {
       this->logSourceMessage(attribute, requite::LogType::ERROR,
                              llvm::Twine(requite::getName(type)) +
-                                 " attribute is not type attribute");
+                                 requite::getErrorMessageEnding(requite::AttributeCategory::TYPE));
       is_ok = false;
       continue;
     }

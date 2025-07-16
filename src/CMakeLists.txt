@@ -11,7 +11,6 @@ target_sources(
 target_sources(
     librequite
     PRIVATE
-        block.cpp
         alias.cpp
         anonymous_function.cpp
         anonymous_object.cpp

@@ -186,7 +186,6 @@ enum class Opcode : unsigned {
   _NULL_TYPE,
   _STRUCTURED_BINDING,
   _IGNORE,
-  _BLOCK,
 
   // STATIC POLYMORPHISM
   TEMPLATE,
@@ -216,7 +215,6 @@ enum class Opcode : unsigned {
   CONTINUE,
   FALLTHROUGH,
   EXIT,
-  GOTO,
   LABEL,
 
   // SYMBOLS
@@ -321,7 +319,6 @@ enum class Opcode : unsigned {
   UNREACHABLE,
 
   // ATTRIBUTES
-  EXTERNAL,
   NOT_FINAL,
   MAY_DISCARD,
   INLINE,
@@ -394,8 +391,6 @@ getUniversalizedSymbol(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasLabelData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getHasBlockData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasGlobalData(requite::Opcode opcode);
 

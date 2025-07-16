@@ -30,7 +30,6 @@ struct Property;
 struct Procedure;
 struct AnonymousFunction;
 struct Alias;
-struct Block;
 struct Import;
 struct Use;
 
@@ -46,7 +45,7 @@ struct Expression final {
                requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Global *,
                requite::Property *, requite::Local *, requite::Label *,
-               llvm::APSInt, requite::Symbol, requite::Block *, requite::Import *, requite::Use *>
+               llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -210,10 +209,6 @@ struct Expression final {
   [[nodiscard]] inline llvm::APSInt &emplaceInteger();
   [[nodiscard]] inline llvm::APSInt &getInteger();
   [[nodiscard]] inline const llvm::APSInt &getInteger() const;
-  [[nodiscard]] inline bool getHasBlock() const;
-  inline void setBlock(requite::Block &block);
-  [[nodiscard]] inline requite::Block &getBlock();
-  [[nodiscard]] inline const requite::Block &getBlock() const;
   [[nodiscard]] inline bool getHasImport() const;
   inline void setImport(requite::Import &import);
   [[nodiscard]] inline requite::Import &getImport();

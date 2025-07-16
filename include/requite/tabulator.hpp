@@ -1,7 +1,7 @@
 #pragma once
 
-#include <requite/user_symbol.hpp>
 #include <requite/attribute_flags.hpp>
+#include <requite/user_symbol.hpp>
 
 #include <functional>
 #include <unordered_map>
@@ -46,12 +46,17 @@ struct Tabulator final {
 
   // tabulate.cpp
   [[nodiscard]] bool tabulateModule();
-  void tabulateStatement(requite::Expression &statement, bool has_attributes);
+  void tabulateModuleStatement(requite::Expression &statement, bool has_attributes);
+  void tabulateTableStatement(requite::Expression &statement, bool has_attributes);
+  void tabulateObjectStatement(requite::Expression &statement, bool has_attributes);
+  void tabulateMatteLocalStatement(requite::Expression &statement,
+                              bool has_attributes);
   void tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
   void tabulateFunction(requite::Expression &expression, bool has_attributes);
   void tabulateMethod(requite::Expression &expression, bool has_attributes);
   void tabulateExtension(requite::Expression &expression, bool has_attributes);
-  void tabulateConstructor(requite::Expression &expression, bool has_attributes);
+  void tabulateConstructor(requite::Expression &expression,
+                           bool has_attributes);
   void tabulateDestructor(requite::Expression &expression, bool has_attributes);
   void tabulateObject(requite::Expression &expression, bool has_attributes);
   void tabulateTable(requite::Expression &expression, bool has_attributes);
@@ -60,13 +65,25 @@ struct Tabulator final {
   void tabulateUse(requite::Expression &expression, bool has_attributes);
   void tabulateGlobal(requite::Expression &expression, bool has_attributes);
   void tabulateProperty(requite::Expression &expression, bool has_attributes);
-  void tabulateBlock(requite::Expression &expression, bool has_attributes);
+  void tabulateIf(requite::Expression &expression, bool has_attributes);
+  void tabulateElseIf(requite::Expression &expression, bool has_attributes);
+  void tabulateElse(requite::Expression &expression, bool has_attributes);
+  void tabulateSwitch(requite::Expression &expression, bool has_attributes);
+  void tabulateCase(requite::Expression &expression, bool has_attributes);
+  void tabulateDefaultCase(requite::Expression &expression,
+                           bool has_attributes);
+  void tabulateFor(requite::Expression &expression, bool has_attributes);
+  void tabulateWhile(requite::Expression &expression, bool has_attributes);
+  void tabulateDoWhile(requite::Expression &expression, bool has_attributes);
+  void tabulateLoop(requite::Expression &expression, bool has_attributes);
+  void tabulateScope(requite::Expression &expression, bool has_attributes);
 
-  // detail/tabulate_attributes.hpp
-  template<requite::UserSymbolType TYPE_PARAM>
-  void tabulateAttributes(requite::AttributeFlags& out_flags, requite::Expression &expression);
+  // detail/tabulate.hpp
+  template <requite::AttributeCategory CATEGORY_PARAM>
+  requite::AttributeFlags
+  tabulateAttributes(requite::Expression &expression);
 };
 
 } // namespace requite
 
-#include <requite/detail/tabulate_attributes.hpp>
+#include <requite/detail/tabulate.hpp>

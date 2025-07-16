@@ -111,12 +111,6 @@ requite::Label &Context::makeLabel() {
   return requite::getRef(label_uptr);
 }
 
-requite::Block &Context::makeBlock() {
-  std::unique_ptr<requite::Block> &block_uptr =
-      this->_block_uptrs.emplace_back(std::make_unique<requite::Block>());
-  return requite::getRef(block_uptr);
-}
-
 requite::Import &Context::makeImport() {
   std::unique_ptr<requite::Import> &import_ptr =
       this->_import_uptrs.emplace_back(std::make_unique<requite::Import>());
@@ -181,15 +175,6 @@ std::vector<std::unique_ptr<requite::Local>> &Context::getLocalUptrs() {
 const std::vector<std::unique_ptr<requite::Local>> &
 Context::getLocalUptrs() const {
   return this->_local_uptrs;
-}
-
-std::vector<std::unique_ptr<requite::Block>> &Context::getBlockUptrs() {
-  return this->_block_uptrs;
-}
-
-const std::vector<std::unique_ptr<requite::Block>> &
-Context::getBlockUptrs() const {
-  return this->_block_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::Global>> &Context::getGlobalUptrs() {

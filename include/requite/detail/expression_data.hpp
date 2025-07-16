@@ -285,29 +285,6 @@ inline const llvm::APSInt &Expression::getInteger() const {
   return std::get<llvm::APSInt>(this->_data);
 }
 
-  inline bool Expression::getHasBlock() const {
-  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
-  return std::holds_alternative<requite::Block *>(this->_data) &&
-         std::get<requite::Block *>(this->_data) != nullptr;
-  }
-
-  inline void Expression::setBlock(requite::Block &block) {
-  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
-  this->_data.emplace<requite::Block *>(&block);
-  }
-
-  inline requite::Block &Expression::getBlock() {
-  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasBlock());
-  return requite::getRef(std::get<requite::Block *>(this->_data));
-  }
-
-  inline const requite::Block &Expression::getBlock() const {
-  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasBlock());
-  return requite::getRef(std::get<requite::Block *>(this->_data));
-  }
-
 inline bool Expression::getHasImport() const {
   REQUITE_ASSERT(requite::getHasImportData(this->getOpcode()));
   return std::holds_alternative<requite::Import *>(this->_data);

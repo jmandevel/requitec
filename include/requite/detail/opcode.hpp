@@ -23,48 +23,27 @@ namespace requite {
 namespace _opcode {
 enum _OpcodeFlags : std::uint32_t {
   _NONE = 0,
-  _CONVERGING =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(0)),
-  _INTERNAL_USE_ONLY =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(1)),
-  _INTERMEDIATE_OPERATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(2)),
-  _MODULE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(3)),
-  _TABLE_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(4)),
-  _MATTE_LOCAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(5)),
-  _VALUE_REFLECTIVE_LOCAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(6)),
-  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(7)),
-  _OBJECT_STATEMENT =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(8)),
-  _MATTE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(9)),
-  _VALUE_REFLECTIVE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(10)),
-  _SYMBOL_REFLECTIVE_DESTINATION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(11)),
-  _MATTE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(12)),
-  _VALUE_REFLECTIVE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(13)),
-  _SYMBOL_REFLECTIVE_VALUE =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(15)),
-  _MATTE_JUNCTION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(16)),
-  _VALUE_REFLECTIVE_JUNCTION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(17)),
-  _SYMBOL_REFLECTIVE_JUNCTION =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(18)),
-  _MATTE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(19)),
-  _VALUE_REFLECTIVE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(20)),
-  _SYMBOL_REFLECTIVE_SYMBOL =
-      (static_cast<std::uint32_t>(1) << static_cast<std::uint32_t>(21)),
+  _CONVERGING = requite::getBit(0),
+  _INTERNAL_USE_ONLY = requite::getBit(1),
+  _INTERMEDIATE_OPERATION = requite::getBit(2),
+  _MODULE_STATEMENT = requite::getBit(3),
+  _TABLE_STATEMENT = requite::getBit(4),
+  _MATTE_LOCAL_STATEMENT = requite::getBit(5),
+  _VALUE_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(6),
+  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(7),
+  _OBJECT_STATEMENT = requite::getBit(8),
+  _MATTE_DESTINATION = requite::getBit(9),
+  _VALUE_REFLECTIVE_DESTINATION = requite::getBit(10),
+  _SYMBOL_REFLECTIVE_DESTINATION = requite::getBit(11),
+  _MATTE_VALUE = requite::getBit(12),
+  _VALUE_REFLECTIVE_VALUE = requite::getBit(13),
+  _SYMBOL_REFLECTIVE_VALUE = requite::getBit(14),
+  _MATTE_JUNCTION = requite::getBit(15),
+  _VALUE_REFLECTIVE_JUNCTION = requite::getBit(16),
+  _SYMBOL_REFLECTIVE_JUNCTION = requite::getBit(17),
+  _MATTE_SYMBOL = requite::getBit(18),
+  _VALUE_REFLECTIVE_SYMBOL = requite::getBit(19),
+  _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(20),
   _ANY = _MODULE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT |
          _VALUE_REFLECTIVE_LOCAL_STATEMENT |
          _SYMBOL_REFLECTIVE_LOCAL_STATEMENT | _OBJECT_STATEMENT |
@@ -132,8 +111,7 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION;
   case Opcode::_TRIP:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_SYMBOL | _MODULE_STATEMENT | _TABLE_STATEMENT |
-           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
+           _MATTE_SYMBOL;
   case Opcode::_CONDUIT:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE;
@@ -379,8 +357,6 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::_IGNORE:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_BLOCK:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT;
 
   // STATIC POLYMORPHISM
   case Opcode::TEMPLATE:
@@ -409,11 +385,13 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::ENTRY_POINT:
     return _MODULE_STATEMENT;
   case Opcode::FUNCTION:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
   case Opcode::METHOD:
     return _OBJECT_STATEMENT;
   case Opcode::EXTENSION:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
   case Opcode::CONSTRUCTOR:
     return _OBJECT_STATEMENT;
   case Opcode::DESTRUCTOR:
@@ -434,14 +412,13 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::EXIT:
     return _MATTE_LOCAL_STATEMENT;
-  case Opcode::GOTO:
-    return _MATTE_LOCAL_STATEMENT;
   case Opcode::LABEL:
     return _MATTE_VALUE;
 
   // SYMBOLS
   case Opcode::OBJECT:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
   case Opcode::TABLE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::ALIAS:
@@ -450,7 +427,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_LOCAL:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::GLOBAL:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
   case Opcode::PROPERTY:
     return _OBJECT_STATEMENT;
 
@@ -488,7 +466,7 @@ _getFlags(requite::Opcode opcode) {
 
   // BUILTIN TYPES
   case Opcode::TACIT:
-    return  _MATTE_SYMBOL;
+    return _MATTE_SYMBOL;
   case Opcode::VOID:
     return _MATTE_SYMBOL;
   case Opcode::BOOLEAN:
@@ -581,8 +559,6 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
 
   // ATTRIBUTES
-  case Opcode::EXTERNAL:
-    return _MATTE_VALUE;
   case Opcode::NOT_FINAL:
     return _MATTE_VALUE;
   case Opcode::MAY_DISCARD:
@@ -904,8 +880,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_structured_binding";
   case requite::Opcode::_IGNORE:
     return "_ignore";
-  case requite::Opcode::_BLOCK:
-    return "_block";
 
   // STATIC POLYMORPHISM
   case requite::Opcode::TEMPLATE:
@@ -937,7 +911,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   case requite::Opcode::METHOD:
     return "method";
   case requite::Opcode::EXTENSION:
-    return "EXTENSION";
+    return "extension";
   case requite::Opcode::CONSTRUCTOR:
     return "constructor";
   case requite::Opcode::DESTRUCTOR:
@@ -958,8 +932,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "fallthrough";
   case requite::Opcode::EXIT:
     return "exit";
-  case requite::Opcode::GOTO:
-    return "goto";
   case requite::Opcode::LABEL:
     return "label";
 
@@ -1102,8 +1074,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "unreachable";
 
   // ATTRIBUTES
-  case requite::Opcode::EXTERNAL:
-    return "external";
   case requite::Opcode::NOT_FINAL:
     return "not_final";
   case requite::Opcode::MAY_DISCARD:
@@ -1288,9 +1258,8 @@ constexpr bool getHasScopeData(requite::Opcode opcode) {
          opcode == requite::Opcode::ELSE || opcode == requite::Opcode::SWITCH ||
          opcode == requite::Opcode::CASE ||
          opcode == requite::Opcode::DEFAULT_CASE ||
-         opcode == requite::Opcode::FOR ||
-         opcode == requite::Opcode::LOOP || opcode == requite::Opcode::SCOPE ||
-         opcode == requite::Opcode::TABLE;
+         opcode == requite::Opcode::FOR || opcode == requite::Opcode::LOOP ||
+         opcode == requite::Opcode::SCOPE || opcode == requite::Opcode::TABLE;
 }
 
 constexpr bool getHasTableData(requite::Opcode opcode) {
@@ -1316,10 +1285,6 @@ constexpr bool getHasLabelData(requite::Opcode opcode) {
 
 constexpr bool getHasAliasData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ALIAS;
-}
-
-constexpr bool getHasBlockData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_BLOCK;
 }
 
 constexpr bool getHasLocalData(requite::Opcode opcode) {

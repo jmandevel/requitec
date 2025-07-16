@@ -7,7 +7,6 @@
 #include <requite/alias.hpp>
 #include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
-#include <requite/block.hpp>
 #include <requite/file.hpp>
 #include <requite/global.hpp>
 #include <requite/import.hpp>
@@ -82,7 +81,6 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::AnonymousFunction>>
       _anonymous_function_uptrs = {};
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
-  std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
   std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
   std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
@@ -120,7 +118,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Property &makeProperty();
   [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
   [[nodiscard]] requite::Label &makeLabel();
-  [[nodiscard]] requite::Block &makeBlock();
   [[nodiscard]] requite::Import &makeImport();
   [[nodiscard]] requite::Use &makeUse();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
@@ -142,9 +139,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &getLocalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Local>> &
   getLocalUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
-  getBlockUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Global>> &getGlobalUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Global>> &
   getGlobalUptrs() const;
@@ -245,7 +239,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // evaluate.cpp
   [[nodiscard]] bool evaluateInstantName(llvm::StringRef &out_name,
-                                         requite::Scope &scope,
                                          requite::Expression &value_expression);
   [[nodiscard]] bool
   evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,

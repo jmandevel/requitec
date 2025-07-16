@@ -3,7 +3,7 @@
 
 namespace requite {
 
-bool Context::evaluateInstantName(llvm::StringRef &out_name, requite::Scope &scope,
+bool Context::evaluateInstantName(llvm::StringRef &out_name,
                            requite::Expression &value_expression) {
   if (value_expression.getOpcode() != requite::Opcode::__IDENTIFIER_LITERAL) {
       this->logErrorNonInstantEvaluatableName(value_expression);

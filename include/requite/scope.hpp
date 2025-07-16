@@ -27,7 +27,6 @@ struct AnonymousFunction;
 struct Procedure;
 struct Table;
 struct Object;
-struct Block;
 struct Import;
 struct Use;
 struct Import;
@@ -48,7 +47,6 @@ struct Scope final {
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
     requite::Global *_global_ptr;
-    requite::Block * _block_ptr;
   };
   requite::Import *_first_import_ptr = nullptr;
   requite::Use *_first_use_ptr = nullptr;
@@ -103,10 +101,6 @@ struct Scope final {
   void setGlobal(requite::Global &variable);
   [[nodiscard]] requite::Global &getGlobal();
   [[nodiscard]] const requite::Global &getGlobal() const;
-  [[nodiscard]] bool getHasBlock() const;
-  void setBlock(requite::Block &block);
-  [[nodiscard]] requite::Block &getBlock();
-  [[nodiscard]] const requite::Block &getBlock() const;
 
   // lookup_symbols.cpp
   [[nodiscard]] requite::LookupTableEntry &lookupUserSymbol(llvm::StringRef name);

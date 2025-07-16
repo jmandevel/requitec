@@ -219,6 +219,9 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
     if (attributes.getHasAttribute(requite::AttributeType::NULL_TERMINATED)) {
       ostream << "null-terminated ";
     }
+    if (attributes.getHasAttribute(requite::AttributeType::NULL_TERMINATED)) {
+      ostream << "may-discard ";
+    }
     REQUITE_ASSERT(
         !attributes.getHasAttribute(requite::AttributeType::TEMPLATE));
     REQUITE_ASSERT(
@@ -227,11 +230,7 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
         !attributes.getHasAttribute(requite::AttributeType::PROTECTED));
     REQUITE_ASSERT(!attributes.getHasAttribute(requite::AttributeType::EXPORT));
     REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::EXTERNAL));
-    REQUITE_ASSERT(
         !attributes.getHasAttribute(requite::AttributeType::NOT_FINAL));
-    REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::MAY_DISCARD));
     REQUITE_ASSERT(!attributes.getHasAttribute(requite::AttributeType::INLINE));
     REQUITE_ASSERT(
         !attributes.getHasAttribute(requite::AttributeType::MANGLED_NAME));

@@ -14,7 +14,6 @@ struct Import;
 enum class UserSymbolType {
   MODULE,
   ALIAS,
-  BLOCK,
   GLOBAL,
   IMPORT,
   LABEL,

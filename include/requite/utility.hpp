@@ -14,4 +14,8 @@ template<typename EnumParam>
     return static_cast<std::underlying_type_t<EnumParam>>(value);
 }
 
+[[nodiscard]] constexpr auto getBit(auto bit_i) {
+    return (static_cast<decltype(bit_i)>(1) << bit_i);
+}
+
 }

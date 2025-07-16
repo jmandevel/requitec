@@ -211,11 +211,6 @@ bool Implementor::implementLocalScope(
         is_ok = false;
       }
       break;
-    case requite::Opcode::GOTO:
-      if (!this->implementGoto(branch)) {
-        is_ok = false;
-      }
-      break;
     case requite::Opcode::ALIAS:
       if (!this->implementAlias(branch)) {
         is_ok = false;
@@ -360,10 +355,6 @@ bool Implementor::implementExit(requite::Expression &statement) {
     return false;
   }
   return true;
-}
-
-bool Implementor::implementGoto(requite::Expression &statement) {
-  REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Implementor::implementAlias(requite::Expression &statement) {

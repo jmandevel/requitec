@@ -1286,15 +1286,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
-  case requite::Opcode::_BLOCK:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BLOCK)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0, SITUATION_PARAM>(
-          expression);
-    }
-    break;
   case requite::Opcode::INDETERMINATE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::INDETERMINATE)) {
@@ -1693,16 +1684,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::SYMBOL_NAME>(expression);
     }
     break;
-  case requite::Opcode::GOTO:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::GOTO)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-    }
-    break;
   case requite::Opcode::PRIVATE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::PRIVATE)) {
@@ -1767,14 +1748,6 @@ void Situator::situateExpression(requite::Expression &expression) {
   case requite::Opcode::UNREACHABLE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::UNREACHABLE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::EXTERNAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::EXTERNAL)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
@@ -2736,16 +2709,6 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
     } else {
       expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
     }
-  } else if constexpr (SITUATION_PARAM ==
-                           requite::Situation::MODULE_STATEMENT ||
-                       SITUATION_PARAM == requite::Situation::TABLE_STATEMENT ||
-                       SITUATION_PARAM ==
-                           requite::Situation::OBJECT_STATEMENT ||
-                       SITUATION_PARAM ==
-                           requite::Situation::MATTE_LOCAL_STATEMENT) {
-    this->situateNaryExpression<SITUATION_PARAM, 0, SITUATION_PARAM>(
-        expression);
-    expression.changeOpcode(requite::Opcode::_BLOCK);
   } else {
     static_assert(false, "invalid situation");
   }
