@@ -772,4 +772,38 @@ void Tabulator::tabulateScope(requite::Expression &expression,
   // TODO
 }
 
+void Tabulator::tabulateExpressionForest(requite::Expression &expression) {
+  for (requite::Expression &branch : expression.getBranchSubrange()) {
+    this->tabulateExpression(branch);
+  }
+  for (requite::Expression &next : expression.getNextSubrange()) {
+    this->tabulateExpression(next);
+  }
+}
+
+void Tabulator::tabulateExpression(requite::Expression &expression) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+    requite::Expression &branch = expression.getBranch();
+    this->getContext().logErrorMustNotHaveAttributes(branch);
+    this->tabulateExpression(branch);
+  } break;
+  case requite::Opcode::_LOCAL:
+    this->tabulate_Local(expression, false);
+    break;
+  case requite::Opcode::_ANONYMOUS_FUNCTION:
+    this->tabulate_AnonymousFunction(expression);
+    break;
+  case requite::Opcode::_OPEN_FRAMELET:
+    // TODO
+  case requite::Opcode::_CLOSED_FRAMELET:
+    // TODO
+  }
+  // TODO
+}
+
+void Tabulator::tabulateStaticExpression(requite::Expression &expression) {
+  // TODO
+}
+
 } // namespace requite

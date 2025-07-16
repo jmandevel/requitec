@@ -46,11 +46,14 @@ struct Tabulator final {
 
   // tabulate.cpp
   [[nodiscard]] bool tabulateModule();
-  void tabulateModuleStatement(requite::Expression &statement, bool has_attributes);
-  void tabulateTableStatement(requite::Expression &statement, bool has_attributes);
-  void tabulateObjectStatement(requite::Expression &statement, bool has_attributes);
-  void tabulateMatteLocalStatement(requite::Expression &statement,
+  void tabulateModuleStatement(requite::Expression &statement,
+                               bool has_attributes);
+  void tabulateTableStatement(requite::Expression &statement,
                               bool has_attributes);
+  void tabulateObjectStatement(requite::Expression &statement,
+                               bool has_attributes);
+  void tabulateMatteLocalStatement(requite::Expression &statement,
+                                   bool has_attributes);
   void tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
   void tabulateFunction(requite::Expression &expression, bool has_attributes);
   void tabulateMethod(requite::Expression &expression, bool has_attributes);
@@ -66,6 +69,7 @@ struct Tabulator final {
   void tabulateGlobal(requite::Expression &expression, bool has_attributes);
   void tabulateProperty(requite::Expression &expression, bool has_attributes);
   void tabulate_Local(requite::Expression &expression, bool has_attributes);
+  void tabulate_AnonymousFunction(requite::Expression &expression);
   void tabulateIf(requite::Expression &expression, bool has_attributes);
   void tabulateElseIf(requite::Expression &expression, bool has_attributes);
   void tabulateElse(requite::Expression &expression, bool has_attributes);
@@ -78,11 +82,13 @@ struct Tabulator final {
   void tabulateDoWhile(requite::Expression &expression, bool has_attributes);
   void tabulateLoop(requite::Expression &expression, bool has_attributes);
   void tabulateScope(requite::Expression &expression, bool has_attributes);
+  void tabulateExpressionForest(requite::Expression& expression);
+  void tabulateExpression(requite::Expression& expression);
+  void tabulateStaticExpression(requite::Expression& expression);
 
   // detail/tabulate.hpp
   template <requite::AttributeCategory CATEGORY_PARAM>
-  requite::AttributeFlags
-  tabulateAttributes(requite::Expression &expression);
+  requite::AttributeFlags tabulateAttributes(requite::Expression &expression);
 };
 
 } // namespace requite
