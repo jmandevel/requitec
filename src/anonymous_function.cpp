@@ -8,7 +8,7 @@
 namespace requite {
 
 AnonymousFunction::AnonymousFunction() {
-  this->_scope.setAnonymousFunction(*this);
+  this->getScope().setAnonymousFunction(*this);
 }
 
 bool AnonymousFunction::operator==(const Self &rhs) const {
