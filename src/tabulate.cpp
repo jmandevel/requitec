@@ -551,7 +551,8 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
   this->getScope().addUserSymbol(global);
 }
 
-void Tabulator::tabulate_Local(requite::Expression &expression, bool has_attributes) {
+void Tabulator::tabulate_Local(requite::Expression &expression,
+                               bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_LOCAL);
   requite::Local &local = this->getContext().makeLocal();
   local.setExpression(expression);
@@ -572,6 +573,9 @@ void Tabulator::tabulate_Local(requite::Expression &expression, bool has_attribu
   this->getScope().addUserSymbol(local);
 }
 
+void Tabulator::tabulate_AnonymousFunction(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_ANONYMOUS_FUNCTION);
 void Tabulator::tabulateProperty(requite::Expression &expression,
                                  bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
