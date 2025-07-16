@@ -1632,17 +1632,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::FOR_EACH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FOR_EACH)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
-    }
-    break;
   case requite::Opcode::LOOP:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::LOOP)) {

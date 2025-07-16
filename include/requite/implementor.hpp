@@ -72,7 +72,6 @@ struct Implementor final {
   [[nodiscard]] bool implementFor(requite::Expression &statement);
   [[nodiscard]] bool implementWhile(requite::Expression &statement);
   [[nodiscard]] bool implementDoWhile(requite::Expression &statement);
-  [[nodiscard]] bool implementForEach(requite::Expression &statement);
   [[nodiscard]] bool implementLoop(requite::Expression &statement);
   [[nodiscard]] bool implementScope(requite::Expression &statement);
   [[nodiscard]] bool implementImport(requite::Expression &statement);

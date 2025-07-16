@@ -261,11 +261,6 @@ bool Implementor::implementLocalScope(
         is_ok = false;
       }
       break;
-    case requite::Opcode::FOR_EACH:
-      if (!this->implementForEach(branch)) {
-        is_ok = false;
-      }
-      break;
     case requite::Opcode::LOOP:
       if (!this->implementLoop(branch)) {
         is_ok = false;
@@ -404,10 +399,6 @@ bool Implementor::implementWhile(requite::Expression &statement) {
 }
 
 bool Implementor::implementDoWhile(requite::Expression &statement) {
-  REQUITE_UNREACHABLE(); // TODO
-}
-
-bool Implementor::implementForEach(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 

@@ -543,8 +543,6 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::DO_WHILE:
     return _MATTE_LOCAL_STATEMENT;
-  case Opcode::FOR_EACH:
-    return _MATTE_LOCAL_STATEMENT;
   case Opcode::LOOP:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::SCOPE:
@@ -1068,8 +1066,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "while";
   case requite::Opcode::DO_WHILE:
     return "do_while";
-  case requite::Opcode::FOR_EACH:
-    return "for_each";
   case requite::Opcode::LOOP:
     return "loop";
   case requite::Opcode::SCOPE:
@@ -1292,9 +1288,7 @@ constexpr bool getHasScopeData(requite::Opcode opcode) {
          opcode == requite::Opcode::ELSE || opcode == requite::Opcode::SWITCH ||
          opcode == requite::Opcode::CASE ||
          opcode == requite::Opcode::DEFAULT_CASE ||
-         opcode == requite::Opcode::FOR || opcode == requite::Opcode::WHILE ||
-         opcode == requite::Opcode::DO_WHILE ||
-         opcode == requite::Opcode::FOR_EACH ||
+         opcode == requite::Opcode::FOR ||
          opcode == requite::Opcode::LOOP || opcode == requite::Opcode::SCOPE ||
          opcode == requite::Opcode::TABLE;
 }

@@ -231,9 +231,9 @@ enum class Opcode : unsigned {
   TRUE,
   // the boolean value of false.
   FALSE,
-  // a value that contains the iterated value of a for_each block.
+  // a value that contains the iterated value of a for block.
   VALUE,
-  // a value that contains the iteration index of for, while, for_each, and loop
+  // a value that contains the iteration index of for, while, for, and loop
   // blocks.
   INDEX,
   // a value that can be assigned to any variable on declaration to denote that
@@ -298,7 +298,6 @@ enum class Opcode : unsigned {
   FOR,
   WHILE,
   DO_WHILE,
-  FOR_EACH,
   LOOP,
   SCOPE,
   _VALUE_CONDUIT,
