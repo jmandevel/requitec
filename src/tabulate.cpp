@@ -794,9 +794,9 @@ void Tabulator::tabulateExpression(requite::Expression &expression) {
   case requite::Opcode::_ANONYMOUS_FUNCTION:
     this->tabulate_AnonymousFunction(expression);
     break;
-  case requite::Opcode::_OPEN_FRAMELET:
+  case requite::Opcode::_OPEN_INLINE_SCOPE:
     // TODO
-  case requite::Opcode::_CLOSED_FRAMELET:
+  case requite::Opcode::_CLOSED_INLINE_SCOPE:
     // TODO
   }
   // TODO

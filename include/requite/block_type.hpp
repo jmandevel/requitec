@@ -14,7 +14,8 @@ enum class BlockType {
     WHILE,
     DO_WHILE,
     LOOP,
-    SCOPE
+    SCOPE,
+    CLOSED_INLINE_SCOPE
 };
 
 }

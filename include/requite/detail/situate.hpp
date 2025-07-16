@@ -1627,9 +1627,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_OPEN_FRAMELET:
+  case requite::Opcode::_OPEN_INLINE_SCOPE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_OPEN_FRAMELET)) {
+                      requite::Opcode::_OPEN_INLINE_SCOPE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 0,
@@ -1637,9 +1637,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_CLOSED_FRAMELET:
+  case requite::Opcode::_CLOSED_INLINE_SCOPE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CLOSED_FRAMELET)) {
+                      requite::Opcode::_CLOSED_INLINE_SCOPE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 0,

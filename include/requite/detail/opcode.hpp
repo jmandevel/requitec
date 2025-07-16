@@ -519,10 +519,10 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::SCOPE:
     return _MATTE_LOCAL_STATEMENT;
-  case Opcode::_OPEN_FRAMELET:
+  case Opcode::_OPEN_INLINE_SCOPE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE;
-  case Opcode::_CLOSED_FRAMELET:
+  case Opcode::_CLOSED_INLINE_SCOPE:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE;
 
@@ -1031,10 +1031,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "loop";
   case requite::Opcode::SCOPE:
     return "scope";
-  case requite::Opcode::_OPEN_FRAMELET:
-    return "_open_framelet";
-  case requite::Opcode::_CLOSED_FRAMELET:
-    return "_closed_framelet";
+  case requite::Opcode::_OPEN_INLINE_SCOPE:
+    return "_open_inline_scope";
+  case requite::Opcode::_CLOSED_INLINE_SCOPE:
+    return "_closed_inline_scope";
 
   // ACCESS MODIFIERS
   case requite::Opcode::PRIVATE:
