@@ -409,11 +409,11 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::ENTRY_POINT:
     return _MODULE_STATEMENT;
   case Opcode::FUNCTION:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::METHOD:
     return _OBJECT_STATEMENT;
   case Opcode::EXTENSION:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::CONSTRUCTOR:
     return _OBJECT_STATEMENT;
   case Opcode::DESTRUCTOR:
@@ -441,7 +441,7 @@ _getFlags(requite::Opcode opcode) {
 
   // SYMBOLS
   case Opcode::OBJECT:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::TABLE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT;
   case Opcode::ALIAS:
@@ -450,7 +450,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_LOCAL:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::GLOBAL:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT;
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::PROPERTY:
     return _OBJECT_STATEMENT;
 
