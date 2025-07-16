@@ -5,27 +5,24 @@
 #pragma once
 
 #include <format>
+#include <memory>
 #include <source_location>
 #include <stdexcept>
 #include <string_view>
 #include <utility>
-#include <memory>
 
 namespace requite {
 
-struct AssertException final : public std::exception {
-  std::string _message;
-
+struct AssertException final : public std::logic_error {
   AssertException(
       std::string_view snippet,
-      std::source_location source_location = std::source_location::current()) {
-    this->_message = std::format(
-        "assertion failure in \"{}\" at: {}:{}\t\"{}\"",
-        source_location.function_name(), source_location.file_name(),
-        source_location.line(), snippet);
-  }
+      std::source_location source_location = std::source_location::current())
+      : std::logic_error(std::format(
+            "assertion failure in \"{}\" at: {}:{}\t\"{}\"",
+            source_location.function_name(), source_location.file_name(),
+            source_location.line(), snippet)) {}
 
-  const char *what() const noexcept override { return this->_message.c_str(); }
+  using std::logic_error::what;
 };
 
 } // namespace requite
@@ -41,18 +38,15 @@ struct AssertException final : public std::exception {
 
 namespace requite {
 
-struct NullptrDereferenceException final : public std::exception {
-  std::string _message;
-
+struct NullptrDereferenceException final : public std::logic_error {
   NullptrDereferenceException(
-      std::source_location source_location = std::source_location::current()) {
-    this->_message =
-        std::format("dereferenced nullptr \"{}\" at: {}:{}",
-                    source_location.function_name(),
-                    source_location.file_name(), source_location.line());
-  }
+      std::source_location source_location = std::source_location::current())
+      : std::logic_error(std::format("dereferenced nullptr \"{}\" at: {}:{}",
+                                     source_location.function_name(),
+                                     source_location.file_name(),
+                                     source_location.line())) {}
 
-  const char *what() const noexcept override { return this->_message.c_str(); }
+  using std::logic_error::what;
 };
 
 template <typename TypeArg>
@@ -71,7 +65,7 @@ getRef(TypeArg *ptr,
 template <typename TypeArg>
 [[nodiscard]]
 TypeArg &
-getRef(std::unique_ptr<TypeArg>& uptr,
+getRef(std::unique_ptr<TypeArg> &uptr,
        std::source_location source_location = std::source_location::current()) {
 #if !defined(_NDEBUG)
   if (uptr.get() == nullptr) {
@@ -97,7 +91,7 @@ getRef(const TypeArg *ptr,
 template <typename TypeArg>
 [[nodiscard]]
 const TypeArg &
-getRef(const std::unique_ptr<TypeArg>& uptr,
+getRef(const std::unique_ptr<TypeArg> &uptr,
        std::source_location source_location = std::source_location::current()) {
 #if !defined(_NDEBUG)
   if (uptr.get() == nullptr) {

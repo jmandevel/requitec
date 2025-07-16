@@ -11,18 +11,15 @@
 
 namespace requite {
 
-struct UnreachableException final : public std::exception {
-  std::string _message;
+struct UnreachableException final : public std::logic_error {
 
   UnreachableException(
-      std::source_location source_location = std::source_location::current()) {
-    this->_message =
-        std::format("unreachable code detected in {} at: {}:{}",
+      std::source_location source_location = std::source_location::current()) 
+      : std::logic_error(std::format("unreachable code detected in {} at: {}:{}",
                     source_location.function_name(),
-                    source_location.file_name(), source_location.line());
-  }
+                    source_location.file_name(), source_location.line())){}
 
-  const char *what() const noexcept override { return this->_message.c_str(); }
+  using std::logic_error::what;
 };
 
 } // namespace requite
