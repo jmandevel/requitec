@@ -576,6 +576,14 @@ void Tabulator::tabulate_Local(requite::Expression &expression,
 void Tabulator::tabulate_AnonymousFunction(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() ==
                  requite::Opcode::_ANONYMOUS_FUNCTION);
+  requite::AnonymousFunction &function =
+      this->getContext().makeAnonymousFunction();
+  function.setExpression(expression);
+  expression.setAnonymousFunction(function);
+  function.setContaining(this->getScope());
+  // TODO
+}
+
 void Tabulator::tabulateProperty(requite::Expression &expression,
                                  bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
