@@ -23,7 +23,7 @@ struct Global final {
   std::string _name = {};
   requite::Expression* _expression_ptr = nullptr;
   requite::AttributeFlags _attributes = {};
-  requite::Scope _scope = {};
+  requite::Scope *_containing_ptr = nullptr;
   requite::Symbol _data_type = {};
   requite::Global *_next_ptr = nullptr;
 
@@ -48,8 +48,6 @@ struct Global final {
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Symbol &getDataType();
   [[nodiscard]] const requite::Symbol& getDataType() const;
-  [[nodiscard]] requite::Scope &getScope();
-  [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] bool getHasContaining() const;
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();

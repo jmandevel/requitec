@@ -177,27 +177,6 @@ const requite::AnonymousFunction &Scope::getAnonymousFunction() const {
   return requite::getRef(this->_anonymous_function_ptr);
 }
 
-bool Scope::getHasGlobal() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::GLOBAL);
-  return this->_global_ptr != nullptr;
-}
-
-void Scope::setGlobal(requite::Global &variable) {
-  REQUITE_ASSERT(this->getIsEmpty());
-  this->_type = requite::ScopeType::GLOBAL;
-  requite::setSingleRef(this->_global_ptr, variable);
-}
-
-requite::Global &Scope::getGlobal() {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::GLOBAL);
-  return requite::getRef(this->_global_ptr);
-}
-
-const requite::Global &Scope::getGlobal() const {
-  REQUITE_ASSERT(this->getType() == requite::ScopeType::GLOBAL);
-  return requite::getRef(this->_global_ptr);
-}
-
 bool Scope::getHasBlock() const {
   REQUITE_ASSERT(this->getType() == requite::ScopeType::BLOCK);
   return this->_block_ptr != nullptr;

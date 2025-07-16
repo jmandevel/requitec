@@ -9,7 +9,6 @@ enum class ScopeType {
   OBJECT,
   PROCEDURE,
   ANONYMOUS_FUNCTION,
-  GLOBAL,
   BLOCK
 };
 

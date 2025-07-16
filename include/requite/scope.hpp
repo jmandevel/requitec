@@ -47,7 +47,6 @@ struct Scope final {
     requite::Procedure *_procedure_ptr;
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
-    requite::Global *_global_ptr;
     requite::Block *_block_ptr;
   };
   requite::Import *_first_import_ptr = nullptr;
@@ -99,10 +98,6 @@ struct Scope final {
   void setAnonymousFunction(requite::AnonymousFunction &anonymous_function);
   [[nodiscard]] requite::AnonymousFunction &getAnonymousFunction();
   [[nodiscard]] const requite::AnonymousFunction &getAnonymousFunction() const;
-  [[nodiscard]] bool getHasGlobal() const;
-  void setGlobal(requite::Global &variable);
-  [[nodiscard]] requite::Global &getGlobal();
-  [[nodiscard]] const requite::Global &getGlobal() const;
   [[nodiscard]] bool getHasBlock() const;
   void setBlock(requite::Block &block);
   [[nodiscard]] requite::Block &getBlock();
