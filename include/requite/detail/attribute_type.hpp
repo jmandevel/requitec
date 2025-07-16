@@ -58,39 +58,39 @@ constexpr std::string_view getName(requite::AttributeType type) {
   case requite::AttributeType::NONE:
     return "none";
   case requite::AttributeType::USER:
-    return "user defined";
+    return "user defined attribute";
   case requite::AttributeType::MUTABLE:
-    return "bulitin mutable";
+    return "mutable";
   case requite::AttributeType::CONSTANT:
-    return "builtin constant";
+    return "constant";
   case requite::AttributeType::VOLATILE:
-    return "builtin volatile";
+    return "volatile";
   case requite::AttributeType::ATOMIC:
-    return "builtin atomic";
+    return "atomic";
   case requite::AttributeType::NULL_TERMINATED:
-    return "builtin null_terminated";
+    return "null_terminated";
   case requite::AttributeType::OWNING:
-    return "builtin owning";
+    return "owning";
   case requite::AttributeType::TEMPLATE:
-    return "builtin template";
+    return "template";
   case requite::AttributeType::PRIVATE:
-    return "builtin private";
+    return "private";
   case requite::AttributeType::PROTECTED:
-    return "builtin protected";
+    return "protected";
   case requite::AttributeType::EXPORT:
-    return "builtin export";
+    return "export";
   case requite::AttributeType::NOT_FINAL:
-    return "builtin not_final";
+    return "not_final";
   case requite::AttributeType::MAY_DISCARD:
-    return "builtin may_discard";
+    return "may_discard";
   case requite::AttributeType::INLINE:
-    return "builtin inline";
+    return "inline";
   case requite::AttributeType::MANGLED_NAME:
-    return "builtin mangled_name";
+    return "mangled_name";
   case requite::AttributeType::LABEL:
-    return "builtin label";
+    return "label";
   case requite::AttributeType::PACK:
-    return "builtin pack";
+    return "pack";
   case requite::AttributeType::_LAST:
     break;
   }

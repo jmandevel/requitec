@@ -238,7 +238,7 @@ void Tabulator::tabulateEntryPoint(requite::Expression &expression,
   procedure.setContaining(this->getScope());
   if (has_attributes) {
     this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
-                                        "entry point must not have attributes");
+                                        "entry_point must not have attributes");
     this->setNotOk();
   }
   this->getModule().addEntryPoint(procedure);
