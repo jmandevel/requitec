@@ -169,14 +169,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situate_TripExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_CONDUIT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CONDUIT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_ConduitExpression<SITUATION_PARAM>(expression);
-    }
-    break;
   case requite::Opcode::_LOGICAL_AND:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_LOGICAL_AND)) {
@@ -1585,8 +1577,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<
-          SITUATION_PARAM, 3,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>(),
+          SITUATION_PARAM, 2,
           requite::Situation::MATTE_VALUE,
           requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
           expression);
@@ -1636,9 +1627,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_VALUE_CONDUIT:
+  case requite::Opcode::_OPEN_FRAMELET:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_VALUE_CONDUIT)) {
+                      requite::Opcode::_OPEN_FRAMELET)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 0,
@@ -1646,19 +1637,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_JUNCTION_CONDUIT:
+  case requite::Opcode::_CLOSED_FRAMELET:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_JUNCTION_CONDUIT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_DESTINATION_CONDUIT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DESTINATION_CONDUIT)) {
+                      requite::Opcode::_CLOSED_FRAMELET)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 0,
@@ -2865,25 +2846,6 @@ void Situator::situate_IdentifyExpression(requite::Expression &expression) {
   expression.mergeBranch();
   expression.changeOpcode(requite::Opcode::__IDENTIFIER_LITERAL);
   expression.setDataText(text);
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_ConduitExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CONDUIT);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
-    expression.changeOpcode(requite::Opcode::_DESTINATION_CONDUIT);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                       SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    expression.changeOpcode(requite::Opcode::_VALUE_CONDUIT);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    expression.changeOpcode(requite::Opcode::_JUNCTION_CONDUIT);
-  } else {
-    static_assert(false, "inavlid situation");
-  }
-  this->situateNaryExpression<SITUATION_PARAM, 0,
-                              requite::Situation::MATTE_LOCAL_STATEMENT>(
-      expression);
 }
 
 template <requite::Situation SITUATION_PARAM>

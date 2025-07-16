@@ -209,6 +209,11 @@ void Tokenizer::_tokenizeTokens() {
       case '.':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_DOT_OPERATOR, 2);
         break;
+      case '}':
+        this->tokenizeRightGrouping(requite::GroupingType::OPEN_CAP,
+                                    requite::TokenType::RIGHT_OPEN_CAP_GROUPING,
+                                    2);
+        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::DOT_OPERATOR, 1);
       }
@@ -329,8 +334,9 @@ void Tokenizer::_tokenizeTokens() {
         this->getRanger().incrementChar(1);
         this->getRanger().addColumns(1);
       }
-      requite::TokenType type = (is_fractional) ? requite::TokenType::FRACTIONAL_LITERAL
-                                          : requite::TokenType::INTEGER_LITERAL;
+      requite::TokenType type = (is_fractional)
+                                    ? requite::TokenType::FRACTIONAL_LITERAL
+                                    : requite::TokenType::INTEGER_LITERAL;
       this->getTokens().push_back(this->getRanger().getSubToken(type));
       continue;
     }
@@ -343,8 +349,9 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeLengthToken(requite::TokenType::WALRUS_OPERATOR, 2);
         break;
       case '}':
-        this->tokenizeRightGrouping(requite::GroupingType::CAP,
-                                    requite::TokenType::RIGHT_CAP_GROUPING, 2);
+        this->tokenizeRightGrouping(
+            requite::GroupingType::CLOSED_CAP,
+            requite::TokenType::RIGHT_CLOSED_CAP_GROUPING, 2);
         break;
       case ']':
         this->tokenizeRightGrouping(requite::GroupingType::QUOTE,
@@ -588,9 +595,15 @@ void Tokenizer::_tokenizeTokens() {
       break;
     case '{':
       switch (const char c1 = this->getRanger().getChar(1)) {
+      case '.':
+        this->tokenizeLengthToken(requite::TokenType::LEFT_OPEN_CAP_GROUPING,
+                                  2);
+        this->pushGrouping(requite::GroupingType::OPEN_CAP);
+        break;
       case ':':
-        this->tokenizeLengthToken(requite::TokenType::LEFT_CAP_GROUPING, 2);
-        this->pushGrouping(requite::GroupingType::CAP);
+        this->tokenizeLengthToken(requite::TokenType::LEFT_CLOSED_CAP_GROUPING,
+                                  2);
+        this->pushGrouping(requite::GroupingType::CLOSED_CAP);
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);

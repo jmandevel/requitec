@@ -25,10 +25,14 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     return requite::TokenType::ERROR_UNMATCHED_LEFT_TRIP_GROUPING;
   case requite::TokenType::RIGHT_TRIP_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_RIGHT_TRIP_GROUPING;
-  case requite::TokenType::LEFT_CAP_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_LEFT_CAP_GROUPING;
-  case requite::TokenType::RIGHT_CAP_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_RIGHT_CAP_GROUPING;
+  case requite::TokenType::LEFT_OPEN_CAP_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_LEFT_OPEN_CAP_GROUPING;
+  case requite::TokenType::RIGHT_OPEN_CAP_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_RIGHT_OPEN_CAP_GROUPING;
+  case requite::TokenType::LEFT_CLOSED_CAP_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_LEFT_CLOSED_CAP_GROUPING;
+  case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_RIGHT_CLOSED_CAP_GROUPING;
   case requite::TokenType::LEFT_COMPAS_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_LEFT_COMPAS_GROUPING;
   case requite::TokenType::RIGHT_COMPAS_GROUPING:

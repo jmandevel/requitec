@@ -48,7 +48,6 @@ enum class Opcode : unsigned {
   _BIND_VALUE_OR_DEFAULT_VALUE,
   _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   _TRIP,
-  _CONDUIT,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.
@@ -297,9 +296,8 @@ enum class Opcode : unsigned {
   DO_WHILE,
   LOOP,
   SCOPE,
-  _VALUE_CONDUIT,
-  _JUNCTION_CONDUIT,
-  _DESTINATION_CONDUIT,
+  _OPEN_FRAMELET,
+  _CLOSED_FRAMELET,
 
   // ACCESS MODIFIERS
   PRIVATE,

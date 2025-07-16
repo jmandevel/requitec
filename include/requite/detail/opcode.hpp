@@ -112,9 +112,6 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_TRIP:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_SYMBOL;
-  case Opcode::_CONDUIT:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
-           _MATTE_VALUE;
 
   // LOGICAL
   case Opcode::_LOGICAL_AND:
@@ -522,12 +519,12 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::SCOPE:
     return _MATTE_LOCAL_STATEMENT;
-  case Opcode::_VALUE_CONDUIT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_JUNCTION_CONDUIT:
-    return _INTERMEDIATE_OPERATION | _MATTE_JUNCTION;
-  case Opcode::_DESTINATION_CONDUIT:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION;
+  case Opcode::_OPEN_FRAMELET:
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
+           _MATTE_VALUE;
+  case Opcode::_CLOSED_FRAMELET:
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
+           _MATTE_VALUE;
 
   // ACCESS MODIFIERS
   case Opcode::PRIVATE:
@@ -666,8 +663,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_bind_symbol_or_default_symbol";
   case requite::Opcode::_TRIP:
     return "_trip";
-  case requite::Opcode::_CONDUIT:
-    return "_conduit";
+
   // LOGICAL
   case requite::Opcode::_LOGICAL_AND:
     return "_logical_and";
@@ -1035,12 +1031,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "loop";
   case requite::Opcode::SCOPE:
     return "scope";
-  case requite::Opcode::_VALUE_CONDUIT:
-    return "_value_conduit";
-  case requite::Opcode::_JUNCTION_CONDUIT:
-    return "_junction_conduit";
-  case requite::Opcode::_DESTINATION_CONDUIT:
-    return "_destination_conduit";
+  case requite::Opcode::_OPEN_FRAMELET:
+    return "_open_framelet";
+  case requite::Opcode::_CLOSED_FRAMELET:
+    return "_closed_framelet";
 
   // ACCESS MODIFIERS
   case requite::Opcode::PRIVATE:

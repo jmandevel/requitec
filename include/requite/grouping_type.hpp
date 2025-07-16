@@ -14,7 +14,8 @@ enum class GroupingType {
   STATEMENT_INTERPOLATION,
   BRACKET,
   TRIP,
-  CAP,
+  OPEN_CAP,
+  CLOSED_CAP,
   COMPAS,
   PARENTHESIS,
   QUOTE

@@ -140,8 +140,6 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situate_IdentifyExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_ConduitExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
   inline void situateMangledNameExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_AssignExpression(requite::Expression &expression);
