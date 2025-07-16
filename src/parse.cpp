@@ -99,7 +99,7 @@ requite::Expression &Parser::parsePrecedence11() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::WALRUS_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseBinary(*this, requite::Opcode::_INITIALIZE);
+      precedence_parser.parseBinary(*this, requite::Opcode::_LOCAL);
       precedence_parser.setRecent(this->parsePrecedence10());
       continue;
     case requite::TokenType::EQUAL_OPERATOR:

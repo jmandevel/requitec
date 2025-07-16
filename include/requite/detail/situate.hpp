@@ -684,14 +684,6 @@ void Situator::situateExpression(requite::Expression &expression) {
                                    requite::Situation::MATTE_VALUE>(expression);
     }
     break;
-  case requite::Opcode::_INITIALIZE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_INITIALIZE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_InitializeExpression<SITUATION_PARAM>(expression);
-    }
-    break;
   case requite::Opcode::_ASSIGN:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_ASSIGN)) {
@@ -3082,32 +3074,6 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
     break;
   }
   expression.changeOpcode(requite::Opcode::_ASCRIBE_FIRST_BRANCH);
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_InitializeExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_INITIALIZE);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION,
-                                  requite::Situation::MATTE_VALUE>(expression);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION>(
-        expression);
-  } else if constexpr (SITUATION_PARAM ==
-                           requite::Situation::MATTE_DESTINATION ||
-                       SITUATION_PARAM ==
-                           requite::Situation::MATTE_LOCAL_STATEMENT ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STRUCTURED_BINDING) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_DESTINATION,
-                                  requite::Situation::MATTE_VALUE>(expression);
-  } else {
-    static_assert("invalid situation");
-  }
 }
 
 } // namespace requite

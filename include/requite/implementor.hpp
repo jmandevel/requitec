@@ -48,7 +48,7 @@ struct Implementor final {
   // expression);
   [[nodiscard]] bool implementLocalScope(requite::Expression &first_statement);
   // [[nodiscard]] bool implementGlobalValue(requite::Expression& expression);
-  [[nodiscard]] bool implement_Initialize(requite::Expression &statement);
+  [[nodiscard]] bool implement_Local(requite::Expression &statement);
   [[nodiscard]] bool implement_Assign(requite::Expression &statement);
   [[nodiscard]] bool implementSwap(requite::Expression &statement);
   [[nodiscard]] bool

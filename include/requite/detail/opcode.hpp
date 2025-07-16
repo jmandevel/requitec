@@ -276,9 +276,6 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_JUNCTION;
 
   // ASSIGNMENT
-  case Opcode::_INITIALIZE:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
   case Opcode::_ASSIGN:
     return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
            _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
@@ -802,8 +799,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_address_value";
 
   // ASSIGNMENT
-  case requite::Opcode::_INITIALIZE:
-    return "_initialize";
   case requite::Opcode::_ASSIGN:
     return "_assign";
   case requite::Opcode::_ASSIGN_ADD:

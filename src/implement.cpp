@@ -146,8 +146,8 @@ bool Implementor::implementLocalScope(
   bool is_ok = true;
   for (requite::Expression &branch : first_statement.getHorizontalSubrange()) {
     switch (const requite::Opcode opcode = first_statement.getOpcode()) {
-    case requite::Opcode::_INITIALIZE:
-      if (!this->implement_Initialize(branch)) {
+    case requite::Opcode::_LOCAL:
+      if (!this->implement_Local(branch)) {
         is_ok = false;
       }
       break;
@@ -293,7 +293,7 @@ bool Implementor::implementLocalScope(
   return is_ok;
 }
 
-bool Implementor::implement_Initialize(requite::Expression &statement) {
+bool Implementor::implement_Local(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 

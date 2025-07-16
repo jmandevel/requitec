@@ -142,7 +142,6 @@ enum class Opcode : unsigned {
   _ADDRESS_VALUE,
 
   // ASSIGNMENT
-  _INITIALIZE,
   _ASSIGN,
   _ASSIGN_ADD,
   _ASSIGN_SUBTRACT,
