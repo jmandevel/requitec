@@ -12,6 +12,7 @@
 #include <requite/import.hpp>
 #include <requite/label.hpp>
 #include <requite/local.hpp>
+#include <requite/block.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/numeric.hpp>
@@ -83,6 +84,7 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
   std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
   std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
+  std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
@@ -120,6 +122,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Label &makeLabel();
   [[nodiscard]] requite::Import &makeImport();
   [[nodiscard]] requite::Use &makeUse();
+  [[nodiscard]] requite::Block &makeBlock();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
   getScopeUptrs() const;
@@ -159,6 +162,10 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Use>> &getUseUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Use>> &
   getUseUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &
+  getBlockUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
+  getBlockUptrs() const;
 
   // file.cpp
   [[nodiscard]]

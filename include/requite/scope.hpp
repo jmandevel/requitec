@@ -5,10 +5,10 @@
 #pragma once
 
 #include <requite/containing_scope_iterator.hpp>
-#include <requite/scope_type.hpp>
-#include <requite/symbol.hpp>
 #include <requite/lookup_table_entry.hpp>
 #include <requite/lookup_table_result.hpp>
+#include <requite/scope_type.hpp>
+#include <requite/symbol.hpp>
 
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
@@ -30,6 +30,7 @@ struct Object;
 struct Import;
 struct Use;
 struct Import;
+struct Block;
 
 struct Scope final {
   using Self = requite::Scope;
@@ -47,6 +48,7 @@ struct Scope final {
     requite::AnonymousFunction *_anonymous_function_ptr;
     requite::Expression *_local_statement_ptr;
     requite::Global *_global_ptr;
+    requite::Block *_block_ptr;
   };
   requite::Import *_first_import_ptr = nullptr;
   requite::Use *_first_use_ptr = nullptr;
@@ -101,15 +103,22 @@ struct Scope final {
   void setGlobal(requite::Global &variable);
   [[nodiscard]] requite::Global &getGlobal();
   [[nodiscard]] const requite::Global &getGlobal() const;
+  [[nodiscard]] bool getHasBlock() const;
+  void setBlock(requite::Block &block);
+  [[nodiscard]] requite::Block &getBlock();
+  [[nodiscard]] const requite::Block &getBlock() const;
 
   // lookup_symbols.cpp
-  [[nodiscard]] requite::LookupTableEntry &lookupUserSymbol(llvm::StringRef name);
+  [[nodiscard]] requite::LookupTableEntry &
+  lookupUserSymbol(llvm::StringRef name);
   [[nodiscard]] bool getHasUserSymbolOfName(llvm::StringRef name) const;
 
   // detail/symbol_map.hpp
   template <typename SymbolArg> void addUserSymbol(SymbolArg &symbol);
-  template <typename SymbolArg> void addUserSymbol(SymbolArg &symbol, requite::Use& use);
-  template <typename SymbolArg> void addUserSymbol(SymbolArg &symbol, requite::Import& import);
+  template <typename SymbolArg>
+  void addUserSymbol(SymbolArg &symbol, requite::Use &use);
+  template <typename SymbolArg>
+  void addUserSymbol(SymbolArg &symbol, requite::Import &import);
 
   // detail/scope_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

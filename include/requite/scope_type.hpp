@@ -10,7 +10,7 @@ enum class ScopeType {
   PROCEDURE,
   ANONYMOUS_FUNCTION,
   GLOBAL,
-  LOCAL
+  BLOCK
 };
 
 }

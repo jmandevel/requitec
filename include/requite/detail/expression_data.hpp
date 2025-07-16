@@ -28,28 +28,6 @@ inline void Expression::changeDataText(llvm::StringRef text) {
   std::get<std::string>(this->_data).assign(text.str());
 }
 
-inline bool Expression::getHasScope() const {
-  REQUITE_ASSERT(requite::getHasScopeData(this->getOpcode()));
-  return std::holds_alternative<requite::Scope *>(this->_data) &&
-         std::get<requite::Scope *>(this->_data) != nullptr;
-}
-
-inline requite::Scope &Expression::getScope() {
-  REQUITE_ASSERT(requite::getHasScopeData(this->getOpcode()));
-  return requite::getRef(std::get<requite::Scope *>(this->_data));
-}
-
-inline const requite::Scope &Expression::getScope() const {
-  REQUITE_ASSERT(requite::getHasScopeData(this->getOpcode()));
-  return requite::getRef(std::get<requite::Scope *>(this->_data));
-}
-
-inline void Expression::setScope(requite::Scope &scope) {
-  REQUITE_ASSERT(requite::getHasScopeData(this->getOpcode()));
-  REQUITE_ASSERT(!this->getHasScope());
-  this->_data.emplace<requite::Scope *>(&scope);
-}
-
 inline bool Expression::getHasTable() const {
   REQUITE_ASSERT(requite::getHasTableData(this->getOpcode()));
   return std::holds_alternative<requite::Table *>(this->_data) &&
@@ -316,6 +294,7 @@ inline void Expression::setUse(requite::Use &use) {
   REQUITE_ASSERT(requite::getHasUseData(this->getOpcode()));
   this->_data.emplace<requite::Use *>(&use);
 }
+
 inline requite::Use &Expression::getUse() {
   REQUITE_ASSERT(requite::getHasUseData(this->getOpcode()));
   REQUITE_ASSERT(this->getHasUse());
@@ -326,6 +305,28 @@ inline const requite::Use &Expression::getUse() const {
   REQUITE_ASSERT(requite::getHasUseData(this->getOpcode()));
   REQUITE_ASSERT(this->getHasUse());
   return requite::getRef(std::get<requite::Use *>(this->_data));
+}
+
+inline bool Expression::getHasBlock() const {
+  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
+  return std::holds_alternative<requite::Block *>(this->_data);
+}
+
+inline void Expression::setBlock(requite::Block &block) {
+  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
+  this->_data.emplace<requite::Block *>(&block);
+}
+
+inline requite::Block &Expression::getBlock() {
+  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasBlock());
+  return requite::getRef(std::get<requite::Block *>(this->_data));
+}
+
+inline const requite::Block &Expression::getBlock() const {
+  REQUITE_ASSERT(requite::getHasBlockData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasBlock());
+  return requite::getRef(std::get<requite::Block *>(this->_data));
 }
 
 } // namespace requite

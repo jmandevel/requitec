@@ -16,6 +16,7 @@ target_sources(
         anonymous_object.cpp
         anonymous_property.cpp
         attribute_flags.cpp
+        block.cpp
         build.cpp
         builder.cpp
         const_expression_iterator.cpp

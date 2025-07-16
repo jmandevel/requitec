@@ -24,7 +24,7 @@ enum class AttributeCategory {
   MEMBER_USE,
   IMPORT,
   MEMBER_IMPORT,
-  MATTE_LOCAL_STATEMENT
+  BLOCK
 };
 
 // NOTE: the error message is meant to be concatinated after the name of the

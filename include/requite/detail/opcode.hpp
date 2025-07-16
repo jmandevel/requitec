@@ -1253,15 +1253,6 @@ constexpr bool getHasIntegerData(requite::Opcode opcode) {
   return opcode == requite::Opcode::__INTEGER_LITERAL;
 }
 
-constexpr bool getHasScopeData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::IF || opcode == requite::Opcode::ELSE_IF ||
-         opcode == requite::Opcode::ELSE || opcode == requite::Opcode::SWITCH ||
-         opcode == requite::Opcode::CASE ||
-         opcode == requite::Opcode::DEFAULT_CASE ||
-         opcode == requite::Opcode::FOR || opcode == requite::Opcode::LOOP ||
-         opcode == requite::Opcode::SCOPE || opcode == requite::Opcode::TABLE;
-}
-
 constexpr bool getHasTableData(requite::Opcode opcode) {
   return opcode == requite::Opcode::TABLE;
 }
@@ -1310,6 +1301,15 @@ constexpr bool getHasImportData(requite::Opcode opcode) {
 
 constexpr bool getHasUseData(requite::Opcode opcode) {
   return opcode == requite::Opcode::USE;
+}
+
+constexpr bool getHasBlockData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::IF || opcode == requite::Opcode::ELSE_IF ||
+         opcode == requite::Opcode::ELSE || opcode == requite::Opcode::SWITCH ||
+         opcode == requite::Opcode::CASE ||
+         opcode == requite::Opcode::DEFAULT_CASE ||
+         opcode == requite::Opcode::FOR || opcode == requite::Opcode::LOOP ||
+         opcode == requite::Opcode::SCOPE;
 }
 
 } // namespace requite

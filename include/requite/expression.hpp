@@ -32,6 +32,7 @@ struct AnonymousFunction;
 struct Alias;
 struct Import;
 struct Use;
+struct Block;
 
 struct Expression final {
   using Self = requite::Expression;
@@ -45,7 +46,7 @@ struct Expression final {
                requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Global *,
                requite::Property *, requite::Local *, requite::Label *,
-               llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *>
+               llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *, requite::Block *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -164,10 +165,6 @@ struct Expression final {
   [[nodiscard]] inline llvm::StringRef getDataText() const;
   inline void setDataText(llvm::StringRef text);
   inline void changeDataText(llvm::StringRef text);
-  [[nodiscard]] inline bool getHasScope() const;
-  [[nodiscard]] inline requite::Scope &getScope();
-  [[nodiscard]] inline const requite::Scope &getScope() const;
-  void setScope(requite::Scope &scope);
   [[nodiscard]] inline bool getHasTable() const;
   [[nodiscard]] inline requite::Table &getTable();
   [[nodiscard]] inline const requite::Table &getTable() const;
@@ -217,6 +214,10 @@ struct Expression final {
   inline void setUse(requite::Use &use);
   [[nodiscard]] inline requite::Use &getUse();
   [[nodiscard]] inline const requite::Use &getUse() const;
+  [[nodiscard]] inline bool getHasBlock() const;
+  inline void setBlock(requite::Block &block);
+  [[nodiscard]] inline requite::Block &getBlock();
+  [[nodiscard]] inline const requite::Block &getBlock() const;
 
   // detail/expression_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

@@ -198,4 +198,25 @@ const requite::Global &Scope::getGlobal() const {
   return requite::getRef(this->_global_ptr);
 }
 
+bool Scope::getHasBlock() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::BLOCK);
+  return this->_block_ptr != nullptr;
+}
+
+void Scope::setBlock(requite::Block &block) {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::NONE);
+  this->_type = requite::ScopeType::BLOCK;
+  requite::setSingleRef(this->_block_ptr, block);
+}
+
+requite::Block &Scope::getBlock() {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::BLOCK);
+  return requite::getRef(this->_block_ptr);
+}
+
+const requite::Block &Scope::getBlock() const {
+  REQUITE_ASSERT(this->getType() == requite::ScopeType::BLOCK);
+  return requite::getRef(this->_block_ptr);
+}
+
 } // namespace requite

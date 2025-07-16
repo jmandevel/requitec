@@ -119,7 +119,7 @@ enum _AttributeFlags : std::uint32_t {
   _MEMBER_USE = requite::getBit(17),
   _IMPORT = requite::getBit(18),
   _MEMBER_IMPORT = requite::getBit(19),
-  _MATTE_LOCAL_STATEMENT = requite::getBit(20)
+  _BLOCK = requite::getBit(20)
 };
 }
 
@@ -182,7 +182,7 @@ _getFlags(requite::AttributeType type) {
     return _FUNCTION | _MEMBER_FUNCTION | _MEMBER_METHOD | _EXTENSION |
            _MEMBER_EXTENSION | _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR;
   case AttributeType::LABEL:
-    return _MATTE_LOCAL_STATEMENT;
+    return _BLOCK;
   case AttributeType::PACK:
     return _OBJECT | _MEMBER_OBJECT;
   case AttributeType::_LAST:
@@ -253,8 +253,8 @@ constexpr bool getCanBeAttributeCategory(requite::AttributeType type) {
                        requite::AttributeCategory::MEMBER_IMPORT) {
     return requite::getCanBeMemberImportAttribute(type);
   } else if constexpr (CATEGORY_PARAM ==
-                       requite::AttributeCategory::MATTE_LOCAL_STATEMENT) {
-    return requite::getCanBeMatteLocalStatementAttribute(type);
+                       requite::AttributeCategory::BLOCK) {
+    return requite::getCanBeBlockAttribute(type);
   } else {
     static_assert(false, "invalid category");
   }
@@ -373,9 +373,9 @@ constexpr bool getCanBeMemberImportAttribute(requite::AttributeType type) {
   return has_flags;
 }
 
-constexpr bool getCanBeMatteLocalStatementAttribute(requite::AttributeType type) {
+constexpr bool getCanBeBlockAttribute(requite::AttributeType type) {
   const bool has_flags =
-      requite::_getHasFlags(type, requite::_attribute::_MATTE_LOCAL_STATEMENT);
+      requite::_getHasFlags(type, requite::_attribute::_BLOCK);
   return has_flags;
 }
 

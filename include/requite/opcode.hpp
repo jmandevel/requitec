@@ -380,8 +380,6 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasIntegerData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasScopeData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasTableData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasObjectData(requite::Opcode opcode);
@@ -404,6 +402,8 @@ getHasAnonymousFunctionData(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasImportData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasUseData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasBlockData(requite::Opcode opcode);
 
 } // namespace requite
 

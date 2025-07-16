@@ -43,8 +43,8 @@ getErrorMessageEnding(requite::AttributeCategory category) {
     return " is not import attribute";
   case requite::AttributeCategory::MEMBER_IMPORT:
     return " is not member import attribute";
-  case requite::AttributeCategory::MATTE_LOCAL_STATEMENT:
-    return " is not matte local statement attribute";
+  case requite::AttributeCategory::BLOCK:
+    return " is not block attribute";
   }
   return " is not valid attribute";
 }
