@@ -571,43 +571,41 @@ _getFlags(requite::Opcode opcode) {
 
   // REFLECTED VALUES
   case Opcode::SIZE:
-    return _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_SIZE_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+    return _SYMBOL_REFLECTIVE_VALUE;
   case Opcode::_SIZE_OF_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::DEPTH:
-    return _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_DEPTH_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+    return _SYMBOL_REFLECTIVE_VALUE;
   case Opcode::_DEPTH_OF_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::COUNT:
-    return _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_COUNT_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+    return _SYMBOL_REFLECTIVE_VALUE;
   case Opcode::_COUNT_OF_TYPE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::LENGTH:
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::_LENGTH_OF_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::NAME:
     return _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_NAME_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_NAME_OF_SYMBOL:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::LINE:
     return _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_LINE_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_LINE_OF_SYMBOL:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::COLUMN:
     return _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_COLUMN_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_COLUMN_OF_SYMBOL:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::IS:
-    return _SYMBOL_REFLECTIVE_VALUE;
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::_VALUE_OF_VARIANT_IS_TYPE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::GET:
+    return _VALUE_REFLECTIVE_VALUE;
+  case Opcode::_GET_VALUE_OF_VARIANT:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::ARE_SAME:
     return _MATTE_VALUE;
 
@@ -1085,42 +1083,40 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // REFLECTED VALUES
   case requite::Opcode::SIZE:
     return "size";
-  case requite::Opcode::_SIZE_OF_VALUE:
-    return "_size_of_value";
   case requite::Opcode::_SIZE_OF_TYPE:
     return "_size_of_type";
   case requite::Opcode::DEPTH:
     return "depth";
-  case requite::Opcode::_DEPTH_OF_VALUE:
-    return "_depth_of_value";
   case requite::Opcode::_DEPTH_OF_TYPE:
     return "_depth_of_type";
   case requite::Opcode::COUNT:
     return "count";
-  case requite::Opcode::_COUNT_OF_VALUE:
-    return "_count_of_value";
   case requite::Opcode::_COUNT_OF_TYPE:
     return "_count_of_type";
+  case requite::Opcode::LENGTH:
+    return "length";
+  case requite::Opcode::_LENGTH_OF_VALUE:
+    return "_length_of_value";
   case requite::Opcode::NAME:
     return "name";
-  case requite::Opcode::_NAME_OF_VALUE:
-    return "_name_of_value";
   case requite::Opcode::_NAME_OF_SYMBOL:
     return "_name_of_symbol";
   case requite::Opcode::LINE:
     return "line";
-  case requite::Opcode::_LINE_OF_VALUE:
-    return "_line_of_value";
   case requite::Opcode::_LINE_OF_SYMBOL:
     return "_line_of_symbol";
   case requite::Opcode::COLUMN:
     return "column";
-  case requite::Opcode::_COLUMN_OF_VALUE:
-    return "_column_of_value";
   case requite::Opcode::_COLUMN_OF_SYMBOL:
     return "_column_of_symbol";
   case requite::Opcode::IS:
     return "is";
+  case requite::Opcode::_VALUE_OF_VARIANT_IS_TYPE:
+    return "_value_of_variant_is_type";
+  case requite::Opcode::GET:
+    return "get";
+  case requite::Opcode::_GET_VALUE_OF_VARIANT:
+    return "_get_value_of_variant";
   case requite::Opcode::ARE_SAME:
     return "are_same";
 
@@ -1170,18 +1166,12 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE;
   case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
     return requite::Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE;
-  case requite::Opcode::SIZE:
-    return requite::Opcode::_SIZE_OF_VALUE;
-  case requite::Opcode::DEPTH:
-    return requite::Opcode::_DEPTH_OF_VALUE;
-  case requite::Opcode::COUNT:
-    return requite::Opcode::_COUNT_OF_VALUE;
-  case requite::Opcode::NAME:
-    return requite::Opcode::_NAME_OF_VALUE;
-  case requite::Opcode::LINE:
-    return requite::Opcode::_LINE_OF_VALUE;
-  case requite::Opcode::COLUMN:
-    return requite::Opcode::_COLUMN_OF_VALUE;
+  case requite::Opcode::LENGTH:
+    return requite::Opcode::_LENGTH_OF_VALUE;
+  case requite::Opcode::IS:
+    return requite::Opcode::_VALUE_OF_VARIANT_IS_TYPE;
+  case requite::Opcode::GET:
+    return requite::Opcode::_GET_VALUE_OF_VARIANT;
   case requite::Opcode::TYPE:
     return requite::Opcode::_TYPE_OF_VALUE;
   default:
@@ -1204,8 +1194,6 @@ constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
     return requite::Opcode::_NAME_OF_SYMBOL;
   case requite::Opcode::COLUMN:
     return requite::Opcode::_COLUMN_OF_SYMBOL;
-  case requite::Opcode::IS:
-    return requite::Opcode::ARE_SAME;
   case requite::Opcode::UNDERLYING:
     return requite::Opcode::_UNDERLYING_OF_TYPE;
   default:
