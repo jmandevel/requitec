@@ -2942,7 +2942,7 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
       this->situateBranch<requite::Situation::MATTE_DESTINATION>(
           "first branch", expression, 0, destination);
     }
-    if (destination.getHasNext()) {
+    if (!destination.getHasNext()) {
       this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
           expression, 2);
       this->setNotOk();
