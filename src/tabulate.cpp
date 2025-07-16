@@ -4,8 +4,8 @@
 #include <requite/module.hpp>
 #include <requite/scope.hpp>
 #include <requite/situator.hpp>
-#include <requite/tabulator.hpp>
 #include <requite/table.hpp>
+#include <requite/tabulator.hpp>
 
 namespace requite {
 
@@ -94,6 +94,11 @@ void Tabulator::tabulateEntryPoint(requite::Expression &expression,
     this->setNotOk();
   }
   this->getModule().addEntryPoint(procedure);
+  this->enterScope(procedure.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateFunction(requite::Expression &expression,
@@ -116,6 +121,12 @@ void Tabulator::tabulateFunction(requite::Expression &expression,
   }
   procedure.setName(name);
   this->getScope().addUserSymbol(procedure);
+  requite::Expression &signature_expression = name_expression.getNext();
+  this->enterScope(procedure.getScope());
+  for (requite::Expression &statement : signature_expression.getNextSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateMethod(requite::Expression &expression,
@@ -138,6 +149,12 @@ void Tabulator::tabulateMethod(requite::Expression &expression,
   }
   procedure.setName(name);
   this->getScope().addUserSymbol(procedure);
+  requite::Expression &signature_expression = name_expression.getNext();
+  this->enterScope(procedure.getScope());
+  for (requite::Expression &statement : signature_expression.getNextSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateExtension(requite::Expression &expression,
@@ -160,6 +177,12 @@ void Tabulator::tabulateExtension(requite::Expression &expression,
   }
   procedure.setName(name);
   this->getScope().addUserSymbol(procedure);
+  requite::Expression &signature_expression = name_expression.getNext();
+  this->enterScope(procedure.getScope());
+  for (requite::Expression &statement : signature_expression.getNextSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateConstructor(requite::Expression &expression,
@@ -174,6 +197,12 @@ void Tabulator::tabulateConstructor(requite::Expression &expression,
         procedure.getAttributeFlags(), expression.getNext());
   }
   this->getObject().addConstructor(procedure);
+  requite::Expression &signature_expression = expression.getBranch();
+  this->enterScope(procedure.getScope());
+  for (requite::Expression &statement : signature_expression.getNextSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateDestructor(requite::Expression &expression,
@@ -188,6 +217,11 @@ void Tabulator::tabulateDestructor(requite::Expression &expression,
         procedure.getAttributeFlags(), expression.getNext());
   }
   this->getObject().addDestructor(procedure);
+  this->enterScope(procedure.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateObject(requite::Expression &expression,
@@ -218,7 +252,7 @@ void Tabulator::tabulateObject(requite::Expression &expression,
 }
 
 void Tabulator::tabulateTable(requite::Expression &expression,
-                               bool has_attributes) {
+                              bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE);
   requite::Table &table = this->getContext().makeTable();
   table.setExpression(expression);
