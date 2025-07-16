@@ -167,6 +167,9 @@ void Tabulator::tabulateMatteLocalStatement(requite::Expression &statement,
     REQUITE_ASSERT(!has_attributes);
     this->tabulateMatteLocalStatement(statement.getBranch(), true);
     break;
+  case requite::Opcode::_LOCAL:
+    this->tabulate_Local(statement, has_attributes);
+    break;
   case requite::Opcode::FUNCTION:
     this->tabulateFunction(statement, has_attributes);
     break;
@@ -548,6 +551,28 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
   }
   global.setName(name);
   this->getScope().addUserSymbol(global);
+}
+
+void Tabulator::tabulate_Local(requite::Expression &expression, bool has_attributes) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_LOCAL);
+  requite::Local &local = this->getContext().makeLocal();
+  local.setExpression(expression);
+  expression.setLocal(local);
+  local.setContaining(this->getScope());
+  if (has_attributes) {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "_local must not have attributes");
+    this->setNotOk();
+  }
+  requite::Expression &name_expression = expression.getBranch();
+  llvm::StringRef name;
+  if (!this->getContext().evaluateInstantName(name, name_expression))
+      [[unlikely]] {
+    this->setNotOk();
+    return;
+  }
+  local.setName(name);
+  this->getScope().addUserSymbol(local);
 }
 
 void Tabulator::tabulateProperty(requite::Expression &expression,

@@ -65,6 +65,7 @@ struct Tabulator final {
   void tabulateUse(requite::Expression &expression, bool has_attributes);
   void tabulateGlobal(requite::Expression &expression, bool has_attributes);
   void tabulateProperty(requite::Expression &expression, bool has_attributes);
+  void tabulate_Local(requite::Expression &expression, bool has_attributes);
   void tabulateIf(requite::Expression &expression, bool has_attributes);
   void tabulateElseIf(requite::Expression &expression, bool has_attributes);
   void tabulateElse(requite::Expression &expression, bool has_attributes);
