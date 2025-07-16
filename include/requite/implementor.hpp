@@ -46,7 +46,7 @@ struct Implementor final {
   // implement.cpp
   // [[nodiscard]] bool implementProcedureSignature(requite::Expression&
   // expression);
-  [[nodiscard]] bool implementLocalScope(requite::Expression &first_statement);
+  [[nodiscard]] bool implementMatteLocalStatement(requite::Expression &first_statement);
   // [[nodiscard]] bool implementGlobalValue(requite::Expression& expression);
   [[nodiscard]] bool implement_Local(requite::Expression &statement);
   [[nodiscard]] bool implement_Assign(requite::Expression &statement);

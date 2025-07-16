@@ -99,7 +99,7 @@ bool Context::implementEntryPoint(requite::Procedure &procedure) {
   }
   requite::Expression &first_statement = expression.getBranch();
   requite::Implementor implementor(*this, procedure);
-  if (!implementor.implementLocalScope(first_statement)) {
+  if (!implementor.implementMatteLocalStatement(first_statement)) {
     return false;
   }
   return true;
@@ -141,7 +141,7 @@ bool Context::implementProperty(requite::Property &property) {
   REQUITE_UNREACHABLE(); // TODO
 }
 
-bool Implementor::implementLocalScope(
+bool Implementor::implementMatteLocalStatement(
     requite::Expression &first_statement) {
   bool is_ok = true;
   for (requite::Expression &branch : first_statement.getHorizontalSubrange()) {
