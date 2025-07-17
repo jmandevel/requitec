@@ -12,4 +12,8 @@ enum class ScopeType {
   BLOCK
 };
 
+[[nodiscard]] constexpr bool getCanHaveLocal(requite::ScopeType type);
+
 }
+
+#include <requite/detail/scope_type.hpp>

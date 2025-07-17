@@ -554,6 +554,11 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
 void Tabulator::tabulate_Local(requite::Expression &expression,
                                bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_LOCAL);
+  if (!requite::getCanHaveLocal(this->getScope().getType())) {
+    this->getContext().logSourceMessage(expression, requite::LogType::ERROR,
+                                        "local can not exist in scope");
+    this->setNotOk();
+  }
   requite::Local &local = this->getContext().makeLocal();
   local.setExpression(expression);
   expression.setLocal(local);
