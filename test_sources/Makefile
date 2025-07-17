@@ -1,4 +1,4 @@
-all: tokens parsed situated implemented symbols ir assembly object
+all: tokens parsed situated symbols implemented ir assembly object
 
 tokens:
 	./requite --emit=tokens test.rq -o test.tokens.csv
