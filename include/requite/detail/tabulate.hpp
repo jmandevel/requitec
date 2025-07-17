@@ -49,6 +49,12 @@ Tabulator::tabulateAttributes(requite::Expression &expression) {
         this->tabulateExpression(attribute);
       }
     }
+    if constexpr (requite::getCanBeAttributeCategory<CATEGORY_PARAM>(
+                      requite::AttributeType::MANGLED_NAME)) {
+      if (type == requite::AttributeType::MANGLED_NAME) {
+        this->tabulateExpression(attribute.getBranch());
+      }
+    }
     flags.addAttribute(type);
   }
   return flags;
