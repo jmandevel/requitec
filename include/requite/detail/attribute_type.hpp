@@ -251,8 +251,7 @@ constexpr bool getCanBeAttributeCategory(requite::AttributeType type) {
   } else if constexpr (CATEGORY_PARAM ==
                        requite::AttributeCategory::MEMBER_IMPORT) {
     return requite::getCanBeMemberImportAttribute(type);
-  } else if constexpr (CATEGORY_PARAM ==
-                       requite::AttributeCategory::BLOCK) {
+  } else if constexpr (CATEGORY_PARAM == requite::AttributeCategory::BLOCK) {
     return requite::getCanBeBlockAttribute(type);
   } else {
     static_assert(false, "invalid category");
