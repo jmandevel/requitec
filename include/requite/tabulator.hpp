@@ -74,17 +74,17 @@ struct Tabulator final {
   void tabulateElseIf(requite::Expression &expression, bool has_attributes);
   void tabulateElse(requite::Expression &expression, bool has_attributes);
   void tabulateSwitch(requite::Expression &expression, bool has_attributes);
-  void tabulateCase(requite::Expression &expression, bool has_attributes);
-  void tabulateDefaultCase(requite::Expression &expression,
-                           bool has_attributes);
+  void tabulateSwitchCaseStatement(requite::Expression &expression);
+  void tabulateCase(requite::Expression &expression);
+  void tabulateDefaultCase(requite::Expression &expression);
   void tabulateFor(requite::Expression &expression, bool has_attributes);
   void tabulateWhile(requite::Expression &expression, bool has_attributes);
   void tabulateDoWhile(requite::Expression &expression, bool has_attributes);
   void tabulateLoop(requite::Expression &expression, bool has_attributes);
   void tabulateScope(requite::Expression &expression, bool has_attributes);
+  void tabulate_ClosedInlineScope(requite::Expression &expression);
   void tabulateExpressionForest(requite::Expression& expression);
   void tabulateExpression(requite::Expression& expression);
-  void tabulateStaticExpression(requite::Expression& expression);
 
   // detail/tabulate.hpp
   template <requite::AttributeCategory CATEGORY_PARAM>

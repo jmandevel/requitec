@@ -46,7 +46,7 @@ Tabulator::tabulateAttributes(requite::Expression &expression) {
     if constexpr (requite::getCanBeAttributeCategory<CATEGORY_PARAM>(
                       requite::AttributeType::USER)) {
       if (type == requite::AttributeType::USER) {
-        this->tabulateStaticExpression(attribute);
+        this->tabulateExpression(attribute);
       }
     }
     flags.addAttribute(type);

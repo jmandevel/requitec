@@ -206,12 +206,6 @@ void Tabulator::tabulateMatteLocalStatement(requite::Expression &statement,
   case requite::Opcode::SWITCH:
     this->tabulateSwitch(statement, has_attributes);
     break;
-  case requite::Opcode::CASE:
-    this->tabulateCase(statement, has_attributes);
-    break;
-  case requite::Opcode::DEFAULT_CASE:
-    this->tabulateDefaultCase(statement, has_attributes);
-    break;
   case requite::Opcode::FOR:
     this->tabulateFor(statement, has_attributes);
     break;
@@ -586,7 +580,13 @@ void Tabulator::tabulate_AnonymousFunction(requite::Expression &expression) {
   function.setExpression(expression);
   expression.setAnonymousFunction(function);
   function.setContaining(this->getScope());
-  // TODO
+  requite::Expression &capture = expression.getBranch();
+  requite::Expression &signature = capture.getNext();
+  this->enterScope(function.getScope());
+  for (requite::Expression &statement : signature.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateProperty(requite::Expression &expression,
@@ -610,6 +610,8 @@ void Tabulator::tabulateProperty(requite::Expression &expression,
   }
   property.setName(name);
   this->getScope().addUserSymbol(property);
+  requite::Expression &value_expression = name_expression.getNext();
+  this->tabulateExpression(value_expression);
 }
 
 void Tabulator::tabulateIf(requite::Expression &expression,
@@ -624,7 +626,14 @@ void Tabulator::tabulateIf(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  requite::Expression &condition_expression = expression.getBranch();
+  this->tabulateExpression(condition_expression);
+  for (requite::Expression &statement :
+       condition_expression.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateElseIf(requite::Expression &expression,
@@ -639,7 +648,14 @@ void Tabulator::tabulateElseIf(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  requite::Expression &condition_expression = expression.getBranch();
+  this->tabulateExpression(condition_expression);
+  for (requite::Expression &statement :
+       condition_expression.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateElse(requite::Expression &expression,
@@ -654,7 +670,11 @@ void Tabulator::tabulateElse(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateSwitch(requite::Expression &expression,
@@ -669,37 +689,61 @@ void Tabulator::tabulateSwitch(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  requite::Expression &value_expression = expression.getBranch();
+  this->tabulateExpression(value_expression);
+  for (requite::Expression &statement : value_expression.getNextSubrange()) {
+    this->tabulateSwitchCaseStatement(statement);
+  }
+  this->leaveScope();
 }
 
-void Tabulator::tabulateCase(requite::Expression &expression,
-                             bool has_attributes) {
+void Tabulator::tabulateSwitchCaseStatement(requite::Expression &expression) {
+  switch (const requite::Opcode opcode = expression.getOpcode()) {
+  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+    requite::Expression &branch = expression.getBranch();
+    this->getContext().logErrorMustNotHaveAttributes(branch);
+    this->tabulateSwitchCaseStatement(branch);
+  } break;
+  case requite::Opcode::CASE:
+    this->tabulateCase(expression);
+    break;
+  case requite::Opcode::DEFAULT_CASE:
+    this->tabulateDefaultCase(expression);
+    break;
+  default:
+    REQUITE_UNREACHABLE();
+  }
+}
+
+void Tabulator::tabulateCase(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CASE);
   requite::Block &block = this->getContext().makeBlock();
   block.setType(requite::BlockType::CASE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
-  if (has_attributes) {
-    block.getAttributeFlags() =
-        this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
+  this->enterScope(block.getScope());
+  requite::Expression &value_expression = expression.getBranch();
+  this->tabulateExpression(value_expression);
+  for (requite::Expression &statement : value_expression.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
   }
-  // TODO
+  this->leaveScope();
 }
 
-void Tabulator::tabulateDefaultCase(requite::Expression &expression,
-                                    bool has_attributes) {
+void Tabulator::tabulateDefaultCase(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::DEFAULT_CASE);
   requite::Block &block = this->getContext().makeBlock();
   block.setType(requite::BlockType::DEFAULT_CASE);
   block.setExpression(expression);
   expression.setBlock(block);
   block.setContaining(this->getScope());
-  if (has_attributes) {
-    block.getAttributeFlags() =
-        this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
+  this->enterScope(block.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
   }
-  // TODO
+  this->leaveScope();
 }
 
 void Tabulator::tabulateFor(requite::Expression &expression,
@@ -714,7 +758,13 @@ void Tabulator::tabulateFor(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  requite::Expression &value_expression = expression.getBranch();
+  this->tabulateExpression(value_expression);
+  for (requite::Expression &statement : value_expression.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateWhile(requite::Expression &expression,
@@ -729,7 +779,13 @@ void Tabulator::tabulateWhile(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  requite::Expression &value_expression = expression.getBranch();
+  this->tabulateExpression(value_expression);
+  for (requite::Expression &statement : value_expression.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateDoWhile(requite::Expression &expression,
@@ -744,7 +800,13 @@ void Tabulator::tabulateDoWhile(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  requite::Expression &value_expression = expression.getBranch();
+  this->tabulateExpression(value_expression);
+  for (requite::Expression &statement : value_expression.getNextSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateLoop(requite::Expression &expression,
@@ -759,7 +821,11 @@ void Tabulator::tabulateLoop(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateScope(requite::Expression &expression,
@@ -774,7 +840,26 @@ void Tabulator::tabulateScope(requite::Expression &expression,
     block.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::BLOCK>(expression);
   }
-  // TODO
+  this->enterScope(block.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
+}
+
+void Tabulator::tabulate_ClosedInlineScope(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_CLOSED_INLINE_SCOPE);
+  requite::Block &block = this->getContext().makeBlock();
+  block.setType(requite::BlockType::CLOSED_INLINE_SCOPE);
+  block.setExpression(expression);
+  expression.setBlock(block);
+  block.setContaining(this->getScope());
+  this->enterScope(block.getScope());
+  for (requite::Expression &statement : expression.getBranchSubrange()) {
+    this->tabulateMatteLocalStatement(statement, false);
+  }
+  this->leaveScope();
 }
 
 void Tabulator::tabulateExpressionForest(requite::Expression &expression) {
@@ -799,16 +884,16 @@ void Tabulator::tabulateExpression(requite::Expression &expression) {
   case requite::Opcode::_ANONYMOUS_FUNCTION:
     this->tabulate_AnonymousFunction(expression);
     break;
-  case requite::Opcode::_OPEN_INLINE_SCOPE:
-    // TODO
   case requite::Opcode::_CLOSED_INLINE_SCOPE:
-    // TODO
+    this->tabulate_ClosedInlineScope(expression);
+    break;
+  default:
+    if (!expression.getHasBranch()) {
+      return;
+    }
+    requite::Expression &branch = expression.getBranch();
+    this->tabulateExpressionForest(branch);
   }
-  // TODO
-}
-
-void Tabulator::tabulateStaticExpression(requite::Expression &expression) {
-  // TODO
 }
 
 } // namespace requite
