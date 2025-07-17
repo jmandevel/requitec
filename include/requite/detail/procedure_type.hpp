@@ -6,8 +6,6 @@
 
 #include <requite/unreachable.hpp>
 
-#include <magic_enum.hpp>
-
 namespace requite {
 
 constexpr requite::ProcedureType getProcedureType(requite::Opcode opcode) {
@@ -31,8 +29,23 @@ constexpr requite::ProcedureType getProcedureType(requite::Opcode opcode) {
 }
 
 constexpr std::string_view getName(requite::ProcedureType type) {
-  std::string_view name = magic_enum::enum_name(type);
-  return name;
+  switch (type) {
+  case requite::ProcedureType::NONE:
+    return "none";
+  case requite::ProcedureType::ENTRY_POINT:
+    return "entry_point";
+  case requite::ProcedureType::FUNCTION:
+    return "function";
+  case requite::ProcedureType::METHOD:
+    return "method";
+  case requite::ProcedureType::EXTENSION:
+    return "extension";
+  case requite::ProcedureType::CONSTRUCTOR:
+    return "constructor";
+  case requite::ProcedureType::DESTRUCTOR:
+    return "destructor";
+  }
+  return "error";
 }
 
 constexpr bool getCanHaveName(requite::ProcedureType type) {
