@@ -26,17 +26,6 @@ bool Context::writeAst(const requite::Module &module,
   return writer.writeAst(module, out_path);
 }
 
-AstWriter::AstWriter(requite::Context &context)
-    : _buffer(), _ostream(_buffer), _context_ref(context), _indentation(0) {}
-
-requite::Context &AstWriter::getContext() { return _context_ref.get(); }
-
-const requite::Context &AstWriter::getContext() const {
-  return _context_ref.get();
-}
-
-llvm::raw_string_ostream &AstWriter::getOstream() { return _ostream; }
-
 bool AstWriter::writeAst(const requite::Module &module,
                          llvm::StringRef out_path) {
   this->_buffer.clear();

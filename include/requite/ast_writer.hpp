@@ -17,19 +17,28 @@ struct Context;
 struct Expression;
 
 struct AstWriter final {
+  using Self = requite::AstWriter;
+
   std::string _buffer;
   llvm::raw_string_ostream _ostream;
   std::reference_wrapper<Context> _context_ref;
   unsigned _indentation;
 
-  // write_ast.cpp
+  // ast_writer.cpp
   AstWriter(requite::Context &context);
+  AstWriter(const Self &) = delete;
+  AstWriter(Self &&) = delete;
+  ~AstWriter() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
   [[nodiscard]]
   requite::Context &getContext();
   [[nodiscard]]
   const requite::Context &getContext() const;
   [[nodiscard]]
   llvm::raw_string_ostream &getOstream();
+
+  // write_ast.cpp
   [[nodiscard]] bool writeAst(const requite::Module &module,
                               llvm::StringRef out_path);
   void writeIndentation();

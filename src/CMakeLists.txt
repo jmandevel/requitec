@@ -15,6 +15,7 @@ target_sources(
         anonymous_function.cpp
         anonymous_object.cpp
         anonymous_property.cpp
+        ast_writer.cpp
         attribute_flags.cpp
         block.cpp
         build.cpp
