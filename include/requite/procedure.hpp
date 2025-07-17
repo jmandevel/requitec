@@ -71,7 +71,6 @@ struct Procedure final {
   [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::Signature &getSignature();
   [[nodiscard]] const requite::Signature &getSignature() const;
-  void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   void setNextProcedure(requite::Procedure &procedure);
