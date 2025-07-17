@@ -21,8 +21,8 @@ struct LookupTableEntry final {
     void addSymbol(requite::RootSymbol root);
     void addSymbol(requite::RootSymbol root, requite::Use& use);
     void addSymbol(requite::RootSymbol root, requite::Import& import);
-    [[nodiscard]] llvm::SmallVector<requite::UserSymbol, 1> &getSymbols();
-    [[nodiscard]] const llvm::SmallVector<requite::UserSymbol, 1> &getSymbols() const;
+    [[nodiscard]] llvm::SmallVector<requite::UserSymbol, 1> &getUserSymbols();
+    [[nodiscard]] const llvm::SmallVector<requite::UserSymbol, 1> &getUserSymbols() const;
     [[nodiscard]] bool getIsAmbiguous() const;
 };
 

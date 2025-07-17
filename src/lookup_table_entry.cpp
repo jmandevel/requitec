@@ -19,13 +19,13 @@ void LookupTableEntry::addSymbol(requite::RootSymbol root,
   this->_symbols.emplace_back(root, import);
 }
 
-llvm::SmallVector<requite::UserSymbol, 1> &LookupTableEntry::getSymbols() {
+llvm::SmallVector<requite::UserSymbol, 1> &LookupTableEntry::getUserSymbols() {
   REQUITE_ASSERT(!this->_symbols.empty());
   return this->_symbols;
 }
 
 const llvm::SmallVector<requite::UserSymbol, 1> &
-LookupTableEntry::getSymbols() const {
+LookupTableEntry::getUserSymbols() const {
   REQUITE_ASSERT(!this->_symbols.empty());
   return this->_symbols;
 }

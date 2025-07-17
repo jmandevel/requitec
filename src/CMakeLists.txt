@@ -15,6 +15,7 @@ target_sources(
         anonymous_function.cpp
         anonymous_object.cpp
         anonymous_property.cpp
+        ast_writer_indent_lock.cpp
         ast_writer.cpp
         attribute_flags.cpp
         block.cpp
@@ -71,6 +72,8 @@ target_sources(
         tokenizer.cpp
         tuple.cpp
         use.cpp
+        user_symbol_writer_indent_lock.cpp
+        user_symbol_writer.cpp
         user_symbol.cpp
         global.cpp
         implement.cpp

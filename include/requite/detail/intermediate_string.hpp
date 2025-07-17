@@ -6,11 +6,8 @@
 
 namespace requite {
 
-template <unsigned SMALL_SIZE_PARAM>
-llvm::StringRef getCsvValueText(llvm::SmallString<SMALL_SIZE_PARAM> &buffer,
-                                llvm::StringRef text) {
-  buffer.clear();
-  std::size_t buffer_size = 0;
+inline std::string getIntermediateOutputStringText(llvm::StringRef text) {
+  std::string buffer;
   buffer += "\" ";
   for (const char c : text) {
     switch (c) {

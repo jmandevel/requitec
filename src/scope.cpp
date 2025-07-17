@@ -17,6 +17,10 @@ bool Scope::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Scope::operator!=(Self &&rhs) const { return this != &rhs; }
 
+const llvm::StringMap<requite::LookupTableEntry> Scope::getLookupTable() const {
+  return this->_symbol_map;
+}
+
 bool Scope::getHasModule() const {
   return this->getType() == requite::ScopeType::MODULE;
 }

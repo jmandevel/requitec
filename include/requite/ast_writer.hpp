@@ -31,12 +31,9 @@ struct AstWriter final {
   ~AstWriter() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]]
-  requite::Context &getContext();
-  [[nodiscard]]
-  const requite::Context &getContext() const;
-  [[nodiscard]]
-  llvm::raw_string_ostream &getOstream();
+  [[nodiscard]] requite::Context &getContext();
+  [[nodiscard]] const requite::Context &getContext() const;
+  [[nodiscard]] llvm::raw_string_ostream &getOstream();
 
   // write_ast.cpp
   [[nodiscard]] bool writeAst(const requite::Module &module,
@@ -53,12 +50,11 @@ struct AstWriterIndentLock final {
 
   std::reference_wrapper<requite::AstWriter> _writer;
 
-  // write_ast.cpp
-  AstWriterIndentLock(AstWriter &writer);
+  // ast_writer_indent_lock.cpp
+  AstWriterIndentLock(requite::AstWriter &writer);
   AstWriterIndentLock(const Self &) = delete;
   AstWriterIndentLock(Self &&) = delete;
   ~AstWriterIndentLock();
-
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };

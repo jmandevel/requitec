@@ -6,6 +6,80 @@
 
 namespace requite {
 
+inline llvm::StringRef getName(requite::RootSymbolType type) {
+  switch (type) {
+  case requite::RootSymbolType::NONE:
+    return "none";
+  case requite::RootSymbolType::INFERENCE:
+    return "inference";
+  case requite::RootSymbolType::VOID:
+    return "void";
+  case requite::RootSymbolType::VARIADIC_ARGUMENTS:
+    return "variadic_arguments";
+  case requite::RootSymbolType::NULL_:
+    return "null";
+  case requite::RootSymbolType::INTEGER_LITERAL:
+    return "integer_literal";
+  case requite::RootSymbolType::FRACTIONAL_LITERAL:
+    return "fractional_literal";
+  case requite::RootSymbolType::CODEUNIT_LITERAL:
+    return "codeunit_literal";
+  case requite::RootSymbolType::STRING_LITERAL:
+    return "string_literal";
+  case requite::RootSymbolType::BOOLEAN:
+    return "boolean";
+  case requite::RootSymbolType::WORD:
+    return "word";
+  case requite::RootSymbolType::SIGNED:
+    return "signed";
+  case requite::RootSymbolType::UNSIGNED:
+    return "unsigned";
+  case requite::RootSymbolType::BFLOAT16:
+    return "bfloat16";
+  case requite::RootSymbolType::BINARY16:
+    return "binary16";
+  case requite::RootSymbolType::BINARY32:
+    return "binary32";
+  case requite::RootSymbolType::BINARY64:
+    return "binary64";
+  case requite::RootSymbolType::BINARY128:
+    return "binary128";
+  case requite::RootSymbolType::UTF8:
+    return "utf8";
+  case requite::RootSymbolType::SIGNATURE:
+    return "signature";
+  case requite::RootSymbolType::TUPLE:
+    return "tuple";
+  case requite::RootSymbolType::ANONYMOUS_OBJECT:
+    return "anonymous_object";
+  case requite::RootSymbolType::SCOPE:
+    return "scope";
+  case requite::RootSymbolType::OBJECT:
+    return "object";
+  case requite::RootSymbolType::TABLE:
+    return "table";
+  case requite::RootSymbolType::ALIAS:
+    return "alias";
+  case requite::RootSymbolType::LOCAL:
+    return "local";
+  case requite::RootSymbolType::GLOBAL:
+    return "global";
+  case requite::RootSymbolType::PROPERTY:
+    return "property";
+  case requite::RootSymbolType::PROCEDURE:
+    return "procedure";
+  case requite::RootSymbolType::MODULE:
+    return "module";
+  case requite::RootSymbolType::LABEL:
+    return "label";
+  case requite::RootSymbolType::IMPORT:
+    return "import";
+  case requite::RootSymbolType::USE:
+    return "use";
+  }
+  return "error";
+}
+
 constexpr bool getHasDepth(requite::RootSymbolType type) {
   switch (type) {
   case requite::RootSymbolType::NONE:

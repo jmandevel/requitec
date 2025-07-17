@@ -2,6 +2,18 @@
 
 namespace requite {
 
+inline llvm::StringRef getName(requite::UserSymbolOrigin origin) {
+  switch (origin) {
+    case requite::UserSymbolOrigin::INTERNAL:
+      return "internal";
+    case requite::UserSymbolOrigin::USED:
+      return "used";
+    case requite::UserSymbolOrigin::IMPORTED:
+      return "imported";
+  }
+  return "error";
+}
+
 template <requite::UserSymbolType TYPE_PARAM>
 bool getIsValidUserSymbolAttribute(requite::ScopeType scope_type,
                                    requite::AttributeType attribute_type) {

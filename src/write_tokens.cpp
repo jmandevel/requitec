@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/context.hpp>
-#include <requite/csv.hpp>
+#include <requite/intermediate_string.hpp>
 #include <requite/token.hpp>
 
 #include "llvm/Support/FormatVariadic.h"
@@ -21,13 +21,11 @@ namespace requite {
 bool Context::writeTokens(requite::Module &module,
                             std::vector<requite::Token> &tokens, llvm::StringRef out_path) {
   llvm::SmallString<64> str_buffer_a;
-  llvm::SmallString<64> str_buffer_b;
   llvm::raw_svector_ostream str_buffer_a_ostream(str_buffer_a);
   for (const requite::Token &token : tokens) {
-    str_buffer_b.clear();
     llvm::StringRef text = token.getSourceText();
-    llvm::StringRef csv_value_text =
-        requite::getCsvValueText(str_buffer_b, text);
+    std::string csv_value_text =
+        requite::getIntermediateOutputStringText(text);
     str_buffer_a_ostream << llvm::formatv(
         "{0},{1},{2},{3},{4}\n", token.getLine(), token.getColumn(),
         token.getSourceTextLength(), requite::getName(token.getType()),

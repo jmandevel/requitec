@@ -66,6 +66,8 @@ enum class RootSymbolType {
 };
 
 // detail/symbol.hpp
+[[nodiscard]] inline llvm::StringRef getName(requite::RootSymbolType type);
+
 [[nodiscard]] constexpr bool getHasDepth(requite::RootSymbolType type);
 
 [[nodiscard]] constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type);

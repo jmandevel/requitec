@@ -61,6 +61,8 @@ struct Scope final {
   Self &operator=(Self &&rhs) = delete;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(Self &&rhs) const;
+  [[nodiscard]] const llvm::StringMap<requite::LookupTableEntry>
+  getLookupTable() const;
   [[nodiscard]] bool getHasModule() const;
   void setModule(requite::Module &module);
   [[nodiscard]] requite::Module &getModule();

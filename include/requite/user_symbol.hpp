@@ -4,6 +4,8 @@
 #include <requite/scope_type.hpp>
 #include <requite/symbol.hpp>
 
+#include <llvm/ADT/StringRef.h>
+
 #include <string_view>
 
 namespace requite {
@@ -30,6 +32,8 @@ enum class UserSymbolType {
 };
 
 enum class UserSymbolOrigin { INTERNAL, USED, IMPORTED };
+
+[[nodiscard]] inline llvm::StringRef getName(requite::UserSymbolOrigin origin);
 
 struct UserSymbol final {
   using Self = UserSymbol;
