@@ -43,7 +43,6 @@ struct Alias final {
   void setExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
-  void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   [[nodiscard]] bool getHasContaining() const;

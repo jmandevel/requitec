@@ -35,10 +35,6 @@ const requite::Expression &Alias::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-void Alias::setAttributeFlags(requite::AttributeFlags attributes) {
-  this->_attributes = attributes;
-}
-
 requite::AttributeFlags &Alias::getAttributeFlags() {
   return this->_attributes;
 }

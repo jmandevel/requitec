@@ -53,7 +53,6 @@ struct Object final {
   void setContaining(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContaining();
   [[nodiscard]] const requite::Scope &getContaining() const;
-  void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   void setMangledName(llvm::StringRef name);

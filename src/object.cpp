@@ -63,10 +63,6 @@ const requite::Scope &Object::getContaining() const {
   return this->getScope().getContaining();
 }
 
-void Object::setAttributeFlags(requite::AttributeFlags attributes) {
-  this->_attributes = attributes;
-}
-
 requite::AttributeFlags &Object::getAttributeFlags() {
   return this->_attributes;
 }

@@ -39,7 +39,6 @@ struct Global final {
   [[nodiscard]] bool getHasName() const;
   void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
-  void setAttributeFlags(requite::AttributeFlags attributes);
   [[nodiscard]] requite::AttributeFlags &getAttributeFlags();
   [[nodiscard]] const requite::AttributeFlags &getAttributeFlags() const;
   [[nodiscard]] bool getHasExpression() const;

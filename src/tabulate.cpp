@@ -248,21 +248,27 @@ void Tabulator::tabulateEntryPoint(requite::Expression &expression,
 void Tabulator::tabulateFunction(requite::Expression &expression,
                                  bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::FUNCTION);
-  requite::Procedure &procedure = this->getContext().makeFunction();
-  procedure.setExpression(expression);
-  expression.setProcedure(procedure);
-  procedure.setContaining(this->getScope());
+  requite::AttributeFlags attributes;
   if (has_attributes) {
     if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      procedure.getAttributeFlags() =
+      attributes =
           this->tabulateAttributes<requite::AttributeCategory::MEMBER_FUNCTION>(
               expression);
     } else {
-      procedure.getAttributeFlags() =
+      attributes =
           this->tabulateAttributes<requite::AttributeCategory::FUNCTION>(
               expression);
     }
   }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template function
+    return;
+  }
+  requite::Procedure &procedure = this->getContext().makeFunction();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
+  procedure.getAttributeFlags() = attributes;
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))
@@ -284,15 +290,21 @@ void Tabulator::tabulateFunction(requite::Expression &expression,
 void Tabulator::tabulateMethod(requite::Expression &expression,
                                bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::METHOD);
+  requite::AttributeFlags attributes;
+  if (has_attributes) {
+    attributes =
+        this->tabulateAttributes<requite::AttributeCategory::MEMBER_METHOD>(
+            expression);
+  }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template method
+    return;
+  }
   requite::Procedure &procedure = this->getContext().makeMethod();
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
-  if (has_attributes) {
-    procedure.getAttributeFlags() =
-        this->tabulateAttributes<requite::AttributeCategory::MEMBER_METHOD>(
-            expression);
-  }
+  procedure.getAttributeFlags() = attributes;
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))
@@ -314,20 +326,26 @@ void Tabulator::tabulateMethod(requite::Expression &expression,
 void Tabulator::tabulateExtension(requite::Expression &expression,
                                   bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::EXTENSION);
-  requite::Procedure &procedure = this->getContext().makeExtension();
-  procedure.setExpression(expression);
-  expression.setProcedure(procedure);
-  procedure.setContaining(this->getScope());
+  requite::AttributeFlags attributes;
   if (has_attributes) {
     if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      procedure.getAttributeFlags() = this->tabulateAttributes<
+      attributes = this->tabulateAttributes<
           requite::AttributeCategory::MEMBER_EXTENSION>(expression);
     } else {
-      procedure.getAttributeFlags() =
+      attributes =
           this->tabulateAttributes<requite::AttributeCategory::EXTENSION>(
               expression);
     }
   }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template extension
+    return;
+  }
+  requite::Procedure &procedure = this->getContext().makeExtension();
+  procedure.setExpression(expression);
+  expression.setProcedure(procedure);
+  procedure.setContaining(this->getScope());
+  procedure.getAttributeFlags() = attributes;
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))
@@ -349,14 +367,20 @@ void Tabulator::tabulateExtension(requite::Expression &expression,
 void Tabulator::tabulateConstructor(requite::Expression &expression,
                                     bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::CONSTRUCTOR);
+  requite::AttributeFlags attributes;
+  if (has_attributes) {
+    attributes = this->tabulateAttributes<
+        requite::AttributeCategory::MEMBER_CONSTRUCTOR>(expression);
+  }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template constructor
+    return;
+  }
   requite::Procedure &procedure = this->getContext().makeExtension();
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
   procedure.setContaining(this->getScope());
-  if (has_attributes) {
-    procedure.getAttributeFlags() = this->tabulateAttributes<
-        requite::AttributeCategory::MEMBER_CONSTRUCTOR>(expression);
-  }
+  procedure.getAttributeFlags() = attributes;
   this->getObject().addConstructor(procedure);
   requite::Expression &signature_expression = expression.getBranch();
   this->enterScope(procedure.getScope());
@@ -370,6 +394,7 @@ void Tabulator::tabulateConstructor(requite::Expression &expression,
 void Tabulator::tabulateDestructor(requite::Expression &expression,
                                    bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::DESTRUCTOR);
+  requite::AttributeFlags attributes;
   requite::Procedure &procedure = this->getContext().makeExtension();
   procedure.setExpression(expression);
   expression.setProcedure(procedure);
@@ -390,21 +415,26 @@ void Tabulator::tabulateDestructor(requite::Expression &expression,
 void Tabulator::tabulateObject(requite::Expression &expression,
                                bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::OBJECT);
+  requite::AttributeFlags attributes;
+  if (has_attributes) {
+    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
+      attributes =
+          this->tabulateAttributes<requite::AttributeCategory::MEMBER_OBJECT>(
+              expression);
+    } else {
+      attributes = this->tabulateAttributes<requite::AttributeCategory::OBJECT>(
+          expression);
+    }
+  }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template object
+    return;
+  }
   requite::Object &object = this->getContext().makeObject();
   object.setExpression(expression);
   expression.setObject(object);
   object.setContaining(this->getScope());
-  if (has_attributes) {
-    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      object.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::MEMBER_OBJECT>(
-              expression);
-    } else {
-      object.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::OBJECT>(
-              expression);
-    }
-  }
+  object.getAttributeFlags() = attributes;
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))
@@ -451,21 +481,26 @@ void Tabulator::tabulateTable(requite::Expression &expression,
 void Tabulator::tabulateAlias(requite::Expression &expression,
                               bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
+  requite::AttributeFlags attributes;
+  if (has_attributes) {
+    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
+      attributes =
+          this->tabulateAttributes<requite::AttributeCategory::MEMBER_ALIAS>(
+              expression);
+    } else {
+      attributes = this->tabulateAttributes<requite::AttributeCategory::ALIAS>(
+          expression);
+    }
+  }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template alias
+    return;
+  }
   requite::Alias &alias = this->getContext().makeAlias();
   alias.setExpression(expression);
   expression.setAlias(alias);
   alias.setContaining(this->getScope());
-  if (has_attributes) {
-    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      alias.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::MEMBER_ALIAS>(
-              expression);
-    } else {
-      alias.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::ALIAS>(
-              expression);
-    }
-  }
+  alias.getAttributeFlags() = attributes;
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))
@@ -519,21 +554,26 @@ void Tabulator::tabulateUse(requite::Expression &expression,
 void Tabulator::tabulateGlobal(requite::Expression &expression,
                                bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL);
+  requite::AttributeFlags attributes;
+  if (has_attributes) {
+    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
+      attributes =
+          this->tabulateAttributes<requite::AttributeCategory::MEMBER_GLOBAL>(
+              expression);
+    } else {
+      attributes = this->tabulateAttributes<requite::AttributeCategory::GLOBAL>(
+          expression);
+    }
+  }
+  if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
+    // TODO tabulate template global
+    return;
+  }
   requite::Global &global = this->getContext().makeGlobal();
   global.setExpression(expression);
   expression.setGlobal(global);
   global.setContaining(this->getScope());
-  if (has_attributes) {
-    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      global.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::MEMBER_GLOBAL>(
-              expression);
-    } else {
-      global.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::GLOBAL>(
-              expression);
-    }
-  }
+
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))

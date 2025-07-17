@@ -18,10 +18,6 @@ void Property::setName(llvm::StringRef name) {
   this->_name = name.str();
 }
 
-void Property::setAttributeFlags(requite::AttributeFlags attributes) {
-  this->_attributes = attributes;
-}
-
 requite::AttributeFlags &Property::getAttributeFlags() {
   return this->_attributes;
 }
