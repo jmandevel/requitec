@@ -37,8 +37,6 @@ struct Module final {
   ~Module() = default;
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
-  [[nodiscard]] bool getHasName() const;
-  void setName(llvm::StringRef name);
   [[nodiscard]] llvm::StringRef getName() const;
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
@@ -46,12 +44,14 @@ struct Module final {
   [[nodiscard]] const requite::File &getFile() const;
   [[nodiscard]] bool getHasExpression() const;
   void setExpression(requite::Expression &expression);
+  void changeExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &
   replaceExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &popExpression();
   [[nodiscard]] requite::Expression &getExpression();
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] llvm::StringRef getPath() const;
+  [[nodiscard]] llvm::StringRef getExtensionlessPath() const;
   [[nodiscard]] llvm::StringRef getIdentifier() const;
   [[nodiscard]] llvm::StringRef getText() const;
   [[nodiscard]] const char *getTextPtr() const;

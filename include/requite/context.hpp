@@ -7,12 +7,12 @@
 #include <requite/alias.hpp>
 #include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
+#include <requite/block.hpp>
 #include <requite/file.hpp>
 #include <requite/global.hpp>
 #include <requite/import.hpp>
 #include <requite/label.hpp>
 #include <requite/local.hpp>
-#include <requite/block.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/numeric.hpp>
@@ -86,6 +86,7 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
   std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
+  bool _has_unloaded_module = false;
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
   llvm::TargetMachine *_llvm_target_machine_ptr = {};
@@ -162,35 +163,43 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Use>> &getUseUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Use>> &
   getUseUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &
-  getBlockUptrs();
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
   getBlockUptrs() const;
 
   // file.cpp
-  [[nodiscard]]
-  bool loadFileBuffer(requite::File &file, llvm::StringRef path);
-  [[nodiscard]]
-  requite::SourceLocation getSourceLocation(llvm::SMLoc loc) const;
-  [[nodiscard]]
-  requite::SourceLocation
+  [[nodiscard]] bool loadFileBuffer(requite::File &file, llvm::StringRef path);
+
+  // source_text.cpp
+  [[nodiscard]] requite::SourceLocation
+  getSourceLocation(llvm::SMLoc loc) const;
+  [[nodiscard]] requite::SourceLocation
   getSourceStartLocation(const requite::Expression &expression) const;
-  [[nodiscard]]
-  requite::SourceLocation
+  [[nodiscard]] requite::SourceLocation
   getSourceEndLocation(const requite::Expression &expression) const;
-  [[nodiscard]]
-  requite::SourceRange
+  [[nodiscard]] requite::SourceRange
   getSourceRange(const requite::Expression &expression) const;
+
+  // module_map.cpp
+  void catalogueImport(requite::Import& import);
   [[nodiscard]]
-  bool getHasModule(llvm::StringRef name) const;
+  bool getHasModule(llvm::StringRef path) const;
   [[nodiscard]]
-  requite::Module &getModule(llvm::StringRef name);
+  requite::Module &getModule(llvm::StringRef path);
   [[nodiscard]]
-  const requite::Module &getModule(llvm::StringRef name) const;
+  const requite::Module &getModule(llvm::StringRef path) const;
   [[nodiscard]]
   std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
   [[nodiscard]]
   const std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs() const;
+  [[nodiscard]]
+  requite::Module &getSourceModule();
+  [[nodiscard]]
+  const requite::Module &getSourceModule() const;
+  [[nodiscard]]
+  requite::Module *getModulePtr(llvm::StringRef import_path);
+  [[nodiscard]]
+  const requite::Module *getModulePtr(llvm::StringRef import_path) const;
 
   // validate_source.cpp
   [[nodiscard]]
@@ -199,9 +208,6 @@ struct Context final : public requite::_ContextLlvmContext {
   // situate_ast.cpp
   [[nodiscard]]
   bool situateAst(requite::Module &module);
-  [[nodiscard]]
-  bool situateTree(requite::Module &module, requite::Expression &expression,
-                   requite::Situation situation);
 
   // tokenize_tokens.cpp
   [[nodiscard]]
@@ -211,9 +217,6 @@ struct Context final : public requite::_ContextLlvmContext {
   // parse_ast.cpp
   [[nodiscard]]
   bool parseAst(requite::Module &module, std::vector<requite::Token> &token);
-
-  // source_name.cpp
-  [[nodiscard]] bool determineModuleName(requite::Module &module);
 
   // tabulate.cpp
   [[nodiscard]] bool tabulateModule(requite::Module &module);
@@ -275,16 +278,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // write_object.cpp
   [[nodiscard]] bool writeObject(llvm::StringRef output_path);
-
-  // get_module.cpp
-  [[nodiscard]]
-  requite::Module &getSourceModule();
-  [[nodiscard]]
-  const requite::Module &getSourceModule() const;
-  [[nodiscard]]
-  requite::Module *getModulePtr(llvm::StringRef import_path);
-  [[nodiscard]]
-  const requite::Module *getModulePtr(llvm::StringRef import_path) const;
 
   // llvm_target.cpp
   [[nodiscard]] bool initializeLlvm();

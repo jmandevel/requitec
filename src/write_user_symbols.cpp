@@ -22,11 +22,7 @@ bool UserSymbolWriter::writeUserSymbols(const requite::Module &module,
   this->getOstream() << "module:{";
   {
     requite::UserSymbolWriterIndentLock lock0(*this);
-    if (module.getHasName()) {
-      this->writeStringProperty("name", module.getName());
-    } else {
-      this->writeStringProperty("name", "");
-    }
+    this->writeStringProperty("name", module.getName());
     this->writeScope(module.getScope());
   }
   this->writeNewLine();

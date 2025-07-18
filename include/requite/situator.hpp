@@ -49,8 +49,6 @@ struct Situator final {
   void insertModuleRoot();
 
   // detail/situate/situate.hpp
-  [[nodiscard]] inline bool situateExpression(requite::Expression &expression,
-                                              requite::Situation situation);
   template <requite::Situation SITUATION_PARAM>
   inline void situateExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>

@@ -309,7 +309,7 @@ enum class Opcode : unsigned {
   USE,
 
   // SOURCES
-  MODULE,
+  _MODULE_ROOT,
 
   // ERROR HANDLING AND DEBUGGING
   ASSERT,

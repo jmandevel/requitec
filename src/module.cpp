@@ -13,16 +13,13 @@ bool Module::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Module::operator!=(const Self &rhs) const { return this != &rhs; }
 
-bool Module::getHasName() const { return !this->_name.empty(); }
-
-void Module::setName(llvm::StringRef name) {
-  REQUITE_ASSERT(!this->getHasName());
-  this->_name = name.str();
-}
-
 llvm::StringRef Module::getName() const {
-  REQUITE_ASSERT(this->getHasName());
-  return this->_name;
+  llvm::StringRef path = this->getPath();
+  std::size_t last_dot_pos = path.rfind('.');
+  if (last_dot_pos == path.npos) {
+    return path;
+  }
+  return path.take_front(last_dot_pos);
 }
 
 requite::Scope &Module::getScope() { return this->_scope; }
@@ -39,6 +36,11 @@ bool Module::getHasExpression() const {
 
 void Module::setExpression(requite::Expression &expression) {
   requite::setSingleRef(this->_expression_ptr, expression);
+}
+
+void Module::changeExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(this->_expression_ptr != nullptr);
+  this->_expression_ptr = &expression;
 }
 
 requite::Expression &

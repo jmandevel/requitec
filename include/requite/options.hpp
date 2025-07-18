@@ -5,6 +5,7 @@
 #pragma once
 
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/ArrayRef.h>
 
 #include <string>
 
@@ -30,6 +31,8 @@ enum Form {
 [[nodiscard]] llvm::StringRef getInputFilePath();
 
 [[nodiscard]] llvm::StringRef getOutputFilePath();
+
+[[nodiscard]] llvm::ArrayRef<std::string> getImportDirectories();
 
 [[nodiscard]] requite::Emit getEmitMode();
 

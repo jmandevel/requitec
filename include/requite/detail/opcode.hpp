@@ -543,8 +543,8 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_LOCAL_STATEMENT;
 
   // SOURCES
-  case Opcode::MODULE:
-    return _NONE;
+  case Opcode::_MODULE_ROOT:
+    return _INTERMEDIATE_OPERATION;
 
   // ERROR HANDLING AND DEBUGGING
   case Opcode::ASSERT:
@@ -1051,8 +1051,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "use";
 
   // SOURCES
-  case requite::Opcode::MODULE:
-    return "module";
+  case requite::Opcode::_MODULE_ROOT:
+    return "_module_root";
 
   // ERROR HANDLING AND DEBUGGING
   case requite::Opcode::ASSERT:

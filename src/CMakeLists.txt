@@ -30,7 +30,6 @@ target_sources(
         expression_make.cpp
         expression.cpp
         file.cpp
-        get_module.cpp
         global.cpp
         label.cpp
         llvm_target.cpp
@@ -41,6 +40,7 @@ target_sources(
         lookup_table_entry.cpp
         lookup_table_result.cpp
         make_symbols.cpp
+        module_table.cpp
         module.cpp
         object.cpp
         opcode.cpp
@@ -59,8 +59,8 @@ target_sources(
         scope.cpp
         situate.cpp
         situator.cpp
-        source_name.cpp
         source_ranger.cpp
+        source_text.cpp
         sub_symbol.cpp
         symbol.cpp
         table.cpp

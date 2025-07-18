@@ -9,21 +9,13 @@
 #include <requite/opcode.hpp>
 #include <requite/situator.hpp>
 
+#include <llvm/Support/Path.h>
+
 namespace requite {
 
 bool Context::situateAst(requite::Module &module) {
-
   requite::Situator situator(*this, module);
   if (!situator.situateAst()) {
-    return false;
-  }
-  return true;
-}
-
-bool Context::situateTree(requite::Module &module,
-                          requite::Expression &expression, requite::Situation situation) {
-  requite::Situator situator(*this, module);
-  if (!situator.situateExpression(expression, situation)) {
     return false;
   }
   return true;
@@ -32,38 +24,38 @@ bool Context::situateTree(requite::Module &module,
 bool Situator::situateAst() {
   this->insertModuleRoot();
   requite::Expression &root = this->getModule().getExpression();
-  REQUITE_ASSERT(root.getOpcode() == requite::Opcode::MODULE);
+  REQUITE_ASSERT(root.getOpcode() == requite::Opcode::_MODULE_ROOT);
   this->situateExpression<requite::Situation::ROOT_STATEMENT>(root);
   return this->getIsOk();
 }
 
 void Situator::insertModuleRoot() {
   requite::Module &module = this->getModule();
-  if (!module.getHasExpression() ||
-      module.getExpression().getOpcode() != requite::Opcode::MODULE) {
-    llvm::SmallString<16> buffer;
-    llvm::raw_svector_ostream buffer_stream(buffer);
-    buffer.clear();
-    buffer_stream << module.getPath();
-    llvm::StringRef name = buffer_stream.str();
-    requite::Expression &module_expression =
-        requite::Expression::makeOperation(requite::Opcode::MODULE);
-    module_expression.setSourceInsertedAt(module.getTextPtr());
+  if (!module.getHasExpression()) {
+    requite::Expression &root_expression =
+        requite::Expression::makeOperation(requite::Opcode::_MODULE_ROOT);
     requite::Expression &name_expression =
-        requite::Expression::makeIdentifier(name);
-    name_expression.setSourceInsertedAt(module.getTextPtr());
-    module_expression.setBranch(name_expression);
-    if (module.getHasExpression()) {
-      name_expression.setNext(module.replaceExpression(module_expression));
-    } else {
-      module.setExpression(module_expression);
-    }
+        requite::Expression::makeString(module.getName());
+    root_expression.setBranch(name_expression);
+    module.setExpression(root_expression);
+    return;
   }
-  if (module.getExpression().getHasNext()) {
-    requite::Expression &last_module_branch =
-        this->getModule().getExpression().getLastBranch();
-    last_module_branch.setNext(module.getExpression().popNext());
+  requite::Expression &root_expression = module.getExpression();
+  if (root_expression.getOpcode() != requite::Opcode::_MODULE_ROOT) {
+    requite::Expression &new_root_expression =
+        requite::Expression::makeOperation(requite::Opcode::_MODULE_ROOT);
+    requite::Expression &name_expression =
+        requite::Expression::makeString(module.getName());
+    new_root_expression.setBranch(name_expression);
+    name_expression.setNext(root_expression);
+    module.changeExpression(new_root_expression);
+    return;
   }
+  requite::Expression &branch = root_expression.getBranch();
+  if (requite::getCanBeStringLiteralSituation(branch.getOpcode())) {
+      branch.changeDataText(module.getName());
+  }
+  // if branch is not situation, error is caught in situateExpression() later
 }
 
 } // namespace requite

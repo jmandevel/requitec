@@ -17,6 +17,10 @@ static llvm::cl::opt<std::string>
     OUTPUT_FILE("o", llvm::cl::desc("Path to the output build file."),
                 llvm::cl::value_desc("<output file>"), llvm::cl::Required);
 
+static llvm::cl::list<std::string>
+    IMPORT_DIRECTORIES("I", llvm::cl::desc("import directories"),
+                       llvm::cl::ZeroOrMore, llvm::cl::value_desc("dir"));
+
 static llvm::cl::opt<Emit> EMIT(
     "emit", llvm::cl::desc("Choose the type of target to build."),
     llvm::cl::values(
@@ -54,6 +58,10 @@ static llvm::cl::opt<Form> FORM(
 llvm::StringRef getInputFilePath() { return requite::INPUT_FILE.getValue(); }
 
 llvm::StringRef getOutputFilePath() { return requite::OUTPUT_FILE.getValue(); }
+
+llvm::ArrayRef<std::string> getImportDirectories() {
+    return requite::IMPORT_DIRECTORIES;
+}
 
 requite::Emit getEmitMode() { return requite::EMIT.getValue(); }
 

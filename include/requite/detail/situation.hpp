@@ -71,8 +71,8 @@ constexpr llvm::StringRef getName(requite::Situation situation) {
       return "LAST_SWITCH_CASE";
     case Situation::CAPTURE:
       return "CAPTURE";
-    case Situation::INTEGER_LITERAL:
-      return "INTEGER_LITERAL";
+    case Situation::STRING_LITERAL:
+      return "STRING_LITERAL";
   }
   return "NONE";
 }
@@ -176,8 +176,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeLastSwitchCaseSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::CAPTURE) {
     return requite::getCanBeCaptureSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::INTEGER_LITERAL) {
-    return requite::getCanBeIntegerLiteralSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::STRING_LITERAL) {
+    return requite::getCanBeStringLiteralSituation(opcode);
   } else {
     static_assert(false, "invalid situation");
   }
@@ -286,7 +286,7 @@ constexpr requite::Situation getNextSymbolReflectiveSituation() {
 constexpr bool getCanBeNoneSituation(requite::Opcode opcode) { return false; }
 
 constexpr bool getCanBeRootStatementSituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::MODULE;
+  return opcode == requite::Opcode::_MODULE_ROOT;
 }
 constexpr bool getCanBeConvergingSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_CONVERGING);
@@ -433,8 +433,8 @@ constexpr bool getCanBeCaptureSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::_CAPTURE;
 }
 
-constexpr bool getCanBeIntegerLiteralSituation(requite::Opcode opcode) {
-  return opcode == requite::Opcode::__INTEGER_LITERAL;
+constexpr bool getCanBeStringLiteralSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::__STRING_LITERAL;
 }
 
 } // namespace requite
