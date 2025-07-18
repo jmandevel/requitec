@@ -69,7 +69,6 @@ struct Context final : public requite::_ContextLlvmContext {
   mutable std::mutex _mutex = {};
   std::unique_ptr<llvm::ThreadPoolInterface> _scheduler_ptr = {};
   llvm::StringMap<requite::Opcode> _opcode_table = {};
-  std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   requite::Module _source_module = {};
   std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
   std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
@@ -85,8 +84,8 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
   std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
   std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
+  std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
-  bool _has_unloaded_module = false;
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
   llvm::TargetMachine *_llvm_target_machine_ptr = {};
@@ -124,6 +123,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Import &makeImport();
   [[nodiscard]] requite::Use &makeUse();
   [[nodiscard]] requite::Block &makeBlock();
+  [[nodiscard]] requite::Module &makeModule();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
   getScopeUptrs() const;
@@ -166,6 +166,9 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
   getBlockUptrs() const;
+    [[nodiscard]] std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::Module>> &
+  getModuleUptrs() const;
 
   // file.cpp
   [[nodiscard]] bool loadFileBuffer(requite::File &file, llvm::StringRef path);
@@ -181,17 +184,13 @@ struct Context final : public requite::_ContextLlvmContext {
   getSourceRange(const requite::Expression &expression) const;
 
   // module_map.cpp
-  void catalogueImport(requite::Import& import);
+  [[nodiscard]] bool importModule(requite::Import& import);
   [[nodiscard]]
   bool getHasModule(llvm::StringRef path) const;
   [[nodiscard]]
   requite::Module &getModule(llvm::StringRef path);
   [[nodiscard]]
   const requite::Module &getModule(llvm::StringRef path) const;
-  [[nodiscard]]
-  std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
-  [[nodiscard]]
-  const std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs() const;
   [[nodiscard]]
   requite::Module &getSourceModule();
   [[nodiscard]]

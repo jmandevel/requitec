@@ -129,6 +129,12 @@ requite::Block &Context::makeBlock() {
   return requite::getRef(block_uptr);
 }
 
+requite::Module &Context::makeModule() {
+  std::unique_ptr<requite::Module> &module_uptr =
+      this->_module_uptrs.emplace_back(std::make_unique<requite::Module>());
+  return requite::getRef(module_uptr);
+}
+
 std::vector<std::unique_ptr<requite::Scope>> &Context::getScopeUptrs() {
   return this->_scope_uptrs;
 }
@@ -237,14 +243,22 @@ const std::vector<std::unique_ptr<requite::Use>> &Context::getUseUptrs() const {
   return this->_use_uptrs;
 }
 
-std::vector<std::unique_ptr<requite::Block>> &
-Context::getBlockUptrs() {
+std::vector<std::unique_ptr<requite::Block>> &Context::getBlockUptrs() {
   return this->_block_uptrs;
 }
 
 const std::vector<std::unique_ptr<requite::Block>> &
 Context::getBlockUptrs() const {
   return this->_block_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::Module>> &Context::getModuleUptrs() {
+  return this->_module_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::Module>> &
+Context::getModuleUptrs() const {
+  return this->_module_uptrs;
 }
 
 } // namespace requite

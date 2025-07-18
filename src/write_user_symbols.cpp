@@ -1,5 +1,5 @@
 #include <requite/context.hpp>
-#include <requite/intermediate_string.hpp>
+#include <requite/literal_text.hpp>
 #include <requite/module.hpp>
 #include <requite/user_symbol_writer.hpp>
 
@@ -43,7 +43,7 @@ bool UserSymbolWriter::writeUserSymbols(const requite::Module &module,
 void UserSymbolWriter::writeStringProperty(llvm::StringRef name,
                                            llvm::StringRef value) {
   this->writeTextProperty(name,
-                          requite::getIntermediateOutputStringText(value));
+                          requite::getLiteralValue(value));
 }
 
 void UserSymbolWriter::writeTextProperty(llvm::StringRef name,

@@ -7,6 +7,7 @@
 #include <requite/situator.hpp>
 #include <requite/table.hpp>
 #include <requite/tabulator.hpp>
+#include <requite/options.hpp>
 
 namespace requite {
 
@@ -530,6 +531,11 @@ void Tabulator::tabulateImport(requite::Expression &expression,
     }
   }
   this->getScope().addImport(import);
+  if (requite::getEmitMode() != requite::Emit::EMIT_SYMBOLS) {
+    if (!this->getContext().importModule(import)) {
+      this->setNotOk();
+    }
+  }
 }
 
 void Tabulator::tabulateUse(requite::Expression &expression,

@@ -5,8 +5,6 @@
 #include <requite/context.hpp>
 #include <requite/file.hpp>
 
-#include <llvm/Support/FileSystem.h>
-
 namespace requite {
 
 llvm::StringRef File::getPath() const { return this->_path; }
@@ -24,17 +22,8 @@ const char *File::getTextPtr() const {
 std::uint_fast32_t File::getBufferI() const { return this->_buffer_i; }
 
 bool Context::loadFileBuffer(requite::File &file, llvm::StringRef path) {
-  llvm::SmallString<256> path_buffer = path;
-  std::error_code ec = llvm::sys::fs::make_absolute(path_buffer);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine("error: failed to determine source file path\n\tfile: ") +
-        llvm::Twine(file.getPath()) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()));
-    return false;
-  }
-  file._relative_path = path;
-  file._path = path_buffer.str();
+  REQUITE_ASSERT(file._path.empty());
+  file._path = path;
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
       llvm::MemoryBuffer::getFile(file.getPath(), true, true, false,
                                   std::nullopt);

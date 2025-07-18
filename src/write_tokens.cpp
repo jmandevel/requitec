@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/context.hpp>
-#include <requite/intermediate_string.hpp>
+#include <requite/literal_text.hpp>
 #include <requite/token.hpp>
 
 #include "llvm/Support/FormatVariadic.h"
@@ -25,7 +25,7 @@ bool Context::writeTokens(requite::Module &module,
   for (const requite::Token &token : tokens) {
     llvm::StringRef text = token.getSourceText();
     std::string csv_value_text =
-        requite::getIntermediateOutputStringText(text);
+        requite::getLiteralValue(text);
     str_buffer_a_ostream << llvm::formatv(
         "{0},{1},{2},{3},{4}\n", token.getLine(), token.getColumn(),
         token.getSourceTextLength(), requite::getName(token.getType()),

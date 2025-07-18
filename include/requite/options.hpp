@@ -28,6 +28,8 @@ enum Form {
   FORM_MULTIPLICATIVE = (FORM_NORMATIVE | FORM_INTERMEDIATE)
 };
 
+[[nodiscard]] bool parseCommandLineOptions(unsigned argc, const char** argv);
+
 [[nodiscard]] llvm::StringRef getInputFilePath();
 
 [[nodiscard]] llvm::StringRef getOutputFilePath();

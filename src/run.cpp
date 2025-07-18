@@ -23,6 +23,8 @@ bool Context::run() {
   if (!this->loadFileBuffer(source_file, input_path)) {
     return false;
   }
+  this->_module_map.insert(
+      std::pair<llvm::StringRef, requite::Module *>(input_path, &source_module));
   if (!this->validateSourceFileText(source_file)) {
     return false;
   }

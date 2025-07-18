@@ -16,6 +16,10 @@ template <unsigned SMALL_SIZE_PARAM>
 getTextValue(llvm::StringRef text,
              llvm::SmallString<SMALL_SIZE_PARAM> &text_out);
 
+[[nodiscard]] inline
+std::string getLiteralValue(llvm::StringRef text);
+
+
 }
 
 #include <requite/detail/literal_text.hpp>

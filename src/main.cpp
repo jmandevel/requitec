@@ -11,13 +11,18 @@
 int main(int argc, const char **argv) {
   std::string executable_path =
       llvm::sys::fs::getMainExecutable(argv[0], reinterpret_cast<void *>(main));
-  // TODO remove fake_argv when done with alpha stage of development. this is here for ease of use.
-  const char *fake_argv[] = {"./requite", "--emit=ir", "test.rq", "-o",
-                             "test.ir"};
+  // TODO remove fake_argv when done with alpha stage of development. this is
+  // here for ease of use.
   if (argc == 1) {
-    llvm::cl::ParseCommandLineOptions(5, fake_argv);
+    const char *fake_argv[] = {"./requite", "--emit=ir", "test.rq", "-o",
+                               "test.ir"};
+    if (!requite::parseCommandLineOptions(5, fake_argv)) {
+      return 1;
+    }
   } else {
-    llvm::cl::ParseCommandLineOptions(argc, argv);
+    if (!requite::parseCommandLineOptions(argc, argv)) {
+      return 1;
+    }
   }
   requite::Context context(std::move(executable_path));
   if (!context.run()) {

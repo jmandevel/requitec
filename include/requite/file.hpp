@@ -32,7 +32,6 @@ struct File final {
   using Self = requite::File;
 
   std::string _path{};
-  std::string _relative_path{};
   llvm::MemoryBufferRef _buffer_ref{};
   std::uint_fast32_t _buffer_i = 0;
 

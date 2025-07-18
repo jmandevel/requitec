@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <llvm/Support/FileSystem.h>
+#include <llvm/ADT/SmallString.h>
 #include <llvm/Support/CommandLine.h>
 
 #include <requite/options.hpp>
@@ -55,12 +57,56 @@ static llvm::cl::opt<Form> FORM(
                    "source code.")),
     llvm::cl::init(FORM_NORMATIVE));
 
+bool parseCommandLineOptions(unsigned argc, const char **argv) {
+  llvm::cl::ParseCommandLineOptions(argc, argv);
+  llvm::SmallString<256> buffer;
+  bool is_ok = true;
+  for (std::string &import_directory : requite::IMPORT_DIRECTORIES) {
+    buffer.clear();
+    std::error_code ec =
+        llvm::sys::fs::real_path(import_directory, buffer, true);
+    if (ec) {
+      llvm::errs() << "Failed to resolve path of import directory\n\tpath: "
+                   << import_directory << "\n\treason: " << ec.message()
+                   << "\n";
+      is_ok = false;
+      continue;
+    }
+    if (!llvm::sys::fs::is_directory(buffer)) {
+      llvm::errs() << "Import directory path is not directory\n\tpath: "
+                   << import_directory << "\n";
+      is_ok = false;
+      continue;
+    }
+    import_directory = buffer.str();
+  }
+  {
+    buffer.clear();
+    std::error_code ec =
+        llvm::sys::fs::real_path(requite::INPUT_FILE, buffer, true);
+    if (ec) {
+      llvm::errs() << "Failed to resolve path of input file\n\tpath: "
+                   << requite::INPUT_FILE << "\n\treason: " << ec.message();
+      is_ok = false;
+    } else {
+      if (!llvm::sys::fs::is_regular_file(buffer)) {
+        llvm::errs() << "input file path is not file\n\tpath: "
+                     << requite::INPUT_FILE << "\n";
+        is_ok = false;
+      } else {
+        requite::INPUT_FILE.setValueStr(buffer.str());
+      }
+    }
+  }
+  return is_ok;
+}
+
 llvm::StringRef getInputFilePath() { return requite::INPUT_FILE.getValue(); }
 
 llvm::StringRef getOutputFilePath() { return requite::OUTPUT_FILE.getValue(); }
 
 llvm::ArrayRef<std::string> getImportDirectories() {
-    return requite::IMPORT_DIRECTORIES;
+  return requite::IMPORT_DIRECTORIES;
 }
 
 requite::Emit getEmitMode() { return requite::EMIT.getValue(); }
