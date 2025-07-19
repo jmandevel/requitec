@@ -35,7 +35,7 @@ bool Context::importModule(requite::Import &import) {
     return false;
   }
   relative_path += requite::SOURCE_FILE_EXTENSION;
-  llvm::SmallString<128> path = std::move(relative_path);
+  llvm::SmallString<128> path = relative_path;
   std::error_code ec = llvm::sys::fs::make_absolute(path);
   if (ec || !llvm::sys::fs::is_regular_file(path)) {
     llvm::SmallVector<llvm::SmallString<128>> candidates;
