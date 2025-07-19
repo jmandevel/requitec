@@ -9,15 +9,18 @@
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/ArrayRef.h>
 
 #include <memory>
 #include <string>
 #include <vector>
+#include <set>
 
 namespace requite {
 
 struct Context;
 struct Expression;
+struct Import;
 
 struct Module final {
   using Self = requite::Module;
@@ -26,6 +29,8 @@ struct Module final {
   requite::Expression *_expression_ptr = nullptr;
   requite::File _file = {};
   requite::Procedure *_entry_point_ptr = nullptr;
+  std::set<requite::Module*> _import_module_ptr_set = {};
+  std::vector<requite::Module*> _export_target_module_ptrs = {};
 
   // module.cpp
   Module() = default;
@@ -57,6 +62,13 @@ struct Module final {
   void addEntryPoint(requite::Procedure &entry_point);
   [[nodiscard]] requite::Procedure &getEntryPoint();
   [[nodiscard]] const requite::Procedure &getEntryPoint() const;
+  [[nodiscard]] std::set<requite::Module*> &getImportModulePtrSet();
+  [[nodiscard]] const std::set<requite::Module*> &getImportModulePtrSet() const;
+  [[nodiscard]] std::vector<requite::Module*> &getExportTargetModulePtrs();
+  [[nodiscard]] const std::vector<requite::Module*> &getExportTargetModulePtrs() const;
+
+  // module_table.cpp
+  void addImport(requite::Import& import);
 };
 
 } // namespace requite

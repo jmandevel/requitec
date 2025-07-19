@@ -532,6 +532,7 @@ void Tabulator::tabulateImport(requite::Expression &expression,
               expression);
     }
   }
+  this->getModule().addImport(import);
   if (!this->getContext().importModule(import)) {
     this->setNotOk();
   }

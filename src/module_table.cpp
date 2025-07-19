@@ -8,6 +8,7 @@
 #include <requite/module.hpp>
 #include <requite/options.hpp>
 #include <requite/strings.hpp>
+#include <requite/import.hpp>
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Support/FileSystem.h>
@@ -124,6 +125,14 @@ const requite::Module *Context::getModulePtr(llvm::StringRef name) const {
     return nullptr;
   }
   return this->_module_map.at(name);
+}
+
+void Module::addImport(requite::Import& import) {
+  requite::Module& module = import.getModule();
+  this->getImportModulePtrSet().insert(&module);
+  if (import.getAttributeFlags().getHasAttribute(requite::AttributeType::EXPORT)) {
+    module.getExportTargetModulePtrs().push_back(this);
+  }
 }
 
 } // namespace requite

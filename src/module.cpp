@@ -7,7 +7,7 @@
 
 namespace requite {
 
-  bool Module::operator==(const Self &rhs) const { return this == &rhs; }
+bool Module::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Module::operator!=(const Self &rhs) const { return this != &rhs; }
 
@@ -91,5 +91,22 @@ requite::Procedure &Module::getEntryPoint() {
 const requite::Procedure &Module::getEntryPoint() const {
   return requite::getRef(this->_entry_point_ptr);
 }
+  
+std::set<requite::Module*> &Module::getImportModulePtrSet() {
+  return this->_import_module_ptr_set;
+}
+
+const std::set<requite::Module*> &Module::getImportModulePtrSet() const {
+  return this->_import_module_ptr_set;
+}
+
+std::vector<requite::Module*> &Module::getExportTargetModulePtrs() {
+  return this->_export_target_module_ptrs;
+}
+
+const std::vector<requite::Module*> &Module::getExportTargetModulePtrs() const {
+  return this->_export_target_module_ptrs;
+}
+
 
 } // namespace requite
