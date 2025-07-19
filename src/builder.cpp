@@ -21,12 +21,12 @@ void Builder::setScope(requite::Scope &scope) {
 }
 
 void Builder::enterScope(requite::Scope &scope) {
-  REQUITE_ASSERT(this->getScope() == scope.getContaining());
+  REQUITE_ASSERT(this->getScope() == scope.getContainingScope());
   this->_current_scope_ptr = &scope;
 }
 
 void Builder::exitScope() {
-  this->_current_scope_ptr = &this->getScope().getContaining();
+  this->_current_scope_ptr = &this->getScope().getContainingScope();
 }
 
 requite::Scope &Builder::getScope() {

@@ -52,6 +52,32 @@ requite::AttributeFlags Import::getAttributeFlags() const {
     return this->_attributes;
 }
 
+bool Import::getHasContainingScope() const { return this->_containing_scope_ptr != nullptr; }
+
+void Import::setContainingScope(requite::Scope &scope) {
+  requite::setSingleRef(this->_containing_scope_ptr, scope);
+}
+
+requite::Scope &Import::getContainingScope() {
+  return requite::getRef(this->_containing_scope_ptr);
+}
+
+const requite::Scope &Import::getContainingScope() const {
+  return requite::getRef(this->_containing_scope_ptr);
+}
+
+bool Import::getHasContainingModule() const { return this->_containing_module_ptr != nullptr; }
+
+void Import::setContainingModule(requite::Module &module) {
+  requite::setSingleRef(this->_containing_module_ptr, module);
+}
+
+requite::Module &Import::getContainingModule() { return requite::getRef(this->_containing_module_ptr); }
+
+const requite::Module &Import::getContainingModule() const {
+  return requite::getRef(this->_containing_module_ptr);
+}
+
 bool Import::getHasNext() const {
     return this->_next_ptr != nullptr;
 }

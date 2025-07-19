@@ -43,19 +43,19 @@ const requite::AttributeFlags &Alias::getAttributeFlags() const {
   return this->_attributes;
 }
 
-bool Alias::getHasContaining() const {
+bool Alias::getHasContainingScope() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Alias::setContaining(requite::Scope &scope) {
+void Alias::setContainingScope(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Alias::getContaining() {
+requite::Scope &Alias::getContainingScope() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Alias::getContaining() const {
+const requite::Scope &Alias::getContainingScope() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 

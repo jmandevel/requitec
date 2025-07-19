@@ -49,8 +49,6 @@ struct Scope final {
     requite::Expression *_local_statement_ptr;
     requite::Block *_block_ptr;
   };
-  requite::Import *_first_import_ptr = nullptr;
-  requite::Use *_first_use_ptr = nullptr;
 
   // scope.cpp
   Scope() = default;
@@ -68,21 +66,13 @@ struct Scope final {
   [[nodiscard]] requite::Module &getModule();
   [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] requite::ScopeType getType() const;
-  [[nodiscard]] bool getHasContaining() const;
-  void setContaining(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContaining();
-  [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
   [[nodiscard]] unsigned getScopeDepth() const;
   [[nodiscard]] requite::Scope *getContainingPtr();
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
-  [[nodiscard]] bool getHasImport() const;
-  void addImport(requite::Import &import);
-  [[nodiscard]] requite::Import &getFirstImport();
-  [[nodiscard]] const requite::Import &getFirstImport() const;
-  [[nodiscard]] bool getHasUse() const;
-  void addUse(requite::Use &use);
-  [[nodiscard]] requite::Use &getFirstUse();
-  [[nodiscard]] const requite::Use &getFirstUse() const;
   [[nodiscard]] bool getIsEmpty() const;
   [[nodiscard]] bool getHasObject() const;
   void setObject(requite::Object &object);

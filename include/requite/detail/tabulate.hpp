@@ -33,7 +33,7 @@ Tabulator::tabulateAttributes(requite::Expression &expression) {
         requite::Label &label = this->getContext().makeLabel();
         label.setAttributeExpression(attribute);
         label.setStatementExpression(expression);
-        label.setContaining(this->getScope());
+        label.setContainingScope(this->getScope());
         llvm::StringRef name;
         if (!this->getContext().evaluateInstantName(name, name_expression)) {
           this->setNotOk();

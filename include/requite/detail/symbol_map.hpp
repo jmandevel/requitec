@@ -3,7 +3,7 @@
 namespace requite {
 
 template <typename SymbolArg> void Scope::addUserSymbol(SymbolArg &symbol) {
-  REQUITE_ASSERT(symbol.getContaining() == *this);
+  REQUITE_ASSERT(symbol.getContainingScope() == *this);
   llvm::StringRef name = symbol.getName();
   REQUITE_ASSERT(!name.empty());
   requite::RootSymbol root;

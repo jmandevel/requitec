@@ -18,20 +18,20 @@ requite::Scope &Block::getScope() { return this->_scope; }
 
 const requite::Scope &Block::getScope() const { return this->_scope; }
 
-bool Block::getHasContaining() const {
-  return this->getScope().getHasContaining();
+bool Block::getHasContainingScope() const {
+  return this->getScope().getHasContainingScope();
 }
 
-void Block::setContaining(requite::Scope &scope) {
-  this->getScope().setContaining(scope);
+void Block::setContainingScope(requite::Scope &scope) {
+  this->getScope().setContainingScope(scope);
 }
 
-requite::Scope &Block::getContaining() {
-  return this->getScope().getContaining();
+requite::Scope &Block::getContainingScope() {
+  return this->getScope().getContainingScope();
 }
 
-const requite::Scope &Block::getContaining() const {
-  return this->getScope().getContaining();
+const requite::Scope &Block::getContainingScope() const {
+  return this->getScope().getContainingScope();
 }
 
 bool Block::getHasExpression() const {

@@ -53,12 +53,12 @@ const requite::Scope &Implementor::getScope() const {
 }
 
 void Implementor::enterScope(requite::Scope &scope) {
-  REQUITE_ASSERT(scope.getContaining() == this->getScope());
+  REQUITE_ASSERT(scope.getContainingScope() == this->getScope());
   this->_scope_ptr = &scope;
 }
 
 void Implementor::leaveScope() {
-  this->_scope_ptr = &this->getScope().getContaining();
+  this->_scope_ptr = &this->getScope().getContainingScope();
 }
 
 } // namespace requite

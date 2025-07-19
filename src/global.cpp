@@ -48,20 +48,20 @@ requite::Symbol &Global::getDataType() { return this->_data_type; }
 
 const requite::Symbol &Global::getDataType() const { return this->_data_type; }
 
-bool Global::getHasContaining() const {
-  return this->_containing_ptr != nullptr;
+bool Global::getHasContainingScope() const {
+  return this->_containing_scope_ptr != nullptr;
 }
 
-void Global::setContaining(requite::Scope &scope) {
-  requite::setSingleRef(this->_containing_ptr, scope);
+void Global::setContainingScope(requite::Scope &scope) {
+  requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Global::getContaining() {
-  return requite::getRef(this->_containing_ptr);
+requite::Scope &Global::getContainingScope() {
+  return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Global::getContaining() const {
-  return requite::getRef(this->_containing_ptr);
+const requite::Scope &Global::getContainingScope() const {
+  return requite::getRef(this->_containing_scope_ptr);
 }
 
 bool Global::getHasNext() const { return this->_next_ptr != nullptr; }

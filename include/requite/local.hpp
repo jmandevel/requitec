@@ -49,10 +49,10 @@ struct Local final {
   [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] requite::Symbol &getDataType();
   [[nodiscard]] const requite::Symbol &getDataType() const;
-  [[nodiscard]] bool getHasContaining() const;
-  void setContaining(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContaining();
-  [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
   [[nodiscard]] bool getHasLlvmAllocaPtr() const;
   void setLlvmAllocaPtr(llvm::AllocaInst *llvm_alloca);
   [[nodiscard]] llvm::AllocaInst *getLlvmAllocaPtr();

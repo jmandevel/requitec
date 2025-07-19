@@ -53,19 +53,19 @@ const requite::Expression &Label::getStatementExpression() const {
   return requite::getRef(this->_statement_expression_ptr);
 }
 
-bool Label::getHasContaining() const {
+bool Label::getHasContainingScope() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Label::setContaining(requite::Scope &scope) {
+void Label::setContainingScope(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Label::getContaining() {
+requite::Scope &Label::getContainingScope() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Label::getContaining() const {
+const requite::Scope &Label::getContainingScope() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 

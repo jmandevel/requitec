@@ -25,19 +25,19 @@ const requite::Scope &AnonymousFunction::getScope() const {
   return this->_scope;
 }
 
-bool AnonymousFunction::getHasContaining() const {
-  return this->getScope().getHasContaining();
+bool AnonymousFunction::getHasContainingScope() const {
+  return this->getScope().getHasContainingScope();
 }
 
-void AnonymousFunction::setContaining(requite::Scope &scope) {
-  this->getScope().setContaining(scope);
+void AnonymousFunction::setContainingScope(requite::Scope &scope) {
+  this->getScope().setContainingScope(scope);
 }
 
-requite::Scope &AnonymousFunction::getContaining() {
-  return this->getScope().getContaining();
+requite::Scope &AnonymousFunction::getContainingScope() {
+  return this->getScope().getContainingScope();
 }
-const requite::Scope &AnonymousFunction::getContaining() const {
-  return this->getScope().getContaining();
+const requite::Scope &AnonymousFunction::getContainingScope() const {
+  return this->getScope().getContainingScope();
 }
 
 bool AnonymousFunction::getHasExpression() const {

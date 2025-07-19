@@ -43,10 +43,10 @@ struct Label final {
   void setStatementExpression(requite::Expression &expression);
   [[nodiscard]] requite::Expression &getStatementExpression();
   [[nodiscard]] const requite::Expression &getStatementExpression() const;
-  [[nodiscard]] bool getHasContaining() const;
-  void setContaining(requite::Scope &scope);
-  [[nodiscard]] requite::Scope &getContaining();
-  [[nodiscard]] const requite::Scope &getContaining() const;
+  [[nodiscard]] bool getHasContainingScope() const;
+  void setContainingScope(requite::Scope &scope);
+  [[nodiscard]] requite::Scope &getContainingScope();
+  [[nodiscard]] const requite::Scope &getContainingScope() const;
   void setLlvmBlockPtr(llvm::BasicBlock* llvm_block_ptr);
   [[nodiscard]] llvm::BasicBlock* getLllvmBlockPtr();
   [[nodiscard]] const llvm::BasicBlock* getLlvmBlockPtr() const;

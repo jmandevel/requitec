@@ -43,20 +43,20 @@ const requite::Module &Scope::getModule() const {
 
 requite::ScopeType Scope::getType() const { return this->_type; }
 
-bool Scope::getHasContaining() const {
+bool Scope::getHasContainingScope() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Scope::setContaining(requite::Scope &scope) {
+void Scope::setContainingScope(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
   this->_scope_depth = scope.getScopeDepth();
 }
 
-requite::Scope &Scope::getContaining() {
+requite::Scope &Scope::getContainingScope() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Scope::getContaining() const {
+const requite::Scope &Scope::getContainingScope() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
@@ -68,38 +68,6 @@ requite::Scope *Scope::getContainingPtr() {
 
 const requite::Scope *Scope::getContainingPtr() const {
   return this->_containing_scope_ptr;
-}
-
-bool Scope::getHasImport() const { return this->_first_import_ptr != nullptr; }
-
-void Scope::addImport(requite::Import &import) {
-  REQUITE_ASSERT(!import.getHasNext());
-  import._next_ptr = this->_first_import_ptr;
-  this->_first_import_ptr = &import;
-}
-
-requite::Import &Scope::getFirstImport() {
-  return requite::getRef(this->_first_import_ptr);
-}
-
-const requite::Import &Scope::getFirstImport() const {
-  return requite::getRef(this->_first_import_ptr);
-}
-
-bool Scope::getHasUse() const { return this->_first_import_ptr != nullptr; }
-
-void Scope::addUse(requite::Use &use) {
-  REQUITE_ASSERT(!use.getHasNext());
-  use._next_ptr = this->_first_use_ptr;
-  this->_first_use_ptr = &use;
-}
-
-requite::Use &Scope::getFirstUse() {
-  return requite::getRef(this->_first_use_ptr);
-}
-
-const requite::Use &Scope::getFirstUse() const {
-  return requite::getRef(this->_first_use_ptr);
 }
 
 bool Scope::getIsEmpty() const { return this->_symbol_map.empty(); }

@@ -43,12 +43,12 @@ const requite::Object &Tabulator::getObject() const {
 }
 
 void Tabulator::enterScope(requite::Scope &scope) {
-  REQUITE_ASSERT(scope.getContaining() == this->getScope());
+  REQUITE_ASSERT(scope.getContainingScope() == this->getScope());
   this->_scope_ptr = &scope;
 }
 
 void Tabulator::leaveScope() {
-  this->_scope_ptr = &this->getScope().getContaining();
+  this->_scope_ptr = &this->getScope().getContainingScope();
 }
 
 bool Tabulator::getIsOk() const { return this->_is_ok; }

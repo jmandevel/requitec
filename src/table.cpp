@@ -47,20 +47,20 @@ const requite::Expression &Table::getExpression() const {
   return requite::getRef(this->_expression_ptr);
 }
 
-bool Table::getHasContaining() const {
-  return this->getScope().getHasContaining();
+bool Table::getHasContainingScope() const {
+  return this->getScope().getHasContainingScope();
 }
 
-void Table::setContaining(requite::Scope &scope) {
-  this->getScope().setContaining(scope);
+void Table::setContainingScope(requite::Scope &scope) {
+  this->getScope().setContainingScope(scope);
 }
 
-requite::Scope &Table::getContaining() {
-  return this->getScope().getContaining();
+requite::Scope &Table::getContainingScope() {
+  return this->getScope().getContainingScope();
 }
 
-const requite::Scope &Table::getContaining() const {
-  return this->getScope().getContaining();
+const requite::Scope &Table::getContainingScope() const {
+  return this->getScope().getContainingScope();
 }
 
 } // namespace requite

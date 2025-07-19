@@ -40,19 +40,19 @@ requite::Symbol &Local::getDataType() { return this->_data_type; }
 
 const requite::Symbol &Local::getDataType() const { return this->_data_type; }
 
-bool Local::getHasContaining() const {
+bool Local::getHasContainingScope() const {
   return this->_containing_scope_ptr != nullptr;
 }
 
-void Local::setContaining(requite::Scope &scope) {
+void Local::setContainingScope(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
 }
 
-requite::Scope &Local::getContaining() {
+requite::Scope &Local::getContainingScope() {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-const requite::Scope &Local::getContaining() const {
+const requite::Scope &Local::getContainingScope() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 

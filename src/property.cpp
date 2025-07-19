@@ -54,20 +54,20 @@ requite::Scope &Property::getScope() { return this->_scope; }
 
 const requite::Scope &Property::getScope() const { return this->_scope; }
 
-bool Property::getHasContaining() const {
-  return this->getScope().getHasContaining();
+bool Property::getHasContainingScope() const {
+  return this->getScope().getHasContainingScope();
 }
 
-void Property::setContaining(requite::Scope &scope) {
-  this->getScope().setContaining(scope);
+void Property::setContainingScope(requite::Scope &scope) {
+  this->getScope().setContainingScope(scope);
 }
 
-requite::Scope &Property::getContaining() {
-  return this->getScope().getContaining();
+requite::Scope &Property::getContainingScope() {
+  return this->getScope().getContainingScope();
 }
 
-const requite::Scope &Property::getContaining() const {
-  return this->getScope().getContaining();
+const requite::Scope &Property::getContainingScope() const {
+  return this->getScope().getContainingScope();
 }
 
 bool Property::getHasNext() const { return this->_next_ptr != nullptr; }
