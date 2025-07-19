@@ -101,11 +101,14 @@ struct Scope final {
   [[nodiscard]] bool getHasUserSymbolOfName(llvm::StringRef name) const;
 
   // detail/symbol_map.hpp
-  template <typename SymbolArg> void addUserSymbol(SymbolArg &symbol);
+  template <typename SymbolArg> void addUserSymbol(requite::Module& module, SymbolArg &symbol);
   template <typename SymbolArg>
-  void addUserSymbol(SymbolArg &symbol, requite::Use &use);
+  void addUserSymbol(requite::Module& module, SymbolArg &symbol, requite::Use &use);
   template <typename SymbolArg>
-  void addUserSymbol(SymbolArg &symbol, requite::Import &import);
+  void addUserSymbol(requite::Module& module, SymbolArg &symbol, requite::Import &import);
+
+  // symbol_map.cpp
+  void addTable(requite::Table& table);
 
   // detail/scope_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

@@ -3,11 +3,11 @@
 #include <requite/label.hpp>
 #include <requite/local.hpp>
 #include <requite/module.hpp>
+#include <requite/options.hpp>
 #include <requite/scope.hpp>
 #include <requite/situator.hpp>
 #include <requite/table.hpp>
 #include <requite/tabulator.hpp>
-#include <requite/options.hpp>
 
 namespace requite {
 
@@ -278,7 +278,7 @@ void Tabulator::tabulateFunction(requite::Expression &expression,
     return;
   }
   procedure.setName(name);
-  this->getScope().addUserSymbol(procedure);
+  this->getScope().addUserSymbol(this->getModule(), procedure);
   requite::Expression &signature_expression = name_expression.getNext();
   this->enterScope(procedure.getScope());
   for (requite::Expression &statement :
@@ -314,7 +314,7 @@ void Tabulator::tabulateMethod(requite::Expression &expression,
     return;
   }
   procedure.setName(name);
-  this->getScope().addUserSymbol(procedure);
+  this->getScope().addUserSymbol(this->getModule(), procedure);
   requite::Expression &signature_expression = name_expression.getNext();
   this->enterScope(procedure.getScope());
   for (requite::Expression &statement :
@@ -355,7 +355,7 @@ void Tabulator::tabulateExtension(requite::Expression &expression,
     return;
   }
   procedure.setName(name);
-  this->getScope().addUserSymbol(procedure);
+  this->getScope().addUserSymbol(this->getModule(), procedure);
   requite::Expression &signature_expression = name_expression.getNext();
   this->enterScope(procedure.getScope());
   for (requite::Expression &statement :
@@ -443,7 +443,7 @@ void Tabulator::tabulateObject(requite::Expression &expression,
     this->setNotOk();
   } else {
     object.setName(name);
-    this->getScope().addUserSymbol(object);
+    this->getScope().addUserSymbol(this->getModule(), object);
   }
   this->enterScope(object.getScope());
   for (requite::Expression &statement : name_expression.getNextSubrange()) {
@@ -470,7 +470,7 @@ void Tabulator::tabulateTable(requite::Expression &expression,
     this->setNotOk();
   } else {
     table.setName(name);
-    this->getScope().addUserSymbol(table);
+    this->getScope().addTable(table);
   }
   this->enterScope(table.getScope());
   for (requite::Expression &statement : name_expression.getNextSubrange()) {
@@ -510,7 +510,7 @@ void Tabulator::tabulateAlias(requite::Expression &expression,
     return;
   }
   alias.setName(name);
-  this->getScope().addUserSymbol(alias);
+  this->getScope().addUserSymbol(this->getModule(), alias);
 }
 
 void Tabulator::tabulateImport(requite::Expression &expression,
@@ -532,10 +532,8 @@ void Tabulator::tabulateImport(requite::Expression &expression,
               expression);
     }
   }
-  if (requite::getEmitMode() != requite::Emit::EMIT_SYMBOLS) {
-    if (!this->getContext().importModule(import)) {
-      this->setNotOk();
-    }
+  if (!this->getContext().importModule(import)) {
+    this->setNotOk();
   }
 }
 
@@ -590,7 +588,7 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
     return;
   }
   global.setName(name);
-  this->getScope().addUserSymbol(global);
+  this->getScope().addUserSymbol(this->getModule(), global);
 }
 
 void Tabulator::tabulate_Local(requite::Expression &expression,
@@ -617,7 +615,7 @@ void Tabulator::tabulate_Local(requite::Expression &expression,
     return;
   }
   local.setName(name);
-  this->getScope().addUserSymbol(local);
+  this->getScope().addUserSymbol(this->getModule(), local);
 }
 
 void Tabulator::tabulate_AnonymousFunction(requite::Expression &expression) {
@@ -657,7 +655,7 @@ void Tabulator::tabulateProperty(requite::Expression &expression,
     return;
   }
   property.setName(name);
-  this->getScope().addUserSymbol(property);
+  this->getScope().addUserSymbol(this->getModule(), property);
   requite::Expression &value_expression = name_expression.getNext();
   this->tabulateExpression(value_expression);
 }

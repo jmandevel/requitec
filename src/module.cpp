@@ -7,9 +7,7 @@
 
 namespace requite {
 
-Module::Module() { this->getScope().setModule(*this); }
-
-bool Module::operator==(const Self &rhs) const { return this == &rhs; }
+  bool Module::operator==(const Self &rhs) const { return this == &rhs; }
 
 bool Module::operator!=(const Self &rhs) const { return this != &rhs; }
 
@@ -21,10 +19,6 @@ llvm::StringRef Module::getName() const {
   }
   return path.take_front(last_dot_pos);
 }
-
-requite::Scope &Module::getScope() { return this->_scope; }
-
-const requite::Scope &Module::getScope() const { return this->_scope; }
 
 requite::File &Module::getFile() { return this->_file; }
 

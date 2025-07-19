@@ -8,7 +8,7 @@ namespace requite {
 Tabulator::Tabulator(requite::Context &context,
                                  requite::Module &module)
     : _context_ref(context), _module_ref(module),
-      _scope_ptr(&module.getScope()) {}
+      _scope_ptr(&context.getOuterScope()) {}
 
 requite::Context &Tabulator::getContext() {
   return this->_context_ref.get();

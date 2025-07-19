@@ -93,6 +93,7 @@ struct Context final : public requite::_ContextLlvmContext {
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
+  requite::Scope _outer_scope = {};
 
   // context.cpp
   Context() = delete;
@@ -103,6 +104,8 @@ struct Context final : public requite::_ContextLlvmContext {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] llvm::StringRef getExecutablePath() const;
+  [[nodiscard]] requite::Scope &getOuterScope();
+  [[nodiscard]] const requite::Scope& getOuterScope() const;
 
   // make_symbols.cpp
   [[nodiscard]] requite::Scope &makeScope();

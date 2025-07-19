@@ -12,18 +12,16 @@ namespace requite {
 
 bool Context::writeUserSymbols(llvm::StringRef output_path) {
   requite::UserSymbolWriter writer(*this);
-  return writer.writeUserSymbols(this->getSourceModule(), output_path);
+  return writer.writeUserSymbols(output_path);
 }
 
-bool UserSymbolWriter::writeUserSymbols(const requite::Module &module,
-                                        llvm::StringRef out_path) {
+bool UserSymbolWriter::writeUserSymbols(llvm::StringRef out_path) {
   this->_buffer.clear();
-  const requite::Scope &module_scope = module.getScope();
-  this->getOstream() << "module:{";
+  const requite::Scope &outer_scope = this->getContext().getOuterScope();
+  this->getOstream() << "scope:{";
   {
     requite::UserSymbolWriterIndentLock lock0(*this);
-    this->writeStringProperty("name", module.getName());
-    this->writeScope(module.getScope());
+    this->writeScope(outer_scope);
   }
   this->writeNewLine();
   this->getOstream() << "}";
@@ -42,8 +40,7 @@ bool UserSymbolWriter::writeUserSymbols(const requite::Module &module,
 
 void UserSymbolWriter::writeStringProperty(llvm::StringRef name,
                                            llvm::StringRef value) {
-  this->writeTextProperty(name,
-                          requite::getLiteralValue(value));
+  this->writeTextProperty(name, requite::getLiteralValue(value));
 }
 
 void UserSymbolWriter::writeTextProperty(llvm::StringRef name,
@@ -68,9 +65,9 @@ void UserSymbolWriter::writeEntry(llvm::StringRef name,
         requite::UserSymbolWriterIndentLock lock1(*this);
         this->writeUserSymbol(user);
       }
+      this->writeNewLine();
+      this->getOstream() << "}";
     }
-    this->writeNewLine();
-    this->getOstream() << "}";
   }
   this->writeNewLine();
   this->getOstream() << "}";
@@ -112,24 +109,17 @@ void UserSymbolWriter::writeRootSymbol(const requite::RootSymbol &root) {
 }
 
 void UserSymbolWriter::writeScope(const requite::Scope &scope) {
-  this->writeNewLine();
-  this->getOstream() << "scope:{";
-  {
-    requite::UserSymbolWriterIndentLock lock1(*this);
-    for (const llvm::StringMapEntry<requite::LookupTableEntry> &entry :
-         scope.getLookupTable()) {
-      this->writeNewLine();
-      this->getOstream() << "{";
-      {
-        requite::UserSymbolWriterIndentLock lock2(*this);
-        this->writeEntry(entry.first(), entry.second);
-      }
-      this->writeNewLine();
-      this->getOstream() << "}";
+  for (const llvm::StringMapEntry<requite::LookupTableEntry> &entry :
+       scope.getLookupTable()) {
+    this->writeNewLine();
+    this->getOstream() << "{";
+    {
+      requite::UserSymbolWriterIndentLock lock0(*this);
+      this->writeEntry(entry.first(), entry.second);
     }
+    this->writeNewLine();
+    this->getOstream() << "}";
   }
-  this->writeNewLine();
-  this->getOstream() << "}";
 }
 
 void UserSymbolWriter::addIndentation() { this->_indentation++; }

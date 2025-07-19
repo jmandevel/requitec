@@ -40,6 +40,7 @@ struct UserSymbol final {
 
   requite::RootSymbol _symbol;
   requite::UserSymbolOrigin _origin;
+  requite::Module* _containing_module_ptr;
   union {
     void *_nothing_ptr = nullptr;
     requite::Use *_use_ptr;
@@ -47,9 +48,10 @@ struct UserSymbol final {
   };
 
   // user_symbol.cpp
-  UserSymbol(requite::RootSymbol root);
-  UserSymbol(requite::RootSymbol root, requite::Use &use);
-  UserSymbol(requite::RootSymbol root, requite::Import &import);
+  UserSymbol(requite::RootSymbol table);
+  UserSymbol(requite::Module& module, requite::RootSymbol root);
+  UserSymbol(requite::Module& module, requite::RootSymbol root, requite::Use &use);
+  UserSymbol(requite::Module& module, requite::RootSymbol root, requite::Import &import);
   UserSymbol(const Self &) = default;
   UserSymbol(Self &&) = default;
   ~UserSymbol() = default;
@@ -62,6 +64,8 @@ struct UserSymbol final {
   [[nodiscard]] const requite::Use &getUse() const;
   [[nodiscard]] requite::Import &getImport();
   [[nodiscard]] const requite::Import &getImport() const;
+  [[nodiscard]] requite::Module &getContainingModule();
+  [[nodiscard]] const requite::Module &getContainingModule() const;
 };
 
 // detail/user_symbol.hpp

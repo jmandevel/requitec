@@ -3,17 +3,28 @@
 
 namespace requite {
 
-UserSymbol::UserSymbol(requite::RootSymbol root)
-    : _origin(requite::UserSymbolOrigin::INTERNAL), _symbol(root) {}
+UserSymbol::UserSymbol(requite::RootSymbol table) : _symbol(table) {
+  REQUITE_ASSERT(table.getType() == requite::RootSymbolType::TABLE);
+}
 
-UserSymbol::UserSymbol(requite::RootSymbol root, requite::Use &use)
-    : _origin(requite::UserSymbolOrigin::USED), _symbol(root), _use_ptr(&use) {}
+UserSymbol::UserSymbol(requite::Module &module, requite::RootSymbol root)
+    : _containing_module_ptr(&module),
+      _origin(requite::UserSymbolOrigin::INTERNAL), _symbol(root) {}
 
-UserSymbol::UserSymbol(requite::RootSymbol root, requite::Import &import)
-    : _origin(requite::UserSymbolOrigin::IMPORTED), _symbol(root),
+UserSymbol::UserSymbol(requite::Module &module, requite::RootSymbol root,
+                       requite::Use &use)
+    : _containing_module_ptr(&module), _origin(requite::UserSymbolOrigin::USED),
+      _symbol(root), _use_ptr(&use) {}
+
+UserSymbol::UserSymbol(requite::Module &module, requite::RootSymbol root,
+                       requite::Import &import)
+    : _containing_module_ptr(&module),
+      _origin(requite::UserSymbolOrigin::IMPORTED), _symbol(root),
       _import_ptr(&import) {}
 
-requite::UserSymbolOrigin UserSymbol::getOrigin() const { return this->_origin; }
+requite::UserSymbolOrigin UserSymbol::getOrigin() const {
+  return this->_origin;
+}
 
 requite::RootSymbol &UserSymbol::getRoot() { return this->_symbol; }
 
@@ -31,6 +42,14 @@ requite::Import &UserSymbol::getImport() {
 
 const requite::Import &UserSymbol::getImport() const {
   return requite::getRef(this->_import_ptr);
+}
+
+requite::Module &UserSymbol::getContainingModule() {
+  return requite::getRef(this->_containing_module_ptr);
+}
+
+const requite::Module &UserSymbol::getContainingModule() const {
+  return requite::getRef(this->_containing_module_ptr);
 }
 
 } // namespace requite

@@ -62,6 +62,7 @@ target_sources(
         source_ranger.cpp
         source_text.cpp
         sub_symbol.cpp
+        symbol_map.cpp
         symbol.cpp
         table.cpp
         tabulator.cpp

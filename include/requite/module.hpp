@@ -24,12 +24,11 @@ struct Module final {
 
   std::string _name = {};
   requite::Expression *_expression_ptr = nullptr;
-  requite::Scope _scope = {};
   requite::File _file = {};
   requite::Procedure *_entry_point_ptr = nullptr;
 
   // module.cpp
-  Module();
+  Module() = default;
   Module(Self &that) = delete;
   Module(Self &&that) = delete;
   Self &operator=(Self &rhs) = delete;
@@ -38,8 +37,6 @@ struct Module final {
   [[nodiscard]] bool operator==(const Self &rhs) const;
   [[nodiscard]] bool operator!=(const Self &rhs) const;
   [[nodiscard]] llvm::StringRef getName() const;
-  [[nodiscard]] requite::Scope &getScope();
-  [[nodiscard]] const requite::Scope &getScope() const;
   [[nodiscard]] requite::File &getFile();
   [[nodiscard]] const requite::File &getFile() const;
   [[nodiscard]] bool getHasExpression() const;

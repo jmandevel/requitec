@@ -3,20 +3,28 @@
 
 namespace requite {
 
-void LookupTableEntry::addSymbol(requite::RootSymbol root) {
-  REQUITE_ASSERT(!root.getIsNone());
+void LookupTableEntry::addTable(requite::RootSymbol root) {
+  REQUITE_ASSERT(root.getType() == requite::RootSymbolType::TABLE);
   this->_symbols.emplace_back(root);
 }
 
-void LookupTableEntry::addSymbol(requite::RootSymbol root, requite::Use &use) {
+void LookupTableEntry::addSymbol(requite::Module &module,
+                                 requite::RootSymbol root) {
   REQUITE_ASSERT(!root.getIsNone());
-  this->_symbols.emplace_back(root, use);
+  this->_symbols.emplace_back(module, root);
 }
 
-void LookupTableEntry::addSymbol(requite::RootSymbol root,
+void LookupTableEntry::addSymbol(requite::Module &module,
+                                 requite::RootSymbol root, requite::Use &use) {
+  REQUITE_ASSERT(!root.getIsNone());
+  this->_symbols.emplace_back(module, root, use);
+}
+
+void LookupTableEntry::addSymbol(requite::Module &module,
+                                 requite::RootSymbol root,
                                  requite::Import &import) {
   REQUITE_ASSERT(!root.getIsNone());
-  this->_symbols.emplace_back(root, import);
+  this->_symbols.emplace_back(module, root, import);
 }
 
 llvm::SmallVector<requite::UserSymbol, 1> &LookupTableEntry::getUserSymbols() {
@@ -38,10 +46,10 @@ bool LookupTableEntry::getIsAmbiguous() const {
   for (const requite::UserSymbol &user : this->_symbols) {
     const requite::RootSymbol &root = user.getRoot();
     switch (const requite::RootSymbolType type = root.getType()) {
-      case requite::RootSymbolType::PROCEDURE:
-        continue;
-      default:
-        return true;
+    case requite::RootSymbolType::PROCEDURE:
+      continue;
+    default:
+      return true;
     }
   }
   return false;

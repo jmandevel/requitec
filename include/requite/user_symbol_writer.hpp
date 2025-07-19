@@ -35,8 +35,7 @@ struct UserSymbolWriter final {
   [[nodiscard]] llvm::raw_string_ostream &getOstream();
 
   // write_user_symbols.cpp
-  [[nodiscard]] bool writeUserSymbols(const requite::Module &module,
-                                      llvm::StringRef out_path);
+  [[nodiscard]] bool writeUserSymbols(llvm::StringRef out_path);
   void writeStringProperty(llvm::StringRef name, llvm::StringRef value);
   void writeTextProperty(llvm::StringRef name, llvm::StringRef value);
   void writeEntry(llvm::StringRef name, const requite::LookupTableEntry& entry);
