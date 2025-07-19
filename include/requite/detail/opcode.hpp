@@ -536,8 +536,7 @@ _getFlags(requite::Opcode opcode) {
 
   // SYMBOL GRAPH
   case Opcode::IMPORT:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
+    return _MODULE_STATEMENT;
   case Opcode::USE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
