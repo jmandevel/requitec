@@ -4,11 +4,11 @@
 
 #include <requite/assert.hpp>
 #include <requite/context.hpp>
+#include <requite/import.hpp>
 #include <requite/literal_text.hpp>
 #include <requite/module.hpp>
 #include <requite/options.hpp>
 #include <requite/strings.hpp>
-#include <requite/import.hpp>
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Support/FileSystem.h>
@@ -64,9 +64,12 @@ bool Context::importModule(requite::Import &import) {
     path = std::move(candidates.front());
   }
   if (this->_module_map.contains(path)) {
+    requite::Module &module = this->getModule(path);
+    import.setModule(module);
     return true;
   }
   requite::Module &module = this->makeModule();
+  import.setModule(module);
   if (!this->loadFileBuffer(module.getFile(), path)) {
     return false;
   }
@@ -127,10 +130,11 @@ const requite::Module *Context::getModulePtr(llvm::StringRef name) const {
   return this->_module_map.at(name);
 }
 
-void Module::addImport(requite::Import& import) {
-  requite::Module& module = import.getModule();
+void Module::addImport(requite::Import &import) {
+  requite::Module &module = import.getModule();
   this->getImportModulePtrSet().insert(&module);
-  if (import.getAttributeFlags().getHasAttribute(requite::AttributeType::EXPORT)) {
+  if (import.getAttributeFlags().getHasAttribute(
+          requite::AttributeType::EXPORT)) {
     module.getExportTargetModulePtrs().push_back(this);
   }
 }

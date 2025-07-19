@@ -74,23 +74,23 @@ struct Scope final {
   [[nodiscard]] requite::Scope *getContainingPtr();
   [[nodiscard]] const requite::Scope *getContainingPtr() const;
   [[nodiscard]] bool getIsEmpty() const;
-  [[nodiscard]] bool getHasObject() const;
+  [[nodiscard]] bool getIsObject() const;
   void setObject(requite::Object &object);
   [[nodiscard]] requite::Object &getObject();
   [[nodiscard]] const requite::Object &getObject() const;
-  [[nodiscard]] bool getHasTable() const;
+  [[nodiscard]] bool getIsTable() const;
   void setTable(requite::Table &table);
   [[nodiscard]] requite::Table &getTable();
   [[nodiscard]] const requite::Table &getTable() const;
-  [[nodiscard]] bool getHasProcedure() const;
+  [[nodiscard]] bool getIsProcedure() const;
   void setProcedure(requite::Procedure &procedure);
   [[nodiscard]] requite::Procedure &getProcedure();
   [[nodiscard]] const requite::Procedure &getProcedure() const;
-  [[nodiscard]] bool getHasAnonymousFunction() const;
+  [[nodiscard]] bool getIsAnonymousFunction() const;
   void setAnonymousFunction(requite::AnonymousFunction &anonymous_function);
   [[nodiscard]] requite::AnonymousFunction &getAnonymousFunction();
   [[nodiscard]] const requite::AnonymousFunction &getAnonymousFunction() const;
-  [[nodiscard]] bool getHasBlock() const;
+  [[nodiscard]] bool getIsBlock() const;
   void setBlock(requite::Block &block);
   [[nodiscard]] requite::Block &getBlock();
   [[nodiscard]] const requite::Block &getBlock() const;
@@ -108,6 +108,7 @@ struct Scope final {
   void addUserSymbol(requite::Module& module, SymbolArg &symbol, requite::Import &import);
 
   // symbol_map.cpp
+  [[nodiscard]] bool getHasTable(llvm::StringRef name) const;
   void addTable(requite::Table& table);
 
   // detail/scope_subrange.hpp

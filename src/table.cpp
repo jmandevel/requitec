@@ -31,22 +31,6 @@ const requite::Scope &Table::getScope() const { return this->_scope; }
 
 bool Table::getIsEmpty() const { return this->getScope().getIsEmpty(); }
 
-bool Table::getHasExpression() const {
-  return this->_expression_ptr != nullptr;
-}
-
-void Table::setExpression(requite::Expression &expression) {
-  requite::setSingleRef(this->_expression_ptr, expression);
-}
-
-requite::Expression &Table::getExpression() {
-  return requite::getRef(this->_expression_ptr);
-}
-
-const requite::Expression &Table::getExpression() const {
-  return requite::getRef(this->_expression_ptr);
-}
-
 bool Table::getHasContainingScope() const {
   return this->getScope().getHasContainingScope();
 }

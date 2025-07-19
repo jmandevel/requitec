@@ -62,6 +62,7 @@ struct Tabulator final {
                            bool has_attributes);
   void tabulateDestructor(requite::Expression &expression, bool has_attributes);
   void tabulateObject(requite::Expression &expression, bool has_attributes);
+  [[nodiscard]] requite::Table& getOrMakeTable(llvm::StringRef name);
   void tabulateTable(requite::Expression &expression, bool has_attributes);
   void tabulateAlias(requite::Expression &expression, bool has_attributes);
   void tabulateImport(requite::Expression &expression, bool has_attributes);

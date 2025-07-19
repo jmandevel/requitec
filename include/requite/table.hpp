@@ -20,7 +20,6 @@ struct Table final {
 
   std::string _name = {};
   requite::Scope _scope = {};
-  requite::Expression *_expression_ptr = nullptr;
 
   // table.cpp
   Table();
@@ -37,10 +36,6 @@ struct Table final {
   [[nodiscard]] requite::Scope &getScope();
   [[nodiscard]] const requite::Scope &getScope() const;
   bool getIsEmpty() const;
-  [[nodiscard]] bool getHasExpression() const;
-  void setExpression(requite::Expression &expression);
-  [[nodiscard]] requite::Expression &getExpression();
-  [[nodiscard]] const requite::Expression &getExpression() const;
   [[nodiscard]] bool getHasContainingScope() const;
   void setContainingScope(requite::Scope &scope);
   [[nodiscard]] requite::Scope &getContainingScope();

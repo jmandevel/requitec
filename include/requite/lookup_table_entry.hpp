@@ -6,9 +6,12 @@
 
 namespace requite {
 
+struct Table;
+
 struct LookupTableEntry final {
   using Self = requite::LookupTableEntry;
 
+  requite::Table* _table_ptr = nullptr;
   llvm::SmallVector<requite::UserSymbol, 1> _symbols = {};
 
   // lookup_table_entry.cpp
@@ -18,7 +21,10 @@ struct LookupTableEntry final {
   ~LookupTableEntry() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  void addTable(requite::RootSymbol root);
+  [[nodiscard]] bool getHasTable() const;
+  void setTable(requite::Table& table);
+  [[nodiscard]] requite::Table& getTable();
+  [[nodiscard]] const requite::Table& getTable() const;
   void addSymbol(requite::Module &module, requite::RootSymbol root);
   void addSymbol(requite::Module &module, requite::RootSymbol root,
                  requite::Use &use);

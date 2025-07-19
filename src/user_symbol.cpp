@@ -3,10 +3,6 @@
 
 namespace requite {
 
-UserSymbol::UserSymbol(requite::RootSymbol table) : _symbol(table) {
-  REQUITE_ASSERT(table.getType() == requite::RootSymbolType::TABLE);
-}
-
 UserSymbol::UserSymbol(requite::Module &module, requite::RootSymbol root)
     : _containing_module_ptr(&module),
       _origin(requite::UserSymbolOrigin::INTERNAL), _symbol(root) {}

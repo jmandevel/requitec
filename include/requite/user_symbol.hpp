@@ -48,7 +48,6 @@ struct UserSymbol final {
   };
 
   // user_symbol.cpp
-  UserSymbol(requite::RootSymbol table);
   UserSymbol(requite::Module& module, requite::RootSymbol root);
   UserSymbol(requite::Module& module, requite::RootSymbol root, requite::Use &use);
   UserSymbol(requite::Module& module, requite::RootSymbol root, requite::Import &import);

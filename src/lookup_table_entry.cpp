@@ -3,9 +3,20 @@
 
 namespace requite {
 
-void LookupTableEntry::addTable(requite::RootSymbol root) {
-  REQUITE_ASSERT(root.getType() == requite::RootSymbolType::TABLE);
-  this->_symbols.emplace_back(root);
+bool LookupTableEntry::getHasTable() const {
+  return this->_table_ptr != nullptr;
+}
+
+void LookupTableEntry::setTable(requite::Table &table) {
+  requite::setSingleRef(this->_table_ptr, table);
+}
+
+requite::Table &LookupTableEntry::getTable() {
+  return requite::getRef(this->_table_ptr);
+}
+
+const requite::Table &LookupTableEntry::getTable() const {
+  return requite::getRef(this->_table_ptr);
 }
 
 void LookupTableEntry::addSymbol(requite::Module &module,

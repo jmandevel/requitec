@@ -452,13 +452,21 @@ void Tabulator::tabulateObject(requite::Expression &expression,
   this->leaveScope();
 }
 
+requite::Table &Tabulator::getOrMakeTable(llvm::StringRef name) {
+  if (this->getScope().getHasTable(name)) {
+    requite::LookupTableEntry &entry = this->getScope().lookupUserSymbol(name);
+    return entry.getTable();
+  }
+  requite::Table &table = this->getContext().makeTable();
+  table.setContainingScope(this->getScope());
+  table.setName(name);
+  this->getScope().addTable(table);
+  return table;
+}
+
 void Tabulator::tabulateTable(requite::Expression &expression,
                               bool has_attributes) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE);
-  requite::Table &table = this->getContext().makeTable();
-  table.setExpression(expression);
-  expression.setTable(table);
-  table.setContainingScope(this->getScope());
   if (has_attributes) {
     this->getContext().logErrorMustNotHaveAttributes(expression);
     this->setNotOk();
@@ -468,10 +476,13 @@ void Tabulator::tabulateTable(requite::Expression &expression,
   if (!this->getContext().evaluateInstantName(name, name_expression))
       [[unlikely]] {
     this->setNotOk();
-  } else {
-    table.setName(name);
-    this->getScope().addTable(table);
+    for (requite::Expression &statement : name_expression.getNextSubrange()) {
+      this->tabulateTableStatement(statement, false);
+    }
+    return;
   }
+  requite::Table &table = this->getOrMakeTable(name);
+  expression.setTable(table);
   this->enterScope(table.getScope());
   for (requite::Expression &statement : name_expression.getNextSubrange()) {
     this->tabulateTableStatement(statement, false);
@@ -532,9 +543,10 @@ void Tabulator::tabulateImport(requite::Expression &expression,
               expression);
     }
   }
-  this->getModule().addImport(import);
   if (!this->getContext().importModule(import)) {
     this->setNotOk();
+  } else {
+    this->getModule().addImport(import);
   }
 }
 
