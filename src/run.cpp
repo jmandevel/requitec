@@ -18,13 +18,27 @@ namespace requite {
 bool Context::run() {
   requite::Module &source_module = this->getSourceModule();
   requite::File &source_file = source_module.getFile();
-  llvm::StringRef input_path = requite::getInputFilePath();
+  llvm::SmallString<128> input_path = requite::getInputFilePath();
   llvm::StringRef output_path = requite::getOutputFilePath();
+  std::error_code ec = llvm::sys::fs::make_absolute(input_path);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine("failed to determine absolute input file path\n\treason: ") +
+        ec.message());
+    return false;
+  }
+  ec = llvm::sys::fs::real_path(input_path, input_path, false);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine("failed to determine real input file path\n\treason: ") +
+        ec.message());
+    return false;
+  }
   if (!this->loadFileBuffer(source_file, input_path)) {
     return false;
   }
-  this->_module_map.insert(
-      std::pair<llvm::StringRef, requite::Module *>(input_path, &source_module));
+  this->_module_map.insert(std::pair<llvm::StringRef, requite::Module *>(
+      input_path, &source_module));
   if (!this->validateSourceFileText(source_file)) {
     return false;
   }
