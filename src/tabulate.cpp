@@ -278,7 +278,7 @@ void Tabulator::tabulateFunction(requite::Expression &expression,
     return;
   }
   procedure.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), procedure);
+  this->getScope().addUserSymbol(procedure, this->getModule());
   requite::Expression &signature_expression = name_expression.getNext();
   this->enterScope(procedure.getScope());
   for (requite::Expression &statement :
@@ -314,7 +314,7 @@ void Tabulator::tabulateMethod(requite::Expression &expression,
     return;
   }
   procedure.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), procedure);
+  this->getScope().addUserSymbol(procedure, this->getModule());
   requite::Expression &signature_expression = name_expression.getNext();
   this->enterScope(procedure.getScope());
   for (requite::Expression &statement :
@@ -355,7 +355,7 @@ void Tabulator::tabulateExtension(requite::Expression &expression,
     return;
   }
   procedure.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), procedure);
+  this->getScope().addUserSymbol(procedure, this->getModule());
   requite::Expression &signature_expression = name_expression.getNext();
   this->enterScope(procedure.getScope());
   for (requite::Expression &statement :
@@ -443,7 +443,7 @@ void Tabulator::tabulateObject(requite::Expression &expression,
     this->setNotOk();
   } else {
     object.setName(name);
-    this->getScope().addUserSymbol(this->getModule(), object);
+    this->getScope().addUserSymbol(object, this->getModule());
   }
   this->enterScope(object.getScope());
   for (requite::Expression &statement : name_expression.getNextSubrange()) {
@@ -521,7 +521,7 @@ void Tabulator::tabulateAlias(requite::Expression &expression,
     return;
   }
   alias.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), alias);
+  this->getScope().addUserSymbol(alias, this->getModule());
 }
 
 void Tabulator::tabulateImport(requite::Expression &expression,
@@ -592,7 +592,7 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
   global.setExpression(expression);
   expression.setGlobal(global);
   global.setContainingScope(this->getScope());
-
+  global.getAttributeFlags() = attributes;
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
   if (!this->getContext().evaluateInstantName(name, name_expression))
@@ -601,7 +601,7 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
     return;
   }
   global.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), global);
+  this->getScope().addUserSymbol(global, this->getModule());
 }
 
 void Tabulator::tabulate_Local(requite::Expression &expression,
@@ -628,7 +628,7 @@ void Tabulator::tabulate_Local(requite::Expression &expression,
     return;
   }
   local.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), local);
+  this->getScope().addUserSymbol(local, this->getModule());
 }
 
 void Tabulator::tabulate_AnonymousFunction(requite::Expression &expression) {
@@ -668,7 +668,7 @@ void Tabulator::tabulateProperty(requite::Expression &expression,
     return;
   }
   property.setName(name);
-  this->getScope().addUserSymbol(this->getModule(), property);
+  this->getScope().addUserSymbol(property, this->getModule());
   requite::Expression &value_expression = name_expression.getNext();
   this->tabulateExpression(value_expression);
 }

@@ -12,7 +12,6 @@ struct Module;
 struct Context;
 struct LookupTableEntry;
 struct UserSymbol;
-struct RootSymbol;
 struct Scope;
 
 struct UserSymbolWriter final {
@@ -38,9 +37,9 @@ struct UserSymbolWriter final {
   [[nodiscard]] bool writeUserSymbols(llvm::StringRef out_path);
   void writeStringProperty(llvm::StringRef name, llvm::StringRef value);
   void writeTextProperty(llvm::StringRef name, llvm::StringRef value);
+  void writeBoolProperty(llvm::StringRef name, bool value);
   void writeEntry(llvm::StringRef name, const requite::LookupTableEntry& entry);
   void writeUserSymbol(const requite::UserSymbol &user);
-  void writeRootSymbol(const requite::RootSymbol &root);
   void writeScope(const requite::Scope& scope);
   void writeNewLine();
   void addIndentation();

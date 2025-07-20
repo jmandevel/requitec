@@ -100,16 +100,13 @@ struct Scope final {
   lookupUserSymbol(llvm::StringRef name);
   [[nodiscard]] bool getHasUserSymbolOfName(llvm::StringRef name) const;
 
-  // detail/symbol_map.hpp
-  template <typename SymbolArg> void addUserSymbol(requite::Module& module, SymbolArg &symbol);
+  // detail/add_user_symbol.hpp
   template <typename SymbolArg>
-  void addUserSymbol(requite::Module& module, SymbolArg &symbol, requite::Use &use);
-  template <typename SymbolArg>
-  void addUserSymbol(requite::Module& module, SymbolArg &symbol, requite::Import &import);
+  void addUserSymbol(SymbolArg &symbol, requite::Module &module);
 
   // symbol_map.cpp
   [[nodiscard]] bool getHasTable(llvm::StringRef name) const;
-  void addTable(requite::Table& table);
+  void addTable(requite::Table &table);
 
   // detail/scope_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<
@@ -120,5 +117,5 @@ struct Scope final {
 
 } // namespace requite
 
+#include <requite/detail/scope_add_user_symbol.hpp>
 #include <requite/detail/scope_subrange.hpp>
-#include <requite/detail/symbol_map.hpp>

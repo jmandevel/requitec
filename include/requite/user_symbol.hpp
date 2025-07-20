@@ -2,7 +2,6 @@
 
 #include <requite/attribute_type.hpp>
 #include <requite/scope_type.hpp>
-#include <requite/symbol.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -10,68 +9,97 @@
 
 namespace requite {
 
-struct Use;
-struct Import;
+struct Module;
+struct Alias;
+struct Global;
+struct Label;
+struct Local;
+struct Object;
+struct Table;
+struct Property;
+struct Procedure;
 
 enum class UserSymbolType {
-  MODULE,
   ALIAS,
   GLOBAL,
-  IMPORT,
   LABEL,
   LOCAL,
   OBJECT,
-  TABLE,
   PROPERTY,
-  USE,
-  FUNCTION,
-  METHOD,
-  EXTENSION,
-  CONSTRUCTOR,
-  DESTRUCTOR
+  PROCEDURE
 };
-
-enum class UserSymbolOrigin { INTERNAL, USED, IMPORTED };
-
-[[nodiscard]] inline llvm::StringRef getName(requite::UserSymbolOrigin origin);
 
 struct UserSymbol final {
   using Self = UserSymbol;
 
-  requite::RootSymbol _symbol;
-  requite::UserSymbolOrigin _origin;
-  requite::Module* _containing_module_ptr;
+  requite::UserSymbolType _type;
   union {
-    void *_nothing_ptr = nullptr;
-    requite::Use *_use_ptr;
-    requite::Import *_import_ptr;
+    requite::Alias* _alias_ptr;
+    requite::Global* _global_ptr;
+    requite::Label* _label_ptr;
+    requite::Local* _local_ptr;
+    requite::Object* _object_ptr;
+    requite::Property* _property_ptr;
+    requite::Procedure* _procedure_ptr;
   };
+  bool _is_exported;
+  requite::Module* _containing_module_ptr;
 
   // user_symbol.cpp
-  UserSymbol(requite::Module& module, requite::RootSymbol root);
-  UserSymbol(requite::Module& module, requite::RootSymbol root, requite::Use &use);
-  UserSymbol(requite::Module& module, requite::RootSymbol root, requite::Import &import);
+  UserSymbol(requite::Alias& alias, requite::Module& module);
+  UserSymbol(requite::Global& global, requite::Module& module);
+  UserSymbol(requite::Label& label, requite::Module& module);
+  UserSymbol(requite::Local& local, requite::Module& module);
+  UserSymbol(requite::Object& object, requite::Module& module);
+  UserSymbol(requite::Property& property, requite::Module& module);
+  UserSymbol(requite::Procedure& procedure, requite::Module& module);
   UserSymbol(const Self &) = default;
   UserSymbol(Self &&) = default;
   ~UserSymbol() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  [[nodiscard]] requite::UserSymbolOrigin getOrigin() const;
-  [[nodiscard]] requite::RootSymbol &getRoot();
-  [[nodiscard]] const requite::RootSymbol &getRoot() const;
-  [[nodiscard]] requite::Use &getUse();
-  [[nodiscard]] const requite::Use &getUse() const;
-  [[nodiscard]] requite::Import &getImport();
-  [[nodiscard]] const requite::Import &getImport() const;
+  [[nodiscard]] bool operator==(const requite::Alias&) const;
+  [[nodiscard]] bool operator!=(const requite::Alias&) const;
+  [[nodiscard]] bool operator==(const requite::Global&) const;
+  [[nodiscard]] bool operator!=(const requite::Global&) const;
+  [[nodiscard]] bool operator==(const requite::Label&) const;
+  [[nodiscard]] bool operator!=(const requite::Label&) const;
+  [[nodiscard]] bool operator==(const requite::Local&) const;
+  [[nodiscard]] bool operator!=(const requite::Local&) const;
+  [[nodiscard]] bool operator==(const requite::Object&) const;
+  [[nodiscard]] bool operator!=(const requite::Object&) const;
+  [[nodiscard]] bool operator==(const requite::Property&) const;
+  [[nodiscard]] bool operator!=(const requite::Property&) const;
+  [[nodiscard]] bool operator==(const requite::Procedure&) const;
+  [[nodiscard]] bool operator!=(const requite::Procedure&) const;
+  [[nodiscard]] requite::UserSymbolType getType() const;
+  [[nodiscard]] bool getIsExported() const;
   [[nodiscard]] requite::Module &getContainingModule();
   [[nodiscard]] const requite::Module &getContainingModule() const;
+  [[nodiscard]] bool getIsAlias() const;
+  [[nodiscard]] requite::Alias& getAlias();
+  [[nodiscard]] const requite::Alias& getAlias() const;
+  [[nodiscard]] bool getIsGlobal() const;
+  [[nodiscard]] requite::Global& getGlobal();
+  [[nodiscard]] const requite::Global& getGlobal() const;
+  [[nodiscard]] bool getIsLabel() const;
+  [[nodiscard]] requite::Label& getLabel();
+  [[nodiscard]] const requite::Label& getLabel() const;
+  [[nodiscard]] bool getIsLocal() const;
+  [[nodiscard]] requite::Local& getLocal();
+  [[nodiscard]] const requite::Local& getLocal() const;
+  [[nodiscard]] bool getIsObject() const;
+  [[nodiscard]] requite::Object& getObject();
+  [[nodiscard]] const requite::Object& getObject() const;
+  [[nodiscard]] bool getIsProperty() const;
+  [[nodiscard]] requite::Property& getProperty();
+  [[nodiscard]] const requite::Property& getProperty() const;
+  [[nodiscard]] bool getIsProcedure() const;
+  [[nodiscard]] requite::Procedure& getProcedure();
+  [[nodiscard]] const requite::Procedure& getProcedure() const;
 };
 
 // detail/user_symbol.hpp
-template <requite::UserSymbolType TYPE_PARAM>
-[[nodiscard]] bool
-getIsValidUserSymbolAttribute(requite::ScopeType scope_type,
-                         requite::AttributeType attribute_type);
 [[nodiscard]] inline constexpr std::string_view getName(requite::UserSymbolType type);
 
 } // namespace requite

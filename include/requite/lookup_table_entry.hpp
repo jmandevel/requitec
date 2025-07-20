@@ -25,15 +25,16 @@ struct LookupTableEntry final {
   void setTable(requite::Table& table);
   [[nodiscard]] requite::Table& getTable();
   [[nodiscard]] const requite::Table& getTable() const;
-  void addSymbol(requite::Module &module, requite::RootSymbol root);
-  void addSymbol(requite::Module &module, requite::RootSymbol root,
-                 requite::Use &use);
-  void addSymbol(requite::Module &module, requite::RootSymbol root,
-                 requite::Import &import);
   [[nodiscard]] llvm::SmallVector<requite::UserSymbol, 1> &getUserSymbols();
   [[nodiscard]] const llvm::SmallVector<requite::UserSymbol, 1> &
   getUserSymbols() const;
   [[nodiscard]] bool getIsAmbiguous() const;
+
+  // detail/entry_add_user_symbol.hpp
+  template<typename UserParam>
+  void addSymbol(UserParam& user);
 };
 
 } // namespace requite
+
+#include <requite/detail/entry_add_user_symbol.hpp>

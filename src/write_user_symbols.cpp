@@ -18,13 +18,7 @@ bool Context::writeUserSymbols(llvm::StringRef output_path) {
 bool UserSymbolWriter::writeUserSymbols(llvm::StringRef out_path) {
   this->_buffer.clear();
   const requite::Scope &outer_scope = this->getContext().getOuterScope();
-  this->getOstream() << "scope:{";
-  {
-    requite::UserSymbolWriterIndentLock lock0(*this);
-    this->writeScope(outer_scope);
-  }
-  this->writeNewLine();
-  this->getOstream() << "}";
+  this->writeScope(outer_scope);
   std::error_code ec;
   llvm::raw_fd_ostream fout(out_path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
@@ -51,9 +45,25 @@ void UserSymbolWriter::writeTextProperty(llvm::StringRef name,
   this->getOstream() << value;
 }
 
+void UserSymbolWriter::writeBoolProperty(llvm::StringRef name, bool value) {
+  this->writeNewLine();
+  this->getOstream() << name;
+  this->getOstream() << ":";
+  if (value) {
+    this->getOstream() << "true";
+  } else {
+    this->getOstream() << "false";
+  }
+}
+
 void UserSymbolWriter::writeEntry(llvm::StringRef name,
                                   const requite::LookupTableEntry &entry) {
   this->writeStringProperty("name", name);
+  if (entry.getHasTable()) {
+    this->writeNewLine();
+    this->getOstream() << "table:";
+    this->writeScope(entry.getTable().getScope());
+  }
   this->writeNewLine();
   this->getOstream() << "user_symbols:{";
   {
@@ -74,34 +84,19 @@ void UserSymbolWriter::writeEntry(llvm::StringRef name,
 }
 
 void UserSymbolWriter::writeUserSymbol(const requite::UserSymbol &user) {
-  this->writeTextProperty("origin", requite::getName(user.getOrigin()));
-  this->writeNewLine();
-  this->getOstream() << "root:{";
-  {
-    requite::UserSymbolWriterIndentLock lock0(*this);
-    this->writeRootSymbol(user.getRoot());
-  }
-  this->writeNewLine();
-  this->getOstream() << "}";
-}
-
-void UserSymbolWriter::writeRootSymbol(const requite::RootSymbol &root) {
-  const requite::RootSymbolType type = root.getType();
-  this->writeTextProperty("type", requite::getName(type));
-  if (type == requite::RootSymbolType::PROCEDURE) {
-    const requite::Procedure &procedure = root.getProcedure();
-    this->writeTextProperty("procedure_type",
-                            requite::getName(procedure.getType()));
-  }
-  switch (type) {
-  case requite::RootSymbolType::OBJECT:
-    this->writeScope(root.getObject().getScope());
+  this->writeStringProperty("type", requite::getName(user.getType()));
+  this->writeStringProperty("module", user.getContainingModule().getName());
+  this->writeBoolProperty("is_exported", user.getIsExported());
+  switch (const requite::UserSymbolType type = user.getType()) {
+  case requite::UserSymbolType::OBJECT:
+    this->writeNewLine();
+    this->getOstream() << "scope:";
+    this->writeScope(user.getObject().getScope());
     break;
-  case requite::RootSymbolType::TABLE:
-    this->writeScope(root.getTable().getScope());
-    break;
-  case requite::RootSymbolType::PROCEDURE:
-    this->writeScope(root.getProcedure().getScope());
+  case requite::UserSymbolType::PROCEDURE:
+    this->writeNewLine();
+    this->getOstream() << "scope:";
+    this->writeScope(user.getProcedure().getScope());
     break;
   default:
     break;
@@ -109,17 +104,27 @@ void UserSymbolWriter::writeRootSymbol(const requite::RootSymbol &root) {
 }
 
 void UserSymbolWriter::writeScope(const requite::Scope &scope) {
-  for (const llvm::StringMapEntry<requite::LookupTableEntry> &entry :
-       scope.getLookupTable()) {
-    this->writeNewLine();
-    this->getOstream() << "{";
-    {
-      requite::UserSymbolWriterIndentLock lock0(*this);
-      this->writeEntry(entry.first(), entry.second);
-    }
-    this->writeNewLine();
+  this->getOstream() << "{";
+  if (scope.getIsEmpty()) {
     this->getOstream() << "}";
+    return;
   }
+  {
+    requite::UserSymbolWriterIndentLock lock0(*this);
+    for (const llvm::StringMapEntry<requite::LookupTableEntry> &entry :
+         scope.getLookupTable()) {
+      this->writeNewLine();
+      this->getOstream() << "{";
+      {
+        requite::UserSymbolWriterIndentLock lock1(*this);
+        this->writeEntry(entry.first(), entry.second);
+      }
+      this->writeNewLine();
+      this->getOstream() << "}";
+    }
+  }
+  this->writeNewLine();
+  this->getOstream() << "}";
 }
 
 void UserSymbolWriter::addIndentation() { this->_indentation++; }
