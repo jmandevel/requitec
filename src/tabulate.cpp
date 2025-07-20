@@ -246,6 +246,10 @@ void Tabulator::tabulateFunction(requite::Expression &expression,
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::MEMBER_FUNCTION>(
               expression);
+      if (this->getObject().getAttributeFlags().getHasAttribute(
+              requite::AttributeType::EXPORT)) {
+        attributes.addAttribute(requite::AttributeType::EXPORT);
+      }
     } else {
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::FUNCTION>(
@@ -287,6 +291,10 @@ void Tabulator::tabulateMethod(requite::Expression &expression,
     attributes =
         this->tabulateAttributes<requite::AttributeCategory::MEMBER_METHOD>(
             expression);
+    if (this->getObject().getAttributeFlags().getHasAttribute(
+            requite::AttributeType::EXPORT)) {
+      attributes.addAttribute(requite::AttributeType::EXPORT);
+    }
   }
   if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
     // TODO tabulate template method
@@ -323,6 +331,10 @@ void Tabulator::tabulateExtension(requite::Expression &expression,
     if (this->getScope().getType() == requite::ScopeType::OBJECT) {
       attributes = this->tabulateAttributes<
           requite::AttributeCategory::MEMBER_EXTENSION>(expression);
+      if (this->getObject().getAttributeFlags().getHasAttribute(
+              requite::AttributeType::EXPORT)) {
+        attributes.addAttribute(requite::AttributeType::EXPORT);
+      }
     } else {
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::EXTENSION>(
@@ -363,6 +375,10 @@ void Tabulator::tabulateConstructor(requite::Expression &expression,
   if (has_attributes) {
     attributes = this->tabulateAttributes<
         requite::AttributeCategory::MEMBER_CONSTRUCTOR>(expression);
+    if (this->getObject().getAttributeFlags().getHasAttribute(
+            requite::AttributeType::EXPORT)) {
+      attributes.addAttribute(requite::AttributeType::EXPORT);
+    }
   }
   if (attributes.getHasAttribute(requite::AttributeType::TEMPLATE)) {
     // TODO tabulate template constructor
@@ -395,6 +411,11 @@ void Tabulator::tabulateDestructor(requite::Expression &expression,
     procedure.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::MEMBER_DESTRUCTOR>(
             expression);
+    if (this->getObject().getAttributeFlags().getHasAttribute(
+            requite::AttributeType::EXPORT)) {
+      procedure.getAttributeFlags().addAttribute(
+          requite::AttributeType::EXPORT);
+    }
   }
   this->getObject().addDestructor(procedure);
   this->enterScope(procedure.getScope());
@@ -413,6 +434,10 @@ void Tabulator::tabulateObject(requite::Expression &expression,
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::MEMBER_OBJECT>(
               expression);
+      if (this->getObject().getAttributeFlags().getHasAttribute(
+              requite::AttributeType::EXPORT)) {
+        attributes.addAttribute(requite::AttributeType::EXPORT);
+      }
     } else {
       attributes = this->tabulateAttributes<requite::AttributeCategory::OBJECT>(
           expression);
@@ -490,6 +515,10 @@ void Tabulator::tabulateAlias(requite::Expression &expression,
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::MEMBER_ALIAS>(
               expression);
+      if (this->getObject().getAttributeFlags().getHasAttribute(
+              requite::AttributeType::EXPORT)) {
+        attributes.addAttribute(requite::AttributeType::EXPORT);
+      }
     } else {
       attributes = this->tabulateAttributes<requite::AttributeCategory::ALIAS>(
           expression);
@@ -548,6 +577,10 @@ void Tabulator::tabulateUse(requite::Expression &expression,
       use.getAttributeFlags() =
           this->tabulateAttributes<requite::AttributeCategory::MEMBER_USE>(
               expression);
+      if (this->getObject().getAttributeFlags().getHasAttribute(
+              requite::AttributeType::EXPORT)) {
+        use.getAttributeFlags().addAttribute(requite::AttributeType::EXPORT);
+      }
     } else {
       use.getAttributeFlags() =
           this->tabulateAttributes<requite::AttributeCategory::USE>(expression);
@@ -564,6 +597,10 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::MEMBER_GLOBAL>(
               expression);
+      if (this->getObject().getAttributeFlags().getHasAttribute(
+              requite::AttributeType::EXPORT)) {
+        attributes.addAttribute(requite::AttributeType::EXPORT);
+      }
     } else {
       attributes = this->tabulateAttributes<requite::AttributeCategory::GLOBAL>(
           expression);
@@ -644,6 +681,10 @@ void Tabulator::tabulateProperty(requite::Expression &expression,
     property.getAttributeFlags() =
         this->tabulateAttributes<requite::AttributeCategory::MEMBER_PROPERTY>(
             expression);
+    if (this->getObject().getAttributeFlags().getHasAttribute(
+            requite::AttributeType::EXPORT)) {
+      property.getAttributeFlags().addAttribute(requite::AttributeType::EXPORT);
+    }
   }
   requite::Expression &name_expression = expression.getBranch();
   llvm::StringRef name;
