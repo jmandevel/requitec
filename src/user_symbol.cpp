@@ -38,7 +38,9 @@ UserSymbol::UserSymbol(requite::Object &object, requite::Module &module)
 
 UserSymbol::UserSymbol(requite::Property &property, requite::Module &module)
     : _type(requite::UserSymbolType::PROPERTY), _property_ptr(&property),
-      _is_exported(false), _containing_module_ptr(&module) {}
+      _is_exported(property.getAttributeFlags().getHasAttribute(
+          requite::AttributeType::EXPORT)),
+      _containing_module_ptr(&module) {}
 
 UserSymbol::UserSymbol(requite::Procedure &procedure, requite::Module &module)
     : _type(requite::UserSymbolType::PROCEDURE), _procedure_ptr(&procedure),
@@ -102,9 +104,7 @@ bool UserSymbol::operator!=(const requite::Procedure &rhs) const {
   return this->getProcedure() != rhs;
 }
 
-requite::UserSymbolType UserSymbol::getType() const {
-  return this->_type;
-}
+requite::UserSymbolType UserSymbol::getType() const { return this->_type; }
 
 bool UserSymbol::getIsExported() const { return this->_is_exported; }
 
