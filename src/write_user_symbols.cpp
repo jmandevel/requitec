@@ -64,6 +64,9 @@ void UserSymbolWriter::writeEntry(llvm::StringRef name,
     this->getOstream() << "table:";
     this->writeScope(entry.getTable().getScope());
   }
+  if (entry.getUserSymbols().empty()) {
+    return;
+  }
   this->writeNewLine();
   this->getOstream() << "user_symbols:{";
   {
