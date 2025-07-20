@@ -118,8 +118,7 @@ enum _AttributeFlags : std::uint32_t {
   _USE = requite::getBit(16),
   _MEMBER_USE = requite::getBit(17),
   _IMPORT = requite::getBit(18),
-  _MEMBER_IMPORT = requite::getBit(19),
-  _BLOCK = requite::getBit(20)
+  _BLOCK = requite::getBit(19)
 };
 }
 
@@ -143,7 +142,7 @@ _getFlags(requite::AttributeType type) {
     return _FUNCTION | _MEMBER_FUNCTION | _MEMBER_METHOD | _EXTENSION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _OBJECT | _MEMBER_OBJECT |
            _MEMBER_PROPERTY | _ALIAS | _MEMBER_ALIAS | _GLOBAL |
-           _MEMBER_GLOBAL | _USE | _MEMBER_USE | _IMPORT | _MEMBER_IMPORT;
+           _MEMBER_GLOBAL | _USE | _MEMBER_USE | _IMPORT;
   case AttributeType::MUTABLE:
     return _TYPE;
   case AttributeType::CONSTANT:
@@ -163,11 +162,11 @@ _getFlags(requite::AttributeType type) {
   case AttributeType::PRIVATE:
     return _MEMBER_FUNCTION | _MEMBER_METHOD | _MEMBER_EXTENSION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _MEMBER_PROPERTY |
-           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE | _MEMBER_IMPORT;
+           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE;
   case AttributeType::PROTECTED:
     return _MEMBER_FUNCTION | _MEMBER_METHOD | _MEMBER_EXTENSION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _MEMBER_PROPERTY |
-           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE | _MEMBER_IMPORT;
+           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE;
   case AttributeType::EXPORT:
     return _FUNCTION | _EXTENSION | _OBJECT | _ALIAS | _GLOBAL | _USE | _IMPORT;
   case AttributeType::NOT_FINAL:
@@ -248,9 +247,6 @@ constexpr bool getCanBeAttributeCategory(requite::AttributeType type) {
     return requite::getCanBeMemberUseAttribute(type);
   } else if constexpr (CATEGORY_PARAM == requite::AttributeCategory::IMPORT) {
     return requite::getCanBeImportAttribute(type);
-  } else if constexpr (CATEGORY_PARAM ==
-                       requite::AttributeCategory::MEMBER_IMPORT) {
-    return requite::getCanBeMemberImportAttribute(type);
   } else if constexpr (CATEGORY_PARAM == requite::AttributeCategory::BLOCK) {
     return requite::getCanBeBlockAttribute(type);
   } else {
@@ -362,12 +358,6 @@ constexpr bool getCanBeMemberUseAttribute(requite::AttributeType type) {
 constexpr bool getCanBeImportAttribute(requite::AttributeType type) {
   const bool has_flags =
       requite::_getHasFlags(type, requite::_attribute::_IMPORT);
-  return has_flags;
-}
-
-constexpr bool getCanBeMemberImportAttribute(requite::AttributeType type) {
-  const bool has_flags =
-      requite::_getHasFlags(type, requite::_attribute::_MEMBER_IMPORT);
   return has_flags;
 }
 

@@ -59,7 +59,6 @@ template <requite::AttributeCategory CATEGORY_PARAM>
 [[nodiscard]] constexpr bool getCanBeUseAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberUseAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeImportAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeMemberImportAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeBlockAttribute(requite::AttributeType type);
 
 } // namespace requite

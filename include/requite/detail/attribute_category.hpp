@@ -41,8 +41,6 @@ getErrorMessageEnding(requite::AttributeCategory category) {
     return " is not member use attribute";
   case requite::AttributeCategory::IMPORT:
     return " is not import attribute";
-  case requite::AttributeCategory::MEMBER_IMPORT:
-    return " is not member import attribute";
   case requite::AttributeCategory::BLOCK:
     return " is not block attribute";
   }

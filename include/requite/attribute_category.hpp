@@ -23,7 +23,6 @@ enum class AttributeCategory {
   USE,
   MEMBER_USE,
   IMPORT,
-  MEMBER_IMPORT,
   BLOCK
 };
 

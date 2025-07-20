@@ -524,15 +524,9 @@ void Tabulator::tabulateImport(requite::Expression &expression,
   import.setContainingScope(this->getScope());
   import.setContainingModule(this->getModule());
   if (has_attributes) {
-    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      import.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::MEMBER_IMPORT>(
-              expression);
-    } else {
-      import.getAttributeFlags() =
-          this->tabulateAttributes<requite::AttributeCategory::IMPORT>(
-              expression);
-    }
+    import.getAttributeFlags() =
+        this->tabulateAttributes<requite::AttributeCategory::IMPORT>(
+            expression);
   }
   if (!this->getContext().importModule(import)) {
     this->setNotOk();
