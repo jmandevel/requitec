@@ -100,12 +100,12 @@ const std::set<requite::Module*> &Module::getImportModulePtrSet() const {
   return this->_import_module_ptr_set;
 }
 
-std::vector<requite::Module*> &Module::getExportTargetModulePtrs() {
-  return this->_export_target_module_ptrs;
+std::vector<requite::Module*> &Module::getExportModulePtrs() {
+  return this->_export_module_ptrs;
 }
 
-const std::vector<requite::Module*> &Module::getExportTargetModulePtrs() const {
-  return this->_export_target_module_ptrs;
+const std::vector<requite::Module*> &Module::getExportModulePtrs() const {
+  return this->_export_module_ptrs;
 }
 
 

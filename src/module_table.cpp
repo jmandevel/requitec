@@ -135,7 +135,7 @@ void Module::addImport(requite::Import &import) {
   this->getImportModulePtrSet().insert(&module);
   if (import.getAttributeFlags().getHasAttribute(
           requite::AttributeType::EXPORT)) {
-    module.getExportTargetModulePtrs().push_back(this);
+    this->getExportModulePtrs().push_back(&module);
   }
 }
 

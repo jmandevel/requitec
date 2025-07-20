@@ -203,6 +203,12 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]]
   const requite::Module *getModulePtr(llvm::StringRef import_path) const;
 
+  // prepare_tables.cpp
+  void propogateExportedImports();
+  [[nodiscard]] bool propogateExportImportPass();
+  void diffuseUses();
+  [[nodiscard]] bool diffuseUsePass();
+
   // validate_source.cpp
   [[nodiscard]]
   bool validateSourceFileText(requite::File &file);

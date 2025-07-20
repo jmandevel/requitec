@@ -77,6 +77,8 @@ bool Context::run() {
   if (!this->tabulateModule(source_module)) {
     return false;
   }
+  this->propogateExportedImports();
+  this->diffuseUses();
   if (requite::getEmitMode() == requite::EMIT_SYMBOLS) {
     if (!this->writeUserSymbols(output_path)) {
       return false;

@@ -30,7 +30,7 @@ struct Module final {
   requite::File _file = {};
   requite::Procedure *_entry_point_ptr = nullptr;
   std::set<requite::Module*> _import_module_ptr_set = {};
-  std::vector<requite::Module*> _export_target_module_ptrs = {};
+  std::vector<requite::Module*> _export_module_ptrs = {};
 
   // module.cpp
   Module() = default;
@@ -64,8 +64,8 @@ struct Module final {
   [[nodiscard]] const requite::Procedure &getEntryPoint() const;
   [[nodiscard]] std::set<requite::Module*> &getImportModulePtrSet();
   [[nodiscard]] const std::set<requite::Module*> &getImportModulePtrSet() const;
-  [[nodiscard]] std::vector<requite::Module*> &getExportTargetModulePtrs();
-  [[nodiscard]] const std::vector<requite::Module*> &getExportTargetModulePtrs() const;
+  [[nodiscard]] std::vector<requite::Module*> &getExportModulePtrs();
+  [[nodiscard]] const std::vector<requite::Module*> &getExportModulePtrs() const;
 
   // module_table.cpp
   void addImport(requite::Import& import);
