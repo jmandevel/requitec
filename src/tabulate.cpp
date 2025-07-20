@@ -105,9 +105,6 @@ void Tabulator::tabulateTableStatement(requite::Expression &statement,
   case requite::Opcode::ALIAS:
     this->tabulateAlias(statement, has_attributes);
     break;
-  case requite::Opcode::IMPORT:
-    this->tabulateImport(statement, has_attributes);
-    break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
     break;
@@ -143,9 +140,6 @@ void Tabulator::tabulateObjectStatement(requite::Expression &statement,
     break;
   case requite::Opcode::ALIAS:
     this->tabulateAlias(statement, has_attributes);
-    break;
-  case requite::Opcode::IMPORT:
-    this->tabulateImport(statement, has_attributes);
     break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
@@ -185,9 +179,6 @@ void Tabulator::tabulateMatteLocalStatement(requite::Expression &statement,
     break;
   case requite::Opcode::ALIAS:
     this->tabulateAlias(statement, has_attributes);
-    break;
-  case requite::Opcode::IMPORT:
-    this->tabulateImport(statement, has_attributes);
     break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
