@@ -100,25 +100,37 @@ constexpr std::string_view getName(requite::AttributeType type) {
 namespace _attribute {
 enum _AttributeFlags : std::uint32_t {
   _NONE = 0,
-  _TYPE = requite::getBit(1),
-  _FUNCTION = requite::getBit(2),
-  _MEMBER_FUNCTION = requite::getBit(3),
+  _TYPE = requite::getBit(0),
+  _FUNCTION = requite::getBit(1),
+  _MEMBER_FUNCTION = requite::getBit(2),
+  _LOCAL_FUNCTION = requite::getBit(3),
   _MEMBER_METHOD = requite::getBit(4),
   _EXTENSION = requite::getBit(5),
   _MEMBER_EXTENSION = requite::getBit(6),
-  _MEMBER_CONSTRUCTOR = requite::getBit(7),
-  _MEMBER_DESTRUCTOR = requite::getBit(8),
-  _OBJECT = requite::getBit(9),
-  _MEMBER_OBJECT = requite::getBit(10),
-  _MEMBER_PROPERTY = requite::getBit(11),
-  _ALIAS = requite::getBit(12),
-  _MEMBER_ALIAS = requite::getBit(13),
-  _GLOBAL = requite::getBit(14),
-  _MEMBER_GLOBAL = requite::getBit(15),
-  _USE = requite::getBit(16),
-  _MEMBER_USE = requite::getBit(17),
-  _IMPORT = requite::getBit(18),
-  _BLOCK = requite::getBit(19)
+  _LOCAL_EXTENSION = requite::getBit(7),
+  _MEMBER_CONSTRUCTOR = requite::getBit(8),
+  _MEMBER_DESTRUCTOR = requite::getBit(9),
+  _OBJECT = requite::getBit(10),
+  _MEMBER_OBJECT = requite::getBit(11),
+  _LOCAL_OBJECT = requite::getBit(12),
+  _MEMBER_PROPERTY = requite::getBit(13),
+  _ALIAS = requite::getBit(14),
+  _MEMBER_ALIAS = requite::getBit(15),
+  _LOCAL_ALIAS = requite::getBit(16),
+  _GLOBAL = requite::getBit(17),
+  _MEMBER_GLOBAL = requite::getBit(18),
+  _LOCAL_GLOBAL = requite::getBit(19),
+  _USE = requite::getBit(20),
+  _MEMBER_USE = requite::getBit(21),
+  _LOCAL_USE = requite::getBit(22),
+  _TABLE_ALIAS = requite::getBit(23),
+  _MEMBER_TABLE_ALIAS = requite::getBit(24),
+  _LOCAL_TABLE_ALIAS = requite::getBit(25),
+  _TABLE_USE = requite::getBit(26),
+  _MEMBER_TABLE_USE = requite::getBit(27),
+  _LOCAL_TABLE_USE = requite::getBit(28),
+  _IMPORT = requite::getBit(29),
+  _BLOCK = requite::getBit(30)
 };
 }
 
@@ -139,10 +151,11 @@ _getFlags(requite::AttributeType type) {
   case AttributeType::NONE:
     return _NONE;
   case AttributeType::USER:
-    return _FUNCTION | _MEMBER_FUNCTION | _MEMBER_METHOD | _EXTENSION |
+    return _FUNCTION | _MEMBER_FUNCTION | _LOCAL_FUNCTION | _MEMBER_METHOD |
+           _EXTENSION | _MEMBER_EXTENSION | _LOCAL_EXTENSION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _OBJECT | _MEMBER_OBJECT |
-           _MEMBER_PROPERTY | _ALIAS | _MEMBER_ALIAS | _GLOBAL |
-           _MEMBER_GLOBAL | _MEMBER_USE | _IMPORT;
+           _LOCAL_OBJECT | _MEMBER_PROPERTY | _ALIAS | _MEMBER_ALIAS | _GLOBAL |
+           _MEMBER_GLOBAL | _LOCAL_GLOBAL | _MEMBER_USE | _IMPORT;
   case AttributeType::MUTABLE:
     return _TYPE;
   case AttributeType::CONSTANT:
@@ -156,33 +169,37 @@ _getFlags(requite::AttributeType type) {
   case AttributeType::OWNING:
     return _TYPE;
   case AttributeType::TEMPLATE:
-    return _FUNCTION | _MEMBER_FUNCTION | _MEMBER_METHOD | _EXTENSION |
-           _MEMBER_EXTENSION | _MEMBER_CONSTRUCTOR | _OBJECT | _MEMBER_OBJECT |
-           _ALIAS | _MEMBER_ALIAS | _GLOBAL | _MEMBER_GLOBAL;
+    return _FUNCTION | _MEMBER_FUNCTION | _LOCAL_FUNCTION | _MEMBER_METHOD |
+           _EXTENSION | _MEMBER_EXTENSION | _LOCAL_EXTENSION |
+           _MEMBER_CONSTRUCTOR | _OBJECT | _MEMBER_OBJECT | _ALIAS |
+           _MEMBER_ALIAS | _LOCAL_ALIAS | _GLOBAL | _MEMBER_GLOBAL | _LOCAL_GLOBAL;
   case AttributeType::PRIVATE:
     return _MEMBER_FUNCTION | _MEMBER_METHOD | _MEMBER_EXTENSION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _MEMBER_PROPERTY |
-           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE;
+           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE | _MEMBER_TABLE_ALIAS |
+           _MEMBER_TABLE_USE;
   case AttributeType::PROTECTED:
-    return _MEMBER_FUNCTION | _MEMBER_METHOD | _MEMBER_EXTENSION |
+    return _MEMBER_FUNCTION | _MEMBER_METHOD | _LOCAL_FUNCTION | _MEMBER_EXTENSION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _MEMBER_PROPERTY |
-           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE;
+           _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE | _MEMBER_TABLE_ALIAS |
+           _MEMBER_TABLE_USE;
   case AttributeType::EXPORT:
-    return _FUNCTION | _EXTENSION | _OBJECT | _ALIAS | _GLOBAL | _USE | _IMPORT;
+    return _FUNCTION | _EXTENSION | _OBJECT | _ALIAS | _GLOBAL | _USE |
+           _IMPORT | _TABLE_ALIAS | _TABLE_USE;
   case AttributeType::NOT_FINAL:
-    return _OBJECT | _MEMBER_OBJECT;
+    return _OBJECT | _MEMBER_OBJECT | _LOCAL_OBJECT;
   case AttributeType::MAY_DISCARD:
     return _TYPE;
   case AttributeType::INLINE:
-    return _FUNCTION | _MEMBER_FUNCTION | _MEMBER_METHOD | _EXTENSION |
-           _MEMBER_EXTENSION | _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR;
+    return _FUNCTION | _MEMBER_FUNCTION | _LOCAL_FUNCTION | _MEMBER_METHOD | _EXTENSION |
+           _MEMBER_EXTENSION | _LOCAL_EXTENSION | _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR;
   case AttributeType::MANGLED_NAME:
-    return _FUNCTION | _MEMBER_FUNCTION | _MEMBER_METHOD | _EXTENSION |
-           _MEMBER_EXTENSION | _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR;
+    return _FUNCTION | _MEMBER_FUNCTION | _LOCAL_FUNCTION | _MEMBER_METHOD | _EXTENSION |
+           _MEMBER_EXTENSION | _LOCAL_EXTENSION | _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR;
   case AttributeType::LABEL:
     return _BLOCK;
   case AttributeType::PACK:
-    return _OBJECT | _MEMBER_OBJECT;
+    return _OBJECT | _MEMBER_OBJECT | _LOCAL_OBJECT;
   case AttributeType::_LAST:
     break;
   }
