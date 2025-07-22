@@ -37,6 +37,8 @@ getErrorMessageEnding(requite::AttributeCategory category) {
     return " is not member global attribute";
   case requite::AttributeCategory::USE:
     return " is not use attribute";
+  case requite::AttributeCategory::PULL:
+    return " is not pull attribute";
   case requite::AttributeCategory::MEMBER_USE:
     return " is not member use attribute";
   case requite::AttributeCategory::IMPORT:

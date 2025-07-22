@@ -307,6 +307,7 @@ enum class Opcode : unsigned {
   // SYMBOL GRAPH
   IMPORT,
   USE,
+  PULL,
 
   // SOURCES
   _MODULE_ROOT,

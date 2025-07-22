@@ -540,6 +540,9 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::USE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::PULL:
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
 
   // SOURCES
   case Opcode::_MODULE_ROOT:
@@ -1048,6 +1051,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "import";
   case requite::Opcode::USE:
     return "use";
+  case requite::Opcode::PULL:
+    return "pull";
 
   // SOURCES
   case requite::Opcode::_MODULE_ROOT:
