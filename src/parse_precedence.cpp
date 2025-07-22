@@ -49,7 +49,7 @@ void PrecedenceParser::parseBinary(requite::Parser &parser,
 }
 
 void PrecedenceParser::parseBinaryCombination(requite::Parser &parser,
-                                   requite::Opcode opcode) {
+                                              requite::Opcode opcode) {
   const requite::Token &token = parser.getToken();
   parser.incrementToken(1);
   requite::Expression &new_operation =

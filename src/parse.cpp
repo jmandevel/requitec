@@ -578,6 +578,9 @@ requite::Expression &Parser::parsePrecedence2() {
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
       std::ignore = this->checkIsNormativeRequiteOk();
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
       precedence_parser.parseHorned(
           *this, requite::Opcode::_CALL_OR_SIGNATURE,
           requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
@@ -585,6 +588,9 @@ requite::Expression &Parser::parsePrecedence2() {
     }
     case requite::TokenType::LEFT_COMPAS_GROUPING: {
       std::ignore = this->checkIsNormativeRequiteOk();
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
       precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
                                     requite::TokenType::RIGHT_COMPAS_GROUPING);
       continue;
@@ -674,6 +680,16 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::LEFT_RIGHT_OPERATOR:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseLeftRightOperator();
+  case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
+    std::ignore = this->checkIsNormativeRequiteOk();
+    return this->parseHornedImplicitHorn(
+        requite::Opcode::_CALL_OR_SIGNATURE,
+        requite::TokenType::RIGHT_PARENTHESIS_GROUPING, requite::Opcode::TACIT);
+  case requite::TokenType::LEFT_COMPAS_GROUPING:
+    std::ignore = this->checkIsNormativeRequiteOk();
+    return this->parseHornedImplicitHorn(
+        requite::Opcode::_SPECIALIZATION,
+        requite::TokenType::RIGHT_COMPAS_GROUPING, requite::Opcode::TACIT);
   default:
     break;
   }
@@ -873,6 +889,14 @@ requite::Expression &Parser::parseHorned(requite::Expression &first,
   }
   first.setNextPtr(second_ptr);
   return operation;
+}
+
+requite::Expression &
+Parser::parseHornedImplicitHorn(requite::Opcode opcode,
+                                requite::TokenType right_token,
+                                requite::Opcode horn_opcode) {
+  requite::Expression &horn = requite::Expression::makeOperation(horn_opcode);
+  return this->parseHorned(horn, opcode, right_token);
 }
 
 requite::Expression &Parser::parseCloven(requite::Opcode opcode,

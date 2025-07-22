@@ -26,11 +26,11 @@ struct PrecedenceParser final {
   requite::Expression *_last_ptr = nullptr;
 
   PrecedenceParser() = default;
-  PrecedenceParser(const Self&) = delete;
-  PrecedenceParser(Self&&) = delete;
+  PrecedenceParser(const Self &) = delete;
+  PrecedenceParser(Self &&) = delete;
   ~PrecedenceParser() = default;
-  Self& operator=(const Self&) = delete;
-  Self& operator=(Self&&) = delete;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
 
   // parse.cpp
   void parseDoubleUnary(requite::Parser &parser, requite::Opcode opcode);

@@ -80,6 +80,9 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseHorned(requite::Expression &first,
                                    requite::Opcode opcode,
                                    requite::TokenType end);
+  [[nodiscard]] requite::Expression &parseHornedImplicitHorn(requite::Opcode opcode,
+                               requite::TokenType right_token,
+                               requite::Opcode horn_opcode);
   // (branch0 branch1 branch2)
   [[nodiscard]] requite::Expression &parseCloven(requite::Opcode opcode,
                                    requite::TokenType end);
