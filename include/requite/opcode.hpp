@@ -219,6 +219,7 @@ enum class Opcode : unsigned {
   OBJECT,
   TABLE,
   ALIAS,
+  USE,
   _LOCAL,
   GLOBAL,
   PROPERTY,
@@ -306,8 +307,8 @@ enum class Opcode : unsigned {
 
   // SYMBOL GRAPH
   IMPORT,
-  USE,
-  PULL,
+  TABLE_USE,
+  TABLE_ALIAS,
 
   // SOURCES
   _MODULE_ROOT,

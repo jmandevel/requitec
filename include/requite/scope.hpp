@@ -15,7 +15,6 @@
 
 #include <memory>
 #include <ranges>
-#include <vector>
 
 namespace requite {
 
@@ -31,6 +30,7 @@ struct Import;
 struct Use;
 struct Import;
 struct Block;
+struct Pull;
 
 struct Scope final {
   using Self = requite::Scope;
@@ -39,6 +39,7 @@ struct Scope final {
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
   llvm::StringMap<requite::LookupTableEntry> _symbol_map = {};
+  requite::Pull* _first_pull_ptr = nullptr;
   union {
     void *_nothing_ptr = nullptr;
     requite::Module *_module_ptr;

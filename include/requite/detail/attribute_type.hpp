@@ -116,10 +116,9 @@ enum _AttributeFlags : std::uint32_t {
   _GLOBAL = requite::getBit(14),
   _MEMBER_GLOBAL = requite::getBit(15),
   _USE = requite::getBit(16),
-  _PULL = requite::getBit(17),
-  _MEMBER_USE = requite::getBit(18),
-  _IMPORT = requite::getBit(19),
-  _BLOCK = requite::getBit(20)
+  _MEMBER_USE = requite::getBit(17),
+  _IMPORT = requite::getBit(18),
+  _BLOCK = requite::getBit(19)
 };
 }
 
@@ -169,7 +168,7 @@ _getFlags(requite::AttributeType type) {
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _MEMBER_PROPERTY |
            _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE;
   case AttributeType::EXPORT:
-    return _FUNCTION | _EXTENSION | _OBJECT | _ALIAS | _GLOBAL | _USE | _PULL | _IMPORT;
+    return _FUNCTION | _EXTENSION | _OBJECT | _ALIAS | _GLOBAL | _USE | _IMPORT;
   case AttributeType::NOT_FINAL:
     return _OBJECT | _MEMBER_OBJECT;
   case AttributeType::MAY_DISCARD:

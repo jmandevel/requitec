@@ -1618,13 +1618,22 @@ void Situator::situateExpression(requite::Expression &expression) {
                                   requite::Situation::MATTE_SYMBOL>(expression);
     }
     break;
-  case requite::Opcode::PULL:
+  case requite::Opcode::TABLE_USE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::PULL)) {
+                      requite::Opcode::TABLE_USE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_PATH>(expression);
+    }
+    break;
+  case requite::Opcode::TABLE_ALIAS:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::TABLE_ALIAS)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_PATH>(expression);
     }
     break;
   case requite::Opcode::_MODULE_ROOT:

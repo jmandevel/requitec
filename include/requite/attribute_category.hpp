@@ -21,7 +21,6 @@ enum class AttributeCategory {
   GLOBAL,
   MEMBER_GLOBAL,
   USE,
-  PULL,
   MEMBER_USE,
   IMPORT,
   BLOCK

@@ -418,6 +418,9 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::ALIAS:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::USE:
+    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT;
   case Opcode::_LOCAL:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
   case Opcode::GLOBAL:
@@ -537,10 +540,10 @@ _getFlags(requite::Opcode opcode) {
   // SYMBOL GRAPH
   case Opcode::IMPORT:
     return _MODULE_STATEMENT;
-  case Opcode::USE:
+  case Opcode::TABLE_USE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
-  case Opcode::PULL:
+  case Opcode::TABLE_ALIAS:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
 
@@ -933,6 +936,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "table";
   case requite::Opcode::ALIAS:
     return "alias";
+  case requite::Opcode::USE:
+    return "use";
   case requite::Opcode::_LOCAL:
     return "_local";
   case requite::Opcode::GLOBAL:
@@ -1049,10 +1054,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // SYMBOL GRAPH
   case requite::Opcode::IMPORT:
     return "import";
-  case requite::Opcode::USE:
-    return "use";
-  case requite::Opcode::PULL:
-    return "pull";
+  case requite::Opcode::TABLE_USE:
+    return "table_use";
+  case requite::Opcode::TABLE_ALIAS:
+    return "table_alias";
 
   // SOURCES
   case requite::Opcode::_MODULE_ROOT:
