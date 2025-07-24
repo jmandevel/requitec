@@ -55,6 +55,7 @@ struct Parser final {
   [[nodiscard]] bool getIsToken(requite::TokenType type) const;
   [[nodiscard]] bool parseExpressions();
   [[nodiscard]] requite::Expression &parseExpression();
+  [[nodiscard]] requite::Expression &parsePrecedence12();
   [[nodiscard]] requite::Expression &parsePrecedence11();
   [[nodiscard]] requite::Expression &parsePrecedence10();
   [[nodiscard]] requite::Expression &parsePrecedence9();

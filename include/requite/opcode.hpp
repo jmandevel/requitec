@@ -91,6 +91,8 @@ enum class Opcode : unsigned {
 
   // EXTENSIONS
   _EXTEND,
+  _EXTEND_VALUE,
+  _EXTEND_TYPE,
 
   // BIND
   _BIND_VALUE,

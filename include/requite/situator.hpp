@@ -25,11 +25,11 @@ struct Situator final {
 
   // situator.cpp
   Situator(requite::Context &context, requite::Module &module);
-  Situator(const Self&) = delete;
-  Situator(Self&&) = delete;
+  Situator(const Self &) = delete;
+  Situator(Self &&) = delete;
   ~Situator() = default;
-  Self& operator=(const Self&) = delete;
-  Self& operator=(Self&&) = delete;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
   [[nodiscard]]
   requite::Context &getContext();
   [[nodiscard]]
@@ -59,9 +59,10 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM,
             requite::Situation BRANCH_SITUATION_PARAM>
   inline void situateUnaryExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM,
-            requite::Situation BRANCH_SITUATION_A_PARAM,
-            requite::Situation BRANCH_SITUATION_B_PARAM = BRANCH_SITUATION_A_PARAM>
+  template <
+      requite::Situation SITUATION_PARAM,
+      requite::Situation BRANCH_SITUATION_A_PARAM,
+      requite::Situation BRANCH_SITUATION_B_PARAM = BRANCH_SITUATION_A_PARAM>
   inline void situateBinaryExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
             requite::Situation BRANCH_SITUATION_N_PARAM>
@@ -149,6 +150,8 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void
   situate_AscribeLastBranchExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_ExtendExpression(requite::Expression &expression);
 };
 
 } // namespace requite

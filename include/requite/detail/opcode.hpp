@@ -165,6 +165,10 @@ _getFlags(requite::Opcode opcode) {
 
   // EXTENSIONS
   case Opcode::_EXTEND:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
+  case Opcode::_EXTEND_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::_EXTEND_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
 
   // BIND
@@ -708,6 +712,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // EXTENSIONS
   case requite::Opcode::_EXTEND:
     return "_extend";
+  case requite::Opcode::_EXTEND_VALUE:
+    return "_extend_value";
+  case requite::Opcode::_EXTEND_TYPE:
+    return "_extend_type";
 
   // BIND
   case requite::Opcode::_BIND_VALUE:

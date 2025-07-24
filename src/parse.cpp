@@ -84,13 +84,13 @@ bool Parser::parseExpressions() {
 
 requite::Expression &Parser::parseExpression() {
   REQUITE_ASSERT(!this->getIsDone());
-  return this->parsePrecedence11();
+  return this->parsePrecedence12();
 }
 
 // ASSIGNMENTS
-requite::Expression &Parser::parsePrecedence11() {
+requite::Expression &Parser::parsePrecedence12() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setRecent(this->parsePrecedence10());
+  precedence_parser.setRecent(this->parsePrecedence11());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -100,42 +100,42 @@ requite::Expression &Parser::parsePrecedence11() {
     case requite::TokenType::WALRUS_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_LOCAL);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::PLUS_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_ADD);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::DASH_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_SUBTRACT);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::STAR_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_MULTIPLY);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::SLASH_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_DIVIDE);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::PERCENT_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN_MODULUS);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::SWAP_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::SWAP);
-      precedence_parser.setRecent(this->parsePrecedence10());
+      precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     default:
       break;
@@ -147,9 +147,9 @@ requite::Expression &Parser::parsePrecedence11() {
 }
 
 // BINDINGS
-requite::Expression &Parser::parsePrecedence10() {
+requite::Expression &Parser::parsePrecedence11() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setRecent(this->parsePrecedence9());
+  precedence_parser.setRecent(this->parsePrecedence10());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -160,13 +160,13 @@ requite::Expression &Parser::parsePrecedence10() {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(
           *this, requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE);
-      precedence_parser.setRecent(this->parsePrecedence9());
+      precedence_parser.setRecent(this->parsePrecedence10());
       continue;
     case requite::TokenType::DOUBLE_COLON_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(
           *this, requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL);
-      precedence_parser.setRecent(this->parsePrecedence9());
+      precedence_parser.setRecent(this->parsePrecedence10());
       continue;
     default:
       break;
@@ -178,9 +178,9 @@ requite::Expression &Parser::parsePrecedence10() {
 }
 
 // BINARY CAST
-requite::Expression &Parser::parsePrecedence9() {
+requite::Expression &Parser::parsePrecedence10() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setRecent(this->parsePrecedence8());
+  precedence_parser.setRecent(this->parsePrecedence9());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     if (!token.getHasBinaryOperatorSpacing()) {
@@ -190,11 +190,35 @@ requite::Expression &Parser::parsePrecedence9() {
     case requite::TokenType::SEMICOLON_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_CAST);
-      precedence_parser.setRecent(this->parsePrecedence8());
+      precedence_parser.setRecent(this->parsePrecedence9());
       continue;
     case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_CAST);
+      precedence_parser.setRecent(this->parsePrecedence9());
+      continue;
+    default:
+      break;
+    }
+    break;
+  }
+  precedence_parser.appendRecent();
+  return precedence_parser.getOuter();
+}
+
+// BINARY EXTEND
+requite::Expression &Parser::parsePrecedence9() {
+  requite::PrecedenceParser precedence_parser;
+  precedence_parser.setRecent(this->parsePrecedence8());
+  while (!this->getIsDone()) {
+    const requite::Token &token = this->getToken();
+    if (!token.getHasBinaryOperatorSpacing()) {
+      break;
+    }
+    switch (const requite::TokenType type = token.getType()) {
+    case requite::TokenType::ARROW_OPERATOR:
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseBinary(*this, requite::Opcode::_EXTEND);
       precedence_parser.setRecent(this->parsePrecedence8());
       continue;
     default:
@@ -205,6 +229,7 @@ requite::Expression &Parser::parsePrecedence9() {
   precedence_parser.appendRecent();
   return precedence_parser.getOuter();
 }
+
 
 // NARY LOGICAL
 requite::Expression &Parser::parsePrecedence8() {
@@ -540,6 +565,16 @@ requite::Expression &Parser::parsePrecedence3() {
                                                requite::Opcode::_BITWISE_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
       break;
+    } else if (type == requite::TokenType::ARROW_OPERATOR) {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      requite::Expression &inference =
+          requite::Expression::makeOperation(requite::Opcode::TACIT);
+      inference.setSource(token);
+      precedence_parser.appendBranch(inference);
+      precedence_parser.parseBinaryCombination(*this,
+                                               requite::Opcode::_EXTEND);
+      precedence_parser.appendBranch(this->parsePrecedence8());
+      break;
     }
     precedence_parser.setRecent(this->parsePrecedence2());
     if (this->getIsDone()) {
@@ -547,6 +582,9 @@ requite::Expression &Parser::parsePrecedence3() {
       break;
     }
     const requite::Token &post_token = this->getToken();
+    if (!post_token.getHasBinaryOperatorSpacing()) {
+      break;
+    }
     switch (const requite::TokenType post_type = post_token.getType()) {
     case requite::TokenType::COMMA_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
@@ -565,6 +603,9 @@ requite::Expression &Parser::parsePrecedence3() {
       break;
     }
     break;
+  }
+  if (!precedence_parser.getHasOuter()) {
+    precedence_parser.appendRecent();
   }
   return precedence_parser.getOuter();
 }
@@ -621,11 +662,6 @@ requite::Expression &Parser::parsePrecedence1() {
     case requite::TokenType::DOUBLE_DOT_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
-      precedence_parser.setRecent(this->parsePrecedence0());
-      continue;
-    case requite::TokenType::ARROW_OPERATOR:
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseBinary(*this, requite::Opcode::_EXTEND);
       precedence_parser.setRecent(this->parsePrecedence0());
       continue;
     default:
@@ -896,6 +932,8 @@ Parser::parseHornedImplicitHorn(requite::Opcode opcode,
                                 requite::TokenType right_token,
                                 requite::Opcode horn_opcode) {
   requite::Expression &horn = requite::Expression::makeOperation(horn_opcode);
+  const requite::Token &left_token = this->getToken();
+  horn.setSourceInsertedBefore(left_token);
   return this->parseHorned(horn, opcode, right_token);
 }
 
