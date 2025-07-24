@@ -230,7 +230,6 @@ requite::Expression &Parser::parsePrecedence9() {
   return precedence_parser.getOuter();
 }
 
-
 // NARY LOGICAL
 requite::Expression &Parser::parsePrecedence8() {
   requite::PrecedenceParser precedence_parser;
@@ -441,8 +440,78 @@ requite::Expression &Parser::parsePrecedence4() {
   return precedence_parser.getOuter();
 }
 
-// LATE UNARY OPERATORS (things get wierd here)
+// EARLY GROUPINGS (funny tricks here)
 requite::Expression &Parser::parsePrecedence3() {
+  requite::PrecedenceParser precedence_parser;
+  precedence_parser.appendBranch(this->parsePrecedence2());
+  while (!this->getIsDone()) {
+    const requite::Token &token = this->getToken();
+    const requite::TokenType type = token.getType();
+    if (type == requite::TokenType::LEFT_PARENTHESIS_GROUPING) {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseHorned(
+          *this, requite::Opcode::_CALL_OR_SIGNATURE,
+          requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
+    } else if (type == requite::TokenType::LEFT_COMPAS_GROUPING) {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      if (!token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
+      precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
+                                    requite::TokenType::RIGHT_COMPAS_GROUPING);
+    } else {
+      break;
+    }
+    // NOTE:
+    //   need to do some wierd stuff to handle dots that are directly after
+    //   horned operations of this precedence. the problem is that the dot and
+    //   double dot operators are a lower precedence because dot expressions in
+    //   the callee should be contained by horned expressions. however, the
+    //   entire horned expression should be contained as the first branch in any
+    //   expression created from binary dots or double dot operators that are
+    //   directly after the closing grouping symbol.
+    const requite::Token &next0_token = this->getToken();
+    const requite::TokenType next0_type = next0_token.getType();
+    if (next0_type == requite::TokenType::DOT_OPERATOR) {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseNaryAfterHorned(*this,
+                                             requite::Opcode::_REFLECT_VALUE);
+      precedence_parser.setRecent(this->parsePrecedence0());
+    } else if (next0_type == requite::TokenType::DOUBLE_DOT_OPERATOR) {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseNaryAfterHorned(*this,
+                                             requite::Opcode::_REFLECT_VALUE);
+      precedence_parser.setRecent(this->parsePrecedence0());
+    } else {
+      continue;
+    }
+    while (!this->getIsDone()) {
+      const requite::Token &next1_token = this->getToken();
+      const requite::TokenType next1_type = next1_token.getType();
+      if (next1_type == requite::TokenType::DOT_OPERATOR) {
+        std::ignore = this->checkIsNormativeRequiteOk();
+        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
+        precedence_parser.setRecent(this->parsePrecedence0());
+        continue;
+      } else if (next1_type == requite::TokenType::DOUBLE_DOT_OPERATOR) {
+        std::ignore = this->checkIsNormativeRequiteOk();
+        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
+        precedence_parser.setRecent(this->parsePrecedence0());
+        continue;
+      } else {
+        precedence_parser.appendRecent();
+        break;
+      }
+    }
+  }
+  return precedence_parser.getOuter();
+}
+
+// LATE UNARY OPERATORS (things get wierd here)
+requite::Expression &Parser::parsePrecedence2() {
   requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
@@ -571,18 +640,18 @@ requite::Expression &Parser::parsePrecedence3() {
           requite::Expression::makeOperation(requite::Opcode::TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
-      precedence_parser.parseBinaryCombination(*this,
-                                               requite::Opcode::_EXTEND);
+      precedence_parser.parseBinaryCombination(*this, requite::Opcode::_EXTEND);
       precedence_parser.appendBranch(this->parsePrecedence8());
       break;
     }
-    precedence_parser.setRecent(this->parsePrecedence2());
+    precedence_parser.setRecent(this->parsePrecedence1());
     if (this->getIsDone()) {
       precedence_parser.appendRecent();
       break;
     }
     const requite::Token &post_token = this->getToken();
     if (!post_token.getHasBinaryOperatorSpacing()) {
+      precedence_parser.appendRecent();
       break;
     }
     switch (const requite::TokenType post_type = post_token.getType()) {
@@ -600,43 +669,6 @@ requite::Expression &Parser::parsePrecedence3() {
       continue;
     default:
       precedence_parser.appendRecent();
-      break;
-    }
-    break;
-  }
-  if (!precedence_parser.getHasOuter()) {
-    precedence_parser.appendRecent();
-  }
-  return precedence_parser.getOuter();
-}
-
-// EARLY GROUPINGS
-requite::Expression &Parser::parsePrecedence2() {
-  requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence1());
-  while (!this->getIsDone()) {
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      if (!token.getHasBinaryOperatorSpacing()) {
-        break;
-      }
-      precedence_parser.parseHorned(
-          *this, requite::Opcode::_CALL_OR_SIGNATURE,
-          requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
-      continue;
-    }
-    case requite::TokenType::LEFT_COMPAS_GROUPING: {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      if (!token.getHasBinaryOperatorSpacing()) {
-        break;
-      }
-      precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
-                                    requite::TokenType::RIGHT_COMPAS_GROUPING);
-      continue;
-    }
-    default:
       break;
     }
     break;

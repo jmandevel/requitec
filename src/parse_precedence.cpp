@@ -84,8 +84,17 @@ void PrecedenceParser::parseNary(requite::Parser &parser,
   this->appendRecent();
 }
 
-void PrecedenceParser::parseNestedNary(requite::Parser &parser,
-                                       requite::Opcode opcode) {}
+void PrecedenceParser::parseNaryAfterHorned(requite::Parser &parser,
+                                            requite::Opcode opcode) {
+  const requite::Token &token = parser.getToken();
+  parser.incrementToken(1);
+  requite::Expression &operation = requite::Expression::makeOperation(opcode);
+  operation.setSource(this->getOuter(), token);
+  operation.setBranch(this->getOuter());
+  this->_operation_ptr = &operation;
+  this->_last_ptr = this->_outer_ptr;
+  this->_outer_ptr = &operation;
+}
 
 void PrecedenceParser::parseAttribute(requite::Parser &parser,
                                       requite::Opcode opcode) {
