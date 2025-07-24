@@ -484,7 +484,7 @@ requite::Expression &Parser::parsePrecedence3() {
     } else if (next0_type == requite::TokenType::DOUBLE_DOT_OPERATOR) {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNaryAfterHorned(*this,
-                                             requite::Opcode::_REFLECT_VALUE);
+                                             requite::Opcode::_REFLECT_SYMBOL);
       precedence_parser.setRecent(this->parsePrecedence0());
     } else {
       continue;
