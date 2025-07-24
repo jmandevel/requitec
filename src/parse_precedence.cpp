@@ -129,12 +129,12 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser,
 
 void PrecedenceParser::parseHorned(requite::Parser &parser,
                                    requite::Opcode opcode,
-                                   requite::TokenType right_token) {
+                                   requite::TokenType right_type) {
   REQUITE_ASSERT(!parser.getIsDone());
   const requite::Token &left_token = parser.getToken();
   parser.incrementToken(1);
   requite::Expression *second_ptr =
-      parser.parseBranches(left_token, right_token);
+      parser.parseBranches(left_token, right_type);
   parser.incrementToken(1);
   requite::Expression &operation = requite::Expression::makeOperation(opcode);
   operation.setSource(this->getLast(), left_token);

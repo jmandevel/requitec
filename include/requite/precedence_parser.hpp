@@ -41,7 +41,7 @@ struct PrecedenceParser final {
   void parseNestedNary(requite::Parser &parser, requite::Opcode opcode);
   void parseAttribute(requite::Parser &parser, requite::Opcode opcode);
   void parseHorned(requite::Parser &parser, requite::Opcode opcode,
-                   requite::TokenType right_token);
+                   requite::TokenType right_type);
   void appendBranch(requite::Expression &branch);
   void setRecent(requite::Expression &branch);
   void appendRecent();
