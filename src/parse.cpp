@@ -447,19 +447,17 @@ requite::Expression &Parser::parsePrecedence3() {
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     const requite::TokenType type = token.getType();
+    if (!token.getHasBinaryOperatorSpacing()) {
+      break;
+    }
     if (type == requite::TokenType::LEFT_PARENTHESIS_GROUPING) {
       std::ignore = this->checkIsNormativeRequiteOk();
-      if (!token.getHasBinaryOperatorSpacing()) {
-        break;
-      }
+
       precedence_parser.parseHorned(
           *this, requite::Opcode::_CALL_OR_SIGNATURE,
           requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
     } else if (type == requite::TokenType::LEFT_COMPAS_GROUPING) {
       std::ignore = this->checkIsNormativeRequiteOk();
-      if (!token.getHasBinaryOperatorSpacing()) {
-        break;
-      }
       precedence_parser.parseHorned(*this, requite::Opcode::_SPECIALIZATION,
                                     requite::TokenType::RIGHT_COMPAS_GROUPING);
     } else {
@@ -475,6 +473,9 @@ requite::Expression &Parser::parsePrecedence3() {
     //   directly after the closing grouping symbol.
     const requite::Token &next0_token = this->getToken();
     const requite::TokenType next0_type = next0_token.getType();
+    if (!next0_token.getHasBinaryOperatorSpacing()) {
+      break;
+    }
     if (next0_type == requite::TokenType::DOT_OPERATOR) {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNaryAfterHorned(*this,
@@ -491,6 +492,9 @@ requite::Expression &Parser::parsePrecedence3() {
     while (!this->getIsDone()) {
       const requite::Token &next1_token = this->getToken();
       const requite::TokenType next1_type = next1_token.getType();
+      if (!next1_token.getHasBinaryOperatorSpacing()) {
+        break;
+      }
       if (next1_type == requite::TokenType::DOT_OPERATOR) {
         std::ignore = this->checkIsNormativeRequiteOk();
         precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
