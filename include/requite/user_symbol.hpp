@@ -20,6 +20,7 @@ struct Property;
 struct Procedure;
 
 enum class UserSymbolType {
+  NONE,
   ALIAS,
   GLOBAL,
   LABEL,
@@ -32,8 +33,9 @@ enum class UserSymbolType {
 struct UserSymbol final {
   using Self = UserSymbol;
 
-  requite::UserSymbolType _type;
+  requite::UserSymbolType _type = requite::UserSymbolType::NONE;
   union {
+    void* _nothing_ptr = nullptr;
     requite::Alias* _alias_ptr;
     requite::Global* _global_ptr;
     requite::Label* _label_ptr;
@@ -42,10 +44,12 @@ struct UserSymbol final {
     requite::Property* _property_ptr;
     requite::Procedure* _procedure_ptr;
   };
-  bool _is_exported;
-  requite::Module* _containing_module_ptr;
+  bool _is_exported = false;
+  requite::Module* _containing_module_ptr = nullptr;
 
   // user_symbol.cpp
+  UserSymbol() = default;
+  UserSymbol(requite::Module& module);
   UserSymbol(requite::Alias& alias, requite::Module& module);
   UserSymbol(requite::Global& global, requite::Module& module);
   UserSymbol(requite::Label& label, requite::Module& module);
@@ -74,6 +78,8 @@ struct UserSymbol final {
   [[nodiscard]] bool operator!=(const requite::Procedure&) const;
   [[nodiscard]] requite::UserSymbolType getType() const;
   [[nodiscard]] bool getIsExported() const;
+  [[nodiscard]] bool getHasContainingModule() const;
+  void setContainingModule(requite::Module& module);
   [[nodiscard]] requite::Module &getContainingModule();
   [[nodiscard]] const requite::Module &getContainingModule() const;
   [[nodiscard]] bool getIsAlias() const;

@@ -42,24 +42,29 @@ static constexpr unsigned ATTRIBUTE_TYPE_COUNT =
 template <requite::AttributeCategory CATEGORY_PARAM>
 [[nodiscard]] constexpr bool getCanBeAttributeCategory(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeTypeAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeFunctionAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalFunctionAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberFunctionAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeMemberMethodAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeExtensionAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeMemberExtensionAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeLocalFunctionAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberConstructorAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberDestructorAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeObjectAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalObjectAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberObjectAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeLocalObjectAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberPropertyAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeAliasAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalAliasAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberAliasAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeGlobalAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeLocalAliasAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalGlobalAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberGlobalAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeUseAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeLocalGlobalAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalUseAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberUseAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalTableAliasAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeMemberTableAliasAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeGlobalTableUseAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeMemberTableUseAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeImportAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeBlockAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeLocalBlockAttribute(requite::AttributeType type);
 
 } // namespace requite
 

@@ -30,7 +30,7 @@ struct Import;
 struct Use;
 struct Import;
 struct Block;
-struct Pull;
+struct TableUse;
 
 struct Scope final {
   using Self = requite::Scope;
@@ -39,7 +39,7 @@ struct Scope final {
   requite::Scope *_containing_scope_ptr = nullptr;
   requite::ScopeType _type = requite::ScopeType::NONE;
   llvm::StringMap<requite::LookupTableEntry> _symbol_map = {};
-  requite::Pull* _first_pull_ptr = nullptr;
+  requite::TableUse* _first_table_use_ptr = nullptr;
   union {
     void *_nothing_ptr = nullptr;
     requite::Module *_module_ptr;
@@ -62,6 +62,7 @@ struct Scope final {
   [[nodiscard]] bool operator!=(Self &&rhs) const;
   [[nodiscard]] const llvm::StringMap<requite::LookupTableEntry>
   getLookupTable() const;
+  [[nodiscard]] bool getCanHaveLocal() const;
   [[nodiscard]] bool getHasModule() const;
   void setModule(requite::Module &module);
   [[nodiscard]] requite::Module &getModule();

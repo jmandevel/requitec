@@ -46,20 +46,6 @@ requite::Procedure &Context::makeFunction() {
   return requite::getRef(procedure_uptr);
 }
 
-requite::Procedure &Context::makeMethod() {
-  std::unique_ptr<requite::Procedure> &procedure_uptr =
-      this->_procedure_uptrs.emplace_back(
-          std::make_unique<requite::Procedure>(requite::ProcedureType::METHOD));
-  return requite::getRef(procedure_uptr);
-}
-
-requite::Procedure &Context::makeExtension() {
-  std::unique_ptr<requite::Procedure> &procedure_uptr =
-      this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
-          requite::ProcedureType::EXTENSION));
-  return requite::getRef(procedure_uptr);
-}
-
 requite::Procedure &Context::makeConstructor() {
   std::unique_ptr<requite::Procedure> &procedure_uptr =
       this->_procedure_uptrs.emplace_back(std::make_unique<requite::Procedure>(
@@ -121,6 +107,18 @@ requite::Use &Context::makeUse() {
   std::unique_ptr<requite::Use> &use_uptr =
       this->_use_uptrs.emplace_back(std::make_unique<requite::Use>());
   return requite::getRef(use_uptr);
+}
+
+requite::TableAlias &Context::makeTableAlias() {
+  std::unique_ptr<requite::TableAlias> &table_alias_uptr =
+      this->_table_alias_uptrs.emplace_back(std::make_unique<requite::TableAlias>());
+  return requite::getRef(table_alias_uptr);
+}
+
+requite::TableUse &Context::makeTableUse() {
+  std::unique_ptr<requite::TableUse> &table_use_uptr =
+      this->_table_use_uptrs.emplace_back(std::make_unique<requite::TableUse>());
+  return requite::getRef(table_use_uptr);
 }
 
 requite::Block &Context::makeBlock() {
@@ -241,6 +239,22 @@ std::vector<std::unique_ptr<requite::Use>> &Context::getUseUptrs() {
 
 const std::vector<std::unique_ptr<requite::Use>> &Context::getUseUptrs() const {
   return this->_use_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::TableAlias>> &Context::getTableAliasUptrs() {
+  return this->_table_alias_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::TableAlias>> &Context::getTableAliasUptrs() const {
+  return this->_table_alias_uptrs;
+}
+
+std::vector<std::unique_ptr<requite::TableUse>> &Context::getTableUseUptrs() {
+  return this->_table_use_uptrs;
+}
+
+const std::vector<std::unique_ptr<requite::TableUse>> &Context::getTableUseUptrs() const {
+  return this->_table_use_uptrs;
 }
 
 std::vector<std::unique_ptr<requite::Block>> &Context::getBlockUptrs() {

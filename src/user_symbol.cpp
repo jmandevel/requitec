@@ -108,6 +108,14 @@ requite::UserSymbolType UserSymbol::getType() const { return this->_type; }
 
 bool UserSymbol::getIsExported() const { return this->_is_exported; }
 
+bool UserSymbol::getHasContainingModule() const {
+  return this->_containing_module_ptr != nullptr;
+}
+
+void UserSymbol::setContainingModule(requite::Module &module) {
+  requite::setSingleRef(this->_containing_module_ptr, module);
+}
+
 requite::Module &UserSymbol::getContainingModule() {
   return requite::getRef(this->_containing_module_ptr);
 }

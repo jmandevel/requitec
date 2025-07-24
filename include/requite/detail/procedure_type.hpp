@@ -14,10 +14,6 @@ constexpr requite::ProcedureType getProcedureType(requite::Opcode opcode) {
     return requite::ProcedureType::ENTRY_POINT;
   case requite::Opcode::FUNCTION:
     return requite::ProcedureType::FUNCTION;
-  case requite::Opcode::METHOD:
-    return requite::ProcedureType::METHOD;
-  case requite::Opcode::EXTENSION:
-    return requite::ProcedureType::EXTENSION;
   case requite::Opcode::CONSTRUCTOR:
     return requite::ProcedureType::CONSTRUCTOR;
   case requite::Opcode::DESTRUCTOR:
@@ -36,10 +32,6 @@ constexpr std::string_view getName(requite::ProcedureType type) {
     return "entry_point";
   case requite::ProcedureType::FUNCTION:
     return "function";
-  case requite::ProcedureType::METHOD:
-    return "method";
-  case requite::ProcedureType::EXTENSION:
-    return "extension";
   case requite::ProcedureType::CONSTRUCTOR:
     return "constructor";
   case requite::ProcedureType::DESTRUCTOR:
@@ -55,8 +47,6 @@ constexpr bool getCanHaveName(requite::ProcedureType type) {
   case requite::ProcedureType::ENTRY_POINT:
     return false;
   case requite::ProcedureType::FUNCTION:
-    return true;
-  case requite::ProcedureType::METHOD:
     return true;
   case requite::ProcedureType::CONSTRUCTOR:
     return false;

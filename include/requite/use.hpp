@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <requite/attribute_flags.hpp>
+#include <requite/user_symbol.hpp>
 
 namespace requite {
 
@@ -11,12 +12,11 @@ struct Module;
 struct Use final {
     using Self = requite::Use;
 
+    requite::UserSymbol _user_symbol = {};
     requite::Expression* _expression_ptr = nullptr;
     requite::AttributeFlags _attributes = {};
     requite::Scope* _containing_scope_ptr = nullptr;
-    requite::Module* _containing_module_ptr = nullptr;
-    requite::Use* _next_ptr = nullptr;
-
+    
     // use.cpp
     Use() = default;
     Use(const Self&) = delete;
@@ -36,14 +36,12 @@ struct Use final {
     void setContainingScope(requite::Scope& scope);
     [[nodiscard]] requite::Scope &getContainingScope();
     [[nodiscard]] const requite::Scope &getContainingScope() const;
+    [[nodiscard]] requite::UserSymbol& getUserSymbol();
+    [[nodiscard]] const requite::UserSymbol &getUserSymbol() const;
     [[nodiscard]] bool getHasContainingModule() const;
     void setContainingModule(requite::Module& module);
     [[nodiscard]] requite::Module &getContainingModule();
     [[nodiscard]] const requite::Module &getContainingModule() const;
-    [[nodiscard]] bool getHasNext() const;
-    void setNext(requite::Use &next);
-    [[nodiscard]] requite::Use &getNext();
-    [[nodiscard]] const requite::Use &getNext() const;
 };
 
 }

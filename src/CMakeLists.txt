@@ -65,6 +65,8 @@ target_sources(
         sub_symbol.cpp
         symbol_map.cpp
         symbol.cpp
+        table_alias.cpp
+        table_use.cpp
         table.cpp
         tabulator.cpp
         tabulate.cpp

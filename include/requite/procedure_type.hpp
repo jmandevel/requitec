@@ -14,8 +14,6 @@ enum class ProcedureType {
   NONE,
   ENTRY_POINT,
   FUNCTION,
-  METHOD,
-  EXTENSION,
   CONSTRUCTOR,
   DESTRUCTOR
 };

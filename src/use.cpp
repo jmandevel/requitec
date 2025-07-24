@@ -26,7 +26,9 @@ requite::AttributeFlags Use::getAttributeFlags() const {
   return this->_attributes;
 }
 
-bool Use::getHasContainingScope() const { return this->_containing_scope_ptr != nullptr; }
+bool Use::getHasContainingScope() const {
+  return this->_containing_scope_ptr != nullptr;
+}
 
 void Use::setContainingScope(requite::Scope &scope) {
   requite::setSingleRef(this->_containing_scope_ptr, scope);
@@ -40,28 +42,28 @@ const requite::Scope &Use::getContainingScope() const {
   return requite::getRef(this->_containing_scope_ptr);
 }
 
-bool Use::getHasContainingModule() const { return this->_containing_module_ptr != nullptr; }
+requite::UserSymbol &Use::getUserSymbol() {
+  return this->_user_symbol;
+}
+
+const requite::UserSymbol &Use::getUserSymbol() const {
+  return this->_user_symbol;
+}
+
+bool Use::getHasContainingModule() const {
+  return this->getUserSymbol().getHasContainingModule();
+}
 
 void Use::setContainingModule(requite::Module &module) {
-  requite::setSingleRef(this->_containing_module_ptr, module);
+  this->getUserSymbol().setContainingModule(module);
 }
 
-requite::Module &Use::getContainingModule() { return requite::getRef(this->_containing_module_ptr); }
+requite::Module &Use::getContainingModule() {
+  return this->getUserSymbol().getContainingModule();
+}
 
 const requite::Module &Use::getContainingModule() const {
-  return requite::getRef(this->_containing_module_ptr);
-}
-
-bool Use::getHasNext() const { return this->_next_ptr; }
-
-void Use::setNext(requite::Use &next) {
-  requite::setSingleRef(this->_next_ptr, next);
-}
-
-requite::Use &Use::getNext() { return requite::getRef(this->_next_ptr); }
-
-const requite::Use &Use::getNext() const {
-  return requite::getRef(this->_next_ptr);
+  return this->getUserSymbol().getContainingModule();
 }
 
 } // namespace requite

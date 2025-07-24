@@ -5,6 +5,8 @@ namespace requite {
 [[nodiscard]] inline constexpr std::string_view
 getName(requite::UserSymbolType type) {
   switch (type) {
+  case requite::UserSymbolType::NONE:
+    return "none";
   case requite::UserSymbolType::ALIAS:
     return "alias";
   case requite::UserSymbolType::GLOBAL:

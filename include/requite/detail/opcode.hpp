@@ -382,8 +382,6 @@ _getFlags(requite::Opcode opcode) {
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::METHOD:
-    return _OBJECT_STATEMENT;
-  case Opcode::EXTENSION:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::CONSTRUCTOR:
@@ -904,8 +902,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "function";
   case requite::Opcode::METHOD:
     return "method";
-  case requite::Opcode::EXTENSION:
-    return "extension";
   case requite::Opcode::CONSTRUCTOR:
     return "constructor";
   case requite::Opcode::DESTRUCTOR:
@@ -1251,7 +1247,6 @@ constexpr bool getHasOverloadData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ENTRY_POINT ||
          opcode == requite::Opcode::FUNCTION ||
          opcode == requite::Opcode::METHOD ||
-         opcode == requite::Opcode::EXTENSION ||
          opcode == requite::Opcode::CONSTRUCTOR ||
          opcode == requite::Opcode::DESTRUCTOR;
 }
@@ -1287,6 +1282,14 @@ constexpr bool getHasImportData(requite::Opcode opcode) {
 
 constexpr bool getHasUseData(requite::Opcode opcode) {
   return opcode == requite::Opcode::USE;
+}
+
+constexpr bool getHasTableAliasData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::TABLE_ALIAS;
+}
+
+constexpr bool getHasTableUseData(requite::Opcode opcode) {
+  return opcode == requite::Opcode::TABLE_USE;
 }
 
 constexpr bool getHasBlockData(requite::Opcode opcode) {

@@ -201,7 +201,6 @@ enum class Opcode : unsigned {
   ENTRY_POINT,
   FUNCTION,
   METHOD,
-  EXTENSION,
   CONSTRUCTOR,
   DESTRUCTOR,
   _ANONYMOUS_FUNCTION,
@@ -400,6 +399,10 @@ getHasAnonymousFunctionData(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasImportData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasUseData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasTableAliasData(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool getHasTableUseData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasBlockData(requite::Opcode opcode);
 

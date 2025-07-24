@@ -73,10 +73,6 @@ bool Context::implementProcedure(requite::Procedure &procedure) {
     return this->implementEntryPoint(procedure);
   case requite::ProcedureType::FUNCTION:
     return this->implementFunction(procedure);
-  case requite::ProcedureType::METHOD:
-    return this->implementMethod(procedure);
-  case requite::ProcedureType::EXTENSION:
-    return this->implementExtension(procedure);
   case requite::ProcedureType::CONSTRUCTOR:
     return this->implementConstructor(procedure);
   case requite::ProcedureType::DESTRUCTOR:

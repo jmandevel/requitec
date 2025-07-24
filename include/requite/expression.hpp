@@ -32,6 +32,8 @@ struct AnonymousFunction;
 struct Alias;
 struct Import;
 struct Use;
+struct TableUse;
+struct TableAlias;
 struct Block;
 
 struct Expression final {
@@ -42,11 +44,12 @@ struct Expression final {
   requite::Expression *_branch_ptr = nullptr;
   const char *_source_text_ptr = nullptr;
   unsigned _source_text_length = 0;
-  std::variant<std::monostate, std::string, requite::Scope *, requite::Table*, requite::Object *,
-               requite::Procedure *, requite::Alias *,
+  std::variant<std::monostate, std::string, requite::Scope *, requite::Table *,
+               requite::Object *, requite::Procedure *, requite::Alias *,
                requite::AnonymousFunction *, requite::Global *,
                requite::Property *, requite::Local *, requite::Label *,
-               llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *, requite::Block *>
+               llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *,
+               requite::TableUse *, requite::TableAlias *, requite::Block *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -214,6 +217,14 @@ struct Expression final {
   inline void setUse(requite::Use &use);
   [[nodiscard]] inline requite::Use &getUse();
   [[nodiscard]] inline const requite::Use &getUse() const;
+  [[nodiscard]] inline bool getHasTableAlias() const;
+  inline void setTableAlias(requite::TableAlias& alias);
+  [[nodiscard]] inline requite::TableAlias& getTableAlias();
+  [[nodiscard]] inline const requite::TableAlias &getTableAlias() const;
+  [[nodiscard]] inline bool getHasTableUse() const;
+  inline void setTableUse(requite::TableUse& use);
+  [[nodiscard]] inline requite::TableUse& getTableUse();
+  [[nodiscard]] inline const requite::TableUse &getTableUse() const;
   [[nodiscard]] inline bool getHasBlock() const;
   inline void setBlock(requite::Block &block);
   [[nodiscard]] inline requite::Block &getBlock();

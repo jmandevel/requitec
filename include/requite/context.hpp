@@ -23,6 +23,8 @@
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
+#include <requite/table_alias.hpp>
+#include <requite/table_use.hpp>
 #include <requite/use.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -83,6 +85,8 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
   std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
   std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
+  std::vector<std::unique_ptr<requite::TableAlias>> _table_alias_uptrs = {};
+  std::vector<std::unique_ptr<requite::TableUse>> _table_use_uptrs = {};  
   std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
   std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
@@ -105,7 +109,7 @@ struct Context final : public requite::_ContextLlvmContext {
   Self &operator=(Self &&) = delete;
   [[nodiscard]] llvm::StringRef getExecutablePath() const;
   [[nodiscard]] requite::Scope &getOuterScope();
-  [[nodiscard]] const requite::Scope& getOuterScope() const;
+  [[nodiscard]] const requite::Scope &getOuterScope() const;
 
   // make_symbols.cpp
   [[nodiscard]] requite::Scope &makeScope();
@@ -113,8 +117,6 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Object &makeObject();
   [[nodiscard]] requite::Procedure &makeEntryPoint();
   [[nodiscard]] requite::Procedure &makeFunction();
-  [[nodiscard]] requite::Procedure &makeMethod();
-  [[nodiscard]] requite::Procedure &makeExtension();
   [[nodiscard]] requite::Procedure &makeConstructor();
   [[nodiscard]] requite::Procedure &makeDestructor();
   [[nodiscard]] requite::Alias &makeAlias();
@@ -125,6 +127,8 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Label &makeLabel();
   [[nodiscard]] requite::Import &makeImport();
   [[nodiscard]] requite::Use &makeUse();
+  [[nodiscard]] requite::TableAlias &makeTableAlias();
+  [[nodiscard]] requite::TableUse &makeTableUse();
   [[nodiscard]] requite::Block &makeBlock();
   [[nodiscard]] requite::Module &makeModule();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
@@ -166,10 +170,18 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Use>> &getUseUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Use>> &
   getUseUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::TableAlias>> &
+  getTableAliasUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::TableAlias>> &
+  getTableAliasUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::TableUse>> &
+  getTableUseUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::TableUse>> &
+  getTableUseUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
   getBlockUptrs() const;
-    [[nodiscard]] std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
+  [[nodiscard]] std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Module>> &
   getModuleUptrs() const;
 
@@ -187,7 +199,7 @@ struct Context final : public requite::_ContextLlvmContext {
   getSourceRange(const requite::Expression &expression) const;
 
   // module_map.cpp
-  [[nodiscard]] bool importModule(requite::Import& import);
+  [[nodiscard]] bool importModule(requite::Import &import);
   [[nodiscard]]
   bool getHasModule(llvm::StringRef path) const;
   [[nodiscard]]

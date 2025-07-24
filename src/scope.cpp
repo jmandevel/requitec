@@ -21,6 +21,10 @@ const llvm::StringMap<requite::LookupTableEntry> Scope::getLookupTable() const {
   return this->_symbol_map;
 }
 
+bool Scope::getCanHaveLocal() const {
+  return requite::getCanHaveLocal(this->getType());
+}
+
 bool Scope::getHasModule() const {
   return this->getType() == requite::ScopeType::MODULE;
 }
