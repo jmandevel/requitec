@@ -942,18 +942,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::METHOD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::METHOD)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
-    }
-    break;
   case requite::Opcode::CONSTRUCTOR:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::CONSTRUCTOR)) {

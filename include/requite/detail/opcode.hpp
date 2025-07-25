@@ -899,8 +899,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "entry_point";
   case requite::Opcode::FUNCTION:
     return "function";
-  case requite::Opcode::METHOD:
-    return "method";
   case requite::Opcode::CONSTRUCTOR:
     return "constructor";
   case requite::Opcode::DESTRUCTOR:
@@ -1247,7 +1245,6 @@ constexpr bool getHasObjectData(requite::Opcode opcode) {
 constexpr bool getHasOverloadData(requite::Opcode opcode) {
   return opcode == requite::Opcode::ENTRY_POINT ||
          opcode == requite::Opcode::FUNCTION ||
-         opcode == requite::Opcode::METHOD ||
          opcode == requite::Opcode::CONSTRUCTOR ||
          opcode == requite::Opcode::DESTRUCTOR;
 }

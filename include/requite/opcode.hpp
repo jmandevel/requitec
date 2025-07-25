@@ -199,7 +199,6 @@ enum class Opcode : unsigned {
   _DROP_VALUE,
   ENTRY_POINT,
   FUNCTION,
-  METHOD,
   CONSTRUCTOR,
   DESTRUCTOR,
   _ANONYMOUS_FUNCTION,
