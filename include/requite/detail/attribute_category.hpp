@@ -35,8 +35,6 @@ getErrorMessageEnding(requite::AttributeCategory category) {
     return " is not global global attribute";
   case requite::AttributeCategory::MEMBER_GLOBAL:
     return " is not member global attribute";
-  case requite::AttributeCategory::LOCAL_GLOBAL:
-    return " is not local global attribute";
   case requite::AttributeCategory::GLOBAL_USE:
     return " is not global use attribute";
   case requite::AttributeCategory::MEMBER_USE:

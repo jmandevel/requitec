@@ -56,7 +56,6 @@ template <requite::AttributeCategory CATEGORY_PARAM>
 [[nodiscard]] constexpr bool getCanBeLocalAliasAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeGlobalGlobalAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberGlobalAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeLocalGlobalAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeGlobalUseAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberUseAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeGlobalTableAliasAttribute(requite::AttributeType type);

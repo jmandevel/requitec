@@ -218,9 +218,10 @@ enum class Opcode : unsigned {
   TABLE,
   ALIAS,
   USE,
+  _VARIABLE_DECLARATION,
   _LOCAL,
-  GLOBAL,
-  PROPERTY,
+  _GLOBAL,
+  _PROPERTY,
 
   // VALUES
   TRUE,

@@ -214,6 +214,10 @@ void Tokenizer::_tokenizeTokens() {
                                     requite::TokenType::RIGHT_OPEN_CAP_GROUPING,
                                     2);
         break;
+      case '=':
+        this->tokenizeLengthToken(requite::TokenType::PIRATE_WALRUS_OPERATOR,
+                                  2);
+        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::DOT_OPERATOR, 1);
       }

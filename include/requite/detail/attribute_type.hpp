@@ -115,16 +115,15 @@ enum _AttributeFlags : std::uint32_t {
   _LOCAL_ALIAS = requite::getBit(12),
   _GLOBAL_GLOBAL = requite::getBit(13),
   _MEMBER_GLOBAL = requite::getBit(14),
-  _LOCAL_GLOBAL = requite::getBit(15),
-  _GLOBAL_USE = requite::getBit(16),
-  _MEMBER_USE = requite::getBit(17),
-  _LOCAL_USE = requite::getBit(18),
-  _GLOBAL_TABLE_ALIAS = requite::getBit(19),
-  _MEMBER_TABLE_ALIAS = requite::getBit(20),
-  _GLOBAL_TABLE_USE = requite::getBit(21),
-  _MEMBER_TABLE_USE = requite::getBit(22),
-  _IMPORT = requite::getBit(23),
-  _LOCAL_BLOCK = requite::getBit(24)
+  _GLOBAL_USE = requite::getBit(15),
+  _MEMBER_USE = requite::getBit(16),
+  _LOCAL_USE = requite::getBit(17),
+  _GLOBAL_TABLE_ALIAS = requite::getBit(18),
+  _MEMBER_TABLE_ALIAS = requite::getBit(19),
+  _GLOBAL_TABLE_USE = requite::getBit(20),
+  _MEMBER_TABLE_USE = requite::getBit(21),
+  _IMPORT = requite::getBit(22),
+  _LOCAL_BLOCK = requite::getBit(23)
 };
 }
 
@@ -148,7 +147,7 @@ _getFlags(requite::AttributeType type) {
     return _GLOBAL_FUNCTION | _MEMBER_FUNCTION | _LOCAL_FUNCTION |
            _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR | _GLOBAL_OBJECT |
            _MEMBER_OBJECT | _LOCAL_OBJECT | _MEMBER_PROPERTY | _GLOBAL_ALIAS |
-           _MEMBER_ALIAS | _GLOBAL_GLOBAL | _MEMBER_GLOBAL | _LOCAL_GLOBAL |
+           _MEMBER_ALIAS | _GLOBAL_GLOBAL | _MEMBER_GLOBAL |
            _MEMBER_USE | _IMPORT;
   case AttributeType::MUTABLE:
     return _TYPE;
@@ -166,7 +165,7 @@ _getFlags(requite::AttributeType type) {
     return _GLOBAL_FUNCTION | _MEMBER_FUNCTION | _LOCAL_FUNCTION |
            _MEMBER_CONSTRUCTOR | _GLOBAL_OBJECT | _MEMBER_OBJECT |
            _GLOBAL_ALIAS | _MEMBER_ALIAS | _LOCAL_ALIAS | _GLOBAL_GLOBAL |
-           _MEMBER_GLOBAL | _LOCAL_GLOBAL;
+           _MEMBER_GLOBAL;
   case AttributeType::PRIVATE:
     return _MEMBER_FUNCTION | _MEMBER_CONSTRUCTOR | _MEMBER_DESTRUCTOR |
            _MEMBER_PROPERTY | _MEMBER_ALIAS | _MEMBER_GLOBAL | _MEMBER_USE |
@@ -253,9 +252,6 @@ constexpr bool getCanBeAttributeCategory(requite::AttributeType type) {
   } else if constexpr (CATEGORY_PARAM ==
                        requite::AttributeCategory::MEMBER_GLOBAL) {
     return requite::getCanBeMemberGlobalAttribute(type);
-  } else if constexpr (CATEGORY_PARAM ==
-                       requite::AttributeCategory::LOCAL_GLOBAL) {
-    return requite::getCanBeLocalGlobalAttribute(type);
   } else if constexpr (CATEGORY_PARAM ==
                        requite::AttributeCategory::GLOBAL_USE) {
     return requite::getCanBeGlobalUseAttribute(type);
@@ -373,12 +369,6 @@ constexpr bool getCanBeGlobalGlobalAttribute(requite::AttributeType type) {
 constexpr bool getCanBeMemberGlobalAttribute(requite::AttributeType type) {
   const bool has_flags =
       requite::_getHasFlags(type, requite::_attribute::_MEMBER_GLOBAL);
-  return has_flags;
-}
-
-constexpr bool getCanBeLocalGlobalAttribute(requite::AttributeType type) {
-  const bool has_flags =
-      requite::_getHasFlags(type, requite::_attribute::_LOCAL_GLOBAL);
   return has_flags;
 }
 

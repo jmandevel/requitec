@@ -193,9 +193,9 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_CAST:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::IDENTIFY:
-    return _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
+    return _MATTE_DESTINATION | _VALUE_REFLECTIVE_DESTINATION |
+           _SYMBOL_REFLECTIVE_DESTINATION | _MATTE_VALUE |
+           _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
            _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
            _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
            _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
@@ -417,13 +417,16 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::USE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
+  case Opcode::_VARIABLE_DECLARATION:
+    return _INTERMEDIATE_OPERATION | _MODULE_STATEMENT | _TABLE_STATEMENT |
+           _OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
   case Opcode::_LOCAL:
     return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::GLOBAL:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::PROPERTY:
-    return _OBJECT_STATEMENT;
+  case Opcode::_GLOBAL:
+    return _INTERMEDIATE_OPERATION | _MODULE_STATEMENT | _TABLE_STATEMENT |
+           _OBJECT_STATEMENT;
+  case Opcode::_PROPERTY:
+    return _INTERMEDIATE_OPERATION | _OBJECT_STATEMENT;
 
   // VALUES
   case Opcode::TRUE:
@@ -930,12 +933,14 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "alias";
   case requite::Opcode::USE:
     return "use";
+  case requite::Opcode::_VARIABLE_DECLARATION:
+    return "_variable_declaration";
   case requite::Opcode::_LOCAL:
     return "_local";
-  case requite::Opcode::GLOBAL:
-    return "global";
-  case requite::Opcode::PROPERTY:
-    return "property";
+  case requite::Opcode::_GLOBAL:
+    return "_global";
+  case requite::Opcode::_PROPERTY:
+    return "_property";
 
   // VALUES
   case requite::Opcode::TRUE:
@@ -1261,11 +1266,11 @@ constexpr bool getHasLocalData(requite::Opcode opcode) {
 }
 
 constexpr bool getHasGlobalData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::GLOBAL;
+  return opcode == requite::Opcode::_GLOBAL;
 }
 
 constexpr bool getHasPropertyData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::PROPERTY;
+  return opcode == requite::Opcode::_PROPERTY;
 }
 
 constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {

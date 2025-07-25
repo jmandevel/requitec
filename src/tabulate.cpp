@@ -63,11 +63,11 @@ void Tabulator::tabulateModuleStatement(requite::Expression &statement,
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
     break;
-  case requite::Opcode::GLOBAL:
-    this->tabulateGlobal(statement, has_attributes);
+  case requite::Opcode::_GLOBAL:
+    this->tabulate_Global(statement, has_attributes);
     break;
-  case requite::Opcode::PROPERTY:
-    this->tabulateProperty(statement, has_attributes);
+  case requite::Opcode::_PROPERTY:
+    this->tabulate_Property(statement, has_attributes);
     break;
   case requite::Opcode::TABLE_USE:
     this->tabulateTableUse(statement, has_attributes);
@@ -76,7 +76,7 @@ void Tabulator::tabulateModuleStatement(requite::Expression &statement,
     this->tabulateTableAlias(statement, has_attributes);
     break;
   default:
-    break;
+    REQUITE_UNREACHABLE();
   }
 }
 
@@ -102,8 +102,8 @@ void Tabulator::tabulateTableStatement(requite::Expression &statement,
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
     break;
-  case requite::Opcode::GLOBAL:
-    this->tabulateGlobal(statement, has_attributes);
+  case requite::Opcode::_GLOBAL:
+    this->tabulate_Global(statement, has_attributes);
     break;
   case requite::Opcode::TABLE_USE:
     this->tabulateTableUse(statement, has_attributes);
@@ -112,7 +112,7 @@ void Tabulator::tabulateTableStatement(requite::Expression &statement,
     this->tabulateTableAlias(statement, has_attributes);
     break;
   default:
-    break;
+    REQUITE_UNREACHABLE();
   }
 }
 
@@ -141,11 +141,11 @@ void Tabulator::tabulateObjectStatement(requite::Expression &statement,
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
     break;
-  case requite::Opcode::GLOBAL:
-    this->tabulateGlobal(statement, has_attributes);
+  case requite::Opcode::_GLOBAL:
+    this->tabulate_Global(statement, has_attributes);
     break;
-  case requite::Opcode::PROPERTY:
-    this->tabulateProperty(statement, has_attributes);
+  case requite::Opcode::_PROPERTY:
+    this->tabulate_Property(statement, has_attributes);
     break;
   case requite::Opcode::TABLE_USE:
     this->tabulateTableUse(statement, has_attributes);
@@ -154,7 +154,7 @@ void Tabulator::tabulateObjectStatement(requite::Expression &statement,
     this->tabulateTableAlias(statement, has_attributes);
     break;
   default:
-    break;
+    REQUITE_UNREACHABLE();
   }
 }
 
@@ -179,9 +179,6 @@ void Tabulator::tabulateMatteLocalStatement(requite::Expression &statement,
     break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
-    break;
-  case requite::Opcode::GLOBAL:
-    this->tabulateGlobal(statement, has_attributes);
     break;
   case requite::Opcode::TABLE_USE:
     this->tabulateTableUse(statement, has_attributes);
@@ -524,9 +521,9 @@ void Tabulator::tabulateUse(requite::Expression &expression,
   }
 }
 
-void Tabulator::tabulateGlobal(requite::Expression &expression,
+void Tabulator::tabulate_Global(requite::Expression &expression,
                                bool has_attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::GLOBAL);
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_GLOBAL);
   requite::AttributeFlags attributes;
   if (has_attributes) {
     if (this->getScope().getType() == requite::ScopeType::OBJECT) {
@@ -537,10 +534,6 @@ void Tabulator::tabulateGlobal(requite::Expression &expression,
               requite::AttributeType::EXPORT)) {
         attributes.addAttribute(requite::AttributeType::EXPORT);
       }
-    } else if (this->getScope().getCanHaveLocal()) {
-      attributes =
-          this->tabulateAttributes<requite::AttributeCategory::LOCAL_GLOBAL>(
-              expression);
     } else {
       attributes =
           this->tabulateAttributes<requite::AttributeCategory::GLOBAL_GLOBAL>(
@@ -663,9 +656,9 @@ void Tabulator::tabulate_AnonymousFunction(requite::Expression &expression) {
   this->leaveScope();
 }
 
-void Tabulator::tabulateProperty(requite::Expression &expression,
+void Tabulator::tabulate_Property(requite::Expression &expression,
                                  bool has_attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::PROPERTY);
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_PROPERTY);
   requite::Property &property = this->getContext().makeProperty();
   property.setExpression(expression);
   expression.setProperty(property);

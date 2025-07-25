@@ -1069,6 +1069,14 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
+  case requite::Opcode::_VARIABLE_DECLARATION:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_VARIABLE_DECLARATION)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situate_VariableDeclaration<SITUATION_PARAM>(expression);
+    }
+    break;
   case requite::Opcode::_LOCAL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_LOCAL)) {
@@ -1080,9 +1088,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::GLOBAL:
+  case requite::Opcode::_GLOBAL:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::GLOBAL)) {
+                      requite::Opcode::_GLOBAL)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
@@ -1091,9 +1099,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::PROPERTY:
+  case requite::Opcode::_PROPERTY:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::PROPERTY)) {
+                      requite::Opcode::_PROPERTY)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
@@ -2956,6 +2964,29 @@ Situator::situate_ExtendExpression(requite::Expression &expression) {
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_SYMBOL>(expression);
     expression.changeOpcode(requite::Opcode::_EXTEND_TYPE);
+  } else {
+    static_assert(false, "invalid situation");
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situate_VariableDeclaration(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() ==
+                 requite::Opcode::_VARIABLE_DECLARATION);
+  if constexpr (SITUATION_PARAM == requite::Situation::MODULE_STATEMENT ||
+                SITUATION_PARAM == requite::Situation::TABLE_STATEMENT ||
+                SITUATION_PARAM == requite::Situation::OBJECT_STATEMENT) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_NAME,
+                                  requite::Situation::MATTE_VALUE>(expression);
+    expression.changeOpcode(requite::Opcode::_GLOBAL);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::MATTE_LOCAL_STATEMENT) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_NAME,
+                                  requite::Situation::MATTE_VALUE>(expression);
+    expression.changeOpcode(requite::Opcode::_LOCAL);
   } else {
     static_assert(false, "invalid situation");
   }
