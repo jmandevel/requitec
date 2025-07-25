@@ -192,12 +192,8 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_JUNCTION | _MATTE_SYMBOL;
   case Opcode::_CAST:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::STRINGIFY:
-    return _MATTE_VALUE;
-  case Opcode::CODEUNIFY:
-    return _MATTE_VALUE;
-  case Opcode::_IDENTIFY:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
+  case Opcode::IDENTIFY:
+    return _MATTE_DESTINATION |
            _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
            _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
            _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
@@ -734,12 +730,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_ascribe_first_branch";
   case requite::Opcode::_CAST:
     return "_cast";
-  case requite::Opcode::STRINGIFY:
-    return "stringify";
-  case requite::Opcode::CODEUNIFY:
-    return "codeunify";
-  case requite::Opcode::_IDENTIFY:
-    return "_identify";
+  case requite::Opcode::IDENTIFY:
+    return "identify";
 
   // ARITHMETIC
   case requite::Opcode::_ADD:

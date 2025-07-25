@@ -327,30 +327,12 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::STRINGIFY:
+  case requite::Opcode::IDENTIFY:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::STRINGIFY)) {
+                      requite::Opcode::IDENTIFY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
-  case requite::Opcode::CODEUNIFY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::CODEUNIFY)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
-    }
-    break;
-  case requite::Opcode::_IDENTIFY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_IDENTIFY)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_IdentifyExpression<SITUATION_PARAM>(expression);
+      this->situateIdentifyExpression<SITUATION_PARAM>(expression);
     }
     break;
   case requite::Opcode::_ADD:
@@ -2776,10 +2758,10 @@ void Situator::situateAssertExpression(requite::Expression &expression) {
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situate_IdentifyExpression(requite::Expression &expression) {
+void Situator::situateIdentifyExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_IDENTIFY);
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::IDENTIFY);
   this->situateUnaryExpression<SITUATION_PARAM,
                                requite::Situation::MATTE_VALUE>(expression);
   requite::Expression &branch = expression.getBranch();

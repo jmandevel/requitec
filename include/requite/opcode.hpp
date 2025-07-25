@@ -104,9 +104,7 @@ enum class Opcode : unsigned {
   _ASCRIBE_LAST_BRANCH,
   _ASCRIBE_FIRST_BRANCH,
   _CAST,
-  STRINGIFY,
-  CODEUNIFY,
-  _IDENTIFY,
+  IDENTIFY,
 
   // ARITHMETIC
   _ADD,

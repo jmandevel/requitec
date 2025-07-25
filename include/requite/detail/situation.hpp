@@ -411,12 +411,12 @@ constexpr bool getCanBeNamedFieldSituation(requite::Opcode opcode) {
 
 constexpr bool getCanBeSymbolNameSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::__IDENTIFIER_LITERAL ||
-         opcode == requite::Opcode::_IDENTIFY;
+         opcode == requite::Opcode::IDENTIFY;
 }
 
 constexpr bool getCanBeSymbolPathSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::__IDENTIFIER_LITERAL ||
-         opcode == requite::Opcode::_IDENTIFY ||
+         opcode == requite::Opcode::IDENTIFY ||
          opcode == requite::Opcode::_REFLECT_SYMBOL;
 }
 

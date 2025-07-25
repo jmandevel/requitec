@@ -727,9 +727,6 @@ requite::Expression &Parser::parsePrecedence0() {
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseCloven(requite::Opcode::_CLOSED_INLINE_SCOPE,
                              requite::TokenType::RIGHT_CLOSED_CAP_GROUPING);
-  case requite::TokenType::BACKSLASH_OPERATOR:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseIdentify();
   case requite::TokenType::IDENTIFIER_LITERAL:
     return this->parseIdentifierLiteral();
   case requite::TokenType::CODEUNIT_LITERAL:
@@ -1008,19 +1005,6 @@ requite::Expression &Parser::parseIdentifierLiteral() {
   identifier.setDataText(token.getSourceText());
   this->incrementToken(1);
   return identifier;
-}
-
-requite::Expression &Parser::parseIdentify() {
-  REQUITE_ASSERT(!this->getIsDone());
-  const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::BACKSLASH_OPERATOR);
-  requite::Expression &identify =
-      requite::Expression::makeOperation(requite::Opcode::_IDENTIFY);
-  identify.setSource(token);
-  this->incrementToken(1);
-  requite::Expression &first = this->parsePrecedence1();
-  identify.setBranch(first);
-  return identify;
 }
 
 requite::Expression &Parser::parseNullaryOperator(requite::Opcode opcode) {

@@ -90,7 +90,6 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parsePostUnary(requite::Expression &first,
                                       requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIdentifierLiteral();
-  [[nodiscard]] requite::Expression &parseIdentify();
   [[nodiscard]] requite::Expression &parseNullaryOperator(requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIntegerLiteral();
   [[nodiscard]] requite::Expression &parseFractionalLiteral();
