@@ -370,6 +370,8 @@ getUniversalizedSymbol(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getIsIntermediateOperation(requite::Opcode opcode);
 
+[[nodiscard]] constexpr bool getBranchCanHaveNoSemicolon(requite::Opcode opcode);
+
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
