@@ -669,7 +669,7 @@ requite::Expression &Parser::parsePrecedence2() {
       break;
     }
     switch (const requite::TokenType post_type = post_token.getType()) {
-    case requite::TokenType::COMMA_OPERATOR:
+    case requite::TokenType::AT_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNary(*this, requite::Opcode::_ASCRIBE_LAST_BRANCH);
       continue;
