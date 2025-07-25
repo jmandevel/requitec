@@ -367,14 +367,7 @@ void Tokenizer::_tokenizeTokens() {
       }
       continue;
     case ';':
-      switch (const char c1 = this->getRanger().getChar(1)) {
-      case ';':
-        this->tokenizeLengthToken(requite::TokenType::DOUBLE_SEMICOLON_OPERATOR,
-                                  2);
-        break;
-      default:
-        this->tokenizeLengthToken(requite::TokenType::SEMICOLON_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(requite::TokenType::SEMICOLON_OPERATOR, 1);
       continue;
     case '<':
       switch (const char c1 = this->getRanger().getChar(1)) {

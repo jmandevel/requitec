@@ -34,7 +34,6 @@ enum class TokenType {
   BACKSLASH_OPERATOR,        // \     .
   DOUBLE_BACKSLASH_OPERATOR, // \\    .
   SEMICOLON_OPERATOR,        // ;
-  DOUBLE_SEMICOLON_OPERATOR, // ;;
   PLUS_OPERATOR,             // +
   DASH_OPERATOR,             // -
   STAR_OPERATOR,             // *
