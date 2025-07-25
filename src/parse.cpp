@@ -187,12 +187,12 @@ requite::Expression &Parser::parsePrecedence10() {
       break;
     }
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::SEMICOLON_OPERATOR:
+    case requite::TokenType::BACKSLASH_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_CAST);
       precedence_parser.setRecent(this->parsePrecedence9());
       continue;
-    case requite::TokenType::DOUBLE_SEMICOLON_OPERATOR:
+    case requite::TokenType::DOUBLE_BACKSLASH_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_CAST);
       precedence_parser.setRecent(this->parsePrecedence9());
@@ -597,7 +597,7 @@ requite::Expression &Parser::parsePrecedence2() {
     default:
       break;
     }
-    if (type == requite::TokenType::SEMICOLON_OPERATOR) {
+    if (type == requite::TokenType::BACKSLASH_OPERATOR) {
       // NOTE:
       //  cast operators are parsed here a second time in order to handle
       //  implicit inferencences. implicit inferencences must be added when
@@ -607,11 +607,11 @@ requite::Expression &Parser::parsePrecedence2() {
       //
       // for example:
       //
-      //  `&;0
+      //  `&\0
       //
       // this parses as:
       //
-      //  [_cast         // this is from the ;
+      //  [_cast         // this is from the \
       //    [_ascribe    // this is created to apply the mutable attribute
       //      [_mutable] // this is from the `
       //      [_reference   // this is from the &
@@ -628,7 +628,7 @@ requite::Expression &Parser::parsePrecedence2() {
       precedence_parser.parseBinaryCombination(*this, requite::Opcode::_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
       break;
-    } else if (type == requite::TokenType::DOUBLE_PIPE_OPERATOR) {
+    } else if (type == requite::TokenType::DOUBLE_BACKSLASH_OPERATOR) {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
           requite::Expression::makeOperation(requite::Opcode::TACIT);
