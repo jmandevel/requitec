@@ -555,7 +555,7 @@ requite::Expression &Parser::parsePrecedence2() {
       precedence_parser.parseNary(*this, requite::Opcode::_VARIANT);
       continue;
     }
-    case requite::TokenType::AT_OPERATOR:
+    case requite::TokenType::CAROT_OPERATOR:
       if (!token.getHasUnaryOperatorSpacing()) {
         break;
       }
