@@ -885,14 +885,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       // TODO
     }
     break;
-  case requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::
-                          _POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      // TODO
-    }
     break;
   case requite::Opcode::DESTROY:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
@@ -2489,16 +2481,6 @@ void Situator::situateParameterBranches(requite::Expression &expression,
       continue;
     } else if (branch.getOpcode() == requite::Opcode::_NAMED_FIELDS_BEGIN) {
       if (found_named_fields_begin) {
-        this->getContext().logErrorInvalidOperation(branch);
-        this->setNotOk();
-        continue;
-      }
-      found_positional_fields_end = true;
-      found_named_fields_begin = true;
-      continue;
-    } else if (branch.getOpcode() ==
-               requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN) {
-      if (found_positional_fields_end || found_named_fields_begin) {
         this->getContext().logErrorInvalidOperation(branch);
         this->setNotOk();
         continue;

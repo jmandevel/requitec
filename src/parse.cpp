@@ -740,15 +740,6 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::LEFT_INTERPOLATED_STRING_LITERAL:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseInterpolatedString();
-  case requite::TokenType::LEFT_OPERATOR:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseLeftOperator();
-  case requite::TokenType::RIGHT_OPERATOR:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseRightOperator();
-  case requite::TokenType::LEFT_RIGHT_OPERATOR:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseLeftRightOperator();
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseHornedImplicitHorn(
@@ -1122,46 +1113,6 @@ requite::Expression &Parser::parseInterpolatedString() {
                                       "Found unterminated interpolated string");
   this->setNotOk();
   return requite::Expression::makeError();
-}
-
-requite::Expression &Parser::parseLeftOperator() {
-  const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::LEFT_OPERATOR);
-  this->incrementToken(1);
-  if (!this->getIsDone()) {
-    const requite::Token &next_token = this->getToken();
-    if (next_token.getType() == requite::TokenType::RIGHT_OPERATOR) {
-      this->incrementToken(1);
-      requite::Expression &operation = requite::Expression::makeOperation(
-          requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN);
-      operation.setSource(token, next_token);
-      return operation;
-    }
-  }
-  requite::Expression &operation = requite::Expression::makeOperation(
-      requite::Opcode::_POSITIONAL_FIELDS_END);
-  operation.setSource(token);
-  return operation;
-}
-
-requite::Expression &Parser::parseRightOperator() {
-  const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::RIGHT_OPERATOR);
-  this->incrementToken(1);
-  requite::Expression &operation =
-      requite::Expression::makeOperation(requite::Opcode::_NAMED_FIELDS_BEGIN);
-  operation.setSource(token);
-  return operation;
-}
-
-requite::Expression &Parser::parseLeftRightOperator() {
-  const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::LEFT_RIGHT_OPERATOR);
-  this->incrementToken(1);
-  requite::Expression &operation = requite::Expression::makeOperation(
-      requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN);
-  operation.setSource(token);
-  return operation;
 }
 
 bool Parser::checkIsNormativeRequiteOk() {

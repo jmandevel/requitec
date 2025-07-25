@@ -61,9 +61,7 @@ enum class TokenType {
   DOUBLE_GRAVE_OPERATOR,     // ``
   ARROW_OPERATOR,            // ->
   CONCATENATE_OPERATOR,      // +>
-  LEFT_OPERATOR,             // <:
-  RIGHT_OPERATOR,            // :>
-  LEFT_RIGHT_OPERATOR,       // <:>
+  TRAILER_MARK,              // <:>
   EMPTY_QUOTE_OPERATOR,      // [:]
 
   // GROUPING SYMBOLS

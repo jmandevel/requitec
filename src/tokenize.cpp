@@ -358,9 +358,6 @@ void Tokenizer::_tokenizeTokens() {
                                     requite::TokenType::RIGHT_QUOTE_GROUPING,
                                     2);
         break;
-      case '>':
-        this->tokenizeLengthToken(requite::TokenType::RIGHT_OPERATOR, 2);
-        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::COLON_OPERATOR, 1);
       }
@@ -394,10 +391,10 @@ void Tokenizer::_tokenizeTokens() {
       case ':':
         switch (const char c2 = this->getRanger().getChar(2)) {
         case '>':
-          this->tokenizeLengthToken(requite::TokenType::LEFT_RIGHT_OPERATOR, 3);
+          this->tokenizeLengthToken(requite::TokenType::TRAILER_MARK, 3);
           break;
         default:
-          this->tokenizeLengthToken(requite::TokenType::LEFT_OPERATOR, 2);
+          break;
         }
         break;
       default:

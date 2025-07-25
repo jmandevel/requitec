@@ -335,8 +335,6 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION;
   case Opcode::_NAMED_FIELDS_BEGIN:
     return _INTERMEDIATE_OPERATION;
-  case Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN:
-    return _INTERMEDIATE_OPERATION;
 
   // TRIPS
   case Opcode::_TUPLE_VALUE:
@@ -856,8 +854,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_positional_fields_end";
   case requite::Opcode::_NAMED_FIELDS_BEGIN:
     return "_named_fields_begin";
-  case requite::Opcode::_POSITIONAL_FIELDS_END_AND_NAMED_FIELDS_BEGIN:
-    return "_positional_fields_end_and_named_fields_begin";
 
   // TRIPS
   case requite::Opcode::_TUPLE_VALUE:

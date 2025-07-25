@@ -96,9 +96,6 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseStringLiteral();
   [[nodiscard]] requite::Expression &parseCodeunitLiteral();
   [[nodiscard]] requite::Expression &parseInterpolatedString();
-  [[nodiscard]] requite::Expression &parseLeftOperator();
-  [[nodiscard]] requite::Expression &parseRightOperator();
-  [[nodiscard]] requite::Expression &parseLeftRightOperator();
   [[nodiscard]] bool checkIsNormativeRequiteOk();
   [[nodiscard]] bool checkIsIntermediateRequiteOk();
   void logErrorBinaryNoLValue(const requite::Token &token);
