@@ -207,8 +207,8 @@ bool Implementor::implementMatteLocalStatement(
         is_ok = false;
       }
       break;
-    case requite::Opcode::ALIAS:
-      if (!this->implementAlias(branch)) {
+    case requite::Opcode::_ALIAS:
+      if (!this->implement_Alias(branch)) {
         is_ok = false;
       }
       break;
@@ -353,7 +353,7 @@ bool Implementor::implementExit(requite::Expression &statement) {
   return true;
 }
 
-bool Implementor::implementAlias(requite::Expression &statement) {
+bool Implementor::implement_Alias(requite::Expression &statement) {
   REQUITE_UNREACHABLE(); // TODO
 }
 

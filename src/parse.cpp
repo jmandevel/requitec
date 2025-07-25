@@ -107,6 +107,11 @@ requite::Expression &Parser::parsePrecedence12() {
       precedence_parser.parseBinary(*this, requite::Opcode::_PROPERTY);
       precedence_parser.setRecent(this->parsePrecedence11());
       continue;
+    case requite::TokenType::FOUR_EYED_WALRUS_OPERATOR:
+      std::ignore = this->checkIsNormativeRequiteOk();
+      precedence_parser.parseBinary(*this, requite::Opcode::_ALIAS);
+      precedence_parser.setRecent(this->parsePrecedence11());
+      continue;
     case requite::TokenType::EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_ASSIGN);

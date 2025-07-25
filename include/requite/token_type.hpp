@@ -48,6 +48,7 @@ enum class TokenType {
   EQUAL_OPERATOR,            // =
   WALRUS_OPERATOR,           // :=
   PIRATE_WALRUS_OPERATOR,    // .=
+  FOUR_EYED_WALRUS_OPERATOR, // ::=
   DOUBLE_EQUAL_OPERATOR,     // ==
   PLUS_EQUAL_OPERATOR,       // +=
   DASH_EQUAL_OPERATOR,       // -=

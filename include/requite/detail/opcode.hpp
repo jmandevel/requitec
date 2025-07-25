@@ -411,8 +411,8 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_LOCAL_STATEMENT;
   case Opcode::TABLE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT;
-  case Opcode::ALIAS:
-    return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+  case Opcode::_ALIAS:
+    return _INTERMEDIATE_OPERATION | _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::USE:
     return _MODULE_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
@@ -929,8 +929,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "object";
   case requite::Opcode::TABLE:
     return "table";
-  case requite::Opcode::ALIAS:
-    return "alias";
+  case requite::Opcode::_ALIAS:
+    return "_alias";
   case requite::Opcode::USE:
     return "use";
   case requite::Opcode::_VARIABLE_DECLARATION:
@@ -1257,7 +1257,7 @@ constexpr bool getHasLabelData(requite::Opcode opcode) {
 }
 
 constexpr bool getHasAliasData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::ALIAS;
+  return opcode == requite::Opcode::_ALIAS;
 }
 
 constexpr bool getHasLocalData(requite::Opcode opcode) {

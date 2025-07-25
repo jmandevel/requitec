@@ -347,7 +347,15 @@ void Tokenizer::_tokenizeTokens() {
     case ':':
       switch (const char c1 = this->getRanger().getChar(1)) {
       case ':':
-        this->tokenizeLengthToken(requite::TokenType::DOUBLE_COLON_OPERATOR, 2);
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '=':
+          this->tokenizeLengthToken(
+              requite::TokenType::FOUR_EYED_WALRUS_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(requite::TokenType::DOUBLE_COLON_OPERATOR,
+                                    2);
+        }
         break;
       case '=':
         this->tokenizeLengthToken(requite::TokenType::WALRUS_OPERATOR, 2);

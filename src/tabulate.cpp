@@ -54,8 +54,8 @@ void Tabulator::tabulateModuleStatement(requite::Expression &statement,
   case requite::Opcode::TABLE:
     this->tabulateTable(statement, has_attributes);
     break;
-  case requite::Opcode::ALIAS:
-    this->tabulateAlias(statement, has_attributes);
+  case requite::Opcode::_ALIAS:
+    this->tabulate_Alias(statement, has_attributes);
     break;
   case requite::Opcode::IMPORT:
     this->tabulateImport(statement, has_attributes);
@@ -96,8 +96,8 @@ void Tabulator::tabulateTableStatement(requite::Expression &statement,
   case requite::Opcode::TABLE:
     this->tabulateTable(statement, has_attributes);
     break;
-  case requite::Opcode::ALIAS:
-    this->tabulateAlias(statement, has_attributes);
+  case requite::Opcode::_ALIAS:
+    this->tabulate_Alias(statement, has_attributes);
     break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
@@ -135,8 +135,8 @@ void Tabulator::tabulateObjectStatement(requite::Expression &statement,
   case requite::Opcode::OBJECT:
     this->tabulateObject(statement, has_attributes);
     break;
-  case requite::Opcode::ALIAS:
-    this->tabulateAlias(statement, has_attributes);
+  case requite::Opcode::_ALIAS:
+    this->tabulate_Alias(statement, has_attributes);
     break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
@@ -174,8 +174,8 @@ void Tabulator::tabulateMatteLocalStatement(requite::Expression &statement,
   case requite::Opcode::OBJECT:
     this->tabulateObject(statement, has_attributes);
     break;
-  case requite::Opcode::ALIAS:
-    this->tabulateAlias(statement, has_attributes);
+  case requite::Opcode::_ALIAS:
+    this->tabulate_Alias(statement, has_attributes);
     break;
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
@@ -430,9 +430,9 @@ void Tabulator::tabulateTable(requite::Expression &expression,
   this->leaveScope();
 }
 
-void Tabulator::tabulateAlias(requite::Expression &expression,
+void Tabulator::tabulate_Alias(requite::Expression &expression,
                               bool has_attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ALIAS);
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ALIAS);
   requite::AttributeFlags attributes;
   if (has_attributes) {
     if (this->getScope().getType() == requite::ScopeType::OBJECT) {

@@ -1058,9 +1058,9 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateTableExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::ALIAS:
+  case requite::Opcode::_ALIAS:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ALIAS)) {
+                      requite::Opcode::_ALIAS)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,

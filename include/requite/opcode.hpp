@@ -216,7 +216,7 @@ enum class Opcode : unsigned {
   // SYMBOLS
   OBJECT,
   TABLE,
-  ALIAS,
+  _ALIAS,
   USE,
   _VARIABLE_DECLARATION,
   _LOCAL,
