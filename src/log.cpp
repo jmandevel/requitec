@@ -109,10 +109,21 @@ void Context::logErrorInvalidExpectedTypeForOperation(
 }
 
 void Context::logErrorMustNotHaveAttributes(requite::Expression &expression) {
-  llvm::SmallString<32> buffer;
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          llvm::Twine(requite::getName(expression.getOpcode())) +
                              " must not have attributes");
+}
+
+void Context::logErrorMissingTrailingSemicolon(
+    requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine(requite::getName(expression.getOpcode())) +
+                             " statement is missing trailing semicolon");
+}
+
+void Context::logErrorMissingCommmaSeperator(const requite::Token& token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
+                         "missing comma seperator");
 }
 
 } // namespace requite

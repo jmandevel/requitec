@@ -397,7 +397,9 @@ struct Context final : public requite::_ContextLlvmContext {
   logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
                                           const requite::Symbol &expected_type);
   void logErrorMustNotHaveAttributes(requite::Expression &expression);
-
+  void logErrorMissingTrailingSemicolon(requite::Expression& expression);
+  void logErrorMissingCommmaSeperator(const requite::Token& token);
+  
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>
   void logErrorNotAtLeastBranchCount(requite::Expression &expression,
