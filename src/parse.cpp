@@ -418,7 +418,7 @@ requite::Expression &Parser::parsePrecedence4() {
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_AND);
       precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
-    case requite::TokenType::CAROT_LESS_OPERATOR:
+    case requite::TokenType::CAROT_OPERATOR:
       if (!token.getHasBinaryOperatorSpacing()) {
         break;
       }
