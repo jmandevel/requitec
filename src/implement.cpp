@@ -130,7 +130,7 @@ bool Context::implementAlias(requite::Alias &alias) {
 }
 
 bool Context::implementGlobal(requite::Global &global) {
-  REQUITE_UNREACHABLE(); // TODO
+REQUITE_UNREACHABLE(); // TODO
 }
 
 bool Context::implementProperty(requite::Property &property) {

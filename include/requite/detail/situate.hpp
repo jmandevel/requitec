@@ -2922,8 +2922,8 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &first_branch = expression.getBranch();
-  this->situateBranch<requite::Situation::ATTRIBUTE>(
-      "first branch", expression, 0, first_branch);
+  this->situateBranch<requite::Situation::ATTRIBUTE>("first branch", expression,
+                                                     0, first_branch);
   if (!first_branch.getHasNext()) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
         expression, 2);
