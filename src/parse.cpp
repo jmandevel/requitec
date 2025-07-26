@@ -403,6 +403,15 @@ requite::Expression &Parser::parsePrecedence4() {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
       continue;
+    case requite::TokenType::DOT_OPERATOR: {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      requite::Expression &this_ =
+          requite::Expression::makeOperation(requite::Opcode::THIS);
+      this_.setSourceInsertedBefore(token);
+      precedence_parser.appendBranch(this_);
+      precedence_parser.parseBinaryCombination(*this, requite::Opcode::_REFLECT_VALUE);
+      continue;
+    }
     default:
       precedence_parser.appendBranch(this->parsePrecedence3());
       break;
