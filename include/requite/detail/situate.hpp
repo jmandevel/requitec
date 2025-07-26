@@ -2637,8 +2637,19 @@ void Situator::situate_CallOrSignatureExpression(
   this->situateBranch<requite::Situation::MATTE_SYMBOL>("first branch",
                                                         expression, 0, branch);
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
+                SITUATION_PARAM ==
+                    requite::Situation::VALUE_REFLECTIVE_DESTINATION ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_DESTINATION ||
                 SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
+                SITUATION_PARAM ==
+                    requite::Situation::VALUE_REFLECTIVE_JUNCTION ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_JUNCTION ||
                 SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
+                SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_VALUE ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_VALUE ||
                 SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
     if (branch.getHasNext()) {
       requite::Expression &next = branch.getNext();
