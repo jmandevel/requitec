@@ -118,12 +118,28 @@ void Context::logErrorMissingTrailingSemicolon(
     requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          llvm::Twine(requite::getName(expression.getOpcode())) +
-                             " statement is missing trailing semicolon");
+                             " expression is missing trailing semicolon");
+}
+
+void Context::logErrorExpectedExpressionBeforeSemicolon(const requite::Token& token) {
+    this->logSourceMessage(token, requite::LogType::ERROR,
+                         "expected expression before semicolon");
 }
 
 void Context::logErrorMissingCommmaSeperator(const requite::Token& token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
                          "missing comma seperator");
 }
+
+void Context::logErrorExpectedExpressionBeforeComma(const requite::Token& token) {
+    this->logSourceMessage(token, requite::LogType::ERROR,
+                         "expected expression before comma");
+}
+
+void Context::logErrorExpectedExpressionAfterComma(const requite::Token& token) {
+    this->logSourceMessage(token, requite::LogType::ERROR,
+                         "expected expression after comma");
+}
+
 
 } // namespace requite

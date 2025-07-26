@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <requite/token_spacing.hpp>
 #include <requite/token_type.hpp>
 
 #include <llvm/ADT/StringRef.h>
@@ -16,7 +15,6 @@ struct Context;
 
 struct Token final {
   requite::TokenType _type;
-  requite::TokenSpacing _spacing;
   unsigned _line;
   unsigned _column;
   const char *_source_text_ptr;
@@ -25,8 +23,7 @@ struct Token final {
   Token() = default;
 
   Token(requite::TokenType type, unsigned line, unsigned column,
-        const char *source_text_ptr, unsigned source_text_length,
-        requite::TokenSpacing spacing);
+        const char *source_text_ptr, unsigned source_text_length);
 
   [[nodiscard]]
   requite::TokenType getType() const;
@@ -36,18 +33,6 @@ struct Token final {
 
   [[nodiscard]]
   unsigned getColumn() const;
-
-  [[nodiscard]]
-  requite::TokenSpacing getSpacing() const;
-
-  [[nodiscard]]
-  bool getHasBinaryOperatorSpacing() const;
-
-  [[nodiscard]]
-  bool getHasUnaryOperatorSpacing() const;
-
-  [[nodiscard]]
-  bool getHasInvalidOperatorSpacing() const;
 
   [[nodiscard]]
   llvm::StringRef getSourceText() const;

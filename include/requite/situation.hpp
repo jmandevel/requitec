@@ -19,10 +19,10 @@ namespace requite {
 
 enum class Situation {
   NONE,
-  ROOT_STATEMENT,
-  MODULE_STATEMENT,
-  TABLE_STATEMENT,
-  OBJECT_STATEMENT,
+  MATTE_ROOT_STATEMENT,
+  MATTE_MODULE_STATEMENT,
+  MATTE_TABLE_STATEMENT,
+  MATTE_OBJECT_STATEMENT,
   MATTE_LOCAL_STATEMENT,
   VALUE_REFLECTIVE_LOCAL_STATEMENT,
   SYMBOL_REFLECTIVE_LOCAL_STATEMENT,
@@ -82,13 +82,16 @@ template <requite::Situation SITUATION_PARAM>
 getCanBeConvergingSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeRootStatementSituation(requite::Opcode opcode);
+getCanBeMatteRootStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeBaseStatementSituation(requite::Opcode opcode);
+getCanBeMatteModuleStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
-getCanBeTableStatementSituation(requite::Opcode opcode);
+getCanBeMatteTableStatementSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeMatteObjectStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteLocalStatementSituation(requite::Opcode opcode);
@@ -98,9 +101,6 @@ getCanBeValueReflectiveLocalStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolReflectiveLocalStatementSituation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool
-getCanBeObjectStatementSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeMatteDestinationSituation(requite::Opcode opcode);

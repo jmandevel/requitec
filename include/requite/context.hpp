@@ -23,8 +23,7 @@
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
-#include <requite/table_alias.hpp>
-#include <requite/table_use.hpp>
+#include <requite/use_table.hpp>
 #include <requite/use.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -85,8 +84,7 @@ struct Context final : public requite::_ContextLlvmContext {
   std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
   std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
   std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
-  std::vector<std::unique_ptr<requite::TableAlias>> _table_alias_uptrs = {};
-  std::vector<std::unique_ptr<requite::TableUse>> _table_use_uptrs = {};  
+  std::vector<std::unique_ptr<requite::UseTable>> _use_table_uptrs = {};  
   std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
   std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
@@ -127,8 +125,7 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Label &makeLabel();
   [[nodiscard]] requite::Import &makeImport();
   [[nodiscard]] requite::Use &makeUse();
-  [[nodiscard]] requite::TableAlias &makeTableAlias();
-  [[nodiscard]] requite::TableUse &makeTableUse();
+  [[nodiscard]] requite::UseTable &makeUseTable();
   [[nodiscard]] requite::Block &makeBlock();
   [[nodiscard]] requite::Module &makeModule();
   [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
@@ -170,14 +167,10 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] std::vector<std::unique_ptr<requite::Use>> &getUseUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Use>> &
   getUseUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::TableAlias>> &
-  getTableAliasUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::TableAlias>> &
-  getTableAliasUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::TableUse>> &
-  getTableUseUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::TableUse>> &
-  getTableUseUptrs() const;
+  [[nodiscard]] std::vector<std::unique_ptr<requite::UseTable>> &
+  getUseTableUptrs();
+  [[nodiscard]] const std::vector<std::unique_ptr<requite::UseTable>> &
+  getUseTableUptrs() const;
   [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
   [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
   getBlockUptrs() const;
@@ -398,7 +391,10 @@ struct Context final : public requite::_ContextLlvmContext {
                                           const requite::Symbol &expected_type);
   void logErrorMustNotHaveAttributes(requite::Expression &expression);
   void logErrorMissingTrailingSemicolon(requite::Expression& expression);
+  void logErrorExpectedExpressionBeforeSemicolon(const requite::Token& token);
   void logErrorMissingCommmaSeperator(const requite::Token& token);
+  void logErrorExpectedExpressionBeforeComma(const requite::Token& token);
+  void logErrorExpectedExpressionAfterComma(const requite::Token& token);
   
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>

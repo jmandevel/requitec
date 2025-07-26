@@ -76,17 +76,12 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseMacroBranches(const requite::Token &left_token);
   [[nodiscard]] requite::Opcode parseOpcode();
   [[nodiscard]] requite::Expression &parseBracketExpression();
-  // branch0(branch1 branch2)
-  // when this is called, branch0 was already parsed.
-  [[nodiscard]] requite::Expression &parseHorned(requite::Expression &first,
-                                   requite::Opcode opcode,
-                                   requite::TokenType end);
-  [[nodiscard]] requite::Expression &parseHornedImplicitHorn(requite::Opcode opcode,
-                               requite::TokenType right_token,
-                               requite::Opcode horn_opcode);
-  // (branch0 branch1 branch2)
-  [[nodiscard]] requite::Expression &parseCloven(requite::Opcode opcode,
-                                   requite::TokenType end);
+  [[nodiscard]] requite::Expression &parseTrip();
+  [[nodiscard]] requite::Expression &parseCallOrSignature(requite::Expression* callee_ptr);
+  [[nodiscard]] requite::Expression &parseSpecialization(requite::Expression* callee_ptr);
+  void parseAttributeArguments(requite::Expression& attribute);
+  [[nodiscard]] requite::Expression &parseOpenInlineScope();
+  [[nodiscard]] requite::Expression &parseClosedInlineScope();
   [[nodiscard]] requite::Expression &parsePostUnary(requite::Expression &first,
                                       requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIdentifierLiteral();
@@ -98,6 +93,7 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseInterpolatedString();
   [[nodiscard]] bool checkIsNormativeRequiteOk();
   [[nodiscard]] bool checkIsIntermediateRequiteOk();
+  void checkTokenIsTrailingSemicolonOperator(requite::Expression& expression);
   void logErrorBinaryNoLValue(const requite::Token &token);
   void logErrorHornedNoFirstBranch(const requite::Token &token);
   void logErrorFoundErrorToken(const requite::Token &token);

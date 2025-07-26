@@ -92,9 +92,10 @@ requite::Expression &Expression::getLastBranch() {
 }
 
 const requite::Expression &Expression::getLastBranch() const {
-  const requite::Expression *expression_ptr = this;
-  while (expression_ptr->_branch_ptr != nullptr) {
-    expression_ptr = expression_ptr->_branch_ptr;
+  REQUITE_ASSERT(this->getHasBranch());
+  requite::Expression *expression_ptr = this->_branch_ptr;
+  while (expression_ptr->_next_ptr != nullptr) {
+    expression_ptr = expression_ptr->_next_ptr;
   }
   return requite::getRef(expression_ptr);
 }
@@ -178,7 +179,7 @@ requite::Expression &Expression::getUnascribed() {
 const requite::Expression &Expression::getUnascribed() const {
   if (this->getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
     return this->getBranch().getUnascribed();
-  } 
+  }
   return *this;
 }
 

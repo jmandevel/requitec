@@ -10,33 +10,15 @@
 namespace requite {
 
 Token::Token(requite::TokenType type, unsigned line, unsigned column,
-             const char *text_ptr, unsigned length,
-             requite::TokenSpacing spacing)
+             const char *text_ptr, unsigned length)
     : _type(type), _line(line), _column(column), _source_text_ptr(text_ptr),
-      _source_text_length(length), _spacing(spacing) {}
+      _source_text_length(length) {}
 
 requite::TokenType Token::getType() const { return this->_type; }
 
 unsigned Token::getLine() const { return this->_line; }
 
 unsigned Token::getColumn() const { return this->_column; }
-
-requite::TokenSpacing Token::getSpacing() const { return this->_spacing; }
-
-bool Token::getHasBinaryOperatorSpacing() const {
-  return this->_spacing == requite::TokenSpacing::NONE ||
-         this->_spacing == requite::TokenSpacing::BEFORE_AND_AFTER ||
-         this->_spacing == requite::TokenSpacing::AFTER;
-}
-
-bool Token::getHasUnaryOperatorSpacing() const {
-  return this->_spacing == requite::TokenSpacing::BEFORE ||
-         this->_spacing == requite::TokenSpacing::NONE;
-}
-
-bool Token::getHasInvalidOperatorSpacing() const {
-  return this->_spacing == requite::TokenSpacing::AFTER;
-}
 
 llvm::StringRef Token::getSourceText() const {
   return llvm::StringRef(this->_source_text_ptr, this->_source_text_length);

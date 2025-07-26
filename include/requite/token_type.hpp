@@ -30,10 +30,8 @@ enum class TokenType {
   DOUBLE_DOT_OPERATOR,       // ..
   COLON_OPERATOR,            // :
   DOUBLE_COLON_OPERATOR,     // ::
-  COMMA_OPERATOR,            // ,
   BACKSLASH_OPERATOR,        // \     .
   DOUBLE_BACKSLASH_OPERATOR, // \\    .
-  SEMICOLON_OPERATOR,        // ;
   PLUS_OPERATOR,             // +
   DASH_OPERATOR,             // -
   STAR_OPERATOR,             // *
@@ -62,8 +60,14 @@ enum class TokenType {
   DOUBLE_GRAVE_OPERATOR,     // ``
   ARROW_OPERATOR,            // ->
   CONCATENATE_OPERATOR,      // +>
-  TRAILER_MARK,              // <:>
   EMPTY_QUOTE_OPERATOR,      // [:]
+
+  // SEPERATOR SYMBOLS
+  TRAILER_SEPERATOR,          // <:>
+  SEMICOLON_SEPERATOR,        // ;
+  COMMA_SEPERATOR,            // ,
+  RIGHT_FIELD_SEPERATOR,      // <,
+  LEFT_FIELD_SEPERATOR,       // ,>
 
   // GROUPING SYMBOLS
   LEFT_BRACKET_GROUPING,      // [

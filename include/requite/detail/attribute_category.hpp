@@ -39,14 +39,10 @@ getErrorMessageEnding(requite::AttributeCategory category) {
     return " is not global use attribute";
   case requite::AttributeCategory::MEMBER_USE:
     return " is not member use attribute";
-  case requite::AttributeCategory::GLOBAL_TABLE_ALIAS:
-    return " is not global table alias attribute";
-  case requite::AttributeCategory::MEMBER_TABLE_ALIAS:
-    return " is not member table alias attribute";
-  case requite::AttributeCategory::GLOBAL_TABLE_USE:
-    return " is not global table use attribute";
-  case requite::AttributeCategory::MEMBER_TABLE_USE:
-    return " is not member table use attribute";
+  case requite::AttributeCategory::GLOBAL_USE_TABLE:
+    return " is not global use table attribute";
+  case requite::AttributeCategory::MEMBER_USE_TABLE:
+    return " is not member use table attribute";
   case requite::AttributeCategory::IMPORT:
     return " is not import attribute";
   case requite::AttributeCategory::LOCAL_BLOCK:

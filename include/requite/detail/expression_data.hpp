@@ -307,48 +307,26 @@ inline const requite::Use &Expression::getUse() const {
   return requite::getRef(std::get<requite::Use *>(this->_data));
 }
 
-inline bool Expression::getHasTableAlias() const {
-  REQUITE_ASSERT(requite::getHasTableAliasData(this->getOpcode()));
-  return std::holds_alternative<requite::TableAlias *>(this->_data);
+inline bool Expression::getHasUseTable() const {
+  REQUITE_ASSERT(requite::getHasUseTableData(this->getOpcode()));
+  return std::holds_alternative<requite::UseTable *>(this->_data);
 }
 
-inline void Expression::setTableAlias(requite::TableAlias &alias) {
-  REQUITE_ASSERT(requite::getHasTableAliasData(this->getOpcode()));
-  this->_data.emplace<requite::TableAlias *>(&alias);
+inline void Expression::setUseTable(requite::UseTable &use) {
+  REQUITE_ASSERT(requite::getHasUseTableData(this->getOpcode()));
+  this->_data.emplace<requite::UseTable *>(&use);
 }
 
-inline requite::TableAlias &Expression::getTableAlias() {
-  REQUITE_ASSERT(requite::getHasTableAliasData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasTableAlias());
-  return requite::getRef(std::get<requite::TableAlias *>(this->_data));
+inline requite::UseTable &Expression::getUseTable() {
+  REQUITE_ASSERT(requite::getHasUseTableData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasUseTable());
+  return requite::getRef(std::get<requite::UseTable *>(this->_data));
 }
 
-inline const requite::TableAlias &Expression::getTableAlias() const {
-  REQUITE_ASSERT(requite::getHasTableAliasData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasTableAlias());
-  return requite::getRef(std::get<requite::TableAlias *>(this->_data));
-}
-
-inline bool Expression::getHasTableUse() const {
-  REQUITE_ASSERT(requite::getHasTableUseData(this->getOpcode()));
-  return std::holds_alternative<requite::TableUse *>(this->_data);
-}
-
-inline void Expression::setTableUse(requite::TableUse &use) {
-  REQUITE_ASSERT(requite::getHasTableUseData(this->getOpcode()));
-  this->_data.emplace<requite::TableUse *>(&use);
-}
-
-inline requite::TableUse &Expression::getTableUse() {
-  REQUITE_ASSERT(requite::getHasTableUseData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasTableUse());
-  return requite::getRef(std::get<requite::TableUse *>(this->_data));
-}
-
-inline const requite::TableUse &Expression::getTableUse() const {
-  REQUITE_ASSERT(requite::getHasTableUseData(this->getOpcode()));
-  REQUITE_ASSERT(this->getHasTableUse());
-  return requite::getRef(std::get<requite::TableUse *>(this->_data));
+inline const requite::UseTable &Expression::getUseTable() const {
+  REQUITE_ASSERT(requite::getHasUseTableData(this->getOpcode()));
+  REQUITE_ASSERT(this->getHasUseTable());
+  return requite::getRef(std::get<requite::UseTable *>(this->_data));
 }
 
 inline bool Expression::getHasBlock() const {

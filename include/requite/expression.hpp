@@ -32,8 +32,7 @@ struct AnonymousFunction;
 struct Alias;
 struct Import;
 struct Use;
-struct TableUse;
-struct TableAlias;
+struct UseTable;
 struct Block;
 
 struct Expression final {
@@ -49,7 +48,7 @@ struct Expression final {
                requite::AnonymousFunction *, requite::Global *,
                requite::Property *, requite::Local *, requite::Label *,
                llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *,
-               requite::TableUse *, requite::TableAlias *, requite::Block *>
+               requite::UseTable *, requite::Block *>
       _data = std::monostate{};
 
   // expression.cpp
@@ -88,6 +87,7 @@ struct Expression final {
   [[nodiscard]] inline bool getIsConverging() const;
   [[nodiscard]] inline bool getIsExpanding() const;
   [[nodiscard]] inline bool getIsInternalUseOnly() const;
+    [[nodiscard]] inline bool getCanHaveNoSemicolon() const;
   [[nodiscard]] inline requite::Opcode getOpcode() const;
   inline void setOpcode(requite::Opcode opcode);
   inline void changeOpcode(requite::Opcode opcode);
@@ -217,14 +217,10 @@ struct Expression final {
   inline void setUse(requite::Use &use);
   [[nodiscard]] inline requite::Use &getUse();
   [[nodiscard]] inline const requite::Use &getUse() const;
-  [[nodiscard]] inline bool getHasTableAlias() const;
-  inline void setTableAlias(requite::TableAlias& alias);
-  [[nodiscard]] inline requite::TableAlias& getTableAlias();
-  [[nodiscard]] inline const requite::TableAlias &getTableAlias() const;
-  [[nodiscard]] inline bool getHasTableUse() const;
-  inline void setTableUse(requite::TableUse& use);
-  [[nodiscard]] inline requite::TableUse& getTableUse();
-  [[nodiscard]] inline const requite::TableUse &getTableUse() const;
+  [[nodiscard]] inline bool getHasUseTable() const;
+  inline void setUseTable(requite::UseTable& use);
+  [[nodiscard]] inline requite::UseTable& getUseTable();
+  [[nodiscard]] inline const requite::UseTable &getUseTable() const;
   [[nodiscard]] inline bool getHasBlock() const;
   inline void setBlock(requite::Block &block);
   [[nodiscard]] inline requite::Block &getBlock();

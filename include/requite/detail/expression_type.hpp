@@ -49,6 +49,16 @@ inline bool Expression::getIsInternalUseOnly() const {
   return requite::getIsInternalUseOnly(this->getOpcode());
 }
 
+inline bool Expression::getCanHaveNoSemicolon() const {
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE_LAST_BRANCH) {
+    return this->getLastBranch().getCanHaveNoSemicolon();
+  }
+  else if (this->getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+    return this->getBranch().getCanHaveNoSemicolon();
+  }
+  return requite::getBranchCanHaveNoSemicolon(this->getOpcode());
+}
+
 inline requite::Opcode Expression::getOpcode() const { return this->_opcode; }
 
 inline void Expression::setOpcode(requite::Opcode opcode) {

@@ -69,11 +69,8 @@ void Tabulator::tabulateModuleStatement(requite::Expression &statement,
   case requite::Opcode::_PROPERTY:
     this->tabulate_Property(statement, has_attributes);
     break;
-  case requite::Opcode::TABLE_USE:
-    this->tabulateTableUse(statement, has_attributes);
-    break;
-  case requite::Opcode::TABLE_ALIAS:
-    this->tabulateTableAlias(statement, has_attributes);
+  case requite::Opcode::USE_TABLE:
+    this->tabulateUseTable(statement, has_attributes);
     break;
   default:
     REQUITE_UNREACHABLE();
@@ -105,11 +102,8 @@ void Tabulator::tabulateTableStatement(requite::Expression &statement,
   case requite::Opcode::_GLOBAL:
     this->tabulate_Global(statement, has_attributes);
     break;
-  case requite::Opcode::TABLE_USE:
-    this->tabulateTableUse(statement, has_attributes);
-    break;
-  case requite::Opcode::TABLE_ALIAS:
-    this->tabulateTableAlias(statement, has_attributes);
+  case requite::Opcode::USE_TABLE:
+    this->tabulateUseTable(statement, has_attributes);
     break;
   default:
     REQUITE_UNREACHABLE();
@@ -147,11 +141,8 @@ void Tabulator::tabulateObjectStatement(requite::Expression &statement,
   case requite::Opcode::_PROPERTY:
     this->tabulate_Property(statement, has_attributes);
     break;
-  case requite::Opcode::TABLE_USE:
-    this->tabulateTableUse(statement, has_attributes);
-    break;
-  case requite::Opcode::TABLE_ALIAS:
-    this->tabulateTableAlias(statement, has_attributes);
+  case requite::Opcode::USE_TABLE:
+    this->tabulateUseTable(statement, has_attributes);
     break;
   default:
     REQUITE_UNREACHABLE();
@@ -180,11 +171,8 @@ void Tabulator::tabulateMatteLocalStatement(requite::Expression &statement,
   case requite::Opcode::USE:
     this->tabulateUse(statement, has_attributes);
     break;
-  case requite::Opcode::TABLE_USE:
-    this->tabulateTableUse(statement, has_attributes);
-    break;
-  case requite::Opcode::TABLE_ALIAS:
-    this->tabulateTableAlias(statement, has_attributes);
+  case requite::Opcode::USE_TABLE:
+    this->tabulateUseTable(statement, has_attributes);
     break;
   case requite::Opcode::IF:
     this->tabulateIf(statement, has_attributes);
@@ -560,18 +548,18 @@ void Tabulator::tabulate_Global(requite::Expression &expression,
   this->getScope().addUserSymbol(global, this->getModule());
 }
 
-void Tabulator::tabulateTableUse(requite::Expression &expression,
+void Tabulator::tabulateUseTable(requite::Expression &expression,
                                  bool has_attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE_USE);
-  requite::TableUse &use = this->getContext().makeTableUse();
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::USE_TABLE);
+  requite::UseTable &use = this->getContext().makeUseTable();
   use.setExpression(expression);
-  expression.setTableUse(use);
+  expression.setUseTable(use);
   use.setContainingScope(this->getScope());
   use.setContainingModule(this->getModule());
   if (has_attributes) {
     if (this->getScope().getType() == requite::ScopeType::OBJECT) {
       use.getAttributeFlags() = this->tabulateAttributes<
-          requite::AttributeCategory::MEMBER_TABLE_USE>(expression);
+          requite::AttributeCategory::MEMBER_USE_TABLE>(expression);
       if (this->getObject().getAttributeFlags().getHasAttribute(
               requite::AttributeType::EXPORT)) {
         use.getAttributeFlags().addAttribute(requite::AttributeType::EXPORT);
@@ -581,33 +569,7 @@ void Tabulator::tabulateTableUse(requite::Expression &expression,
       this->setNotOk();
     } else {
       use.getAttributeFlags() = this->tabulateAttributes<
-          requite::AttributeCategory::GLOBAL_TABLE_USE>(expression);
-    }
-  }
-}
-
-void Tabulator::tabulateTableAlias(requite::Expression &expression,
-                                   bool has_attributes) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE_ALIAS);
-  requite::TableAlias &alias = this->getContext().makeTableAlias();
-  alias.setExpression(expression);
-  expression.setTableAlias(alias);
-  alias.setContainingScope(this->getScope());
-  alias.setContainingModule(this->getModule());
-  if (has_attributes) {
-    if (this->getScope().getType() == requite::ScopeType::OBJECT) {
-      alias.getAttributeFlags() = this->tabulateAttributes<
-          requite::AttributeCategory::MEMBER_TABLE_ALIAS>(expression);
-      if (this->getObject().getAttributeFlags().getHasAttribute(
-              requite::AttributeType::EXPORT)) {
-        alias.getAttributeFlags().addAttribute(requite::AttributeType::EXPORT);
-      }
-    } else if (this->getScope().getCanHaveLocal()) {
-      this->getContext().logErrorMustNotHaveAttributes(expression);
-      this->setNotOk();
-    } else {
-      alias.getAttributeFlags() = this->tabulateAttributes<
-          requite::AttributeCategory::GLOBAL_TABLE_ALIAS>(expression);
+          requite::AttributeCategory::GLOBAL_USE_TABLE>(expression);
     }
   }
 }

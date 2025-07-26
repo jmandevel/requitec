@@ -9,22 +9,22 @@ struct Expression;
 struct Table;
 struct Scope;
 
-struct TableUse final {
-    using Self = requite::TableUse;
+struct UseTable final {
+    using Self = requite::UseTable;
 
     requite::Expression *_expression_ptr = nullptr;
     requite::AttributeFlags _attributes = {};
     requite::Table* _used_table = nullptr;
     bool _is_exported = false;
-    requite::TableUse *_next_ptr = nullptr;
+    requite::UseTable *_next_ptr = nullptr;
     requite::Scope *_containing_scope_ptr = nullptr;
     requite::Module *_containing_module_uptr = nullptr;
 
-    // table_use.cpp
-    TableUse() = default;
-    TableUse(const Self&) = delete;
-    TableUse(Self&&) = delete;
-    ~TableUse() = default;
+    // use_table.cpp
+    UseTable() = default;
+    UseTable(const Self&) = delete;
+    UseTable(Self&&) = delete;
+    ~UseTable() = default;
     Self &operator=(const Self&) = delete;
     Self &operator=(Self&&) = delete;
     [[nodiscard]] bool operator==(const Self&) const;

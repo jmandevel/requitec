@@ -305,8 +305,7 @@ enum class Opcode : unsigned {
 
   // SYMBOL GRAPH
   IMPORT,
-  TABLE_USE,
-  TABLE_ALIAS,
+  USE_TABLE,
 
   // SOURCES
   _MODULE_ROOT,
@@ -401,9 +400,7 @@ getHasAnonymousFunctionData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasUseData(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getHasTableAliasData(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getHasTableUseData(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getHasUseTableData(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool getHasBlockData(requite::Opcode opcode);
 

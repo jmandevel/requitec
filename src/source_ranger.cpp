@@ -66,10 +66,8 @@ requite::Token SourceRanger::getSubToken(requite::TokenType type) {
   REQUITE_ASSERT(this->_current > this->_sub_start);
   const char before = this->getPreviousSubChar(-1);
   const char after = this->getChar(1);
-  requite::TokenSpacing spacing = requite::getSpacing(before, after);
   requite::Token token(type, this->_sub_line, this->_sub_column,
-                       this->_sub_start, this->_current - this->_sub_start,
-                       spacing);
+                       this->_sub_start, this->_current - this->_sub_start);
   return token;
 }
 
@@ -78,9 +76,7 @@ requite::Token SourceRanger::getLengthToken(requite::TokenType type,
   REQUITE_ASSERT((this->_current + length) <= this->_end);
   const char before = this->getPreviousChar(-1);
   const char after = this->getChar(length);
-  requite::TokenSpacing spacing = requite::getSpacing(before, after);
-  requite::Token token(type, this->_line, this->_column, this->_current, length,
-                       spacing);
+  requite::Token token(type, this->_line, this->_column, this->_current, length);
   this->addColumns(length);
   this->incrementChar(length);
   return token;

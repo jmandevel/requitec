@@ -1034,7 +1034,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 1,
                                   requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::OBJECT_STATEMENT>(
+                                  requite::Situation::MATTE_OBJECT_STATEMENT>(
           expression);
     }
     break;
@@ -1590,26 +1590,19 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::USE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_SYMBOL>(
+          expression);
     }
     break;
-  case requite::Opcode::TABLE_USE:
+  case requite::Opcode::USE_TABLE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TABLE_USE)) {
+                      requite::Opcode::USE_TABLE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::SYMBOL_PATH>(expression);
-    }
-    break;
-  case requite::Opcode::TABLE_ALIAS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TABLE_ALIAS)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::SYMBOL_PATH>(expression);
+                                   requite::Situation::MATTE_SYMBOL>(
+          expression);
     }
     break;
   case requite::Opcode::_MODULE_ROOT:
@@ -1619,7 +1612,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 1,
                                   requite::Situation::STRING_LITERAL,
-                                  requite::Situation::MODULE_STATEMENT>(
+                                  requite::Situation::MATTE_MODULE_STATEMENT>(
           expression);
     }
     break;
@@ -2962,9 +2955,9 @@ inline void
 Situator::situate_VariableDeclaration(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() ==
                  requite::Opcode::_VARIABLE_DECLARATION);
-  if constexpr (SITUATION_PARAM == requite::Situation::MODULE_STATEMENT ||
-                SITUATION_PARAM == requite::Situation::TABLE_STATEMENT ||
-                SITUATION_PARAM == requite::Situation::OBJECT_STATEMENT) {
+  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_MODULE_STATEMENT ||
+                SITUATION_PARAM == requite::Situation::MATTE_TABLE_STATEMENT ||
+                SITUATION_PARAM == requite::Situation::MATTE_OBJECT_STATEMENT) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::SYMBOL_NAME,
                                   requite::Situation::MATTE_VALUE>(expression);

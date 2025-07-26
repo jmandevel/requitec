@@ -189,7 +189,7 @@ void Tokenizer::_tokenizeTokens() {
       }
       continue;
     case ',':
-      this->tokenizeLengthToken(requite::TokenType::COMMA_OPERATOR, 1);
+      this->tokenizeLengthToken(requite::TokenType::COMMA_SEPERATOR, 1);
       continue;
     case '-':
       switch (const char c1 = this->getRanger().getChar(1)) {
@@ -375,7 +375,7 @@ void Tokenizer::_tokenizeTokens() {
       }
       continue;
     case ';':
-      this->tokenizeLengthToken(requite::TokenType::SEMICOLON_OPERATOR, 1);
+      this->tokenizeLengthToken(requite::TokenType::SEMICOLON_SEPERATOR, 1);
       continue;
     case '<':
       switch (const char c1 = this->getRanger().getChar(1)) {
@@ -396,7 +396,7 @@ void Tokenizer::_tokenizeTokens() {
       case ':':
         switch (const char c2 = this->getRanger().getChar(2)) {
         case '>':
-          this->tokenizeLengthToken(requite::TokenType::TRAILER_MARK, 3);
+          this->tokenizeLengthToken(requite::TokenType::TRAILER_SEPERATOR, 3);
           break;
         default:
           break;

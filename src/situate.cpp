@@ -25,7 +25,7 @@ bool Situator::situateAst() {
   this->insertModuleRoot();
   requite::Expression &root = this->getModule().getExpression();
   REQUITE_ASSERT(root.getOpcode() == requite::Opcode::_MODULE_ROOT);
-  this->situateExpression<requite::Situation::ROOT_STATEMENT>(root);
+  this->situateExpression<requite::Situation::MATTE_ROOT_STATEMENT>(root);
   return this->getIsOk();
 }
 
