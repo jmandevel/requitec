@@ -45,6 +45,7 @@ enum class Situation {
   STRUCTURED_BINDING,
   SYMBOL_NAME,
   SYMBOL_PATH,
+  ATTRIBUTE,
   SWITCH_CASE,
   LAST_SWITCH_CASE,
   CAPTURE,
@@ -161,6 +162,9 @@ getCanBeSymbolNameSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSymbolPathSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeAttributeSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSwitchCaseSituation(requite::Opcode opcode);

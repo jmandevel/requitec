@@ -65,6 +65,8 @@ constexpr llvm::StringRef getName(requite::Situation situation) {
     return "SYMBOL_NAME";
   case Situation::SYMBOL_PATH:
     return "SYMBOL_PATH";
+  case Situation::ATTRIBUTE:
+    return "attribute";
   case Situation::SWITCH_CASE:
     return "SWITCH_CASE";
   case Situation::LAST_SWITCH_CASE:
@@ -172,6 +174,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeSymbolNameSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
     return requite::getCanBeSymbolPathSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::ATTRIBUTE) {
+    return requite::getCanBeAttributeSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::SWITCH_CASE) {
     return requite::getCanBeSwitchCaseSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
@@ -429,6 +433,12 @@ constexpr bool getCanBeSymbolPathSituation(requite::Opcode opcode) {
          opcode == requite::Opcode::IDENTIFY ||
          opcode == requite::Opcode::_REFLECT_SYMBOL;
 }
+
+constexpr bool getCanBeAttributeSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode,
+                               requite::_opcode::_ATTRIBUTE);
+}
+
 
 constexpr bool getCanBeSwitchCaseSituation(requite::Opcode opcode) {
   return opcode == requite::Opcode::CASE;

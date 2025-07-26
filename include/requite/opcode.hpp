@@ -171,6 +171,7 @@ enum class Opcode : unsigned {
   ATOMIC,
   NULL_TERMINATED,
   OWNING,
+  MAY_DISCARD,
 
   // FIELD RULES
   _POSITIONAL_FIELDS_END,
@@ -316,11 +317,11 @@ enum class Opcode : unsigned {
 
   // ATTRIBUTES
   NOT_FINAL,
-  MAY_DISCARD,
   INLINE,
   MANGLED_NAME,
   _MANGLED_NAME_OF_SYMBOL,
   PACK,
+  USER,
 
   // REFLECTED VALUES
   SIZE,

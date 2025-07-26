@@ -45,6 +45,7 @@ enum _OpcodeFlags : std::uint32_t {
   _MATTE_SYMBOL = requite::getBit(19),
   _VALUE_REFLECTIVE_SYMBOL = requite::getBit(20),
   _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(21),
+  _ATTRIBUTE = requite::getBit(22),
   _ANY = _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
          _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT |
          _VALUE_REFLECTIVE_LOCAL_STATEMENT |
@@ -53,7 +54,7 @@ enum _OpcodeFlags : std::uint32_t {
          _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
          _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
          _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-         _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL
+         _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL | _ATTRIBUTE
 };
 }
 
@@ -321,17 +322,19 @@ _getFlags(requite::Opcode opcode) {
 
   // TYPE MODIFIER
   case Opcode::MUTABLE:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::CONSTANT:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::VOLATILE:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::ATOMIC:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::NULL_TERMINATED:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::OWNING:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
+  case Opcode::MAY_DISCARD:
+    return _ATTRIBUTE;
 
   // FIELD RULES
   case Opcode::_POSITIONAL_FIELDS_END:
@@ -355,7 +358,7 @@ _getFlags(requite::Opcode opcode) {
 
   // STATIC POLYMORPHISM
   case Opcode::TEMPLATE:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::_SPECIALIZATION:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
   case Opcode::BAKE:
@@ -535,11 +538,11 @@ _getFlags(requite::Opcode opcode) {
 
   // ACCESS MODIFIERS
   case Opcode::PRIVATE:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::PROTECTED:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::EXPORT:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
 
   // SYMBOL GRAPH
   case Opcode::IMPORT:
@@ -560,17 +563,17 @@ _getFlags(requite::Opcode opcode) {
 
   // ATTRIBUTES
   case Opcode::NOT_FINAL:
-    return _MATTE_VALUE;
-  case Opcode::MAY_DISCARD:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::INLINE:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
   case Opcode::MANGLED_NAME:
-    return _SYMBOL_REFLECTIVE_VALUE | _MATTE_VALUE;
+    return _SYMBOL_REFLECTIVE_VALUE | _ATTRIBUTE;
   case Opcode::_MANGLED_NAME_OF_SYMBOL:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::PACK:
-    return _MATTE_VALUE;
+    return _ATTRIBUTE;
+  case Opcode::USER:
+    return _ATTRIBUTE;
 
   // REFLECTED VALUES
   case Opcode::SIZE:
@@ -621,7 +624,6 @@ _getFlags(requite::Opcode opcode) {
     return _SYMBOL_REFLECTIVE_SYMBOL;
   case Opcode::_UNDERLYING_OF_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-
   case Opcode::__LAST:
     break;
   }
@@ -853,6 +855,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "null_terminated";
   case requite::Opcode::OWNING:
     return "owning";
+  case requite::Opcode::MAY_DISCARD:
+    return "may_discard";
 
   // FIELD RULES
   case requite::Opcode::_POSITIONAL_FIELDS_END:
@@ -1067,8 +1071,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // ATTRIBUTES
   case requite::Opcode::NOT_FINAL:
     return "not_final";
-  case requite::Opcode::MAY_DISCARD:
-    return "may_discard";
   case requite::Opcode::INLINE:
     return "inline";
   case requite::Opcode::MANGLED_NAME:
@@ -1077,6 +1079,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_mangled_name_of_symbol";
   case requite::Opcode::PACK:
     return "pack";
+  case requite::Opcode::USER:
+    return "user";
 
   // REFLECTED VALUES
   case requite::Opcode::SIZE:

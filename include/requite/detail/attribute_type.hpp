@@ -13,7 +13,7 @@
 namespace requite {
 
 constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
-  REQUITE_ASSERT(requite::getCanBeMatteValueSituation(opcode));
+  REQUITE_ASSERT(requite::getCanBeAttributeSituation(opcode));
   switch (opcode) {
   case requite::Opcode::MUTABLE:
     return requite::AttributeType::MUTABLE;
@@ -47,10 +47,12 @@ constexpr requite::AttributeType getAttributeType(requite::Opcode opcode) {
     return requite::AttributeType::LABEL;
   case requite::Opcode::PACK:
     return requite::AttributeType::PACK;
+  case requite::Opcode::USER:
+    return requite::AttributeType::USER;
   default:
     break;
   }
-  return requite::AttributeType::USER;
+  return requite::AttributeType::NONE;
 }
 
 constexpr std::string_view getName(requite::AttributeType type) {
@@ -58,7 +60,7 @@ constexpr std::string_view getName(requite::AttributeType type) {
   case requite::AttributeType::NONE:
     return "none";
   case requite::AttributeType::USER:
-    return "user defined attribute";
+    return "user";
   case requite::AttributeType::MUTABLE:
     return "mutable";
   case requite::AttributeType::CONSTANT:
@@ -94,7 +96,7 @@ constexpr std::string_view getName(requite::AttributeType type) {
   case requite::AttributeType::_LAST:
     break;
   }
-  return "unknown";
+  return "none";
 }
 
 namespace _attribute {

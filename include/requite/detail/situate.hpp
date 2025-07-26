@@ -313,7 +313,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SITUATION_PARAM, 2, SITUATION_PARAM,
-                                  requite::Situation::MATTE_VALUE>(expression);
+                                  requite::Situation::ATTRIBUTE>(expression);
     }
     break;
   case requite::Opcode::_CAST:
@@ -1682,6 +1682,15 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
+  case requite::Opcode::USER:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::USER)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SITUATION_PARAM,
+                                   requite::Situation::MATTE_VALUE>(expression);
+    }
+    break;
   case requite::Opcode::SIZE:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::SIZE)) {
@@ -2749,7 +2758,7 @@ template <requite::Situation SITUATION_PARAM>
 inline void
 Situator::situateMangledNameExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::MANGLED_NAME);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
+  if constexpr (SITUATION_PARAM == requite::Situation::ATTRIBUTE) {
     this->situateUnaryExpression<SITUATION_PARAM,
                                  requite::Situation::MATTE_VALUE>(expression);
   } else if constexpr (SITUATION_PARAM ==
@@ -2902,7 +2911,7 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &first_branch = expression.getBranch();
-  this->situateBranch<requite::Situation::MATTE_VALUE>(
+  this->situateBranch<requite::Situation::ATTRIBUTE>(
       "first branch", expression, 0, first_branch);
   if (!first_branch.getHasNext()) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
@@ -2915,7 +2924,7 @@ Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
   unsigned branch_i = 1;
   for (requite::Expression &branch : next_branch.getHorizontalSubrange()) {
     if (branch.getHasNext()) {
-      this->situateBranch<requite::Situation::MATTE_VALUE>(
+      this->situateBranch<requite::Situation::ATTRIBUTE>(
           "second to penultimate branches", expression, branch_i++, branch);
       previous_branch_ptr = &branch;
       continue;
