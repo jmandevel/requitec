@@ -376,41 +376,35 @@ requite::Expression &Parser::parsePrecedence5() {
 // BITWISE AND EARLY UNARY OPERATORS
 requite::Expression &Parser::parsePrecedence4() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence3());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::TILDE_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_BITWISE_COMPLEMENT);
-      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     case requite::TokenType::PIPE_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_OR);
-      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     case requite::TokenType::AMPERSAND_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_AND);
-      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     case requite::TokenType::CAROT_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(*this, requite::Opcode::_BITWISE_XOR);
-      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     case requite::TokenType::BANG_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_LOGICAL_COMPLEMENT);
-      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     case requite::TokenType::DASH_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
-      precedence_parser.appendBranch(this->parsePrecedence3());
       continue;
     default:
+      precedence_parser.appendBranch(this->parsePrecedence3());
       break;
     }
     break;
