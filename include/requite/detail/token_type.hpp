@@ -33,10 +33,10 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     return requite::TokenType::ERROR_UNMATCHED_LEFT_CLOSED_CAP_GROUPING;
   case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_RIGHT_CLOSED_CAP_GROUPING;
-  case requite::TokenType::LEFT_COMPAS_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_LEFT_COMPAS_GROUPING;
-  case requite::TokenType::RIGHT_COMPAS_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_RIGHT_COMPAS_GROUPING;
+  case requite::TokenType::LEFT_SMILE_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_LEFT_SMILE_GROUPING;
+  case requite::TokenType::RIGHT_SMILE_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_RIGHT_SMILE_GROUPING;
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING;
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:

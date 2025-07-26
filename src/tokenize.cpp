@@ -152,9 +152,9 @@ void Tokenizer::_tokenizeTokens() {
       continue;
     case '(':
       switch (const char c1 = this->getRanger().getChar(1)) {
-      case '>':
-        this->tokenizeLengthToken(requite::TokenType::LEFT_COMPAS_GROUPING, 2);
-        this->pushGrouping(requite::GroupingType::COMPAS);
+      case ':':
+        this->tokenizeLengthToken(requite::TokenType::LEFT_SMILE_GROUPING, 2);
+        this->pushGrouping(requite::GroupingType::SMILE);
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::LEFT_PARENTHESIS_GROUPING,
@@ -370,6 +370,11 @@ void Tokenizer::_tokenizeTokens() {
                                     requite::TokenType::RIGHT_QUOTE_GROUPING,
                                     2);
         break;
+      case ')':
+        this->tokenizeRightGrouping(requite::GroupingType::SMILE,
+                                    requite::TokenType::RIGHT_SMILE_GROUPING,
+                                    2);
+        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::COLON_OPERATOR, 1);
       }
@@ -385,10 +390,6 @@ void Tokenizer::_tokenizeTokens() {
       case '<':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_LESS_OPERATOR, 2);
         break;
-      case ')':
-        this->tokenizeRightGrouping(requite::GroupingType::COMPAS,
-                                    requite::TokenType::RIGHT_COMPAS_GROUPING,
-                                    2);
         break;
       case '=':
         this->tokenizeLengthToken(requite::TokenType::LESS_EQUAL_OPERATOR, 2);

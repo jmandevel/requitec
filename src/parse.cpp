@@ -429,7 +429,7 @@ requite::Expression &Parser::parsePrecedence3() {
       std::ignore = this->checkIsNormativeRequiteOk();
 
       precedence_parser.parseCallOrSignature(*this);
-    } else if (type == requite::TokenType::LEFT_COMPAS_GROUPING) {
+    } else if (type == requite::TokenType::LEFT_SMILE_GROUPING) {
       precedence_parser.parseSpecialization(*this);
     } else {
       break;
@@ -691,7 +691,7 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseCallOrSignature(nullptr);
-  case requite::TokenType::LEFT_COMPAS_GROUPING:
+  case requite::TokenType::LEFT_SMILE_GROUPING:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseSpecialization(nullptr);
   default:
@@ -1062,7 +1062,7 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
   }
   const requite::Token &first_token = this->getToken();
   switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_COMPAS_GROUPING: {
+  case requite::TokenType::RIGHT_SMILE_GROUPING: {
     call.setSource(left_token, first_token);
     return call;
   }
@@ -1081,7 +1081,7 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
     requite::Expression &previous = requite::getRef(previous_ptr);
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_COMPAS_GROUPING: {
+    case requite::TokenType::RIGHT_SMILE_GROUPING: {
       call.setSource(left_token, token);
       this->incrementToken(1);
       return call;
@@ -1096,7 +1096,7 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
         return call;
       }
       const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_COMPAS_GROUPING) {
+      if (next_token.getType() == requite::TokenType::RIGHT_SMILE_GROUPING) {
         this->incrementToken(1);
         this->getContext().logErrorExpectedExpressionAfterComma(token);
         this->setNotOk();
