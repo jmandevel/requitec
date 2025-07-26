@@ -2138,7 +2138,7 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
     requite::Expression &first = expression.getBranch();
     this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
                                                   branch_i++, first);
-    for (requite::Expression &branch : expression.getBranchSubrange()) {
+    for (requite::Expression &branch : first.getNextSubrange()) {
       if (!branch.getHasNext()) {
         this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
             "last branch", expression, branch_i++, branch);
