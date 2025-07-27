@@ -106,12 +106,11 @@ _getFlags(requite::Opcode opcode) {
     return _NONE;
 
   // SITUATIONAL
-  case Opcode::_CALL_OR_SIGNATURE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE |
-           _SYMBOL_REFLECTIVE_VALUE | _MATTE_SYMBOL | _MATTE_LOCAL_STATEMENT;
+  case Opcode::_CALL_OR_SIGNATURE: // NOTE: this should not be reflective
+                                   // because reflections are contained within
+                                   // callee
+    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
+           _MATTE_VALUE | _MATTE_SYMBOL | _MATTE_LOCAL_STATEMENT;
   case Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
     return _INTERMEDIATE_OPERATION;
   case Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
@@ -119,6 +118,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_TRIP:
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
            _MATTE_SYMBOL;
+  case Opcode::_TACIT:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
 
   // LOGICAL
   case Opcode::_LOGICAL_AND:
@@ -186,6 +187,10 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_DEFAULT_VALUE:
     return _INTERMEDIATE_OPERATION;
   case Opcode::_DEFAULT_SYMBOL:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_POSITIONAL_VALUE:
+    return _INTERMEDIATE_OPERATION;
+  case Opcode::_POSITIONAL_SYMBOL:
     return _INTERMEDIATE_OPERATION;
 
   // APPLY
@@ -441,6 +446,8 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_OBJECT_STATEMENT;
 
   // VALUES
+  case Opcode::_TACIT_VALUE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::TRUE:
     return _MATTE_VALUE;
   case Opcode::FALSE:
@@ -453,8 +460,6 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_VALUE;
   case Opcode::NO_DEFAULT_VALUE:
     return _MATTE_VALUE;
-  case Opcode::_TACIT_COUNT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::THIS:
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::RESULT:
@@ -473,8 +478,8 @@ _getFlags(requite::Opcode opcode) {
     return _MATTE_VALUE;
 
   // BUILTIN TYPES
-  case Opcode::TACIT:
-    return _MATTE_SYMBOL;
+  case Opcode::_TACIT_SYMBOL:
+    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::VOID:
     return _MATTE_SYMBOL;
   case Opcode::BOOLEAN:
@@ -676,6 +681,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_bind_symbol_or_default_symbol";
   case requite::Opcode::_TRIP:
     return "_trip";
+  case requite::Opcode::_TACIT:
+    return "_tacit";
 
   // LOGICAL
   case requite::Opcode::_LOGICAL_AND:
@@ -732,6 +739,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "default_value";
   case requite::Opcode::_DEFAULT_SYMBOL:
     return "_default_symbol";
+  case requite::Opcode::_POSITIONAL_VALUE:
+    return "_positional_value";
+  case requite::Opcode::_POSITIONAL_SYMBOL:
+    return "_positional_symbol";
 
   // APPLY
   case requite::Opcode::_ASCRIBE_LAST_BRANCH:
@@ -952,6 +963,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_property";
 
   // VALUES
+  case requite::Opcode::_TACIT_VALUE:
+    return "_tacit_value";
   case requite::Opcode::TRUE:
     return "true";
   case requite::Opcode::FALSE:
@@ -964,8 +977,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "indeterminate";
   case requite::Opcode::NO_DEFAULT_VALUE:
     return "no_default_value";
-  case requite::Opcode::_TACIT_COUNT:
-    return "_tacit_count";
   case requite::Opcode::THIS:
     return "this";
   case requite::Opcode::RESULT:
@@ -984,8 +995,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "bits_per_byte";
 
   // BUILTIN TYPES
-  case requite::Opcode::TACIT:
-    return "tacit";
+  case requite::Opcode::_TACIT_SYMBOL:
+    return "_tacit_symbol";
   case requite::Opcode::VOID:
     return "void";
   case requite::Opcode::BOOLEAN:

@@ -154,7 +154,8 @@ struct Situator final {
   inline void situate_ExtendExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_VariableDeclaration(requite::Expression &expression);
-
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_Tacit(requite::Expression &expression);
 };
 
 } // namespace requite

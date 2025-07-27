@@ -48,6 +48,7 @@ enum class Opcode : unsigned {
   _BIND_VALUE_OR_DEFAULT_VALUE,
   _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   _TRIP,
+  _TACIT,
 
   // LOGICAL
   // a nary logical operation that returns if all branches are true or not zero.
@@ -99,6 +100,8 @@ enum class Opcode : unsigned {
   _BIND_SYMBOL,
   _DEFAULT_VALUE,
   _DEFAULT_SYMBOL,
+  _POSITIONAL_VALUE,
+  _POSITIONAL_SYMBOL,
 
   // APPLY
   _ASCRIBE_LAST_BRANCH,
@@ -224,6 +227,7 @@ enum class Opcode : unsigned {
   _PROPERTY,
 
   // VALUES
+  _TACIT_VALUE,
   TRUE,
   // the boolean value of false.
   FALSE,
@@ -242,10 +246,6 @@ enum class Opcode : unsigned {
   // implicitly inserted into property operations when no value branch is
   // provided.
   NO_DEFAULT_VALUE,
-  // an element count for casted arrays, denoting that the count should be
-  // inferred from the casted value. This is implicitly inserted into array
-  // operations when no count branch is provided.
-  _TACIT_COUNT,
   // a variable for accessing the instance an object from within members.
   THIS,
   // a reference to the return value of a procedure.
@@ -264,7 +264,7 @@ enum class Opcode : unsigned {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  TACIT,
+  _TACIT_SYMBOL,
   VOID,
   BOOLEAN,
   WORD,

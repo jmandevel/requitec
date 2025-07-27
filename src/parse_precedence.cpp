@@ -159,7 +159,7 @@ void PrecedenceParser::parseAscribe(const requite::Token& token) {
 
 void PrecedenceParser::parseCallOrSignature(requite::Parser &parser) {
   REQUITE_ASSERT(!parser.getIsDone());
-  requite::Expression& operation = parser.parseCallOrSignature(this->_last_ptr);
+  requite::Expression& operation = parser.parseCallOrSignature(&this->getOuter());
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }

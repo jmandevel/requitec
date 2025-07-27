@@ -16,7 +16,6 @@ enum class GroupingType {
   TRIP,
   OPEN_CAP,
   CLOSED_CAP,
-  SMILE,
   PARENTHESIS,
   QUOTE
 };

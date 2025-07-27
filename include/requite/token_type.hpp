@@ -63,36 +63,34 @@ enum class TokenType {
   EMPTY_QUOTE_OPERATOR,      // [:]
 
   // SEPERATOR SYMBOLS
-  TRAILER_SEPERATOR,          // <:>
-  SEMICOLON_SEPERATOR,        // ;
-  COMMA_SEPERATOR,            // ,
-  RIGHT_FIELD_SEPERATOR,      // <,
-  LEFT_FIELD_SEPERATOR,       // ,>
+  TRAILER_SEPERATOR,     // <:>
+  SEMICOLON_SEPERATOR,   // ;
+  COMMA_SEPERATOR,       // ,
+  RIGHT_FIELD_SEPERATOR, // <,
+  LEFT_FIELD_SEPERATOR,  // ,>
 
   // GROUPING SYMBOLS
-  LEFT_BRACKET_GROUPING,      // [
-  RIGHT_BRACKET_GROUPING,     // ]
-  LEFT_TRIP_GROUPING,         // {
-  RIGHT_TRIP_GROUPING,        // }
-  LEFT_OPEN_CAP_GROUPING,     // {.
-  RIGHT_OPEN_CAP_GROUPING,    // .}
-  LEFT_CLOSED_CAP_GROUPING,   // {:
-  RIGHT_CLOSED_CAP_GROUPING,  // :}
-  LEFT_PARENTHESIS_GROUPING,  // (
-  RIGHT_PARENTHESIS_GROUPING, // )
-  LEFT_SMILE_GROUPING,        // (:
-  RIGHT_SMILE_GROUPING,       // :)
-  LEFT_QUOTE_GROUPING,        // [:
-  RIGHT_QUOTE_GROUPING,       // :]
+  LEFT_BRACKET_GROUPING,         // [
+  RIGHT_BRACKET_GROUPING,        // ]
+  LEFT_TRIP_GROUPING,            // {
+  RIGHT_TRIP_GROUPING,           // }
+  LEFT_OPEN_CAP_GROUPING,        // {.
+  RIGHT_OPEN_CAP_GROUPING,       // .}
+  LEFT_CLOSED_CAP_GROUPING,      // {:
+  RIGHT_CLOSED_CAP_GROUPING,     // :}
+  LEFT_PARENTHESIS_GROUPING,     // (
+  RIGHT_PARENTHESIS_GROUPING,    // )
+  LEFT_QUOTE_GROUPING,           // [:
+  RIGHT_QUOTE_GROUPING,          // :]
 
   // SYMBOL
   IDENTIFIER_LITERAL, // var0 MyType ☺
 
   // LITERAL
-  CODEUNIT_LITERAL, // 'a'
-  STRING_LITERAL,   // "Hello, world!"
-  INTEGER_LITERAL,  // 12345 16xDEADBEEF 2x1010_0110
-  FRACTIONAL_LITERAL,     // 3.14 9000.00000000001 10_020.434
+  CODEUNIT_LITERAL,   // 'a'
+  STRING_LITERAL,     // "Hello, world!"
+  INTEGER_LITERAL,    // 12345 16xDEADBEEF 2x1010_0110
+  FRACTIONAL_LITERAL, // 3.14 9000.00000000001 10_020.434
 
   // "My_name_is_{name}._I_am_{age}_years_old."
 
@@ -114,8 +112,6 @@ enum class TokenType {
   ERROR_UNMATCHED_RIGHT_CLOSED_CAP_GROUPING,
   ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING,
   ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING,
-  ERROR_UNMATCHED_LEFT_SMILE_GROUPING,
-  ERROR_UNMATCHED_RIGHT_SMILE_GROUPING,
   ERROR_UNMATCHED_LEFT_QUOTE_GROUPING,
   ERROR_UNMATCHED_RIGHT_QUOTE_GROUPING
 };
@@ -124,6 +120,10 @@ enum class TokenType {
 
 [[nodiscard]] constexpr requite::TokenType
 getUnmatched(requite::TokenType token);
+
+[[nodiscard]] constexpr bool getIsSeperator(requite::TokenType token);
+
+[[nodiscard]] constexpr bool getIsRightGrouping(requite::TokenType token);
 
 } // namespace requite
 

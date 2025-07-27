@@ -166,7 +166,31 @@ requite::Expression &Parser::parsePrecedence12() {
 // BINDINGS
 requite::Expression &Parser::parsePrecedence11() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setRecent(this->parsePrecedence10());
+  const requite::Token &first_token = this->getToken();
+  switch (const requite::TokenType first_type = first_token.getType()) {
+  case requite::TokenType::COLON_OPERATOR: {
+    std::ignore = this->checkIsNormativeRequiteOk();
+    requite::Expression &tacit =
+        requite::Expression::makeOperation(requite::Opcode::_TACIT);
+    tacit.setSourceInsertedBefore(first_token);
+    precedence_parser.setRecent(tacit);
+    precedence_parser.parseNary(*this, requite::Opcode::_POSITIONAL_VALUE);
+    this->incrementToken(1);
+    precedence_parser.appendBranch(this->parsePrecedence10());
+  } break;
+  case requite::TokenType::DOUBLE_COLON_OPERATOR: {
+    std::ignore = this->checkIsNormativeRequiteOk();
+    requite::Expression &tacit =
+        requite::Expression::makeOperation(requite::Opcode::_TACIT);
+    tacit.setSourceInsertedBefore(first_token);
+    precedence_parser.setRecent(tacit);
+    precedence_parser.parseNary(*this, requite::Opcode::_POSITIONAL_SYMBOL);
+    this->incrementToken(1);
+    precedence_parser.appendBranch(this->parsePrecedence10());
+  } break;
+  default:
+    precedence_parser.setRecent(this->parsePrecedence10());
+  }
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
@@ -403,15 +427,6 @@ requite::Expression &Parser::parsePrecedence4() {
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_NEGATE);
       continue;
-    case requite::TokenType::DOT_OPERATOR: {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      requite::Expression &this_ =
-          requite::Expression::makeOperation(requite::Opcode::THIS);
-      this_.setSourceInsertedBefore(token);
-      precedence_parser.appendBranch(this_);
-      precedence_parser.parseBinaryCombination(*this, requite::Opcode::_REFLECT_VALUE);
-      continue;
-    }
     default:
       precedence_parser.appendBranch(this->parsePrecedence3());
       break;
@@ -430,9 +445,9 @@ requite::Expression &Parser::parsePrecedence3() {
     const requite::TokenType type = token.getType();
     if (type == requite::TokenType::LEFT_PARENTHESIS_GROUPING) {
       std::ignore = this->checkIsNormativeRequiteOk();
-
       precedence_parser.parseCallOrSignature(*this);
-    } else if (type == requite::TokenType::LEFT_SMILE_GROUPING) {
+    } else if (type == requite::TokenType::LEFT_TRIP_GROUPING) {
+      std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseSpecialization(*this);
     } else {
       break;
@@ -445,6 +460,9 @@ requite::Expression &Parser::parsePrecedence3() {
     //   entire horned expression should be contained as the first branch in any
     //   expression created from binary dots or double dot operators that are
     //   directly after the closing grouping symbol.
+    if (this->getIsDone()) {
+      return precedence_parser.getOuter();
+    }
     const requite::Token &next0_token = this->getToken();
     const requite::TokenType next0_type = next0_token.getType();
     if (next0_type == requite::TokenType::DOT_OPERATOR) {
@@ -498,7 +516,7 @@ requite::Expression &Parser::parsePrecedence2() {
     case requite::TokenType::HASH_OPERATOR: {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &operation =
-          requite::Expression::makeOperation(requite::Opcode::_TACIT_COUNT);
+          requite::Expression::makeOperation(requite::Opcode::_TACIT);
       operation.setSourceInsertedBefore(token);
       precedence_parser.setRecent(operation);
       precedence_parser.parseNary(*this, requite::Opcode::_ARRAY);
@@ -531,7 +549,6 @@ requite::Expression &Parser::parsePrecedence2() {
       previous_attribute = false;
       continue;
     case requite::TokenType::STAR_OPERATOR:
-
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseUnary(*this, requite::Opcode::_POINTER);
       previous_attribute = false;
@@ -579,7 +596,7 @@ requite::Expression &Parser::parsePrecedence2() {
       //  ]
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::TACIT);
+          requite::Expression::makeOperation(requite::Opcode::_TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
       precedence_parser.parseBinaryCombination(*this, requite::Opcode::_CAST);
@@ -589,7 +606,7 @@ requite::Expression &Parser::parsePrecedence2() {
     } else if (type == requite::TokenType::DOUBLE_BACKSLASH_OPERATOR) {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::TACIT);
+          requite::Expression::makeOperation(requite::Opcode::_TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
       precedence_parser.parseBinaryCombination(*this,
@@ -600,12 +617,20 @@ requite::Expression &Parser::parsePrecedence2() {
     } else if (type == requite::TokenType::ARROW_OPERATOR) {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
-          requite::Expression::makeOperation(requite::Opcode::TACIT);
+          requite::Expression::makeOperation(requite::Opcode::_TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
       precedence_parser.parseBinaryCombination(*this, requite::Opcode::_EXTEND);
       precedence_parser.appendBranch(this->parsePrecedence8());
       previous_attribute = false;
+      break;
+    } else if (requite::getIsSeperator(type) ||
+               requite::getIsRightGrouping(type)) {
+      std::ignore = this->checkIsNormativeRequiteOk();
+      requite::Expression &inference =
+          requite::Expression::makeOperation(requite::Opcode::_TACIT);
+      inference.setSource(token);
+      precedence_parser.appendBranch(inference);
       break;
     }
     if (previous_attribute) {
@@ -640,7 +665,32 @@ requite::Expression &Parser::parsePrecedence2() {
 // NARY REFLECTION
 requite::Expression &Parser::parsePrecedence1() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.setRecent(this->parsePrecedence0());
+  REQUITE_ASSERT(!this->getIsDone());
+  const requite::Token &first_token = this->getToken();
+  switch (const requite::TokenType first_type = first_token.getType()) {
+  case requite::TokenType::DOT_OPERATOR: {
+    std::ignore = this->checkIsNormativeRequiteOk();
+    requite::Expression &tacit =
+        requite::Expression::makeOperation(requite::Opcode::_TACIT);
+    tacit.setSourceInsertedBefore(first_token);
+    precedence_parser.setRecent(tacit);
+    precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
+    this->incrementToken(1);
+    precedence_parser.appendBranch(this->parsePrecedence0());
+  } break;
+  case requite::TokenType::DOUBLE_DOT_OPERATOR: {
+    std::ignore = this->checkIsNormativeRequiteOk();
+    requite::Expression &tacit =
+        requite::Expression::makeOperation(requite::Opcode::_TACIT);
+    tacit.setSourceInsertedBefore(first_token);
+    precedence_parser.setRecent(tacit);
+    precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+    this->incrementToken(1);
+    precedence_parser.appendBranch(this->parsePrecedence0());
+  } break;
+  default:
+    precedence_parser.setRecent(this->parsePrecedence0());
+  }
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
@@ -694,9 +744,6 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseCallOrSignature(nullptr);
-  case requite::TokenType::LEFT_SMILE_GROUPING:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseSpecialization(nullptr);
   default:
     break;
   }
@@ -969,7 +1016,7 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   if (callee_ptr == nullptr) {
-    callee_ptr = &requite::Expression::makeOperation(requite::Opcode::TACIT);
+    callee_ptr = &requite::Expression::makeOperation(requite::Opcode::_TACIT);
     requite::getRef(callee_ptr).setSourceInsertedBefore(left_token);
   }
   requite::Expression &callee = requite::getRef(callee_ptr);
@@ -986,10 +1033,12 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
   const requite::Token &first_token = this->getToken();
   switch (const requite::TokenType first_type = first_token.getType()) {
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-    call.setSource(left_token, first_token);
+    this->incrementToken(1);
+    call.setSource(callee, first_token);
     return call;
   }
   case requite::TokenType::COMMA_SEPERATOR: {
+    this->incrementToken(1);
     this->getContext().logErrorExpectedExpressionBeforeComma(first_token);
     this->setNotOk();
     return call;
@@ -998,6 +1047,7 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
     break;
   }
   requite::Expression &first = this->parseExpression();
+  callee.setNext(first);
   requite::Expression *previous_ptr = &first;
   while (!this->getIsDone()) {
     REQUITE_ASSERT(!this->getIsDone());
@@ -1005,7 +1055,7 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-      call.setSource(left_token, token);
+      call.setSource(callee, token);
       this->incrementToken(1);
       return call;
     }
@@ -1015,7 +1065,7 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
         this->getContext().logSourceMessage(
             call, requite::LogType::ERROR,
             "found unterminated call or signature");
-        call.setSource(left_token, token);
+        call.setSource(callee, token);
         this->setNotOk();
         return call;
       }
@@ -1049,7 +1099,7 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   if (callee_ptr == nullptr) {
-    callee_ptr = &requite::Expression::makeOperation(requite::Opcode::TACIT);
+    callee_ptr = &requite::Expression::makeOperation(requite::Opcode::_TACIT);
     requite::getRef(callee_ptr).setSourceInsertedBefore(left_token);
   }
   requite::Expression &callee = requite::getRef(callee_ptr);
@@ -1065,7 +1115,7 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
   }
   const requite::Token &first_token = this->getToken();
   switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_SMILE_GROUPING: {
+  case requite::TokenType::RIGHT_TRIP_GROUPING: {
     call.setSource(left_token, first_token);
     return call;
   }
@@ -1078,14 +1128,15 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
     break;
   }
   requite::Expression &first = this->parseExpression();
+  callee.setNext(first);
   requite::Expression *previous_ptr = &first;
   while (!this->getIsDone()) {
     REQUITE_ASSERT(!this->getIsDone());
     requite::Expression &previous = requite::getRef(previous_ptr);
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_SMILE_GROUPING: {
-      call.setSource(left_token, token);
+    case requite::TokenType::RIGHT_TRIP_GROUPING: {
+      call.setSource(callee, token);
       this->incrementToken(1);
       return call;
     }
@@ -1094,12 +1145,12 @@ Parser::parseSpecialization(requite::Expression *callee_ptr) {
       if (this->getIsDone()) {
         this->getContext().logSourceMessage(
             call, requite::LogType::ERROR, "found unterminated specialization");
-        call.setSource(left_token, token);
+        call.setSource(callee, token);
         this->setNotOk();
         return call;
       }
       const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_SMILE_GROUPING) {
+      if (next_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
         this->incrementToken(1);
         this->getContext().logErrorExpectedExpressionAfterComma(token);
         this->setNotOk();

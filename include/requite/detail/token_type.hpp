@@ -33,10 +33,6 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     return requite::TokenType::ERROR_UNMATCHED_LEFT_CLOSED_CAP_GROUPING;
   case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_RIGHT_CLOSED_CAP_GROUPING;
-  case requite::TokenType::LEFT_SMILE_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_LEFT_SMILE_GROUPING;
-  case requite::TokenType::RIGHT_SMILE_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_RIGHT_SMILE_GROUPING;
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING;
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
@@ -49,6 +45,44 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     break;
   }
   REQUITE_UNREACHABLE();
+}
+
+constexpr bool getIsSeperator(requite::TokenType token) {
+  switch (token) {
+    case requite::TokenType::TRAILER_SEPERATOR:
+      return true;
+    case requite::TokenType::SEMICOLON_SEPERATOR:
+      return true;
+    case requite::TokenType::COMMA_SEPERATOR:
+      return true;
+    case requite::TokenType::RIGHT_FIELD_SEPERATOR:
+      return true;
+    case requite::TokenType::LEFT_FIELD_SEPERATOR:
+      return true;
+    default:
+      break;
+  }
+  return false;
+}
+
+constexpr bool getIsRightGrouping(requite::TokenType token) {
+  switch (token) {
+    case requite::TokenType::RIGHT_BRACKET_GROUPING:
+      return true;
+    case requite::TokenType::RIGHT_TRIP_GROUPING:
+      return true;
+    case requite::TokenType::RIGHT_OPEN_CAP_GROUPING:
+      return true;
+    case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING:
+      return true;
+    case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
+      return true;
+    case requite::TokenType::RIGHT_QUOTE_GROUPING:
+      return true;
+    default:
+      break;
+  }
+  return false;
 }
 
 } // namespace requite
