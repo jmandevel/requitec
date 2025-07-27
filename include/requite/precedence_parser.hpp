@@ -43,6 +43,7 @@ struct PrecedenceParser final {
   void parseUnaryAttribute(requite::Parser &parser, requite::Opcode opcode);
   void parseAscribe(const requite::Token& token);
   void parseCallOrSignature(requite::Parser &parser);
+  void parseCallOrSignatureImplicitCallee(requite::Parser &parser);
   void parseSpecialization(requite::Parser &parser);
   void appendBranch(requite::Expression &branch);
   void setRecent(requite::Expression &branch);

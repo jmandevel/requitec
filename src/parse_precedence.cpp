@@ -164,6 +164,13 @@ void PrecedenceParser::parseCallOrSignature(requite::Parser &parser) {
   this->_operation_ptr = &operation;
 }
 
+void PrecedenceParser::parseCallOrSignatureImplicitCallee(requite::Parser &parser) {
+  REQUITE_ASSERT(!parser.getIsDone());
+  requite::Expression& operation = parser.parseCallOrSignature(nullptr);
+  this->_outer_ptr = &operation;
+  this->_operation_ptr = &operation;
+}
+
 void PrecedenceParser::parseSpecialization(requite::Parser &parser) {
   REQUITE_ASSERT(!parser.getIsDone());
   requite::Expression& operation = parser.parseSpecialization(this->getOuter());

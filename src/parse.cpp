@@ -439,7 +439,16 @@ requite::Expression &Parser::parsePrecedence4() {
 // EARLY GROUPINGS (funny tricks here)
 requite::Expression &Parser::parsePrecedence3() {
   requite::PrecedenceParser precedence_parser;
-  precedence_parser.appendBranch(this->parsePrecedence2());
+  const requite::Token &first_token = this->getToken();
+  switch (const requite::TokenType first_type = first_token.getType()) {
+  case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
+    std::ignore = this->checkIsNormativeRequiteOk();
+    precedence_parser.parseCallOrSignatureImplicitCallee(*this);
+    precedence_parser.appendBranch(this->parsePrecedence2());
+  } break;
+  default:
+    precedence_parser.setRecent(this->parsePrecedence2());
+  }
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     const requite::TokenType type = token.getType();
@@ -741,9 +750,6 @@ requite::Expression &Parser::parsePrecedence0() {
   case requite::TokenType::LEFT_INTERPOLATED_STRING_LITERAL:
     std::ignore = this->checkIsNormativeRequiteOk();
     return this->parseInterpolatedString();
-  case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
-    std::ignore = this->checkIsNormativeRequiteOk();
-    return this->parseCallOrSignature(nullptr);
   default:
     break;
   }
