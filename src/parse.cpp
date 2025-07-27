@@ -1094,15 +1094,10 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
 }
 
 requite::Expression &
-Parser::parseSpecialization(requite::Expression *callee_ptr) {
+Parser::parseSpecialization(requite::Expression &callee) {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  if (callee_ptr == nullptr) {
-    callee_ptr = &requite::Expression::makeOperation(requite::Opcode::_TACIT);
-    requite::getRef(callee_ptr).setSourceInsertedBefore(left_token);
-  }
-  requite::Expression &callee = requite::getRef(callee_ptr);
   requite::Expression &call =
       requite::Expression::makeOperation(requite::Opcode::_SPECIALIZATION);
   call.setBranch(callee);
