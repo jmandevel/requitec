@@ -2195,10 +2195,15 @@ void Situator::situate_BindValueOrDefaultValueExpression(
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_VALUE>(expression);
     expression.changeOpcode(requite::Opcode::_BIND_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::NAMED_FIELD ||
-                       SITUATION_PARAM == requite::Situation::POSITIONAL_FIELD) {
+  } else if constexpr (SITUATION_PARAM == requite::Situation::NAMED_FIELD) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::SYMBOL_BINDING,
+                                  requite::Situation::MATTE_VALUE>(expression);
+    expression.changeOpcode(requite::Opcode::_DEFAULT_VALUE);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::POSITIONAL_FIELD) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_VALUE>(expression);
     expression.changeOpcode(requite::Opcode::_DEFAULT_VALUE);
   } else {
@@ -2221,7 +2226,8 @@ void Situator::situate_BindSymbolOrDefaultSymbolExpression(
   } else if constexpr (SITUATION_PARAM == requite::Situation::NAMED_FIELD) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
+                                  requite::Situation::POSITIONAL_FIELD>(
+        expression);
     expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
   } else {
     static_assert(false, "invalid situation");
@@ -2510,9 +2516,6 @@ void Situator::situateParameterBranches(requite::Expression &expression,
       found_named_fields_begin = true;
       continue;
     } else if (branch.getOpcode() ==
-                   requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
-               branch.getOpcode() == requite::Opcode::_DEFAULT_VALUE ||
-               branch.getOpcode() ==
                    requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
                branch.getOpcode() == requite::Opcode::_BIND_SYMBOL) {
       found_positional_fields_end = true;
