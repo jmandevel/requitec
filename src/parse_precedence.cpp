@@ -84,7 +84,7 @@ void PrecedenceParser::parseNary(requite::Parser &parser,
   this->appendRecent();
 }
 
-void PrecedenceParser::parseNaryAfterHorned(requite::Parser &parser,
+void PrecedenceParser::parseNestingNary(requite::Parser &parser,
                                             requite::Opcode opcode) {
   const requite::Token &token = parser.getToken();
   parser.incrementToken(1);

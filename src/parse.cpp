@@ -457,39 +457,20 @@ requite::Expression &Parser::parsePrecedence3() {
     //   entire horned expression should be contained as the first branch in any
     //   expression created from binary dots or double dot operators that are
     //   directly after the closing grouping symbol.
-    if (this->getIsDone()) {
-      return precedence_parser.getOuter();
-    }
-    const requite::Token &next0_token = this->getToken();
-    const requite::TokenType next0_type = next0_token.getType();
-    if (next0_type == requite::TokenType::DOT_OPERATOR) {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseNaryAfterHorned(*this,
-                                             requite::Opcode::_REFLECT_VALUE);
-      precedence_parser.setRecent(this->parsePrecedence0());
-    } else if (next0_type == requite::TokenType::DOUBLE_DOT_OPERATOR) {
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseNaryAfterHorned(*this,
-                                             requite::Opcode::_REFLECT_SYMBOL);
-      precedence_parser.setRecent(this->parsePrecedence0());
-    } else {
-      continue;
-    }
     while (!this->getIsDone()) {
       const requite::Token &next1_token = this->getToken();
       const requite::TokenType next1_type = next1_token.getType();
       if (next1_type == requite::TokenType::DOT_OPERATOR) {
         std::ignore = this->checkIsNormativeRequiteOk();
-        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-        precedence_parser.setRecent(this->parsePrecedence0());
+        precedence_parser.parseNestingNary(*this, requite::Opcode::_REFLECT_VALUE);
+        precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       } else if (next1_type == requite::TokenType::DOUBLE_DOT_OPERATOR) {
         std::ignore = this->checkIsNormativeRequiteOk();
-        precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-        precedence_parser.setRecent(this->parsePrecedence0());
+        precedence_parser.parseNestingNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+        precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       } else {
-        precedence_parser.appendRecent();
         break;
       }
     }
@@ -670,41 +651,41 @@ requite::Expression &Parser::parsePrecedence1() {
     requite::Expression &tacit =
         requite::Expression::makeOperation(requite::Opcode::_TACIT);
     tacit.setSourceInsertedBefore(first_token);
-    precedence_parser.setRecent(tacit);
-    precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-    precedence_parser.setRecent(this->parsePrecedence0());
+    precedence_parser.appendBranch(tacit);
+    precedence_parser.parseNestingNary(*this, requite::Opcode::_REFLECT_VALUE);
+    precedence_parser.appendBranch(this->parsePrecedence0());
   } break;
   case requite::TokenType::DOUBLE_DOT_OPERATOR: {
     std::ignore = this->checkIsNormativeRequiteOk();
     requite::Expression &tacit =
         requite::Expression::makeOperation(requite::Opcode::_TACIT);
     tacit.setSourceInsertedBefore(first_token);
-    precedence_parser.setRecent(tacit);
-    precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
-    precedence_parser.setRecent(this->parsePrecedence0());
+    precedence_parser.appendBranch(tacit);
+    precedence_parser.parseNestingNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+    precedence_parser.appendBranch(this->parsePrecedence0());
   } break;
   default:
-    precedence_parser.setRecent(this->parsePrecedence0());
+    precedence_parser.appendBranch(this->parsePrecedence0());
+    break;
   }
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::DOT_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-      precedence_parser.setRecent(this->parsePrecedence0());
+      precedence_parser.parseNestingNary(*this, requite::Opcode::_REFLECT_VALUE);
+      precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     case requite::TokenType::DOUBLE_DOT_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
-      precedence_parser.setRecent(this->parsePrecedence0());
+      precedence_parser.parseNestingNary(*this, requite::Opcode::_REFLECT_SYMBOL);
+      precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     default:
       break;
     }
     break;
   }
-  precedence_parser.appendRecent();
   return precedence_parser.getOuter();
 }
 

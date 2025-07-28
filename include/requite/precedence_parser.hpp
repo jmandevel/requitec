@@ -38,7 +38,7 @@ struct PrecedenceParser final {
   void parseBinary(requite::Parser &parser, requite::Opcode opcode);
   void parseBinaryCombination(requite::Parser &parser, requite::Opcode opcode);
   void parseNary(requite::Parser &parser, requite::Opcode opcode);
-  void parseNaryAfterHorned(requite::Parser &parser, requite::Opcode opcode);
+  void parseNestingNary(requite::Parser &parser, requite::Opcode opcode);
   void parseAttribute(requite::Parser& parser);
   void parseUnaryAttribute(requite::Parser &parser, requite::Opcode opcode);
   void parseAscribe(const requite::Token& token);
