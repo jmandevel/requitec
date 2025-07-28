@@ -93,14 +93,18 @@ constexpr bool getIsValueSituation() {
          SITUATION_PARAM == requite::Situation::SYMBOL_REFLECTIVE_VALUE ||
          SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
          SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_JUNCTION ||
-         SITUATION_PARAM == requite::Situation::SYMBOL_REFLECTIVE_JUNCTION;
+         SITUATION_PARAM == requite::Situation::SYMBOL_REFLECTIVE_JUNCTION ||
+         SITUATION_PARAM == requite::Situation::ARGUMENT;
 }
 
 template <requite::Situation SITUATION_PARAM>
 constexpr bool getIsSymbolSituation() {
   return SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
          SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_SYMBOL ||
-         SITUATION_PARAM == requite::Situation::SYMBOL_REFLECTIVE_SYMBOL;
+         SITUATION_PARAM == requite::Situation::SYMBOL_REFLECTIVE_SYMBOL ||
+         SITUATION_PARAM == requite::Situation::PARAMETER ||
+         SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+         SITUATION_PARAM == requite::Situation::STATIC_PARAMETER_VALUE;
 }
 
 template <requite::Situation SITUATION_PARAM>
