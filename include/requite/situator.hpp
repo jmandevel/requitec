@@ -106,29 +106,7 @@ struct Situator final {
   situateAssignArithmeticExpression(requite::Expression &expression,
                                     requite::Opcode arithmetic_opcode);
   template <requite::Situation SITUATION_PARAM>
-  inline void situate_DefaultValueExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situate_DefaultSymbolExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateArgumentBranches(requite::Expression &expression,
-                                      requite::Expression &first,
-                                      unsigned branch_i);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateParameterBranches(requite::Expression &expression,
-                                       requite::Expression &first,
-                                       unsigned branch_i);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situateStaticParameterBranches(requite::Expression &);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situate_TupleValue(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situate_TupleType(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
   inline void situate_TripExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situate_CallExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
-  inline void situate_SignatureExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void
   situate_CallOrSignatureExpression(requite::Expression &expression);
