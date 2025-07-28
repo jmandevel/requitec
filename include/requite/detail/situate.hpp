@@ -859,7 +859,9 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::TEMPLATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateTemplateExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SITUATION_PARAM, 0,
+                                  requite::Situation::STATIC_PARAMETER>(
+          expression);
     }
     break;
   case requite::Opcode::_SPECIALIZATION:
@@ -867,7 +869,10 @@ void Situator::situateExpression(requite::Expression &expression) {
                       requite::Opcode::_SPECIALIZATION)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_SpecializationExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SITUATION_PARAM, 1,
+                                  requite::Situation::MATTE_SYMBOL,
+                                  requite::Situation::STATIC_ARGUMENT>(
+          expression);
     }
     break;
   case requite::Opcode::BAKE:
@@ -2200,12 +2205,15 @@ void Situator::situate_BindValueOrDefaultValueExpression(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   REQUITE_ASSERT(expression.getOpcode() ==
                  requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE);
-  if constexpr (SITUATION_PARAM == requite::Situation::ARGUMENT) {
+  if constexpr (SITUATION_PARAM == requite::Situation::ARGUMENT ||
+                SITUATION_PARAM == requite::Situation::STATIC_ARGUMENT) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::SYMBOL_NAME,
                                   requite::Situation::MATTE_VALUE>(expression);
     expression.changeOpcode(requite::Opcode::_BIND_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+  } else if constexpr (SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_VALUE>(expression);
@@ -2228,6 +2236,24 @@ void Situator::situate_BindSymbolOrDefaultSymbolExpression(
                                   requite::Situation::PARAMETER_VALUE>(
         expression);
     expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::STATIC_ARGUMENT) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_NAME,
+                                  requite::Situation::MATTE_SYMBOL>(expression);
+    expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STATIC_PARAMETER) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_NAME,
+                                  requite::Situation::STATIC_PARAMETER_VALUE>(
+        expression);
+    expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STATIC_PARAMETER_VALUE) {
+    this->situateBinaryExpression<SITUATION_PARAM,
+                                  requite::Situation::SYMBOL_NAME,
+                                  requite::Situation::MATTE_SYMBOL>(expression);
+    expression.changeOpcode(requite::Opcode::_DEFAULT_VALUE);
   } else {
     static_assert(false, "invalid situation");
   }
@@ -2471,7 +2497,9 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
     }
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     if (!expression.getHasBranch()) {
       expression.changeOpcode(requite::Opcode::_NULL_TYPE);
       return;
@@ -2508,7 +2536,9 @@ void Situator::situate_CallOrSignatureExpression(
     expression.changeOpcode(requite::Opcode::_CALL);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     this->situateNaryExpression<SITUATION_PARAM, 1,
                                 requite::Situation::MATTE_SYMBOL,
                                 requite::Situation::PARAMETER>(expression);
@@ -2807,7 +2837,9 @@ Situator::situate_ExtendExpression(requite::Expression &expression) {
     expression.changeOpcode(requite::Opcode::_EXTEND_VALUE);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_SYMBOL>(expression);
@@ -2849,25 +2881,13 @@ inline void Situator::situate_Tacit(requite::Expression &expression) {
     expression.changeOpcode(requite::Opcode::_TACIT_VALUE);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     expression.changeOpcode(requite::Opcode::_TACIT_SYMBOL);
   } else {
     static_assert(false, "invalid situation");
   }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situateTemplateExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TEMPLATE);
-  // TODO
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_SpecializationExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_SPECIALIZATION);
-  // TODO
 }
 
 } // namespace requite

@@ -41,6 +41,9 @@ enum class Situation {
   ARGUMENT,
   PARAMETER,
   PARAMETER_VALUE,
+  STATIC_ARGUMENT,
+  STATIC_PARAMETER,
+  STATIC_PARAMETER_VALUE,
   STRUCTURED_BINDING,
   SYMBOL_NAME,
   SYMBOL_PATH,
@@ -149,6 +152,15 @@ getCanBeParameterSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeParameterValueSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeStaticArgumentSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeStaticParameterSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeStaticParameterValueSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeStructuredBindingSituation(requite::Opcode opcode);

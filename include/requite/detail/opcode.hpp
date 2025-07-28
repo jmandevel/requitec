@@ -627,7 +627,7 @@ _getFlags(requite::Opcode opcode) {
 
   // REFLECTED SYMBOLS
   case Opcode::TYPE:
-    return _VALUE_REFLECTIVE_SYMBOL;
+    return _VALUE_REFLECTIVE_SYMBOL | _MATTE_SYMBOL;
   case Opcode::_TYPE_OF_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::UNDERLYING:

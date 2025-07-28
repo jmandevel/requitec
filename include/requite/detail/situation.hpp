@@ -57,6 +57,12 @@ constexpr llvm::StringRef getName(requite::Situation situation) {
     return "PARAMETER";
   case Situation::PARAMETER_VALUE:
     return "PARAMETER_VALUE";
+  case Situation::STATIC_ARGUMENT:
+    return "STATIC_ARGUMENT";
+  case Situation::STATIC_PARAMETER:
+    return "STATIC_PARAMETER";
+  case Situation::STATIC_PARAMETER_VALUE:
+    return "STATIC_PARAMETER_VALUE";
   case Situation::STRUCTURED_BINDING:
     return "STRUCTURED_BINDING";
   case Situation::SYMBOL_NAME:
@@ -161,6 +167,14 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeParameterSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
     return requite::getCanBeParameterValueSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::STATIC_ARGUMENT) {
+    return requite::getCanBeStaticArgumentSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STATIC_PARAMETER) {
+    return requite::getCanBeStaticParameterSituation(opcode);
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STATIC_PARAMETER_VALUE) {
+    return requite::getCanBeStaticParameterValueSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::STRUCTURED_BINDING) {
     return requite::getCanBeStructuredBindingSituation(opcode);
@@ -236,7 +250,9 @@ constexpr requite::Situation getNextValueReflectiveSituation() {
                        SITUATION_PARAM ==
                            requite::Situation::SYMBOL_REFLECTIVE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     return requite::Situation::VALUE_REFLECTIVE_SYMBOL;
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
     return requite::Situation::SYMBOL_PATH;
@@ -278,7 +294,9 @@ constexpr requite::Situation getNextSymbolReflectiveSituation() {
                        SITUATION_PARAM ==
                            requite::Situation::SYMBOL_REFLECTIVE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE) {
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
     return requite::Situation::SYMBOL_REFLECTIVE_SYMBOL;
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME ||
                        SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
@@ -406,6 +424,28 @@ constexpr bool getCanBeParameterValueSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_SYMBOL) ||
          opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
          opcode == requite::Opcode::_DEFAULT_VALUE;
+}
+
+constexpr bool getCanBeStaticArgumentSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_POSITIONAL_VALUE ||
+         opcode == requite::Opcode::_POSITIONAL_SYMBOL ||
+         opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
+         opcode == requite::Opcode::_BIND_VALUE ||
+         opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
+         opcode == requite::Opcode::_BIND_SYMBOL;
+}
+
+constexpr bool getCanBeStaticParameterSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
+         opcode == requite::Opcode::_BIND_SYMBOL;
+}
+
+constexpr bool getCanBeStaticParameterValueSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_SYMBOL) ||
+         opcode == requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE ||
+         opcode == requite::Opcode::_DEFAULT_VALUE ||
+         opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
+         opcode == requite::Opcode::_DEFAULT_SYMBOL;
 }
 
 constexpr bool getCanBeStructuredBindingSituation(requite::Opcode opcode) {
