@@ -174,7 +174,7 @@ requite::Expression &Parser::parsePrecedence11() {
   } break;
   case requite::TokenType::DOUBLE_COLON_OPERATOR: {
     std::ignore = this->checkIsNormativeRequiteOk();
-    precedence_parser.parseUnary(*this, requite::Opcode::_POSITIONAL_VALUE);
+    precedence_parser.parseUnary(*this, requite::Opcode::_POSITIONAL_SYMBOL);
   } break;
   default:
     break;
