@@ -2008,8 +2008,8 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
   REQUITE_ASSERT(
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, 2);
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
     this->setNotOk();
     return;
   }
@@ -2017,14 +2017,20 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
   this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression, 0,
                                                 first);
   if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, 2);
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
     this->setNotOk();
     return;
   }
   requite::Expression &second = first.getNext();
   this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression, 1,
                                                 second);
+  if (second.getHasNext()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
+    this->setNotOk();
+    return;
+  }
 }
 
 template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
