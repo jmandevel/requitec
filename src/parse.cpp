@@ -728,29 +728,6 @@ requite::Expression &Parser::parsePrecedence0() {
   return error;
 }
 
-requite::Expression *Parser::parseBranches(const requite::Token &left_token,
-                                           requite::TokenType end) {
-  REQUITE_ASSERT(!this->getIsDone());
-  if (this->getToken().getType() == end) {
-    return nullptr;
-  }
-  requite::Expression &first = this->parseExpression();
-  requite::Expression *previous_ptr = &first;
-  while (true) {
-    REQUITE_ASSERT(!this->getIsDone());
-    const requite::Token &token = this->getToken();
-    const requite::TokenType type = token.getType();
-    if (type != end) {
-      requite::Expression &current = this->parseExpression();
-      requite::getRef(previous_ptr).setNext(current);
-      previous_ptr = &current;
-      continue;
-    }
-    break;
-  }
-  return &first;
-}
-
 requite::Expression *
 Parser::parseOperationBranches(const requite::Token &left_token,
                                const requite::Token &opcode_token) {
@@ -882,8 +859,8 @@ requite::Expression &Parser::parseBracketExpression() {
       requite::TokenType::LEFT_BRACKET_GROUPING) { // its a anonymous_function
                                                    // expression
     this->incrementToken(1);
-    requite::Expression *capture_branch_ptr = this->parseBranches(
-        opcode_token, requite::TokenType::RIGHT_BRACKET_GROUPING);
+    requite::Expression *capture_branch_ptr = this->parseOperationBranches(
+        opcode_token, left_token);
     if (this->getIsDone()) {
       return requite::Expression::makeError();
     }
@@ -899,8 +876,8 @@ requite::Expression &Parser::parseBracketExpression() {
     const requite::Token &right_capture = this->getToken();
     capture.setSource(left_token, right_capture);
     this->incrementToken(1);
-    requite::Expression *capture_next_ptr = this->parseBranches(
-        left_token, requite::TokenType::RIGHT_BRACKET_GROUPING);
+    requite::Expression *capture_next_ptr = this->parseOperationBranches(
+        left_token, opcode_token);
     if (this->getIsDone()) {
       return requite::Expression::makeError();
     }

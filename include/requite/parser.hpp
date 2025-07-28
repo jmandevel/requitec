@@ -69,8 +69,6 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parsePrecedence1();
   [[nodiscard]] requite::Expression &parsePrecedence0();
   [[nodiscard]] requite::Expression *
-  parseBranches(const requite::Token &left_token, requite::TokenType end);
-  [[nodiscard]] requite::Expression *
   parseOperationBranches(const requite::Token &left_token,
                          const requite::Token &opcode_token);
   [[nodiscard]] requite::Expression &parseMacroBranches(const requite::Token &left_token);
