@@ -433,7 +433,6 @@ requite::Expression &Parser::parsePrecedence3() {
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
     std::ignore = this->checkIsNormativeRequiteOk();
     precedence_parser.parseCallOrSignatureImplicitCallee(*this);
-    precedence_parser.appendBranch(this->parsePrecedence2());
   } break;
   default:
     precedence_parser.appendBranch(this->parsePrecedence2());
@@ -673,7 +672,6 @@ requite::Expression &Parser::parsePrecedence1() {
     tacit.setSourceInsertedBefore(first_token);
     precedence_parser.setRecent(tacit);
     precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_VALUE);
-    this->incrementToken(1);
     precedence_parser.setRecent(this->parsePrecedence0());
   } break;
   case requite::TokenType::DOUBLE_DOT_OPERATOR: {
@@ -683,7 +681,6 @@ requite::Expression &Parser::parsePrecedence1() {
     tacit.setSourceInsertedBefore(first_token);
     precedence_parser.setRecent(tacit);
     precedence_parser.parseNary(*this, requite::Opcode::_REFLECT_SYMBOL);
-    this->incrementToken(1);
     precedence_parser.setRecent(this->parsePrecedence0());
   } break;
   default:
