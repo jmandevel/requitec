@@ -2697,12 +2697,6 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
       this->situateBranch<requite::Situation::MATTE_DESTINATION>(
           "first branch", expression, 0, destination);
     }
-    if (!destination.getHasNext()) {
-      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
-          expression, 2);
-      this->setNotOk();
-      return;
-    }
     if (destination.getOpcode() == requite::Opcode::_TRIP) {
       if (last_destination_branch_ptr == nullptr) {
         expression.changeOpcode(requite::Opcode::_IGNORE);
@@ -2716,6 +2710,21 @@ Situator::situate_AssignExpression(requite::Expression &expression) {
       last_destination_branch.setNext(destination.popNext());
       std::ignore = expression.replaceBranch(destination.popBranch());
       requite::Expression::deleteExpression(destination);
+      return;
+    }
+    if (!destination.getHasNext()) {
+      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
+          expression, 2);
+      this->setNotOk();
+      return;
+    }
+    requite::Expression &value = destination.getNext();
+    this->situateBranch<requite::Situation::MATTE_VALUE>("second branch",
+                                                         expression, 1, value);
+    if (value.getHasNext()) {
+      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
+          expression, 2);
+      this->setNotOk();
       return;
     }
   } else {
