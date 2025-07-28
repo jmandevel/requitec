@@ -202,7 +202,7 @@ void Tokenizer::_tokenizeTokens() {
       case '.':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_DOT_OPERATOR, 2);
         break;
-      case '}':
+      case ']':
         this->tokenizeRightGrouping(requite::GroupingType::OPEN_CAP,
                                     requite::TokenType::RIGHT_OPEN_CAP_GROUPING,
                                     2);
@@ -359,9 +359,9 @@ void Tokenizer::_tokenizeTokens() {
             requite::TokenType::RIGHT_CLOSED_CAP_GROUPING, 2);
         break;
       case ']':
-        this->tokenizeRightGrouping(requite::GroupingType::QUOTE,
-                                    requite::TokenType::RIGHT_QUOTE_GROUPING,
-                                    2);
+        this->tokenizeRightGrouping(
+            requite::GroupingType::CLOSED_CAP,
+            requite::TokenType::RIGHT_CLOSED_CAP_GROUPING, 2);
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::COLON_OPERATOR, 1);
@@ -483,14 +483,14 @@ void Tokenizer::_tokenizeTokens() {
     case '[':
       switch (const char c1 = this->getRanger().getChar(1)) {
       case ':':
-        switch (const char c2 = this->getRanger().getChar(2)) {
-        case ']':
-          this->tokenizeLengthToken(requite::TokenType::EMPTY_QUOTE_OPERATOR,
-                                    3);
-        default:
-          this->tokenizeLengthToken(requite::TokenType::LEFT_QUOTE_GROUPING, 2);
-          this->pushGrouping(requite::GroupingType::QUOTE);
-        }
+        this->tokenizeLengthToken(requite::TokenType::LEFT_CLOSED_CAP_GROUPING,
+                                  2);
+        this->pushGrouping(requite::GroupingType::CLOSED_CAP);
+        break;
+      case '.':
+        this->tokenizeLengthToken(requite::TokenType::LEFT_OPEN_CAP_GROUPING,
+                                  2);
+        this->pushGrouping(requite::GroupingType::OPEN_CAP);
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::LEFT_BRACKET_GROUPING, 1);
@@ -585,21 +585,8 @@ void Tokenizer::_tokenizeTokens() {
     case 'z':
       break;
     case '{':
-      switch (const char c1 = this->getRanger().getChar(1)) {
-      case '.':
-        this->tokenizeLengthToken(requite::TokenType::LEFT_OPEN_CAP_GROUPING,
-                                  2);
-        this->pushGrouping(requite::GroupingType::OPEN_CAP);
-        break;
-      case ':':
-        this->tokenizeLengthToken(requite::TokenType::LEFT_CLOSED_CAP_GROUPING,
-                                  2);
-        this->pushGrouping(requite::GroupingType::CLOSED_CAP);
-        break;
-      default:
-        this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);
-        this->pushGrouping(requite::GroupingType::TRIP);
-      }
+      this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);
+      this->pushGrouping(requite::GroupingType::TRIP);
       continue;
     case '|':
       switch (const char c1 = this->getRanger().getChar(1)) {

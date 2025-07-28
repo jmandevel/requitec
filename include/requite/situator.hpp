@@ -118,6 +118,8 @@ struct Situator final {
                                        requite::Expression &first,
                                        unsigned branch_i);
   template <requite::Situation SITUATION_PARAM>
+  inline void situateStaticParameterBranches(requite::Expression &);
+  template <requite::Situation SITUATION_PARAM>
   inline void situate_TupleValue(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_TupleType(requite::Expression &expression);
@@ -156,6 +158,10 @@ struct Situator final {
   inline void situate_VariableDeclaration(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_Tacit(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateTemplateExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situate_SpecializationExpression(requite::Expression &expression);
 };
 
 } // namespace requite

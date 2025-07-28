@@ -60,28 +60,23 @@ enum class TokenType {
   DOUBLE_GRAVE_OPERATOR,     // ``
   ARROW_OPERATOR,            // ->
   CONCATENATE_OPERATOR,      // +>
-  EMPTY_QUOTE_OPERATOR,      // [:]
 
   // SEPERATOR SYMBOLS
   TRAILER_SEPERATOR,     // <:>
   SEMICOLON_SEPERATOR,   // ;
   COMMA_SEPERATOR,       // ,
-  RIGHT_FIELD_SEPERATOR, // <,
-  LEFT_FIELD_SEPERATOR,  // ,>
 
   // GROUPING SYMBOLS
   LEFT_BRACKET_GROUPING,         // [
   RIGHT_BRACKET_GROUPING,        // ]
   LEFT_TRIP_GROUPING,            // {
   RIGHT_TRIP_GROUPING,           // }
-  LEFT_OPEN_CAP_GROUPING,        // {.
-  RIGHT_OPEN_CAP_GROUPING,       // .}
-  LEFT_CLOSED_CAP_GROUPING,      // {:
-  RIGHT_CLOSED_CAP_GROUPING,     // :}
+  LEFT_OPEN_CAP_GROUPING,        // [.
+  RIGHT_OPEN_CAP_GROUPING,       // .]
+  LEFT_CLOSED_CAP_GROUPING,      // [:
+  RIGHT_CLOSED_CAP_GROUPING,     // :]
   LEFT_PARENTHESIS_GROUPING,     // (
   RIGHT_PARENTHESIS_GROUPING,    // )
-  LEFT_QUOTE_GROUPING,           // [:
-  RIGHT_QUOTE_GROUPING,          // :]
 
   // SYMBOL
   IDENTIFIER_LITERAL, // var0 MyType ☺

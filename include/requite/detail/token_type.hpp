@@ -37,10 +37,6 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     return requite::TokenType::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING;
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING;
-  case requite::TokenType::LEFT_QUOTE_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_LEFT_QUOTE_GROUPING;
-  case requite::TokenType::RIGHT_QUOTE_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_RIGHT_QUOTE_GROUPING;
   default:
     break;
   }
@@ -54,10 +50,6 @@ constexpr bool getIsSeperator(requite::TokenType token) {
     case requite::TokenType::SEMICOLON_SEPERATOR:
       return true;
     case requite::TokenType::COMMA_SEPERATOR:
-      return true;
-    case requite::TokenType::RIGHT_FIELD_SEPERATOR:
-      return true;
-    case requite::TokenType::LEFT_FIELD_SEPERATOR:
       return true;
     default:
       break;
@@ -76,8 +68,6 @@ constexpr bool getIsRightGrouping(requite::TokenType token) {
     case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING:
       return true;
     case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
-      return true;
-    case requite::TokenType::RIGHT_QUOTE_GROUPING:
       return true;
     default:
       break;

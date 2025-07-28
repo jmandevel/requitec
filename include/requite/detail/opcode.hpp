@@ -577,9 +577,9 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::INLINE:
     return _ATTRIBUTE;
   case Opcode::MANGLED_NAME:
-    return _SYMBOL_REFLECTIVE_VALUE | _ATTRIBUTE;
+    return _ATTRIBUTE;
   case Opcode::_MANGLED_NAME_OF_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+    return _MATTE_VALUE;
   case Opcode::PACK:
     return _ATTRIBUTE;
   case Opcode::USER:
