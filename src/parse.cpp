@@ -799,6 +799,13 @@ Parser::parseOperationBranches(const requite::Token &left_token,
       }
       this->getContext().logErrorMissingTrailingSemicolon(previous);
       this->setNotOk();
+      if (requite::getIsSeperator(type) || requite::getIsRightGrouping(type)) {
+          this->incrementToken(1);
+          this->logErrorUnexpectedToken(token);
+      }
+    }
+    if (this->getIsDone()) {
+      break;
     }
     requite::Expression &next = this->parseExpression();
     previous.setNext(next);
