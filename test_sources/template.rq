@@ -1,0 +1,11 @@
+@template(Type::[type], LENGTH::[unsigned])
+[object Array;
+    prop .= 0;
+    data .= LENGTH#Type\[indeterminate];
+]
+
+[entry_point
+
+    my_array := Array{::[binary32], :0}();
+
+]
