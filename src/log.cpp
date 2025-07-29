@@ -49,6 +49,7 @@ void Context::logSourceMessage(const requite::Token &token,
       llvm::outs(), llvm::SMLoc::getFromPointer(token.getSourceTextPtr()),
       static_cast<llvm::SourceMgr::DiagKind>(type), message, ranges, fixits,
       true);
+#endif
 }
 
 void Context::logSourceMessage(const requite::Expression &expression,
@@ -121,18 +122,19 @@ void Context::logErrorMissingTrailingSemicolon(
                              " expression is missing trailing semicolon");
 }
 
-void Context::logErrorExpectedExpressionBeforeSemicolon(const requite::Token& token) {
-    this->logSourceMessage(token, requite::LogType::ERROR,
+void Context::logErrorExpectedExpressionBeforeSemicolon(
+    const requite::Token &token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
                          "expected expression before semicolon");
 }
 
-void Context::logErrorMissingCommmaSeperator(const requite::Token& token) {
+void Context::logErrorMissingCommmaSeperator(const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
                          "missing comma seperator");
 }
 
-void Context::logErrorExpectedExpressionBeforeComma(const requite::Token& token) {
-    this->logSourceMessage(token, requite::LogType::ERROR,
+void Context::logErrorExpectedExpressionBeforeComma(
+    const requite::Token &token) {
                          "expected expression before comma");
 }
 
