@@ -49,6 +49,10 @@ void Context::logSourceMessage(const requite::Token &token,
       llvm::outs(), llvm::SMLoc::getFromPointer(token.getSourceTextPtr()),
       static_cast<llvm::SourceMgr::DiagKind>(type), message, ranges, fixits,
       true);
+#if !defined(_NDEBUG) && __has_builtin(__builtin_debugtrap)
+  if (type == requite::LogType::ERROR) {
+    __builtin_debugtrap();
+  }
 #endif
 }
 
@@ -135,13 +139,14 @@ void Context::logErrorMissingCommmaSeperator(const requite::Token &token) {
 
 void Context::logErrorExpectedExpressionBeforeComma(
     const requite::Token &token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
                          "expected expression before comma");
 }
 
-void Context::logErrorExpectedExpressionAfterComma(const requite::Token& token) {
-    this->logSourceMessage(token, requite::LogType::ERROR,
+void Context::logErrorExpectedExpressionAfterComma(
+    const requite::Token &token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
                          "expected expression after comma");
 }
-
 
 } // namespace requite
