@@ -75,6 +75,7 @@ struct Parser final {
   [[nodiscard]] requite::Opcode parseOpcode();
   [[nodiscard]] requite::Expression &parseBracketExpression();
   [[nodiscard]] requite::Expression &parseTrip();
+  [[nodiscard]] requite::Expression &parseCapture();
   [[nodiscard]] requite::Expression &parseCallOrSignature(requite::Expression* callee_ptr);
   [[nodiscard]] requite::Expression &parseSpecialization(requite::Expression& callee);
   void parseAttributeArguments(requite::Expression& attribute);
