@@ -65,6 +65,11 @@ void Context::logSourceMessage(const requite::Expression &expression,
       llvm::outs(), llvm::SMLoc::getFromPointer(expression.getSourceTextPtr()),
       static_cast<llvm::SourceMgr::DiagKind>(type), message, ranges, fixits,
       true);
+#if !defined(_NDEBUG) && __has_builtin(__builtin_debugtrap)
+  if (type == requite::LogType::ERROR) {
+    __builtin_debugtrap();
+  }
+#endif
 }
 
 void Context::logErrorNonInstantEvaluatableName(
