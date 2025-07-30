@@ -16,7 +16,7 @@ void Context::logErrorNotAtLeastBranchCount(requite::Expression &expression,
       llvm::Twine("expression with opcode \"") +
           requite::getName(expression.getOpcode()) + "\" in situation \"" +
           requite::getName(SITUATION_PARAM) + "\" must have at least " +
-          llvm::Twine(count) + " branches.");
+          llvm::Twine(count) + " branches.\n");
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -27,7 +27,7 @@ void Context::logErrorNotExactBranchCount(requite::Expression &expression,
       llvm::Twine("expression with opcode \"") +
           requite::getName(expression.getOpcode()) + "\" in situation \"" +
           requite::getName(SITUATION_PARAM) + "\" must have exactly " +
-          llvm::Twine(count) + " branches.");
+          llvm::Twine(count) + " branches.\n");
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -38,7 +38,7 @@ void Context::logErrorTooNotLessOrEqualToBranchCount(requite::Expression &expres
       llvm::Twine("expression with opcode \"") +
           requite::getName(expression.getOpcode()) + "\" in situation \"" +
           requite::getName(SITUATION_PARAM) + "\" must have no more than " +
-          llvm::Twine(count) + " branches.");
+          llvm::Twine(count) + " branches.\n");
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -53,12 +53,12 @@ void Context::logErrorInvalidBranchSituation(requite::Expression &branch,
           "\" has branch with opcode \"" + requite::getName(branch_opcode) +
           "\" at index " + llvm::Twine(branch_i) +
           ". this is not valid in expected situation \"" +
-          requite::getName(SITUATION_PARAM) + "\" for " + log_context + ".");
+          requite::getName(SITUATION_PARAM) + "\" for " + log_context + ".\n");
 }
 
 void Context::logErrorInvalidOperation(requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
-                         "invalid operation.");
+                         "invalid operation.\n");
 }
 
 } // namespace requite
