@@ -49,10 +49,17 @@ const requite::Token &Parser::getPreviousToken() const {
   return *(this->_it - 1);
 }
 
-const requite::Token &Parser::getNextToken() {
-  const requite::Token &next_token = *this->_it;
-  this->_it++;
-  return next_token;
+bool Parser::getEndIsNext() {
+  std::vector<requite::Token>::const_iterator it = this->_it;
+  it++;
+  if (it == this->_end) {
+    return true;
+  }
+  const requite::Token &next_token = *it;
+  if (requite::getIsExpressionEnd(next_token.getType())) {
+    return true;
+  }
+  return false;
 }
 
 void Parser::incrementToken(std::size_t offset) { this->_it += offset; }

@@ -50,7 +50,7 @@ struct Parser final {
   [[nodiscard]] bool getIsDone() const;
   [[nodiscard]] const requite::Token &getToken() const;
   [[nodiscard]] const requite::Token &getPreviousToken() const;
-  [[nodiscard]] const requite::Token &getNextToken();
+  [[nodiscard]] bool getEndIsNext();
   void incrementToken(std::size_t offset);
   [[nodiscard]] bool getIsToken(requite::TokenType type) const;
   [[nodiscard]] bool parseExpressions();
