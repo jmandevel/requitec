@@ -17,7 +17,7 @@ bool Context::writeLlvmIr(llvm::StringRef output_path) {
         llvm::Twine(
             "error: failed to open intermediate file for writing\n\tpath: ") +
         llvm::Twine(output_path) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()));
+        llvm::Twine(ec.message()) + "\n");
     return false;
   }
   std::string ir_text = this->getLlvmIrSourceText();

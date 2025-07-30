@@ -86,7 +86,7 @@ bool parseCommandLineOptions(unsigned argc, const char **argv) {
         llvm::sys::fs::real_path(requite::INPUT_FILE, buffer, true);
     if (ec) {
       llvm::errs() << "Failed to resolve path of input file\n\tpath: "
-                   << requite::INPUT_FILE << "\n\treason: " << ec.message();
+                   << requite::INPUT_FILE << "\n\treason: " << ec.message() << "\n";
       is_ok = false;
     } else {
       if (!llvm::sys::fs::is_regular_file(buffer)) {

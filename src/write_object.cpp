@@ -13,7 +13,7 @@ bool Context::writeObject(llvm::StringRef output_path) {
         llvm::Twine(
             "error: failed to open intermediate file for writing\n\tpath: ") +
         llvm::Twine(output_path) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()));
+        llvm::Twine(ec.message()) + "\n");
     return false;
   }
   llvm::legacy::PassManager pass;
@@ -22,7 +22,7 @@ bool Context::writeObject(llvm::StringRef output_path) {
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
     this->logMessage(
         llvm::Twine("error: failed to add passes to emit file\n\tpath: ") +
-        llvm::Twine(output_path));
+        llvm::Twine(output_path) + "\n");
     return false;
   }
   pass.run(this->getLlvmModule());

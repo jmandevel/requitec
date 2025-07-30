@@ -38,7 +38,7 @@ bool Context::writeTokens(requite::Module &module,
         llvm::Twine(
             "error: failed to open output file for writing\n\tPath: ") +
         llvm::Twine(out_path) + llvm::Twine("\n\tReason: ") +
-        llvm::Twine(ec.message()));
+        llvm::Twine(ec.message()) + "\n");
     return false;
   }
   fout << str_buffer_a_ostream.str();

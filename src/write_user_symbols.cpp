@@ -25,7 +25,7 @@ bool UserSymbolWriter::writeUserSymbols(llvm::StringRef out_path) {
     this->getContext().logMessage(
         llvm::Twine("error: failed to open output file for writing\n\tpath: ") +
         llvm::Twine(out_path) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()));
+        llvm::Twine(ec.message()) + "\n");
     return false;
   }
   fout << this->_buffer;

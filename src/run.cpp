@@ -31,7 +31,7 @@ bool Context::run() {
   if (ec) {
     this->logMessage(
         llvm::Twine("failed to determine real input file path\n\treason: ") +
-        ec.message());
+        ec.message() + "\n");
     return false;
   }
   if (!this->loadFileBuffer(source_file, input_path)) {

@@ -31,7 +31,7 @@ bool Context::loadFileBuffer(requite::File &file, llvm::StringRef path) {
     this->logMessage(
         llvm::Twine("error: failed to create read buffer for file\n\tfile: ") +
         llvm::Twine(file.getPath()) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(buffer_eo.getError().message()));
+        llvm::Twine(buffer_eo.getError().message()) + "\n");
     return false;
   }
   std::unique_ptr<llvm::MemoryBuffer> &buffer = buffer_eo.get();
