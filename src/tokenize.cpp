@@ -378,6 +378,8 @@ void Tokenizer::_tokenizeTokens() {
       case '<':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_LESS_OPERATOR, 2);
         break;
+      case '^':
+        this->tokenizeLengthToken(requite::TokenType::LESS_CAROT_OPERATOR, 2);
         break;
       case '=':
         this->tokenizeLengthToken(requite::TokenType::LESS_EQUAL_OPERATOR, 2);
@@ -513,13 +515,7 @@ void Tokenizer::_tokenizeTokens() {
                                   1);
       continue;
     case '^':
-      switch (const char c1 = this->getRanger().getChar(1)) {
-      case '<':
-        this->tokenizeLengthToken(requite::TokenType::CAROT_LESS_OPERATOR, 2);
-        break;
-      default:
-        this->tokenizeLengthToken(requite::TokenType::CAROT_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(requite::TokenType::CAROT_OPERATOR, 1);
       continue;
     case '_':
       break;

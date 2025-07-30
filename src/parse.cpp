@@ -415,7 +415,7 @@ requite::Expression &Parser::parsePrecedence5() {
       precedence_parser.parseBinary(requite::Opcode::_BITWISE_SHIFT_RIGHT);
       precedence_parser.setRecent(this->parsePrecedence4());
       continue;
-    case requite::TokenType::CAROT_LESS_OPERATOR:
+    case requite::TokenType::LESS_CAROT_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(requite::Opcode::_BITWISE_ROTATE_LEFT);
       precedence_parser.setRecent(this->parsePrecedence4());

@@ -22,7 +22,7 @@ enum class TokenType {
   GREATER_EQUAL_OPERATOR,    // >=
   LESS_OPERATOR,             // <
   DOUBLE_LESS_OPERATOR,      // <<
-  CAROT_LESS_OPERATOR,       // ^<
+  LESS_CAROT_OPERATOR,       // <^
   LESS_EQUAL_OPERATOR,       // <=
   BANG_EQUAL_OPERATOR,       // !=
   BANG_OPERATOR,             // !
