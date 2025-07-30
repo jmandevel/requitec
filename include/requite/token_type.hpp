@@ -62,26 +62,24 @@ enum class TokenType {
   CONCATENATE_OPERATOR,      // +>
 
   // SEPERATOR SYMBOLS
-  TRAILER_SEPERATOR,     // <:>
-  SEMICOLON_SEPERATOR,   // ;
-  COMMA_SEPERATOR,       // ,
+  TRAILER_SEPERATOR,   // <:>
+  SEMICOLON_SEPERATOR, // ;
+  COMMA_SEPERATOR,     // ,
 
   // GROUPING SYMBOLS
-  LEFT_BRACKET_GROUPING,         // [
-  RIGHT_BRACKET_GROUPING,        // ]
-  LEFT_TRIP_GROUPING,            // {
-  RIGHT_TRIP_GROUPING,           // }
-  LEFT_OPEN_CAP_GROUPING,        // [.
-  RIGHT_OPEN_CAP_GROUPING,       // .]
-  LEFT_CLOSED_CAP_GROUPING,      // [:
-  RIGHT_CLOSED_CAP_GROUPING,     // :]
-  LEFT_PARENTHESIS_GROUPING,     // (
-  RIGHT_PARENTHESIS_GROUPING,    // )
-
-  // SYMBOL
-  IDENTIFIER_LITERAL, // var0 MyType ☺
+  LEFT_BRACKET_GROUPING,      // [
+  RIGHT_BRACKET_GROUPING,     // ]
+  LEFT_TRIP_GROUPING,         // {
+  RIGHT_TRIP_GROUPING,        // }
+  LEFT_OPEN_CAP_GROUPING,     // [.
+  RIGHT_OPEN_CAP_GROUPING,    // .]
+  LEFT_CLOSED_CAP_GROUPING,   // [:
+  RIGHT_CLOSED_CAP_GROUPING,  // :]
+  LEFT_PARENTHESIS_GROUPING,  // (
+  RIGHT_PARENTHESIS_GROUPING, // )
 
   // LITERAL
+  IDENTIFIER_LITERAL, // var0 MyType ☺
   CODEUNIT_LITERAL,   // 'a'
   STRING_LITERAL,     // "Hello, world!"
   INTEGER_LITERAL,    // 12345 16xDEADBEEF 2x1010_0110
@@ -107,18 +105,24 @@ enum class TokenType {
   ERROR_UNMATCHED_RIGHT_CLOSED_CAP_GROUPING,
   ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING,
   ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING,
-  ERROR_UNMATCHED_LEFT_QUOTE_GROUPING,
-  ERROR_UNMATCHED_RIGHT_QUOTE_GROUPING
 };
 
 [[nodiscard]] constexpr std::string_view getName(requite::TokenType token);
-
 [[nodiscard]] constexpr requite::TokenType
 getUnmatched(requite::TokenType token);
-
+[[nodiscard]] constexpr bool getIsOperator(requite::TokenType token);
 [[nodiscard]] constexpr bool getIsSeperator(requite::TokenType token);
-
+[[nodiscard]] constexpr bool getIsLiteral(requite::TokenType token);
+[[nodiscard]] constexpr bool getIsLeftGrouping(requite::TokenType token);
 [[nodiscard]] constexpr bool getIsRightGrouping(requite::TokenType token);
+[[nodiscard]] constexpr bool getIsGrouping(requite::TokenType token);
+[[nodiscard]] constexpr bool
+getIsLeftUnmatchedGrouping(requite::TokenType token);
+[[nodiscard]] constexpr bool
+getIsRightUnmathcedGrouping(requite::TokenType token);
+[[nodiscard]] constexpr bool getIsUnmatchedGrouping(requite::TokenType token);
+[[nodiscard]] constexpr bool getIsError(requite::TokenType token);
+[[nodiscard]] constexpr bool getIsExpressionEnd(requite::TokenType token);
 
 } // namespace requite
 
