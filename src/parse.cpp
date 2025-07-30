@@ -425,7 +425,10 @@ requite::Expression &Parser::parsePrecedence5() {
       precedence_parser.parseBinary(requite::Opcode::_BITWISE_ROTATE_RIGHT);
       precedence_parser.setRecent(this->parsePrecedence4());
       continue;
+    default:
+      break;
     }
+    break;
   }
   precedence_parser.appendRecent();
   return precedence_parser.getOuter();
