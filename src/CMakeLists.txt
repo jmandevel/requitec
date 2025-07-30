@@ -80,6 +80,8 @@ target_sources(
         user_symbol_writer.cpp
         user_symbol.cpp
         global.cpp
+        grouping_parse.cpp
+        grouping_parser.cpp
         implement.cpp
         implementor.cpp
         import.cpp
