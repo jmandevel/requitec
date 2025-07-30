@@ -288,9 +288,8 @@ requite::Expression &Parser::parsePrecedence7() {
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::GREATER_OPERATOR: {
-      const requite::Token &next_token = this->getNextToken();
-      if (requite::getIsSeperator(next_token.getType())) {
+    case requite::TokenType::GREATER_OPERATOR:
+      if (this->getEndIsNext()) {
         precedence_parser.appendRecent();
         return precedence_parser.getOuter();
       }
@@ -298,15 +297,13 @@ requite::Expression &Parser::parsePrecedence7() {
       precedence_parser.parseNary(requite::Opcode::_GREATER);
       precedence_parser.setRecent(this->parsePrecedence6());
       continue;
-    }
     case requite::TokenType::GREATER_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNary(requite::Opcode::_GREATER_EQUAL);
       precedence_parser.setRecent(this->parsePrecedence6());
       continue;
-    case requite::TokenType::LESS_OPERATOR: {
-      const requite::Token &next_token = this->getNextToken();
-      if (requite::getIsExpressionEnd(next_token.getType())) {
+    case requite::TokenType::LESS_OPERATOR:
+      if (this->getEndIsNext()) {
         precedence_parser.appendRecent();
         return precedence_parser.getOuter();
       }
@@ -314,7 +311,6 @@ requite::Expression &Parser::parsePrecedence7() {
       precedence_parser.parseNary(requite::Opcode::_LESS);
       precedence_parser.setRecent(this->parsePrecedence6());
       continue;
-    }
     case requite::TokenType::LESS_EQUAL_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseNary(requite::Opcode::_LESS_EQUAL);
