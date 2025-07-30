@@ -23,16 +23,12 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "greater_operator";
   case requite::TokenType::DOUBLE_GREATER_OPERATOR:
     return "double_greater_operator";
-  case requite::TokenType::GREATER_CAROT_OPERATOR:
-    return "greater_carot_operator";
   case requite::TokenType::GREATER_EQUAL_OPERATOR:
     return "greater_equal_operator";
   case requite::TokenType::LESS_OPERATOR:
     return "less_operator";
   case requite::TokenType::DOUBLE_LESS_OPERATOR:
     return "double_less_operator";
-  case requite::TokenType::LESS_CAROT_OPERATOR:
-    return "less_carot_operator";
   case requite::TokenType::LESS_EQUAL_OPERATOR:
     return "less_equal_operator";
   case requite::TokenType::BANG_EQUAL_OPERATOR:
@@ -245,15 +241,11 @@ _getFlags(requite::TokenType token) {
     [[fallthrough]];
   case TokenType::DOUBLE_GREATER_OPERATOR:
     [[fallthrough]];
-  case TokenType::GREATER_CAROT_OPERATOR:
-    [[fallthrough]];
   case TokenType::GREATER_EQUAL_OPERATOR:
     [[fallthrough]];
   case TokenType::LESS_OPERATOR:
     [[fallthrough]];
   case TokenType::DOUBLE_LESS_OPERATOR:
-    [[fallthrough]];
-  case TokenType::LESS_CAROT_OPERATOR:
     [[fallthrough]];
   case TokenType::LESS_EQUAL_OPERATOR:
     [[fallthrough]];

@@ -240,10 +240,10 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::_BITWISE_SHIFT_RIGHT:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_ROTATE_LEFT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_ROTATE_RIGHT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::BITWISE_ROTATE_LEFT:
+    return _MATTE_VALUE;
+  case Opcode::BITWISE_ROTATE_RIGHT:
+    return _MATTE_VALUE;
 
   // MEMORY
   case Opcode::_COMPILE_TIME_CONCATINATE:
@@ -784,10 +784,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_bitwise_shift_left";
   case requite::Opcode::_BITWISE_SHIFT_RIGHT:
     return "_bitwise_shift_right";
-  case requite::Opcode::_BITWISE_ROTATE_LEFT:
-    return "_bitwise_rotate_left";
-  case requite::Opcode::_BITWISE_ROTATE_RIGHT:
-    return "_bitwise_rotate_right";
+  case requite::Opcode::BITWISE_ROTATE_LEFT:
+    return "bitwise_rotate_left";
+  case requite::Opcode::BITWISE_ROTATE_RIGHT:
+    return "bitwise_rotate_right";
 
   // MEMORY
   case requite::Opcode::_COMPILE_TIME_CONCATINATE:

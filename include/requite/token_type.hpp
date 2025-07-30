@@ -18,11 +18,9 @@ enum class TokenType {
   AT_OPERATOR,               // @
   GREATER_OPERATOR,          // >
   DOUBLE_GREATER_OPERATOR,   // >>
-  GREATER_CAROT_OPERATOR,    // >^
   GREATER_EQUAL_OPERATOR,    // >=
   LESS_OPERATOR,             // <
   DOUBLE_LESS_OPERATOR,      // <<
-  LESS_CAROT_OPERATOR,       // <^
   LESS_EQUAL_OPERATOR,       // <=
   BANG_EQUAL_OPERATOR,       // !=
   BANG_OPERATOR,             // !

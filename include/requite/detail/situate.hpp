@@ -483,9 +483,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_BITWISE_ROTATE_LEFT:
+  case requite::Opcode::BITWISE_ROTATE_LEFT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_ROTATE_LEFT)) {
+                      requite::Opcode::BITWISE_ROTATE_LEFT)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,
@@ -493,9 +493,9 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case requite::Opcode::_BITWISE_ROTATE_RIGHT:
+  case requite::Opcode::BITWISE_ROTATE_RIGHT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_ROTATE_RIGHT)) {
+                      requite::Opcode::BITWISE_ROTATE_RIGHT)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateBinaryExpression<SITUATION_PARAM,

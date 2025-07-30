@@ -399,7 +399,7 @@ requite::Expression &Parser::parsePrecedence6() {
   return precedence_parser.getOuter();
 }
 
-// BITWISE SHIFT AND ROTATE OPERATORS
+// BITWISE SHIFT OPERATORS
 requite::Expression &Parser::parsePrecedence5() {
   requite::PrecedenceParser precedence_parser(*this);
   while (!this->getIsDone()) {
@@ -413,16 +413,6 @@ requite::Expression &Parser::parsePrecedence5() {
     case requite::TokenType::DOUBLE_GREATER_OPERATOR:
       std::ignore = this->checkIsNormativeRequiteOk();
       precedence_parser.parseBinary(requite::Opcode::_BITWISE_SHIFT_RIGHT);
-      precedence_parser.setRecent(this->parsePrecedence4());
-      continue;
-    case requite::TokenType::LESS_CAROT_OPERATOR:
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseBinary(requite::Opcode::_BITWISE_ROTATE_LEFT);
-      precedence_parser.setRecent(this->parsePrecedence4());
-      continue;
-    case requite::TokenType::GREATER_CAROT_OPERATOR:
-      std::ignore = this->checkIsNormativeRequiteOk();
-      precedence_parser.parseBinary(requite::Opcode::_BITWISE_ROTATE_RIGHT);
       precedence_parser.setRecent(this->parsePrecedence4());
       continue;
     default:
