@@ -47,6 +47,7 @@ target_sources(
         options.cpp
         parse.cpp
         parse_precedence.cpp
+        precedence_parser.cpp
         parser.cpp
         prepare_tables.cpp
         procedure_iterator.cpp

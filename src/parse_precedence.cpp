@@ -8,10 +8,9 @@
 
 namespace requite {
 
-void PrecedenceParser::parseDoubleUnary(requite::Parser &parser,
-                                        requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseDoubleUnary(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   requite::Expression &operation0 = requite::Expression::makeOperation(opcode);
   operation0.setSource(token);
   this->appendBranch(operation0);
@@ -24,10 +23,9 @@ void PrecedenceParser::parseDoubleUnary(requite::Parser &parser,
   this->_last_ptr = nullptr;
 }
 
-void PrecedenceParser::parseUnary(requite::Parser &parser,
-                                  requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseUnary(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   requite::Expression &operation = requite::Expression::makeOperation(opcode);
   operation.setSource(token);
   this->appendBranch(operation);
@@ -35,10 +33,9 @@ void PrecedenceParser::parseUnary(requite::Parser &parser,
   this->_last_ptr = nullptr;
 }
 
-void PrecedenceParser::parseBinary(requite::Parser &parser,
-                                   requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseBinary(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   requite::Expression &new_operation =
       requite::Expression::makeOperation(opcode);
   new_operation.setSource(this->getRecent(), token);
@@ -48,10 +45,9 @@ void PrecedenceParser::parseBinary(requite::Parser &parser,
   this->appendRecent();
 }
 
-void PrecedenceParser::parseBinaryCombination(requite::Parser &parser,
-                                              requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseBinaryCombination(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   requite::Expression &new_operation =
       requite::Expression::makeOperation(opcode);
   new_operation.setSource(this->getOuter(), token);
@@ -61,10 +57,9 @@ void PrecedenceParser::parseBinaryCombination(requite::Parser &parser,
   this->_outer_ptr = &new_operation;
 }
 
-void PrecedenceParser::parseNary(requite::Parser &parser,
-                                 requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseNary(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   if (this->getHasOperation()) {
     requite::Expression &existing_operation = this->getOperation();
     if (existing_operation.getOpcode() == opcode) {
@@ -84,10 +79,9 @@ void PrecedenceParser::parseNary(requite::Parser &parser,
   this->appendRecent();
 }
 
-void PrecedenceParser::parseNestingNary(requite::Parser &parser,
-                                            requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseNestingNary(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   requite::Expression &operation = requite::Expression::makeOperation(opcode);
   operation.setSource(this->getOuter(), token);
   operation.setBranch(this->getOuter());
@@ -96,16 +90,16 @@ void PrecedenceParser::parseNestingNary(requite::Parser &parser,
   this->_outer_ptr = &operation;
 }
 
-void PrecedenceParser::parseAttribute(requite::Parser &parser) {
-  const requite::Token &at_token = parser.getToken();
-  parser.incrementToken(1);
-  const requite::Token &opcode_token = parser.getToken();
-  requite::Opcode opcode = parser.parseOpcode();
-  requite::Expression& attribute = requite::Expression::makeOperation(opcode);
+void PrecedenceParser::parseAttribute() {
+  const requite::Token &at_token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
+  const requite::Token &opcode_token = this->getParser().getToken();
+  requite::Opcode opcode = this->getParser().parseOpcode();
+  requite::Expression &attribute = requite::Expression::makeOperation(opcode);
   attribute.setSource(at_token, opcode_token);
-  const requite::Token &left_token = parser.getToken();
+  const requite::Token &left_token = this->getParser().getToken();
   if (left_token.getType() == requite::TokenType::LEFT_PARENTHESIS_GROUPING) {
-    parser.parseAttributeArguments(attribute);
+    this->getParser().parseAttributeArguments(attribute);
   }
   this->parseAscribe(at_token);
   requite::Expression &ascribe = this->getOperation();
@@ -113,10 +107,9 @@ void PrecedenceParser::parseAttribute(requite::Parser &parser) {
   this->appendBranch(attribute);
 }
 
-void PrecedenceParser::parseUnaryAttribute(requite::Parser &parser,
-                                      requite::Opcode opcode) {
-  const requite::Token &token = parser.getToken();
-  parser.incrementToken(1);
+void PrecedenceParser::parseUnaryAttribute(requite::Opcode opcode) {
+  const requite::Token &token = this->getParser().getToken();
+  this->getParser().incrementToken(1);
   this->parseAscribe(token);
   requite::Expression &attribute = requite::Expression::makeOperation(opcode);
   attribute.setSource(token);
@@ -126,7 +119,7 @@ void PrecedenceParser::parseUnaryAttribute(requite::Parser &parser,
   ascribe.extendSourceOver(attribute);
 }
 
-void PrecedenceParser::parseAscribe(const requite::Token& token) {
+void PrecedenceParser::parseAscribe(const requite::Token &token) {
   if (this->getHasOperation()) {
     requite::Expression &old_operation = this->getOperation();
     if (old_operation.getOpcode() != requite::Opcode::_ASCRIBE_LAST_BRANCH) {
@@ -157,23 +150,24 @@ void PrecedenceParser::parseAscribe(const requite::Token& token) {
   }
 }
 
-void PrecedenceParser::parseCallOrSignature(requite::Parser &parser) {
-  REQUITE_ASSERT(!parser.getIsDone());
-  requite::Expression& operation = parser.parseCallOrSignature(&this->getOuter());
+void PrecedenceParser::parseCallOrSignature() {
+  REQUITE_ASSERT(!this->getParser().getIsDone());
+  requite::Expression &operation =
+      this->getParser().parseCallOrSignature(&this->getOuter());
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }
 
-void PrecedenceParser::parseCallOrSignatureImplicitCallee(requite::Parser &parser) {
-  REQUITE_ASSERT(!parser.getIsDone());
-  requite::Expression& operation = parser.parseCallOrSignature(nullptr);
+void PrecedenceParser::parseCallOrSignatureImplicitCallee() {
+  REQUITE_ASSERT(!this->getParser().getIsDone());
+  requite::Expression &operation = this->getParser().parseCallOrSignature(nullptr);
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }
 
-void PrecedenceParser::parseSpecialization(requite::Parser &parser) {
-  REQUITE_ASSERT(!parser.getIsDone());
-  requite::Expression& operation = parser.parseSpecialization(this->getOuter());
+void PrecedenceParser::parseSpecialization() {
+  REQUITE_ASSERT(!this->getParser().getIsDone());
+  requite::Expression &operation = this->getParser().parseSpecialization(this->getOuter());
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }

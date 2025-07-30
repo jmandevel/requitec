@@ -7,14 +7,18 @@
 #include <requite/opcode.hpp>
 #include <requite/token_type.hpp>
 
+#include <functional>
+
 namespace requite {
 
 struct Expression;
 struct Parser;
+struct Token;
 
 struct PrecedenceParser final {
   using Self = requite::PrecedenceParser;
 
+  std::reference_wrapper<requite::Parser> _parser_ref;
   // the outermost operation that is returned at the end of the precedence
   requite::Expression *_outer_ptr = nullptr;
   // the current operation that is being filled with branches
@@ -25,26 +29,29 @@ struct PrecedenceParser final {
   // the last branch that was appended to the operation
   requite::Expression *_last_ptr = nullptr;
 
-  PrecedenceParser() = default;
+  // precedence_parser.cpp
+  PrecedenceParser(requite::Parser& parser);
   PrecedenceParser(const Self &) = delete;
   PrecedenceParser(Self &&) = delete;
   ~PrecedenceParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] requite::Parser& getParser();
+  [[nodiscard]] const requite::Parser& getParser() const;
 
   // parse.cpp
-  void parseDoubleUnary(requite::Parser &parser, requite::Opcode opcode);
-  void parseUnary(requite::Parser &parser, requite::Opcode opcode);
-  void parseBinary(requite::Parser &parser, requite::Opcode opcode);
-  void parseBinaryCombination(requite::Parser &parser, requite::Opcode opcode);
-  void parseNary(requite::Parser &parser, requite::Opcode opcode);
-  void parseNestingNary(requite::Parser &parser, requite::Opcode opcode);
-  void parseAttribute(requite::Parser& parser);
-  void parseUnaryAttribute(requite::Parser &parser, requite::Opcode opcode);
+  void parseDoubleUnary(requite::Opcode opcode);
+  void parseUnary(requite::Opcode opcode);
+  void parseBinary(requite::Opcode opcode);
+  void parseBinaryCombination(requite::Opcode opcode);
+  void parseNary(requite::Opcode opcode);
+  void parseNestingNary(requite::Opcode opcode);
+  void parseAttribute();
+  void parseUnaryAttribute(requite::Opcode opcode);
   void parseAscribe(const requite::Token& token);
-  void parseCallOrSignature(requite::Parser &parser);
-  void parseCallOrSignatureImplicitCallee(requite::Parser &parser);
-  void parseSpecialization(requite::Parser &parser);
+  void parseCallOrSignature();
+  void parseCallOrSignatureImplicitCallee();
+  void parseSpecialization();
   void appendBranch(requite::Expression &branch);
   void setRecent(requite::Expression &branch);
   void appendRecent();
