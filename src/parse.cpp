@@ -604,8 +604,7 @@ requite::Expression &Parser::parsePrecedence2() {
       precedence_parser.appendBranch(this->parsePrecedence8());
       previous_attribute = false;
       break;
-    } else if (requite::getIsSeperator(type) ||
-               requite::getIsRightGrouping(type)) {
+    } else if (requite::getIsExpressionEnd(type)) {
       std::ignore = this->checkIsNormativeRequiteOk();
       requite::Expression &inference =
           requite::Expression::makeOperation(requite::Opcode::_TACIT);
@@ -803,7 +802,7 @@ Parser::parseOperationBranches(const requite::Token &left_token,
       }
       this->getContext().logErrorMissingTrailingSemicolon(previous);
       this->setNotOk();
-      if (requite::getIsSeperator(type) || requite::getIsRightGrouping(type)) {
+      if (requite::getIsExpressionEnd(type)) {
         this->incrementToken(1);
         this->logErrorUnexpectedToken(token);
       }
