@@ -30,7 +30,7 @@ std::string Parser::getText(llvm::StringRef log_message_type_text,
     this->getContext().logSourceMessage(
         token, requite::LogType::ERROR,
         llvm::Twine("failed to parse ") + log_message_type_text + " because " +
-            requite::getDescription(result) + "");
+            requite::getDescription(result) + "\n");
     this->setNotOk();
   }
   const char *text = buffer.c_str();
