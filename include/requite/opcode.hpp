@@ -357,52 +357,33 @@ static constexpr unsigned OPCODE_COUNT =
     static_cast<std::size_t>(requite::Opcode::__LAST);
 
 [[nodiscard]] constexpr std::string_view getName(requite::Opcode opcode);
-
 [[nodiscard]] constexpr requite::Opcode
 getUniversalizedValue(requite::Opcode opcode);
-
 [[nodiscard]] constexpr requite::Opcode
 getUniversalizedSymbol(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getIsValid(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getIsInternalUseOnly(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getIsIntermediateOperation(requite::Opcode opcode);
-
-[[nodiscard]] constexpr bool getBranchCanHaveNoSemicolon(requite::Opcode opcode);
-
+[[nodiscard]] constexpr bool
+getBranchCanHaveNoSemicolon(requite::Opcode opcode);
+[[nodiscard]] constexpr bool
+getHasSemicolonSeperatedBranches(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasIntegerData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasTableData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasObjectData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasOverloadData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasLabelData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasGlobalData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasPropertyData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasLocalData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool
 getHasAnonymousFunctionData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasImportData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasUseData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasUseTableData(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool getHasBlockData(requite::Opcode opcode);
 
 } // namespace requite
