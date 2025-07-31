@@ -154,4 +154,17 @@ void Context::logErrorExpectedExpressionAfterComma(
                          "expected expression after comma");
 }
 
+void Context::logErrorPositionalFieldsEndBeforeExpression(
+    const requite::Token &token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
+                         "unexpected positional fields end before expression");
+}
+
+void Context::logErrorNamedFieldsBeginAfterExpression(
+    const requite::Token &token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
+                         "unexpected named fields begin after expression");
+}
+
+
 } // namespace requite

@@ -94,7 +94,7 @@ void PrecedenceParser::parseAttribute() {
   const requite::Token &at_token = this->getParser().getToken();
   this->getParser().incrementToken(1);
   const requite::Token &opcode_token = this->getParser().getToken();
-  requite::Opcode opcode = this->getParser().parseOpcode();
+  requite::Opcode opcode = this->getParser().parseAttributeOpcode();
   requite::Expression &attribute = requite::Expression::makeOperation(opcode);
   attribute.setSource(at_token, opcode_token);
   const requite::Token &left_token = this->getParser().getToken();

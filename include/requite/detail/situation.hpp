@@ -421,7 +421,9 @@ constexpr bool getCanBeArgumentSituation(requite::Opcode opcode) {
 constexpr bool getCanBeParameterSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_SYMBOL) ||
          opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
-         opcode == requite::Opcode::_BIND_SYMBOL;
+         opcode == requite::Opcode::_BIND_SYMBOL ||
+         opcode == requite::Opcode::_NAMED_FIELDS_BEGIN ||
+         opcode == requite::Opcode::_POSITIONAL_FIELDS_END;
 }
 
 constexpr bool getCanBeParameterValueSituation(requite::Opcode opcode) {

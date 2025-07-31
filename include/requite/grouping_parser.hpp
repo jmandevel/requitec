@@ -32,6 +32,7 @@ struct GroupingParser final {
     [[nodiscard]] const requite::Expression &getOperation() const;
 
     // grouping_parse.cpp
+    void startGroup(requite::Expression& existing_expression);
     void startGroup(requite::Opcode opcode, const requite::Token& first_token);
     void startGroup(requite::Opcode opcode, requite::Expression& first_branch);
     void appendBranch(requite::Expression& branch);

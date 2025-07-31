@@ -395,7 +395,9 @@ struct Context final : public requite::_ContextLlvmContext {
   void logErrorMissingCommmaSeperator(const requite::Token& token);
   void logErrorExpectedExpressionBeforeComma(const requite::Token& token);
   void logErrorExpectedExpressionAfterComma(const requite::Token& token);
-  
+  void logErrorPositionalFieldsEndBeforeExpression(const requite::Token& token);
+  void logErrorNamedFieldsBeginAfterExpression(const requite::Token& token);
+
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>
   void logErrorNotAtLeastBranchCount(requite::Expression &expression,

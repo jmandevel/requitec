@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/assert.hpp>
+#include <requite/grouping_parser.hpp>
 #include <requite/literal_text.hpp>
 #include <requite/numeric.hpp>
 #include <requite/options.hpp>
@@ -402,6 +403,7 @@ requite::Expression &Parser::parsePrecedence6() {
 // BITWISE SHIFT OPERATORS
 requite::Expression &Parser::parsePrecedence5() {
   requite::PrecedenceParser precedence_parser(*this);
+  precedence_parser.setRecent(this->parsePrecedence4());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
@@ -765,97 +767,188 @@ requite::Expression &Parser::parsePrecedence0() {
   return error;
 }
 
-requite::Expression *
-Parser::parseOperationBranches(const requite::Token &left_token,
-                               const requite::Token &opcode_token) {
+void Parser::parseOperationBranchesWithSemicolonSeperators(
+    const requite::Token &opcode_token, requite::Expression &operation) {
   REQUITE_ASSERT(!this->getIsDone());
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_BRACKET_GROUPING:
-    return nullptr;
-  case requite::TokenType::SEMICOLON_SEPERATOR:
-    this->incrementToken(1);
-    this->getContext().logErrorExpectedExpressionBeforeSemicolon(first_token);
-    this->setNotOk();
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_BRACKET_GROUPING:
-      return &first;
-    case requite::TokenType::SEMICOLON_SEPERATOR: {
+  requite::GroupingParser grouping_parser(*this);
+  grouping_parser.startGroup(operation);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_BRACKET_GROUPING) {
       this->incrementToken(1);
-      if (this->getIsDone()) {
+      std::ignore = grouping_parser.finishOperation(first_token);
+      return;
+    }
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::TRAILER_SEPERATOR: {
+        this->incrementToken(1);
+        unsigned trailer_depth = 0;
+        const requite::Token *front_token_ptr = &opcode_token;
+        while (!this->getIsDone()) {
+          const requite::Token &trailer_token = this->getToken();
+          const requite::Token &front_token = *(front_token_ptr)++;
+          switch (const requite::TokenType trailer_type =
+                      trailer_token.getType()) {
+          case requite::TokenType::LEFT_BRACKET_GROUPING:
+            trailer_depth++;
+            break;
+          case requite::TokenType::RIGHT_BRACKET_GROUPING:
+            if (trailer_depth == 0) {
+              return;
+            }
+            trailer_depth--;
+            break;
+          default:
+            break;
+          }
+          if (trailer_token.getSourceText() != front_token.getSourceText()) {
+            this->getContext().logSourceMessage(
+                trailer_token, requite::LogType::ERROR,
+                llvm::Twine("trailer token \"") +
+                    trailer_token.getSourceText() +
+                    "\" does not match front token \"" +
+                    front_token.getSourceText() + "\"");
+            this->setNotOk();
+          }
+          this->incrementToken(1);
+        }
+      } break;
+      case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+        this->incrementToken(1);
+        std::ignore = grouping_parser.finishOperation(before_token);
+        return;
+      }
+      case requite::TokenType::SEMICOLON_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeSemicolon(
+            before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
         break;
       }
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_BRACKET_GROUPING) {
-        return &first;
-      }
-    } break;
-    case requite::TokenType::TRAILER_SEPERATOR: {
-      this->incrementToken(1);
-      unsigned trailer_depth = 0;
-      const requite::Token *front_token_ptr = &opcode_token;
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
       while (!this->getIsDone()) {
-        const requite::Token &trailer_token = this->getToken();
-        const requite::Token &front_token = *(front_token_ptr)++;
-        switch (const requite::TokenType trailer_type =
-                    trailer_token.getType()) {
-        case requite::TokenType::LEFT_BRACKET_GROUPING:
-          trailer_depth++;
-          break;
-        case requite::TokenType::RIGHT_BRACKET_GROUPING:
-          if (trailer_depth == 0) {
-            return &first;
-          }
-          trailer_depth--;
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::SEMICOLON_SEPERATOR:
+          this->incrementToken(1);
           break;
         default:
+          if (branch.getCanHaveNoSemicolon()) {
+            break;
+          }
+          this->getContext().logErrorMissingTrailingSemicolon(branch);
+          this->setNotOk();
           break;
         }
-        if (trailer_token.getSourceText() != front_token.getSourceText()) {
-          this->getContext().logSourceMessage(
-              trailer_token, requite::LogType::ERROR,
-              llvm::Twine("trailer token \"") + trailer_token.getSourceText() +
-                  "\" does not match front token \"" +
-                  front_token.getSourceText() + "\"");
-          this->setNotOk();
-        }
-        this->incrementToken(1);
-      }
-    } break;
-    default:
-      if (previous.getCanHaveNoSemicolon()) {
         break;
       }
-      this->getContext().logErrorMissingTrailingSemicolon(previous);
-      this->setNotOk();
-      if (requite::getIsExpressionEnd(type)) {
-        this->incrementToken(1);
-        this->logErrorUnexpectedToken(token);
-      }
     }
-    if (this->getIsDone()) {
-      break;
-    }
-    requite::Expression &next = this->parseExpression();
-    previous.setNext(next);
-    previous_ptr = &next;
-    continue;
   }
-  this->getContext().logSourceMessage(left_token, requite::LogType::ERROR,
-                                      "found unterminated operation");
+  std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logSourceMessage(
+      operation, requite::LogType::ERROR,
+      llvm::Twine("unterminated ") + requite::getName(operation.getOpcode()));
   this->setNotOk();
-  return nullptr;
 }
 
-requite::Opcode Parser::parseOpcode() {
+void Parser::parseOperationBranchesWithCommaSeperators(
+    requite::Expression &operation) {
+  REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
+  grouping_parser.startGroup(operation);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_BRACKET_GROUPING) {
+      this->incrementToken(1);
+      std::ignore = grouping_parser.finishOperation(first_token);
+      return;
+    }
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        std::ignore = grouping_parser.finishOperation(before_token);
+        return;
+      }
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::GREATER_OPERATOR: {
+        requite::Expression &names_begin = requite::Expression::makeOperation(
+            requite::Opcode::_NAMED_FIELDS_BEGIN);
+        names_begin.setSource(before_token);
+        grouping_parser.appendBranch(names_begin);
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::LESS_OPERATOR: {
+        this->getContext().logErrorPositionalFieldsEndBeforeExpression(
+            before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+          this->incrementToken(1);
+          std::ignore = grouping_parser.finishOperation(after_token);
+          return;
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        case requite::TokenType::GREATER_OPERATOR: {
+          this->getContext().logErrorNamedFieldsBeginAfterExpression(
+              after_token);
+          this->incrementToken(1);
+          continue;
+        }
+        case requite::TokenType::LESS_OPERATOR: {
+          requite::Expression &positional_end =
+              requite::Expression::makeOperation(
+                  requite::Opcode::_POSITIONAL_FIELDS_END);
+          positional_end.setSource(before_token);
+          grouping_parser.appendBranch(positional_end);
+          this->incrementToken(1);
+          continue;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
+    }
+  }
+  std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logSourceMessage(
+      operation, requite::LogType::ERROR,
+      llvm::Twine("unterminated ") + requite::getName(operation.getOpcode()));
+  this->setNotOk();
+}
+
+requite::Opcode Parser::parseOperationOpcode() {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &token = this->getToken();
   this->incrementToken(1);
@@ -894,6 +987,48 @@ requite::Opcode Parser::parseOpcode() {
   return opcode;
 }
 
+requite::Opcode Parser::parseAttributeOpcode() {
+  REQUITE_ASSERT(!this->getIsDone());
+  const requite::Token &token = this->getToken();
+  this->incrementToken(1);
+  const requite::TokenType type = token.getType();
+  requite::Opcode opcode;
+  if (type == requite::TokenType::IDENTIFIER_LITERAL) {
+    opcode = this->getContext().getOpcode(token.getSourceText());
+  } else {
+    this->setNotOk();
+    this->getContext().logSourceMessage(token, requite::LogType::ERROR,
+                                        "opcode token not identifier literal");
+    return requite::Opcode::__ERROR;
+  }
+  if (opcode == requite::Opcode::__NONE) {
+    this->setNotOk();
+    this->getContext().logSourceMessage(
+        token, requite::LogType::ERROR,
+        llvm::Twine("token of type \"") + requite::getName(type) +
+            "\" with text \"" + token.getSourceText() +
+            "\" does not represent an opcode");
+    return requite::Opcode::__ERROR;
+  }
+  if (requite::getIsInternalUseOnly(opcode)) {
+    this->setNotOk();
+    this->getContext().logSourceMessage(
+        token, requite::LogType::ERROR,
+        llvm::Twine("internal use opcode not allowed: \"") +
+            token.getSourceText() + "\"");
+    return requite::Opcode::__ERROR;
+  }
+  if (!requite::getCanBeAttributeSituation(opcode)) {
+    this->setNotOk();
+    this->getContext().logSourceMessage(
+        token, requite::LogType::ERROR,
+        llvm::Twine("opcode is not valid for attributes: \"") +
+            token.getSourceText() + "\"");
+    return requite::Opcode::__ERROR;
+  }
+  return opcode;
+}
+
 requite::Expression &Parser::parseBracketExpression() {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &left_token = this->getToken();
@@ -908,527 +1043,506 @@ requite::Expression &Parser::parseBracketExpression() {
             requite::Opcode::_ANONYMOUS_FUNCTION);
     requite::Expression &capture = this->parseCapture();
     anonymous_function.setBranch(capture);
-    requite::Expression *first_ptr =
-        this->parseOperationBranches(left_token, opcode_token);
-    if (first_ptr != nullptr) {
-      capture.setNext(requite::getRef(first_ptr));
-    }
-    const requite::Token &right_anonymous_function = this->getToken();
-    anonymous_function.setSource(left_token, right_anonymous_function);
-    this->incrementToken(1);
+    this->parseOperationBranchesWithSemicolonSeperators(left_token,
+                                                        anonymous_function);
     return anonymous_function;
   }
-  const requite::Opcode opcode = this->parseOpcode();
-  requite::Expression *first_ptr =
-      this->parseOperationBranches(left_token, opcode_token);
-  const requite::Token &right_token = this->getToken();
-  this->incrementToken(1);
+  const requite::Opcode opcode = this->parseOperationOpcode();
   requite::Expression &operation = requite::Expression::makeOperation(opcode);
-  operation.setBranchPtr(first_ptr);
-  operation.setSource(left_token, right_token);
+  operation.setSource(left_token);
+  if (requite::getHasSemicolonSeperatedBranches(opcode)) {
+    this->parseOperationBranchesWithSemicolonSeperators(opcode_token,
+                                                        operation);
+  } else {
+    this->parseOperationBranchesWithCommaSeperators(operation);
+  }
   return operation;
 }
 
 requite::Expression &Parser::parseTrip() {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  requite::Expression &trip =
-      requite::Expression::makeOperation(requite::Opcode::_TRIP);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(trip, requite::LogType::ERROR,
-                                        "found unterminated trip");
-    return trip;
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_TRIP_GROUPING: {
-    trip.setSource(left_token, first_token);
-    return trip;
-  }
-  case requite::TokenType::COMMA_SEPERATOR: {
-    this->getContext().logErrorExpectedExpressionBeforeComma(first_token);
-    this->setNotOk();
-    return trip;
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  trip.setBranch(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_TRIP_GROUPING: {
-      trip.setSource(left_token, token);
+  grouping_parser.startGroup(requite::Opcode::_TRIP, left_token);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
       this->incrementToken(1);
-      return trip;
+      return grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
-        this->incrementToken(1);
-        this->getContext().logErrorExpectedExpressionAfterComma(token);
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_TRIP_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
         this->setNotOk();
-        return trip;
+        this->incrementToken(1);
+        return grouping_parser.finishOperation(before_token);
       }
-      break;
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::GREATER_OPERATOR: {
+        requite::Expression &names_begin = requite::Expression::makeOperation(
+            requite::Opcode::_NAMED_FIELDS_BEGIN);
+        names_begin.setSource(before_token);
+        grouping_parser.appendBranch(names_begin);
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::LESS_OPERATOR: {
+        this->getContext().logErrorPositionalFieldsEndBeforeExpression(
+            before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_TRIP_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(after_token);
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        case requite::TokenType::GREATER_OPERATOR: {
+          this->getContext().logErrorNamedFieldsBeginAfterExpression(
+              after_token);
+          this->incrementToken(1);
+          continue;
+        }
+        case requite::TokenType::LESS_OPERATOR: {
+          requite::Expression &positional_end =
+              requite::Expression::makeOperation(
+                  requite::Opcode::_POSITIONAL_FIELDS_END);
+          positional_end.setSource(before_token);
+          grouping_parser.appendBranch(positional_end);
+          this->incrementToken(1);
+          continue;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
     }
-    default:
-      this->getContext().logErrorMissingCommmaSeperator(token);
-      this->setNotOk();
-    }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
+  requite::Expression &trip =
+      grouping_parser.finishOperation(this->getPreviousToken());
   this->getContext().logSourceMessage(trip, requite::LogType::ERROR,
-                                      "found unterminated trip");
+                                      "unterminated _trip");
+  this->setNotOk();
   return trip;
 }
 
 requite::Expression &Parser::parseCapture() {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  requite::Expression &capture =
-      requite::Expression::makeOperation(requite::Opcode::_CAPTURE);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(capture, requite::LogType::ERROR,
-                                        "found unterminated capture");
-    return capture;
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_BRACKET_GROUPING: {
-    capture.setSource(left_token, first_token);
-    return capture;
-  }
-  case requite::TokenType::COMMA_SEPERATOR: {
-    this->getContext().logErrorExpectedExpressionBeforeComma(first_token);
-    this->setNotOk();
-    return capture;
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  capture.setBranch(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_BRACKET_GROUPING: {
-      capture.setSource(left_token, token);
+  grouping_parser.startGroup(requite::Opcode::_CAPTURE, left_token);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_BRACKET_GROUPING) {
       this->incrementToken(1);
-      return capture;
+      return grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_BRACKET_GROUPING) {
-        this->incrementToken(1);
-        this->getContext().logErrorExpectedExpressionAfterComma(token);
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
         this->setNotOk();
-        return capture;
+        this->incrementToken(1);
+        return grouping_parser.finishOperation(before_token);
       }
-      break;
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(after_token);
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
     }
-    default:
-      this->getContext().logErrorMissingCommmaSeperator(token);
-      this->setNotOk();
-    }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
+  requite::Expression &capture =
+      grouping_parser.finishOperation(this->getPreviousToken());
   this->getContext().logSourceMessage(capture, requite::LogType::ERROR,
-                                      "found unterminated capture");
+                                      "unterminated _capture");
+  this->setNotOk();
   return capture;
 }
 
 requite::Expression &
 Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   if (callee_ptr == nullptr) {
-    callee_ptr = &requite::Expression::makeOperation(requite::Opcode::_TACIT);
-    requite::getRef(callee_ptr).setSourceInsertedBefore(left_token);
+    requite::Expression &implicit =
+        requite::Expression::makeOperation(requite::Opcode::_TACIT);
+    implicit.setSourceInsertedBefore(left_token);
+    callee_ptr = &implicit;
   }
   requite::Expression &callee = requite::getRef(callee_ptr);
-  requite::Expression &call =
-      requite::Expression::makeOperation(requite::Opcode::_CALL_OR_SIGNATURE);
-  call.setBranch(callee);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(left_token, requite::LogType::ERROR,
-                                        "found unterminated call or signature");
-    this->setNotOk();
-    call.setSource(callee, left_token);
-    return call;
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-    this->incrementToken(1);
-    call.setSource(callee, first_token);
-    return call;
-  }
-  case requite::TokenType::COMMA_SEPERATOR: {
-    this->incrementToken(1);
-    this->getContext().logErrorExpectedExpressionBeforeComma(first_token);
-    this->setNotOk();
-    return call;
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  callee.setNext(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-      call.setSource(callee, token);
+  grouping_parser.startGroup(requite::Opcode::_CALL_OR_SIGNATURE, callee);
+  grouping_parser.appendBranch(callee);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() ==
+        requite::TokenType::RIGHT_PARENTHESIS_GROUPING) {
       this->incrementToken(1);
-      return call;
+      return grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      if (this->getIsDone()) {
-        this->getContext().logSourceMessage(
-            call, requite::LogType::ERROR,
-            "found unterminated call or signature");
-        call.setSource(callee, token);
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
         this->setNotOk();
-        return call;
-      }
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() ==
-          requite::TokenType::RIGHT_PARENTHESIS_GROUPING) {
         this->incrementToken(1);
-        this->getContext().logErrorExpectedExpressionAfterComma(token);
-        this->setNotOk();
-        return call;
+        return grouping_parser.finishOperation(before_token);
       }
-      break;
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::GREATER_OPERATOR: {
+        requite::Expression &names_begin = requite::Expression::makeOperation(
+            requite::Opcode::_NAMED_FIELDS_BEGIN);
+        names_begin.setSource(before_token);
+        grouping_parser.appendBranch(names_begin);
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::LESS_OPERATOR: {
+        this->getContext().logErrorPositionalFieldsEndBeforeExpression(
+            before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(after_token);
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        case requite::TokenType::GREATER_OPERATOR: {
+          this->getContext().logErrorNamedFieldsBeginAfterExpression(
+              after_token);
+          this->incrementToken(1);
+          continue;
+        }
+        case requite::TokenType::LESS_OPERATOR: {
+          requite::Expression &positional_end =
+              requite::Expression::makeOperation(
+                  requite::Opcode::_POSITIONAL_FIELDS_END);
+          positional_end.setSource(before_token);
+          grouping_parser.appendBranch(positional_end);
+          this->incrementToken(1);
+          continue;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
     }
-    default:
-      this->getContext().logErrorMissingCommmaSeperator(token);
-      this->setNotOk();
-    }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
-  this->getContext().logSourceMessage(call, requite::LogType::ERROR,
-                                      "found unterminated call or signature");
+  requite::Expression &call_or_signature =
+      grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logSourceMessage(call_or_signature,
+                                      requite::LogType::ERROR,
+                                      "unterminated _call_or_signature");
   this->setNotOk();
-  return call;
+  return call_or_signature;
 }
 
 requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  requite::Expression &call =
-      requite::Expression::makeOperation(requite::Opcode::_SPECIALIZATION);
-  call.setBranch(callee);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(left_token, requite::LogType::ERROR,
-                                        "found unterminated specialization");
-    this->setNotOk();
-    call.setSource(callee, left_token);
-    return callee;
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_TRIP_GROUPING: {
-    call.setSource(left_token, first_token);
-    return call;
-  }
-  case requite::TokenType::COMMA_SEPERATOR: {
-    this->getContext().logErrorExpectedExpressionBeforeComma(first_token);
-    this->setNotOk();
-    return call;
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  callee.setNext(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_TRIP_GROUPING: {
-      call.setSource(callee, token);
+  grouping_parser.startGroup(requite::Opcode::_CALL_OR_SIGNATURE, callee);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
       this->incrementToken(1);
-      return call;
+      return grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      if (this->getIsDone()) {
-        this->getContext().logSourceMessage(
-            call, requite::LogType::ERROR, "found unterminated specialization");
-        call.setSource(callee, token);
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_TRIP_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
         this->setNotOk();
-        return call;
-      }
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
         this->incrementToken(1);
-        this->getContext().logErrorExpectedExpressionAfterComma(token);
-        this->setNotOk();
-        return call;
+        return grouping_parser.finishOperation(before_token);
       }
-      break;
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_TRIP_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(after_token);
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
     }
-    default:
-      this->getContext().logErrorMissingCommmaSeperator(token);
-      this->setNotOk();
-    }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
-  this->getContext().logSourceMessage(call, requite::LogType::ERROR,
-                                      "found unterminated specialization");
+  requite::Expression &specialization =
+      grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logSourceMessage(specialization, requite::LogType::ERROR,
+                                      "unterminated _specialization");
   this->setNotOk();
-  return call;
+  return specialization;
 }
 
 void Parser::parseAttributeArguments(requite::Expression &attribute) {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
+  const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(attribute, requite::LogType::ERROR,
-                                        "found unterminated attribute");
-    this->setNotOk();
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-    attribute.extendSourceOver(first_token);
-    return;
-  }
-  case requite::TokenType::COMMA_SEPERATOR: {
-    this->getContext().logErrorExpectedExpressionBeforeComma(first_token);
-    this->setNotOk();
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  attribute.setBranch(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-      attribute.extendSourceOver(token);
+  grouping_parser.startGroup(attribute);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
       this->incrementToken(1);
-      return;
+      std::ignore = grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      if (this->getIsDone()) {
-        this->getContext().logSourceMessage(attribute, requite::LogType::ERROR,
-                                            "found unterminated attribute");
-        attribute.extendSourceOver(token);
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_TRIP_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
         this->setNotOk();
-      }
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() ==
-          requite::TokenType::RIGHT_PARENTHESIS_GROUPING) {
         this->incrementToken(1);
-        this->getContext().logErrorExpectedExpressionAfterComma(token);
-        this->setNotOk();
+        std::ignore = grouping_parser.finishOperation(before_token);
         return;
       }
-      break;
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_TRIP_GROUPING: {
+          this->incrementToken(1);
+          std::ignore = grouping_parser.finishOperation(after_token);
+          return;
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
     }
-    default:
-      this->getContext().logErrorMissingCommmaSeperator(token);
-      this->setNotOk();
-    }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
-  this->setNotOk();
+  std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
   this->getContext().logSourceMessage(attribute, requite::LogType::ERROR,
-                                      "found unterminated attribute");
+                                      "unterminated attribute");
+  this->setNotOk();
 }
 
 requite::Expression &Parser::parseOpenInlineScope() {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  requite::Expression &scope =
-      requite::Expression::makeOperation(requite::Opcode::_OPEN_INLINE_SCOPE);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(scope, requite::LogType::ERROR,
-                                        "found unterminated open scope");
-    scope.setSource(left_token);
-    this->setNotOk();
-    return scope;
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_OPEN_CAP_GROUPING: {
-    scope.setSource(left_token, first_token);
-    return scope;
-  }
-  case requite::TokenType::SEMICOLON_SEPERATOR: {
-    this->getContext().logErrorExpectedExpressionBeforeSemicolon(first_token);
-    this->setNotOk();
-    return scope;
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  scope.setBranch(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_OPEN_CAP_GROUPING: {
-      scope.setSource(left_token, token);
+  grouping_parser.startGroup(requite::Opcode::_OPEN_INLINE_SCOPE, left_token);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_OPEN_CAP_GROUPING) {
       this->incrementToken(1);
-      return scope;
+      return grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      if (this->getIsDone()) {
-        this->getContext().logSourceMessage(scope, requite::LogType::ERROR,
-                                            "found unterminated open scope");
-        scope.setSource(left_token, token);
-        this->setNotOk();
-        return scope;
-      }
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() == requite::TokenType::RIGHT_OPEN_CAP_GROUPING) {
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_OPEN_CAP_GROUPING: {
         this->incrementToken(1);
-        if (previous.getCanHaveNoSemicolon()) {
-          return scope;
-        }
-        this->getContext().logErrorMissingTrailingSemicolon(previous);
+        return grouping_parser.finishOperation(before_token);
+      case requite::TokenType::SEMICOLON_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeSemicolon(
+            before_token);
         this->setNotOk();
-        return scope;
+        this->incrementToken(1);
+        continue;
       }
-      break;
-    }
-    default:
-      if (previous.getCanHaveNoSemicolon()) {
+      default:
         break;
       }
-      this->getContext().logErrorMissingTrailingSemicolon(previous);
-      this->setNotOk();
+        requite::Expression &branch = this->parseExpression();
+        grouping_parser.appendBranch(branch);
+        while (!this->getIsDone()) {
+          const requite::Token &after_token = this->getToken();
+          switch (const requite::TokenType after_type = after_token.getType()) {
+          case requite::TokenType::SEMICOLON_SEPERATOR:
+            break;
+          default:
+            if (branch.getCanHaveNoSemicolon()) {
+              break;
+            }
+            this->getContext().logErrorMissingTrailingSemicolon(branch);
+            this->setNotOk();
+            break;
+          }
+          break;
+        }
+      }
     }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
+  requite::Expression &open_inline_scope =
+      grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logSourceMessage(open_inline_scope,
+                                      requite::LogType::ERROR,
+                                      "unterminated _open_inline_scope");
   this->setNotOk();
-  this->getContext().logSourceMessage(scope, requite::LogType::ERROR,
-                                      "found unterminated open scope");
-  return scope;
+  return open_inline_scope;
 }
 
 requite::Expression &Parser::parseClosedInlineScope() {
   REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  requite::Expression &scope =
-      requite::Expression::makeOperation(requite::Opcode::_CLOSED_INLINE_SCOPE);
-  if (this->getIsDone()) {
-    this->getContext().logSourceMessage(scope, requite::LogType::ERROR,
-                                        "found unterminated closed scope");
-    scope.setSource(left_token);
-    this->setNotOk();
-    return scope;
-  }
-  const requite::Token &first_token = this->getToken();
-  switch (const requite::TokenType first_type = first_token.getType()) {
-  case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING: {
-    scope.setSource(left_token, first_token);
-    return scope;
-  }
-  case requite::TokenType::SEMICOLON_SEPERATOR: {
-    this->getContext().logErrorExpectedExpressionBeforeSemicolon(first_token);
-    this->setNotOk();
-    return scope;
-  }
-  default:
-    break;
-  }
-  requite::Expression &first = this->parseExpression();
-  scope.setBranch(first);
-  requite::Expression *previous_ptr = &first;
-  while (!this->getIsDone()) {
-    REQUITE_ASSERT(!this->getIsDone());
-    requite::Expression &previous = requite::getRef(previous_ptr);
-    const requite::Token &token = this->getToken();
-    switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING: {
-      scope.setSource(left_token, token);
+  grouping_parser.startGroup(requite::Opcode::_CLOSED_INLINE_SCOPE, left_token);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() ==
+        requite::TokenType::RIGHT_CLOSED_CAP_GROUPING) {
       this->incrementToken(1);
-      return scope;
+      return grouping_parser.finishOperation(first_token);
     }
-    case requite::TokenType::COMMA_SEPERATOR: {
-      this->incrementToken(1);
-      if (this->getIsDone()) {
-        this->getContext().logSourceMessage(scope, requite::LogType::ERROR,
-                                            "found unterminated closed scope");
-        scope.setSource(left_token, token);
-        this->setNotOk();
-        return scope;
-      }
-      const requite::Token &next_token = this->getToken();
-      if (next_token.getType() ==
-          requite::TokenType::RIGHT_CLOSED_CAP_GROUPING) {
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_CLOSED_CAP_GROUPING: {
         this->incrementToken(1);
-        if (previous.getCanHaveNoSemicolon()) {
-          return scope;
-        }
-        this->getContext().logErrorMissingTrailingSemicolon(previous);
+        return grouping_parser.finishOperation(before_token);
+      case requite::TokenType::SEMICOLON_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeSemicolon(
+            before_token);
         this->setNotOk();
-        return scope;
+        this->incrementToken(1);
+        continue;
       }
-      break;
-    }
-    default:
-      if (previous.getCanHaveNoSemicolon()) {
+      default:
         break;
       }
-      this->getContext().logErrorMissingTrailingSemicolon(previous);
-      this->setNotOk();
+        requite::Expression &branch = this->parseExpression();
+        grouping_parser.appendBranch(branch);
+        while (!this->getIsDone()) {
+          const requite::Token &after_token = this->getToken();
+          switch (const requite::TokenType after_type = after_token.getType()) {
+          case requite::TokenType::SEMICOLON_SEPERATOR:
+            break;
+          default:
+            if (branch.getCanHaveNoSemicolon()) {
+              break;
+            }
+            this->getContext().logErrorMissingTrailingSemicolon(branch);
+            this->setNotOk();
+            break;
+          }
+          break;
+        }
+      }
     }
-    requite::Expression &current = this->parseExpression();
-    previous.setNext(current);
-    previous_ptr = &current;
   }
+  requite::Expression &closed_inline_scope =
+      grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logSourceMessage(closed_inline_scope,
+                                      requite::LogType::ERROR,
+                                      "unterminated _closed_inline_scope");
   this->setNotOk();
-  this->getContext().logSourceMessage(scope, requite::LogType::ERROR,
-                                      "found unterminated closed scope");
-  return scope;
+  return closed_inline_scope;
 }
 
 requite::Expression &Parser::parsePostUnary(requite::Expression &first,

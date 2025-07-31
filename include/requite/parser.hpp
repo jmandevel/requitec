@@ -69,23 +69,25 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parsePrecedence2();
   [[nodiscard]] requite::Expression &parsePrecedence1();
   [[nodiscard]] requite::Expression &parsePrecedence0();
-  [[nodiscard]] requite::Expression *
-  parseOperationBranches(const requite::Token &left_token,
-                         const requite::Token &opcode_token);
-  [[nodiscard]] requite::Expression &parseMacroBranches(const requite::Token &left_token);
-  [[nodiscard]] requite::Opcode parseOpcode();
+  void parseOperationBranchesWithSemicolonSeperators(const requite::Token& opcode_token, requite::Expression& operation);
+  void parseOperationBranchesWithCommaSeperators(requite::Expression& operation);
+  [[nodiscard]] requite::Opcode parseOperationOpcode();
+  [[nodiscard]] requite::Opcode parseAttributeOpcode();
   [[nodiscard]] requite::Expression &parseBracketExpression();
   [[nodiscard]] requite::Expression &parseTrip();
   [[nodiscard]] requite::Expression &parseCapture();
-  [[nodiscard]] requite::Expression &parseCallOrSignature(requite::Expression* callee_ptr);
-  [[nodiscard]] requite::Expression &parseSpecialization(requite::Expression& callee);
-  void parseAttributeArguments(requite::Expression& attribute);
+  [[nodiscard]] requite::Expression &
+  parseCallOrSignature(requite::Expression *callee_ptr);
+  [[nodiscard]] requite::Expression &
+  parseSpecialization(requite::Expression &callee);
+  void parseAttributeArguments(requite::Expression &attribute);
   [[nodiscard]] requite::Expression &parseOpenInlineScope();
   [[nodiscard]] requite::Expression &parseClosedInlineScope();
   [[nodiscard]] requite::Expression &parsePostUnary(requite::Expression &first,
-                                      requite::Opcode opcode);
+                                                    requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIdentifierLiteral();
-  [[nodiscard]] requite::Expression &parseNullaryOperator(requite::Opcode opcode);
+  [[nodiscard]] requite::Expression &
+  parseNullaryOperator(requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIntegerLiteral();
   [[nodiscard]] requite::Expression &parseFractionalLiteral();
   [[nodiscard]] requite::Expression &parseStringLiteral();
@@ -93,7 +95,7 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseInterpolatedString();
   [[nodiscard]] bool checkIsNormativeRequiteOk();
   [[nodiscard]] bool checkIsIntermediateRequiteOk();
-  void checkTokenIsTrailingSemicolonOperator(requite::Expression& expression);
+  void checkTokenIsTrailingSemicolonOperator(requite::Expression &expression);
   void logErrorBinaryNoLValue(const requite::Token &token);
   void logErrorHornedNoFirstBranch(const requite::Token &token);
   void logErrorFoundErrorToken(const requite::Token &token);
