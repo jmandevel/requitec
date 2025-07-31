@@ -2953,10 +2953,15 @@ Situator::situate_ClovenExpression(requite::Expression &expression) {
                            requite::Situation::STATIC_PARAMETER_VALUE) {
     this->situateNaryExpression<SITUATION_PARAM, 0,
                                 requite::Situation::PARAMETER>(expression);
+    expression.changeOpcode(requite::Opcode::_SIGNATURE);
     requite::Expression &tacit =
         requite::Expression::makeOperation(requite::Opcode::_TACIT_SYMBOL);
     tacit.setSourceInsertedBefore(expression);
-    tacit.setNext(expression.replaceBranch(tacit));
+    if (expression.getHasBranch()) {
+      tacit.setNext(expression.replaceBranch(tacit));
+    } else {
+      expression.setBranch(tacit);
+    }
   }
 }
 
