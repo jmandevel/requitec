@@ -851,9 +851,7 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
     }
   }
   std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(
-      operation, requite::LogType::ERROR,
-      llvm::Twine("unterminated ") + requite::getName(operation.getOpcode()));
+  this->getContext().logErrorUnterminatedExpression(operation);
   this->setNotOk();
 }
 
@@ -942,9 +940,7 @@ void Parser::parseOperationBranchesWithCommaSeperators(
     }
   }
   std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(
-      operation, requite::LogType::ERROR,
-      llvm::Twine("unterminated ") + requite::getName(operation.getOpcode()));
+  this->getContext().logErrorUnterminatedExpression(operation);
   this->setNotOk();
 }
 
@@ -1022,7 +1018,7 @@ requite::Opcode Parser::parseAttributeOpcode() {
     this->setNotOk();
     this->getContext().logSourceMessage(
         token, requite::LogType::ERROR,
-        llvm::Twine("opcode is not valid for attributes: \"") +
+        llvm::Twine("opcode is not valid for attribute: \"") +
             token.getSourceText() + "\"");
     return requite::Opcode::__ERROR;
   }
@@ -1203,8 +1199,7 @@ requite::Expression &Parser::parseCapture() {
   }
   requite::Expression &capture =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(capture, requite::LogType::ERROR,
-                                      "unterminated _capture");
+  this->getContext().logErrorUnterminatedExpression(capture);
   this->setNotOk();
   return capture;
 }
@@ -1303,9 +1298,7 @@ Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
   }
   requite::Expression &call_or_signature =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(call_or_signature,
-                                      requite::LogType::ERROR,
-                                      "unterminated _call_or_signature");
+  this->getContext().logErrorUnterminatedExpression(call_or_signature);
   this->setNotOk();
   return call_or_signature;
 }
@@ -1364,8 +1357,7 @@ requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
   }
   requite::Expression &specialization =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(specialization, requite::LogType::ERROR,
-                                      "unterminated _specialization");
+  this->getContext().logErrorUnterminatedExpression(specialization);
   this->setNotOk();
   return specialization;
 }
@@ -1425,8 +1417,7 @@ void Parser::parseAttributeArguments(requite::Expression &attribute) {
     }
   }
   std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(attribute, requite::LogType::ERROR,
-                                      "unterminated attribute");
+  this->getContext().logErrorUnterminatedExpression(attribute);
   this->setNotOk();
 }
 
@@ -1480,9 +1471,7 @@ requite::Expression &Parser::parseOpenInlineScope() {
   }
   requite::Expression &open_inline_scope =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(open_inline_scope,
-                                      requite::LogType::ERROR,
-                                      "unterminated _open_inline_scope");
+  this->getContext().logErrorUnterminatedExpression(open_inline_scope);
   this->setNotOk();
   return open_inline_scope;
 }
@@ -1538,9 +1527,7 @@ requite::Expression &Parser::parseClosedInlineScope() {
   }
   requite::Expression &closed_inline_scope =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(closed_inline_scope,
-                                      requite::LogType::ERROR,
-                                      "unterminated _closed_inline_scope");
+  this->getContext().logErrorUnterminatedExpression(closed_inline_scope);
   this->setNotOk();
   return closed_inline_scope;
 }

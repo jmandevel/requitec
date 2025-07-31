@@ -166,5 +166,10 @@ void Context::logErrorNamedFieldsBeginAfterExpression(
                          "unexpected named fields begin after expression");
 }
 
+void Context::logErrorUnterminatedExpression(requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine("unterminated ") +
+                             requite::getName(expression.getOpcode()));
+}
 
 } // namespace requite
