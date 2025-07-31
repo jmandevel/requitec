@@ -206,13 +206,13 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
 namespace _token {
 enum _TokenFlags : std::uint8_t {
   _NONE = 0,
-  _OPERATOR = requite::getBit(0),
-  _SEPERATOR = requite::getBit(1),
-  _LITERAL = requite::getBit(2),
+  _OPERATOR = requite::getBit(6),
+  _SEPERATOR = requite::getBit(5),
+  _LITERAL = requite::getBit(4),
   _LEFT_GROUPING = requite::getBit(3),
-  _RIGHT_GROUPING = requite::getBit(4),
-  _LEFT_UNMATCHED_GROUPING = requite::getBit(5),
-  _RIGHT_UNMATCHED_GROUPING = requite::getBit(6),
+  _RIGHT_GROUPING = requite::getBit(2),
+  _LEFT_UNMATCHED_GROUPING = requite::getBit(1),
+  _RIGHT_UNMATCHED_GROUPING = requite::getBit(0),
   _ERROR = requite::getBit(7),
 };
 }

@@ -6,6 +6,7 @@
 
 #include <requite/assert.hpp>
 #include <requite/unreachable.hpp>
+#include <requite/utility.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -22,16 +23,16 @@ constexpr char _CHAR_CASE_BIT = 0x20;
 enum _CharFlags : std::uint16_t {
   _CHAR_FLAG_NONE = 0,
 
-  _CHAR_FLAG_SPACE = (1 << 15),
-  _CHAR_FLAG_VERTICAL_SPACE = (1 << 14),
-  _CHAR_FLAG_DECIMAL_DIGIT = (1 << 13),
-  _CHAR_FLAG_DIGIT = (1 << 12),
-  _CHAR_FLAG_NUMERIC_LITERAL = (1 << 11),
-  _CHAR_FLAG_UPPERCASE_LETTER = (1 << 10),
-  _CHAR_FLAG_IDENTIFIER = (1 << 9),
-  _CHAR_FLAG_IDENTIFIER_START = (1 << 8),
-  _CHAR_FLAG_SYMBOL = (1 << 7),
-  _CHAR_FLAG_EXTENDED = (1 << 6),
+  _CHAR_FLAG_SPACE = requite::getBit(15),
+  _CHAR_FLAG_VERTICAL_SPACE = requite::getBit(14),
+  _CHAR_FLAG_DECIMAL_DIGIT = requite::getBit(13),
+  _CHAR_FLAG_DIGIT = requite::getBit(12),
+  _CHAR_FLAG_NUMERIC_LITERAL = requite::getBit(11),
+  _CHAR_FLAG_UPPERCASE_LETTER = requite::getBit(10),
+  _CHAR_FLAG_IDENTIFIER = requite::getBit(9),
+  _CHAR_FLAG_IDENTIFIER_START = requite::getBit(8),
+  _CHAR_FLAG_SYMBOL = requite::getBit(7),
+  _CHAR_FLAG_EXTENDED = requite::getBit(6),
   _CHAR_MASK_VALUE = 0x3F,
 
   _CHAR_COMMON_FLAGS_LOWERCASE_LETTER =
