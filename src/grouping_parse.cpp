@@ -6,6 +6,9 @@ namespace requite {
 
 void GroupingParser::startGroup(requite::Expression &existing_expression) {
   this->setOperation(existing_expression);
+  if (existing_expression.getHasBranch()) {
+    requite::setSingleRef(this->_last_ptr, existing_expression.getLastBranch());
+  }
 }
 
 void GroupingParser::startGroup(requite::Opcode opcode,
