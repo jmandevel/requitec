@@ -59,6 +59,7 @@ enum class TokenType {
   ARROW_OPERATOR,            // ->
   CONCATENATE_OPERATOR,      // +>
 
+
   // SEPERATOR SYMBOLS
   TRAILER_SEPERATOR,   // <:>
   SEMICOLON_SEPERATOR, // ;

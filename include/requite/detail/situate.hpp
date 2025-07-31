@@ -63,6 +63,14 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situate_CallOrSignatureExpression<SITUATION_PARAM>(expression);
     }
     break;
+  case requite::Opcode::_CLOVEN:
+    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
+                      requite::Opcode::_CLOVEN)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situate_ClovenExpression<SITUATION_PARAM>(expression);
+    }
+    break;
   case requite::Opcode::_TACIT:
     if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
                       requite::Opcode::_TACIT)) {
@@ -1992,13 +2000,20 @@ void Situator::situateUnaryExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, 1);
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    1);
     this->setNotOk();
     return;
   }
   requite::Expression &first = expression.getBranch();
   this->situateBranch<BRANCH_SITUATION_PARAM>("first branch", expression, 0,
                                               first);
+  if (first.getHasNext()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    1);
+    this->setNotOk();
+    return;
+  }
 }
 
 template <requite::Situation SITUATION_PARAM,
@@ -2495,12 +2510,7 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
       return;
     }
     requite::Expression &branch = expression.getBranch();
-    if (branch.getOpcode() != requite::Opcode::_BIND_VALUE &&
-        !branch.getHasNext()) {
-      expression.mergeBranch();
-    } else {
-      expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
-    }
+    expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
   } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
                        SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
@@ -2516,11 +2526,7 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
       return;
     }
     requite::Expression &branch = expression.getBranch();
-    if (!branch.getHasNext()) {
-      expression.mergeBranch();
-    } else {
-      expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
-    }
+    expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
   } else {
     static_assert(false, "invalid situation");
   }
@@ -2902,6 +2908,55 @@ inline void Situator::situate_Tacit(requite::Expression &expression) {
     expression.changeOpcode(requite::Opcode::_TACIT_SYMBOL);
   } else {
     static_assert(false, "invalid situation");
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situate_ClovenExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CLOVEN);
+  if constexpr (SITUATION_PARAM ==
+                    requite::Situation::VALUE_REFLECTIVE_DESTINATION ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_DESTINATION ||
+                SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
+                SITUATION_PARAM ==
+                    requite::Situation::VALUE_REFLECTIVE_JUNCTION ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_JUNCTION ||
+                SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
+                SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_VALUE ||
+                SITUATION_PARAM ==
+                    requite::Situation::SYMBOL_REFLECTIVE_VALUE ||
+                SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
+    this->situateUnaryExpression<SITUATION_PARAM, SITUATION_PARAM>(expression);
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
+          expression, 1);
+      this->setNotOk();
+      return;
+    }
+    requite::Expression &first = expression.getBranch();
+    this->situateBranch<SITUATION_PARAM>("first branch", expression, 0, first);
+    if (first.getHasNext()) {
+      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
+          expression, 1);
+      this->setNotOk();
+      return;
+    }
+    expression.changeOpcode(first.getOpcode());
+    expression.mergeBranch();
+  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
+                       SITUATION_PARAM == requite::Situation::PARAMETER ||
+                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
+                       SITUATION_PARAM ==
+                           requite::Situation::STATIC_PARAMETER_VALUE) {
+    this->situateNaryExpression<SITUATION_PARAM, 0,
+                                requite::Situation::PARAMETER>(expression);
+    requite::Expression &tacit =
+        requite::Expression::makeOperation(requite::Opcode::_TACIT_SYMBOL);
+    tacit.setSourceInsertedBefore(expression);
+    tacit.setNext(expression.replaceBranch(tacit));
   }
 }
 

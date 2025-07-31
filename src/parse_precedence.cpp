@@ -153,14 +153,14 @@ void PrecedenceParser::parseAscribe(const requite::Token &token) {
 void PrecedenceParser::parseCallOrSignature() {
   REQUITE_ASSERT(!this->getParser().getIsDone());
   requite::Expression &operation =
-      this->getParser().parseCallOrSignature(&this->getOuter());
+      this->getParser().parseCallOrSignature(this->getOuter());
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }
 
 void PrecedenceParser::parseCallOrSignatureImplicitCallee() {
   REQUITE_ASSERT(!this->getParser().getIsDone());
-  requite::Expression &operation = this->getParser().parseCallOrSignature(nullptr);
+  requite::Expression &operation = this->getParser().parseCloven();
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }

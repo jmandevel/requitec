@@ -45,6 +45,7 @@ enum class Opcode : unsigned {
 
   // SITUATIONAL
   _CALL_OR_SIGNATURE,
+  _CLOVEN,
   _BIND_VALUE_OR_DEFAULT_VALUE,
   _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
   _TRIP,

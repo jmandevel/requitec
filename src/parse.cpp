@@ -1288,19 +1288,11 @@ requite::Expression &Parser::parseCapture() {
   return capture;
 }
 
-requite::Expression &
-Parser::parseCallOrSignature(requite::Expression *callee_ptr) {
+requite::Expression &Parser::parseCallOrSignature(requite::Expression &callee) {
   REQUITE_ASSERT(!this->getIsDone());
   requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  if (callee_ptr == nullptr) {
-    requite::Expression &implicit =
-        requite::Expression::makeOperation(requite::Opcode::_TACIT);
-    implicit.setSourceInsertedBefore(left_token);
-    callee_ptr = &implicit;
-  }
-  requite::Expression &callee = requite::getRef(callee_ptr);
   grouping_parser.startGroup(requite::Opcode::_CALL_OR_SIGNATURE, callee);
   grouping_parser.appendBranch(callee);
   if (!this->getIsDone()) {
@@ -1392,7 +1384,7 @@ requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
   requite::GroupingParser grouping_parser(*this);
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  grouping_parser.startGroup(requite::Opcode::_CALL_OR_SIGNATURE, callee);
+  grouping_parser.startGroup(requite::Opcode::_SPECIALIZATION, callee);
   if (!this->getIsDone()) {
     const requite::Token &first_token = this->getToken();
     if (first_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
@@ -1444,6 +1436,96 @@ requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
   this->getContext().logErrorUnterminatedExpression(specialization);
   this->setNotOk();
   return specialization;
+}
+
+requite::Expression &Parser::parseCloven() {
+  REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser(*this);
+  const requite::Token &left_token = this->getToken();
+  this->incrementToken(1);
+  grouping_parser.startGroup(requite::Opcode::_CLOVEN, left_token);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() ==
+        requite::TokenType::RIGHT_PARENTHESIS_GROUPING) {
+      this->incrementToken(1);
+      return grouping_parser.finishOperation(first_token);
+    }
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
+        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        return grouping_parser.finishOperation(before_token);
+      }
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::GREATER_OPERATOR: {
+        requite::Expression &names_begin = requite::Expression::makeOperation(
+            requite::Opcode::_NAMED_FIELDS_BEGIN);
+        names_begin.setSource(before_token);
+        grouping_parser.appendBranch(names_begin);
+        this->incrementToken(1);
+        continue;
+      }
+      case requite::TokenType::LESS_OPERATOR: {
+        this->getContext().logErrorPositionalFieldsEndBeforeExpression(
+            before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(after_token);
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        case requite::TokenType::GREATER_OPERATOR: {
+          this->getContext().logErrorNamedFieldsBeginAfterExpression(
+              after_token);
+          this->incrementToken(1);
+          continue;
+        }
+        case requite::TokenType::LESS_OPERATOR: {
+          requite::Expression &positional_end =
+              requite::Expression::makeOperation(
+                  requite::Opcode::_POSITIONAL_FIELDS_END);
+          positional_end.setSource(before_token);
+          grouping_parser.appendBranch(positional_end);
+          this->incrementToken(1);
+          continue;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
+    }
+  }
+  requite::Expression &cloven =
+      grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logErrorUnterminatedExpression(cloven);
+  this->setNotOk();
+  return cloven;
 }
 
 void Parser::parseAttributeArguments(requite::Expression &attribute) {

@@ -81,9 +81,10 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseTrip();
   [[nodiscard]] requite::Expression &parseCapture();
   [[nodiscard]] requite::Expression &
-  parseCallOrSignature(requite::Expression *callee_ptr);
+  parseCallOrSignature(requite::Expression &callee);
   [[nodiscard]] requite::Expression &
   parseSpecialization(requite::Expression &callee);
+  [[nodiscard]] requite::Expression &parseCloven();
   void parseAttributeArguments(requite::Expression &attribute);
   [[nodiscard]] requite::Expression &parseOpenInlineScope();
   [[nodiscard]] requite::Expression &parseClosedInlineScope();
