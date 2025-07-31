@@ -1,22 +1,22 @@
-[object MyObject;
+[object MyObject,
 
     @private x .= 0;
     @private y .= 0;
     @private z .= 0;
 
-    [constructor ();]
+    [constructor ()]
 
-    [constructor (x::[signed], y::[signed], z::[signed]);
+    [constructor (x::[signed], y::[signed], z::[signed]),
         x .= x;
         y .= y;
         z .= z;
     ]
 
-    [function getTotal; ->[signed]();
+    [function getTotal,5 ->[signed](),
         [result] = .x + .y + .z;
     ]
 
-    [function add; MyObject(a::MyObject, b::MyObject);
+    [function add, MyObject(a::MyObject, b::MyObject),
         [result] =
             MyObject(
                 a.x + b.x,

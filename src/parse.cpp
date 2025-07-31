@@ -651,7 +651,7 @@ requite::Expression &Parser::parsePrecedence2() {
       break;
     }
     if (previous_attribute) {
-      precedence_parser.setRecent(this->parsePrecedence12());
+      precedence_parser.setRecent(this->parsePrecedence13());
       previous_attribute = false;
     } else {
       precedence_parser.setRecent(this->parsePrecedence1());
