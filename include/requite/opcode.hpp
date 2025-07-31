@@ -331,6 +331,7 @@ enum class Opcode : unsigned {
   _DEPTH_OF_TYPE,
   COUNT,
   _COUNT_OF_TYPE,
+  _COUNT_OF_VALUE,
   LENGTH,
   _LENGTH_OF_VALUE,
   NAME,

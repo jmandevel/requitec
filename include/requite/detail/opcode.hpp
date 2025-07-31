@@ -612,7 +612,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_DEPTH_OF_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::COUNT:
-    return _SYMBOL_REFLECTIVE_VALUE;
+    return _SYMBOL_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_VALUE;
   case Opcode::_COUNT_OF_TYPE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::LENGTH:
@@ -1145,6 +1145,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "count";
   case requite::Opcode::_COUNT_OF_TYPE:
     return "_count_of_type";
+  case requite::Opcode::_COUNT_OF_VALUE:
+    return "_count_of_value";
   case requite::Opcode::LENGTH:
     return "length";
   case requite::Opcode::_LENGTH_OF_VALUE:
@@ -1218,6 +1220,8 @@ constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
     return requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE;
   case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
     return requite::Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE;
+  case requite::Opcode::COUNT:
+    return requite::Opcode::_COUNT_OF_VALUE;
   case requite::Opcode::LENGTH:
     return requite::Opcode::_LENGTH_OF_VALUE;
   case requite::Opcode::IS:
