@@ -23,30 +23,31 @@ namespace requite {
 namespace _opcode {
 enum _OpcodeFlags : std::uint32_t {
   _NONE = 0,
-  _CONVERGING = requite::getBit(0),
-  _INTERNAL_USE_ONLY = requite::getBit(1),
-  _INTERMEDIATE_OPERATION = requite::getBit(2),
-  _BRANCH_CAN_HAVE_NO_SEMICOLON = requite::getBit(3),
-  _SEMICOLON_SEPERATED_BRANCHES = requite::getBit(4),
-  _MATTE_MODULE_STATEMENT = requite::getBit(5),
-  _MATTE_TABLE_STATEMENT = requite::getBit(6),
-  _MATTE_OBJECT_STATEMENT = requite::getBit(7),
-  _MATTE_LOCAL_STATEMENT = requite::getBit(8),
-  _VALUE_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(9),
-  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(10),
-  _MATTE_DESTINATION = requite::getBit(11),
-  _VALUE_REFLECTIVE_DESTINATION = requite::getBit(12),
-  _SYMBOL_REFLECTIVE_DESTINATION = requite::getBit(13),
-  _MATTE_VALUE = requite::getBit(14),
-  _VALUE_REFLECTIVE_VALUE = requite::getBit(15),
-  _SYMBOL_REFLECTIVE_VALUE = requite::getBit(16),
-  _MATTE_JUNCTION = requite::getBit(17),
-  _VALUE_REFLECTIVE_JUNCTION = requite::getBit(18),
-  _SYMBOL_REFLECTIVE_JUNCTION = requite::getBit(19),
-  _MATTE_SYMBOL = requite::getBit(20),
-  _VALUE_REFLECTIVE_SYMBOL = requite::getBit(21),
-  _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(22),
-  _ATTRIBUTE = requite::getBit(23),
+  _CONVERGING = requite::getBit(31),
+  _INTERNAL_USE_ONLY = requite::getBit(30),
+  _INTERMEDIATE_OPERATION = requite::getBit(29),
+  _BRANCH_CAN_HAVE_NO_SEMICOLON = requite::getBit(28),
+  _SEMICOLON_SEPERATED_BRANCHES = requite::getBit(27),
+  _MATTE_MODULE_STATEMENT = requite::getBit(26),
+  _MATTE_TABLE_STATEMENT = requite::getBit(25),
+  _MATTE_OBJECT_STATEMENT = requite::getBit(24),
+  _MATTE_LOCAL_STATEMENT = requite::getBit(23),
+  _VALUE_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(22),
+  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(21),
+  _MATTE_DESTINATION = requite::getBit(20),
+  _VALUE_REFLECTIVE_DESTINATION = requite::getBit(19),
+  _SYMBOL_REFLECTIVE_DESTINATION = requite::getBit(18),
+  _MATTE_VALUE = requite::getBit(17),
+  _VALUE_REFLECTIVE_VALUE = requite::getBit(16),
+  _SYMBOL_REFLECTIVE_VALUE = requite::getBit(15),
+  _MATTE_JUNCTION = requite::getBit(14),
+  _VALUE_REFLECTIVE_JUNCTION = requite::getBit(13),
+  _SYMBOL_REFLECTIVE_JUNCTION = requite::getBit(12),
+  _MATTE_SYMBOL = requite::getBit(11),
+  _VALUE_REFLECTIVE_SYMBOL = requite::getBit(10),
+  _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(9),
+  _ATTRIBUTE = requite::getBit(8),
+  _COMMA_BRANCH_COUNT_MASK_VALUE = 0x3,
   _ANY = _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
          _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT |
          _VALUE_REFLECTIVE_LOCAL_STATEMENT |
@@ -394,16 +395,16 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::FUNCTION:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
-           _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
+           _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(2);
   case Opcode::CONSTRUCTOR:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_OBJECT_STATEMENT;
+           _MATTE_OBJECT_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::DESTRUCTOR:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_OBJECT_STATEMENT;
   case Opcode::_ANONYMOUS_FUNCTION:
     return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_VALUE;
+           _MATTE_VALUE | static_cast<_OpcodeFlags>(2);
   case Opcode::_CAPTURE:
     return _NONE;
 
@@ -425,10 +426,10 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::OBJECT:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
-           _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT;
+           _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::TABLE:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT;
+           _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::_ALIAS:
     return _INTERMEDIATE_OPERATION | _MATTE_MODULE_STATEMENT |
            _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
@@ -524,29 +525,29 @@ _getFlags(requite::Opcode opcode) {
   // SCOPES
   case Opcode::IF:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::ELSE_IF:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::ELSE:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_LOCAL_STATEMENT;
   case Opcode::SWITCH:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::CASE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES;
+    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES | static_cast<_OpcodeFlags>(1);
   case Opcode::DEFAULT_CASE:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES;
   case Opcode::FOR:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::WHILE:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::DO_WHILE:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::LOOP:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_LOCAL_STATEMENT;
@@ -660,6 +661,12 @@ _getHasFlags(requite::Opcode opcode, requite::_opcode::_OpcodeFlags flags) {
   requite::_opcode::_OpcodeFlags opcode_flags = requite::_getFlags(opcode);
   const bool has_flags = (opcode_flags & flags) == flags;
   return has_flags;
+}
+
+[[nodiscard]] constexpr unsigned char _getMaskValue(requite::Opcode opcode) {
+  const requite::_opcode::_OpcodeFlags flags = requite::_getFlags(opcode);
+  const unsigned char value = (flags & requite::_opcode::_COMMA_BRANCH_COUNT_MASK_VALUE);
+  return value;
 }
 
 constexpr std::string_view getName(requite::Opcode opcode) {
@@ -1263,6 +1270,12 @@ constexpr bool getHasSemicolonSeperatedBranches(requite::Opcode opcode) {
   const bool has_flags = requite::_getHasFlags(
       opcode, requite::_opcode::_SEMICOLON_SEPERATED_BRANCHES);
   return has_flags;
+}
+
+constexpr unsigned getCommaTerminatingBranchCount(requite::Opcode opcode) {
+  REQUITE_ASSERT(requite::getHasSemicolonSeperatedBranches(opcode));
+  const unsigned count = requite::_getMaskValue(opcode);
+  return count;
 }
 
 constexpr bool getIsConverging(requite::Opcode opcode) {

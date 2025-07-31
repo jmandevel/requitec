@@ -69,8 +69,12 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parsePrecedence2();
   [[nodiscard]] requite::Expression &parsePrecedence1();
   [[nodiscard]] requite::Expression &parsePrecedence0();
-  void parseOperationBranchesWithSemicolonSeperators(const requite::Token& opcode_token, requite::Expression& operation);
-  void parseOperationBranchesWithCommaSeperators(requite::Expression& operation);
+  void parseOperationBranchesWithSemicolonSeperators(
+      const requite::Token &opcode_token, requite::Expression &operation,
+      requite::Expression *last_branch_ptr = nullptr,
+      unsigned branch_count = 0);
+  void
+  parseOperationBranchesWithCommaSeperators(requite::Expression &operation);
   [[nodiscard]] requite::Opcode parseOperationOpcode();
   [[nodiscard]] requite::Opcode parseAttributeOpcode();
   [[nodiscard]] requite::Expression &parseBracketExpression();

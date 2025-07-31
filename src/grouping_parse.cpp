@@ -5,10 +5,14 @@
 namespace requite {
 
 void GroupingParser::startGroup(requite::Expression &existing_expression) {
+  REQUITE_ASSERT(!existing_expression.getHasBranch());
   this->setOperation(existing_expression);
-  if (existing_expression.getHasBranch()) {
-    requite::setSingleRef(this->_last_ptr, existing_expression.getLastBranch());
-  }
+}
+
+void GroupingParser::startGroup(requite::Expression& existing_expression, requite::Expression& last_branch) {
+  REQUITE_ASSERT(existing_expression.getLastBranch() == last_branch);
+  this->setOperation(existing_expression);
+  this->_last_ptr = &last_branch;
 }
 
 void GroupingParser::startGroup(requite::Opcode opcode,

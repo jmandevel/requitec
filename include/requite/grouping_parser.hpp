@@ -33,6 +33,7 @@ struct GroupingParser final {
 
     // grouping_parse.cpp
     void startGroup(requite::Expression& existing_expression);
+    void startGroup(requite::Expression& existing_expression, requite::Expression& last_branch);
     void startGroup(requite::Opcode opcode, const requite::Token& first_token);
     void startGroup(requite::Opcode opcode, requite::Expression& first_branch);
     void appendBranch(requite::Expression& branch);

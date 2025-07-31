@@ -768,10 +768,17 @@ requite::Expression &Parser::parsePrecedence0() {
 }
 
 void Parser::parseOperationBranchesWithSemicolonSeperators(
-    const requite::Token &opcode_token, requite::Expression &operation) {
+    const requite::Token &opcode_token, requite::Expression &operation,
+    requite::Expression *last_branch_ptr, unsigned branch_count) {
   REQUITE_ASSERT(!this->getIsDone());
   requite::GroupingParser grouping_parser(*this);
-  grouping_parser.startGroup(operation);
+  if (last_branch_ptr == nullptr) {
+    grouping_parser.startGroup(operation);
+  } else {
+    grouping_parser.startGroup(operation, requite::getRef(last_branch_ptr));
+  }
+  const unsigned comma_branch_count =
+      requite::getCommaTerminatingBranchCount(operation.getOpcode());
   if (!this->getIsDone()) {
     const requite::Token &first_token = this->getToken();
     if (first_token.getType() == requite::TokenType::RIGHT_BRACKET_GROUPING) {
@@ -780,6 +787,83 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
       return;
     }
     while (!this->getIsDone()) {
+      if (branch_count < comma_branch_count) {
+        branch_count++;
+        const requite::Token &before_token = this->getToken();
+        switch (const requite::TokenType before_type = before_token.getType()) {
+        case requite::TokenType::TRAILER_SEPERATOR: {
+          this->incrementToken(1);
+          unsigned trailer_depth = 0;
+          const requite::Token *front_token_ptr = &opcode_token;
+          while (!this->getIsDone()) {
+            const requite::Token &trailer_token = this->getToken();
+            const requite::Token &front_token = *(front_token_ptr)++;
+            switch (const requite::TokenType trailer_type =
+                        trailer_token.getType()) {
+            case requite::TokenType::LEFT_BRACKET_GROUPING:
+              trailer_depth++;
+              break;
+            case requite::TokenType::RIGHT_BRACKET_GROUPING:
+              if (trailer_depth == 0) {
+                return;
+              }
+              trailer_depth--;
+              break;
+            default:
+              break;
+            }
+            if (trailer_token.getSourceText() != front_token.getSourceText()) {
+              this->getContext().logSourceMessage(
+                  trailer_token, requite::LogType::ERROR,
+                  llvm::Twine("trailer token \"") +
+                      trailer_token.getSourceText() +
+                      "\" does not match front token \"" +
+                      front_token.getSourceText() + "\"");
+              this->setNotOk();
+            }
+            this->incrementToken(1);
+          }
+        } break;
+        case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+          this->getContext().logErrorExpectedExpressionAfterComma(before_token);
+          this->setNotOk();
+          this->incrementToken(1);
+          std::ignore = grouping_parser.finishOperation(before_token);
+          return;
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->getContext().logErrorExpectedExpressionBeforeComma(
+              before_token);
+          this->setNotOk();
+          this->incrementToken(1);
+          continue;
+        }
+        default:
+          break;
+        }
+        requite::Expression &branch = this->parseExpression();
+        grouping_parser.appendBranch(branch);
+        while (!this->getIsDone()) {
+          const requite::Token &after_token = this->getToken();
+          switch (const requite::TokenType after_type = after_token.getType()) {
+          case requite::TokenType::RIGHT_BRACKET_GROUPING: {
+            this->incrementToken(1);
+            std::ignore = grouping_parser.finishOperation(after_token);
+            return;
+          }
+          case requite::TokenType::COMMA_SEPERATOR: {
+            this->incrementToken(1);
+            break;
+          }
+          default:
+            this->getContext().logErrorMissingCommmaSeperator(after_token);
+            this->setNotOk();
+            break;
+          }
+          break;
+        }
+        continue;
+      }
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::TRAILER_SEPERATOR: {
@@ -1039,8 +1123,8 @@ requite::Expression &Parser::parseBracketExpression() {
             requite::Opcode::_ANONYMOUS_FUNCTION);
     requite::Expression &capture = this->parseCapture();
     anonymous_function.setBranch(capture);
-    this->parseOperationBranchesWithSemicolonSeperators(left_token,
-                                                        anonymous_function);
+    this->parseOperationBranchesWithSemicolonSeperators(
+        left_token, anonymous_function, &capture, 1);
     return anonymous_function;
   }
   const requite::Opcode opcode = this->parseOperationOpcode();
