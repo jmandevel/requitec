@@ -70,7 +70,13 @@ constexpr llvm::StringRef getName(requite::Situation situation) {
   case Situation::SYMBOL_PATH:
     return "SYMBOL_PATH";
   case Situation::ATTRIBUTE:
-    return "attribute";
+    return "ATTRIBUTE";
+  case Situation::LONG_RANGE_STAGE:
+    return "LONG_RANGE_STAGE";
+  case Situation::SHORT_RANGE_STEP:
+    return "SHORT_RANGE_STEP";
+  case Situation::SHORT_RANGE_WHILE:
+    return "SHORT_RANGE_WHILE";
   case Situation::SWITCH_CASE:
     return "SWITCH_CASE";
   case Situation::LAST_SWITCH_CASE:
@@ -188,6 +194,12 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeSymbolPathSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::ATTRIBUTE) {
     return requite::getCanBeAttributeSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::LONG_RANGE_STAGE) {
+    return requite::getCanBeLongRangeStageSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::SHORT_RANGE_STEP) {
+    return requite::getCanBeShortRangeStepSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::SHORT_RANGE_WHILE) {
+    return requite::getCanBeShortRangeWhileSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::SWITCH_CASE) {
     return requite::getCanBeSwitchCaseSituation(opcode);
   } else if constexpr (SITUATION_PARAM ==
@@ -472,6 +484,29 @@ constexpr bool getCanBeSymbolPathSituation(requite::Opcode opcode) {
 
 constexpr bool getCanBeAttributeSituation(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode, requite::_opcode::_ATTRIBUTE);
+}
+
+constexpr bool getCanBeLongRangeStageSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::FOR || opcode == requite::Opcode::DO ||
+         opcode == requite::Opcode::WHILE || opcode == requite::Opcode::UNTIL ||
+         opcode == requite::Opcode::STEP || opcode == requite::Opcode::WHEN;
+}
+
+constexpr bool getCanBeShortRangeStepSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_SHORT_STEP_ADD ||
+         opcode == requite::Opcode::_SHORT_STEP_SUBTRACT ||
+         opcode == requite::Opcode::_SHORT_STEP_MULTIPLY ||
+         opcode == requite::Opcode::_SHORT_STEP_DIVIDE ||
+         opcode == requite::Opcode::_SHORT_STEP_MODULUS;
+}
+
+constexpr bool getCanBeShortRangeWhileSituation(requite::Opcode opcode) {
+  return opcode == requite::Opcode::_SHORT_WHILE_LESS ||
+         opcode == requite::Opcode::_SHORT_WHILE_GREATER ||
+         opcode == requite::Opcode::_SHORT_WHILE_LESS_EQUAL ||
+         opcode == requite::Opcode::_SHORT_WHILE_GREATER_EQUAL ||
+         opcode == requite::Opcode::_SHORT_WHILE_EQUAL ||
+         opcode == requite::Opcode::_SHORT_WHILE_NOT_EQUAL;
 }
 
 constexpr bool getCanBeSwitchCaseSituation(requite::Opcode opcode) {

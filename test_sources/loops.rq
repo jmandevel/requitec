@@ -1,0 +1,60 @@
+[entry_point
+
+    // all of these are equivalent
+
+    // short range
+    [loop 0.<10.+1,
+        std..print(line:"value is {[value]}");    
+        std..print(line:"index is {[index]}");    
+    ]
+
+    // long range
+    [loop [for 0]=>[while [value]<10]=>[do]=>[step [value]+=1;],
+        std..print(line:"value is {[value]}");   
+        std..print(line:"index is {[index]}");    
+    ]
+
+    // long range over external variable
+    value := 0;
+    [loop [while value<10]=>[do]=>[step value+=1;],
+        std..print(line:"value is {value}");   
+        std..print(line:"index is {[index]}");    
+    ]
+
+    // while loop
+    value = 0;
+    [while value < 10,
+        std..print(line:"value is {value}");   
+        std..print(line:"index is {[index]}");  
+        value += 1;
+    ]
+
+    // element range
+    [loop {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},    
+        std..print(line:"value is {[value]}");
+        std..print(line:"index is {[index]}");    
+    ]
+
+    // ranger range
+    [object MyObject,
+    
+        data .= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+        [ranger &[signed],
+            [repeat
+              [if !([index]<10),
+                [return];
+              ]
+              [range_over 
+                .data.[at [index]]
+              ];
+              [index] += 1;
+            ]
+        ]
+    ]
+    object := MyObject();
+    [loop object,
+        std..print(line:"value is {[value]}");
+        std..print(line:"index is {[index]}");  
+    ]
+]

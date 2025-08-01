@@ -14,51 +14,62 @@ enum class TokenType {
   NONE,
 
   // OPERATORS
-  HASH_OPERATOR,             // #
-  AT_OPERATOR,               // @
-  GREATER_OPERATOR,          // >
-  DOUBLE_GREATER_OPERATOR,   // >>
-  GREATER_EQUAL_OPERATOR,    // >=
-  LESS_OPERATOR,             // <
-  DOUBLE_LESS_OPERATOR,      // <<
-  LESS_EQUAL_OPERATOR,       // <=
-  BANG_EQUAL_OPERATOR,       // !=
-  BANG_OPERATOR,             // !
-  DOT_OPERATOR,              // .
-  DOUBLE_DOT_OPERATOR,       // ..
-  COLON_OPERATOR,            // :
-  DOUBLE_COLON_OPERATOR,     // ::
-  BACKSLASH_OPERATOR,        // \     .
-  DOUBLE_BACKSLASH_OPERATOR, // \\    .
-  PLUS_OPERATOR,             // +
-  DASH_OPERATOR,             // -
-  STAR_OPERATOR,             // *
-  SLASH_OPERATOR,            // /
-  PERCENT_OPERATOR,          // %
-  CAROT_OPERATOR,            // ^
-  PIPE_OPERATOR,             // |
-  TILDE_OPERATOR,            // ~
-  AMPERSAND_OPERATOR,        // &
-  DOUBLE_AMPERSAND_OPERATOR, // &&
-  DOUBLE_PIPE_OPERATOR,      // ||
-  EQUAL_OPERATOR,            // =
-  WALRUS_OPERATOR,           // :=
-  PIRATE_WALRUS_OPERATOR,    // .=
-  FOUR_EYED_WALRUS_OPERATOR, // ::=
-  DOUBLE_EQUAL_OPERATOR,     // ==
-  PLUS_EQUAL_OPERATOR,       // +=
-  DASH_EQUAL_OPERATOR,       // -=
-  STAR_EQUAL_OPERATOR,       // *=
-  SLASH_EQUAL_OPERATOR,      // /=
-  PERCENT_EQUAL_OPERATOR,    // %=
-  SWAP_OPERATOR,             // <>
-  DOLLAR_OPERATOR,           // $
-  QUESTION_OPERATOR,         // ?
-  GRAVE_OPERATOR,            // `
-  DOUBLE_GRAVE_OPERATOR,     // ``
-  ARROW_OPERATOR,            // ->
-  CONCATENATE_OPERATOR,      // +>
-
+  HASH_OPERATOR,              // #
+  AT_OPERATOR,                // @
+  GREATER_OPERATOR,           // >
+  DOUBLE_GREATER_OPERATOR,    // >>
+  GREATER_EQUAL_OPERATOR,     // >=
+  LESS_OPERATOR,              // <
+  DOUBLE_LESS_OPERATOR,       // <<
+  LESS_EQUAL_OPERATOR,        // <=
+  BANG_EQUAL_OPERATOR,        // !=
+  BANG_OPERATOR,              // !
+  DOT_OPERATOR,               // .
+  DOUBLE_DOT_OPERATOR,        // ..
+  COLON_OPERATOR,             // :
+  DOUBLE_COLON_OPERATOR,      // ::
+  BACKSLASH_OPERATOR,         // \     .
+  DOUBLE_BACKSLASH_OPERATOR,  // \\    .
+  PLUS_OPERATOR,              // +
+  DASH_OPERATOR,              // -
+  STAR_OPERATOR,              // *
+  SLASH_OPERATOR,             // /
+  PERCENT_OPERATOR,           // %
+  CAROT_OPERATOR,             // ^
+  PIPE_OPERATOR,              // |
+  TILDE_OPERATOR,             // ~
+  AMPERSAND_OPERATOR,         // &
+  DOUBLE_AMPERSAND_OPERATOR,  // &&
+  DOUBLE_PIPE_OPERATOR,       // ||
+  EQUAL_OPERATOR,             // =
+  WALRUS_OPERATOR,            // :=
+  PIRATE_WALRUS_OPERATOR,     // .=
+  FOUR_EYED_WALRUS_OPERATOR,  // ::=
+  DOUBLE_EQUAL_OPERATOR,      // ==
+  PLUS_EQUAL_OPERATOR,        // +=
+  DASH_EQUAL_OPERATOR,        // -=
+  STAR_EQUAL_OPERATOR,        // *=
+  SLASH_EQUAL_OPERATOR,       // /=
+  PERCENT_EQUAL_OPERATOR,     // %=
+  SWAP_OPERATOR,              // <>
+  DOLLAR_OPERATOR,            // $
+  QUESTION_OPERATOR,          // ?
+  GRAVE_OPERATOR,             // `
+  DOUBLE_GRAVE_OPERATOR,      // ``
+  ARROW_OPERATOR,             // ->
+  CONCATENATE_OPERATOR,       // +>
+  THICK_ARROW_OPERATOR,       // =>
+  DOT_PLUS_OPERATOR,          // .+
+  DOT_DASH_OPERATOR,          // .-
+  DOT_STAR_OPERATOR,          // .*
+  DOT_SLASH_OPERATOR,         // ./
+  DOT_PERCENT_OPERATOR,       // .%
+  DOT_LESS_OPERATOR,          // .<
+  DOT_LESS_EQUAL_OPERATOR,    // .<=
+  DOT_GREATER_OPERATOR,       // .>
+  DOT_GREATER_EQUAL_OPERATOR, // .>=
+  DOT_DOUBLE_EQUAL_OPERATOR,  // .==
+  DOT_BANG_EQUAL_OPERATOR,    // .!=
 
   // SEPERATOR SYMBOLS
   TRAILER_SEPERATOR,   // <:>

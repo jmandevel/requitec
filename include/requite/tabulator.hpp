@@ -59,6 +59,7 @@ struct Tabulator final {
   void tabulateConstructor(requite::Expression &expression,
                            bool has_attributes);
   void tabulateDestructor(requite::Expression &expression, bool has_attributes);
+  void tabulateRanger(requite::Expression &expression, bool has_attributes);
   void tabulateObject(requite::Expression &expression, bool has_attributes);
   [[nodiscard]] requite::Table& getOrMakeTable(llvm::StringRef name);
   void tabulateTable(requite::Expression &expression, bool has_attributes);
@@ -77,9 +78,6 @@ struct Tabulator final {
   void tabulateSwitchCaseStatement(requite::Expression &expression);
   void tabulateCase(requite::Expression &expression);
   void tabulateDefaultCase(requite::Expression &expression);
-  void tabulateFor(requite::Expression &expression, bool has_attributes);
-  void tabulateWhile(requite::Expression &expression, bool has_attributes);
-  void tabulateDoWhile(requite::Expression &expression, bool has_attributes);
   void tabulateLoop(requite::Expression &expression, bool has_attributes);
   void tabulateScope(requite::Expression &expression, bool has_attributes);
   void tabulate_ClosedInlineScope(requite::Expression &expression);

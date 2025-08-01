@@ -237,21 +237,6 @@ bool Implementor::implementMatteLocalStatement(
         is_ok = false;
       }
       break;
-    case requite::Opcode::FOR:
-      if (!this->implementFor(branch)) {
-        is_ok = false;
-      }
-      break;
-    case requite::Opcode::WHILE:
-      if (!this->implementWhile(branch)) {
-        is_ok = false;
-      }
-      break;
-    case requite::Opcode::DO_WHILE:
-      if (!this->implementDoWhile(branch)) {
-        is_ok = false;
-      }
-      break;
     case requite::Opcode::LOOP:
       if (!this->implementLoop(branch)) {
         is_ok = false;

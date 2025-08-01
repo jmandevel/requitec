@@ -48,6 +48,9 @@ enum class Situation {
   SYMBOL_NAME,
   SYMBOL_PATH,
   ATTRIBUTE,
+  LONG_RANGE_STAGE,
+  SHORT_RANGE_STEP,
+  SHORT_RANGE_WHILE,
   SWITCH_CASE,
   LAST_SWITCH_CASE,
   CAPTURE,
@@ -173,6 +176,15 @@ getCanBeSymbolPathSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeAttributeSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeLongRangeStageSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeShortRangeStepSituation(requite::Opcode opcode);
+
+[[nodiscard]] constexpr bool
+getCanBeShortRangeWhileSituation(requite::Opcode opcode);
 
 [[nodiscard]] constexpr bool
 getCanBeSwitchCaseSituation(requite::Opcode opcode);

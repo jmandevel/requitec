@@ -90,6 +90,18 @@ void PrecedenceParser::parseNestingNary(requite::Opcode opcode) {
   this->_outer_ptr = &operation;
 }
 
+void PrecedenceParser::parseShortRangeBranch(const requite::Token &token,
+                                             requite::Opcode opcode) {
+  std::ignore = this->getParser().checkIsNormativeRequiteOk();
+  this->parseNary(requite::Opcode::_SHORT_RANGE);
+  requite::Expression &step =
+      requite::Expression::makeOperation(opcode);
+  requite::Expression &value = this->getParser().parsePrecedence9();
+  step.setSource(token, value);
+  step.setBranch(value);
+  this->setRecent(step);
+}
+
 void PrecedenceParser::parseAttribute() {
   const requite::Token &at_token = this->getParser().getToken();
   this->getParser().incrementToken(1);
@@ -167,7 +179,8 @@ void PrecedenceParser::parseCallOrSignatureImplicitCallee() {
 
 void PrecedenceParser::parseSpecialization() {
   REQUITE_ASSERT(!this->getParser().getIsDone());
-  requite::Expression &operation = this->getParser().parseSpecialization(this->getOuter());
+  requite::Expression &operation =
+      this->getParser().parseSpecialization(this->getOuter());
   this->_outer_ptr = &operation;
   this->_operation_ptr = &operation;
 }

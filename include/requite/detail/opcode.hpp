@@ -409,6 +409,9 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::DESTRUCTOR:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_OBJECT_STATEMENT;
+  case Opcode::RANGER:
+    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
+           _MATTE_OBJECT_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::_ANONYMOUS_FUNCTION:
     return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_VALUE | static_cast<_OpcodeFlags>(2);
@@ -425,6 +428,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::FALLTHROUGH:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::EXIT:
+    return _MATTE_LOCAL_STATEMENT;
+  case Opcode::RANGE_OVER:
     return _MATTE_LOCAL_STATEMENT;
   case Opcode::LABEL:
     return _MATTE_VALUE;
@@ -471,7 +476,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::VALUE:
     return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::INDEX:
-    return _MATTE_VALUE;
+    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
   case Opcode::INDETERMINATE:
     return _MATTE_VALUE;
   case Opcode::NO_DEFAULT_VALUE:
@@ -552,6 +557,12 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::LOOP:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
+  case Opcode::REPEAT:
+    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
+           _MATTE_LOCAL_STATEMENT;
+  case Opcode::WHILE:
+    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case Opcode::SCOPE:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_LOCAL_STATEMENT;
@@ -561,6 +572,44 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::_CLOSED_INLINE_SCOPE:
     return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_DESTINATION | _MATTE_JUNCTION | _MATTE_VALUE;
+
+  // RANGES
+  case Opcode::_LONG_RANGE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::FOR:
+    return _NONE;
+  case Opcode::DO:
+    return _NONE;
+  case Opcode::UNTIL:
+    return _NONE;
+  case Opcode::STEP:
+    return _SEMICOLON_SEPERATED_BRANCHES;
+  case Opcode::WHEN:
+    return _NONE;
+  case Opcode::_SHORT_RANGE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::_SHORT_STEP_ADD:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_STEP_SUBTRACT:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_STEP_MULTIPLY:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_STEP_DIVIDE:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_STEP_MODULUS:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_WHILE_LESS:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_WHILE_GREATER:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_WHILE_LESS_EQUAL:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_WHILE_GREATER_EQUAL:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_WHILE_EQUAL:
+    return _INTERMEDIATE_OPERATION | _NONE;
+  case Opcode::_SHORT_WHILE_NOT_EQUAL:
+    return _INTERMEDIATE_OPERATION | _NONE;
 
   // ACCESS MODIFIERS
   case Opcode::PRIVATE:
@@ -614,6 +663,8 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::COUNT:
     return _SYMBOL_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_VALUE;
   case Opcode::_COUNT_OF_TYPE:
+    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case Opcode::_COUNT_OF_VALUE:
     return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
   case Opcode::LENGTH:
     return _VALUE_REFLECTIVE_VALUE;
@@ -951,6 +1002,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "constructor";
   case requite::Opcode::DESTRUCTOR:
     return "destructor";
+  case requite::Opcode::RANGER:
+    return "ranger";
   case requite::Opcode::_ANONYMOUS_FUNCTION:
     return "_anonymous_function";
   case requite::Opcode::_CAPTURE:
@@ -967,6 +1020,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "fallthrough";
   case requite::Opcode::EXIT:
     return "exit";
+  case requite::Opcode::RANGE_OVER:
+    return "range_over";
   case requite::Opcode::LABEL:
     return "label";
 
@@ -1073,6 +1128,10 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "default_case";
   case requite::Opcode::LOOP:
     return "loop";
+  case requite::Opcode::REPEAT:
+    return "repeat";
+  case requite::Opcode::WHILE:
+    return "while";
   case requite::Opcode::SCOPE:
     return "scope";
   case requite::Opcode::_OPEN_INLINE_SCOPE:
@@ -1081,18 +1140,42 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_closed_inline_scope";
 
   // RANGES
-  case requite::Opcode::FOREVER:
-    return "forever";
+  case requite::Opcode::_LONG_RANGE:
+    return "_long_range";
   case requite::Opcode::FOR:
     return "for";
   case requite::Opcode::DO:
     return "do";
-  case requite::Opcode::WHILE:
-    return "while";
   case requite::Opcode::UNTIL:
     return "until";
+  case requite::Opcode::STEP:
+    return "step";
   case requite::Opcode::WHEN:
     return "when";
+  case requite::Opcode::_SHORT_RANGE:
+    return "_short_range";
+  case requite::Opcode::_SHORT_STEP_ADD:
+    return "_short_step_add";
+  case requite::Opcode::_SHORT_STEP_SUBTRACT:
+    return "_short_step_subtract";
+  case requite::Opcode::_SHORT_STEP_MULTIPLY:
+    return "_short_step_multiply";
+  case requite::Opcode::_SHORT_STEP_DIVIDE:
+    return "_short_step_divide";
+  case requite::Opcode::_SHORT_STEP_MODULUS:
+    return "_short_step_modulus";
+  case requite::Opcode::_SHORT_WHILE_LESS:
+    return "_short_while_less";
+  case requite::Opcode::_SHORT_WHILE_GREATER:
+    return "_short_while_greater";
+  case requite::Opcode::_SHORT_WHILE_LESS_EQUAL:
+    return "_short_while_less_equal";
+  case requite::Opcode::_SHORT_WHILE_GREATER_EQUAL:
+    return "_short_while_greater_equal";
+  case requite::Opcode::_SHORT_WHILE_EQUAL:
+    return "_short_while_equal";
+  case requite::Opcode::_SHORT_WHILE_NOT_EQUAL:
+    return "_short_while_not_equal";
 
   // ACCESS MODIFIERS
   case requite::Opcode::PRIVATE:

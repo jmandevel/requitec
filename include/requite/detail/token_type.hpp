@@ -103,6 +103,30 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "arrow_operator";
   case requite::TokenType::CONCATENATE_OPERATOR:
     return "concatenate_operator";
+  case requite::TokenType::THICK_ARROW_OPERATOR:
+    return "thick_arrow_operator";
+  case requite::TokenType::DOT_PLUS_OPERATOR:
+    return "dot_plus_operator";
+  case requite::TokenType::DOT_DASH_OPERATOR:
+    return "dot_dash_operator";
+  case requite::TokenType::DOT_STAR_OPERATOR:
+    return "dot_star_operator";
+  case requite::TokenType::DOT_SLASH_OPERATOR:
+    return "dot_slash_operator";
+  case requite::TokenType::DOT_PERCENT_OPERATOR:
+    return "dot_percent_operator";
+  case requite::TokenType::DOT_LESS_OPERATOR:
+    return "dot_less_operator";
+  case requite::TokenType::DOT_LESS_EQUAL_OPERATOR:
+    return "dot_less_equal_operator";
+  case requite::TokenType::DOT_GREATER_OPERATOR:
+    return "dot_greater_operator";
+  case requite::TokenType::DOT_GREATER_EQUAL_OPERATOR:
+    return "dot_greater_equal_operator";
+  case requite::TokenType::DOT_DOUBLE_EQUAL_OPERATOR:
+    return "dot_double_equal_operator";
+  case requite::TokenType::DOT_BANG_EQUAL_OPERATOR:
+    return "dot_bang_equal_operator";
   case requite::TokenType::TRAILER_SEPERATOR:
     return "trailer_seperator";
   case requite::TokenType::SEMICOLON_SEPERATOR:
@@ -320,6 +344,30 @@ _getFlags(requite::TokenType token) {
   case TokenType::ARROW_OPERATOR:
     [[fallthrough]];
   case TokenType::CONCATENATE_OPERATOR:
+    [[fallthrough]];
+  case TokenType::THICK_ARROW_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_PLUS_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_DASH_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_STAR_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_SLASH_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_PERCENT_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_LESS_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_LESS_EQUAL_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_GREATER_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_GREATER_EQUAL_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_DOUBLE_EQUAL_OPERATOR:
+    [[fallthrough]];
+  case TokenType::DOT_BANG_EQUAL_OPERATOR:
     return _OPERATOR;
 
   // SEPERATOR SYMBOLS

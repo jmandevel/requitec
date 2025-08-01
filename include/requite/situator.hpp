@@ -64,6 +64,12 @@ struct Situator final {
       requite::Situation BRANCH_SITUATION_A_PARAM,
       requite::Situation BRANCH_SITUATION_B_PARAM = BRANCH_SITUATION_A_PARAM>
   inline void situateBinaryExpression(requite::Expression &expression);
+  template <
+      requite::Situation SITUATION_PARAM,
+      requite::Situation BRANCH_SITUATION_A_PARAM,
+      requite::Situation BRANCH_SITUATION_B_PARAM = BRANCH_SITUATION_A_PARAM,
+      requite::Situation BRANCH_SITUATION_C_PARAM = BRANCH_SITUATION_B_PARAM>
+  inline void situateTernaryExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM, unsigned MIN_COUNT_PARAM,
             requite::Situation BRANCH_SITUATION_N_PARAM>
   inline void situateNaryExpression(requite::Expression &expression);
@@ -137,8 +143,9 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situate_Tacit(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void
-  situate_ClovenExpression(requite::Expression &expression);
+  inline void situate_ClovenExpression(requite::Expression &expression);
+  template <requite::Situation SITUATION_PARAM>
+  inline void situateWhileExpression(requite::Expression &expression);
 };
 
 } // namespace requite

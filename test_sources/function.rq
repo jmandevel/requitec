@@ -1,0 +1,17 @@
+[import "std"]
+
+[function myFunc, (:),
+
+    std..print(line:"Hello!");
+
+]
+
+[entry_point
+
+    myFunc();
+
+    variant := `?{{}, [signed], [binary32]}\ 
+            [true] 
+                ? 1
+                : 1.0;
+]

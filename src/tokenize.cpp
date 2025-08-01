@@ -207,10 +207,63 @@ void Tokenizer::_tokenizeTokens() {
                                     requite::TokenType::RIGHT_OPEN_CAP_GROUPING,
                                     2);
         break;
-      case '=':
-        this->tokenizeLengthToken(requite::TokenType::PIRATE_WALRUS_OPERATOR,
-                                  2);
+      case '+':
+        this->tokenizeLengthToken(requite::TokenType::DOT_PLUS_OPERATOR, 2);
         break;
+      case '-':
+        this->tokenizeLengthToken(requite::TokenType::DOT_DASH_OPERATOR, 2);
+        break;
+      case '*':
+        this->tokenizeLengthToken(requite::TokenType::DOT_STAR_OPERATOR, 2);
+        break;
+      case '/':
+        this->tokenizeLengthToken(requite::TokenType::DOT_SLASH_OPERATOR, 2);
+        break;
+      case '%':
+        this->tokenizeLengthToken(requite::TokenType::DOT_PERCENT_OPERATOR, 2);
+        break;
+      case '<':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '=':
+          this->tokenizeLengthToken(requite::TokenType::DOT_LESS_EQUAL_OPERATOR,
+                                    3);
+          break;
+        default:
+          this->tokenizeLengthToken(requite::TokenType::DOT_LESS_OPERATOR, 2);
+        }
+        continue;
+      case '>':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '=':
+          this->tokenizeLengthToken(
+              requite::TokenType::DOT_GREATER_EQUAL_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(requite::TokenType::DOT_GREATER_OPERATOR,
+                                    2);
+        }
+        continue;
+      case '=':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '=':
+          this->tokenizeLengthToken(
+              requite::TokenType::DOT_DOUBLE_EQUAL_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(requite::TokenType::PIRATE_WALRUS_OPERATOR,
+                                    2);
+        }
+        continue;
+      case '!':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case '=':
+          this->tokenizeLengthToken(requite::TokenType::DOT_BANG_EQUAL_OPERATOR,
+                                    3);
+          break;
+        default:
+          this->tokenizeLengthToken(requite::TokenType::DOT_OPERATOR, 1);
+        }
+        continue;
       default:
         this->tokenizeLengthToken(requite::TokenType::DOT_OPERATOR, 1);
       }
@@ -398,6 +451,9 @@ void Tokenizer::_tokenizeTokens() {
       switch (const char c1 = this->getRanger().getChar(1)) {
       case '=':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_EQUAL_OPERATOR, 2);
+        break;
+      case '>':
+        this->tokenizeLengthToken(requite::TokenType::THICK_ARROW_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(requite::TokenType::EQUAL_OPERATOR, 1);
