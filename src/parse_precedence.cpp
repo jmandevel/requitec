@@ -92,7 +92,6 @@ void PrecedenceParser::parseNestingNary(requite::Opcode opcode) {
 
 void PrecedenceParser::parseShortRangeBranch(const requite::Token &token,
                                              requite::Opcode opcode) {
-  std::ignore = this->getParser().checkIsNormativeRequiteOk();
   this->parseNary(requite::Opcode::_SHORT_RANGE);
   requite::Expression &step =
       requite::Expression::makeOperation(opcode);

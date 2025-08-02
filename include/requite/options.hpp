@@ -22,12 +22,6 @@ enum Emit {
   EMIT_OBJECT
 };
 
-enum Form {
-  FORM_NORMATIVE = (1 << 0),
-  FORM_INTERMEDIATE = (1 << 1),
-  FORM_MULTIPLICATIVE = (FORM_NORMATIVE | FORM_INTERMEDIATE)
-};
-
 [[nodiscard]] bool parseCommandLineOptions(unsigned argc, const char** argv);
 
 [[nodiscard]] llvm::StringRef getInputFilePath();
@@ -37,8 +31,6 @@ enum Form {
 [[nodiscard]] llvm::ArrayRef<std::string> getImportDirectories();
 
 [[nodiscard]] requite::Emit getEmitMode();
-
-[[nodiscard]] requite::Form getForm();
 
 [[nodiscard]] bool getIsNormativeRequiteOk();
 

@@ -44,19 +44,6 @@ static llvm::cl::opt<Emit> EMIT(
         clEnumValN(EMIT_OBJECT, "object", "Output an object file.")),
     llvm::cl::init(EMIT_OBJECT));
 
-static llvm::cl::opt<Form> FORM(
-    "form", llvm::cl::desc("Choose the accepted form of requite."),
-    llvm::cl::values(
-        clEnumValN(FORM_NORMATIVE, "normative",
-                   "Only accept standard requite."),
-        clEnumValN(FORM_INTERMEDIATE, "intermediate",
-                   "Only accept requite source code with operations including "
-                   "operations with intermediate opcodes."),
-        clEnumValN(FORM_MULTIPLICATIVE, "multiplicative",
-                   "Accept a mixture of normative and intermediate requite "
-                   "source code.")),
-    llvm::cl::init(FORM_NORMATIVE));
-
 bool parseCommandLineOptions(unsigned argc, const char **argv) {
   llvm::cl::ParseCommandLineOptions(argc, argv);
   llvm::SmallString<256> buffer;
@@ -110,17 +97,5 @@ llvm::ArrayRef<std::string> getImportDirectories() {
 }
 
 requite::Emit getEmitMode() { return requite::EMIT.getValue(); }
-
-requite::Form getForm() { return requite::FORM.getValue(); }
-
-bool getIsNormativeRequiteOk() {
-  return (requite::FORM.getValue() & requite::FORM_NORMATIVE) ==
-         requite::FORM_NORMATIVE;
-}
-
-bool getIsIntermediateRequiteOk() {
-  return (requite::FORM.getValue() & requite::FORM_INTERMEDIATE) ==
-         requite::FORM_INTERMEDIATE;
-}
 
 } // namespace requite

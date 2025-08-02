@@ -98,8 +98,6 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseStringLiteral();
   [[nodiscard]] requite::Expression &parseCodeunitLiteral();
   [[nodiscard]] requite::Expression &parseInterpolatedString();
-  [[nodiscard]] bool checkIsNormativeRequiteOk();
-  [[nodiscard]] bool checkIsIntermediateRequiteOk();
   void checkTokenIsTrailingSemicolonOperator(requite::Expression &expression);
   void logErrorBinaryNoLValue(const requite::Token &token);
   void logErrorHornedNoFirstBranch(const requite::Token &token);
