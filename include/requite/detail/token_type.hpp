@@ -125,6 +125,8 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "dot_greater_equal_operator";
   case requite::TokenType::DOT_DOUBLE_EQUAL_OPERATOR:
     return "dot_double_equal_operator";
+  case requite::TokenType::UNARY_SIGNATURE_OPERATOR:
+    return "unary_signature_operator";
   case requite::TokenType::DOT_BANG_EQUAL_OPERATOR:
     return "dot_bang_equal_operator";
   case requite::TokenType::TRAILER_SEPERATOR:
@@ -153,6 +155,10 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "left_parenthesis_grouping";
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
     return "right_parenthesis_grouping";
+  case requite::TokenType::LEFT_SIGNATURE_GROUPING:
+    return "left_signature_grouping";
+  case requite::TokenType::RIGHT_SIGNATURE_GROUPING:
+    return "right_signature_grouping";
   case requite::TokenType::IDENTIFIER_LITERAL:
     return "identifier_literal";
   case requite::TokenType::CODEUNIT_LITERAL:
@@ -369,6 +375,7 @@ _getFlags(requite::TokenType token) {
     [[fallthrough]];
   case TokenType::DOT_BANG_EQUAL_OPERATOR:
     return _OPERATOR;
+  
 
   // SEPERATOR SYMBOLS
   case TokenType::TRAILER_SEPERATOR:

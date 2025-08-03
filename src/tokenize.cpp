@@ -151,9 +151,25 @@ void Tokenizer::_tokenizeTokens() {
           requite::TokenType::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
       continue;
     case '(':
-      this->tokenizeLengthToken(requite::TokenType::LEFT_PARENTHESIS_GROUPING,
-                                1);
-      this->pushGrouping(requite::GroupingType::PARENTHESIS);
+      switch (const char c1 = this->getRanger().getChar(1)) {
+      case '|':
+        switch (const char c2 = this->getRanger().getChar(2)) {
+        case ')':
+          this->tokenizeLengthToken(
+              requite::TokenType::UNARY_SIGNATURE_OPERATOR, 3);
+          continue;
+        default:
+          this->tokenizeRightGrouping(
+              requite::GroupingType::PARENTHESIS,
+              requite::TokenType::LEFT_SIGNATURE_GROUPING, 2);
+        }
+        continue;
+      default:
+        this->tokenizeLengthToken(requite::TokenType::LEFT_PARENTHESIS_GROUPING,
+                                  1);
+        this->pushGrouping(requite::GroupingType::PARENTHESIS);
+      }
+
       continue;
     case ')':
       this->tokenizeRightGrouping(
@@ -638,6 +654,12 @@ void Tokenizer::_tokenizeTokens() {
       case '|':
         this->tokenizeLengthToken(requite::TokenType::DOUBLE_PIPE_OPERATOR, 2);
         continue;
+      case ')':
+        this->tokenizeRightGrouping(
+            requite::GroupingType::SIGNATURE,
+            requite::TokenType::RIGHT_SIGNATURE_GROUPING, 2);
+        this->pushGrouping(requite::GroupingType::SIGNATURE);
+        break;
       default:
         this->tokenizeLengthToken(requite::TokenType::PIPE_OPERATOR, 1);
       }
