@@ -18,7 +18,6 @@ struct Token;
 struct PrecedenceParser final {
   using Self = requite::PrecedenceParser;
 
-  std::reference_wrapper<requite::Parser> _parser_ref;
   // the outermost operation that is returned at the end of the precedence
   requite::Expression *_outer_ptr = nullptr;
   // the current operation that is being filled with branches
@@ -30,34 +29,31 @@ struct PrecedenceParser final {
   requite::Expression *_last_ptr = nullptr;
 
   // precedence_parser.cpp
-  PrecedenceParser(requite::Parser& parser);
+  PrecedenceParser() = default;
   PrecedenceParser(const Self &) = delete;
   PrecedenceParser(Self &&) = delete;
   ~PrecedenceParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] requite::Parser& getParser();
-  [[nodiscard]] const requite::Parser& getParser() const;
 
   // parse.cpp
-  void parseDoubleUnary(requite::Opcode opcode);
-  void parseUnary(requite::Opcode opcode);
-  void parseBinary(requite::Opcode opcode);
-  void parseBinaryCombination(requite::Opcode opcode);
-  void parseNary(requite::Opcode opcode);
-  void parseNestingNary(requite::Opcode opcode);
-  void parseShortRangeBranch(const requite::Token &token, requite::Opcode opcode);
-  void parseAttribute();
-  void parseUnaryAttribute(requite::Opcode opcode);
-  void parseAscribe(const requite::Token& token);
-  void parseCallOrSignature();
-  void parseCallOrSignatureImplicitCallee();
-  void parseSpecialization();
+  void parseDoubleUnary(const requite::Token& token, requite::Opcode opcode);
+  void parseUnary(const requite::Token& token, requite::Opcode opcode);
+  void parseAscribe(const requite::Token &token);
+  void parseBinary(const requite::Token& token, requite::Opcode opcode);
+  void parseBinaryCombination(const requite::Token& token, requite::Opcode opcode);
+  void parseNary(const requite::Token &token, requite::Opcode opcode);
+  void parseNestingNary(const requite::Token &token, requite::Opcode opcode);
+  void parseShortRangeBranch(const requite::Token &token,
+                             requite::Opcode opcode,
+                             requite::Expression &rvalue);
   void appendBranch(requite::Expression &branch);
+  void appendUnaryAttribute(const requite::Token &token, requite::Opcode opcode);
   void setRecent(requite::Expression &branch);
   void appendRecent();
-  [[nodiscard]] bool getHasOuter() const;
+  void setOuterOperation(requite::Expression &expression);
   [[nodiscard]] const requite::Expression &getOuter() const;
+  [[nodiscard]] bool getHasOuter() const;
   [[nodiscard]] requite::Expression &getOuter();
   [[nodiscard]] bool getHasOperation() const;
   [[nodiscard]] const requite::Expression &getOperation() const;

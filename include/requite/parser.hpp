@@ -50,7 +50,6 @@ struct Parser final {
   [[nodiscard]] bool getIsDone() const;
   [[nodiscard]] const requite::Token &getToken() const;
   [[nodiscard]] const requite::Token &getPreviousToken() const;
-  [[nodiscard]] bool getEndIsNext();
   void incrementToken(std::size_t offset);
   [[nodiscard]] bool getIsToken(requite::TokenType type) const;
   [[nodiscard]] bool parseExpressions();
@@ -80,12 +79,12 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseBracketExpression();
   [[nodiscard]] requite::Expression &parseTrip();
   [[nodiscard]] requite::Expression &parseCapture();
+  [[nodiscard]] requite::Expression& parseAttribute();
   [[nodiscard]] requite::Expression &
-  parseCallOrSignature(requite::Expression &callee);
+  parseCall(requite::Expression &callee);
   [[nodiscard]] requite::Expression &
   parseSpecialization(requite::Expression &callee);
   [[nodiscard]] requite::Expression &parseCloven();
-  void parseAttributeArguments(requite::Expression &attribute);
   [[nodiscard]] requite::Expression &parseOpenInlineScope();
   [[nodiscard]] requite::Expression &parseClosedInlineScope();
   [[nodiscard]] requite::Expression &parsePostUnary(requite::Expression &first,

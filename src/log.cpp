@@ -172,4 +172,9 @@ void Context::logErrorUnterminatedExpression(requite::Expression &expression) {
                              requite::getName(expression.getOpcode()));
 }
 
+void Context::logErrorUnterminatedAttribute(const requite::Token &token) {
+  this->logSourceMessage(token, requite::LogType::ERROR,
+                         "unterminated attribute");
+}
+
 } // namespace requite

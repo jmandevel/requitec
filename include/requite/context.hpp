@@ -398,6 +398,7 @@ struct Context final : public requite::_ContextLlvmContext {
   void logErrorPositionalFieldsEndBeforeExpression(const requite::Token& token);
   void logErrorNamedFieldsBeginAfterExpression(const requite::Token& token);
   void logErrorUnterminatedExpression(requite::Expression& expression);
+  void logErrorUnterminatedAttribute(const requite::Token& token);
 
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>

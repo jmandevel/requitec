@@ -50,19 +50,6 @@ const requite::Token &Parser::getPreviousToken() const {
   return *(this->_it - 1);
 }
 
-bool Parser::getEndIsNext() {
-  std::vector<requite::Token>::const_iterator it = this->_it;
-  it++;
-  if (it == this->_end) {
-    return true;
-  }
-  const requite::Token &next_token = *it;
-  if (requite::getIsExpressionEnd(next_token.getType())) {
-    return true;
-  }
-  return false;
-}
-
 void Parser::incrementToken(std::size_t offset) { this->_it += offset; }
 
 bool Parser::getIsToken(requite::TokenType type) const {
@@ -106,49 +93,60 @@ requite::Expression &Parser::parseExpression() {
 
 // ASSIGNMENTS
 requite::Expression &Parser::parsePrecedence13() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence12());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::WALRUS_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_VARIABLE_DECLARATION);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token,
+                                    requite::Opcode::_VARIABLE_DECLARATION);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::PIRATE_WALRUS_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_PROPERTY);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_PROPERTY);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::FOUR_EYED_WALRUS_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ALIAS);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ALIAS);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::EQUAL_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ASSIGN);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ASSIGN);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::PLUS_EQUAL_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ASSIGN_ADD);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ASSIGN_ADD);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::DASH_EQUAL_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ASSIGN_SUBTRACT);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ASSIGN_SUBTRACT);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::STAR_EQUAL_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ASSIGN_MULTIPLY);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ASSIGN_MULTIPLY);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::SLASH_EQUAL_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ASSIGN_DIVIDE);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ASSIGN_DIVIDE);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::PERCENT_EQUAL_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_ASSIGN_MODULUS);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_ASSIGN_MODULUS);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     case requite::TokenType::SWAP_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::SWAP);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::SWAP);
       precedence_parser.setRecent(this->parsePrecedence12());
       continue;
     default:
@@ -162,14 +160,18 @@ requite::Expression &Parser::parsePrecedence13() {
 
 // BINDINGS
 requite::Expression &Parser::parsePrecedence12() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   const requite::Token &first_token = this->getToken();
   switch (const requite::TokenType first_type = first_token.getType()) {
   case requite::TokenType::COLON_OPERATOR: {
-    precedence_parser.parseUnary(requite::Opcode::_POSITIONAL_VALUE);
+    this->incrementToken(1);
+    precedence_parser.parseUnary(first_token,
+                                 requite::Opcode::_POSITIONAL_VALUE);
   } break;
   case requite::TokenType::DOUBLE_COLON_OPERATOR: {
-    precedence_parser.parseUnary(requite::Opcode::_POSITIONAL_SYMBOL);
+    this->incrementToken(1);
+    precedence_parser.parseUnary(first_token,
+                                 requite::Opcode::_POSITIONAL_SYMBOL);
   } break;
   default:
     break;
@@ -179,13 +181,15 @@ requite::Expression &Parser::parsePrecedence12() {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::COLON_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseBinary(
-          requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE);
+          token, requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE);
       precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     case requite::TokenType::DOUBLE_COLON_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseBinary(
-          requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL);
+          token, requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL);
       precedence_parser.setRecent(this->parsePrecedence11());
       continue;
     default:
@@ -199,17 +203,19 @@ requite::Expression &Parser::parsePrecedence12() {
 
 // BINARY CAST
 requite::Expression &Parser::parsePrecedence11() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence10());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::BACKSLASH_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_CAST);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_CAST);
       precedence_parser.setRecent(this->parsePrecedence10());
       continue;
     case requite::TokenType::DOUBLE_BACKSLASH_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_BITWISE_CAST);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_BITWISE_CAST);
       precedence_parser.setRecent(this->parsePrecedence10());
       continue;
     default:
@@ -223,62 +229,82 @@ requite::Expression &Parser::parsePrecedence11() {
 
 // BINARY EXTEND AND RANGE
 requite::Expression &Parser::parsePrecedence10() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence9());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::ARROW_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_EXTEND);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token, requite::Opcode::_EXTEND);
       precedence_parser.setRecent(this->parsePrecedence9());
       continue;
     case requite::TokenType::THICK_ARROW_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_LONG_RANGE);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_LONG_RANGE);
       precedence_parser.setRecent(this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_PLUS_OPERATOR:
-      precedence_parser.parseShortRangeBranch(token,
-                                              requite::Opcode::_SHORT_STEP_ADD);
+      this->incrementToken(1);
+      precedence_parser.parseShortRangeBranch(
+          token, requite::Opcode::_SHORT_STEP_ADD, this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_DASH_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_STEP_SUBTRACT);
+          token, requite::Opcode::_SHORT_STEP_SUBTRACT,
+          this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_STAR_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_STEP_MULTIPLY);
+          token, requite::Opcode::_SHORT_STEP_MULTIPLY,
+          this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_SLASH_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_STEP_DIVIDE);
+          token, requite::Opcode::_SHORT_STEP_DIVIDE, this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_PERCENT_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_STEP_MODULUS);
+          token, requite::Opcode::_SHORT_STEP_MODULUS,
+          this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_LESS_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_WHILE_LESS);
+          token, requite::Opcode::_SHORT_WHILE_LESS, this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_GREATER_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_WHILE_GREATER);
+          token, requite::Opcode::_SHORT_WHILE_GREATER,
+          this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_LESS_EQUAL_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_WHILE_LESS_EQUAL);
+          token, requite::Opcode::_SHORT_WHILE_LESS_EQUAL,
+          this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_GREATER_EQUAL_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_WHILE_GREATER_EQUAL);
+          token, requite::Opcode::_SHORT_WHILE_GREATER_EQUAL,
+          this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_DOUBLE_EQUAL_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_WHILE_EQUAL);
+          token, requite::Opcode::_SHORT_WHILE_EQUAL, this->parsePrecedence9());
       continue;
     case requite::TokenType::DOT_BANG_EQUAL_OPERATOR:
+      this->incrementToken(1);
       precedence_parser.parseShortRangeBranch(
-          token, requite::Opcode::_SHORT_WHILE_NOT_EQUAL);
+          token, requite::Opcode::_SHORT_WHILE_NOT_EQUAL,
+          this->parsePrecedence9());
       continue;
     default:
       break;
@@ -291,17 +317,19 @@ requite::Expression &Parser::parsePrecedence10() {
 
 // NARY LOGICAL
 requite::Expression &Parser::parsePrecedence9() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence8());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::DOUBLE_AMPERSAND_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_LOGICAL_AND);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_LOGICAL_AND);
       precedence_parser.setRecent(this->parsePrecedence8());
       continue;
     case requite::TokenType::DOUBLE_PIPE_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_LOGICAL_OR);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_LOGICAL_OR);
       precedence_parser.setRecent(this->parsePrecedence8());
       continue;
     default:
@@ -315,41 +343,51 @@ requite::Expression &Parser::parsePrecedence9() {
 
 // NARY COMPARISON
 requite::Expression &Parser::parsePrecedence8() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence7());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
-    case requite::TokenType::GREATER_OPERATOR:
-      if (this->getEndIsNext()) {
+    case requite::TokenType::GREATER_OPERATOR: {
+      this->incrementToken(1);
+      if (this->getIsDone() ||
+          requite::getIsExpressionEnd(this->getToken().getType())) {
         precedence_parser.appendRecent();
         return precedence_parser.getOuter();
       }
-      precedence_parser.parseNary(requite::Opcode::_GREATER);
+      precedence_parser.parseNary(token, requite::Opcode::_GREATER);
       precedence_parser.setRecent(this->parsePrecedence7());
       continue;
+    }
     case requite::TokenType::GREATER_EQUAL_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_GREATER_EQUAL);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_GREATER_EQUAL);
       precedence_parser.setRecent(this->parsePrecedence7());
       continue;
-    case requite::TokenType::LESS_OPERATOR:
-      if (this->getEndIsNext()) {
+    case requite::TokenType::LESS_OPERATOR: {
+      this->incrementToken(1);
+      if (this->getIsDone() ||
+          requite::getIsExpressionEnd(this->getToken().getType())) {
         precedence_parser.appendRecent();
         return precedence_parser.getOuter();
       }
-      precedence_parser.parseNary(requite::Opcode::_LESS);
+      precedence_parser.parseNary(token, requite::Opcode::_LESS);
       precedence_parser.setRecent(this->parsePrecedence7());
       continue;
+    }
     case requite::TokenType::LESS_EQUAL_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_LESS_EQUAL);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_LESS_EQUAL);
       precedence_parser.setRecent(this->parsePrecedence7());
       continue;
     case requite::TokenType::DOUBLE_EQUAL_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_EQUAL);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_EQUAL);
       precedence_parser.setRecent(this->parsePrecedence7());
       continue;
     case requite::TokenType::BANG_EQUAL_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_NOT_EQUAL);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_NOT_EQUAL);
       precedence_parser.setRecent(this->parsePrecedence7());
       continue;
     default:
@@ -363,21 +401,24 @@ requite::Expression &Parser::parsePrecedence8() {
 
 // NARY MULTIPLICATIVE ARITHMETIC
 requite::Expression &Parser::parsePrecedence7() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence6());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::STAR_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_MULTIPLY);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_MULTIPLY);
       precedence_parser.setRecent(this->parsePrecedence6());
       continue;
     case requite::TokenType::SLASH_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_DIVIDE);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_DIVIDE);
       precedence_parser.setRecent(this->parsePrecedence6());
       continue;
     case requite::TokenType::PERCENT_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_MODULUS);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_MODULUS);
       precedence_parser.setRecent(this->parsePrecedence6());
       continue;
     default:
@@ -391,21 +432,25 @@ requite::Expression &Parser::parsePrecedence7() {
 
 // NARY ADDITIVE ARITHMETIC
 requite::Expression &Parser::parsePrecedence6() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence5());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::PLUS_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_ADD);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_ADD);
       precedence_parser.setRecent(this->parsePrecedence5());
       continue;
     case requite::TokenType::DASH_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_SUBTRACT);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_SUBTRACT);
       precedence_parser.setRecent(this->parsePrecedence5());
       continue;
     case requite::TokenType::CONCATENATE_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_COMPILE_TIME_CONCATINATE);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token,
+                                  requite::Opcode::_COMPILE_TIME_CONCATINATE);
       precedence_parser.setRecent(this->parsePrecedence5());
       continue;
     default:
@@ -419,17 +464,21 @@ requite::Expression &Parser::parsePrecedence6() {
 
 // BITWISE SHIFT OPERATORS
 requite::Expression &Parser::parsePrecedence5() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   precedence_parser.setRecent(this->parsePrecedence4());
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::DOUBLE_LESS_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_BITWISE_SHIFT_LEFT);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token,
+                                    requite::Opcode::_BITWISE_SHIFT_LEFT);
       precedence_parser.setRecent(this->parsePrecedence4());
       continue;
     case requite::TokenType::DOUBLE_GREATER_OPERATOR:
-      precedence_parser.parseBinary(requite::Opcode::_BITWISE_SHIFT_RIGHT);
+      this->incrementToken(1);
+      precedence_parser.parseBinary(token,
+                                    requite::Opcode::_BITWISE_SHIFT_RIGHT);
       precedence_parser.setRecent(this->parsePrecedence4());
       continue;
     default:
@@ -443,15 +492,17 @@ requite::Expression &Parser::parsePrecedence5() {
 
 // EARLY UNARY OPERATORS
 requite::Expression &Parser::parsePrecedence4() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::BANG_OPERATOR:
-      precedence_parser.parseUnary(requite::Opcode::_LOGICAL_COMPLEMENT);
+      this->incrementToken(1);
+      precedence_parser.parseUnary(token, requite::Opcode::_LOGICAL_COMPLEMENT);
       continue;
     case requite::TokenType::DASH_OPERATOR:
-      precedence_parser.parseUnary(requite::Opcode::_NEGATE);
+      this->incrementToken(1);
+      precedence_parser.parseUnary(token, requite::Opcode::_NEGATE);
       continue;
     default:
       precedence_parser.appendBranch(this->parsePrecedence3());
@@ -464,11 +515,11 @@ requite::Expression &Parser::parsePrecedence4() {
 
 // EARLY GROUPINGS (funny tricks here)
 requite::Expression &Parser::parsePrecedence3() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   const requite::Token &first_token = this->getToken();
   switch (const requite::TokenType first_type = first_token.getType()) {
   case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
-    precedence_parser.parseCallOrSignatureImplicitCallee();
+    precedence_parser.setOuterOperation(this->parseCloven());
   } break;
   default:
     precedence_parser.appendBranch(this->parsePrecedence2());
@@ -477,9 +528,11 @@ requite::Expression &Parser::parsePrecedence3() {
     const requite::Token &token = this->getToken();
     const requite::TokenType type = token.getType();
     if (type == requite::TokenType::LEFT_PARENTHESIS_GROUPING) {
-      precedence_parser.parseCallOrSignature();
+      precedence_parser.setOuterOperation(
+          this->parseCall(precedence_parser.getOuter()));
     } else if (type == requite::TokenType::LEFT_TRIP_GROUPING) {
-      precedence_parser.parseSpecialization();
+      precedence_parser.setOuterOperation(
+          this->parseSpecialization(precedence_parser.getOuter()));
     } else {
       break;
     }
@@ -496,11 +549,15 @@ requite::Expression &Parser::parsePrecedence3() {
       const requite::Token &next1_token = this->getToken();
       const requite::TokenType next1_type = next1_token.getType();
       if (next1_type == requite::TokenType::DOT_OPERATOR) {
-        precedence_parser.parseNestingNary(requite::Opcode::_REFLECT_VALUE);
+        this->incrementToken(1);
+        precedence_parser.parseNestingNary(next1_token,
+                                           requite::Opcode::_REFLECT_VALUE);
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       } else if (next1_type == requite::TokenType::DOUBLE_DOT_OPERATOR) {
-        precedence_parser.parseNestingNary(requite::Opcode::_REFLECT_SYMBOL);
+        this->incrementToken(1);
+        precedence_parser.parseNestingNary(next1_token,
+                                           requite::Opcode::_REFLECT_SYMBOL);
         precedence_parser.appendBranch(this->parsePrecedence0());
         continue;
       } else {
@@ -513,13 +570,15 @@ requite::Expression &Parser::parsePrecedence3() {
 
 // LATE UNARY OPERATORS (things get wierd here)
 requite::Expression &Parser::parsePrecedence2() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   bool previous_attribute = false;
   while (!this->getIsDone()) {
     const requite::Token &token = this->getToken();
     const requite::TokenType type = token.getType();
     if (type == requite::TokenType::AT_OPERATOR) {
-      precedence_parser.parseAttribute();
+      requite::Expression &attribute = this->parseAttribute();
+      precedence_parser.parseAscribe(token);
+      precedence_parser.appendBranch(attribute);
       previous_attribute = true;
       continue;
     }
@@ -529,7 +588,8 @@ requite::Expression &Parser::parsePrecedence2() {
           requite::Expression::makeOperation(requite::Opcode::_TACIT);
       operation.setSourceInsertedBefore(token);
       precedence_parser.setRecent(operation);
-      precedence_parser.parseNary(requite::Opcode::_ARRAY);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_ARRAY);
       previous_attribute = false;
       continue;
     }
@@ -538,36 +598,46 @@ requite::Expression &Parser::parsePrecedence2() {
           requite::Expression::makeOperation(requite::Opcode::_NULL_TYPE);
       operation.setSourceInsertedBefore(token);
       precedence_parser.setRecent(operation);
-      precedence_parser.parseNary(requite::Opcode::_VARIANT);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_VARIANT);
       previous_attribute = false;
       continue;
     }
     case requite::TokenType::TILDE_OPERATOR:
-      precedence_parser.parseUnary(requite::Opcode::_FAT_POINTER);
+      this->incrementToken(1);
+      precedence_parser.parseUnary(token, requite::Opcode::_FAT_POINTER);
       previous_attribute = false;
       continue;
     case requite::TokenType::AMPERSAND_OPERATOR:
-      precedence_parser.parseUnary(requite::Opcode::_REFERENCE);
+      this->incrementToken(1);
+      precedence_parser.parseUnary(token, requite::Opcode::_REFERENCE);
       previous_attribute = false;
       continue;
     case requite::TokenType::DOUBLE_AMPERSAND_OPERATOR:
-      precedence_parser.parseDoubleUnary(requite::Opcode::_REFERENCE);
+      precedence_parser.parseDoubleUnary(token, requite::Opcode::_REFERENCE);
       previous_attribute = false;
       continue;
     case requite::TokenType::STAR_OPERATOR:
-      precedence_parser.parseUnary(requite::Opcode::_POINTER);
+      this->incrementToken(1);
+      precedence_parser.parseUnary(token, requite::Opcode::_POINTER);
       previous_attribute = false;
       continue;
     case requite::TokenType::GRAVE_OPERATOR:
-      precedence_parser.parseUnaryAttribute(requite::Opcode::MUTABLE);
+      this->incrementToken(1);
+      precedence_parser.parseAscribe(token);
+      precedence_parser.appendUnaryAttribute(token, requite::Opcode::MUTABLE);
       previous_attribute = false;
       continue;
     case requite::TokenType::DOUBLE_GRAVE_OPERATOR:
-      precedence_parser.parseUnaryAttribute(requite::Opcode::CONSTANT);
+      this->incrementToken(1);
+      precedence_parser.parseAscribe(token);
+      precedence_parser.appendUnaryAttribute(token, requite::Opcode::CONSTANT);
       previous_attribute = false;
       continue;
     case requite::TokenType::DOLLAR_OPERATOR:
-      precedence_parser.parseUnaryAttribute(requite::Opcode::OWNING);
+      this->incrementToken(1);
+      precedence_parser.parseAscribe(token);
+      precedence_parser.appendUnaryAttribute(token, requite::Opcode::CONSTANT);
       previous_attribute = false;
       continue;
     default:
@@ -600,7 +670,8 @@ requite::Expression &Parser::parsePrecedence2() {
           requite::Expression::makeOperation(requite::Opcode::_TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
-      precedence_parser.parseBinaryCombination(requite::Opcode::_CAST);
+      this->incrementToken(1);
+      precedence_parser.parseBinaryCombination(token, requite::Opcode::_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
       previous_attribute = false;
       break;
@@ -609,7 +680,9 @@ requite::Expression &Parser::parsePrecedence2() {
           requite::Expression::makeOperation(requite::Opcode::_TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
-      precedence_parser.parseBinaryCombination(requite::Opcode::_BITWISE_CAST);
+      this->incrementToken(1);
+      precedence_parser.parseBinaryCombination(token,
+                                               requite::Opcode::_BITWISE_CAST);
       precedence_parser.appendBranch(this->parsePrecedence9());
       previous_attribute = false;
       break;
@@ -618,7 +691,8 @@ requite::Expression &Parser::parsePrecedence2() {
           requite::Expression::makeOperation(requite::Opcode::_TACIT);
       inference.setSource(token);
       precedence_parser.appendBranch(inference);
-      precedence_parser.parseBinaryCombination(requite::Opcode::_EXTEND);
+      this->incrementToken(1);
+      precedence_parser.parseBinaryCombination(token, requite::Opcode::_EXTEND);
       precedence_parser.appendBranch(this->parsePrecedence8());
       previous_attribute = false;
       break;
@@ -642,10 +716,12 @@ requite::Expression &Parser::parsePrecedence2() {
     const requite::Token &post_token = this->getToken();
     switch (const requite::TokenType post_type = post_token.getType()) {
     case requite::TokenType::HASH_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_ARRAY);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_ARRAY);
       continue;
     case requite::TokenType::QUESTION_OPERATOR:
-      precedence_parser.parseNary(requite::Opcode::_VARIANT);
+      this->incrementToken(1);
+      precedence_parser.parseNary(token, requite::Opcode::_VARIANT);
       continue;
     default:
       precedence_parser.appendRecent();
@@ -658,7 +734,7 @@ requite::Expression &Parser::parsePrecedence2() {
 
 // NARY REFLECTION
 requite::Expression &Parser::parsePrecedence1() {
-  requite::PrecedenceParser precedence_parser(*this);
+  requite::PrecedenceParser precedence_parser;
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &first_token = this->getToken();
   switch (const requite::TokenType first_type = first_token.getType()) {
@@ -667,7 +743,9 @@ requite::Expression &Parser::parsePrecedence1() {
         requite::Expression::makeOperation(requite::Opcode::_TACIT);
     tacit.setSourceInsertedBefore(first_token);
     precedence_parser.appendBranch(tacit);
-    precedence_parser.parseNestingNary(requite::Opcode::_REFLECT_VALUE);
+    this->incrementToken(1);
+    precedence_parser.parseNestingNary(first_token,
+                                       requite::Opcode::_REFLECT_VALUE);
     precedence_parser.appendBranch(this->parsePrecedence0());
   } break;
   case requite::TokenType::DOUBLE_DOT_OPERATOR: {
@@ -675,7 +753,9 @@ requite::Expression &Parser::parsePrecedence1() {
         requite::Expression::makeOperation(requite::Opcode::_TACIT);
     tacit.setSourceInsertedBefore(first_token);
     precedence_parser.appendBranch(tacit);
-    precedence_parser.parseNestingNary(requite::Opcode::_REFLECT_SYMBOL);
+    this->incrementToken(1);
+    precedence_parser.parseNestingNary(first_token,
+                                       requite::Opcode::_REFLECT_SYMBOL);
     precedence_parser.appendBranch(this->parsePrecedence0());
   } break;
   default:
@@ -686,11 +766,15 @@ requite::Expression &Parser::parsePrecedence1() {
     const requite::Token &token = this->getToken();
     switch (const requite::TokenType type = token.getType()) {
     case requite::TokenType::DOT_OPERATOR:
-      precedence_parser.parseNestingNary(requite::Opcode::_REFLECT_VALUE);
+      this->incrementToken(1);
+      precedence_parser.parseNestingNary(token,
+                                         requite::Opcode::_REFLECT_VALUE);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     case requite::TokenType::DOUBLE_DOT_OPERATOR:
-      precedence_parser.parseNestingNary(requite::Opcode::_REFLECT_SYMBOL);
+      this->incrementToken(1);
+      precedence_parser.parseNestingNary(token,
+                                         requite::Opcode::_REFLECT_SYMBOL);
       precedence_parser.appendBranch(this->parsePrecedence0());
       continue;
     default:
@@ -740,7 +824,7 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
     const requite::Token &opcode_token, requite::Expression &operation,
     requite::Expression *last_branch_ptr, unsigned branch_count) {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   if (last_branch_ptr == nullptr) {
     grouping_parser.startGroup(operation);
   } else {
@@ -911,7 +995,7 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
 void Parser::parseOperationBranchesWithCommaSeperators(
     requite::Expression &operation) {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   grouping_parser.startGroup(operation);
   if (!this->getIsDone()) {
     const requite::Token &first_token = this->getToken();
@@ -1113,7 +1197,7 @@ requite::Expression &Parser::parseBracketExpression() {
 
 requite::Expression &Parser::parseTrip() {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   grouping_parser.startGroup(requite::Opcode::_TRIP, left_token);
@@ -1203,7 +1287,7 @@ requite::Expression &Parser::parseTrip() {
 
 requite::Expression &Parser::parseCapture() {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   grouping_parser.startGroup(requite::Opcode::_CAPTURE, left_token);
@@ -1260,13 +1344,80 @@ requite::Expression &Parser::parseCapture() {
   return capture;
 }
 
-requite::Expression &Parser::parseCallOrSignature(requite::Expression &callee) {
+requite::Expression &Parser::parseAttribute() {
+  const requite::Token &at_token = this->getToken();
+  this->incrementToken(1);
+  if (this->getIsDone()) {
+    this->getContext().logErrorUnterminatedAttribute(at_token);
+    this->setNotOk();
+    requite::Expression &error =
+        requite::Expression::makeOperation(requite::Opcode::__ERROR);
+    error.setSource(at_token);
+    return error;
+  }
+  const requite::Token &next_token = this->getToken();
+  if (next_token.getType() == requite::TokenType::LEFT_PARENTHESIS_GROUPING) {
+    this->incrementToken(1);
+    if (this->getIsDone()) {
+      this->getContext().logErrorUnterminatedAttribute(at_token);
+      this->setNotOk();
+      requite::Expression &error =
+          requite::Expression::makeOperation(requite::Opcode::__ERROR);
+      error.setSource(at_token, next_token);
+      return error;
+    }
+    requite::Opcode opcode = this->parseAttributeOpcode();
+    requite::GroupingParser grouping_parser;
+    grouping_parser.startGroup(opcode, at_token);
+    while (!this->getIsDone()) {
+      const requite::Token &branch_token = this->getToken();
+      switch (const requite::TokenType branch_type = branch_token.getType()) {
+      case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
+        this->incrementToken(1);
+        return grouping_parser.finishOperation(branch_token);
+      case requite::TokenType::COMMA_SEPERATOR:
+        this->getContext().logErrorExpectedExpressionBeforeComma(branch_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      default:
+        break;
+      }
+      if (this->getIsDone()) {
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      const requite::Token &after_token = this->getToken();
+      this->incrementToken(1);
+      switch (const requite::TokenType after_type = after_token.getType()) {
+      case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
+        return grouping_parser.finishOperation(branch_token);
+      case requite::TokenType::COMMA_SEPERATOR:
+        continue;
+      default:
+        this->getContext().logErrorMissingCommmaSeperator(after_token);
+        this->setNotOk();
+      }
+    }
+    const requite::Token &previous_token = this->getPreviousToken();
+    this->getContext().logErrorUnterminatedAttribute(at_token);
+    this->setNotOk();
+    return grouping_parser.finishOperation(previous_token);
+  }
+  const requite::Token &opcode_token = this->getToken();
+  requite::Opcode opcode = this->parseAttributeOpcode();
+  requite::Expression &attribute = requite::Expression::makeOperation(opcode);
+  attribute.setSource(at_token, opcode_token);
+  return attribute;
+}
+
+requite::Expression &Parser::parseCall(requite::Expression &callee) {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
-  grouping_parser.startGroup(requite::Opcode::_CALL_OR_SIGNATURE, callee);
-  grouping_parser.appendBranch(callee);
+  grouping_parser.startGroup(requite::Opcode::_CALL, callee);
   if (!this->getIsDone()) {
     const requite::Token &first_token = this->getToken();
     if (first_token.getType() ==
@@ -1289,21 +1440,6 @@ requite::Expression &Parser::parseCallOrSignature(requite::Expression &callee) {
         this->incrementToken(1);
         continue;
       }
-      case requite::TokenType::GREATER_OPERATOR: {
-        requite::Expression &names_begin = requite::Expression::makeOperation(
-            requite::Opcode::_NAMED_FIELDS_BEGIN);
-        names_begin.setSource(before_token);
-        grouping_parser.appendBranch(names_begin);
-        this->incrementToken(1);
-        continue;
-      }
-      case requite::TokenType::LESS_OPERATOR: {
-        this->getContext().logErrorPositionalFieldsEndBeforeExpression(
-            before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        continue;
-      }
       default:
         break;
       }
@@ -1320,21 +1456,6 @@ requite::Expression &Parser::parseCallOrSignature(requite::Expression &callee) {
           this->incrementToken(1);
           break;
         }
-        case requite::TokenType::GREATER_OPERATOR: {
-          this->getContext().logErrorNamedFieldsBeginAfterExpression(
-              after_token);
-          this->incrementToken(1);
-          continue;
-        }
-        case requite::TokenType::LESS_OPERATOR: {
-          requite::Expression &positional_end =
-              requite::Expression::makeOperation(
-                  requite::Opcode::_POSITIONAL_FIELDS_END);
-          positional_end.setSource(before_token);
-          grouping_parser.appendBranch(positional_end);
-          this->incrementToken(1);
-          continue;
-        }
         default:
           this->getContext().logErrorMissingCommmaSeperator(after_token);
           this->setNotOk();
@@ -1344,16 +1465,16 @@ requite::Expression &Parser::parseCallOrSignature(requite::Expression &callee) {
       }
     }
   }
-  requite::Expression &call_or_signature =
+  requite::Expression &call =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logErrorUnterminatedExpression(call_or_signature);
+  this->getContext().logErrorUnterminatedExpression(call);
   this->setNotOk();
-  return call_or_signature;
+  return call;
 }
 
 requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   grouping_parser.startGroup(requite::Opcode::_SPECIALIZATION, callee);
@@ -1412,7 +1533,7 @@ requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
 
 requite::Expression &Parser::parseCloven() {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   grouping_parser.startGroup(requite::Opcode::_CLOVEN, left_token);
@@ -1500,68 +1621,9 @@ requite::Expression &Parser::parseCloven() {
   return cloven;
 }
 
-void Parser::parseAttributeArguments(requite::Expression &attribute) {
-  REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
-  const requite::Token &left_token = this->getToken();
-  this->incrementToken(1);
-  grouping_parser.startGroup(attribute);
-  if (!this->getIsDone()) {
-    const requite::Token &first_token = this->getToken();
-    if (first_token.getType() == requite::TokenType::RIGHT_TRIP_GROUPING) {
-      this->incrementToken(1);
-      std::ignore = grouping_parser.finishOperation(first_token);
-    }
-    while (!this->getIsDone()) {
-      const requite::Token &before_token = this->getToken();
-      switch (const requite::TokenType before_type = before_token.getType()) {
-      case requite::TokenType::RIGHT_TRIP_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        std::ignore = grouping_parser.finishOperation(before_token);
-        return;
-      }
-      case requite::TokenType::COMMA_SEPERATOR: {
-        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        continue;
-      }
-      default:
-        break;
-      }
-      requite::Expression &branch = this->parseExpression();
-      grouping_parser.appendBranch(branch);
-      while (!this->getIsDone()) {
-        const requite::Token &after_token = this->getToken();
-        switch (const requite::TokenType after_type = after_token.getType()) {
-        case requite::TokenType::RIGHT_TRIP_GROUPING: {
-          this->incrementToken(1);
-          std::ignore = grouping_parser.finishOperation(after_token);
-          return;
-        }
-        case requite::TokenType::COMMA_SEPERATOR: {
-          this->incrementToken(1);
-          break;
-        }
-        default:
-          this->getContext().logErrorMissingCommmaSeperator(after_token);
-          this->setNotOk();
-          break;
-        }
-        break;
-      }
-    }
-  }
-  std::ignore = grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logErrorUnterminatedExpression(attribute);
-  this->setNotOk();
-}
-
 requite::Expression &Parser::parseOpenInlineScope() {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   grouping_parser.startGroup(requite::Opcode::_OPEN_INLINE_SCOPE, left_token);
@@ -1616,7 +1678,7 @@ requite::Expression &Parser::parseOpenInlineScope() {
 
 requite::Expression &Parser::parseClosedInlineScope() {
   REQUITE_ASSERT(!this->getIsDone());
-  requite::GroupingParser grouping_parser(*this);
+  requite::GroupingParser grouping_parser;
   const requite::Token &left_token = this->getToken();
   this->incrementToken(1);
   grouping_parser.startGroup(requite::Opcode::_CLOSED_INLINE_SCOPE, left_token);

@@ -1,4 +1,4 @@
-@template(Type::[type], LENGTH::[unsigned])
+@(template Type::[type], LENGTH::[unsigned])
 [object Array;
     prop .= 0;
     data .= LENGTH#Type\[indeterminate];
