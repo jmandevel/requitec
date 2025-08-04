@@ -9,7 +9,8 @@ void GroupingParser::startGroup(requite::Expression &existing_expression) {
   this->setOperation(existing_expression);
 }
 
-void GroupingParser::startGroup(requite::Expression& existing_expression, requite::Expression& last_branch) {
+void GroupingParser::startGroup(requite::Expression &existing_expression,
+                                requite::Expression &last_branch) {
   REQUITE_ASSERT(existing_expression.getLastBranch() == last_branch);
   this->setOperation(existing_expression);
   this->_last_ptr = &last_branch;
@@ -45,6 +46,18 @@ requite::Expression &
 GroupingParser::finishOperation(const requite::Token &last_token) {
   requite::Expression &operation = this->getOperation();
   operation.extendSourceOver(last_token);
+  return operation;
+}
+
+requite::Expression &
+GroupingParser::finishOperation(requite::Expression &replace_first_branch) {
+  requite::Expression &operation = this->getOperation();
+  if (operation.getHasBranch()) {
+    replace_first_branch.setNext(operation.replaceBranch(replace_first_branch));
+  } else {
+    operation.setBranch(replace_first_branch);
+  }
+  operation.extendSourceOver(replace_first_branch);
   return operation;
 }
 

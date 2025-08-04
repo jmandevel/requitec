@@ -159,9 +159,9 @@ void Tokenizer::_tokenizeTokens() {
               requite::TokenType::UNARY_SIGNATURE_OPERATOR, 3);
           continue;
         default:
-          this->tokenizeRightGrouping(
-              requite::GroupingType::PARENTHESIS,
-              requite::TokenType::LEFT_SIGNATURE_GROUPING, 2);
+          this->tokenizeLengthToken(requite::TokenType::LEFT_SIGNATURE_GROUPING,
+                                    2);
+          this->pushGrouping(requite::GroupingType::SIGNATURE);
         }
         continue;
       default:
@@ -658,8 +658,7 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeRightGrouping(
             requite::GroupingType::SIGNATURE,
             requite::TokenType::RIGHT_SIGNATURE_GROUPING, 2);
-        this->pushGrouping(requite::GroupingType::SIGNATURE);
-        break;
+        continue;
       default:
         this->tokenizeLengthToken(requite::TokenType::PIPE_OPERATOR, 1);
       }

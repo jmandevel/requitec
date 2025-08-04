@@ -107,9 +107,6 @@ _getFlags(requite::Opcode opcode) {
     return _NONE;
 
   // SITUATIONAL
-  case Opcode::_CALL_OR_SIGNATURE: // NOTE: this should not be reflective
-                                   // because reflections are contained within
-                                   // callee
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE | _MATTE_SYMBOL | _MATTE_LOCAL_STATEMENT;
   case Opcode::_CLOVEN:
@@ -748,8 +745,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "__error";
 
   // SITUATIONAL
-  case requite::Opcode::_CALL_OR_SIGNATURE:
-    return "_call_or_signature";
   case requite::Opcode::_CLOVEN:
     return "_cloven";
   case requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:

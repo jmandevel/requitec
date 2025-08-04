@@ -114,9 +114,6 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situate_TripExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void
-  situate_CallOrSignatureExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
   inline void situateSizedPrimitiveExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situate_ArrayExpression(requite::Expression &expression);
