@@ -148,12 +148,6 @@ void Context::logErrorExpectedExpressionBeforeComma(
                          "expected expression before comma");
 }
 
-void Context::logErrorExpectedExpressionAfterComma(
-    const requite::Token &token) {
-  this->logSourceMessage(token, requite::LogType::ERROR,
-                         "expected expression after comma");
-}
-
 void Context::logErrorPositionalFieldsEndBeforeExpression(
     const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,

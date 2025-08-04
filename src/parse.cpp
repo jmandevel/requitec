@@ -891,11 +891,16 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
           }
         } break;
         case requite::TokenType::RIGHT_BRACKET_GROUPING: {
-          this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-          this->setNotOk();
-          this->incrementToken(1);
-          std::ignore = grouping_parser.finishOperation(before_token);
-          return;
+            this->incrementToken(1);
+            if (requite::getLastCommaBranchCanBeTacit(operation.getOpcode()) &&
+                branch_count == comma_branch_count - 1) {
+              requite::Expression &tacit =
+                  requite::Expression::makeOperation(requite::Opcode::_TACIT);
+              tacit.setSourceInsertedBefore(before_token);
+              grouping_parser.appendBranch(tacit);
+            }
+            std::ignore = grouping_parser.finishOperation(before_token);
+            return;
         }
         case requite::TokenType::COMMA_SEPERATOR: {
           this->getContext().logErrorExpectedExpressionBeforeComma(
@@ -1030,11 +1035,9 @@ void Parser::parseOperationBranchesWithCommaSeperators(
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_BRACKET_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        std::ignore = grouping_parser.finishOperation(before_token);
-        return;
+          this->incrementToken(1);
+          std::ignore = grouping_parser.finishOperation(before_token);
+          return;
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
@@ -1233,10 +1236,8 @@ requite::Expression &Parser::parseTrip() {
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_TRIP_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        return grouping_parser.finishOperation(before_token);
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(before_token);
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
@@ -1301,8 +1302,7 @@ requite::Expression &Parser::parseTrip() {
   }
   requite::Expression &trip =
       grouping_parser.finishOperation(this->getPreviousToken());
-  this->getContext().logSourceMessage(trip, requite::LogType::ERROR,
-                                      "unterminated _trip");
+  this->getContext().logErrorUnterminatedExpression(trip);
   this->setNotOk();
   return trip;
 }
@@ -1323,10 +1323,8 @@ requite::Expression &Parser::parseCapture() {
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_BRACKET_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        return grouping_parser.finishOperation(before_token);
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(before_token);
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
@@ -1402,10 +1400,8 @@ requite::Expression &Parser::parseAttribute() {
         const requite::Token &before_token = this->getToken();
         switch (const requite::TokenType before_type = before_token.getType()) {
         case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-          this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-          this->setNotOk();
-          this->incrementToken(1);
-          return grouping_parser.finishOperation(before_token);
+            this->incrementToken(1);
+            return grouping_parser.finishOperation(before_token);
         }
         case requite::TokenType::COMMA_SEPERATOR: {
           this->getContext().logErrorExpectedExpressionBeforeComma(
@@ -1498,10 +1494,8 @@ requite::Expression &Parser::parseCall(requite::Expression &callee) {
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        return grouping_parser.finishOperation(before_token);
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(before_token);
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
@@ -1557,10 +1551,8 @@ requite::Expression &Parser::parseSpecialization(requite::Expression &callee) {
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_TRIP_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        return grouping_parser.finishOperation(before_token);
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(before_token);
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
@@ -1617,10 +1609,8 @@ requite::Expression &Parser::parseCloven() {
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_PARENTHESIS_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        return grouping_parser.finishOperation(before_token);
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(before_token);
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
@@ -1959,13 +1949,16 @@ requite::Expression &Parser::parseSignatureWithParameters() {
       const requite::Token &before_token = this->getToken();
       switch (const requite::TokenType before_type = before_token.getType()) {
       case requite::TokenType::RIGHT_SIGNATURE_GROUPING: {
-        this->getContext().logErrorExpectedExpressionAfterComma(before_token);
-        this->setNotOk();
-        this->incrementToken(1);
-        requite::Expression &tacit =
-            requite::Expression::makeOperation(requite::Opcode::_TACIT);
-        tacit.setSourceInsertedAfter(before_token);
-        return grouping_parser.finishOperation(tacit);
+          this->incrementToken(1);
+          if (this->getIsDone() ||
+              requite::getIsExpressionEnd(this->getToken().getType())) {
+            requite::Expression &tacit =
+                requite::Expression::makeOperation(requite::Opcode::_TACIT);
+            tacit.setSourceInsertedAfter(before_token);
+            return grouping_parser.finishOperation(tacit);
+          }
+          requite::Expression &return_type = this->parseExpression();
+          return grouping_parser.finishOperation(return_type);
       }
       case requite::TokenType::COMMA_SEPERATOR: {
         this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
