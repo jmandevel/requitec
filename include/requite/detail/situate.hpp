@@ -2334,7 +2334,7 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
   } while (false);
   if (branch_i < MIN_COUNT_PARAM) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, branch_i);
+        expression, MIN_COUNT_PARAM);
     this->setNotOk();
   }
 }

@@ -28,25 +28,26 @@ enum _OpcodeFlags : std::uint32_t {
   _INTERMEDIATE_OPERATION = requite::getBit(29),
   _BRANCH_CAN_HAVE_NO_SEMICOLON = requite::getBit(28),
   _SEMICOLON_SEPERATED_BRANCHES = requite::getBit(27),
-  _MATTE_MODULE_STATEMENT = requite::getBit(26),
-  _MATTE_TABLE_STATEMENT = requite::getBit(25),
-  _MATTE_OBJECT_STATEMENT = requite::getBit(24),
-  _MATTE_LOCAL_STATEMENT = requite::getBit(23),
-  _VALUE_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(22),
-  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(21),
-  _MATTE_DESTINATION = requite::getBit(20),
-  _VALUE_REFLECTIVE_DESTINATION = requite::getBit(19),
-  _SYMBOL_REFLECTIVE_DESTINATION = requite::getBit(18),
-  _MATTE_VALUE = requite::getBit(17),
-  _VALUE_REFLECTIVE_VALUE = requite::getBit(16),
-  _SYMBOL_REFLECTIVE_VALUE = requite::getBit(15),
-  _MATTE_JUNCTION = requite::getBit(14),
-  _VALUE_REFLECTIVE_JUNCTION = requite::getBit(13),
-  _SYMBOL_REFLECTIVE_JUNCTION = requite::getBit(12),
-  _MATTE_SYMBOL = requite::getBit(11),
-  _VALUE_REFLECTIVE_SYMBOL = requite::getBit(10),
-  _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(9),
-  _ATTRIBUTE = requite::getBit(8),
+  _LAST_COMMA_BRANCH_CAN_BE_TACIT = requite::getBit(26),
+  _MATTE_MODULE_STATEMENT = requite::getBit(25),
+  _MATTE_TABLE_STATEMENT = requite::getBit(24),
+  _MATTE_OBJECT_STATEMENT = requite::getBit(23),
+  _MATTE_LOCAL_STATEMENT = requite::getBit(22),
+  _VALUE_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(21),
+  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(20),
+  _MATTE_DESTINATION = requite::getBit(19),
+  _VALUE_REFLECTIVE_DESTINATION = requite::getBit(18),
+  _SYMBOL_REFLECTIVE_DESTINATION = requite::getBit(17),
+  _MATTE_VALUE = requite::getBit(16),
+  _VALUE_REFLECTIVE_VALUE = requite::getBit(15),
+  _SYMBOL_REFLECTIVE_VALUE = requite::getBit(14),
+  _MATTE_JUNCTION = requite::getBit(13),
+  _VALUE_REFLECTIVE_JUNCTION = requite::getBit(12),
+  _SYMBOL_REFLECTIVE_JUNCTION = requite::getBit(11),
+  _MATTE_SYMBOL = requite::getBit(10),
+  _VALUE_REFLECTIVE_SYMBOL = requite::getBit(9),
+  _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(8),
+  _ATTRIBUTE = requite::getBit(7),
   _COMMA_BRANCH_COUNT_MASK_VALUE = 0x3,
   _ANY = _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
          _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT |
@@ -106,7 +107,7 @@ _getFlags(requite::Opcode opcode) {
   case Opcode::__ERROR:
     return _NONE;
 
-  // SITUATIONAL
+    // SITUATIONAL
     return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
            _MATTE_VALUE | _MATTE_SYMBOL | _MATTE_LOCAL_STATEMENT;
   case Opcode::_CLOVEN:
@@ -397,21 +398,24 @@ _getFlags(requite::Opcode opcode) {
            _MATTE_MODULE_STATEMENT;
   case Opcode::FUNCTION:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
-           _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT |
-           static_cast<_OpcodeFlags>(2);
+           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_MODULE_STATEMENT |
+           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
+           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(2);
   case Opcode::CONSTRUCTOR:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_OBJECT_STATEMENT | static_cast<_OpcodeFlags>(1);
+           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_OBJECT_STATEMENT |
+           static_cast<_OpcodeFlags>(1);
   case Opcode::DESTRUCTOR:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
            _MATTE_OBJECT_STATEMENT;
   case Opcode::RANGER:
     return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_OBJECT_STATEMENT | static_cast<_OpcodeFlags>(1);
+           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_OBJECT_STATEMENT |
+           static_cast<_OpcodeFlags>(1);
   case Opcode::_ANONYMOUS_FUNCTION:
     return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_VALUE | static_cast<_OpcodeFlags>(2);
+           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_VALUE |
+           static_cast<_OpcodeFlags>(2);
   case Opcode::_CAPTURE:
     return _NONE;
 
@@ -1370,6 +1374,12 @@ constexpr unsigned getCommaTerminatingBranchCount(requite::Opcode opcode) {
   REQUITE_ASSERT(requite::getHasSemicolonSeperatedBranches(opcode));
   const unsigned count = requite::_getMaskValue(opcode);
   return count;
+}
+
+constexpr bool getLastCommaBranchCanBeTacit(requite::Opcode opcode) {
+  const bool has_flags = requite::_getHasFlags(
+      opcode, requite::_opcode::_LAST_COMMA_BRANCH_CAN_BE_TACIT);
+  return has_flags;
 }
 
 constexpr bool getIsConverging(requite::Opcode opcode) {

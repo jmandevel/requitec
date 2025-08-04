@@ -390,7 +390,10 @@ getUniversalizedSymbol(requite::Opcode opcode);
 getBranchCanHaveNoSemicolon(requite::Opcode opcode);
 [[nodiscard]] constexpr bool
 getHasSemicolonSeperatedBranches(requite::Opcode opcode);
-[[nodiscard]] constexpr unsigned getCommaTerminatingBranchCount(requite::Opcode opcode);
+[[nodiscard]] constexpr unsigned
+getCommaTerminatingBranchCount(requite::Opcode opcode);
+[[nodiscard]] constexpr bool
+getLastCommaBranchCanBeTacit(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasIntegerData(requite::Opcode opcode);

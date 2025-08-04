@@ -845,9 +845,18 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
     }
     while (!this->getIsDone()) {
       if (branch_count < comma_branch_count) {
-        branch_count++;
         const requite::Token &before_token = this->getToken();
         switch (const requite::TokenType before_type = before_token.getType()) {
+        case requite::TokenType::SEMICOLON_SEPERATOR:
+          if (requite::getLastCommaBranchCanBeTacit(operation.getOpcode()) &&
+              branch_count == comma_branch_count - 1) {
+            this->incrementToken(1);
+            requite::Expression &tacit =
+                requite::Expression::makeOperation(requite::Opcode::_TACIT);
+            tacit.setSourceInsertedBefore(before_token);
+            grouping_parser.appendBranch(tacit);
+          }
+          break;
         case requite::TokenType::TRAILER_SEPERATOR: {
           this->incrementToken(1);
           unsigned trailer_depth = 0;
@@ -898,6 +907,7 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
         default:
           break;
         }
+        branch_count++;
         requite::Expression &branch = this->parseExpression();
         grouping_parser.appendBranch(branch);
         while (!this->getIsDone()) {
@@ -905,7 +915,14 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
           switch (const requite::TokenType after_type = after_token.getType()) {
           case requite::TokenType::RIGHT_BRACKET_GROUPING: {
             this->incrementToken(1);
-            std::ignore = grouping_parser.finishOperation(after_token);
+            if (requite::getLastCommaBranchCanBeTacit(operation.getOpcode()) &&
+                branch_count == comma_branch_count - 1) {
+              requite::Expression &tacit =
+                  requite::Expression::makeOperation(requite::Opcode::_TACIT);
+              tacit.setSourceInsertedBefore(before_token);
+              grouping_parser.appendBranch(tacit);
+            }
+            std::ignore = grouping_parser.finishOperation(before_token);
             return;
           }
           case requite::TokenType::COMMA_SEPERATOR: {
@@ -971,6 +988,7 @@ void Parser::parseOperationBranchesWithSemicolonSeperators(
       default:
         break;
       }
+      branch_count++;
       requite::Expression &branch = this->parseExpression();
       grouping_parser.appendBranch(branch);
       while (!this->getIsDone()) {
