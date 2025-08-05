@@ -83,8 +83,6 @@ template <requite::Situation SITUATION_PARAM>
 
 [[nodiscard]] constexpr bool getCanBeNoneSituation(requite::Opcode opcode);
 
-[[nodiscard]] constexpr bool getCanBeNoneSituation(requite::Opcode opcode);
-
 [[nodiscard]] constexpr bool
 getCanBeConvergingSituation(requite::Opcode opcode);
 
