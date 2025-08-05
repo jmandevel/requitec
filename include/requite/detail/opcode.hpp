@@ -330,7 +330,7 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
   case Opcode::_FAT_POINTER:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_VARIANT:
+  case Opcode::_ANONYMOUS_VARIANT:
     return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
 
   // TYPE MODIFIER
@@ -931,8 +931,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_pointer";
   case requite::Opcode::_FAT_POINTER:
     return "_fat_pointer";
-  case requite::Opcode::_VARIANT:
-    return "_variant";
+  case requite::Opcode::_ANONYMOUS_VARIANT:
+    return "_anonymous_variant";
 
   // TYPE MODIFIER
   case requite::Opcode::MUTABLE:

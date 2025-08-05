@@ -599,7 +599,7 @@ requite::Expression &Parser::parsePrecedence2() {
       operation.setSourceInsertedBefore(token);
       precedence_parser.setRecent(operation);
       this->incrementToken(1);
-      precedence_parser.parseNary(token, requite::Opcode::_VARIANT);
+      precedence_parser.parseNary(token, requite::Opcode::_ANONYMOUS_VARIANT);
       previous_attribute = false;
       continue;
     }
@@ -719,10 +719,6 @@ requite::Expression &Parser::parsePrecedence2() {
       this->incrementToken(1);
       precedence_parser.parseNary(token, requite::Opcode::_ARRAY);
       continue;
-    case requite::TokenType::QUESTION_OPERATOR:
-      this->incrementToken(1);
-      precedence_parser.parseNary(token, requite::Opcode::_VARIANT);
-      continue;
     default:
       precedence_parser.appendRecent();
       break;
@@ -813,6 +809,8 @@ requite::Expression &Parser::parsePrecedence0() {
     return this->parseSignatureWithParameters();
   case requite::TokenType::UNARY_SIGNATURE_OPERATOR:
     return this->parseSignatureWithoutParameters();
+  case requite::TokenType::LEFT_VARIANT_GROUPING:
+    return this->parseAnonymousVariant();
   default:
     break;
   }
@@ -2056,6 +2054,63 @@ requite::Expression &Parser::parseSignatureWithoutParameters() {
   signature.setBranch(return_type);
   signature.setSource(token, return_type);
   return signature;
+}
+
+requite::Expression &Parser::parseAnonymousVariant() {
+REQUITE_ASSERT(!this->getIsDone());
+  requite::GroupingParser grouping_parser;
+  const requite::Token &left_token = this->getToken();
+  this->incrementToken(1);
+  grouping_parser.startGroup(requite::Opcode::_ANONYMOUS_VARIANT, left_token);
+  if (!this->getIsDone()) {
+    const requite::Token &first_token = this->getToken();
+    if (first_token.getType() == requite::TokenType::RIGHT_VARIANT_GROUPING) {
+      this->incrementToken(1);
+      return grouping_parser.finishOperation(first_token);
+    }
+    while (!this->getIsDone()) {
+      const requite::Token &before_token = this->getToken();
+      switch (const requite::TokenType before_type = before_token.getType()) {
+      case requite::TokenType::RIGHT_VARIANT_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(before_token);
+      }
+      case requite::TokenType::COMMA_SEPERATOR: {
+        this->getContext().logErrorExpectedExpressionBeforeComma(before_token);
+        this->setNotOk();
+        this->incrementToken(1);
+        continue;
+      }
+      default:
+        break;
+      }
+      requite::Expression &branch = this->parseExpression();
+      grouping_parser.appendBranch(branch);
+      while (!this->getIsDone()) {
+        const requite::Token &after_token = this->getToken();
+        switch (const requite::TokenType after_type = after_token.getType()) {
+        case requite::TokenType::RIGHT_VARIANT_GROUPING: {
+          this->incrementToken(1);
+          return grouping_parser.finishOperation(after_token);
+        }
+        case requite::TokenType::COMMA_SEPERATOR: {
+          this->incrementToken(1);
+          break;
+        }
+        default:
+          this->getContext().logErrorMissingCommmaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
+        break;
+      }
+    }
+  }
+  requite::Expression &trip =
+      grouping_parser.finishOperation(this->getPreviousToken());
+  this->getContext().logErrorUnterminatedExpression(trip);
+  this->setNotOk();
+  return trip;
 }
 
 void Parser::checkTokenIsTrailingSemicolonOperator(

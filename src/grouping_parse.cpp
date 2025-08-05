@@ -28,18 +28,22 @@ void GroupingParser::startGroup(requite::Opcode opcode,
   requite::Expression &operation = requite::Expression::makeOperation(opcode);
   operation.setSource(first_branch);
   this->setOperation(operation);
+  this->appendBranch(first_branch);
 }
 
 void GroupingParser::appendBranch(requite::Expression &branch) {
   if (this->_last_ptr == nullptr) {
     requite::Expression &operation = this->getOperation();
     operation.setBranch(branch);
+    operation.extendSourceOver(branch);
     this->_last_ptr = &branch;
     return;
   }
   requite::Expression &last = requite::getRef(this->_last_ptr);
   last.setNext(branch);
   this->_last_ptr = &branch;
+  requite::Expression& operation = this->getOperation();
+  operation.extendSourceOver(branch);
 }
 
 requite::Expression &

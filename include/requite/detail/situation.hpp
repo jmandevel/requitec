@@ -63,6 +63,8 @@ constexpr llvm::StringRef getName(requite::Situation situation) {
     return "STATIC_PARAMETER";
   case Situation::STATIC_PARAMETER_VALUE:
     return "STATIC_PARAMETER_VALUE";
+  case Situation::ALTERNATIVE:
+    return "ALTERNATIVE";
   case Situation::STRUCTURED_BINDING:
     return "STRUCTURED_BINDING";
   case Situation::SYMBOL_NAME:
@@ -185,6 +187,9 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::STATIC_PARAMETER_VALUE) {
     return requite::getCanBeStaticParameterValueSituation(opcode);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
+    return requite::getCanBeAlternativeSituation(opcode);
+
   } else if constexpr (SITUATION_PARAM ==
                        requite::Situation::STRUCTURED_BINDING) {
     return requite::getCanBeStructuredBindingSituation(opcode);
@@ -194,11 +199,14 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return requite::getCanBeSymbolPathSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::ATTRIBUTE) {
     return requite::getCanBeAttributeSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::LONG_RANGE_STAGE) {
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::LONG_RANGE_STAGE) {
     return requite::getCanBeLongRangeStageSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::SHORT_RANGE_STEP) {
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SHORT_RANGE_STEP) {
     return requite::getCanBeShortRangeStepSituation(opcode);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::SHORT_RANGE_WHILE) {
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::SHORT_RANGE_WHILE) {
     return requite::getCanBeShortRangeWhileSituation(opcode);
   } else if constexpr (SITUATION_PARAM == requite::Situation::SWITCH_CASE) {
     return requite::getCanBeSwitchCaseSituation(opcode);
@@ -268,7 +276,8 @@ constexpr requite::Situation getNextValueReflectiveSituation() {
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
                        SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
                        SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE) {
+                           requite::Situation::STATIC_PARAMETER_VALUE ||
+                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
     return requite::Situation::VALUE_REFLECTIVE_SYMBOL;
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
     return requite::Situation::SYMBOL_PATH;
@@ -312,7 +321,8 @@ constexpr requite::Situation getNextSymbolReflectiveSituation() {
                        SITUATION_PARAM == requite::Situation::PARAMETER ||
                        SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
                        SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE) {
+                           requite::Situation::STATIC_PARAMETER_VALUE ||
+                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
     return requite::Situation::SYMBOL_REFLECTIVE_SYMBOL;
   } else if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_NAME ||
                        SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
@@ -464,6 +474,11 @@ constexpr bool getCanBeStaticParameterValueSituation(requite::Opcode opcode) {
          opcode == requite::Opcode::_DEFAULT_VALUE ||
          opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL ||
          opcode == requite::Opcode::_DEFAULT_SYMBOL;
+}
+
+constexpr bool getCanBeAlternativeSituation(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_MATTE_SYMBOL) ||
+         opcode == requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL;
 }
 
 constexpr bool getCanBeStructuredBindingSituation(requite::Opcode opcode) {

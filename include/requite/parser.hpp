@@ -99,6 +99,7 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseInterpolatedString();
   [[nodiscard]] requite::Expression &parseSignatureWithParameters();
   [[nodiscard]] requite::Expression &parseSignatureWithoutParameters();
+  [[nodiscard]] requite::Expression &parseAnonymousVariant();
   void checkTokenIsTrailingSemicolonOperator(requite::Expression &expression);
   void logErrorBinaryNoLValue(const requite::Token &token);
   void logErrorHornedNoFirstBranch(const requite::Token &token);

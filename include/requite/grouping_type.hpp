@@ -17,10 +17,12 @@ enum class GroupingType {
   OPEN_CAP,
   CLOSED_CAP,
   PARENTHESIS,
-  SIGNATURE
+  SIGNATURE,
+  VARIANT
 };
 
-[[nodiscard]] constexpr std::string_view getName(requite::GroupingType grouping);
+[[nodiscard]] constexpr std::string_view
+getName(requite::GroupingType grouping);
 
 } // namespace requite
 

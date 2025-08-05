@@ -646,8 +646,15 @@ void Tokenizer::_tokenizeTokens() {
     case 'z':
       break;
     case '{':
-      this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);
-      this->pushGrouping(requite::GroupingType::TRIP);
+      switch (const char c1 = this->getRanger().getChar(1)) {
+      case '|':
+        this->tokenizeLengthToken(requite::TokenType::LEFT_VARIANT_GROUPING, 2);
+        this->pushGrouping(requite::GroupingType::VARIANT);
+        continue;
+      default:
+        this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);
+        this->pushGrouping(requite::GroupingType::TRIP);
+      }
       continue;
     case '|':
       switch (const char c1 = this->getRanger().getChar(1)) {
@@ -658,6 +665,11 @@ void Tokenizer::_tokenizeTokens() {
         this->tokenizeRightGrouping(
             requite::GroupingType::SIGNATURE,
             requite::TokenType::RIGHT_SIGNATURE_GROUPING, 2);
+        continue;
+      case '}':
+        this->tokenizeRightGrouping(requite::GroupingType::VARIANT,
+                                    requite::TokenType::RIGHT_VARIANT_GROUPING,
+                                    2);
         continue;
       default:
         this->tokenizeLengthToken(requite::TokenType::PIPE_OPERATOR, 1);
