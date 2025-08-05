@@ -125,10 +125,12 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "dot_greater_equal_operator";
   case requite::TokenType::DOT_DOUBLE_EQUAL_OPERATOR:
     return "dot_double_equal_operator";
-  case requite::TokenType::UNARY_SIGNATURE_OPERATOR:
-    return "unary_signature_operator";
   case requite::TokenType::DOT_BANG_EQUAL_OPERATOR:
     return "dot_bang_equal_operator";
+  case requite::TokenType::UNARY_SIGNATURE_OPERATOR:
+    return "unary_signature_operator";
+  case requite::TokenType::UNARY_TUPLE_TYPE_OPERATOR:
+    return "unary_tuple_type_operator";
   case requite::TokenType::TRAILER_SEPERATOR:
     return "trailer_seperator";
   case requite::TokenType::SEMICOLON_SEPERATOR:
@@ -159,10 +161,10 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "left_signature_grouping";
   case requite::TokenType::RIGHT_SIGNATURE_GROUPING:
     return "right_signature_grouping";
-  case requite::TokenType::LEFT_VARIANT_GROUPING:
-    return "left_variant_grouping";
-  case requite::TokenType::RIGHT_VARIANT_GROUPING:
-    return "right_variant_grouping";
+  case requite::TokenType::LEFT_TUPLE_TYPE_GROUPING:
+    return "left_tuple_type_grouping";
+  case requite::TokenType::RIGHT_TUPLE_TYPE_GROUPING:
+    return "right_tuple_type_grouping";
   case requite::TokenType::IDENTIFIER_LITERAL:
     return "identifier_literal";
   case requite::TokenType::CODEUNIT_LITERAL:
@@ -205,9 +207,9 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "error_unmatched_left_parenthesis-grouping";
   case requite::TokenType::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING:
     return "error_unmatched_right_parenthesis_grouping";
-  case requite::TokenType::ERROR_UNMATCHED_LEFT_VARIANT_GROUPING:
+  case requite::TokenType::ERROR_UNMATCHED_LEFT_TUPLE_TYPE_GROUPING:
     return "error_unmatched_left_variant_grouping";
-  case requite::TokenType::ERROR_UNMATCHED_RIGHT_VARIANT_GROUPING:
+  case requite::TokenType::ERROR_UNMATCHED_RIGHT_TUPLE_TYPE_GROUPING:
     return "error_unmatched_right_variant_grouping";
   }
   return "error_unknown";
@@ -235,10 +237,10 @@ constexpr requite::TokenType getUnmatched(requite::TokenType token) {
     return requite::TokenType::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING;
   case requite::TokenType::RIGHT_PARENTHESIS_GROUPING:
     return requite::TokenType::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING;
-  case requite::TokenType::LEFT_VARIANT_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_RIGHT_VARIANT_GROUPING;
-  case requite::TokenType::RIGHT_VARIANT_GROUPING:
-    return requite::TokenType::ERROR_UNMATCHED_RIGHT_VARIANT_GROUPING;
+  case requite::TokenType::LEFT_TUPLE_TYPE_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_RIGHT_TUPLE_TYPE_GROUPING;
+  case requite::TokenType::RIGHT_TUPLE_TYPE_GROUPING:
+    return requite::TokenType::ERROR_UNMATCHED_RIGHT_TUPLE_TYPE_GROUPING;
   default:
     break;
   }
