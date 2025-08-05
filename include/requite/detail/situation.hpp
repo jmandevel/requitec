@@ -112,7 +112,8 @@ constexpr bool getIsSymbolSituation() {
          SITUATION_PARAM == requite::Situation::SYMBOL_REFLECTIVE_SYMBOL ||
          SITUATION_PARAM == requite::Situation::PARAMETER ||
          SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
-         SITUATION_PARAM == requite::Situation::STATIC_PARAMETER_VALUE;
+         SITUATION_PARAM == requite::Situation::STATIC_PARAMETER_VALUE ||
+         SITUATION_PARAM == requite::Situation::ALTERNATIVE;
 }
 
 template <requite::Situation SITUATION_PARAM>

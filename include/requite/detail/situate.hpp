@@ -2714,8 +2714,7 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
   if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
     REQUITE_UNREACHABLE(); // NOTE: this should have been handled within
                            // situate_AssignExpression
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                       SITUATION_PARAM == requite::Situation::ARGUMENT) {
+  } else if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
     if (!expression.getHasBranch()) {
       expression.changeOpcode(requite::Opcode::_NULL_VALUE);
       return;
@@ -2727,12 +2726,7 @@ void Situator::situate_TripExpression(requite::Expression &expression) {
     }
     requite::Expression &branch = expression.getBranch();
     expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE ||
-                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
+  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
     if (!expression.getHasBranch()) {
       expression.changeOpcode(requite::Opcode::_NULL_TYPE);
       return;
@@ -3039,18 +3033,12 @@ template <requite::Situation SITUATION_PARAM>
 inline void
 Situator::situate_ExtendExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_EXTEND);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                SITUATION_PARAM == requite::Situation::ARGUMENT) {
+  if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::MATTE_VALUE,
                                   requite::Situation::MATTE_SYMBOL>(expression);
     expression.changeOpcode(requite::Opcode::_EXTEND_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE ||
-                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
+  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
     this->situateBinaryExpression<SITUATION_PARAM,
                                   requite::Situation::MATTE_SYMBOL,
                                   requite::Situation::MATTE_SYMBOL>(expression);
@@ -3087,15 +3075,9 @@ template <requite::Situation SITUATION_PARAM>
 inline void Situator::situate_Tacit(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TACIT);
   this->situateNullaryExpression<SITUATION_PARAM>(expression);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                SITUATION_PARAM == requite::Situation::ARGUMENT) {
+  if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()){
     expression.changeOpcode(requite::Opcode::_TACIT_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE ||
-                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
+  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
     expression.changeOpcode(requite::Opcode::_TACIT_SYMBOL);
   } else {
     static_assert(false, "invalid situation");
@@ -3106,21 +3088,7 @@ template <requite::Situation SITUATION_PARAM>
 inline void
 Situator::situate_ClovenExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CLOVEN);
-  if constexpr (SITUATION_PARAM ==
-                    requite::Situation::VALUE_REFLECTIVE_DESTINATION ||
-                SITUATION_PARAM ==
-                    requite::Situation::SYMBOL_REFLECTIVE_DESTINATION ||
-                SITUATION_PARAM == requite::Situation::MATTE_DESTINATION ||
-                SITUATION_PARAM ==
-                    requite::Situation::VALUE_REFLECTIVE_JUNCTION ||
-                SITUATION_PARAM ==
-                    requite::Situation::SYMBOL_REFLECTIVE_JUNCTION ||
-                SITUATION_PARAM == requite::Situation::MATTE_JUNCTION ||
-                SITUATION_PARAM == requite::Situation::VALUE_REFLECTIVE_VALUE ||
-                SITUATION_PARAM ==
-                    requite::Situation::SYMBOL_REFLECTIVE_VALUE ||
-                SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                SITUATION_PARAM == requite::Situation::ARGUMENT) {
+  if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
     this->situateUnaryExpression<SITUATION_PARAM, SITUATION_PARAM>(expression);
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
@@ -3138,12 +3106,7 @@ Situator::situate_ClovenExpression(requite::Expression &expression) {
     }
     expression.changeOpcode(first.getOpcode());
     expression.mergeBranch();
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_SYMBOL ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER ||
-                       SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE ||
-                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
+  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
     this->situateUnaryExpression<SITUATION_PARAM,
                                  requite::Situation::MATTE_SYMBOL>(expression);
   } else {
