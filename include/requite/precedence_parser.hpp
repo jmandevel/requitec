@@ -41,7 +41,6 @@ struct PrecedenceParser final {
   void parseUnary(const requite::Token& token, requite::Opcode opcode);
   void parseAscribe(const requite::Token &token);
   void parseBinary(const requite::Token& token, requite::Opcode opcode);
-  void parseBinaryCombination(const requite::Token& token, requite::Opcode opcode);
   void parseNary(const requite::Token &token, requite::Opcode opcode);
   void parseNestingNary(const requite::Token &token, requite::Opcode opcode);
   void parseShortRangeBranch(const requite::Token &token,

@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: MIT
 
-#include <requite/alias.hpp>
 #include <requite/anonymous_object.hpp>
 #include <requite/assert.hpp>
 #include <requite/expression.hpp>
 #include <requite/global.hpp>
-#include <requite/label.hpp>
 #include <requite/local.hpp>
 #include <requite/module.hpp>
 #include <requite/object.hpp>
@@ -41,9 +39,6 @@ RootSymbol::RootSymbol(const requite::RootSymbol &that)
   case requite::RootSymbolType::TABLE:
     this->_table_ptr = that._table_ptr;
     break;
-  case requite::RootSymbolType::ALIAS:
-    this->_alias_ptr = that._alias_ptr;
-    break;
   case requite::RootSymbolType::LOCAL:
     this->_local_ptr = that._local_ptr;
     break;
@@ -55,9 +50,6 @@ RootSymbol::RootSymbol(const requite::RootSymbol &that)
     break;
   case requite::RootSymbolType::MODULE:
     this->_module_ptr = that._module_ptr;
-    break;
-  case requite::RootSymbolType::LABEL:
-    this->_label_ptr = that._label_ptr;
     break;
   default:
     break;
@@ -106,8 +98,6 @@ bool RootSymbol::operator==(const requite::RootSymbol &rhs) const {
     return this->getObject() == rhs.getObject();
   case requite::RootSymbolType::TABLE:
     return this->getTable() == rhs.getTable();
-  case requite::RootSymbolType::ALIAS:
-    return this->getAlias() == rhs.getAlias();
   case requite::RootSymbolType::LOCAL:
     return this->getLocal() == rhs.getLocal();
   case requite::RootSymbolType::GLOBAL:
@@ -116,8 +106,6 @@ bool RootSymbol::operator==(const requite::RootSymbol &rhs) const {
     return this->getProcedure() == rhs.getProcedure();
   case requite::RootSymbolType::MODULE:
     return this->getModule() == rhs.getModule();
-  case requite::RootSymbolType::LABEL:
-    return this->getLabel() == rhs.getLabel();
   default:
     REQUITE_UNREACHABLE();
   }
@@ -137,12 +125,6 @@ void RootSymbol::setAsUser(requite::Table &table) {
   REQUITE_ASSERT(!this->getHasAllocation());
   this->_type = requite::RootSymbolType::TABLE;
   this->_table_ptr = &table;
-}
-
-void RootSymbol::setAsUser(requite::Alias &alias) {
-  REQUITE_ASSERT(!this->getHasAllocation());
-  this->_type = requite::RootSymbolType::ALIAS;
-  this->_alias_ptr = &alias;
 }
 
 void RootSymbol::setAsUser(requite::Local &variable) {
@@ -173,12 +155,6 @@ void RootSymbol::setAsUser(requite::Module &module) {
   REQUITE_ASSERT(!this->getHasAllocation());
   this->_type = requite::RootSymbolType::MODULE;
   this->_module_ptr = &module;
-}
-
-void RootSymbol::setAsUser(requite::Label &label) {
-  REQUITE_ASSERT(!this->getHasAllocation());
-  this->_type = requite::RootSymbolType::LABEL;
-  this->_label_ptr = &label;
 }
 
 void RootSymbol::setAsUser(requite::Import &import) {
@@ -397,10 +373,6 @@ bool RootSymbol::getIsTable() const {
   return this->_type == requite::RootSymbolType::TABLE;
 }
 
-bool RootSymbol::getIsAlias() const {
-  return this->_type == requite::RootSymbolType::ALIAS;
-}
-
 bool RootSymbol::getIsLocal() const {
   return this->_type == requite::RootSymbolType::LOCAL;
 }
@@ -415,10 +387,6 @@ bool RootSymbol::getIsProcedure() const {
 
 bool RootSymbol::getIsModule() const {
   return this->_type == requite::RootSymbolType::MODULE;
-}
-
-bool RootSymbol::getIsLabel() const {
-  return this->_type == requite::RootSymbolType::LABEL;
 }
 
 bool RootSymbol::getIsImport() const {
@@ -506,21 +474,6 @@ requite::Table &RootSymbol::getTable() {
   return requite::getRef(this->_table_ptr);
 }
 
-bool RootSymbol::getHasAlias() const {
-  REQUITE_ASSERT(this->getIsAlias());
-  return this->_alias_ptr != nullptr;
-}
-
-const requite::Alias &RootSymbol::getAlias() const {
-  REQUITE_ASSERT(this->getIsAlias());
-  return requite::getRef(this->_alias_ptr);
-}
-
-requite::Alias &RootSymbol::getAlias() {
-  REQUITE_ASSERT(this->getIsAlias());
-  return requite::getRef(this->_alias_ptr);
-}
-
 bool RootSymbol::getHasLocal() const {
   REQUITE_ASSERT(this->getIsLocal());
   return this->_local_ptr != nullptr;
@@ -581,21 +534,6 @@ requite::Module &RootSymbol::getModule() {
   return requite::getRef(this->_module_ptr);
 }
 
-bool RootSymbol::getHasLabel() const {
-  REQUITE_ASSERT(this->getIsLabel());
-  return this->_label_ptr != nullptr;
-}
-
-const requite::Label &RootSymbol::getLabel() const {
-  REQUITE_ASSERT(this->getIsLabel());
-  return requite::getRef(this->_label_ptr);
-}
-
-requite::Label &RootSymbol::getLabel() {
-  REQUITE_ASSERT(this->getIsLabel());
-  return requite::getRef(this->_label_ptr);
-}
-
 const requite::Import &RootSymbol::getImport() const {
   REQUITE_ASSERT(this->getIsImport());
   return requite::getRef(this->_import_ptr);
@@ -622,10 +560,6 @@ requite::AttributeFlags &RootSymbol::getUserAttributeFlags() {
   case requite::RootSymbolType::OBJECT: {
     requite::Object &object = this->getObject();
     return object.getAttributeFlags();
-  } break;
-  case requite::RootSymbolType::ALIAS: {
-    requite::Alias &alias = this->getAlias();
-    return alias.getAttributeFlags();
   } break;
   case requite::RootSymbolType::GLOBAL: {
     requite::Global &variable = this->getGlobal();

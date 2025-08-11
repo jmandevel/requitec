@@ -25,7 +25,7 @@ bool Situator::situateAst() {
   this->insertModuleRoot();
   requite::Expression &root = this->getModule().getExpression();
   REQUITE_ASSERT(root.getOpcode() == requite::Opcode::_MODULE_ROOT);
-  this->situateExpression<requite::Situation::MATTE_ROOT_STATEMENT>(root);
+  this->situateExpression<requite::Situation::ROOT_STATEMENT>(root);
   return this->getIsOk();
 }
 
@@ -34,8 +34,8 @@ void Situator::insertModuleRoot() {
   if (!module.getHasExpression()) {
     requite::Expression &root_expression =
         requite::Expression::makeOperation(requite::Opcode::_MODULE_ROOT);
-    requite::Expression &name_expression =
-        requite::Expression::makeString(module.getName());
+    requite::Expression &name_expression = requite::Expression::makeString(
+        this->getContext().saveString(module.getName()));
     root_expression.setBranch(name_expression);
     module.setExpression(root_expression);
     return;
@@ -44,16 +44,16 @@ void Situator::insertModuleRoot() {
   if (root_expression.getOpcode() != requite::Opcode::_MODULE_ROOT) {
     requite::Expression &new_root_expression =
         requite::Expression::makeOperation(requite::Opcode::_MODULE_ROOT);
-    requite::Expression &name_expression =
-        requite::Expression::makeString(module.getName());
+    requite::Expression &name_expression = requite::Expression::makeString(
+        this->getContext().saveString(module.getName()));
     new_root_expression.setBranch(name_expression);
     name_expression.setNext(root_expression);
     module.changeExpression(new_root_expression);
     return;
   }
   requite::Expression &branch = root_expression.getBranch();
-  if (requite::getCanBeStringLiteralSituation(branch.getOpcode())) {
-      branch.changeDataText(module.getName());
+  if (requite::getCanBeStringLiteral(branch.getOpcode())) {
+    branch.changeDataText(this->getContext().saveString(module.getName()));
   }
   // if branch is not situation, error is caught in situateExpression() later
 }

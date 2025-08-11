@@ -1,0 +1,41 @@
+[import "std"]
+
+@may_parent
+[object Parent,
+    
+    [function myFunc, 
+        std.print(line="in parent");
+    ]
+    
+    @virtual
+    [function myFuncB, 
+        std.print(line="in parent");
+    ]
+    
+    [constructor]
+]
+
+[object Child,
+    {> 
+        @parent parent := Parent() 
+    <},
+    
+    [use .parent.myFunc]
+    
+    @(override .parent.myFuncB)
+    [function myFuncB,
+        std.print(line="in child");
+    ]
+
+    [constructor]
+]
+
+[entry_point
+    parent := Parent();
+    child := Child();
+
+    parent.myFunc();
+    child.myFunc();
+    parent.myFuncB();
+    child.myFuncB();
+]

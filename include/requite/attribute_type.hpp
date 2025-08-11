@@ -20,16 +20,19 @@ enum class AttributeType {
   ATOMIC,
   NULL_TERMINATED,
   OWNING,
-  TEMPLATE,
   PRIVATE,
   PROTECTED,
   EXPORT,
-  NOT_FINAL,
+  BAKE,
+  MAY_PARENT,
+  PARENT,
+  POSITION,
   MAY_DISCARD,
   INLINE,
   MANGLED_NAME,
-  LABEL,
   PACK,
+  LABEL,
+  TEMPLATE,
 
   _LAST
 };
@@ -51,9 +54,6 @@ template <requite::AttributeCategory CATEGORY_PARAM>
 [[nodiscard]] constexpr bool getCanBeMemberObjectAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeLocalObjectAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberPropertyAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeGlobalAliasAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeMemberAliasAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeLocalAliasAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeGlobalGlobalAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberGlobalAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeGlobalUseAttribute(requite::AttributeType type);
@@ -61,7 +61,6 @@ template <requite::AttributeCategory CATEGORY_PARAM>
 [[nodiscard]] constexpr bool getCanBeGlobalUseTableAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberUseTableAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeImportAttribute(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeLocalBlockAttribute(requite::AttributeType type);
 
 } // namespace requite
 

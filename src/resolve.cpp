@@ -10,7 +10,7 @@ bool Context::resolveSymbol(requite::Symbol &out_symbol, requite::Scope &scope,
     // TODO
     return false;
   }
-  case requite::Opcode::_ASCRIBE_FIRST_BRANCH: {
+  case requite::Opcode::_ASCRIBE: {
     requite::AttributeFlags flags = {};
     requite::Expression &unascribed = symbol_expression.getBranch();
     requite::Expression &first_attribute = unascribed.getNext();
@@ -53,8 +53,7 @@ bool Implementor::inferenceTypeOfValue(
     requite::Symbol &out_symbol, requite::Expression &value_expression) {
   switch (const requite::Opcode opcode = value_expression.getOpcode()) {
   case requite::Opcode::__LOCAL_HANDLE: {
-    requite::Local &local = value_expression.getLocal();
-    out_symbol = local.getDataType();
+    // TODO
     return true;
   }
   case requite::Opcode::__INTEGER_LITERAL: {
@@ -142,8 +141,8 @@ bool Context::resolveTypeAttributes(requite::AttributeFlags &flags,
     const requite::AttributeType type = requite::getAttributeType(opcode);
     if (!requite::getCanBeTypeAttribute(type)) {
       this->logSourceMessage(attribute, requite::LogType::ERROR,
-                             llvm::Twine(requite::getName(type)) +
-                                 requite::getErrorMessageEnding(requite::AttributeCategory::TYPE));
+                             llvm::Twine(requite::getName(type)) + " is not a " +
+                                 requite::getDescription(requite::AttributeCategory::TYPE));
       is_ok = false;
       continue;
     }

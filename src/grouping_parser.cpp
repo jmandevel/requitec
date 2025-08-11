@@ -20,4 +20,12 @@ const requite::Expression &GroupingParser::getOperation() const {
   return requite::getRef(this->_operation_ptr);
 }
 
+requite::Expression &GroupingParser::getLast() {
+  return requite::getRef(this->_last_ptr);
+}
+
+const requite::Expression &GroupingParser::getLast() const {
+  return requite::getRef(this->_last_ptr);
+}
+
 } // namespace requite

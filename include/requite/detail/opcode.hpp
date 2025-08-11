@@ -20,44 +20,559 @@
 
 namespace requite {
 
+constexpr std::string_view getName(requite::Opcode opcode) {
+  using namespace requite;
+  using O = Opcode;
+
+  switch (opcode) {
+  case O::__NONE:
+    return "__none";
+
+  // HANDLES
+  case O::__LOCAL_HANDLE:
+    return "__local_handle";
+
+  // LITERALS
+  case O::__INTEGER_LITERAL:
+    return "__integer_literal";
+  case O::__FRACTIONAL_LITERAL:
+    return "__fractional_literal";
+  case O::__STRING_LITERAL:
+    return "__string_literal";
+  case O::__CODEUNIT_LITERAL:
+    return "__codeunit_literal";
+  case O::__IDENTIFIER_LITERAL:
+    return "__identifier_literal";
+
+  // ERRORS
+  case O::__ERROR:
+    return "__error";
+
+  // SITUATIONAL
+  case O::_CLOVEN:
+    return "_cloven";
+  case O::_COLON:
+    return "_colon";
+  case O::_INFERENCE:
+    return "_inference";
+
+  // LOGICAL
+  case O::_LOGICAL_AND:
+    return "_logical_and";
+  case O::_LOGICAL_OR:
+    return "_logical_or";
+  case O::_LOGICAL_COMPLEMENT:
+    return "_logical_complement";
+
+  // COMPARISON
+  case O::_GREATER:
+    return "_greater";
+  case O::_GREATER_EQUAL:
+    return "_greater_equal";
+  case O::_LESS:
+    return "_less";
+  case O::_LESS_EQUAL:
+    return "_less_equal";
+  case O::_EQUAL:
+    return "_equal";
+  case O::_NOT_EQUAL:
+    return "_not_equal";
+
+  // APPLY
+  case O::_EXTEND:
+    return "_extend";
+  case O::_BINDING:
+    return "_binding";
+  case O::_ASCRIBE:
+    return "_ascribe";
+  case O::_CAST:
+    return "_cast";
+  case O::_IDENTIFY:
+    return "_identify";
+
+  // ARITHMETIC
+  case O::_ADD:
+    return "_add";
+  case O::_SUBTRACT:
+    return "_subtract";
+  case O::_MULTIPLY:
+    return "_multiply";
+  case O::_DIVIDE:
+    return "_divide";
+  case O::_MODULUS:
+    return "_modulus";
+  case O::_NEGATE:
+    return "_negate";
+
+  // BITWISE
+  case O::_BITWISE_CAST:
+    return "_bitwise_cast";
+  case O::_BITWISE_OR:
+    return "_bitwise_or";
+  case O::_BITWISE_AND:
+    return "_bitwise_and";
+  case O::_BITWISE_XOR:
+    return "_bitwise_xor";
+  case O::_BITWISE_COMPLEMENT:
+    return "_bitwise_complement";
+  case O::_BITWISE_SHIFT_LEFT:
+    return "_bitwise_shift_left";
+  case O::_BITWISE_SHIFT_RIGHT:
+    return "_bitwise_shift_right";
+  case O::BITWISE_ROTATE_LEFT:
+    return "bitwise_rotate_left";
+  case O::BITWISE_ROTATE_RIGHT:
+    return "bitwise_rotate_right";
+
+  // MEMORY
+  case O::_CONCATINATE:
+    return "_concatinate";
+  case O::FROM_FRONT:
+    return "from_front";
+  case O::_FROM_FRONT_OF:
+    return "_from_front_of";
+  case O::FROM_BACK:
+    return "from_back";
+  case O::_FROM_BACK_OF:
+    return "_from_back_of";
+  case O::TRUNCATE_FRONT:
+    return "truncate_front";
+  case O::_TRUNCATE_FRONT_OF:
+    return "_truncate_front_of";
+  case O::TRUNCATE_BACK:
+    return "truncate_back";
+  case O::_TRUNCATE_BACK_OF:
+    return "_truncate_back_of";
+  case O::AT:
+    return "at";
+  case O::_AT_ADDRESS:
+    return "_at_address";
+  case O::ADDRESS:
+    return "address";
+  case O::_ADDRESS_OF:
+    return "_address_of";
+
+  // ASSIGNMENT
+  case O::_ASSIGN:
+    return "_assign";
+  case O::_ASSIGN_ADD:
+    return "_assign_add";
+  case O::_ASSIGN_SUBTRACT:
+    return "_assign_subtract";
+  case O::_ASSIGN_MULTIPLY:
+    return "_assign_multiply";
+  case O::_ASSIGN_DIVIDE:
+    return "_assign_divide";
+  case O::_ASSIGN_MODULUS:
+    return "_assign_modulus";
+
+  // MOVE SEMANTICS
+  case O::COPY:
+    return "copy";
+  case O::_COPY_OF:
+    return "_copy_of";
+  case O::MOVE:
+    return "move";
+  case O::_MOVE_OF:
+    return "_move_of";
+  case O::SWAP:
+    return "swap";
+
+  // SUBTYPE
+  case O::_ARRAY:
+    return "_array";
+  case O::_REFERENCE:
+    return "_reference";
+  case O::_POINTER:
+    return "_pointer";
+  case O::_FAT_POINTER:
+    return "_fat_pointer";
+
+  // TYPE MODIFIER
+  case O::MUTABLE:
+    return "mutable";
+  case O::CONSTANT:
+    return "constant";
+  case O::VOLATILE:
+    return "volatile";
+  case O::ATOMIC:
+    return "atomic";
+  case O::NULL_TERMINATED:
+    return "null_terminated";
+  case O::OWNING:
+    return "owning";
+  case O::MAY_DISCARD:
+    return "may_discard";
+
+  // PARAMETER RULES
+  case O::_POSITIONAL_PARAMETERS_END:
+    return "_positional_parameters_end";
+  case O::_NAMED_PARAMETERS_BEGIN:
+    return "_named_parameters_begin";
+
+  // TRIPS
+  case O::_TUPLE:
+    return "_tuple";
+  case O::_LAYOUT:
+    return "_layout";
+  case O::_NULL:
+    return "_null";
+  case O::_NULL_TYPE:
+    return "_null_type";
+  case O::_STRUCTURED_BINDING:
+    return "_structured_binding";
+  case O::_IGNORE:
+    return "_ignore";
+  case O::_SPECIALIZATION:
+    return "_specialization";
+
+  // PROCEDURES
+  case O::_CALL:
+    return "_call";
+  case O::_INDEX:
+    return "_index";
+  case O::_SIGNATURE:
+    return "_signature";
+  case O::_EXTENSION_SIGNATURE:
+    return "_extension_signature";
+  case O::DESTROY:
+    return "destroy";
+  case O::_DESTROY_VALUE:
+    return "_destroy_value";
+  case O::DROP:
+    return "drop";
+  case O::_DROP_VALUE:
+    return "_drop_value";
+  case O::ENTRY_POINT:
+    return "entry_point";
+  case O::FUNCTION:
+    return "function";
+  case O::CONSTRUCTOR:
+    return "constructor";
+  case O::DESTRUCTOR:
+    return "destructor";
+  case O::RANGER:
+    return "ranger";
+  case O::INDEXER:
+    return "indexer";
+  case O::_ANONYMOUS_FUNCTION:
+    return "_anonymous_function";
+  case O::CAPTURE:
+    return "capture";
+
+  // CONTROL FLOW
+  case O::RETURN:
+    return "return";
+  case O::BREAK:
+    return "break";
+  case O::CONTINUE:
+    return "continue";
+  case O::FALLTHROUGH:
+    return "fallthrough";
+  case O::GOTO:
+    return "goto";
+  case O::EXIT:
+    return "exit";
+  case O::LOOP_BODY:
+    return "loop_body";
+
+  // SYMBOLS
+  case O::OBJECT:
+    return "object";
+  case O::VARIANT:
+    return "variant";
+  case O::TABLE:
+    return "table";
+  case O::USE:
+    return "use";
+
+  // VALUES
+  case O::TRUE:
+    return "true";
+  case O::FALSE:
+    return "false";
+  case O::INDETERMINATE:
+    return "indeterminate";
+  case O::THIS:
+    return "this";
+  case O::RESULT:
+    return "result";
+  case O::ARGUMENTS:
+    return "arguments";
+  case O::IN:
+    return "in";
+  case O::OUT:
+    return "out";
+  case O::ADDRESS_SIZE:
+    return "address_size";
+  case O::ADDRESS_DEPTH:
+    return "address_depth";
+  case O::BITS_PER_BYTE:
+    return "bits_per_byte";
+
+  // BUILTIN TYPES
+  case O::VOID:
+    return "void";
+  case O::BOOLEAN:
+    return "boolean";
+  case O::WORD:
+    return "word";
+  case O::SIGNED:
+    return "signed";
+  case O::UNSIGNED:
+    return "unsigned";
+  case O::BFLOAT16:
+    return "bfloat16";
+  case O::BINARY16:
+    return "binary16";
+  case O::BINARY32:
+    return "binary32";
+  case O::BINARY64:
+    return "binary64";
+  case O::BINARY128:
+    return "binary128";
+  case O::UTF8:
+    return "utf8";
+
+  // VARIADIC ARGUMENTS
+  case O::VARIADIC_ARGUMENTS:
+    return "variadic_arguments";
+  case O::FIRST_VARIADIC_ARGUMENT:
+    return "first_variadic_argument";
+  case O::_FIRST_VARIADIC_ARGUMENT_OF:
+    return "_first_variadic_argument_of";
+  case O::NEXT_VARIADIC_ARGUMENT:
+    return "next_variadic_argument";
+  case O::_NEXT_VARIADIC_ARGUMENT_OF:
+    return "_next_variadic_argument_of";
+
+  // SCOPES
+  case O::IF:
+    return "if";
+  case O::ELSE_IF:
+    return "else_if";
+  case O::ELSE:
+    return "else";
+  case O::SWITCH:
+    return "switch";
+  case O::MATCH:
+    return "match";
+  case O::CASE:
+    return "case";
+  case O::DEFAULT:
+    return "default";
+  case O::LOOP:
+    return "loop";
+  case O::SCOPE:
+    return "scope";
+  case O::BLOCK:
+    return "block";
+  case O::_INLINE_SCOPE:
+    return "_inline_scope";
+  case O::_INLINE_BLOCK:
+    return "_inline_block";
+
+  // RANGES
+  case O::_LIMIT_RANGE_EQUAL:
+    return "_limit_range_equal";
+  case O::_LIMIT_RANGE_NOT_EQUAL:
+    return "_limit_range_not_equal";
+  case O::_LIMIT_RANGE_GREATER:
+    return "_limit_range_greater";
+  case O::_LIMIT_RANGE_GREATER_EQUAL:
+    return "_limit_range_greater_equal";
+  case O::_LIMIT_RANGE_LESS:
+    return "_limit_range_less";
+  case O::_LIMIT_RANGE_LESS_EQUAL:
+    return "_limit_range_less_equal";
+  case O::_LONG_RANGE:
+    return "_long_range";
+  case O::FOR:
+    return "for";
+  case O::DO:
+    return "do";
+  case O::WHILE:
+    return "while";
+  case O::UNTIL:
+    return "until";
+  case O::FOREVER:
+    return "forever";
+  case O::STEP:
+    return "step";
+  case O::WHEN:
+    return "when";
+  case O::_SHORT_RANGE:
+    return "_short_range";
+  case O::_SHORT_STEP_ADD:
+    return "_short_step_add";
+  case O::_SHORT_STEP_SUBTRACT:
+    return "_short_step_subtract";
+  case O::_SHORT_STEP_MULTIPLY:
+    return "_short_step_multiply";
+  case O::_SHORT_STEP_DIVIDE:
+    return "_short_step_divide";
+  case O::_SHORT_STEP_MODULUS:
+    return "_short_step_modulus";
+  case O::_SHORT_WHILE_LESS:
+    return "_short_while_less";
+  case O::_SHORT_WHILE_GREATER:
+    return "_short_while_greater";
+  case O::_SHORT_WHILE_LESS_EQUAL:
+    return "_short_while_less_equal";
+  case O::_SHORT_WHILE_GREATER_EQUAL:
+    return "_short_while_greater_equal";
+  case O::_SHORT_WHILE_EQUAL:
+    return "_short_while_equal";
+  case O::_SHORT_WHILE_NOT_EQUAL:
+    return "_short_while_not_equal";
+
+  // ACCESS MODIFIERS
+  case O::PRIVATE:
+    return "private";
+  case O::PROTECTED:
+    return "protected";
+  case O::EXPORT:
+    return "export";
+
+  // SYMBOL GRAPH
+  case O::IMPORT:
+    return "import";
+  case O::USE_TABLE:
+    return "use_table";
+
+  // SOURCES
+  case O::_MODULE_ROOT:
+    return "_module_root";
+
+  // ERROR HANDLING AND DEBUGGING
+  case O::ASSERT:
+    return "assert";
+  case O::UNREACHABLE:
+    return "unreachable";
+
+  // ATTRIBUTES
+  case O::BAKE:
+    return "bake";
+  case O::MAY_PARENT:
+    return "may_parent";
+  case O::PARENT:
+    return "parent";
+  case O::POSITION:
+    return "position";
+  case O::INLINE:
+    return "inline";
+  case O::MANGLED_NAME:
+    return "mangled_name";
+  case O::_MANGLED_NAME_OF:
+    return "_mangled_name_of";
+  case O::PACK:
+    return "pack";
+  case O::USER:
+    return "user";
+  case O::LABEL:
+    return "label";
+  case O::TEMPLATE:
+    return "template";
+
+  // REFLECTIONS
+  case O::_REFLECT:
+    return "_reflect";
+  case O::_MEMBER_OF:
+    return "_member_of";
+  case O::SIZE:
+    return "size";
+  case O::_SIZE_OF:
+    return "_size_of";
+  case O::DEPTH:
+    return "depth";
+  case O::_DEPTH_OF:
+    return "_depth_of";
+  case O::COUNT:
+    return "count";
+  case O::_COUNT_OF:
+    return "_count_of";
+  case O::LENGTH:
+    return "length";
+  case O::_LENGTH_OF:
+    return "_length_of";
+  case O::NAME:
+    return "name";
+  case O::_NAME_OF:
+    return "_name_of";
+  case O::LINE:
+    return "line";
+  case O::_LINE_OF:
+    return "_line_of";
+  case O::COLUMN:
+    return "column";
+  case O::_COLUMN_OF:
+    return "_column_of";
+  case O::IS:
+    return "is";
+  case O::_VALUE_IS:
+    return "_value_is";
+  case O::GET:
+    return "get";
+  case O::_GET_VALUE_OF_VARIANT:
+    return "_get_value_of_variant";
+  case O::TYPE:
+    return "type";
+  case O::_TYPE_OF:
+    return "_type_of";
+  case O::SYMBOL:
+    return "symbol";
+  case O::_SYMBOL_OF:
+    return "_symbol_of";
+  case O::DISCRIMINANT:
+    return "discriminant";
+  case O::_DISCRIMINANT_OF:
+    return "_discriminant_of";
+
+  case O::__LAST:
+    return "__last";
+  }
+
+  return "_unknown";
+}
+
 namespace _opcode {
 enum _OpcodeFlags : std::uint32_t {
   _NONE = 0,
   _CONVERGING = requite::getBit(31),
-  _INTERNAL_USE_ONLY = requite::getBit(30),
-  _INTERMEDIATE_OPERATION = requite::getBit(29),
-  _BRANCH_CAN_HAVE_NO_SEMICOLON = requite::getBit(28),
-  _SEMICOLON_SEPERATED_BRANCHES = requite::getBit(27),
-  _LAST_COMMA_BRANCH_CAN_BE_TACIT = requite::getBit(26),
-  _MATTE_MODULE_STATEMENT = requite::getBit(25),
-  _MATTE_TABLE_STATEMENT = requite::getBit(24),
-  _MATTE_OBJECT_STATEMENT = requite::getBit(23),
-  _MATTE_LOCAL_STATEMENT = requite::getBit(22),
-  _VALUE_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(21),
-  _SYMBOL_REFLECTIVE_LOCAL_STATEMENT = requite::getBit(20),
-  _MATTE_DESTINATION = requite::getBit(19),
-  _VALUE_REFLECTIVE_DESTINATION = requite::getBit(18),
-  _SYMBOL_REFLECTIVE_DESTINATION = requite::getBit(17),
-  _MATTE_VALUE = requite::getBit(16),
-  _VALUE_REFLECTIVE_VALUE = requite::getBit(15),
-  _SYMBOL_REFLECTIVE_VALUE = requite::getBit(14),
-  _MATTE_JUNCTION = requite::getBit(13),
-  _VALUE_REFLECTIVE_JUNCTION = requite::getBit(12),
-  _SYMBOL_REFLECTIVE_JUNCTION = requite::getBit(11),
-  _MATTE_SYMBOL = requite::getBit(10),
-  _VALUE_REFLECTIVE_SYMBOL = requite::getBit(9),
-  _SYMBOL_REFLECTIVE_SYMBOL = requite::getBit(8),
-  _ATTRIBUTE = requite::getBit(7),
-  _COMMA_BRANCH_COUNT_MASK_VALUE = 0x3,
-  _ANY = _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
-         _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT |
-         _VALUE_REFLECTIVE_LOCAL_STATEMENT |
-         _SYMBOL_REFLECTIVE_LOCAL_STATEMENT | _MATTE_DESTINATION |
-         _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-         _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-         _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-         _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-         _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL | _ATTRIBUTE
+  _INTERMEDIATE = requite::getBit(30),
+  _INTERNAL = requite::getBit(29),
+  _THIS_CAN_HAVE_NO_SEMICOLON = requite::getBit(28),
+  _HAS_SEMICOLON_SEPARATED_BRANCHES = requite::getBit(27),
+  _FIRST_COMMA_BRANCH_CAN_BE_INFERENCE = requite::getBit(26),
+  _LAST_COMMA_BRANCH_CAN_BE_INFERENCE = requite::getBit(25),
+  _ALL_COMMA_BRANCHES_CAN_BE_INFERENCE = requite::getBit(24),
+  _ROOT_STATEMENT = requite::getBit(23),
+  _TOP_STATEMENT = requite::getBit(22),
+  _TABLE_STATEMENT = requite::getBit(21),
+  _OBJECT_STATEMENT = requite::getBit(20),
+  _LOCAL_STATEMENT = requite::getBit(19),
+  _VALUE = requite::getBit(18),
+  _REFLECTION = requite::getBit(17),
+  _ARGUMENT = requite::getBit(16),
+  _PARAMETER = requite::getBit(15),
+  _BINDING = requite::getBit(14),
+  _DESTINATION = requite::getBit(13),
+  _ALTERNATIVE = requite::getBit(12),
+  _NAME = requite::getBit(11),
+  _PATH = requite::getBit(10),
+  _ATTRIBUTE = requite::getBit(9),
+  _LONG_RANGE_STAGE = requite::getBit(8),
+  _SHORT_RANGE_STAGE = requite::getBit(7),
+  _CASE = requite::getBit(6),
+  _LAST_CASE = requite::getBit(5),
+  _CAPTURE = requite::getBit(4),
+  _STRING_LITERAL = requite::getBit(3),
+  _COMMA_BRANCH_COUNT_MASK = 0x3,
+  _ALL = _TOP_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
+         _LOCAL_STATEMENT | _LOCAL_STATEMENT | _VALUE | _REFLECTION |
+         _ARGUMENT | _PARAMETER | _BINDING | _DESTINATION | _ALTERNATIVE |
+         _NAME | _PATH | _ATTRIBUTE | _LONG_RANGE_STAGE | _SHORT_RANGE_STAGE |
+         _CASE | _LAST_CASE | _CAPTURE | _STRING_LITERAL
 };
 }
 
@@ -73,639 +588,554 @@ operator|(requite::_opcode::_OpcodeFlags lhs,
 _getFlags(requite::Opcode opcode) {
   using namespace requite;
   using namespace requite::_opcode;
+  using O = Opcode;
+
   switch (opcode) {
-  case Opcode::__NONE:
-    return _INTERNAL_USE_ONLY;
+  case O::__NONE:
+    return _NONE;
 
   // HANDLES
-  case Opcode::__LOCAL_HANDLE:
-    return _INTERNAL_USE_ONLY | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
+  case O::__LOCAL_HANDLE:
+    return _INTERNAL | _VALUE | _ARGUMENT | _DESTINATION;
 
   // LITERALS
-  case Opcode::__INTEGER_LITERAL:
-    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
-  case Opcode::__FRACTIONAL_LITERAL:
-    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
-  case Opcode::__STRING_LITERAL:
-    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
-  case Opcode::__CODEUNIT_LITERAL:
-    return _INTERNAL_USE_ONLY | _MATTE_VALUE;
-  case Opcode::__IDENTIFIER_LITERAL:
-    return _INTERNAL_USE_ONLY | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
+  case O::__INTEGER_LITERAL:
+    return _INTERNAL | _VALUE | _ARGUMENT;
+  case O::__FRACTIONAL_LITERAL:
+    return _INTERNAL | _VALUE | _ARGUMENT;
+  case O::__STRING_LITERAL:
+    return _INTERNAL | _VALUE | _ARGUMENT | _STRING_LITERAL;
+  case O::__CODEUNIT_LITERAL:
+    return _INTERNAL | _VALUE | _ARGUMENT;
+  case O::__IDENTIFIER_LITERAL:
+    return _INTERNAL | _VALUE | _REFLECTION | _ARGUMENT | _PARAMETER |
+           _BINDING | _NAME | _PATH;
 
-  // ERROR
-  case Opcode::__ERROR:
-    return _NONE;
+  // ERRORS
+  case O::__ERROR:
+    return _INTERNAL;
 
-    // SITUATIONAL
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_JUNCTION |
-           _MATTE_VALUE | _MATTE_SYMBOL | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_CLOVEN:
-    return _INTERMEDIATE_OPERATION | _VALUE_REFLECTIVE_DESTINATION |
-           _SYMBOL_REFLECTIVE_DESTINATION | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_JUNCTION | _SYMBOL_REFLECTIVE_JUNCTION |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_VALUE |
-           _SYMBOL_REFLECTIVE_VALUE | _MATTE_VALUE | _MATTE_SYMBOL;
-  case Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_TRIP:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_SYMBOL;
-  case Opcode::_TACIT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
+  // SITUATIONAL
+  case O::_CLOVEN:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _DESTINATION | _NAME |
+           _PATH | _LONG_RANGE_STAGE | _SHORT_RANGE_STAGE | _STRING_LITERAL;
+  case O::_COLON:
+    return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT | _PARAMETER |
+           _BINDING;
+  case O::_INFERENCE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // LOGICAL
-  case Opcode::_LOGICAL_AND:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_LOGICAL_OR:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_LOGICAL_COMPLEMENT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case O::_LOGICAL_AND:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LOGICAL_OR:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LOGICAL_COMPLEMENT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
-  // COMPAIRSON
-  case Opcode::_GREATER:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_GREATER_EQUAL:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_LESS:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_LESS_EQUAL:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_EQUAL:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_NOT_EQUAL:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-
-  // REFLECT
-  case Opcode::_REFLECT_VALUE:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
-  case Opcode::_REFLECT_SYMBOL:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _VALUE_REFLECTIVE_DESTINATION | _SYMBOL_REFLECTIVE_DESTINATION |
-           _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
-
-  // MEMBERS
-  case Opcode::_MEMBER_VALUE_OF_VALUE_PATH:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
-  case Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
-  case Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-
-  // EXTENSIONS
-  case Opcode::_EXTEND:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
-  case Opcode::_EXTEND_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_EXTEND_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-
-  // BIND
-  case Opcode::_BIND_VALUE:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_BIND_SYMBOL:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_DEFAULT_VALUE:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_DEFAULT_SYMBOL:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_POSITIONAL_VALUE:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_POSITIONAL_SYMBOL:
-    return _INTERMEDIATE_OPERATION;
+  // COMPARISON
+  case O::_GREATER:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_GREATER_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LESS:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LESS_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_NOT_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // APPLY
-  case Opcode::_ASCRIBE_LAST_BRANCH:
-    return _INTERMEDIATE_OPERATION | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_SYMBOL;
-  case Opcode::_ASCRIBE_FIRST_BRANCH:
-    return _INTERMEDIATE_OPERATION | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_SYMBOL;
-  case Opcode::_CAST:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::IDENTIFY:
-    return _MATTE_DESTINATION | _VALUE_REFLECTIVE_DESTINATION |
-           _SYMBOL_REFLECTIVE_DESTINATION | _MATTE_VALUE |
-           _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE |
-           _MATTE_JUNCTION | _VALUE_REFLECTIVE_JUNCTION |
-           _SYMBOL_REFLECTIVE_JUNCTION | _MATTE_SYMBOL |
-           _VALUE_REFLECTIVE_SYMBOL | _SYMBOL_REFLECTIVE_SYMBOL;
+  case O::_EXTEND:
+    return _INTERMEDIATE | _VALUE;
+  case O::_BINDING:
+    return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT |
+           _ALTERNATIVE;
+  case O::_ASCRIBE:
+    return _INTERMEDIATE | _ALL;
+  case O::_CAST:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_IDENTIFY:
+    return _INTERMEDIATE | _NAME | _PATH | _VALUE | _ARGUMENT;
 
   // ARITHMETIC
-  case Opcode::_ADD:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_SUBTRACT:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_MULTIPLY:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_DIVIDE:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_MODULUS:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_NEGATE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case O::_ADD:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_SUBTRACT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_MULTIPLY:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_DIVIDE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_MODULUS:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_NEGATE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // BITWISE
-  case Opcode::_BITWISE_CAST:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_OR:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_AND:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_XOR:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_COMPLEMENT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_SHIFT_LEFT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_BITWISE_SHIFT_RIGHT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::BITWISE_ROTATE_LEFT:
-    return _MATTE_VALUE;
-  case Opcode::BITWISE_ROTATE_RIGHT:
-    return _MATTE_VALUE;
+  case O::_BITWISE_CAST:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BITWISE_OR:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BITWISE_AND:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BITWISE_XOR:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BITWISE_COMPLEMENT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BITWISE_SHIFT_LEFT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BITWISE_SHIFT_RIGHT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::BITWISE_ROTATE_LEFT:
+    return _VALUE | _ARGUMENT;
+  case O::BITWISE_ROTATE_RIGHT:
+    return _VALUE | _ARGUMENT;
 
   // MEMORY
-  case Opcode::_COMPILE_TIME_CONCATINATE:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::FROM_FRONT:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_FROM_FRONT_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::FROM_BACK:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_FROM_BACK_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::TRUNCATE_FRONT:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_TRUNCATE_FRONT_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::TRUNCATE_BACK:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_TRUNCATE_BACK_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::AT:
-    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
-           _VALUE_REFLECTIVE_JUNCTION;
-  case Opcode::_AT_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
-  case Opcode::ADDRESS:
-    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
-           _VALUE_REFLECTIVE_JUNCTION;
-  case Opcode::_ADDRESS_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
-  case Opcode::STEAL:
-    return _VALUE_REFLECTIVE_DESTINATION | _VALUE_REFLECTIVE_VALUE |
-           _VALUE_REFLECTIVE_JUNCTION;
-  case Opcode::_STEAL_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
+  case O::_CONCATINATE:
+    return _INTERMEDIATE | _STRING_LITERAL | _VALUE | _ARGUMENT;
+  case O::FROM_FRONT:
+    return _REFLECTION;
+  case O::_FROM_FRONT_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::FROM_BACK:
+    return _REFLECTION;
+  case O::_FROM_BACK_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::TRUNCATE_FRONT:
+    return _REFLECTION;
+  case O::_TRUNCATE_FRONT_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::TRUNCATE_BACK:
+    return _REFLECTION;
+  case O::_TRUNCATE_BACK_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::AT:
+    return _REFLECTION;
+  case O::_AT_ADDRESS:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::ADDRESS:
+    return _REFLECTION;
+  case O::_ADDRESS_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // ASSIGNMENT
-  case Opcode::_ASSIGN:
-    return _CONVERGING | _INTERMEDIATE_OPERATION | _MATTE_DESTINATION |
-           _MATTE_VALUE | _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_ASSIGN_ADD:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_ASSIGN_SUBTRACT:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_ASSIGN_MULTIPLY:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_ASSIGN_DIVIDE:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_ASSIGN_MODULUS:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION | _MATTE_LOCAL_STATEMENT;
+  case O::_ASSIGN:
+    return _INTERMEDIATE | _LOCAL_STATEMENT | _ARGUMENT | _PARAMETER |
+           _ALTERNATIVE;
+  case O::_ASSIGN_ADD:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::_ASSIGN_SUBTRACT:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::_ASSIGN_MULTIPLY:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::_ASSIGN_DIVIDE:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::_ASSIGN_MODULUS:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
 
   // MOVE SEMANTICS
-  case Opcode::COPY:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_COPY_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::MOVE:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_MOVE_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::SWAP:
-    return _MATTE_LOCAL_STATEMENT;
+  case O::COPY:
+    return _REFLECTION;
+  case O::_COPY_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::MOVE:
+    return _REFLECTION;
+  case O::_MOVE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::SWAP:
+    return _LOCAL_STATEMENT;
 
   // SUBTYPE
-  case Opcode::_ARRAY:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_REFERENCE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_POINTER:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_FAT_POINTER:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_ANONYMOUS_VARIANT:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
+  case O::_ARRAY:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_REFERENCE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_POINTER:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_FAT_POINTER:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
 
   // TYPE MODIFIER
-  case Opcode::MUTABLE:
+  case O::MUTABLE:
     return _ATTRIBUTE;
-  case Opcode::CONSTANT:
+  case O::CONSTANT:
     return _ATTRIBUTE;
-  case Opcode::VOLATILE:
+  case O::VOLATILE:
     return _ATTRIBUTE;
-  case Opcode::ATOMIC:
+  case O::ATOMIC:
     return _ATTRIBUTE;
-  case Opcode::NULL_TERMINATED:
+  case O::NULL_TERMINATED:
     return _ATTRIBUTE;
-  case Opcode::OWNING:
+  case O::OWNING:
     return _ATTRIBUTE;
-  case Opcode::MAY_DISCARD:
+  case O::MAY_DISCARD:
     return _ATTRIBUTE;
 
-  // FIELD RULES
-  case Opcode::_POSITIONAL_FIELDS_END:
-    return _INTERMEDIATE_OPERATION;
-  case Opcode::_NAMED_FIELDS_BEGIN:
-    return _INTERMEDIATE_OPERATION;
+  // PARAMETER RULES
+  case O::_POSITIONAL_PARAMETERS_END:
+    return _INTERMEDIATE | _PARAMETER;
+  case O::_NAMED_PARAMETERS_BEGIN:
+    return _INTERMEDIATE | _PARAMETER;
 
   // TRIPS
-  case Opcode::_TUPLE_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_TUPLE_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_NULL_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_NULL_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::_STRUCTURED_BINDING:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_IGNORE:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-
-  // STATIC POLYMORPHISM
-  case Opcode::TEMPLATE:
-    return _ATTRIBUTE;
-  case Opcode::_SPECIALIZATION:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE | _MATTE_SYMBOL;
-  case Opcode::BAKE:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_BAKE_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case O::_TUPLE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LAYOUT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_NULL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_NULL_TYPE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_STRUCTURED_BINDING:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::_IGNORE:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::_SPECIALIZATION:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
 
   // PROCEDURES
-  case Opcode::_CALL:
-    return _INTERMEDIATE_OPERATION | _MATTE_DESTINATION | _MATTE_DESTINATION |
-           _MATTE_VALUE | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_SIGNATURE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::DESTROY:
-    return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
-  case Opcode::_DESTROY_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::DROP:
-    return _VALUE_REFLECTIVE_LOCAL_STATEMENT;
-  case Opcode::_DROP_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::ENTRY_POINT:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_MODULE_STATEMENT;
-  case Opcode::FUNCTION:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(2);
-  case Opcode::CONSTRUCTOR:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_OBJECT_STATEMENT |
+  case O::_CALL:
+    return _INTERMEDIATE | _LOCAL_STATEMENT | _VALUE | _DESTINATION | _ARGUMENT;
+  case O::_INDEX:
+    return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT;
+  case O::_SIGNATURE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_EXTENSION_SIGNATURE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::DESTROY:
+    return _REFLECTION;
+  case O::_DESTROY_VALUE:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::DROP:
+    return _REFLECTION;
+  case O::_DROP_VALUE:
+    return _INTERMEDIATE | _LOCAL_STATEMENT;
+  case O::ENTRY_POINT:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _TOP_STATEMENT;
+  case O::FUNCTION:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT | _TABLE_STATEMENT |
+           _OBJECT_STATEMENT | _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(2);
+  case O::CONSTRUCTOR:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _ALL_COMMA_BRANCHES_CAN_BE_INFERENCE | _OBJECT_STATEMENT |
            static_cast<_OpcodeFlags>(1);
-  case Opcode::DESTRUCTOR:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_OBJECT_STATEMENT;
-  case Opcode::RANGER:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_OBJECT_STATEMENT |
+  case O::DESTRUCTOR:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _OBJECT_STATEMENT;
+  case O::RANGER:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _OBJECT_STATEMENT;
+  case O::INDEXER:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _OBJECT_STATEMENT |
            static_cast<_OpcodeFlags>(1);
-  case Opcode::_ANONYMOUS_FUNCTION:
-    return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
-           _LAST_COMMA_BRANCH_CAN_BE_TACIT | _MATTE_VALUE |
-           static_cast<_OpcodeFlags>(2);
-  case Opcode::_CAPTURE:
-    return _NONE;
+  case O::_ANONYMOUS_FUNCTION:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _LAST_COMMA_BRANCH_CAN_BE_INFERENCE |
+           _VALUE | _ARGUMENT | static_cast<_OpcodeFlags>(2);
+  case O::CAPTURE:
+    return _LONG_RANGE_STAGE | _CAPTURE;
 
   // CONTROL FLOW
-  case Opcode::RETURN:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::BREAK:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::CONTINUE:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::FALLTHROUGH:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::EXIT:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::RANGE_OVER:
-    return _MATTE_LOCAL_STATEMENT;
-  case Opcode::LABEL:
-    return _MATTE_VALUE;
+  case O::RETURN:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::BREAK:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::CONTINUE:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::FALLTHROUGH:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::GOTO:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::EXIT:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::LOOP_BODY:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
 
   // SYMBOLS
-  case Opcode::OBJECT:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
-           _MATTE_OBJECT_STATEMENT | _MATTE_LOCAL_STATEMENT |
+  case O::OBJECT:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT | _TABLE_STATEMENT |
+           static_cast<_OpcodeFlags>(2);
+  case O::VARIANT:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT | _TABLE_STATEMENT |
            static_cast<_OpcodeFlags>(1);
-  case Opcode::TABLE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_MODULE_STATEMENT | _MATTE_TABLE_STATEMENT |
-           static_cast<_OpcodeFlags>(1);
-  case Opcode::_ALIAS:
-    return _INTERMEDIATE_OPERATION | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::USE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::_VARIABLE_DECLARATION:
-    return _INTERMEDIATE_OPERATION | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::_LOCAL:
-    return _INTERMEDIATE_OPERATION | _MATTE_LOCAL_STATEMENT;
-  case Opcode::_GLOBAL:
-    return _INTERMEDIATE_OPERATION | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT;
-  case Opcode::_PROPERTY:
-    return _INTERMEDIATE_OPERATION | _MATTE_OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT | _MATTE_DESTINATION | _MATTE_VALUE |
-           _MATTE_JUNCTION;
+  case O::TABLE:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _TOP_STATEMENT | _TABLE_STATEMENT | static_cast<_OpcodeFlags>(1);
+  case O::USE:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _TOP_STATEMENT | _TABLE_STATEMENT |
+           _OBJECT_STATEMENT | _LOCAL_STATEMENT;
 
   // VALUES
-  case Opcode::_TACIT_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::TRUE:
-    return _MATTE_VALUE;
-  case Opcode::FALSE:
-    return _MATTE_VALUE;
-  case Opcode::VALUE:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::INDEX:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::INDETERMINATE:
-    return _MATTE_VALUE;
-  case Opcode::NO_DEFAULT_VALUE:
-    return _MATTE_VALUE;
-  case Opcode::THIS:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::RESULT:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::ARGUMENT:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::INPUT:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::OUTPUT:
-    return _MATTE_DESTINATION | _MATTE_VALUE | _MATTE_JUNCTION;
-  case Opcode::ADDRESS_SIZE:
-    return _MATTE_VALUE;
-  case Opcode::ADDRESS_DEPTH:
-    return _MATTE_VALUE;
-  case Opcode::BITS_PER_BYTE:
-    return _MATTE_VALUE;
+  case O::TRUE:
+    return _VALUE | _ARGUMENT;
+  case O::FALSE:
+    return _VALUE | _ARGUMENT;
+  case O::INDETERMINATE:
+    return _VALUE;
+  case O::THIS:
+    return _VALUE | _DESTINATION | _ARGUMENT;
+  case O::RESULT:
+    return _VALUE | _DESTINATION | _ARGUMENT;
+  case O::ARGUMENTS:
+    return _VALUE | _ARGUMENT;
+  case O::IN:
+    return _VALUE | _DESTINATION | _ARGUMENT;
+  case O::OUT:
+    return _VALUE | _DESTINATION | _ARGUMENT;
+  case O::ADDRESS_SIZE:
+    return _VALUE | _ARGUMENT;
+  case O::ADDRESS_DEPTH:
+    return _VALUE | _ARGUMENT;
+  case O::BITS_PER_BYTE:
+    return _VALUE | _ARGUMENT;
 
   // BUILTIN TYPES
-  case Opcode::_TACIT_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::VOID:
-    return _MATTE_SYMBOL;
-  case Opcode::BOOLEAN:
-    return _MATTE_SYMBOL;
-  case Opcode::WORD:
-    return _MATTE_SYMBOL;
-  case Opcode::SIGNED:
-    return _MATTE_SYMBOL;
-  case Opcode::UNSIGNED:
-    return _MATTE_SYMBOL;
-  case Opcode::BFLOAT16:
-    return _MATTE_SYMBOL;
-  case Opcode::BINARY16:
-    return _MATTE_SYMBOL;
-  case Opcode::BINARY32:
-    return _MATTE_SYMBOL;
-  case Opcode::BINARY64:
-    return _MATTE_SYMBOL;
-  case Opcode::BINARY128:
-    return _MATTE_SYMBOL;
-  case Opcode::UTF8:
-    return _MATTE_SYMBOL;
+  case O::VOID:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::BOOLEAN:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::WORD:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::SIGNED:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::UNSIGNED:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::BFLOAT16:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::BINARY16:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::BINARY32:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::BINARY64:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::BINARY128:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::UTF8:
+    return _VALUE | _ARGUMENT | _PARAMETER;
 
   // VARIADIC ARGUMENTS
-  case Opcode::VARIADIC_ARGUMENTS:
-    return _MATTE_SYMBOL;
-  case Opcode::FIRST_VARIADIC_ARGUMENT:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::NEXT_VARIADIC_ARGUMENT:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
+  case O::VARIADIC_ARGUMENTS:
+    return _VALUE | _ARGUMENT | _PARAMETER;
+  case O::FIRST_VARIADIC_ARGUMENT:
+    return _REFLECTION;
+  case O::_FIRST_VARIADIC_ARGUMENT_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::NEXT_VARIADIC_ARGUMENT:
+    return _REFLECTION;
+  case O::_NEXT_VARIADIC_ARGUMENT_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
 
   // SCOPES
-  case Opcode::IF:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
-  case Opcode::ELSE_IF:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
-  case Opcode::ELSE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::SWITCH:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
-  case Opcode::CASE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
+  case O::IF:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT |
            static_cast<_OpcodeFlags>(1);
-  case Opcode::DEFAULT_CASE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES;
-  case Opcode::LOOP:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
-  case Opcode::REPEAT:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::WHILE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
-  case Opcode::SCOPE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_LOCAL_STATEMENT;
-  case Opcode::_OPEN_INLINE_SCOPE:
-    return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_DESTINATION | _MATTE_JUNCTION | _MATTE_VALUE;
-  case Opcode::_CLOSED_INLINE_SCOPE:
-    return _INTERMEDIATE_OPERATION | _SEMICOLON_SEPERATED_BRANCHES |
-           _MATTE_DESTINATION | _MATTE_JUNCTION | _MATTE_VALUE;
+  case O::ELSE_IF:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT |
+           static_cast<_OpcodeFlags>(1);
+  case O::ELSE:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT;
+  case O::SWITCH:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT |
+           static_cast<_OpcodeFlags>(1);
+  case O::MATCH:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT | _VALUE | static_cast<_OpcodeFlags>(1);
+  case O::CASE:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
+  case O::DEFAULT:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT;
+  case O::LOOP:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _FIRST_COMMA_BRANCH_CAN_BE_INFERENCE | _LOCAL_STATEMENT |
+           static_cast<_OpcodeFlags>(2);
+  case O::SCOPE:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT | _VALUE;
+  case O::BLOCK:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _LOCAL_STATEMENT | _VALUE;
+  case O::_INLINE_BLOCK:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_INLINE_SCOPE:
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT | _PARAMETER;
 
   // RANGES
-  case Opcode::_LONG_RANGE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::FOR:
-    return _NONE;
-  case Opcode::DO:
-    return _NONE;
-  case Opcode::UNTIL:
-    return _NONE;
-  case Opcode::STEP:
-    return _SEMICOLON_SEPERATED_BRANCHES;
-  case Opcode::WHEN:
-    return _NONE;
-  case Opcode::_SHORT_RANGE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_SHORT_STEP_ADD:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_STEP_SUBTRACT:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_STEP_MULTIPLY:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_STEP_DIVIDE:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_STEP_MODULUS:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_WHILE_LESS:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_WHILE_GREATER:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_WHILE_LESS_EQUAL:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_WHILE_GREATER_EQUAL:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_WHILE_EQUAL:
-    return _INTERMEDIATE_OPERATION | _NONE;
-  case Opcode::_SHORT_WHILE_NOT_EQUAL:
-    return _INTERMEDIATE_OPERATION | _NONE;
+  case O::_LIMIT_RANGE_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LIMIT_RANGE_NOT_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LIMIT_RANGE_GREATER:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LIMIT_RANGE_GREATER_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LIMIT_RANGE_LESS:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LIMIT_RANGE_LESS_EQUAL:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_LONG_RANGE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::FOR:
+    return _LONG_RANGE_STAGE;
+  case O::DO:
+    return _LONG_RANGE_STAGE;
+  case O::WHILE:
+    return _LONG_RANGE_STAGE;
+  case O::UNTIL:
+    return _LONG_RANGE_STAGE;
+  case O::FOREVER:
+    return _LONG_RANGE_STAGE;
+  case O::STEP:
+    return _LONG_RANGE_STAGE;
+  case O::WHEN:
+    return _LOCAL_STATEMENT | _LONG_RANGE_STAGE;
+  case O::_SHORT_RANGE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_SHORT_STEP_ADD:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_STEP_SUBTRACT:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_STEP_MULTIPLY:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_STEP_DIVIDE:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_STEP_MODULUS:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_WHILE_LESS:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_WHILE_GREATER:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_WHILE_LESS_EQUAL:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_WHILE_GREATER_EQUAL:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_WHILE_EQUAL:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
+  case O::_SHORT_WHILE_NOT_EQUAL:
+    return _INTERMEDIATE | _SHORT_RANGE_STAGE;
 
   // ACCESS MODIFIERS
-  case Opcode::PRIVATE:
+  case O::PRIVATE:
     return _ATTRIBUTE;
-  case Opcode::PROTECTED:
+  case O::PROTECTED:
     return _ATTRIBUTE;
-  case Opcode::EXPORT:
+  case O::EXPORT:
     return _ATTRIBUTE;
 
   // SYMBOL GRAPH
-  case Opcode::IMPORT:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _MATTE_MODULE_STATEMENT;
-  case Opcode::USE_TABLE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _MATTE_MODULE_STATEMENT |
-           _MATTE_TABLE_STATEMENT | _MATTE_OBJECT_STATEMENT |
-           _MATTE_LOCAL_STATEMENT;
+  case O::IMPORT:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _TOP_STATEMENT;
+  case O::USE_TABLE:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _TOP_STATEMENT | _TABLE_STATEMENT |
+           _OBJECT_STATEMENT | _LOCAL_STATEMENT;
 
   // SOURCES
-  case Opcode::_MODULE_ROOT:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _INTERMEDIATE_OPERATION;
+  case O::_MODULE_ROOT:
+    return _INTERMEDIATE | _THIS_CAN_HAVE_NO_SEMICOLON |
+           _HAS_SEMICOLON_SEPARATED_BRANCHES | _ROOT_STATEMENT;
 
   // ERROR HANDLING AND DEBUGGING
-  case Opcode::ASSERT:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _MATTE_LOCAL_STATEMENT;
-  case Opcode::UNREACHABLE:
-    return _BRANCH_CAN_HAVE_NO_SEMICOLON | _MATTE_LOCAL_STATEMENT;
+  case O::ASSERT:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
+  case O::UNREACHABLE:
+    return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
 
   // ATTRIBUTES
-  case Opcode::NOT_FINAL:
+  case O::BAKE:
     return _ATTRIBUTE;
-  case Opcode::INLINE:
+  case O::MAY_PARENT:
     return _ATTRIBUTE;
-  case Opcode::MANGLED_NAME:
+  case O::PARENT:
     return _ATTRIBUTE;
-  case Opcode::_MANGLED_NAME_OF_SYMBOL:
-    return _MATTE_VALUE;
-  case Opcode::PACK:
+  case O::POSITION:
     return _ATTRIBUTE;
-  case Opcode::USER:
+  case O::INLINE:
+    return _ATTRIBUTE;
+  case O::MANGLED_NAME:
+    return _REFLECTION | _ATTRIBUTE;
+  case O::_MANGLED_NAME_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::PACK:
+    return _ATTRIBUTE;
+  case O::USER:
+    return _ATTRIBUTE;
+  case O::LABEL:
+    return _ATTRIBUTE;
+  case O::TEMPLATE:
     return _ATTRIBUTE;
 
-  // REFLECTED VALUES
-  case Opcode::SIZE:
-    return _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_SIZE_OF_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::DEPTH:
-    return _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_DEPTH_OF_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::COUNT:
-    return _SYMBOL_REFLECTIVE_VALUE | _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_COUNT_OF_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::_COUNT_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::LENGTH:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_LENGTH_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::NAME:
-    return _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_NAME_OF_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::LINE:
-    return _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_LINE_OF_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::COLUMN:
-    return _MATTE_VALUE | _VALUE_REFLECTIVE_VALUE | _SYMBOL_REFLECTIVE_VALUE;
-  case Opcode::_COLUMN_OF_SYMBOL:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::IS:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_VALUE_OF_VARIANT_IS_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::GET:
-    return _VALUE_REFLECTIVE_VALUE;
-  case Opcode::_GET_VALUE_OF_VARIANT:
-    return _INTERMEDIATE_OPERATION | _MATTE_VALUE;
-  case Opcode::ARE_SAME:
-    return _MATTE_VALUE;
+  // REFLECTIONS
+  case O::_REFLECT:
+    return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT | _PARAMETER |
+           _PATH;
+  case O::_MEMBER_OF:
+    return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT | _PATH;
+  case O::SIZE:
+    return _REFLECTION;
+  case O::_SIZE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::DEPTH:
+    return _REFLECTION;
+  case O::_DEPTH_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::COUNT:
+    return _REFLECTION;
+  case O::_COUNT_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::LENGTH:
+    return _REFLECTION;
+  case O::_LENGTH_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::NAME:
+    return _REFLECTION;
+  case O::_NAME_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::LINE:
+    return _REFLECTION;
+  case O::_LINE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::COLUMN:
+    return _REFLECTION;
+  case O::_COLUMN_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::IS:
+    return _REFLECTION;
+  case O::_VALUE_IS:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::GET:
+    return _REFLECTION;
+  case O::_GET_VALUE_OF_VARIANT:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::TYPE:
+    return _VALUE | _ARGUMENT | _PARAMETER | _REFLECTION;
+  case O::_TYPE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::SYMBOL:
+    return _REFLECTION;
+  case O::_SYMBOL_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::DISCRIMINANT:
+    return _REFLECTION | _ATTRIBUTE;
+  case O::_DISCRIMINANT_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
-  // REFLECTED SYMBOLS
-  case Opcode::TYPE:
-    return _VALUE_REFLECTIVE_SYMBOL | _MATTE_SYMBOL;
-  case Opcode::_TYPE_OF_VALUE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::UNDERLYING:
-    return _SYMBOL_REFLECTIVE_SYMBOL;
-  case Opcode::_UNDERLYING_OF_TYPE:
-    return _INTERMEDIATE_OPERATION | _MATTE_SYMBOL;
-  case Opcode::__LAST:
+  case O::__LAST:
     break;
   }
+
   return _NONE;
 }
 
@@ -719,625 +1149,64 @@ _getHasFlags(requite::Opcode opcode, requite::_opcode::_OpcodeFlags flags) {
 [[nodiscard]] constexpr unsigned char _getMaskValue(requite::Opcode opcode) {
   const requite::_opcode::_OpcodeFlags flags = requite::_getFlags(opcode);
   const unsigned char value =
-      (flags & requite::_opcode::_COMMA_BRANCH_COUNT_MASK_VALUE);
+      (flags & requite::_opcode::_COMMA_BRANCH_COUNT_MASK);
   return value;
 }
 
-constexpr std::string_view getName(requite::Opcode opcode) {
+constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
+  using namespace requite;
+  using O = Opcode;
   switch (opcode) {
-  case requite::Opcode::__NONE:
-    return "__none";
-
-  // HANDLES
-  case requite::Opcode::__LOCAL_HANDLE:
-    return "__local_handle";
-
-  // LITERALS
-  case requite::Opcode::__INTEGER_LITERAL:
-    return "__integer_literal";
-  case requite::Opcode::__FRACTIONAL_LITERAL:
-    return "__fractional_literal";
-  case requite::Opcode::__STRING_LITERAL:
-    return "__string_literal";
-  case requite::Opcode::__CODEUNIT_LITERAL:
-    return "__codeunit_literal";
-  case requite::Opcode::__IDENTIFIER_LITERAL:
-    return "__identifier_literal";
-
-  // ERRORS
-  case requite::Opcode::__ERROR:
-    return "__error";
-
-  // SITUATIONAL
-  case requite::Opcode::_CLOVEN:
-    return "_cloven";
-  case requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
-    return "_bind_value_or_default_value";
-  case requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
-    return "_bind_symbol_or_default_symbol";
-  case requite::Opcode::_TRIP:
-    return "_trip";
-  case requite::Opcode::_TACIT:
-    return "_tacit";
-
-  // LOGICAL
-  case requite::Opcode::_LOGICAL_AND:
-    return "_logical_and";
-  case requite::Opcode::_LOGICAL_OR:
-    return "_logical_or";
-  case requite::Opcode::_LOGICAL_COMPLEMENT:
-    return "_logical_complement";
-
-  // COMPARISON
-  case requite::Opcode::_GREATER:
-    return "_greater";
-  case requite::Opcode::_GREATER_EQUAL:
-    return "_greater_equal";
-  case requite::Opcode::_LESS:
-    return "_less";
-  case requite::Opcode::_LESS_EQUAL:
-    return "_less_equal";
-  case requite::Opcode::_EQUAL:
-    return "_equal";
-  case requite::Opcode::_NOT_EQUAL:
-    return "_not_equal";
-
-  // REFLECT
-  case requite::Opcode::_REFLECT_VALUE:
-    return "_reflect_value";
-  case requite::Opcode::_REFLECT_SYMBOL:
-    return "_reflect_symbol";
-
-  // MEMBERS
-  case requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH:
-    return "_member_value_of_value_path";
-  case requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH:
-    return "_member_symbol_of_value_path";
-  case requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH:
-    return "_member_value_of_symbol_path";
-  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH:
-    return "_member_symbol_of_symbol_path";
-
-  // EXTENSIONS
-  case requite::Opcode::_EXTEND:
-    return "_extend";
-  case requite::Opcode::_EXTEND_VALUE:
-    return "_extend_value";
-  case requite::Opcode::_EXTEND_TYPE:
-    return "_extend_type";
-
-  // BIND
-  case requite::Opcode::_BIND_VALUE:
-    return "_bind_value";
-  case requite::Opcode::_BIND_SYMBOL:
-    return "_bind_symbol";
-  case requite::Opcode::_DEFAULT_VALUE:
-    return "default_value";
-  case requite::Opcode::_DEFAULT_SYMBOL:
-    return "_default_symbol";
-  case requite::Opcode::_POSITIONAL_VALUE:
-    return "_positional_value";
-  case requite::Opcode::_POSITIONAL_SYMBOL:
-    return "_positional_symbol";
-
-  // APPLY
-  case requite::Opcode::_ASCRIBE_LAST_BRANCH:
-    return "_ascribe_last_branch";
-  case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
-    return "_ascribe_first_branch";
-  case requite::Opcode::_CAST:
-    return "_cast";
-  case requite::Opcode::IDENTIFY:
-    return "identify";
-
-  // ARITHMETIC
-  case requite::Opcode::_ADD:
-    return "_add";
-  case requite::Opcode::_SUBTRACT:
-    return "_subtract";
-  case requite::Opcode::_MULTIPLY:
-    return "_multiply";
-  case requite::Opcode::_DIVIDE:
-    return "_divide";
-  case requite::Opcode::_MODULUS:
-    return "_modulus";
-  case requite::Opcode::_NEGATE:
-    return "_negate";
-
-  // BITWISE
-  case requite::Opcode::_BITWISE_CAST:
-    return "_bitwise_cast";
-  case requite::Opcode::_BITWISE_OR:
-    return "_bitwise_or";
-  case requite::Opcode::_BITWISE_AND:
-    return "_bitwise_and";
-  case requite::Opcode::_BITWISE_XOR:
-    return "_bitwise_xor";
-  case requite::Opcode::_BITWISE_COMPLEMENT:
-    return "_bitwise_complement";
-  case requite::Opcode::_BITWISE_SHIFT_LEFT:
-    return "_bitwise_shift_left";
-  case requite::Opcode::_BITWISE_SHIFT_RIGHT:
-    return "_bitwise_shift_right";
-  case requite::Opcode::BITWISE_ROTATE_LEFT:
-    return "bitwise_rotate_left";
-  case requite::Opcode::BITWISE_ROTATE_RIGHT:
-    return "bitwise_rotate_right";
-
-  // MEMORY
-  case requite::Opcode::_COMPILE_TIME_CONCATINATE:
-    return "_compile_time_concatinate";
-  case requite::Opcode::FROM_FRONT:
-    return "from_front";
-  case requite::Opcode::_FROM_FRONT_OF_VALUE:
-    return "_from_front_of_value";
-  case requite::Opcode::FROM_BACK:
-    return "from_back";
-  case requite::Opcode::_FROM_BACK_OF_VALUE:
-    return "_from_back_of_value";
-  case requite::Opcode::TRUNCATE_FRONT:
-    return "truncate_front";
-  case requite::Opcode::_TRUNCATE_FRONT_OF_VALUE:
-    return "_truncate_front_of_value";
-  case requite::Opcode::TRUNCATE_BACK:
-    return "truncate_back";
-  case requite::Opcode::_TRUNCATE_BACK_OF_VALUE:
-    return "_truncate_back_of_value";
-  case requite::Opcode::AT:
-    return "at";
-  case requite::Opcode::_AT_VALUE:
-    return "_at_value";
-  case requite::Opcode::ADDRESS:
-    return "address";
-  case requite::Opcode::_ADDRESS_VALUE:
-    return "_address_value";
-
-  // ASSIGNMENT
-  case requite::Opcode::_ASSIGN:
-    return "_assign";
-  case requite::Opcode::_ASSIGN_ADD:
-    return "_assign_add";
-  case requite::Opcode::_ASSIGN_SUBTRACT:
-    return "assign_subtract";
-  case requite::Opcode::_ASSIGN_MULTIPLY:
-    return "_assign_multiply";
-  case requite::Opcode::_ASSIGN_DIVIDE:
-    return "_assign_divide";
-  case requite::Opcode::_ASSIGN_MODULUS:
-    return "_assign_modulus";
-
-  // MOVE SEMANTICS
-  case requite::Opcode::COPY:
-    return "copy";
-  case requite::Opcode::_COPY_VALUE:
-    return "_copy_value";
-  case requite::Opcode::MOVE:
-    return "move";
-  case requite::Opcode::_MOVE_VALUE:
-    return "_move_value";
-  case requite::Opcode::STEAL:
-    return "steal";
-  case requite::Opcode::_STEAL_VALUE:
-    return "_steal_value";
-  case requite::Opcode::SWAP:
-    return "swap";
-
-  // SUBTYPE
-  case requite::Opcode::_ARRAY:
-    return "_array";
-  case requite::Opcode::_REFERENCE:
-    return "_reference";
-  case requite::Opcode::_POINTER:
-    return "_pointer";
-  case requite::Opcode::_FAT_POINTER:
-    return "_fat_pointer";
-  case requite::Opcode::_ANONYMOUS_VARIANT:
-    return "_anonymous_variant";
-
-  // TYPE MODIFIER
-  case requite::Opcode::MUTABLE:
-    return "mutable";
-  case requite::Opcode::CONSTANT:
-    return "constant";
-  case requite::Opcode::VOLATILE:
-    return "volatile";
-  case requite::Opcode::ATOMIC:
-    return "atomic";
-  case requite::Opcode::NULL_TERMINATED:
-    return "null_terminated";
-  case requite::Opcode::OWNING:
-    return "owning";
-  case requite::Opcode::MAY_DISCARD:
-    return "may_discard";
-
-  // FIELD RULES
-  case requite::Opcode::_POSITIONAL_FIELDS_END:
-    return "_positional_fields_end";
-  case requite::Opcode::_NAMED_FIELDS_BEGIN:
-    return "_named_fields_begin";
-
-  // TRIPS
-  case requite::Opcode::_TUPLE_VALUE:
-    return "_tuple_value";
-  case requite::Opcode::_TUPLE_TYPE:
-    return "_tuple_type";
-  case requite::Opcode::_NULL_VALUE:
-    return "_null_value";
-  case requite::Opcode::_NULL_TYPE:
-    return "_null_type";
-  case requite::Opcode::_STRUCTURED_BINDING:
-    return "_structured_binding";
-  case requite::Opcode::_IGNORE:
-    return "_ignore";
-
-  // STATIC POLYMORPHISM
-  case requite::Opcode::TEMPLATE:
-    return "template";
-  case requite::Opcode::_SPECIALIZATION:
-    return "_specialization";
-  case requite::Opcode::BAKE:
-    return "bake";
-  case requite::Opcode::_BAKE_VALUE:
-    return "_bake_value";
-
-  // PROCEDURES
-  case requite::Opcode::_CALL:
-    return "_call";
-  case requite::Opcode::_SIGNATURE:
-    return "_signature";
-  case requite::Opcode::DESTROY:
-    return "destroy";
-  case requite::Opcode::_DESTROY_VALUE:
-    return "_destroy_value";
-  case requite::Opcode::DROP:
-    return "drop";
-  case requite::Opcode::_DROP_VALUE:
-    return "_drop_value";
-  case requite::Opcode::ENTRY_POINT:
-    return "entry_point";
-  case requite::Opcode::FUNCTION:
-    return "function";
-  case requite::Opcode::CONSTRUCTOR:
-    return "constructor";
-  case requite::Opcode::DESTRUCTOR:
-    return "destructor";
-  case requite::Opcode::RANGER:
-    return "ranger";
-  case requite::Opcode::_ANONYMOUS_FUNCTION:
-    return "_anonymous_function";
-  case requite::Opcode::_CAPTURE:
-    return "_capture";
-
-  // CONTROL FLOW
-  case requite::Opcode::RETURN:
-    return "return";
-  case requite::Opcode::BREAK:
-    return "break";
-  case requite::Opcode::CONTINUE:
-    return "continue";
-  case requite::Opcode::FALLTHROUGH:
-    return "fallthrough";
-  case requite::Opcode::EXIT:
-    return "exit";
-  case requite::Opcode::RANGE_OVER:
-    return "range_over";
-  case requite::Opcode::LABEL:
-    return "label";
-
-  // SYMBOLS
-  case requite::Opcode::OBJECT:
-    return "object";
-  case requite::Opcode::TABLE:
-    return "table";
-  case requite::Opcode::_ALIAS:
-    return "_alias";
-  case requite::Opcode::USE:
-    return "use";
-  case requite::Opcode::_VARIABLE_DECLARATION:
-    return "_variable_declaration";
-  case requite::Opcode::_LOCAL:
-    return "_local";
-  case requite::Opcode::_GLOBAL:
-    return "_global";
-  case requite::Opcode::_PROPERTY:
-    return "_property";
-
-  // VALUES
-  case requite::Opcode::_TACIT_VALUE:
-    return "_tacit_value";
-  case requite::Opcode::TRUE:
-    return "true";
-  case requite::Opcode::FALSE:
-    return "false";
-  case requite::Opcode::VALUE:
-    return "value";
-  case requite::Opcode::INDEX:
-    return "index";
-  case requite::Opcode::INDETERMINATE:
-    return "indeterminate";
-  case requite::Opcode::NO_DEFAULT_VALUE:
-    return "no_default_value";
-  case requite::Opcode::THIS:
-    return "this";
-  case requite::Opcode::RESULT:
-    return "result";
-  case requite::Opcode::ARGUMENT:
-    return "argument";
-  case requite::Opcode::INPUT:
-    return "input";
-  case requite::Opcode::OUTPUT:
-    return "output";
-  case requite::Opcode::ADDRESS_SIZE:
-    return "address_size";
-  case requite::Opcode::ADDRESS_DEPTH:
-    return "address_depth";
-  case requite::Opcode::BITS_PER_BYTE:
-    return "bits_per_byte";
-
-  // BUILTIN TYPES
-  case requite::Opcode::_TACIT_SYMBOL:
-    return "_tacit_symbol";
-  case requite::Opcode::VOID:
-    return "void";
-  case requite::Opcode::BOOLEAN:
-    return "boolean";
-  case requite::Opcode::WORD:
-    return "word";
-  case requite::Opcode::SIGNED:
-    return "signed";
-  case requite::Opcode::UNSIGNED:
-    return "unsigned";
-  case requite::Opcode::BFLOAT16:
-    return "bfloat16";
-  case requite::Opcode::BINARY16:
-    return "binary16";
-  case requite::Opcode::BINARY32:
-    return "binary32";
-  case requite::Opcode::BINARY64:
-    return "binary64";
-  case requite::Opcode::BINARY128:
-    return "binary128";
-  case requite::Opcode::UTF8:
-    return "utf8";
-
-  // VARIADIC ARGUMENTS
-  case requite::Opcode::VARIADIC_ARGUMENTS:
-    return "variadic_arguments";
-  case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
-    return "first_variadic_argument";
-  case requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE:
-    return "_first_variadic_argument_of_value";
-  case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
-    return "next_variadic_argument";
-  case requite::Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE:
-    return "_next_variadic_argument_of_value";
-
-  // SCOPES
-  case requite::Opcode::IF:
-    return "if";
-  case requite::Opcode::ELSE_IF:
-    return "else_if";
-  case requite::Opcode::ELSE:
-    return "else";
-  case requite::Opcode::SWITCH:
-    return "switch";
-  case requite::Opcode::CASE:
-    return "case";
-  case requite::Opcode::DEFAULT_CASE:
-    return "default_case";
-  case requite::Opcode::LOOP:
-    return "loop";
-  case requite::Opcode::REPEAT:
-    return "repeat";
-  case requite::Opcode::WHILE:
-    return "while";
-  case requite::Opcode::SCOPE:
-    return "scope";
-  case requite::Opcode::_OPEN_INLINE_SCOPE:
-    return "_open_inline_scope";
-  case requite::Opcode::_CLOSED_INLINE_SCOPE:
-    return "_closed_inline_scope";
-
-  // RANGES
-  case requite::Opcode::_LONG_RANGE:
-    return "_long_range";
-  case requite::Opcode::FOR:
-    return "for";
-  case requite::Opcode::DO:
-    return "do";
-  case requite::Opcode::UNTIL:
-    return "until";
-  case requite::Opcode::STEP:
-    return "step";
-  case requite::Opcode::WHEN:
-    return "when";
-  case requite::Opcode::_SHORT_RANGE:
-    return "_short_range";
-  case requite::Opcode::_SHORT_STEP_ADD:
-    return "_short_step_add";
-  case requite::Opcode::_SHORT_STEP_SUBTRACT:
-    return "_short_step_subtract";
-  case requite::Opcode::_SHORT_STEP_MULTIPLY:
-    return "_short_step_multiply";
-  case requite::Opcode::_SHORT_STEP_DIVIDE:
-    return "_short_step_divide";
-  case requite::Opcode::_SHORT_STEP_MODULUS:
-    return "_short_step_modulus";
-  case requite::Opcode::_SHORT_WHILE_LESS:
-    return "_short_while_less";
-  case requite::Opcode::_SHORT_WHILE_GREATER:
-    return "_short_while_greater";
-  case requite::Opcode::_SHORT_WHILE_LESS_EQUAL:
-    return "_short_while_less_equal";
-  case requite::Opcode::_SHORT_WHILE_GREATER_EQUAL:
-    return "_short_while_greater_equal";
-  case requite::Opcode::_SHORT_WHILE_EQUAL:
-    return "_short_while_equal";
-  case requite::Opcode::_SHORT_WHILE_NOT_EQUAL:
-    return "_short_while_not_equal";
-
-  // ACCESS MODIFIERS
-  case requite::Opcode::PRIVATE:
-    return "private";
-  case requite::Opcode::PROTECTED:
-    return "protected";
-  case requite::Opcode::EXPORT:
-    return "export";
-
-  // SYMBOL GRAPH
-  case requite::Opcode::IMPORT:
-    return "import";
-  case requite::Opcode::USE_TABLE:
-    return "use_table";
-
-  // SOURCES
-  case requite::Opcode::_MODULE_ROOT:
-    return "_module_root";
-
-  // ERROR HANDLING AND DEBUGGING
-  case requite::Opcode::ASSERT:
-    return "assert";
-  case requite::Opcode::UNREACHABLE:
-    return "unreachable";
-
-  // ATTRIBUTES
-  case requite::Opcode::NOT_FINAL:
-    return "not_final";
-  case requite::Opcode::INLINE:
-    return "inline";
-  case requite::Opcode::MANGLED_NAME:
-    return "mangled_name";
-  case requite::Opcode::_MANGLED_NAME_OF_SYMBOL:
-    return "_mangled_name_of_symbol";
-  case requite::Opcode::PACK:
-    return "pack";
-  case requite::Opcode::USER:
-    return "user";
-
-  // REFLECTED VALUES
-  case requite::Opcode::SIZE:
-    return "size";
-  case requite::Opcode::_SIZE_OF_TYPE:
-    return "_size_of_type";
-  case requite::Opcode::DEPTH:
-    return "depth";
-  case requite::Opcode::_DEPTH_OF_TYPE:
-    return "_depth_of_type";
-  case requite::Opcode::COUNT:
-    return "count";
-  case requite::Opcode::_COUNT_OF_TYPE:
-    return "_count_of_type";
-  case requite::Opcode::_COUNT_OF_VALUE:
-    return "_count_of_value";
-  case requite::Opcode::LENGTH:
-    return "length";
-  case requite::Opcode::_LENGTH_OF_VALUE:
-    return "_length_of_value";
-  case requite::Opcode::NAME:
-    return "name";
-  case requite::Opcode::_NAME_OF_SYMBOL:
-    return "_name_of_symbol";
-  case requite::Opcode::LINE:
-    return "line";
-  case requite::Opcode::_LINE_OF_SYMBOL:
-    return "_line_of_symbol";
-  case requite::Opcode::COLUMN:
-    return "column";
-  case requite::Opcode::_COLUMN_OF_SYMBOL:
-    return "_column_of_symbol";
-  case requite::Opcode::IS:
-    return "is";
-  case requite::Opcode::_VALUE_OF_VARIANT_IS_TYPE:
-    return "_value_of_variant_is_type";
-  case requite::Opcode::GET:
-    return "get";
-  case requite::Opcode::_GET_VALUE_OF_VARIANT:
-    return "_get_value_of_variant";
-  case requite::Opcode::ARE_SAME:
-    return "are_same";
-
-    // REFLECTED SYMBOLS
-  case requite::Opcode::TYPE:
-    return "type";
-  case requite::Opcode::_TYPE_OF_VALUE:
-    return "_type_of_value";
-  case requite::Opcode::UNDERLYING:
-    return "underlying";
-  case requite::Opcode::_UNDERLYING_OF_TYPE:
-    return "_underlying_of_type";
-
-  case requite::Opcode::__LAST:
-    break;
+    case O::FROM_FRONT:
+      return O::_FROM_FRONT_OF;
+    case O::FROM_BACK:
+      return O::_FROM_BACK_OF;
+    case O::TRUNCATE_FRONT:
+      return O::_TRUNCATE_FRONT_OF;
+    case O::TRUNCATE_BACK:
+      return O::_TRUNCATE_FRONT_OF;
+    case O::AT:
+      return O::_AT_ADDRESS;
+    case O::ADDRESS:
+      return O::_ADDRESS_OF;
+    case O::COPY:
+      return O::_COPY_OF;
+    case O::MOVE:
+      return O::_MOVE_OF;
+    case O::FIRST_VARIADIC_ARGUMENT:
+      return O::_FIRST_VARIADIC_ARGUMENT_OF;
+    case O::NEXT_VARIADIC_ARGUMENT:
+      return O::_NEXT_VARIADIC_ARGUMENT_OF;
+    case O::MANGLED_NAME:
+      return O::_MANGLED_NAME_OF;
+    case O::SIZE:
+      return O::_SIZE_OF;
+    case O::DEPTH:
+      return O::_DEPTH_OF;
+    case O::COUNT:
+      return O::_COUNT_OF;
+    case O::LENGTH:
+      return O::_LENGTH_OF;
+    case O::NAME:
+      return O::_NAME_OF;
+    case O::LINE:
+      return O::_LINE_OF;
+    case O::COLUMN:
+      return O::_COLUMN_OF;
+    case O::IS:
+      return O::_VALUE_IS;
+    case O::GET:
+      return O::_GET_VALUE_OF_VARIANT;
+    case O::TYPE:
+      return O::_TYPE_OF;
+    case O::SYMBOL:
+      return O::_SYMBOL_OF;
+    case O::DISCRIMINANT:
+      return O::_DISCRIMINANT_OF;
+    default:
+      break;
   }
-  return "__error";
-}
-
-constexpr requite::Opcode getUniversalizedValue(requite::Opcode opcode) {
-  switch (opcode) {
-  case requite::Opcode::FROM_FRONT:
-    return requite::Opcode::_FROM_FRONT_OF_VALUE;
-  case requite::Opcode::FROM_BACK:
-    return requite::Opcode::_FROM_BACK_OF_VALUE;
-  case requite::Opcode::TRUNCATE_FRONT:
-    return requite::Opcode::_TRUNCATE_FRONT_OF_VALUE;
-  case requite::Opcode::TRUNCATE_BACK:
-    return requite::Opcode::_TRUNCATE_BACK_OF_VALUE;
-  case requite::Opcode::AT:
-    return requite::Opcode::_AT_VALUE;
-  case requite::Opcode::ADDRESS:
-    return requite::Opcode::_ADDRESS_VALUE;
-  case requite::Opcode::COPY:
-    return requite::Opcode::_COPY_VALUE;
-  case requite::Opcode::STEAL:
-    return requite::Opcode::_STEAL_VALUE;
-  case requite::Opcode::MOVE:
-    return requite::Opcode::_MOVE_VALUE;
-  case requite::Opcode::DESTROY:
-    return requite::Opcode::_DESTROY_VALUE;
-  case requite::Opcode::DROP:
-    return requite::Opcode::_DROP_VALUE;
-  case requite::Opcode::BAKE:
-    return requite::Opcode::_BAKE_VALUE;
-  case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
-    return requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE;
-  case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
-    return requite::Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE;
-  case requite::Opcode::COUNT:
-    return requite::Opcode::_COUNT_OF_VALUE;
-  case requite::Opcode::LENGTH:
-    return requite::Opcode::_LENGTH_OF_VALUE;
-  case requite::Opcode::IS:
-    return requite::Opcode::_VALUE_OF_VARIANT_IS_TYPE;
-  case requite::Opcode::GET:
-    return requite::Opcode::_GET_VALUE_OF_VARIANT;
-  case requite::Opcode::TYPE:
-    return requite::Opcode::_TYPE_OF_VALUE;
-  default:
-    break;
-  }
-  return requite::Opcode::__ERROR;
-}
-
-constexpr requite::Opcode getUniversalizedSymbol(requite::Opcode opcode) {
-  switch (opcode) {
-  case requite::Opcode::MANGLED_NAME:
-    return requite::Opcode::_MANGLED_NAME_OF_SYMBOL;
-  case requite::Opcode::SIZE:
-    return requite::Opcode::_SIZE_OF_TYPE;
-  case requite::Opcode::DEPTH:
-    return requite::Opcode::_DEPTH_OF_TYPE;
-  case requite::Opcode::COUNT:
-    return requite::Opcode::_COUNT_OF_TYPE;
-  case requite::Opcode::NAME:
-    return requite::Opcode::_NAME_OF_SYMBOL;
-  case requite::Opcode::COLUMN:
-    return requite::Opcode::_COLUMN_OF_SYMBOL;
-  case requite::Opcode::UNDERLYING:
-    return requite::Opcode::_UNDERLYING_OF_TYPE;
-  default:
-    break;
-  }
-  return requite::Opcode::__NONE;
+  return O::__ERROR;
 }
 
 constexpr bool getIsValid(requite::Opcode opcode) {
@@ -1346,27 +1215,27 @@ constexpr bool getIsValid(requite::Opcode opcode) {
          static_cast<unsigned>(opcode) < requite::OPCODE_COUNT;
 }
 
-constexpr bool getIsInternalUseOnly(requite::Opcode opcode) {
+constexpr bool getIsInternal(requite::Opcode opcode) {
   const bool has_flags =
-      requite::_getHasFlags(opcode, requite::_opcode::_INTERNAL_USE_ONLY);
+      requite::_getHasFlags(opcode, requite::_opcode::_INTERNAL);
   return has_flags;
 }
 
-constexpr bool getIsIntermediateOperation(requite::Opcode opcode) {
+constexpr bool getIsIntermediate(requite::Opcode opcode) {
   const bool has_flags =
-      requite::_getHasFlags(opcode, requite::_opcode::_INTERMEDIATE_OPERATION);
+      requite::_getHasFlags(opcode, requite::_opcode::_INTERMEDIATE);
   return has_flags;
 }
 
 constexpr bool getBranchCanHaveNoSemicolon(requite::Opcode opcode) {
   const bool has_flags = requite::_getHasFlags(
-      opcode, requite::_opcode::_BRANCH_CAN_HAVE_NO_SEMICOLON);
+      opcode, requite::_opcode::_THIS_CAN_HAVE_NO_SEMICOLON);
   return has_flags;
 }
 
 constexpr bool getHasSemicolonSeperatedBranches(requite::Opcode opcode) {
   const bool has_flags = requite::_getHasFlags(
-      opcode, requite::_opcode::_SEMICOLON_SEPERATED_BRANCHES);
+      opcode, requite::_opcode::_HAS_SEMICOLON_SEPARATED_BRANCHES);
   return has_flags;
 }
 
@@ -1376,9 +1245,29 @@ constexpr unsigned getCommaTerminatingBranchCount(requite::Opcode opcode) {
   return count;
 }
 
+constexpr bool getFirstCommaBranchCanBeTacit(requite::Opcode opcode) {
+  const bool has_flags = requite::_getHasFlags(
+      opcode, requite::_opcode::_FIRST_COMMA_BRANCH_CAN_BE_INFERENCE);
+  return has_flags;
+}
+
 constexpr bool getLastCommaBranchCanBeTacit(requite::Opcode opcode) {
   const bool has_flags = requite::_getHasFlags(
-      opcode, requite::_opcode::_LAST_COMMA_BRANCH_CAN_BE_TACIT);
+      opcode, requite::_opcode::_LAST_COMMA_BRANCH_CAN_BE_INFERENCE);
+  return has_flags;
+}
+
+constexpr bool getAllCommaBranchesCanBeTacit(requite::Opcode opcode) {
+  const bool has_flags = requite::_getHasFlags(
+      opcode, requite::_opcode::_ALL_COMMA_BRANCHES_CAN_BE_INFERENCE);
+  return has_flags;
+}
+
+constexpr bool getCanHaveTacitCommaBranch(requite::Opcode opcode) {
+  const bool has_flags = requite::_getHasFlags(
+      opcode, requite::_opcode::_FIRST_COMMA_BRANCH_CAN_BE_INFERENCE |
+                  requite::_opcode::_LAST_COMMA_BRANCH_CAN_BE_INFERENCE |
+                  requite::_opcode::_ALL_COMMA_BRANCHES_CAN_BE_INFERENCE);
   return has_flags;
 }
 
@@ -1392,71 +1281,6 @@ constexpr bool getHasTextData(requite::Opcode opcode) {
   return opcode == requite::Opcode::__STRING_LITERAL ||
          opcode == requite::Opcode::__CODEUNIT_LITERAL ||
          opcode == requite::Opcode::__IDENTIFIER_LITERAL;
-}
-
-constexpr bool getHasIntegerData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::__INTEGER_LITERAL;
-}
-
-constexpr bool getHasTableData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::TABLE;
-}
-
-constexpr bool getHasObjectData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::OBJECT;
-}
-
-constexpr bool getHasOverloadData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::ENTRY_POINT ||
-         opcode == requite::Opcode::FUNCTION ||
-         opcode == requite::Opcode::CONSTRUCTOR ||
-         opcode == requite::Opcode::DESTRUCTOR;
-}
-
-constexpr bool getHasLabelData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::LABEL;
-}
-
-constexpr bool getHasAliasData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_ALIAS;
-}
-
-constexpr bool getHasLocalData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::__LOCAL_HANDLE ||
-         opcode == requite::Opcode::_LOCAL;
-}
-
-constexpr bool getHasGlobalData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_GLOBAL;
-}
-
-constexpr bool getHasPropertyData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_PROPERTY;
-}
-
-constexpr bool getHasAnonymousFunctionData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::_ANONYMOUS_FUNCTION;
-}
-
-constexpr bool getHasImportData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::IMPORT;
-}
-
-constexpr bool getHasUseData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::USE;
-}
-
-constexpr bool getHasUseTableData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::USE_TABLE;
-}
-
-constexpr bool getHasBlockData(requite::Opcode opcode) {
-  return opcode == requite::Opcode::IF || opcode == requite::Opcode::ELSE_IF ||
-         opcode == requite::Opcode::ELSE || opcode == requite::Opcode::SWITCH ||
-         opcode == requite::Opcode::CASE ||
-         opcode == requite::Opcode::DEFAULT_CASE ||
-         opcode == requite::Opcode::FOR || opcode == requite::Opcode::LOOP ||
-         opcode == requite::Opcode::SCOPE;
 }
 
 } // namespace requite

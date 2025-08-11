@@ -63,6 +63,8 @@ struct Tokenizer final {
   bool tokenizeTokens();
   void tokenizeLengthToken(requite::TokenType type, unsigned length);
   void tokenizeUnmatchedLengthToken(requite::TokenType type, unsigned length);
+  void tokenizeLeftGrouping(requite::GroupingType grouping,
+                             requite::TokenType type, unsigned length);
   void tokenizeRightGrouping(requite::GroupingType grouping,
                              requite::TokenType type, unsigned length);
   void checkFinalGroupings();

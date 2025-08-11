@@ -62,7 +62,6 @@ struct Implementor final {
   [[nodiscard]] bool implementContinue(requite::Expression &statement);
   [[nodiscard]] bool implementFallthrough(requite::Expression &statement);
   [[nodiscard]] bool implementExit(requite::Expression &statement);
-  [[nodiscard]] bool implement_Alias(requite::Expression &statement);
   [[nodiscard]] bool implementIf(requite::Expression &statement);
   [[nodiscard]] bool implementElseIf(requite::Expression &statement);
   [[nodiscard]] bool implementElse(requite::Expression &statement);

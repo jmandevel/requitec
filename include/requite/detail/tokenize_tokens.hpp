@@ -124,7 +124,7 @@ void Tokenizer::tokenizeQuotedLiteral() {
         this->getTokens().push_back(this->getRanger().getSubToken(
             requite::TokenType::LEFT_INTERPOLATED_STRING_LITERAL));
         this->tokenizeLengthToken(requite::TokenType::LEFT_TRIP_GROUPING, 1);
-        this->pushGrouping(requite::GroupingType::VALUE_INTERPOLATION);
+        this->pushGrouping(requite::GroupingType::INTERPOLATION);
         return;
       }
       [[fallthrough]];

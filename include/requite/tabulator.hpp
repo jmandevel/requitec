@@ -54,33 +54,6 @@ struct Tabulator final {
                                bool has_attributes);
   void tabulateMatteLocalStatement(requite::Expression &statement,
                                    bool has_attributes);
-  void tabulateEntryPoint(requite::Expression &expression, bool has_attributes);
-  void tabulateFunction(requite::Expression &expression, bool has_attributes);
-  void tabulateConstructor(requite::Expression &expression,
-                           bool has_attributes);
-  void tabulateDestructor(requite::Expression &expression, bool has_attributes);
-  void tabulateRanger(requite::Expression &expression, bool has_attributes);
-  void tabulateObject(requite::Expression &expression, bool has_attributes);
-  [[nodiscard]] requite::Table& getOrMakeTable(llvm::StringRef name);
-  void tabulateTable(requite::Expression &expression, bool has_attributes);
-  void tabulate_Alias(requite::Expression &expression, bool has_attributes);
-  void tabulateImport(requite::Expression &expression, bool has_attributes);
-  void tabulateUse(requite::Expression &expression, bool has_attributes);
-  void tabulate_Global(requite::Expression &expression, bool has_attributes);
-  void tabulateUseTable(requite::Expression &expression, bool has_attributes);
-  void tabulate_Property(requite::Expression &expression, bool has_attributes);
-  void tabulate_Local(requite::Expression &expression, bool has_attributes);
-  void tabulate_AnonymousFunction(requite::Expression &expression);
-  void tabulateIf(requite::Expression &expression, bool has_attributes);
-  void tabulateElseIf(requite::Expression &expression, bool has_attributes);
-  void tabulateElse(requite::Expression &expression, bool has_attributes);
-  void tabulateSwitch(requite::Expression &expression, bool has_attributes);
-  void tabulateSwitchCaseStatement(requite::Expression &expression);
-  void tabulateCase(requite::Expression &expression);
-  void tabulateDefaultCase(requite::Expression &expression);
-  void tabulateLoop(requite::Expression &expression, bool has_attributes);
-  void tabulateScope(requite::Expression &expression, bool has_attributes);
-  void tabulate_ClosedInlineScope(requite::Expression &expression);
   void tabulateExpressionForest(requite::Expression& expression);
   void tabulateExpression(requite::Expression& expression);
 

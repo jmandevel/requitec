@@ -131,33 +131,25 @@ void Context::logErrorMissingTrailingSemicolon(
                              " expression is missing trailing semicolon");
 }
 
-void Context::logErrorExpectedExpressionBeforeSemicolon(
-    const requite::Token &token) {
+void Context::logErrorExpectedCommaSeperator(const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
-                         "expected expression before semicolon");
+                         "expected comma seperator");
 }
 
-void Context::logErrorMissingCommmaSeperator(const requite::Token &token) {
+void Context::logErrorExpectedSemicolonSeperator(const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
-                         "missing comma seperator");
+                         "expected semicolon seperator");
 }
 
-void Context::logErrorExpectedExpressionBeforeComma(
+void Context::logErrorExpectedSeperatorOrRightBracket(
     const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
-                         "expected expression before comma");
+                         "expected seperator or right bracket grouping");
 }
 
-void Context::logErrorPositionalFieldsEndBeforeExpression(
-    const requite::Token &token) {
+void Context::logErrorExpectedSeperator(const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
-                         "unexpected positional fields end before expression");
-}
-
-void Context::logErrorNamedFieldsBeginAfterExpression(
-    const requite::Token &token) {
-  this->logSourceMessage(token, requite::LogType::ERROR,
-                         "unexpected named fields begin after expression");
+                         "expected comma or semicolon seperator");
 }
 
 void Context::logErrorUnterminatedExpression(requite::Expression &expression) {
@@ -169,6 +161,20 @@ void Context::logErrorUnterminatedExpression(requite::Expression &expression) {
 void Context::logErrorUnterminatedAttribute(const requite::Token &token) {
   this->logSourceMessage(token, requite::LogType::ERROR,
                          "unterminated attribute");
+}
+
+void Context::logErrorMustNotHaveParameterMark(
+    requite::Expression &containing_expression, const requite::Token &token) {
+  this->logSourceMessage(
+      token, requite::LogType::ERROR,
+      llvm::Twine(requite::getName(containing_expression.getOpcode())) +
+          " must not have parameter mark");
+}
+
+void Context::logErrorMustHaveParameterMarks(requite::Expression &expression) {
+  this->logSourceMessage(expression, requite::LogType::ERROR,
+                         llvm::Twine(requite::getName(expression.getOpcode())) +
+                             " must have parameter marks");
 }
 
 } // namespace requite

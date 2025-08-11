@@ -21,6 +21,4 @@ void Situator::setNotOk() { this->_is_ok = false; }
 
 bool Situator::getIsOk() const { return this->_is_ok; }
 
-void Situator::setIsOk() { this->_is_ok = true; }
-
 }

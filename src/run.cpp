@@ -77,8 +77,8 @@ bool Context::run() {
   if (!this->tabulateModule(source_module)) {
     return false;
   }
-  this->propogateExportedImports();
-  this->diffuseUses();
+  //this->propogateExportedImports();
+  //this->diffuseUses();
   if (requite::getEmitMode() == requite::EMIT_SYMBOLS) {
     if (!this->writeUserSymbols(output_path)) {
       return false;
@@ -94,10 +94,9 @@ bool Context::run() {
     }
     return true;
   }
-
-  if (!this->checkEntryPointCount()) {
-    return false;
-  }
+  //if (!this->checkEntryPointCount()) {
+  //  return false;
+  //}
   if (!this->buildIr()) {
     return false;
   }

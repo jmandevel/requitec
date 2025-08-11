@@ -14,7 +14,6 @@ inline void Expression::clear() {
   this->_branch_ptr = nullptr;
   this->_source_text_ptr = nullptr;
   this->_source_text_length = 0;
-  this->_data.emplace<std::monostate>();
 }
 
 bool Expression::getHasBranch() const { return this->_branch_ptr != nullptr; }
@@ -170,21 +169,20 @@ const requite::Expression &Expression::getLastNext() const {
 }
 
 requite::Expression &Expression::getUnascribed() {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
     return this->getBranch().getUnascribed();
   }
   return *this;
 }
 
 const requite::Expression &Expression::getUnascribed() const {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE_FIRST_BRANCH) {
+  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
     return this->getBranch().getUnascribed();
   }
   return *this;
 }
 
 void Expression::setBranch(requite::Expression &branch) {
-  REQUITE_ASSERT(this->getIsOperation());
   REQUITE_ASSERT(this->_branch_ptr == nullptr);
   this->_branch_ptr = &branch;
 }
@@ -211,12 +209,28 @@ Expression::replaceBranch(requite::Expression &replacement) {
   return requite::getRef(old_branch_ptr);
 }
 
+requite::Expression *
+Expression::replaceBranchPtr(requite::Expression *replacement_ptr) {
+  REQUITE_ASSERT(this->_branch_ptr != replacement_ptr);
+  requite::Expression *old_branch_ptr = this->_branch_ptr;
+  this->_branch_ptr = replacement_ptr;
+  return old_branch_ptr;
+}
+
 requite::Expression &Expression::replaceNext(requite::Expression &replacement) {
   REQUITE_ASSERT(this->_next_ptr != nullptr);
   REQUITE_ASSERT(this->_next_ptr != &replacement);
   requite::Expression *old_next_ptr = this->_next_ptr;
   this->_next_ptr = &replacement;
   return requite::getRef(old_next_ptr);
+}
+
+requite::Expression *
+Expression::replaceNextPtr(requite::Expression *replacement_ptr) {
+  REQUITE_ASSERT(this->_next_ptr != replacement_ptr);
+  requite::Expression *old_next_ptr = this->_next_ptr;
+  this->_next_ptr = replacement_ptr;
+  return old_next_ptr;
 }
 
 requite::Expression &Expression::popBranch() {
@@ -268,6 +282,32 @@ void Expression::mergeBranch() {
     }
   }
   delete &branch;
+}
+
+requite::Expression &Expression::mergeAndPopBranch() {
+  requite::Expression &branch = this->popBranch();
+  if (this->getHasNext()) {
+    requite::Expression &branch_last_next = branch.getLastNext();
+    branch_last_next.setNext(this->popNext());
+  }
+  this->clear();
+  this->setOpcode(branch.getOpcode());
+  if (branch.getHasBranch()) {
+    this->setBranch(branch.popBranch());
+  }
+  if (branch.getHasNext()) {
+    this->setNext(branch.popNext());
+  }
+  this->setSource(branch);
+  if (branch.getHasDataText()) {
+    if (this->getHasDataText()) {
+      this->changeDataText(branch.getDataText());
+    } else {
+      this->setDataText(branch.getDataText());
+    }
+  }
+  branch.clear();
+  return branch;
 }
 
 inline void

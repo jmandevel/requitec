@@ -19,6 +19,8 @@
 
 namespace requite {
 
+struct GroupingParser;
+
 struct Parser final {
   using Self = requite::Parser;
 
@@ -44,17 +46,18 @@ struct Parser final {
   void setNotOk();
 
   // parse.cpp
-  [[nodiscard]] std::string getText(llvm::StringRef log_message_type_text,
+  [[nodiscard]] requite::SavedString getText(llvm::StringRef log_message_type_text,
                                     const requite::Token &token,
                                     llvm::StringRef source_text);
   [[nodiscard]] bool getIsDone() const;
+  [[nodiscard]] bool getIsDone(unsigned offset) const;
   [[nodiscard]] const requite::Token &getToken() const;
+  [[nodiscard]] const requite::Token &getToken(unsigned offset) const;
   [[nodiscard]] const requite::Token &getPreviousToken() const;
   void incrementToken(std::size_t offset);
   [[nodiscard]] bool getIsToken(requite::TokenType type) const;
   [[nodiscard]] bool parseExpressions();
   [[nodiscard]] requite::Expression &parseExpression();
-  [[nodiscard]] requite::Expression &parsePrecedence13();
   [[nodiscard]] requite::Expression &parsePrecedence12();
   [[nodiscard]] requite::Expression &parsePrecedence11();
   [[nodiscard]] requite::Expression &parsePrecedence10();
@@ -68,27 +71,21 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parsePrecedence2();
   [[nodiscard]] requite::Expression &parsePrecedence1();
   [[nodiscard]] requite::Expression &parsePrecedence0();
-  void parseOperationBranchesWithSemicolonSeperators(
-      const requite::Token &opcode_token, requite::Expression &operation,
-      requite::Expression *last_branch_ptr = nullptr,
-      unsigned branch_count = 0);
-  void
-  parseOperationBranchesWithCommaSeperators(requite::Expression &operation);
+  // returns if has parameter marks
+  [[nodiscard]] bool
+  parseCommaSeperatedBranches(requite::Expression &operation,
+                              requite::TokenType end,
+                              bool must_not_have_parameter_marks);
   [[nodiscard]] requite::Opcode parseOperationOpcode();
   [[nodiscard]] requite::Opcode parseAttributeOpcode();
   [[nodiscard]] requite::Expression &parseBracketExpression();
   [[nodiscard]] requite::Expression &parseTrip();
   [[nodiscard]] requite::Expression &parseCapture();
-  [[nodiscard]] requite::Expression& parseAttribute();
+  [[nodiscard]] requite::Expression &parseAttribute();
   [[nodiscard]] requite::Expression &
-  parseCall(requite::Expression &callee);
-  [[nodiscard]] requite::Expression &
-  parseSpecialization(requite::Expression &callee);
+  parseHorned(requite::Expression &horn, requite::Opcode opcode,
+              requite::TokenType right_token);
   [[nodiscard]] requite::Expression &parseCloven();
-  [[nodiscard]] requite::Expression &parseOpenInlineScope();
-  [[nodiscard]] requite::Expression &parseClosedInlineScope();
-  [[nodiscard]] requite::Expression &parsePostUnary(requite::Expression &first,
-                                                    requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIdentifierLiteral();
   [[nodiscard]] requite::Expression &
   parseNullaryOperator(requite::Opcode opcode);
@@ -97,16 +94,10 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parseStringLiteral();
   [[nodiscard]] requite::Expression &parseCodeunitLiteral();
   [[nodiscard]] requite::Expression &parseInterpolatedString();
-  [[nodiscard]] requite::Expression &parseSignatureWithParameters();
-  [[nodiscard]] requite::Expression &parseSignatureWithoutParameters();
-  [[nodiscard]] requite::Expression &parseTupleTypeWithParameters();
-  [[nodiscard]] requite::Expression &parseTupleTypeWithoutParameters();
   void checkTokenIsTrailingSemicolonOperator(requite::Expression &expression);
   void logErrorBinaryNoLValue(const requite::Token &token);
-  void logErrorHornedNoFirstBranch(const requite::Token &token);
   void logErrorFoundErrorToken(const requite::Token &token);
   void logErrorUnexpectedToken(const requite::Token &token);
-  void logErrorInvalidOperatorSpacing(const requite::Token &token);
 };
 
 } // namespace requite

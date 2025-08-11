@@ -21,7 +21,7 @@ bool Context::importModule(requite::Import &import) {
   requite::Expression &name_expression = expression.getBranch();
   llvm::SmallString<128> relative_path;
   requite::TextResult result =
-      requite::getTextValue(name_expression.getDataText(), relative_path);
+      requite::getTextValue(name_expression.getDataText().getString(), relative_path);
   if (result != requite::TextResult::OK) {
     this->logSourceMessage(name_expression, requite::LogType::ERROR,
                            llvm::Twine("failed to parse import name because ") +
@@ -68,7 +68,7 @@ bool Context::importModule(requite::Import &import) {
     import.setModule(module);
     return true;
   }
-  requite::Module &module = this->makeModule();
+  requite::Module &module = this->allocate<requite::Module>();
   import.setModule(module);
   if (!this->loadFileBuffer(module.getFile(), path)) {
     return false;

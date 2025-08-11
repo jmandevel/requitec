@@ -62,13 +62,14 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
   this->writeIndentation();
   switch (const requite::Opcode opcode = expression.getOpcode()) {
   case requite::Opcode::__LOCAL_HANDLE: {
-    const requite::Local &local = expression.getLocal();
-    llvm::StringRef name = local.getName();
-    this->getOstream() << "\\\"";
-    this->getOstream() << name;
-    this->getOstream() << "\" // from ";
-    this->getOstream() << requite::getName(opcode);
-    this->writeExpressionLocationComment(expression);
+    // TODO
+    //const requite::Local &local = expression.getLocal();
+    //llvm::StringRef name = local.getName();
+    //this->getOstream() << "\\\"";
+    //this->getOstream() << name;
+    //this->getOstream() << "\" // from ";
+    //this->getOstream() << requite::getName(opcode);
+    //this->writeExpressionLocationComment(expression);
   } break;
   case requite::Opcode::__INTEGER_LITERAL:
     [[fallthrough]];
@@ -81,7 +82,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
   case requite::Opcode::__STRING_LITERAL: {
     this->getOstream() << "\"";
     if (expression.getHasDataText()) {
-      for (char c : expression.getDataText()) {
+      for (char c : expression.getDataText().getString()) {
         this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
       }
     } else {
@@ -94,7 +95,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
   case requite::Opcode::__CODEUNIT_LITERAL: {
     this->getOstream() << "\'";
     if (expression.getHasDataText()) {
-      for (char c : expression.getDataText()) {
+      for (char c : expression.getDataText().getString()) {
         this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
       }
     } else {
@@ -105,8 +106,8 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
     this->writeExpressionLocationComment(expression);
   } break;
   case requite::Opcode::__IDENTIFIER_LITERAL: {
-    this->getOstream() << "[identify \"";
-    for (char c : expression.getDataText()) {
+    this->getOstream() << "[_identify \"";
+    for (char c : expression.getDataText().getString()) {
       this->getOstream() << requite::getIntermediateFileEscapeSequence(c);
     }
     this->getOstream() << "\"] // from ";

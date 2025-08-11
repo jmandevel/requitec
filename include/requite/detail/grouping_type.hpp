@@ -4,17 +4,28 @@
 
 #pragma once
 
-#include <requite/unreachable.hpp>
-
-#include <magic_enum.hpp>
-
 #include <string_view>
 
 namespace requite {
 
-constexpr std::string_view getName(requite::GroupingType grouping) {
-  std::string_view name = magic_enum::enum_name(grouping);
-  return name;
+constexpr std::string_view getDescription(requite::GroupingType grouping) {
+  using namespace requite;
+  using G = GroupingType;
+  switch (grouping) {
+  case G::NONE:
+    return "none";
+  case G::INTERPOLATION:
+    return "interpolation";
+  case G::BRACKET:
+    return "bracket";
+  case G::TRIP:
+    return "trip";
+  case G::PARENTHESIS:
+    return "parenthsis";
+  default:
+    break;
+  }
+  return "unknown";
 }
 
 } // namespace requite

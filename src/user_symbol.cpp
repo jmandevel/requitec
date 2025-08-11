@@ -1,7 +1,5 @@
-#include <requite/alias.hpp>
 #include <requite/assert.hpp>
 #include <requite/global.hpp>
-#include <requite/label.hpp>
 #include <requite/local.hpp>
 #include <requite/object.hpp>
 #include <requite/procedure.hpp>
@@ -10,21 +8,11 @@
 
 namespace requite {
 
-UserSymbol::UserSymbol(requite::Alias &alias, requite::Module &module)
-    : _type(requite::UserSymbolType::ALIAS), _alias_ptr(&alias),
-      _is_exported(alias.getAttributeFlags().getHasAttribute(
-          requite::AttributeType::EXPORT)),
-      _containing_module_ptr(&module) {}
-
 UserSymbol::UserSymbol(requite::Global &global, requite::Module &module)
     : _type(requite::UserSymbolType::GLOBAL), _global_ptr(&global),
       _is_exported(global.getAttributeFlags().getHasAttribute(
           requite::AttributeType::EXPORT)),
       _containing_module_ptr(&module) {}
-
-UserSymbol::UserSymbol(requite::Label &label, requite::Module &module)
-    : _type(requite::UserSymbolType::LABEL), _label_ptr(&label),
-      _is_exported(false), _containing_module_ptr(&module) {}
 
 UserSymbol::UserSymbol(requite::Local &local, requite::Module &module)
     : _type(requite::UserSymbolType::LOCAL), _local_ptr(&local),
@@ -48,28 +36,12 @@ UserSymbol::UserSymbol(requite::Procedure &procedure, requite::Module &module)
           requite::AttributeType::EXPORT)),
       _containing_module_ptr(&module) {}
 
-bool UserSymbol::operator==(const requite::Alias &rhs) const {
-  return this->getAlias() == rhs;
-}
-
-bool UserSymbol::operator!=(const requite::Alias &rhs) const {
-  return this->getAlias() != rhs;
-}
-
 bool UserSymbol::operator==(const requite::Global &rhs) const {
   return this->getGlobal() == rhs;
 }
 
 bool UserSymbol::operator!=(const requite::Global &rhs) const {
   return this->getGlobal() != rhs;
-}
-
-bool UserSymbol::operator==(const requite::Label &rhs) const {
-  return this->getLabel() == rhs;
-}
-
-bool UserSymbol::operator!=(const requite::Label &rhs) const {
-  return this->getLabel() != rhs;
 }
 
 bool UserSymbol::operator==(const requite::Local &rhs) const {
@@ -124,20 +96,6 @@ const requite::Module &UserSymbol::getContainingModule() const {
   return requite::getRef(this->_containing_module_ptr);
 }
 
-bool UserSymbol::getIsAlias() const {
-  return this->_type == requite::UserSymbolType::ALIAS;
-}
-
-requite::Alias &UserSymbol::getAlias() {
-  REQUITE_ASSERT(this->getIsAlias());
-  return requite::getRef(this->_alias_ptr);
-}
-
-const requite::Alias &UserSymbol::getAlias() const {
-  REQUITE_ASSERT(this->getIsAlias());
-  return requite::getRef(this->_alias_ptr);
-}
-
 bool UserSymbol::getIsGlobal() const {
   return this->_type == requite::UserSymbolType::GLOBAL;
 }
@@ -150,20 +108,6 @@ requite::Global &UserSymbol::getGlobal() {
 const requite::Global &UserSymbol::getGlobal() const {
   REQUITE_ASSERT(this->getIsGlobal());
   return requite::getRef(this->_global_ptr);
-}
-
-bool UserSymbol::getIsLabel() const {
-  return this->_type == requite::UserSymbolType::LABEL;
-}
-
-requite::Label &UserSymbol::getLabel() {
-  REQUITE_ASSERT(this->getIsLabel());
-  return requite::getRef(this->_label_ptr);
-}
-
-const requite::Label &UserSymbol::getLabel() const {
-  REQUITE_ASSERT(this->getIsLabel());
-  return requite::getRef(this->_label_ptr);
 }
 
 bool UserSymbol::getIsLocal() const {

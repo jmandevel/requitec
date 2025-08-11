@@ -54,13 +54,11 @@ enum class RootSymbolType {
   SCOPE,
   OBJECT,
   TABLE,
-  ALIAS,
   LOCAL,
   GLOBAL,
   PROPERTY,
   PROCEDURE,
   MODULE,
-  LABEL,
   IMPORT,
   USE
 };
@@ -86,13 +84,11 @@ struct AnonymousObject;
 struct Scope;
 struct Object;
 struct Table;
-struct Alias;
 struct Local;
 struct Global;
 struct Property;
 struct Procedure;
 struct Module;
-struct Label;
 struct Import;
 struct Use;
 
@@ -109,13 +105,11 @@ struct RootSymbol final {
     requite::Scope *_scope_ptr;
     requite::Object *_object_ptr;
     requite::Table *_table_ptr;
-    requite::Alias *_alias_ptr;
     requite::Local *_local_ptr;
     requite::Global *_global_ptr;
     requite::Property *_property_ptr;
     requite::Procedure *_procedure_ptr;
     requite::Module *_module_ptr;
-    requite::Label *_label_ptr;
     requite::Import *_import_ptr;
     requite::Use *_use_ptr;
   };
@@ -132,13 +126,11 @@ struct RootSymbol final {
   void setAsUser(requite::Scope &scope);
   void setAsUser(requite::Object &object);
   void setAsUser(requite::Table &table);
-  void setAsUser(requite::Alias &alias);
   void setAsUser(requite::Local &variable);
   void setAsUser(requite::Global &variable);
   void setAsUser(requite::Property &variable);
   void setAsUser(requite::Procedure &procedure);
   void setAsUser(requite::Module &module);
-  void setAsUser(requite::Label &label);
   void setAsUser(requite::Import &import);
   void setAsUser(requite::Use& use);
   void setAsInference();
@@ -185,13 +177,11 @@ struct RootSymbol final {
   [[nodiscard]] bool getIsScope() const;
   [[nodiscard]] bool getIsObject() const;
   [[nodiscard]] bool getIsTable() const;
-  [[nodiscard]] bool getIsAlias() const;
   [[nodiscard]] bool getIsLocal() const;
   [[nodiscard]] bool getIsGlobal() const;
   [[nodiscard]] bool getIsProcedure() const;
   [[nodiscard]] bool getIsModule() const;
   [[nodiscard]] bool getIsHeader() const;
-  [[nodiscard]] bool getIsLabel() const;
   [[nodiscard]] bool getIsImport() const;
   [[nodiscard]] bool getIsUse() const;
   [[nodiscard]] bool getHasAllocation() const;
@@ -210,9 +200,6 @@ struct RootSymbol final {
   [[nodiscard]] bool getHasTable() const;
   [[nodiscard]] const requite::Table &getTable() const;
   [[nodiscard]] requite::Table &getTable();
-  [[nodiscard]] bool getHasAlias() const;
-  [[nodiscard]] const requite::Alias &getAlias() const;
-  [[nodiscard]] requite::Alias &getAlias();
   [[nodiscard]] bool getHasLocal() const;
   [[nodiscard]] requite::Local &getLocal();
   [[nodiscard]] const requite::Local &getLocal() const;
@@ -225,9 +212,6 @@ struct RootSymbol final {
   [[nodiscard]] bool getHasModule() const;
   [[nodiscard]] const requite::Module &getModule() const;
   [[nodiscard]] requite::Module &getModule();
-  [[nodiscard]] bool getHasLabel() const;
-  [[nodiscard]] const requite::Label &getLabel() const;
-  [[nodiscard]] requite::Label &getLabel();
   [[nodiscard]] const requite::Import &getImport() const;
   [[nodiscard]] requite::Import &getImport();
   [[nodiscard]] const requite::Use &getUse() const;
@@ -254,7 +238,7 @@ struct SubSymbol final {
   requite::SubSymbolType _type = requite::SubSymbolType::NONE;
   requite::AttributeFlags _attributes = {};
   unsigned _count = 0;
-  bool _has_tacit_count = false;
+  bool _has_INFERENCE_count = false;
 
   // sub_symbol.cpp
   SubSymbol() = default;
@@ -281,7 +265,6 @@ struct Symbol {
   requite::RootSymbol _root = {};
   requite::AttributeFlags _root_attributes = {};
   std::vector<requite::SubSymbol> _subs = {};
-  requite::Alias* _resolved_alias_ptr = nullptr;
 
   // symbol.cpp
   Symbol() = default;
@@ -306,10 +289,6 @@ struct Symbol {
   void wrapSymbol(const requite::Symbol &symbol);
   void applyAttributeFlags(const requite::AttributeFlags &attributes);
   [[nodiscard]] requite::SubSymbol &makeSubSymbol();
-  void resolveAlias();
-  [[nodiscard]] bool getHasResolvedAlias() const;
-  [[nodiscard]] requite::Alias& getResolvedAlias();
-  [[nodiscard]] const requite::Alias& getResolvedAlias() const;
   [[nodiscard]] bool getIsPointer() const;
   [[nodiscard]] bool getIsInteger() const;
   [[nodiscard]] bool getIsFloat() const;

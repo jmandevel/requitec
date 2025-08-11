@@ -2,7 +2,6 @@
 
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
-#include <requite/label.hpp>
 
 namespace requite {
 
@@ -16,8 +15,8 @@ Tabulator::tabulateAttributes(requite::Expression &expression) {
     if (!requite::getCanBeAttributeCategory<CATEGORY_PARAM>(type)) {
       this->getContext().logSourceMessage(
           attribute, requite::LogType::ERROR,
-          llvm::Twine(requite::getName(type)) +
-              requite::getErrorMessageEnding(CATEGORY_PARAM));
+          llvm::Twine(requite::getName(type)) + " is not " +
+              requite::getDescription(CATEGORY_PARAM));
       this->setNotOk();
       continue;
     }
@@ -25,23 +24,6 @@ Tabulator::tabulateAttributes(requite::Expression &expression) {
       this->getContext().logErrorDuplicateAttribute(attribute, type);
       this->setNotOk();
       continue;
-    }
-    if constexpr (requite::getCanBeAttributeCategory<CATEGORY_PARAM>(
-                      requite::AttributeType::LABEL)) {
-      if (type == requite::AttributeType::LABEL) {
-        requite::Expression &name_expression = attribute.getBranch();
-        requite::Label &label = this->getContext().makeLabel();
-        label.setAttributeExpression(attribute);
-        label.setStatementExpression(expression);
-        label.setContainingScope(this->getScope());
-        llvm::StringRef name;
-        if (!this->getContext().evaluateInstantName(name, name_expression)) {
-          this->setNotOk();
-        } else {
-          label.setName(name);
-        }
-        flags.addAttribute(type);
-      }
     }
     if constexpr (requite::getCanBeAttributeCategory<CATEGORY_PARAM>(
                       requite::AttributeType::USER)) {

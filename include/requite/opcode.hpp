@@ -10,16 +10,12 @@
 namespace requite {
 
 // NOTE:
-//  one underscore at the front means that the opcode is for intermediate use
-//  only, and can not normally be written in source files at the head of an
-//  operation unless -intermediate-form compiler flag is set.
+//  two underscores at the front means that the opcode is for internal use only
 
 // NOTE:
-//  two underscores at the front means that the opcode is for internal use
-//  only, and is a compile error if it is written in source files at the head of
-//  an operation.
+//  one underscore at the front means that the opcode is for intermediate requite only
 
-enum class Opcode : unsigned {
+enum class  Opcode : unsigned {
   // this should never occur.
   __NONE,
 
@@ -39,75 +35,32 @@ enum class Opcode : unsigned {
   __IDENTIFIER_LITERAL,
 
   // ERRORS
-  // this opcode is used whenever something goes wrong to denote that an error
-  // occured.
   __ERROR,
 
   // SITUATIONAL
   _CLOVEN,
-  _BIND_VALUE_OR_DEFAULT_VALUE,
-  _BIND_SYMBOL_OR_DEFAULT_SYMBOL,
-  _TRIP,
-  _TACIT,
+  _COLON,
+  _INFERENCE,
 
   // LOGICAL
-  // a nary logical operation that returns if all branches are true or not zero.
   _LOGICAL_AND,
-  // a nary logical operation that returns if any branch is true or not zero.
   _LOGICAL_OR,
-  // a unary logical operation that returns if the branch is false or zero.
   _LOGICAL_COMPLEMENT,
 
   // COMPARISON
-  // a nary comparison operation that returns if each branch is less than the
-  // previous.
   _GREATER,
-  // a nary comparison operation that returns if each branch is less than or
-  // equal to the previous.
   _GREATER_EQUAL,
-  // a nary comparison operation that returns if each branch is greater than the
-  // previous.
   _LESS,
-  // a nary comparison operation that returns if each branch is greater than or
-  // equal to the previous.
   _LESS_EQUAL,
-  // a nary comparison operation that returns if all branches are equal.
   _EQUAL,
-  // a nary comparison operation that returns if all branches are not equal.
   _NOT_EQUAL,
 
-  // REFLECT
-  // a nary reflect operation that reflects on values to get a resulting symbol
-  // or value.
-  _REFLECT_VALUE,
-  // a nary reflect operation that reflects on symbols to get a resulting symbol
-  // or value.
-  _REFLECT_SYMBOL,
-
-  // MEMBERS
-  _MEMBER_VALUE_OF_VALUE_PATH,
-  _MEMBER_SYMBOL_OF_VALUE_PATH,
-  _MEMBER_VALUE_OF_SYMBOL_PATH,
-  _MEMBER_SYMBOL_OF_SYMBOL_PATH,
-
-  // EXTENSIONS
-  _EXTEND,
-  _EXTEND_VALUE,
-  _EXTEND_TYPE,
-
-  // BIND
-  _BIND_VALUE,
-  _BIND_SYMBOL,
-  _DEFAULT_VALUE,
-  _DEFAULT_SYMBOL,
-  _POSITIONAL_VALUE,
-  _POSITIONAL_SYMBOL,
-
   // APPLY
-  _ASCRIBE_LAST_BRANCH,
-  _ASCRIBE_FIRST_BRANCH,
+  _EXTEND,
+  _BINDING,
+  _ASCRIBE,
   _CAST,
-  IDENTIFY,
+  _IDENTIFY,
 
   // ARITHMETIC
   _ADD,
@@ -129,19 +82,19 @@ enum class Opcode : unsigned {
   BITWISE_ROTATE_RIGHT,
 
   // MEMORY
-  _COMPILE_TIME_CONCATINATE,
+  _CONCATINATE,
   FROM_FRONT,
-  _FROM_FRONT_OF_VALUE,
+  _FROM_FRONT_OF,
   FROM_BACK,
-  _FROM_BACK_OF_VALUE,
+  _FROM_BACK_OF,
   TRUNCATE_FRONT,
-  _TRUNCATE_FRONT_OF_VALUE,
+  _TRUNCATE_FRONT_OF,
   TRUNCATE_BACK,
-  _TRUNCATE_BACK_OF_VALUE,
+  _TRUNCATE_BACK_OF,
   AT,
-  _AT_VALUE,
+  _AT_ADDRESS,
   ADDRESS,
-  _ADDRESS_VALUE,
+  _ADDRESS_OF,
 
   // ASSIGNMENT
   _ASSIGN,
@@ -153,11 +106,9 @@ enum class Opcode : unsigned {
 
   // MOVE SEMANTICS
   COPY,
-  _COPY_VALUE,
+  _COPY_OF,
   MOVE,
-  _MOVE_VALUE,
-  STEAL,
-  _STEAL_VALUE,
+  _MOVE_OF,
   SWAP,
 
   // SUBTYPE
@@ -165,7 +116,6 @@ enum class Opcode : unsigned {
   _REFERENCE,
   _POINTER,
   _FAT_POINTER,
-  _ANONYMOUS_VARIANT,
 
   // TYPE MODIFIER
   MUTABLE,
@@ -176,27 +126,24 @@ enum class Opcode : unsigned {
   OWNING,
   MAY_DISCARD,
 
-  // FIELD RULES
-  _POSITIONAL_FIELDS_END,
-  _NAMED_FIELDS_BEGIN,
+  // PARAMETER RULES
+  _POSITIONAL_PARAMETERS_END,
+  _NAMED_PARAMETERS_BEGIN,
 
   // TRIPS
-  _TUPLE_VALUE,
-  _TUPLE_TYPE,
-  _NULL_VALUE,
+  _TUPLE,
+  _LAYOUT,
+  _NULL,
   _NULL_TYPE,
   _STRUCTURED_BINDING,
   _IGNORE,
-
-  // STATIC POLYMORPHISM
-  TEMPLATE,
   _SPECIALIZATION,
-  BAKE,
-  _BAKE_VALUE,
 
   // PROCEDURES
   _CALL,
+  _INDEX,
   _SIGNATURE,
+  _EXTENSION_SIGNATURE,
   DESTROY,
   _DESTROY_VALUE,
   DROP,
@@ -206,58 +153,37 @@ enum class Opcode : unsigned {
   CONSTRUCTOR,
   DESTRUCTOR,
   RANGER,
+  INDEXER,
   _ANONYMOUS_FUNCTION,
-  _CAPTURE,
+  CAPTURE,
 
   // CONTROL FLOW
   RETURN,
   BREAK,
   CONTINUE,
   FALLTHROUGH,
+  GOTO,
   EXIT,
-  RANGE_OVER,
-  LABEL,
+  LOOP_BODY,
 
   // SYMBOLS
   OBJECT,
+  VARIANT,
   TABLE,
-  _ALIAS,
   USE,
-  _VARIABLE_DECLARATION,
-  _LOCAL,
-  _GLOBAL,
-  _PROPERTY,
 
   // VALUES
-  _TACIT_VALUE,
   TRUE,
-  // the boolean value of false.
   FALSE,
-  // a value that contains the iterated value of a for block.
-  VALUE,
-  // a value that contains the iteration index of for, while, for, and loop
-  // blocks.
-  INDEX,
-  // a value that can be assigned to any variable on declaration to denote that
-  // its memory should not be initialized and should be left containing garbage
-  // memory. This is implicitly inserted into local and global operations when
-  // no value branch is provided.
   INDETERMINATE,
-  // a value to be assigned to a property, denoting that it has no default value
-  // and needs to be explicitly initialized in each constructor. This is
-  // implicitly inserted into property operations when no value branch is
-  // provided.
-  NO_DEFAULT_VALUE,
-  // a variable for accessing the instance an object from within members.
   THIS,
-  // a reference to the return value of a procedure.
   RESULT,
-  // retrieve an argument of the current procedure at an index.
-  ARGUMENT,
+  // retrieve command line arguments within entry_point.
+  ARGUMENTS,
   // value returned into a circuit.
-  INPUT,
+  IN,
   // value returned from an circuit.
-  OUTPUT,
+  OUT,
   // the byte size of memory addresses on the current architecture.
   ADDRESS_SIZE,
   // the bit size of memory addresses on the current architecture.
@@ -266,7 +192,6 @@ enum class Opcode : unsigned {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  _TACIT_SYMBOL,
   VOID,
   BOOLEAN,
   WORD,
@@ -282,29 +207,37 @@ enum class Opcode : unsigned {
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
   FIRST_VARIADIC_ARGUMENT,
-  _FIRST_VARIADIC_ARGUMENT_OF_VALUE,
+  _FIRST_VARIADIC_ARGUMENT_OF,
   NEXT_VARIADIC_ARGUMENT,
-  _NEXT_VARIADIC_ARGUMENT_OF_VALUE,
+  _NEXT_VARIADIC_ARGUMENT_OF,
 
   // SCOPES
   IF,
   ELSE_IF,
   ELSE,
   SWITCH,
+  MATCH,
   CASE,
-  DEFAULT_CASE,
+  DEFAULT,
   LOOP,
-  REPEAT,
-  WHILE,
   SCOPE,
-  _OPEN_INLINE_SCOPE,
-  _CLOSED_INLINE_SCOPE,
+  BLOCK,
+  _INLINE_SCOPE,
+  _INLINE_BLOCK,
 
   // RANGES
+  _LIMIT_RANGE_EQUAL,
+  _LIMIT_RANGE_NOT_EQUAL,
+  _LIMIT_RANGE_GREATER,
+  _LIMIT_RANGE_GREATER_EQUAL,
+  _LIMIT_RANGE_LESS,
+  _LIMIT_RANGE_LESS_EQUAL,
   _LONG_RANGE,
   FOR,
   DO,
+  WHILE,
   UNTIL,
+  FOREVER,
   STEP,
   WHEN,
   _SHORT_RANGE,
@@ -337,40 +270,45 @@ enum class Opcode : unsigned {
   UNREACHABLE,
 
   // ATTRIBUTES
-  NOT_FINAL,
+  BAKE,
+  MAY_PARENT,
+  PARENT,
+  POSITION,
   INLINE,
   MANGLED_NAME,
-  _MANGLED_NAME_OF_SYMBOL,
+  _MANGLED_NAME_OF,
   PACK,
   USER,
+  LABEL,
+  TEMPLATE,
 
-  // REFLECTED VALUES
+  // REFLECTIONS
+  _REFLECT,
+  _MEMBER_OF,
   SIZE,
-  _SIZE_OF_TYPE,
+  _SIZE_OF,
   DEPTH,
-  _DEPTH_OF_TYPE,
+  _DEPTH_OF,
   COUNT,
-  _COUNT_OF_TYPE,
-  _COUNT_OF_VALUE,
+  _COUNT_OF,
   LENGTH,
-  _LENGTH_OF_VALUE,
+  _LENGTH_OF,
   NAME,
-  _NAME_OF_SYMBOL,
+  _NAME_OF,
   LINE,
-  _LINE_OF_SYMBOL,
+  _LINE_OF,
   COLUMN,
-  _COLUMN_OF_SYMBOL,
+  _COLUMN_OF,
   IS,
-  _VALUE_OF_VARIANT_IS_TYPE,
+  _VALUE_IS,
   GET,
   _GET_VALUE_OF_VARIANT,
-  ARE_SAME,
-
-  // REFLECTED SYMBOLS
   TYPE,
-  _TYPE_OF_VALUE,
-  UNDERLYING,
-  _UNDERLYING_OF_TYPE,
+  _TYPE_OF,
+  SYMBOL,
+  _SYMBOL_OF,
+  DISCRIMINANT,
+  _DISCRIMINANT_OF,
 
   __LAST
 };
@@ -380,12 +318,10 @@ static constexpr unsigned OPCODE_COUNT =
 
 [[nodiscard]] constexpr std::string_view getName(requite::Opcode opcode);
 [[nodiscard]] constexpr requite::Opcode
-getUniversalizedValue(requite::Opcode opcode);
-[[nodiscard]] constexpr requite::Opcode
-getUniversalizedSymbol(requite::Opcode opcode);
+getUniversalized(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsValid(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getIsInternalUseOnly(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getIsIntermediateOperation(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getIsInternal(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getIsIntermediate(requite::Opcode opcode);
 [[nodiscard]] constexpr bool
 getBranchCanHaveNoSemicolon(requite::Opcode opcode);
 [[nodiscard]] constexpr bool
@@ -393,24 +329,13 @@ getHasSemicolonSeperatedBranches(requite::Opcode opcode);
 [[nodiscard]] constexpr unsigned
 getCommaTerminatingBranchCount(requite::Opcode opcode);
 [[nodiscard]] constexpr bool
+getFirstCommaBranchCanBeTacit(requite::Opcode opcode);
+[[nodiscard]] constexpr bool
 getLastCommaBranchCanBeTacit(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getAllCommaBranchesCanBeTacit(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getCanHaveTacitCommaBranch(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsConverging(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getHasTextData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasIntegerData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasTableData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasObjectData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasOverloadData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasLabelData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasAliasData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasGlobalData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasPropertyData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasLocalData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool
-getHasAnonymousFunctionData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasImportData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasUseData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasUseTableData(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getHasBlockData(requite::Opcode opcode);
 
 } // namespace requite
 

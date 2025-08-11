@@ -7,12 +7,8 @@ getName(requite::UserSymbolType type) {
   switch (type) {
   case requite::UserSymbolType::NONE:
     return "none";
-  case requite::UserSymbolType::ALIAS:
-    return "alias";
   case requite::UserSymbolType::GLOBAL:
     return "global";
-  case requite::UserSymbolType::LABEL:
-    return "label";
   case requite::UserSymbolType::LOCAL:
     return "local";
   case requite::UserSymbolType::OBJECT:

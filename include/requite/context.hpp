@@ -4,14 +4,11 @@
 
 #pragma once
 
-#include <requite/alias.hpp>
 #include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
-#include <requite/block.hpp>
 #include <requite/file.hpp>
 #include <requite/global.hpp>
 #include <requite/import.hpp>
-#include <requite/label.hpp>
 #include <requite/local.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
@@ -23,8 +20,9 @@
 #include <requite/scope.hpp>
 #include <requite/situation.hpp>
 #include <requite/table.hpp>
-#include <requite/use_table.hpp>
 #include <requite/use.hpp>
+#include <requite/use_table.hpp>
+#include <requite/saved_string.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallString.h>
@@ -40,6 +38,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
+#include <llvm/Support/Allocator.h>
 
 #include <memory>
 #include <mutex>
@@ -62,31 +61,17 @@ struct _ContextLlvmContext {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr = {};
 };
 
-struct Context final : public requite::_ContextLlvmContext {
+struct Context final : public requite::_ContextLlvmContext { 
   using Self = requite::Context;
 
+  llvm::BumpPtrAllocator _arena;
+  llvm::StringSaver _string_saver = {_arena};
   std::string _executable_path;
   llvm::SourceMgr _source_mgr = {};
   mutable std::mutex _mutex = {};
   std::unique_ptr<llvm::ThreadPoolInterface> _scheduler_ptr = {};
   llvm::StringMap<requite::Opcode> _opcode_table = {};
   requite::Module _source_module = {};
-  std::vector<std::unique_ptr<requite::Scope>> _scope_uptrs = {};
-  std::vector<std::unique_ptr<requite::Table>> _table_uptrs = {};
-  std::vector<std::unique_ptr<requite::Object>> _object_uptrs = {};
-  std::vector<std::unique_ptr<requite::Procedure>> _procedure_uptrs = {};
-  std::vector<std::unique_ptr<requite::Alias>> _alias_uptrs = {};
-  std::vector<std::unique_ptr<requite::Global>> _global_uptrs = {};
-  std::vector<std::unique_ptr<requite::Property>> _property_uptrs = {};
-  std::vector<std::unique_ptr<requite::Local>> _local_uptrs = {};
-  std::vector<std::unique_ptr<requite::AnonymousFunction>>
-      _anonymous_function_uptrs = {};
-  std::vector<std::unique_ptr<requite::Label>> _label_uptrs = {};
-  std::vector<std::unique_ptr<requite::Import>> _import_uptrs = {};
-  std::vector<std::unique_ptr<requite::Use>> _use_uptrs = {};
-  std::vector<std::unique_ptr<requite::UseTable>> _use_table_uptrs = {};  
-  std::vector<std::unique_ptr<requite::Block>> _block_uptrs = {};
-  std::vector<std::unique_ptr<requite::Module>> _module_uptrs = {};
   llvm::StringMap<requite::Module *> _module_map = {};
   std::string _target_triple = {};
   llvm::TargetOptions _llvm_options = {};
@@ -109,74 +94,10 @@ struct Context final : public requite::_ContextLlvmContext {
   [[nodiscard]] requite::Scope &getOuterScope();
   [[nodiscard]] const requite::Scope &getOuterScope() const;
 
-  // make_symbols.cpp
-  [[nodiscard]] requite::Scope &makeScope();
-  [[nodiscard]] requite::Table &makeTable();
-  [[nodiscard]] requite::Object &makeObject();
-  [[nodiscard]] requite::Procedure &makeEntryPoint();
-  [[nodiscard]] requite::Procedure &makeFunction();
-  [[nodiscard]] requite::Procedure &makeConstructor();
-  [[nodiscard]] requite::Procedure &makeDestructor();
-  [[nodiscard]] requite::Alias &makeAlias();
-  [[nodiscard]] requite::Local &makeLocal();
-  [[nodiscard]] requite::Global &makeGlobal();
-  [[nodiscard]] requite::Property &makeProperty();
-  [[nodiscard]] requite::AnonymousFunction &makeAnonymousFunction();
-  [[nodiscard]] requite::Label &makeLabel();
-  [[nodiscard]] requite::Import &makeImport();
-  [[nodiscard]] requite::Use &makeUse();
-  [[nodiscard]] requite::UseTable &makeUseTable();
-  [[nodiscard]] requite::Block &makeBlock();
-  [[nodiscard]] requite::Module &makeModule();
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Scope>> &getScopeUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Scope>> &
-  getScopeUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Table>> &getTableUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Table>> &
-  getTableUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Object>> &getObjectUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Object>> &
-  getObjectUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Procedure>> &
-  getProcedureUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Procedure>> &
-  getProcedureUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Alias>> &getAliasUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Alias>> &
-  getAliasUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Local>> &getLocalUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Local>> &
-  getLocalUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Global>> &getGlobalUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Global>> &
-  getGlobalUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Property>> &
-  getPropertyUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Property>> &
-  getPropertyUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::AnonymousFunction>> &
-  getAnonymousFunctionUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::AnonymousFunction>> &
-  getAnonymousFunctionUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Label>> &getLabelUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Label>> &
-  getLabelUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Import>> &getImportUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Import>> &
-  getImportUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Use>> &getUseUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Use>> &
-  getUseUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::UseTable>> &
-  getUseTableUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::UseTable>> &
-  getUseTableUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Block>> &getBlockUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Block>> &
-  getBlockUptrs() const;
-  [[nodiscard]] std::vector<std::unique_ptr<requite::Module>> &getModuleUptrs();
-  [[nodiscard]] const std::vector<std::unique_ptr<requite::Module>> &
-  getModuleUptrs() const;
+  // detail/allocate.hpp
+  template<typename TypeParam, typename... ArgNParam>
+  [[nodiscard]] TypeParam& allocate(ArgNParam... arg_n);
+  [[nodiscard]] inline requite::SavedString saveString(llvm::StringRef string);
 
   // file.cpp
   [[nodiscard]] bool loadFileBuffer(requite::File &file, llvm::StringRef path);
@@ -236,18 +157,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // implement.cpp
   [[nodiscard]] bool implementAll();
-  [[nodiscard]] bool checkEntryPointCount();
-  [[nodiscard]] bool implementProcedure(requite::Procedure &procedure);
-  [[nodiscard]] bool implementEntryPoint(requite::Procedure &procedure);
-  [[nodiscard]] bool implementFunction(requite::Procedure &procedure);
-  [[nodiscard]] bool implementMethod(requite::Procedure &procedure);
-  [[nodiscard]] bool implementExtension(requite::Procedure &procedure);
-  [[nodiscard]] bool implementConstructor(requite::Procedure &procedure);
-  [[nodiscard]] bool implementDestructor(requite::Procedure &procedure);
-  [[nodiscard]] bool implementObject(requite::Object &object);
-  [[nodiscard]] bool implementAlias(requite::Alias &alias);
-  [[nodiscard]] bool implementGlobal(requite::Global &global);
-  [[nodiscard]] bool implementProperty(requite::Property &property);
 
   // build.cpp
   [[nodiscard]] bool buildIr();
@@ -390,14 +299,17 @@ struct Context final : public requite::_ContextLlvmContext {
   logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
                                           const requite::Symbol &expected_type);
   void logErrorMustNotHaveAttributes(requite::Expression &expression);
-  void logErrorMissingTrailingSemicolon(requite::Expression& expression);
-  void logErrorExpectedExpressionBeforeSemicolon(const requite::Token& token);
-  void logErrorMissingCommmaSeperator(const requite::Token& token);
-  void logErrorExpectedExpressionBeforeComma(const requite::Token& token);
-  void logErrorPositionalFieldsEndBeforeExpression(const requite::Token& token);
-  void logErrorNamedFieldsBeginAfterExpression(const requite::Token& token);
-  void logErrorUnterminatedExpression(requite::Expression& expression);
-  void logErrorUnterminatedAttribute(const requite::Token& token);
+  void logErrorMissingTrailingSemicolon(requite::Expression &expression);
+  void logErrorExpectedCommaSeperator(const requite::Token &token);
+  void logErrorExpectedSemicolonSeperator(const requite::Token &token);
+  void logErrorExpectedSeperatorOrRightBracket(const requite::Token &token);
+  void logErrorExpectedSeperator(const requite::Token &token);
+  void logErrorUnterminatedExpression(requite::Expression &expression);
+  void logErrorUnterminatedAttribute(const requite::Token &token);
+  void
+  logErrorMustNotHaveParameterMark(requite::Expression &containing_expression,
+                                   const requite::Token &token);
+  void logErrorMustHaveParameterMarks(requite::Expression &expression);
 
   // detail/log.hpp
   template <requite::Situation SITUATION_PARAM>
@@ -409,7 +321,8 @@ struct Context final : public requite::_ContextLlvmContext {
   template <requite::Situation SITUATION_PARAM>
   void logErrorTooNotLessOrEqualToBranchCount(requite::Expression &expression,
                                               unsigned count);
-  template <requite::Situation SITUATION_PARAM>
+  template <requite::Situation SITUATION_PARAM,
+            requite::Situation BRANCH_SITUATION_PARAM>
   void logErrorInvalidBranchSituation(requite::Expression &branch,
                                       requite::Opcode outer_opcode,
                                       requite::Opcode branch_opcode,
@@ -420,5 +333,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
 } // namespace requite
 
+#include <requite/detail/allocate.hpp>
 #include <requite/detail/log.hpp>
 #include <requite/detail/tasks.hpp>

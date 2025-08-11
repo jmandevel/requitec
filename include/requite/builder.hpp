@@ -91,7 +91,6 @@ struct Builder final {
 
   [[nodiscard]] bool buildStatement(requite::Expression &statement);
   [[nodiscard]] bool buildStatementExit(requite::Expression &statement);
-  [[nodiscard]] bool buildStatement_Local(requite::Expression &statement);
 
   [[nodiscard]] llvm::Type* makeLlvmType(const requite::Symbol& type);
   void buildAssignment(llvm::Value* llvm_value, llvm::AllocaInst* llvm_alloca);
@@ -102,10 +101,7 @@ struct Builder final {
                                         const requite::Symbol &expected_type,
                                         llvm::Value *location_ptr);
   [[nodiscard]] llvm::Value *
-  buildValue__LocalHandle(requite::Expression &expression,
-                             const requite::Symbol &expected_type);
-  [[nodiscard]] llvm::Value *
-  buildValue__IntegerLiteral(requite::Expression &expression,
+  buildValue_IntegerLiteral(requite::Expression &expression,
                              const requite::Symbol &expected_type);
   llvm::Value *
   buildValue_Add(requite::Expression& expression,

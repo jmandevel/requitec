@@ -1,17 +1,9 @@
 [import "std"]
 
-[function myFunc, (:),
-
-    std..print(line:"Hello!");
-
+[function myFunc, (>a:[signed], b:[signed]<)[signed],
+    [result] = a + b;
 ]
 
 [entry_point
-
-    myFunc();
-
-    variant := `?{{}, [signed], [binary32]}\ 
-            [true] 
-                ? 1
-                : 1.0;
+    std.print(line="the result is {myFunc(1, 2)}");
 ]

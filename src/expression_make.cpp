@@ -47,41 +47,27 @@ requite::Expression & Expression::makeOperation(requite::Opcode opcode)
     return expression;
 }
 
-requite::Expression &Expression::makeInteger()
-{
-    requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::__INTEGER_LITERAL;
-    return expression;
-}
-
-requite::Expression &Expression::makeFractional()
-{
-    requite::Expression &expression = requite::getRef(new requite::Expression());
-    expression._opcode = requite::Opcode::__FRACTIONAL_LITERAL;
-    return expression;
-}
-
-requite::Expression &Expression::makeString(llvm::StringRef text)
+requite::Expression &Expression::makeString(requite::SavedString text)
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
     expression._opcode = requite::Opcode::__STRING_LITERAL;
-    expression._data.emplace<std::string>(text.str());
+    expression._data._text = text;
     return expression;
 }
 
-requite::Expression &Expression::makeCodeunit(llvm::StringRef text)
+requite::Expression &Expression::makeCodeunit(requite::SavedString text)
 {
     requite::Expression &expression = requite::getRef(new requite::Expression());
     expression._opcode = requite::Opcode::__CODEUNIT_LITERAL;
-    expression._data.emplace<std::string>(text.str());
+    expression._data._text = text;
     return expression;
 }
 
-requite::Expression& Expression::makeIdentifier(llvm::StringRef text)
+requite::Expression& Expression::makeIdentifier(requite::SavedString text)
 {
     requite::Expression& expression = requite::getRef(new requite::Expression());
     expression._opcode = requite::Opcode::__IDENTIFIER_LITERAL;
-    expression._data.emplace<std::string>(text.str());
+    expression._data._text = text;
     return expression;
 }
 

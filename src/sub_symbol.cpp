@@ -41,12 +41,12 @@ unsigned SubSymbol::getCount() const { return this->_count; }
 
 void SubSymbol::setHasTacitCount() {
   REQUITE_ASSERT(this->getCount() == 0);
-  REQUITE_ASSERT(this->_has_tacit_count = false);
-  this->_has_tacit_count = true;
+  REQUITE_ASSERT(this->_has_INFERENCE_count = false);
+  this->_has_INFERENCE_count = true;
 }
 
 bool SubSymbol::getHasTacitCount() const {
-  return this->_has_tacit_count;
+  return this->_has_INFERENCE_count;
 }
 
 } // namespace requite

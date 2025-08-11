@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 
-#include <requite/alias.hpp>
 #include <requite/assert.hpp>
 #include <requite/import.hpp>
 #include <requite/module.hpp>

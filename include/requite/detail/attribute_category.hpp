@@ -2,53 +2,46 @@
 
 namespace requite {
 
-constexpr std::string_view
-getErrorMessageEnding(requite::AttributeCategory category) {
+constexpr std::string_view getDescription(requite::AttributeCategory category) {
+  using namespace requite;
+  using C = AttributeCategory;
   switch (category) {
-  case requite::AttributeCategory::TYPE:
-    return " is not type attribute";
-  case requite::AttributeCategory::GLOBAL_FUNCTION:
-    return " is not global function attribute";
-  case requite::AttributeCategory::MEMBER_FUNCTION:
-    return " is not member function attribute";
-  case requite::AttributeCategory::LOCAL_FUNCTION:
-    return " is not local function attribute";
-  case requite::AttributeCategory::MEMBER_CONSTRUCTOR:
-    return " is not member constructor attribute";
-  case requite::AttributeCategory::MEMBER_DESTRUCTOR:
-    return " is not member destructor attribute";
-  case requite::AttributeCategory::GLOBAL_OBJECT:
-    return " is not global object attribute";
-  case requite::AttributeCategory::MEMBER_OBJECT:
-    return " is not member object attribute";
-  case requite::AttributeCategory::LOCAL_OBJECT:
-    return " is not local object attribute";
-  case requite::AttributeCategory::MEMBER_PROPERTY:
-    return " is not member property attribute";
-  case requite::AttributeCategory::GLOBAL_ALIAS:
-    return " is not global alias attribute";
-  case requite::AttributeCategory::MEMBER_ALIAS:
-    return " is not member alias attribute";
-  case requite::AttributeCategory::LOCAL_ALIAS:
-    return " is not local alias attribute";
-  case requite::AttributeCategory::GLOBAL_GLOBAL:
-    return " is not global global attribute";
-  case requite::AttributeCategory::MEMBER_GLOBAL:
-    return " is not member global attribute";
-  case requite::AttributeCategory::GLOBAL_USE:
-    return " is not global use attribute";
-  case requite::AttributeCategory::MEMBER_USE:
-    return " is not member use attribute";
-  case requite::AttributeCategory::GLOBAL_USE_TABLE:
-    return " is not global use table attribute";
-  case requite::AttributeCategory::MEMBER_USE_TABLE:
-    return " is not member use table attribute";
-  case requite::AttributeCategory::IMPORT:
-    return " is not import attribute";
-  case requite::AttributeCategory::LOCAL_BLOCK:
-    return " is not local block attribute";
+  case C::TYPE:
+    return "type attribute";
+  case C::GLOBAL_FUNCTION:
+    return "global function attribute";
+  case C::MEMBER_FUNCTION:
+    return "member function attribute";
+  case C::LOCAL_FUNCTION:
+    return "local function attribute";
+  case C::MEMBER_CONSTRUCTOR:
+    return "member constructor attribute";
+  case C::MEMBER_DESTRUCTOR:
+    return "member destructor attribute";
+  case C::GLOBAL_OBJECT:
+    return "global object attribute";
+  case C::MEMBER_OBJECT:
+    return "member object attribute";
+  case C::LOCAL_OBJECT:
+    return "local object attribute";
+  case C::MEMBER_PROPERTY:
+    return "member property attribute";
+  case C::GLOBAL_GLOBAL:
+    return "global global attribute";
+  case C::MEMBER_GLOBAL:
+    return "member global attribute";
+  case C::GLOBAL_USE:
+    return "global use attribute";
+  case C::MEMBER_USE:
+    return "member use attribute";
+  case C::GLOBAL_USE_TABLE:
+    return "global use table attribute";
+  case C::MEMBER_USE_TABLE:
+    return "member use table attribute";
+  case C::IMPORT:
+    return "import attribute";
   }
-  return " is not valid attribute";
+  return "valid attribute";
 }
 
 } // namespace requite

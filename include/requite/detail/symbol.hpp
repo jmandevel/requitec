@@ -58,8 +58,6 @@ inline llvm::StringRef getName(requite::RootSymbolType type) {
     return "object";
   case requite::RootSymbolType::TABLE:
     return "table";
-  case requite::RootSymbolType::ALIAS:
-    return "alias";
   case requite::RootSymbolType::LOCAL:
     return "local";
   case requite::RootSymbolType::GLOBAL:
@@ -70,8 +68,6 @@ inline llvm::StringRef getName(requite::RootSymbolType type) {
     return "procedure";
   case requite::RootSymbolType::MODULE:
     return "module";
-  case requite::RootSymbolType::LABEL:
-    return "label";
   case requite::RootSymbolType::IMPORT:
     return "import";
   case requite::RootSymbolType::USE:
@@ -126,8 +122,6 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
     return false;
   case requite::RootSymbolType::TABLE:
     return false;
-  case requite::RootSymbolType::ALIAS:
-    return false;
   case requite::RootSymbolType::LOCAL:
     return false;
   case requite::RootSymbolType::GLOBAL:
@@ -143,8 +137,6 @@ constexpr bool getHasDepth(requite::RootSymbolType type) {
   case requite::RootSymbolType::PROCEDURE:
     return false;
   case requite::RootSymbolType::MODULE:
-    return false;
-  case requite::RootSymbolType::LABEL:
     return false;
   case requite::RootSymbolType::IMPORT:
     return false;
@@ -200,8 +192,6 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
     return true;
   case requite::RootSymbolType::TABLE:
     return false;
-  case requite::RootSymbolType::ALIAS:
-    return true;
   case requite::RootSymbolType::LOCAL:
     return false;
   case requite::RootSymbolType::GLOBAL:
@@ -217,8 +207,6 @@ constexpr bool getHasUserAttributeFlags(requite::RootSymbolType type) {
   case requite::RootSymbolType::PROCEDURE:
     return true;
   case requite::RootSymbolType::MODULE:
-    return false;
-  case requite::RootSymbolType::LABEL:
     return false;
   case requite::RootSymbolType::IMPORT:
     return true;
@@ -296,20 +284,6 @@ Symbol::getName(llvm::SmallString<BUFFER_SIZE_PARAM> &buffer) const {
     if (attributes.getHasAttribute(requite::AttributeType::NULL_TERMINATED)) {
       ostream << "may-discard ";
     }
-    REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::TEMPLATE));
-    REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::PRIVATE));
-    REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::PROTECTED));
-    REQUITE_ASSERT(!attributes.getHasAttribute(requite::AttributeType::EXPORT));
-    REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::NOT_FINAL));
-    REQUITE_ASSERT(!attributes.getHasAttribute(requite::AttributeType::INLINE));
-    REQUITE_ASSERT(
-        !attributes.getHasAttribute(requite::AttributeType::MANGLED_NAME));
-    REQUITE_ASSERT(!attributes.getHasAttribute(requite::AttributeType::LABEL));
-    REQUITE_ASSERT(!attributes.getHasAttribute(requite::AttributeType::PACK));
     switch (const requite::SubSymbolType type = sub.getType()) {
     case requite::SubSymbolType::NONE:
       ostream << "invalid subtype of ";

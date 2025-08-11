@@ -24,15 +24,13 @@ struct GroupingParser final {
     void setOperation(requite::Expression& operation);
     [[nodiscard]] requite::Expression& getOperation();
     [[nodiscard]] const requite::Expression &getOperation() const;
+    [[nodiscard]] requite::Expression& getLast();
+    [[nodiscard]] const requite::Expression &getLast() const;
 
     // grouping_parse.cpp
     void startGroup(requite::Expression& existing_expression);
-    void startGroup(requite::Expression& existing_expression, requite::Expression& last_branch);
-    void startGroup(requite::Opcode opcode, const requite::Token& first_token);
-    void startGroup(requite::Opcode opcode, requite::Expression& first_branch);
     void appendBranch(requite::Expression& branch);
-    [[nodiscard]] requite::Expression& finishOperation(const requite::Token& last_token);
-    [[nodiscard]] requite::Expression& finishOperation(requite::Expression& replace_first_branch);
+    void finishOperation(const requite::Token& last_token);
 };
 
 }

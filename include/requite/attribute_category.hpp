@@ -15,23 +15,17 @@ enum class AttributeCategory {
   MEMBER_OBJECT,
   LOCAL_OBJECT,
   MEMBER_PROPERTY,
-  GLOBAL_ALIAS,
-  MEMBER_ALIAS,
-  LOCAL_ALIAS,
   GLOBAL_GLOBAL,
   MEMBER_GLOBAL,
   GLOBAL_USE,
   MEMBER_USE,
   GLOBAL_USE_TABLE,
   MEMBER_USE_TABLE,
-  IMPORT,
-  LOCAL_BLOCK
+  IMPORT
 };
 
-// NOTE: the error message is meant to be concatinated after the name of the
-// attribute type, obtainable with requite::getName(requite::AttributeType)
 [[nodiscard]] constexpr std::string_view
-getErrorMessageEnding(requite::AttributeCategory category);
+getDescription(requite::AttributeCategory category);
 
 } // namespace requite
 

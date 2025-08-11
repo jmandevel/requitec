@@ -1,6 +1,5 @@
 [import "std"]
 
 [entry_point
-    std..print(line:"Hello, world!");
+    std.print(line="Hello, world!");
 ]
-

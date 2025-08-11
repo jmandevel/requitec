@@ -5,30 +5,12 @@
 namespace requite {
 
 void GroupingParser::startGroup(requite::Expression &existing_expression) {
-  REQUITE_ASSERT(!existing_expression.getHasBranch());
+  if (existing_expression.getHasBranch()) {
+    requite::Expression& branch = existing_expression.getBranch();
+    REQUITE_ASSERT(!branch.getHasNext());
+    this->_last_ptr = &branch;
+  }
   this->setOperation(existing_expression);
-}
-
-void GroupingParser::startGroup(requite::Expression &existing_expression,
-                                requite::Expression &last_branch) {
-  REQUITE_ASSERT(existing_expression.getLastBranch() == last_branch);
-  this->setOperation(existing_expression);
-  this->_last_ptr = &last_branch;
-}
-
-void GroupingParser::startGroup(requite::Opcode opcode,
-                                const requite::Token &first_token) {
-  requite::Expression &operation = requite::Expression::makeOperation(opcode);
-  operation.setSource(first_token);
-  this->setOperation(operation);
-}
-
-void GroupingParser::startGroup(requite::Opcode opcode,
-                                requite::Expression &first_branch) {
-  requite::Expression &operation = requite::Expression::makeOperation(opcode);
-  operation.setSource(first_branch);
-  this->setOperation(operation);
-  this->appendBranch(first_branch);
 }
 
 void GroupingParser::appendBranch(requite::Expression &branch) {
@@ -46,23 +28,10 @@ void GroupingParser::appendBranch(requite::Expression &branch) {
   operation.extendSourceOver(branch);
 }
 
-requite::Expression &
+void
 GroupingParser::finishOperation(const requite::Token &last_token) {
   requite::Expression &operation = this->getOperation();
   operation.extendSourceOver(last_token);
-  return operation;
-}
-
-requite::Expression &
-GroupingParser::finishOperation(requite::Expression &replace_first_branch) {
-  requite::Expression &operation = this->getOperation();
-  if (operation.getHasBranch()) {
-    replace_first_branch.setNext(operation.replaceBranch(replace_first_branch));
-  } else {
-    operation.setBranch(replace_first_branch);
-  }
-  operation.extendSourceOver(replace_first_branch);
-  return operation;
 }
 
 } // namespace requite

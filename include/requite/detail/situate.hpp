@@ -14,2118 +14,1607 @@ namespace requite {
 
 template <requite::Situation SITUATION_PARAM>
 void Situator::situateExpression(requite::Expression &expression) {
-  switch (const requite::Opcode opcode = expression.getOpcode()) {
-  case requite::Opcode::__NONE:
+  using namespace requite;
+  using O = Opcode;
+  using S = Situation;
+  constexpr S SP = SITUATION_PARAM;
+  switch (const O opcode = expression.getOpcode()) {
+  case O::__NONE:
     REQUITE_UNREACHABLE();
-  case requite::Opcode::__LOCAL_HANDLE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__INTEGER_LITERAL)) {
-      REQUITE_UNREACHABLE();
-    }
+
+  // HANDLES
+  case O::__LOCAL_HANDLE:
+    REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case requite::Opcode::__INTEGER_LITERAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__INTEGER_LITERAL)) {
-      REQUITE_UNREACHABLE();
-    }
+
+  // LITERALS
+  case O::__INTEGER_LITERAL:
+    REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case requite::Opcode::__FRACTIONAL_LITERAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__FRACTIONAL_LITERAL)) {
-      REQUITE_UNREACHABLE();
-    }
+  case O::__FRACTIONAL_LITERAL:
+    REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case requite::Opcode::__STRING_LITERAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__STRING_LITERAL)) {
-      REQUITE_UNREACHABLE();
-    }
+  case O::__STRING_LITERAL:
+    REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case requite::Opcode::__CODEUNIT_LITERAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__CODEUNIT_LITERAL)) {
-      REQUITE_UNREACHABLE();
-    }
+  case O::__CODEUNIT_LITERAL:
+    REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case requite::Opcode::__IDENTIFIER_LITERAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::__IDENTIFIER_LITERAL)) {
-      REQUITE_UNREACHABLE();
-    }
+  case O::__IDENTIFIER_LITERAL:
+    REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case requite::Opcode::__ERROR:
+
+  // ERRORS
+  case O::__ERROR:
     REQUITE_UNREACHABLE();
-  case requite::Opcode::_CLOVEN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CLOVEN)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_ClovenExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::_TACIT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TACIT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_Tacit<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_BindValueOrDefaultValueExpression<SITUATION_PARAM>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_BindSymbolOrDefaultSymbolExpression<SITUATION_PARAM>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_TRIP:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TRIP)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situate_TripExpression<SITUATION_PARAM>(expression);
-    }
     break;
-  case requite::Opcode::_LOGICAL_AND:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LOGICAL_AND)) {
+
+  // SITUATIONAL
+  case O::_CLOVEN:
+    if constexpr (!getCanBeSituation<SP>(O::_CLOVEN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateClovenExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_LOGICAL_OR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LOGICAL_OR)) {
+  case O::_COLON:
+    if constexpr (!getCanBeSituation<SP>(O::_COLON)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateColonExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_LOGICAL_COMPLEMENT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LOGICAL_COMPLEMENT)) {
+  case O::_INFERENCE:
+    if constexpr (!getCanBeSituation<SP>(O::_INFERENCE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_GREATER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_GREATER)) {
+
+  // LOGICAL
+  case O::_LOGICAL_AND:
+    if constexpr (!getCanBeSituation<SP>(O::_LOGICAL_AND)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_GREATER_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_GREATER_EQUAL)) {
+  case O::_LOGICAL_OR:
+    if constexpr (getCanBeSituation<SP>(O::_LOGICAL_OR)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_LESS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LESS)) {
+  case O::_LOGICAL_COMPLEMENT:
+    if constexpr (getCanBeSituation<SP>(O::_LOGICAL_COMPLEMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_LESS_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LESS_EQUAL)) {
+
+  // COMPARISON
+  case O::_GREATER:
+    if constexpr (!getCanBeSituation<SP>(O::_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EQUAL)) {
+  case O::_GREATER_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_NOT_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NOT_EQUAL)) {
+  case O::_LESS:
+    if constexpr (!getCanBeSituation<SP>(O::_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_REFLECT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_REFLECT_VALUE)) {
+  case O::_LESS_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_ReflectValueExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_REFLECT_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_REFLECT_SYMBOL)) {
+  case O::_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_ReflectSymbolExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH)) {
+  case O::_NOT_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE,
-                                  requite::Situation::SYMBOL_NAME>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH)) {
+
+  // APPLY
+  case O::_EXTEND:
+    if constexpr (!getCanBeSituation<SP>(O::_EXTEND)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE,
-                                  requite::Situation::SYMBOL_NAME>(expression);
+      this->situateExtendExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH)) {
+  case O::_BINDING:
+    if constexpr (!getCanBeSituation<SP>(O::_BINDING)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::SYMBOL_NAME>(expression);
+      this->situateBinaryExpression<SP, S::NAME, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH)) {
+  case O::_ASCRIBE:
+    if constexpr (!getCanBeSituation<SP>(O::_ASCRIBE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::SYMBOL_NAME>(expression);
+      this->situateAscribeExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::_EXTEND:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXTEND)) {
+  case O::_CAST:
+    if constexpr (!getCanBeSituation<SP>(O::_CAST)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_ExtendExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_EXTEND_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXTEND_VALUE)) {
+  case O::_IDENTIFY:
+    if constexpr (!getCanBeSituation<SP>(O::_IDENTIFY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateIdentifyExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_EXTEND_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_EXTEND_TYPE)) {
+
+  // ARITHMETIC
+  case O::_ADD:
+    if constexpr (!getCanBeSituation<SP>(O::_ADD)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_BIND_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BIND_VALUE)) {
+  case O::_SUBTRACT:
+    if constexpr (!getCanBeSituation<SP>(O::_SUBTRACT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_BIND_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BIND_SYMBOL)) {
+  case O::_MULTIPLY:
+    if constexpr (!getCanBeSituation<SP>(O::_MULTIPLY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_DEFAULT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DEFAULT_VALUE)) {
+  case O::_DIVIDE:
+    if constexpr (!getCanBeSituation<SP>(O::_DIVIDE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_DEFAULT_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DEFAULT_SYMBOL)) {
+  case O::_MODULUS:
+    if constexpr (!getCanBeSituation<SP>(O::_MODULUS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_POSITIONAL_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POSITIONAL_VALUE)) {
+  case O::_NEGATE:
+    if constexpr (!getCanBeSituation<SP>(O::_NEGATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_POSITIONAL_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POSITIONAL_SYMBOL)) {
+
+  // BITWISE
+  case O::_BITWISE_CAST:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_CAST)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASCRIBE_LAST_BRANCH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASCRIBE_LAST_BRANCH)) {
+  case O::_BITWISE_OR:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_OR)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_AscribeLastBranchExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASCRIBE_FIRST_BRANCH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASCRIBE_FIRST_BRANCH)) {
+  case O::_BITWISE_AND:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_AND)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2, SITUATION_PARAM,
-                                  requite::Situation::ATTRIBUTE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_CAST:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CAST)) {
+  case O::_BITWISE_XOR:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_XOR)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNaryExpression<SP, 2, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::IDENTIFY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::IDENTIFY)) {
+  case O::_BITWISE_COMPLEMENT:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_COMPLEMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateIdentifyExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ADD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ADD)) {
+  case O::_BITWISE_SHIFT_LEFT:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_COMPLEMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SUBTRACT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SUBTRACT)) {
+  case O::_BITWISE_SHIFT_RIGHT:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_COMPLEMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_MULTIPLY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MULTIPLY)) {
+  case O::BITWISE_ROTATE_LEFT:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_COMPLEMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_DIVIDE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DIVIDE)) {
+  case O::BITWISE_ROTATE_RIGHT:
+    if constexpr (!getCanBeSituation<SP>(O::_BITWISE_COMPLEMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_MODULUS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MODULUS)) {
+
+  // MEMORY
+  case O::_CONCATINATE:
+    if constexpr (!getCanBeSituation<SP>(O::_CONCATINATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateConcatinateExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_NEGATE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NEGATE)) {
+  case O::FROM_FRONT:
+    if constexpr (!getCanBeSituation<SP>(O::FROM_FRONT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_CAST:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_CAST)) {
-      REQUITE_UNREACHABLE();
+  case O::_FROM_FRONT_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_FROM_FRONT_OF)) {
+
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_SYMBOL,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_OR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_OR)) {
+  case O::FROM_BACK:
+    if constexpr (!getCanBeSituation<SP>(O::FROM_BACK)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_AND:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_AND)) {
+  case O::_FROM_BACK_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_FROM_BACK_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_XOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_XOR)) {
+  case O::TRUNCATE_FRONT:
+    if constexpr (!getCanBeSituation<SP>(O::TRUNCATE_FRONT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_COMPLEMENT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_COMPLEMENT)) {
+  case O::_TRUNCATE_FRONT_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_TRUNCATE_FRONT_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_SHIFT_LEFT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_SHIFT_LEFT)) {
+  case O::TRUNCATE_BACK:
+    if constexpr (!getCanBeSituation<SP>(O::TRUNCATE_BACK)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_BITWISE_SHIFT_RIGHT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BITWISE_SHIFT_RIGHT)) {
+  case O::_TRUNCATE_BACK_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_TRUNCATE_BACK_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::BITWISE_ROTATE_LEFT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BITWISE_ROTATE_LEFT)) {
+  case O::AT:
+    if constexpr (!getCanBeSituation<SP>(O::AT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::BITWISE_ROTATE_RIGHT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BITWISE_ROTATE_RIGHT)) {
+  case O::_AT_ADDRESS:
+    if constexpr (!getCanBeSituation<SP>(O::_AT_ADDRESS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_COMPILE_TIME_CONCATINATE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_COMPILE_TIME_CONCATINATE)) {
+  case O::ADDRESS:
+    if constexpr (!getCanBeSituation<SP>(O::ADDRESS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_CompileTimeConcatinateExpression<SITUATION_PARAM>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::FROM_FRONT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FROM_FRONT)) {
+  case O::_ADDRESS_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_ADDRESS_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_FROM_FRONT_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_FROM_FRONT_OF_VALUE)) {
+
+  // ASSIGNMENT
+  case O::_ASSIGN:
+    if constexpr (!getCanBeSituation<SP>(O::_ASSIGN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateAssignExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::FROM_BACK:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FROM_BACK)) {
+  case O::_ASSIGN_ADD:
+    if constexpr (!getCanBeSituation<SP>(O::_ASSIGN_ADD)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateAssignArithmeticExpression<SP>(expression,
+                                                  requite::Opcode::_ADD);
     }
     break;
-  case requite::Opcode::_FROM_BACK_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_FROM_BACK_OF_VALUE)) {
+  case O::_ASSIGN_SUBTRACT:
+    if constexpr (!getCanBeSituation<SP>(O::_ASSIGN_SUBTRACT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateAssignArithmeticExpression<SP>(expression,
+                                                  requite::Opcode::_SUBTRACT);
     }
     break;
-  case requite::Opcode::TRUNCATE_FRONT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TRUNCATE_FRONT)) {
+  case O::_ASSIGN_MULTIPLY:
+    if constexpr (!getCanBeSituation<SP>(O::_ASSIGN_MULTIPLY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateAssignArithmeticExpression<SP>(expression,
+                                                  requite::Opcode::_MULTIPLY);
     }
     break;
-  case requite::Opcode::_TRUNCATE_FRONT_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TRUNCATE_FRONT_OF_VALUE)) {
+  case O::_ASSIGN_DIVIDE:
+    if constexpr (!getCanBeSituation<SP>(O::_ASSIGN_DIVIDE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateAssignArithmeticExpression<SP>(expression,
+                                                  requite::Opcode::_DIVIDE);
     }
     break;
-  case requite::Opcode::TRUNCATE_BACK:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TRUNCATE_BACK)) {
+  case O::_ASSIGN_MODULUS:
+    if constexpr (!getCanBeSituation<SP>(O::_ASSIGN_MODULUS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateAssignArithmeticExpression<SP>(expression,
+                                                  requite::Opcode::_MODULUS);
     }
     break;
-  case requite::Opcode::_TRUNCATE_BACK_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TRUNCATE_BACK_OF_VALUE)) {
+
+  // MOVE SEMANTICS
+  case O::COPY:
+    if constexpr (!getCanBeSituation<SP>(O::COPY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::AT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::AT)) {
+  case O::_COPY_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_COPY_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_AT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_AT_VALUE)) {
+  case O::MOVE:
+    if constexpr (!getCanBeSituation<SP>(O::MOVE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::ADDRESS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ADDRESS)) {
+  case O::_MOVE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_MOVE_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ADDRESS_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ADDRESS_VALUE)) {
+  case O::SWAP:
+    if constexpr (!getCanBeSituation<SP>(O::SWAP)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASSIGN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASSIGN)) {
+
+  // SUBTYPE
+  case O::_ARRAY:
+    if constexpr (!getCanBeSituation<SP>(O::_ARRAY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_AssignExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASSIGN_ADD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASSIGN_ADD)) {
+  case O::_REFERENCE:
+    if constexpr (!getCanBeSituation<SP>(O::_REFERENCE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssignArithmeticExpression<SITUATION_PARAM>(
-          expression, requite::Opcode::_ADD);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASSIGN_SUBTRACT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASSIGN_SUBTRACT)) {
+  case O::_POINTER:
+    if constexpr (!getCanBeSituation<SP>(O::_POINTER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssignArithmeticExpression<SITUATION_PARAM>(
-          expression, requite::Opcode::_SUBTRACT);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASSIGN_MULTIPLY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASSIGN_MULTIPLY)) {
+  case O::_FAT_POINTER:
+    if constexpr (!getCanBeSituation<SP>(O::_FAT_POINTER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssignArithmeticExpression<SITUATION_PARAM>(
-          expression, requite::Opcode::_MULTIPLY);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ASSIGN_DIVIDE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASSIGN_DIVIDE)) {
+
+  // TYPE MODIFIER
+  case O::MUTABLE:
+    if constexpr (!getCanBeSituation<SP>(O::MUTABLE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssignArithmeticExpression<SITUATION_PARAM>(
-          expression, requite::Opcode::_DIVIDE);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_ASSIGN_MODULUS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ASSIGN_MODULUS)) {
+  case O::CONSTANT:
+    if constexpr (!getCanBeSituation<SP>(O::CONSTANT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssignArithmeticExpression<SITUATION_PARAM>(
-          expression, requite::Opcode::_MODULUS);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::COPY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::COPY)) {
+  case O::VOLATILE:
+    if constexpr (!getCanBeSituation<SP>(O::VOLATILE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_COPY_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_COPY_VALUE)) {
+  case O::ATOMIC:
+    if constexpr (!getCanBeSituation<SP>(O::ATOMIC)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::STEAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::STEAL)) {
+  case O::NULL_TERMINATED:
+    if constexpr (!getCanBeSituation<SP>(O::NULL_TERMINATED)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_STEAL_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_STEAL_VALUE)) {
+  case O::OWNING:
+    if constexpr (!getCanBeSituation<SP>(O::OWNING)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::MOVE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::MOVE)) {
+  case O::MAY_DISCARD:
+    if constexpr (!getCanBeSituation<SP>(O::MAY_DISCARD)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_MOVE_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MOVE_VALUE)) {
+
+  // PARAMETER RULES
+  case O::_POSITIONAL_PARAMETERS_END:
+    if constexpr (!getCanBeSituation<SP>(O::_POSITIONAL_PARAMETERS_END)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::SWAP:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::SWAP)) {
+  case O::_NAMED_PARAMETERS_BEGIN:
+    if constexpr (!getCanBeSituation<SP>(O::_NAMED_PARAMETERS_BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_FAT_POINTER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_FAT_POINTER)) {
+
+  // TRIPS
+  case O::_TUPLE:
+    if constexpr (!getCanBeSituation<SP>(O::_TUPLE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::ARGUMENT>(expression);
     }
     break;
-  case requite::Opcode::_ANONYMOUS_VARIANT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ANONYMOUS_VARIANT)) {
+  case O::_LAYOUT:
+    if constexpr (!getCanBeSituation<SP>(O::_LAYOUT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::ALTERNATIVE>(expression);
+      this->situateNaryExpression<SP, 1, S::PARAMETER>(expression);
     }
     break;
-  case requite::Opcode::_ARRAY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ARRAY)) {
+  case O::_NULL:
+    if constexpr (!getCanBeSituation<SP>(O::_NULL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_ArrayExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_REFERENCE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_REFERENCE)) {
+  case O::_NULL_TYPE:
+    if constexpr (!getCanBeSituation<SP>(O::_NULL_TYPE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_POINTER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POINTER)) {
+  case O::_STRUCTURED_BINDING:
+    if constexpr (!getCanBeSituation<SP>(O::_STRUCTURED_BINDING)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
+      this->situateNaryWithLastExpression<SP, 2, S::BINDING, S::VALUE>(
           expression);
-    }
-    break;
-  case requite::Opcode::MUTABLE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::MUTABLE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::CONSTANT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::CONSTANT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::VOLATILE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::VOLATILE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::ATOMIC:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ATOMIC)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    }
-    break;
-  case requite::Opcode::NULL_TERMINATED:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::NULL_TERMINATED)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
     }
     break;
-  case requite::Opcode::OWNING:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::OWNING)) {
+  case O::_IGNORE:
+    if constexpr (!getCanBeSituation<SP>(O::_IGNORE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_TUPLE_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TUPLE_VALUE)) {
+  case O::_SPECIALIZATION:
+    if constexpr (!getCanBeSituation<SP>(O::_SPECIALIZATION)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM,
-                                  2, // NOTE: at least 2 branches because one
-                                     // would have merged
-                                  requite::Situation::ARGUMENT>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::ARGUMENT>(expression);
     }
     break;
-  case requite::Opcode::_TUPLE_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TUPLE_TYPE)) {
+
+  // PROCEDURES
+  case O::_CALL:
+    if constexpr (!getCanBeSituation<SP>(O::_CALL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM,
-                                  2, // NOTE: at least 2 branches because one
-                                     // would have merged
-                                  requite::Situation::PARAMETER>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::ARGUMENT>(expression);
     }
     break;
-  case requite::Opcode::TEMPLATE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TEMPLATE)) {
+  case O::_INDEX:
+    if constexpr (!getCanBeSituation<SP>(O::_INDEX)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::STATIC_PARAMETER>(
-          expression);
-    }
-    break;
-  case requite::Opcode::_SPECIALIZATION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SPECIALIZATION)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::STATIC_ARGUMENT>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::BAKE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BAKE)) {
+  case O::_SIGNATURE:
+    if constexpr (!getCanBeSituation<SP>(O::_SIGNATURE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::PARAMETER>(expression);
     }
     break;
-  case requite::Opcode::_BAKE_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_BAKE_VALUE)) {
+  case O::_EXTENSION_SIGNATURE:
+    if constexpr (!getCanBeSituation<SP>(O::_EXTENSION_SIGNATURE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM, SITUATION_PARAM>(
+      this->situateNaryExpression<SP, 2, S::VALUE, S::VALUE, S::PARAMETER>(
           expression);
-    }
-    break;
-  case requite::Opcode::_CALL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CALL)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::ARGUMENT>(expression);
     }
     break;
-  case requite::Opcode::_SIGNATURE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SIGNATURE)) {
+  case O::DESTROY:
+    if constexpr (!getCanBeSituation<SP>(O::DESTROY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::PARAMETER>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_POSITIONAL_FIELDS_END:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_POSITIONAL_FIELDS_END)) {
+  case O::_DESTROY_VALUE:
+    if constexpr (!getCanBeSituation<SP>(O::_DESTROY_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_NAMED_FIELDS_BEGIN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NAMED_FIELDS_BEGIN)) {
+  case O::DROP:
+    if constexpr (!getCanBeSituation<SP>(O::DROP)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-    break;
-  case requite::Opcode::DESTROY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::DESTROY)) {
+  case O::_DROP_VALUE:
+    if constexpr (!getCanBeSituation<SP>(O::_DROP_VALUE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_DESTROY_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DESTROY_VALUE)) {
+  case O::ENTRY_POINT:
+    if constexpr (!getCanBeSituation<SP>(O::ENTRY_POINT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::DROP:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::DROP)) {
+  case O::FUNCTION:
+    if constexpr (!getCanBeSituation<SP>(O::FUNCTION)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 2, S::NAME, S::VALUE, S::LOCAL_STATEMENT>(
+          expression);
     }
     break;
-  case requite::Opcode::_DROP_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DROP_VALUE)) {
+  case O::CONSTRUCTOR:
+    if constexpr (!getCanBeSituation<SP>(O::CONSTRUCTOR)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::VALUE, S::VALUE,
+                                  S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::ENTRY_POINT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ENTRY_POINT)) {
+  case O::DESTRUCTOR:
+    if constexpr (!getCanBeSituation<SP>(O::DESTRUCTOR)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::FUNCTION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FUNCTION)) {
+  case O::RANGER:
+    if constexpr (!getCanBeSituation<SP>(O::RANGER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
+      this->situateNaryExpression<SP, 0, S::VALUE, S::LOCAL_STATEMENT>(
           expression);
     }
     break;
-  case requite::Opcode::CONSTRUCTOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::CONSTRUCTOR)) {
+  case O::INDEXER:
+    if constexpr (!getCanBeSituation<SP>(O::INDEXER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
+      this->situateNaryExpression<SP, 0, S::VALUE, S::LOCAL_STATEMENT>(
           expression);
     }
     break;
-  case requite::Opcode::DESTRUCTOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::DESTRUCTOR)) {
+  case O::_ANONYMOUS_FUNCTION:
+    if constexpr (!getCanBeSituation<SP>(O::_ANONYMOUS_FUNCTION)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::CAPTURE, S::VALUE,
+                                  S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::RANGER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::RANGER)) {
+  case O::CAPTURE:
+    if constexpr (!getCanBeSituation<SP>(O::CAPTURE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateNaryExpression<SP, 0, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_ANONYMOUS_FUNCTION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ANONYMOUS_FUNCTION)) {
+
+  // CONTROL FLOW
+  case O::RETURN:
+    if constexpr (!getCanBeSituation<SP>(O::RETURN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::CAPTURE,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_CAPTURE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CAPTURE)) {
+  case O::BREAK:
+    if constexpr (!getCanBeSituation<SP>(O::BREAK)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
+      this->situateUnaryExpression<SP, S::NAME>(expression);
     }
     break;
-  case requite::Opcode::RETURN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::RETURN)) {
+  case O::CONTINUE:
+    if constexpr (!getCanBeSituation<SP>(O::CONTINUE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::BREAK:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BREAK)) {
+  case O::FALLTHROUGH:
+    if constexpr (!getCanBeSituation<SP>(O::FALLTHROUGH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::CONTINUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::CONTINUE)) {
+  case O::GOTO:
+    if constexpr (!getCanBeSituation<SP>(O::GOTO)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::FALLTHROUGH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FALLTHROUGH)) {
+  case O::EXIT:
+    if constexpr (!getCanBeSituation<SP>(O::EXIT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::EXIT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::EXIT)) {
+  case O::LOOP_BODY:
+    if constexpr (!getCanBeSituation<SP>(O::LOOP_BODY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::RANGE_OVER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::RANGE_OVER)) {
+
+  // SYMBOLS
+  case O::OBJECT:
+    if constexpr (!getCanBeSituation<SP>(O::OBJECT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::NAME, S::VALUE,
+                                  S::OBJECT_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::OBJECT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::OBJECT)) {
+  case O::VARIANT:
+    if constexpr (!getCanBeSituation<SP>(O::VARIANT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_OBJECT_STATEMENT>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::NAME, S::ALTERNATIVE>(expression);
     }
     break;
-  case requite::Opcode::TABLE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TABLE)) {
+  case O::TABLE:
+    if constexpr (!getCanBeSituation<SP>(O::TABLE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateTableExpression<SITUATION_PARAM>(expression);
+      this->situateTableExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_ALIAS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_ALIAS)) {
+  case O::USE:
+    if constexpr (!getCanBeSituation<SP>(O::USE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_VARIABLE_DECLARATION:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_VARIABLE_DECLARATION)) {
+
+  // VALUES
+  case O::TRUE:
+    if constexpr (!getCanBeSituation<SP>(O::TRUE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situate_VariableDeclaration<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_LOCAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LOCAL)) {
+  case O::FALSE:
+    if constexpr (!getCanBeSituation<SP>(O::FALSE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_GLOBAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_GLOBAL)) {
+  case O::INDETERMINATE:
+    if constexpr (!getCanBeSituation<SP>(O::INDETERMINATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_PROPERTY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_PROPERTY)) {
+  case O::THIS:
+    if constexpr (!getCanBeSituation<SP>(O::THIS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::SYMBOL_NAME,
-                                    requite::Situation::MATTE_VALUE>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_NULL_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NULL_TYPE)) {
+  case O::RESULT:
+    if constexpr (!getCanBeSituation<SP>(O::RESULT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_NULL_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NULL_VALUE)) {
+  case O::ARGUMENTS:
+    if constexpr (!getCanBeSituation<SP>(O::ARGUMENTS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_TACIT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TACIT_VALUE)) {
+  case O::IN:
+    if constexpr (!getCanBeSituation<SP>(O::IN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::TRUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TRUE)) {
+  case O::OUT:
+    if constexpr (!getCanBeSituation<SP>(O::OUT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::FALSE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FALSE)) {
+  case O::ADDRESS_SIZE:
+    if constexpr (!getCanBeSituation<SP>(O::ADDRESS_SIZE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::VALUE)) {
+  case O::ADDRESS_DEPTH:
+    if constexpr (!getCanBeSituation<SP>(O::ADDRESS_DEPTH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::INDEX:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::INDEX)) {
+  case O::BITS_PER_BYTE:
+    if constexpr (!getCanBeSituation<SP>(O::BITS_PER_BYTE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_STRUCTURED_BINDING:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_STRUCTURED_BINDING)) {
+
+  // BUILTIN TYPES
+  case O::VOID:
+    if constexpr (!getCanBeSituation<SP>(O::VOID)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::STRUCTURED_BINDING>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_IGNORE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_IGNORE)) {
+  case O::BOOLEAN:
+    if constexpr (!getCanBeSituation<SP>(O::BOOLEAN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::INDETERMINATE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::INDETERMINATE)) {
+  case O::WORD:
+    if constexpr (!getCanBeSituation<SP>(O::WORD)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateDepthTypeExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::NO_DEFAULT_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::NO_DEFAULT_VALUE)) {
+  case O::SIGNED:
+    if constexpr (!getCanBeSituation<SP>(O::SIGNED)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateDepthTypeExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::THIS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::THIS)) {
+  case O::UNSIGNED:
+    if constexpr (!getCanBeSituation<SP>(O::UNSIGNED)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateDepthTypeExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::RESULT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::RESULT)) {
+  case O::BFLOAT16:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::ARGUMENT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ARGUMENT)) {
+  case O::BINARY16:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::OUTPUT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::OUTPUT)) {
+  case O::BINARY32:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::INPUT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::INPUT)) {
+  case O::BINARY64:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::ADDRESS_SIZE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ADDRESS_SIZE)) {
+  case O::BINARY128:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::ADDRESS_DEPTH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ADDRESS_DEPTH)) {
+  case O::UTF8:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::BITS_PER_BYTE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BITS_PER_BYTE)) {
+
+  // VARIADIC ARGUMENTS
+  case O::VARIADIC_ARGUMENTS:
+    if constexpr (!getCanBeSituation<SP>(O::BFLOAT16)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_TACIT_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TACIT_SYMBOL)) {
+  case O::FIRST_VARIADIC_ARGUMENT:
+    if constexpr (!getCanBeSituation<SP>(O::FIRST_VARIADIC_ARGUMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::VOID:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::VOID)) {
+  case O::_FIRST_VARIADIC_ARGUMENT_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_FIRST_VARIADIC_ARGUMENT_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::BOOLEAN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BOOLEAN)) {
+  case O::NEXT_VARIADIC_ARGUMENT:
+    if constexpr (!getCanBeSituation<SP>(O::NEXT_VARIADIC_ARGUMENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::WORD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::WORD)) {
+  case O::_NEXT_VARIADIC_ARGUMENT_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_FIRST_VARIADIC_ARGUMENT_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::SIGNED:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::SIGNED)) {
+
+  // SCOPES
+  case O::IF:
+    if constexpr (!getCanBeSituation<SP>(O::IF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::LOCAL_STATEMENT>(
+          expression);
     }
     break;
-  case requite::Opcode::UNSIGNED:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::UNSIGNED)) {
+  case O::ELSE_IF:
+    if constexpr (!getCanBeSituation<SP>(O::ELSE_IF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateSizedPrimitiveExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::LOCAL_STATEMENT>(
+          expression);
     }
     break;
-  case requite::Opcode::BFLOAT16:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BFLOAT16)) {
+  case O::ELSE:
+    if constexpr (!getCanBeSituation<SP>(O::ELSE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::BINARY16:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY16)) {
+  case O::SWITCH:
+    if constexpr (!getCanBeSituation<SP>(O::SWITCH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryWithLastExpression<SP, 1, S::VALUE, S::CASE,
+                                          S::LAST_CASE>(expression);
     }
     break;
-  case requite::Opcode::BINARY32:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY32)) {
+  case O::MATCH:
+    if constexpr (!getCanBeSituation<SP>(O::MATCH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryWithLastExpression<SP, 1, S::VALUE, S::CASE,
+                                          S::LAST_CASE>(expression);
     }
     break;
-  case requite::Opcode::BINARY64:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY64)) {
+  case O::CASE:
+    if constexpr (!getCanBeSituation<SP>(O::CASE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::LOCAL_STATEMENT>(
+          expression);
     }
     break;
-  case requite::Opcode::BINARY128:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::BINARY128)) {
+  case O::DEFAULT:
+    if constexpr (!getCanBeSituation<SP>(O::DEFAULT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::UTF8:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::UTF8)) {
+  case O::LOOP:
+    if constexpr (!getCanBeSituation<SP>(O::LOOP)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 1, S::VALUE, S::LOCAL_STATEMENT>(
+          expression);
     }
     break;
-  case requite::Opcode::VARIADIC_ARGUMENTS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::VARIADIC_ARGUMENTS)) {
+  case O::SCOPE:
+    if constexpr (!getCanBeSituation<SP>(O::SCOPE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateScopeExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::FIRST_VARIADIC_ARGUMENT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FIRST_VARIADIC_ARGUMENT)) {
+  case O::BLOCK:
+    if constexpr (!getCanBeSituation<SP>(O::SCOPE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateBlockExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_FIRST_VARIADIC_ARGUMENT_OF_VALUE)) {
+  case O::_INLINE_BLOCK:
+    if constexpr (!getCanBeSituation<SP>(O::_INLINE_BLOCK)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::NEXT_VARIADIC_ARGUMENT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::NEXT_VARIADIC_ARGUMENT)) {
+  case O::_INLINE_SCOPE:
+    if constexpr (!getCanBeSituation<SP>(O::_INLINE_SCOPE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NEXT_VARIADIC_ARGUMENT_OF_VALUE)) {
+
+  // RANGES
+  case O::_LIMIT_RANGE_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::IF:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::IF)) {
+  case O::_LIMIT_RANGE_NOT_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::ELSE_IF:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ELSE_IF)) {
+  case O::_LIMIT_RANGE_GREATER:
+    if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::ELSE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ELSE)) {
+  case O::_LIMIT_RANGE_GREATER_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_GREATER_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 0,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::SWITCH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::SWITCH)) {
+  case O::_LIMIT_RANGE_LESS:
+    if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_LESS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryWithLastExpression<SITUATION_PARAM, 1,
-                                          requite::Situation::MATTE_VALUE,
-                                          requite::Situation::SWITCH_CASE,
-                                          requite::Situation::LAST_SWITCH_CASE>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::CASE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::CASE)) {
+  case O::_LIMIT_RANGE_LESS_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_LESS_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::DEFAULT_CASE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::DEFAULT_CASE)) {
+  case O::_LONG_RANGE:
+    if constexpr (!getCanBeSituation<SP>(O::_LONG_RANGE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 0,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::LONG_RANGE_STAGE>(expression);
     }
     break;
-  case requite::Opcode::LOOP:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::LOOP)) {
+  case O::FOR:
+    if constexpr (!getCanBeSituation<SP>(O::FOR)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateNaryExpression<SP, 1, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::REPEAT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::REPEAT)) {
+  case O::DO:
+    if constexpr (!getCanBeSituation<SP>(O::DO)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 0,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::WHILE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::WHILE)) {
+  case O::WHILE:
+    if constexpr (!getCanBeSituation<SP>(O::WHILE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateWhileExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::SCOPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::SCOPE)) {
+  case O::UNTIL:
+    if constexpr (!getCanBeSituation<SP>(O::UNTIL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<
-          SITUATION_PARAM, 0,
-          requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_OPEN_INLINE_SCOPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_OPEN_INLINE_SCOPE)) {
+  case O::FOREVER:
+    if constexpr (!getCanBeSituation<SP>(O::FOREVER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_CLOSED_INLINE_SCOPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_CLOSED_INLINE_SCOPE)) {
+  case O::STEP:
+    if constexpr (!getCanBeSituation<SP>(O::STEP)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 0,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
     }
     break;
-  case requite::Opcode::_LONG_RANGE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LONG_RANGE)) {
+  case O::WHEN:
+    if constexpr (!getCanBeSituation<SP>(O::WHEN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::LONG_RANGE_STAGE>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::FOR:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::FOR)) {
+  case O::_SHORT_RANGE:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_RANGE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNaryExpression<SP, 2, S::SHORT_RANGE_STAGE>(expression);
     }
     break;
-  case requite::Opcode::DO:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::DO)) {
+  case O::_SHORT_STEP_ADD:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_STEP_ADD)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::UNTIL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::UNTIL)) {
+  case O::_SHORT_STEP_SUBTRACT:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_STEP_SUBTRACT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::STEP:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::STEP)) {
+  case O::_SHORT_STEP_MULTIPLY:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_STEP_MULTIPLY)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::MATTE_LOCAL_STATEMENT>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::WHEN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::WHEN)) {
+  case O::_SHORT_STEP_DIVIDE:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_STEP_DIVIDE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_RANGE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_RANGE)) {
+  case O::_SHORT_STEP_MODULUS:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_STEP_MODULUS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateTernaryExpression<SITUATION_PARAM,
-                                     requite::Situation::MATTE_VALUE,
-                                     requite::Situation::SHORT_RANGE_WHILE,
-                                     requite::Situation::SHORT_RANGE_STEP>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_STEP_ADD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_STEP_ADD)) {
+  case O::_SHORT_WHILE_LESS:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_WHILE_LESS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_STEP_SUBTRACT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_STEP_SUBTRACT)) {
+  case O::_SHORT_WHILE_GREATER:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_WHILE_GREATER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_STEP_MULTIPLY:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_STEP_MULTIPLY)) {
+  case O::_SHORT_WHILE_LESS_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_WHILE_LESS_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_STEP_DIVIDE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_STEP_DIVIDE)) {
+  case O::_SHORT_WHILE_GREATER_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_WHILE_GREATER_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_STEP_MODULUS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_STEP_MODULUS)) {
+  case O::_SHORT_WHILE_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_WHILE_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_WHILE_LESS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_WHILE_LESS)) {
+  case O::_SHORT_WHILE_NOT_EQUAL:
+    if constexpr (!getCanBeSituation<SP>(O::_SHORT_WHILE_NOT_EQUAL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_WHILE_GREATER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_WHILE_GREATER)) {
+
+  // ACCESS MODIFIERS
+  case O::PRIVATE:
+    if constexpr (!getCanBeSituation<SP>(O::PRIVATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_WHILE_LESS_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_WHILE_LESS_EQUAL)) {
+  case O::PROTECTED:
+    if constexpr (!getCanBeSituation<SP>(O::PROTECTED)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_WHILE_GREATER_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_WHILE_GREATER_EQUAL)) {
+  case O::EXPORT:
+    if constexpr (!getCanBeSituation<SP>(O::EXPORT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_WHILE_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_WHILE_EQUAL)) {
+
+  // SYMBOL GRAPH
+  case O::IMPORT:
+    if constexpr (!getCanBeSituation<SP>(O::IMPORT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::STRING_LITERAL>(expression);
     }
     break;
-  case requite::Opcode::_SHORT_WHILE_NOT_EQUAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SHORT_WHILE_NOT_EQUAL)) {
+  case O::USE_TABLE:
+    if constexpr (!getCanBeSituation<SP>(O::USE_TABLE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::PATH>(expression);
     }
     break;
-  case requite::Opcode::LABEL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::LABEL)) {
+
+  // SOURCES
+  case O::_MODULE_ROOT:
+    if constexpr (!getCanBeSituation<SP>(O::_MODULE_ROOT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::SYMBOL_NAME>(expression);
+      this->situateNaryExpression<SP, 1, S::STRING_LITERAL, S::TOP_STATEMENT>(
+          expression);
     }
     break;
-  case requite::Opcode::PRIVATE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::PRIVATE)) {
+
+  // ERROR HANDLING AND DEBUGGING
+  case O::ASSERT:
+    if constexpr (!getCanBeSituation<SP>(O::ASSERT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateAssertExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::PROTECTED:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::PROTECTED)) {
+  case O::UNREACHABLE:
+    if constexpr (!getCanBeSituation<SP>(O::UNREACHABLE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::EXPORT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::EXPORT)) {
+
+  // ATTRIBUTES
+  case O::BAKE:
+    if constexpr (!getCanBeSituation<SP>(O::BAKE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::IMPORT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::IMPORT)) {
+  case O::MAY_PARENT:
+    if constexpr (!getCanBeSituation<SP>(O::MAY_PARENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::STRING_LITERAL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::USE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::USE)) {
+  case O::PARENT:
+    if constexpr (!getCanBeSituation<SP>(O::PARENT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::USE_TABLE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::USE_TABLE)) {
+  case O::POSITION:
+    if constexpr (!getCanBeSituation<SP>(O::POSITION)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_MODULE_ROOT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MODULE_ROOT)) {
+  case O::INLINE:
+    if constexpr (!getCanBeSituation<SP>(O::INLINE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 1,
-                                  requite::Situation::STRING_LITERAL,
-                                  requite::Situation::MATTE_MODULE_STATEMENT>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::ASSERT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ASSERT)) {
+  case O::MANGLED_NAME:
+    if constexpr (!getCanBeSituation<SP>(O::MANGLED_NAME)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateAssertExpression<SITUATION_PARAM>(expression);
+      this->situateMangledNameExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::UNREACHABLE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::UNREACHABLE)) {
+  case O::_MANGLED_NAME_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_MANGLED_NAME_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::NOT_FINAL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::NOT_FINAL)) {
+  case O::PACK:
+    if constexpr (!getCanBeSituation<SP>(O::PACK)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::MAY_DISCARD:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::MAY_DISCARD)) {
+  case O::USER:
+    if constexpr (!getCanBeSituation<SP>(O::USER)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::INLINE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::INLINE)) {
+  case O::LABEL:
+    if constexpr (!getCanBeSituation<SP>(O::LABEL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::NAME>(expression);
     }
     break;
-  case requite::Opcode::MANGLED_NAME:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::MANGLED_NAME)) {
+  case O::TEMPLATE:
+    if constexpr (!getCanBeSituation<SP>(O::TEMPLATE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateMangledNameExpression<SITUATION_PARAM>(expression);
+      this->situateNaryExpression<SP, 0, S::PARAMETER>(expression);
     }
     break;
-  case requite::Opcode::_MANGLED_NAME_OF_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_MANGLED_NAME_OF_SYMBOL)) {
+
+  // REFLECTIONS
+  case O::_REFLECT:
+    if constexpr (!getCanBeSituation<SP>(O::_REFLECT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateReflectExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::PACK:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::PACK)) {
+  case O::_MEMBER_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_MEMBER_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateBinaryExpression<SP, S::VALUE, S::NAME>(expression);
     }
     break;
-  case requite::Opcode::USER:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::USER)) {
+  case O::SIZE:
+    if constexpr (!getCanBeSituation<SP>(O::SIZE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::SIZE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::SIZE)) {
+  case O::_SIZE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_SIZE_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_SIZE_OF_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_SIZE_OF_TYPE)) {
+  case O::DEPTH:
+    if constexpr (!getCanBeSituation<SP>(O::DEPTH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::DEPTH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::DEPTH)) {
+  case O::_DEPTH_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_DEPTH_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_DEPTH_OF_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_DEPTH_OF_TYPE)) {
+  case O::COUNT:
+    if constexpr (!getCanBeSituation<SP>(O::COUNT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::COUNT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::COUNT)) {
+  case O::_COUNT_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_COUNT_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_COUNT_OF_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_COUNT_OF_TYPE)) {
+  case O::LENGTH:
+    if constexpr (!getCanBeSituation<SP>(O::LENGTH)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_COUNT_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_COUNT_OF_VALUE)) {
+  case O::_LENGTH_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_LENGTH_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::LENGTH:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::LENGTH)) {
+  case O::NAME:
+    if constexpr (!getCanBeSituation<SP>(O::NAME)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_LENGTH_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LENGTH_OF_VALUE)) {
+  case O::_NAME_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_NAME_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::NAME:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::NAME)) {
+  case O::LINE:
+    if constexpr (!getCanBeSituation<SP>(O::LINE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_NAME_OF_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_NAME_OF_SYMBOL)) {
+  case O::_LINE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_LINE_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::LINE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::LINE)) {
+  case O::COLUMN:
+    if constexpr (!getCanBeSituation<SP>(O::COLUMN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_LINE_OF_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_LINE_OF_SYMBOL)) {
+  case O::_COLUMN_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_COLUMN_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::COLUMN:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::COLUMN)) {
+  case O::IS:
+    if constexpr (!getCanBeSituation<SP>(O::IS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_COLUMN_OF_SYMBOL:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_COLUMN_OF_SYMBOL)) {
+  case O::_VALUE_IS:
+    if constexpr (!getCanBeSituation<SP>(O::_VALUE_IS)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::IS:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::IS)) {
+  case O::GET:
+    if constexpr (!getCanBeSituation<SP>(O::GET)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_VALUE_OF_VARIANT_IS_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_VALUE_OF_VARIANT_IS_TYPE)) {
+  case O::_GET_VALUE_OF_VARIANT:
+    if constexpr (!getCanBeSituation<SP>(O::_GET_VALUE_OF_VARIANT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::GET:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::GET)) {
+  case O::TYPE:
+    if constexpr (!getCanBeSituation<SP>(O::TYPE)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::_GET_VALUE_OF_VARIANT:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_GET_VALUE_OF_VARIANT)) {
+  case O::_TYPE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_TYPE_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateBinaryExpression<SITUATION_PARAM,
-                                    requite::Situation::MATTE_VALUE,
-                                    requite::Situation::MATTE_SYMBOL>(
-          expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::ARE_SAME:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::ARE_SAME)) {
+  case O::SYMBOL:
+    if constexpr (!getCanBeSituation<SP>(O::SYMBOL)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::TYPE)) {
+  case O::_SYMBOL_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_SYMBOL_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_TYPE_OF_VALUE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_TYPE_OF_VALUE)) {
+  case O::DISCRIMINANT:
+    if constexpr (!getCanBeSituation<SP>(O::DISCRIMINANT)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_VALUE>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case requite::Opcode::UNDERLYING:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::UNDERLYING)) {
+  case O::_DISCRIMINANT_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_DISCRIMINANT_OF)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case requite::Opcode::_UNDERLYING_OF_TYPE:
-    if constexpr (!requite::getCanBeSituation<SITUATION_PARAM>(
-                      requite::Opcode::_UNDERLYING_OF_TYPE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SITUATION_PARAM,
-                                   requite::Situation::MATTE_SYMBOL>(
-          expression);
-    }
-  case requite::Opcode::__LAST:
+
+  case O::__LAST:
     REQUITE_UNREACHABLE();
   }
   if (expression.getIsConverging()) {
@@ -2137,19 +1626,23 @@ void Situator::situateExpression(requite::Expression &expression) {
   }
 }
 
-template <requite::Situation SITUATION_PARAM>
+template <requite::Situation SITUATION_PARAM,
+          requite::Situation BRANCH_SITUATION_PARAM>
 void Situator::situateBranch(llvm::Twine log_context,
                              requite::Expression &outer, unsigned branch_i,
                              requite::Expression &branch) {
   const bool is_ok =
-      requite::getCanBeSituation<SITUATION_PARAM>(branch.getOpcode());
+      requite::getCanBeSituation<BRANCH_SITUATION_PARAM>(branch.getOpcode());
   if (!is_ok) {
-    this->getContext().logErrorInvalidBranchSituation<SITUATION_PARAM>(
-        branch, outer.getOpcode(), branch.getOpcode(), branch_i, log_context);
+    this->getContext()
+        .logErrorInvalidBranchSituation<SITUATION_PARAM,
+                                        BRANCH_SITUATION_PARAM>(
+            branch, outer.getOpcode(), branch.getOpcode(), branch_i,
+            log_context);
     this->setNotOk();
     return;
   }
-  this->situateExpression<SITUATION_PARAM>(branch);
+  this->situateExpression<BRANCH_SITUATION_PARAM>(branch);
 }
 
 template <requite::Situation SITUATION_PARAM>
@@ -2159,9 +1652,9 @@ void Situator::situateNullaryExpression(requite::Expression &expression) {
   if (expression.getHasBranch()) {
     this->getContext().logSourceMessage(
         expression, requite::LogType::ERROR,
-        llvm::Twine("expression with opcode \"") +
-            requite::getName(expression.getOpcode()) + "\" in situation \"" +
-            requite::getName(SITUATION_PARAM) + "\" must not have branches");
+        llvm::Twine(requite::getDescription(SITUATION_PARAM)) +
+            requite::getName(expression.getOpcode()) +
+            " must not have branches");
     this->setNotOk();
   }
 }
@@ -2178,8 +1671,8 @@ void Situator::situateUnaryExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &first = expression.getBranch();
-  this->situateBranch<BRANCH_SITUATION_PARAM>("first branch", expression, 0,
-                                              first);
+  this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_PARAM>(
+      "first branch", expression, 0, first);
   if (first.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
                                                                     1);
@@ -2201,8 +1694,8 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &first = expression.getBranch();
-  this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression, 0,
-                                                first);
+  this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_A_PARAM>(
+      "first branch", expression, 0, first);
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
                                                                     2);
@@ -2210,8 +1703,8 @@ void Situator::situateBinaryExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &second = first.getNext();
-  this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression, 1,
-                                                second);
+  this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_B_PARAM>(
+      "second branch", expression, 1, second);
   if (second.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
                                                                     2);
@@ -2235,8 +1728,8 @@ Situator::situateTernaryExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &first = expression.getBranch();
-  this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression, 0,
-                                                first);
+  this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_A_PARAM>(
+      "first branch", expression, 0, first);
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
                                                                     3);
@@ -2244,8 +1737,8 @@ Situator::situateTernaryExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &second = first.getNext();
-  this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression, 1,
-                                                second);
+  this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_B_PARAM>(
+      "second branch", expression, 1, second);
   if (!second.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
                                                                     3);
@@ -2253,8 +1746,8 @@ Situator::situateTernaryExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &third = second.getNext();
-  this->situateBranch<BRANCH_SITUATION_C_PARAM>("third branch", expression, 2,
-                                                third);
+  this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_C_PARAM>(
+      "third branch", expression, 2, third);
   if (third.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
                                                                     3);
@@ -2270,8 +1763,8 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
   unsigned branch_i = 0;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
-    this->situateBranch<BRANCH_SITUATION_N_PARAM>("all branches", expression,
-                                                  branch_i++, branch);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_N_PARAM>(
+        "all branches", expression, branch_i++, branch);
   }
   if (branch_i < MIN_COUNT_PARAM) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
@@ -2292,10 +1785,10 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       break;
     }
     requite::Expression &first = expression.getBranch();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
-                                                  branch_i++, first);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_A_PARAM>(
+        "first branch", expression, branch_i++, first);
     for (requite::Expression &branch : first.getNextSubrange()) {
-      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+      this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_N_PARAM>(
           "second and subsequent branches", expression, branch_i++, branch);
     }
   } while (false);
@@ -2319,16 +1812,16 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       break;
     }
     requite::Expression &first = expression.getBranch();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
-                                                  branch_i++, first);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_A_PARAM>(
+        "first branch", expression, branch_i++, first);
     if (!first.getHasNext()) {
       break;
     }
     requite::Expression &second = first.getNext();
-    this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression,
-                                                  branch_i++, second);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_B_PARAM>(
+        "second branch", expression, branch_i++, second);
     for (requite::Expression &branch : second.getNextSubrange()) {
-      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+      this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_N_PARAM>(
           "third and subsequent branches", expression, branch_i++, branch);
     }
   } while (false);
@@ -2353,22 +1846,22 @@ void Situator::situateNaryExpression(requite::Expression &expression) {
       break;
     }
     requite::Expression &first = expression.getBranch();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
-                                                  branch_i++, first);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_A_PARAM>(
+        "first branch", expression, branch_i++, first);
     if (!first.getHasNext()) {
       break;
     }
     requite::Expression &second = first.getNext();
-    this->situateBranch<BRANCH_SITUATION_B_PARAM>("second branch", expression,
-                                                  branch_i++, second);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_B_PARAM>(
+        "second branch", expression, branch_i++, second);
     if (!second.getHasNext()) {
       break;
     }
     requite::Expression &third = second.getNext();
-    this->situateBranch<BRANCH_SITUATION_C_PARAM>("third branch", expression,
-                                                  branch_i++, second);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_C_PARAM>(
+        "third branch", expression, branch_i++, second);
     for (requite::Expression &branch : third.getNextSubrange()) {
-      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+      this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_N_PARAM>(
           "fourth and subsequent branches", expression, branch_i++, branch);
     }
   } while (false);
@@ -2388,11 +1881,11 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
   unsigned branch_i = 0;
   for (requite::Expression &branch : expression.getBranchSubrange()) {
     if (!branch.getHasNext()) {
-      this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
+      this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_LAST_PARAM>(
           "last branch", expression, branch_i++, branch);
       break;
     }
-    this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_N_PARAM>(
         "first to penultimate branch", expression, branch_i++, branch);
   }
   if (branch_i < MIN_COUNT_PARAM) {
@@ -2415,15 +1908,15 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
       break;
     }
     requite::Expression &first = expression.getBranch();
-    this->situateBranch<BRANCH_SITUATION_A_PARAM>("first branch", expression,
-                                                  branch_i++, first);
+    this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_A_PARAM>(
+        "first branch", expression, branch_i++, first);
     for (requite::Expression &branch : first.getNextSubrange()) {
       if (!branch.getHasNext()) {
-        this->situateBranch<BRANCH_SITUATION_LAST_PARAM>(
+        this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_LAST_PARAM>(
             "last branch", expression, branch_i++, branch);
         break;
       }
-      this->situateBranch<BRANCH_SITUATION_N_PARAM>(
+      this->situateBranch<SITUATION_PARAM, BRANCH_SITUATION_N_PARAM>(
           "second to penultimate branch", expression, branch_i++, branch);
     }
   } while (false);
@@ -2435,266 +1928,234 @@ void Situator::situateNaryWithLastExpression(requite::Expression &expression) {
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situate_BindValueOrDefaultValueExpression(
-    requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() ==
-                 requite::Opcode::_BIND_VALUE_OR_DEFAULT_VALUE);
-  if constexpr (SITUATION_PARAM == requite::Situation::ARGUMENT ||
-                SITUATION_PARAM == requite::Situation::STATIC_ARGUMENT) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_VALUE>(expression);
-    expression.changeOpcode(requite::Opcode::_BIND_VALUE);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::PARAMETER_VALUE ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STATIC_PARAMETER_VALUE) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_VALUE>(expression);
-    expression.changeOpcode(requite::Opcode::_DEFAULT_VALUE);
+inline void Situator::situateClovenExpression(requite::Expression &expression) {
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    1);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &branch = expression.getBranch();
+  this->situateBranch<SITUATION_PARAM, SITUATION_PARAM>("first branch",
+                                                        expression, 0, branch);
+  if (branch.getHasNext()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    1);
+    this->setNotOk();
+    return;
+  }
+  expression.mergeBranch();
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void Situator::situateColonExpression(requite::Expression &expression) {
+  if constexpr (SITUATION_PARAM == requite::Situation::DESTINATION ||
+                SITUATION_PARAM == requite::Situation::PARAMETER ||
+                SITUATION_PARAM == requite::Situation::BINDING ||
+                SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
+    this->situateBinaryExpression<SITUATION_PARAM, requite::Situation::NAME,
+                                  requite::Situation::VALUE>(expression);
+    expression.changeOpcode(requite::Opcode::_BINDING);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::VALUE ||
+                       SITUATION_PARAM == requite::Situation::ARGUMENT) {
+    this->situateBinaryExpression<SITUATION_PARAM, requite::Situation::VALUE,
+                                  requite::Situation::VALUE>(expression);
+    expression.changeOpcode(requite::Opcode::_CAST);
   } else {
     static_assert(false, "invalid situation");
   }
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situate_BindSymbolOrDefaultSymbolExpression(
-    requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() ==
-                 requite::Opcode::_BIND_SYMBOL_OR_DEFAULT_SYMBOL);
-  if constexpr (SITUATION_PARAM == requite::Situation::PARAMETER) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::PARAMETER_VALUE>(
-        expression);
-    expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::STATIC_ARGUMENT ||
-                       SITUATION_PARAM == requite::Situation::ALTERNATIVE) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
-    expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::STATIC_PARAMETER) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::STATIC_PARAMETER_VALUE>(
-        expression);
-    expression.changeOpcode(requite::Opcode::_BIND_SYMBOL);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::STATIC_PARAMETER_VALUE) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
-    expression.changeOpcode(requite::Opcode::_DEFAULT_VALUE);
-  } else {
-    static_assert(false, "invalid situation");
+inline void Situator::situateExtendExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_EXTEND);
+  unsigned branch_i = 0;
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &branch = expression.getBranch();
+  this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
+      "first branch", expression, branch_i++, branch);
+  if (!branch.getHasNext()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &next = branch.getNext();
+  this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
+      "second branch", expression, branch_i++, next);
+  if (next.getOpcode() == requite::Opcode::_SIGNATURE) {
+    expression.changeOpcode(requite::Opcode::_EXTENSION_SIGNATURE);
+    delete branch.replaceNextPtr(next.popBranchPtr());
   }
 }
 
 template <requite::Situation SITUATION_PARAM>
 inline void
-Situator::situate_ReflectValueExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_REFLECT_VALUE);
-  this->situateNaryWithLastExpression<
-      SITUATION_PARAM, 2, requite::Situation::MATTE_VALUE,
-      requite::Situation::VALUE_REFLECTIVE_VALUE,
-      requite::getNextValueReflectiveSituation<SITUATION_PARAM>()>(expression);
-  requite::Expression &first = expression.getBranch();
-  requite::Expression &second = first.popNext();
-  requite::Expression *branch_ptr = second.popNextPtr();
-  requite::Expression *outer_member_ptr = nullptr;
-  if (requite::getCanBeSymbolNameSituation(second.getOpcode())) {
-    if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-      if (branch_ptr == nullptr) {
-        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH);
-        first.setNext(second);
-        return;
-      }
-      expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
-    } else if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-      expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
-    } else {
-      this->getContext().logErrorInvalidBranchSituation<SITUATION_PARAM>(
-          second, requite::Opcode::_REFLECT_VALUE, second.getOpcode(), 1,
-          "last branch");
+Situator::situateAscribeExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ASCRIBE);
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &branch = expression.getBranch();
+  if (requite::getCanBeAttribute(branch.getOpcode())) {
+    if (!branch.getHasNext()) {
+      this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+          expression, 2);
       this->setNotOk();
       return;
     }
-    first.setNext(second);
-    outer_member_ptr = &second;
-  } else {
-    if (second.getHasBranch()) {
-      first.setNext(second.popBranch());
-    }
-    const requite::Opcode universalized =
-        requite::getUniversalizedValue(second.getOpcode());
-    expression.changeOpcode(universalized);
-    requite::Expression::deleteExpression(second);
-  }
-  unsigned branch_i = 2;
-  while (branch_ptr != nullptr) {
-    requite::Expression &branch = requite::getRef(branch_ptr);
-    branch_ptr = branch.popNextPtr();
-    requite::Opcode branch_opcode = branch.getOpcode();
-    if (requite::getCanBeSymbolNameSituation(branch.getOpcode())) {
-      if (outer_member_ptr != nullptr) {
-        requite::Expression &outer_member = requite::getRef(outer_member_ptr);
-        outer_member.setNext(branch);
-      } else {
-        requite::Expression &new_expression =
-            requite::Expression::makeOperation(expression.getOpcode());
-        new_expression.setSourceInsertedAfter(branch);
-        new_expression.setBranch(expression.replaceBranch(new_expression));
-        if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-          if (branch_ptr == nullptr) {
-            expression.changeOpcode(
-                requite::Opcode::_MEMBER_SYMBOL_OF_VALUE_PATH);
-            return;
-          }
-          expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
-        } else if (requite::getIsValueSituation<SITUATION_PARAM>()) {
-          expression.changeOpcode(requite::Opcode::_MEMBER_VALUE_OF_VALUE_PATH);
-        } else {
-          this->getContext().logErrorInvalidBranchSituation<SITUATION_PARAM>(
-              second, requite::Opcode::_REFLECT_VALUE, second.getOpcode(),
-              branch_i, "last branch");
-          this->setNotOk();
-          return;
-        }
-        new_expression.setNext(branch);
+    unsigned branch_i = 0;
+    this->situateBranch<SITUATION_PARAM, requite::Situation::ATTRIBUTE>(
+        "first to penultimate branch", expression, branch_i++, branch);
+    requite::Expression *previous_ptr = &branch;
+    for (requite::Expression &next : branch.getNextSubrange()) {
+      if (!next.getHasNext()) {
+        this->situateBranch<SITUATION_PARAM, SITUATION_PARAM>(
+            "last branch", expression, branch_i++, next);
+        requite::Expression &previous = requite::getRef(previous_ptr);
+        next.setNext(expression.replaceBranch(previous.popNext()));
+        break;
       }
-      outer_member_ptr = &branch;
-    } else {
-      branch.setNextPtr(branch.popBranchPtr());
-      branch.setBranch(expression.replaceBranch(branch));
-      const requite::Opcode universalized =
-          requite::getUniversalizedValue(branch.getOpcode());
-      branch.changeOpcode(expression.getOpcode());
-      expression.changeOpcode(universalized);
-      outer_member_ptr = nullptr;
+      this->situateBranch<SITUATION_PARAM, requite::Situation::ATTRIBUTE>(
+          "first to penultimate branch", expression, branch_i++, next);
+      previous_ptr = &next;
     }
-    branch_i++;
+  } else {
+    this->situateNaryExpression<SITUATION_PARAM, 2, SITUATION_PARAM,
+                                requite::Situation::ATTRIBUTE>(expression);
+  }
+  if (!expression.getHasBranch()) {
+    return;
+  }
+  requite::Expression &unascribed = expression.getBranch();
+  if (unascribed.getOpcode() == requite::Opcode::_EXTEND ||
+      unascribed.getOpcode() == requite::Opcode::_EXTENSION_SIGNATURE) {
+    if (!unascribed.getHasBranch()) {
+      return;
+    }
+    requite::Expression &extended = unascribed.getBranch();
+    if (extended.getOpcode() == requite::Opcode::_ASCRIBE) {
+      requite::Expression &last = extended.getLastBranch();
+      last.setNext(unascribed.popNext());
+      expression.mergeBranch();
+    } else {
+      requite::Expression &first_attribute = unascribed.popNext();
+      requite::Expression &branch = expression.mergeAndPopBranch();
+      branch.setOpcode(requite::Opcode::_ASCRIBE);
+      branch.setBranch(expression.replaceBranch(branch));
+      branch.setNext(extended.replaceNext(first_attribute));
+    }
   }
 }
 
 template <requite::Situation SITUATION_PARAM>
 inline void
-Situator::situate_ReflectSymbolExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_REFLECT_SYMBOL);
-  if constexpr (SITUATION_PARAM == requite::Situation::SYMBOL_PATH) {
-    this->situateNaryExpression<SITUATION_PARAM, 2,
-                                requite::Situation::SYMBOL_PATH>(expression);
-    expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
-  } else {
-    this->situateNaryWithLastExpression<
-        SITUATION_PARAM, 2, requite::Situation::MATTE_SYMBOL,
-        requite::Situation::SYMBOL_REFLECTIVE_SYMBOL,
-        requite::getNextSymbolReflectiveSituation<SITUATION_PARAM>()>(
-        expression);
-    requite::Expression &first = expression.getBranch();
-    requite::Expression &second = first.popNext();
-    requite::Expression *branch_ptr = second.popNextPtr();
-    requite::Expression *outer_member_ptr = nullptr;
-    if (requite::getCanBeSymbolNameSituation(second.getOpcode())) {
-      if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-        if (branch_ptr == nullptr) {
-          expression.changeOpcode(
-              requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH);
-          first.setNext(second);
-          return;
-        }
-        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
-      } else {
-        expression.changeOpcode(requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
-      }
-      first.setNext(second);
-      outer_member_ptr = &second;
-    } else {
-      if (second.getHasBranch()) {
-        first.setNext(second.popBranch());
-      }
-      expression.changeOpcode(
-          requite::getUniversalizedSymbol(second.getOpcode()));
-      requite::Expression::deleteExpression(second);
-    }
-    while (branch_ptr != nullptr) {
-      requite::Expression &branch = requite::getRef(branch_ptr);
-      branch_ptr = branch.popNextPtr();
-      requite::Opcode branch_opcode = branch.getOpcode();
-      if (requite::getCanBeSymbolNameSituation(branch.getOpcode())) {
-        if (outer_member_ptr != nullptr) {
-          requite::Expression &outer_member = requite::getRef(outer_member_ptr);
-          outer_member.setNext(branch);
-        } else {
-          requite::Expression &new_expression =
-              requite::Expression::makeOperation(expression.getOpcode());
-          new_expression.setSourceInsertedAfter(branch);
-          new_expression.setBranch(expression.replaceBranch(new_expression));
-          if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-            if (branch_ptr == nullptr) {
-              expression.changeOpcode(
-                  requite::Opcode::_MEMBER_VALUE_OF_SYMBOL_PATH);
-              return;
-            }
-            expression.changeOpcode(
-                requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
-          } else {
-            expression.changeOpcode(
-                requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH);
-          }
-          new_expression.setNext(branch);
-        }
-        outer_member_ptr = &branch;
-      } else {
-        branch.setNextPtr(branch.popBranchPtr());
-        branch.setBranch(expression.replaceBranch(branch));
-        requite::Opcode universalized =
-            requite::getUniversalizedSymbol(branch.getOpcode());
-        branch.changeOpcode(expression.getOpcode());
-        expression.changeOpcode(universalized);
-        outer_member_ptr = nullptr;
+Situator::situateIdentifyExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(
+      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_IDENTIFY);
+  this->situateUnaryExpression<SITUATION_PARAM, requite::Situation::VALUE>(
+      expression);
+  requite::Expression &branch = expression.getBranch();
+  if (branch.getOpcode() != requite::Opcode::__STRING_LITERAL) {
+    return;
+  }
+  requite::SavedString text = branch.getDataText();
+  expression.mergeBranch();
+  expression.changeOpcode(requite::Opcode::__IDENTIFIER_LITERAL);
+  expression.setDataText(text);
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situateConcatinateExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CONCATINATE);
+  this->situateNaryExpression<SITUATION_PARAM, 2,
+                              requite::Situation::STRING_LITERAL>(expression);
+  requite::Expression &first_branch = expression.getBranch();
+  for (requite::Expression &branch : first_branch.getHorizontalSubrange()) {
+    if (branch.getOpcode() == requite::Opcode::__STRING_LITERAL) {
+      while (branch.getHasNext() && branch.getNext().getOpcode() ==
+                                        requite::Opcode::__STRING_LITERAL) {
+        requite::Expression &next = branch.popNext();
+        llvm::StringRef cur_text = branch.getDataText().getString();
+        llvm::StringRef next_text = next.getDataText().getString();
+        std::string concatinated_text =
+            llvm::formatv("{}{}", cur_text, next_text);
+        requite::SavedString saved_text =
+            this->getContext().saveString(concatinated_text);
+        branch.changeDataText(saved_text);
+        branch.setNextPtr(next.getNextPtr());
+        requite::Expression::deleteExpression(next);
       }
     }
+  }
+  if (!first_branch.getHasNext()) {
+    expression.mergeBranch();
   }
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situateAssignArithmeticExpression(
-    requite::Expression &expression, requite::Opcode arithmetic_opcode) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_DESTINATION,
-                                  requite::Situation::MATTE_JUNCTION>(
-        expression);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE ||
-                       SITUATION_PARAM == requite::Situation::ARGUMENT) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION,
-                                  requite::Situation::MATTE_VALUE>(expression);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION>(
-        expression);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::MATTE_LOCAL_STATEMENT) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_DESTINATION,
-                                  requite::Situation::MATTE_VALUE>(expression);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-  if (!this->getIsOk()) {
+inline void Situator::situateAssignExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ASSIGN);
+  unsigned branch_i = 0;
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
+    this->setNotOk();
     return;
   }
-  expression.changeOpcode(requite::Opcode::_ASSIGN);
   requite::Expression &destination = expression.getBranch();
+  this->situateBranch<SITUATION_PARAM, requite::Situation::DESTINATION>(
+      "first branch", expression, branch_i++, destination);
+  if (!destination.getHasNext()) {
+    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
+                                                                    2);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &value = destination.getNext();
+  this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
+      "second branch", expression, branch_i++, value);
+  switch (const requite::Opcode opcode = destination.getOpcode()) {
+    case requite::Opcode::_NULL:
+      destination.changeOpcode(requite::Opcode::_IGNORE);
+      expression.mergeBranch();
+      break;
+    case requite::Opcode::_TUPLE:
+      destination.changeOpcode(requite::Opcode::_STRUCTURED_BINDING);
+      expression.mergeBranch();
+      break;
+    default:
+      break;
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situateAssignArithmeticExpression(requite::Expression &expression,
+                                            requite::Opcode arithmetic_opcode) {
+  REQUITE_ASSERT(
+      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
+  this->situateBinaryExpression<SITUATION_PARAM,
+                                requite::Situation::DESTINATION,
+                                requite::Situation::VALUE>(expression);
+  expression.changeOpcode(requite::Opcode::_ASSIGN);
+  if (!expression.getHasBranch()) {
+    return;
+  }
+  requite::Expression &destination = expression.getBranch();
+  if (!destination.getHasNext()) {
+    return;
+  }
   requite::Expression &value = destination.popNext();
   requite::Expression &arithmetic_expression =
       requite::Expression::makeOperation(arithmetic_opcode);
@@ -2707,235 +2168,12 @@ void Situator::situateAssignArithmeticExpression(
 }
 
 template <requite::Situation SITUATION_PARAM>
-void Situator::situate_TripExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TRIP);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_DESTINATION) {
-    REQUITE_UNREACHABLE(); // NOTE: this should have been handled within
-                           // situate_AssignExpression
-  } else if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-    if (!expression.getHasBranch()) {
-      expression.changeOpcode(requite::Opcode::_NULL_VALUE);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 1,
-                                requite::Situation::ARGUMENT>(expression);
-    if (!expression.getHasBranch()) {
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    expression.changeOpcode(requite::Opcode::_TUPLE_VALUE);
-  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-    if (!expression.getHasBranch()) {
-      expression.changeOpcode(requite::Opcode::_NULL_TYPE);
-      return;
-    }
-    this->situateNaryExpression<SITUATION_PARAM, 1,
-                                requite::Situation::PARAMETER>(expression);
-    if (!expression.getHasBranch()) {
-      return;
-    }
-    requite::Expression &branch = expression.getBranch();
-    expression.changeOpcode(requite::Opcode::_TUPLE_TYPE);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situateSizedPrimitiveExpression(
-    requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SIGNED ||
-                 expression.getOpcode() == requite::Opcode::UNSIGNED ||
-                 expression.getOpcode() == requite::Opcode::WORD);
-  if (!expression.getHasBranch()) {
-    requite::Expression &first =
-        requite::Expression::makeOperation(requite::Opcode::ADDRESS_DEPTH);
-    first.setSourceInsertedAfter(expression);
-    expression.setBranch(first);
-  }
-  this->situateUnaryExpression<SITUATION_PARAM,
-                               requite::Situation::MATTE_VALUE>(expression);
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situate_ArrayExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ARRAY);
-  if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, 2);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &first = expression.getBranch();
-  if (!first.getHasNext()) {
-    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, 2);
-    this->setNotOk();
-    return;
-  }
-  unsigned branch_i = 0;
-  for (requite::Expression &branch : first.getHorizontalSubrange()) {
-    if (!branch.getHasNext()) {
-      this->situateBranch<requite::Situation::MATTE_SYMBOL>(
-          "last branch", expression, branch_i++, branch);
-      break;
-    }
-    this->situateBranch<requite::Situation::MATTE_VALUE>(
-        "first to penultimate branches", expression, branch_i++, branch);
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situateAssertExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ASSERT);
-  if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
-        expression, 1);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &first = expression.getBranch();
-  if (!first.getHasNext()) {
-
-    requite::SourceLocation location =
-        this->getContext().getSourceStartLocation(expression);
-    std::string assertion_text = llvm::formatv(
-        "assertion failure for expression: \n\n{0}\n\n at {1}:{2}:{3}\"",
-        first.getSourceText(), location.file, location.line, location.column);
-
-    requite::Expression &next = requite::Expression::makeString(assertion_text);
-    next.setSourceInsertedAfter(first);
-    first.setNext(next);
-  }
-  this->situateBinaryExpression<SITUATION_PARAM,
-                                requite::Situation::MATTE_VALUE>(expression);
-}
-
-template <requite::Situation SITUATION_PARAM>
-void Situator::situateIdentifyExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(
-      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::IDENTIFY);
-  this->situateUnaryExpression<SITUATION_PARAM,
-                               requite::Situation::MATTE_VALUE>(expression);
-  requite::Expression &branch = expression.getBranch();
-  if (branch.getOpcode() != requite::Opcode::__STRING_LITERAL) {
-    return;
-  }
-  std::string text = branch.getDataText().str();
-  expression.mergeBranch();
-  expression.changeOpcode(requite::Opcode::__IDENTIFIER_LITERAL);
-  expression.setDataText(text);
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situateMangledNameExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::MANGLED_NAME);
-  if constexpr (SITUATION_PARAM == requite::Situation::ATTRIBUTE) {
-    this->situateUnaryExpression<SITUATION_PARAM,
-                                 requite::Situation::MATTE_VALUE>(expression);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::SYMBOL_REFLECTIVE_VALUE) {
-    this->situateNullaryExpression<SITUATION_PARAM>(expression);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_AssignExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ASSIGN);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_VALUE) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION,
-                                  requite::Situation::MATTE_VALUE>(expression);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::MATTE_JUNCTION) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_JUNCTION>(
-        expression);
-  } else if constexpr (SITUATION_PARAM ==
-                           requite::Situation::MATTE_DESTINATION ||
-                       SITUATION_PARAM ==
-                           requite::Situation::MATTE_LOCAL_STATEMENT ||
-                       SITUATION_PARAM ==
-                           requite::Situation::STRUCTURED_BINDING) {
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
-          expression, 2);
-      this->setNotOk();
-      return;
-    }
-    requite::Expression &destination = expression.getBranch();
-    requite::Expression *last_destination_branch_ptr = nullptr;
-    if (destination.getOpcode() == requite::Opcode::_TRIP) {
-      if (destination.getHasBranch()) {
-        unsigned branch_i = 0;
-        for (requite::Expression &branch : destination.getBranchSubrange()) {
-          this->situateBranch<requite::Situation::STRUCTURED_BINDING>(
-              "all branches", destination, branch_i++, branch);
-          if (!branch.getHasNext()) {
-            last_destination_branch_ptr = &branch;
-          }
-        }
-      }
-    } else {
-      this->situateBranch<requite::Situation::MATTE_DESTINATION>(
-          "first branch", expression, 0, destination);
-    }
-    if (destination.getOpcode() == requite::Opcode::_TRIP) {
-      if (last_destination_branch_ptr == nullptr) {
-        expression.changeOpcode(requite::Opcode::_IGNORE);
-        std::ignore = expression.replaceBranch(destination.popNext());
-        requite::Expression::deleteExpression(destination);
-        return;
-      }
-      expression.changeOpcode(requite::Opcode::_STRUCTURED_BINDING);
-      requite::Expression &last_destination_branch =
-          requite::getRef(last_destination_branch_ptr);
-      last_destination_branch.setNext(destination.popNext());
-      std::ignore = expression.replaceBranch(destination.popBranch());
-      requite::Expression::deleteExpression(destination);
-      return;
-    }
-    if (!destination.getHasNext()) {
-      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
-          expression, 2);
-      this->setNotOk();
-      return;
-    }
-    requite::Expression &value = destination.getNext();
-    this->situateBranch<requite::Situation::MATTE_VALUE>("second branch",
-                                                         expression, 1, value);
-    if (value.getHasNext()) {
-      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
-          expression, 2);
-      this->setNotOk();
-      return;
-    }
-  } else {
-    static_assert("invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
 inline void Situator::situateTableExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::TABLE);
-  this->situateNaryExpression<
-      SITUATION_PARAM, 1, requite::Situation::SYMBOL_PATH,
-      requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(expression);
+  this->situateNaryExpression<SITUATION_PARAM, 1, requite::Situation::PATH,
+                              requite::Situation::TABLE_STATEMENT>(expression);
   requite::Expression &path_expression = expression.getBranch();
-  if (path_expression.getOpcode() ==
-      requite::Opcode::_MEMBER_SYMBOL_OF_SYMBOL_PATH) {
+  if (path_expression.getOpcode() == requite::Opcode::_MEMBER_OF) {
     requite::Expression *table_body_ptr = path_expression.popNextPtr();
     requite::Expression &first_name_expression = path_expression.popBranch();
     std::ignore = expression.replaceBranch(first_name_expression);
@@ -2963,169 +2201,130 @@ inline void Situator::situateTableExpression(requite::Expression &expression) {
 }
 
 template <requite::Situation SITUATION_PARAM>
-inline void Situator::situate_CompileTimeConcatinateExpression(
-    requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() ==
-                 requite::Opcode::_COMPILE_TIME_CONCATINATE);
-  this->situateNaryExpression<SITUATION_PARAM, 2,
-                              requite::Situation::MATTE_VALUE>(expression);
-  requite::Expression &first_branch = expression.getBranch();
-  for (requite::Expression &branch : first_branch.getHorizontalSubrange()) {
-    if (branch.getOpcode() == requite::Opcode::__STRING_LITERAL) {
-      while (branch.getHasNext() && branch.getNext().getOpcode() ==
-                                        requite::Opcode::__STRING_LITERAL) {
-        requite::Expression &next = branch.popNext();
-        llvm::StringRef cur_text = branch.getDataText();
-        llvm::StringRef next_text = next.getDataText();
-        std::string concatinated_text =
-            llvm::formatv("{}{}", cur_text, next_text);
-        branch.changeDataText(concatinated_text);
-        branch.setNextPtr(next.getNextPtr());
-        requite::Expression::deleteExpression(next);
-      }
-    }
+inline void
+Situator::situateDepthTypeExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(
+      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SIGNED ||
+                 expression.getOpcode() == requite::Opcode::UNSIGNED ||
+                 expression.getOpcode() == requite::Opcode::WORD);
+  if (!expression.getHasBranch()) {
+    requite::Expression &first =
+        requite::Expression::makeOperation(requite::Opcode::ADDRESS_DEPTH);
+    first.setSourceInsertedAfter(expression);
+    expression.setBranch(first);
   }
-  if (!first_branch.getHasNext()) {
-    expression.mergeBranch();
+  this->situateUnaryExpression<SITUATION_PARAM, requite::Situation::VALUE>(
+      expression);
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void Situator::situateScopeExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::SCOPE);
+  this->situateNaryExpression<SITUATION_PARAM, 0,
+                              requite::Situation::LOCAL_STATEMENT>(expression);
+  if constexpr (SITUATION_PARAM == requite::Situation::VALUE) {
+    expression.changeOpcode(requite::Opcode::_INLINE_SCOPE);
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void Situator::situateBlockExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::BLOCK);
+  this->situateNaryExpression<SITUATION_PARAM, 0,
+                              requite::Situation::LOCAL_STATEMENT>(expression);
+  if constexpr (SITUATION_PARAM == requite::Situation::VALUE) {
+    expression.changeOpcode(requite::Opcode::_INLINE_BLOCK);
   }
 }
 
 template <requite::Situation SITUATION_PARAM>
 inline void
-Situator::situate_AscribeLastBranchExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() ==
-                 requite::Opcode::_ASCRIBE_LAST_BRANCH);
+Situator::situateMangledNameExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::MANGLED_NAME);
+  if constexpr (SITUATION_PARAM == requite::Situation::ATTRIBUTE) {
+    this->situateUnaryExpression<SITUATION_PARAM, requite::Situation::VALUE>(
+        expression);
+  } else if constexpr (SITUATION_PARAM == requite::Situation::REFLECTION) {
+    this->situateNullaryExpression<SITUATION_PARAM>(expression);
+  } else {
+    static_assert(false, "invalid situation");
+  }
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void Situator::situateAssertExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(
+      requite::getCanBeSituation<SITUATION_PARAM>(expression.getOpcode()));
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::ASSERT);
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
+        expression, 1);
+    this->setNotOk();
+    return;
+  }
+  requite::Expression &first = expression.getBranch();
+  if (!first.getHasNext()) {
+    requite::SourceLocation location =
+        this->getContext().getSourceStartLocation(expression);
+    std::string assertion_text = llvm::formatv(
+        "assertion failure for expression: \n\n{0}\n\n at {1}:{2}:{3}\"",
+        first.getSourceText(), location.file, location.line, location.column);
+    requite::SavedString saved_text =
+        this->getContext().saveString(assertion_text);
+    requite::Expression &next = requite::Expression::makeString(saved_text);
+    next.setSourceInsertedAfter(first);
+    first.setNext(next);
+  }
+  this->situateBinaryExpression<SITUATION_PARAM, requite::Situation::VALUE>(
+      expression);
+}
+
+template <requite::Situation SITUATION_PARAM>
+inline void
+Situator::situateReflectExpression(requite::Expression &expression) {
+  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_REFLECT);
+  unsigned branch_i = 0;
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
         expression, 2);
     this->setNotOk();
     return;
   }
-  requite::Expression &first_branch = expression.getBranch();
-  this->situateBranch<requite::Situation::ATTRIBUTE>("first branch", expression,
-                                                     0, first_branch);
-  if (!first_branch.getHasNext()) {
+  requite::Expression &value = expression.popBranch();
+  this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
+      "first branch", expression, branch_i++, value);
+  requite::Expression *inner_ptr = &value;
+  requite::Expression *next_ptr = value.popNextPtr();
+  if (next_ptr == nullptr) {
     this->getContext().logErrorNotAtLeastBranchCount<SITUATION_PARAM>(
         expression, 2);
     this->setNotOk();
     return;
   }
-  requite::Expression &next_branch = first_branch.getNext();
-  requite::Expression *previous_branch_ptr = &first_branch;
-  unsigned branch_i = 1;
-  for (requite::Expression &branch : next_branch.getHorizontalSubrange()) {
-    if (branch.getHasNext()) {
-      this->situateBranch<requite::Situation::ATTRIBUTE>(
-          "second to penultimate branches", expression, branch_i++, branch);
-      previous_branch_ptr = &branch;
+  while (next_ptr != nullptr) {
+    requite::Expression &inner = requite::getRef(inner_ptr);
+    requite::Expression &next = requite::getRef(next_ptr);
+    this->situateBranch<SITUATION_PARAM, requite::Situation::REFLECTION>(
+        "second and subsequent branches", expression, branch_i++, next);
+    next_ptr = next.popNextPtr();
+    const requite::Opcode opcode = next.getOpcode();
+    if (opcode == requite::Opcode::__IDENTIFIER_LITERAL) {
+      requite::Expression &member =
+          requite::Expression::makeOperation(requite::Opcode::_MEMBER_OF);
+      member.setSource(inner, next);
+      member.setBranch(inner);
+      inner.setNext(next);
+      inner_ptr = &member;
       continue;
     }
-    this->situateBranch<SITUATION_PARAM>("last branch", expression, branch_i,
-                                         branch);
-    requite::Expression &previous_branch = requite::getRef(previous_branch_ptr);
-    branch.setNext(expression.replaceBranch(previous_branch.popNext()));
-    break;
+    const requite::Opcode universalized = requite::getUniversalized(opcode);
+    next.changeOpcode(universalized);
+    inner.setNextPtr(next.replaceBranchPtr(&inner));
+    inner_ptr = &next;
   }
-  expression.changeOpcode(requite::Opcode::_ASCRIBE_FIRST_BRANCH);
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_ExtendExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_EXTEND);
-  if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_VALUE,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
-    expression.changeOpcode(requite::Opcode::_EXTEND_VALUE);
-  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::MATTE_SYMBOL,
-                                  requite::Situation::MATTE_SYMBOL>(expression);
-    expression.changeOpcode(requite::Opcode::_EXTEND_TYPE);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_VariableDeclaration(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() ==
-                 requite::Opcode::_VARIABLE_DECLARATION);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_MODULE_STATEMENT ||
-                SITUATION_PARAM == requite::Situation::MATTE_TABLE_STATEMENT ||
-                SITUATION_PARAM == requite::Situation::MATTE_OBJECT_STATEMENT) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_VALUE>(expression);
-    expression.changeOpcode(requite::Opcode::_GLOBAL);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::MATTE_LOCAL_STATEMENT) {
-    this->situateBinaryExpression<SITUATION_PARAM,
-                                  requite::Situation::SYMBOL_NAME,
-                                  requite::Situation::MATTE_VALUE>(expression);
-    expression.changeOpcode(requite::Opcode::_LOCAL);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void Situator::situate_Tacit(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_TACIT);
-  this->situateNullaryExpression<SITUATION_PARAM>(expression);
-  if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()){
-    expression.changeOpcode(requite::Opcode::_TACIT_VALUE);
-  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-    expression.changeOpcode(requite::Opcode::_TACIT_SYMBOL);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void
-Situator::situate_ClovenExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_CLOVEN);
-  if constexpr (requite::getIsValueSituation<SITUATION_PARAM>()) {
-    this->situateUnaryExpression<SITUATION_PARAM, SITUATION_PARAM>(expression);
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
-          expression, 1);
-      this->setNotOk();
-      return;
-    }
-    requite::Expression &first = expression.getBranch();
-    this->situateBranch<SITUATION_PARAM>("first branch", expression, 0, first);
-    if (first.getHasNext()) {
-      this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(
-          expression, 1);
-      this->setNotOk();
-      return;
-    }
-    expression.changeOpcode(first.getOpcode());
-    expression.mergeBranch();
-  } else if constexpr (requite::getIsSymbolSituation<SITUATION_PARAM>()) {
-    this->situateUnaryExpression<SITUATION_PARAM,
-                                 requite::Situation::MATTE_SYMBOL>(expression);
-  } else {
-    static_assert(false, "invalid situation");
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
-inline void Situator::situateWhileExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::WHILE);
-  if constexpr (SITUATION_PARAM == requite::Situation::MATTE_LOCAL_STATEMENT) {
-    this->situateNaryExpression<
-        SITUATION_PARAM, 1, requite::Situation::MATTE_VALUE,
-        requite::getNextScopeStatementSituation<SITUATION_PARAM>()>(expression);
-  } else if constexpr (SITUATION_PARAM ==
-                       requite::Situation::LONG_RANGE_STAGE) {
-    this->situateUnaryExpression<SITUATION_PARAM,
-                                 requite::Situation::MATTE_VALUE>(expression);
-  }
+  expression.setBranchPtr(inner_ptr);
+  expression.mergeBranch();
 }
 
 } // namespace requite

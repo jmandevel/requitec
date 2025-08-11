@@ -7,6 +7,7 @@
 #include <requite/const_expression_iterator.hpp>
 #include <requite/expression_iterator.hpp>
 #include <requite/opcode.hpp>
+#include <requite/saved_string.hpp>
 #include <requite/symbol.hpp>
 
 #include <llvm/ADT/APSInt.h>
@@ -29,7 +30,6 @@ struct Global;
 struct Property;
 struct Procedure;
 struct AnonymousFunction;
-struct Alias;
 struct Import;
 struct Use;
 struct UseTable;
@@ -43,13 +43,10 @@ struct Expression final {
   requite::Expression *_branch_ptr = nullptr;
   const char *_source_text_ptr = nullptr;
   unsigned _source_text_length = 0;
-  std::variant<std::monostate, std::string, requite::Scope *, requite::Table *,
-               requite::Object *, requite::Procedure *, requite::Alias *,
-               requite::AnonymousFunction *, requite::Global *,
-               requite::Property *, requite::Local *, requite::Label *,
-               llvm::APSInt, requite::Symbol, requite::Import *, requite::Use *,
-               requite::UseTable *, requite::Block *>
-      _data = std::monostate{};
+  union {
+    void *_nothing_ptr = nullptr;
+    requite::SavedString _text;
+  } _data;
 
   // expression.cpp
   Expression() = default;
@@ -68,26 +65,17 @@ struct Expression final {
   [[nodiscard]] static requite::Expression &makeError();
   [[nodiscard]] static requite::Expression &
   makeOperation(requite::Opcode opcode);
-  [[nodiscard]] static requite::Expression &makeInteger();
-  [[nodiscard]] static requite::Expression &makeFractional();
-  [[nodiscard]] static requite::Expression &makeString(llvm::StringRef text);
-  [[nodiscard]] static requite::Expression &makeCodeunit(llvm::StringRef text);
   [[nodiscard]] static requite::Expression &
-  makeIdentifier(llvm::StringRef text);
+  makeString(requite::SavedString text);
+  [[nodiscard]] static requite::Expression &
+  makeCodeunit(requite::SavedString text);
+  [[nodiscard]] static requite::Expression &
+  makeIdentifier(requite::SavedString text);
 
   // detail/expression_type.hpp
-  [[nodiscard]] inline bool getIsNone() const;
-  [[nodiscard]] inline bool getIsOperation() const;
-  [[nodiscard]] inline bool getIsInteger() const;
-  [[nodiscard]] inline bool getIsFractional() const;
-  [[nodiscard]] inline bool getIsNumeric() const;
-  [[nodiscard]] inline bool getIsString() const;
-  [[nodiscard]] inline bool getIsCodeunit() const;
-  [[nodiscard]] inline bool getIsIdentifier() const;
   [[nodiscard]] inline bool getIsConverging() const;
-  [[nodiscard]] inline bool getIsExpanding() const;
-  [[nodiscard]] inline bool getIsInternalUseOnly() const;
-    [[nodiscard]] inline bool getCanHaveNoSemicolon() const;
+  [[nodiscard]] inline bool getIsInternal() const;
+  [[nodiscard]] inline bool getCanHaveNoSemicolon() const;
   [[nodiscard]] inline requite::Opcode getOpcode() const;
   inline void setOpcode(requite::Opcode opcode);
   inline void changeOpcode(requite::Opcode opcode);
@@ -126,13 +114,18 @@ struct Expression final {
   inline void setNextPtr(requite::Expression *next);
   [[nodiscard]] inline requite::Expression &
   replaceBranch(requite::Expression &replacement);
+  [[nodiscard]] inline requite::Expression *
+  replaceBranchPtr(requite::Expression *replacement);
   [[nodiscard]] inline requite::Expression &
   replaceNext(requite::Expression &replacement);
+  [[nodiscard]] inline requite::Expression *
+  replaceNextPtr(requite::Expression *replacement);
   [[nodiscard]] inline requite::Expression &popBranch();
   [[nodiscard]] inline requite::Expression *popBranchPtr();
   [[nodiscard]] inline requite::Expression &popNext();
   [[nodiscard]] inline requite::Expression *popNextPtr();
   inline void mergeBranch();
+  [[nodiscard]] inline requite::Expression &mergeAndPopBranch();
   inline void replaceWithRecursiveCopy(requite::Expression &replacement);
 
   // detail/expression_source.hpp
@@ -163,68 +156,10 @@ struct Expression final {
   inline void setSourceInsertedAfter(const requite::Expression &expression);
 
   // detail/expression_data.hpp
-  inline void clearData();
   [[nodiscard]] inline bool getHasDataText() const;
-  [[nodiscard]] inline llvm::StringRef getDataText() const;
-  inline void setDataText(llvm::StringRef text);
-  inline void changeDataText(llvm::StringRef text);
-  [[nodiscard]] inline bool getHasTable() const;
-  [[nodiscard]] inline requite::Table &getTable();
-  [[nodiscard]] inline const requite::Table &getTable() const;
-  inline void setTable(requite::Table &table);
-  [[nodiscard]] inline bool getHasObject() const;
-  [[nodiscard]] inline requite::Object &getObject();
-  [[nodiscard]] inline const requite::Object &getObject() const;
-  inline void setObject(requite::Object &object);
-  [[nodiscard]] inline bool getHasProcedure() const;
-  [[nodiscard]] inline requite::Procedure &getProcedure();
-  [[nodiscard]] inline const requite::Procedure &getProcedure() const;
-  [[nodiscard]] inline bool getHasAnonymousFunction() const;
-  inline void setAnonymousFunction(requite::AnonymousFunction &function);
-  [[nodiscard]] inline requite::AnonymousFunction &getAnonymousFunction();
-  [[nodiscard]] inline const requite::AnonymousFunction &
-  getAnonymousFunction() const;
-  [[nodiscard]] inline bool getHasAlias() const;
-  inline void setAlias(requite::Alias &alias);
-  [[nodiscard]] inline requite::Alias &getAlias();
-  [[nodiscard]] inline const requite::Alias &getAlias() const;
-  inline void setGlobal(requite::Global &variable);
-  [[nodiscard]] inline bool getHasGlobal() const;
-  [[nodiscard]] inline requite::Global &getGlobal();
-  [[nodiscard]] inline const requite::Global &getGlobal() const;
-  inline void setProperty(requite::Property &property);
-  [[nodiscard]] inline bool getHasProperty() const;
-  [[nodiscard]] inline requite::Property &getProperty();
-  [[nodiscard]] inline const requite::Property &getProperty() const;
-  inline void setLocal(requite::Local &variable);
-  [[nodiscard]] inline bool getHasLocal() const;
-  [[nodiscard]] inline requite::Local &getLocal();
-  [[nodiscard]] inline const requite::Local &getLocal() const;
-  inline void setProcedure(requite::Procedure &procedure);
-  [[nodiscard]] inline bool getHasLabel() const;
-  inline void setLabel(requite::Label &label);
-  [[nodiscard]] inline requite::Label &getLabel();
-  [[nodiscard]] inline const requite::Label &getLabel() const;
-  [[nodiscard]] inline bool getHasInteger() const;
-  [[nodiscard]] inline llvm::APSInt &emplaceInteger();
-  [[nodiscard]] inline llvm::APSInt &getInteger();
-  [[nodiscard]] inline const llvm::APSInt &getInteger() const;
-  [[nodiscard]] inline bool getHasImport() const;
-  inline void setImport(requite::Import &import);
-  [[nodiscard]] inline requite::Import &getImport();
-  [[nodiscard]] inline const requite::Import &getImport() const;
-  [[nodiscard]] inline bool getHasUse() const;
-  inline void setUse(requite::Use &use);
-  [[nodiscard]] inline requite::Use &getUse();
-  [[nodiscard]] inline const requite::Use &getUse() const;
-  [[nodiscard]] inline bool getHasUseTable() const;
-  inline void setUseTable(requite::UseTable& use);
-  [[nodiscard]] inline requite::UseTable& getUseTable();
-  [[nodiscard]] inline const requite::UseTable &getUseTable() const;
-  [[nodiscard]] inline bool getHasBlock() const;
-  inline void setBlock(requite::Block &block);
-  [[nodiscard]] inline requite::Block &getBlock();
-  [[nodiscard]] inline const requite::Block &getBlock() const;
+  [[nodiscard]] inline requite::SavedString getDataText() const;
+  inline void setDataText(requite::SavedString text);
+  inline void changeDataText(requite::SavedString text);
 
   // detail/expression_subrange.hpp
   [[nodiscard]] inline std::ranges::subrange<

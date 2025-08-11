@@ -11,14 +11,12 @@ target_sources(
 target_sources(
     librequite
     PRIVATE
-        alias.cpp
         anonymous_function.cpp
         anonymous_object.cpp
         anonymous_property.cpp
         ast_writer_indent_lock.cpp
         ast_writer.cpp
         attribute_flags.cpp
-        block.cpp
         build.cpp
         builder.cpp
         const_expression_iterator.cpp
@@ -31,7 +29,6 @@ target_sources(
         expression.cpp
         file.cpp
         global.cpp
-        label.cpp
         llvm_target.cpp
         llvm_module.cpp
         local.cpp
@@ -39,7 +36,6 @@ target_sources(
         lookup_symbols.cpp
         lookup_table_entry.cpp
         lookup_table_result.cpp
-        make_symbols.cpp
         module_table.cpp
         module.cpp
         object.cpp
@@ -48,7 +44,6 @@ target_sources(
         parse.cpp
         parse_precedence.cpp
         parser.cpp
-        prepare_tables.cpp
         procedure_iterator.cpp
         procedure.cpp
         property.cpp

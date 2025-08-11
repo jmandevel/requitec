@@ -1,0 +1,106 @@
+[entry_point
+
+    // all of these loops are equivalent
+
+    // equal limit range
+    [loop value, 0..==9,
+        std.print(line="value is {value}");    
+    ]
+
+    // less limit range
+    [loop value, 0..<10,
+        std.print(line="value is {value}");    
+    ]
+
+    // short range
+    [loop value, 0.<10.+1,
+        std.print(line="value is {value}");    
+    ]
+
+    // long range
+    [loop val, [for 0]=>[while val<10]=>[do val]=>[step val+=1;],
+        std.print(line="value is {val}");   
+    ]
+
+    [scope
+        // long range over variable
+        value := 0;
+        [loop [while value<10]=>[do val]=>[step value+=1;],
+            std.print(line="value is {value}");   
+        ]
+    ]
+
+    [scope
+        // while loop    
+        value = 0;
+        [loop [while value < 10]=>[do],
+            std.print(line="value is {value}");   
+            value += 1;
+        ]
+    ]
+
+    [scope
+        // do while loop    
+        value = 0;
+        [loop [do]=>[while value < 10],
+            std.print(line="value is {value}");   
+            value += 1;
+        ]
+    ]
+
+    // element range
+    [loop value, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},    
+        std.print(line="value is {value}");
+    ]
+
+    // ranger range
+    [object MyObject,
+        {> 
+            @private data:={0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 
+        <},
+
+        [constructor]
+
+        [ranger [signed],
+            [loop value, .data,
+              [range_over 
+                value
+              ]
+            ]
+        ]
+    ]
+    object := MyObject();
+    [loop value, object,
+        std.print(line="value is {value}");
+    ]
+
+    // range passed into function
+    [function printRange, (>range:&[range[signed]]<),
+        [loop range, 
+            std.print(line="value is {value}");
+        ]
+    ]
+    [scope
+        passable_range := [for value:=0;]=>[while value<10]=>[do value]=>[step value+=1;];
+        printRange(range=&`:passable_range);
+    ]
+
+    // range passed into function with captured variable
+    [scope
+        value := 0;
+        // if value is referenced without a capture, the range is not passable.
+        passable_range := [&`:capture value]=>[while value<10]=>[do value]=>[step value+=1;];
+        printRange(range=&`:passable_range);
+        std.print(line="value is {value}"); // should be 9
+    ]
+
+    // ranges can be used for pattern matching
+    value_in_range :=
+        [match 9,
+            [case 0..==9,
+                = [true];
+            ][default
+                = [false];
+            ]        
+        ];
+]

@@ -46,15 +46,7 @@ bool Builder::buildSymbolEntryPoint(requite::Procedure &entry_point) {
 }
 
 bool Builder::buildStatement(requite::Expression &statement) {
-  switch (const requite::Opcode opcode = statement.getOpcode()) {
-  case requite::Opcode::_LOCAL:
-    return this->buildStatement_Local(statement);
-  case requite::Opcode::EXIT:
-    return this->buildStatementExit(statement);
-  default:
-    break;
-  }
-  return false;
+  return false; // TODO
 }
 
 bool Builder::buildStatementExit(requite::Expression &statement) {
@@ -90,25 +82,6 @@ void Builder::buildAssignment(llvm::Value *llvm_value,
   );
 }
 
-bool Builder::buildStatement_Local(requite::Expression &statement) {
-  REQUITE_ASSERT(statement.getOpcode() == requite::Opcode::_LOCAL);
-  requite::Local &local = statement.getLocal();
-  requite::Symbol &type = local.getDataType();
-  llvm::Type *llvm_type = this->makeLlvmType(type);
-  llvm::AllocaInst *llvm_alloca =
-      this->buildLlvmAlloca(llvm_type, local.getName());
-  local.setLlvmAllocaPtr(llvm_alloca);
-  requite::Expression &name_expression = statement.getBranch();
-  requite::Expression &value_expression = name_expression.getNext();
-  // todo store values for aggregate types
-  llvm::Value *llvm_value = this->buildValue(value_expression, type);
-  if (llvm_value == nullptr) {
-    return false;
-  }
-  this->buildAssignment(llvm_value, llvm_alloca);
-  return true;
-}
-
 llvm::AllocaInst *Builder::buildLlvmAlloca(llvm::Type *llvm_type,
                                            llvm::StringRef name) {
   llvm::IRBuilderBase::InsertPoint old_insertion_point =
@@ -125,12 +98,10 @@ llvm::AllocaInst *Builder::buildLlvmAlloca(llvm::Type *llvm_type,
 llvm::Value *Builder::buildValue(requite::Expression &expression,
                                  const requite::Symbol &expected_type) {
   switch (const requite::Opcode opcode = expression.getOpcode()) {
-  case requite::Opcode::__LOCAL_HANDLE:
-    return this->buildValue__LocalHandle(expression, expected_type);
   case requite::Opcode::__IDENTIFIER_LITERAL:
     REQUITE_UNREACHABLE();
   case requite::Opcode::__INTEGER_LITERAL:
-    return this->buildValue__IntegerLiteral(expression, expected_type);
+    return this->buildValue_IntegerLiteral(expression, expected_type);
   case requite::Opcode::_ADD:
     return this->buildValue_Add(expression, expected_type);
   default:
@@ -140,17 +111,7 @@ llvm::Value *Builder::buildValue(requite::Expression &expression,
 }
 
 llvm::Value *
-Builder::buildValue__LocalHandle(requite::Expression &expression,
-                                 const requite::Symbol &expected_type) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::__LOCAL_HANDLE);
-  requite::Local &local = expression.getLocal();
-  llvm::StringRef name = local.getName();
-  llvm::AllocaInst *llvm_alloca = local.getLlvmAllocaPtr();
-  return llvm_alloca;
-}
-
-llvm::Value *
-Builder::buildValue__IntegerLiteral(requite::Expression &expression,
+Builder::buildValue_IntegerLiteral(requite::Expression &expression,
                                     const requite::Symbol &expected_type) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::__INTEGER_LITERAL);
   unsigned depth = expected_type.getRoot().getDepth();

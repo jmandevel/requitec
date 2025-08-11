@@ -1,17 +1,23 @@
-@(template Type::[type])
+@{>Type:[type]<}
 [variant Nullable, [signed 8],
     none;
-    value::Type;
+    value:Type;
 ]
 
-[entry_point
-    var := Nullable{[signed]}..none();
+[import "std"]
 
-    [if var.none.[is_alive],
-        std..print(line:"its none");
+[entry_point
+    var := Nullable{[signed]}.none();
+
+    [match var,
+        [case none,
+            std.print(line="var is none");
+        ][case value(val),
+            std.print(line="var is {val}");
+        ]
     ]
 
-    var = Nullable{[signed]}..value(10);
+    var = Nullable{[signed]}.value(10);
 
-    std..print(line:"the descriminant value is {var.[descriminant]}.");
+    std.print(line="the descriminant value is {var.[descriminant]}.");
 ]

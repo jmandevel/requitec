@@ -10,19 +10,14 @@ namespace requite {
 
 enum class GroupingType {
   NONE,
-  VALUE_INTERPOLATION,
-  STATEMENT_INTERPOLATION,
+  INTERPOLATION,
   BRACKET,
   TRIP,
-  OPEN_CAP,
-  CLOSED_CAP,
-  PARENTHESIS,
-  SIGNATURE,
-  VARIANT
+  PARENTHESIS
 };
 
 [[nodiscard]] constexpr std::string_view
-getName(requite::GroupingType grouping);
+getDescription(requite::GroupingType grouping);
 
 } // namespace requite
 

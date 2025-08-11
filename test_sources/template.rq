@@ -1,11 +1,14 @@
-@(template Type::[type], LENGTH::[unsigned])
-[object Array;
-    prop .= 0;
-    data .= LENGTH#Type\[indeterminate];
+@{> Type:[type], LENGTH:[unsigned] <}
+[object Array,
+    {>
+        data := LENGTH#Type:[fill 0],
+    <},
+
+    [constructor]
 ]
 
 [entry_point
 
-    my_array := Array{::[binary32], :0}();
+    my_array := Array{[binary32], 64}();
 
 ]
