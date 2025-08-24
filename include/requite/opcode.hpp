@@ -143,7 +143,6 @@ enum class  Opcode : unsigned {
   _CALL,
   _INDEX,
   _SIGNATURE,
-  _EXTENSION_SIGNATURE,
   DESTROY,
   _DESTROY_VALUE,
   DROP,

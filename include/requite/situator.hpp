@@ -104,8 +104,6 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situateColonExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateExtendExpression(requite::Expression &expression);
-  template <requite::Situation SITUATION_PARAM>
   inline void situateIdentifyExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateConcatinateExpression(requite::Expression &expression);

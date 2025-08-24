@@ -233,8 +233,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_index";
   case O::_SIGNATURE:
     return "_signature";
-  case O::_EXTENSION_SIGNATURE:
-    return "_extension_signature";
   case O::DESTROY:
     return "destroy";
   case O::_DESTROY_VALUE:
@@ -803,8 +801,6 @@ _getFlags(requite::Opcode opcode) {
   case O::_INDEX:
     return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT;
   case O::_SIGNATURE:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
-  case O::_EXTENSION_SIGNATURE:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
   case O::DESTROY:
     return _REFLECTION;

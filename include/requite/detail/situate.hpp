@@ -144,7 +144,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     if constexpr (!getCanBeSituation<SP>(O::_EXTEND)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateExtendExpression<SP>(expression);
+      this->situateBinaryExpression<SP, S::VALUE, S::VALUE>(expression);
     }
     break;
   case O::_BINDING:
@@ -633,14 +633,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SP, 1, S::VALUE, S::PARAMETER>(expression);
-    }
-    break;
-  case O::_EXTENSION_SIGNATURE:
-    if constexpr (!getCanBeSituation<SP>(O::_EXTENSION_SIGNATURE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SP, 2, S::VALUE, S::VALUE, S::PARAMETER>(
-          expression);
     }
     break;
   case O::DESTROY:
@@ -1967,34 +1959,6 @@ inline void Situator::situateColonExpression(requite::Expression &expression) {
 }
 
 template <requite::Situation SITUATION_PARAM>
-inline void Situator::situateExtendExpression(requite::Expression &expression) {
-  REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_EXTEND);
-  unsigned branch_i = 0;
-  if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
-                                                                    2);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &branch = expression.getBranch();
-  this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
-      "first branch", expression, branch_i++, branch);
-  if (!branch.getHasNext()) {
-    this->getContext().logErrorNotExactBranchCount<SITUATION_PARAM>(expression,
-                                                                    2);
-    this->setNotOk();
-    return;
-  }
-  requite::Expression &next = branch.getNext();
-  this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
-      "second branch", expression, branch_i++, next);
-  if (next.getOpcode() == requite::Opcode::_SIGNATURE) {
-    expression.changeOpcode(requite::Opcode::_EXTENSION_SIGNATURE);
-    delete branch.replaceNextPtr(next.popBranchPtr());
-  }
-}
-
-template <requite::Situation SITUATION_PARAM>
 inline void
 Situator::situateAscribeExpression(requite::Expression &expression) {
   REQUITE_ASSERT(expression.getOpcode() == requite::Opcode::_ASCRIBE);
@@ -2036,8 +2000,7 @@ Situator::situateAscribeExpression(requite::Expression &expression) {
     return;
   }
   requite::Expression &unascribed = expression.getBranch();
-  if (unascribed.getOpcode() == requite::Opcode::_EXTEND ||
-      unascribed.getOpcode() == requite::Opcode::_EXTENSION_SIGNATURE) {
+  if (unascribed.getOpcode() == requite::Opcode::_EXTEND) {
     if (!unascribed.getHasBranch()) {
       return;
     }
@@ -2126,16 +2089,16 @@ inline void Situator::situateAssignExpression(requite::Expression &expression) {
   this->situateBranch<SITUATION_PARAM, requite::Situation::VALUE>(
       "second branch", expression, branch_i++, value);
   switch (const requite::Opcode opcode = destination.getOpcode()) {
-    case requite::Opcode::_NULL:
-      destination.changeOpcode(requite::Opcode::_IGNORE);
-      expression.mergeBranch();
-      break;
-    case requite::Opcode::_TUPLE:
-      destination.changeOpcode(requite::Opcode::_STRUCTURED_BINDING);
-      expression.mergeBranch();
-      break;
-    default:
-      break;
+  case requite::Opcode::_NULL:
+    destination.changeOpcode(requite::Opcode::_IGNORE);
+    expression.mergeBranch();
+    break;
+  case requite::Opcode::_TUPLE:
+    destination.changeOpcode(requite::Opcode::_STRUCTURED_BINDING);
+    expression.mergeBranch();
+    break;
+  default:
+    break;
   }
 }
 
