@@ -74,20 +74,20 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->tabulateModule(source_module)) {
-    return false;
-  }
+  //if (!this->tabulateModule(source_module)) {
+  //  return false;
+  //}
   //this->propogateExportedImports();
   //this->diffuseUses();
   if (requite::getEmitMode() == requite::EMIT_SYMBOLS) {
-    if (!this->writeUserSymbols(output_path)) {
-      return false;
-    }
+    //if (!this->writeUserSymbols(output_path)) {
+    //  return false;
+    //}
     return true;
   }
-  if (!this->implementAll()) {
-    return false;
-  }
+  //if (!this->implementAll()) {
+  //  return false;
+  //}
   if (requite::getEmitMode() == requite::EMIT_IMPLEMENTED) {
     if (!this->writeAst(source_module, output_path)) {
       return false;
@@ -97,9 +97,9 @@ bool Context::run() {
   //if (!this->checkEntryPointCount()) {
   //  return false;
   //}
-  if (!this->buildIr()) {
-    return false;
-  }
+  //if (!this->buildIr()) {
+  //  return false;
+  //}
   if (requite::getEmitMode() == requite::EMIT_IR) {
     if (!this->writeLlvmIr(output_path)) {
       return false;

@@ -8,7 +8,6 @@
 #include <requite/expression_iterator.hpp>
 #include <requite/opcode.hpp>
 #include <requite/saved_string.hpp>
-#include <requite/symbol.hpp>
 
 #include <llvm/ADT/APSInt.h>
 #include <llvm/ADT/StringRef.h>
@@ -20,20 +19,7 @@
 
 namespace requite {
 
-struct Context;
 struct Token;
-struct Scope;
-struct Table;
-struct Object;
-struct Local;
-struct Global;
-struct Property;
-struct Procedure;
-struct AnonymousFunction;
-struct Import;
-struct Use;
-struct UseTable;
-struct Block;
 
 struct Expression final {
   using Self = requite::Expression;

@@ -4,24 +4,13 @@
 
 #pragma once
 
-#include <requite/anonymous_function.hpp>
 #include <requite/assert.hpp>
 #include <requite/file.hpp>
-#include <requite/global.hpp>
-#include <requite/import.hpp>
-#include <requite/local.hpp>
 #include <requite/log_type.hpp>
 #include <requite/module.hpp>
 #include <requite/numeric.hpp>
-#include <requite/object.hpp>
 #include <requite/opcode.hpp>
-#include <requite/procedure.hpp>
-#include <requite/property.hpp>
-#include <requite/scope.hpp>
 #include <requite/situation.hpp>
-#include <requite/table.hpp>
-#include <requite/use.hpp>
-#include <requite/use_table.hpp>
 #include <requite/saved_string.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -80,7 +69,6 @@ struct Context final : public requite::_ContextLlvmContext {
   std::unique_ptr<llvm::DataLayout> _llvm_data_layout_uptr = {};
   std::unique_ptr<llvm::IRBuilder<>> _llvm_builder_uptr = {};
   std::unique_ptr<llvm::Module> _llvm_module_uptr = nullptr;
-  requite::Scope _outer_scope = {};
 
   // context.cpp
   Context() = delete;
@@ -91,8 +79,6 @@ struct Context final : public requite::_ContextLlvmContext {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] llvm::StringRef getExecutablePath() const;
-  [[nodiscard]] requite::Scope &getOuterScope();
-  [[nodiscard]] const requite::Scope &getOuterScope() const;
 
   // detail/allocate.hpp
   template<typename TypeParam, typename... ArgNParam>
@@ -113,7 +99,6 @@ struct Context final : public requite::_ContextLlvmContext {
   getSourceRange(const requite::Expression &expression) const;
 
   // module_map.cpp
-  [[nodiscard]] bool importModule(requite::Import &import);
   [[nodiscard]]
   bool getHasModule(llvm::StringRef path) const;
   [[nodiscard]]
@@ -160,25 +145,6 @@ struct Context final : public requite::_ContextLlvmContext {
 
   // build.cpp
   [[nodiscard]] bool buildIr();
-
-  // resolve.cpp
-  [[nodiscard]] bool resolveSymbol(requite::Symbol &out_symbol,
-                                   requite::Scope &scope,
-                                   requite::Expression &symbol_expression);
-  [[nodiscard]] bool resolveTypeAttributes(requite::AttributeFlags &flags,
-                                           requite::Expression &first);
-  void finalizeIfLiteralType(requite::Symbol &symbol);
-
-  // evaluate.cpp
-  [[nodiscard]] bool evaluateInstantName(llvm::StringRef &out_name,
-                                         requite::Expression &value_expression);
-  [[nodiscard]] bool
-  evaluateConstantUnsigned(unsigned &out_unsigned, requite::Scope &scope,
-                           requite::Expression &value_expression);
-
-  // choose_overload.cpp
-  [[nodiscard]] bool chooseOverload(requite::Scope &scope,
-                                    requite::Expression &call_expression);
 
   // write_tokens.cpp
   [[nodiscard]] bool writeTokens(requite::Module &module,
@@ -290,14 +256,9 @@ struct Context final : public requite::_ContextLlvmContext {
   void logErrorNonInstantEvaluatableName(requite::Expression &expression);
   void logErrorNonExternallyAccessableTable(requite::Expression &expression);
   void logErrorAlreadySymbolOfName(requite::Expression &expression);
-  void logErrorDuplicateAttribute(requite::Expression &expression,
-                                  requite::AttributeType type);
   void logNotSupportedYet(requite::Expression &expression);
   void logErrorNumericParse(requite::Expression &expression,
                             requite::NumericResult result);
-  void
-  logErrorInvalidExpectedTypeForOperation(requite::Expression &expression,
-                                          const requite::Symbol &expected_type);
   void logErrorMustNotHaveAttributes(requite::Expression &expression);
   void logErrorMissingTrailingSemicolon(requite::Expression &expression);
   void logErrorExpectedCommaSeperator(const requite::Token &token);

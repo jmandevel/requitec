@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <requite/module.hpp>
-#include <requite/procedure.hpp>
 
 namespace requite {
 
@@ -71,26 +70,6 @@ const char *Module::getTextPtr() const { return this->getFile().getTextPtr(); }
 std::uint_fast32_t Module::getBufferI() const {
   return this->getFile().getBufferI();
 }
-
-bool Module::getHasEntryPoint() const {
-  return this->_entry_point_ptr != nullptr;
-}
-
-void Module::addEntryPoint(requite::Procedure &entry_point) {
-  if (this->getHasEntryPoint()) {
-    entry_point.setNextProcedure(this->getEntryPoint());
-    this->_entry_point_ptr = &entry_point;
-  }
-  this->_entry_point_ptr = &entry_point;
-}
-
-requite::Procedure &Module::getEntryPoint() {
-  return requite::getRef(this->_entry_point_ptr);
-}
-
-const requite::Procedure &Module::getEntryPoint() const {
-  return requite::getRef(this->_entry_point_ptr);
-}
   
 std::set<requite::Module*> &Module::getImportModulePtrSet() {
   return this->_import_module_ptr_set;
@@ -107,6 +86,5 @@ std::vector<requite::Module*> &Module::getExportModulePtrs() {
 const std::vector<requite::Module*> &Module::getExportModulePtrs() const {
   return this->_export_module_ptrs;
 }
-
 
 } // namespace requite

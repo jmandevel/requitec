@@ -14,10 +14,4 @@ llvm::StringRef Context::getExecutablePath() const {
   return this->_executable_path;
 }
 
-requite::Scope &Context::getOuterScope() { return this->_outer_scope; }
-
-const requite::Scope &Context::getOuterScope() const {
-  return this->_outer_scope;
-}
-
 } // namespace requite

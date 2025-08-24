@@ -9,7 +9,6 @@
 #include <requite/context.hpp>
 #include <requite/expression.hpp>
 #include <requite/options.hpp>
-#include <requite/symbol.hpp>
 #include <requite/token.hpp>
 
 #include <llvm/Support/raw_ostream.h>
@@ -90,13 +89,6 @@ void Context::logErrorAlreadySymbolOfName(requite::Expression &expression) {
                          "already symbol of name");
 }
 
-void Context::logErrorDuplicateAttribute(requite::Expression &expression,
-                                         requite::AttributeType type) {
-  this->logSourceMessage(expression, requite::LogType::ERROR,
-                         llvm::Twine(requite::getName(type)) +
-                             " attribute is ascribed more than once");
-}
-
 void Context::logErrorNumericParse(requite::Expression &expression,
                                    requite::NumericResult result) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
@@ -106,16 +98,6 @@ void Context::logErrorNumericParse(requite::Expression &expression,
 void Context::logNotSupportedYet(requite::Expression &expression) {
   this->logSourceMessage(expression, requite::LogType::ERROR,
                          "not supported yet");
-}
-
-void Context::logErrorInvalidExpectedTypeForOperation(
-    requite::Expression &expression, const requite::Symbol &expected_type) {
-  llvm::SmallString<32> buffer;
-  llvm::StringRef type_name = expected_type.getName(buffer);
-  this->logSourceMessage(expression, requite::LogType::ERROR,
-                         llvm::Twine("operation of opcode \"") +
-                             requite::getName(expression.getOpcode()) +
-                             "\" can not result in value of type" + type_name);
 }
 
 void Context::logErrorMustNotHaveAttributes(requite::Expression &expression) {

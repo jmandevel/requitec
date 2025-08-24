@@ -11,79 +11,41 @@ target_sources(
 target_sources(
     librequite
     PRIVATE
-        anonymous_function.cpp
-        anonymous_object.cpp
-        anonymous_property.cpp
         ast_writer_indent_lock.cpp
         ast_writer.cpp
         attribute_flags.cpp
-        build.cpp
-        builder.cpp
         const_expression_iterator.cpp
-        containing_scope_iterator.cpp
         context.cpp
         escape_sequences.cpp
-        evaluate.cpp
         expression_iterator.cpp
         expression_make.cpp
         expression.cpp
         file.cpp
-        global.cpp
         llvm_target.cpp
         llvm_module.cpp
-        local.cpp
         log.cpp
-        lookup_symbols.cpp
-        lookup_table_entry.cpp
-        lookup_table_result.cpp
         module_table.cpp
         module.cpp
-        object.cpp
         opcode.cpp
         options.cpp
         parse.cpp
         parse_precedence.cpp
         parser.cpp
-        procedure_iterator.cpp
-        procedure.cpp
-        property.cpp
-        resolve.cpp
-        root_symbol.cpp
         run.cpp
-        signature_parameter.cpp
-        signature.cpp
-        scope.cpp
         situate.cpp
         situator.cpp
         source_ranger.cpp
         source_text.cpp
-        sub_symbol.cpp
-        symbol_map.cpp
-        symbol.cpp
-        use_table.cpp
-        table.cpp
-        tabulator.cpp
-        tabulate.cpp
         tasks.cpp
         token.cpp
         tokenize.cpp
         tokenizer.cpp
-        tuple.cpp
-        use.cpp
-        user_symbol_writer_indent_lock.cpp
-        user_symbol_writer.cpp
-        user_symbol.cpp
-        global.cpp
         grouping_parse.cpp
         grouping_parser.cpp
-        implement.cpp
-        implementor.cpp
-        import.cpp
         write_assembly.cpp
         validate_source.cpp
         write_ast.cpp
         write_llvm_ir.cpp
         write_object.cpp
         write_tokens.cpp
-        write_user_symbols.cpp
 )

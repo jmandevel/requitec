@@ -5,7 +5,6 @@
 #pragma once
 
 #include <requite/file.hpp>
-#include <requite/scope.hpp>
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
@@ -20,7 +19,6 @@ namespace requite {
 
 struct Context;
 struct Expression;
-struct Import;
 
 struct Module final {
   using Self = requite::Module;
@@ -28,7 +26,6 @@ struct Module final {
   std::string _name = {};
   requite::Expression *_expression_ptr = nullptr;
   requite::File _file = {};
-  requite::Procedure *_entry_point_ptr = nullptr;
   std::set<requite::Module*> _import_module_ptr_set = {};
   std::vector<requite::Module*> _export_module_ptrs = {};
 
@@ -58,17 +55,10 @@ struct Module final {
   [[nodiscard]] llvm::StringRef getText() const;
   [[nodiscard]] const char *getTextPtr() const;
   [[nodiscard]] std::uint_fast32_t getBufferI() const;
-  [[nodiscard]] bool getHasEntryPoint() const;
-  void addEntryPoint(requite::Procedure &entry_point);
-  [[nodiscard]] requite::Procedure &getEntryPoint();
-  [[nodiscard]] const requite::Procedure &getEntryPoint() const;
   [[nodiscard]] std::set<requite::Module*> &getImportModulePtrSet();
   [[nodiscard]] const std::set<requite::Module*> &getImportModulePtrSet() const;
   [[nodiscard]] std::vector<requite::Module*> &getExportModulePtrs();
   [[nodiscard]] const std::vector<requite::Module*> &getExportModulePtrs() const;
-
-  // module_table.cpp
-  void addImport(requite::Import& import);
 };
 
 } // namespace requite
