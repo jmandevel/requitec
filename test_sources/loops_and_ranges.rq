@@ -18,7 +18,7 @@
     ]
 
     // long range
-    [loop val, [for 0]=>[while val<10]=>[do val]=>[step val+=1;],
+    [loop [for val:=0;]=>[while val<10]=>[do val]=>[step val+=1;],
         std.print(line="value is {val}");   
     ]
 
