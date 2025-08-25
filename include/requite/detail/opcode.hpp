@@ -631,7 +631,7 @@ _getFlags(requite::Opcode opcode) {
   case O::__CODEUNIT_LITERAL:
     return _INTERNAL | _VALUE | _ARGUMENT;
   case O::__IDENTIFIER_LITERAL:
-    return _INTERNAL | _VALUE | _REFLECTION | _ARGUMENT | _PARAMETER |
+    return _INTERNAL | _VALUE | _DESTINATION | _REFLECTION | _ARGUMENT | _PARAMETER |
            _BINDING | _NAME | _PATH;
 
   // ERRORS
