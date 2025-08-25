@@ -91,10 +91,22 @@ enum class  Opcode : unsigned {
   _TRUNCATE_FRONT_OF,
   TRUNCATE_BACK,
   _TRUNCATE_BACK_OF,
-  AT,
-  _AT_ADDRESS,
+  CONTENT,
+  _CONTENT_OF,
   ADDRESS,
   _ADDRESS_OF,
+  BORROW,
+  _BORROW_OF,
+  _BORROW_OF_ASCRIBED,
+  STEAL,
+  _STEAL_OF,
+  _STEAL_OF_ASCRIBED,
+  VIEW,
+  _VIEW_OF,
+  _VIEW_OF_ASCRIBED,
+  SLICE,
+  _SLICE_OF,
+  _SLICE_OF_ASCRIBED,
 
   // ASSIGNMENT
   _ASSIGN,
@@ -318,6 +330,8 @@ static constexpr unsigned OPCODE_COUNT =
 [[nodiscard]] constexpr std::string_view getName(requite::Opcode opcode);
 [[nodiscard]] constexpr requite::Opcode
 getUniversalized(requite::Opcode opcode);
+[[nodiscard]] constexpr requite::Opcode
+getUniversalizedAscribed(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsValid(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsInternal(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getIsIntermediate(requite::Opcode opcode);

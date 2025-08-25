@@ -19,6 +19,7 @@ enum class Situation {
   LOCAL_STATEMENT,
   VALUE,
   REFLECTION,
+  ASCRIBED_REFLECTION,
   ARGUMENT,
   PARAMETER,
   BINDING,
@@ -49,6 +50,7 @@ template<requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr bool getCanBeLocalStatement(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeValue(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeReflection(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getCanBeAscribedReflection(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeArgument(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeParameter(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeBinding(requite::Opcode opcode);

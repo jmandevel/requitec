@@ -35,8 +35,8 @@ void PrecedenceParser::parseAscribe(const requite::Token &token) {
   if (this->getHasOperation()) {
     requite::Expression &old_operation = this->getOperation();
     if (old_operation.getOpcode() != requite::Opcode::_ASCRIBE) {
-      requite::Expression &new_operation = requite::Expression::makeOperation(
-          requite::Opcode::_ASCRIBE);
+      requite::Expression &new_operation =
+          requite::Expression::makeOperation(requite::Opcode::_ASCRIBE);
       new_operation.setSource(old_operation, token);
       this->appendBranch(new_operation);
       if (!this->getHasOuter()) {
@@ -104,6 +104,23 @@ void PrecedenceParser::parseNestingNary(const requite::Token &token,
   this->_outer_ptr = &operation;
 }
 
+void PrecedenceParser::parseHorned(requite::Parser &parser,
+                                   const requite::Token &token,
+                                   requite::Opcode opcode,
+                                   requite::TokenType right_token) {
+  this->appendRecent();
+  requite::Expression &horn = this->getOuter();
+  requite::Expression &horned = requite::Expression::makeOperation(opcode);
+  horned.setBranch(horn);
+  horned.setSource(horn, token);
+  bool has_parameter_marks =
+      parser.parseCommaSeperatedBranches(horned, right_token, true);
+  this->_outer_ptr = nullptr;
+  this->_operation_ptr = nullptr;
+  this->_last_ptr = nullptr;
+  this->_recent_ptr = &horned;
+}
+
 void PrecedenceParser::parseShortRangeBranch(const requite::Token &token,
                                              requite::Opcode opcode,
                                              requite::Expression &rvalue) {
@@ -141,7 +158,7 @@ void PrecedenceParser::appendBranch(requite::Expression &branch) {
 }
 
 void PrecedenceParser::appendUnaryAttribute(const requite::Token &token,
-                                         requite::Opcode opcode) {
+                                            requite::Opcode opcode) {
   requite::Expression &expression = requite::Expression::makeOperation(opcode);
   expression.setSource(token);
   this->appendBranch(expression);

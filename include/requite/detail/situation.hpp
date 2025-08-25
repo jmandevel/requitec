@@ -28,6 +28,8 @@ constexpr llvm::StringRef getDescription(requite::Situation situation) {
     return "value";
   case S::REFLECTION:
     return "reflection";
+  case S::ASCRIBED_REFLECTION:
+    return "ascribed reflection";
   case S::ARGUMENT:
     return "argument";
   case S::PARAMETER:
@@ -96,6 +98,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return getCanBeValue(opcode);
   } else if constexpr (SP == S::REFLECTION) {
     return getCanBeReflection(opcode);
+  } else if constexpr (SP == S::ASCRIBED_REFLECTION) {
+    return getCanBeAscribedReflection(opcode);
   } else if constexpr (SP == S::ARGUMENT) {
     return getCanBeArgument(opcode);
   } else if constexpr (SP == S::PARAMETER) {
@@ -166,6 +170,11 @@ constexpr bool getCanBeValue(requite::Opcode opcode) {
 constexpr bool getCanBeReflection(requite::Opcode opcode) {
   return requite::_getHasFlags(opcode,
                                         requite::_opcode::_REFLECTION);
+}
+
+constexpr bool getCanBeAscribedReflection(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode,
+                                        requite::_opcode::_ASCRIBED_REFLECTION);
 }
 
 constexpr bool getCanBeArgument(requite::Opcode opcode) {

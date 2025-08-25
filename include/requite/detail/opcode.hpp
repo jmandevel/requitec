@@ -143,14 +143,38 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "truncate_back";
   case O::_TRUNCATE_BACK_OF:
     return "_truncate_back_of";
-  case O::AT:
-    return "at";
-  case O::_AT_ADDRESS:
-    return "_at_address";
+  case O::CONTENT:
+    return "content";
+  case O::_CONTENT_OF:
+    return "_content_of";
   case O::ADDRESS:
     return "address";
   case O::_ADDRESS_OF:
     return "_address_of";
+  case O::BORROW:
+    return "borrow";
+  case O::_BORROW_OF:
+    return "_borrow_of";
+  case O::_BORROW_OF_ASCRIBED:
+    return "_borrow_of_ascribed";
+  case O::STEAL:
+    return "steal";
+  case O::_STEAL_OF:
+    return "_steal_of";
+  case O::_STEAL_OF_ASCRIBED:
+    return "_steal_of_ascribed";
+  case O::VIEW:
+    return "view";
+  case O::_VIEW_OF:
+    return "_view_of";
+  case O::_VIEW_OF_ASCRIBED:
+    return "_view_of_ascribed";
+  case O::SLICE:
+    return "slice";
+  case O::_SLICE_OF:
+    return "_slice_of";
+  case O::_SLICE_OF_ASCRIBED:
+    return "_slice_of_ascribed";
 
   // ASSIGNMENT
   case O::_ASSIGN:
@@ -551,20 +575,21 @@ enum _OpcodeFlags : std::uint32_t {
   _LOCAL_STATEMENT = requite::getBit(19),
   _VALUE = requite::getBit(18),
   _REFLECTION = requite::getBit(17),
-  _ARGUMENT = requite::getBit(16),
-  _PARAMETER = requite::getBit(15),
-  _BINDING = requite::getBit(14),
-  _DESTINATION = requite::getBit(13),
-  _ALTERNATIVE = requite::getBit(12),
-  _NAME = requite::getBit(11),
-  _PATH = requite::getBit(10),
-  _ATTRIBUTE = requite::getBit(9),
-  _LONG_RANGE_STAGE = requite::getBit(8),
-  _SHORT_RANGE_STAGE = requite::getBit(7),
-  _CASE = requite::getBit(6),
-  _LAST_CASE = requite::getBit(5),
-  _CAPTURE = requite::getBit(4),
-  _STRING_LITERAL = requite::getBit(3),
+  _ASCRIBED_REFLECTION = requite::getBit(16),
+  _ARGUMENT = requite::getBit(15),
+  _PARAMETER = requite::getBit(14),
+  _BINDING = requite::getBit(13),
+  _DESTINATION = requite::getBit(12),
+  _ALTERNATIVE = requite::getBit(11),
+  _NAME = requite::getBit(10),
+  _PATH = requite::getBit(9),
+  _ATTRIBUTE = requite::getBit(8),
+  _LONG_RANGE_STAGE = requite::getBit(7),
+  _SHORT_RANGE_STAGE = requite::getBit(6),
+  _CASE = requite::getBit(5),
+  _LAST_CASE = requite::getBit(4),
+  _CAPTURE = requite::getBit(3),
+  _STRING_LITERAL = requite::getBit(2),
   _COMMA_BRANCH_COUNT_MASK = 0x3,
   _ALL = _TOP_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
          _LOCAL_STATEMENT | _LOCAL_STATEMENT | _VALUE | _REFLECTION |
@@ -711,13 +736,37 @@ _getFlags(requite::Opcode opcode) {
     return _REFLECTION;
   case O::_TRUNCATE_BACK_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::AT:
+  case O::CONTENT:
     return _REFLECTION;
-  case O::_AT_ADDRESS:
+  case O::_CONTENT_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::ADDRESS:
     return _REFLECTION;
   case O::_ADDRESS_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::BORROW:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_BORROW_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_BORROW_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::STEAL:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_STEAL_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_STEAL_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::VIEW:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_VIEW_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_VIEW_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::SLICE:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_SLICE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_SLICE_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // ASSIGNMENT
@@ -1076,7 +1125,7 @@ _getFlags(requite::Opcode opcode) {
   // REFLECTIONS
   case O::_REFLECT:
     return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT | _PARAMETER |
-           _PATH;
+           _PATH | _ASCRIBED_REFLECTION;
   case O::_MEMBER_OF:
     return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT | _PATH;
   case O::SIZE:
@@ -1161,10 +1210,18 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
       return O::_TRUNCATE_FRONT_OF;
     case O::TRUNCATE_BACK:
       return O::_TRUNCATE_FRONT_OF;
-    case O::AT:
-      return O::_AT_ADDRESS;
+    case O::CONTENT:
+      return O::_CONTENT_OF;
     case O::ADDRESS:
       return O::_ADDRESS_OF;
+    case O::BORROW:
+      return O::_BORROW_OF;
+    case O::STEAL:
+      return O::_STEAL_OF;
+    case O::SLICE:
+      return O::_SLICE_OF;
+    case O::VIEW:
+      return O::_VIEW_OF;
     case O::COPY:
       return O::_COPY_OF;
     case O::MOVE:
@@ -1199,6 +1256,25 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
       return O::_SYMBOL_OF;
     case O::DISCRIMINANT:
       return O::_DISCRIMINANT_OF;
+    default:
+      break;
+  }
+  return O::__ERROR;
+}
+
+
+constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
+  using namespace requite;
+  using O = Opcode;
+  switch (opcode) {
+    case O::BORROW:
+      return O::_BORROW_OF_ASCRIBED;
+    case O::STEAL:
+      return O::_STEAL_OF_ASCRIBED;
+    case O::VIEW:
+      return O::_VIEW_OF_ASCRIBED;
+    case O::SLICE:
+      return O::_SLICE_OF_ASCRIBED;
     default:
       break;
   }
