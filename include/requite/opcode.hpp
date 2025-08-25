@@ -25,8 +25,8 @@ enum class  Opcode : unsigned {
   // LITERALS
   // a literal that represents an integer value. May have a base.
   __INTEGER_LITERAL,
-  // a literal that represents a fractional value with a decimal point.
-  __FRACTIONAL_LITERAL,
+  // a literal that represents a float value with a decimal point.
+  __FLOAT_LITERAL,
   // a literal that represents a string of text characters.
   __STRING_LITERAL,
   // a literal that represents a single text character.

@@ -395,13 +395,13 @@ void Tokenizer::_tokenizeTokens() {
       this->getRanger().startSubToken();
       this->getRanger().incrementChar(1);
       this->getRanger().addColumns(1);
-      bool is_fractional = false;
+      bool is_float = false;
       while (this->getRanger().getIsNumeric()) {
         const char sub_c0 = this->getRanger().getChar(0);
         if (sub_c0 == '.') {
           const char sub_c1 = this->getRanger().getChar(1);
           if (getIsDecimalDigit(sub_c1)) {
-            is_fractional = true;
+            is_float = true;
           } else {
             break;
           }
@@ -409,7 +409,7 @@ void Tokenizer::_tokenizeTokens() {
         this->getRanger().incrementChar(1);
         this->getRanger().addColumns(1);
       }
-      T type = (is_fractional) ? T::FRACTIONAL_LITERAL : T::INTEGER_LITERAL;
+      T type = (is_float) ? T::FLOAT_LITERAL : T::INTEGER_LITERAL;
       this->getTokens().push_back(this->getRanger().getSubToken(type));
       continue;
     }

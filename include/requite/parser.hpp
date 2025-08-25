@@ -90,7 +90,7 @@ struct Parser final {
   [[nodiscard]] requite::Expression &
   parseNullaryOperator(requite::Opcode opcode);
   [[nodiscard]] requite::Expression &parseIntegerLiteral();
-  [[nodiscard]] requite::Expression &parseFractionalLiteral();
+  [[nodiscard]] requite::Expression &parseFloatLiteral();
   [[nodiscard]] requite::Expression &parseStringLiteral();
   [[nodiscard]] requite::Expression &parseCodeunitLiteral();
   [[nodiscard]] requite::Expression &parseInterpolatedString();

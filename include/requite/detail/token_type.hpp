@@ -161,8 +161,8 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "string_literal";
   case T::INTEGER_LITERAL:
     return "integer_literal";
-  case T::FRACTIONAL_LITERAL:
-    return "fractional_literal";
+  case T::FLOAT_LITERAL:
+    return "float_literal";
   case T::LEFT_INTERPOLATED_STRING_LITERAL:
     return "left_interpolated_string_literal";
   case T::MIDDLE_INTERPOLATED_STRING_LITERAL:
@@ -345,8 +345,8 @@ constexpr std::string_view getDescription(requite::TokenType token) {
     return "string literal";
   case T::INTEGER_LITERAL:
     return "integer literal";
-  case T::FRACTIONAL_LITERAL:
-    return "fractional literal";
+  case T::FLOAT_LITERAL:
+    return "float literal";
   case T::LEFT_INTERPOLATED_STRING_LITERAL:
     return "left interpolated string literal";
   case T::MIDDLE_INTERPOLATED_STRING_LITERAL:
@@ -574,7 +574,7 @@ _getFlags(requite::TokenType token) {
     [[fallthrough]];
   case T::INTEGER_LITERAL:
     [[fallthrough]];
-  case T::FRACTIONAL_LITERAL:
+  case T::FLOAT_LITERAL:
     [[fallthrough]];
   case T::LEFT_INTERPOLATED_STRING_LITERAL:
     [[fallthrough]];

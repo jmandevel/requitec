@@ -35,8 +35,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // LITERALS
   case O::__INTEGER_LITERAL:
     return "__integer_literal";
-  case O::__FRACTIONAL_LITERAL:
-    return "__fractional_literal";
+  case O::__FLOAT_LITERAL:
+    return "__float_literal";
   case O::__STRING_LITERAL:
     return "__string_literal";
   case O::__CODEUNIT_LITERAL:
@@ -599,7 +599,7 @@ _getFlags(requite::Opcode opcode) {
   // LITERALS
   case O::__INTEGER_LITERAL:
     return _INTERNAL | _VALUE | _ARGUMENT;
-  case O::__FRACTIONAL_LITERAL:
+  case O::__FLOAT_LITERAL:
     return _INTERNAL | _VALUE | _ARGUMENT;
   case O::__STRING_LITERAL:
     return _INTERNAL | _VALUE | _ARGUMENT | _STRING_LITERAL;

@@ -31,7 +31,7 @@ void Situator::situateExpression(requite::Expression &expression) {
   case O::__INTEGER_LITERAL:
     REQUITE_ASSERT(!expression.getHasBranch());
     break;
-  case O::__FRACTIONAL_LITERAL:
+  case O::__FLOAT_LITERAL:
     REQUITE_ASSERT(!expression.getHasBranch());
     break;
   case O::__STRING_LITERAL:

@@ -30,7 +30,7 @@ constexpr llvm::StringRef getDescription(requite::NumericResult result) {
     return "numeric literal has multiple decimal points";
   case requite::NumericResult::ERROR_INTEGER_WITH_DECIMAL_POINT:
     return "integer literal has decimal point";
-  case requite::NumericResult::ERROR_FRACTIONAL_WITH_BASE:
+  case requite::NumericResult::ERROR_FLOAT_WITH_BASE:
     return "floating point numeric literal has base";
   }
   REQUITE_UNREACHABLE();

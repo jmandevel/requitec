@@ -73,7 +73,7 @@ void AstWriter::writeExpression(const requite::Expression &expression) {
   } break;
   case requite::Opcode::__INTEGER_LITERAL:
     [[fallthrough]];
-  case requite::Opcode::__FRACTIONAL_LITERAL: {
+  case requite::Opcode::__FLOAT_LITERAL: {
     this->getOstream() << expression.getSourceText();
     this->getOstream() << " // from ";
     this->getOstream() << requite::getName(opcode);

@@ -1455,15 +1455,15 @@ requite::Expression &Parser::parseIntegerLiteral() {
   return integer;
 }
 
-requite::Expression &Parser::parseFractionalLiteral() {
+requite::Expression &Parser::parseFloatLiteral() {
   REQUITE_ASSERT(!this->getIsDone());
   const requite::Token &token = this->getToken();
-  REQUITE_ASSERT(token.getType() == requite::TokenType::FRACTIONAL_LITERAL);
-  requite::Expression &fractional =
-      requite::Expression::makeOperation(requite::Opcode::__FRACTIONAL_LITERAL);
-  fractional.setSource(token);
+  REQUITE_ASSERT(token.getType() == requite::TokenType::FLOAT_LITERAL);
+  requite::Expression &float_ =
+      requite::Expression::makeOperation(requite::Opcode::__FLOAT_LITERAL);
+  float_.setSource(token);
   this->incrementToken(1);
-  return fractional;
+  return float_;
 }
 
 requite::Expression &Parser::parseStringLiteral() {

@@ -28,7 +28,7 @@ getNumericValue(llvm::StringRef text, llvm::APFloat &out_value,
 getIntegerDepthRequired(llvm::StringRef value_portion_text, unsigned base);
 
 [[nodiscard]] inline requite::NumericResult
-cleanFractionalText(llvm::StringRef text, llvm::SmallString<16> &out_clean);
+cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &out_clean);
 
 } // namespace requite
 
