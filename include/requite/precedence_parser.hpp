@@ -43,13 +43,13 @@ struct PrecedenceParser final {
   void parseBinary(const requite::Token& token, requite::Opcode opcode);
   void parseNary(const requite::Token &token, requite::Opcode opcode);
   void parseNestingNary(const requite::Token &token, requite::Opcode opcode);
-  void parseHorned(requite::Parser& parser, const requite::Token &token, requite::Opcode opcode, requite::TokenType right_token);
   void parseShortRangeBranch(const requite::Token &token,
                              requite::Opcode opcode,
                              requite::Expression &rvalue);
   void appendBranch(requite::Expression &branch);
   void appendUnaryAttribute(const requite::Token &token, requite::Opcode opcode);
   void setRecent(requite::Expression &branch);
+  void setOnlyRecent(requite::Expression &branch);
   void appendRecent();
   void setOuterOperation(requite::Expression &expression);
   [[nodiscard]] const requite::Expression &getOuter() const;

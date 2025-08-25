@@ -694,14 +694,36 @@ requite::Expression &Parser::parsePrecedence1() {
       precedence_parser.parseNary(post_token, requite::Opcode::_REFLECT);
       previous_attribute = false;
       continue;
-    case requite::TokenType::LEFT_PARENTHESIS_GROUPING:
+    case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
       this->incrementToken(1);
-      precedence_parser.parseHorned(
-          *this, post_token, requite::Opcode::_CALL,
-          requite::TokenType::RIGHT_PARENTHESIS_GROUPING);
+      precedence_parser.appendRecent();
+      requite::Expression &horn = precedence_parser.getOuter();
+      requite::Expression &horned =
+          requite::Expression::makeOperation(requite::Opcode::_CALL);
+      horned.setBranch(horn);
+      horned.setSource(horn, post_token);
+      bool has_parameter_marks = this->parseCommaSeperatedBranches(
+          horned, requite::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
+      precedence_parser.setOnlyRecent(horned);
       previous_attribute = false;
       previous_call = true;
       continue;
+    }
+    case requite::TokenType::LEFT_TRIP_GROUPING: {
+      this->incrementToken(1);
+      precedence_parser.appendRecent();
+      requite::Expression &horn = precedence_parser.getOuter();
+      requite::Expression &horned =
+          requite::Expression::makeOperation(requite::Opcode::_SPECIALIZATION);
+      horned.setBranch(horn);
+      horned.setSource(horn, post_token);
+      bool has_parameter_marks = this->parseCommaSeperatedBranches(
+          horned, requite::TokenType::RIGHT_TRIP_GROUPING, true);
+      precedence_parser.setOnlyRecent(horned);
+      previous_attribute = false;
+      previous_call = true;
+      continue;
+    }
     default:
       precedence_parser.appendRecent();
       break;

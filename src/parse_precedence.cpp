@@ -104,23 +104,6 @@ void PrecedenceParser::parseNestingNary(const requite::Token &token,
   this->_outer_ptr = &operation;
 }
 
-void PrecedenceParser::parseHorned(requite::Parser &parser,
-                                   const requite::Token &token,
-                                   requite::Opcode opcode,
-                                   requite::TokenType right_token) {
-  this->appendRecent();
-  requite::Expression &horn = this->getOuter();
-  requite::Expression &horned = requite::Expression::makeOperation(opcode);
-  horned.setBranch(horn);
-  horned.setSource(horn, token);
-  bool has_parameter_marks =
-      parser.parseCommaSeperatedBranches(horned, right_token, true);
-  this->_outer_ptr = nullptr;
-  this->_operation_ptr = nullptr;
-  this->_last_ptr = nullptr;
-  this->_recent_ptr = &horned;
-}
-
 void PrecedenceParser::parseShortRangeBranch(const requite::Token &token,
                                              requite::Opcode opcode,
                                              requite::Expression &rvalue) {
@@ -166,6 +149,13 @@ void PrecedenceParser::appendUnaryAttribute(const requite::Token &token,
 
 void PrecedenceParser::setRecent(requite::Expression &branch) {
   requite::setSingleRef(this->_recent_ptr, branch);
+}
+
+void PrecedenceParser::setOnlyRecent(requite::Expression &branch) {
+  this->_outer_ptr = nullptr;
+  this->_operation_ptr = nullptr;
+  this->_last_ptr = nullptr;
+  this->_recent_ptr = &branch;
 }
 
 void PrecedenceParser::appendRecent() {
