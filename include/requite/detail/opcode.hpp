@@ -631,8 +631,8 @@ _getFlags(requite::Opcode opcode) {
   case O::__CODEUNIT_LITERAL:
     return _INTERNAL | _VALUE | _ARGUMENT;
   case O::__IDENTIFIER_LITERAL:
-    return _INTERNAL | _VALUE | _DESTINATION | _REFLECTION | _ARGUMENT | _PARAMETER |
-           _BINDING | _NAME | _PATH;
+    return _INTERNAL | _VALUE | _DESTINATION | _REFLECTION | _ARGUMENT |
+           _PARAMETER | _BINDING | _NAME | _PATH;
 
   // ERRORS
   case O::__ERROR:
@@ -640,8 +640,8 @@ _getFlags(requite::Opcode opcode) {
 
   // SITUATIONAL
   case O::_CLOVEN:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _DESTINATION | _NAME |
-           _PATH | _LONG_RANGE_STAGE | _SHORT_RANGE_STAGE | _STRING_LITERAL;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _DESTINATION | _NAME | _PATH |
+           _LONG_RANGE_STAGE | _SHORT_RANGE_STAGE | _STRING_LITERAL;
   case O::_COLON:
     return _INTERMEDIATE | _VALUE | _DESTINATION | _ARGUMENT | _PARAMETER |
            _BINDING;
@@ -674,8 +674,7 @@ _getFlags(requite::Opcode opcode) {
   case O::_EXTEND:
     return _INTERMEDIATE | _VALUE;
   case O::_BINDING:
-    return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT |
-           _ALTERNATIVE;
+    return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT | _ALTERNATIVE;
   case O::_ASCRIBE:
     return _INTERMEDIATE | _ALL;
   case O::_CAST:
@@ -864,8 +863,9 @@ _getFlags(requite::Opcode opcode) {
            _TOP_STATEMENT;
   case O::FUNCTION:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT | _TABLE_STATEMENT |
-           _OBJECT_STATEMENT | _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(2);
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT |
+           _TABLE_STATEMENT | _OBJECT_STATEMENT | _LOCAL_STATEMENT |
+           static_cast<_OpcodeFlags>(2);
   case O::CONSTRUCTOR:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
            _ALL_COMMA_BRANCHES_CAN_BE_INFERENCE | _OBJECT_STATEMENT |
@@ -881,8 +881,9 @@ _getFlags(requite::Opcode opcode) {
            _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _OBJECT_STATEMENT |
            static_cast<_OpcodeFlags>(1);
   case O::_ANONYMOUS_FUNCTION:
-    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _LAST_COMMA_BRANCH_CAN_BE_INFERENCE |
-           _VALUE | _ARGUMENT | static_cast<_OpcodeFlags>(2);
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES |
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _VALUE | _ARGUMENT |
+           static_cast<_OpcodeFlags>(2);
   case O::CAPTURE:
     return _LONG_RANGE_STAGE | _CAPTURE;
 
@@ -905,12 +906,12 @@ _getFlags(requite::Opcode opcode) {
   // SYMBOLS
   case O::OBJECT:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT | _TABLE_STATEMENT |
-           static_cast<_OpcodeFlags>(2);
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT |
+           _TABLE_STATEMENT | static_cast<_OpcodeFlags>(2);
   case O::VARIANT:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT | _TABLE_STATEMENT |
-           static_cast<_OpcodeFlags>(1);
+           _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _TOP_STATEMENT |
+           _TABLE_STATEMENT | static_cast<_OpcodeFlags>(1);
   case O::TABLE:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
            _TOP_STATEMENT | _TABLE_STATEMENT | static_cast<_OpcodeFlags>(1);
@@ -981,19 +982,16 @@ _getFlags(requite::Opcode opcode) {
   // SCOPES
   case O::IF:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LOCAL_STATEMENT |
-           static_cast<_OpcodeFlags>(1);
+           _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case O::ELSE_IF:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LOCAL_STATEMENT |
-           static_cast<_OpcodeFlags>(1);
+           _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case O::ELSE:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
            _LOCAL_STATEMENT;
   case O::SWITCH:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LOCAL_STATEMENT |
-           static_cast<_OpcodeFlags>(1);
+           _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
   case O::MATCH:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
            _LOCAL_STATEMENT | _VALUE | static_cast<_OpcodeFlags>(1);
@@ -1202,81 +1200,80 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
-    case O::FROM_FRONT:
-      return O::_FROM_FRONT_OF;
-    case O::FROM_BACK:
-      return O::_FROM_BACK_OF;
-    case O::TRUNCATE_FRONT:
-      return O::_TRUNCATE_FRONT_OF;
-    case O::TRUNCATE_BACK:
-      return O::_TRUNCATE_FRONT_OF;
-    case O::CONTENT:
-      return O::_CONTENT_OF;
-    case O::ADDRESS:
-      return O::_ADDRESS_OF;
-    case O::BORROW:
-      return O::_BORROW_OF;
-    case O::STEAL:
-      return O::_STEAL_OF;
-    case O::SLICE:
-      return O::_SLICE_OF;
-    case O::VIEW:
-      return O::_VIEW_OF;
-    case O::COPY:
-      return O::_COPY_OF;
-    case O::MOVE:
-      return O::_MOVE_OF;
-    case O::FIRST_VARIADIC_ARGUMENT:
-      return O::_FIRST_VARIADIC_ARGUMENT_OF;
-    case O::NEXT_VARIADIC_ARGUMENT:
-      return O::_NEXT_VARIADIC_ARGUMENT_OF;
-    case O::MANGLED_NAME:
-      return O::_MANGLED_NAME_OF;
-    case O::SIZE:
-      return O::_SIZE_OF;
-    case O::DEPTH:
-      return O::_DEPTH_OF;
-    case O::COUNT:
-      return O::_COUNT_OF;
-    case O::LENGTH:
-      return O::_LENGTH_OF;
-    case O::NAME:
-      return O::_NAME_OF;
-    case O::LINE:
-      return O::_LINE_OF;
-    case O::COLUMN:
-      return O::_COLUMN_OF;
-    case O::IS:
-      return O::_VALUE_IS;
-    case O::GET:
-      return O::_GET_VALUE_OF_VARIANT;
-    case O::TYPE:
-      return O::_TYPE_OF;
-    case O::SYMBOL:
-      return O::_SYMBOL_OF;
-    case O::DISCRIMINANT:
-      return O::_DISCRIMINANT_OF;
-    default:
-      break;
+  case O::FROM_FRONT:
+    return O::_FROM_FRONT_OF;
+  case O::FROM_BACK:
+    return O::_FROM_BACK_OF;
+  case O::TRUNCATE_FRONT:
+    return O::_TRUNCATE_FRONT_OF;
+  case O::TRUNCATE_BACK:
+    return O::_TRUNCATE_FRONT_OF;
+  case O::CONTENT:
+    return O::_CONTENT_OF;
+  case O::ADDRESS:
+    return O::_ADDRESS_OF;
+  case O::BORROW:
+    return O::_BORROW_OF;
+  case O::STEAL:
+    return O::_STEAL_OF;
+  case O::SLICE:
+    return O::_SLICE_OF;
+  case O::VIEW:
+    return O::_VIEW_OF;
+  case O::COPY:
+    return O::_COPY_OF;
+  case O::MOVE:
+    return O::_MOVE_OF;
+  case O::FIRST_VARIADIC_ARGUMENT:
+    return O::_FIRST_VARIADIC_ARGUMENT_OF;
+  case O::NEXT_VARIADIC_ARGUMENT:
+    return O::_NEXT_VARIADIC_ARGUMENT_OF;
+  case O::MANGLED_NAME:
+    return O::_MANGLED_NAME_OF;
+  case O::SIZE:
+    return O::_SIZE_OF;
+  case O::DEPTH:
+    return O::_DEPTH_OF;
+  case O::COUNT:
+    return O::_COUNT_OF;
+  case O::LENGTH:
+    return O::_LENGTH_OF;
+  case O::NAME:
+    return O::_NAME_OF;
+  case O::LINE:
+    return O::_LINE_OF;
+  case O::COLUMN:
+    return O::_COLUMN_OF;
+  case O::IS:
+    return O::_VALUE_IS;
+  case O::GET:
+    return O::_GET_VALUE_OF_VARIANT;
+  case O::TYPE:
+    return O::_TYPE_OF;
+  case O::SYMBOL:
+    return O::_SYMBOL_OF;
+  case O::DISCRIMINANT:
+    return O::_DISCRIMINANT_OF;
+  default:
+    break;
   }
   return O::__ERROR;
 }
-
 
 constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
-    case O::BORROW:
-      return O::_BORROW_OF_ASCRIBED;
-    case O::STEAL:
-      return O::_STEAL_OF_ASCRIBED;
-    case O::VIEW:
-      return O::_VIEW_OF_ASCRIBED;
-    case O::SLICE:
-      return O::_SLICE_OF_ASCRIBED;
-    default:
-      break;
+  case O::BORROW:
+    return O::_BORROW_OF_ASCRIBED;
+  case O::STEAL:
+    return O::_STEAL_OF_ASCRIBED;
+  case O::VIEW:
+    return O::_VIEW_OF_ASCRIBED;
+  case O::SLICE:
+    return O::_SLICE_OF_ASCRIBED;
+  default:
+    break;
   }
   return O::__ERROR;
 }
