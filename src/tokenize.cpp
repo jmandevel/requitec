@@ -418,9 +418,6 @@ void Tokenizer::_tokenizeTokens() {
       case ':':
         this->tokenizeLengthToken(T::DOUBLE_COLON_OPERATOR, 2);
         break;
-      case '|':
-        this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 2);
-        break;
       default:
         this->tokenizeLengthToken(T::COLON_OPERATOR, 1);
       }
@@ -535,7 +532,7 @@ void Tokenizer::_tokenizeTokens() {
       this->tokenizeLeftGrouping(G::BRACKET, T::LEFT_BRACKET_GROUPING, 1);
       continue;
     case '\\':
-      this->tokenizeLengthToken(T::BACKSLASH_OPERATOR, 1);
+      this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 1);
       continue;
     case ']':
       this->tokenizeRightGrouping(G::BRACKET, T::RIGHT_BRACKET_GROUPING, 1);

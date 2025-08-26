@@ -608,7 +608,7 @@ requite::Expression &Parser::parsePrecedence1() {
         precedence_parser.parseUnary(token, requite::Opcode::_FAT_POINTER);
         previous_attribute = false;
         continue;
-      case requite::TokenType::BACKSLASH_OPERATOR:
+      case requite::TokenType::PERCENT_OPERATOR:
         this->incrementToken(1);
         precedence_parser.parseUnary(token, requite::Opcode::_IDENTIFY);
         previous_attribute = false;

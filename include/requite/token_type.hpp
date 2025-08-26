@@ -31,7 +31,6 @@ enum class TokenType {
   STAR_OPERATOR,                     // *
   SLASH_OPERATOR,                    // /
   PERCENT_OPERATOR,                  // %
-  BACKSLASH_OPERATOR,                // \    .
   CAROT_OPERATOR,                    // ^
   PIPE_OPERATOR,                     // |
   TILDE_OPERATOR,                    // ~
@@ -72,7 +71,7 @@ enum class TokenType {
   DOUBLE_DOT_LESS_EQUAL_OPERATOR,    // ..<=
 
   // SEPERATOR SYMBOLS
-  TRAILER_SEPERATOR,   // :|
+  TRAILER_SEPERATOR,   // \   . 
   SEMICOLON_SEPERATOR, // ;
   COMMA_SEPERATOR,     // ,
 
