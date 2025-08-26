@@ -7,3 +7,4 @@
 [entry_point
     std.print(line="the result is {myFunc(1, 2)}");
 ]
+

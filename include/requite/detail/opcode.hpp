@@ -151,18 +151,12 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "address";
   case O::_ADDRESS_OF:
     return "_address_of";
-  case O::BORROW:
-    return "borrow";
-  case O::_BORROW_OF:
-    return "_borrow_of";
-  case O::_BORROW_OF_ASCRIBED:
-    return "_borrow_of_ascribed";
-  case O::STEAL:
-    return "steal";
-  case O::_STEAL_OF:
-    return "_steal_of";
-  case O::_STEAL_OF_ASCRIBED:
-    return "_steal_of_ascribed";
+  case O::REFER:
+    return "refer";
+  case O::_REFERENCE_OF:
+    return "_reference_of";
+  case O::_REFERENCE_OF_ASCRIBED:
+    return "_reference_of_ascribed";
   case O::VIEW:
     return "view";
   case O::_VIEW_OF:
@@ -743,17 +737,11 @@ _getFlags(requite::Opcode opcode) {
     return _REFLECTION;
   case O::_ADDRESS_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::BORROW:
+  case O::REFER:
     return _REFLECTION | _ASCRIBED_REFLECTION;
-  case O::_BORROW_OF:
+  case O::_REFERENCE_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::_BORROW_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::STEAL:
-    return _REFLECTION | _ASCRIBED_REFLECTION;
-  case O::_STEAL_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::_STEAL_OF_ASCRIBED:
+  case O::_REFERENCE_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::VIEW:
     return _REFLECTION | _ASCRIBED_REFLECTION;
@@ -1212,10 +1200,8 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
     return O::_CONTENT_OF;
   case O::ADDRESS:
     return O::_ADDRESS_OF;
-  case O::BORROW:
-    return O::_BORROW_OF;
-  case O::STEAL:
-    return O::_STEAL_OF;
+  case O::REFER:
+    return O::_REFERENCE_OF;
   case O::SLICE:
     return O::_SLICE_OF;
   case O::VIEW:
@@ -1264,10 +1250,8 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
-  case O::BORROW:
-    return O::_BORROW_OF_ASCRIBED;
-  case O::STEAL:
-    return O::_STEAL_OF_ASCRIBED;
+  case O::REFER:
+    return O::_REFERENCE_OF_ASCRIBED;
   case O::VIEW:
     return O::_VIEW_OF_ASCRIBED;
   case O::SLICE:

@@ -377,43 +377,22 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case O::BORROW:
-    if constexpr (!getCanBeSituation<SP>(O::BORROW)) {
+  case O::REFER:
+    if constexpr (!getCanBeSituation<SP>(O::REFER)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case O::_BORROW_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_BORROW_OF)) {
+  case O::_REFERENCE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_REFERENCE_OF)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case O::_BORROW_OF_ASCRIBED:
-    if constexpr (!getCanBeSituation<SP>(O::_BORROW_OF_ASCRIBED)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SP, 2, S::VALUE, S::ATTRIBUTE>(expression);
-    }
-    break;
-  case O::STEAL:
-    if constexpr (!getCanBeSituation<SP>(O::STEAL)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_STEAL_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_STEAL_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::_STEAL_OF_ASCRIBED:
-    if constexpr (!getCanBeSituation<SP>(O::_STEAL_OF_ASCRIBED)) {
+  case O::_REFERENCE_OF_ASCRIBED:
+    if constexpr (!getCanBeSituation<SP>(O::_REFERENCE_OF_ASCRIBED)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SP, 2, S::VALUE, S::ATTRIBUTE>(expression);
