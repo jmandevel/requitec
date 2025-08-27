@@ -1,0 +1,15 @@
+[entry_point
+    // obviously, compiler may choose to optimize things to be compile time no matter what.
+    // for this source file, assume no optimizations are enabled.
+    
+    // BAKED VALUE
+    partial_comptime := 1 + 2 * [bake 2 * 2]; // the 2*2 is done at compile time
+
+    // BAKED STATEMENT ATTRIBUTE
+    // the loop is executed at compile time
+    accumulator := 0;
+    @bake 
+    [loop value, 0.<10.+1,
+        accumulator += value; 
+    ]
+]
