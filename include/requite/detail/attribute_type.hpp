@@ -224,7 +224,7 @@ _getHasFlags(requite::AttributeType type,
 template <requite::AttributeCategory CATEGORY_PARAM>
 constexpr bool getCanBeAttributeCategory(requite::AttributeType type) {
   if constexpr (CATEGORY_PARAM == requite::AttributeCategory::TYPE) {
-    return requite::getCanBeTypeAttribute(type);
+    return requite::getCanBeExpressionAttribute(type);
   } else if constexpr (CATEGORY_PARAM ==
                        requite::AttributeCategory::GLOBAL_FUNCTION) {
     return requite::getCanBeGlobalFunctionAttribute(type);
@@ -279,7 +279,7 @@ constexpr bool getCanBeAttributeCategory(requite::AttributeType type) {
   }
 }
 
-constexpr bool getCanBeTypeAttribute(requite::AttributeType type) {
+constexpr bool getCanBeExpressionAttribute(requite::AttributeType type) {
   const bool has_flags =
       requite::_getHasFlags(type, requite::_attribute::_TYPE);
   return has_flags;

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <requite/assert.hpp>
+#include <requite/situation.hpp>
 
 namespace requite {
 
@@ -169,14 +170,14 @@ const requite::Expression &Expression::getLastNext() const {
 }
 
 requite::Expression &Expression::getUnascribed() {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
+  if (requite::getCanBeAscription(this->getOpcode())) {
     return this->getBranch().getUnascribed();
   }
   return *this;
 }
 
 const requite::Expression &Expression::getUnascribed() const {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE) {
+  if (requite::getCanBeAscription(this->getOpcode())) {
     return this->getBranch().getUnascribed();
   }
   return *this;

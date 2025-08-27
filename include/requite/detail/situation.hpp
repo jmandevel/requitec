@@ -44,8 +44,10 @@ constexpr llvm::StringRef getDescription(requite::Situation situation) {
     return "name";
   case S::PATH:
     return "path";
-  case S::ATTRIBUTE:
-    return "attribute";
+  case S::EXPRESSION_ATTRIBUTE:
+    return "type attribute";
+  case S::STATEMENT_ATTRIBUTE:
+    return "symbol attribute";
   case S::LONG_RANGE_STAGE:
     return "long range stage";
   case S::SHORT_RANGE_STAGE:
@@ -114,8 +116,10 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return getCanBeName(opcode);
   } else if constexpr (SP == S::PATH) {
     return getCanBePath(opcode);
-  } else if constexpr (SP == S::ATTRIBUTE) {
-    return getCanBeAttribute(opcode);
+  } else if constexpr (SP == S::EXPRESSION_ATTRIBUTE) {
+    return getCanBeExpressionAttribute(opcode);
+  } else if constexpr (SP == S::STATEMENT_ATTRIBUTE) {
+    return getCanBeStatementAttribute(opcode);
   } else if constexpr (SP == S::LONG_RANGE_STAGE) {
     return getCanBeLongRangeStage(opcode);
   } else if constexpr (SP == S::SHORT_RANGE_STAGE) {
@@ -138,113 +142,105 @@ constexpr bool getCanBeNone(requite::Opcode opcode) {
 }
 
 constexpr bool getCanBeRootStatement(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_ROOT_STATEMENT);
+  return opcode == requite::Opcode::_MODULE_ROOT;
 }
 
 constexpr bool getCanBeTopStatement(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_TOP_STATEMENT);
+  return requite::_getHasFlags(opcode, requite::_opcode::_TOP_STATEMENT);
 }
 
 constexpr bool getCanBeTableStatement(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_TABLE_STATEMENT);
+  return requite::_getHasFlags(opcode, requite::_opcode::_TABLE_STATEMENT);
 }
 
 constexpr bool getCanBeObjectStatement(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_OBJECT_STATEMENT);
+  return requite::_getHasFlags(opcode, requite::_opcode::_OBJECT_STATEMENT);
 }
 
 constexpr bool getCanBeLocalStatement(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_LOCAL_STATEMENT);
+  return requite::_getHasFlags(opcode, requite::_opcode::_LOCAL_STATEMENT);
 }
 
 constexpr bool getCanBeValue(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_VALUE);
+  return requite::_getHasFlags(opcode, requite::_opcode::_VALUE);
 }
 
 constexpr bool getCanBeReflection(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_REFLECTION);
+  return requite::_getHasFlags(opcode, requite::_opcode::_REFLECTION);
 }
 
 constexpr bool getCanBeAscribedReflection(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_ASCRIBED_REFLECTION);
+  return requite::_getHasFlags(opcode, requite::_opcode::_ASCRIBED_REFLECTION);
 }
 
 constexpr bool getCanBeArgument(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_ARGUMENT);
+  return requite::_getHasFlags(opcode, requite::_opcode::_ARGUMENT);
 }
 
 constexpr bool getCanBeParameter(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_PARAMETER);
+  return requite::_getHasFlags(opcode, requite::_opcode::_PARAMETER);
 }
 
 constexpr bool getCanBeBinding(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_BINDING);
+  return requite::_getHasFlags(opcode, requite::_opcode::_BINDING);
 }
 
 constexpr bool getCanBeDestination(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_DESTINATION);
+  return requite::_getHasFlags(opcode, requite::_opcode::_DESTINATION);
 }
 
 constexpr bool getCanBeAlternative(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_ALTERNATIVE);
+  return requite::_getHasFlags(opcode, requite::_opcode::_ALTERNATIVE);
 }
 
 constexpr bool getCanBeName(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_NAME);
+  return requite::_getHasFlags(opcode, requite::_opcode::_NAME);
 }
 
 constexpr bool getCanBePath(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_PATH);
+  return requite::_getHasFlags(opcode, requite::_opcode::_PATH);
+}
+
+constexpr bool getCanBeAscription(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_ASCRIPTION);
 }
 
 constexpr bool getCanBeAttribute(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_ATTRIBUTE);
+  return requite::_getHasAtLeastOneFlag(
+      opcode, requite::_opcode::_EXPRESSION_ATTRIBUTE |
+                  requite::_opcode::_STATEMENT_ATTRIBUTE);
+}
+
+constexpr bool getCanBeExpressionAttribute(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_EXPRESSION_ATTRIBUTE);
+}
+
+constexpr bool getCanBeStatementAttribute(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_STATEMENT_ATTRIBUTE);
 }
 
 constexpr bool getCanBeLongRangeStage(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_LONG_RANGE_STAGE);
+  return requite::_getHasFlags(opcode, requite::_opcode::_LONG_RANGE_STAGE);
 }
 
 constexpr bool getCanBeShortRangeStage(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_SHORT_RANGE_STAGE);
+  return requite::_getHasFlags(opcode, requite::_opcode::_SHORT_RANGE_STAGE);
 }
 
 constexpr bool getCanBeCase(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_CASE);
+  return opcode == requite::Opcode::CASE;
 }
 
 constexpr bool getCanBeLastCase(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_LAST_CASE);
+  return requite::_getHasFlags(opcode, requite::_opcode::_LAST_CASE);
 }
 
 constexpr bool getCanBeCapture(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_CAPTURE);
+  return requite::_getHasFlags(opcode, requite::_opcode::_CAPTURE);
 }
 
 constexpr bool getCanBeStringLiteral(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode,
-                                        requite::_opcode::_STRING_LITERAL);
+  return requite::_getHasFlags(opcode, requite::_opcode::_STRING_LITERAL);
 }
 
 } // namespace requite

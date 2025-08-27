@@ -79,12 +79,16 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_not_equal";
 
   // APPLY
+  case O::BAKE:
+    return "bake";
   case O::_EXTEND:
     return "_extend";
   case O::_BINDING:
     return "_binding";
-  case O::_ASCRIBE:
-    return "_ascribe";
+  case O::_ASCRIBE_EXPRESSION:
+    return "_ascribe_expression";
+  case O::_ASCRIBE_STATEMENT:
+    return "_ascribe_statement";
   case O::_CAST:
     return "_cast";
   case O::_IDENTIFY:
@@ -151,7 +155,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_view_of";
   case O::_VIEW_OF_ASCRIBED:
     return "_view_of_ascribed";
-  
+
   // ASSIGNMENT
   case O::_ASSIGN:
     return "_assign";
@@ -371,6 +375,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_inline_block";
 
   // RANGES
+  case O::_RANGE:
+    return "range";
   case O::_LIMIT_RANGE_EQUAL:
     return "_limit_range_equal";
   case O::_LIMIT_RANGE_NOT_EQUAL:
@@ -449,8 +455,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "unreachable";
 
   // ATTRIBUTES
-  case O::BAKE:
-    return "bake";
   case O::MAY_PARENT:
     return "may_parent";
   case O::PARENT:
@@ -544,25 +548,27 @@ enum _OpcodeFlags : std::uint32_t {
   _FIRST_COMMA_BRANCH_CAN_BE_INFERENCE = requite::getBit(26),
   _LAST_COMMA_BRANCH_CAN_BE_INFERENCE = requite::getBit(25),
   _ALL_COMMA_BRANCHES_CAN_BE_INFERENCE = requite::getBit(24),
-  _ROOT_STATEMENT = requite::getBit(23),
-  _TOP_STATEMENT = requite::getBit(22),
-  _TABLE_STATEMENT = requite::getBit(21),
-  _OBJECT_STATEMENT = requite::getBit(20),
-  _LOCAL_STATEMENT = requite::getBit(19),
-  _VALUE = requite::getBit(18),
-  _REFLECTION = requite::getBit(17),
-  _ASCRIBED_REFLECTION = requite::getBit(16),
-  _ARGUMENT = requite::getBit(15),
-  _PARAMETER = requite::getBit(14),
-  _BINDING = requite::getBit(13),
-  _DESTINATION = requite::getBit(12),
-  _ALTERNATIVE = requite::getBit(11),
-  _NAME = requite::getBit(10),
-  _PATH = requite::getBit(9),
-  _ATTRIBUTE = requite::getBit(8),
-  _LONG_RANGE_STAGE = requite::getBit(7),
-  _SHORT_RANGE_STAGE = requite::getBit(6),
-  _CASE = requite::getBit(5),
+  // _ROOT_STATEMENT
+  _TOP_STATEMENT = requite::getBit(23),
+  _TABLE_STATEMENT = requite::getBit(22),
+  _OBJECT_STATEMENT = requite::getBit(21),
+  _LOCAL_STATEMENT = requite::getBit(20),
+  _VALUE = requite::getBit(19),
+  _REFLECTION = requite::getBit(18),
+  _ASCRIBED_REFLECTION = requite::getBit(17),
+  _ARGUMENT = requite::getBit(16),
+  _PARAMETER = requite::getBit(15),
+  _BINDING = requite::getBit(14),
+  _DESTINATION = requite::getBit(13),
+  _ALTERNATIVE = requite::getBit(12),
+  _NAME = requite::getBit(11),
+  _PATH = requite::getBit(10),
+  _ASCRIPTION = requite::getBit(9),
+  _EXPRESSION_ATTRIBUTE = requite::getBit(8),
+  _STATEMENT_ATTRIBUTE = requite::getBit(7),
+  _LONG_RANGE_STAGE = requite::getBit(6),
+  _SHORT_RANGE_STAGE = requite::getBit(5),
+  // _CASE
   _LAST_CASE = requite::getBit(4),
   _CAPTURE = requite::getBit(3),
   _STRING_LITERAL = requite::getBit(2),
@@ -570,8 +576,8 @@ enum _OpcodeFlags : std::uint32_t {
   _ALL = _TOP_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
          _LOCAL_STATEMENT | _LOCAL_STATEMENT | _VALUE | _REFLECTION |
          _ARGUMENT | _PARAMETER | _BINDING | _DESTINATION | _ALTERNATIVE |
-         _NAME | _PATH | _ATTRIBUTE | _LONG_RANGE_STAGE | _SHORT_RANGE_STAGE |
-         _CASE | _LAST_CASE | _CAPTURE | _STRING_LITERAL
+         _NAME | _PATH | _EXPRESSION_ATTRIBUTE | _LONG_RANGE_STAGE |
+         _SHORT_RANGE_STAGE | _LAST_CASE | _CAPTURE | _STRING_LITERAL
 };
 }
 
@@ -647,12 +653,16 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // APPLY
+  case O::BAKE:
+    return _VALUE | _ARGUMENT | _STATEMENT_ATTRIBUTE;
   case O::_EXTEND:
     return _INTERMEDIATE | _VALUE;
   case O::_BINDING:
     return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT | _ALTERNATIVE;
-  case O::_ASCRIBE:
-    return _INTERMEDIATE | _ALL;
+  case O::_ASCRIBE_EXPRESSION:
+    return _INTERMEDIATE | _REFLECTION | _VALUE | _ASCRIPTION;
+  case O::_ASCRIBE_STATEMENT:
+    return _INTERMEDIATE | _ALL | _ASCRIPTION;
   case O::_CAST:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_IDENTIFY:
@@ -700,25 +710,25 @@ _getFlags(requite::Opcode opcode) {
   case O::_CONTENT_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_CONTENT_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
   case O::ADDRESS:
     return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_ADDRESS_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_ADDRESS_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
   case O::REFER:
     return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_REFERENCE_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_REFERENCE_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
   case O::VIEW:
     return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_VIEW_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_VIEW_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
 
   // ASSIGNMENT
   case O::_ASSIGN:
@@ -759,19 +769,19 @@ _getFlags(requite::Opcode opcode) {
 
   // TYPE MODIFIER
   case O::MUTABLE:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
   case O::CONSTANT:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
   case O::VOLATILE:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
   case O::ATOMIC:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
   case O::NULL_TERMINATED:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
   case O::OWNING:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
   case O::MAY_DISCARD:
-    return _ATTRIBUTE;
+    return _EXPRESSION_ATTRIBUTE;
 
   // PARAMETER RULES
   case O::_POSITIONAL_PARAMETERS_END:
@@ -949,10 +959,10 @@ _getFlags(requite::Opcode opcode) {
            _LOCAL_STATEMENT | _VALUE | static_cast<_OpcodeFlags>(1);
   case O::CASE:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LOCAL_STATEMENT | static_cast<_OpcodeFlags>(1);
+           _LAST_CASE | static_cast<_OpcodeFlags>(1); // _CASE
   case O::DEFAULT:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _LOCAL_STATEMENT;
+           _LAST_CASE;
   case O::LOOP:
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
            _FIRST_COMMA_BRANCH_CAN_BE_INFERENCE | _LOCAL_STATEMENT |
@@ -964,11 +974,13 @@ _getFlags(requite::Opcode opcode) {
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _THIS_CAN_HAVE_NO_SEMICOLON |
            _LOCAL_STATEMENT | _VALUE;
   case O::_INLINE_BLOCK:
-    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT | _PARAMETER;
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT;
   case O::_INLINE_SCOPE:
-    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT | _PARAMETER;
+    return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT;
 
   // RANGES
+  case O::_RANGE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
   case O::_LIMIT_RANGE_EQUAL:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_LIMIT_RANGE_NOT_EQUAL:
@@ -1024,11 +1036,11 @@ _getFlags(requite::Opcode opcode) {
 
   // ACCESS MODIFIERS
   case O::PRIVATE:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::PROTECTED:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::EXPORT:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
 
   // SYMBOL GRAPH
   case O::IMPORT:
@@ -1040,7 +1052,7 @@ _getFlags(requite::Opcode opcode) {
   // SOURCES
   case O::_MODULE_ROOT:
     return _INTERMEDIATE | _THIS_CAN_HAVE_NO_SEMICOLON |
-           _HAS_SEMICOLON_SEPARATED_BRANCHES | _ROOT_STATEMENT;
+           _HAS_SEMICOLON_SEPARATED_BRANCHES; // _ROOT_STATEMENT;
 
   // ERROR HANDLING AND DEBUGGING
   case O::ASSERT:
@@ -1049,28 +1061,26 @@ _getFlags(requite::Opcode opcode) {
     return _THIS_CAN_HAVE_NO_SEMICOLON | _LOCAL_STATEMENT;
 
   // ATTRIBUTES
-  case O::BAKE:
-    return _ATTRIBUTE;
   case O::MAY_PARENT:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::PARENT:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::POSITION:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::INLINE:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::MANGLED_NAME:
-    return _REFLECTION | _ATTRIBUTE;
+    return _REFLECTION | _STATEMENT_ATTRIBUTE;
   case O::_MANGLED_NAME_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::PACK:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::USER:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::LABEL:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
   case O::TEMPLATE:
-    return _ATTRIBUTE;
+    return _STATEMENT_ATTRIBUTE;
 
   // REFLECTIONS
   case O::_REFLECT:
@@ -1123,7 +1133,7 @@ _getFlags(requite::Opcode opcode) {
   case O::_SYMBOL_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::DISCRIMINANT:
-    return _REFLECTION | _ATTRIBUTE;
+    return _REFLECTION | _STATEMENT_ATTRIBUTE;
   case O::_DISCRIMINANT_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
@@ -1138,6 +1148,14 @@ _getFlags(requite::Opcode opcode) {
 _getHasFlags(requite::Opcode opcode, requite::_opcode::_OpcodeFlags flags) {
   requite::_opcode::_OpcodeFlags opcode_flags = requite::_getFlags(opcode);
   const bool has_flags = (opcode_flags & flags) == flags;
+  return has_flags;
+}
+
+[[nodiscard]] constexpr bool
+_getHasAtLeastOneFlag(requite::Opcode opcode,
+                      requite::_opcode::_OpcodeFlags flags) {
+  requite::_opcode::_OpcodeFlags opcode_flags = requite::_getFlags(opcode);
+  const bool has_flags = (opcode_flags & flags) != 0;
   return has_flags;
 }
 

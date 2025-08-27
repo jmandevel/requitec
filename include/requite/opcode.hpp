@@ -56,9 +56,11 @@ enum class  Opcode : unsigned {
   _NOT_EQUAL,
 
   // APPLY
+  BAKE,
   _EXTEND,
   _BINDING,
-  _ASCRIBE,
+  _ASCRIBE_EXPRESSION,
+  _ASCRIBE_STATEMENT,
   _CAST,
   _IDENTIFY,
 
@@ -225,6 +227,7 @@ enum class  Opcode : unsigned {
   _INLINE_BLOCK,
 
   // RANGES
+  _RANGE,
   _LIMIT_RANGE_EQUAL,
   _LIMIT_RANGE_NOT_EQUAL,
   _LIMIT_RANGE_GREATER,
@@ -269,7 +272,6 @@ enum class  Opcode : unsigned {
   UNREACHABLE,
 
   // ATTRIBUTES
-  BAKE,
   MAY_PARENT,
   PARENT,
   POSITION,

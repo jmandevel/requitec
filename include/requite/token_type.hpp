@@ -32,6 +32,7 @@ enum class TokenType {
   SLASH_OPERATOR,                    // /
   PERCENT_OPERATOR,                  // %
   CAROT_OPERATOR,                    // ^
+  DOUBLE_CAROT_OPERATOR,             // ^^
   PIPE_OPERATOR,                     // |
   TILDE_OPERATOR,                    // ~
   AMPERSAND_OPERATOR,                // &

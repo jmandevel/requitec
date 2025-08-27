@@ -31,12 +31,12 @@ void PrecedenceParser::parseUnary(const requite::Token &token,
   this->_last_ptr = nullptr;
 }
 
-void PrecedenceParser::parseAscribe(const requite::Token &token) {
+void PrecedenceParser::parseAscribe(const requite::Token &token, requite::Opcode opcode) {
   if (this->getHasOperation()) {
     requite::Expression &old_operation = this->getOperation();
-    if (old_operation.getOpcode() != requite::Opcode::_ASCRIBE) {
+    if (old_operation.getOpcode() != opcode) {
       requite::Expression &new_operation =
-          requite::Expression::makeOperation(requite::Opcode::_ASCRIBE);
+          requite::Expression::makeOperation(opcode);
       new_operation.setSource(old_operation, token);
       this->appendBranch(new_operation);
       if (!this->getHasOuter()) {
@@ -48,7 +48,7 @@ void PrecedenceParser::parseAscribe(const requite::Token &token) {
     return;
   }
   requite::Expression &operation =
-      requite::Expression::makeOperation(requite::Opcode::_ASCRIBE);
+      requite::Expression::makeOperation(opcode);
   if (this->getHasLast()) {
     requite::Expression &last = this->getLast();
     operation.setSource(last);
