@@ -293,62 +293,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateConcatinateExpression<SP>(expression);
     }
     break;
-  case O::FROM_FRONT:
-    if constexpr (!getCanBeSituation<SP>(O::FROM_FRONT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_FROM_FRONT_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_FROM_FRONT_OF)) {
-
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::FROM_BACK:
-    if constexpr (!getCanBeSituation<SP>(O::FROM_BACK)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_FROM_BACK_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_FROM_BACK_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::TRUNCATE_FRONT:
-    if constexpr (!getCanBeSituation<SP>(O::TRUNCATE_FRONT)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_TRUNCATE_FRONT_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_TRUNCATE_FRONT_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::TRUNCATE_BACK:
-    if constexpr (!getCanBeSituation<SP>(O::TRUNCATE_BACK)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_TRUNCATE_BACK_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_TRUNCATE_BACK_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
   case O::CONTENT:
     if constexpr (!getCanBeSituation<SP>(O::CONTENT)) {
       REQUITE_UNREACHABLE();
@@ -414,27 +358,6 @@ void Situator::situateExpression(requite::Expression &expression) {
     break;
   case O::_VIEW_OF_ASCRIBED:
     if constexpr (!getCanBeSituation<SP>(O::_VIEW_OF_ASCRIBED)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SP, 2, S::VALUE, S::ATTRIBUTE>(expression);
-    }
-    break;
-  case O::SLICE:
-    if constexpr (!getCanBeSituation<SP>(O::SLICE)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_SLICE_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_SLICE_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::_SLICE_OF_ASCRIBED:
-    if constexpr (!getCanBeSituation<SP>(O::_SLICE_OF_ASCRIBED)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SP, 2, S::VALUE, S::ATTRIBUTE>(expression);

@@ -127,30 +127,18 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // MEMORY
   case O::_CONCATINATE:
     return "_concatinate";
-  case O::FROM_FRONT:
-    return "from_front";
-  case O::_FROM_FRONT_OF:
-    return "_from_front_of";
-  case O::FROM_BACK:
-    return "from_back";
-  case O::_FROM_BACK_OF:
-    return "_from_back_of";
-  case O::TRUNCATE_FRONT:
-    return "truncate_front";
-  case O::_TRUNCATE_FRONT_OF:
-    return "_truncate_front_of";
-  case O::TRUNCATE_BACK:
-    return "truncate_back";
-  case O::_TRUNCATE_BACK_OF:
-    return "_truncate_back_of";
   case O::CONTENT:
     return "content";
   case O::_CONTENT_OF:
     return "_content_of";
+  case O::_CONTENT_OF_ASCRIBED:
+    return "_content_of_ascribed";
   case O::ADDRESS:
     return "address";
   case O::_ADDRESS_OF:
     return "_address_of";
+  case O::_ADDRESS_OF_ASCRIBED:
+    return "_address_of_ascribed";
   case O::REFER:
     return "refer";
   case O::_REFERENCE_OF:
@@ -163,13 +151,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_view_of";
   case O::_VIEW_OF_ASCRIBED:
     return "_view_of_ascribed";
-  case O::SLICE:
-    return "slice";
-  case O::_SLICE_OF:
-    return "_slice_of";
-  case O::_SLICE_OF_ASCRIBED:
-    return "_slice_of_ascribed";
-
+  
   // ASSIGNMENT
   case O::_ASSIGN:
     return "_assign";
@@ -713,29 +695,17 @@ _getFlags(requite::Opcode opcode) {
   // MEMORY
   case O::_CONCATINATE:
     return _INTERMEDIATE | _STRING_LITERAL | _VALUE | _ARGUMENT;
-  case O::FROM_FRONT:
-    return _REFLECTION;
-  case O::_FROM_FRONT_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::FROM_BACK:
-    return _REFLECTION;
-  case O::_FROM_BACK_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::TRUNCATE_FRONT:
-    return _REFLECTION;
-  case O::_TRUNCATE_FRONT_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::TRUNCATE_BACK:
-    return _REFLECTION;
-  case O::_TRUNCATE_BACK_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::CONTENT:
-    return _REFLECTION;
+    return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_CONTENT_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_CONTENT_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::ADDRESS:
-    return _REFLECTION;
+    return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_ADDRESS_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_ADDRESS_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::REFER:
     return _REFLECTION | _ASCRIBED_REFLECTION;
@@ -748,12 +718,6 @@ _getFlags(requite::Opcode opcode) {
   case O::_VIEW_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_VIEW_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::SLICE:
-    return _REFLECTION | _ASCRIBED_REFLECTION;
-  case O::_SLICE_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::_SLICE_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
 
   // ASSIGNMENT
@@ -1188,22 +1152,12 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
-  case O::FROM_FRONT:
-    return O::_FROM_FRONT_OF;
-  case O::FROM_BACK:
-    return O::_FROM_BACK_OF;
-  case O::TRUNCATE_FRONT:
-    return O::_TRUNCATE_FRONT_OF;
-  case O::TRUNCATE_BACK:
-    return O::_TRUNCATE_FRONT_OF;
   case O::CONTENT:
     return O::_CONTENT_OF;
   case O::ADDRESS:
     return O::_ADDRESS_OF;
   case O::REFER:
     return O::_REFERENCE_OF;
-  case O::SLICE:
-    return O::_SLICE_OF;
   case O::VIEW:
     return O::_VIEW_OF;
   case O::COPY:
@@ -1250,12 +1204,14 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
+  case O::CONTENT:
+    return O::_CONTENT_OF_ASCRIBED;
+  case O::ADDRESS:
+    return O::_ADDRESS_OF_ASCRIBED;
   case O::REFER:
     return O::_REFERENCE_OF_ASCRIBED;
   case O::VIEW:
     return O::_VIEW_OF_ASCRIBED;
-  case O::SLICE:
-    return O::_SLICE_OF_ASCRIBED;
   default:
     break;
   }

@@ -51,8 +51,6 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "slash_operator";
   case T::PERCENT_OPERATOR:
     return "percent_operator";
-  case T::BACKSLASH_OPERATOR:
-    return "backslash_operator";
   case T::CAROT_OPERATOR:
     return "carot_operator";
   case T::PIPE_OPERATOR:
@@ -235,8 +233,6 @@ constexpr std::string_view getDescription(requite::TokenType token) {
     return "slash operator";
   case T::PERCENT_OPERATOR:
     return "percent operator";
-  case T::BACKSLASH_OPERATOR:
-    return "backslash operator";
   case T::CAROT_OPERATOR:
     return "carot operator";
   case T::PIPE_OPERATOR:
@@ -463,8 +459,6 @@ _getFlags(requite::TokenType token) {
   case T::SLASH_OPERATOR:
     return _OPERATOR;
   case T::PERCENT_OPERATOR:
-    return _OPERATOR;
-  case T::BACKSLASH_OPERATOR:
     return _OPERATOR;
   case T::CAROT_OPERATOR:
     return _OPERATOR;
