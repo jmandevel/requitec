@@ -85,6 +85,9 @@ enum class  Opcode : unsigned {
 
   // MEMORY
   _CONCATINATE,
+  SINGLETON,
+  _SINGLETON_OF,
+  _SINGLETON_OF_ASCRIBED,
   CONTENT,
   _CONTENT_OF,
   _CONTENT_OF_ASCRIBED,
@@ -97,6 +100,9 @@ enum class  Opcode : unsigned {
   VIEW,
   _VIEW_OF,
   _VIEW_OF_ASCRIBED,
+  FIXED_VIEW,
+  _FIXED_VIEW_OF,
+  _FIXED_VIEW_OF_ASCRIBED,  
 
   // ASSIGNMENT
   _ASSIGN,

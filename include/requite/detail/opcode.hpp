@@ -131,6 +131,12 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // MEMORY
   case O::_CONCATINATE:
     return "_concatinate";
+  case O::SINGLETON:
+    return "singleton";
+  case O::_SINGLETON_OF:
+    return "_singleton_of";
+  case O::_SINGLETON_OF_ASCRIBED:
+    return "_singleton_of_ascribed";
   case O::CONTENT:
     return "content";
   case O::_CONTENT_OF:
@@ -155,6 +161,12 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_view_of";
   case O::_VIEW_OF_ASCRIBED:
     return "_view_of_ascribed";
+  case O::FIXED_VIEW:
+    return "fixed_view";
+  case O::_FIXED_VIEW_OF:
+    return "_fixed_view_of";
+  case O::_FIXED_VIEW_OF_ASCRIBED:
+    return "_fixed_view_of_ascribed";
 
   // ASSIGNMENT
   case O::_ASSIGN:
@@ -663,7 +675,8 @@ _getFlags(requite::Opcode opcode) {
   case O::_BINDING:
     return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT | _ALTERNATIVE;
   case O::_ASCRIBE_TYPE:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER | _REFLECTION | _ASCRIPTION;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER | _REFLECTION |
+           _ASCRIPTION;
   case O::_ASCRIBE_STATEMENT:
     return _INTERMEDIATE | _TOP_STATEMENT | _TABLE_STATEMENT |
            _OBJECT_STATEMENT | _LOCAL_STATEMENT | _PARAMETER | _ASCRIPTION;
@@ -709,6 +722,12 @@ _getFlags(requite::Opcode opcode) {
   // MEMORY
   case O::_CONCATINATE:
     return _INTERMEDIATE | _STRING_LITERAL | _VALUE | _ARGUMENT;
+  case O::SINGLETON:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_SINGLETON_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_SINGLETON_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
   case O::CONTENT:
     return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_CONTENT_OF:
@@ -732,6 +751,12 @@ _getFlags(requite::Opcode opcode) {
   case O::_VIEW_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_VIEW_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
+  case O::FIXED_VIEW:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_FIXED_VIEW_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_FIXED_VIEW_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
 
   // ASSIGNMENT
@@ -771,7 +796,7 @@ _getFlags(requite::Opcode opcode) {
   case O::_FAT_POINTER:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
   case O::_ARRAY_POINTER:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;  
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
 
   // TYPE MODIFIER
   case O::MUTABLE:
@@ -1176,6 +1201,8 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
+  case O::SINGLETON:
+    return O::_SINGLETON_OF;
   case O::CONTENT:
     return O::_CONTENT_OF;
   case O::ADDRESS:
@@ -1184,6 +1211,8 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
     return O::_REFERENCE_OF;
   case O::VIEW:
     return O::_VIEW_OF;
+  case O::FIXED_VIEW:
+    return O::_FIXED_VIEW_OF;
   case O::COPY:
     return O::_COPY_OF;
   case O::MOVE:
@@ -1228,6 +1257,8 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
+  case O::SINGLETON:
+    return O::_SINGLETON_OF_ASCRIBED;
   case O::CONTENT:
     return O::_CONTENT_OF_ASCRIBED;
   case O::ADDRESS:
@@ -1236,6 +1267,8 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
     return O::_REFERENCE_OF_ASCRIBED;
   case O::VIEW:
     return O::_VIEW_OF_ASCRIBED;
+  case O::FIXED_VIEW:
+    return O::_FIXED_VIEW_OF_ASCRIBED;
   default:
     break;
   }

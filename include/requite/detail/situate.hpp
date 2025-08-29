@@ -307,6 +307,27 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateConcatinateExpression<SP>(expression);
     }
     break;
+  case O::SINGLETON:
+    if constexpr (!getCanBeSituation<SP>(O::SINGLETON)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SP>(expression);
+    }
+    break;
+  case O::_SINGLETON_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_SINGLETON_OF)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
+    }
+    break;
+  case O::_SINGLETON_OF_ASCRIBED:
+    if constexpr (!getCanBeSituation<SP>(O::_SINGLETON_OF_ASCRIBED)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SP, 2, S::VALUE, S::TYPE_ATTRIBUTE>(
+          expression);
+    }
   case O::CONTENT:
     if constexpr (!getCanBeSituation<SP>(O::CONTENT)) {
       REQUITE_UNREACHABLE();
@@ -389,6 +410,28 @@ void Situator::situateExpression(requite::Expression &expression) {
     break;
   case O::_VIEW_OF_ASCRIBED:
     if constexpr (!getCanBeSituation<SP>(O::_VIEW_OF_ASCRIBED)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SP, 2, S::VALUE, S::TYPE_ATTRIBUTE>(
+          expression);
+    }
+    break;
+  case O::FIXED_VIEW:
+    if constexpr (!getCanBeSituation<SP>(O::FIXED_VIEW)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SP>(expression);
+    }
+    break;
+  case O::_FIXED_VIEW_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_FIXED_VIEW_OF)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
+    }
+    break;
+  case O::_FIXED_VIEW_OF_ASCRIBED:
+    if constexpr (!getCanBeSituation<SP>(O::_FIXED_VIEW_OF_ASCRIBED)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SP, 2, S::VALUE, S::TYPE_ATTRIBUTE>(
