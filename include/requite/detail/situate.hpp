@@ -438,6 +438,28 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
+  case O::SLICE:
+    if constexpr (!getCanBeSituation<SP>(O::SLICE)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
+    }
+    break;
+  case O::_SLICE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_SLICE_OF)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
+    }
+    break;
+  case O::_SLICE_OF_ASCRIBED:
+    if constexpr (!getCanBeSituation<SP>(O::_FIXED_VIEW_OF_ASCRIBED)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNaryExpression<SP, 3, S::VALUE, S::VALUE, S::TYPE_ATTRIBUTE>(
+          expression);
+    }
+    break;
 
   // ASSIGNMENT
   case O::_ASSIGN:
@@ -2032,7 +2054,8 @@ inline void Situator::situateBakeExpression(requite::Expression &expression) {
                 SITUATION_PARAM == requite::Situation::ARGUMENT) {
     this->situateUnaryExpression<SITUATION_PARAM, requite::Situation::VALUE>(
         expression);
-  } else if constexpr (SITUATION_PARAM == requite::Situation::STATEMENT_ATTRIBUTE) {
+  } else if constexpr (SITUATION_PARAM ==
+                       requite::Situation::STATEMENT_ATTRIBUTE) {
     this->situateNullaryExpression<SITUATION_PARAM>(expression);
   } else {
     static_assert(false, "invalid situation");
@@ -2123,7 +2146,8 @@ Situator::situateAscribeStatementExpression(requite::Expression &expression) {
       return;
     }
     unsigned branch_i = 0;
-    this->situateBranch<SITUATION_PARAM, requite::Situation::STATEMENT_ATTRIBUTE>(
+    this->situateBranch<SITUATION_PARAM,
+                        requite::Situation::STATEMENT_ATTRIBUTE>(
         "first to penultimate branch", expression, branch_i++, branch);
     requite::Expression *previous_ptr = &branch;
     for (requite::Expression &next : branch.getNextSubrange()) {
@@ -2436,7 +2460,15 @@ Situator::situateReflectExpression(requite::Expression &expression) {
         const requite::Opcode universalized =
             requite::getUniversalizedAscribed(branch.getOpcode());
         next.changeOpcode(universalized);
-        inner.setNextPtr(branch.popNextPtr());
+
+        requite::Expression& next_branch = next.getBranch();
+        if (next_branch.getHasBranch()) {
+          requite::Expression& branch_branch = next_branch.popBranch();
+          inner.setNext(branch_branch);
+          branch_branch.setNextPtr(branch.popNextPtr());
+        } else {
+          inner.setNextPtr(branch.popNextPtr());
+        }
         delete &next.replaceBranch(inner);
         inner_ptr = &next;
         continue;

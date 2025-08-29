@@ -250,7 +250,7 @@ void Tokenizer::_tokenizeTokens() {
       case '.':
         switch (const char c2 = this->getRanger().getChar(2)) {
         case '!':
-          switch (const char c4 = this->getRanger().getChar(3)) {
+          switch (const char c3 = this->getRanger().getChar(3)) {
           case '=':
             this->tokenizeLengthToken(T::DOUBLE_DOT_BANG_EQUAL_OPERATOR, 4);
             break;
@@ -259,7 +259,7 @@ void Tokenizer::_tokenizeTokens() {
           }
           break;
         case '=':
-          switch (const char c4 = this->getRanger().getChar(4)) {
+          switch (const char c3 = this->getRanger().getChar(3)) {
           case '=':
             this->tokenizeLengthToken(T::DOUBLE_DOT_DOUBLE_EQUAL_OPERATOR, 4);
             break;
@@ -268,7 +268,7 @@ void Tokenizer::_tokenizeTokens() {
           }
           break;
         case '<':
-          switch (const char c4 = this->getRanger().getChar(4)) {
+          switch (const char c3 = this->getRanger().getChar(3)) {
           case '=':
             this->tokenizeLengthToken(T::DOUBLE_DOT_LESS_EQUAL_OPERATOR, 4);
             break;
@@ -277,7 +277,7 @@ void Tokenizer::_tokenizeTokens() {
           }
           break;
         case '>':
-          switch (const char c4 = this->getRanger().getChar(4)) {
+          switch (const char c3 = this->getRanger().getChar(3)) {
           case '=':
             this->tokenizeLengthToken(T::DOUBLE_DOT_GREATER_EQUAL_OPERATOR, 4);
             break;

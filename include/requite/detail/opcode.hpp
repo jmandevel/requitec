@@ -167,6 +167,12 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_fixed_view_of";
   case O::_FIXED_VIEW_OF_ASCRIBED:
     return "_fixed_view_of_ascribed";
+  case O::SLICE:
+    return "slice";
+  case O::_SLICE_OF:
+    return "_slice_of";
+  case O::_SLICE_OF_ASCRIBED:
+    return "_slice_of_ascribed";
 
   // ASSIGNMENT
   case O::_ASSIGN:
@@ -758,6 +764,12 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_FIXED_VIEW_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
+  case O::SLICE:
+    return _REFLECTION | _ASCRIBED_REFLECTION;
+  case O::_SLICE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::_SLICE_OF_ASCRIBED:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
 
   // ASSIGNMENT
   case O::_ASSIGN:
@@ -1213,6 +1225,8 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
     return O::_VIEW_OF;
   case O::FIXED_VIEW:
     return O::_FIXED_VIEW_OF;
+  case O::SLICE:
+    return O::_SLICE_OF;
   case O::COPY:
     return O::_COPY_OF;
   case O::MOVE:
@@ -1269,6 +1283,8 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
     return O::_VIEW_OF_ASCRIBED;
   case O::FIXED_VIEW:
     return O::_FIXED_VIEW_OF_ASCRIBED;
+  case O::SLICE:
+    return O::_SLICE_OF_ASCRIBED;
   default:
     break;
   }

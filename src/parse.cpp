@@ -280,7 +280,6 @@ requite::Expression &Parser::parsePrecedence8() {
       this->incrementToken(1);
       precedence_parser.parseBinary(token, requite::Opcode::_LIMIT_RANGE_EQUAL);
       precedence_parser.setRecent(this->parsePrecedence7());
-
       continue;
     case requite::TokenType::DOUBLE_DOT_BANG_EQUAL_OPERATOR:
       this->incrementToken(1);

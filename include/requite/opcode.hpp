@@ -103,6 +103,9 @@ enum class  Opcode : unsigned {
   FIXED_VIEW,
   _FIXED_VIEW_OF,
   _FIXED_VIEW_OF_ASCRIBED,  
+  SLICE,
+  _SLICE_OF,
+  _SLICE_OF_ASCRIBED,
 
   // ASSIGNMENT
   _ASSIGN,
