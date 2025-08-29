@@ -517,6 +517,14 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "length";
   case O::_LENGTH_OF:
     return "_length_of";
+  case O::SPAN_SIZE:
+    return "span_size";
+  case O::_SPAN_SIZE_OF:
+    return "_span_size_of";
+  case O::SPAN_DEPTH:
+    return "span_depth";
+  case O::_SPAN_DEPTH_OF:
+    return "_span_depth_of";
   case O::NAME:
     return "name";
   case O::_NAME_OF:
@@ -1146,6 +1154,14 @@ _getFlags(requite::Opcode opcode) {
   case O::LENGTH:
     return _REFLECTION;
   case O::_LENGTH_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::SPAN_SIZE:
+    return _REFLECTION;
+  case O::_SPAN_SIZE_OF:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT;
+  case O::SPAN_DEPTH:
+    return _REFLECTION;
+  case O::_SPAN_DEPTH_OF:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::NAME:
     return _REFLECTION;
