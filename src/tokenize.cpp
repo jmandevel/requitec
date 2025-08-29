@@ -538,13 +538,7 @@ void Tokenizer::_tokenizeTokens() {
       this->tokenizeRightGrouping(G::BRACKET, T::RIGHT_BRACKET_GROUPING, 1);
       continue;
     case '^':
-      switch (const char c2 = this->getRanger().getChar(1)) {
-      case '^':
-        this->tokenizeLengthToken(T::DOUBLE_CAROT_OPERATOR, 2);
-        break;
-      default:
-        this->tokenizeLengthToken(T::CAROT_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(T::CAROT_OPERATOR, 1);
       continue;
     case '_':
       break;

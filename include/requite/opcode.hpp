@@ -96,10 +96,7 @@ enum class  Opcode : unsigned {
   _REFERENCE_OF_ASCRIBED,
   VIEW,
   _VIEW_OF,
-  _VIEW_OF_ASCRIBED,
-  FIXED_VIEW,
-  _FIXED_VIEW_OF,
-  _FIXED_VIEW_OF_ASCRIBED,  
+  _VIEW_OF_ASCRIBED, 
   SLICE,
   _SLICE_OF,
   _SLICE_OF_ASCRIBED,
@@ -127,7 +124,6 @@ enum class  Opcode : unsigned {
   _REFERENCE,
   _POINTER,
   _FAT_POINTER,
-  _ARRAY_POINTER,
 
   // TYPE MODIFIER
   MUTABLE,

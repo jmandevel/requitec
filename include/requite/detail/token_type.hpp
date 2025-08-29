@@ -53,8 +53,6 @@ constexpr std::string_view getName(requite::TokenType token) {
     return "percent_operator";
   case T::CAROT_OPERATOR:
     return "carot_operator";
-  case T::DOUBLE_CAROT_OPERATOR:
-    return "double_carot_operator";
   case T::PIPE_OPERATOR:
     return "pipe_operator";
   case T::TILDE_OPERATOR:
@@ -237,8 +235,6 @@ constexpr std::string_view getDescription(requite::TokenType token) {
     return "percent operator";
   case T::CAROT_OPERATOR:
     return "carot operator";
-  case T::DOUBLE_CAROT_OPERATOR:
-    return "double carot operator";
   case T::PIPE_OPERATOR:
     return "pipe operator";
   case T::TILDE_OPERATOR:
@@ -465,8 +461,6 @@ _getFlags(requite::TokenType token) {
   case T::PERCENT_OPERATOR:
     return _OPERATOR;
   case T::CAROT_OPERATOR:
-    return _OPERATOR;
-  case T::DOUBLE_CAROT_OPERATOR:
     return _OPERATOR;
   case T::PIPE_OPERATOR:
     return _OPERATOR;

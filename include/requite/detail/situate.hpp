@@ -396,28 +396,6 @@ void Situator::situateExpression(requite::Expression &expression) {
           expression);
     }
     break;
-  case O::FIXED_VIEW:
-    if constexpr (!getCanBeSituation<SP>(O::FIXED_VIEW)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_FIXED_VIEW_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_FIXED_VIEW_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::_FIXED_VIEW_OF_ASCRIBED:
-    if constexpr (!getCanBeSituation<SP>(O::_FIXED_VIEW_OF_ASCRIBED)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SP, 2, S::VALUE, S::TYPE_ATTRIBUTE>(
-          expression);
-    }
-    break;
   case O::SLICE:
     if constexpr (!getCanBeSituation<SP>(O::SLICE)) {
       REQUITE_UNREACHABLE();
@@ -433,7 +411,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     }
     break;
   case O::_SLICE_OF_ASCRIBED:
-    if constexpr (!getCanBeSituation<SP>(O::_FIXED_VIEW_OF_ASCRIBED)) {
+    if constexpr (!getCanBeSituation<SP>(O::_SLICE_OF_ASCRIBED)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNaryExpression<SP, 3, S::VALUE, S::VALUE, S::TYPE_ATTRIBUTE>(
@@ -576,13 +554,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::_ARRAY_POINTER:
-    if constexpr (!getCanBeSituation<SP>(O::_ARRAY_POINTER)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateBinaryExpression<SP, S::VALUE>(expression);
     }
     break;
 

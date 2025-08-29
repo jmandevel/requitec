@@ -4,7 +4,7 @@
     copy_of_num :[signed]= pointer.[content];
     reference_to_num :&[signed]= pointer.[content].[refer];
 
-    array :5#`[signed]= #`:{1, 2, 3, 4, 5};
+    mutable_array :`5#[signed]= `#:{1, 2, 3, 4, 5};
     reference :&5#[signed]= array.[refer];
     reference_to_mutable :&`5#[signed]= array.`[refer];
     mutable_reference :`&5#[signed]= `:array.[refer];
@@ -13,13 +13,9 @@
     fat_pointer_to_mutable :^`[signed]= array.`[view];
     mutable_fat_pointer :`^[signed]= `:array.[view];
     mutable_fat_pointer_to_mutable :`^`[signed]= `:array.`[view];
-    array_pointer :5^^[signed]= array.[fixed_view];
-    array_pointer_to_mutable :5^^`[signed]= array.`[fixed_view];
-    mutable_array_pointer_to_mutable :`5^^`[signed]= array.`[fixed_view];
     fat_pointer_to_array :^5#[signed]= {array}.[view];
-    array_pointer_to_array :1^^5#[signed]= {array}.[fixed_view];
     sub_fat_pointer :^[signed]= array.[slice 2..==4]; // contains {3, 4, 5}
     sub_fat_pointer_to_mutable :^`[signed]= array.`[slice 2..<4]; // contains {3, 4}
-    sub_array_pointer :3^^[signed]= array.[fixed_slice 2..==4]; // contains {3, 4, 5}
-    sub_array_pointer_to_mutable :2^^`[signed]= array.`[fixed_slice 2..<4]; // contains {3, 4}
+    reference_to_sub_array :&3#[signed]= array.[fixed_slice 2..==4]; // contains {3, 4, 5}
+    reference_to_mutable_sub_array :&`2#[signed]= array.`[fixed_slice 2..<4]; // contains {3, 4}
 ]

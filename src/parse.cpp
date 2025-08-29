@@ -625,15 +625,6 @@ requite::Expression &Parser::parsePrecedence1() {
         this->incrementToken(1);
         precedence_parser.parseUnary(token, requite::Opcode::_FAT_POINTER);
         continue;
-      case requite::TokenType::DOUBLE_CAROT_OPERATOR: {
-        requite::Expression &operation =
-            requite::Expression::makeOperation(requite::Opcode::_INFERENCE);
-        operation.setSourceInsertedBefore(token);
-        precedence_parser.setRecent(operation);
-        this->incrementToken(1);
-        precedence_parser.parseNary(token, requite::Opcode::_ARRAY_POINTER);
-        continue;
-      }
       case requite::TokenType::PERCENT_OPERATOR:
         this->incrementToken(1);
         precedence_parser.parseUnary(token, requite::Opcode::_IDENTIFY);
@@ -699,10 +690,6 @@ requite::Expression &Parser::parsePrecedence1() {
     case requite::TokenType::DOT_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseNary(post_token, requite::Opcode::_REFLECT);
-      continue;
-    case requite::TokenType::DOUBLE_CAROT_OPERATOR:
-      this->incrementToken(1);
-      precedence_parser.parseNary(post_token, requite::Opcode::_ARRAY_POINTER);
       continue;
     case requite::TokenType::LEFT_PARENTHESIS_GROUPING: {
       this->incrementToken(1);

@@ -155,12 +155,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_view_of";
   case O::_VIEW_OF_ASCRIBED:
     return "_view_of_ascribed";
-  case O::FIXED_VIEW:
-    return "fixed_view";
-  case O::_FIXED_VIEW_OF:
-    return "_fixed_view_of";
-  case O::_FIXED_VIEW_OF_ASCRIBED:
-    return "_fixed_view_of_ascribed";
   case O::SLICE:
     return "slice";
   case O::_SLICE_OF:
@@ -209,8 +203,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_pointer";
   case O::_FAT_POINTER:
     return "_fat_pointer";
-  case O::_ARRAY_POINTER:
-    return "_array_pointer";
 
   // TYPE MODIFIER
   case O::MUTABLE:
@@ -760,12 +752,6 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_VIEW_OF_ASCRIBED:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
-  case O::FIXED_VIEW:
-    return _REFLECTION | _ASCRIBED_REFLECTION;
-  case O::_FIXED_VIEW_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::_FIXED_VIEW_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
   case O::SLICE:
     return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_SLICE_OF:
@@ -814,8 +800,6 @@ _getFlags(requite::Opcode opcode) {
   case O::_POINTER:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
   case O::_FAT_POINTER:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
-  case O::_ARRAY_POINTER:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
 
   // TYPE MODIFIER
@@ -1237,8 +1221,6 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
     return O::_REFERENCE_OF;
   case O::VIEW:
     return O::_VIEW_OF;
-  case O::FIXED_VIEW:
-    return O::_FIXED_VIEW_OF;
   case O::SLICE:
     return O::_SLICE_OF;
   case O::FIXED_SLICE:
@@ -1295,8 +1277,6 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
     return O::_REFERENCE_OF_ASCRIBED;
   case O::VIEW:
     return O::_VIEW_OF_ASCRIBED;
-  case O::FIXED_VIEW:
-    return O::_FIXED_VIEW_OF_ASCRIBED;
   case O::SLICE:
     return O::_SLICE_OF_ASCRIBED;
   case O::FIXED_SLICE:
