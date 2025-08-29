@@ -103,6 +103,9 @@ enum class  Opcode : unsigned {
   SLICE,
   _SLICE_OF,
   _SLICE_OF_ASCRIBED,
+  FIXED_SLICE,
+  _FIXED_SLICE_OF,
+  _FIXED_SLICE_OF_ASCRIBED,
 
   // ASSIGNMENT
   _ASSIGN,

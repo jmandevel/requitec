@@ -18,6 +18,8 @@
     mutable_array_pointer_to_mutable :`5^^`[signed]= array.`[fixed_view];
     fat_pointer_to_array :^5#[signed]= {array}.[view];
     array_pointer_to_array :1^^5#[signed]= {array}.[fixed_view];
-    sub_array_pointer :^[signed]= array.[slice 2..==4]; // contains {3, 4, 5}
-    sub_array_pointer_to_mutable :^`[signed]= array.`[slice 2..<4]; // contains {3, 4}
+    sub_fat_pointer :^[signed]= array.[slice 2..==4]; // contains {3, 4, 5}
+    sub_fat_pointer_to_mutable :^`[signed]= array.`[slice 2..<4]; // contains {3, 4}
+    sub_array_pointer :3^^[signed]= array.[fixed_slice 2..==4]; // contains {3, 4, 5}
+    sub_array_pointer_to_mutable :2^^`[signed]= array.`[fixed_slice 2..<4]; // contains {3, 4}
 ]
