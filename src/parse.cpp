@@ -939,8 +939,8 @@ requite::Expression &Parser::parseBracketExpression() {
   this->incrementToken(1);
   const requite::Token &opcode_token = this->getToken();
   if (opcode_token.getType() ==
-      requite::TokenType::LEFT_BRACKET_GROUPING) { // its a
-                                                   // anonymous_function
+      requite::TokenType::LEFT_BRACKET_GROUPING) { // its an
+                                                   // _anonymous_function
                                                    // expression
     requite::Expression &anonymous_function =
         requite::Expression::makeOperation(
@@ -1100,6 +1100,24 @@ requite::Expression &Parser::parseBracketExpression() {
             break;
           case requite::TokenType::RIGHT_BRACKET_GROUPING:
             this->incrementToken(1);
+            if (requite::getAllCommaBranchesCanBeTacit(opcode)) {
+              for (; branch_i < comma_count; branch_i++) {
+                requite::Expression &tacit = requite::Expression::makeOperation(
+                    requite::Opcode::_INFERENCE);
+                if (operation.getHasBranch()) {
+                  requite::Expression &first = operation.getBranch();
+                  tacit.setSourceInsertedBefore(first);
+                  tacit.setNext(operation.replaceBranch(tacit));
+                } else {
+                  tacit.setSourceInsertedBefore(next);
+                  parser.appendBranch(tacit);
+                }
+              }
+              parser.appendBranch(next);
+            } else {
+              this->getContext().logErrorExpectedCommaSeperator(after_token);
+              this->setNotOk();
+            }
             parser.finishOperation(after_token);
             return operation;
           default:
@@ -1117,24 +1135,6 @@ requite::Expression &Parser::parseBracketExpression() {
           break;
         case requite::TokenType::SEMICOLON_SEPERATOR:
           this->incrementToken(1);
-          if (requite::getAllCommaBranchesCanBeTacit(opcode)) {
-            for (; branch_i < comma_count; branch_i++) {
-              requite::Expression &tacit = requite::Expression::makeOperation(
-                  requite::Opcode::_INFERENCE);
-              if (operation.getHasBranch()) {
-                requite::Expression &first = operation.getBranch();
-                tacit.setSourceInsertedBefore(first);
-                tacit.setNext(operation.replaceBranch(tacit));
-              } else {
-                tacit.setSourceInsertedBefore(next);
-                parser.appendBranch(tacit);
-              }
-            }
-            parser.appendBranch(next);
-          } else {
-            this->getContext().logErrorExpectedCommaSeperator(after_token);
-            this->setNotOk();
-          }
           break;
         case requite::TokenType::RIGHT_BRACKET_GROUPING:
           this->incrementToken(1);
