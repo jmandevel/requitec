@@ -1569,20 +1569,34 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case O::LENGTH:
-    if constexpr (!getCanBeSituation<SP>(O::LENGTH)) {
+  case O::SPAN_SIZE:
+    if constexpr (!getCanBeSituation<SP>(O::SPAN_SIZE)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateNullaryExpression<SP>(expression);
     }
     break;
-  case O::_LENGTH_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_LENGTH_OF)) {
+  case O::_SPAN_SIZE_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_SPAN_SIZE_OF)) {
       REQUITE_UNREACHABLE();
     } else {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
+  case O::SPAN_DEPTH:
+    if constexpr (!getCanBeSituation<SP>(O::SPAN_DEPTH)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SP>(expression);
+    }
+    break;
+  case O::_SPAN_DEPTH_OF:
+    if constexpr (!getCanBeSituation<SP>(O::_SPAN_DEPTH_OF)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SP, S::VALUE>(expression);
+    }
+    break; 
   case O::NAME:
     if constexpr (!getCanBeSituation<SP>(O::NAME)) {
       REQUITE_UNREACHABLE();
