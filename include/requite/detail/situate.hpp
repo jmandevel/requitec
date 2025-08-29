@@ -511,6 +511,13 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
+  case O::_ARRAY_POINTER:
+    if constexpr (!getCanBeSituation<SP>(O::_ARRAY_POINTER)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateBinaryExpression<SP, S::VALUE>(expression);
+    }
+    break;
 
   // TYPE MODIFIER
   case O::MUTABLE:

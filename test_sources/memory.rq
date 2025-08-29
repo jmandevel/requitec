@@ -1,12 +1,12 @@
 [entry_point
-    num := 0;
-    pointer := num.[address];
-    copy_of_num := pointer.[content];
-    reference_to_num := pointer.[content].[refer];
+    num :[signed]= 0;
+    pointer :*[signed]= num.[address];
+    copy_of_num :[signed]= pointer.[content];
+    reference_to_num :&[signed]= pointer.[content].[refer];
 
-    array := #`:{1, 2, 3, 4, 5};
-    reference := array.[refer];
-    reference_to_mutable := array.`[refer];
-    fat_pointer := array.[view];
-    fat_pointer_to_mutable := array.`[view];
+    array :5#`[signed]= #`:{1, 2, 3, 4, 5};
+    reference :&5#[signed]= array.[refer];
+    reference_to_mutable :&`5#[signed]= array.`[refer];
+    fat_pointer :^[signed]= array.[view];
+    fat_pointer_to_mutable :^`[signed]= array.`[view];
 ]

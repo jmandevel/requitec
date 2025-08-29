@@ -191,6 +191,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_pointer";
   case O::_FAT_POINTER:
     return "_fat_pointer";
+  case O::_ARRAY_POINTER:
+    return "_array_pointer";
 
   // TYPE MODIFIER
   case O::MUTABLE:
@@ -661,7 +663,7 @@ _getFlags(requite::Opcode opcode) {
   case O::_BINDING:
     return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT | _ALTERNATIVE;
   case O::_ASCRIBE_TYPE:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER | _ASCRIPTION;
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER | _REFLECTION | _ASCRIPTION;
   case O::_ASCRIBE_STATEMENT:
     return _INTERMEDIATE | _TOP_STATEMENT | _TABLE_STATEMENT |
            _OBJECT_STATEMENT | _LOCAL_STATEMENT | _PARAMETER | _ASCRIPTION;
@@ -768,6 +770,8 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
   case O::_FAT_POINTER:
     return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::_ARRAY_POINTER:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;  
 
   // TYPE MODIFIER
   case O::MUTABLE:
