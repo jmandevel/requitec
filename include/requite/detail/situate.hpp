@@ -1169,7 +1169,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     if constexpr (!getCanBeSituation<SP>(O::BEGIN)) {
       REQUITE_UNREACHABLE();
     } else {
-      this->situateUnaryExpression<SP>(expression);
+      this->situateNullaryExpression<SP>(expression);
     }
     break;
   case O::END:
