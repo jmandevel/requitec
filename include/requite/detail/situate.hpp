@@ -307,27 +307,7 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateConcatinateExpression<SP>(expression);
     }
     break;
-  case O::SINGLETON:
-    if constexpr (!getCanBeSituation<SP>(O::SINGLETON)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::_SINGLETON_OF:
-    if constexpr (!getCanBeSituation<SP>(O::_SINGLETON_OF)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateUnaryExpression<SP, S::VALUE>(expression);
-    }
-    break;
-  case O::_SINGLETON_OF_ASCRIBED:
-    if constexpr (!getCanBeSituation<SP>(O::_SINGLETON_OF_ASCRIBED)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNaryExpression<SP, 2, S::VALUE, S::TYPE_ATTRIBUTE>(
-          expression);
-    }
+
   case O::CONTENT:
     if constexpr (!getCanBeSituation<SP>(O::CONTENT)) {
       REQUITE_UNREACHABLE();

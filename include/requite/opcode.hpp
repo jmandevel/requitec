@@ -85,9 +85,6 @@ enum class  Opcode : unsigned {
 
   // MEMORY
   _CONCATINATE,
-  SINGLETON,
-  _SINGLETON_OF,
-  _SINGLETON_OF_ASCRIBED,
   CONTENT,
   _CONTENT_OF,
   _CONTENT_OF_ASCRIBED,

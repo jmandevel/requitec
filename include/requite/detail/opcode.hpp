@@ -131,12 +131,6 @@ constexpr std::string_view getName(requite::Opcode opcode) {
   // MEMORY
   case O::_CONCATINATE:
     return "_concatinate";
-  case O::SINGLETON:
-    return "singleton";
-  case O::_SINGLETON_OF:
-    return "_singleton_of";
-  case O::_SINGLETON_OF_ASCRIBED:
-    return "_singleton_of_ascribed";
   case O::CONTENT:
     return "content";
   case O::_CONTENT_OF:
@@ -736,12 +730,6 @@ _getFlags(requite::Opcode opcode) {
   // MEMORY
   case O::_CONCATINATE:
     return _INTERMEDIATE | _STRING_LITERAL | _VALUE | _ARGUMENT;
-  case O::SINGLETON:
-    return _REFLECTION | _ASCRIBED_REFLECTION;
-  case O::_SINGLETON_OF:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT;
-  case O::_SINGLETON_OF_ASCRIBED:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _ASCRIPTION;
   case O::CONTENT:
     return _REFLECTION | _ASCRIBED_REFLECTION;
   case O::_CONTENT_OF:
@@ -1229,8 +1217,6 @@ constexpr requite::Opcode getUniversalized(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
-  case O::SINGLETON:
-    return O::_SINGLETON_OF;
   case O::CONTENT:
     return O::_CONTENT_OF;
   case O::ADDRESS:
@@ -1287,8 +1273,6 @@ constexpr requite::Opcode getUniversalizedAscribed(requite::Opcode opcode) {
   using namespace requite;
   using O = Opcode;
   switch (opcode) {
-  case O::SINGLETON:
-    return O::_SINGLETON_OF_ASCRIBED;
   case O::CONTENT:
     return O::_CONTENT_OF_ASCRIBED;
   case O::ADDRESS:
