@@ -7,6 +7,15 @@
     array :5#`[signed]= #`:{1, 2, 3, 4, 5};
     reference :&5#[signed]= array.[refer];
     reference_to_mutable :&`5#[signed]= array.`[refer];
+    mutable_reference :`&5#[signed]= `:array.[refer];
+    mutable_reference_to_mutable :`&`5#[signed]= `:array.`[refer];
     fat_pointer :^[signed]= array.[view];
     fat_pointer_to_mutable :^`[signed]= array.`[view];
+    mutable_fat_pointer :`^[signed]= `:array.[view];
+    mutable_fat_pointer_to_mutable :`^`[signed]= `:array.`[view];
+    array_pointer :5^^[signed]= array.[fixed_view];
+    array_pointer_to_mutable :5^^`[signed]= array.`[fixed_view];
+    mutable_array_pointer_to_mutable :`5^^`[signed]= array.`[fixed_view];
+    fat_pointer_to_array :^5#[signed]= array.[singleton].[view];
+    array_pointer_to_array :1^^5#[signed]= array.[singleton].[fixed_view];
 ]
