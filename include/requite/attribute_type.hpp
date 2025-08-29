@@ -44,7 +44,7 @@ static constexpr unsigned ATTRIBUTE_TYPE_COUNT =
 [[nodiscard]] constexpr std::string_view getName(requite::AttributeType type);
 template <requite::AttributeCategory CATEGORY_PARAM>
 [[nodiscard]] constexpr bool getCanBeAttributeCategory(requite::AttributeType type);
-[[nodiscard]] constexpr bool getCanBeExpressionAttribute(requite::AttributeType type);
+[[nodiscard]] constexpr bool getCanBeNarrowAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeGlobalFunctionAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeMemberFunctionAttribute(requite::AttributeType type);
 [[nodiscard]] constexpr bool getCanBeLocalFunctionAttribute(requite::AttributeType type);

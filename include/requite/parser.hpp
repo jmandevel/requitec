@@ -58,6 +58,7 @@ struct Parser final {
   [[nodiscard]] bool getIsToken(requite::TokenType type) const;
   [[nodiscard]] bool parseExpressions();
   [[nodiscard]] requite::Expression &parseExpression();
+  [[nodiscard]] requite::Expression &parsePrecedence11();
   [[nodiscard]] requite::Expression &parsePrecedence10();
   [[nodiscard]] requite::Expression &parsePrecedence9();
   [[nodiscard]] requite::Expression &parsePrecedence8();
@@ -69,7 +70,6 @@ struct Parser final {
   [[nodiscard]] requite::Expression &parsePrecedence2();
   [[nodiscard]] requite::Expression &parsePrecedence1();
   [[nodiscard]] requite::Expression &parsePrecedence0();
-  [[nodiscard]] requite::Expression& parseStatementAttributes(const requite::Token& token, requite::Expression& first);
   // returns if has parameter marks
   [[nodiscard]] bool
   parseCommaSeperatedBranches(requite::Expression &operation,

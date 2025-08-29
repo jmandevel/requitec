@@ -17,7 +17,7 @@ inline bool Expression::getIsInternal() const {
 }
 
 inline bool Expression::getCanHaveNoSemicolon() const {
-  if (this->getOpcode() == requite::Opcode::_ASCRIBE_STATEMENT) {
+  if (requite::getCanBeAscription(this->getOpcode())) {
     return this->getBranch().getCanHaveNoSemicolon();
   }
   return requite::getBranchCanHaveNoSemicolon(this->getOpcode());

@@ -59,7 +59,7 @@ enum class  Opcode : unsigned {
   BAKE,
   _EXTEND,
   _BINDING,
-  _ASCRIBE_EXPRESSION,
+  _ASCRIBE_TYPE,
   _ASCRIBE_STATEMENT,
   _CAST,
   _IDENTIFY,

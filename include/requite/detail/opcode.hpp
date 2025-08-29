@@ -85,8 +85,8 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_extend";
   case O::_BINDING:
     return "_binding";
-  case O::_ASCRIBE_EXPRESSION:
-    return "_ascribe_expression";
+  case O::_ASCRIBE_TYPE:
+    return "_ascribe_type";
   case O::_ASCRIBE_STATEMENT:
     return "_ascribe_statement";
   case O::_CAST:
@@ -564,7 +564,7 @@ enum _OpcodeFlags : std::uint32_t {
   _NAME = requite::getBit(11),
   _PATH = requite::getBit(10),
   _ASCRIPTION = requite::getBit(9),
-  _EXPRESSION_ATTRIBUTE = requite::getBit(8),
+  _TYPE_ATTRIBUTE = requite::getBit(8),
   _STATEMENT_ATTRIBUTE = requite::getBit(7),
   _LONG_RANGE_STAGE = requite::getBit(6),
   _SHORT_RANGE_STAGE = requite::getBit(5),
@@ -576,8 +576,9 @@ enum _OpcodeFlags : std::uint32_t {
   _ALL = _TOP_STATEMENT | _TABLE_STATEMENT | _OBJECT_STATEMENT |
          _LOCAL_STATEMENT | _LOCAL_STATEMENT | _VALUE | _REFLECTION |
          _ARGUMENT | _PARAMETER | _BINDING | _DESTINATION | _ALTERNATIVE |
-         _NAME | _PATH | _EXPRESSION_ATTRIBUTE | _LONG_RANGE_STAGE |
-         _SHORT_RANGE_STAGE | _LAST_CASE | _CAPTURE | _STRING_LITERAL
+         _NAME | _PATH | _TYPE_ATTRIBUTE | _STATEMENT_ATTRIBUTE |
+         _LONG_RANGE_STAGE | _SHORT_RANGE_STAGE | _LAST_CASE | _CAPTURE |
+         _STRING_LITERAL
 };
 }
 
@@ -659,10 +660,11 @@ _getFlags(requite::Opcode opcode) {
     return _INTERMEDIATE | _VALUE;
   case O::_BINDING:
     return _INTERMEDIATE | _DESTINATION | _PARAMETER | _ARGUMENT | _ALTERNATIVE;
-  case O::_ASCRIBE_EXPRESSION:
-    return _INTERMEDIATE | _REFLECTION | _VALUE | _ASCRIPTION;
+  case O::_ASCRIBE_TYPE:
+    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER | _ASCRIPTION;
   case O::_ASCRIBE_STATEMENT:
-    return _INTERMEDIATE | _ALL | _ASCRIPTION;
+    return _INTERMEDIATE | _TOP_STATEMENT | _TABLE_STATEMENT |
+           _OBJECT_STATEMENT | _LOCAL_STATEMENT | _PARAMETER | _ASCRIPTION;
   case O::_CAST:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_IDENTIFY:
@@ -769,19 +771,19 @@ _getFlags(requite::Opcode opcode) {
 
   // TYPE MODIFIER
   case O::MUTABLE:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
   case O::CONSTANT:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
   case O::VOLATILE:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
   case O::ATOMIC:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
   case O::NULL_TERMINATED:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
   case O::OWNING:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
   case O::MAY_DISCARD:
-    return _EXPRESSION_ATTRIBUTE;
+    return _TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
   case O::_POSITIONAL_PARAMETERS_END:
@@ -847,7 +849,7 @@ _getFlags(requite::Opcode opcode) {
            _LAST_COMMA_BRANCH_CAN_BE_INFERENCE | _VALUE | _ARGUMENT |
            static_cast<_OpcodeFlags>(2);
   case O::CAPTURE:
-    return _LONG_RANGE_STAGE | _CAPTURE;
+    return _CAPTURE | _TYPE_ATTRIBUTE;
 
   // CONTROL FLOW
   case O::RETURN:

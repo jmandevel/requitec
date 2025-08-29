@@ -28,7 +28,7 @@ enum class Situation {
   NAME,
   PATH,
   ASCRIPTION,
-  EXPRESSION_ATTRIBUTE,
+  TYPE_ATTRIBUTE,
   STATEMENT_ATTRIBUTE,
   LONG_RANGE_STAGE,
   SHORT_RANGE_STAGE,
@@ -63,8 +63,8 @@ template<requite::Situation SITUATION_PARAM>
 [[nodiscard]] constexpr bool getCanBePath(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeAscription(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeAttribute(requite::Opcode opcode);
-[[nodiscard]] constexpr bool getCanBeExpressionAttribute(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeStatementAttribute(requite::Opcode opcode);
+[[nodiscard]] constexpr bool getCanBeTypeAttribute(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeLongRangeStage(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeShortRangeStage(requite::Opcode opcode);
 [[nodiscard]] constexpr bool getCanBeCase(requite::Opcode opcode);

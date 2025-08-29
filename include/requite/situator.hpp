@@ -100,9 +100,10 @@ struct Situator final {
   template <requite::Situation SITUATION_PARAM>
   inline void situateClovenExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateAscribeExpressionExpression(requite::Expression &expression);
+  inline void situateAscribeTypeExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
-  inline void situateAscribeStatementExpression(requite::Expression &expression);
+  inline void
+  situateAscribeStatementExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>
   inline void situateColonExpression(requite::Expression &expression);
   template <requite::Situation SITUATION_PARAM>

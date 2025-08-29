@@ -44,10 +44,10 @@ constexpr llvm::StringRef getDescription(requite::Situation situation) {
     return "name";
   case S::PATH:
     return "path";
-  case S::EXPRESSION_ATTRIBUTE:
+  case S::TYPE_ATTRIBUTE:
     return "type attribute";
   case S::STATEMENT_ATTRIBUTE:
-    return "symbol attribute";
+    return "statement attribute";
   case S::LONG_RANGE_STAGE:
     return "long range stage";
   case S::SHORT_RANGE_STAGE:
@@ -116,8 +116,8 @@ constexpr bool getCanBeSituation(requite::Opcode opcode) {
     return getCanBeName(opcode);
   } else if constexpr (SP == S::PATH) {
     return getCanBePath(opcode);
-  } else if constexpr (SP == S::EXPRESSION_ATTRIBUTE) {
-    return getCanBeExpressionAttribute(opcode);
+  } else if constexpr (SP == S::TYPE_ATTRIBUTE) {
+    return getCanBeTypeAttribute(opcode);
   } else if constexpr (SP == S::STATEMENT_ATTRIBUTE) {
     return getCanBeStatementAttribute(opcode);
   } else if constexpr (SP == S::LONG_RANGE_STAGE) {
@@ -207,12 +207,12 @@ constexpr bool getCanBeAscription(requite::Opcode opcode) {
 
 constexpr bool getCanBeAttribute(requite::Opcode opcode) {
   return requite::_getHasAtLeastOneFlag(
-      opcode, requite::_opcode::_EXPRESSION_ATTRIBUTE |
+      opcode, requite::_opcode::_TYPE_ATTRIBUTE |
                   requite::_opcode::_STATEMENT_ATTRIBUTE);
 }
 
-constexpr bool getCanBeExpressionAttribute(requite::Opcode opcode) {
-  return requite::_getHasFlags(opcode, requite::_opcode::_EXPRESSION_ATTRIBUTE);
+constexpr bool getCanBeTypeAttribute(requite::Opcode opcode) {
+  return requite::_getHasFlags(opcode, requite::_opcode::_TYPE_ATTRIBUTE);
 }
 
 constexpr bool getCanBeStatementAttribute(requite::Opcode opcode) {
