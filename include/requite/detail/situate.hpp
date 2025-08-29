@@ -1165,6 +1165,20 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
+  case O::BEGIN:
+    if constexpr (!getCanBeSituation<SP>(O::BEGIN)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateUnaryExpression<SP>(expression);
+    }
+    break;
+  case O::END:
+    if constexpr (!getCanBeSituation<SP>(O::END)) {
+      REQUITE_UNREACHABLE();
+    } else {
+      this->situateNullaryExpression<SP>(expression);
+    }
+    break;
   case O::_LIMIT_RANGE_EQUAL:
     if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_EQUAL)) {
       REQUITE_UNREACHABLE();
@@ -1583,7 +1597,7 @@ void Situator::situateExpression(requite::Expression &expression) {
     } else {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
-    break; 
+    break;
   case O::NAME:
     if constexpr (!getCanBeSituation<SP>(O::NAME)) {
       REQUITE_UNREACHABLE();
@@ -2462,9 +2476,9 @@ Situator::situateReflectExpression(requite::Expression &expression) {
             requite::getUniversalizedAscribed(branch.getOpcode());
         next.changeOpcode(universalized);
 
-        requite::Expression& next_branch = next.getBranch();
+        requite::Expression &next_branch = next.getBranch();
         if (next_branch.getHasBranch()) {
-          requite::Expression& branch_branch = next_branch.popBranch();
+          requite::Expression &branch_branch = next_branch.popBranch();
           inner.setNext(branch_branch);
           branch_branch.setNextPtr(branch.popNextPtr());
         } else {
