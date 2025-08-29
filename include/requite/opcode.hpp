@@ -237,8 +237,6 @@ enum class  Opcode : unsigned {
 
   // RANGES
   RANGE,
-  BEGIN,
-  END,
   _LIMIT_RANGE_EQUAL,
   _LIMIT_RANGE_NOT_EQUAL,
   _LIMIT_RANGE_GREATER,

@@ -1185,20 +1185,6 @@ void Situator::situateExpression(requite::Expression &expression) {
       this->situateUnaryExpression<SP, S::VALUE>(expression);
     }
     break;
-  case O::BEGIN:
-    if constexpr (!getCanBeSituation<SP>(O::BEGIN)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
-  case O::END:
-    if constexpr (!getCanBeSituation<SP>(O::END)) {
-      REQUITE_UNREACHABLE();
-    } else {
-      this->situateNullaryExpression<SP>(expression);
-    }
-    break;
   case O::_LIMIT_RANGE_EQUAL:
     if constexpr (!getCanBeSituation<SP>(O::_LIMIT_RANGE_EQUAL)) {
       REQUITE_UNREACHABLE();
