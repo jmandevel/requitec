@@ -237,7 +237,7 @@ enum class  Opcode : unsigned {
   _INLINE_BLOCK,
 
   // RANGES
-  _RANGE,
+  RANGE,
   _LIMIT_RANGE_EQUAL,
   _LIMIT_RANGE_NOT_EQUAL,
   _LIMIT_RANGE_GREATER,

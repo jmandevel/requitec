@@ -395,7 +395,7 @@ constexpr std::string_view getName(requite::Opcode opcode) {
     return "_inline_block";
 
   // RANGES
-  case O::_RANGE:
+  case O::RANGE:
     return "range";
   case O::_LIMIT_RANGE_EQUAL:
     return "_limit_range_equal";
@@ -1030,8 +1030,8 @@ _getFlags(requite::Opcode opcode) {
     return _HAS_SEMICOLON_SEPARATED_BRANCHES | _VALUE | _ARGUMENT;
 
   // RANGES
-  case O::_RANGE:
-    return _INTERMEDIATE | _VALUE | _ARGUMENT | _PARAMETER;
+  case O::RANGE:
+    return _VALUE | _ARGUMENT | _PARAMETER;
   case O::_LIMIT_RANGE_EQUAL:
     return _INTERMEDIATE | _VALUE | _ARGUMENT;
   case O::_LIMIT_RANGE_NOT_EQUAL:
