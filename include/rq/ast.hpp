@@ -1818,7 +1818,7 @@ getDescription(rq::Situation situation) {
   case S::SEQUENCE_STAGE:
     return "short range stage expression";
   case S::ARM:
-    return "match arm expression";
+    return "arm expression";
   case S::CAPTURE:
     return "capture expression";
   }
