@@ -30,6 +30,10 @@ struct Module final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLlvmBuffer() const {
     return !this->_path.empty();
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
+    RQ_ASSERT(!this->_path.empty(), "has no path");
+    return this->_path;
+  }
   llvm::StringRef getSourceText() const {
     RQ_ASSERT(this->getHasLlvmBuffer(), "does not have llvm file buffer");
     return this->_llvm_buffer_ref.getBuffer();

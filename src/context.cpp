@@ -181,6 +181,8 @@ bool Context::loadFileBuffer(rq::Module &module, llvm::StringRef path) {
 
 bool Context::initializeLlvm() {
   this->_llvm_context_uptr = std::make_unique<llvm::LLVMContext>();
+  this->_llvm_module_uptr = std::make_unique<llvm::Module>(
+      this->getSourceModule().getPath(), this->getLlvmContext());
   this->_llvm_ir_builder_uptr =
       std::make_unique<llvm::IRBuilder<>>(this->getLlvmContext());
   llvm::InitializeNativeTarget();
