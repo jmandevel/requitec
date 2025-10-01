@@ -1,0 +1,25 @@
+[enumeration Fruit, 32,
+    apple = 0;
+    orange = 1;
+    grape = 2;
+]
+
+[enumeration Payload, 16,
+    none=0;
+    string:^``[utf8]=1;
+    number:[binary64]=2;    
+]
+
+payload := Payload.string("str");
+none := Payload.none;
+
+str :=
+    [match payload,
+        [case string,
+            := string;
+        ][case number,
+            := std.format("{number "2."}");
+        ][case none,
+            := "nothing";        
+        ]
+    ];

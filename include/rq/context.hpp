@@ -1,0 +1,197 @@
+#pragma once
+
+#include <rq/module.hpp>
+#include <rq/utility.hpp>
+
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/StringMap.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/Support/Allocator.h>
+#include <llvm/Support/ErrorOr.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/MemoryBufferRef.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/StringSaver.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Target/TargetMachine.h>
+
+#include <memory>
+#include <optional>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+namespace rq {
+
+struct Token;
+struct Expression;
+struct Module;
+enum class Keyword : std::uint32_t;
+enum class Situation : std::uint_fast32_t;
+
+enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
+  ERROR = llvm::SourceMgr::DiagKind::DK_Error,
+  WARN = llvm::SourceMgr::DiagKind::DK_Warning,
+  REMARK = llvm::SourceMgr::DiagKind::DK_Remark,
+  NOTE = llvm::SourceMgr::DiagKind::DK_Note
+};
+
+struct SourceLocation final {
+  llvm::StringRef file = {};
+  unsigned line = 0;
+  unsigned column = 0;
+
+  [[nodiscard]] inline bool operator==(const rq::SourceLocation &other) const {
+    return this->file == other.file && this->line == other.line &&
+           this->column == other.column;
+  }
+
+  [[nodiscard]] inline bool operator!=(const rq::SourceLocation &other) const {
+    return !(*this == other);
+  }
+};
+
+struct SourceRange final {
+  rq::SourceLocation start = {};
+  rq::SourceLocation end = {};
+};
+
+struct Context final {
+  using Self = rq::Context;
+
+  std::string _executable_path;
+  llvm::BumpPtrAllocator _llvm_arena;
+  llvm::StringSaver _llvm_string_saver = {_llvm_arena};
+  llvm::SourceMgr _llvm_source_mgr;
+  llvm::TargetMachine *_llvm_target_machine_ptr = nullptr;
+  llvm::StringMap<rq::Keyword> _keyword_map;
+  llvm::StringMap<rq::Module *> _module_map;
+  std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
+  std::unique_ptr<llvm::Module> _llvm_module_uptr;
+  std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
+  std::vector<rq::Expression *> _unused_expression_ptrs;
+  rq::Module _source_module;
+
+  Context(std::string &&executable_path)
+      : _executable_path(std::move(executable_path)) {}
+  Context(const Self &) = delete;
+  Context(Self &&) = delete;
+  ~Context() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this == &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this != &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
+    return this->_executable_path;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getSourceModule() {
+    return this->_source_module;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getSourceModule() const {
+    return this->_source_module;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::TargetMachine &getLlvmTargetMachine() {
+    return rq::dereferencePtr(this->_llvm_target_machine_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::TargetMachine &
+  getLlvmTargetMachine() const {
+    return rq::dereferencePtr(this->_llvm_target_machine_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Module &getLlvmModule() {
+    return rq::dereferenceUptr(this->_llvm_module_uptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Module &getLlvmModule() const {
+    return rq::dereferenceUptr(this->_llvm_module_uptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::LLVMContext &getLlvmContext() {
+    return rq::dereferenceUptr(this->_llvm_context_uptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::LLVMContext &
+  getLlvmContext() const {
+    return rq::dereferenceUptr(this->_llvm_context_uptr);
+  }
+  template <typename TypeParam, typename... ArgNParam>
+  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &allocateValue(ArgNParam... arg_n) {
+    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
+    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+    return rq::dereferencePtr(ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef saveString(llvm::Twine twine) {
+    llvm::StringRef saved_string = this->_llvm_string_saver.save(twine);
+    return saved_string;
+  }
+  [[nodiscard]] rq::Expression &acquireExpression();
+  RQ_ALWAYS_INLINE void discardExpression(rq::Expression &expression) {
+    this->_unused_expression_ptrs.emplace_back(&expression);
+  }
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  void replaceWithRecursiveCopy(rq::Expression &initial,
+                                rq::Expression &replacement);
+  [[nodiscard]] bool validateSourceText(const rq::Module &module);
+  [[nodiscard]] bool tokenizeSourceText(const rq::Module &module,
+                                        std::vector<rq::Token> &tokens);
+  void initializeKeywordMap();
+  [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
+  [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
+  [[nodiscard]] inline rq::SourceRange
+  getSourceRange(const rq::Expression &expression);
+  [[nodiscard]] bool loadFileBuffer(rq::Module &module, llvm::StringRef path);
+  [[nodiscard]] bool initializeLlvm();
+  [[nodiscard]] bool run();
+  [[nodiscard]] bool parseNormativeRequite(rq::Module &module,
+                                           std::vector<rq::Token> &tokens);
+  [[nodiscard]] bool parseSymbolicRequite(rq::Module &module);
+  [[nodiscard]] bool situateAst(rq::Module &module);
+  [[nodiscard]] bool emitTokens(llvm::StringRef path,
+                                llvm::ArrayRef<rq::Token> tokens);
+  [[nodiscard]] bool emitSymbolicRequite(llvm::StringRef path,
+                                         const rq::Expression &trunk);
+  // [[nodiscard]] bool emitSymbols(llvm::StringRef path, const rq::SymbolTable&
+  // table);
+  [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
+  [[nodiscard]] bool emitAssembly(llvm::StringRef path);
+  [[nodiscard]] bool emitObject(llvm::StringRef path);
+  RQ_ALWAYS_INLINE void logMessage(llvm::Twine twine) {
+    llvm::outs() << twine << "\n";
+  }
+  RQ_ALWAYS_INLINE void logMessage(llvm::SMLoc location, rq::LogType type,
+                                   llvm::Twine message,
+                                   llvm::ArrayRef<llvm::SMRange> ranges,
+                                   llvm::ArrayRef<llvm::SMFixIt> fixits) {
+    this->_llvm_source_mgr.PrintMessage(
+        llvm::outs(), location, static_cast<llvm::SourceMgr::DiagKind>(type),
+        message, ranges, fixits, true);
+#if !defined(_NDEBUG) && __has_builtin(__builtin_debugtrap)
+    if (type == rq::LogType::ERROR) {
+      __builtin_debugtrap();
+    }
+#endif
+  }
+  void logErrorFoundErrorToken(const rq::Token &token);
+  void logErrorUnexpectedToken(const rq::Token &token);
+  void logErrorUnterminatedExpression(const rq::Expression &expression);
+  void logErrorUnterminatedStatementAttribute(const rq::Token &token);
+  void logErrorUnterminatedTypeAttribute(const rq::Token &token);
+  void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
+  void logErrorUnexpectedParameterMark(const rq::Token &token);
+  void logErrorExpectedCommaSeperator(const rq::Token &token);
+  void logErrorExpectedSeperatorOrRightBracket(const rq::Token &token);
+  void logErrorExpectedSemicolonSeperator(const rq::Expression &expression);
+  void logErrorExpectedSemicolonSeperator(const rq::Token &token);
+  void logErrorExpectedSeperator(const rq::Token &token);
+  void logErrorMustHaveParameterMarks(const rq::Expression &expression);
+  void logErrorInvalidBranchSituation(
+      rq::Expression &branch, rq::Situation situation,
+      rq::Situation branch_situation, rq::Keyword outer_keyword,
+      rq::Keyword branch_keyword, unsigned branch_i, llvm::Twine log_context);
+};
+
+} // namespace rq

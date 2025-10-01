@@ -1,9 +1,7 @@
-// SPDX-FileCopyrightText: 2025 Daniel Aimé Valcour <fosssweeper@gmail.com>
-//
-// SPDX-License-Identifier: MIT
 
-#include <requite/context.hpp>
-#include <requite/options.hpp>
+#include <rq/context.hpp>
+#include <rq/options.hpp>
+#include <rq/types.hpp>
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
@@ -14,17 +12,17 @@ int main(int argc, const char **argv) {
   // TODO remove fake_argv when done with alpha stage of development. this is
   // here for ease of use.
   if (argc == 1) {
-    const char *fake_argv[] = {"./requite", "--emit=ir", "test.rq", "-o",
-                               "test.ir"};
-    if (!requite::parseCommandLineOptions(5, fake_argv)) {
+    const char *fake_argv[] = {"./requite", "--emit=parsed", "test.rq", "-o",
+                               "test.srq"};
+    if (!rq::parseCommandLineOptions(5, fake_argv)) {
       return 1;
     }
   } else {
-    if (!requite::parseCommandLineOptions(argc, argv)) {
+    if (!rq::parseCommandLineOptions(argc, argv)) {
       return 1;
     }
   }
-  requite::Context context(std::move(executable_path));
+  rq::Context context(std::move(executable_path));
   if (!context.run()) {
     return 1;
   }

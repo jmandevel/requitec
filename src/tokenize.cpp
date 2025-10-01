@@ -1,30 +1,11 @@
-// SPDX-FileCopyrightText: 2025 Daniel Aimé Valcour <fosssweeper@gmail.com>
-//
-// SPDX-License-Identifier: MIT
+#include <rq/context.hpp>
+#include <rq/tokenize.hpp>
+#include <rq/tokens.hpp>
 
-#include <requite/assert.hpp>
-#include <requite/codeunits.hpp>
-#include <requite/context.hpp>
-#include <requite/file.hpp>
-#include <requite/source_ranger.hpp>
-#include <requite/tokenizer.hpp>
-#include <requite/unreachable.hpp>
+namespace rq {
 
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
-
-#include <cstddef>
-
-namespace requite {
-
-bool Context::tokenizeTokens(requite::Module &module,
-                             std::vector<requite::Token> &tokens) {
-  requite::Tokenizer tokenizer(*this, module.getFile(), tokens);
-  return tokenizer.tokenizeTokens();
-}
-
-void Tokenizer::_tokenizeTokens() {
-  using namespace requite;
+void Tokenizer::_tokenizeSourceText() {
+  using namespace rq;
   using T = TokenType;
   using G = GroupingType;
   this->getTokens().clear();
@@ -36,21 +17,21 @@ void Tokenizer::_tokenizeTokens() {
     case '\x00':
       return;
     case '\x01':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x02':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x03':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x04':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x05':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x06':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\a':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\b':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\t':
       this->getRanger().incrementChar(1);
       this->getRanger().addColumns(1);
@@ -62,7 +43,7 @@ void Tokenizer::_tokenizeTokens() {
       this->getRanger().addLines(1);
       continue;
     case '\x0C':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\r':
       switch (const char c1 = this->getRanger().getChar(1)) {
       case '\n':
@@ -75,41 +56,41 @@ void Tokenizer::_tokenizeTokens() {
       this->getRanger().addLines(1);
       continue;
     case '\x0E':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x0F':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x10':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x11':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x12':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x13':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x14':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x15':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x16':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x17':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x18':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x19':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x1A':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x1B':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x1C':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x1D':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x1E':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\x1F':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case ' ':
       this->getRanger().incrementChar(1);
       this->getRanger().addColumns(1);
@@ -125,7 +106,7 @@ void Tokenizer::_tokenizeTokens() {
       this->tokenizeLengthToken(T::HASH_OPERATOR, 1);
       continue;
     case '$':
-      this->tokenizeLengthToken(T::DOLLAR_OPERATOR, 1);
+      this->tokenizeLengthToken(T::DOLLAR_SIGIL, 1);
       continue;
     case '%':
       switch (const char c1 = this->getRanger().getChar(1)) {
@@ -154,7 +135,7 @@ void Tokenizer::_tokenizeTokens() {
                                  1);
       continue;
     case ')':
-      this->tokenizeRightGrouping(requite::GroupingType::PARENTHESIS,
+      this->tokenizeRightGrouping(rq::GroupingType::PARENTHESIS,
                                   T::RIGHT_PARENTHESIS_GROUPING, 1);
       continue;
     case '*':
@@ -249,44 +230,14 @@ void Tokenizer::_tokenizeTokens() {
         continue;
       case '.':
         switch (const char c2 = this->getRanger().getChar(2)) {
-        case '!':
-          switch (const char c3 = this->getRanger().getChar(3)) {
-          case '=':
-            this->tokenizeLengthToken(T::DOUBLE_DOT_BANG_EQUAL_OPERATOR, 4);
-            break;
-          default:
-            this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
-          }
-          break;
-        case '=':
-          switch (const char c3 = this->getRanger().getChar(3)) {
-          case '=':
-            this->tokenizeLengthToken(T::DOUBLE_DOT_DOUBLE_EQUAL_OPERATOR, 4);
-            break;
-          default:
-            this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
-          }
-          break;
         case '<':
-          switch (const char c3 = this->getRanger().getChar(3)) {
-          case '=':
-            this->tokenizeLengthToken(T::DOUBLE_DOT_LESS_EQUAL_OPERATOR, 4);
-            break;
-          default:
-            this->tokenizeLengthToken(T::DOUBLE_DOT_LESS_OPERATOR, 3);
-          }
+          this->tokenizeLengthToken(T::DOUBLE_DOT_LESS_OPERATOR, 3);
           break;
         case '>':
-          switch (const char c3 = this->getRanger().getChar(3)) {
-          case '=':
-            this->tokenizeLengthToken(T::DOUBLE_DOT_GREATER_EQUAL_OPERATOR, 4);
-            break;
-          default:
-            this->tokenizeLengthToken(T::DOUBLE_DOT_GREATER_OPERATOR, 3);
-          }
+          this->tokenizeLengthToken(T::DOUBLE_DOT_GREATER_OPERATOR, 3);
           break;
         default:
-          this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
+          this->tokenizeLengthToken(T::DOUBLE_DOT_OPERATOR, 2);
         }
         break;
       default:
@@ -451,9 +402,6 @@ void Tokenizer::_tokenizeTokens() {
       case '=':
         this->tokenizeLengthToken(T::DOUBLE_EQUAL_OPERATOR, 2);
         break;
-      case '>':
-        this->tokenizeLengthToken(T::THICK_ARROW_OPERATOR, 2);
-        break;
       default:
         this->tokenizeLengthToken(T::EQUAL_OPERATOR, 1);
       }
@@ -474,7 +422,7 @@ void Tokenizer::_tokenizeTokens() {
       this->tokenizeLengthToken(T::QUESTION_OPERATOR, 1);
       continue;
     case '@':
-      this->tokenizeLengthToken(T::AT_OPERATOR, 1);
+      this->tokenizeLengthToken(T::AT_SIGIL, 1);
       continue;
     case 'A':
       break;
@@ -604,25 +552,25 @@ void Tokenizer::_tokenizeTokens() {
     case 'z':
       break;
     case '{':
-      this->tokenizeLeftGrouping(G::TRIP, T::LEFT_TRIP_GROUPING, 1);
+      this->tokenizeLeftGrouping(G::BRACE, T::LEFT_BRACE_GROUPING, 1);
       continue;
     case '|':
       switch (const char c1 = this->getRanger().getChar(1)) {
       case '|':
-        this->tokenizeLengthToken(requite::TokenType::DOUBLE_PIPE_OPERATOR, 2);
+        this->tokenizeLengthToken(rq::TokenType::DOUBLE_PIPE_OPERATOR, 2);
         break;
       default:
-        this->tokenizeLengthToken(requite::TokenType::PIPE_OPERATOR, 1);
+        this->tokenizeLengthToken(rq::TokenType::PIPE_OPERATOR, 1);
       }
       continue;
     case '}':
       if (!this->getHasGrouping()) {
-        this->tokenizeUnmatchedLengthToken(T::RIGHT_TRIP_GROUPING, 1);
-      } else if (this->getTopGrouping().type == G::TRIP) {
-        this->tokenizeLengthToken(T::RIGHT_TRIP_GROUPING, 1);
+        this->tokenizeUnmatchedLengthToken(T::RIGHT_BRACE_GROUPING, 1);
+      } else if (this->getTopGrouping().getType() == G::BRACE) {
+        this->tokenizeLengthToken(T::RIGHT_BRACE_GROUPING, 1);
         this->popGrouping();
-      } else if (this->getTopGrouping().type == G::INTERPOLATION) {
-        this->tokenizeRightGrouping(G::INTERPOLATION, T::RIGHT_TRIP_GROUPING,
+      } else if (this->getTopGrouping().getType() == G::INTERPOLATION) {
+        this->tokenizeRightGrouping(G::INTERPOLATION, T::RIGHT_BRACE_GROUPING,
                                     1);
         this->getRanger().startSubToken();
         while (true) {
@@ -648,9 +596,9 @@ void Tokenizer::_tokenizeTokens() {
               this->getRanger().addColumns(2);
             }
           } else if (sub_c0 == '{') {
-            this->getTokens().push_back(this->getRanger().getSubToken(
-                T::MIDDLE_INTERPOLATED_STRING_LITERAL));
-            this->tokenizeLeftGrouping(G::INTERPOLATION, T::LEFT_TRIP_GROUPING,
+            this->getTokens().push_back(
+                this->getRanger().getSubToken(T::MIDDLE_INTERPOLATION_LITERAL));
+            this->tokenizeLeftGrouping(G::INTERPOLATION, T::LEFT_BRACE_GROUPING,
                                        1);
             break;
           } else if (sub_c0 == '\n') {
@@ -668,15 +616,16 @@ void Tokenizer::_tokenizeTokens() {
           } else if (sub_c0 == '\"') {
             this->getRanger().incrementChar(1);
             this->getRanger().addColumns(1);
-            this->getTokens().push_back(this->getRanger().getSubToken(
-                T::RIGHT_INTERPOLATED_STRING_LITERAL));
+            this->getTokens().push_back(
+                this->getRanger().getSubToken(T::RIGHT_INTERPOLATION_LITERAL));
             break;
           } else if (sub_c0 == '\0') {
             this->getTokens().push_back(this->getRanger().getSubToken(
                 T::ERROR_UNTERMINATED_STRING_LITERAL));
-            this->getContext().logSourceMessage(this->getTokens().back(),
-                                                LogType::ERROR,
-                                                "unterminated string");
+            this->getContext().logMessage(
+                this->getTokens().back().getLlvmSourceStart(),
+                rq::LogType::ERROR, "unterminated string literal",
+                {this->getTokens().back().getLlvmSourceRange()}, {});
             this->setNotOk();
             break;
           } else {
@@ -685,7 +634,7 @@ void Tokenizer::_tokenizeTokens() {
           }
         }
       } else {
-        this->tokenizeUnmatchedLengthToken(T::RIGHT_TRIP_GROUPING, 1);
+        this->tokenizeUnmatchedLengthToken(T::RIGHT_BRACE_GROUPING, 1);
       }
       continue;
     case '~':
@@ -934,23 +883,23 @@ void Tokenizer::_tokenizeTokens() {
     case '\xF7':
       break;
     case '\xF8':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xF9':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xFA':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xFB':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xFC':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xFD':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xFE':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     case '\xFF':
-      REQUITE_UNREACHABLE();
+      RQ_UNREACHABLE();
     }
-    REQUITE_ASSERT(this->getRanger().getIsIdentifier());
+    RQ_ASSERT(this->getRanger().getIsIdentifier(), "codeunit not identifier");
     this->getRanger().startSubToken();
     this->getRanger().incrementChar(1);
     this->getRanger().addColumns(1);
@@ -961,11 +910,11 @@ void Tokenizer::_tokenizeTokens() {
     this->getTokens().push_back(
         this->getRanger().getSubToken(T::IDENTIFIER_LITERAL));
   }
-  REQUITE_UNREACHABLE();
+  RQ_UNREACHABLE();
 }
 
-bool Tokenizer::tokenizeTokens() {
-  this->_tokenizeTokens();
+bool Tokenizer::tokenizeSourceText() {
+  this->_tokenizeSourceText();
   this->checkFinalGroupings();
   return this->getIsOk();
 }
@@ -976,42 +925,42 @@ void Tokenizer::checkFinalGroupings() {
   }
   this->setNotOk();
   while (this->getHasGrouping()) {
-    const requite::Grouping &grouping = this->getTopGrouping();
-    REQUITE_ASSERT(this->getTokens().size() > grouping.token_i);
-    requite::Token &token = this->getTokens().at(grouping.token_i);
-    this->getContext().logSourceMessage(
-        token, requite::LogType::ERROR,
-        llvm::Twine(requite::getDescription(token.getType())) +
-            " has no right match");
+    const rq::Grouping &grouping = this->getTopGrouping();
+    RQ_ASSERT(this->getTokens().size() > grouping.getTokenI(),
+              "token out of range");
+    rq::Token &token = this->getTokens().at(grouping.getTokenI());
+    this->getContext().logMessage(
+        token.getLlvmSourceStart(), rq::LogType::ERROR,
+        llvm::Twine(rq::getDescription(token.getType())) + "has no match",
+        {token.getLlvmSourceRange()}, {});
     token.setUnmatched();
     this->popGrouping();
   }
 }
 
-void Tokenizer::tokenizeUnmatchedLengthToken(requite::TokenType type,
+void Tokenizer::tokenizeUnmatchedLengthToken(rq::TokenType type,
                                              unsigned length) {
-  requite::Token token = this->getRanger().getLengthToken(type, length);
+  rq::Token token = this->getRanger().getLengthToken(type, length);
   this->logErrorUnmatchedRightToken(token);
   token.setUnmatched();
   this->getTokens().push_back(token);
   this->setNotOk();
 }
 
-void Tokenizer::tokenizeLengthToken(requite::TokenType type, unsigned length) {
+void Tokenizer::tokenizeLengthToken(rq::TokenType type, unsigned length) {
   this->getTokens().push_back(this->getRanger().getLengthToken(type, length));
 }
 
-void Tokenizer::tokenizeLeftGrouping(requite::GroupingType grouping,
-                                     requite::TokenType type, unsigned length) {
+void Tokenizer::tokenizeLeftGrouping(rq::GroupingType grouping,
+                                     rq::TokenType type, unsigned length) {
   this->tokenizeLengthToken(type, length);
   this->pushGrouping(grouping);
 }
 
-void Tokenizer::tokenizeRightGrouping(requite::GroupingType grouping,
-                                      requite::TokenType type,
-                                      unsigned length) {
-  requite::Token token = this->getRanger().getLengthToken(type, length);
-  if (!this->getHasGrouping() || this->getTopGrouping().type != grouping) {
+void Tokenizer::tokenizeRightGrouping(rq::GroupingType grouping,
+                                      rq::TokenType type, unsigned length) {
+  rq::Token token = this->getRanger().getLengthToken(type, length);
+  if (!this->getHasGrouping() || this->getTopGrouping().getType() != grouping) {
     this->logErrorUnmatchedRightToken(token);
     token.setUnmatched();
     this->setNotOk();
@@ -1021,25 +970,29 @@ void Tokenizer::tokenizeRightGrouping(requite::GroupingType grouping,
   this->popGrouping();
 }
 
-void Tokenizer::logErrorUnmatchedRightToken(const requite::Token &token) {
+void Tokenizer::logErrorUnmatchedRightToken(const rq::Token &token) {
   if (this->getHasGrouping()) {
-    const requite::Grouping &grouping = this->getTopGrouping();
-    REQUITE_ASSERT(this->getTokens().size() > grouping.token_i);
-    const requite::Token &left_token = this->getTokens().at(grouping.token_i);
-    this->getContext().logSourceMessage(
-        token, requite::LogType::ERROR,
-        llvm::Twine(requite::getDescription(token.getType())) +
-            " does not match previous left grouping token");
-    this->getContext().logSourceMessage(
-        left_token, requite::LogType::NOTE,
+    const rq::Grouping &grouping = this->getTopGrouping();
+    RQ_ASSERT(this->getTokens().size() > grouping.getTokenI(),
+              "token out of range");
+    const rq::Token &left_token = this->getTokens().at(grouping.getTokenI());
+    this->getContext().logMessage(
+        token.getLlvmSourceStart(), rq::LogType::ERROR,
+        llvm::Twine(rq::getDescription(token.getType())) +
+            " does not match previous left grouping token",
+        {token.getLlvmSourceRange()}, {});
+    this->getContext().logMessage(
+        left_token.getLlvmSourceStart(), rq::LogType::NOTE,
         llvm::Twine("previous left grouping token is ") +
-            requite::getDescription(left_token.getType()));
+            rq::getDescription(left_token.getType()),
+        {left_token.getLlvmSourceRange()}, {});
     return;
   }
-  this->getContext().logSourceMessage(
-      token, requite::LogType::ERROR,
-      llvm::Twine(requite::getDescription(token.getType())) +
-          " does not follow a left grouping token");
+  this->getContext().logMessage(
+      token.getLlvmSourceStart(), rq::LogType::ERROR,
+      llvm::Twine(rq::getDescription(token.getType())) +
+          " does not follow a left grouping token",
+      {token.getLlvmSourceRange()}, {});
 }
 
-} // namespace requite
+} // namespace rq

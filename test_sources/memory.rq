@@ -2,13 +2,13 @@
     num :[signed]= 0;
     pointer :*[signed]= num.[address];
     copy_of_num :[signed]= pointer.[content];
-    reference_to_num :&[signed]= pointer.[content].[refer];
+    reference_to_num :&[signed]= pointer.[content].[borrow];
 
     mutable_array :`5#[signed]= `#:{1, 2, 3, 4, 5};
-    reference :&5#[signed]= array.[refer];
-    reference_to_mutable :&`5#[signed]= array.`[refer];
-    mutable_reference :`&5#[signed]= `:array.[refer];
-    mutable_reference_to_mutable :`&`5#[signed]= `:array.`[refer];
+    reference :&5#[signed]= array.[borrow];
+    reference_to_mutable :&`5#[signed]= array.`[borrow];
+    mutable_reference :`&5#[signed]= `:array.[borrow];
+    mutable_reference_to_mutable :`&`5#[signed]= `:array.`[borrow];
     fat_pointer :^[signed]= array.[view];
     fat_pointer_to_mutable :^`[signed]= array.`[view];
     mutable_fat_pointer :`^[signed]= `:array.[view];

@@ -1,51 +1,14 @@
-# SPDX-FileCopyrightText: 2025 Daniel Aimé Valcour <fosssweeper@gmail.com>
-#
-# SPDX-License-Identifier: MIT
-
 target_sources(
     requite
     PRIVATE
-        main.cpp
+        context.cpp
+        options.cpp
+        parse.cpp
+        tokenize.cpp
 )
 
 target_sources(
-    librequite
+    requitec
     PRIVATE
-        ast_writer_indent_lock.cpp
-        ast_writer.cpp
-        attribute_flags.cpp
-        const_expression_iterator.cpp
-        context.cpp
-        escape_sequences.cpp
-        expression_iterator.cpp
-        expression_make.cpp
-        expression.cpp
-        file.cpp
-        llvm_target.cpp
-        llvm_module.cpp
-        log.cpp
-        module_table.cpp
-        module.cpp
-        opcode.cpp
-        options.cpp
-        parse.cpp
-        parse_precedence.cpp
-        parser.cpp
-        run.cpp
-        situate.cpp
-        situator.cpp
-        source_ranger.cpp
-        source_text.cpp
-        tasks.cpp
-        token.cpp
-        tokenize.cpp
-        tokenizer.cpp
-        grouping_parse.cpp
-        grouping_parser.cpp
-        write_assembly.cpp
-        validate_source.cpp
-        write_ast.cpp
-        write_llvm_ir.cpp
-        write_object.cpp
-        write_tokens.cpp
+        main.cpp
 )
