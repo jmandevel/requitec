@@ -14,5 +14,5 @@
     a :NoCopy= NoCopy();
     b :NoCopy= NoCopy();
     num :[signed]= myFunc(a.[borrow], b.[linear_assign]);
-    = num;
+    := num;
 ]
