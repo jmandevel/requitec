@@ -350,7 +350,7 @@ bool Context::emitTokens(llvm::StringRef path,
     for (const char c : text) {
       fout << rq::getCsvQuotedValueText(c);
     }
-    fout << "\"\n";
+    fout << "\",\n";
   }
   fout.close();
   return true;
