@@ -2111,77 +2111,77 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_STEP_ADD)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_SUBTRACT:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_STEP_SUBTRACT)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_MULTIPLY:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_STEP_MULTIPLY)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_DIVIDE:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_STEP_DIVIDE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_MODULUS:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_STEP_MODULUS)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_WHILE_LESS:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_WHILE_LESS)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_WHILE_GREATER:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_WHILE_GREATER)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_WHILE_LESS_EQUAL:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_WHILE_LESS_EQUAL)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_WHILE_GREATER_EQUAL:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_WHILE_GREATER_EQUAL)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_WHILE_EQUAL:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_WHILE_EQUAL)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE_WHILE_NOT_EQUAL:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE_WHILE_NOT_EQUAL)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
 
