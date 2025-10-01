@@ -12,7 +12,7 @@ int main(int argc, const char **argv) {
   // TODO remove fake_argv when done with alpha stage of development. this is
   // here for ease of use.
   if (argc == 1) {
-    const char *fake_argv[] = {"./requite", "--emit=parsed", "test.rq", "-o",
+    const char *fake_argv[] = {"./requite", "--emit=object", "test.rq", "-o",
                                "test.srq"};
     if (!rq::parseCommandLineOptions(5, fake_argv)) {
       return 1;
