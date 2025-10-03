@@ -1422,6 +1422,7 @@ struct Situator final {
       } else {
         this->situateNaryExpression<SP, 1, S::PARAMETER>(expression);
       }
+      break;
     case K::_NULL:
       if constexpr (!getCanBeSituation<SP>(K::_NULL)) {
         RQ_UNREACHABLE();
@@ -1640,7 +1641,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::OBJECT)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 1, S::RVALUE, S::OBJECT_STATEMENT>(
+        this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE, S::OBJECT_STATEMENT>(
             expression);
       }
       break;

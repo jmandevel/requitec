@@ -408,6 +408,7 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
     for (const rq::Expression &branch : trunk.getBranchSubrange()) {
       rq::emitSymbolicRequiteBranch(context, fout, branch, indent + 1);
     }
+    fout << '\n';
     rq::emitIndent(fout, indent);
   }
   fout << "]\n";
@@ -423,7 +424,7 @@ bool Context::emitSymbolicRequite(llvm::StringRef path,
         path + llvm::Twine("\n\treason: ") + llvm::Twine(ec.message()) + "\n");
     return false;
   }
-  for (const rq::Expression &branch : trunk.getBranchSubrange()) {
+  for (const rq::Expression &branch : trunk.getHorizontalSubrange()) {
     rq::emitSymbolicRequiteBranch(*this, fout, branch, 0);
   }
   fout.close();

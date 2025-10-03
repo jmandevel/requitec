@@ -66,7 +66,7 @@ void PrecedenceParser::parseAscribe(const rq::Token &token,
     rq::Expression &old_operation = this->getOperation();
     if (old_operation.getKeyword() != keyword) {
       rq::Expression &new_operation = this->getContext().acquireExpression();
-      new_operation.changeKeyword(keyword);
+      new_operation.setKeyword(keyword);
       new_operation.setSource(old_operation, token);
       this->appendBranch(new_operation);
       if (!this->getHasOuter()) {
@@ -78,7 +78,7 @@ void PrecedenceParser::parseAscribe(const rq::Token &token,
     return;
   }
   rq::Expression &operation = this->getContext().acquireExpression();
-  operation.changeKeyword(keyword);
+  operation.setKeyword(keyword);
   if (this->getHasLast()) {
     rq::Expression &last = this->getLast();
     operation.setSource(last);
@@ -115,7 +115,7 @@ void PrecedenceParser::parseNary(const rq::Token &token, rq::Keyword keyword) {
   }
   // need to make a new operation of this keyword because one does not exist yet
   rq::Expression &new_operation = this->getContext().acquireExpression();
-  new_operation.changeKeyword(keyword);
+  new_operation.setKeyword(keyword);
   new_operation.setSource(this->getRecent(), token);
   this->appendBranch(new_operation);
   this->_operation_ptr = &new_operation;
@@ -126,7 +126,7 @@ void PrecedenceParser::parseNary(const rq::Token &token, rq::Keyword keyword) {
 void PrecedenceParser::parseNestingNary(const rq::Token &token,
                                         rq::Keyword keyword) {
   rq::Expression &operation = this->getContext().acquireExpression();
-  operation.changeKeyword(keyword);
+  operation.setKeyword(keyword);
   operation.setSource(this->getOuter(), token);
   operation.setBranch(this->getOuter());
   this->_operation_ptr = &operation;
@@ -135,11 +135,11 @@ void PrecedenceParser::parseNestingNary(const rq::Token &token,
 }
 
 void PrecedenceParser::parseSequenceBranch(const rq::Token &token,
-                                             rq::Keyword keyword,
-                                             rq::Expression &rvalue) {
+                                           rq::Keyword keyword,
+                                           rq::Expression &rvalue) {
   this->parseNary(token, rq::Keyword::_SEQUENCE);
   rq::Expression &step = this->getContext().acquireExpression();
-  step.changeKeyword(keyword);
+  step.setKeyword(keyword);
   step.setSource(token, rvalue);
   step.setBranch(rvalue);
   this->setRecent(step);
@@ -165,7 +165,7 @@ void PrecedenceParser::appendBranch(rq::Expression &branch) {
 void PrecedenceParser::appendUnaryAttribute(const rq::Token &token,
                                             rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
-  expression.changeKeyword(keyword);
+  expression.setKeyword(keyword);
   expression.setSource(token);
   this->appendBranch(expression);
 }
@@ -336,12 +336,14 @@ rq::Expression &NormativeParser::parsePrecedence8() {
     case rq::TokenType::DOT_DASH_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseSequenceBranch(
-          token, rq::Keyword::_SEQUENCE_STEP_SUBTRACT, this->parsePrecedence7());
+          token, rq::Keyword::_SEQUENCE_STEP_SUBTRACT,
+          this->parsePrecedence7());
       continue;
     case rq::TokenType::DOT_STAR_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseSequenceBranch(
-          token, rq::Keyword::_SEQUENCE_STEP_MULTIPLY, this->parsePrecedence7());
+          token, rq::Keyword::_SEQUENCE_STEP_MULTIPLY,
+          this->parsePrecedence7());
       continue;
     case rq::TokenType::DOT_SLASH_OPERATOR:
       this->incrementToken(1);
@@ -361,7 +363,8 @@ rq::Expression &NormativeParser::parsePrecedence8() {
     case rq::TokenType::DOT_GREATER_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseSequenceBranch(
-          token, rq::Keyword::_SEQUENCE_WHILE_GREATER, this->parsePrecedence7());
+          token, rq::Keyword::_SEQUENCE_WHILE_GREATER,
+          this->parsePrecedence7());
       continue;
     case rq::TokenType::DOT_LESS_EQUAL_OPERATOR:
       this->incrementToken(1);
@@ -383,7 +386,8 @@ rq::Expression &NormativeParser::parsePrecedence8() {
     case rq::TokenType::DOT_BANG_EQUAL_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseSequenceBranch(
-          token, rq::Keyword::_SEQUENCE_WHILE_NOT_EQUAL, this->parsePrecedence7());
+          token, rq::Keyword::_SEQUENCE_WHILE_NOT_EQUAL,
+          this->parsePrecedence7());
       continue;
     case rq::TokenType::DOUBLE_DOT_OPERATOR:
       this->incrementToken(1);
@@ -870,6 +874,7 @@ bool NormativeParser::parseCommaSeperatedBranches(
         const rq::Token &before_token = this->getToken();
         const rq::TokenType before_type = before_token.getType();
         if (before_type == end) {
+          this->incrementToken(1);
           grouping_parser.finishOperation(before_token);
           return has_parameter_marks;
         } else if (before_type == rq::TokenType::GREATER_OPERATOR) {

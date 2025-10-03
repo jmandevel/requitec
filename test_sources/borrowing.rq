@@ -1,5 +1,5 @@
 @no_shallow_copy
-[object NoCopy
+[object NoCopy,
     [deep_copier]
     [drop_mover]
     [retain_mover]

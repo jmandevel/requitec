@@ -14,7 +14,7 @@ static llvm::cl::opt<std::string>
                llvm::cl::value_desc("<input file>"), llvm::cl::Required);
 
 static llvm::cl::opt<bool>
-    NO_COMMENT("no_comment",
+    NO_COMMENT("no-comment",
                llvm::cl::desc("Do not add comments to output files."),
                llvm::cl::value_desc("<boolean>"), llvm::cl::Optional,
                llvm::cl::init(false));
