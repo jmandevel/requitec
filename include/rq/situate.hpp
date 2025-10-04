@@ -2100,21 +2100,21 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_INTERVAL_GREATER)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_INTERVAL_LESS:
       if constexpr (!getCanBeSituation<SP>(K::_INTERVAL_LESS)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SEQUENCE:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateNaryExpression<SP, 0, S::SEQUENCE_STAGE>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_ADD:
