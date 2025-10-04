@@ -36,5 +36,5 @@
 
     added := MyObject.add(a, b);
 
-    [exit added.getTotal()];
+    := added.getTotal();
 ]
