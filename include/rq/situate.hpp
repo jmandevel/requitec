@@ -1553,7 +1553,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::RANGER)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+        this->situateNaryExpression<SP, 1, S::RVALUE, S::LOCAL_STATEMENT>(expression);
       }
       break;
     case K::RETAIN_MOVER:
