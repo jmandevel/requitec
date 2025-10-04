@@ -971,28 +971,25 @@ enum class KeywordFlags : std::uint32_t {
   INTERNAL = rq::getBit(26),
   CAN_HAVE_NO_SEMICOLON = rq::getBit(25),
   HAS_SEMICOLON_SEPARATED_BRANCHES = rq::getBit(24),
-  FIRST_COMMA_BRANCH_CAN_BE_INFERENCE = rq::getBit(23),
-  LAST_COMMA_BRANCH_CAN_BE_INFERENCE = rq::getBit(22),
-  ALL_COMMA_BRANCHES_CAN_BE_INFERENCE = rq::getBit(21),
-  TOP_STATEMENT = rq::getBit(20),
-  TABLE_STATEMENT = rq::getBit(19),
-  OBJECT_STATEMENT = rq::getBit(18),
-  LOCAL_STATEMENT = rq::getBit(17),
-  RVALUE = rq::getBit(16),
-  LVALUE = rq::getBit(15),
-  REFLECTION = rq::getBit(14),
-  ASCRIBED_REFLECTION = rq::getBit(13),
-  ARGUMENT = rq::getBit(12),
-  PARAMETER = rq::getBit(11),
-  BINDING = rq::getBit(10),
-  ENUMERATION_VALUE = rq::getBit(9),
-  PATH = rq::getBit(8),
-  NAME = rq::getBit(7),
-  ASCRIPTION = rq::getBit(6),
-  TYPE_ATTRIBUTE = rq::getBit(5),
-  STATEMENT_ATTRIBUTE = rq::getBit(4),
-  SEQUENCE_STAGE = rq::getBit(3),
-  ARM = rq::getBit(2),
+  TOP_STATEMENT = rq::getBit(23),
+  TABLE_STATEMENT = rq::getBit(22),
+  OBJECT_STATEMENT = rq::getBit(21),
+  LOCAL_STATEMENT = rq::getBit(20),
+  RVALUE = rq::getBit(19),
+  LVALUE = rq::getBit(18),
+  REFLECTION = rq::getBit(17),
+  ASCRIBED_REFLECTION = rq::getBit(16),
+  ARGUMENT = rq::getBit(15),
+  PARAMETER = rq::getBit(14),
+  BINDING = rq::getBit(13),
+  ENUMERATION_VALUE = rq::getBit(12),
+  PATH = rq::getBit(11),
+  NAME = rq::getBit(10),
+  ASCRIPTION = rq::getBit(9),
+  TYPE_ATTRIBUTE = rq::getBit(8),
+  STATEMENT_ATTRIBUTE = rq::getBit(7),
+  SEQUENCE_STAGE = rq::getBit(6),
+  ARM = rq::getBit(5),
   // CAPTURE
   COMMA_BRANCH_COUNT_MASK = 0x3,
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
@@ -1300,13 +1297,11 @@ getFlags(rq::Keyword keyword) {
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::TOP_STATEMENT;
   case K::FUNCTION:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::LAST_COMMA_BRANCH_CAN_BE_INFERENCE | KF::TOP_STATEMENT |
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 2;
   case K::CONSTRUCTOR:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::ALL_COMMA_BRANCHES_CAN_BE_INFERENCE | KF::OBJECT_STATEMENT | 2;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::OBJECT_STATEMENT | 2;
   case K::DESTRUCTOR:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::OBJECT_STATEMENT;
@@ -1323,11 +1318,10 @@ getFlags(rq::Keyword keyword) {
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::OBJECT_STATEMENT;
   case K::INDEXER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::LAST_COMMA_BRANCH_CAN_BE_INFERENCE | KF::OBJECT_STATEMENT | 1;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::OBJECT_STATEMENT | 1;
   case K::_ANONYMOUS_FUNCTION:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
-           KF::LAST_COMMA_BRANCH_CAN_BE_INFERENCE | KF::RVALUE | KF::ARGUMENT |
+           KF::RVALUE | KF::ARGUMENT |
            2;
   case K::CAPTURE:
     return KF::NONE; // CAPTURE
@@ -1354,12 +1348,10 @@ getFlags(rq::Keyword keyword) {
 
   // SYMBOLS
   case K::OBJECT:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::LAST_COMMA_BRANCH_CAN_BE_INFERENCE | KF::TOP_STATEMENT |
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | 2;
   case K::ENUMERATION:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::LAST_COMMA_BRANCH_CAN_BE_INFERENCE | KF::TOP_STATEMENT |
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | 1;
 
   // VALUES;
@@ -1727,27 +1719,6 @@ getHasSemicolonSeparatedBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags,
                        rq::KeywordFlags::HAS_SEMICOLON_SEPARATED_BRANCHES);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getFirstCommaBranchCanBeInference(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags,
-                       rq::KeywordFlags::FIRST_COMMA_BRANCH_CAN_BE_INFERENCE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getLastCommaBranchCanBeInference(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags,
-                       rq::KeywordFlags::LAST_COMMA_BRANCH_CAN_BE_INFERENCE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getAllCommaBranchesCanBeInference(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags,
-                       rq::KeywordFlags::ALL_COMMA_BRANCHES_CAN_BE_INFERENCE);
 }
 
 enum class Situation : std::uint_fast32_t {
@@ -2564,17 +2535,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSemicolonSeparatedBranches() const {
     return rq::getHasSemicolonSeparatedBranches(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getFirstCommaBranchCanBeInference() const {
-    return rq::getFirstCommaBranchCanBeInference(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getLastCommaBranchCanBeInference() const {
-    return rq::getLastCommaBranchCanBeInference(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getAllCommaBranchesCanBeInference() const {
-    return rq::getAllCommaBranchesCanBeInference(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopStatement() const {
     return rq::getCanBeTopStatement(this->getKeyword());

@@ -1055,218 +1055,73 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
   const rq::Token &left_token = this->getToken();
   this->incrementToken(1);
   const rq::Token &keyword_token = this->getToken();
+  rq::Expression &operation = this->getContext().acquireExpression();
   if (keyword_token.getType() ==
       rq::TokenType::LEFT_BRACKET_GROUPING) { // its an
                                               // _anonymous_function
                                               // expression
-    rq::Expression &anonymous_function = this->getContext().acquireExpression();
-    anonymous_function.setKeyword(rq::Keyword::_ANONYMOUS_FUNCTION);
-    anonymous_function.setSource(left_token);
+    operation.setKeyword(rq::Keyword::_ANONYMOUS_FUNCTION);
+    operation.setSource(left_token);
     rq::GroupingParser parser;
-    parser.startGroup(anonymous_function);
+    parser.startGroup(operation);
     rq::Expression &capture = this->getContext().acquireExpression();
     capture.setKeyword(rq::Keyword::CAPTURE);
     capture.setSource(keyword_token);
     this->incrementToken(1);
     bool has_parameter_marks = this->parseCommaSeperatedBranches(
         capture, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
-    return capture;
     parser.appendBranch(capture);
-    if (this->getIsDone()) {
-      this->getContext().logErrorUnterminatedExpression(parser.getOperation());
-      this->setNotOk();
-      return parser.getOperation();
-    }
-    const rq::Token &first_token = this->getToken();
-    switch (const rq::TokenType first_type = first_token.getType()) {
-    case rq::TokenType::RIGHT_BRACKET_GROUPING: {
-      this->incrementToken(1);
-      rq::Expression &tacit = this->getContext().acquireExpression();
-      tacit.setKeyword(rq::Keyword::_INFERENCE);
-      tacit.setSourceInsertedBefore(first_token);
-      parser.appendBranch(tacit);
-      parser.finishOperation(first_token);
-      return parser.getOperation();
-    }
-    case rq::TokenType::COMMA_SEPERATOR:
-      break;
-    default:
-      break;
-    }
-    if (this->getIsDone()) {
-      this->getContext().logErrorUnterminatedExpression(parser.getOperation());
-      this->setNotOk();
-      return parser.getOperation();
-    }
-    rq::Expression &first = this->parseExpression();
-    if (this->getIsDone()) {
-      parser.appendBranch(first);
-      this->getContext().logErrorUnterminatedExpression(parser.getOperation());
-      this->setNotOk();
-      return parser.getOperation();
-    }
-    const rq::Token &next_token = this->getToken();
-    switch (const rq::TokenType next_type = next_token.getType()) {
-    case rq::TokenType::COMMA_SEPERATOR:
-      this->incrementToken(1);
-      parser.appendBranch(first);
-      break;
-    case rq::TokenType::RIGHT_BRACKET_GROUPING:
-      this->incrementToken(1);
-      parser.appendBranch(first);
-      parser.finishOperation(next_token);
-      return parser.getOperation();
-    case rq::TokenType::SEMICOLON_SEPERATOR: {
-      this->incrementToken(1);
-      rq::Expression &tacit = this->getContext().acquireExpression();
-      tacit.setKeyword(rq::Keyword::_INFERENCE);
-      tacit.setSourceInsertedBefore(first);
-      parser.appendBranch(tacit);
-      parser.appendBranch(first);
-    } break;
-    default:
-      this->getContext().logErrorExpectedSeperatorOrRightBracket(next_token);
-      this->setNotOk();
-      break;
-    }
-    while (!this->getIsDone()) {
-      const rq::Token &before_token = this->getToken();
-      switch (const rq::TokenType before_type = before_token.getType()) {
-      case rq::TokenType::RIGHT_BRACKET_GROUPING:
-        this->incrementToken(1);
-        parser.finishOperation(before_token);
-        return parser.getOperation();
-      default:
-        break;
-      }
-      if (this->getIsDone()) {
-        break;
-      }
-      rq::Expression &branch = this->parseExpression();
-      parser.appendBranch(branch);
-      if (this->getIsDone()) {
-        break;
-      }
-      const rq::Token &after_token = this->getToken();
-      const rq::TokenType after_type = after_token.getType();
-      switch (after_type) {
-      case rq::TokenType::SEMICOLON_SEPERATOR:
-        this->incrementToken(1);
-        break;
-      case rq::TokenType::COMMA_SEPERATOR:
-        this->getContext().logErrorExpectedSemicolonSeperator(branch);
-        this->setNotOk();
-        break;
-      default:
-        if (branch.getCanHaveNoSemicolon()) {
-          break;
-        }
-        this->getContext().logErrorExpectedSemicolonSeperator(branch);
-        this->setNotOk();
-        break;
-      }
-      if (after_type == rq::TokenType::COMMA_SEPERATOR) {
-        this->incrementToken(1);
-      }
-    }
-    this->getContext().logErrorUnterminatedExpression(parser.getOperation());
-    this->setNotOk();
-    return parser.getOperation();
+  } else {
+    const rq::Keyword keyword = this->parseOperationKeyword();
+    operation.setKeyword(keyword);
+    operation.setSource(left_token);
   }
-  const rq::Keyword keyword = this->parseOperationKeyword();
-  rq::Expression &operation = this->getContext().acquireExpression();
-  operation.setKeyword(keyword);
-  operation.setSource(left_token);
   if (operation.getHasSemicolonSeparatedBranches()) {
-    const unsigned comma_count = rq::getCommaBranchCount(keyword);
+    const unsigned comma_count = operation.getCommaBranchCount();
     rq::GroupingParser parser;
     parser.startGroup(operation);
     unsigned branch_i = 0;
-    if (comma_count > 0) {
-      while (!this->getIsDone()) { // commas
-        rq::Expression &next = this->parseExpression();
-        const rq::Token &after_token = this->getToken();
-        const rq::TokenType after_type = after_token.getType();
-        if (branch_i == comma_count - 1) { // handle last
-          switch (after_type) {
-          case rq::TokenType::SEMICOLON_SEPERATOR: {
-            this->incrementToken(1);
-            if (operation.getLastCommaBranchCanBeInference()) {
-              rq::Expression &tacit = this->getContext().acquireExpression();
-              tacit.setKeyword(rq::Keyword::_INFERENCE);
-              tacit.setSourceInsertedBefore(next);
-              parser.appendBranch(tacit);
-              parser.appendBranch(next);
-            } else if (operation.getFirstCommaBranchCanBeInference() ||
-                       operation.getAllCommaBranchesCanBeInference()) {
-              rq::Expression &tacit = this->getContext().acquireExpression();
-              tacit.setKeyword(rq::Keyword::_INFERENCE);
-              if (operation.getHasBranch()) {
-                rq::Expression &first = operation.getBranch();
-                tacit.setSourceInsertedBefore(first);
-                tacit.setNext(operation.replaceBranch(tacit));
-              } else {
-                tacit.setSourceInsertedBefore(next);
-                parser.appendBranch(tacit);
-              }
-              parser.appendBranch(next);
-            } else {
-              this->getContext().logErrorExpectedCommaSeperator(after_token);
-              this->setNotOk();
-            }
-            break;
-          }
-          case rq::TokenType::COMMA_SEPERATOR:
-            this->incrementToken(1);
-            parser.appendBranch(next);
-            break;
-          case rq::TokenType::RIGHT_BRACKET_GROUPING:
-            this->incrementToken(1);
-            if (operation.getAllCommaBranchesCanBeInference()) {
-              for (; branch_i < comma_count; branch_i++) {
-                rq::Expression &tacit = this->getContext().acquireExpression();
-                tacit.setKeyword(rq::Keyword::_INFERENCE);
-                if (operation.getHasBranch()) {
-                  rq::Expression &first = operation.getBranch();
-                  tacit.setSourceInsertedBefore(first);
-                  tacit.setNext(operation.replaceBranch(tacit));
-                } else {
-                  tacit.setSourceInsertedBefore(next);
-                  parser.appendBranch(tacit);
-                }
-              }
-              parser.appendBranch(next);
-            } else {
-              this->getContext().logErrorExpectedCommaSeperator(after_token);
-              this->setNotOk();
-            }
-            parser.finishOperation(after_token);
-            return operation;
-          default:
-            this->getContext().logErrorExpectedSeperator(after_token);
-            this->setNotOk();
-            break;
-          }
-          branch_i++;
-          break; // this was the last comma. break to do semicolons next.
+    while (branch_i < comma_count) {
+      const rq::Token &before_token = this->getToken();
+      const rq::TokenType before_type = before_token.getType();
+      if (before_type == rq::TokenType::RIGHT_BRACKET_GROUPING) {
+        for (unsigned inferrence_i = branch_i; inferrence_i < comma_count;
+             inferrence_i++) {
+          rq::Expression &inference = this->getContext().acquireExpression();
+          inference.setKeyword(rq::Keyword::_INFERENCE);
+          inference.setSourceInsertedBefore(before_token);
+          parser.appendBranch(inference);
         }
-        switch (after_type) {
-        case rq::TokenType::COMMA_SEPERATOR:
-          this->incrementToken(1);
-          parser.appendBranch(next);
-          break;
-        case rq::TokenType::SEMICOLON_SEPERATOR:
-          this->incrementToken(1);
-          break;
-        case rq::TokenType::RIGHT_BRACKET_GROUPING:
-          this->incrementToken(1);
-          parser.finishOperation(after_token);
-          return operation;
-        default:
-          this->getContext().logErrorExpectedCommaSeperator(after_token);
-          this->setNotOk();
+        this->incrementToken(1);
+        parser.finishOperation(before_token);
+        return operation;
+      }
+      rq::Expression &next = this->parseExpression();
+      branch_i++;
+      parser.appendBranch(next);
+      const rq::Token &after_token = this->getToken();
+      const rq::TokenType after_type = after_token.getType();
+      if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
+        for (unsigned inferrence_i = 0; inferrence_i < comma_count;
+             inferrence_i++) {
+          rq::Expression &inference = this->getContext().acquireExpression();
+          inference.setKeyword(rq::Keyword::_INFERENCE);
+          inference.setSourceInsertedBefore(after_token);
+          parser.appendBranch(inference);
         }
-        branch_i++;
+        this->incrementToken(1);
+        break;
+      }
+      switch (after_type) {
+      case rq::TokenType::COMMA_SEPERATOR:
+        this->incrementToken(1);
+        break;
+      case rq::TokenType::RIGHT_BRACKET_GROUPING:
+        break;
+      default:
+        this->getContext().logErrorExpectedCommaSeperator(after_token);
+        this->setNotOk();
+        break;
       }
     }
     while (!this->getIsDone()) { // semicolons
@@ -1291,14 +1146,17 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         this->setNotOk();
         break;
       case rq::TokenType::RIGHT_BRACKET_GROUPING:
-        this->incrementToken(1);
-        parser.finishOperation(after_token);
-        return operation;
-      default:
-        if (rq::getCanHaveNoSemicolon(keyword)) {
+        if (!next.getCanHaveNoSemicolon()) {
+          this->getContext().logErrorExpectedSemicolonSeperator(after_token);
+          this->setNotOk();
           break;
         }
-        this->getContext().logErrorExpectedSemicolonSeperator(next);
+        break;
+      default:
+        if (operation.getCanHaveNoSemicolon()) {
+          break;
+        }
+        this->getContext().logErrorExpectedSemicolonSeperator(after_token);
         this->setNotOk();
         break;
       }
@@ -1531,12 +1389,6 @@ rq::Expression &NormativeParser::parseEnclosedParenthesisExpression() {
       this->setNotOk();
       return parenthesis;
     }
-    this->incrementToken(1);
-    if (this->getIsDone()) {
-      this->getContext().logErrorUnterminatedExpression(parenthesis);
-      this->setNotOk();
-      return parenthesis;
-    }
     rq::Expression &return_type = this->parseExpression();
     parenthesis.extendSourceOver(return_type);
     if (parenthesis.getHasBranch()) {
@@ -1637,7 +1489,7 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
     if (expression.getCanHaveNoSemicolon()) {
       return;
     }
-    this->getContext().logErrorExpectedSemicolonSeperator(expression);
+    this->getContext().logErrorExpectedSemicolonSeperatorAtEndOfFile(expression);
     this->setNotOk();
     return;
   }
@@ -1649,7 +1501,7 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
   if (expression.getCanHaveNoSemicolon()) {
     return;
   }
-  this->getContext().logErrorExpectedSemicolonSeperator(expression);
+  this->getContext().logErrorExpectedSemicolonSeperator(token);
   this->setNotOk();
 }
 

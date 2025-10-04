@@ -551,17 +551,17 @@ void Context::logErrorExpectedSeperatorOrRightBracket(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedSemicolonSeperator(
-    const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected semicolon seperator",
-                   {expression.getLlvmSourceRange()}, {});
-}
-
 void Context::logErrorExpectedSemicolonSeperator(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
                    "expected semicolon seperator", {token.getLlvmSourceRange()},
                    {});
+}
+
+void Context::logErrorExpectedSemicolonSeperatorAtEndOfFile(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
+                   "expected semicolon seperator",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedSeperator(const rq::Token &token) {
