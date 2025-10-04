@@ -2114,7 +2114,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, S::SEQUENCE_STAGE>(expression);
+        this->situateNaryExpression<SP, 2, S::RVALUE, S::SEQUENCE_STAGE>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_ADD:
