@@ -408,7 +408,6 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
     for (const rq::Expression &branch : trunk.getBranchSubrange()) {
       rq::emitSymbolicRequiteBranch(context, fout, branch, indent + 1);
     }
-    fout << '\n';
     rq::emitIndent(fout, indent);
   }
   fout << "]\n";
