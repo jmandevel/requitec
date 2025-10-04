@@ -1088,7 +1088,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         for (unsigned inferrence_i = branch_i; inferrence_i < comma_count;
              inferrence_i++) {
           rq::Expression &inference = this->getContext().acquireExpression();
-          inference.setKeyword(rq::Keyword::_INFERENCE);
+          inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
           inference.setSourceInsertedBefore(before_token);
           parser.appendBranch(inference);
         }
@@ -1105,7 +1105,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         for (unsigned inferrence_i = 0; inferrence_i < comma_count;
              inferrence_i++) {
           rq::Expression &inference = this->getContext().acquireExpression();
-          inference.setKeyword(rq::Keyword::_INFERENCE);
+          inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
           inference.setSourceInsertedBefore(after_token);
           parser.appendBranch(inference);
         }

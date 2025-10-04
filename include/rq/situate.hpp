@@ -761,6 +761,13 @@ struct Situator final {
         this->situateNullaryExpression<SP>(expression);
       }
       break;
+    case K::_TACIT_COMMA_EXPRESSION:
+      if constexpr (!getCanBeSituation<SP>(K::_TACIT_COMMA_EXPRESSION)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
 
     // LOGICAL
     case K::_LOGICAL_AND:

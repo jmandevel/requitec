@@ -46,6 +46,7 @@ enum class Keyword : std::uint32_t {
   _COLON,
   _DOUBLE_COLON,
   _INFERENCE,
+  _TACIT_COMMA_EXPRESSION,
 
   // LOGICAL
   _LOGICAL_AND,
@@ -403,6 +404,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_double_colon";
   case K::_INFERENCE:
     return "_inference";
+  case K::_TACIT_COMMA_EXPRESSION:
+    return "_tacit_comma_expression";
 
   // LOGICAL
   case K::_LOGICAL_AND:
@@ -1046,6 +1049,8 @@ getFlags(rq::Keyword keyword) {
            KF::PARAMETER | KF::BINDING;
   case K::_INFERENCE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
+  case K::_TACIT_COMMA_EXPRESSION:
+    return KF::RVALUE;
 
   // LOGICAL
   case K::_LOGICAL_AND:
