@@ -1471,7 +1471,7 @@ struct Situator final {
 
     // PROCEDURES
     case K::_CALL:
-      if constexpr (!getCanBeSituation<SP>(K::_SPECIALIZATION)) {
+      if constexpr (!getCanBeSituation<SP>(K::_CALL)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 1, S::RVALUE, S::ARGUMENT>(expression);
