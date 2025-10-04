@@ -354,7 +354,7 @@ struct Situator final {
       this->setNotOk();
       return;
     }
-    expression.mergeBranch();
+    this->getContext().discardExpression(expression.mergeAndPopBranch());
   }
   template <rq::Situation SITUATION_PARAM>
   inline void situateAscribeTypeExpression(rq::Expression &expression) {
@@ -408,7 +408,7 @@ struct Situator final {
       if (extended.getKeyword() == rq::Keyword::_ASCRIBE_TYPE) {
         rq::Expression &last = extended.getLastBranch();
         last.setNext(unascribed.popNext());
-        expression.mergeBranch();
+        this->getContext().discardExpression(expression.mergeAndPopBranch());
       } else {
         rq::Expression &first_attribute = unascribed.popNext();
         rq::Expression &branch = expression.mergeAndPopBranch();
@@ -517,11 +517,11 @@ struct Situator final {
     switch (const rq::Keyword keyword = destination.getKeyword()) {
     case rq::Keyword::_NULL:
       destination.changeKeyword(rq::Keyword::_IGNORE);
-      expression.mergeBranch();
+      this->getContext().discardExpression(expression.mergeAndPopBranch());
       break;
     case rq::Keyword::_TUPLE:
       destination.changeKeyword(rq::Keyword::_STRUCTURED_BINDING);
-      expression.mergeBranch();
+      this->getContext().discardExpression(expression.mergeAndPopBranch());
       break;
     default:
       break;
@@ -695,7 +695,7 @@ struct Situator final {
         inner_ptr = &next;
       }
       expression.setBranch(inner_ptr);
-      expression.mergeBranch();
+      this->getContext().discardExpression(expression.mergeAndPopBranch());
     }
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
@@ -1641,8 +1641,8 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::OBJECT)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE, S::OBJECT_STATEMENT>(
-            expression);
+        this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE,
+                                    S::OBJECT_STATEMENT>(expression);
       }
       break;
     case K::ENUMERATION:
@@ -2589,7 +2589,7 @@ struct Situator final {
     if (expression.getIsConverging()) {
       for (rq::Expression &branch : expression.getBranchSubrange()) {
         if (expression.getKeyword() == branch.getKeyword()) {
-          branch.mergeBranch();
+          this->getContext().discardExpression(expression.mergeAndPopBranch());
         }
       }
     }

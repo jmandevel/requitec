@@ -2806,23 +2806,6 @@ struct Expression final {
     this->_next_ptr = nullptr;
     return old_next_ptr;
   }
-  inline void mergeBranch() {
-    rq::Expression &branch = this->popBranch();
-    if (this->getHasNext()) {
-      rq::Expression &branch_last_next = branch.getLastNext();
-      branch_last_next.setNext(this->popNext());
-    }
-    this->clear();
-    this->setKeyword(branch.getKeyword());
-    if (branch.getHasBranch()) {
-      this->setBranch(branch.popBranch());
-    }
-    if (branch.getHasNext()) {
-      this->setNext(branch.popNext());
-    }
-    this->setSource(branch);
-    delete &branch;
-  }
   inline rq::Expression &mergeAndPopBranch() {
     rq::Expression &branch = this->popBranch();
     if (this->getHasNext()) {
