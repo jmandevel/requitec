@@ -2079,14 +2079,14 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::CONTAINS)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNullaryExpression<SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_CONTAINS_VALUE:
       if constexpr (!getCanBeSituation<SP>(K::_CONTAINS_VALUE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_INTERVAL:
