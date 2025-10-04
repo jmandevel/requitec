@@ -461,6 +461,13 @@ struct Situator final {
     }
   }
   template <rq::Situation SITUATION_PARAM>
+  inline void situateParenthesisGroupExpression(rq::Expression &expression) {
+    RQ_ASSERT(expression.getKeyword() == rq::Keyword::_PARENTHESIS_GROUP,
+              "wrong keyword");
+    this->situateUnaryExpression<SITUATION_PARAM, SITUATION_PARAM>(expression);
+    this->getContext().discardExpression(expression.mergeAndPopBranch());
+  }
+  template <rq::Situation SITUATION_PARAM>
   inline void situateColonOperatorExpression(rq::Expression &expression) {
     if constexpr (SITUATION_PARAM == rq::Situation::LVALUE ||
                   SITUATION_PARAM == rq::Situation::PARAMETER ||
@@ -511,9 +518,9 @@ struct Situator final {
       expression.changeKeyword(
           rq::Keyword::_ENUMERATION_VALUE_WITH_DISCRIMINANT);
     } else if constexpr (SITUATION_PARAM == rq::Situation::LOCAL_STATEMENT ||
-               SITUATION_PARAM == rq::Situation::TOP_STATEMENT ||
-               SITUATION_PARAM == rq::Situation::TABLE_STATEMENT ||
-               SITUATION_PARAM == rq::Situation::OBJECT_STATEMENT) {
+                         SITUATION_PARAM == rq::Situation::TOP_STATEMENT ||
+                         SITUATION_PARAM == rq::Situation::TABLE_STATEMENT ||
+                         SITUATION_PARAM == rq::Situation::OBJECT_STATEMENT) {
       unsigned branch_i = 0;
       if (!expression.getHasBranch()) {
         this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 2);
@@ -758,7 +765,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_PARENTHESIS_GROUP)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, SP>(expression);
+        this->situateParenthesisGroupExpression<SP>(expression);
       }
       break;
     case K::_EQUAL_OPERATOR:
@@ -1704,11 +1711,11 @@ struct Situator final {
       }
       break;
     case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
-      if constexpr (!getCanBeSituation<SP>(K::_ENUMERATION_VALUE_WITH_DISCRIMINANT)) {
+      if constexpr (!getCanBeSituation<SP>(
+                        K::_ENUMERATION_VALUE_WITH_DISCRIMINANT)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateBinaryExpression<SP, S::LVALUE, S::RVALUE>(
-            expression);
+        this->situateBinaryExpression<SP, S::LVALUE, S::RVALUE>(expression);
       }
       break;
 
