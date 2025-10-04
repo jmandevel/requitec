@@ -468,6 +468,7 @@ struct Situator final {
                   SITUATION_PARAM == rq::Situation::ENUMERATION_VALUE) {
       this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::RVALUE,
                                     rq::Situation::RVALUE>(expression);
+      expression.changeKeyword(rq::Keyword::_ORDERED_BINDING);
     } else if constexpr (SITUATION_PARAM == rq::Situation::RVALUE ||
                          SITUATION_PARAM == rq::Situation::ARGUMENT) {
       this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::RVALUE,
@@ -485,6 +486,7 @@ struct Situator final {
                   SITUATION_PARAM == rq::Situation::ENUMERATION_VALUE) {
       this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::RVALUE,
                                     rq::Situation::RVALUE>(expression);
+      expression.changeKeyword(rq::Keyword::_UNORDERED_BINDING);
     } else if constexpr (SITUATION_PARAM == rq::Situation::RVALUE ||
                          SITUATION_PARAM == rq::Situation::ARGUMENT) {
       this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::RVALUE,
