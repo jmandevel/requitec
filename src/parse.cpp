@@ -252,7 +252,7 @@ rq::Expression &NormativeParser::parsePrecedence10() {
     switch (const rq::TokenType type = token.getType()) {
     case rq::TokenType::EQUAL_OPERATOR:
       this->incrementToken(1);
-      precedence_parser.parseBinary(token, rq::Keyword::_ASSIGN);
+      precedence_parser.parseBinary(token, rq::Keyword::_EQUAL_OPERATOR);
       precedence_parser.setRecent(this->parsePrecedence9());
       continue;
     case rq::TokenType::PLUS_EQUAL_OPERATOR:
@@ -301,7 +301,7 @@ rq::Expression &NormativeParser::parsePrecedence9() {
     switch (const rq::TokenType type = token.getType()) {
     case rq::TokenType::COLON_OPERATOR:
       this->incrementToken(1);
-      precedence_parser.parseBinary(token, rq::Keyword::_COLON);
+      precedence_parser.parseBinary(token, rq::Keyword::_COLON_OPERATOR);
       precedence_parser.setRecent(this->parsePrecedence8());
       continue;
     case rq::TokenType::DOUBLE_COLON_OPERATOR:
@@ -1377,7 +1377,7 @@ rq::Expression &NormativeParser::parseEnclosedParenthesisExpression() {
   RQ_ASSERT(!this->getIsDone(), "parser is done");
   const rq::Token &first_token = this->getToken();
   rq::Expression &parenthesis = this->getContext().acquireExpression();
-  parenthesis.setKeyword(rq::Keyword::_PARENTHESIS);
+  parenthesis.setKeyword(rq::Keyword::_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->incrementToken(1);
   bool has_parameter_marks = this->parseCommaSeperatedBranches(

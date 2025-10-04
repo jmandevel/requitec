@@ -461,10 +461,9 @@ struct Situator final {
     }
   }
   template <rq::Situation SITUATION_PARAM>
-  inline void situateColonExpression(rq::Expression &expression) {
+  inline void situateColonOperatorExpression(rq::Expression &expression) {
     if constexpr (SITUATION_PARAM == rq::Situation::LVALUE ||
                   SITUATION_PARAM == rq::Situation::PARAMETER ||
-                  SITUATION_PARAM == rq::Situation::BINDING ||
                   SITUATION_PARAM == rq::Situation::ENUMERATION_VALUE) {
       this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::RVALUE,
                                     rq::Situation::RVALUE>(expression);
@@ -479,11 +478,9 @@ struct Situator final {
     }
   }
   template <rq::Situation SITUATION_PARAM>
-  inline void situateDoubleColonExpression(rq::Expression &expression) {
+  inline void situateDoubleColonOperatorExpression(rq::Expression &expression) {
     if constexpr (SITUATION_PARAM == rq::Situation::LVALUE ||
-                  SITUATION_PARAM == rq::Situation::PARAMETER ||
-                  SITUATION_PARAM == rq::Situation::BINDING ||
-                  SITUATION_PARAM == rq::Situation::ENUMERATION_VALUE) {
+                  SITUATION_PARAM == rq::Situation::PARAMETER) {
       this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::RVALUE,
                                     rq::Situation::RVALUE>(expression);
       expression.changeKeyword(rq::Keyword::_UNORDERED_BINDING);
@@ -497,36 +494,58 @@ struct Situator final {
     }
   }
   template <rq::Situation SITUATION_PARAM>
-  inline void situateAssignExpression(rq::Expression &expression) {
-    RQ_ASSERT(expression.getKeyword() == rq::Keyword::_ASSIGN, "wrong keyword");
-    unsigned branch_i = 0;
-    if (!expression.getHasBranch()) {
-      this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 2);
-      this->setNotOk();
-      return;
-    }
-    rq::Expression &destination = expression.getBranch();
-    this->situateBranch<SITUATION_PARAM, rq::Situation::LVALUE>(
-        "first branch", expression, branch_i++, destination);
-    if (!destination.getHasNext()) {
-      this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 2);
-      this->setNotOk();
-      return;
-    }
-    rq::Expression &value = destination.getNext();
-    this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
-        "second branch", expression, branch_i++, value);
-    switch (const rq::Keyword keyword = destination.getKeyword()) {
-    case rq::Keyword::_NULL:
-      destination.changeKeyword(rq::Keyword::_IGNORE);
-      this->getContext().discardExpression(expression.mergeAndPopBranch());
-      break;
-    case rq::Keyword::_TUPLE:
-      destination.changeKeyword(rq::Keyword::_STRUCTURED_BINDING);
-      this->getContext().discardExpression(expression.mergeAndPopBranch());
-      break;
-    default:
-      break;
+  inline void situateEqualOperatorExpression(rq::Expression &expression) {
+    RQ_ASSERT(expression.getKeyword() == rq::Keyword::_EQUAL_OPERATOR,
+              "wrong keyword");
+    if constexpr (SITUATION_PARAM == rq::Situation::ARGUMENT) {
+      this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::NAME,
+                                    rq::Situation::RVALUE>(expression);
+      expression.changeKeyword(rq::Keyword::_NAMED_ARGUMENT);
+    } else if constexpr (SITUATION_PARAM == rq::Situation::PARAMETER) {
+      this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::LVALUE,
+                                    rq::Situation::RVALUE>(expression);
+      expression.changeKeyword(rq::Keyword::_DEFAULT_VALUE_PARAMETER);
+    } else if constexpr (SITUATION_PARAM == rq::Situation::ENUMERATION_VALUE) {
+      this->situateBinaryExpression<SITUATION_PARAM, rq::Situation::LVALUE,
+                                    rq::Situation::RVALUE>(expression);
+      expression.changeKeyword(
+          rq::Keyword::_ENUMERATION_VALUE_WITH_DISCRIMINANT);
+    } else if constexpr (SITUATION_PARAM == rq::Situation::LOCAL_STATEMENT ||
+               SITUATION_PARAM == rq::Situation::TOP_STATEMENT ||
+               SITUATION_PARAM == rq::Situation::TABLE_STATEMENT ||
+               SITUATION_PARAM == rq::Situation::OBJECT_STATEMENT) {
+      unsigned branch_i = 0;
+      if (!expression.getHasBranch()) {
+        this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+        this->setNotOk();
+        return;
+      }
+      rq::Expression &destination = expression.getBranch();
+      this->situateBranch<SITUATION_PARAM, rq::Situation::LVALUE>(
+          "first branch", expression, branch_i++, destination);
+      if (!destination.getHasNext()) {
+        this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 2);
+        this->setNotOk();
+        return;
+      }
+      rq::Expression &value = destination.getNext();
+      this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
+          "second branch", expression, branch_i++, value);
+      switch (const rq::Keyword keyword = destination.getKeyword()) {
+      case rq::Keyword::_NULL:
+        destination.changeKeyword(rq::Keyword::_IGNORE);
+        this->getContext().discardExpression(expression.mergeAndPopBranch());
+        break;
+      case rq::Keyword::_TUPLE:
+        destination.changeKeyword(rq::Keyword::_STRUCTURED_BINDING);
+        this->getContext().discardExpression(expression.mergeAndPopBranch());
+        break;
+      default:
+        expression.changeKeyword(rq::Keyword::_ASSIGN);
+        break;
+      }
+    } else {
+      static_assert(false, "invalid situation");
     }
   }
   template <rq::Situation SITUATION_PARAM>
@@ -735,25 +754,32 @@ struct Situator final {
       RQ_UNREACHABLE();
 
     // SITUATIONAL
-    case K::_PARENTHESIS:
-      if constexpr (!getCanBeSituation<SP>(K::_PARENTHESIS)) {
+    case K::_PARENTHESIS_GROUP:
+      if constexpr (!getCanBeSituation<SP>(K::_PARENTHESIS_GROUP)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 0, SP>(expression);
       }
       break;
-    case K::_COLON:
-      if constexpr (!getCanBeSituation<SP>(K::_COLON)) {
+    case K::_EQUAL_OPERATOR:
+      if constexpr (!getCanBeSituation<SP>(K::_EQUAL_OPERATOR)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateColonExpression<SP>(expression);
+        this->situateEqualOperatorExpression<SP>(expression);
       }
       break;
-    case K::_DOUBLE_COLON:
-      if constexpr (!getCanBeSituation<SP>(K::_DOUBLE_COLON)) {
+    case K::_COLON_OPERATOR:
+      if constexpr (!getCanBeSituation<SP>(K::_COLON_OPERATOR)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateDoubleColonExpression<SP>(expression);
+        this->situateColonOperatorExpression<SP>(expression);
+      }
+      break;
+    case K::_DOUBLE_COLON_OPERATOR:
+      if constexpr (!getCanBeSituation<SP>(K::_DOUBLE_COLON_OPERATOR)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateDoubleColonOperatorExpression<SP>(expression);
       }
       break;
     case K::_INFERENCE:
@@ -1166,7 +1192,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_ASSIGN)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateAssignExpression<SP>(expression);
+        this->situateBinaryExpression<SP, S::LVALUE, S::RVALUE>(expression);
       }
       break;
     case K::_ASSIGN_ADD:
@@ -1450,7 +1476,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_STRUCTURED_BINDING)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryWithLastExpression<SP, 2, S::BINDING, S::RVALUE>(
+        this->situateNaryWithLastExpression<SP, 2, S::LVALUE, S::RVALUE>(
             expression);
       }
       break;
@@ -1477,6 +1503,13 @@ struct Situator final {
         this->situateNaryExpression<SP, 1, S::RVALUE, S::ARGUMENT>(expression);
       }
       break;
+    case K::_NAMED_ARGUMENT:
+      if constexpr (!getCanBeSituation<SP>(K::_NAMED_ARGUMENT)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateBinaryExpression<SP, S::NAME, S::RVALUE>(expression);
+      }
+      break;
     case K::_INDEX:
       if constexpr (!getCanBeSituation<SP>(K::_INDEX)) {
         RQ_UNREACHABLE();
@@ -1489,6 +1522,13 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 1, S::RVALUE, S::PARAMETER>(expression);
+      }
+      break;
+    case K::_DEFAULT_VALUE_PARAMETER:
+      if constexpr (!getCanBeSituation<SP>(K::_DEFAULT_VALUE_PARAMETER)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateBinaryExpression<SP, S::NAME, S::RVALUE>(expression);
       }
       break;
     case K::DESTROY:
@@ -1553,7 +1593,8 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::RANGER)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 1, S::RVALUE, S::LOCAL_STATEMENT>(expression);
+        this->situateNaryExpression<SP, 1, S::RVALUE, S::LOCAL_STATEMENT>(
+            expression);
       }
       break;
     case K::RETAIN_MOVER:
@@ -1659,6 +1700,14 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 1, S::RVALUE, S::ENUMERATION_VALUE>(
+            expression);
+      }
+      break;
+    case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
+      if constexpr (!getCanBeSituation<SP>(K::_ENUMERATION_VALUE_WITH_DISCRIMINANT)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateBinaryExpression<SP, S::LVALUE, S::RVALUE>(
             expression);
       }
       break;
@@ -2114,7 +2163,8 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 2, S::RVALUE, S::SEQUENCE_STAGE>(expression);
+        this->situateNaryExpression<SP, 2, S::RVALUE, S::SEQUENCE_STAGE>(
+            expression);
       }
       break;
     case K::_SEQUENCE_STEP_ADD:

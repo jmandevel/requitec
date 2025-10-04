@@ -42,9 +42,10 @@ enum class Keyword : std::uint32_t {
   __ERROR,
 
   // SITUATIONAL
-  _PARENTHESIS,
-  _COLON,
-  _DOUBLE_COLON,
+  _PARENTHESIS_GROUP,
+  _EQUAL_OPERATOR,
+  _COLON_OPERATOR,
+  _DOUBLE_COLON_OPERATOR,
   _INFERENCE,
   _TACIT_COMMA_EXPRESSION,
 
@@ -168,8 +169,10 @@ enum class Keyword : std::uint32_t {
 
   // PROCEDURES
   _CALL,
+  _NAMED_ARGUMENT,
   _INDEX,
   _SIGNATURE,
+  _DEFAULT_VALUE_PARAMETER,
   DESTROY,
   _DESTROY_VALUE,
   DROP,
@@ -197,6 +200,7 @@ enum class Keyword : std::uint32_t {
   // SYMBOLS
   OBJECT,
   ENUMERATION,
+  _ENUMERATION_VALUE_WITH_DISCRIMINANT,
 
   // VALUES
   TRUE,
@@ -396,12 +400,14 @@ constexpr std::size_t KEYWORD_COUNT =
     return "__error";
 
   // SITUATIONAL
-  case K::_PARENTHESIS:
-    return "_parenthesis";
-  case K::_COLON:
-    return "_colon";
-  case K::_DOUBLE_COLON:
-    return "_double_colon";
+  case K::_PARENTHESIS_GROUP:
+    return "_parenthesis_group";
+  case K::_EQUAL_OPERATOR:
+    return "_equal_operator";
+  case K::_COLON_OPERATOR:
+    return "_colon_operator";
+  case K::_DOUBLE_COLON_OPERATOR:
+    return "_double_colon_operator";
   case K::_INFERENCE:
     return "_inference";
   case K::_TACIT_COMMA_EXPRESSION:
@@ -622,10 +628,14 @@ constexpr std::size_t KEYWORD_COUNT =
   // PROCEDURES
   case K::_CALL:
     return "_call";
+  case K::_NAMED_ARGUMENT:
+    return "_named_argument";
   case K::_INDEX:
     return "_index";
   case K::_SIGNATURE:
     return "_signature";
+  case K::_DEFAULT_VALUE_PARAMETER:
+    return "_default_value_parameter";
   case K::DESTROY:
     return "destroy";
   case K::_DESTROY_VALUE:
@@ -676,6 +686,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
+  case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
+    return "_enumeration_value_with_discriminant";
 
   // VALUES
   case K::TRUE:
@@ -984,20 +996,19 @@ enum class KeywordFlags : std::uint32_t {
   ASCRIBED_REFLECTION = rq::getBit(16),
   ARGUMENT = rq::getBit(15),
   PARAMETER = rq::getBit(14),
-  BINDING = rq::getBit(13),
-  ENUMERATION_VALUE = rq::getBit(12),
-  PATH = rq::getBit(11),
-  NAME = rq::getBit(10),
-  ASCRIPTION = rq::getBit(9),
-  TYPE_ATTRIBUTE = rq::getBit(8),
-  STATEMENT_ATTRIBUTE = rq::getBit(7),
-  SEQUENCE_STAGE = rq::getBit(6),
-  ARM = rq::getBit(5),
+  ENUMERATION_VALUE = rq::getBit(13),
+  PATH = rq::getBit(12),
+  NAME = rq::getBit(11),
+  ASCRIPTION = rq::getBit(10),
+  TYPE_ATTRIBUTE = rq::getBit(9),
+  STATEMENT_ATTRIBUTE = rq::getBit(8),
+  SEQUENCE_STAGE = rq::getBit(7),
+  ARM = rq::getBit(6),
   // CAPTURE
   COMMA_BRANCH_COUNT_MASK = 0x3,
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
         RVALUE | LVALUE | REFLECTION | ASCRIBED_REFLECTION | ARGUMENT |
-        PARAMETER | BINDING | ENUMERATION_VALUE | PATH | NAME | ASCRIPTION |
+        PARAMETER | ENUMERATION_VALUE | PATH | NAME | ASCRIPTION |
         TYPE_ATTRIBUTE | STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | ARM
 };
 
@@ -1030,7 +1041,7 @@ getFlags(rq::Keyword keyword) {
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::__IDENTIFIER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
-           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::BINDING |
+           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
            KF::PATH | KF::NAME;
 
   // ERRORS
@@ -1038,15 +1049,19 @@ getFlags(rq::Keyword keyword) {
     return KF::INTERNAL;
 
   // SITUATIONAL
-  case K::_PARENTHESIS:
+  case K::_PARENTHESIS_GROUP:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::LVALUE | KF::PATH |
            KF::NAME | KF::SEQUENCE_STAGE;
-  case K::_COLON:
+  case K::_EQUAL_OPERATOR:
+        return KF::SYMBOLIC | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::ARGUMENT |
+           KF::PARAMETER | KF::ENUMERATION_VALUE;
+  case K::_COLON_OPERATOR:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
-           KF::PARAMETER | KF::BINDING;
-  case K::_DOUBLE_COLON:
+           KF::PARAMETER;
+  case K::_DOUBLE_COLON_OPERATOR:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
-           KF::PARAMETER | KF::BINDING;
+           KF::PARAMETER;
   case K::_INFERENCE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
   case K::_TACIT_COMMA_EXPRESSION:
@@ -1081,8 +1096,7 @@ getFlags(rq::Keyword keyword) {
     return KF::SYMBOLIC | KF::LVALUE | KF::PARAMETER | KF::ARGUMENT |
            KF::ENUMERATION_VALUE;
   case K::_UNORDERED_BINDING:
-    return KF::SYMBOLIC | KF::LVALUE | KF::PARAMETER | KF::ARGUMENT |
-           KF::ENUMERATION_VALUE;
+    return KF::SYMBOLIC | KF::LVALUE;
   case K::_ASCRIBE_TYPE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::REFLECTION | KF::ASCRIPTION;
@@ -1178,8 +1192,7 @@ getFlags(rq::Keyword keyword) {
   // ASSIGNMENT
   case K::_ASSIGN:
     return KF::SYMBOLIC | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::ARGUMENT |
-           KF::PARAMETER | KF::ENUMERATION_VALUE;
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::_ASSIGN_ADD:
     return KF::SYMBOLIC | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
@@ -1284,10 +1297,14 @@ getFlags(rq::Keyword keyword) {
     return KF::SYMBOLIC | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::RVALUE |
            KF::LVALUE | KF::ARGUMENT;
+  case K::_NAMED_ARGUMENT:
+    return KF::SYMBOLIC | KF::ARGUMENT;
   case K::_INDEX:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::_SIGNATURE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::_DEFAULT_VALUE_PARAMETER:
+    return KF::SYMBOLIC | KF::PARAMETER;
   case K::DESTROY:
     return KF::REFLECTION;
   case K::_DESTROY_VALUE:
@@ -1358,6 +1375,8 @@ getFlags(rq::Keyword keyword) {
   case K::ENUMERATION:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | 1;
+  case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
+    return KF::SYMBOLIC | KF::ENUMERATION_VALUE;
 
   // VALUES;
   case K::TRUE:
@@ -1738,7 +1757,6 @@ enum class Situation : std::uint_fast32_t {
   ASCRIBED_REFLECTION,
   ARGUMENT,
   PARAMETER,
-  BINDING,
   ENUMERATION_VALUE,
   PATH,
   NAME,
@@ -1777,8 +1795,6 @@ getDescription(rq::Situation situation) {
     return "argument expression";
   case S::PARAMETER:
     return "parameter expression";
-  case S::BINDING:
-    return "binding expression";
   case S::ENUMERATION_VALUE:
     return "enumeration value expression";
   case S::PATH:
@@ -1971,12 +1987,6 @@ getCanBeParameter(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeBinding(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::BINDING);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getCanBeEnumerationValue(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ENUMERATION_VALUE);
@@ -2063,8 +2073,6 @@ getCanBeSituation(rq::Keyword keyword) {
     return rq::getCanBeArgument(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::PARAMETER) {
     return rq::getCanBeParameter(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::BINDING) {
-    return rq::getCanBeBinding(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::ENUMERATION_VALUE) {
     return rq::getCanBeEnumerationValue(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::PATH) {
@@ -2570,9 +2578,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeParameter() const {
     return rq::getCanBeParameter(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeBinding() const {
-    return rq::getCanBeBinding(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeEnumerationValue() const {
     return rq::getCanBeEnumerationValue(this->getKeyword());
