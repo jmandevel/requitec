@@ -2383,7 +2383,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_MEMBER_OF)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::SIZE:
