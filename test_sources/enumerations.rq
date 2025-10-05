@@ -18,7 +18,7 @@ str :=
         [case string,
             := string;
         ][case number,
-            := std.format("{number "2."}");
+            := std.format("{number, "2."}");
         ][case none,
             := "nothing";        
         ]
