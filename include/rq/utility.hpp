@@ -88,8 +88,6 @@ template <typename TypeParam>
 RQ_ALWAYS_INLINE void assignSingleValue(
     TypeParam *&dest_ptr, TypeParam *src_ptr,
     std::source_location source_location = std::source_location::current()) {
-  RQ_ASSERT_LOCATION(src_ptr != nullptr, "nullptr single value assignment",
-            source_location);
   RQ_ASSERT_LOCATION(dest_ptr == nullptr, "single value reassignment", source_location);
   dest_ptr = src_ptr;
 }
