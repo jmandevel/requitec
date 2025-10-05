@@ -1,7 +1,7 @@
 [import "std"]
 
 [function myFunc, (>a:[signed], b:[signed]<)[signed],
-    [result] = a + b;
+    [result] := a + b;
 ]
 
 [entry_point

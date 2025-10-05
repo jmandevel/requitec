@@ -12,11 +12,11 @@
     ]
 
     [function getTotal, ->(><)[signed],
-        [result] = .x + .y + .z;
+        [result] := [this].x + [this].y + [this].z;
     ]
 
     [function add, (>a:MyObject, b:MyObject<)MyObject,
-        [result] =
+        [result] :=
             MyObject(
                 a.x + b.x,
                 a.y + b.y,
@@ -36,5 +36,5 @@
 
     added := MyObject.add(a, b);
 
-    := added.getTotal();
+    [result] := added.getTotal();
 ]

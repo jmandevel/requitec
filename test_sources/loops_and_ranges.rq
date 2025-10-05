@@ -40,7 +40,7 @@
         [constructor]
 
         [ranger [signed],
-            [for_each value, .data,
+            [for_each value, [this].data,
               [range_over 
                 value
               ]

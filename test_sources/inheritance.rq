@@ -20,9 +20,9 @@
         @parent parent := Parent() 
     <},
     
-    [use .parent.myFunc]
+    [use [self].parent.myFunc]
     
-    @(override .parent.myFuncB)
+    @(override [self].parent.myFuncB)
     [function myFuncB,
         std.print(line="in child");
     ]

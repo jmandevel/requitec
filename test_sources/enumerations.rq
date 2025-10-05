@@ -14,12 +14,12 @@ payload := Payload.string("str");
 none := Payload.none;
 
 str :=
-    [match payload,
+    [inline_match payload,
         [case string,
-            := string;
+            [out] := string;
         ][case number,
-            := std.format("{number, "2."}");
+            [out] := std.format("{number, "2."}");
         ][case none,
-            := "nothing";        
+            [out] := "nothing";        
         ]
     ];

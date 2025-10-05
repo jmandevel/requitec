@@ -7,12 +7,12 @@
 val := enum.float(1.234);
 
 result :=
-    [match val,
+    [inline_match val,
         [case float,
-            := float;
-        ][case int
-            := [binary32]:int;
+            [out] := float;
+        ][case int,
+            [out] := [binary32]:int;
         ][default
-            := 0;
+            [out] := 0;
         ]
     ];
