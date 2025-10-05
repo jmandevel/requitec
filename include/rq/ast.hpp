@@ -318,6 +318,7 @@ enum class Keyword : std::uint32_t {
 
   // ATTRIBUTES
   BAKE,
+  EVALUATE_IMMEDIATLY,
   MAY_PARENT,
   PARENT,
   POSITION,
@@ -880,6 +881,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // ATTRIBUTES
   case K::BAKE:
     return "bake";
+  case K::EVALUATE_IMMEDIATLY,
+    return "evaluate_immediatly";
   case K::MAY_PARENT:
     return "may_parent";
   case K::PARENT:
@@ -1600,6 +1603,8 @@ getFlags(rq::Keyword keyword) {
   // ATTRIBUTES
   case K::BAKE:
     return KF::STATEMENT_ATTRIBUTE;
+  case K::EVALUATE_IMMEDIATLY:
+    return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_PARENT:
     return KF::STATEMENT_ATTRIBUTE;
   case K::PARENT:
@@ -2100,6 +2105,7 @@ getCanBeSituation(rq::Keyword keyword) {
 enum class StatementAttribute : std::uint_fast8_t {
   NONE,
   BAKE,
+  EVALUATE_IMMEDIATLY,
   MAY_PARENT,
   PARENT,
   POSITION,
@@ -2125,6 +2131,8 @@ getName(rq::StatementAttribute attribute) {
     return "none";
   case SA::BAKE:
     return "bake";
+  case SA::EVALUATE_IMMEDIATLY:
+    return "evaluate_immediatly";
   case SA::MAY_PARENT:
     return "may_parent";
   case SA::PARENT:
@@ -2165,6 +2173,8 @@ getStatementAttribute(rq::Keyword keyword) {
   switch (keyword) {
   case K::BAKE:
     return SA::BAKE;
+  case K::EVALUATE_IMMEDIATLY:
+    return SA::EVALUATE_IMMEDIATLY;
   case K::MAY_PARENT:
     return SA::MAY_PARENT;
   case K::PARENT:
@@ -2202,20 +2212,21 @@ getStatementAttribute(rq::Keyword keyword) {
 enum class StatementFlags : std::uint16_t {
   NONE = 0,
   BAKE = rq::getBit(15),
-  MAY_PARENT = rq::getBit(14),
-  PARENT = rq::getBit(13),
-  POSITION = rq::getBit(12),
-  MANGLED_NAME = rq::getBit(11),
-  PACK = rq::getBit(10),
-  USER = rq::getBit(9),
-  LABEL = rq::getBit(8),
-  TEMPLATE = rq::getBit(7),
-  LIKELY = rq::getBit(6),
-  UNLIKELY = rq::getBit(5),
-  DEPRECIATED = rq::getBit(4),
-  EXPORT = rq::getBit(3),
-  PRIVATE = rq::getBit(2),
-  PROTECTED = rq::getBit(1)
+  EVALUATE_IMMEDIATLY = rq::getBit(14),
+  MAY_PARENT = rq::getBit(13),
+  PARENT = rq::getBit(12),
+  POSITION = rq::getBit(11),
+  MANGLED_NAME = rq::getBit(10),
+  PACK = rq::getBit(9),
+  USER = rq::getBit(8),
+  LABEL = rq::getBit(7),
+  TEMPLATE = rq::getBit(6),
+  LIKELY = rq::getBit(5),
+  UNLIKELY = rq::getBit(4),
+  DEPRECIATED = rq::getBit(3),
+  EXPORT = rq::getBit(2),
+  PRIVATE = rq::getBit(1),
+  PROTECTED = rq::getBit(0)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2230,6 +2241,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::NONE;
   case SA::BAKE:
     return SF::BAKE;
+  case SA::EVALUATE_IMMEDIATLY:
+    return SF::EVALUATE_IMMEDIATLY;
   case SA::MAY_PARENT:
     return SF::MAY_PARENT;
   case SA::PARENT:
