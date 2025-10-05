@@ -657,6 +657,10 @@ rq::Expression &NormativeParser::parsePrecedence2() {
       this->incrementToken(1);
       precedence_parser.parseUnary(token, rq::Keyword::_BITWISE_COMPLEMENT);
       continue;
+    case rq::TokenType::BACKSLASH_OPERATOR:
+      this->incrementToken(1);
+      precedence_parser.parseUnary(token, rq::Keyword::_IDENTIFY);
+      continue;
     default:
       precedence_parser.appendBranch(this->parsePrecedence1());
       break;

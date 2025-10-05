@@ -110,6 +110,9 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '%':
       switch (const char c1 = this->getRanger().getChar(1)) {
+      case '%':
+        this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 2);
+        break;
       case '=':
         this->tokenizeLengthToken(T::PERCENT_EQUAL_OPERATOR, 2);
         break;
@@ -480,7 +483,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLeftGrouping(G::BRACKET, T::LEFT_BRACKET_GROUPING, 1);
       continue;
     case '\\':
-      this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 1);
+      this->tokenizeLengthToken(T::BACKSLASH_OPERATOR, 1);
       continue;
     case ']':
       this->tokenizeRightGrouping(G::BRACKET, T::RIGHT_BRACKET_GROUPING, 1);
