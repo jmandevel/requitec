@@ -139,7 +139,6 @@ enum class Keyword : std::uint32_t {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
-  NO_SHALLOW_COPY,
   MAY_DISCARD,
   CAPTURE_PROPERTIES,
   DEBUG_TRAP_ON_PANIC,
@@ -323,6 +322,7 @@ enum class Keyword : std::uint32_t {
   LIKELY,
   UNLIKELY,
   DEPRECIATED,
+  NO_SHALLOW_COPY,
 
   // REFLECTIONS
   _REFLECT,
@@ -566,8 +566,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "atomic";
   case K::NULL_TERMINATED:
     return "null_terminated";
-  case K::NO_SHALLOW_COPY:
-    return "no_shallow_copy";
   case K::MAY_DISCARD:
     return "may_discard";
   case K::CAPTURE_PROPERTIES:
@@ -882,6 +880,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "unlikely";
   case K::DEPRECIATED:
     return "depreciated";
+  case K::NO_SHALLOW_COPY:
+    return "no_shallow_copy";
 
   // REFLECTIONS
   case K::_REFLECT:
@@ -1213,8 +1213,6 @@ getFlags(rq::Keyword keyword) {
   case K::ATOMIC:
     return KF::TYPE_ATTRIBUTE;
   case K::NULL_TERMINATED:
-    return KF::TYPE_ATTRIBUTE;
-  case K::NO_SHALLOW_COPY:
     return KF::TYPE_ATTRIBUTE;
   case K::MAY_DISCARD:
     return KF::TYPE_ATTRIBUTE;
@@ -1584,6 +1582,8 @@ getFlags(rq::Keyword keyword) {
   case K::UNLIKELY:
     return KF::STATEMENT_ATTRIBUTE;
   case K::DEPRECIATED:
+    return KF::STATEMENT_ATTRIBUTE;
+  case K::NO_SHALLOW_COPY:
     return KF::STATEMENT_ATTRIBUTE;
 
   // REFLECTIONS
@@ -2031,7 +2031,8 @@ enum class StatementAttribute : std::uint_fast8_t {
   DEPRECIATED,
   EXPORT,
   PRIVATE,
-  PROTECTED
+  PROTECTED,
+  NO_SHALLOW_COPY
 };
 
 [[nodiscard]] inline constexpr llvm::StringRef
@@ -2073,6 +2074,8 @@ getName(rq::StatementAttribute attribute) {
     return "private";
   case SA::PROTECTED:
     return "protected";
+  case SA::NO_SHALLOW_COPY:
+    return "no_shallow_copy";
   }
   return "error";
 }
@@ -2115,30 +2118,33 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::PRIVATE;
   case K::PROTECTED:
     return SA::PROTECTED;
+  case K::NO_SHALLOW_COPY:
+    return SA::NO_SHALLOW_COPY;
   default:
     break;
   }
   return SA::NONE;
 }
 
-enum class StatementFlags : std::uint16_t {
+enum class StatementFlags : std::uint32_t {
   NONE = 0,
-  BAKE = rq::getBit(15),
-  EVALUATE_IMMEDIATLY = rq::getBit(14),
-  MAY_PARENT = rq::getBit(13),
-  PARENT = rq::getBit(12),
-  POSITION = rq::getBit(11),
-  MANGLED_NAME = rq::getBit(10),
-  PACK = rq::getBit(9),
-  USER = rq::getBit(8),
-  LABEL = rq::getBit(7),
-  TEMPLATE = rq::getBit(6),
-  LIKELY = rq::getBit(5),
-  UNLIKELY = rq::getBit(4),
-  DEPRECIATED = rq::getBit(3),
-  EXPORT = rq::getBit(2),
-  PRIVATE = rq::getBit(1),
-  PROTECTED = rq::getBit(0)
+  BAKE = rq::getBit(31),
+  EVALUATE_IMMEDIATLY = rq::getBit(30),
+  MAY_PARENT = rq::getBit(29),
+  PARENT = rq::getBit(28),
+  POSITION = rq::getBit(27),
+  MANGLED_NAME = rq::getBit(26),
+  PACK = rq::getBit(25),
+  USER = rq::getBit(24),
+  LABEL = rq::getBit(23),
+  TEMPLATE = rq::getBit(22),
+  LIKELY = rq::getBit(21),
+  UNLIKELY = rq::getBit(20),
+  DEPRECIATED = rq::getBit(19),
+  EXPORT = rq::getBit(18),
+  PRIVATE = rq::getBit(17),
+  PROTECTED = rq::getBit(16),
+  NO_SHALLOW_COPY = rq::getBit(15)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2183,6 +2189,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::PRIVATE;
   case SA::PROTECTED:
     return SF::PROTECTED;
+  case SA::NO_SHALLOW_COPY:
+    return SF::NO_SHALLOW_COPY;
   }
   return SF::NONE;
 }
@@ -2194,7 +2202,6 @@ enum class TypeAttribute : std::uint_fast8_t {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
-  NO_SHALLOW_COPY,
   MAY_DISCARD,
   CAPTURE_PROPERTIES,
   DEBUG_TRAP_ON_PANIC,
@@ -2218,8 +2225,6 @@ getName(rq::TypeAttribute attribute) {
     return "atomic";
   case TA::NULL_TERMINATED:
     return "null_terminated";
-  case TA::NO_SHALLOW_COPY:
-    return "no_shallow_copy";
   case TA::MAY_DISCARD:
     return "may_discard";
   case TA::CAPTURE_PROPERTIES:
@@ -2248,8 +2253,6 @@ getTypeAttribute(rq::Keyword keyword) {
     return TA::ATOMIC;
   case K::NULL_TERMINATED:
     return TA::NULL_TERMINATED;
-  case K::NO_SHALLOW_COPY:
-    return TA::NO_SHALLOW_COPY;
   case K::MAY_DISCARD:
     return TA::MAY_DISCARD;
   case K::DEBUG_TRAP_ON_PANIC:
@@ -2269,11 +2272,10 @@ enum class TypeFlags : std::uint16_t {
   VOLATILE = rq::getBit(13),
   ATOMIC = rq::getBit(12),
   NULL_TERMINATED = rq::getBit(11),
-  NO_SHALLOW_COPY = rq::getBit(10),
-  MAY_DISCARD = rq::getBit(9),
-  CAPTURE_PROPERTIES = rq::getBit(8),
-  DEBUG_TRAP_ON_PANIC = rq::getBit(7),
-  LINEAR = rq::getBit(6)
+  MAY_DISCARD = rq::getBit(10),
+  CAPTURE_PROPERTIES = rq::getBit(9),
+  DEBUG_TRAP_ON_PANIC = rq::getBit(8),
+  LINEAR = rq::getBit(7)
 };
 
 template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
@@ -2296,8 +2298,6 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::ATOMIC;
   case TA::NULL_TERMINATED:
     return TF::NULL_TERMINATED;
-  case TA::NO_SHALLOW_COPY:
-    return TF::NO_SHALLOW_COPY;
   case TA::MAY_DISCARD:
     return TF::MAY_DISCARD;
   case TA::CAPTURE_PROPERTIES:

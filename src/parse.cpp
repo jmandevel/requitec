@@ -1025,8 +1025,7 @@ rq::Keyword NormativeParser::parseTypeAttributeKeyword() {
       this->setNotOk();
       this->getContext().logMessage(
           token.getLlvmSourceStart(), rq::LogType::ERROR,
-          llvm::Twine("keyword is not valid for type attribute: \"") +
-              token.getSourceText() + "\"",
+          llvm::Twine(token.getSourceText()) + " is not type attribute keyword",
           {token.getLlvmSourceRange()}, {});
       return rq::Keyword::__ERROR;
     }
@@ -1043,8 +1042,7 @@ rq::Keyword NormativeParser::parseStatementAttributeKeyword() {
       this->setNotOk();
       this->getContext().logMessage(
           token.getLlvmSourceStart(), rq::LogType::ERROR,
-          llvm::Twine("keyword is not valid for statement attribute ") +
-              token.getSourceText(),
+          llvm::Twine(token.getSourceText()) + " is not statement attribute keyword",
           {token.getLlvmSourceRange()}, {});
       return rq::Keyword::__ERROR;
     }
