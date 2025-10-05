@@ -259,6 +259,7 @@ enum class Keyword : std::uint32_t {
   ELSE_IF,
   ELSE,
   MATCH,
+  INLINE_MATCH,
   SWITCH,
   CASE,
   DEFAULT,
@@ -266,7 +267,9 @@ enum class Keyword : std::uint32_t {
   FOR_EACH,
   WHILE,
   SCOPE,
+  INLINE_SCOPE,
   BLOCK,
+  INLINE_BLOCK,
 
   // RANGES
   RANGE,
@@ -767,6 +770,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "else";
   case K::MATCH:
     return "match";
+  case K::INLINE_MATCH:
+    return "inline_match";
   case K::SWITCH:
     return "switch";
   case K::CASE:
@@ -781,8 +786,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "while";
   case K::SCOPE:
     return "scope";
+  case K::INLINE_SCOPE:
+    return "inline_scope";
   case K::BLOCK:
     return "block";
+  case K::INLINE_BLOCK:
+    return "inline_block";
 
   // RANGES
   case K::RANGE:
@@ -1452,8 +1461,10 @@ getFlags(rq::Keyword keyword) {
            KF::OBJECT_STATEMENT;
   case K::MATCH:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::RVALUE | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 1;
+  case K::INLINE_MATCH:
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | 1;
   case K::SWITCH:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::ARM | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
@@ -1479,11 +1490,15 @@ getFlags(rq::Keyword keyword) {
   case K::SCOPE:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT | KF::RVALUE;
+           KF::OBJECT_STATEMENT;
+  case K::INLINE_SCOPE:
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | 1;
   case K::BLOCK:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT | KF::RVALUE;
+           KF::OBJECT_STATEMENT;
+  case K::INLINE_BLOCK:
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | 1;
 
   // RANGES
   case K::RANGE:

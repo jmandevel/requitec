@@ -1968,6 +1968,13 @@ struct Situator final {
         this->situateNaryExpression<SP, 1, S::RVALUE, S::ARM>(expression);
       }
       break;
+    case K::INLINE_MATCH:
+      if constexpr (!getCanBeSituation<SP>(K::INLINE_MATCH)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNaryExpression<SP, 1, S::RVALUE, S::ARM>(expression);
+      }
+      break;
     case K::SWITCH:
       if constexpr (!getCanBeSituation<SP>(K::SWITCH)) {
         RQ_UNREACHABLE();
@@ -2021,8 +2028,22 @@ struct Situator final {
         this->situateNaryExpression<SP, 0, SP>(expression);
       }
       break;
+    case K::INLINE_SCOPE:
+      if constexpr (!getCanBeSituation<SP>(K::INLINE_SCOPE)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNaryExpression<SP, 0, SP>(expression);
+      }
+      break;
     case K::BLOCK:
       if constexpr (!getCanBeSituation<SP>(K::BLOCK)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNaryExpression<SP, 0, SP>(expression);
+      }
+      break;
+    case K::INLINE_BLOCK:
+      if constexpr (!getCanBeSituation<SP>(K::INLINE_BLOCK)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 0, SP>(expression);
