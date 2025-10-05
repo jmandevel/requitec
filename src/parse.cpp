@@ -1098,10 +1098,10 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         return operation;
       }
       rq::Expression &next = this->parseExpression();
-      branch_i++;
       const rq::Token &after_token = this->getToken();
       const rq::TokenType after_type = after_token.getType();
-      if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
+      if (after_type == rq::TokenType::SEMICOLON_SEPERATOR ||
+          next.getCanHaveNoSemicolon()) {
         for (unsigned inferrence_i = branch_i; inferrence_i < comma_count;
              inferrence_i++) {
           rq::Expression &inference = this->getContext().acquireExpression();
@@ -1109,9 +1109,12 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
           inference.setSourceInsertedBefore(after_token);
           parser.appendBranch(inference);
         }
-        this->incrementToken(1);
+        if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
+          this->incrementToken(1);
+        }
         break;
       }
+      branch_i++;
       parser.appendBranch(next);
       switch (after_type) {
       case rq::TokenType::COMMA_SEPERATOR:
@@ -1485,10 +1488,15 @@ rq::Expression &NormativeParser::parseInterpolatedString() {
 
 void NormativeParser::checkTokenIsTrailingSemicolonOperator(
     rq::Expression &expression) {
-  if (this->getIsDone()) {
-    if (expression.getCanHaveNoSemicolon()) {
+  if (expression.getCanBeAscription()) {
+    rq::Expression &unascribed = expression.getLastBranch();
+    if (unascribed.getCanHaveNoSemicolon()) {
       return;
     }
+  } else if (expression.getCanHaveNoSemicolon()) {
+    return;
+  }
+  if (this->getIsDone()) {
     this->getContext().logErrorExpectedSemicolonSeperatorAtEndOfFile(
         expression);
     this->setNotOk();
@@ -1497,9 +1505,6 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
   const rq::Token &token = this->getToken();
   if (token.getType() == rq::TokenType::SEMICOLON_SEPERATOR) {
     this->incrementToken(1);
-    return;
-  }
-  if (expression.getCanHaveNoSemicolon()) {
     return;
   }
   this->getContext().logErrorExpectedSemicolonSeperator(token);
