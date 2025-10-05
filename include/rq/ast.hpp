@@ -1033,7 +1033,7 @@ getFlags(rq::Keyword keyword) {
            KF::PARAMETER | KF::ENUMERATION_VALUE;
   case K::_COLON_OPERATOR:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
-           KF::PARAMETER;
+           KF::PARAMETER | KF::ENUMERATION_VALUE;
   case K::_DOUBLE_COLON_OPERATOR:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
            KF::PARAMETER;
