@@ -1101,11 +1101,10 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       }
       rq::Expression &next = this->parseExpression();
       branch_i++;
-      parser.appendBranch(next);
       const rq::Token &after_token = this->getToken();
       const rq::TokenType after_type = after_token.getType();
       if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
-        for (unsigned inferrence_i = 0; inferrence_i < comma_count;
+        for (unsigned inferrence_i = branch_i; inferrence_i < comma_count;
              inferrence_i++) {
           rq::Expression &inference = this->getContext().acquireExpression();
           inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
@@ -1115,6 +1114,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         this->incrementToken(1);
         break;
       }
+      parser.appendBranch(next);
       switch (after_type) {
       case rq::TokenType::COMMA_SEPERATOR:
         this->incrementToken(1);
