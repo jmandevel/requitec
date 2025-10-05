@@ -1489,7 +1489,8 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
     if (expression.getCanHaveNoSemicolon()) {
       return;
     }
-    this->getContext().logErrorExpectedSemicolonSeperatorAtEndOfFile(expression);
+    this->getContext().logErrorExpectedSemicolonSeperatorAtEndOfFile(
+        expression);
     this->setNotOk();
     return;
   }
