@@ -2293,6 +2293,27 @@ struct Situator final {
         this->situateNullaryExpression<SP>(expression);
       }
       break;
+    case K::ABSTRACT:
+      if constexpr (!getCanBeSituation<SP>(K::ABSTRACT)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
+    case K::VIRTUAL:
+      if constexpr (!getCanBeSituation<SP>(K::VIRTUAL)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
+    case K::OVERRIDE:
+      if constexpr (!getCanBeSituation<SP>(K::OVERRIDE)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
     case K::POSITION:
       if constexpr (!getCanBeSituation<SP>(K::POSITION)) {
         RQ_UNREACHABLE();

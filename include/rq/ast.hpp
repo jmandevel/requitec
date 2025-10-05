@@ -315,6 +315,9 @@ enum class Keyword : std::uint32_t {
   EVALUATE_IMMEDIATLY,
   MAY_PARENT,
   PARENT,
+  ABSTRACT,
+  VIRTUAL,
+  OVERRIDE,
   POSITION,
   INLINE,
   MANGLED_NAME,
@@ -870,6 +873,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "may_parent";
   case K::PARENT:
     return "parent";
+  case K::ABSTRACT:
+    return "abstract";
+  case K::VIRTUAL:
+    return "virtual";
+  case K::OVERRIDE:
+    return "override";
   case K::POSITION:
     return "position";
   case K::INLINE:
@@ -1586,6 +1595,12 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::PARENT:
     return KF::STATEMENT_ATTRIBUTE;
+  case K::ABSTRACT:
+    return KF::STATEMENT_ATTRIBUTE;
+  case K::VIRTUAL:
+    return KF::STATEMENT_ATTRIBUTE;
+  case K::OVERRIDE:
+    return KF::STATEMENT_ATTRIBUTE;
   case K::POSITION:
     return KF::STATEMENT_ATTRIBUTE;
   case K::INLINE:
@@ -2045,6 +2060,9 @@ enum class StatementAttribute : std::uint_fast8_t {
   EVALUATE_IMMEDIATLY,
   MAY_PARENT,
   PARENT,
+  ABSTRACT,
+  VIRTUAL,
+  OVERRIDE,
   POSITION,
   MANGLED_NAME,
   PACK,
@@ -2075,6 +2093,12 @@ getName(rq::StatementAttribute attribute) {
     return "may_parent";
   case SA::PARENT:
     return "parent";
+  case SA::ABSTRACT:
+    return "abstract";
+  case SA::VIRTUAL:
+    return "virtual";
+  case SA::OVERRIDE:
+    return "override";
   case SA::POSITION:
     return "position";
   case SA::MANGLED_NAME:
@@ -2119,6 +2143,12 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MAY_PARENT;
   case K::PARENT:
     return SA::PARENT;
+  case K::ABSTRACT:
+    return SA::ABSTRACT;
+  case K::VIRTUAL:
+    return SA::VIRTUAL;
+  case K::OVERRIDE:
+    return SA::OVERRIDE;
   case K::POSITION:
     return SA::POSITION;
   case K::MANGLED_NAME:
@@ -2157,19 +2187,22 @@ enum class StatementFlags : std::uint32_t {
   EVALUATE_IMMEDIATLY = rq::getBit(30),
   MAY_PARENT = rq::getBit(29),
   PARENT = rq::getBit(28),
-  POSITION = rq::getBit(27),
-  MANGLED_NAME = rq::getBit(26),
-  PACK = rq::getBit(25),
-  USER = rq::getBit(24),
-  LABEL = rq::getBit(23),
-  TEMPLATE = rq::getBit(22),
-  LIKELY = rq::getBit(21),
-  UNLIKELY = rq::getBit(20),
-  DEPRECIATED = rq::getBit(19),
-  EXPORT = rq::getBit(18),
-  PRIVATE = rq::getBit(17),
-  PROTECTED = rq::getBit(16),
-  NO_SHALLOW_COPY = rq::getBit(15)
+  ABSTRACT = rq::getBit(27),
+  VIRTUAL = rq::getBit(26),
+  OVERRIDE = rq::getBit(25),
+  POSITION = rq::getBit(24),
+  MANGLED_NAME = rq::getBit(23),
+  PACK = rq::getBit(22),
+  USER = rq::getBit(21),
+  LABEL = rq::getBit(20),
+  TEMPLATE = rq::getBit(19),
+  LIKELY = rq::getBit(18),
+  UNLIKELY = rq::getBit(17),
+  DEPRECIATED = rq::getBit(16),
+  EXPORT = rq::getBit(15),
+  PRIVATE = rq::getBit(14),
+  PROTECTED = rq::getBit(13),
+  NO_SHALLOW_COPY = rq::getBit(12)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2190,6 +2223,12 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::MAY_PARENT;
   case SA::PARENT:
     return SF::PARENT;
+  case SA::ABSTRACT:
+    return SF::ABSTRACT;
+  case SA::VIRTUAL:
+    return SF::VIRTUAL;
+  case SA::OVERRIDE:
+    return SF::OVERRIDE;
   case SA::POSITION:
     return SF::POSITION;
   case SA::MANGLED_NAME:
