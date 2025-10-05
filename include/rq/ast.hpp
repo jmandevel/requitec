@@ -172,6 +172,7 @@ enum class Keyword : std::uint32_t {
   CONSTRUCTOR,
   DESTRUCTOR,
   RANGER,
+  DEEP_COPIER,
   RETAIN_MOVER,
   DROP_MOVER,
   SWAPER,
@@ -626,6 +627,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "destructor";
   case K::RANGER:
     return "ranger";
+  case K::DEEP_COPIER:
+    return "deep_copier";
   case K::RETAIN_MOVER:
     return "retain_mover";
   case K::DROP_MOVER:
@@ -982,9 +985,9 @@ enum class KeywordFlags : std::uint32_t {
   // CAPTURE
   COMMA_BRANCH_COUNT_MASK = 0x3,
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
-        RVALUE | LVALUE | REFLECTION | ARGUMENT |
-        PARAMETER | ENUMERATION_VALUE | PATH | NAME | ASCRIPTION |
-        TYPE_ATTRIBUTE | STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | ARM
+        RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
+        ENUMERATION_VALUE | PATH | NAME | ASCRIPTION | TYPE_ATTRIBUTE |
+        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | ARM
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1006,18 +1009,19 @@ getFlags(rq::Keyword keyword) {
   case K::__STRING_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::__LEFT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
+    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
+           KF::ARGUMENT;
   case K::__MIDDLE_INTERPOLATION_LITERAL:
     return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
            KF::RVALUE | KF::ARGUMENT;
   case K::__RIGHT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
+    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
+           KF::ARGUMENT;
   case K::__CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::__IDENTIFIER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
-           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
-           KF::PATH | KF::NAME;
+           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::PATH | KF::NAME;
 
   // ERRORS
   case K::__ERROR:
@@ -1025,10 +1029,10 @@ getFlags(rq::Keyword keyword) {
 
   // SITUATIONAL
   case K::_PARENTHESIS_GROUP:
-    return KF::SYMBOLIC | KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE | KF::PATH |
-           KF::NAME | KF::SEQUENCE_STAGE;
+    return KF::SYMBOLIC | KF::CONVERGING | KF::RVALUE | KF::ARGUMENT |
+           KF::LVALUE | KF::PATH | KF::NAME | KF::SEQUENCE_STAGE;
   case K::_EQUAL_OPERATOR:
-        return KF::SYMBOLIC | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+    return KF::SYMBOLIC | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::ARGUMENT |
            KF::PARAMETER | KF::ENUMERATION_VALUE;
   case K::_COLON_OPERATOR:
@@ -1274,17 +1278,22 @@ getFlags(rq::Keyword keyword) {
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::TOP_STATEMENT;
   case K::FUNCTION:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 2;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
+           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | 2;
   case K::CONSTRUCTOR:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::OBJECT_STATEMENT | 2;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+           KF::OBJECT_STATEMENT | 2;
   case K::DESTRUCTOR:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::OBJECT_STATEMENT;
   case K::RANGER:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::OBJECT_STATEMENT | 1;
+  case K::DEEP_COPIER:
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+           KF::OBJECT_STATEMENT;
   case K::RETAIN_MOVER:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::OBJECT_STATEMENT;
@@ -1295,11 +1304,10 @@ getFlags(rq::Keyword keyword) {
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
            KF::OBJECT_STATEMENT;
   case K::INDEXER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::OBJECT_STATEMENT | 1;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+           KF::OBJECT_STATEMENT | 1;
   case K::_ANONYMOUS_FUNCTION:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
-           KF::RVALUE | KF::ARGUMENT |
-           2;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | KF::ARGUMENT | 2;
   case K::CAPTURE:
     return KF::NONE; // CAPTURE
 
@@ -1325,11 +1333,13 @@ getFlags(rq::Keyword keyword) {
 
   // SYMBOLS
   case K::OBJECT:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | 2;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
+           KF::LOCAL_STATEMENT | 2;
   case K::ENUMERATION:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | 2;
+    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
+           KF::LOCAL_STATEMENT | 2;
   case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
     return KF::SYMBOLIC | KF::ENUMERATION_VALUE;
 
@@ -2815,7 +2825,8 @@ struct Expression final {
 };
 
 rq::ExpressionIterator &ExpressionIterator::operator++() {
-  this->_expression_ptr = rq::dereferencePtr(this->_expression_ptr).getNextPtr();
+  this->_expression_ptr =
+      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
   return *this;
 }
 
@@ -2824,7 +2835,8 @@ rq::ExpressionIterator ExpressionIterator::operator++(int) {
 }
 
 rq::ConstExpressionIterator &ConstExpressionIterator::operator++() {
-  this->_expression_ptr = rq::dereferencePtr(this->_expression_ptr).getNextPtr();
+  this->_expression_ptr =
+      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
   return *this;
 }
 

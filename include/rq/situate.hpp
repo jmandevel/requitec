@@ -1503,6 +1503,13 @@ struct Situator final {
             expression);
       }
       break;
+    case K::DEEP_COPIER:
+      if constexpr (!getCanBeSituation<SP>(K::DEEP_COPIER)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
     case K::RETAIN_MOVER:
       if constexpr (!getCanBeSituation<SP>(K::RETAIN_MOVER)) {
         RQ_UNREACHABLE();
