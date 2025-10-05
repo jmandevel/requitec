@@ -1040,10 +1040,11 @@ rq::Keyword NormativeParser::parseStatementAttributeKeyword() {
   if (keyword != rq::Keyword::__ERROR) {
     if (!rq::getCanBeStatementAttribute(keyword)) {
       this->setNotOk();
-      this->getContext().logMessage(
-          token.getLlvmSourceStart(), rq::LogType::ERROR,
-          llvm::Twine(token.getSourceText()) + " is not statement attribute keyword",
-          {token.getLlvmSourceRange()}, {});
+      this->getContext().logMessage(token.getLlvmSourceStart(),
+                                    rq::LogType::ERROR,
+                                    llvm::Twine(token.getSourceText()) +
+                                        " is not statement attribute keyword",
+                                    {token.getLlvmSourceRange()}, {});
       return rq::Keyword::__ERROR;
     }
     return keyword;
