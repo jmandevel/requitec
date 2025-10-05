@@ -19,6 +19,16 @@ target_link_libraries(
         ${LLVM_LIBS}
 )   
 
+target_compile_options(requite PRIVATE    
+    # Warnings as errors (all configs)
+    $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Werror>
+
+    # no exceptions on release builds
+    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:/EHs-c- /D_HAS_EXCEPTIONS=0>
+    $<$<AND:$<CONFIG:Release>,$<NOT:$<CXX_COMPILER_ID:MSVC>>>:-fno-exceptions>
+)
+
 target_include_directories(
     requite
     PUBLIC
@@ -33,14 +43,6 @@ target_link_libraries(
         requite   
 )
 
-target_compile_options(requitec PRIVATE    
-    # Warnings as errors (all configs)
-    $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Werror>
 
-    # no exceptions on release builds
-    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:/EHs-c- /D_HAS_EXCEPTIONS=0>
-    $<$<AND:$<CONFIG:Release>,$<NOT:$<CXX_COMPILER_ID:MSVC>>>:-fno-exceptions>
-)
 
 add_subdirectory(src)
