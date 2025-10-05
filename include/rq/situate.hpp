@@ -360,10 +360,6 @@ struct Situator final {
   inline void situateAscribeTypeExpression(rq::Expression &expression) {
     RQ_ASSERT(expression.getKeyword() == rq::Keyword::_ASCRIBE_TYPE,
               "wrong keyword");
-    constexpr rq::Situation ASCRIBED_SITUATION =
-        (SITUATION_PARAM == rq::Situation::REFLECTION)
-            ? rq::Situation::ASCRIBED_REFLECTION
-            : SITUATION_PARAM;
     if (!expression.getHasBranch()) {
       this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
       this->setNotOk();
@@ -382,7 +378,7 @@ struct Situator final {
       rq::Expression *previous_ptr = &branch;
       for (rq::Expression &next : branch.getNextSubrange()) {
         if (!next.getHasNext()) {
-          this->situateBranch<SITUATION_PARAM, ASCRIBED_SITUATION>(
+          this->situateBranch<SITUATION_PARAM, SITUATION_PARAM>(
               "last branch", expression, branch_i++, next);
           rq::Expression &previous = rq::dereferencePtr(previous_ptr);
           next.setNext(expression.replaceBranch(previous.popNext()));
@@ -393,7 +389,7 @@ struct Situator final {
         previous_ptr = &next;
       }
     } else {
-      this->situateNaryExpression<SITUATION_PARAM, 2, ASCRIBED_SITUATION,
+      this->situateNaryExpression<SITUATION_PARAM, 2, SITUATION_PARAM,
                                   rq::Situation::TYPE_ATTRIBUTE>(expression);
     }
     if (!expression.getHasBranch()) {
@@ -656,75 +652,50 @@ struct Situator final {
       this->setNotOk();
       return;
     }
-    if constexpr (SITUATION_PARAM == rq::Situation::ASCRIBED_REFLECTION) {
-      this->situateNaryExpression<SITUATION_PARAM, 2,
-                                  rq::Situation::REFLECTION>(expression);
-    } else {
-      rq::Expression &value = expression.popBranch();
-      this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
-          "first branch", expression, branch_i++, value);
-      rq::Expression *inner_ptr = &value;
-      rq::Expression *next_ptr = value.popNextPtr();
-      if (next_ptr == nullptr) {
-        this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
-        this->setNotOk();
-        return;
-      }
-      while (next_ptr != nullptr) {
-        rq::Expression &inner = rq::dereferencePtr(inner_ptr);
-        rq::Expression &next = rq::dereferencePtr(next_ptr);
-        this->situateBranch<SITUATION_PARAM, rq::Situation::REFLECTION>(
-            "second and subsequent branches", expression, branch_i++, next);
-        next_ptr = next.popNextPtr();
-        if (next.getKeyword() == rq::Keyword::__IDENTIFIER_LITERAL) {
-          rq::Expression &member = this->getContext().acquireExpression();
-          member.setKeyword(rq::Keyword::_MEMBER_OF);
-          member.setSource(inner, next);
-          member.setBranch(inner);
-          inner.setNext(next);
-          inner_ptr = &member;
-          continue;
-        } else if (next.getKeyword() == rq::Keyword::_ASCRIBE_TYPE) {
-          if (!next.getHasBranch()) {
-            continue;
-          }
-          rq::Expression &branch = next.getBranch();
-          if (branch.getKeyword() == rq::Keyword::_REFLECT) {
-            if (!branch.getHasBranch()) {
-              continue;
-            }
-            rq::Expression &branch_branch = branch.getBranch();
-            const rq::Keyword universalized =
-                branch_branch.getUniversalizedAscribed();
-            next.changeKeyword(universalized);
-            inner.setNext(branch.popNextPtr());
-            delete &next.replaceBranch(inner);
-            next_ptr = branch_branch.popNextPtr();
-            inner_ptr = &next;
-            continue;
-          }
-          const rq::Keyword universalized = branch.getUniversalizedAscribed();
-          next.changeKeyword(universalized);
-          rq::Expression &next_branch = next.getBranch();
-          if (next_branch.getHasBranch()) {
-            rq::Expression &branch_branch = next_branch.popBranch();
-            inner.setNext(branch_branch);
-            branch_branch.setNext(branch.popNextPtr());
-          } else {
-            inner.setNext(branch.popNextPtr());
-          }
-          delete &next.replaceBranch(inner);
-          inner_ptr = &next;
+    rq::Expression &value = expression.popBranch();
+    this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
+        "first branch", expression, branch_i++, value);
+    rq::Expression *inner_ptr = &value;
+    rq::Expression *next_ptr = value.popNextPtr();
+    if (next_ptr == nullptr) {
+      this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+      this->setNotOk();
+      return;
+    }
+    while (next_ptr != nullptr) {
+      rq::Expression &inner = rq::dereferencePtr(inner_ptr);
+      rq::Expression &next = rq::dereferencePtr(next_ptr);
+      this->situateBranch<SITUATION_PARAM, rq::Situation::REFLECTION>(
+          "second and subsequent branches", expression, branch_i++, next);
+      next_ptr = next.popNextPtr();
+      if (next.getKeyword() == rq::Keyword::__IDENTIFIER_LITERAL) {
+        rq::Expression &member = this->getContext().acquireExpression();
+        member.setKeyword(rq::Keyword::_MEMBER_OF);
+        member.setSource(inner, next);
+        member.setBranch(inner);
+        inner.setNext(next);
+        inner_ptr = &member;
+        continue;
+      } else if (next.getKeyword() == rq::Keyword::_ASCRIBE_TYPE) {
+        this->situateAscribeTypeExpression<rq::Situation::REFLECTION>(next);
+        next.changeKeyword(rq::Keyword::_ASCRIBE_TYPE_OF_ELEMENTS);
+        if (!next.getHasBranch()) {
           continue;
         }
-        const rq::Keyword universalized = next.getUniversalized();
-        next.changeKeyword(universalized);
-        inner.setNext(next.replaceBranch(inner));
+        rq::Expression &next_branch = next.getBranch();
+        const rq::Keyword universalized = next_branch.getUniversalized();
+        next_branch.changeKeyword(universalized);
+        inner.setNext(next_branch.replaceBranchPtr(inner));
         inner_ptr = &next;
+        continue;
       }
-      expression.setBranch(inner_ptr);
-      this->getContext().discardExpression(expression.mergeAndPopBranch());
+      const rq::Keyword universalized = next.getUniversalized();
+      next.changeKeyword(universalized);
+      inner.setNext(next.replaceBranchPtr(inner));
+      inner_ptr = &next;
     }
+    expression.setBranch(inner_ptr);
+    this->getContext().discardExpression(expression.mergeAndPopBranch());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   template <rq::Situation SITUATION_PARAM>
@@ -907,6 +878,14 @@ struct Situator final {
         this->situateAscribeStatementExpression<SP>(expression);
       }
       break;
+    case K::_ASCRIBE_TYPE_OF_ELEMENTS:
+      if constexpr (!getCanBeSituation<SP>(K::_ASCRIBE_STATEMENT)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNaryExpression<SP, 2, S::RVALUE, S::TYPE_ATTRIBUTE>(
+            expression);
+      }
+      break;
     case K::_CAST:
       if constexpr (!getCanBeSituation<SP>(K::_CAST)) {
         RQ_UNREACHABLE();
@@ -1053,14 +1032,6 @@ struct Situator final {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::_SINGLETON_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_SINGLETON_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
-      }
-      break;
     case K::CONTENT:
       if constexpr (!getCanBeSituation<SP>(K::CONTENT)) {
         RQ_UNREACHABLE();
@@ -1073,14 +1044,6 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_CONTENT_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_CONTENT_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
       }
       break;
     case K::ADDRESS:
@@ -1097,14 +1060,6 @@ struct Situator final {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::_ADDRESS_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_ADDRESS_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
-      }
-      break;
     case K::BORROW:
       if constexpr (!getCanBeSituation<SP>(K::BORROW)) {
         RQ_UNREACHABLE();
@@ -1117,14 +1072,6 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_BORROW_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_BORROW_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
       }
       break;
     case K::VIEW:
@@ -1141,56 +1088,32 @@ struct Situator final {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::_VIEW_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_VIEW_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
-      }
-      break;
     case K::SLICE:
       if constexpr (!getCanBeSituation<SP>(K::SLICE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNullaryExpression<SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_SLICE_OF:
       if constexpr (!getCanBeSituation<SP>(K::_SLICE_OF)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateUnaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_SLICE_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_SLICE_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::ARRAY_SLICE:
       if constexpr (!getCanBeSituation<SP>(K::ARRAY_SLICE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNullaryExpression<SP>(expression);
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_ARRAY_SLICE_OF:
       if constexpr (!getCanBeSituation<SP>(K::_ARRAY_SLICE_OF)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateUnaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_ARRAY_SLICE_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_ARRAY_SLICE_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE, SP>(
-            expression);
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
 
@@ -1258,14 +1181,6 @@ struct Situator final {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::_DEEP_COPY_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_DEEP_COPY_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE,
-                                            S::RVALUE>(expression);
-      }
-      break;
     case K::RETAIN_MOVE:
       if constexpr (!getCanBeSituation<SP>(K::RETAIN_MOVE)) {
         RQ_UNREACHABLE();
@@ -1294,14 +1209,6 @@ struct Situator final {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::_DROP_MOVE_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_DROP_MOVE_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE,
-                                            S::RVALUE>(expression);
-      }
-      break;
     case K::LINEAR_ASSIGN:
       if constexpr (!getCanBeSituation<SP>(K::LINEAR_ASSIGN)) {
         RQ_UNREACHABLE();
@@ -1314,14 +1221,6 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_LINEAR_ASSIGN_OF_ASCRIBED:
-      if constexpr (!getCanBeSituation<SP>(K::_LINEAR_ASSIGN_OF_ASCRIBED)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryWithLastExpression<SP, 2, S::TYPE_ATTRIBUTE,
-                                            S::RVALUE>(expression);
       }
       break;
     case K::SWAP:
@@ -1337,7 +1236,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_ARRAY)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateBinaryExpression<SP, S::RVALUE>(expression);
+        this->situateNaryExpression<SP, 2, S::RVALUE>(expression);
       }
       break;
     case K::_REFERENCE:
@@ -1706,8 +1605,8 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::ENUMERATION)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 1, S::RVALUE, S::ENUMERATION_VALUE>(
-            expression);
+        this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE,
+                                    S::ENUMERATION_VALUE>(expression);
       }
       break;
     case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:

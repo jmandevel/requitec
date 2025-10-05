@@ -68,6 +68,7 @@ enum class Keyword : std::uint32_t {
   _UNORDERED_BINDING,
   _ASCRIBE_TYPE,
   _ASCRIBE_STATEMENT,
+  _ASCRIBE_TYPE_OF_ELEMENTS,
   _CAST,
   _IDENTIFY,
 
@@ -94,25 +95,18 @@ enum class Keyword : std::uint32_t {
   _CONCATINATE,
   SINGLETON,
   _SINGLETON_OF,
-  _SINGLETON_OF_ASCRIBED,
   CONTENT,
   _CONTENT_OF,
-  _CONTENT_OF_ASCRIBED,
   ADDRESS,
   _ADDRESS_OF,
-  _ADDRESS_OF_ASCRIBED,
   BORROW,
   _BORROW_OF,
-  _BORROW_OF_ASCRIBED,
   VIEW,
   _VIEW_OF,
-  _VIEW_OF_ASCRIBED,
   SLICE,
   _SLICE_OF,
-  _SLICE_OF_ASCRIBED,
   ARRAY_SLICE,
   _ARRAY_SLICE_OF,
-  _ARRAY_SLICE_OF_ASCRIBED,
 
   // ASSIGNMENT
   _ASSIGN,
@@ -125,15 +119,12 @@ enum class Keyword : std::uint32_t {
   // MOVE SEMANTICS
   DEEP_COPY,
   _DEEP_COPY_OF,
-  _DEEP_COPY_OF_ASCRIBED,
   RETAIN_MOVE,
   _RETAIN_MOVE_OF,
   DROP_MOVE,
   _DROP_MOVE_OF,
-  _DROP_MOVE_OF_ASCRIBED,
   LINEAR_ASSIGN,
   _LINEAR_ASSIGN_OF,
-  _LINEAR_ASSIGN_OF_ASCRIBED,
   SWAP,
 
   // SUBTYPE
@@ -447,6 +438,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_type";
   case K::_ASCRIBE_STATEMENT:
     return "_ascribe_statement";
+  case K::_ASCRIBE_TYPE_OF_ELEMENTS:
+    return "_ascribe_type_of_elements";
   case K::_CAST:
     return "_cast";
   case K::_IDENTIFY:
@@ -493,44 +486,30 @@ constexpr std::size_t KEYWORD_COUNT =
     return "singleton";
   case K::_SINGLETON_OF:
     return "_singleton_of";
-  case K::_SINGLETON_OF_ASCRIBED:
-    return "_singleton_of_ascribed";
   case K::CONTENT:
     return "content";
   case K::_CONTENT_OF:
     return "_content_of";
-  case K::_CONTENT_OF_ASCRIBED:
-    return "_content_of_ascribed";
   case K::ADDRESS:
     return "address";
   case K::_ADDRESS_OF:
     return "_address_of";
-  case K::_ADDRESS_OF_ASCRIBED:
-    return "_address_of_ascribed";
   case K::BORROW:
     return "borrow";
   case K::_BORROW_OF:
-    return "_BORROW_OF";
-  case K::_BORROW_OF_ASCRIBED:
-    return "_BORROW_OF_ascribed";
+    return "_borrow_of";
   case K::VIEW:
     return "view";
   case K::_VIEW_OF:
     return "_view_of";
-  case K::_VIEW_OF_ASCRIBED:
-    return "_view_of_ascribed";
   case K::SLICE:
     return "slice";
   case K::_SLICE_OF:
     return "_slice_of";
-  case K::_SLICE_OF_ASCRIBED:
-    return "_slice_of_ascribed";
   case K::ARRAY_SLICE:
     return "array_slice";
   case K::_ARRAY_SLICE_OF:
     return "_array_slice_of";
-  case K::_ARRAY_SLICE_OF_ASCRIBED:
-    return "_array_slice_of_ascribed";
 
   // ASSIGNMENT
   case K::_ASSIGN:
@@ -551,8 +530,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "deep_copy";
   case K::_DEEP_COPY_OF:
     return "_deep_copy_of";
-  case K::_DEEP_COPY_OF_ASCRIBED:
-    return "_deep_copy_of_ascribed";
   case K::RETAIN_MOVE:
     return "retain_move";
   case K::_RETAIN_MOVE_OF:
@@ -561,14 +538,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "drop_move";
   case K::_DROP_MOVE_OF:
     return "_drop_move_of";
-  case K::_DROP_MOVE_OF_ASCRIBED:
-    return "_drop_move_of_ascribed";
   case K::LINEAR_ASSIGN:
     return "linear_assign";
   case K::_LINEAR_ASSIGN_OF:
     return "_linear_assign_of";
-  case K::_LINEAR_ASSIGN_OF_ASCRIBED:
-    return "_linear_assign_of_ascribed";
   case K::SWAP:
     return "swap";
 
@@ -996,7 +969,6 @@ enum class KeywordFlags : std::uint32_t {
   RVALUE = rq::getBit(19),
   LVALUE = rq::getBit(18),
   REFLECTION = rq::getBit(17),
-  ASCRIBED_REFLECTION = rq::getBit(16),
   ARGUMENT = rq::getBit(15),
   PARAMETER = rq::getBit(14),
   ENUMERATION_VALUE = rq::getBit(13),
@@ -1010,7 +982,7 @@ enum class KeywordFlags : std::uint32_t {
   // CAPTURE
   COMMA_BRANCH_COUNT_MASK = 0x3,
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
-        RVALUE | LVALUE | REFLECTION | ASCRIBED_REFLECTION | ARGUMENT |
+        RVALUE | LVALUE | REFLECTION | ARGUMENT |
         PARAMETER | ENUMERATION_VALUE | PATH | NAME | ASCRIPTION |
         TYPE_ATTRIBUTE | STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | ARM
 };
@@ -1107,6 +1079,8 @@ getFlags(rq::Keyword keyword) {
     return KF::SYMBOLIC | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
+  case K::_ASCRIBE_TYPE_OF_ELEMENTS:
+    return KF::SYMBOLIC | KF::RVALUE | KF::ASCRIPTION;
   case K::_CAST:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
   case K::_IDENTIFY:
@@ -1150,47 +1124,33 @@ getFlags(rq::Keyword keyword) {
   case K::_CONCATINATE:
     return KF::SYMBOLIC | KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
   case K::SINGLETON:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_SINGLETON_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_SINGLETON_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::CONTENT:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_CONTENT_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_CONTENT_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::ADDRESS:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_ADDRESS_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_ADDRESS_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::BORROW:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_BORROW_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_BORROW_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::VIEW:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_VIEW_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_VIEW_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::SLICE:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_SLICE_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_SLICE_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::ARRAY_SLICE:
-    return KF::REFLECTION | KF::ASCRIBED_REFLECTION;
+    return KF::REFLECTION;
   case K::_ARRAY_SLICE_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_ARRAY_SLICE_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
 
   // ASSIGNMENT
   case K::_ASSIGN:
@@ -1217,8 +1177,6 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION;
   case K::_DEEP_COPY_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_DEEP_COPY_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
   case K::RETAIN_MOVE:
     return KF::REFLECTION;
   case K::_RETAIN_MOVE_OF:
@@ -1227,14 +1185,10 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION;
   case K::_DROP_MOVE_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_DROP_MOVE_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::LINEAR_ASSIGN:
     return KF::REFLECTION;
   case K::_LINEAR_ASSIGN_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_LINEAR_ASSIGN_OF_ASCRIBED:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::SWAP:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
@@ -1377,7 +1331,7 @@ getFlags(rq::Keyword keyword) {
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | 2;
   case K::ENUMERATION:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | 1;
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | 2;
   case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
     return KF::SYMBOLIC | KF::ENUMERATION_VALUE;
 
@@ -1635,7 +1589,7 @@ getFlags(rq::Keyword keyword) {
   // REFLECTIONS
   case K::_REFLECT:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
-           KF::PARAMETER | KF::PATH | KF::ASCRIBED_REFLECTION;
+           KF::PARAMETER | KF::PATH;
   case K::_MEMBER_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PATH;
   case K::SIZE:
@@ -1759,7 +1713,6 @@ enum class Situation : std::uint_fast32_t {
   LVALUE,
   RVALUE,
   REFLECTION,
-  ASCRIBED_REFLECTION,
   ARGUMENT,
   PARAMETER,
   ENUMERATION_VALUE,
@@ -1794,8 +1747,6 @@ getDescription(rq::Situation situation) {
     return "rvalue expression";
   case S::REFLECTION:
     return "reflection expression";
-  case S::ASCRIBED_REFLECTION:
-    return "ascribed reflection expression";
   case S::ARGUMENT:
     return "argument expression";
   case S::PARAMETER:
@@ -1896,37 +1847,6 @@ getUniversalized(rq::Keyword keyword) {
   return K::__ERROR;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::Keyword
-getUniversalizedAscribed(rq::Keyword keyword) {
-  using namespace rq;
-  using K = Keyword;
-  switch (keyword) {
-  case K::SINGLETON:
-    return K::_SINGLETON_OF_ASCRIBED;
-  case K::CONTENT:
-    return K::_CONTENT_OF_ASCRIBED;
-  case K::ADDRESS:
-    return K::_ADDRESS_OF_ASCRIBED;
-  case K::BORROW:
-    return K::_BORROW_OF_ASCRIBED;
-  case K::VIEW:
-    return K::_VIEW_OF_ASCRIBED;
-  case K::SLICE:
-    return K::_SLICE_OF_ASCRIBED;
-  case K::ARRAY_SLICE:
-    return K::_ARRAY_SLICE_OF_ASCRIBED;
-  case K::DEEP_COPY:
-    return K::_DEEP_COPY_OF_ASCRIBED;
-  case K::DROP_MOVE:
-    return K::_DROP_MOVE_OF_ASCRIBED;
-  case K::LINEAR_ASSIGN:
-    return K::_LINEAR_ASSIGN_OF_ASCRIBED;
-  default:
-    break;
-  }
-  return K::__ERROR;
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsNone(rq::Keyword keyword) {
   return keyword == rq::Keyword::__NONE;
 }
@@ -1971,12 +1891,6 @@ getCanBeRValue(rq::Keyword keyword) {
 getCanBeReflection(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::REFLECTION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeAscribedReflection(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::ASCRIBED_REFLECTION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -2072,8 +1986,6 @@ getCanBeSituation(rq::Keyword keyword) {
     return rq::getCanBeRValue(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::REFLECTION) {
     return rq::getCanBeReflection(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::ASCRIBED_REFLECTION) {
-    return rq::getCanBeAscribedReflection(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::ARGUMENT) {
     return rq::getCanBeArgument(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::PARAMETER) {
@@ -2524,9 +2436,6 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
     return rq::getUniversalized(this->_keyword);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalizedAscribed() const {
-    return rq::getUniversalizedAscribed(this->_keyword);
-  }
   RQ_ALWAYS_INLINE void clear() { std::memset(this, 0, sizeof(*this)); }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
     RQ_ASSERT(this->_keyword == rq::Keyword::__NONE,
@@ -2582,9 +2491,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
     return rq::getCanBeReflection(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscribedReflection() const {
-    return rq::getCanBeAscribedReflection(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArgument() const {
     return rq::getCanBeArgument(this->getKeyword());
