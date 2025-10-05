@@ -531,7 +531,7 @@ getFlags(rq::TokenType token) {
   case T::DOUBLE_PIPE_OPERATOR:
     return TF::OPERATOR;
   case T::EQUAL_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::PLUS_EQUAL_OPERATOR:
