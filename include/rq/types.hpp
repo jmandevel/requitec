@@ -258,7 +258,7 @@ getNumericValue(llvm::StringRef text, NumericParam &out_value) {
     return rq::NumericResult::OK;
   } else if constexpr (std::floating_point<Numeric>) {
     llvm::SmallString<16> clean_text;
-    rq::NumericResult result = rq::cleanFloatText(text, clean_text);
+    std::ignore = rq::cleanFloatText(text, clean_text);
     std::from_chars(clean_text.begin(), clean_text.end(), out_value, 10);
   } else {
     static_assert(false, "type not supported");

@@ -538,7 +538,7 @@ struct Situator final {
       rq::Expression &value = destination.getNext();
       this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
           "second branch", expression, branch_i++, value);
-      switch (const rq::Keyword keyword = destination.getKeyword()) {
+      switch (destination.getKeyword()) {
       case rq::Keyword::_NULL:
         destination.changeKeyword(rq::Keyword::_IGNORE);
         this->getContext().discardExpression(expression.mergeAndPopBranch());
@@ -626,7 +626,7 @@ struct Situator final {
               "wrong keyword");
     if (!expression.getHasBranch()) {
       rq::Expression &first = this->getContext().acquireExpression();
-      first.setKeyword(rq::Keyword::ADDRESS_DEPTH);
+      first.setKeyword(default_depth);
       first.setSourceInsertedAfter(expression);
       expression.setBranch(first);
     }
@@ -733,7 +733,7 @@ struct Situator final {
     using K = Keyword;
     using S = Situation;
     constexpr S SP = SITUATION_PARAM;
-    switch (const K keyword = expression.getKeyword()) {
+    switch (expression.getKeyword()) {
     case K::__NONE:
       RQ_UNREACHABLE();
 
@@ -2345,6 +2345,13 @@ struct Situator final {
         this->situateNullaryExpression<SP>(expression);
       }
       break;
+    case K::EVALUATE_IMMEDIATLY:
+      if constexpr (!getCanBeSituation<SP>(K::EVALUATE_IMMEDIATLY)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
     case K::MAY_PARENT:
       if constexpr (!getCanBeSituation<SP>(K::MAY_PARENT)) {
         RQ_UNREACHABLE();
@@ -2664,7 +2671,7 @@ struct Situator final {
   inline void situateTrunk(rq::Expression &trunk) {
     RQ_ASSERT(this->_is_ok, "situator can situate only once");
     for (rq::Expression &expression : trunk.getHorizontalSubrange()) {
-      this->situateExpression<SITUATION_PARAM>(trunk);
+      this->situateExpression<SITUATION_PARAM>(expression);
     }
   }
 };

@@ -13,7 +13,7 @@ void Tokenizer::_tokenizeSourceText() {
     return;
   }
   while (true) {
-    switch (const char c0 = this->getRanger().getChar(0)) {
+    switch (this->getRanger().getChar(0)) {
     case '\x00':
       return;
     case '\x01':
@@ -45,7 +45,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '\x0C':
       RQ_UNREACHABLE();
     case '\r':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '\n':
         this->getRanger().incrementChar(2);
         continue;
@@ -109,7 +109,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::DOLLAR_SIGIL, 1);
       continue;
     case '%':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '%':
         this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 2);
         break;
@@ -121,7 +121,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '&':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '&':
         this->tokenizeLengthToken(T::DOUBLE_AMPERSAND_OPERATOR, 2);
         break;
@@ -142,7 +142,7 @@ void Tokenizer::_tokenizeSourceText() {
                                   T::RIGHT_PARENTHESIS_GROUPING, 1);
       continue;
     case '*':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '=':
         this->tokenizeLengthToken(T::STAR_EQUAL_OPERATOR, 2);
         break;
@@ -151,7 +151,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '+':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '=':
         this->tokenizeLengthToken(T::PLUS_EQUAL_OPERATOR, 2);
         break;
@@ -166,7 +166,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::COMMA_SEPERATOR, 1);
       continue;
     case '-':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '=':
         this->tokenizeLengthToken(T::DASH_EQUAL_OPERATOR, 2);
         break;
@@ -179,7 +179,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '.':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '+':
         this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
         break;
@@ -196,7 +196,7 @@ void Tokenizer::_tokenizeSourceText() {
         this->tokenizeLengthToken(T::DOT_PERCENT_OPERATOR, 2);
         break;
       case '<':
-        switch (const char c2 = this->getRanger().getChar(2)) {
+        switch (this->getRanger().getChar(2)) {
         case '=':
           this->tokenizeLengthToken(T::DOT_LESS_EQUAL_OPERATOR, 3);
           break;
@@ -205,7 +205,7 @@ void Tokenizer::_tokenizeSourceText() {
         }
         continue;
       case '>':
-        switch (const char c2 = this->getRanger().getChar(2)) {
+        switch (this->getRanger().getChar(2)) {
         case '=':
           this->tokenizeLengthToken(T::DOT_GREATER_EQUAL_OPERATOR, 3);
           break;
@@ -214,7 +214,7 @@ void Tokenizer::_tokenizeSourceText() {
         }
         continue;
       case '=':
-        switch (const char c2 = this->getRanger().getChar(2)) {
+        switch (this->getRanger().getChar(2)) {
         case '=':
           this->tokenizeLengthToken(T::DOT_DOUBLE_EQUAL_OPERATOR, 3);
           break;
@@ -223,7 +223,7 @@ void Tokenizer::_tokenizeSourceText() {
         }
         continue;
       case '!':
-        switch (const char c2 = this->getRanger().getChar(2)) {
+        switch (this->getRanger().getChar(2)) {
         case '=':
           this->tokenizeLengthToken(T::DOT_BANG_EQUAL_OPERATOR, 3);
           break;
@@ -232,7 +232,7 @@ void Tokenizer::_tokenizeSourceText() {
         }
         continue;
       case '.':
-        switch (const char c2 = this->getRanger().getChar(2)) {
+        switch (this->getRanger().getChar(2)) {
         case '<':
           this->tokenizeLengthToken(T::DOUBLE_DOT_LESS_OPERATOR, 3);
           break;
@@ -248,14 +248,14 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '/':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '/':
         this->getRanger().incrementChar(2);
         this->getRanger().addColumns(2);
         {
           bool found_newline = false;
           while (!found_newline) {
-            switch (const char c2 = this->getRanger().getChar(0)) {
+            switch (this->getRanger().getChar(0)) {
             case '\x00':
               return;
             case '\n':
@@ -266,7 +266,7 @@ void Tokenizer::_tokenizeSourceText() {
               found_newline = true;
               break;
             case '\r':
-              switch (const char c3 = this->getRanger().getChar(1)) {
+              switch (this->getRanger().getChar(1)) {
               case '\n':
                 this->getRanger().incrementChar(2);
                 break;
@@ -287,11 +287,11 @@ void Tokenizer::_tokenizeSourceText() {
         this->getRanger().incrementChar(2);
         this->getRanger().addColumns(2);
         while (true) {
-          switch (const char c2 = this->getRanger().getChar(0)) {
+          switch (this->getRanger().getChar(0)) {
           case '\x00':
             return;
           case '*':
-            switch (const char c3 = this->getRanger().getChar(1)) {
+            switch (this->getRanger().getChar(1)) {
             case '/':
               this->getRanger().incrementChar(2);
               break;
@@ -306,7 +306,7 @@ void Tokenizer::_tokenizeSourceText() {
             this->getRanger().addLines(1);
             break;
           case '\r':
-            switch (const char c3 = this->getRanger().getChar(1)) {
+            switch (this->getRanger().getChar(1)) {
             case '\n':
               this->getRanger().incrementChar(2);
               break;
@@ -368,7 +368,7 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     }
     case ':':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case ':':
         this->tokenizeLengthToken(T::DOUBLE_COLON_OPERATOR, 2);
         break;
@@ -380,7 +380,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::SEMICOLON_SEPERATOR, 1);
       continue;
     case '<':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '<':
         this->tokenizeLengthToken(T::DOUBLE_LESS_OPERATOR, 2);
         break;
@@ -388,7 +388,7 @@ void Tokenizer::_tokenizeSourceText() {
         this->tokenizeLengthToken(T::LESS_EQUAL_OPERATOR, 2);
         break;
       case ':':
-        switch (const char c2 = this->getRanger().getChar(2)) {
+        switch (this->getRanger().getChar(2)) {
         case '>':
           this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 3);
           break;
@@ -401,7 +401,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '=':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '=':
         this->tokenizeLengthToken(T::DOUBLE_EQUAL_OPERATOR, 2);
         break;
@@ -410,7 +410,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '>':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '>':
         this->tokenizeLengthToken(T::DOUBLE_GREATER_OPERATOR, 2);
         break;
@@ -494,7 +494,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '_':
       break;
     case '`':
-      switch (const char c2 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '`':
         this->tokenizeLengthToken(T::DOUBLE_GRAVE_OPERATOR, 2);
         break;
@@ -558,7 +558,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLeftGrouping(G::BRACE, T::LEFT_BRACE_GROUPING, 1);
       continue;
     case '|':
-      switch (const char c1 = this->getRanger().getChar(1)) {
+      switch (this->getRanger().getChar(1)) {
       case '|':
         this->tokenizeLengthToken(rq::TokenType::DOUBLE_PIPE_OPERATOR, 2);
         break;
@@ -579,13 +579,13 @@ void Tokenizer::_tokenizeSourceText() {
         while (true) {
           const char sub_c0 = this->getRanger().getChar(0);
           if (sub_c0 == '\\') {
-            switch (const char sub_c1 = this->getRanger().getChar(1)) {
+            switch (this->getRanger().getChar(1)) {
             case '\n':
               this->getRanger().incrementChar(2);
               this->getRanger().addLines(1);
               break;
             case '\r':
-              switch (const char sub_c2 = this->getRanger().getChar(1)) {
+              switch (this->getRanger().getChar(1)) {
               case '\n':
                 this->getRanger().incrementChar(3);
                 break;
@@ -608,7 +608,7 @@ void Tokenizer::_tokenizeSourceText() {
             this->getRanger().incrementChar(1);
             this->getRanger().addLines(1);
           } else if (sub_c0 == '\r') {
-            switch (const char sub_c1 = this->getRanger().getChar(1)) {
+            switch (this->getRanger().getChar(1)) {
             case '\n':
               this->getRanger().incrementChar(2);
               break;

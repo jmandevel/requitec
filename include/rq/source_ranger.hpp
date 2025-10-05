@@ -80,8 +80,6 @@ struct SourceRanger final {
     RQ_ASSERT(this->_sub_start != nullptr, "sub token not started");
     RQ_ASSERT(this->_current > this->_sub_start,
                     "current token before sub token start");
-    const char before = this->getPreviousSubChar(-1);
-    const char after = this->getChar(1);
     rq::Token token(type, this->_sub_line, this->_sub_column, this->_sub_start,
                     this->_current - this->_sub_start);
     return token;
@@ -91,8 +89,6 @@ struct SourceRanger final {
                                          std::uint_fast32_t length) {
     RQ_ASSERT((this->_current + length) <= this->_end,
                     "length token out of range");
-    const char before = this->getPreviousChar(-1);
-    const char after = this->getChar(length);
     rq::Token token(type, this->_line, this->_column, this->_current, length);
     this->addColumns(length);
     this->incrementChar(length);
@@ -129,9 +125,8 @@ struct SourceRanger final {
   }
 
   void skipWhitespace() {
-    bool is_escaped = false;
     while (true) {
-      switch (const char c0 = this->getChar(0)) {
+      switch (this->getChar(0)) {
       case ' ':
         [[fallthrough]];
       case '\t':
@@ -145,7 +140,7 @@ struct SourceRanger final {
         this->addLines(1);
         break;
       case '\r':
-        switch (const char c1 = this->getChar(1)) {
+        switch (this->getChar(1)) {
         case '\n':
           this->incrementChar(2);
           break;

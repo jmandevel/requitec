@@ -53,11 +53,11 @@ void Context::replaceWithRecursiveCopy(rq::Expression &initial,
                                        rq::Expression &replacement) {
   if (initial.getHasBranch()) {
     rq::Expression &branch = initial.popBranch();
-    this->discardExpression(initial);
+    this->discardExpression(branch);
   }
   if (initial.getHasNext()) {
     rq::Expression &next = initial.popNext();
-    this->discardExpression(initial);
+    this->discardExpression(next);
   }
   if (initial.getHasBranch()) {
     rq::Expression &branch = replacement.getBranch();
@@ -74,9 +74,6 @@ void Context::replaceWithRecursiveCopy(rq::Expression &initial,
 bool Context::validateSourceText(const rq::Module &module) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
-  llvm::SMLoc location;
-  int line = 0;
-  int column = 0;
   llvm::SMLoc extended_char_start;
   for (const char &c : module.getSourceText()) {
     if (!rq::getIsValid(c)) {
@@ -318,6 +315,7 @@ bool Context::parseNormativeRequite(rq::Module &module,
 }
 
 bool Context::parseSymbolicRequite(rq::Module &module) {
+  std::ignore = &module;
   // rq::SymbolicParser parser(*this);
   // rq::Expression &trunk = parser.parseExpressions();
   // module.setExpression(trunk);

@@ -203,7 +203,6 @@ rq::Expression &NormativeParser::parseExpressions() {
     error.setKeyword(rq::Keyword::__ERROR);
     return error;
   }
-  const rq::Token &first_token = this->getToken();
   rq::Expression &first = this->parseExpression();
   this->checkTokenIsTrailingSemicolonOperator(first);
   rq::Expression *previous_ptr = &first;
@@ -249,7 +248,7 @@ rq::Expression &NormativeParser::parsePrecedence10() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::EQUAL_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseBinary(token, rq::Keyword::_EQUAL_OPERATOR);
@@ -298,7 +297,7 @@ rq::Expression &NormativeParser::parsePrecedence9() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::COLON_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseBinary(token, rq::Keyword::_COLON_OPERATOR);
@@ -327,7 +326,7 @@ rq::Expression &NormativeParser::parsePrecedence8() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::DOT_PLUS_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseSequenceBranch(
@@ -422,7 +421,7 @@ rq::Expression &NormativeParser::parsePrecedence7() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::DOUBLE_AMPERSAND_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseNary(token, rq::Keyword::_LOGICAL_AND);
@@ -451,7 +450,7 @@ rq::Expression &NormativeParser::parsePrecedence6() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::GREATER_OPERATOR: {
       if (this->getIsDone(1)) {
         precedence_parser.appendRecent();
@@ -536,7 +535,7 @@ rq::Expression &NormativeParser::parsePrecedence5() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::STAR_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseNary(token, rq::Keyword::_MULTIPLY);
@@ -570,7 +569,7 @@ rq::Expression &NormativeParser::parsePrecedence4() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::PLUS_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseNary(token, rq::Keyword::_ADD);
@@ -604,7 +603,7 @@ rq::Expression &NormativeParser::parsePrecedence3() {
       break;
     }
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::DOUBLE_GREATER_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseBinary(token, rq::Keyword::_BITWISE_SHIFT_LEFT);
@@ -644,7 +643,7 @@ rq::Expression &NormativeParser::parsePrecedence2() {
   rq::PrecedenceParser precedence_parser(this->getContext());
   while (!this->getIsDone()) {
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::BANG_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseUnary(token, rq::Keyword::_LOGICAL_COMPLEMENT);
@@ -768,7 +767,7 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       break;
     }
     const rq::Token &post_token = this->getToken();
-    switch (const rq::TokenType post_type = post_token.getType()) {
+    switch (post_token.getType()) {
     case rq::TokenType::HASH_OPERATOR:
       this->incrementToken(1);
       precedence_parser.parseNary(post_token, rq::Keyword::_ARRAY);
@@ -789,7 +788,7 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       call.setKeyword(rq::Keyword::_CALL);
       call.setBranch(callee);
       call.setSource(callee, post_token);
-      bool has_parameter_marks = this->parseCommaSeperatedBranches(
+      std::ignore = this->parseCommaSeperatedBranches(
           call, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
       precedence_parser.setOnlyRecent(call);
       previous_call = true;
@@ -803,7 +802,7 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       specialization.setKeyword(rq::Keyword::_SPECIALIZATION);
       specialization.setBranch(target);
       specialization.setSource(target, post_token);
-      bool has_parameter_marks = this->parseCommaSeperatedBranches(
+      std::ignore = this->parseCommaSeperatedBranches(
           specialization, rq::TokenType::RIGHT_BRACE_GROUPING, true);
       precedence_parser.setOnlyRecent(specialization);
       previous_call = true;
@@ -821,7 +820,7 @@ rq::Expression &NormativeParser::parsePrecedence1() {
 // BASE EXPRESSIONS
 rq::Expression &NormativeParser::parsePrecedence0() {
   const rq::Token &token = this->getToken();
-  switch (const rq::TokenType type = token.getType()) {
+  switch (token.getType()) {
   case rq::TokenType::LEFT_BRACKET_GROUPING:
     return this->parseEnclosedBracketExpression();
   case rq::TokenType::LEFT_PARENTHESIS_GROUPING:
@@ -1072,7 +1071,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
     capture.setKeyword(rq::Keyword::CAPTURE);
     capture.setSource(keyword_token);
     this->incrementToken(1);
-    bool has_parameter_marks = this->parseCommaSeperatedBranches(
+    std::ignore = this->parseCommaSeperatedBranches(
         capture, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
     parser.appendBranch(capture);
   } else {
@@ -1169,7 +1168,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
     this->setNotOk();
     return operation;
   }
-  bool has_parameter_marks = this->parseCommaSeperatedBranches(
+  std::ignore = this->parseCommaSeperatedBranches(
       operation, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
   return operation;
 }
@@ -1192,7 +1191,7 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
     this->setNotOk();
     return brace;
   }
-  switch (const rq::TokenType second_type = second_token.getType()) {
+  switch (second_token.getType()) {
   case rq::TokenType::GREATER_OPERATOR: {
     const rq::Token &third_token = this->getToken(1);
     if (this->getIsDone(2)) {
@@ -1200,10 +1199,10 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
       this->setNotOk();
       return brace;
     }
-    switch (const rq::TokenType third_type = third_token.getType()) {
+    switch (third_token.getType()) {
     case rq::TokenType::LESS_OPERATOR: {
       const rq::Token &fourth_token = this->getToken(2);
-      switch (const rq::TokenType fourth_type = fourth_token.getType()) {
+      switch (fourth_token.getType()) {
       case rq::TokenType::RIGHT_BRACE_GROUPING: {
         brace.changeKeyword(rq::Keyword::_NULL_TYPE);
         brace.extendSourceOver(fourth_token);
@@ -1225,10 +1224,10 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
       this->setNotOk();
       return brace;
     }
-    switch (const rq::TokenType third_type = third_token.getType()) {
+    switch (third_token.getType()) {
     case rq::TokenType::GREATER_OPERATOR: {
       const rq::Token &fourth_token = this->getToken(2);
-      switch (const rq::TokenType fourth_type = fourth_token.getType()) {
+      switch (fourth_token.getType()) {
       case rq::TokenType::RIGHT_BRACE_GROUPING: {
         brace.changeKeyword(rq::Keyword::_NULL_TYPE);
         brace.extendSourceOver(fourth_token);
@@ -1283,7 +1282,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(at_token);
-    bool has_parameter_marks = this->parseCommaSeperatedBranches(
+    std::ignore = this->parseCommaSeperatedBranches(
         attribute, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
     return attribute;
   } else if (next_token.getType() == rq::TokenType::LEFT_BRACE_GROUPING) {
@@ -1344,7 +1343,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(dollar_token);
-    bool has_parameter_marks = this->parseCommaSeperatedBranches(
+    std::ignore = this->parseCommaSeperatedBranches(
         attribute, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
     return attribute;
   } else if (next_token.getType() == rq::TokenType::LEFT_BRACE_GROUPING) {
@@ -1428,12 +1427,11 @@ rq::Expression &NormativeParser::parseNullaryOperator(rq::Keyword keyword) {
 rq::Expression &NormativeParser::parseInterpolatedString() {
   RQ_ASSERT(!this->getIsDone(), "parser is done");
   const rq::Token &left_token = this->getToken();
-  rq::Expression *expression_ptr = nullptr;
   rq::Expression *first_ptr = nullptr;
   rq::Expression *previous_ptr = nullptr;
   while (!this->getIsDone()) {
     const rq::Token &token = this->getToken();
-    switch (const rq::TokenType type = token.getType()) {
+    switch (token.getType()) {
     case rq::TokenType::LEFT_INTERPOLATION_LITERAL: {
       RQ_ASSERT(first_ptr == nullptr && previous_ptr == nullptr,
                 "left interpolated string literal must be first");

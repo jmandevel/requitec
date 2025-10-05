@@ -97,9 +97,9 @@ struct Tokenizer final {
     this->getRanger().incrementChar(1);
     this->getRanger().addColumns(1);
     while (true) {
-      switch (const char sub_c0 = this->getRanger().getChar(0)) {
+      switch (this->getRanger().getChar(0)) {
       case '\\':
-        switch (const char sub_c1 = this->getRanger().getChar(1)) {
+        switch (this->getRanger().getChar(1)) {
         case '\v':
           [[fallthrough]];
         case '\n':
@@ -107,7 +107,7 @@ struct Tokenizer final {
           this->getRanger().addLines(1);
           break;
         case '\r':
-          switch (const char sub_c2 = this->getRanger().getChar(2)) {
+          switch (this->getRanger().getChar(2)) {
           case '\n':
             this->getRanger().incrementChar(3);
             this->getRanger().addLines(1);
@@ -159,7 +159,7 @@ struct Tokenizer final {
               this->getRanger().addLines(1);
               break;
             case '\r':
-              switch (const char escape_c1 = this->getRanger().getChar(1)) {
+              switch (this->getRanger().getChar(1)) {
               case '\n':
                 this->getRanger().incrementChar(3);
                 this->getRanger().addLines(1);
@@ -186,7 +186,7 @@ struct Tokenizer final {
         this->getRanger().addLines(1);
         break;
       case '\r':
-        switch (const char sub_c1 = this->getRanger().getChar(1)) {
+        switch (this->getRanger().getChar(1)) {
         case '\n':
           this->getRanger().incrementChar(2);
           break;

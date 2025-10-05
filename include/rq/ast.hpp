@@ -2452,7 +2452,7 @@ struct ExpressionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
     return this->_expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const bool getIsDone() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
     return this->_expression_ptr == nullptr;
   }
 };
@@ -2489,7 +2489,7 @@ struct ConstExpressionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
     return this->_expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const bool getIsDone() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
     return this->_expression_ptr == nullptr;
   }
 };
