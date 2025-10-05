@@ -22,7 +22,7 @@
     
     [use [self].parent.myFunc]
     
-    @(override [self].parent.myFuncB)
+    @[override [self].parent.myFuncB]
     [function myFuncB,
         std.print(line="in child");
     ]
