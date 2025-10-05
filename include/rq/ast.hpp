@@ -881,7 +881,7 @@ constexpr std::size_t KEYWORD_COUNT =
   // ATTRIBUTES
   case K::BAKE:
     return "bake";
-  case K::EVALUATE_IMMEDIATLY,
+  case K::EVALUATE_IMMEDIATLY:
     return "evaluate_immediatly";
   case K::MAY_PARENT:
     return "may_parent";
