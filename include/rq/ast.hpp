@@ -140,9 +140,9 @@ enum class Keyword : std::uint32_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
-  CAPTURE_PROPERTIES,
   DEBUG_TRAP_ON_PANIC,
   LINEAR,
+  DYNAMIC_CAPTURE_LAYOUT,
 
   // PARAMETER RULES
   _POSITIONAL_PARAMETERS_END,
@@ -178,7 +178,7 @@ enum class Keyword : std::uint32_t {
   SWAPER,
   INDEXER,
   _ANONYMOUS_FUNCTION,
-  CAPTURE,
+  _DYNAMIC_CAPTURE,
 
   // CONTROL FLOW
   RETURN,
@@ -575,12 +575,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "null_terminated";
   case K::MAY_DISCARD:
     return "may_discard";
-  case K::CAPTURE_PROPERTIES:
-    return "capture_properties";
   case K::DEBUG_TRAP_ON_PANIC:
     return "debug_trap_on_panic";
   case K::LINEAR:
     return "linear";
+  case K::DYNAMIC_CAPTURE_LAYOUT:
+    return "dynamic_capture_layout";
 
   // PARAMETER RULES
   case K::_POSITIONAL_PARAMETERS_END:
@@ -645,8 +645,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "indexer";
   case K::_ANONYMOUS_FUNCTION:
     return "_anonymous_function";
-  case K::CAPTURE:
-    return "capture";
+  case K::_DYNAMIC_CAPTURE:
+    return "_dynamic_capture";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1000,12 +1000,12 @@ enum class KeywordFlags : std::uint32_t {
   STATEMENT_ATTRIBUTE = rq::getBit(8),
   SEQUENCE_STAGE = rq::getBit(7),
   ARM = rq::getBit(6),
-  // CAPTURE
+  DYNAMIC_CAPTURE = rq::getBit(5),
   COMMA_BRANCH_COUNT_MASK = 0x3,
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
         RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
         ENUMERATION_VALUE | PATH | NAME | ASCRIPTION | TYPE_ATTRIBUTE |
-        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | ARM
+        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | ARM | DYNAMIC_CAPTURE
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1238,11 +1238,11 @@ getFlags(rq::Keyword keyword) {
     return KF::TYPE_ATTRIBUTE;
   case K::MAY_DISCARD:
     return KF::TYPE_ATTRIBUTE;
-  case K::CAPTURE_PROPERTIES:
-    return KF::TYPE_ATTRIBUTE;
   case K::DEBUG_TRAP_ON_PANIC:
     return KF::TYPE_ATTRIBUTE;
   case K::LINEAR:
+    return KF::TYPE_ATTRIBUTE;
+  case K::DYNAMIC_CAPTURE_LAYOUT:
     return KF::TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
@@ -1326,8 +1326,8 @@ getFlags(rq::Keyword keyword) {
            KF::OBJECT_STATEMENT | 1;
   case K::_ANONYMOUS_FUNCTION:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | KF::ARGUMENT | 2;
-  case K::CAPTURE:
-    return KF::NONE; // CAPTURE
+  case K::_DYNAMIC_CAPTURE:
+    return KF::DYNAMIC_CAPTURE;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1763,7 +1763,7 @@ enum class Situation : std::uint_fast32_t {
   STATEMENT_ATTRIBUTE,
   SEQUENCE_STAGE,
   ARM,
-  CAPTURE
+  DYNAMIC_CAPTURE
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
@@ -1807,8 +1807,8 @@ getDescription(rq::Situation situation) {
     return "short range stage expression";
   case S::ARM:
     return "arm expression";
-  case S::CAPTURE:
-    return "capture expression";
+  case S::DYNAMIC_CAPTURE:
+    return "dynamic capture expression";
   }
   return "error expression";
 }
@@ -1993,8 +1993,9 @@ getCanBeSequenceStage(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeCapture(rq::Keyword keyword) {
-  return keyword == rq::Keyword::CAPTURE;
+getCanBeDynamicCapture(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::DYNAMIC_CAPTURE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr unsigned
@@ -2046,8 +2047,8 @@ getCanBeSituation(rq::Keyword keyword) {
     return rq::getCanBeSequenceStage(keyword);
   } else if constexpr (SITUATION_PARAM == rq::Situation::ARM) {
     return rq::getCanBeArm(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::CAPTURE) {
-    return rq::getCanBeCapture(keyword);
+  } else if constexpr (SITUATION_PARAM == rq::Situation::DYNAMIC_CAPTURE) {
+    return rq::getCanBeDynamicCapture(keyword);
   } else {
     static_assert(
         false, "invalid situation or function not implemented for situation");
@@ -2267,9 +2268,9 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
-  CAPTURE_PROPERTIES,
   DEBUG_TRAP_ON_PANIC,
-  LINEAR
+  LINEAR,
+  DYNAMIC_CAPTURE_LAYOUT
 };
 
 [[nodiscard]] inline constexpr llvm::StringRef
@@ -2291,12 +2292,12 @@ getName(rq::TypeAttribute attribute) {
     return "null_terminated";
   case TA::MAY_DISCARD:
     return "may_discard";
-  case TA::CAPTURE_PROPERTIES:
-    return "capture_properties";
   case TA::DEBUG_TRAP_ON_PANIC:
     return "debug_trap_on_panic";
   case TA::LINEAR:
     return "linear";
+  case TA::DYNAMIC_CAPTURE_LAYOUT:
+    return "dynamic_capture_layout";
   }
   return "none";
 }
@@ -2323,6 +2324,8 @@ getTypeAttribute(rq::Keyword keyword) {
     return TA::DEBUG_TRAP_ON_PANIC;
   case K::LINEAR:
     return TA::LINEAR;
+  case K::DYNAMIC_CAPTURE_LAYOUT:
+    return TA::DYNAMIC_CAPTURE_LAYOUT;
   default:
     break;
   }
@@ -2337,9 +2340,9 @@ enum class TypeFlags : std::uint16_t {
   ATOMIC = rq::getBit(12),
   NULL_TERMINATED = rq::getBit(11),
   MAY_DISCARD = rq::getBit(10),
-  CAPTURE_PROPERTIES = rq::getBit(9),
-  DEBUG_TRAP_ON_PANIC = rq::getBit(8),
-  LINEAR = rq::getBit(7)
+  DEBUG_TRAP_ON_PANIC = rq::getBit(9),
+  LINEAR = rq::getBit(8),
+  DYNAMIC_CAPTURE_LAYOUT = rq::getBit(7)
 };
 
 template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
@@ -2364,12 +2367,12 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::NULL_TERMINATED;
   case TA::MAY_DISCARD:
     return TF::MAY_DISCARD;
-  case TA::CAPTURE_PROPERTIES:
-    return TF::CAPTURE_PROPERTIES;
   case TA::DEBUG_TRAP_ON_PANIC:
     return TF::DEBUG_TRAP_ON_PANIC;
   case TA::LINEAR:
     return TF::LINEAR;
+  case TA::DYNAMIC_CAPTURE_LAYOUT:
+    return TF::DYNAMIC_CAPTURE_LAYOUT;
   default:
     break;
   }
@@ -2586,8 +2589,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArm() const {
     return rq::getCanBeArm(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeCapture() const {
-    return rq::getCanBeCapture(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeDynamicCapture() const {
+    return rq::getCanBeDynamicCapture(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCommaBranchCount() const {
     return rq::getCommaBranchCount(this->getKeyword());

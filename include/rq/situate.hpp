@@ -1311,13 +1311,6 @@ struct Situator final {
         this->situateNullaryExpression<SP>(expression);
       }
       break;
-    case K::CAPTURE_PROPERTIES:
-      if constexpr (!getCanBeSituation<SP>(K::CAPTURE_PROPERTIES)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNaryExpression<SP, 0, S::PARAMETER>(expression);
-      }
-      break;
     case K::DEBUG_TRAP_ON_PANIC:
       if constexpr (!getCanBeSituation<SP>(K::DEBUG_TRAP_ON_PANIC)) {
         RQ_UNREACHABLE();
@@ -1330,6 +1323,13 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateNullaryExpression<SP>(expression);
+      }
+      break;
+    case K::DYNAMIC_CAPTURE_LAYOUT:
+      if constexpr (!getCanBeSituation<SP>(K::DYNAMIC_CAPTURE_LAYOUT)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNaryExpression<SP, 0, S::PARAMETER>(expression);
       }
       break;
 
@@ -1543,12 +1543,12 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_ANONYMOUS_FUNCTION)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 2, S::CAPTURE, S::RVALUE,
+        this->situateNaryExpression<SP, 2, S::DYNAMIC_CAPTURE, S::RVALUE,
                                     S::LOCAL_STATEMENT>(expression);
       }
       break;
-    case K::CAPTURE:
-      if constexpr (!getCanBeSituation<SP>(K::CAPTURE)) {
+    case K::_DYNAMIC_CAPTURE:
+      if constexpr (!getCanBeSituation<SP>(K::_DYNAMIC_CAPTURE)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 0, S::ARGUMENT>(expression);
@@ -2276,7 +2276,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::STATIC_CAPTURE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 0, S::PARAMETER>(expression);
+        this->situateNaryExpression<SP, 0, S::ARGUMENT>(expression);
       }
       break;
     case K::MAY_PARENT:

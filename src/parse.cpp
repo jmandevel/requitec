@@ -1059,19 +1059,19 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
   const rq::Token &keyword_token = this->getToken();
   rq::Expression &operation = this->getContext().acquireExpression();
   if (keyword_token.getType() ==
-      rq::TokenType::LEFT_BRACKET_GROUPING) { // its an
-                                              // _anonymous_function
-                                              // expression
+      rq::TokenType::LEFT_PARENTHESIS_GROUPING) { // its an
+                                                  // _anonymous_function
+                                                  // expression
     operation.setKeyword(rq::Keyword::_ANONYMOUS_FUNCTION);
     operation.setSource(left_token);
     rq::GroupingParser parser;
     parser.startGroup(operation);
     rq::Expression &capture = this->getContext().acquireExpression();
-    capture.setKeyword(rq::Keyword::CAPTURE);
+    capture.setKeyword(rq::Keyword::_DYNAMIC_CAPTURE);
     capture.setSource(keyword_token);
     this->incrementToken(1);
     std::ignore = this->parseCommaSeperatedBranches(
-        capture, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
+        capture, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
     parser.appendBranch(capture);
   } else {
     const rq::Keyword keyword = this->parseOperationKeyword();
@@ -1308,6 +1308,22 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
       return attribute;
     }
     return attribute;
+  } else if (next_token.getType() == rq::TokenType::LEFT_PARENTHESIS_GROUPING) {
+    if (this->getIsDone()) {
+      this->getContext().logErrorUnterminatedStatementAttribute(at_token);
+      this->setNotOk();
+      rq::Expression &error = this->getContext().acquireExpression();
+      error.setKeyword(rq::Keyword::__ERROR);
+      error.setSource(at_token, next_token);
+      return error;
+    }
+    rq::Expression &attribute = this->getContext().acquireExpression();
+    attribute.setKeyword(rq::Keyword::STATIC_CAPTURE);
+    attribute.setSource(at_token);
+    this->incrementToken(1);
+    std::ignore = this->parseCommaSeperatedBranches(
+        attribute, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
+    return attribute;
   }
   const rq::Token &keyword_token = this->getToken();
   rq::Keyword keyword = this->parseStatementAttributeKeyword();
@@ -1348,7 +1364,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
     std::ignore = this->parseCommaSeperatedBranches(
         attribute, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
     return attribute;
-  } else if (next_token.getType() == rq::TokenType::LEFT_BRACE_GROUPING) {
+  } else if (next_token.getType() == rq::TokenType::LEFT_PARENTHESIS_GROUPING) {
     if (this->getIsDone()) {
       this->getContext().logErrorUnterminatedStatementAttribute(dollar_token);
       this->setNotOk();
@@ -1358,11 +1374,11 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
       return error;
     }
     rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::CAPTURE_PROPERTIES);
+    attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
     this->incrementToken(1);
     bool has_parameter_marks = this->parseCommaSeperatedBranches(
-        attribute, rq::TokenType::RIGHT_BRACE_GROUPING, false);
+        attribute, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, false);
     if (!has_parameter_marks) {
       this->getContext().logErrorMustHaveParameterMarks(attribute);
       this->setNotOk();
