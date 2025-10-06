@@ -312,7 +312,7 @@ enum class Keyword : std::uint32_t {
 
   // ATTRIBUTES
   BAKE,
-  EVALUATE_IMMEDIATLY,
+  STATIC_CAPTURE,
   MAY_PARENT,
   PARENT,
   ABSTRACT,
@@ -867,8 +867,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // ATTRIBUTES
   case K::BAKE:
     return "bake";
-  case K::EVALUATE_IMMEDIATLY:
-    return "evaluate_immediatly";
+  case K::STATIC_CAPTURE:
+    return "static_capture";
   case K::MAY_PARENT:
     return "may_parent";
   case K::PARENT:
@@ -1589,7 +1589,7 @@ getFlags(rq::Keyword keyword) {
   // ATTRIBUTES
   case K::BAKE:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::EVALUATE_IMMEDIATLY:
+  case K::STATIC_CAPTURE:
     return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_PARENT:
     return KF::STATEMENT_ATTRIBUTE;
@@ -2057,7 +2057,7 @@ getCanBeSituation(rq::Keyword keyword) {
 enum class StatementAttribute : std::uint_fast8_t {
   NONE,
   BAKE,
-  EVALUATE_IMMEDIATLY,
+  STATIC_CAPTURE,
   MAY_PARENT,
   PARENT,
   ABSTRACT,
@@ -2087,8 +2087,8 @@ getName(rq::StatementAttribute attribute) {
     return "none";
   case SA::BAKE:
     return "bake";
-  case SA::EVALUATE_IMMEDIATLY:
-    return "evaluate_immediatly";
+  case SA::STATIC_CAPTURE:
+    return "static_capture";
   case SA::MAY_PARENT:
     return "may_parent";
   case SA::PARENT:
@@ -2137,8 +2137,8 @@ getStatementAttribute(rq::Keyword keyword) {
   switch (keyword) {
   case K::BAKE:
     return SA::BAKE;
-  case K::EVALUATE_IMMEDIATLY:
-    return SA::EVALUATE_IMMEDIATLY;
+  case K::STATIC_CAPTURE:
+    return SA::STATIC_CAPTURE;
   case K::MAY_PARENT:
     return SA::MAY_PARENT;
   case K::PARENT:
@@ -2184,7 +2184,7 @@ getStatementAttribute(rq::Keyword keyword) {
 enum class StatementFlags : std::uint32_t {
   NONE = 0,
   BAKE = rq::getBit(31),
-  EVALUATE_IMMEDIATLY = rq::getBit(30),
+  STATIC_CAPTURE = rq::getBit(30),
   MAY_PARENT = rq::getBit(29),
   PARENT = rq::getBit(28),
   ABSTRACT = rq::getBit(27),
@@ -2217,8 +2217,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::NONE;
   case SA::BAKE:
     return SF::BAKE;
-  case SA::EVALUATE_IMMEDIATLY:
-    return SF::EVALUATE_IMMEDIATLY;
+  case SA::STATIC_CAPTURE:
+    return SF::STATIC_CAPTURE;
   case SA::MAY_PARENT:
     return SF::MAY_PARENT;
   case SA::PARENT:

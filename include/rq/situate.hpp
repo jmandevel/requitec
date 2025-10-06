@@ -2272,11 +2272,11 @@ struct Situator final {
         this->situateNullaryExpression<SP>(expression);
       }
       break;
-    case K::EVALUATE_IMMEDIATLY:
-      if constexpr (!getCanBeSituation<SP>(K::EVALUATE_IMMEDIATLY)) {
+    case K::STATIC_CAPTURE:
+      if constexpr (!getCanBeSituation<SP>(K::STATIC_CAPTURE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNullaryExpression<SP>(expression);
+        this->situateNaryExpression<SP, 0, S::PARAMETER>(expression);
       }
       break;
     case K::MAY_PARENT:
