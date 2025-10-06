@@ -52,6 +52,14 @@ struct _AssertException final : public std::logic_error {
 #define RQ_UNREACHABLE() std::unreachable()
 #endif
 
+#if !defined(_NDEBUG)
+#define RQ_TODO_IMPLEMENTATION()                                                       \
+  throw rq::_AssertException("RQ_NOT_IMPLEMENTED()", "not implemented yet");
+#else
+#define RQ_NOT_IMPLEMENTED() std::unreachable()
+#endif
+
+
 template <typename TypeParam>
 [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &dereferencePtr(
     TypeParam *ptr,

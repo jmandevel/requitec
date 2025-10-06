@@ -1547,11 +1547,7 @@ rq::Expression &SymbolicParser::parseExpressions() {
 }
 
 rq::Expression &SymbolicParser::parseExpression() {
-  // TODO
-  this->setNotOk();
-  rq::Expression &error = this->getContext().acquireExpression();
-  error.setKeyword(rq::Keyword::__ERROR);
-  return error;
+  RQ_TODO_IMPLEMENTATION();
 }
 
 } // namespace rq
