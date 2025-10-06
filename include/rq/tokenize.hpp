@@ -32,43 +32,37 @@ struct Tokenizer final {
   ~Tokenizer() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  bool operator==(const Self &rhs) const { return this == &rhs; }
-  bool operator!=(const Self &rhs) const { return this != &rhs; }
-  [[nodiscard]]
-  bool getIsOk() const {
-    return this->_is_ok;
+  RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this == &rhs;
   }
-  void setNotOk() { this->_is_ok = false; }
-  [[nodiscard]]
-  rq::Context &getContext() {
+  RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this != &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
+  RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return this->_context_ref.get();
   }
-  [[nodiscard]]
-  const rq::Context &getContext() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
     return this->_context_ref.get();
   }
-  [[nodiscard]]
-  rq::SourceRanger &getRanger() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SourceRanger &getRanger() {
     return this->_ranger;
   }
-  [[nodiscard]]
-  const rq::SourceRanger &getRanger() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SourceRanger &getRanger() const {
     return this->_ranger;
   }
-  [[nodiscard]]
-  std::vector<rq::Token> &getTokens() {
+  [[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Token> &getTokens() {
     return this->_tokens_ref.get();
   }
-  [[nodiscard]]
-  const std::vector<rq::Token> &getTokens() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const std::vector<rq::Token> &
+  getTokens() const {
     return this->_tokens_ref.get();
   }
-  [[nodiscard]]
-  bool getHasGrouping() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGrouping() const {
     return !this->_grouping_stack.empty();
   }
-  [[nodiscard]]
-  const rq::Grouping &getTopGrouping() const {
+  [[nodiscard]] const rq::Grouping &getTopGrouping() const {
     RQ_ASSERT(this->getHasGrouping(), "no grouping");
     return this->_grouping_stack.back();
   }
@@ -80,8 +74,7 @@ struct Tokenizer final {
     this->_grouping_stack.pop_back();
   }
   void _tokenizeSourceText();
-  [[nodiscard]]
-  bool tokenizeSourceText();
+  [[nodiscard]] bool tokenizeSourceText();
   void tokenizeLengthToken(rq::TokenType type, unsigned length);
   void tokenizeUnmatchedLengthToken(rq::TokenType type, unsigned length);
   void tokenizeLeftGrouping(rq::GroupingType grouping, rq::TokenType type,

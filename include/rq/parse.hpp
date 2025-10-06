@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rq/source_ranger.hpp>
 #include <rq/tokens.hpp>
 
 #include <cstdint>
@@ -222,6 +223,43 @@ struct NormativeParser final {
 
 struct SymbolicParser final {
   using Self = rq::SymbolicParser;
+
+  std::reference_wrapper<rq::Context> _context_ref;
+  rq::SourceRanger _ranger;
+  bool _is_ok = false;
+
+  SymbolicParser(rq::Context &context, llvm::StringRef source_text)
+      : _context_ref(context), _ranger(source_text) {}
+  SymbolicParser(const Self &) = delete;
+  SymbolicParser(Self &&) = delete;
+  ~SymbolicParser() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this == &rhs;
+  }
+  RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this != &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
+  RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
+    return this->_context_ref.get();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
+    return this->_context_ref.get();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SourceRanger &getRanger() {
+    return this->_ranger;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SourceRanger &getRanger() const {
+    return this->_ranger;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->getRanger().getIsDone();
+  }
+  [[nodiscard]] rq::Expression &parseExpressions();
+  [[nodiscard]] rq::Expression& parseExpression();
 };
 
 } // namespace rq

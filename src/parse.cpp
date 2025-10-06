@@ -1528,4 +1528,30 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
   this->setNotOk();
 }
 
+rq::Expression &SymbolicParser::parseExpressions() {
+  if (this->getIsDone()) {
+    this->setNotOk();
+    rq::Expression &error = this->getContext().acquireExpression();
+    error.setKeyword(rq::Keyword::__ERROR);
+    return error;
+  }
+  rq::Expression &first = this->parseExpression();
+  rq::Expression *previous_ptr = &first;
+  while (!this->getIsDone()) {
+    rq::Expression &expression = this->parseExpression();
+    rq::Expression &previous = rq::dereferencePtr(previous_ptr);
+    previous.setNext(expression);
+    previous_ptr = &expression;
+  }
+  return rq::dereferencePtr(previous_ptr);
+}
+
+rq::Expression &SymbolicParser::parseExpression() {
+  // TODO
+  this->setNotOk();
+  rq::Expression &error = this->getContext().acquireExpression();
+  error.setKeyword(rq::Keyword::__ERROR);
+  return error;
+}
+
 } // namespace rq

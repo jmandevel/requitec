@@ -315,12 +315,10 @@ bool Context::parseNormativeRequite(rq::Module &module,
 }
 
 bool Context::parseSymbolicRequite(rq::Module &module) {
-  std::ignore = &module;
-  // rq::SymbolicParser parser(*this);
-  // rq::Expression &trunk = parser.parseExpressions();
-  // module.setExpression(trunk);
-  // return parser.getIsOk();
-  return false; // TODO
+  rq::SymbolicParser parser(*this, module.getSourceText());
+  rq::Expression &trunk = parser.parseExpressions();
+  module.setExpression(trunk);
+  return parser.getIsOk();
 }
 
 bool Context::situateAst(rq::Module &module) {
