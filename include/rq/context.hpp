@@ -74,7 +74,7 @@ struct Context final {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   std::vector<rq::Expression *> _unused_expression_ptrs;
-  rq::Module* _source_module_ptr = nullptr;
+  rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -146,9 +146,13 @@ struct Context final {
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
   getSourceRange(const rq::Expression &expression);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  canonicalizePath(llvm::SmallVectorImpl<char> &path,
+                   llvm::Twine context_message);
   [[nodiscard]] bool loadFileBuffer(rq::Module &module);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module& loadImportModule(llvm::StringRef import_string);
+  [[nodiscard]] rq::Module &loadImportModule(llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseNormativeRequite(rq::Module &module,
@@ -190,7 +194,8 @@ struct Context final {
   void logErrorExpectedCommaSeperator(const rq::Token &token);
   void logErrorExpectedSeperatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeperator(const rq::Token &token);
-  void logErrorExpectedSemicolonSeperatorAtEndOfFile(const rq::Expression &expression);
+  void logErrorExpectedSemicolonSeperatorAtEndOfFile(
+      const rq::Expression &expression);
   void logErrorExpectedSeperator(const rq::Token &token);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
   void logErrorInvalidBranchSituation(

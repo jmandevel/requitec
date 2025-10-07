@@ -156,20 +156,42 @@ rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
   return source_range;
 }
 
+bool Context::canonicalizePath(llvm::SmallVectorImpl<char> &path,
+                               llvm::Twine context_message) {
+  std::error_code ec = llvm::sys::fs::make_absolute(path);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine("error: failed to determine absolute path to ") +
+        context_message + "\n\treason: " + ec.message() + "\n");
+    return false;
+  }
+
+  ec = llvm::sys::fs::real_path(path, path, false);
+  if (ec) {
+    this->logMessage(llvm::Twine("error: failed to determine real path to ") +
+                     context_message + "\n\treason: " + ec.message() + "\n");
+    return false;
+  }
+  llvm::sys::path::remove_dots(path, /*remove_dot_dot=*/true);
+  llvm::sys::path::native(path);
+  return true;
+}
+
 bool Context::loadFileBuffer(rq::Module &module) {
   RQ_ASSERT(!module.getHasLlvmBuffer(), "module already has file buffer");
   RQ_ASSERT(!module.getPath().empty(), "path is empty");
   llvm::StringRef file_extension = llvm::sys::path::extension(module.getPath());
   module.setLangauge(rq::getLanguageOfExtension(file_extension));
   if (module.getLanguage() == rq::Language::UNKNOWN) {
-    this->logMessage(
-        llvm::Twine("error: failed to determine language from ") +
-        rq::getName(module.getType()) + " file extension\n\tfile: " + module.getPath() + "\n");
+    this->logMessage(llvm::Twine("error: failed to determine language from ") +
+                     rq::getName(module.getType()) +
+                     " file extension\n\tfile: " + module.getPath() + "\n");
     module.setIsNotValid();
   }
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
-      llvm::MemoryBuffer::getFile(module.getPath(), true, true, false,
-                                  std::nullopt);
+      llvm::MemoryBuffer::getFile(module.getPath(), /*IsText=*/true,
+                                  /*RequiresNullTerminator=*/true,
+                                  /*IsVolatile=*/false, std::nullopt);
   if (!buffer_eo) {
     this->logMessage(
         llvm::Twine("error: failed to create read buffer for ") +
@@ -190,21 +212,7 @@ bool Context::loadSourceModule() {
   rq::Module &source_module = this->allocateValue<rq::Module>();
   source_module.setType(rq::ModuleType::SOURCE);
   llvm::SmallString<128> input_path = rq::getInputFilePath();
-  std::error_code ec = llvm::sys::fs::make_absolute(input_path);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "failed to determine absolute path to source file\n\treason: ") +
-        ec.message());
-    source_module.setIsNotValid();
-    return false;
-  }
-  ec = llvm::sys::fs::real_path(input_path, input_path, false);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "failed to determine real path to source file\n\treason: ") +
-        ec.message() + "\n");
+  if (!this->canonicalizePath(input_path, "module file")) {
     source_module.setIsNotValid();
     return false;
   }
@@ -218,13 +226,46 @@ bool Context::loadSourceModule() {
 }
 
 rq::Module &Context::loadImportModule(llvm::StringRef import_string) {
-  std::ignore = import_string;
-  // STEP 1: check for existance of file with .rq or .srq extension in all
-  // import paths STEP 2: determine full path of found file that is consistent
-  // STEP 3: if module already loaded, return this module
-  // STEP 4: if module not already loaded, load new module with file buffer and
-  // return it STEP 5: if no file found, create error module and return it
-  RQ_TODO_IMPLEMENTATION();
+  rq::Module &import_module = this->allocateValue<rq::Module>();
+  import_module.setType(rq::ModuleType::IMPORT);
+  llvm::SmallString<128> found_path;
+  bool file_found = false;
+  for (const std::string &dir : rq::getImportDirectories()) {
+    for (llvm::StringRef ext : {".rq", ".srq"}) {
+      llvm::SmallString<128> candidate_path(dir);
+      llvm::sys::path::append(candidate_path, import_string);
+      llvm::sys::path::replace_extension(candidate_path, ext);
+      if (llvm::sys::fs::exists(candidate_path)) {
+        found_path = candidate_path;
+        file_found = true;
+        break;
+      }
+    }
+    if (file_found)
+      break;
+  }
+  if (!file_found) {
+    this->logMessage(llvm::Twine("error: could not locate import module \"") +
+                     import_string + "\" in any import directory\n");
+    import_module.setIsNotValid();
+    return import_module;
+  }
+  if (!this->canonicalizePath(found_path, "import file")) {
+    import_module.setIsNotValid();
+    return import_module;
+  }
+  import_module.setPath(found_path);
+  auto found_it = this->_module_map.find(import_module.getPath());
+  if (found_it != this->_module_map.end()) {
+    return *found_it->second;
+  }
+  if (!this->loadFileBuffer(import_module)) {
+    import_module.setIsNotValid();
+    return import_module;
+  }
+  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
+      import_module.getPath(), &import_module));
+  return import_module;
 }
 
 bool Context::initializeLlvm() {
