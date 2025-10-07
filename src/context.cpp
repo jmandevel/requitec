@@ -156,55 +156,42 @@ rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
   return source_range;
 }
 
-bool Context::canonicalizePath(llvm::SmallVectorImpl<char> &path,
-                               llvm::Twine context_message) {
+std::error_code Context::canonicalizePath(llvm::SmallVectorImpl<char> &path) {
   std::error_code ec = llvm::sys::fs::make_absolute(path);
   if (ec) {
-    this->logMessage(
-        llvm::Twine("error: failed to determine absolute path to ") +
-        context_message + "\n\treason: " + ec.message() + "\n");
-    return false;
+    return ec;
   }
-
   ec = llvm::sys::fs::real_path(path, path, false);
   if (ec) {
-    this->logMessage(llvm::Twine("error: failed to determine real path to ") +
-                     context_message + "\n\treason: " + ec.message() + "\n");
-    return false;
+    return ec;
   }
   llvm::sys::path::remove_dots(path, /*remove_dot_dot=*/true);
   llvm::sys::path::native(path);
-  return true;
+  return ec;
 }
 
-bool Context::loadFileBuffer(rq::Module &module) {
+std::error_code Context::loadFileBuffer(rq::Module &module) {
   RQ_ASSERT(!module.getHasLlvmBuffer(), "module already has file buffer");
   RQ_ASSERT(!module.getPath().empty(), "path is empty");
   llvm::StringRef file_extension = llvm::sys::path::extension(module.getPath());
   module.setLangauge(rq::getLanguageOfExtension(file_extension));
   if (module.getLanguage() == rq::Language::UNKNOWN) {
-    this->logMessage(llvm::Twine("error: failed to determine language from ") +
-                     rq::getName(module.getType()) +
-                     " file extension\n\tfile: " + module.getPath() + "\n");
     module.setIsNotValid();
+    return rq::getErrorCode(rq::Error::UNKNOWN_FILE_EXTENSION);
   }
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
       llvm::MemoryBuffer::getFile(module.getPath(), /*IsText=*/true,
                                   /*RequiresNullTerminator=*/true,
                                   /*IsVolatile=*/false, std::nullopt);
   if (!buffer_eo) {
-    this->logMessage(
-        llvm::Twine("error: failed to create read buffer for ") +
-        rq::getName(module.getType()) + " file\n\tfile: " + module.getPath() +
-        llvm::Twine("\n\treason: ") + buffer_eo.getError().message() + "\n");
     module.setIsNotValid();
-    return false;
+    return buffer_eo.getError();
   }
   std::unique_ptr<llvm::MemoryBuffer> &buffer = buffer_eo.get();
   module._llvm_buffer_ref = buffer->getMemBufferRef();
   std::ignore = this->_llvm_source_mgr.AddNewSourceBuffer(std::move(buffer),
                                                           llvm::SMLoc());
-  return module.getIsValid();
+  return std::error_code();
 }
 
 bool Context::loadSourceModule() {
@@ -212,12 +199,23 @@ bool Context::loadSourceModule() {
   rq::Module &source_module = this->allocateValue<rq::Module>();
   source_module.setType(rq::ModuleType::SOURCE);
   llvm::SmallString<128> input_path = rq::getInputFilePath();
-  if (!this->canonicalizePath(input_path, "module file")) {
+  std::error_code ec = this->canonicalizePath(input_path);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine(
+            "error: failed to canonicalize source file path\n\tpath: ") +
+        input_path + "\n\treason:" + ec.message());
     source_module.setIsNotValid();
     return false;
   }
   source_module.setPath(input_path);
-  if (!this->loadFileBuffer(source_module)) {
+  ec = this->loadFileBuffer(source_module);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine(
+            "error: failed to load source file buffer\n\tpath: ") +
+        input_path + "\n\treason:" + ec.message());
+    source_module.setIsNotValid();
     return false;
   }
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
@@ -246,16 +244,21 @@ rq::Module &Context::loadImportModule(rq::Expression &expression,
       break;
   }
   if (!file_found) {
-    this->logMessage(llvm::Twine("error: could not locate file \"") +
-                     import_string + "\" in any import directory\n");
     this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
-                     "for import", {expression.getLlvmSourceRange()}, {});
+                     llvm::Twine("error: could not locate import file \"") +
+                         import_string + "\" in any import directory\n",
+                     {expression.getLlvmSourceRange()}, {});
     import_module.setIsNotValid();
     return import_module;
   }
-  if (!this->canonicalizePath(found_path, "import file")) {
-    this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
-                     "for import", {expression.getLlvmSourceRange()}, {});
+  std::error_code ec = this->canonicalizePath(found_path);
+  if (ec) {
+    this->logMessage(
+        expression.getLlvmSourceStart(), rq::LogType::NOTE,
+        llvm::Twine(
+            "error: failed to canonicalize import file path\n\treason:") +
+            ec.message(),
+        {expression.getLlvmSourceRange()}, {});
     import_module.setIsNotValid();
     return import_module;
   }
@@ -264,7 +267,14 @@ rq::Module &Context::loadImportModule(rq::Expression &expression,
   if (found_it != this->_module_map.end()) {
     return *found_it->second;
   }
-  if (!this->loadFileBuffer(import_module)) {
+  ec = this->loadFileBuffer(import_module);
+  if (ec) {
+    this->logMessage(
+        expression.getLlvmSourceStart(), rq::LogType::NOTE,
+        llvm::Twine(
+            "error: failed to load import file buffer\n\treason:") +
+            ec.message(),
+        {expression.getLlvmSourceRange()}, {});
     import_module.setIsNotValid();
     return import_module;
   }

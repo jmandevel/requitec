@@ -2,10 +2,13 @@
 
 #include <llvm/ADT/StringRef.h>
 
+#include <cstdint>
 #include <format>
 #include <memory>
 #include <source_location>
 #include <stdexcept>
+#include <string>
+#include <system_error>
 #include <type_traits>
 #include <utility>
 
@@ -53,12 +56,11 @@ struct _AssertException final : public std::logic_error {
 #endif
 
 #if !defined(_NDEBUG)
-#define RQ_TODO_IMPLEMENTATION()                                                       \
+#define RQ_TODO_IMPLEMENTATION()                                               \
   throw rq::_AssertException("RQ_NOT_IMPLEMENTED()", "not implemented yet");
 #else
 #define RQ_NOT_IMPLEMENTED() std::unreachable()
 #endif
-
 
 template <typename TypeParam>
 [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &dereferencePtr(
@@ -78,7 +80,7 @@ template <typename TypeParam>
 
 template <typename TypeParam>
 [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &dereferenceUptr(
-    std::unique_ptr<TypeParam>& uptr,
+    std::unique_ptr<TypeParam> &uptr,
     std::source_location source_location = std::source_location::current()) {
   RQ_ASSERT_LOCATION(uptr != nullptr, "nullptr dereference", source_location);
   return *uptr;
@@ -86,7 +88,7 @@ template <typename TypeParam>
 
 template <typename TypeParam>
 [[nodiscard]] RQ_ALWAYS_INLINE const TypeParam &dereferenceUptr(
-    const std::unique_ptr<TypeParam>& uptr,
+    const std::unique_ptr<TypeParam> &uptr,
     std::source_location source_location = std::source_location::current()) {
   RQ_ASSERT_LOCATION(uptr != nullptr, "nullptr dereference", source_location);
   return *uptr;
@@ -96,7 +98,8 @@ template <typename TypeParam>
 RQ_ALWAYS_INLINE void assignSingleValue(
     TypeParam *&dest_ptr, TypeParam *src_ptr,
     std::source_location source_location = std::source_location::current()) {
-  RQ_ASSERT_LOCATION(dest_ptr == nullptr, "single value reassignment", source_location);
+  RQ_ASSERT_LOCATION(dest_ptr == nullptr, "single value reassignment",
+                     source_location);
   dest_ptr = src_ptr;
 }
 
@@ -221,19 +224,19 @@ template <rq::flags FlagsParam>
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getHasAll(FlagsParam flags,
-                                              FlagsParam has) {
+                                                        FlagsParam has) {
   return (flags & has) == has;
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getHasSome(FlagsParam flags,
-                                               FlagsParam has) {
+                                                         FlagsParam has) {
   return (flags & has) != static_cast<FlagsParam>(0);
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getHasNone(FlagsParam flags,
-                                               FlagsParam has) {
+                                                         FlagsParam has) {
   return (flags & has) == static_cast<FlagsParam>(0);
 }
 
@@ -241,6 +244,35 @@ template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<FlagsParam>
 getMaskValue(FlagsParam flags, FlagsParam mask) {
   return rq::getUnderlying(flags & mask);
+}
+
+enum class Error : std::uint_fast32_t { OK, UNKNOWN_FILE_EXTENSION };
+
+struct ErrorCategory final : public std::error_category {
+  [[nodiscard]] RQ_ALWAYS_INLINE const char *name() const noexcept override {
+    return "requitec";
+  }
+
+  [[nodiscard]] inline std::string message(int ec) const override {
+    switch (static_cast<rq::Error>(ec)) {
+    case rq::Error::OK:
+      return "ok";
+    case rq::Error::UNKNOWN_FILE_EXTENSION:
+      return "unknown file extension";
+    default:
+      break;
+    }
+    return "unrecognized error";
+  }
+};
+
+[[nodiscard]] inline rq::ErrorCategory &getErrorCategory() {
+  static rq::ErrorCategory instance;
+  return instance;
+}
+
+[[nodiscard]] inline std::error_code getErrorCode(rq::Error error) {
+  return std::error_code{static_cast<int>(error), rq::getErrorCategory()};
 }
 
 } // namespace rq

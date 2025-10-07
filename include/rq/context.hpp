@@ -146,13 +146,12 @@ struct Context final {
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
   getSourceRange(const rq::Expression &expression);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  canonicalizePath(llvm::SmallVectorImpl<char> &path,
-                   llvm::Twine context_message);
-  [[nodiscard]] bool loadFileBuffer(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE std::error_code
+  canonicalizePath(llvm::SmallVectorImpl<char> &path);
+  [[nodiscard]] std::error_code loadFileBuffer(rq::Module& module);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module &loadImportModule(rq::Expression& expression, llvm::StringRef import_string);
+  [[nodiscard]] rq::Module &loadImportModule(rq::Expression &expression,
+                                             llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseNormativeRequite(rq::Module &module,
