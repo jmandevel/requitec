@@ -1,7 +1,6 @@
 
 #include <rq/context.hpp>
 #include <rq/options.hpp>
-#include <rq/types.hpp>
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
