@@ -225,7 +225,8 @@ bool Context::loadSourceModule() {
   return true;
 }
 
-rq::Module &Context::loadImportModule(llvm::StringRef import_string) {
+rq::Module &Context::loadImportModule(rq::Expression &expression,
+                                      llvm::StringRef import_string) {
   rq::Module &import_module = this->allocateValue<rq::Module>();
   import_module.setType(rq::ModuleType::IMPORT);
   llvm::SmallString<128> found_path;
@@ -245,12 +246,16 @@ rq::Module &Context::loadImportModule(llvm::StringRef import_string) {
       break;
   }
   if (!file_found) {
-    this->logMessage(llvm::Twine("error: could not locate import module \"") +
+    this->logMessage(llvm::Twine("error: could not locate file \"") +
                      import_string + "\" in any import directory\n");
+    this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
+                     "for import", {expression.getLlvmSourceRange()}, {});
     import_module.setIsNotValid();
     return import_module;
   }
   if (!this->canonicalizePath(found_path, "import file")) {
+    this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
+                     "for import", {expression.getLlvmSourceRange()}, {});
     import_module.setIsNotValid();
     return import_module;
   }

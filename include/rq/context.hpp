@@ -152,7 +152,7 @@ struct Context final {
                    llvm::Twine context_message);
   [[nodiscard]] bool loadFileBuffer(rq::Module &module);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module &loadImportModule(llvm::StringRef import_string);
+  [[nodiscard]] rq::Module &loadImportModule(rq::Expression& expression, llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseNormativeRequite(rq::Module &module,
