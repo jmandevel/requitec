@@ -148,9 +148,10 @@ struct Context final {
   getSourceRange(const rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE std::error_code
   canonicalizePath(llvm::SmallVectorImpl<char> &path);
-  [[nodiscard]] std::error_code loadFileBuffer(rq::Module& module);
+  [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
+  loadRequiteFileBuffer(llvm::StringRef path, rq::Language &out_langauge);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module &loadImportModule(rq::Expression &expression,
+  [[nodiscard]] rq::Module *loadImportModule(rq::Expression &expression,
                                              llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
