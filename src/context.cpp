@@ -304,18 +304,30 @@ bool Context::run() {
     return false;
   }
   std::vector<rq::Token> tokens = {};
-  if (!this->tokenizeSourceText(this->getSourceModule(), tokens)) {
-    return false;
-  }
-  if (rq::getEmitMode() == rq::EMIT_TOKENS) {
-    if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
+  if (this->getSourceModule().getLanguage() ==
+          rq::Language::NORMATIVE_REQUITE ||
+      rq::getEmitMode() == rq::EMIT_TOKENS) {
+    if (!this->tokenizeSourceText(this->getSourceModule(), tokens)) {
       return false;
     }
-    return true;
+    if (rq::getEmitMode() == rq::EMIT_TOKENS) {
+      if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
+        return false;
+      }
+      return true;
+    }
   }
   this->initializeKeywordMap();
-  if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
-    return false;
+  if (this->getSourceModule().getLanguage() ==
+      rq::Language::NORMATIVE_REQUITE) {
+    if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
+      return false;
+    }
+  } else if (this->getSourceModule().getLanguage() ==
+             rq::Language::SYMBOLIC_REQUITE) {
+    if (!this->parseSymbolicRequite(this->getSourceModule())) {
+      return false;
+    }
   }
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
     if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
