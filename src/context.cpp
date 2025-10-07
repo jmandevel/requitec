@@ -156,24 +156,75 @@ rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
   return source_range;
 }
 
-bool Context::loadFileBuffer(rq::Module &module, llvm::StringRef path) {
+bool Context::loadFileBuffer(rq::Module &module) {
   RQ_ASSERT(!module.getHasLlvmBuffer(), "module already has file buffer");
-  RQ_ASSERT(!path.empty(), "path is empty");
-  module._path = path;
+  RQ_ASSERT(!module.getPath().empty(), "path is empty");
+  llvm::StringRef file_extension = llvm::sys::path::extension(module.getPath());
+  module.setLangauge(rq::getLanguageOfExtension(file_extension));
+  if (module.getLanguage() == rq::Language::UNKNOWN) {
+    this->logMessage(
+        llvm::Twine("error: failed to determine language from ") +
+        rq::getName(module.getType()) + " file extension\n\tfile: " + module.getPath() + "\n");
+    module.setIsNotValid();
+  }
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
-      llvm::MemoryBuffer::getFile(path, true, true, false, std::nullopt);
+      llvm::MemoryBuffer::getFile(module.getPath(), true, true, false,
+                                  std::nullopt);
   if (!buffer_eo) {
     this->logMessage(
-        llvm::Twine("error: failed to create read buffer for file\n\tfile: ") +
-        path + llvm::Twine("\n\treason: ") + buffer_eo.getError().message() +
-        "\n");
+        llvm::Twine("error: failed to create read buffer for ") +
+        rq::getName(module.getType()) + " file\n\tfile: " + module.getPath() +
+        llvm::Twine("\n\treason: ") + buffer_eo.getError().message() + "\n");
+    module.setIsNotValid();
     return false;
   }
   std::unique_ptr<llvm::MemoryBuffer> &buffer = buffer_eo.get();
   module._llvm_buffer_ref = buffer->getMemBufferRef();
   std::ignore = this->_llvm_source_mgr.AddNewSourceBuffer(std::move(buffer),
                                                           llvm::SMLoc());
+  return module.getIsValid();
+}
+
+bool Context::loadSourceModule() {
+  RQ_ASSERT(!this->getHasSourceModule(), "already has source module");
+  rq::Module &source_module = this->allocateValue<rq::Module>();
+  source_module.setType(rq::ModuleType::SOURCE);
+  llvm::SmallString<128> input_path = rq::getInputFilePath();
+  std::error_code ec = llvm::sys::fs::make_absolute(input_path);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine(
+            "failed to determine absolute path to source file\n\treason: ") +
+        ec.message());
+    source_module.setIsNotValid();
+    return false;
+  }
+  ec = llvm::sys::fs::real_path(input_path, input_path, false);
+  if (ec) {
+    this->logMessage(
+        llvm::Twine(
+            "failed to determine real path to source file\n\treason: ") +
+        ec.message() + "\n");
+    source_module.setIsNotValid();
+    return false;
+  }
+  source_module.setPath(input_path);
+  if (!this->loadFileBuffer(source_module)) {
+    return false;
+  }
+  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
+      input_path, &this->getSourceModule()));
   return true;
+}
+
+rq::Module &Context::loadImportModule(llvm::StringRef import_string) {
+  std::ignore = import_string;
+  // STEP 1: check for existance of file with .rq or .srq extension in all
+  // import paths STEP 2: determine full path of found file that is consistent
+  // STEP 3: if module already loaded, return this module
+  // STEP 4: if module not already loaded, load new module with file buffer and
+  // return it STEP 5: if no file found, create error module and return it
+  RQ_TODO_IMPLEMENTATION();
 }
 
 bool Context::initializeLlvm() {
@@ -205,59 +256,39 @@ bool Context::initializeLlvm() {
 }
 
 bool Context::run() {
-  rq::Module &source_module = this->getSourceModule();
-  llvm::SmallString<128> input_path = rq::getInputFilePath();
-  llvm::StringRef output_path = rq::getOutputFilePath();
-  std::error_code ec = llvm::sys::fs::make_absolute(input_path);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "failed to determine absolute input file path\n\treason: ") +
-        ec.message());
+  if (!this->loadSourceModule()) {
     return false;
   }
-  ec = llvm::sys::fs::real_path(input_path, input_path, false);
-  if (ec) {
-    this->logMessage(
-        llvm::Twine("failed to determine real input file path\n\treason: ") +
-        ec.message() + "\n");
-    return false;
-  }
-  if (!this->loadFileBuffer(source_module, input_path)) {
-    return false;
-  }
-  this->_module_map.insert(
-      std::pair<llvm::StringRef, rq::Module *>(input_path, &source_module));
-  if (!this->validateSourceText(source_module)) {
+  if (!this->validateSourceText(this->getSourceModule())) {
     return false;
   }
   std::vector<rq::Token> tokens = {};
-  if (!this->tokenizeSourceText(source_module, tokens)) {
+  if (!this->tokenizeSourceText(this->getSourceModule(), tokens)) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_TOKENS) {
-    if (!this->emitTokens(output_path, tokens)) {
+    if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
       return false;
     }
     return true;
   }
   this->initializeKeywordMap();
-  if (!this->parseNormativeRequite(source_module, tokens)) {
+  if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
-    if (!this->emitSymbolicRequite(output_path,
-                                   source_module.getExpression())) {
+    if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
+                                   this->getSourceModule().getExpression())) {
       return false;
     }
     return true;
   }
-  if (!this->situateAst(source_module)) {
+  if (!this->situateAst(this->getSourceModule())) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
-    if (!this->emitSymbolicRequite(output_path,
-                                   source_module.getExpression())) {
+    if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
+                                   this->getSourceModule().getExpression())) {
       return false;
     }
     return true;
@@ -286,19 +317,19 @@ bool Context::run() {
   //   return false;
   // }
   if (rq::getEmitMode() == rq::EMIT_IR) {
-    if (!this->emitLlvmIr(output_path)) {
+    if (!this->emitLlvmIr(rq::getOutputFilePath())) {
       return false;
     }
     return true;
   }
   if (rq::getEmitMode() == rq::EMIT_ASSEMBLY) {
-    if (!this->emitAssembly(output_path)) {
+    if (!this->emitAssembly(rq::getOutputFilePath())) {
       return false;
     }
     return true;
   }
   if (rq::getEmitMode() == rq::EMIT_OBJECT) {
-    if (!this->emitObject(output_path)) {
+    if (!this->emitObject(rq::getOutputFilePath())) {
       return false;
     }
     return true;

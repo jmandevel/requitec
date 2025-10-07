@@ -74,7 +74,7 @@ struct Context final {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   std::vector<rq::Expression *> _unused_expression_ptrs;
-  rq::Module _source_module;
+  rq::Module* _source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -92,11 +92,14 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
     return this->_executable_path;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceModule() const {
+    return this->_source_module_ptr != nullptr;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getSourceModule() {
-    return this->_source_module;
+    return rq::dereferencePtr(this->_source_module_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getSourceModule() const {
-    return this->_source_module;
+    return rq::dereferencePtr(this->_source_module_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::TargetMachine &getLlvmTargetMachine() {
     return rq::dereferencePtr(this->_llvm_target_machine_ptr);
@@ -143,7 +146,9 @@ struct Context final {
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
   getSourceRange(const rq::Expression &expression);
-  [[nodiscard]] bool loadFileBuffer(rq::Module &module, llvm::StringRef path);
+  [[nodiscard]] bool loadFileBuffer(rq::Module &module);
+  [[nodiscard]] bool loadSourceModule();
+  [[nodiscard]] rq::Module& loadImportModule(llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseNormativeRequite(rq::Module &module,
