@@ -319,10 +319,8 @@ bool Context::run() {
   if (!this->validateSourceText(this->getSourceModule())) {
     return false;
   }
-  std::vector<rq::Token> tokens = {};
-  if (this->getSourceModule().getLanguage() ==
-          rq::Language::NORMATIVE_REQUITE ||
-      rq::getEmitMode() == rq::EMIT_TOKENS) {
+  {
+    std::vector<rq::Token> tokens = {};
     if (!this->tokenizeSourceText(this->getSourceModule(), tokens)) {
       return false;
     }
@@ -332,19 +330,19 @@ bool Context::run() {
       }
       return true;
     }
+    if (this->getSourceModule().getLanguage() ==
+        rq::Language::NORMATIVE_REQUITE) {
+      if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
+        return false;
+      }
+    } else if (this->getSourceModule().getLanguage() ==
+               rq::Language::SYMBOLIC_REQUITE) {
+      if (!this->parseSymbolicRequite(this->getSourceModule(), tokens)) {
+        return false;
+      }
+    }
   }
   this->initializeKeywordMap();
-  if (this->getSourceModule().getLanguage() ==
-      rq::Language::NORMATIVE_REQUITE) {
-    if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
-      return false;
-    }
-  } else if (this->getSourceModule().getLanguage() ==
-             rq::Language::SYMBOLIC_REQUITE) {
-    if (!this->parseSymbolicRequite(this->getSourceModule())) {
-      return false;
-    }
-  }
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
     if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
                                    this->getSourceModule().getExpression())) {
@@ -407,15 +405,16 @@ bool Context::run() {
 }
 
 bool Context::parseNormativeRequite(rq::Module &module,
-                                    std::vector<rq::Token> &tokens) {
+                                    const std::vector<rq::Token> &tokens) {
   rq::NormativeParser parser(*this, tokens);
   rq::Expression &trunk = parser.parseExpressions();
   module.setExpression(trunk);
   return parser.getIsOk();
 }
 
-bool Context::parseSymbolicRequite(rq::Module &module) {
-  rq::SymbolicParser parser(*this, module.getSourceText());
+bool Context::parseSymbolicRequite(rq::Module &module,
+                                   const std::vector<rq::Token> &tokens) {
+  rq::SymbolicParser parser(*this, tokens);
   rq::Expression &trunk = parser.parseExpressions();
   module.setExpression(trunk);
   return parser.getIsOk();

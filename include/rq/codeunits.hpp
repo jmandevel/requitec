@@ -1622,7 +1622,7 @@ getIsHorizontalWhitespace(char codeunit) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsVerticalSpace(char codeunit) {
+getIsVerticalWhitespace(char codeunit) {
   const rq::CodeunitFlags flags = rq::getFlags(codeunit);
   return rq::getHasAll(flags, rq::CodeunitFlags::VERTICAL_WHITESPACE);
 }

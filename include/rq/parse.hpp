@@ -1,6 +1,5 @@
 #pragma once
 
-#include <rq/source_ranger.hpp>
 #include <rq/tokens.hpp>
 
 #include <cstdint>
@@ -8,6 +7,39 @@
 #include <llvm/ADT/StringRef.h>
 
 namespace rq {
+
+struct TokenRanger final {
+  using Self = rq::TokenRanger;
+
+  std::vector<rq::Token>::const_iterator _it;
+  std::vector<rq::Token>::const_iterator _end;
+
+  TokenRanger(llvm::ArrayRef<rq::Token> tokens)
+      : _it(tokens.begin()), _end(tokens.end()) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_it >= this->_end;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone(unsigned offset) const {
+    return this->_it + offset >= this->_end;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getToken() const {
+    RQ_ASSERT(this->_it < this->_end, "parser is done");
+    return *this->_it;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &
+  getToken(unsigned offset) const {
+    RQ_ASSERT(this->_it + offset < this->_end, "offset is past token range");
+    return *(this->_it + offset);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getPreviousToken() const {
+    RQ_ASSERT(this->_it <= this->_end, "parser is done");
+    return *(this->_it - 1);
+  }
+  RQ_ALWAYS_INLINE void incrementToken(std::size_t offset) {
+    this->_it += offset;
+  }
+  [[nodiscard]] bool getIsToken(rq::TokenType type) const;
+};
 
 enum class Keyword : std::uint32_t;
 enum class TokenType : std::uint_fast16_t;
@@ -23,8 +55,8 @@ struct GroupingParser final {
   rq::Expression *_last_ptr = nullptr;
 
   GroupingParser() = default;
-  GroupingParser(const Self &) = delete;
-  GroupingParser(Self &&) = delete;
+  GroupingParser(const Self &) = default;
+  GroupingParser(Self &&) = default;
   ~GroupingParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
@@ -145,12 +177,11 @@ struct NormativeParser final {
   using Self = rq::NormativeParser;
 
   std::reference_wrapper<rq::Context> _context_ref;
-  std::vector<rq::Token>::const_iterator _it;
-  std::vector<rq::Token>::const_iterator _end;
+  rq::TokenRanger _token_ranger;
   bool _is_ok = true;
 
-  NormativeParser(rq::Context &context, std::vector<rq::Token> &tokens)
-      : _context_ref(context), _it(tokens.begin()), _end(tokens.end()) {}
+  NormativeParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
+      : _context_ref(context), _token_ranger(tokens) {}
   NormativeParser(const Self &) = delete;
   NormativeParser(Self &&) = delete;
   ~NormativeParser() = default;
@@ -164,29 +195,12 @@ struct NormativeParser final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() { return this->_is_ok; }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_it >= this->_end;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TokenRanger &getRanger() const {
+    return this->_token_ranger;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone(unsigned offset) const {
-    return this->_it + offset >= this->_end;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenRanger &getRanger() {
+    return this->_token_ranger;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getToken() const {
-    RQ_ASSERT(this->_it < this->_end, "parser is done");
-    return *this->_it;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &
-  getToken(unsigned offset) const {
-    RQ_ASSERT(this->_it + offset < this->_end, "offset is past token range");
-    return *(this->_it + offset);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getPreviousToken() const {
-    RQ_ASSERT(this->_it <= this->_end, "parser is done");
-    return *(this->_it - 1);
-  }
-  RQ_ALWAYS_INLINE void incrementToken(std::size_t offset) {
-    this->_it += offset;
-  }
-  [[nodiscard]] bool getIsToken(rq::TokenType type) const;
   [[nodiscard]] rq::Expression &parseExpressions();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseExpression() {
     return this->parsePrecedence11();
@@ -225,11 +239,11 @@ struct SymbolicParser final {
   using Self = rq::SymbolicParser;
 
   std::reference_wrapper<rq::Context> _context_ref;
-  rq::SourceRanger _ranger;
+  rq::TokenRanger _token_ranger;
   bool _is_ok = false;
 
-  SymbolicParser(rq::Context &context, llvm::StringRef source_text)
-      : _context_ref(context), _ranger(source_text) {}
+  SymbolicParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
+      : _context_ref(context), _token_ranger(tokens) {}
   SymbolicParser(const Self &) = delete;
   SymbolicParser(Self &&) = delete;
   ~SymbolicParser() = default;
@@ -249,17 +263,13 @@ struct SymbolicParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
     return this->_context_ref.get();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SourceRanger &getRanger() {
-    return this->_ranger;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenRanger &getRanger() {
+    return this->_token_ranger;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SourceRanger &getRanger() const {
-    return this->_ranger;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->getRanger().getIsDone();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TokenRanger &getRanger() const {
+    return this->_token_ranger;
   }
   [[nodiscard]] rq::Expression &parseExpressions();
-  [[nodiscard]] rq::Expression& parseExpression();
 };
 
 } // namespace rq

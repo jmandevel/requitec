@@ -155,9 +155,11 @@ struct Context final {
                                              llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
-  [[nodiscard]] bool parseNormativeRequite(rq::Module &module,
-                                           std::vector<rq::Token> &tokens);
-  [[nodiscard]] bool parseSymbolicRequite(rq::Module &module);
+  [[nodiscard]] bool
+  parseNormativeRequite(rq::Module &module,
+                        const std::vector<rq::Token> &tokens);
+  [[nodiscard]] bool parseSymbolicRequite(rq::Module &module,
+                                          const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateAst(rq::Module &module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
