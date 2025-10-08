@@ -330,6 +330,7 @@ bool Context::run() {
       }
       return true;
     }
+    this->initializeKeywordMap();
     if (this->getSourceModule().getLanguage() ==
         rq::Language::NORMATIVE_REQUITE) {
       if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
@@ -342,7 +343,6 @@ bool Context::run() {
       }
     }
   }
-  this->initializeKeywordMap();
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
     if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
                                    this->getSourceModule().getExpression())) {
