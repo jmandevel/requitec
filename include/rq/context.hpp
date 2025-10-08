@@ -149,7 +149,7 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE std::error_code
   canonicalizePath(llvm::SmallVectorImpl<char> &path);
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
-  loadRequiteFileBuffer(llvm::StringRef path, rq::Language &out_langauge);
+  loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
   [[nodiscard]] rq::Module *loadImportModule(rq::Expression &expression,
                                              llvm::StringRef import_string);

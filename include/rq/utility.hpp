@@ -246,7 +246,7 @@ getMaskValue(FlagsParam flags, FlagsParam mask) {
   return rq::getUnderlying(flags & mask);
 }
 
-enum class Error : std::uint_fast32_t { OK, UNKNOWN_FILE_EXTENSION };
+enum class Error : std::uint_fast32_t { OK };
 
 struct ErrorCategory final : public std::error_category {
   [[nodiscard]] RQ_ALWAYS_INLINE const char *name() const noexcept override {
@@ -257,8 +257,6 @@ struct ErrorCategory final : public std::error_category {
     switch (static_cast<rq::Error>(ec)) {
     case rq::Error::OK:
       return "ok";
-    case rq::Error::UNKNOWN_FILE_EXTENSION:
-      return "unknown file extension";
     default:
       break;
     }

@@ -171,14 +171,8 @@ std::error_code Context::canonicalizePath(llvm::SmallVectorImpl<char> &path) {
 }
 
 llvm::ErrorOr<llvm::MemoryBufferRef>
-Context::loadRequiteFileBuffer(llvm::StringRef path,
-                               rq::Language &out_language) {
+Context::loadRequiteFileBuffer(llvm::StringRef path) {
   RQ_ASSERT(path.empty(), "path is empty");
-  llvm::StringRef file_extension = llvm::sys::path::extension(path);
-  out_language = rq::getLanguageOfExtension(file_extension);
-  if (out_language == rq::Language::UNKNOWN) {
-    return rq::getErrorCode(rq::Error::UNKNOWN_FILE_EXTENSION);
-  }
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
       llvm::MemoryBuffer::getFile(path, /*IsText=*/true,
                                   /*RequiresNullTerminator=*/true,
@@ -203,13 +197,21 @@ bool Context::loadSourceModule() {
         input_path + "\n\treason:" + ec.message());
     return false;
   }
-  rq::Language language;
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
-      this->loadRequiteFileBuffer(input_path, language);
+      this->loadRequiteFileBuffer(input_path);
   if (!buffer_eo) {
     this->logMessage(
         llvm::Twine("error: failed to load source file buffer\n\tpath: ") +
         input_path + "\n\treason:" + buffer_eo.getError().message());
+    return false;
+  }
+  rq::Language language;
+  llvm::StringRef file_extension = llvm::sys::path::extension(input_path);
+  language = rq::getLanguageOfExtension(file_extension);
+  if (language == rq::Language::UNKNOWN) {
+    this->logMessage(
+        llvm::Twine("error: unknown language file extension\n\tpath: ") +
+        input_path);
     return false;
   }
   rq::Module &source_module = this->allocateValue<rq::Module>(
@@ -224,19 +226,25 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
                                       llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
+  rq::Language language;
   for (const std::string &dir : rq::getImportDirectories()) {
-    for (llvm::StringRef ext : {".rq", ".srq"}) {
+    for (llvm::StringRef extension :
+         {".rq", ".srq"}) { // normative extension goes first because if there
+                            // are files of both extensions, the normative
+                            // requite import is choosen
       llvm::SmallString<128> candidate_path(dir);
       llvm::sys::path::append(candidate_path, import_string);
-      llvm::sys::path::replace_extension(candidate_path, ext);
+      llvm::sys::path::replace_extension(candidate_path, extension);
       if (llvm::sys::fs::exists(candidate_path)) {
+        language = rq::getLanguageOfExtension(extension);
         found_path = candidate_path;
         file_found = true;
         break;
       }
     }
-    if (file_found)
+    if (file_found) {
       break;
+    }
   }
   if (!file_found) {
     this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
@@ -259,9 +267,8 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
   if (found_it != this->_module_map.end()) {
     return found_it->second;
   }
-  rq::Language language;
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
-      this->loadRequiteFileBuffer(found_path, language);
+      this->loadRequiteFileBuffer(found_path);
   if (!buffer_eo) {
     this->logMessage(
         expression.getLlvmSourceStart(), rq::LogType::NOTE,
