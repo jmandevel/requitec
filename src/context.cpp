@@ -407,16 +407,16 @@ bool Context::run() {
 bool Context::parseNormativeRequite(rq::Module &module,
                                     const std::vector<rq::Token> &tokens) {
   rq::NormativeParser parser(*this, tokens);
-  rq::Expression &trunk = parser.parseExpressions();
-  module.setExpression(trunk);
+  rq::Expression *trunk_ptr = parser.parseExpressions();
+  module.setExpression(trunk_ptr);
   return parser.getIsOk();
 }
 
 bool Context::parseSymbolicRequite(rq::Module &module,
                                    const std::vector<rq::Token> &tokens) {
   rq::SymbolicParser parser(*this, tokens);
-  rq::Expression &trunk = parser.parseExpressions();
-  module.setExpression(trunk);
+  rq::Expression *trunk_ptr = parser.parseExpressions();
+  module.setExpression(trunk_ptr);
   return parser.getIsOk();
 }
 

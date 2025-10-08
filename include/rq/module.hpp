@@ -98,6 +98,9 @@ struct Module final {
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
   }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
+    rq::assignSingleValue(this->_expression_ptr, expression_ptr);
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
   }

@@ -6,31 +6,41 @@
 
 namespace rq {
 
-void GroupingParser::startGroup(rq::Expression &existing_expression) {
-  if (existing_expression.getHasBranch()) {
-    rq::Expression &branch = existing_expression.getBranch();
-    RQ_ASSERT(!branch.getHasNext(), "branch must not have next");
-    this->_last_ptr = &branch;
+void ForestParser::appendTree(rq::Expression &branch) {
+  [[unlikely]] if (this->getHasOperation()) {
+    this->setOperation(branch);
+    this->setLast(branch);
+    return;
   }
-  this->setOperation(existing_expression);
+  rq::Expression &last = this->getLast();
+  last.setNext(branch);
+  this->setLast(branch);
 }
 
-void GroupingParser::appendBranch(rq::Expression &branch) {
-  if (this->_last_ptr == nullptr) {
+void ForestParser::finishOperation(const rq::Token &last_token) {
+  rq::Expression &operation = this->getOperation();
+  operation.extendSourceOver(last_token);
+}
+
+void TreeParser::startTree(rq::Expression &trunk) {
+  RQ_ASSERT(!trunk.getHasBranch(), "trunk must not have branch");
+  RQ_ASSERT(!trunk.getHasNext(), "trunk must not have next");
+  this->setOperation(trunk);
+}
+
+void TreeParser::appendBranch(rq::Expression &branch) {
+  [[unlikely]] if (this->_last_ptr == nullptr) {
     rq::Expression &operation = this->getOperation();
     operation.setBranch(branch);
-    operation.extendSourceOver(branch);
-    this->_last_ptr = &branch;
+    this->setLast(branch);
     return;
   }
   rq::Expression &last = rq::dereferencePtr(this->_last_ptr);
   last.setNext(branch);
-  this->_last_ptr = &branch;
-  rq::Expression &operation = this->getOperation();
-  operation.extendSourceOver(branch);
+  this->setLast(branch);
 }
 
-void GroupingParser::finishOperation(const rq::Token &last_token) {
+void TreeParser::finishOperation(const rq::Token &last_token) {
   rq::Expression &operation = this->getOperation();
   operation.extendSourceOver(last_token);
 }
@@ -197,23 +207,13 @@ bool TokenRanger::getIsToken(rq::TokenType type) const {
 // NOTE:
 //  This is (mostly) a recursive descent parser.
 
-rq::Expression &NormativeParser::parseExpressions() {
-  if (this->getRanger().getIsDone()) {
-    rq::Expression &error = this->getContext().acquireExpression();
-    error.setKeyword(rq::Keyword::__ERROR);
-    return error;
-  }
-  rq::Expression &first = this->parseExpression();
-  this->checkTokenIsTrailingSemicolonOperator(first);
-  rq::Expression *previous_ptr = &first;
+rq::Expression *NormativeParser::parseExpressions() {
+  rq::ForestParser parser;
   while (!this->getRanger().getIsDone()) {
-    rq::Expression &previous = rq::dereferencePtr(previous_ptr);
-    rq::Expression &next = this->parseExpression();
-    this->checkTokenIsTrailingSemicolonOperator(next);
-    previous.setNext(next);
-    previous_ptr = &next;
+    parser.appendTree(this->parseExpression());
+    this->checkTokenIsTrailingSemicolonOperator(parser.getLast());
   }
-  return first;
+  return parser.getOperationPtr();
 }
 
 // STATEMENT ATTRIBUTES
@@ -862,8 +862,8 @@ bool NormativeParser::parseCommaSeperatedBranches(
     return false;
   }
   bool found_invalid_parameter_mark = false;
-  rq::GroupingParser grouping_parser;
-  grouping_parser.startGroup(operation);
+  rq::TreeParser grouping_parser;
+  grouping_parser.startTree(operation);
   bool has_parameter_marks = false;
   while (!this->getRanger().getIsDone()) {
     const rq::Token &first_token = this->getRanger().getToken();
@@ -1064,8 +1064,8 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
                                                   // expression
     operation.setKeyword(rq::Keyword::_ANONYMOUS_FUNCTION);
     operation.setSource(left_token);
-    rq::GroupingParser parser;
-    parser.startGroup(operation);
+    rq::TreeParser parser;
+    parser.startTree(operation);
     rq::Expression &capture = this->getContext().acquireExpression();
     capture.setKeyword(rq::Keyword::_DYNAMIC_CAPTURE);
     capture.setSource(keyword_token);
@@ -1080,8 +1080,8 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
   }
   if (operation.getHasSemicolonSeparatedBranches()) {
     const unsigned comma_count = operation.getCommaBranchCount();
-    rq::GroupingParser parser;
-    parser.startGroup(operation);
+    rq::TreeParser parser;
+    parser.startTree(operation);
     unsigned branch_i = 0;
     while (branch_i < comma_count) {
       const rq::Token &before_token = this->getRanger().getToken();
@@ -1528,10 +1528,98 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
   this->setNotOk();
 }
 
-rq::Expression &SymbolicParser::parseExpressions() {
-  llvm::SmallVector<rq::GroupingParser *, 16> grouping_parser_stack;
-  RQ_TODO_IMPLEMENTATION();
-  return grouping_parser_stack.front()->getOperation();
+rq::Expression &SymbolicParser::parseLiteral(rq::Keyword keyword) {
+  RQ_ASSERT(!this->getRanger().getIsDone(), "parser is done");
+  const rq::Token &token = this->getRanger().getToken();
+  RQ_ASSERT(token.getIsLiteral(), "token is not literal");
+  this->getRanger().incrementToken(1);
+  rq::Expression &expression = this->getContext().acquireExpression();
+  expression.setSource(token);
+  expression.setKeyword(keyword);
+  return expression;
+}
+
+rq::Expression *SymbolicParser::parseExpressions() {
+  llvm::SmallVector<rq::ForestParser, 16> forest_stack;
+  forest_stack.emplace_back();
+  while (!this->getRanger().getIsDone()) {
+    const rq::Token &token = this->getRanger().getToken();
+    using namespace rq;
+    using T = TokenType;
+    switch (const rq::TokenType type = token.getType()) {
+    case T::LEFT_BRACE_GROUPING: {
+      this->getRanger().incrementToken(1);
+      const rq::Token &keyword_token = this->getRanger().getToken();
+      [[unlikely]] if (keyword_token.getType() !=
+                       rq::TokenType::IDENTIFIER_LITERAL) {
+        this->getContext().logMessage(
+            token.getLlvmSourceStart(), rq::LogType::ERROR,
+            llvm::Twine(rq::getDescription(token.getType())) +
+                " not valid token for keyword",
+            {token.getLlvmSourceRange()}, {});
+        this->setNotOk();
+        break;
+      }
+      rq::Keyword keyword =
+          this->getContext().getKeyword(token.getSourceText());
+      [[unlikely]] if (rq::getIsInternal(keyword)) {
+        this->getContext().logMessage(
+            token.getLlvmSourceStart(), rq::LogType::ERROR,
+            llvm::Twine(rq::getName(keyword)) + "is for internal use only",
+            {token.getLlvmSourceRange()}, {});
+        this->setNotOk();
+        break;
+      }
+      this->getRanger().incrementToken(1);
+      rq::Expression &expression = this->getContext().acquireExpression();
+      expression.setSource(token);
+      expression.setKeyword(keyword);
+      forest_stack.back().appendTree(expression);
+      std::ignore = forest_stack.emplace_back();
+      break;
+    }
+    case T::RIGHT_BRACKET_GROUPING: {
+      this->getRanger().incrementToken(1);
+      forest_stack.back().finishOperation(token);
+      rq::Expression &finished = forest_stack.back().getOperation();
+      finished.extendSourceOver(token);
+      forest_stack.pop_back();
+      RQ_ASSERT(!forest_stack.empty(),
+                "forest stack size can not go down to 0");
+      forest_stack.back().appendTree(finished);
+      break;
+    }
+    case T::IDENTIFIER_LITERAL:
+      forest_stack.back().appendTree(
+          this->parseLiteral(rq::Keyword::__IDENTIFIER_LITERAL));
+      break;
+    case T::CODEUNIT_LITERAL:
+      forest_stack.back().appendTree(
+          this->parseLiteral(rq::Keyword::__CODEUNIT_LITERAL));
+      break;
+    case T::STRING_LITERAL:
+      forest_stack.back().appendTree(
+          this->parseLiteral(rq::Keyword::__STRING_LITERAL));
+      break;
+    case T::INTEGER_LITERAL:
+      forest_stack.back().appendTree(
+          this->parseLiteral(rq::Keyword::__INTEGER_LITERAL));
+      break;
+    case T::FLOAT_LITERAL:
+      forest_stack.back().appendTree(
+          this->parseLiteral(rq::Keyword::__FLOAT_LITERAL));
+      break;
+    default:
+      this->getRanger().incrementToken(1);
+      this->getContext().logMessage(token.getLlvmSourceStart(),
+                                    rq::LogType::ERROR,
+                                    llvm::Twine(rq::getDescription(type)) +
+                                        " is invalid symbolic requite token",
+                                    {token.getLlvmSourceRange()}, {});
+      break;
+    }
+  }
+  return forest_stack.front().getOperationPtr();
 }
 
 } // namespace rq

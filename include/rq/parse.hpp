@@ -48,16 +48,16 @@ struct Module;
 struct Expression;
 struct Token;
 
-struct GroupingParser final {
-  using Self = rq::GroupingParser;
+struct ForestParser final {
+  using Self = rq::ForestParser;
 
   rq::Expression *_operation_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
-  GroupingParser() = default;
-  GroupingParser(const Self &) = default;
-  GroupingParser(Self &&) = default;
-  ~GroupingParser() = default;
+  ForestParser() = default;
+  ForestParser(const Self &) = default;
+  ForestParser(Self &&) = default;
+  ~ForestParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
@@ -72,13 +72,65 @@ struct GroupingParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOperation() const {
     return rq::dereferencePtr(this->_operation_ptr);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getOperationPtr() {
+    return this->_operation_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getOperationPtr() const {
+    return this->_operation_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
+    return this->_last_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setLast(rq::Expression &last) {
+    this->_last_ptr = &last;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLast() {
     return rq::dereferencePtr(this->_last_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  void startGroup(rq::Expression &existing_expression);
+  void appendTree(rq::Expression &tree);
+  void finishOperation(const rq::Token &last_token);
+};
+
+struct TreeParser final {
+  using Self = rq::TreeParser;
+
+  rq::Expression *_operation_ptr = nullptr;
+  rq::Expression *_last_ptr = nullptr;
+
+  TreeParser() = default;
+  TreeParser(const Self &) = default;
+  TreeParser(Self &&) = default;
+  ~TreeParser() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
+    return this->_operation_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setOperation(rq::Expression &operation) {
+    rq::assignSingleValue(this->_operation_ptr, &operation);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getOperation() {
+    return rq::dereferencePtr(this->_operation_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOperation() const {
+    return rq::dereferencePtr(this->_operation_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
+    return this->_last_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setLast(rq::Expression &last) {
+    this->_last_ptr = &last;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLast() {
+    return rq::dereferencePtr(this->_last_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
+    return rq::dereferencePtr(this->_last_ptr);
+  }
+  void startTree(rq::Expression &trunk);
   void appendBranch(rq::Expression &branch);
   void finishOperation(const rq::Token &last_token);
 };
@@ -201,7 +253,7 @@ struct NormativeParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenRanger &getRanger() {
     return this->_token_ranger;
   }
-  [[nodiscard]] rq::Expression &parseExpressions();
+  [[nodiscard]] rq::Expression *parseExpressions();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseExpression() {
     return this->parsePrecedence11();
   }
@@ -269,7 +321,8 @@ struct SymbolicParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TokenRanger &getRanger() const {
     return this->_token_ranger;
   }
-  [[nodiscard]] rq::Expression &parseExpressions();
+  [[nodiscard]] rq::Expression& parseLiteral(rq::Keyword keyword);
+  [[nodiscard]] rq::Expression *parseExpressions();
 };
 
 } // namespace rq
