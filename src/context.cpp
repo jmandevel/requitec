@@ -377,9 +377,6 @@ bool Context::run() {
   // if (!this->implementAll()) {
   //   return false;
   // }
-  // if (!this->checkEntryPointCount()) {
-  //   return false;
-  // }
   // if (!this->buildIr()) {
   //   return false;
   // }
