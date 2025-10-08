@@ -189,6 +189,15 @@ Context::loadRequiteFileBuffer(llvm::StringRef path) {
 bool Context::loadSourceModule() {
   RQ_ASSERT(!this->getHasSourceModule(), "already has source module");
   llvm::SmallString<128> input_path = rq::getInputFilePath();
+  rq::Language language;
+  llvm::StringRef file_extension = llvm::sys::path::extension(input_path);
+  language = rq::getLanguageOfExtension(file_extension);
+  if (language == rq::Language::UNKNOWN) {
+    this->logMessage(
+        llvm::Twine("error: unknown language file extension\n\tpath: ") +
+        input_path);
+    return false;
+  }
   std::error_code ec = this->canonicalizePath(input_path);
   if (ec) {
     this->logMessage(
@@ -203,15 +212,6 @@ bool Context::loadSourceModule() {
     this->logMessage(
         llvm::Twine("error: failed to load source file buffer\n\tpath: ") +
         input_path + "\n\treason:" + buffer_eo.getError().message());
-    return false;
-  }
-  rq::Language language;
-  llvm::StringRef file_extension = llvm::sys::path::extension(input_path);
-  language = rq::getLanguageOfExtension(file_extension);
-  if (language == rq::Language::UNKNOWN) {
-    this->logMessage(
-        llvm::Twine("error: unknown language file extension\n\tpath: ") +
-        input_path);
     return false;
   }
   rq::Module &source_module = this->allocateValue<rq::Module>(
