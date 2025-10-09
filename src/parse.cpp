@@ -1051,6 +1051,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
   const rq::Token &left_token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
   const rq::Token &keyword_token = this->getRanger().getToken();
+  rq::TokenRanger keyword_ranger = this->getRanger();
   rq::Expression &operation = this->getContext().acquireExpression();
   if (keyword_token.getType() ==
       rq::TokenType::LEFT_PARENTHESIS_GROUPING) { // its an
@@ -1091,6 +1092,44 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         this->getRanger().incrementToken(1);
         parser.finishOperation(before_token);
         return operation;
+      } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
+        this->getRanger().incrementToken(1);
+        if (operation.getKeyword() == rq::Keyword::_ANONYMOUS_FUNCTION) {
+          this->getContext().logErrorUnexpectedToken(before_token);
+          this->setNotOk();
+          this->getRanger().incrementToken(1);
+          continue;
+        }
+        unsigned bracket_depth = 1;
+        while (!this->getRanger().getIsDone()) {
+          const rq::Token &trailer_token = this->getRanger().getToken();
+          if (trailer_token.getType() == rq::TokenType::LEFT_BRACKET_GROUPING) {
+            bracket_depth++;
+          } else if (trailer_token.getType() ==
+                     rq::TokenType::RIGHT_BRACKET_GROUPING) {
+            bracket_depth--;
+            if (bracket_depth == 0) {
+              this->getRanger().incrementToken(1);
+              parser.finishOperation(trailer_token);
+              return operation;
+            }
+          }
+          const rq::Token &front_token = keyword_ranger.getToken();
+          if (trailer_token.getSourceText() != front_token.getSourceText()) {
+            this->getContext().logMessage(
+                trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
+                "trailer token does not associated token fron start of "
+                "symbolic expression",
+                {trailer_token.getLlvmSourceRange()}, {});
+            this->getContext().logMessage(
+                front_token.getLlvmSourceStart(), rq::LogType::NOTE,
+                "for token from start of symbolic expression",
+                {front_token.getLlvmSourceRange()}, {});
+            this->setNotOk();
+          }
+          this->getRanger().incrementToken(1);
+          keyword_ranger.incrementToken(1);
+        }
       }
       rq::Expression &next = this->parseExpression();
       const rq::Token &after_token = this->getRanger().getToken();
