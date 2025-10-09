@@ -26,9 +26,9 @@ struct _AssertException final : public std::logic_error {
   using std::logic_error::what;
 };
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && defined(_NDEBUG)
 #define RQ_ALWAYS_INLINE inline __forceinline
-#elif defined(__GNUC__) || defined(__clang__)
+#elif (defined(__GNUC__) || defined(__clang__)) && defined(_NDEBUG)
 #define RQ_ALWAYS_INLINE inline __attribute__((always_inline))
 #else
 #define RQ_ALWAYS_INLINE inline
