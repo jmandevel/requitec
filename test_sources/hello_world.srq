@@ -1,0 +1,15 @@
+[import
+  "std"
+]
+[entry_point
+  [_call
+    [_reflect
+      std
+      print
+    ]
+    [_equal_operator
+      line
+      "Hello, world!"
+    ]
+  ]
+]

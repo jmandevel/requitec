@@ -1,0 +1,9 @@
+[entry_point
+  [_equal_operator
+    [_colon_operator
+      [result]
+      [_inference]
+    ]
+    0
+  ]
+]

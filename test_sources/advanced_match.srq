@@ -1,0 +1,68 @@
+[enumeration
+  enum
+  [_tacit_comma_expression]
+  [_colon_operator
+    int
+    [signed]
+  ]
+  [_colon_operator
+    str
+    [_fat_pointer
+      [utf8]
+    ]
+  ]
+]
+[_equal_operator
+  [_colon_operator
+    val
+    [_inference]
+  ]
+  [_call
+    [_reflect
+      enum
+      float
+    ]
+    1.234
+  ]
+]
+[_equal_operator
+  [_colon_operator
+    result
+    [_inference]
+  ]
+  [inline_match
+    val
+    [case
+      float
+      [_equal_operator
+        [_colon_operator
+          [out]
+          [_inference]
+        ]
+        float
+      ]
+    ]
+    [case
+      int
+      [_equal_operator
+        [_colon_operator
+          [out]
+          [_inference]
+        ]
+        [_colon_operator
+          [binary32]
+          int
+        ]
+      ]
+    ]
+    [default
+      [_equal_operator
+        [_colon_operator
+          [out]
+          [_inference]
+        ]
+        0
+      ]
+    ]
+  ]
+]

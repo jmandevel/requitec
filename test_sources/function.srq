@@ -1,0 +1,51 @@
+[import
+  "std"
+]
+[function
+  myFunc
+  [_signature
+    [signed]
+    [_named_parameters_begin]
+    [_colon_operator
+      a
+      [signed]
+    ]
+    [_colon_operator
+      b
+      [signed]
+    ]
+    [_positional_parameters_end]
+  ]
+  [_equal_operator
+    [_colon_operator
+      [result]
+      [_inference]
+    ]
+    [_add
+      a
+      b
+    ]
+  ]
+]
+[entry_point
+  [_call
+    [_reflect
+      std
+      print
+    ]
+    [_equal_operator
+      line
+      [_tuple
+        "the result is "
+        [_tuple
+          [_call
+            myFunc
+            1
+            2
+          ]
+        ]
+        ""
+      ]
+    ]
+  ]
+]
