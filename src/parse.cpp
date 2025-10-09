@@ -1081,17 +1081,14 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       const rq::Token &before_token = this->getRanger().getToken();
       const rq::TokenType before_type = before_token.getType();
       if (before_type == rq::TokenType::RIGHT_BRACKET_GROUPING) {
-        for (unsigned inferrence_i = branch_i; inferrence_i < comma_count;
-             inferrence_i++) {
-          rq::Expression &inference = this->getContext().acquireExpression();
-          inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
-          inference.setSourceInsertedBefore(before_token);
-          parser.appendBranch(inference);
-        }
+        this->parseTacitCommas(comma_count - branch_i - 1,
+                               before_token.getAfterSourceTextPtr(), parser);
         this->getRanger().incrementToken(1);
         parser.finishOperation(before_token);
         return operation;
       } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
+        this->parseTacitCommas(comma_count - branch_i - 1,
+                               before_token.getAfterSourceTextPtr(), parser);
         this->parseTrailer(operation, keyword_ranger);
         const rq::Token &last_token = this->getRanger().getToken();
         this->getRanger().incrementToken(1);
@@ -1103,13 +1100,8 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       const rq::TokenType after_type = after_token.getType();
       if (after_type == rq::TokenType::SEMICOLON_SEPERATOR ||
           next.getCanHaveNoSemicolon()) {
-        for (unsigned inferrence_i = branch_i; inferrence_i < comma_count;
-             inferrence_i++) {
-          rq::Expression &inference = this->getContext().acquireExpression();
-          inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
-          inference.setSourceInsertedBefore(after_token);
-          parser.appendBranch(inference);
-        }
+        this->parseTacitCommas(comma_count - branch_i - 1,
+                               after_token.getBeforeSourceTextPtr(), parser);
         if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
           this->getRanger().incrementToken(1);
         }
@@ -1283,6 +1275,17 @@ void NormativeParser::parseTrailer(rq::Expression &operation,
     }
     this->getRanger().incrementToken(1);
     keyword_ranger.incrementToken(1);
+  }
+}
+
+void NormativeParser::parseTacitCommas(unsigned count,
+                                       const char *source_text_ptr,
+                                       rq::TreeParser &parser) {
+  for (unsigned comma_i = 0; comma_i < count; comma_i++) {
+    rq::Expression &inference = this->getContext().acquireExpression();
+    inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
+    inference.setSourceInsertedAt(source_text_ptr);
+    parser.appendBranch(inference);
   }
 }
 

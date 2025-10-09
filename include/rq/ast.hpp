@@ -1470,8 +1470,8 @@ getFlags(rq::Keyword keyword) {
            KF::OBJECT_STATEMENT;
   case K::MATCH:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
-           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 1;
+           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | 1;
   case K::INLINE_MATCH:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | 1;
   case K::SWITCH:
@@ -2649,18 +2649,23 @@ struct Expression final {
       this->_source_text_length = rq::getSourceLengthBetween(source, *this);
     }
   }
+  RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
+    return this->getSourceTextPtr();
+  }
+  RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
+    return this->getSourceTextPtr() + this->getSourceTextLength();
+  }
   RQ_ALWAYS_INLINE void setSourceInsertedAt(const char *source_ptr) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
     rq::assignSingleValue(this->_source_text_ptr, source_ptr);
   }
   template <typename SourceParam>
   RQ_ALWAYS_INLINE void setSourceInsertedBefore(const SourceParam &source) {
-    this->setSourceInsertedAt(source.getSourceTextPtr());
+    this->setSourceInsertedAt(source.getBeforeSourceTextPtr());
   }
   template <typename SourceParam>
   inline void setSourceInsertedAfter(const SourceParam &source) {
-    this->setSourceInsertedAt(source.getSourceTextPtr() +
-                              source.getSourceTextLength());
+    this->setSourceInsertedAt(source.getAfterSourceTextPtr());
   }
   // NOTE: no getBranchCount and getNextCount because bad performance!
   RQ_ALWAYS_INLINE rq::Expression &getBranch() {

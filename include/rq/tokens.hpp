@@ -11,56 +11,56 @@ enum class TokenType : std::uint_fast16_t {
   NONE,
 
   // OPERATORS
-  HASH_OPERATOR,                     // #
-  GREATER_OPERATOR,                  // >
-  DOUBLE_GREATER_OPERATOR,           // >>
-  GREATER_EQUAL_OPERATOR,            // >=
-  LESS_OPERATOR,                     // <
-  DOUBLE_LESS_OPERATOR,              // <<
-  LESS_EQUAL_OPERATOR,               // <=
-  BANG_EQUAL_OPERATOR,               // !=
-  BANG_OPERATOR,                     // !
-  COLON_OPERATOR,                    // :
-  DOUBLE_COLON_OPERATOR,             // ::
-  PLUS_OPERATOR,                     // +
-  DASH_OPERATOR,                     // -
-  STAR_OPERATOR,                     // *
-  SLASH_OPERATOR,                    // /
-  PERCENT_OPERATOR,                  // %
-  BACKSLASH_OPERATOR,                // \    .
-  CAROT_OPERATOR,                    // ^
-  PIPE_OPERATOR,                     // |
-  TILDE_OPERATOR,                    // ~
-  AMPERSAND_OPERATOR,                // &
-  DOUBLE_AMPERSAND_OPERATOR,         // &&
-  DOUBLE_PIPE_OPERATOR,              // ||
-  EQUAL_OPERATOR,                    // =
-  DOUBLE_EQUAL_OPERATOR,             // ==
-  PLUS_EQUAL_OPERATOR,               // +=
-  DASH_EQUAL_OPERATOR,               // -=
-  STAR_EQUAL_OPERATOR,               // *=
-  SLASH_EQUAL_OPERATOR,              // /=
-  PERCENT_EQUAL_OPERATOR,            // %=
-  QUESTION_OPERATOR,                 // ?
-  GRAVE_OPERATOR,                    // `
-  DOUBLE_GRAVE_OPERATOR,             // ``
-  ARROW_OPERATOR,                    // ->
-  CONCATENATE_OPERATOR,              // +>
-  DOT_OPERATOR,                      // .
-  DOT_PLUS_OPERATOR,                 // .+
-  DOT_DASH_OPERATOR,                 // .-
-  DOT_STAR_OPERATOR,                 // .*
-  DOT_SLASH_OPERATOR,                // ./
-  DOT_PERCENT_OPERATOR,              // .%
-  DOT_LESS_OPERATOR,                 // .<
-  DOT_LESS_EQUAL_OPERATOR,           // .<=
-  DOT_GREATER_OPERATOR,              // .>
-  DOT_GREATER_EQUAL_OPERATOR,        // .>=
-  DOT_DOUBLE_EQUAL_OPERATOR,         // .==
-  DOT_BANG_EQUAL_OPERATOR,           // .!=
-  DOUBLE_DOT_OPERATOR,  // ..
-  DOUBLE_DOT_GREATER_OPERATOR,       // ..>
-  DOUBLE_DOT_LESS_OPERATOR,          // ..<
+  HASH_OPERATOR,               // #
+  GREATER_OPERATOR,            // >
+  DOUBLE_GREATER_OPERATOR,     // >>
+  GREATER_EQUAL_OPERATOR,      // >=
+  LESS_OPERATOR,               // <
+  DOUBLE_LESS_OPERATOR,        // <<
+  LESS_EQUAL_OPERATOR,         // <=
+  BANG_EQUAL_OPERATOR,         // !=
+  BANG_OPERATOR,               // !
+  COLON_OPERATOR,              // :
+  DOUBLE_COLON_OPERATOR,       // ::
+  PLUS_OPERATOR,               // +
+  DASH_OPERATOR,               // -
+  STAR_OPERATOR,               // *
+  SLASH_OPERATOR,              // /
+  PERCENT_OPERATOR,            // %
+  BACKSLASH_OPERATOR,          // \    .
+  CAROT_OPERATOR,              // ^
+  PIPE_OPERATOR,               // |
+  TILDE_OPERATOR,              // ~
+  AMPERSAND_OPERATOR,          // &
+  DOUBLE_AMPERSAND_OPERATOR,   // &&
+  DOUBLE_PIPE_OPERATOR,        // ||
+  EQUAL_OPERATOR,              // =
+  DOUBLE_EQUAL_OPERATOR,       // ==
+  PLUS_EQUAL_OPERATOR,         // +=
+  DASH_EQUAL_OPERATOR,         // -=
+  STAR_EQUAL_OPERATOR,         // *=
+  SLASH_EQUAL_OPERATOR,        // /=
+  PERCENT_EQUAL_OPERATOR,      // %=
+  QUESTION_OPERATOR,           // ?
+  GRAVE_OPERATOR,              // `
+  DOUBLE_GRAVE_OPERATOR,       // ``
+  ARROW_OPERATOR,              // ->
+  CONCATENATE_OPERATOR,        // +>
+  DOT_OPERATOR,                // .
+  DOT_PLUS_OPERATOR,           // .+
+  DOT_DASH_OPERATOR,           // .-
+  DOT_STAR_OPERATOR,           // .*
+  DOT_SLASH_OPERATOR,          // ./
+  DOT_PERCENT_OPERATOR,        // .%
+  DOT_LESS_OPERATOR,           // .<
+  DOT_LESS_EQUAL_OPERATOR,     // .<=
+  DOT_GREATER_OPERATOR,        // .>
+  DOT_GREATER_EQUAL_OPERATOR,  // .>=
+  DOT_DOUBLE_EQUAL_OPERATOR,   // .==
+  DOT_BANG_EQUAL_OPERATOR,     // .!=
+  DOUBLE_DOT_OPERATOR,         // ..
+  DOUBLE_DOT_GREATER_OPERATOR, // ..>
+  DOUBLE_DOT_LESS_OPERATOR,    // ..<
 
   // SIGILS
   AT_SIGIL,     // @
@@ -224,7 +224,8 @@ getName(rq::TokenType token) {
   case T::DOUBLE_DOT_OPERATOR:
     return "double_dot_operator";
   case T::DOUBLE_DOT_GREATER_OPERATOR:
-    return "double_dot_greater_operator";;
+    return "double_dot_greater_operator";
+    ;
   case T::DOUBLE_DOT_LESS_OPERATOR:
     return "double_dot_less_operator";
   // SIGILS
@@ -794,6 +795,12 @@ struct Token final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSourceTextLength() const {
     return this->_lexume_length;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
+    return this->getSourceTextPtr();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
+    return this->getSourceTextPtr() + this->getSourceTextLength();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOperator() const {
     return rq::getIsOperator(this->getType());

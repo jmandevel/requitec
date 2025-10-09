@@ -279,6 +279,7 @@ struct NormativeParser final {
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
   void parseTrailer(rq::Expression& operation, rq::TokenRanger& keyword_ranger);
+  void parseTacitCommas(unsigned count, const char* source_text_ptr, rq::TreeParser& parser);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();
   [[nodiscard]] rq::Expression &parseLiteral(rq::Keyword keyword);
