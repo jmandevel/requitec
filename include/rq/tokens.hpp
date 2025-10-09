@@ -225,7 +225,6 @@ getName(rq::TokenType token) {
     return "double_dot_operator";
   case T::DOUBLE_DOT_GREATER_OPERATOR:
     return "double_dot_greater_operator";
-    ;
   case T::DOUBLE_DOT_LESS_OPERATOR:
     return "double_dot_less_operator";
   // SIGILS
