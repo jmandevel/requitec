@@ -1268,6 +1268,10 @@ void NormativeParser::parseTrailer(rq::Expression &operation,
           "operation",
           {trailer_token.getLlvmSourceRange()}, {});
       this->getContext().logMessage(
+          operation.getLlvmSourceStart(), rq::LogType::NOTE,
+          "for operation",
+          {operation.getLlvmSourceRange()}, {});
+      this->getContext().logMessage(
           front_token.getLlvmSourceStart(), rq::LogType::NOTE,
           "for token from start of operation",
           {front_token.getLlvmSourceRange()}, {});
