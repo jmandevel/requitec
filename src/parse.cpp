@@ -968,7 +968,7 @@ bool NormativeParser::parseCommaSeperatedBranches(
   RQ_UNREACHABLE();
 }
 
-rq::Keyword NormativeParser::parseOperationKeyword() {
+rq::Keyword NormativeParser::parseKeyword() {
   const rq::Token &token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
   const rq::TokenType type = token.getType();
@@ -1009,41 +1009,6 @@ rq::Keyword NormativeParser::parseOperationKeyword() {
   return keyword;
 }
 
-rq::Keyword NormativeParser::parseTypeAttributeKeyword() {
-  const rq::Token &token = this->getRanger().getToken();
-  rq::Keyword keyword = this->parseOperationKeyword();
-  if (keyword != rq::Keyword::__ERROR) {
-    if (!rq::getCanBeTypeAttribute(keyword)) {
-      this->setNotOk();
-      this->getContext().logMessage(
-          token.getLlvmSourceStart(), rq::LogType::ERROR,
-          llvm::Twine(token.getSourceText()) + " is not type attribute keyword",
-          {token.getLlvmSourceRange()}, {});
-      return rq::Keyword::__ERROR;
-    }
-    return keyword;
-  }
-  return rq::Keyword::__ERROR;
-}
-
-rq::Keyword NormativeParser::parseStatementAttributeKeyword() {
-  const rq::Token &token = this->getRanger().getToken();
-  rq::Keyword keyword = this->parseOperationKeyword();
-  if (keyword != rq::Keyword::__ERROR) {
-    if (!rq::getCanBeStatementAttribute(keyword)) {
-      this->setNotOk();
-      this->getContext().logMessage(token.getLlvmSourceStart(),
-                                    rq::LogType::ERROR,
-                                    llvm::Twine(token.getSourceText()) +
-                                        " is not statement attribute keyword",
-                                    {token.getLlvmSourceRange()}, {});
-      return rq::Keyword::__ERROR;
-    }
-    return keyword;
-  }
-  return rq::Keyword::__ERROR;
-}
-
 rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
   const rq::Token &left_token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
@@ -1066,7 +1031,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         capture, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
     parser.appendBranch(capture);
   } else {
-    const rq::Keyword keyword = this->parseOperationKeyword();
+    const rq::Keyword keyword = this->parseKeyword();
     operation.setKeyword(keyword);
     operation.setSource(left_token);
   }
@@ -1293,7 +1258,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
   const rq::Token &next_token = this->getRanger().getToken();
   if (next_token.getType() == rq::TokenType::LEFT_BRACKET_GROUPING) {
     this->getRanger().incrementToken(1);
-    rq::Keyword keyword = this->parseStatementAttributeKeyword();
+    rq::Keyword keyword = this->parseKeyword();
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(at_token);
@@ -1323,7 +1288,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
     return attribute;
   }
   const rq::Token &keyword_token = this->getRanger().getToken();
-  rq::Keyword keyword = this->parseStatementAttributeKeyword();
+  rq::Keyword keyword = this->parseKeyword();
   rq::Expression &attribute = this->getContext().acquireExpression();
   attribute.setKeyword(keyword);
   attribute.setSource(at_token, keyword_token);
@@ -1338,7 +1303,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
   const rq::Token &next_token = this->getRanger().getToken();
   if (next_token.getType() == rq::TokenType::LEFT_PARENTHESIS_GROUPING) {
     this->getRanger().incrementToken(1);
-    rq::Keyword keyword = this->parseStatementAttributeKeyword();
+    rq::Keyword keyword = this->parseKeyword();
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(dollar_token);
@@ -1360,7 +1325,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
     return attribute;
   }
   const rq::Token &keyword_token = this->getRanger().getToken();
-  rq::Keyword keyword = this->parseStatementAttributeKeyword();
+  rq::Keyword keyword = this->parseKeyword();
   rq::Expression &attribute = this->getContext().acquireExpression();
   attribute.setKeyword(keyword);
   attribute.setSource(dollar_token, keyword_token);

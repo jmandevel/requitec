@@ -272,9 +272,7 @@ struct NormativeParser final {
   [[nodiscard]] bool
   parseCommaSeperatedBranches(rq::Expression &operation, rq::TokenType end,
                               bool must_not_have_parameter_marks);
-  [[nodiscard]] rq::Keyword parseOperationKeyword();
-  [[nodiscard]] rq::Keyword parseTypeAttributeKeyword();
-  [[nodiscard]] rq::Keyword parseStatementAttributeKeyword();
+  [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
