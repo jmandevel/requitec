@@ -1264,7 +1264,7 @@ void NormativeParser::parseTrailer(rq::Expression &operation,
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
       this->getContext().logMessage(
           trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
-          "trailer token does not match token fron start of "
+          "trailer token does not match token from start of "
           "operation",
           {trailer_token.getLlvmSourceRange()}, {});
       this->getContext().logMessage(
