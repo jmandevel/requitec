@@ -278,6 +278,7 @@ struct NormativeParser final {
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
+  void parseTrailer(rq::Expression& operation, rq::TokenRanger& keyword_ranger);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();
   [[nodiscard]] rq::Expression &parseLiteral(rq::Keyword keyword);

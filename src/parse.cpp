@@ -20,7 +20,7 @@ void ForestParser::appendTree(rq::Expression &branch) {
 void TreeParser::startTree(rq::Expression &trunk) {
   RQ_ASSERT(!trunk.getHasNext(), "trunk must not have next");
   [[unlikely]] if (trunk.getHasBranch()) {
-    rq::Expression& branch = trunk.getBranch();
+    rq::Expression &branch = trunk.getBranch();
     RQ_ASSERT(!branch.getHasNext(), "branch must not have next");
     this->setLast(branch);
   }
@@ -1092,43 +1092,11 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         parser.finishOperation(before_token);
         return operation;
       } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
+        this->parseTrailer(operation, keyword_ranger);
+        const rq::Token &last_token = this->getRanger().getToken();
         this->getRanger().incrementToken(1);
-        if (operation.getKeyword() == rq::Keyword::_ANONYMOUS_FUNCTION) {
-          this->getContext().logErrorUnexpectedToken(before_token);
-          this->setNotOk();
-          this->getRanger().incrementToken(1);
-          continue;
-        }
-        unsigned bracket_depth = 1;
-        while (!this->getRanger().getIsDone()) {
-          const rq::Token &trailer_token = this->getRanger().getToken();
-          if (trailer_token.getType() == rq::TokenType::LEFT_BRACKET_GROUPING) {
-            bracket_depth++;
-          } else if (trailer_token.getType() ==
-                     rq::TokenType::RIGHT_BRACKET_GROUPING) {
-            bracket_depth--;
-            if (bracket_depth == 0) {
-              this->getRanger().incrementToken(1);
-              parser.finishOperation(trailer_token);
-              return operation;
-            }
-          }
-          const rq::Token &front_token = keyword_ranger.getToken();
-          if (trailer_token.getSourceText() != front_token.getSourceText()) {
-            this->getContext().logMessage(
-                trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
-                "trailer token does not associated token fron start of "
-                "symbolic expression",
-                {trailer_token.getLlvmSourceRange()}, {});
-            this->getContext().logMessage(
-                front_token.getLlvmSourceStart(), rq::LogType::NOTE,
-                "for token from start of symbolic expression",
-                {front_token.getLlvmSourceRange()}, {});
-            this->setNotOk();
-          }
-          this->getRanger().incrementToken(1);
-          keyword_ranger.incrementToken(1);
-        }
+        parser.finishOperation(last_token);
+        return operation;
       }
       rq::Expression &next = this->parseExpression();
       const rq::Token &after_token = this->getRanger().getToken();
@@ -1167,6 +1135,12 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       if (before_type == rq::TokenType::RIGHT_BRACKET_GROUPING) {
         this->getRanger().incrementToken(1);
         parser.finishOperation(before_token);
+        return operation;
+      } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
+        this->parseTrailer(operation, keyword_ranger);
+        const rq::Token &last_token = this->getRanger().getToken();
+        this->getRanger().incrementToken(1);
+        parser.finishOperation(last_token);
         return operation;
       }
       rq::Expression &next = this->parseExpression();
@@ -1269,6 +1243,47 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
     brace.changeKeyword(rq::Keyword::_NULL);
   }
   return brace;
+}
+
+void NormativeParser::parseTrailer(rq::Expression &operation,
+                                   rq::TokenRanger &keyword_ranger) {
+  const rq::Token &first_token = this->getRanger().getToken();
+  RQ_ASSERT(first_token.getType() == rq::TokenType::TRAILER_SEPERATOR,
+            "first token not trailer seperator");
+  this->getRanger().incrementToken(1);
+  if (operation.getKeyword() == rq::Keyword::_ANONYMOUS_FUNCTION) {
+    this->getContext().logErrorUnexpectedToken(first_token);
+    this->setNotOk();
+    return;
+  }
+  unsigned bracket_depth = 1;
+  while (!this->getRanger().getIsDone()) {
+    const rq::Token &trailer_token = this->getRanger().getToken();
+    if (trailer_token.getType() == rq::TokenType::LEFT_BRACKET_GROUPING) {
+      bracket_depth++;
+    } else if (trailer_token.getType() ==
+               rq::TokenType::RIGHT_BRACKET_GROUPING) {
+      bracket_depth--;
+      if (bracket_depth == 0) {
+        return;
+      }
+    }
+    const rq::Token &front_token = keyword_ranger.getToken();
+    if (trailer_token.getSourceText() != front_token.getSourceText()) {
+      this->getContext().logMessage(
+          trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
+          "trailer token does not associated token fron start of "
+          "symbolic expression",
+          {trailer_token.getLlvmSourceRange()}, {});
+      this->getContext().logMessage(
+          front_token.getLlvmSourceStart(), rq::LogType::NOTE,
+          "for token from start of symbolic expression",
+          {front_token.getLlvmSourceRange()}, {});
+      this->setNotOk();
+    }
+    this->getRanger().incrementToken(1);
+    keyword_ranger.incrementToken(1);
+  }
 }
 
 rq::Expression &NormativeParser::parseStatementAttribute() {
@@ -1551,7 +1566,7 @@ rq::Expression *SymbolicParser::parseExpressions() {
       forest_stack.pop_back();
       RQ_ASSERT(!forest_stack.empty(),
                 "forest stack size can not go down to 0");
-      rq::Expression& last = forest_stack.back().getLast();
+      rq::Expression &last = forest_stack.back().getLast();
       last.extendSourceOver(token);
       last.setBranch(finished);
       break;
