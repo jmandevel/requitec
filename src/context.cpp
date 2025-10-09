@@ -599,24 +599,6 @@ void Context::logErrorUnexpectedToken(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnterminatedExpression(const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "unterminated expression", {expression.getLlvmSourceRange()},
-                   {});
-}
-
-void Context::logErrorUnterminatedStatementAttribute(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "unterminated statement attribute",
-                   {token.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorUnterminatedTypeAttribute(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "unterminated statement attribute",
-                   {token.getLlvmSourceRange()}, {});
-}
-
 void Context::logErrorMustNotHaveParameterMarks(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,

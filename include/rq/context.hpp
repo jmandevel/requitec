@@ -188,9 +188,6 @@ struct Context final {
   }
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
-  void logErrorUnterminatedExpression(const rq::Expression &expression);
-  void logErrorUnterminatedStatementAttribute(const rq::Token &token);
-  void logErrorUnterminatedTypeAttribute(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
   void logErrorUnexpectedParameterMark(const rq::Token &token);
   void logErrorExpectedCommaSeperator(const rq::Token &token);

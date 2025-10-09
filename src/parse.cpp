@@ -217,7 +217,6 @@ rq::Expression *NormativeParser::parseExpressions() {
 }
 
 // STATEMENT ATTRIBUTES
-
 rq::Expression &NormativeParser::parsePrecedence11() {
   rq::PrecedenceParser precedence_parser(this->getContext());
   while (!this->getRanger().getIsDone()) {
@@ -857,9 +856,7 @@ bool NormativeParser::parseCommaSeperatedBranches(
   RQ_ASSERT(!operation.getHasSemicolonSeparatedBranches(),
             "operation has semicolon seperated branches");
   if (this->getRanger().getIsDone()) {
-    this->getContext().logErrorUnterminatedExpression(operation);
-    this->setNotOk();
-    return false;
+    RQ_UNREACHABLE();
   }
   bool found_invalid_parameter_mark = false;
   rq::TreeParser grouping_parser;
@@ -969,10 +966,7 @@ bool NormativeParser::parseCommaSeperatedBranches(
       }
     }
   }
-  grouping_parser.finishOperation(this->getRanger().getPreviousToken());
-  this->getContext().logErrorUnterminatedExpression(operation);
-  this->setNotOk();
-  return has_parameter_marks;
+  RQ_UNREACHABLE();
 }
 
 rq::Keyword NormativeParser::parseOperationKeyword() {
@@ -1166,9 +1160,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         break;
       }
     }
-    this->getContext().logErrorUnterminatedExpression(operation);
-    this->setNotOk();
-    return operation;
+    RQ_UNREACHABLE();
   }
   std::ignore = this->parseCommaSeperatedBranches(
       operation, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
@@ -1182,25 +1174,13 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
   brace.setKeyword(rq::Keyword::_TUPLE);
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
-  if (this->getRanger().getIsDone()) {
-    this->getContext().logErrorUnterminatedExpression(brace);
-    this->setNotOk();
-    return brace;
-  }
+  RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
   const rq::Token &second_token = this->getRanger().getToken();
-  if (this->getRanger().getIsDone(1)) {
-    this->getContext().logErrorUnterminatedExpression(brace);
-    this->setNotOk();
-    return brace;
-  }
+  RQ_ASSERT(!this->getRanger().getIsDone(1), "should not be done");
   switch (second_token.getType()) {
   case rq::TokenType::GREATER_OPERATOR: {
     const rq::Token &third_token = this->getRanger().getToken(1);
-    if (this->getRanger().getIsDone(2)) {
-      this->getContext().logErrorUnterminatedExpression(brace);
-      this->setNotOk();
-      return brace;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(2), "should not be done");
     switch (third_token.getType()) {
     case rq::TokenType::LESS_OPERATOR: {
       const rq::Token &fourth_token = this->getRanger().getToken(2);
@@ -1221,11 +1201,7 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
   } break;
   case rq::TokenType::LESS_OPERATOR: {
     const rq::Token &third_token = this->getRanger().getToken(1);
-    if (this->getRanger().getIsDone(2)) {
-      this->getContext().logErrorUnterminatedExpression(brace);
-      this->setNotOk();
-      return brace;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(2), "should not be done");
     switch (third_token.getType()) {
     case rq::TokenType::GREATER_OPERATOR: {
       const rq::Token &fourth_token = this->getRanger().getToken(2);
@@ -1261,25 +1237,11 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
   const rq::Token &at_token = this->getRanger().getToken();
   RQ_ASSERT(at_token.getType() == rq::TokenType::AT_SIGIL, "not at sigil");
   this->getRanger().incrementToken(1);
-  if (this->getRanger().getIsDone()) {
-    this->getContext().logErrorUnterminatedStatementAttribute(at_token);
-    this->setNotOk();
-    rq::Expression &error = this->getContext().acquireExpression();
-    error.setKeyword(rq::Keyword::__ERROR);
-    error.setSource(at_token);
-    return error;
-  }
+  RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
   const rq::Token &next_token = this->getRanger().getToken();
   if (next_token.getType() == rq::TokenType::LEFT_BRACKET_GROUPING) {
     this->getRanger().incrementToken(1);
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorUnterminatedStatementAttribute(at_token);
-      this->setNotOk();
-      rq::Expression &error = this->getContext().acquireExpression();
-      error.setKeyword(rq::Keyword::__ERROR);
-      error.setSource(at_token, next_token);
-      return error;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
     rq::Keyword keyword = this->parseStatementAttributeKeyword();
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(keyword);
@@ -1288,14 +1250,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
         attribute, rq::TokenType::RIGHT_BRACKET_GROUPING, true);
     return attribute;
   } else if (next_token.getType() == rq::TokenType::LEFT_BRACE_GROUPING) {
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorUnterminatedStatementAttribute(at_token);
-      this->setNotOk();
-      rq::Expression &error = this->getContext().acquireExpression();
-      error.setKeyword(rq::Keyword::__ERROR);
-      error.setSource(at_token, next_token);
-      return error;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(rq::Keyword::TEMPLATE);
     attribute.setSource(at_token);
@@ -1309,14 +1264,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
     }
     return attribute;
   } else if (next_token.getType() == rq::TokenType::LEFT_PARENTHESIS_GROUPING) {
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorUnterminatedStatementAttribute(at_token);
-      this->setNotOk();
-      rq::Expression &error = this->getContext().acquireExpression();
-      error.setKeyword(rq::Keyword::__ERROR);
-      error.setSource(at_token, next_token);
-      return error;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(rq::Keyword::STATIC_CAPTURE);
     attribute.setSource(at_token);
@@ -1338,25 +1286,11 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
   RQ_ASSERT(dollar_token.getType() == rq::TokenType::DOLLAR_SIGIL,
             "not dollar sigil");
   this->getRanger().incrementToken(1);
-  if (this->getRanger().getIsDone()) {
-    this->getContext().logErrorUnterminatedTypeAttribute(dollar_token);
-    this->setNotOk();
-    rq::Expression &error = this->getContext().acquireExpression();
-    error.setKeyword(rq::Keyword::__ERROR);
-    error.setSource(dollar_token);
-    return error;
-  }
+  RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
   const rq::Token &next_token = this->getRanger().getToken();
   if (next_token.getType() == rq::TokenType::LEFT_PARENTHESIS_GROUPING) {
     this->getRanger().incrementToken(1);
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorUnterminatedTypeAttribute(dollar_token);
-      this->setNotOk();
-      rq::Expression &error = this->getContext().acquireExpression();
-      error.setKeyword(rq::Keyword::__ERROR);
-      error.setSource(dollar_token, next_token);
-      return error;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
     rq::Keyword keyword = this->parseStatementAttributeKeyword();
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(keyword);
@@ -1365,14 +1299,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
         attribute, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, true);
     return attribute;
   } else if (next_token.getType() == rq::TokenType::LEFT_PARENTHESIS_GROUPING) {
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorUnterminatedStatementAttribute(dollar_token);
-      this->setNotOk();
-      rq::Expression &error = this->getContext().acquireExpression();
-      error.setKeyword(rq::Keyword::__ERROR);
-      error.setSource(dollar_token, next_token);
-      return error;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
     rq::Expression &attribute = this->getContext().acquireExpression();
     attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
@@ -1405,11 +1332,7 @@ rq::Expression &NormativeParser::parseEnclosedParenthesisExpression() {
       parenthesis, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, false);
   if (has_parameter_marks) {
     parenthesis.changeKeyword(rq::Keyword::_SIGNATURE);
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorUnterminatedExpression(parenthesis);
-      this->setNotOk();
-      return parenthesis;
-    }
+    RQ_ASSERT(!this->getRanger().getIsDone(), "should not be done");
     rq::Expression &return_type = this->parseExpression();
     parenthesis.extendSourceOver(return_type);
     if (parenthesis.getHasBranch()) {
