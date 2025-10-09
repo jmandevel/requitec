@@ -214,8 +214,9 @@ bool Context::loadSourceModule() {
         input_path + "\n\treason:" + buffer_eo.getError().message());
     return false;
   }
+  llvm::StringRef final_path = this->saveString(input_path);
   rq::Module &source_module = this->allocateValue<rq::Module>(
-      rq::ModuleType::SOURCE, language, input_path, std::move(buffer_eo.get()));
+      rq::ModuleType::SOURCE, language, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       input_path, &this->getSourceModule()));
@@ -277,8 +278,9 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
         {expression.getLlvmSourceRange()}, {});
     return nullptr;
   }
+  llvm::StringRef final_path = this->saveString(found_path);
   rq::Module &import_module = this->allocateValue<rq::Module>(
-      rq::ModuleType::IMPORT, language, found_path, std::move(buffer_eo.get()));
+      rq::ModuleType::IMPORT, language, final_path, std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;

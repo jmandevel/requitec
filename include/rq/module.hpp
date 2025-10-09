@@ -65,7 +65,7 @@ struct Module final {
   rq::ModuleType _type;
   rq::Language _language;
   llvm::MemoryBufferRef _llvm_buffer_ref;
-  std::string _path;
+  llvm::StringRef _path;
   rq::Expression *_expression_ptr = nullptr;
 
   Module(rq::ModuleType type, rq::Language language, llvm::StringRef path,
