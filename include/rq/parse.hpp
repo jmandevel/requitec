@@ -91,7 +91,6 @@ struct ForestParser final {
     return rq::dereferencePtr(this->_last_ptr);
   }
   void appendTree(rq::Expression &tree);
-  void finishOperation(const rq::Token &last_token);
 };
 
 struct TreeParser final {
@@ -292,7 +291,7 @@ struct SymbolicParser final {
 
   std::reference_wrapper<rq::Context> _context_ref;
   rq::TokenRanger _token_ranger;
-  bool _is_ok = false;
+  bool _is_ok = true;
 
   SymbolicParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
       : _context_ref(context), _token_ranger(tokens) {}

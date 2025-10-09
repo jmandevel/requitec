@@ -7,7 +7,7 @@
 namespace rq {
 
 void ForestParser::appendTree(rq::Expression &branch) {
-  [[unlikely]] if (this->getHasOperation()) {
+  [[unlikely]] if (!this->getHasOperation()) {
     this->setOperation(branch);
     this->setLast(branch);
     return;
@@ -17,14 +17,13 @@ void ForestParser::appendTree(rq::Expression &branch) {
   this->setLast(branch);
 }
 
-void ForestParser::finishOperation(const rq::Token &last_token) {
-  rq::Expression &operation = this->getOperation();
-  operation.extendSourceOver(last_token);
-}
-
 void TreeParser::startTree(rq::Expression &trunk) {
-  RQ_ASSERT(!trunk.getHasBranch(), "trunk must not have branch");
   RQ_ASSERT(!trunk.getHasNext(), "trunk must not have next");
+  [[unlikely]] if (trunk.getHasBranch()) {
+    rq::Expression& branch = trunk.getBranch();
+    RQ_ASSERT(!branch.getHasNext(), "branch must not have next");
+    this->setLast(branch);
+  }
   this->setOperation(trunk);
 }
 
@@ -1191,7 +1190,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         }
         break;
       default:
-        if (operation.getCanHaveNoSemicolon()) {
+        if (next.getCanHaveNoSemicolon()) {
           break;
         }
         this->getContext().logErrorExpectedSemicolonSeperator(after_token);
@@ -1509,7 +1508,7 @@ rq::Expression *SymbolicParser::parseExpressions() {
     using namespace rq;
     using T = TokenType;
     switch (const rq::TokenType type = token.getType()) {
-    case T::LEFT_BRACE_GROUPING: {
+    case T::LEFT_BRACKET_GROUPING: {
       this->getRanger().incrementToken(1);
       const rq::Token &keyword_token = this->getRanger().getToken();
       [[unlikely]] if (keyword_token.getType() !=
@@ -1523,7 +1522,7 @@ rq::Expression *SymbolicParser::parseExpressions() {
         break;
       }
       rq::Keyword keyword =
-          this->getContext().getKeyword(token.getSourceText());
+          this->getContext().getKeyword(keyword_token.getSourceText());
       [[unlikely]] if (rq::getIsInternal(keyword)) {
         this->getContext().logMessage(
             token.getLlvmSourceStart(), rq::LogType::ERROR,
@@ -1542,13 +1541,19 @@ rq::Expression *SymbolicParser::parseExpressions() {
     }
     case T::RIGHT_BRACKET_GROUPING: {
       this->getRanger().incrementToken(1);
-      forest_stack.back().finishOperation(token);
+      if (!forest_stack.back().getHasOperation()) {
+        forest_stack.pop_back();
+        RQ_ASSERT(!forest_stack.empty(),
+                  "forest stack size can not go down to 0");
+        break;
+      }
       rq::Expression &finished = forest_stack.back().getOperation();
-      finished.extendSourceOver(token);
       forest_stack.pop_back();
       RQ_ASSERT(!forest_stack.empty(),
                 "forest stack size can not go down to 0");
-      forest_stack.back().appendTree(finished);
+      rq::Expression& last = forest_stack.back().getLast();
+      last.extendSourceOver(token);
+      last.setBranch(finished);
       break;
     }
     case T::IDENTIFIER_LITERAL:

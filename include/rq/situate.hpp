@@ -1434,7 +1434,7 @@ struct Situator final {
       if constexpr (!getCanBeSituation<SP>(K::_DEFAULT_VALUE_PARAMETER)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateBinaryExpression<SP, S::NAME, S::RVALUE>(expression);
+        this->situateBinaryExpression<SP, S::LVALUE, S::RVALUE>(expression);
       }
       break;
     case K::DESTROY:

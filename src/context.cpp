@@ -172,12 +172,12 @@ std::error_code Context::canonicalizePath(llvm::SmallVectorImpl<char> &path) {
 
 llvm::ErrorOr<llvm::MemoryBufferRef>
 Context::loadRequiteFileBuffer(llvm::StringRef path) {
-  RQ_ASSERT(path.empty(), "path is empty");
+  RQ_ASSERT(!path.empty(), "path is empty");
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_eo =
       llvm::MemoryBuffer::getFile(path, /*IsText=*/true,
                                   /*RequiresNullTerminator=*/true,
                                   /*IsVolatile=*/false, std::nullopt);
-  if (!buffer_eo) {
+  if (buffer_eo) {
     llvm::MemoryBufferRef ref = buffer_eo.get().get()->getMemBufferRef();
     std::ignore = this->_llvm_source_mgr.AddNewSourceBuffer(
         std::move(buffer_eo.get()), llvm::SMLoc());
