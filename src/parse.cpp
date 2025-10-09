@@ -1264,12 +1264,12 @@ void NormativeParser::parseTrailer(rq::Expression &operation,
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
       this->getContext().logMessage(
           trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
-          "trailer token does not associated token fron start of "
-          "symbolic expression",
+          "trailer token does not match token fron start of "
+          "operation",
           {trailer_token.getLlvmSourceRange()}, {});
       this->getContext().logMessage(
           front_token.getLlvmSourceStart(), rq::LogType::NOTE,
-          "for token from start of symbolic expression",
+          "for token from start of operation",
           {front_token.getLlvmSourceRange()}, {});
       this->setNotOk();
     }
