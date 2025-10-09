@@ -1036,21 +1036,20 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
     operation.setSource(left_token);
   }
   if (operation.getHasSemicolonSeparatedBranches()) {
-    const unsigned comma_count = operation.getCommaBranchCount();
+    unsigned comma_count = operation.getCommaBranchCount();
     rq::TreeParser parser;
     parser.startTree(operation);
-    unsigned branch_i = 0;
-    while (branch_i < comma_count) {
+    while (comma_count-- > 0) {
       const rq::Token &before_token = this->getRanger().getToken();
       const rq::TokenType before_type = before_token.getType();
       if (before_type == rq::TokenType::RIGHT_BRACKET_GROUPING) {
-        this->parseTacitCommas(comma_count - branch_i - 1,
+        this->parseTacitCommas(comma_count,
                                before_token.getAfterSourceTextPtr(), parser);
         this->getRanger().incrementToken(1);
         parser.finishOperation(before_token);
         return operation;
       } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
-        this->parseTacitCommas(comma_count - branch_i - 1,
+        this->parseTacitCommas(comma_count,
                                before_token.getAfterSourceTextPtr(), parser);
         this->parseTrailer(operation, keyword_ranger);
         const rq::Token &last_token = this->getRanger().getToken();
@@ -1063,14 +1062,13 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       const rq::TokenType after_type = after_token.getType();
       if (after_type == rq::TokenType::SEMICOLON_SEPERATOR ||
           next.getCanHaveNoSemicolon()) {
-        this->parseTacitCommas(comma_count - branch_i - 1,
+        this->parseTacitCommas(comma_count,
                                after_token.getBeforeSourceTextPtr(), parser);
         if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
           this->getRanger().incrementToken(1);
         }
         break;
       }
-      branch_i++;
       parser.appendBranch(next);
       switch (after_type) {
       case rq::TokenType::COMMA_SEPERATOR:
