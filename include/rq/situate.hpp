@@ -49,8 +49,7 @@ struct Situator final {
         {expression.getLlvmSourceRange()}, {});
   }
   template <rq::Situation SITUATION_PARAM>
-  void logErrorTooNotLessOrEqualToBranchCount(rq::Expression &expression,
-                                              unsigned count) {
+  void logErrorTooManyBranchCount(rq::Expression &expression, unsigned count) {
     this->getContext().logMessage(
         expression.getLlvmSourceStart(), rq::LogType::ERROR,
         llvm::Twine(rq::getDescription(SITUATION_PARAM)) + " " +
@@ -579,10 +578,48 @@ struct Situator final {
     destination_copy.setNext(value);
   }
   template <rq::Situation SITUATION_PARAM>
+  inline void situateSequenceExpression(rq::Expression &expression) {
+    RQ_ASSERT(expression.getKeyword() == rq::Keyword::TABLE, "wrong keyword");
+    if (!expression.getHasBranch()) {
+      this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+      this->setNotOk();
+      return;
+    }
+    rq::Expression &value = expression.getBranch();
+    this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
+        "first branch", expression, 0, value);
+    if (!value.getHasNext()) {
+      this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+      this->setNotOk();
+      return;
+    }
+    rq::Expression &stage_one = value.getNext();
+    this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
+        "second branch", expression, 1, stage_one);
+    if (!stage_one.getHasNext()) {
+      return;
+    }
+    if (!stage_one.getHasNext()) {
+      this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
+      this->setNotOk();
+      return;
+    }
+    rq::Expression &stage_two = stage_one.getNext();
+    this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
+        "third branch", expression, 2, stage_two);
+    if (stage_two.getHasNext()) {
+      this->logErrorTooManyBranchCount<SITUATION_PARAM>(expression, 3);
+      this->setNotOk();
+    }
+  }
+  template <rq::Situation SITUATION_PARAM>
   inline void situateTableExpression(rq::Expression &expression) {
     RQ_ASSERT(expression.getKeyword() == rq::Keyword::TABLE, "wrong keyword");
     this->situateNaryExpression<SITUATION_PARAM, 1, rq::Situation::PATH,
                                 rq::Situation::TABLE_STATEMENT>(expression);
+    if (!expression.getHasBranch()) {
+      return;
+    }
     rq::Expression &path_expression = expression.getBranch();
     if (path_expression.getKeyword() == rq::Keyword::_MEMBER_OF) {
       rq::Expression *table_body_ptr = path_expression.popNextPtr();
@@ -2072,33 +2109,11 @@ struct Situator final {
         this->situateBinaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::_INTERVAL:
-      if constexpr (!getCanBeSituation<SP>(K::_INTERVAL)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateBinaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_INTERVAL_GREATER:
-      if constexpr (!getCanBeSituation<SP>(K::_INTERVAL_GREATER)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateBinaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
-    case K::_INTERVAL_LESS:
-      if constexpr (!getCanBeSituation<SP>(K::_INTERVAL_LESS)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateBinaryExpression<SP, S::RVALUE>(expression);
-      }
-      break;
     case K::_SEQUENCE:
       if constexpr (!getCanBeSituation<SP>(K::_SEQUENCE)) {
         RQ_UNREACHABLE();
       } else {
-        this->situateNaryExpression<SP, 2, S::RVALUE, S::SEQUENCE_STAGE>(
-            expression);
+        this->situateSequenceExpression<SP>(expression);
       }
       break;
     case K::_SEQUENCE_STEP_ADD:

@@ -275,9 +275,6 @@ enum class Keyword : std::uint32_t {
   RANGE,
   CONTAINS,
   _CONTAINS_VALUE,
-  _INTERVAL,
-  _INTERVAL_GREATER,
-  _INTERVAL_LESS,
   _SEQUENCE,
   _SEQUENCE_STEP_ADD,
   _SEQUENCE_STEP_SUBTRACT,
@@ -803,12 +800,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "contains";
   case K::_CONTAINS_VALUE:
     return "_contains_value";
-  case K::_INTERVAL:
-    return "_interval";
-  case K::_INTERVAL_GREATER:
-    return "_interval_greater";
-  case K::_INTERVAL_LESS:
-    return "_interval_less";
   case K::_SEQUENCE:
     return "_sequence";
   case K::_SEQUENCE_STEP_ADD:
@@ -1515,12 +1506,6 @@ getFlags(rq::Keyword keyword) {
   case K::CONTAINS:
     return KF::REFLECTION;
   case K::_CONTAINS_VALUE:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_INTERVAL:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_INTERVAL_GREATER:
-    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_INTERVAL_LESS:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
   case K::_SEQUENCE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;

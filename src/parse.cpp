@@ -386,21 +386,6 @@ rq::Expression &NormativeParser::parsePrecedence8() {
           token, rq::Keyword::_SEQUENCE_WHILE_NOT_EQUAL,
           this->parsePrecedence7());
       continue;
-    case rq::TokenType::DOUBLE_DOT_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_parser.parseBinary(token, rq::Keyword::_INTERVAL);
-      precedence_parser.setRecent(this->parsePrecedence7());
-      continue;
-    case rq::TokenType::DOUBLE_DOT_LESS_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_parser.parseBinary(token, rq::Keyword::_INTERVAL_LESS);
-      precedence_parser.setRecent(this->parsePrecedence7());
-      continue;
-    case rq::TokenType::DOUBLE_DOT_GREATER_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_parser.parseBinary(token, rq::Keyword::_INTERVAL_GREATER);
-      precedence_parser.setRecent(this->parsePrecedence7());
-      continue;
     default:
       break;
     }

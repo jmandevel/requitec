@@ -58,9 +58,6 @@ enum class TokenType : std::uint_fast16_t {
   DOT_GREATER_EQUAL_OPERATOR,  // .>=
   DOT_DOUBLE_EQUAL_OPERATOR,   // .==
   DOT_BANG_EQUAL_OPERATOR,     // .!=
-  DOUBLE_DOT_OPERATOR,         // ..
-  DOUBLE_DOT_GREATER_OPERATOR, // ..>
-  DOUBLE_DOT_LESS_OPERATOR,    // ..<
 
   // SIGILS
   AT_SIGIL,     // @
@@ -221,12 +218,7 @@ getName(rq::TokenType token) {
     return "dot_double_equal_operator";
   case T::DOT_BANG_EQUAL_OPERATOR:
     return "dot_bang_equal_operator";
-  case T::DOUBLE_DOT_OPERATOR:
-    return "double_dot_operator";
-  case T::DOUBLE_DOT_GREATER_OPERATOR:
-    return "double_dot_greater_operator";
-  case T::DOUBLE_DOT_LESS_OPERATOR:
-    return "double_dot_less_operator";
+
   // SIGILS
   case T::AT_SIGIL:
     return "at_sigil";
@@ -399,12 +391,6 @@ getDescription(rq::TokenType token) {
     return "dot double equal operator";
   case T::DOT_BANG_EQUAL_OPERATOR:
     return "dot bang equal operator";
-  case T::DOUBLE_DOT_OPERATOR:
-    return "double dot operator";
-  case T::DOUBLE_DOT_GREATER_OPERATOR:
-    return "double dot greater operator";
-  case T::DOUBLE_DOT_LESS_OPERATOR:
-    return "double dot less operator";
 
   // SIGILS
   case T::AT_SIGIL:
@@ -577,12 +563,6 @@ getFlags(rq::TokenType token) {
   case T::DOT_DOUBLE_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_BANG_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::DOUBLE_DOT_OPERATOR:
-    return TF::OPERATOR;
-  case T::DOUBLE_DOT_GREATER_OPERATOR:
-    return TF::OPERATOR;
-  case T::DOUBLE_DOT_LESS_OPERATOR:
     return TF::OPERATOR;
   case T::AT_SIGIL:
     return TF::SIGIL;

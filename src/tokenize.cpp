@@ -231,18 +231,6 @@ void Tokenizer::_tokenizeSourceText() {
           this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
         }
         continue;
-      case '.':
-        switch (this->getRanger().getChar(2)) {
-        case '<':
-          this->tokenizeLengthToken(T::DOUBLE_DOT_LESS_OPERATOR, 3);
-          break;
-        case '>':
-          this->tokenizeLengthToken(T::DOUBLE_DOT_GREATER_OPERATOR, 3);
-          break;
-        default:
-          this->tokenizeLengthToken(T::DOUBLE_DOT_OPERATOR, 2);
-        }
-        break;
       default:
         this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
       }
