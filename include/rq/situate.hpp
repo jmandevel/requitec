@@ -1394,8 +1394,8 @@ struct Situator final {
         this->situateNaryExpression<SP, 1, S::ARGUMENT>(expression);
       }
       break;
-    case K::_LAYOUT:
-      if constexpr (!getCanBeSituation<SP>(K::_LAYOUT)) {
+    case K::_LAYOUT_TYPE:
+      if constexpr (!getCanBeSituation<SP>(K::_LAYOUT_TYPE)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 1, S::PARAMETER>(expression);
@@ -1460,8 +1460,8 @@ struct Situator final {
         this->situateNaryExpression<SP, 1, S::RVALUE>(expression);
       }
       break;
-    case K::_SIGNATURE:
-      if constexpr (!getCanBeSituation<SP>(K::_SIGNATURE)) {
+    case K::_SIGNATURE_TYPE:
+      if constexpr (!getCanBeSituation<SP>(K::_SIGNATURE_TYPE)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNaryExpression<SP, 1, S::RVALUE, S::PARAMETER>(expression);
@@ -2613,6 +2613,34 @@ struct Situator final {
       break;
     case K::_DISCRIMINANT_OF:
       if constexpr (!getCanBeSituation<SP>(K::_DISCRIMINANT_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
+    case K::SIGNATURE:
+      if constexpr (!getCanBeSituation<SP>(K::SIGNATURE)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
+    case K::_SIGNATURE_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_SIGNATURE_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
+    case K::LAYOUT:
+      if constexpr (!getCanBeSituation<SP>(K::LAYOUT)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
+    case K::_LAYOUT_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_LAYOUT_OF)) {
         RQ_UNREACHABLE();
       } else {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);

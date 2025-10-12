@@ -1171,7 +1171,7 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
   bool has_parameter_marks = this->parseCommaSeperatedBranches(
       brace, rq::TokenType::RIGHT_BRACE_GROUPING, false);
   if (has_parameter_marks) {
-    brace.changeKeyword(rq::Keyword::_LAYOUT);
+    brace.changeKeyword(rq::Keyword::_LAYOUT_TYPE);
   } else if (!brace.getHasBranch()) {
     brace.changeKeyword(rq::Keyword::_NULL);
   }
@@ -1324,7 +1324,7 @@ rq::Expression &NormativeParser::parseEnclosedParenthesisExpression() {
   bool has_parameter_marks = this->parseCommaSeperatedBranches(
       parenthesis, rq::TokenType::RIGHT_PARENTHESIS_GROUPING, false);
   if (has_parameter_marks) {
-    parenthesis.changeKeyword(rq::Keyword::_SIGNATURE);
+    parenthesis.changeKeyword(rq::Keyword::_SIGNATURE_TYPE);
     rq::Expression &return_type = this->parseExpression();
     parenthesis.extendSourceOver(return_type);
     if (parenthesis.getHasBranch()) {

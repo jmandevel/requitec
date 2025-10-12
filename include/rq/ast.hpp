@@ -150,7 +150,7 @@ enum class Keyword : std::uint32_t {
 
   // BRACES
   _TUPLE,
-  _LAYOUT,
+  _LAYOUT_TYPE,
   _NULL,
   _NULL_TYPE,
   _STRUCTURED_BINDING,
@@ -161,7 +161,7 @@ enum class Keyword : std::uint32_t {
   _CALL,
   _NAMED_ARGUMENT,
   _INDEX,
-  _SIGNATURE,
+  _SIGNATURE_TYPE,
   _DEFAULT_VALUE_PARAMETER,
   DESTROY,
   _DESTROY_VALUE,
@@ -359,6 +359,10 @@ enum class Keyword : std::uint32_t {
   _SYMBOL_OF,
   DISCRIMINANT,
   _DISCRIMINANT_OF,
+  LAYOUT,
+  _LAYOUT_OF,
+  SIGNATURE,
+  _SIGNATURE_OF,
 
   __LAST
 };
@@ -588,8 +592,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // BRACES
   case K::_TUPLE:
     return "_tuple";
-  case K::_LAYOUT:
-    return "_layout";
+  case K::_LAYOUT_TYPE:
+    return "_layout_type";
   case K::_NULL:
     return "_null";
   case K::_NULL_TYPE:
@@ -608,8 +612,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_named_argument";
   case K::_INDEX:
     return "_index";
-  case K::_SIGNATURE:
-    return "_signature";
+  case K::_SIGNATURE_TYPE:
+    return "_signature_type";
   case K::_DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
   case K::DESTROY:
@@ -956,6 +960,14 @@ constexpr std::size_t KEYWORD_COUNT =
     return "discriminant";
   case K::_DISCRIMINANT_OF:
     return "_discriminant_of";
+  case K::SIGNATURE:
+    return "signature";
+  case K::_SIGNATURE_OF:
+    return "_signature_of";
+  case K::LAYOUT:
+    return "layout";
+  case K::_LAYOUT_OF:
+    return "_layout_of";
 
   case K::__LAST:
     return "__last";
@@ -1245,7 +1257,7 @@ getFlags(rq::Keyword keyword) {
   // BRACES
   case K::_TUPLE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
-  case K::_LAYOUT:
+  case K::_LAYOUT_TYPE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::_NULL:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
@@ -1269,7 +1281,7 @@ getFlags(rq::Keyword keyword) {
     return KF::SYMBOLIC | KF::ARGUMENT;
   case K::_INDEX:
     return KF::SYMBOLIC | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::_SIGNATURE:
+  case K::_SIGNATURE_TYPE:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::_DEFAULT_VALUE_PARAMETER:
     return KF::SYMBOLIC | KF::PARAMETER;
@@ -1673,6 +1685,14 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION;
   case K::_DISCRIMINANT_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
+  case K::SIGNATURE:
+    return KF::REFLECTION;
+  case K::_SIGNATURE_OF:
+    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
+  case K::LAYOUT:
+    return KF::REFLECTION;
+  case K::_LAYOUT_OF:
+    return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
 
   case K::__LAST:
     break;
@@ -1866,6 +1886,10 @@ getUniversalized(rq::Keyword keyword) {
     return K::_SYMBOL_OF;
   case K::DISCRIMINANT:
     return K::_DISCRIMINANT_OF;
+  case K::SIGNATURE:
+    return K::_SIGNATURE_OF;
+  case K::LAYOUT:
+    return K::_LAYOUT_OF;
   default:
     break;
   }
