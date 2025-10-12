@@ -1670,7 +1670,7 @@ getFlags(rq::Keyword keyword) {
   case K::_SYMBOL_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
   case K::DISCRIMINANT:
-    return KF::REFLECTION | KF::STATEMENT_ATTRIBUTE;
+    return KF::REFLECTION;
   case K::_DISCRIMINANT_OF:
     return KF::SYMBOLIC | KF::RVALUE | KF::ARGUMENT;
 
