@@ -730,6 +730,11 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       }
       rq::Expression &expression = this->parsePrecedence0();
       precedence_parser.setRecent(expression);
+      if (!precedence_parser.getHasOuter() &&
+          expression.getCanHaveNoSemicolon()) {
+        precedence_parser.appendRecent();
+        break;
+      }
     }
     previous_call = false;
     if (this->getRanger().getIsDone()) {
@@ -739,20 +744,10 @@ rq::Expression &NormativeParser::parsePrecedence1() {
     const rq::Token &post_token = this->getRanger().getToken();
     switch (post_token.getType()) {
     case rq::TokenType::HASH_OPERATOR:
-      if (!precedence_parser.getHasOuter() &&
-          precedence_parser.getRecent().getCanHaveNoSemicolon()) {
-        precedence_parser.appendRecent();
-        break;
-      }
       this->getRanger().incrementToken(1);
       precedence_parser.parseNary(post_token, rq::Keyword::_ARRAY);
       continue;
     case rq::TokenType::ARROW_OPERATOR:
-      if (!precedence_parser.getHasOuter() &&
-          precedence_parser.getRecent().getCanHaveNoSemicolon()) {
-        precedence_parser.appendRecent();
-        break;
-      }
       this->getRanger().incrementToken(1);
       precedence_parser.parseNary(post_token, rq::Keyword::_EXTEND);
       continue;
