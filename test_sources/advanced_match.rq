@@ -2,7 +2,7 @@
     float:[binary32];
     int:[signed];
     str:^[utf8];
-]
+];
 
 val := enum.float(1.234);
 

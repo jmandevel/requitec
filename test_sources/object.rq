@@ -5,15 +5,15 @@
         @private z := 0
     <},
 
-    [constructor]
+    [constructor];
 
     [constructor (>x:[signed], y:[signed], z:[signed]<),
         {x=x, y=y, z=z}
-    ]
+    ];
 
     [function getTotal, ->(><)[signed],
         [result] := [this].x + [this].y + [this].z;
-    ]
+    ];
 
     [function add, (>a:MyObject, b:MyObject<)MyObject,
         [result] :=
@@ -22,10 +22,10 @@
                 a.y + b.y,
                 a.z + b.z
             );
-    ]
-]
+    ];
+];
 
-[import "std"]
+[import "std"];
 
 [entry_point
 
@@ -37,4 +37,4 @@
     added := MyObject.add(a, b);
 
     [result] := added.getTotal();
-]
+];

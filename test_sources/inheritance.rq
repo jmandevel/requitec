@@ -5,30 +5,30 @@
     
     [function myFunc, 
         std.print(line="in parent");
-    ]
+    ];
     
     @virtual
     [function myFuncB, 
         std.print(line="in parent");
-    ]
+    ];
     
-    [constructor]
-]
+    [constructor];
+];
 
 [object Child,
     {> 
         @parent parent := Parent() 
     <},
     
-    [use [self].parent.myFunc]
+    [use [self].parent.myFunc];
     
     @[override [self].parent.myFuncB]
     [function myFuncB,
         std.print(line="in child");
-    ]
+    ];
 
-    [constructor]
-]
+    [constructor];
+];
 
 [entry_point
     parent := Parent();
@@ -38,4 +38,4 @@
     child.myFunc();
     parent.myFuncB();
     child.myFuncB();
-]
+];

@@ -19,4 +19,4 @@
     sub_fat_pointer_to_mutable :^`[signed]= array.`[slice 2..<4]; // contains {3, 4}
     reference_to_sub_array :&3#[signed]= array.[array_slice 2..4]; // contains {3, 4, 5}
     reference_to_mutable_sub_array :&`2#[signed]= array.`[array_slice 2..<4]; // contains {3, 4}
-]
+];

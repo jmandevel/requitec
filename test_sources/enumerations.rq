@@ -2,13 +2,13 @@
     apple = 0;
     orange = 1;
     grape = 2;
-]
+];
 
 [enumeration Payload, 16,
     none=0;
     string:^``[utf8]=1;
     number:[binary64]=2;    
-]
+];
 
 payload := Payload.string("str");
 none := Payload.none;
