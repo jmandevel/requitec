@@ -1754,7 +1754,7 @@ getHasSemicolonSeparatedBranches(rq::Keyword keyword) {
                        rq::KeywordFlags::HAS_SEMICOLON_SEPARATED_BRANCHES);
 }
 
-enum class Situation : std::uint_fast32_t {
+enum class Situation : std::uint_fast8_t {
   NONE,
   TOP_STATEMENT,
   TABLE_STATEMENT,
