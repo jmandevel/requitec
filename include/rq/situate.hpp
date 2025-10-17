@@ -650,19 +650,6 @@ struct Situator final {
         expression);
   }
   template <rq::Situation SITUATION_PARAM>
-  inline void situateMangledNameExpression(rq::Expression &expression) {
-    RQ_ASSERT(expression.getKeyword() == rq::Keyword::MANGLED_NAME,
-              "wrong keyword");
-    if constexpr (SITUATION_PARAM == rq::Situation::STATEMENT_ATTRIBUTE) {
-      this->situateUnaryExpression<SITUATION_PARAM, rq::Situation::RVALUE>(
-          expression);
-    } else if constexpr (SITUATION_PARAM == rq::Situation::REFLECTION) {
-      this->situateNullaryExpression<SITUATION_PARAM>(expression);
-    } else {
-      static_assert(false, "invalid situation");
-    }
-  }
-  template <rq::Situation SITUATION_PARAM>
   inline void situateReflectExpression(rq::Expression &expression) {
     RQ_ASSERT(expression.getKeyword() == rq::Keyword::_REFLECT,
               "wrong keyword");
@@ -2336,8 +2323,10 @@ struct Situator final {
     case K::MANGLED_NAME:
       if constexpr (!getCanBeSituation<SP>(K::MANGLED_NAME)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
-        this->situateMangledNameExpression<SP>(expression);
+        this->situateUnaryExpression<SP, rq::Situation::RVALUE>(expression);
       }
       break;
     case K::_MANGLED_NAME_OF:
