@@ -310,6 +310,7 @@ enum class Keyword : std::uint32_t {
   // ATTRIBUTES
   BAKE,
   STATIC_CAPTURE,
+  EVALUATE_IMMEDIATELY,
   MAY_PARENT,
   PARENT,
   ABSTRACT,
@@ -864,6 +865,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "bake";
   case K::STATIC_CAPTURE:
     return "static_capture";
+  case K::EVALUATE_IMMEDIATELY:
+    return "evaluate_immediately";
   case K::MAY_PARENT:
     return "may_parent";
   case K::PARENT:
@@ -1588,6 +1591,8 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::STATIC_CAPTURE:
     return KF::STATEMENT_ATTRIBUTE;
+  case K::EVALUATE_IMMEDIATELY:
+    return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_PARENT:
     return KF::STATEMENT_ATTRIBUTE;
   case K::PARENT:
@@ -2068,6 +2073,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   NONE,
   BAKE,
   STATIC_CAPTURE,
+  EVALUATE_IMMEDIATELY,
   MAY_PARENT,
   PARENT,
   ABSTRACT,
@@ -2099,6 +2105,8 @@ getName(rq::StatementAttribute attribute) {
     return "bake";
   case SA::STATIC_CAPTURE:
     return "static_capture";
+  case SA::EVALUATE_IMMEDIATELY:
+    return "evaluate_immediately";
   case SA::MAY_PARENT:
     return "may_parent";
   case SA::PARENT:
@@ -2149,6 +2157,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::BAKE;
   case K::STATIC_CAPTURE:
     return SA::STATIC_CAPTURE;
+  case K::EVALUATE_IMMEDIATELY:
+    return SA::EVALUATE_IMMEDIATELY;
   case K::MAY_PARENT:
     return SA::MAY_PARENT;
   case K::PARENT:
@@ -2195,24 +2205,25 @@ enum class StatementFlags : std::uint32_t {
   NONE = 0,
   BAKE = rq::getBit(31),
   STATIC_CAPTURE = rq::getBit(30),
-  MAY_PARENT = rq::getBit(29),
-  PARENT = rq::getBit(28),
-  ABSTRACT = rq::getBit(27),
-  VIRTUAL = rq::getBit(26),
-  OVERRIDE = rq::getBit(25),
-  POSITION = rq::getBit(24),
-  MANGLED_NAME = rq::getBit(23),
-  PACK = rq::getBit(22),
-  USER = rq::getBit(21),
-  LABEL = rq::getBit(20),
-  TEMPLATE = rq::getBit(19),
-  LIKELY = rq::getBit(18),
-  UNLIKELY = rq::getBit(17),
-  DEPRECIATED = rq::getBit(16),
-  EXPORT = rq::getBit(15),
-  PRIVATE = rq::getBit(14),
-  PROTECTED = rq::getBit(13),
-  NO_SHALLOW_COPY = rq::getBit(12)
+  EVALUATE_IMMEDIATELY = rq::getBit(29),
+  MAY_PARENT = rq::getBit(28),
+  PARENT = rq::getBit(27),
+  ABSTRACT = rq::getBit(26),
+  VIRTUAL = rq::getBit(25),
+  OVERRIDE = rq::getBit(24),
+  POSITION = rq::getBit(23),
+  MANGLED_NAME = rq::getBit(22),
+  PACK = rq::getBit(21),
+  USER = rq::getBit(20),
+  LABEL = rq::getBit(19),
+  TEMPLATE = rq::getBit(18),
+  LIKELY = rq::getBit(17),
+  UNLIKELY = rq::getBit(16),
+  DEPRECIATED = rq::getBit(15),
+  EXPORT = rq::getBit(14),
+  PRIVATE = rq::getBit(13),
+  PROTECTED = rq::getBit(12),
+  NO_SHALLOW_COPY = rq::getBit(11)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2229,6 +2240,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::BAKE;
   case SA::STATIC_CAPTURE:
     return SF::STATIC_CAPTURE;
+  case SA::EVALUATE_IMMEDIATELY:
+    return SF::EVALUATE_IMMEDIATELY;
   case SA::MAY_PARENT:
     return SF::MAY_PARENT;
   case SA::PARENT:
