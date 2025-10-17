@@ -170,13 +170,25 @@ enum class Keyword : std::uint32_t {
   ENTRY_POINT,
   FUNCTION,
   CONSTRUCTOR,
+  _CONSTRUCTOR_OF,
+  LAYOUT_CONSTRUCTOR,
+  _LAYOUT_CONSTRUCTOR_OF,
   DESTRUCTOR,
+  _DESTRUCTOR_OF,
+  CALLER,
+  _CALLER_OF,
   RANGER,
+  _RANGER_OF,
   DEEP_COPIER,
+  _DEEP_COPIER_OF,
   RETAIN_MOVER,
+  _RETAIN_MOVER_OF,
   DROP_MOVER,
+  _DROP_MOVER_OF,
   SWAPER,
+  _SWAPER_OF,
   INDEXER,
+  _INDEXER_OF,
   _ANONYMOUS_FUNCTION,
   _DYNAMIC_CAPTURE,
 
@@ -631,20 +643,44 @@ constexpr std::size_t KEYWORD_COUNT =
     return "function";
   case K::CONSTRUCTOR:
     return "constructor";
+  case K::_CONSTRUCTOR_OF:
+    return "_constructor_of";
+  case K::LAYOUT_CONSTRUCTOR:
+    return "layout_constructor";
+  case K::_LAYOUT_CONSTRUCTOR_OF:
+    return "_layout_constructor_of";
   case K::DESTRUCTOR:
     return "destructor";
+  case K::_DESTRUCTOR_OF:
+    return "_destructor_of";
+  case K::CALLER:
+    return "caller";
+  case K::_CALLER_OF:
+    return "_caller_of";
   case K::RANGER:
     return "ranger";
+  case K::_RANGER_OF:
+    return "_ranger_of";
   case K::DEEP_COPIER:
     return "deep_copier";
+  case K::_DEEP_COPIER_OF:
+    return "_deep_copier_of";
   case K::RETAIN_MOVER:
     return "retain_mover";
+  case K::_RETAIN_MOVER_OF:
+    return "_retain_mover_of";
   case K::DROP_MOVER:
     return "drop_mover";
+  case K::_DROP_MOVER_OF:
+    return "_drop_mover_of";
   case K::SWAPER:
     return "swaper";
+  case K::_SWAPER_OF:
+    return "_swaper_of";
   case K::INDEXER:
     return "indexer";
+  case K::_INDEXER_OF:
+    return "_indexer_of";
   case K::_ANONYMOUS_FUNCTION:
     return "_anonymous_function";
   case K::_DYNAMIC_CAPTURE:
@@ -989,13 +1025,14 @@ enum class KeywordFlags : std::uint32_t {
   INTERNAL = rq::getBit(26),
   CAN_HAVE_NO_SEMICOLON = rq::getBit(25),
   HAS_SEMICOLON_SEPARATED_BRANCHES = rq::getBit(24),
-  TOP_STATEMENT = rq::getBit(23),
-  TABLE_STATEMENT = rq::getBit(22),
-  OBJECT_STATEMENT = rq::getBit(21),
-  LOCAL_STATEMENT = rq::getBit(20),
-  RVALUE = rq::getBit(19),
-  LVALUE = rq::getBit(18),
-  REFLECTION = rq::getBit(17),
+  NULLARY_WHEN_NO_BRANCHES = rq::getBit(23),
+  TOP_STATEMENT = rq::getBit(22),
+  TABLE_STATEMENT = rq::getBit(21),
+  OBJECT_STATEMENT = rq::getBit(20),
+  LOCAL_STATEMENT = rq::getBit(19),
+  RVALUE = rq::getBit(18),
+  LVALUE = rq::getBit(17),
+  REFLECTION = rq::getBit(16),
   ARGUMENT = rq::getBit(15),
   PARAMETER = rq::getBit(14),
   ENUMERATION_VALUE = rq::getBit(13),
@@ -1307,29 +1344,63 @@ getFlags(rq::Keyword keyword) {
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | 2;
   case K::CONSTRUCTOR:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT | 2;
+  case K::_CONSTRUCTOR_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
+  case K::LAYOUT_CONSTRUCTOR:
+    return KF::REFLECTION | KF::CAN_HAVE_NO_SEMICOLON | KF::OBJECT_STATEMENT;
+  case K::_LAYOUT_CONSTRUCTOR_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::DESTRUCTOR:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT;
+  case K::_DESTRUCTOR_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
+  case K::CALLER:
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
+           KF::OBJECT_STATEMENT | 1;
+  case K::_CALLER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::RANGER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT | 1;
+  case K::_RANGER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::DEEP_COPIER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT;
+  case K::_DEEP_COPIER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::RETAIN_MOVER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT;
+  case K::_RETAIN_MOVER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::DROP_MOVER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT;
+  case K::_DROP_MOVER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::SWAPER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT;
+  case K::_SWAPER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::INDEXER:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::CAN_HAVE_NO_SEMICOLON |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+           KF::CAN_HAVE_NO_SEMICOLON | KF::NULLARY_WHEN_NO_BRANCHES |
            KF::OBJECT_STATEMENT | 1;
+  case K::_INDEXER_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::_ANONYMOUS_FUNCTION:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::RVALUE | KF::ARGUMENT | 2;
   case K::_DYNAMIC_CAPTURE:
@@ -1754,6 +1825,13 @@ getHasSemicolonSeparatedBranches(rq::Keyword keyword) {
                        rq::KeywordFlags::HAS_SEMICOLON_SEPARATED_BRANCHES);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getIsNullaryWhenNoBranches(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags,
+                       rq::KeywordFlags::NULLARY_WHEN_NO_BRANCHES);
+}
+
 enum class Situation : std::uint_fast8_t {
   NONE,
   TOP_STATEMENT,
@@ -1859,6 +1937,30 @@ getUniversalized(rq::Keyword keyword) {
     return K::_DROP_MOVE_OF;
   case K::LINEAR_ASSIGN:
     return K::_LINEAR_ASSIGN_OF;
+  case K::DESTROY:
+    return K::_DESTROY_VALUE;
+  case K::DROP:
+    return K::_DROP_VALUE;
+  case K::CONSTRUCTOR:
+    return K::_CONSTRUCTOR_OF;
+  case K::LAYOUT_CONSTRUCTOR:
+    return K::_LAYOUT_CONSTRUCTOR_OF;
+  case K::DESTRUCTOR:
+    return K::_DESTRUCTOR_OF;
+  case K::CALLER:
+    return K::_CALLER_OF;
+  case K::RANGER:
+    return K::_RANGER_OF;
+  case K::DEEP_COPIER:
+    return K::_DEEP_COPY_OF;
+  case K::RETAIN_MOVER:
+    return K::_RETAIN_MOVER_OF;
+  case K::DROP_MOVER:
+    return K::_DROP_MOVER_OF;
+  case K::SWAPER:
+    return K::_SWAPER_OF;
+  case K::INDEXER:
+    return K::_INDEXER_OF;
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::_FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
@@ -2560,6 +2662,9 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSemicolonSeparatedBranches() const {
     return rq::getHasSemicolonSeparatedBranches(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullaryWhenNoBranches() const {
+    return rq::getIsNullaryWhenNoBranches(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopStatement() const {
     return rq::getCanBeTopStatement(this->getKeyword());
   }
@@ -2677,6 +2782,12 @@ struct Expression final {
   RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
     return this->getSourceTextPtr() + this->getSourceTextLength();
   }
+  [[nodiscard]]  RQ_ALWAYS_INLINE const char *getEndSourceTextPtr() const {
+    if (this->getSourceTextLength() == 0) {
+      return this->getSourceTextPtr();
+    }
+    return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
+  }
   RQ_ALWAYS_INLINE void setSourceInsertedAt(const char *source_ptr) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
     rq::assignSingleValue(this->_source_text_ptr, source_ptr);
@@ -2688,6 +2799,10 @@ struct Expression final {
   template <typename SourceParam>
   inline void setSourceInsertedAfter(const SourceParam &source) {
     this->setSourceInsertedAt(source.getAfterSourceTextPtr());
+  }
+  template <typename SourceParam>
+  inline void setSourceInsertedAtEnd(const SourceParam &source) {
+    this->setSourceInsertedAt(source.getEndSourceTextPtr());
   }
   // NOTE: no getBranchCount and getNextCount because bad performance!
   RQ_ALWAYS_INLINE rq::Expression &getBranch() {

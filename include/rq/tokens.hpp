@@ -781,6 +781,12 @@ struct Token final {
   [[nodiscard]] RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
     return this->getSourceTextPtr() + this->getSourceTextLength();
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE const char *getEndSourceTextPtr() const {
+    if (this->getSourceTextLength() == 0) {
+      return this->getSourceTextPtr();
+    }
+    return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOperator() const {
     return rq::getIsOperator(this->getType());
   }

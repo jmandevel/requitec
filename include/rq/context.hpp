@@ -31,7 +31,7 @@ struct Token;
 struct Expression;
 struct Module;
 enum class Keyword : std::uint32_t;
-enum class Situation : std::uint_fast32_t;
+enum class Situation : std::uint_fast8_t;
 
 enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
   ERROR = llvm::SourceMgr::DiagKind::DK_Error,

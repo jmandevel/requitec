@@ -135,7 +135,6 @@ struct Situator final {
       return;
     }
   }
-
   template <rq::Situation SITUATION_PARAM,
             rq::Situation BRANCH_SITUATION_A_PARAM,
             rq::Situation BRANCH_SITUATION_B_PARAM = BRANCH_SITUATION_A_PARAM,
@@ -705,6 +704,20 @@ struct Situator final {
     this->getContext().discardExpression(expression.mergeAndPopBranch());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
+  inline void addTacitCommasIfNullary(rq::Expression &expression,
+                                      unsigned comma_count) {
+    if (expression.getHasBranch()) {
+      return;
+    }
+    rq::TreeParser parser;
+    parser.setOperation(expression);
+    for (unsigned comma_i = 0; comma_i < comma_count; comma_i++) {
+      rq::Expression &comma = this->getContext().acquireExpression();
+      comma.setSourceInsertedAtEnd(expression);
+      comma.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
+      parser.appendBranch(comma);
+    }
+  }
   template <rq::Situation SITUATION_PARAM>
   inline void situateExpression(rq::Expression &expression) {
     using namespace rq;
@@ -1490,60 +1503,169 @@ struct Situator final {
     case K::CONSTRUCTOR:
       if constexpr (!getCanBeSituation<SP>(K::CONSTRUCTOR)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
+        this->addTacitCommasIfNullary(expression, 2);
         this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE,
                                     S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_CONSTRUCTOR_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_CONSTRUCTOR_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateBinaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
+    case K::LAYOUT_CONSTRUCTOR:
+      if constexpr (!getCanBeSituation<SP>(K::LAYOUT_CONSTRUCTOR)) {
+        RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      } else {
+        this->addTacitCommasIfNullary(expression, 1);
+        this->situateNaryExpression<SP, 1, S::RVALUE, S::LOCAL_STATEMENT>(
+            expression);
+      }
+      break;
+    case K::_LAYOUT_CONSTRUCTOR_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_LAYOUT_CONSTRUCTOR_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::DESTRUCTOR:
       if constexpr (!getCanBeSituation<SP>(K::DESTRUCTOR)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_DESTRUCTOR_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_DESTRUCTOR_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
+    case K::CALLER:
+      if constexpr (!getCanBeSituation<SP>(K::DESTRUCTOR)) {
+        RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
+      } else {
+        this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_CALLER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_DESTRUCTOR_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::RANGER:
       if constexpr (!getCanBeSituation<SP>(K::RANGER)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
+        this->addTacitCommasIfNullary(expression, 1);
         this->situateNaryExpression<SP, 1, S::RVALUE, S::LOCAL_STATEMENT>(
             expression);
+      }
+      break;
+    case K::_RANGER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_RANGER_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::DEEP_COPIER:
       if constexpr (!getCanBeSituation<SP>(K::DEEP_COPIER)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_DEEP_COPIER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_DEEP_COPIER_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::RETAIN_MOVER:
       if constexpr (!getCanBeSituation<SP>(K::RETAIN_MOVER)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_RETAIN_MOVER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_RETAIN_MOVER_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::DROP_MOVER:
       if constexpr (!getCanBeSituation<SP>(K::DROP_MOVER)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_DROP_MOVER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_DROP_MOVER_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::SWAPER:
       if constexpr (!getCanBeSituation<SP>(K::SWAPER)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 0, S::LOCAL_STATEMENT>(expression);
+      }
+      break;
+    case K::_SWAPER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_SWAPER_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::INDEXER:
       if constexpr (!getCanBeSituation<SP>(K::INDEXER)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
+        this->addTacitCommasIfNullary(expression, 1);
         this->situateNaryExpression<SP, 1, S::RVALUE, S::LOCAL_STATEMENT>(
             expression);
+      }
+      break;
+    case K::_INDEXER_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_INDEXER_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
     case K::_ANONYMOUS_FUNCTION:

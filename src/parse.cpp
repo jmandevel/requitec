@@ -685,15 +685,6 @@ rq::Expression &NormativeParser::parsePrecedence1() {
         precedence_parser.parseNary(token, rq::Keyword::_ARRAY);
         continue;
       }
-      case rq::TokenType::DOT_OPERATOR: {
-        rq::Expression &operation = this->getContext().acquireExpression();
-        operation.setKeyword(rq::Keyword::_INFERENCE);
-        operation.setSourceInsertedBefore(token);
-        precedence_parser.setRecent(operation);
-        this->getRanger().incrementToken(1);
-        precedence_parser.parseNary(token, rq::Keyword::_REFLECT);
-        continue;
-      }
       case rq::TokenType::CAROT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_parser.parseUnary(token, rq::Keyword::_FAT_POINTER);
@@ -739,7 +730,8 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       }
       rq::Expression &expression = this->parsePrecedence0();
       precedence_parser.setRecent(expression);
-      if (expression.getCanHaveNoSemicolon()) {
+      if (!precedence_parser.getHasOuter() &&
+          expression.getCanHaveNoSemicolon()) {
         precedence_parser.appendRecent();
         break;
       }
@@ -1021,50 +1013,62 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
     operation.setSource(left_token);
   }
   if (operation.getHasSemicolonSeparatedBranches()) {
-    unsigned comma_count = operation.getCommaBranchCount();
     rq::TreeParser parser;
     parser.startTree(operation);
-    while (comma_count-- > 0) {
-      const rq::Token &before_token = this->getRanger().getToken();
-      const rq::TokenType before_type = before_token.getType();
-      if (before_type == rq::TokenType::RIGHT_BRACKET_GROUPING) {
-        this->parseTacitCommas(comma_count,
-                               before_token.getAfterSourceTextPtr(), parser);
-        this->getRanger().incrementToken(1);
-        parser.finishOperation(before_token);
-        return operation;
-      } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
-        this->parseTacitCommas(comma_count,
-                               before_token.getAfterSourceTextPtr(), parser);
-        this->parseTrailer(operation, keyword_ranger);
-        const rq::Token &last_token = this->getRanger().getToken();
-        this->getRanger().incrementToken(1);
-        parser.finishOperation(last_token);
-        return operation;
-      }
-      rq::Expression &next = this->parseExpression();
-      const rq::Token &after_token = this->getRanger().getToken();
-      const rq::TokenType after_type = after_token.getType();
-      if (after_type == rq::TokenType::SEMICOLON_SEPERATOR ||
-          next.getCanHaveNoSemicolon()) {
-        this->parseTacitCommas(comma_count,
-                               after_token.getBeforeSourceTextPtr(), parser);
-        if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
+    const unsigned comma_count = operation.getCommaBranchCount();
+    if (comma_count != 0) {
+      unsigned commas_left = comma_count;
+      while (commas_left > 0) {
+        const rq::Token &before_token = this->getRanger().getToken();
+        const rq::TokenType before_type = before_token.getType();
+        if (before_type == rq::TokenType::RIGHT_BRACKET_GROUPING) {
+          if ((commas_left != comma_count && commas_left != 0) ||
+              !operation.getIsNullaryWhenNoBranches()) {
+            this->parseTacitCommas(
+                commas_left, before_token.getAfterSourceTextPtr(), parser);
+          }
           this->getRanger().incrementToken(1);
+          parser.finishOperation(before_token);
+          return operation;
+        } else if (before_type == rq::TokenType::TRAILER_SEPERATOR) {
+          if (commas_left != comma_count && commas_left != 0) {
+            this->parseTacitCommas(
+                commas_left, before_token.getAfterSourceTextPtr(), parser);
+          }
+          this->parseTrailer(operation, keyword_ranger);
+          const rq::Token &last_token = this->getRanger().getToken();
+          this->getRanger().incrementToken(1);
+          parser.finishOperation(last_token);
+          return operation;
         }
-        break;
-      }
-      parser.appendBranch(next);
-      switch (after_type) {
-      case rq::TokenType::COMMA_SEPERATOR:
-        this->getRanger().incrementToken(1);
-        break;
-      case rq::TokenType::RIGHT_BRACKET_GROUPING:
-        break;
-      default:
-        this->getContext().logErrorExpectedCommaSeperator(after_token);
-        this->setNotOk();
-        break;
+        rq::Expression &next = this->parseExpression();
+        const rq::Token &after_token = this->getRanger().getToken();
+        const rq::TokenType after_type = after_token.getType();
+        if (after_type == rq::TokenType::SEMICOLON_SEPERATOR ||
+            next.getCanHaveNoSemicolon()) {
+          if (commas_left != comma_count && commas_left != 0) {
+            this->parseTacitCommas(
+                commas_left, after_token.getBeforeSourceTextPtr(), parser);
+          }
+          if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
+            this->getRanger().incrementToken(1);
+          }
+          parser.appendBranch(next);
+          break;
+        }
+        parser.appendBranch(next);
+        commas_left--;
+        switch (after_type) {
+        case rq::TokenType::COMMA_SEPERATOR:
+          this->getRanger().incrementToken(1);
+          break;
+        case rq::TokenType::RIGHT_BRACKET_GROUPING:
+          break;
+        default:
+          this->getContext().logErrorExpectedCommaSeperator(after_token);
+          this->setNotOk();
+          break;
+        }
       }
     }
     while (!this->getRanger().getIsDone()) { // semicolons
@@ -1208,14 +1212,13 @@ void NormativeParser::parseTrailer(rq::Expression &operation,
           "trailer token does not match token from start of "
           "operation",
           {trailer_token.getLlvmSourceRange()}, {});
-      this->getContext().logMessage(
-          operation.getLlvmSourceStart(), rq::LogType::NOTE,
-          "for operation",
-          {operation.getLlvmSourceRange()}, {});
-      this->getContext().logMessage(
-          front_token.getLlvmSourceStart(), rq::LogType::NOTE,
-          "for token from start of operation",
-          {front_token.getLlvmSourceRange()}, {});
+      this->getContext().logMessage(operation.getLlvmSourceStart(),
+                                    rq::LogType::NOTE, "for operation",
+                                    {operation.getLlvmSourceRange()}, {});
+      this->getContext().logMessage(front_token.getLlvmSourceStart(),
+                                    rq::LogType::NOTE,
+                                    "for token from start of operation",
+                                    {front_token.getLlvmSourceRange()}, {});
       this->setNotOk();
     }
     this->getRanger().incrementToken(1);
