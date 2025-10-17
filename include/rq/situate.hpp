@@ -339,23 +339,6 @@ struct Situator final {
     }
   }
   template <rq::Situation SITUATION_PARAM>
-  inline void situateEnclosedParenthesisExpression(rq::Expression &expression) {
-    if (!expression.getHasBranch()) {
-      this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 1);
-      this->setNotOk();
-      return;
-    }
-    rq::Expression &branch = expression.getBranch();
-    this->situateBranch<SITUATION_PARAM, SITUATION_PARAM>(
-        "first branch", expression, 0, branch);
-    if (branch.getHasNext()) {
-      this->logErrorNotExactBranchCount<SITUATION_PARAM>(expression, 1);
-      this->setNotOk();
-      return;
-    }
-    this->getContext().discardExpression(expression.mergeAndPopBranch());
-  }
-  template <rq::Situation SITUATION_PARAM>
   inline void situateAscribeTypeExpression(rq::Expression &expression) {
     RQ_ASSERT(expression.getKeyword() == rq::Keyword::_ASCRIBE_TYPE,
               "wrong keyword");
