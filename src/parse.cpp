@@ -208,9 +208,36 @@ bool TokenRanger::getIsToken(rq::TokenType type) const {
 
 rq::Expression *NormativeParser::parseExpressions() {
   rq::ForestParser parser;
+  bool in_if_chunk = false;
   while (!this->getRanger().getIsDone()) {
-    parser.appendTree(this->parseExpression());
-    this->checkTokenIsTrailingSemicolonOperator(parser.getLast());
+    rq::Expression &next = this->parseExpression();
+    parser.appendTree(next);
+    if (in_if_chunk) {
+      in_if_chunk = false;
+      if (!next.getIsIfChunkNotStart()) {
+        this->getContext().logErrorNotSecondOrSubsequentIfChunkExpression(next);
+        this->setNotOk();
+      }
+    }
+    if (this->getRanger().getIsDone()) {
+      this->getContext().logErrorExpectedSemicolonSeperator(next);
+      this->setNotOk();
+      break;
+    }
+    const rq::Token &token = this->getRanger().getToken();
+    if (next.getCanBeArm()) {
+      continue;
+    }
+    if (token.getType() == rq::TokenType::SEMICOLON_SEPERATOR) {
+      this->getRanger().incrementToken(1);
+      continue;
+    }
+    if (next.getIsIfChunkNotEnd()) {
+      in_if_chunk = true;
+      continue;
+    }
+    this->getContext().logErrorExpectedSemicolonSeperator(next);
+    this->setNotOk();
   }
   return parser.getOperationPtr();
 }
@@ -1081,7 +1108,8 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       if (in_if_chunk) {
         in_if_chunk = false;
         if (!next.getIsIfChunkNotStart()) {
-          this->getContext().logErrorNotIfChunkExpression(next);
+          this->getContext().logErrorNotSecondOrSubsequentIfChunkExpression(
+              next);
         }
       }
       if (next.getCanBeArm()) {
@@ -1410,22 +1438,6 @@ rq::Expression &NormativeParser::parseInterpolatedString() {
   rq::Expression &error = this->getContext().acquireExpression();
   error.setKeyword(rq::Keyword::__ERROR);
   return error;
-}
-
-void NormativeParser::checkTokenIsTrailingSemicolonOperator(
-    rq::Expression &expression) {
-  if (this->getRanger().getIsDone()) {
-    this->getContext().logErrorExpectedSemicolonSeperator(expression);
-    this->setNotOk();
-    return;
-  }
-  const rq::Token &token = this->getRanger().getToken();
-  if (token.getType() == rq::TokenType::SEMICOLON_SEPERATOR) {
-    this->getRanger().incrementToken(1);
-    return;
-  }
-  this->getContext().logErrorExpectedSemicolonSeperator(expression);
-  this->setNotOk();
 }
 
 rq::Expression &SymbolicParser::parseLiteral(rq::Keyword keyword) {

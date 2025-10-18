@@ -283,7 +283,6 @@ struct NormativeParser final {
   [[nodiscard]] rq::Expression &parseLiteral(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseNullaryOperator(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseInterpolatedString();
-  void checkTokenIsTrailingSemicolonOperator(rq::Expression &expression);
 };
 
 struct SymbolicParser final {

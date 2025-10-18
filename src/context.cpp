@@ -634,9 +634,10 @@ void Context::logErrorExpectedSemicolonSeperator(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotIfChunkExpression(const rq::Expression &expression) {
+void Context::logErrorNotSecondOrSubsequentIfChunkExpression(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBefore(), rq::LogType::ERROR,
-                   "expected semicolon before expression because can not be part of if chunk",
+                   "expected semicolon before expression because can not be "
+                   "second or subsequent branch of if chunk",
                    {expression.getLlvmSourceRange()}, {});
 }
 
