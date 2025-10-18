@@ -1732,19 +1732,36 @@ struct Situator final {
     case K::OBJECT:
       if constexpr (!getCanBeSituation<SP>(K::OBJECT)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION || SP == S::RVALUE) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE,
                                     S::OBJECT_STATEMENT>(expression);
       }
       break;
+    case K::_OBJECT_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_OBJECT_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
     case K::ENUMERATION:
       if constexpr (!getCanBeSituation<SP>(K::ENUMERATION)) {
         RQ_UNREACHABLE();
+      } else if constexpr (SP == S::REFLECTION || SP == S::RVALUE) {
+        this->situateNullaryExpression<SP>(expression);
       } else {
         this->situateNaryExpression<SP, 2, S::RVALUE, S::RVALUE,
-                                    S::ENUMERATION_VALUE>(expression);
+                                    S::OBJECT_STATEMENT>(expression);
       }
       break;
+    case K::_ENUMERATION_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_ENUMERATION_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
     case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
       if constexpr (!getCanBeSituation<SP>(
                         K::_ENUMERATION_VALUE_WITH_DISCRIMINANT)) {
@@ -1834,13 +1851,6 @@ struct Situator final {
       break;
 
     // BUILTIN TYPES
-    case K::SELF:
-      if constexpr (!getCanBeSituation<SP>(K::SELF)) {
-        RQ_UNREACHABLE();
-      } else {
-        this->situateNullaryExpression<SP>(expression);
-      }
-      break;
     case K::VOID:
       if constexpr (!getCanBeSituation<SP>(K::VOID)) {
         RQ_UNREACHABLE();

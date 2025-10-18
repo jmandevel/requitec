@@ -202,7 +202,9 @@ enum class Keyword : std::uint32_t {
 
   // SYMBOLS
   OBJECT,
+  _OBJECT_OF,
   ENUMERATION,
+  _ENUMERATION_OF,
   _ENUMERATION_VALUE_WITH_DISCRIMINANT,
 
   // VALUES
@@ -226,7 +228,6 @@ enum class Keyword : std::uint32_t {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
-  SELF,
   VOID,
   NO_RETURN,
   BOOLEAN,
@@ -703,8 +704,12 @@ constexpr std::size_t KEYWORD_COUNT =
   // SYMBOLS
   case K::OBJECT:
     return "object";
+  case K::_OBJECT_OF:
+    return "_object_of";
   case K::ENUMERATION:
     return "enumeration";
+  case K::_ENUMERATION_OF:
+    return "_enumeration_of";
   case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
     return "_enumeration_value_with_discriminant";
 
@@ -733,8 +738,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "bits_per_byte";
 
   // BUILTIN TYPES
-  case K::SELF:
-    return "self";
   case K::VOID:
     return "void";
   case K::NO_RETURN:
@@ -1419,13 +1422,17 @@ getFlags(rq::Keyword keyword) {
 
   // SYMBOLS
   case K::OBJECT:
-    return KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
+    return KF::REFLECTION | KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::LOCAL_STATEMENT | 2;
+  case K::_OBJECT_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::ENUMERATION:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::LOCAL_STATEMENT | 2;
+  case K::_ENUMERATION_OF:
+    return KF::SYMBOLIC | KF::RVALUE;
   case K::_ENUMERATION_VALUE_WITH_DISCRIMINANT:
     return KF::SYMBOLIC | KF::ENUMERATION_VALUE;
 
@@ -1457,8 +1464,6 @@ getFlags(rq::Keyword keyword) {
   case K::VOID:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NO_RETURN:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SELF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BOOLEAN:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
