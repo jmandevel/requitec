@@ -291,9 +291,6 @@ rq::Expression &NormativeParser::parsePrecedence9() {
   rq::PrecedenceParser precedence_parser(this->getContext());
   precedence_parser.setRecent(this->parsePrecedence8());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getCanHaveNoSemicolon()) {
-      break;
-    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getType()) {
     case rq::TokenType::COLON_OPERATOR:
@@ -320,9 +317,6 @@ rq::Expression &NormativeParser::parsePrecedence8() {
   rq::PrecedenceParser precedence_parser(this->getContext());
   precedence_parser.setRecent(this->parsePrecedence7());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getCanHaveNoSemicolon()) {
-      break;
-    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getType()) {
     case rq::TokenType::DOT_PLUS_OPERATOR:
@@ -400,9 +394,6 @@ rq::Expression &NormativeParser::parsePrecedence7() {
   rq::PrecedenceParser precedence_parser(this->getContext());
   precedence_parser.setRecent(this->parsePrecedence6());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getCanHaveNoSemicolon()) {
-      break;
-    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getType()) {
     case rq::TokenType::DOUBLE_AMPERSAND_OPERATOR:
@@ -429,9 +420,6 @@ rq::Expression &NormativeParser::parsePrecedence6() {
   rq::PrecedenceParser precedence_parser(this->getContext());
   precedence_parser.setRecent(this->parsePrecedence5());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getCanHaveNoSemicolon()) {
-      break;
-    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getType()) {
     case rq::TokenType::GREATER_OPERATOR: {
@@ -730,11 +718,6 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       }
       rq::Expression &expression = this->parsePrecedence0();
       precedence_parser.setRecent(expression);
-      if (!precedence_parser.getHasOuter() &&
-          expression.getCanHaveNoSemicolon()) {
-        precedence_parser.appendRecent();
-        break;
-      }
     }
     previous_call = false;
     if (this->getRanger().getIsDone()) {
@@ -1044,8 +1027,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         rq::Expression &next = this->parseExpression();
         const rq::Token &after_token = this->getRanger().getToken();
         const rq::TokenType after_type = after_token.getType();
-        if (after_type == rq::TokenType::SEMICOLON_SEPERATOR ||
-            next.getCanHaveNoSemicolon()) {
+        if (after_type == rq::TokenType::SEMICOLON_SEPERATOR) {
           if (commas_left != comma_count && commas_left != 0) {
             this->parseTacitCommas(
                 commas_left, after_token.getBeforeSourceTextPtr(), parser);
@@ -1099,16 +1081,8 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         this->setNotOk();
         break;
       case rq::TokenType::RIGHT_BRACKET_GROUPING:
-        if (!next.getCanHaveNoSemicolon()) {
-          this->getContext().logErrorExpectedSemicolonSeperator(after_token);
-          this->setNotOk();
-          break;
-        }
         break;
       default:
-        if (next.getCanHaveNoSemicolon()) {
-          break;
-        }
         this->getContext().logErrorExpectedSemicolonSeperator(after_token);
         this->setNotOk();
         break;
@@ -1420,14 +1394,6 @@ rq::Expression &NormativeParser::parseInterpolatedString() {
 
 void NormativeParser::checkTokenIsTrailingSemicolonOperator(
     rq::Expression &expression) {
-  if (expression.getCanBeAscription()) {
-    rq::Expression &unascribed = expression.getLastBranch();
-    if (unascribed.getCanHaveNoSemicolon()) {
-      return;
-    }
-  } else if (expression.getCanHaveNoSemicolon()) {
-    return;
-  }
   if (this->getRanger().getIsDone()) {
     this->getContext().logErrorExpectedSemicolonSeperatorAtEndOfFile(
         expression);

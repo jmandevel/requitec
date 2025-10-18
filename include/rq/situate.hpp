@@ -2174,6 +2174,13 @@ struct Situator final {
         this->situateNaryExpression<SP, 0, SP>(expression);
       }
       break;
+    case K::_SCOPE_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_SCOPE_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
     case K::BLOCK:
       if constexpr (!getCanBeSituation<SP>(K::BLOCK)) {
         RQ_UNREACHABLE();
@@ -2346,6 +2353,27 @@ struct Situator final {
         RQ_UNREACHABLE();
       } else {
         this->situateTableExpression<SP>(expression);
+      }
+      break;
+    case K::_TABLE_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_TABLE_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
+      }
+      break;
+    case K::MODULE:
+      if constexpr (!getCanBeSituation<SP>(K::MODULE)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateTableExpression<SP>(expression);
+      }
+      break;
+    case K::_MODULE_OF:
+      if constexpr (!getCanBeSituation<SP>(K::_MODULE_OF)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
 
