@@ -616,19 +616,19 @@ void Context::logErrorUnexpectedParameterMark(const rq::Token &token) {
 
 void Context::logErrorExpectedCommaSeperator(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
-                   "expected comma seperator", {expression.getLlvmSourceRange()},
+                   "expected comma seperator after expression", {expression.getLlvmSourceRange()},
                    {});
 }
 
 void Context::logErrorExpectedSeperatorOrRightBracket(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected seperator or right bracket",
+                   "expected seperator or right bracket after statement or expression",
                    {token.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedSemicolonSeperator(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
-                   "expected semicolon seperator", {expression.getLlvmSourceRange()},
+                   "expected semicolon seperator after statement", {expression.getLlvmSourceRange()},
                    {});
 }
 
