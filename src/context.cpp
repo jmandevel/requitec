@@ -616,20 +616,28 @@ void Context::logErrorUnexpectedParameterMark(const rq::Token &token) {
 
 void Context::logErrorExpectedCommaSeperator(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
-                   "expected comma seperator after expression", {expression.getLlvmSourceRange()},
-                   {});
+                   "expected comma seperator after expression",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedSeperatorOrRightBracket(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected seperator or right bracket after statement or expression",
-                   {token.getLlvmSourceRange()}, {});
+  this->logMessage(
+      token.getLlvmSourceStart(), rq::LogType::ERROR,
+      "expected seperator or right bracket after statement or expression",
+      {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedSemicolonSeperator(const rq::Expression &expression) {
+void Context::logErrorExpectedSemicolonSeperator(
+    const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
-                   "expected semicolon seperator after statement", {expression.getLlvmSourceRange()},
-                   {});
+                   "expected semicolon seperator after statement",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorNotIfChunkExpression(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBefore(), rq::LogType::ERROR,
+                   "expected semicolon before expression because can not be part of if chunk",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {

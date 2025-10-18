@@ -1058,6 +1058,8 @@ enum class KeywordFlags : std::uint32_t {
   SEQUENCE_STAGE = rq::getBit(8),
   ARM = rq::getBit(7),
   DYNAMIC_CAPTURE = rq::getBit(6),
+  IF_CHUNK_NOT_START = rq::getBit(5),
+  IF_CHUNK_NOT_END = rq::getBit(4),
   COMMA_BRANCH_COUNT_MASK = 0x3,
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
         RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
@@ -1539,13 +1541,13 @@ getFlags(rq::Keyword keyword) {
   // SCOPES
   case K::IF:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 1;
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::IF_CHUNK_NOT_END | 1;
   case K::ELSE_IF:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 1;
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::IF_CHUNK_NOT_START | 1;
   case K::ELSE:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::IF_CHUNK_NOT_START;
   case K::MATCH:
     return KF::HAS_SEMICOLON_SEPARATED_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | 1;
@@ -1827,6 +1829,18 @@ getHasSemicolonSeparatedBranches(rq::Keyword keyword) {
 getIsNullaryWhenNoBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::NULLARY_WHEN_NO_BRANCHES);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getIsIfChunkNotStart(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::IF_CHUNK_NOT_START);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getIsIfChunkNotEnd(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::IF_CHUNK_NOT_END);
 }
 
 enum class Situation : std::uint_fast8_t {
@@ -2669,6 +2683,12 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullaryWhenNoBranches() const {
     return rq::getIsNullaryWhenNoBranches(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIfChunkNotStart() const {
+    return rq::getIsIfChunkNotStart(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIfChunkNotEnd() const {
+    return rq::getIsIfChunkNotEnd(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopStatement() const {
     return rq::getCanBeTopStatement(this->getKeyword());
   }
@@ -2745,6 +2765,9 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceStart() const {
     return llvm::SMLoc::getFromPointer(this->_source_text_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBefore() const {
+    return llvm::SMLoc::getFromPointer(this->_source_text_ptr - 1);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
     return llvm::SMLoc::getFromPointer(this->_source_text_ptr +

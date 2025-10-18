@@ -1044,8 +1044,10 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
               return operation;
             }
           }
+          break;
         }
         commas_left--;
+        parser.appendBranch(next);
         switch (after_type) {
         case rq::TokenType::COMMA_SEPERATOR:
           this->getRanger().incrementToken(1);
@@ -1059,6 +1061,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         }
       }
     }
+    bool in_if_chunk = false;
     while (!this->getRanger().getIsDone()) { // semicolons
       const rq::Token &before_token = this->getRanger().getToken();
       const rq::TokenType before_type = before_token.getType();
@@ -1075,6 +1078,15 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       }
       rq::Expression &next = this->parseExpression();
       parser.appendBranch(next);
+      if (in_if_chunk) {
+        in_if_chunk = false;
+        if (!next.getIsIfChunkNotStart()) {
+          this->getContext().logErrorNotIfChunkExpression(next);
+        }
+      }
+      if (next.getCanBeArm()) {
+        continue;
+      }
       const rq::Token &after_token = this->getRanger().getToken();
       const rq::TokenType after_type = after_token.getType();
       switch (after_type) {
@@ -1083,12 +1095,14 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         break;
       case rq::TokenType::COMMA_SEPERATOR:
         this->getRanger().incrementToken(1);
-        this->getContext().logErrorExpectedSemicolonSeperator(next);
-        this->setNotOk();
-        break;
+        [[fallthrough]];
       case rq::TokenType::RIGHT_BRACKET_GROUPING:
         [[fallthrough]];
       default:
+        if (next.getIsIfChunkNotEnd()) {
+          in_if_chunk = true;
+          break;
+        }
         this->getContext().logErrorExpectedSemicolonSeperator(next);
         this->setNotOk();
         break;
