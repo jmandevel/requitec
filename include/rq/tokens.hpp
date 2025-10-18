@@ -471,7 +471,7 @@ getFlags(rq::TokenType token) {
   case T::NONE:
     return TF::ERROR;
   case T::HASH_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::GREATER_OPERATOR:
     return TF::OPERATOR;
   case T::DOUBLE_GREATER_OPERATOR:
@@ -537,11 +537,11 @@ getFlags(rq::TokenType token) {
   case T::DOUBLE_GRAVE_OPERATOR:
     return TF::OPERATOR;
   case T::ARROW_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::CONCATENATE_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOT_PLUS_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_DASH_OPERATOR:

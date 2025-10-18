@@ -700,6 +700,15 @@ rq::Expression &NormativeParser::parsePrecedence1() {
         precedence_parser.parseNary(token, rq::Keyword::_ARRAY);
         continue;
       }
+      case rq::TokenType::DOT_OPERATOR: {
+        rq::Expression &operation = this->getContext().acquireExpression();
+        operation.setKeyword(rq::Keyword::_INFERENCE);
+        operation.setSourceInsertedBefore(token);
+        precedence_parser.setRecent(operation);
+        this->getRanger().incrementToken(1);
+        precedence_parser.parseNary(token, rq::Keyword::_REFLECT);
+        continue;
+      }
       case rq::TokenType::CAROT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_parser.parseUnary(token, rq::Keyword::_FAT_POINTER);
