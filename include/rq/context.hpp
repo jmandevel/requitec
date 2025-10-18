@@ -190,12 +190,10 @@ struct Context final {
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
   void logErrorUnexpectedParameterMark(const rq::Token &token);
-  void logErrorExpectedCommaSeperator(const rq::Token &token);
+  void logErrorExpectedCommaSeperator(const rq::Expression &expression);
   void logErrorExpectedSeperatorOrRightBracket(const rq::Token &token);
-  void logErrorExpectedSemicolonSeperator(const rq::Token &token);
-  void logErrorExpectedSemicolonSeperatorAtEndOfFile(
+  void logErrorExpectedSemicolonSeperator(
       const rq::Expression &expression);
-  void logErrorExpectedSeperator(const rq::Token &token);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
   void logErrorInvalidBranchSituation(
       rq::Expression &branch, rq::Situation situation,

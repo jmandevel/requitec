@@ -916,7 +916,7 @@ bool NormativeParser::parseCommaSeperatedBranches(
           grouping_parser.appendBranch(mark);
           continue;
         } else if (after_type != rq::TokenType::COMMA_SEPERATOR) {
-          this->getContext().logErrorExpectedCommaSeperator(after_token);
+          this->getContext().logErrorExpectedCommaSeperator(branch);
           this->setNotOk();
           break;
         }
@@ -1047,7 +1047,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         case rq::TokenType::RIGHT_BRACKET_GROUPING:
           break;
         default:
-          this->getContext().logErrorExpectedCommaSeperator(after_token);
+          this->getContext().logErrorExpectedCommaSeperator(next);
           this->setNotOk();
           break;
         }
@@ -1077,13 +1077,13 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         break;
       case rq::TokenType::COMMA_SEPERATOR:
         this->getRanger().incrementToken(1);
-        this->getContext().logErrorExpectedSemicolonSeperator(after_token);
+        this->getContext().logErrorExpectedSemicolonSeperator(next);
         this->setNotOk();
         break;
       case rq::TokenType::RIGHT_BRACKET_GROUPING:
         break;
       default:
-        this->getContext().logErrorExpectedSemicolonSeperator(after_token);
+        this->getContext().logErrorExpectedSemicolonSeperator(next);
         this->setNotOk();
         break;
       }
@@ -1395,7 +1395,7 @@ rq::Expression &NormativeParser::parseInterpolatedString() {
 void NormativeParser::checkTokenIsTrailingSemicolonOperator(
     rq::Expression &expression) {
   if (this->getRanger().getIsDone()) {
-    this->getContext().logErrorExpectedSemicolonSeperatorAtEndOfFile(
+    this->getContext().logErrorExpectedSemicolonSeperator(
         expression);
     this->setNotOk();
     return;
@@ -1405,7 +1405,7 @@ void NormativeParser::checkTokenIsTrailingSemicolonOperator(
     this->getRanger().incrementToken(1);
     return;
   }
-  this->getContext().logErrorExpectedSemicolonSeperator(token);
+  this->getContext().logErrorExpectedSemicolonSeperator(expression);
   this->setNotOk();
 }
 

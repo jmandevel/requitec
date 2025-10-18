@@ -614,9 +614,9 @@ void Context::logErrorUnexpectedParameterMark(const rq::Token &token) {
                    "invalid parameter mark", {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedCommaSeperator(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected comma seperator", {token.getLlvmSourceRange()},
+void Context::logErrorExpectedCommaSeperator(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
+                   "expected comma seperator", {expression.getLlvmSourceRange()},
                    {});
 }
 
@@ -626,22 +626,10 @@ void Context::logErrorExpectedSeperatorOrRightBracket(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedSemicolonSeperator(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected semicolon seperator", {token.getLlvmSourceRange()},
+void Context::logErrorExpectedSemicolonSeperator(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
+                   "expected semicolon seperator", {expression.getLlvmSourceRange()},
                    {});
-}
-
-void Context::logErrorExpectedSemicolonSeperatorAtEndOfFile(
-    const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected semicolon seperator",
-                   {expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorExpectedSeperator(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "expected seperator", {token.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
