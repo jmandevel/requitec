@@ -1,8 +1,8 @@
 @no_shallow_copy
 [object NoCopy,
-    [deep_copier]
-    [drop_mover]
-    [retain_mover]
+    [deep_copier];
+    [drop_mover];
+    [retain_mover];
 ];
 
 [function myFunc, (>a:&NoCopy, b:NoCopy<)[signed],

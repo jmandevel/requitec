@@ -10,7 +10,7 @@
     // less limit interval
     [for_each value, 0..<10,
         std.print(line="value is {value}");    
-    ]
+    ];
 
     // interval
     [for_each value, 0.<10.+1,
@@ -23,13 +23,13 @@
         [while value < 10,
             std.print(line="value is {value}");   
             value += 1;
-        ]
-    ]
+        ];
+    ];
 
     // element range
     [for_each value, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},    
         std.print(line="value is {value}");
-    ]
+    ];
 
     // ranger range
     [object MyObject,
@@ -43,16 +43,16 @@
             [for_each value, [this].data,
               [range_over 
                 value
-              ]
-            ]
-        ]
+              ];
+            ];
+        ];
     ];
     object := MyObject();
     [for_each value, object,
         std.print(line="value is {value}");
-    ]
+    ];
 
     [if (0..10).[contains 5],
         std.print(line="5 is within interval over 0 to 10");
-    ]
+    ];
 ];

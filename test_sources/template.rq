@@ -4,11 +4,11 @@
         data := LENGTH#Type:[indeterminate],
     <},
 
-    [constructor]
-]
+    [constructor];
+];
 
 [entry_point
 
     my_array := Array{[binary32], 64}();
 
-]
+];
