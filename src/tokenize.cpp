@@ -33,27 +33,16 @@ void Tokenizer::_tokenizeSourceText() {
     case '\b':
       RQ_UNREACHABLE();
     case '\t':
-      this->getRanger().incrementChar(1);
-      this->getRanger().addColumns(1);
-      continue;
+      [[fallthrough]];
     case '\n':
       [[fallthrough]];
     case '\v':
       this->getRanger().incrementChar(1);
-      this->getRanger().addLines(1);
       continue;
     case '\x0C':
       RQ_UNREACHABLE();
     case '\r':
-      switch (this->getRanger().getChar(1)) {
-      case '\n':
-        this->getRanger().incrementChar(2);
-        continue;
-      default:
-        this->getRanger().incrementChar(1);
-        continue;
-      }
-      this->getRanger().addLines(1);
+      this->getRanger().incrementChar(1);
       continue;
     case '\x0E':
       RQ_UNREACHABLE();
@@ -93,7 +82,6 @@ void Tokenizer::_tokenizeSourceText() {
       RQ_UNREACHABLE();
     case ' ':
       this->getRanger().incrementChar(1);
-      this->getRanger().addColumns(1);
       continue;
     case '!':
       this->tokenizeLengthToken(T::BANG_OPERATOR, 1);
@@ -239,7 +227,6 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '/':
         this->getRanger().incrementChar(2);
-        this->getRanger().addColumns(2);
         {
           bool found_newline = false;
           while (!found_newline) {
@@ -250,7 +237,6 @@ void Tokenizer::_tokenizeSourceText() {
               [[fallthrough]];
             case '\v':
               this->getRanger().incrementChar(1);
-              this->getRanger().addLines(1);
               found_newline = true;
               break;
             case '\r':
@@ -261,19 +247,16 @@ void Tokenizer::_tokenizeSourceText() {
               default:
                 this->getRanger().incrementChar(1);
               }
-              this->getRanger().addLines(1);
               found_newline = true;
               break;
             default:
               this->getRanger().incrementChar(1);
-              this->getRanger().addColumns(1);
             }
           }
         }
         break;
       case '*':
         this->getRanger().incrementChar(2);
-        this->getRanger().addColumns(2);
         while (true) {
           switch (this->getRanger().getChar(0)) {
           case '\x00':
@@ -291,7 +274,6 @@ void Tokenizer::_tokenizeSourceText() {
             [[fallthrough]];
           case '\v':
             this->getRanger().incrementChar(1);
-            this->getRanger().addLines(1);
             break;
           case '\r':
             switch (this->getRanger().getChar(1)) {
@@ -301,11 +283,9 @@ void Tokenizer::_tokenizeSourceText() {
             default:
               this->getRanger().incrementChar(1);
             }
-            this->getRanger().addLines(1);
             break;
           default:
             this->getRanger().incrementChar(1);
-            this->getRanger().addColumns(1);
           }
         }
       case '=':
@@ -336,7 +316,6 @@ void Tokenizer::_tokenizeSourceText() {
     case '9': {
       this->getRanger().startSubToken();
       this->getRanger().incrementChar(1);
-      this->getRanger().addColumns(1);
       bool is_float = false;
       while (this->getRanger().getIsNumeric()) {
         const char sub_c0 = this->getRanger().getChar(0);
@@ -349,7 +328,6 @@ void Tokenizer::_tokenizeSourceText() {
           }
         }
         this->getRanger().incrementChar(1);
-        this->getRanger().addColumns(1);
       }
       T type = (is_float) ? T::FLOAT_LITERAL : T::INTEGER_LITERAL;
       this->getTokens().push_back(this->getRanger().getSubToken(type));
@@ -570,7 +548,6 @@ void Tokenizer::_tokenizeSourceText() {
             switch (this->getRanger().getChar(1)) {
             case '\n':
               this->getRanger().incrementChar(2);
-              this->getRanger().addLines(1);
               break;
             case '\r':
               switch (this->getRanger().getChar(1)) {
@@ -580,11 +557,9 @@ void Tokenizer::_tokenizeSourceText() {
               default:
                 this->getRanger().incrementChar(2);
               }
-              this->getRanger().addLines(1);
               break;
             default:
               this->getRanger().incrementChar(2);
-              this->getRanger().addColumns(2);
             }
           } else if (sub_c0 == '{') {
             this->getTokens().push_back(
@@ -594,7 +569,6 @@ void Tokenizer::_tokenizeSourceText() {
             break;
           } else if (sub_c0 == '\n') {
             this->getRanger().incrementChar(1);
-            this->getRanger().addLines(1);
           } else if (sub_c0 == '\r') {
             switch (this->getRanger().getChar(1)) {
             case '\n':
@@ -603,10 +577,8 @@ void Tokenizer::_tokenizeSourceText() {
             default:
               this->getRanger().incrementChar(1);
             }
-            this->getRanger().addLines(1);
           } else if (sub_c0 == '\"') {
             this->getRanger().incrementChar(1);
-            this->getRanger().addColumns(1);
             this->getTokens().push_back(
                 this->getRanger().getSubToken(T::RIGHT_INTERPOLATION_LITERAL));
             break;
@@ -621,7 +593,6 @@ void Tokenizer::_tokenizeSourceText() {
             break;
           } else {
             this->getRanger().incrementChar(1);
-            this->getRanger().addColumns(1);
           }
         }
       } else {
@@ -893,10 +864,8 @@ void Tokenizer::_tokenizeSourceText() {
     RQ_ASSERT(this->getRanger().getIsIdentifier(), "codeunit not identifier");
     this->getRanger().startSubToken();
     this->getRanger().incrementChar(1);
-    this->getRanger().addColumns(1);
     while (this->getRanger().getIsIdentifier()) {
       this->getRanger().incrementChar(1);
-      this->getRanger().addColumns(1);
     }
     this->getTokens().push_back(
         this->getRanger().getSubToken(T::IDENTIFIER_LITERAL));

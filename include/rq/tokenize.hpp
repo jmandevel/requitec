@@ -18,17 +18,10 @@ struct SourceRanger final {
   llvm::StringRef::iterator _start;
   llvm::StringRef::iterator _current;
   llvm::StringRef::iterator _end;
-
-  std::uint_fast32_t _line;
-  std::uint_fast32_t _column;
-
-  std::uint_fast32_t _sub_line;
-  std::uint_fast32_t _sub_column;
   llvm::StringRef::iterator _sub_start;
 
   SourceRanger(llvm::StringRef text)
       : _start(text.begin()), _current(text.begin()), _end(text.end()),
-        _line(1), _column(1), _sub_line(0), _sub_column(0),
         _sub_start(nullptr) {
     RQ_ASSERT(*this->_end == 0x00,
               "end of source text not null terminator character");
@@ -72,18 +65,13 @@ struct SourceRanger final {
     this->_current += offset;
   }
 
-  RQ_ALWAYS_INLINE void startSubToken() {
-    this->_sub_line = this->_line;
-    this->_sub_column = this->_column;
-    this->_sub_start = this->_current;
-  }
+  RQ_ALWAYS_INLINE void startSubToken() { this->_sub_start = this->_current; }
 
   rq::Token getSubToken(rq::TokenType type) {
     RQ_ASSERT(this->_sub_start != nullptr, "sub token not started");
     RQ_ASSERT(this->_current > this->_sub_start,
               "current token before sub token start");
-    rq::Token token(type, this->_sub_line, this->_sub_column, this->_sub_start,
-                    this->_current - this->_sub_start);
+    rq::Token token(type, this->_sub_start, this->_current - this->_sub_start);
     return token;
   }
 
@@ -91,19 +79,9 @@ struct SourceRanger final {
                                          std::uint_fast32_t length) {
     RQ_ASSERT((this->_current + length) <= this->_end,
               "length token out of range");
-    rq::Token token(type, this->_line, this->_column, this->_current, length);
-    this->addColumns(length);
+    rq::Token token(type, this->_current, length);
     this->incrementChar(length);
     return token;
-  }
-
-  RQ_ALWAYS_INLINE void addLines(std::uint_fast32_t count) {
-    this->_column = 1;
-    this->_line += count;
-  }
-
-  RQ_ALWAYS_INLINE void addColumns(std::uint_fast32_t count) {
-    this->_column += count;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIdentifier() const {
@@ -128,31 +106,8 @@ struct SourceRanger final {
 
   inline void skipWhitespace() {
     while (!this->getIsDone()) {
-      switch (this->getChar(0)) {
-      case ' ':
-        [[fallthrough]];
-      case '\t':
+      if (this->getIsWhitespace()) {
         this->incrementChar(1);
-        this->addColumns(1);
-        break;
-      case '\v':
-        [[fallthrough]];
-      case '\n':
-        this->incrementChar(1);
-        this->addLines(1);
-        break;
-      case '\r':
-        switch (this->getChar(1)) {
-        case '\n':
-          this->incrementChar(2);
-          break;
-        default:
-          this->incrementChar(1);
-        }
-        this->addLines(1);
-        break;
-      default:
-        return;
       }
     }
     return;
@@ -254,7 +209,6 @@ struct Tokenizer final {
   void tokenizeQuotedLiteral() {
     this->getRanger().startSubToken();
     this->getRanger().incrementChar(1);
-    this->getRanger().addColumns(1);
     while (true) {
       switch (this->getRanger().getChar(0)) {
       case '\\':
@@ -263,19 +217,16 @@ struct Tokenizer final {
           [[fallthrough]];
         case '\n':
           this->getRanger().incrementChar(2);
-          this->getRanger().addLines(1);
           break;
         case '\r':
           switch (this->getRanger().getChar(2)) {
           case '\n':
             this->getRanger().incrementChar(3);
-            this->getRanger().addLines(1);
             break;
           default:
             this->getRanger().incrementChar(2);
             break;
           }
-          this->getRanger().addLines(1);
           break;
         case 'a':
           [[fallthrough]];
@@ -299,11 +250,9 @@ struct Tokenizer final {
           [[fallthrough]];
         case '\'':
           this->getRanger().incrementChar(2);
-          this->getRanger().addColumns(2);
           break;
         default:
           this->getRanger().incrementChar(1);
-          this->getRanger().addColumns(1);
           while (true) {
             const char escape_c = this->getRanger().getChar(0);
             if (this->getRanger().getIsDone() || escape_c == '\\' ||
@@ -315,23 +264,19 @@ struct Tokenizer final {
               [[fallthrough]];
             case '\n':
               this->getRanger().incrementChar(2);
-              this->getRanger().addLines(1);
               break;
             case '\r':
               switch (this->getRanger().getChar(1)) {
               case '\n':
                 this->getRanger().incrementChar(3);
-                this->getRanger().addLines(1);
                 break;
               default:
                 this->getRanger().incrementChar(2);
                 break;
               }
-              this->getRanger().addLines(1);
               break;
             default:
               this->getRanger().incrementChar(1);
-              this->getRanger().addColumns(1);
             }
           }
         }
@@ -342,7 +287,6 @@ struct Tokenizer final {
         return;
       case '\n':
         this->getRanger().incrementChar(1);
-        this->getRanger().addLines(1);
         break;
       case '\r':
         switch (this->getRanger().getChar(1)) {
@@ -353,7 +297,6 @@ struct Tokenizer final {
           this->getRanger().incrementChar(1);
           break;
         }
-        this->getRanger().addLines(1);
         break;
       case '\x00':
         this->getTokens().push_back(
@@ -370,7 +313,6 @@ struct Tokenizer final {
         [[fallthrough]];
       default:
         this->getRanger().incrementChar(1);
-        this->getRanger().addColumns(1);
         break;
       }
     }

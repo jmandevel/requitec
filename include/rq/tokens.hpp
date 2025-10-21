@@ -11,53 +11,53 @@ enum class TokenType : std::uint_fast16_t {
   NONE,
 
   // OPERATORS
-  HASH_OPERATOR,               // #
-  GREATER_OPERATOR,            // >
-  DOUBLE_GREATER_OPERATOR,     // >>
-  GREATER_EQUAL_OPERATOR,      // >=
-  LESS_OPERATOR,               // <
-  DOUBLE_LESS_OPERATOR,        // <<
-  LESS_EQUAL_OPERATOR,         // <=
-  BANG_EQUAL_OPERATOR,         // !=
-  BANG_OPERATOR,               // !
-  COLON_OPERATOR,              // :
-  DOUBLE_COLON_OPERATOR,       // ::
-  PLUS_OPERATOR,               // +
-  DASH_OPERATOR,               // -
-  STAR_OPERATOR,               // *
-  SLASH_OPERATOR,              // /
-  PERCENT_OPERATOR,            // %
-  BACKSLASH_OPERATOR,          // \    .
-  CAROT_OPERATOR,              // ^
-  PIPE_OPERATOR,               // |
-  TILDE_OPERATOR,              // ~
-  AMPERSAND_OPERATOR,          // &
-  DOUBLE_AMPERSAND_OPERATOR,   // &&
-  DOUBLE_PIPE_OPERATOR,        // ||
-  EQUAL_OPERATOR,              // =
-  DOUBLE_EQUAL_OPERATOR,       // ==
-  PLUS_EQUAL_OPERATOR,         // +=
-  DASH_EQUAL_OPERATOR,         // -=
-  STAR_EQUAL_OPERATOR,         // *=
-  SLASH_EQUAL_OPERATOR,        // /=
-  PERCENT_EQUAL_OPERATOR,      // %=
-  QUESTION_OPERATOR,           // ?
-  GRAVE_OPERATOR,              // `
-  DOUBLE_GRAVE_OPERATOR,       // ``
-  ARROW_OPERATOR,              // ->
-  CONCATENATE_OPERATOR,        // +>
-  DOT_OPERATOR,                // .
-  DOT_PLUS_OPERATOR,           // .+
-  DOT_DASH_OPERATOR,           // .-
-  DOT_STAR_OPERATOR,           // .*
-  DOT_SLASH_OPERATOR,          // ./
-  DOT_PERCENT_OPERATOR,        // .%
-  DOT_LESS_OPERATOR,           // .<
-  DOT_LESS_EQUAL_OPERATOR,     // .<=
-  DOT_GREATER_OPERATOR,        // .>
-  DOT_GREATER_EQUAL_OPERATOR,  // .>=
-  DOT_DOUBLE_EQUAL_OPERATOR,   // .==
-  DOT_BANG_EQUAL_OPERATOR,     // .!=
+  HASH_OPERATOR,              // #
+  GREATER_OPERATOR,           // >
+  DOUBLE_GREATER_OPERATOR,    // >>
+  GREATER_EQUAL_OPERATOR,     // >=
+  LESS_OPERATOR,              // <
+  DOUBLE_LESS_OPERATOR,       // <<
+  LESS_EQUAL_OPERATOR,        // <=
+  BANG_EQUAL_OPERATOR,        // !=
+  BANG_OPERATOR,              // !
+  COLON_OPERATOR,             // :
+  DOUBLE_COLON_OPERATOR,      // ::
+  PLUS_OPERATOR,              // +
+  DASH_OPERATOR,              // -
+  STAR_OPERATOR,              // *
+  SLASH_OPERATOR,             // /
+  PERCENT_OPERATOR,           // %
+  BACKSLASH_OPERATOR,         // \    .
+  CAROT_OPERATOR,             // ^
+  PIPE_OPERATOR,              // |
+  TILDE_OPERATOR,             // ~
+  AMPERSAND_OPERATOR,         // &
+  DOUBLE_AMPERSAND_OPERATOR,  // &&
+  DOUBLE_PIPE_OPERATOR,       // ||
+  EQUAL_OPERATOR,             // =
+  DOUBLE_EQUAL_OPERATOR,      // ==
+  PLUS_EQUAL_OPERATOR,        // +=
+  DASH_EQUAL_OPERATOR,        // -=
+  STAR_EQUAL_OPERATOR,        // *=
+  SLASH_EQUAL_OPERATOR,       // /=
+  PERCENT_EQUAL_OPERATOR,     // %=
+  QUESTION_OPERATOR,          // ?
+  GRAVE_OPERATOR,             // `
+  DOUBLE_GRAVE_OPERATOR,      // ``
+  ARROW_OPERATOR,             // ->
+  CONCATENATE_OPERATOR,       // +>
+  DOT_OPERATOR,               // .
+  DOT_PLUS_OPERATOR,          // .+
+  DOT_DASH_OPERATOR,          // .-
+  DOT_STAR_OPERATOR,          // .*
+  DOT_SLASH_OPERATOR,         // ./
+  DOT_PERCENT_OPERATOR,       // .%
+  DOT_LESS_OPERATOR,          // .<
+  DOT_LESS_EQUAL_OPERATOR,    // .<=
+  DOT_GREATER_OPERATOR,       // .>
+  DOT_GREATER_EQUAL_OPERATOR, // .>=
+  DOT_DOUBLE_EQUAL_OPERATOR,  // .==
+  DOT_BANG_EQUAL_OPERATOR,    // .!=
 
   // SIGILS
   AT_SIGIL,     // @
@@ -739,16 +739,12 @@ struct Token final {
   using Self = rq::Token;
 
   rq::TokenType _type;
-  unsigned _line;
-  unsigned _column;
   const char *_lexume_ptr;
   unsigned _lexume_length;
 
   Token() = delete;
-  Token(rq::TokenType type, unsigned line, unsigned column,
-        const char *lexume_ptr, unsigned lexume_length)
-      : _type(type), _line(line), _column(column), _lexume_ptr(lexume_ptr),
-        _lexume_length(lexume_length) {}
+  Token(rq::TokenType type, const char *lexume_ptr, unsigned lexume_length)
+      : _type(type), _lexume_ptr(lexume_ptr), _lexume_length(lexume_length) {}
   Token(const Self &) = default;
   Token(Self &&) = default;
   ~Token() = default;
@@ -759,12 +755,6 @@ struct Token final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return rq::getName(this->_type);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLine() const {
-    return this->_line;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getColumn() const {
-    return this->_column;
   }
   [[nodiscard]] llvm::StringRef getSourceText() const {
     return llvm::StringRef(this->_lexume_ptr, this->_lexume_length);

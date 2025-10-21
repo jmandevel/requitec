@@ -437,10 +437,11 @@ bool Context::emitTokens(llvm::StringRef path,
     return false;
   }
   for (const rq::Token &token : tokens) {
+    rq::SourceLocation location = this->getSourceLocation(token.getLlvmSourceStart());
     llvm::StringRef text = token.getSourceText();
     fout << token.getName() << ",";
-    fout << token.getLine() << ",";
-    fout << token.getColumn() << ",";
+    fout << location.line << ",";
+    fout << location.column << ",";
     fout << token.getSourceTextLength() << ",";
     fout << "\"";
     for (const char c : text) {
