@@ -193,7 +193,8 @@ struct Context final {
   void logErrorExpectedCommaSeperator(const rq::Expression &expression);
   void logErrorExpectedSeperatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeperator(const rq::Expression &expression);
-  void logErrorNotSecondOrSubsequentIfChunkExpression(const rq::Expression &expression);
+  void logErrorNotSecondOrSubsequentIfChunkExpression(
+      const rq::Expression &expression);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
   void logErrorInvalidBranchSituation(
       rq::Expression &branch, rq::Situation situation,
