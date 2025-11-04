@@ -101,10 +101,6 @@ struct Layout final : public rq::Table {
 struct Procedure final : public rq::Table {
   using Self = rq::Procedure;
 
-  // NOTE: procedures do not internally point to their own static frame, because
-  // the static frame of a procedure has lifetime that continues only while the
-  // procedure is being built.
-
   Procedure(rq::TermKind kind) : rq::Table(kind) {}
 };
 

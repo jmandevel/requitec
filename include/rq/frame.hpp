@@ -12,18 +12,18 @@ namespace rq {
 struct Token;
 struct Expression;
 
-struct StaticFrame final {
-  using Self = rq::StaticFrame;
+struct Frame final {
+  using Self = rq::Frame;
 
   llvm::BumpPtrAllocator _llvm_arena;
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
   std::vector<rq::Expression *> _unused_expression_ptrs;
   rq::Table _table;
 
-  StaticFrame() = default;
-  StaticFrame(const Self &) = delete;
-  StaticFrame(Self &&) = delete;
-  ~StaticFrame() = default;
+  Frame() = default;
+  Frame(const Self &) = delete;
+  Frame(Self &&) = delete;
+  ~Frame() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {

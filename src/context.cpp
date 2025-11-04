@@ -166,9 +166,9 @@ bool Context::loadSourceModule() {
         input_path + "\n\treason:" + buffer_eo.getError().message());
     return false;
   }
-  llvm::StringRef final_path = this->getTopStaticFrame().saveString(input_path);
+  llvm::StringRef final_path = this->getTopFrame().saveString(input_path);
   rq::Module &source_module =
-      this->getTopStaticFrame().allocateValue<rq::Module>(
+      this->getTopFrame().allocateValue<rq::Module>(
           rq::ModuleKind::SOURCE, language, final_path,
           std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
@@ -232,9 +232,9 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
         {expression.getLlvmSourceRange()}, {});
     return nullptr;
   }
-  llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
+  llvm::StringRef final_path = this->getTopFrame().saveString(found_path);
   rq::Module &import_module =
-      this->getTopStaticFrame().allocateValue<rq::Module>(
+      this->getTopFrame().allocateValue<rq::Module>(
           rq::ModuleKind::IMPORT, language, final_path,
           std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
@@ -376,7 +376,7 @@ bool Context::parseSymbolicRequite(rq::Module &module,
 }
 
 bool Context::situateAst(rq::Module &module) {
-  rq::Situator situator(*this, this->getTopStaticFrame());
+  rq::Situator situator(*this, this->getTopFrame());
   situator.situateRoot(module);
   return situator.getIsOk();
 }

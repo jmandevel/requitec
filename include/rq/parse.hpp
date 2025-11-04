@@ -137,7 +137,7 @@ struct PrecedenceParser final {
   using Self = rq::PrecedenceParser;
 
   // the static frame is used only for acquiring new expressions
-  std::reference_wrapper<rq::StaticFrame> _static_frame_ref;
+  std::reference_wrapper<rq::Frame> _frame_ref;
   // the outermost operation that is returned at the end of the precedence
   rq::Expression *_outer_ptr = nullptr;
   // the current operation that is being filled with branches
@@ -148,15 +148,15 @@ struct PrecedenceParser final {
   // the last branch that was appended to the operation
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceParser(rq::StaticFrame &static_frame) : _static_frame_ref(static_frame) {}
+  PrecedenceParser(rq::Frame &frame) : _frame_ref(frame) {}
   PrecedenceParser(const Self &) = delete;
   PrecedenceParser(Self &&) = delete;
   ~PrecedenceParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] rq::StaticFrame &getStaticFrame() { return this->_static_frame_ref.get(); }
-  [[nodiscard]] const rq::StaticFrame &getStaticFrame() const {
-    return this->_static_frame_ref.get();
+  [[nodiscard]] rq::Frame &getFrame() { return this->_frame_ref.get(); }
+  [[nodiscard]] const rq::Frame &getFrame() const {
+    return this->_frame_ref.get();
   }
   void parseDoubleUnary(const rq::Token &token, rq::Keyword keyword);
   void parseUnary(const rq::Token &token, rq::Keyword keyword);

@@ -2,7 +2,7 @@
 
 #include <rq/ast.hpp>
 #include <rq/context.hpp>
-#include <rq/static_frame.hpp>
+#include <rq/frame.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/Twine.h>
@@ -18,11 +18,11 @@ struct Situator final {
   using Self = rq::Situator;
 
   std::reference_wrapper<rq::Context> _context_ref;
-  std::reference_wrapper<rq::StaticFrame> _static_frame_ref;
+  std::reference_wrapper<rq::Frame> _frame_ref;
   bool _is_ok = true;
 
-  Situator(rq::Context &context, rq::StaticFrame &static_frame)
-      : _context_ref(context), _static_frame_ref(static_frame) {}
+  Situator(rq::Context &context, rq::Frame &frame)
+      : _context_ref(context), _frame_ref(frame) {}
   Situator(const Self &) = delete;
   Situator(Self &&) = delete;
   ~Situator() = default;
@@ -31,8 +31,8 @@ struct Situator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return this->_context_ref.get();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticFrame &getStaticFrame() {
-    return this->_static_frame_ref.get();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getFrame() {
+    return this->_frame_ref.get();
   }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   template <rq::Situation SITUATION_PARAM>
@@ -392,7 +392,7 @@ struct Situator final {
       if (extended.getKeyword() == rq::Keyword::_ASCRIBE_TYPE) {
         rq::Expression &last = extended.getLastBranch();
         last.setNext(unascribed.popNext());
-        this->getStaticFrame().discardExpression(
+        this->getFrame().discardExpression(
             expression.mergeAndPopBranch());
       } else {
         rq::Expression &first_attribute = unascribed.popNext();
@@ -450,7 +450,7 @@ struct Situator final {
     RQ_ASSERT(expression.getKeyword() == rq::Keyword::_PARENTHESIS_GROUP,
               "wrong keyword");
     this->situateUnaryExpression<SITUATION_PARAM, SITUATION_PARAM>(expression);
-    this->getStaticFrame().discardExpression(expression.mergeAndPopBranch());
+    this->getFrame().discardExpression(expression.mergeAndPopBranch());
   }
   template <rq::Situation SITUATION_PARAM>
   inline void situateColonOperatorExpression(rq::Expression &expression) {
@@ -509,12 +509,12 @@ struct Situator final {
       switch (destination.getKeyword()) {
       case rq::Keyword::_NULL:
         destination.changeKeyword(rq::Keyword::_IGNORE);
-        this->getStaticFrame().discardExpression(
+        this->getFrame().discardExpression(
             expression.mergeAndPopBranch());
         break;
       case rq::Keyword::_TUPLE:
         destination.changeKeyword(rq::Keyword::_STRUCTURED_BINDING);
-        this->getStaticFrame().discardExpression(
+        this->getFrame().discardExpression(
             expression.mergeAndPopBranch());
         break;
       default:
@@ -543,11 +543,11 @@ struct Situator final {
     }
     rq::Expression &value = destination.popNext();
     rq::Expression &arithmetic_expression =
-        this->getStaticFrame().acquireExpression();
+        this->getFrame().acquireExpression();
     arithmetic_expression.setKeyword(arithmetic_keyword);
     arithmetic_expression.setSource(value);
     rq::Expression &destination_copy =
-        this->getStaticFrame().copyExpression(destination);
+        this->getFrame().copyExpression(destination);
     destination.setNext(arithmetic_expression);
     arithmetic_expression.setBranch(destination_copy);
     destination_copy.setNext(value);
@@ -603,7 +603,7 @@ struct Situator final {
       for (rq::Expression &name_expression :
            second_name_expression.getHorizontalSubrange()) {
         rq::Expression &table_expression =
-            this->getStaticFrame().acquireExpression();
+            this->getFrame().acquireExpression();
         table_expression.setKeyword(rq::Keyword::TABLE);
         table_expression.setSourceInsertedAfter(expression);
         table_expression.setBranch(name_expression);
@@ -628,7 +628,7 @@ struct Situator final {
                   expression.getKeyword() == rq::Keyword::WORD,
               "wrong keyword");
     if (!expression.getHasBranch()) {
-      rq::Expression &first = this->getStaticFrame().acquireExpression();
+      rq::Expression &first = this->getFrame().acquireExpression();
       first.setKeyword(default_depth);
       first.setSourceInsertedAfter(expression);
       expression.setBranch(first);
@@ -663,7 +663,7 @@ struct Situator final {
           "second and subsequent branches", expression, branch_i++, next);
       next_ptr = next.popNextPtr();
       if (next.getKeyword() == rq::Keyword::__IDENTIFIER_LITERAL) {
-        rq::Expression &member = this->getStaticFrame().acquireExpression();
+        rq::Expression &member = this->getFrame().acquireExpression();
         member.setKeyword(rq::Keyword::_MEMBER_OF);
         member.setSource(inner, next);
         member.setBranch(inner);
@@ -691,7 +691,7 @@ struct Situator final {
       inner_ptr = &next;
     }
     expression.setBranch(inner_ptr);
-    this->getStaticFrame().discardExpression(expression.mergeAndPopBranch());
+    this->getFrame().discardExpression(expression.mergeAndPopBranch());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   inline void addTacitCommasIfNullary(rq::Expression &expression,
@@ -702,7 +702,7 @@ struct Situator final {
     rq::TreeParser parser;
     parser.setOperation(expression);
     for (unsigned comma_i = 0; comma_i < comma_count; comma_i++) {
-      rq::Expression &comma = this->getStaticFrame().acquireExpression();
+      rq::Expression &comma = this->getFrame().acquireExpression();
       comma.setSourceInsertedAtEnd(expression);
       comma.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
       parser.appendBranch(comma);
@@ -2912,7 +2912,7 @@ struct Situator final {
     if (expression.getIsConverging()) {
       for (rq::Expression &branch : expression.getBranchSubrange()) {
         if (expression.getKeyword() == branch.getKeyword()) {
-          this->getStaticFrame().discardExpression(
+          this->getFrame().discardExpression(
               expression.mergeAndPopBranch());
         }
       }
@@ -2921,14 +2921,14 @@ struct Situator final {
   inline void situateRoot(rq::Module &module) {
     RQ_ASSERT(this->_is_ok, "situator can situate only once");
     if (!module.getHasExpression()) {
-      rq::Expression &root = this->getStaticFrame().acquireExpression();
+      rq::Expression &root = this->getFrame().acquireExpression();
       root.setKeyword(rq::Keyword::_MODULE_ROOT);
       root.setSourceTextInserted(module.getSourceText());
       module.setExpression(root);
     } else {
       rq::Expression &first = module.getExpression();
       if (first.getKeyword() != rq::Keyword::_MODULE_ROOT) {
-        rq::Expression &root = this->getStaticFrame().acquireExpression();
+        rq::Expression &root = this->getFrame().acquireExpression();
         root.setKeyword(rq::Keyword::_MODULE_ROOT);
         root.setSourceTextInserted(module.getSourceText());
         root.setBranch(first);
