@@ -67,19 +67,19 @@ struct SourceRanger final {
 
   RQ_ALWAYS_INLINE void startSubToken() { this->_sub_start = this->_current; }
 
-  rq::Token getSubToken(rq::TokenType type) {
+  rq::Token getSubToken(rq::TokenKind kind) {
     RQ_ASSERT(this->_sub_start != nullptr, "sub token not started");
     RQ_ASSERT(this->_current > this->_sub_start,
               "current token before sub token start");
-    rq::Token token(type, this->_sub_start, this->_current - this->_sub_start);
+    rq::Token token(kind, this->_sub_start, this->_current - this->_sub_start);
     return token;
   }
 
-  [[nodiscard]] rq::Token getLengthToken(rq::TokenType type,
+  [[nodiscard]] rq::Token getLengthToken(rq::TokenKind kind,
                                          std::uint_fast32_t length) {
     RQ_ASSERT((this->_current + length) <= this->_end,
               "length token out of range");
-    rq::Token token(type, this->_current, length);
+    rq::Token token(kind, this->_current, length);
     this->incrementChar(length);
     return token;
   }
@@ -187,8 +187,8 @@ struct Tokenizer final {
     RQ_ASSERT(this->getHasGrouping(), "no grouping");
     return this->_grouping_stack.back();
   }
-  void pushGrouping(rq::GroupingType grouping) {
-    this->_grouping_stack.emplace_back(grouping, this->getTokens().size() - 1);
+  void pushGrouping(rq::GroupingKind kind) {
+    this->_grouping_stack.emplace_back(kind, this->getTokens().size() - 1);
   }
   void popGrouping() {
     RQ_ASSERT(this->getHasGrouping(), "no grouping");
@@ -196,16 +196,16 @@ struct Tokenizer final {
   }
   void _tokenizeSourceText();
   [[nodiscard]] bool tokenizeSourceText();
-  void tokenizeLengthToken(rq::TokenType type, unsigned length);
-  void tokenizeUnmatchedLengthToken(rq::TokenType type, unsigned length);
-  void tokenizeLeftGrouping(rq::GroupingType grouping, rq::TokenType type,
+  void tokenizeLengthToken(rq::TokenKind kind, unsigned length);
+  void tokenizeUnmatchedLengthToken(rq::TokenKind kind, unsigned length);
+  void tokenizeLeftGrouping(rq::GroupingKind grouping_kind, rq::TokenKind token_kind,
                             unsigned length);
-  void tokenizeRightGrouping(rq::GroupingType grouping, rq::TokenType type,
+  void tokenizeRightGrouping(rq::GroupingKind grouping_kind, rq::TokenKind token_kind,
                              unsigned length);
   void checkFinalGroupings();
   void logErrorUnmatchedRightToken(const rq::Token &token);
   template <bool CAN_HAVE_INTERPOLATION_PARAM, char END_QUOTE_PARAM,
-            rq::TokenType TYPE_PARAM, rq::TokenType ERROR_UNTERMINATED_PARAM>
+            rq::TokenKind KIND_PARAM, rq::TokenKind ERROR_UNTERMINATED_PARAM>
   void tokenizeQuotedLiteral() {
     this->getRanger().startSubToken();
     this->getRanger().incrementChar(1);
@@ -283,7 +283,7 @@ struct Tokenizer final {
         break;
       case END_QUOTE_PARAM:
         this->getRanger().incrementChar(1);
-        this->getTokens().push_back(this->getRanger().getSubToken(TYPE_PARAM));
+        this->getTokens().push_back(this->getRanger().getSubToken(KIND_PARAM));
         return;
       case '\n':
         this->getRanger().incrementChar(1);
@@ -305,9 +305,9 @@ struct Tokenizer final {
       case '{':
         if constexpr (CAN_HAVE_INTERPOLATION_PARAM) {
           this->getTokens().push_back(this->getRanger().getSubToken(
-              rq::TokenType::LEFT_INTERPOLATION_LITERAL));
-          this->tokenizeLengthToken(rq::TokenType::LEFT_BRACE_GROUPING, 1);
-          this->pushGrouping(rq::GroupingType::INTERPOLATION);
+              rq::TokenKind::LEFT_INTERPOLATION_LITERAL));
+          this->tokenizeLengthToken(rq::TokenKind::LEFT_BRACE_GROUPING, 1);
+          this->pushGrouping(rq::GroupingKind::INTERPOLATION);
           return;
         }
         [[fallthrough]];

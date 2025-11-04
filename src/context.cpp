@@ -1,10 +1,10 @@
 #include <rq/ast.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
-#include <rq/module.hpp>
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
+#include <rq/tabulator.hpp>
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
@@ -22,54 +22,6 @@
 #include <utility>
 
 namespace rq {
-
-rq::Expression &Context::acquireExpression() {
-  if (this->_unused_expression_ptrs.empty()) {
-    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
-    return new_expression;
-  }
-  rq::Expression &unused_expression =
-      rq::dereferencePtr(this->_unused_expression_ptrs.back());
-  this->_unused_expression_ptrs.pop_back();
-  unused_expression.clear();
-  return unused_expression;
-}
-
-rq::Expression &Context::copyExpression(rq::Expression &expression) {
-  rq::Expression &new_expression = rq::dereferencePtr(new rq::Expression());
-  if (expression.getHasBranch()) {
-    new_expression.setBranch(this->copyExpression(expression.getBranch()));
-  }
-  if (expression.getHasNext()) {
-    new_expression.setNext(this->copyExpression(expression.getNext()));
-  }
-  new_expression._keyword = expression._keyword;
-  new_expression._source_text_ptr = expression._source_text_ptr;
-  new_expression._source_text_length = expression._source_text_length;
-  return new_expression;
-}
-
-void Context::replaceWithRecursiveCopy(rq::Expression &initial,
-                                       rq::Expression &replacement) {
-  if (initial.getHasBranch()) {
-    rq::Expression &branch = initial.popBranch();
-    this->discardExpression(branch);
-  }
-  if (initial.getHasNext()) {
-    rq::Expression &next = initial.popNext();
-    this->discardExpression(next);
-  }
-  if (initial.getHasBranch()) {
-    rq::Expression &branch = replacement.getBranch();
-    initial.setBranch(this->copyExpression(branch));
-  }
-  if (replacement.getHasNext()) {
-    rq::Expression &next = replacement.getNext();
-    initial.setNext(this->copyExpression(next));
-  }
-  initial.changeKeyword(replacement.getKeyword());
-  replacement.setSource(replacement);
-}
 
 bool Context::validateSourceText(const rq::Module &module) {
   bool is_ok = true;
@@ -214,9 +166,11 @@ bool Context::loadSourceModule() {
         input_path + "\n\treason:" + buffer_eo.getError().message());
     return false;
   }
-  llvm::StringRef final_path = this->saveString(input_path);
-  rq::Module &source_module = this->allocateValue<rq::Module>(
-      rq::ModuleType::SOURCE, language, final_path, std::move(buffer_eo.get()));
+  llvm::StringRef final_path = this->getTopStaticFrame().saveString(input_path);
+  rq::Module &source_module =
+      this->getTopStaticFrame().allocateValue<rq::Module>(
+          rq::ModuleKind::SOURCE, language, final_path,
+          std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       input_path, &this->getSourceModule()));
@@ -278,9 +232,11 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
         {expression.getLlvmSourceRange()}, {});
     return nullptr;
   }
-  llvm::StringRef final_path = this->saveString(found_path);
-  rq::Module &import_module = this->allocateValue<rq::Module>(
-      rq::ModuleType::IMPORT, language, final_path, std::move(buffer_eo.get()));
+  llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
+  rq::Module &import_module =
+      this->getTopStaticFrame().allocateValue<rq::Module>(
+          rq::ModuleKind::IMPORT, language, final_path,
+          std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -406,24 +362,29 @@ bool Context::run() {
 bool Context::parseNormativeRequite(rq::Module &module,
                                     const std::vector<rq::Token> &tokens) {
   rq::NormativeParser parser(*this, tokens);
-  rq::Expression *trunk_ptr = parser.parseExpressions();
-  module.setExpression(trunk_ptr);
+  rq::Expression *root_ptr = parser.parseExpressions();
+  module.setExpression(root_ptr);
   return parser.getIsOk();
 }
 
 bool Context::parseSymbolicRequite(rq::Module &module,
                                    const std::vector<rq::Token> &tokens) {
   rq::SymbolicParser parser(*this, tokens);
-  rq::Expression *trunk_ptr = parser.parseExpressions();
-  module.setExpression(trunk_ptr);
+  rq::Expression *root_ptr = parser.parseExpressions();
+  module.setExpression(root_ptr);
   return parser.getIsOk();
 }
 
 bool Context::situateAst(rq::Module &module) {
-  rq::Situator situator(*this);
-  rq::Expression &trunk = module.getExpression();
-  situator.situateTrunk<rq::Situation::TOP_STATEMENT>(trunk);
+  rq::Situator situator(*this, this->getTopStaticFrame());
+  situator.situateRoot(module);
   return situator.getIsOk();
+}
+
+bool Context::tabulateGlobalSymbols(rq::Module &module) {
+  rq::Tabulator tabulator(*this, module);
+  tabulator.tabulateGlobalSymbols();
+  return tabulator.getIsOk();
 }
 
 bool Context::emitTokens(llvm::StringRef path,
@@ -437,7 +398,8 @@ bool Context::emitTokens(llvm::StringRef path,
     return false;
   }
   for (const rq::Token &token : tokens) {
-    rq::SourceLocation location = this->getSourceLocation(token.getLlvmSourceStart());
+    rq::SourceLocation location =
+        this->getSourceLocation(token.getLlvmSourceStart());
     llvm::StringRef text = token.getSourceText();
     fout << token.getName() << ",";
     fout << location.line << ",";
@@ -466,11 +428,10 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
   if (!rq::getNoComment()) {
     rq::emitIndent(fout, indent);
     fout << "// ";
-    if (trunk.getIsInserted()) {
+    if (trunk.getSourceTextLength() == 0) {
       rq::SourceLocation location =
           context.getSourceLocation(trunk.getLlvmSourceStart());
-      fout << location.file << ":" << location.line << ":" << location.column
-           << " (inserted)";
+      fout << location.file << ":" << location.line << ":" << location.column;
     } else {
       rq::SourceRange range = context.getSourceRange(trunk);
       fout << range.start.file << ":" << range.start.line << ":"
@@ -479,6 +440,9 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
         fout << range.end.file << ":";
       }
       fout << range.end.line << ":" << range.end.column;
+    }
+    if (trunk.getIsInserted()) {
+      fout << " (inserted)";
     }
     fout << '\n';
   }
@@ -591,14 +555,14 @@ bool Context::emitObject(llvm::StringRef path) {
 
 void Context::logErrorFoundErrorToken(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   llvm::Twine("found ") + rq::getDescription(token.getType()),
+                   llvm::Twine("found ") + rq::getDescription(token.getKind()),
                    {token.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedToken(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
                    llvm::Twine("found unexpected ") +
-                       rq::getDescription(token.getType()),
+                       rq::getDescription(token.getKind()),
                    {token.getLlvmSourceRange()}, {});
 }
 
@@ -635,7 +599,8 @@ void Context::logErrorExpectedSemicolonSeperator(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotSecondOrSubsequentIfChunkExpression(const rq::Expression &expression) {
+void Context::logErrorNotSecondOrSubsequentIfChunkExpression(
+    const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBefore(), rq::LogType::ERROR,
                    "expected semicolon before expression because can not be "
                    "second or subsequent branch of if chunk",

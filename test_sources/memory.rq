@@ -15,8 +15,8 @@
     mutable_fat_pointer_to_mutable :`^`[signed]= `:array.`[view];
     array_of_array :1#5#[signed]= array.[singleton];
     fat_pointer_to_array :^5#[signed]= array.[singleton].[view];
-    sub_fat_pointer :^[signed]= array.[slice 2..4]; // contains {3, 4, 5}
-    sub_fat_pointer_to_mutable :^`[signed]= array.`[slice 2..<4]; // contains {3, 4}
-    reference_to_sub_array :&3#[signed]= array.[array_slice 2..4]; // contains {3, 4, 5}
-    reference_to_mutable_sub_array :&`2#[signed]= array.`[array_slice 2..<4]; // contains {3, 4}
+    sub_fat_pointer :^[signed]= array.[slice 2.==4]; // contains {3, 4, 5}
+    sub_fat_pointer_to_mutable :^`[signed]= array.`[slice 2.<4]; // contains {3, 4}
+    reference_to_sub_array :&3#[signed]= array.[array_slice 2.==4]; // contains {3, 4, 5}
+    reference_to_mutable_sub_array :&`2#[signed]= array.`[array_slice 2.<4]; // contains {3, 4}
 ];

@@ -1,0 +1,7 @@
+
+[import "std"];
+
+[entry_point
+    @static my_quote :[expression]= [quote line="Hello, world!"];
+    std.print(my_quote.[expand]);
+]; 

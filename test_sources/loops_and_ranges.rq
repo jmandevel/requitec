@@ -3,17 +3,17 @@
     // all of these loops are equivalent
 
     // equal limit interval
-    [for_each value, 0..9,
+    [for_each value:, 0..9,
         std.print(line="value is {value}");    
     ]
 
     // less limit interval
-    [for_each value, 0..<10,
+    [for_each value:, 0..<10,
         std.print(line="value is {value}");    
     ];
 
     // interval
-    [for_each value, 0.<10.+1,
+    [for_each value:, 0.<10.+1,
         std.print(line="value is {value}");    
     ]
 
@@ -27,7 +27,7 @@
     ];
 
     // element range
-    [for_each value, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},    
+    [for_each value:, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},    
         std.print(line="value is {value}");
     ];
 
@@ -48,11 +48,11 @@
         ];
     ];
     object := MyObject();
-    [for_each value, object,
+    [for_each value:, object,
         std.print(line="value is {value}");
     ];
 
-    [if (0..10).[contains 5],
+    [if (0.<10).[contains 5],
         std.print(line="5 is within interval over 0 to 10");
     ];
 ];

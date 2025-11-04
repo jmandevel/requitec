@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/module.hpp>
+#include <rq/static_frame.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -64,8 +64,6 @@ struct Context final {
   using Self = rq::Context;
 
   std::string _executable_path;
-  llvm::BumpPtrAllocator _llvm_arena;
-  llvm::StringSaver _llvm_string_saver = {_llvm_arena};
   llvm::SourceMgr _llvm_source_mgr;
   llvm::TargetMachine *_llvm_target_machine_ptr = nullptr;
   llvm::StringMap<rq::Keyword> _keyword_map;
@@ -73,7 +71,8 @@ struct Context final {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  std::vector<rq::Expression *> _unused_expression_ptrs;
+  rq::StaticFrame _top_static_frame{};
+  rq::Table *_top_table_ptr = nullptr;
   rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
@@ -88,6 +87,13 @@ struct Context final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticFrame &getTopStaticFrame() {
+    return this->_top_static_frame;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticFrame &
+  getTopStaticFrame() const {
+    return this->_top_static_frame;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
     return this->_executable_path;
@@ -121,23 +127,6 @@ struct Context final {
   getLlvmContext() const {
     return rq::dereferenceUptr(this->_llvm_context_uptr);
   }
-  template <typename TypeParam, typename... ArgNParam>
-  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &allocateValue(ArgNParam... arg_n) {
-    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
-    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
-    return rq::dereferencePtr(ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef saveString(llvm::Twine twine) {
-    llvm::StringRef saved_string = this->_llvm_string_saver.save(twine);
-    return saved_string;
-  }
-  [[nodiscard]] rq::Expression &acquireExpression();
-  RQ_ALWAYS_INLINE void discardExpression(rq::Expression &expression) {
-    this->_unused_expression_ptrs.emplace_back(&expression);
-  }
-  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  void replaceWithRecursiveCopy(rq::Expression &initial,
-                                rq::Expression &replacement);
   [[nodiscard]] bool validateSourceText(const rq::Module &module);
   [[nodiscard]] bool tokenizeSourceText(const rq::Module &module,
                                         std::vector<rq::Token> &tokens);
@@ -161,6 +150,7 @@ struct Context final {
   [[nodiscard]] bool parseSymbolicRequite(rq::Module &module,
                                           const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateAst(rq::Module &module);
+  [[nodiscard]] bool tabulateGlobalSymbols(rq::Module& module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitSymbolicRequite(llvm::StringRef path,

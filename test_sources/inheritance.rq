@@ -3,12 +3,12 @@
 @may_parent
 [object Parent,
     
-    [function myFunc, 
+    [method myFunc, 
         std.print(line="in parent");
     ];
     
     @virtual
-    [function myFuncB, 
+    [method myFuncB, 
         std.print(line="in parent");
     ];
     
@@ -23,7 +23,7 @@
     [use [self].parent.myFunc];
     
     @[override [self].parent.myFuncB]
-    [function myFuncB,
+    [method myFuncB,
         std.print(line="in child");
     ];
 

@@ -6,8 +6,8 @@ namespace rq {
 
 void Tokenizer::_tokenizeSourceText() {
   using namespace rq;
-  using T = TokenType;
-  using G = GroupingType;
+  using T = TokenKind;
+  using G = GroupingKind;
   this->getTokens().clear();
   if (this->getRanger().getIsDone()) {
     return;
@@ -126,7 +126,7 @@ void Tokenizer::_tokenizeSourceText() {
                                  1);
       continue;
     case ')':
-      this->tokenizeRightGrouping(rq::GroupingType::PARENTHESIS,
+      this->tokenizeRightGrouping(rq::GroupingKind::PARENTHESIS,
                                   T::RIGHT_PARENTHESIS_GROUPING, 1);
       continue;
     case '*':
@@ -526,19 +526,19 @@ void Tokenizer::_tokenizeSourceText() {
     case '|':
       switch (this->getRanger().getChar(1)) {
       case '|':
-        this->tokenizeLengthToken(rq::TokenType::DOUBLE_PIPE_OPERATOR, 2);
+        this->tokenizeLengthToken(rq::TokenKind::DOUBLE_PIPE_OPERATOR, 2);
         break;
       default:
-        this->tokenizeLengthToken(rq::TokenType::PIPE_OPERATOR, 1);
+        this->tokenizeLengthToken(rq::TokenKind::PIPE_OPERATOR, 1);
       }
       continue;
     case '}':
       if (!this->getHasGrouping()) {
         this->tokenizeUnmatchedLengthToken(T::RIGHT_BRACE_GROUPING, 1);
-      } else if (this->getTopGrouping().getType() == G::BRACE) {
+      } else if (this->getTopGrouping().getKind() == G::BRACE) {
         this->tokenizeLengthToken(T::RIGHT_BRACE_GROUPING, 1);
         this->popGrouping();
-      } else if (this->getTopGrouping().getType() == G::INTERPOLATION) {
+      } else if (this->getTopGrouping().getKind() == G::INTERPOLATION) {
         this->tokenizeRightGrouping(G::INTERPOLATION, T::RIGHT_BRACE_GROUPING,
                                     1);
         this->getRanger().startSubToken();
@@ -891,14 +891,14 @@ void Tokenizer::checkFinalGroupings() {
     rq::Token &token = this->getTokens().at(grouping.getTokenI());
     this->getContext().logMessage(
         token.getLlvmSourceStart(), rq::LogType::ERROR,
-        llvm::Twine(rq::getDescription(token.getType())) + "has no match",
+        llvm::Twine(rq::getDescription(token.getKind())) + "has no match",
         {token.getLlvmSourceRange()}, {});
     token.setUnmatched();
     this->popGrouping();
   }
 }
 
-void Tokenizer::tokenizeUnmatchedLengthToken(rq::TokenType type,
+void Tokenizer::tokenizeUnmatchedLengthToken(rq::TokenKind type,
                                              unsigned length) {
   rq::Token token = this->getRanger().getLengthToken(type, length);
   this->logErrorUnmatchedRightToken(token);
@@ -907,20 +907,20 @@ void Tokenizer::tokenizeUnmatchedLengthToken(rq::TokenType type,
   this->setNotOk();
 }
 
-void Tokenizer::tokenizeLengthToken(rq::TokenType type, unsigned length) {
+void Tokenizer::tokenizeLengthToken(rq::TokenKind type, unsigned length) {
   this->getTokens().push_back(this->getRanger().getLengthToken(type, length));
 }
 
-void Tokenizer::tokenizeLeftGrouping(rq::GroupingType grouping,
-                                     rq::TokenType type, unsigned length) {
-  this->tokenizeLengthToken(type, length);
-  this->pushGrouping(grouping);
+void Tokenizer::tokenizeLeftGrouping(rq::GroupingKind grouping_kind,
+                                     rq::TokenKind token_kind, unsigned length) {
+  this->tokenizeLengthToken(token_kind, length);
+  this->pushGrouping(grouping_kind);
 }
 
-void Tokenizer::tokenizeRightGrouping(rq::GroupingType grouping,
-                                      rq::TokenType type, unsigned length) {
-  rq::Token token = this->getRanger().getLengthToken(type, length);
-  if (!this->getHasGrouping() || this->getTopGrouping().getType() != grouping) {
+void Tokenizer::tokenizeRightGrouping(rq::GroupingKind grouping_kind,
+                                      rq::TokenKind token_kind, unsigned length) {
+  rq::Token token = this->getRanger().getLengthToken(token_kind, length);
+  if (!this->getHasGrouping() || this->getTopGrouping().getKind() != grouping_kind) {
     this->logErrorUnmatchedRightToken(token);
     token.setUnmatched();
     this->setNotOk();
@@ -938,19 +938,19 @@ void Tokenizer::logErrorUnmatchedRightToken(const rq::Token &token) {
     const rq::Token &left_token = this->getTokens().at(grouping.getTokenI());
     this->getContext().logMessage(
         token.getLlvmSourceStart(), rq::LogType::ERROR,
-        llvm::Twine(rq::getDescription(token.getType())) +
+        llvm::Twine(rq::getDescription(token.getKind())) +
             " does not match previous left grouping token",
         {token.getLlvmSourceRange()}, {});
     this->getContext().logMessage(
         left_token.getLlvmSourceStart(), rq::LogType::NOTE,
         llvm::Twine("previous left grouping token is ") +
-            rq::getDescription(left_token.getType()),
+            rq::getDescription(left_token.getKind()),
         {left_token.getLlvmSourceRange()}, {});
     return;
   }
   this->getContext().logMessage(
       token.getLlvmSourceStart(), rq::LogType::ERROR,
-      llvm::Twine(rq::getDescription(token.getType())) +
+      llvm::Twine(rq::getDescription(token.getKind())) +
           " does not follow a left grouping token",
       {token.getLlvmSourceRange()}, {});
 }

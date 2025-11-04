@@ -7,7 +7,7 @@
 
 namespace rq {
 
-enum class TokenType : std::uint_fast16_t {
+enum class TokenKind : std::uint_fast16_t {
   NONE,
 
   // OPERATORS
@@ -116,10 +116,10 @@ enum class TokenFlags : std::uint8_t {
 template <> struct is_flags<rq::TokenFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
-getName(rq::TokenType token) {
+getName(rq::TokenKind kind) {
   using namespace rq;
-  using T = TokenType;
-  switch (token) {
+  using T = TokenKind;
+  switch (kind) {
   case T::NONE:
     return "none";
 
@@ -289,10 +289,10 @@ getName(rq::TokenType token) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
-getDescription(rq::TokenType token) {
+getDescription(rq::TokenKind kind) {
   using namespace rq;
-  using T = TokenType;
-  switch (token) {
+  using T = TokenKind;
+  switch (kind) {
   case T::NONE:
     return "none";
 
@@ -463,11 +463,11 @@ getDescription(rq::TokenType token) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::TokenFlags
-getFlags(rq::TokenType token) {
+getFlags(rq::TokenKind kind) {
   using namespace rq;
-  using T = TokenType;
+  using T = TokenKind;
   using TF = TokenFlags;
-  switch (token) {
+  switch (kind) {
   case T::NONE:
     return TF::ERROR;
   case T::HASH_OPERATOR:
@@ -624,11 +624,11 @@ getFlags(rq::TokenType token) {
   return TF::ERROR;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::TokenType
-getUnmatched(rq::TokenType token) {
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::TokenKind
+getUnmatched(rq::TokenKind kind) {
   using namespace rq;
-  using T = TokenType;
-  switch (token) {
+  using T = TokenKind;
+  switch (kind) {
   case T::LEFT_BRACKET_GROUPING:
     return T::ERROR_UNMATCHED_LEFT_BRACKET_GROUPING;
   case T::RIGHT_BRACKET_GROUPING:
@@ -648,89 +648,89 @@ getUnmatched(rq::TokenType token) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsOperator(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsOperator(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::OPERATOR);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::SIGIL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsSeperator(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsSeperator(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::SEPERATOR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsLiteral(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsLiteral(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::LITERAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsLeftGrouping(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsLeftGrouping(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::LEFT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsRightGrouping(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsRightGrouping(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsGrouping(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsGrouping(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasSome(flags, rq::TokenFlags::LEFT_GROUPING |
                                    rq::TokenFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsLeftUnmatchedGrouping(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsLeftUnmatchedGrouping(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags,
                        rq::TokenFlags::ERROR | rq::TokenFlags::LEFT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsRightUnmathcedGrouping(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsRightUnmathcedGrouping(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags,
                        rq::TokenFlags::ERROR | rq::TokenFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsUnmatchedGrouping(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsUnmatchedGrouping(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::ERROR) &&
          rq::getHasSome(flags, rq::TokenFlags::LEFT_GROUPING |
                                    rq::TokenFlags::RIGHT_GROUPING);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsError(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsError(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::ERROR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsErrorLiteral(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsErrorLiteral(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::ERROR | rq::TokenFlags::LITERAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsInferenceTerminator(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsInferenceTerminator(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::INFERENCE_TERMINATOR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsExpressionEnd(rq::TokenType token) {
-  const rq::TokenFlags flags = rq::getFlags(token);
+getIsExpressionEnd(rq::TokenKind kind) {
+  const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasSome(flags, rq::TokenFlags::SEPERATOR |
                                    rq::TokenFlags::RIGHT_GROUPING);
 }
@@ -738,23 +738,23 @@ getIsExpressionEnd(rq::TokenType token) {
 struct Token final {
   using Self = rq::Token;
 
-  rq::TokenType _type;
+  rq::TokenKind _kind;
   const char *_lexume_ptr;
   unsigned _lexume_length;
 
   Token() = delete;
-  Token(rq::TokenType type, const char *lexume_ptr, unsigned lexume_length)
-      : _type(type), _lexume_ptr(lexume_ptr), _lexume_length(lexume_length) {}
+  Token(rq::TokenKind kind, const char *lexume_ptr, unsigned lexume_length)
+      : _kind(kind), _lexume_ptr(lexume_ptr), _lexume_length(lexume_length) {}
   Token(const Self &) = default;
   Token(Self &&) = default;
   ~Token() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenType getType() const {
-    return this->_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenKind getKind() const {
+    return this->_kind;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return rq::getName(this->_type);
+    return rq::getName(this->_kind);
   }
   [[nodiscard]] llvm::StringRef getSourceText() const {
     return llvm::StringRef(this->_lexume_ptr, this->_lexume_length);
@@ -778,46 +778,46 @@ struct Token final {
     return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOperator() const {
-    return rq::getIsOperator(this->getType());
+    return rq::getIsOperator(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSeperator() const {
-    return rq::getIsSeperator(this->getType());
+    return rq::getIsSeperator(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigil() const {
-    return rq::getIsSigil(this->getType());
+    return rq::getIsSigil(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
-    return rq::getIsLiteral(this->getType());
+    return rq::getIsLiteral(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeftGrouping() const {
-    return rq::getIsLeftGrouping(this->getType());
+    return rq::getIsLeftGrouping(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRightGrouping() const {
-    return rq::getIsRightGrouping(this->getType());
+    return rq::getIsRightGrouping(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGrouping() const {
-    return rq::getIsGrouping(this->getType());
+    return rq::getIsGrouping(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeftUnmatchedGrouping() const {
-    return rq::getIsLeftUnmatchedGrouping(this->getType());
+    return rq::getIsLeftUnmatchedGrouping(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRightUnmatchedGrouping() const {
-    return rq::getIsRightUnmathcedGrouping(this->getType());
+    return rq::getIsRightUnmathcedGrouping(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnmatchedGrouping() const {
-    return rq::getIsUnmatchedGrouping(this->getType());
+    return rq::getIsUnmatchedGrouping(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsError() const {
-    return rq::getIsError(this->getType());
+    return rq::getIsError(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsErrorLiteral() const {
-    return rq::getIsErrorLiteral(this->getType());
+    return rq::getIsErrorLiteral(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferenceTerminator() const {
-    return rq::getIsInferenceTerminator(this->getType());
+    return rq::getIsInferenceTerminator(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionEnd() const {
-    return rq::getIsExpressionEnd(this->getType());
+    return rq::getIsExpressionEnd(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceStart() const {
     return llvm::SMLoc::getFromPointer(this->_lexume_ptr);
@@ -830,16 +830,16 @@ struct Token final {
     return llvm::SMRange(this->getLlvmSourceStart(), this->getLlvmSourceEnd());
   }
   void RQ_ALWAYS_INLINE setUnmatched() {
-    this->_type = rq::getUnmatched(this->_type);
+    this->_kind = rq::getUnmatched(this->_kind);
   }
 };
 
-enum class GroupingType { NONE, INTERPOLATION, BRACKET, BRACE, PARENTHESIS };
+enum class GroupingKind { NONE, INTERPOLATION, BRACKET, BRACE, PARENTHESIS };
 
-constexpr llvm::StringRef getDescription(rq::GroupingType grouping) {
+constexpr llvm::StringRef getDescription(rq::GroupingKind kind) {
   using namespace rq;
-  using G = GroupingType;
-  switch (grouping) {
+  using G = GroupingKind;
+  switch (kind) {
   case G::NONE:
     return "none";
   case G::INTERPOLATION:
@@ -857,12 +857,12 @@ constexpr llvm::StringRef getDescription(rq::GroupingType grouping) {
 }
 
 struct Grouping final {
-  rq::GroupingType _type = rq::GroupingType::NONE;
+  rq::GroupingKind _kind = rq::GroupingKind::NONE;
   unsigned _token_i = 0;
 
-  Grouping(rq::GroupingType type, unsigned token_i)
-      : _type(type), _token_i(token_i) {}
-  rq::GroupingType getType() const { return this->_type; }
+  Grouping(rq::GroupingKind kind, unsigned token_i)
+      : _kind(kind), _token_i(token_i) {}
+  rq::GroupingKind getKind() const { return this->_kind; }
   unsigned getTokenI() const { return this->_token_i; }
 };
 

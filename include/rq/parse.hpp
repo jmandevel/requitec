@@ -38,11 +38,10 @@ struct TokenRanger final {
   RQ_ALWAYS_INLINE void incrementToken(std::size_t offset) {
     this->_it += offset;
   }
-  [[nodiscard]] bool getIsToken(rq::TokenType type) const;
+  [[nodiscard]] bool getIsToken(rq::TokenKind kind) const;
 };
 
 enum class Keyword : std::uint32_t;
-enum class TokenType : std::uint_fast16_t;
 struct Context;
 struct Module;
 struct Expression;
@@ -137,8 +136,8 @@ struct TreeParser final {
 struct PrecedenceParser final {
   using Self = rq::PrecedenceParser;
 
-  // the context is used only for acquiring new expressions
-  std::reference_wrapper<rq::Context> _context_ref;
+  // the static frame is used only for acquiring new expressions
+  std::reference_wrapper<rq::StaticFrame> _static_frame_ref;
   // the outermost operation that is returned at the end of the precedence
   rq::Expression *_outer_ptr = nullptr;
   // the current operation that is being filled with branches
@@ -149,15 +148,15 @@ struct PrecedenceParser final {
   // the last branch that was appended to the operation
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceParser(rq::Context &context) : _context_ref(context) {}
+  PrecedenceParser(rq::StaticFrame &static_frame) : _static_frame_ref(static_frame) {}
   PrecedenceParser(const Self &) = delete;
   PrecedenceParser(Self &&) = delete;
   ~PrecedenceParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] rq::Context &getContext() { return this->_context_ref.get(); }
-  [[nodiscard]] const rq::Context &getContext() const {
-    return this->_context_ref.get();
+  [[nodiscard]] rq::StaticFrame &getStaticFrame() { return this->_static_frame_ref.get(); }
+  [[nodiscard]] const rq::StaticFrame &getStaticFrame() const {
+    return this->_static_frame_ref.get();
   }
   void parseDoubleUnary(const rq::Token &token, rq::Keyword keyword);
   void parseUnary(const rq::Token &token, rq::Keyword keyword);
@@ -270,7 +269,7 @@ struct NormativeParser final {
   [[nodiscard]] rq::Expression &parsePrecedence0();
   // returns if has parameter marks
   [[nodiscard]] bool
-  parseCommaSeperatedBranches(rq::Expression &operation, rq::TokenType end,
+  parseCommaSeperatedBranches(rq::Expression &operation, rq::TokenKind end,
                               bool must_not_have_parameter_marks);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();

@@ -1,25 +1,14 @@
 [enumeration Fruit, 32,
-    apple = 0;
-    orange = 1;
-    grape = 2;
+    APPLE = 0;
+    ORANGE = 1;
+    GRAPE = 2;
 ];
 
-[enumeration Payload, 16,
-    none=0;
-    string:^``[utf8]=1;
-    number:[binary64]=2;    
-];
-
-payload := Payload.string("str");
-none := Payload.none;
-
-str :=
-    [inline_match payload,
-        [case string,
-            [out] := string;
-        ][case number,
-            [out] := std.format("{number, "2."}");
-        ][case none,
-            [out] := "nothing";        
-        ]
+[entry_point
+    my_fruit :`= Fruit.APPLE;
+    [if my_fruit == Fruit.APPLE,
+        [result] := 0;    
+    ][else
+        [result] := 1;
     ];
+];
