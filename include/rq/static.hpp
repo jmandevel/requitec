@@ -13,6 +13,9 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/MemoryBufferRef.h>
+#include <llvm/Support/Allocator.h>
+#include <llvm/Support/StringSaver.h>
+
 
 #include <bit>
 #include <cstdint>
@@ -24,65 +27,66 @@ namespace rq {
 // TODO static values. only care about dynamic runtime for now (types and
 // symbols all that are needed).
 
-enum class TermKind : std::uint_fast8_t {
-  VOID_TYPE,
+enum class ValueKind : std::uint_fast8_t {
+  VOID,
   NULL_TYPE,
   NO_RETURN,
   VARIADIC_ARGUMENTS_TYPE,
-  BOOLEAN_TYPE,
-  WORD_TYPE,
-  SIGNED_TYPE,
-  UNSIGNED_TYPE,
-  UTF8_TYPE,
-  BFLOAT16_TYPE,
-  BINARY16_TYPE,
-  BINARY32_TYPE,
-  BINARY64_TYPE,
-  BINARY128_TYPE,
-  MODULE_SYMBOL,
-  TABLE_SYMBOL,
-  OBJECT_TYPE,
+  BOOLEAN,
+  WORD,
+  SIGNED,
+  UNSIGNED,
+  UTF8,
+  BFLOAT16,
+  BINARY16,
+  BINARY32,
+  BINARY64,
+  BINARY128,
+  MODULE,
+  TABLE,
+  OBJECT_SYMBOL,
   ENUMERATION_TYPE,
-  ENUMERATOR_SYMBOL,
+  ENUMERATOR,
   TUPLE_TYPE,
-  VARIABLE_SYMBOL,
-  FUNCTION_SYMBOL,
-  METHOD_SYMBOL
+  VARIABLE,
+  FUNCTION,
+  METHOD,
+  ENTRY_POINT
 };
 
-struct Term {
-  using Self = rq::Term;
+struct StaticValue {
+  using Self = rq::StaticValue;
 
-  rq::TermKind _kind;
+  rq::ValueKind _kind;
 
-  Term(rq::TermKind kind) : _kind(kind) {}
-  Term(const Self &) = delete;
-  Term(Self &&) = delete;
-  virtual ~Term() {}
+  StaticValue(rq::ValueKind kind) : _kind(kind) {}
+  StaticValue(const Self &) = delete;
+  StaticValue(Self &&) = delete;
+  virtual ~StaticValue() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TermKind getKind() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getKind() const {
     return this->_kind;
   }
 };
 
 struct Node;
 
-using TermPtr = llvm::PointerUnion<rq::Term *, rq::Expression *>;
-using EntryPtr = llvm::PointerUnion<rq::TermPtr, rq::Node *>;
+using EntryPtr = llvm::PointerUnion<rq::StaticValue*, rq::Node *>;
 
 struct Node final {
-  llvm::PointerIntPair<rq::TermPtr, 1> _this_ptr{nullptr};
-  llvm::PointerIntPair<rq::EntryPtr, 2> _next_ptr{nullptr};
+  rq::StaticValue* _this_ptr{nullptr};
+  llvm::PointerIntPair<rq::EntryPtr, 1> _next_ptr{nullptr};
 };
 
-struct Table : rq::Term {
+struct Table : rq::StaticValue {
   using Self = rq::Table;
 
-  llvm::SmallDenseMap<llvm::StringRef, rq::EntryPtr, 4> _terms{};
+  llvm::SmallDenseMap<llvm::StringRef, rq::EntryPtr, 4> _named_values{};
+  rq::EntryPtr _unamed_values{};
 
-  Table() : rq::Term(rq::TermKind::TABLE_SYMBOL) {}
-  Table(rq::TermKind kind) : rq::Term(kind) {}
+  Table() : rq::StaticValue(rq::ValueKind::TABLE) {}
+  Table(rq::ValueKind kind) : rq::StaticValue(kind) {}
   Table(const Self &) = delete;
   Table(Self &&) = delete;
   ~Table() {
@@ -95,13 +99,32 @@ struct Table : rq::Term {
 struct Layout final : public rq::Table {
   using Self = rq::Layout;
 
-  Layout(rq::TermKind kind) : rq::Table(kind) {}
+  Layout(rq::ValueKind kind) : rq::Table(kind) {}
 };
 
 struct Procedure final : public rq::Table {
   using Self = rq::Procedure;
 
-  Procedure(rq::TermKind kind) : rq::Table(kind) {}
+  const rq::Expression *_expression_ptr{nullptr};
+
+  Procedure(rq::ValueKind kind) : rq::Table(kind) {}
+  Procedure(const Self&) = delete;
+  Procedure(Self&&) = delete;
+  ~Procedure() = default;
+  Self& operator=(const Self&) = delete;
+  Self& operator=(Self&&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self& rhs) const {
+    return this == &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(Self&& rhs) const {
+    return this != &rhs;
+  }
+  void setExpression(const rq::Expression& expression) {
+    rq::assignSingleValue(this->_expression_ptr, &expression);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
 };
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
@@ -150,7 +173,7 @@ getLanguageOfExtension(llvm::StringRef extension) {
   return rq::Language::UNKNOWN;
 }
 
-struct Module final : public rq::Term {
+struct Module final : public rq::StaticValue {
   using Self = rq::Module;
 
   rq::ModuleKind _kind;
@@ -161,7 +184,7 @@ struct Module final : public rq::Term {
 
   Module(rq::ModuleKind kind, rq::Language language, llvm::StringRef path,
          llvm::MemoryBufferRef &&buffer)
-      : rq::Term(rq::TermKind::MODULE_SYMBOL), _kind(kind), _language(language),
+      : rq::StaticValue(rq::ValueKind::MODULE), _kind(kind), _language(language),
         _llvm_buffer_ref(std::move(buffer)), _path(path) {}
   Module(const Self &) = delete;
   Module(Self &&) = delete;
@@ -207,19 +230,19 @@ struct Module final : public rq::Term {
   }
 };
 
-inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::TermKind kind) {
+inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::ValueKind kind) {
   using namespace rq;
-  using TK = TermKind;
+  using TK = ValueKind;
   switch (kind) {
-  case TK::BFLOAT16_TYPE:
+  case TK::BFLOAT16:
     return llvm::APFloat::BFloat();
-  case TK::BINARY16_TYPE:
+  case TK::BINARY16:
     return llvm::APFloat::IEEEhalf();
-  case TK::BINARY32_TYPE:
+  case TK::BINARY32:
     return llvm::APFloat::IEEEsingle();
-  case TK::BINARY64_TYPE:
+  case TK::BINARY64:
     return llvm::APFloat::IEEEdouble();
-  case TK::BINARY128_TYPE:
+  case TK::BINARY128:
     return llvm::APFloat::IEEEquad();
   default:
     break;
@@ -241,7 +264,7 @@ enum class NumericResult {
   ERROR_FLOAT_WITH_BASE
 };
 
-[[nodiscard]] constexpr llvm::StringRef
+[[nodiscard]] constexpr inline llvm::StringRef
 getDescription(rq::NumericResult result) {
   using namespace rq;
   using NR = NumericResult;
@@ -259,7 +282,7 @@ getDescription(rq::NumericResult result) {
   case NR::ERROR_ZERO_BASE:
     return "numeric literal has a base of 0";
   case NR::ERROR_TERM_TOO_BIG:
-    return "numeric literal term is too big";
+    return "numeric literal StaticValue is too big";
   case NR::ERROR_BASE_TOO_BIG:
     return "numeric literal base is too big";
   case NR::ERROR_MULTIPLE_DECIMAL_POINT:
@@ -319,7 +342,7 @@ cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
 }
 
 template <typename NumericParam>
-[[nodiscard]] inline rq::NumericResult getNumericTerm(llvm::StringRef text,
+[[nodiscard]] inline rq::NumericResult getNumericValue(llvm::StringRef text,
                                                       NumericParam &ost_term) {
   using Numeric = NumericParam;
   text = text.trim();
@@ -455,9 +478,9 @@ template <typename NumericParam>
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::NumericResult getNumericTerm(llvm::StringRef text,
+[[nodiscard]] inline rq::NumericResult getNumericValue(llvm::StringRef text,
                                                       llvm::APFloat &ost_term,
-                                                      rq::TermKind semantics) {
+                                                      rq::ValueKind semantics) {
   llvm::SmallString<16> buffer;
   rq::NumericResult result = rq::cleanFloatText(text, buffer);
   if (result != rq::NumericResult::OK) {
@@ -468,5 +491,54 @@ template <typename NumericParam>
   ost_term = llvm::APFloat(llvm_semantics, buffer);
   return result;
 }
+
+
+struct Token;
+struct Expression;
+
+struct StaticFrame final {
+  using Self = rq::StaticFrame;
+
+  llvm::BumpPtrAllocator _llvm_arena;
+  llvm::StringSaver _llvm_string_saver{_llvm_arena};
+  std::vector<rq::Expression *> _unused_expression_ptrs;
+  rq::Table _table;
+
+  StaticFrame() = default;
+  StaticFrame(const Self &) = delete;
+  StaticFrame(Self &&) = delete;
+  ~StaticFrame() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this == &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this != &rhs;
+  }
+  template <typename TypeParam, typename... ArgNParam>
+  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &allocateValue(ArgNParam... arg_n) {
+    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
+    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+    return rq::dereferencePtr(ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef saveString(llvm::Twine twine) {
+    llvm::StringRef saved_string = this->_llvm_string_saver.save(twine);
+    return saved_string;
+  }
+  [[nodiscard]] rq::Expression &acquireExpression();
+  RQ_ALWAYS_INLINE void discardExpression(rq::Expression &expression) {
+    this->_unused_expression_ptrs.emplace_back(&expression);
+  }
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  void replaceWithRecursiveCopy(rq::Expression &initial,
+                                rq::Expression &replacement);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Table& getTable() {
+    return this->_table;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table& getTable() const {
+    return this->_table;
+  }
+};
 
 } // namespace rq

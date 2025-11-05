@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rq/context.hpp>
-#include <rq/terms.hpp>
+#include <rq/static.hpp>
 #include <rq/utility.hpp>
 
 #include <functional>
@@ -45,7 +45,9 @@ struct Tabulator final {
   void setNotOk() {
     this->_is_ok = false;
   }
-  void tabulateGlobalSymbols();
+  void tabulateModule();
+  void tabulateGlobalForest(const rq::Expression& first, rq::Table& table);
+  void tabulateEntryPoint(const rq::Expression& expression, rq::Table& table);
 };
 
 } // namespace rq

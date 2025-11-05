@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/frame.hpp>
+#include <rq/static.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -71,8 +71,7 @@ struct Context final {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  rq::Frame _top_frame{};
-  rq::Table *_top_table_ptr = nullptr;
+  rq::StaticFrame _top_static_frame{};
   rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
@@ -88,12 +87,12 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getTopFrame() {
-    return this->_top_frame;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticFrame &getTopStaticFrame() {
+    return this->_top_static_frame;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Frame &
-  getTopFrame() const {
-    return this->_top_frame;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticFrame &
+  getTopStaticFrame() const {
+    return this->_top_static_frame;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
     return this->_executable_path;
@@ -150,7 +149,7 @@ struct Context final {
   [[nodiscard]] bool parseSymbolicRequite(rq::Module &module,
                                           const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateAst(rq::Module &module);
-  [[nodiscard]] bool tabulateGlobalSymbols(rq::Module& module);
+  [[nodiscard]] bool tabulateModule(rq::Module& module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitSymbolicRequite(llvm::StringRef path,

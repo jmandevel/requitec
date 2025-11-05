@@ -1,8 +1,8 @@
-#include <rq/frame.hpp>
+#include <rq/static.hpp>
 
 namespace rq {
 
-rq::Expression &Frame::acquireExpression() {
+rq::Expression &StaticFrame::acquireExpression() {
   if (this->_unused_expression_ptrs.empty()) {
     rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
@@ -14,7 +14,7 @@ rq::Expression &Frame::acquireExpression() {
   return unused_expression;
 }
 
-rq::Expression &Frame::copyExpression(rq::Expression &expression) {
+rq::Expression &StaticFrame::copyExpression(rq::Expression &expression) {
   rq::Expression &new_expression = rq::dereferencePtr(new rq::Expression());
   if (expression.getHasBranch()) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));
@@ -28,7 +28,7 @@ rq::Expression &Frame::copyExpression(rq::Expression &expression) {
   return new_expression;
 }
 
-void Frame::replaceWithRecursiveCopy(rq::Expression &initial,
+void StaticFrame::replaceWithRecursiveCopy(rq::Expression &initial,
                                            rq::Expression &replacement) {
   if (initial.getHasBranch()) {
     rq::Expression &branch = initial.popBranch();
