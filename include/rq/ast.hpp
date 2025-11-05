@@ -195,6 +195,7 @@ enum class Keyword : std::uint32_t {
 
   // CONTROL FLOW
   RETURN,
+  RETURN_RESULT,
   BREAK,
   CONTINUE,
   FALLTHROUGH,
@@ -714,6 +715,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // CONTROL FLOW
   case K::RETURN:
     return "return";
+  case K::RETURN_RESULT:
+    return "return_result";
   case K::BREAK:
     return "break";
   case K::CONTINUE:
@@ -1472,6 +1475,9 @@ getFlags(rq::Keyword keyword) {
 
   // CONTROL FLOW
   case K::RETURN:
+    return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT;
+  case K::RETURN_RESULT:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::BREAK:

@@ -553,8 +553,18 @@ struct Situator final {
     destination_copy.setNext(value);
   }
   template <rq::Situation SITUATION_PARAM>
+  inline void situateReturnExpression(rq::Expression &expression) {
+    RQ_ASSERT(expression.getKeyword() == rq::Keyword::RETURN, "wrong keyword");
+    if (!expression.getHasBranch()) {
+      return;
+    }
+    this->situateUnaryExpression<SITUATION_PARAM, rq::Situation::RVALUE>(
+        expression);
+  }
+  template <rq::Situation SITUATION_PARAM>
   inline void situateSequenceExpression(rq::Expression &expression) {
-    RQ_ASSERT(expression.getKeyword() == rq::Keyword::_SEQUENCE, "wrong keyword");
+    RQ_ASSERT(expression.getKeyword() == rq::Keyword::_SEQUENCE,
+              "wrong keyword");
     if (!expression.getHasBranch()) {
       this->logErrorNotAtLeastBranchCount<SITUATION_PARAM>(expression, 2);
       this->setNotOk();
@@ -1652,6 +1662,13 @@ struct Situator final {
     // CONTROL FLOW
     case K::RETURN:
       if constexpr (!getCanBeSituation<SP>(K::RETURN)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateReturnExpression<SP>(expression);
+      }
+      break;
+    case K::RETURN_RESULT:
+      if constexpr (!getCanBeSituation<SP>(K::RETURN_RESULT)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNullaryExpression<SP>(expression);
