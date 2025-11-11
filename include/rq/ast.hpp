@@ -349,7 +349,7 @@ enum class Keyword : std::uint32_t {
   LIKELY,
   UNLIKELY,
   DEPRECIATED,
-  NO_SHALLOW_COPY,
+  MAY_SHALLOW_COPY,
 
   // EXPRESSIONS
   QUOTE,
@@ -979,8 +979,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "unlikely";
   case K::DEPRECIATED:
     return "depreciated";
-  case K::NO_SHALLOW_COPY:
-    return "no_shallow_copy";
+  case K::MAY_SHALLOW_COPY:
+    return "may_shallow_copy";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1778,7 +1778,7 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::DEPRECIATED:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::NO_SHALLOW_COPY:
+  case K::MAY_SHALLOW_COPY:
     return KF::STATEMENT_ATTRIBUTE;
 
   // EXPRESSIONS
@@ -2446,7 +2446,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   EXPORT,
   PRIVATE,
   PROTECTED,
-  NO_SHALLOW_COPY
+  MAY_SHALLOW_COPY
 };
 
 [[nodiscard]] inline constexpr llvm::StringRef
@@ -2500,8 +2500,8 @@ getName(rq::StatementAttribute attribute) {
     return "private";
   case SA::PROTECTED:
     return "protected";
-  case SA::NO_SHALLOW_COPY:
-    return "no_shallow_copy";
+  case SA::MAY_SHALLOW_COPY:
+    return "may_shallow_copy";
   }
   return "error";
 }
@@ -2556,8 +2556,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::PRIVATE;
   case K::PROTECTED:
     return SA::PROTECTED;
-  case K::NO_SHALLOW_COPY:
-    return SA::NO_SHALLOW_COPY;
+  case K::MAY_SHALLOW_COPY:
+    return SA::MAY_SHALLOW_COPY;
   default:
     break;
   }
@@ -2588,7 +2588,7 @@ enum class StatementFlags : std::uint32_t {
   EXPORT = rq::getBit(12),
   PRIVATE = rq::getBit(11),
   PROTECTED = rq::getBit(10),
-  NO_SHALLOW_COPY = rq::getBit(9)
+  MAY_SHALLOW_COPY = rq::getBit(9)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2645,8 +2645,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::PRIVATE;
   case SA::PROTECTED:
     return SF::PROTECTED;
-  case SA::NO_SHALLOW_COPY:
-    return SF::NO_SHALLOW_COPY;
+  case SA::MAY_SHALLOW_COPY:
+    return SF::MAY_SHALLOW_COPY;
   }
   return SF::NONE;
 }

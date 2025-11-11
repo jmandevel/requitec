@@ -2541,7 +2541,7 @@ struct Situator final {
         this->situateUnaryExpression<SP, S::RVALUE>(expression);
       }
       break;
-    case K::NO_SHALLOW_COPY:
+    case K::MAY_SHALLOW_COPY:
       if constexpr (!getCanBeSituation<SP>(K::UNLIKELY)) {
         RQ_UNREACHABLE();
       } else {

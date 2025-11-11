@@ -1,4 +1,3 @@
-@no_shallow_copy
 [object NoCopy,
     [deep_copier];
     [drop_mover];
