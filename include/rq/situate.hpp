@@ -2542,7 +2542,14 @@ struct Situator final {
       }
       break;
     case K::MAY_SHALLOW_COPY:
-      if constexpr (!getCanBeSituation<SP>(K::UNLIKELY)) {
+      if constexpr (!getCanBeSituation<SP>(K::MAY_SHALLOW_COPY)) {
+        RQ_UNREACHABLE();
+      } else {
+        this->situateNullaryExpression<SP>(expression);
+      }
+      break;
+    case K::MAY_AUTO_DROP:
+      if constexpr (!getCanBeSituation<SP>(K::MAY_AUTO_DROP)) {
         RQ_UNREACHABLE();
       } else {
         this->situateNullaryExpression<SP>(expression);

@@ -350,6 +350,7 @@ enum class Keyword : std::uint32_t {
   UNLIKELY,
   DEPRECIATED,
   MAY_SHALLOW_COPY,
+  MAY_AUTO_DROP,
 
   // EXPRESSIONS
   QUOTE,
@@ -981,6 +982,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "depreciated";
   case K::MAY_SHALLOW_COPY:
     return "may_shallow_copy";
+  case K::MAY_AUTO_DROP:
+    return "may_auto_drop";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1780,6 +1783,8 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_SHALLOW_COPY:
     return KF::STATEMENT_ATTRIBUTE;
+  case K::MAY_AUTO_DROP:
+    return KF::STATEMENT_ATTRIBUTE;
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -2446,7 +2451,8 @@ enum class StatementAttribute : std::uint_fast8_t {
   EXPORT,
   PRIVATE,
   PROTECTED,
-  MAY_SHALLOW_COPY
+  MAY_SHALLOW_COPY,
+  MAY_AUTO_DROP
 };
 
 [[nodiscard]] inline constexpr llvm::StringRef
@@ -2502,6 +2508,8 @@ getName(rq::StatementAttribute attribute) {
     return "protected";
   case SA::MAY_SHALLOW_COPY:
     return "may_shallow_copy";
+  case S::MAY_AUTO_DROP:
+    return "may_auto_drop";
   }
   return "error";
 }
@@ -2558,6 +2566,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::PROTECTED;
   case K::MAY_SHALLOW_COPY:
     return SA::MAY_SHALLOW_COPY;
+  case K::MAY_AUTO_DROP:
+    return SA::MAY_AUTO_DROP;
   default:
     break;
   }
@@ -2588,7 +2598,8 @@ enum class StatementFlags : std::uint32_t {
   EXPORT = rq::getBit(12),
   PRIVATE = rq::getBit(11),
   PROTECTED = rq::getBit(10),
-  MAY_SHALLOW_COPY = rq::getBit(9)
+  MAY_SHALLOW_COPY = rq::getBit(9),
+  MAY_AUTO_DROP = rq::getBit(8),
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2647,6 +2658,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::PROTECTED;
   case SA::MAY_SHALLOW_COPY:
     return SF::MAY_SHALLOW_COPY;
+  case SA::MAY_AUTO_DROP:
+    return SF::MAY_AUTO_DROP;
   }
   return SF::NONE;
 }
