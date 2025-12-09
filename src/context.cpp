@@ -455,6 +455,9 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
     if (trunk.getHasUnquotedRight()) {
       fout << "\"";
     }
+    if (trunk.getIsCommaTerminated()) {
+      fout << ",";
+    }
     if (!rq::getNoComment()) {
       fout << " // " << trunk.getName();
     }
@@ -469,7 +472,11 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
     }
     rq::emitIndent(fout, indent);
   }
-  fout << "]\n";
+  fout << "]";
+  if (trunk.getIsCommaTerminated()) {
+    fout << ",";
+  }
+  fout << '\n';
 }
 
 bool Context::emitSymbolicRequite(llvm::StringRef path,
