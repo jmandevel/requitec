@@ -99,7 +99,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '%':
       switch (this->getRanger().getChar(1)) {
       case '%':
-        this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 2);
+        this->tokenizeLengthToken(T::TRAILER_SEPARATOR, 2);
         break;
       case '=':
         this->tokenizeLengthToken(T::PERCENT_EQUAL_OPERATOR, 2);
@@ -151,7 +151,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case ',':
-      this->tokenizeLengthToken(T::COMMA_SEPERATOR, 1);
+      this->tokenizeLengthToken(T::COMMA_SEPARATOR, 1);
       continue;
     case '-':
       switch (this->getRanger().getChar(1)) {
@@ -343,7 +343,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case ';':
-      this->tokenizeLengthToken(T::SEMICOLON_SEPERATOR, 1);
+      this->tokenizeLengthToken(T::SEMICOLON_SEPARATOR, 1);
       continue;
     case '<':
       switch (this->getRanger().getChar(1)) {
@@ -356,7 +356,7 @@ void Tokenizer::_tokenizeSourceText() {
       case ':':
         switch (this->getRanger().getChar(2)) {
         case '>':
-          this->tokenizeLengthToken(T::TRAILER_SEPERATOR, 3);
+          this->tokenizeLengthToken(T::TRAILER_SEPARATOR, 3);
           break;
         default:
           break;

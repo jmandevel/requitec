@@ -63,10 +63,10 @@ enum class TokenKind : std::uint_fast16_t {
   AT_SIGIL,     // @
   DOLLAR_SIGIL, // $
 
-  // SEPERATOR SYMBOLS
-  TRAILER_SEPERATOR,   // %%
-  SEMICOLON_SEPERATOR, // ;
-  COMMA_SEPERATOR,     // ,
+  // SEPARATOR SYMBOLS
+  TRAILER_SEPARATOR,   // %%
+  SEMICOLON_SEPARATOR, // ;
+  COMMA_SEPARATOR,     // ,
 
   // GROUPING SYMBOLS
   LEFT_BRACKET_GROUPING,      // [
@@ -105,7 +105,7 @@ enum class TokenFlags : std::uint8_t {
   NONE = 0,
   OPERATOR = rq::getBit(7),
   SIGIL = rq::getBit(6),
-  SEPERATOR = rq::getBit(5),
+  SEPARATOR = rq::getBit(5),
   LITERAL = rq::getBit(4),
   LEFT_GROUPING = rq::getBit(3),
   RIGHT_GROUPING = rq::getBit(2),
@@ -225,13 +225,13 @@ getName(rq::TokenKind kind) {
   case T::DOLLAR_SIGIL:
     return "dollar_sigil";
 
-  // SEPERATOR SYMBOLS
-  case T::TRAILER_SEPERATOR:
-    return "trailer_seperator";
-  case T::SEMICOLON_SEPERATOR:
-    return "semicolon_seperator";
-  case T::COMMA_SEPERATOR:
-    return "comma_seperator";
+  // SEPARATOR SYMBOLS
+  case T::TRAILER_SEPARATOR:
+    return "trailer_separator";
+  case T::SEMICOLON_SEPARATOR:
+    return "semicolon_separator";
+  case T::COMMA_SEPARATOR:
+    return "comma_separator";
 
   // GROUPING SYMBOLS
   case T::LEFT_BRACKET_GROUPING:
@@ -398,13 +398,13 @@ getDescription(rq::TokenKind kind) {
   case T::DOLLAR_SIGIL:
     return "dollar_sigil";
 
-  // SEPERATOR SYMBOLS
-  case T::TRAILER_SEPERATOR:
-    return "trailer seperator";
-  case T::SEMICOLON_SEPERATOR:
-    return "semicolon seperator";
-  case T::COMMA_SEPERATOR:
-    return "comma seperator";
+  // SEPARATOR SYMBOLS
+  case T::TRAILER_SEPARATOR:
+    return "trailer separator";
+  case T::SEMICOLON_SEPARATOR:
+    return "semicolon separator";
+  case T::COMMA_SEPARATOR:
+    return "comma separator";
 
   // GROUPING SYMBOLS
   case T::LEFT_BRACKET_GROUPING:
@@ -568,12 +568,12 @@ getFlags(rq::TokenKind kind) {
     return TF::SIGIL;
   case T::DOLLAR_SIGIL:
     return TF::SIGIL;
-  case T::TRAILER_SEPERATOR:
-    return TF::SEPERATOR;
-  case T::SEMICOLON_SEPERATOR:
-    return TF::SEPERATOR;
-  case T::COMMA_SEPERATOR:
-    return TF::SEPERATOR | TF::INFERENCE_TERMINATOR;
+  case T::TRAILER_SEPARATOR:
+    return TF::SEPARATOR;
+  case T::SEMICOLON_SEPARATOR:
+    return TF::SEPARATOR;
+  case T::COMMA_SEPARATOR:
+    return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
   case T::LEFT_BRACKET_GROUPING:
     return TF::LEFT_GROUPING;
   case T::RIGHT_BRACKET_GROUPING:
@@ -659,9 +659,9 @@ getIsOperator(rq::TokenKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsSeperator(rq::TokenKind kind) {
+getIsSeparator(rq::TokenKind kind) {
   const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::SEPERATOR);
+  return rq::getHasAll(flags, rq::TokenFlags::SEPARATOR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -731,7 +731,7 @@ getIsInferenceTerminator(rq::TokenKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsExpressionEnd(rq::TokenKind kind) {
   const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::TokenFlags::SEPERATOR |
+  return rq::getHasSome(flags, rq::TokenFlags::SEPARATOR |
                                    rq::TokenFlags::RIGHT_GROUPING);
 }
 
@@ -780,8 +780,8 @@ struct Token final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOperator() const {
     return rq::getIsOperator(this->getKind());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSeperator() const {
-    return rq::getIsSeperator(this->getKind());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSeparator() const {
+    return rq::getIsSeparator(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigil() const {
     return rq::getIsSigil(this->getKind());

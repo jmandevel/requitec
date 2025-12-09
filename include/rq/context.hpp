@@ -179,9 +179,9 @@ struct Context final {
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
   void logErrorUnexpectedParameterMark(const rq::Token &token);
-  void logErrorExpectedCommaSeperator(const rq::Expression &expression);
-  void logErrorExpectedSeperatorOrRightBracket(const rq::Token &token);
-  void logErrorExpectedSemicolonSeperator(const rq::Expression &expression);
+  void logErrorExpectedCommaSeparator(const rq::Expression &expression);
+  void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
+  void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
   void logErrorNotSecondOrSubsequentIfChunkExpression(
       const rq::Expression &expression);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
