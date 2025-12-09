@@ -318,6 +318,7 @@ struct SymbolicParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TokenRanger &getRanger() const {
     return this->_token_ranger;
   }
+  [[nodiscard]] void parseTrailingCommma(rq::Expression& expression);
   [[nodiscard]] rq::Expression& parseLiteral(rq::Keyword keyword);
   [[nodiscard]] rq::Expression *parseExpressions();
 };

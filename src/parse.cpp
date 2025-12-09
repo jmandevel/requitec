@@ -1478,6 +1478,16 @@ rq::Expression &NormativeParser::parseInterpolatedString() {
   return error;
 }
 
+void SymbolicParser::parseTrailingCommma(rq::Expression &expression) {
+  if (!this->getRanger().getIsDone()) {
+    rq::Token &after_token = this->getRanger().getToken();
+    if (after_token.getKind() == rq::TokenKind::COMMA_SEPERATOR) {
+      this->getRanger().incrementToken(1);
+      expression.setIsCommaTerminated();
+    }
+  }
+}
+
 rq::Expression &SymbolicParser::parseLiteral(rq::Keyword keyword) {
   const rq::Token &token = this->getRanger().getToken();
   RQ_ASSERT(token.getIsLiteral(), "token is not literal");
@@ -1486,6 +1496,7 @@ rq::Expression &SymbolicParser::parseLiteral(rq::Keyword keyword) {
       this->getContext().getTopStaticFrame().acquireExpression();
   expression.setSource(token);
   expression.setKeyword(keyword);
+  this->parseTrailingCommma(expression);
   return expression;
 }
 
@@ -1525,6 +1536,7 @@ rq::Expression *SymbolicParser::parseExpressions() {
           this->getContext().getTopStaticFrame().acquireExpression();
       expression.setSource(token);
       expression.setKeyword(keyword);
+      this->parseTrailingCommma(expression);
       forest_stack.back().appendTree(expression);
       std::ignore = forest_stack.emplace_back();
       break;
@@ -1538,6 +1550,7 @@ rq::Expression *SymbolicParser::parseExpressions() {
         break;
       }
       rq::Expression &finished = forest_stack.back().getOperation();
+      this->parseTrailingCommma(finished);
       forest_stack.pop_back();
       RQ_ASSERT(!forest_stack.empty(),
                 "forest stack size can not go down to 0");
@@ -1568,11 +1581,8 @@ rq::Expression *SymbolicParser::parseExpressions() {
       break;
     default:
       this->getRanger().incrementToken(1);
-      this->getContext().logMessage(token.getLlvmSourceStart(),
-                                    rq::LogType::ERROR,
-                                    llvm::Twine(rq::getDescription(kind)) +
-                                        " is invalid symbolic requite token",
-                                    {token.getLlvmSourceRange()}, {});
+      this->getContext().logErrorUnexpectedToken(token);
+      this->setNotOk();
       break;
     }
   }
