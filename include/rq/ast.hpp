@@ -2864,18 +2864,28 @@ struct ConstExpressionIterator final {
   }
 };
 
+enum class ExpressionFlags : std::uint8_t {
+  NONE = 0,
+  INSERTED = rq::getBit(0),
+  COMMA_TERMINATED = rq::getBit(1)
+};
+
+template <> struct is_flags<rq::ExpressionFlags> final : std::true_type {};
+
 struct Expression final {
   using Self = rq::Expression;
 
   rq::Keyword _keyword{rq::Keyword::__NONE};
 #if defined(_NDEBUG)
-  llvm::PointerIntPair<rq::Expression *, 1, bool> _next_ptr{
-      nullptr}; // the extra bit to keep track if this expression was inserted
+  llvm::PointerIntPair<rq::Expression *, 2,
+                       std::underlying_type_t<rq::ExpressionFlags>>
+      _next_ptr{nullptr};
 #else
   // set these properties up seperatly on debug builds to make it easier to
   // debug
   rq::Expression *_next_ptr{nullptr};
   bool _is_inserted{false};
+  bool _is_comma_terminated{false};
 #endif
   rq::Expression *_branch_ptr{nullptr};
   const char *_source_text_ptr{nullptr};
@@ -3001,16 +3011,36 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCommaBranchCount() const {
     return rq::getCommaBranchCount(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
-    return this->_source_text_ptr != nullptr;
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
 #if defined(_NDEBUG)
-    return this->_next_ptr.getInt();
+    return rq::getHasAll(
+        static_cast<rq::ExpressionFlags>(this->_next_ptr.getInt()),
+        rq::ExpressionFlags::INSERTED);
 #else
     return this->_is_inserted;
 #endif
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCommaTerminated() const {
+#if defined(_NDEBUG)
+    return rq::getHasAll(
+        static_cast<rq::ExpressionFlags>(this->_next_ptr.getInt()),
+        rq::ExpressionFlags::COMMA_TERMINATED);
+#else
+    return this->_is_comma_terminated;
+#endif
+  }
+  RQ_ALWAYS_INLINE void setIsCommaTerminated() {
+#if defined(_NDEBUG)
+    this->_next_ptr.setInt(
+        static_cast<std::underlying_type_t<rq::ExpressionFlags>>(
+            rq::ExpressionFlags::COMMA_TERMINATED));
+#else
+    this->_is_comma_terminated = true;
+#endif
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
+    return this->_source_text_ptr != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
