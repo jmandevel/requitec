@@ -1105,7 +1105,7 @@ enum class KeywordFlags : std::uint32_t {
   UNQUOTED_RIGHT = rq::getBit(28),
   INTERNAL = rq::getBit(27),
   HAS_SEMICOLON_SEPARATED_BRANCHES = rq::getBit(26),
-  NULLARY_WHEN_NO_BRANCHES = rq::getBit(25),
+  NO_TRAILING_SEMICOLON = rq::getBit(25),
   // ROOT_STATEMENT
   TOP_STATEMENT = rq::getBit(24),
   TABLE_STATEMENT = rq::getBit(23),
@@ -2867,7 +2867,8 @@ struct ConstExpressionIterator final {
 enum class ExpressionFlags : std::uint8_t {
   NONE = 0,
   INSERTED = rq::getBit(0),
-  COMMA_TERMINATED = rq::getBit(1)
+  // NOTE: a "bold" expression is one that terminates with a comma in a semicolon terminating context
+  BOLD = rq::getBit(1)
 };
 
 template <> struct is_flags<rq::ExpressionFlags> final : std::true_type {};
@@ -2885,7 +2886,7 @@ struct Expression final {
   // debug
   rq::Expression *_next_ptr{nullptr};
   bool _is_inserted{false};
-  bool _is_comma_terminated{false};
+  bool _is_bold{false};
 #endif
   rq::Expression *_branch_ptr{nullptr};
   const char *_source_text_ptr{nullptr};
@@ -3021,22 +3022,13 @@ struct Expression final {
     return this->_is_inserted;
 #endif
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCommaTerminated() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBold() const {
 #if defined(_NDEBUG)
     return rq::getHasAll(
         static_cast<rq::ExpressionFlags>(this->_next_ptr.getInt()),
-        rq::ExpressionFlags::COMMA_TERMINATED);
+        rq::ExpressionFlags::BOLD);
 #else
-    return this->_is_comma_terminated;
-#endif
-  }
-  RQ_ALWAYS_INLINE void setIsCommaTerminated() {
-#if defined(_NDEBUG)
-    this->_next_ptr.setInt(
-        static_cast<std::underlying_type_t<rq::ExpressionFlags>>(
-            rq::ExpressionFlags::COMMA_TERMINATED));
-#else
-    this->_is_comma_terminated = true;
+    return this->_is_bold;
 #endif
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {

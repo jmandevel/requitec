@@ -455,7 +455,7 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
     if (trunk.getHasUnquotedRight()) {
       fout << "\"";
     }
-    if (trunk.getIsCommaTerminated()) {
+    if (trunk.getIsBold()) {
       fout << ",";
     }
     if (!rq::getNoComment()) {
@@ -473,7 +473,7 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
     rq::emitIndent(fout, indent);
   }
   fout << "]";
-  if (trunk.getIsCommaTerminated()) {
+  if (trunk.getIsBold()) {
     fout << ",";
   }
   fout << '\n';
