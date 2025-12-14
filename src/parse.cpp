@@ -45,7 +45,7 @@ void TreeBuilder::finishOperation(const rq::Token &last_token) {
 }
 
 void PrecedenceBuilder::parseDoubleUnary(const rq::Token &token,
-                                        rq::Keyword keyword) {
+                                         rq::Keyword keyword) {
   rq::Expression &operation0 = this->getStaticFrame().acquireExpression();
   operation0.setKeyword(keyword);
   operation0.setSource(token);
@@ -60,7 +60,8 @@ void PrecedenceBuilder::parseDoubleUnary(const rq::Token &token,
   this->_last_ptr = nullptr;
 }
 
-void PrecedenceBuilder::parseUnary(const rq::Token &token, rq::Keyword keyword) {
+void PrecedenceBuilder::parseUnary(const rq::Token &token,
+                                   rq::Keyword keyword) {
   rq::Expression &operation = this->getStaticFrame().acquireExpression();
   operation.setKeyword(keyword);
   operation.setSource(token);
@@ -70,7 +71,7 @@ void PrecedenceBuilder::parseUnary(const rq::Token &token, rq::Keyword keyword) 
 }
 
 void PrecedenceBuilder::parseAscribe(const rq::Token &token,
-                                    rq::Keyword keyword) {
+                                     rq::Keyword keyword) {
   if (this->getHasOperation()) {
     rq::Expression &old_operation = this->getOperation();
     if (old_operation.getKeyword() != keyword) {
@@ -103,7 +104,7 @@ void PrecedenceBuilder::parseAscribe(const rq::Token &token,
 }
 
 void PrecedenceBuilder::parseBinary(const rq::Token &token,
-                                   rq::Keyword keyword) {
+                                    rq::Keyword keyword) {
   rq::Expression &new_operation = this->getStaticFrame().acquireExpression();
   new_operation.setKeyword(keyword);
   new_operation.setSource(this->getRecent(), token);
@@ -134,7 +135,7 @@ void PrecedenceBuilder::parseNary(const rq::Token &token, rq::Keyword keyword) {
 }
 
 void PrecedenceBuilder::parseNestingNary(const rq::Token &token,
-                                        rq::Keyword keyword) {
+                                         rq::Keyword keyword) {
   rq::Expression &operation = this->getStaticFrame().acquireExpression();
   operation.setKeyword(keyword);
   operation.setSource(this->getOuter(), token);
@@ -145,8 +146,8 @@ void PrecedenceBuilder::parseNestingNary(const rq::Token &token,
 }
 
 void PrecedenceBuilder::parseSequenceBranch(const rq::Token &token,
-                                           rq::Keyword keyword,
-                                           rq::Expression &rvalue) {
+                                            rq::Keyword keyword,
+                                            rq::Expression &rvalue) {
   this->parseNary(token, rq::Keyword::_SEQUENCE);
   rq::Expression &step = this->getStaticFrame().acquireExpression();
   step.setKeyword(keyword);
@@ -173,7 +174,7 @@ void PrecedenceBuilder::appendBranch(rq::Expression &branch) {
 }
 
 void PrecedenceBuilder::appendUnaryAttribute(const rq::Token &token,
-                                            rq::Keyword keyword) {
+                                             rq::Keyword keyword) {
   rq::Expression &expression = this->getStaticFrame().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
@@ -835,15 +836,19 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   case rq::TokenKind::LEFT_BRACE_GROUPING:
     return this->parseEnclosedBraceExpression();
   case rq::TokenKind::IDENTIFIER_LITERAL:
-    return this->parseLiteral(rq::Keyword::__IDENTIFIER_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::__IDENTIFIER_LITERAL);
   case rq::TokenKind::CODEUNIT_LITERAL:
-    return this->parseLiteral(rq::Keyword::__CODEUNIT_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::__CODEUNIT_LITERAL);
   case rq::TokenKind::STRING_LITERAL:
-    return this->parseLiteral(rq::Keyword::__STRING_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::__STRING_LITERAL);
   case rq::TokenKind::INTEGER_LITERAL:
-    return this->parseLiteral(rq::Keyword::__INTEGER_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::__INTEGER_LITERAL);
   case rq::TokenKind::FLOAT_LITERAL:
-    return this->parseLiteral(rq::Keyword::__FLOAT_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::__FLOAT_LITERAL);
+  case rq::TokenKind::GREATER_OPERATOR:
+    return this->parseLiteralOrMark(rq::Keyword::_NAMED_PARAMETERS_BEGIN);
+  case rq::TokenKind::LESS_OPERATOR:
+    return this->parseLiteralOrMark(rq::Keyword::_POSITIONAL_PARAMETERS_END);
   case rq::TokenKind::LEFT_INTERPOLATION_LITERAL:
     return this->parseInterpolatedString();
   default:
@@ -859,127 +864,32 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   return error;
 }
 
-bool RequiteParser::parseNonStatementBranches(
-    rq::Expression &operation, rq::TokenKind end,
-    bool must_not_have_parameter_marks) {
+void RequiteParser::parseNonStatementBranches(rq::Expression &operation,
+                                              rq::TokenKind end) {
   RQ_ASSERT(operation.getHasNonStatementBranches(),
-            "operation must have comma branches");
-  bool found_invalid_parameter_mark = false;
+            "operation must have non-statement branches");
   rq::TreeBuilder builder;
   builder.startTree(operation);
-  bool has_parameter_marks = false;
   while (true) {
     RQ_ASSERT(this->getRanger().getIsDone(),
               "ranger is done. should have been prevented by tokenizer.");
-    const rq::Token &first_token = this->getRanger().getToken();
-    if (first_token.getKind() == end) {
+    const rq::Token &next_token = this->getRanger().getToken();
+    if (next_token.getKind() == end) {
       this->getRanger().incrementToken(1);
-      builder.finishOperation(first_token);
-      return has_parameter_marks;
+      builder.finishOperation(next_token);
+      return operation;
     }
-    while (true) {
-      RQ_ASSERT(this->getRanger().getIsDone(),
-                "ranger is done. should have been prevented by tokenizer.");
-      while (true) {
-        RQ_ASSERT(this->getRanger().getIsDone(),
-                  "ranger is done. should have been prevented by tokenizer.");
-        const rq::Token &previous_token = this->getRanger().getToken();
-        const rq::TokenKind previous_kind = previous_token.getKind();
-        if (previous_kind == end) {
-          this->getRanger().incrementToken(1);
-          builder.finishOperation(previous_token);
-          return has_parameter_marks;
-        } else if (previous_kind == rq::TokenKind::GREATER_OPERATOR) {
-          has_parameter_marks = true;
-          if (must_not_have_parameter_marks) {
-            if (!found_invalid_parameter_mark) {
-              found_invalid_parameter_mark = true;
-              this->getContext().logErrorMustNotHaveParameterMarks(operation);
-            }
-            this->getContext().logErrorUnexpectedParameterMark(previous_token);
-            this->setNotOk();
-          }
-          rq::Expression &mark =
-              this->getContext().getTopStaticFrame().acquireExpression();
-          mark.setKeyword(rq::Keyword::_NAMED_PARAMETERS_BEGIN);
-          mark.setSource(previous_token);
-          builder.appendBranch(mark);
-          this->getRanger().incrementToken(1);
-          continue;
-        } else if (previous_kind == rq::TokenKind::LESS_OPERATOR) {
-          has_parameter_marks = true;
-          if (must_not_have_parameter_marks) {
-            if (!found_invalid_parameter_mark) {
-              found_invalid_parameter_mark = true;
-              this->getContext().logErrorMustNotHaveParameterMarks(operation);
-            }
-            this->getContext().logErrorUnexpectedParameterMark(before_token);
-            this->setNotOk();
-          }
-          rq::Expression &mark =
-              this->getContext().getTopStaticFrame().acquireExpression();
-          mark.setKeyword(rq::Keyword::_POSITIONAL_PARAMETERS_END);
-          mark.setSource(before_token);
-          builder.appendBranch(mark);
-          this->getRanger().incrementToken(1);
-          continue;
-        }
-        break;
-      }
-      if (this->getRanger().getIsDone()) {
-        break;
-      }
-      rq::Expression &branch = this->parseExpression();
-      builder.appendBranch(branch);
-      while (!this->getRanger().getIsDone()) {
-        const rq::Token &after_token = this->getRanger().getToken();
-        const rq::TokenKind next_kind = after_token.getKind();
-        if (next_kind == end) {
-          this->getRanger().incrementToken(1);
-          builder.finishOperation(after_token);
-          return has_parameter_marks;
-        } else if (next_kind == rq::TokenKind::GREATER_OPERATOR) {
-          this->getRanger().incrementToken(1);
-          has_parameter_marks = true;
-          if (must_not_have_parameter_marks) {
-            if (!found_invalid_parameter_mark) {
-              found_invalid_parameter_mark = true;
-              this->getContext().logErrorMustNotHaveParameterMarks(operation);
-            }
-            this->getContext().logErrorUnexpectedParameterMark(after_token);
-            this->setNotOk();
-          }
-          rq::Expression &mark =
-              this->getContext().getTopStaticFrame().acquireExpression();
-          mark.setKeyword(rq::Keyword::_NAMED_PARAMETERS_BEGIN);
-          mark.setSource(after_token);
-          builder.appendBranch(mark);
-          continue;
-        } else if (next_kind == rq::TokenKind::LESS_OPERATOR) {
-          this->getRanger().incrementToken(1);
-          has_parameter_marks = true;
-          if (must_not_have_parameter_marks) {
-            if (!found_invalid_parameter_mark) {
-              found_invalid_parameter_mark = true;
-              this->getContext().logErrorMustNotHaveParameterMarks(operation);
-            }
-            this->getContext().logErrorUnexpectedParameterMark(after_token);
-            this->setNotOk();
-          }
-          rq::Expression &mark =
-              this->getContext().getTopStaticFrame().acquireExpression();
-          mark.setKeyword(rq::Keyword::_POSITIONAL_PARAMETERS_END);
-          mark.setSource(after_token);
-          builder.appendBranch(mark);
-          continue;
-        } else if (next_kind != rq::TokenKind::COMMA_SEPARATOR) {
-          this->getContext().logErrorExpectedCommaSeparator(branch);
-          this->setNotOk();
-          break;
-        }
-        this->getRanger().incrementToken(1);
-        break;
-      }
+    rq::Expression &branch = this->parseExpression();
+    builder.appendBranch(branch);
+    const rq::Token &after_token = this->getRanger().getToken();
+    if (next_token.getIsSeparator()) {
+      continue;
+    }
+    if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+      this->getRanger().incrementToken(1);
+    } else {
+      this->getContext().logErrorExpectedCommaSeparator(branch);
+      this->setNotOk();
     }
   }
   RQ_UNREACHABLE();
@@ -988,9 +898,8 @@ bool RequiteParser::parseNonStatementBranches(
 rq::Keyword RequiteParser::parseKeyword() {
   const rq::Token &token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
-  const rq::TokenKind kind = token.getKind();
   rq::Keyword keyword;
-  if (kind == rq::TokenKind::IDENTIFIER_LITERAL) {
+  if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
     this->setNotOk();
@@ -1065,11 +974,13 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
     rq::Expression &branch = this->parseExpression();
     builder.appendBranch(branch);
     const rq::Token &after_token = this->getRanger().getToken();
-    const rq::TokenKind after_kind = after_token.getKind();
-    if (after_kind == rq::TokenKind::COMMA_SEPARATOR) {
+    if (next_token.getIsSeparator()) {
+      continue;
+    }
+    if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       this->getRanger().incrementToken(1);
       branch.setIsBold();
-    } else if (after_kind == rq::TokenKind::SEMICOLON_SEPARATOR) {
+    } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
       this->getRanger().incrementToken(1);
     } else {
       branch.setIsChainLink();
@@ -1141,7 +1052,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
 }
 
 void RequiteParser::parseTrailer(rq::Expression &operation,
-                                   rq::TokenRanger &keyword_ranger) {
+                                 rq::TokenRanger &keyword_ranger) {
   const rq::Token &first_token = this->getRanger().getToken();
   RQ_ASSERT(first_token.getKind() == rq::TokenKind::TRAILER_SEPARATOR,
             "first token not trailer separator");
@@ -1185,8 +1096,8 @@ void RequiteParser::parseTrailer(rq::Expression &operation,
 }
 
 void RequiteParser::parseTacitCommas(unsigned count,
-                                       const char *source_text_ptr,
-                                       rq::TreeBuilder &parser) {
+                                     const char *source_text_ptr,
+                                     rq::TreeBuilder &parser) {
   for (unsigned comma_i = 0; comma_i < count; comma_i++) {
     rq::Expression &inference =
         this->getContext().getTopStaticFrame().acquireExpression();
@@ -1306,9 +1217,10 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   return parenthesis;
 }
 
-rq::Expression &RequiteParser::parseLiteral(rq::Keyword keyword) {
+rq::Expression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
   const rq::Token &token = this->getRanger().getToken();
-  RQ_ASSERT(token.getIsLiteral(), "token is not literal");
+  RQ_ASSERT(token.getIsLiteral() || token.getCanBeMark(),
+            "token is not literal or mark");
   rq::Expression &identifier =
       this->getContext().getTopStaticFrame().acquireExpression();
   identifier.setKeyword(keyword);

@@ -168,8 +168,7 @@ bool Context::loadSourceModule() {
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(input_path);
   rq::Module &source_module =
       this->getTopStaticFrame().allocateValue<rq::Module>(
-          rq::ModuleKind::SOURCE, final_path,
-          std::move(buffer_eo.get()));
+          rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       input_path, &this->getSourceModule()));
@@ -182,7 +181,8 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
   bool file_found = false;
   for (const std::string &dir : rq::getImportDirectories()) {
     llvm::SmallString<128> candidate_path(dir);
-    llvm::sys::path::append(candidate_path, import_string, rq::REQUITE_EXTENSION);
+    llvm::sys::path::append(candidate_path, import_string,
+                            rq::REQUITE_EXTENSION);
     if (llvm::sys::fs::exists(candidate_path)) {
       found_path = candidate_path;
       file_found = true;
@@ -223,8 +223,7 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
   rq::Module &import_module =
       this->getTopStaticFrame().allocateValue<rq::Module>(
-          rq::ModuleKind::IMPORT, final_path,
-          std::move(buffer_eo.get()));
+          rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -414,7 +413,6 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     if (trunk.getIsInserted()) {
       fout << " (inserted)";
     }
-    fout << '\n';
   }
   rq::emitIndent(fout, indent);
   if (trunk.getIsLiteral()) {
@@ -425,13 +423,9 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     if (trunk.getHasUnquotedRight()) {
       fout << "\"";
     }
-    if (trunk.getIsBold()) {
-      fout << ",";
-    }
     if (!rq::getNoComment()) {
       fout << " // " << trunk.getName();
     }
-    fout << '\n';
     return;
   }
   fout << "[" << trunk.getName();
@@ -439,14 +433,23 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << '\n';
     for (const rq::Expression &branch : trunk.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
+      if (trunk.getHasStatementBranches()) {
+        if (branch.getIsBold()) {
+          fout << ",\n";
+        } else if (branch.getIsChainLink()) {
+          fout << "\n";
+        } else {
+          fout << ";\n";
+        }
+      } else if (trunk.getHasNonStatementBranches())  {
+        fout << ",\n";
+      } else {
+        RQ_UNREACHABLE();
+      }
     }
     rq::emitIndent(fout, indent);
   }
   fout << "]";
-  if (trunk.getIsBold()) {
-    fout << ",";
-  }
-  fout << '\n';
 }
 
 bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
@@ -460,6 +463,13 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   }
   for (const rq::Expression &branch : trunk.getHorizontalSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
+    if (branch.getIsBold()) {
+      fout << ",\n";
+    } else if (branch.getIsChainLink()) {
+      fout << "\n";
+    } else {
+      fout << ";\n";
+    }
   }
   fout.close();
   return true;

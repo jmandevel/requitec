@@ -267,10 +267,7 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence2();
   [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
-  // returns if has parameter marks
-  [[nodiscard]] bool
-  parseNonStatementBranches(rq::Expression &operation, rq::TokenKind end,
-                              bool must_not_have_parameter_marks);
+  [[nodiscard]] void parseNonStatementBranches(rq::Expression &operation, rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
@@ -279,7 +276,7 @@ struct RequiteParser final {
   void parseTacitCommas(unsigned count, const char* source_text_ptr, rq::TreeBuilder& parser);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();
-  [[nodiscard]] rq::Expression &parseLiteral(rq::Keyword keyword);
+  [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseNullaryOperator(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseInterpolatedString();
 };

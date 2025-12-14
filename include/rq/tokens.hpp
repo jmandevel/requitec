@@ -671,6 +671,12 @@ getIsLiteral(rq::TokenKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeMark(rq::TokenKind kind) {
+  return kind == rq::TokenKind::GREATER_OPERATOR ||
+         kind == rq::TokenKind::LESS_OPERATOR;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsLeftGrouping(rq::TokenKind kind) {
   const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::LEFT_GROUPING);
@@ -788,6 +794,9 @@ struct Token final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
     return rq::getIsLiteral(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeMark() const {
+    return rq::getCanBeMark(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeftGrouping() const {
     return rq::getIsLeftGrouping(this->getKind());
