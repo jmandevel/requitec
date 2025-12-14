@@ -176,13 +176,13 @@ struct Context final {
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
-  void logErrorUnexpectedParameterMark(const rq::Token &token);
+  void logErrorMustHaveParameterMarks(const rq::Expression &expression);
+  void logErrorUnexpectedParameterMark(const rq::Expression &expression);
   void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
   void logErrorNotSecondOrSubsequentIfChunkExpression(
       const rq::Expression &expression);
-  void logErrorMustHaveParameterMarks(const rq::Expression &expression);
   void logErrorInvalidBranchSituation(
       rq::Expression &branch, rq::Situation situation,
       rq::Situation branch_situation, rq::Keyword outer_keyword,

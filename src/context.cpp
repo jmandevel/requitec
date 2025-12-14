@@ -560,9 +560,16 @@ void Context::logErrorMustNotHaveParameterMarks(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnexpectedParameterMark(const rq::Token &token) {
+void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
+                   llvm::Twine(rq::getName(expression.getKeyword())) +
+                       " must have parameter marks",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnexpectedParameterMark(const rq::Expression &expression) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "invalid parameter mark", {token.getLlvmSourceRange()}, {});
+                   "invalid parameter mark", {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {
@@ -590,13 +597,6 @@ void Context::logErrorNotSecondOrSubsequentIfChunkExpression(
   this->logMessage(expression.getLlvmSourceBefore(), rq::LogType::ERROR,
                    "expected semicolon before expression because can not be "
                    "second or subsequent branch of if chunk",
-                   {expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
-                   llvm::Twine(rq::getName(expression.getKeyword())) +
-                       " must have parameter marks",
                    {expression.getLlvmSourceRange()}, {});
 }
 
