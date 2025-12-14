@@ -272,7 +272,7 @@ rq::Expression &NormativeParser::parsePrecedence10() {
       this->getContext().getTopStaticFrame());
   precedence_parser.setRecent(this->parsePrecedence9());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getHasSemicolonSeparatedBranches()) {
+    if (precedence_parser.getRecent().getHasSemicolonBranches()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -537,7 +537,7 @@ rq::Expression &NormativeParser::parsePrecedence5() {
       this->getContext().getTopStaticFrame());
   precedence_parser.setRecent(this->parsePrecedence4());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getHasSemicolonSeparatedBranches()) {
+    if (precedence_parser.getRecent().getHasSemicolonBranches()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -572,7 +572,7 @@ rq::Expression &NormativeParser::parsePrecedence4() {
       this->getContext().getTopStaticFrame());
   precedence_parser.setRecent(this->parsePrecedence3());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getHasSemicolonSeparatedBranches()) {
+    if (precedence_parser.getRecent().getHasSemicolonBranches()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -602,7 +602,7 @@ rq::Expression &NormativeParser::parsePrecedence3() {
       this->getContext().getTopStaticFrame());
   precedence_parser.setRecent(this->parsePrecedence2());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_parser.getRecent().getHasSemicolonSeparatedBranches()) {
+    if (precedence_parser.getRecent().getHasSemicolonBranches()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -794,7 +794,7 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       call.setKeyword(rq::Keyword::_CALL);
       call.setBranch(callee);
       call.setSource(callee, post_token);
-      std::ignore = this->parseCommaSeparatedBranches(
+      std::ignore = this->parseCommaBranches(
           call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING, true);
       precedence_parser.setOnlyRecent(call);
       previous_call = true;
@@ -809,7 +809,7 @@ rq::Expression &NormativeParser::parsePrecedence1() {
       specialization.setKeyword(rq::Keyword::_SPECIALIZATION);
       specialization.setBranch(target);
       specialization.setSource(target, post_token);
-      std::ignore = this->parseCommaSeparatedBranches(
+      std::ignore = this->parseCommaBranches(
           specialization, rq::TokenKind::RIGHT_BRACE_GROUPING, true);
       precedence_parser.setOnlyRecent(specialization);
       previous_call = true;
@@ -859,14 +859,13 @@ rq::Expression &NormativeParser::parsePrecedence0() {
   return error;
 }
 
-bool NormativeParser::parseCommaSeparatedBranches(
+bool NormativeParser::parseCommaBranches(
     rq::Expression &operation, rq::TokenKind end,
     bool must_not_have_parameter_marks) {
-  RQ_ASSERT(!operation.getHasSemicolonSeparatedBranches(),
-            "operation has semicolon separated branches");
-  if (this->getRanger().getIsDone()) {
-    RQ_UNREACHABLE();
-  }
+  RQ_ASSERT(operation.getHasCommaBranches(),
+            "operation must have comma branches");
+  RQ_ASSERT(this->getRanger().getIsDone(),
+            "ranger is done. should have been prevented by tokenizer.");
   bool found_invalid_parameter_mark = false;
   rq::TreeParser grouping_parser;
   grouping_parser.startTree(operation);
@@ -880,11 +879,11 @@ bool NormativeParser::parseCommaSeparatedBranches(
     }
     while (!this->getRanger().getIsDone()) {
       while (!this->getRanger().getIsDone()) {
-        const rq::Token &before_token = this->getRanger().getToken();
-        const rq::TokenKind previous_kind = before_token.getKind();
+        const rq::Token &previous_token = this->getRanger().getToken();
+        const rq::TokenKind previous_kind = previous_token.getKind();
         if (previous_kind == end) {
           this->getRanger().incrementToken(1);
-          grouping_parser.finishOperation(before_token);
+          grouping_parser.finishOperation(previous_token);
           return has_parameter_marks;
         } else if (previous_kind == rq::TokenKind::GREATER_OPERATOR) {
           has_parameter_marks = true;
@@ -893,13 +892,13 @@ bool NormativeParser::parseCommaSeparatedBranches(
               found_invalid_parameter_mark = true;
               this->getContext().logErrorMustNotHaveParameterMarks(operation);
             }
-            this->getContext().logErrorUnexpectedParameterMark(before_token);
+            this->getContext().logErrorUnexpectedParameterMark(previous_token);
             this->setNotOk();
           }
           rq::Expression &mark =
               this->getContext().getTopStaticFrame().acquireExpression();
           mark.setKeyword(rq::Keyword::_NAMED_PARAMETERS_BEGIN);
-          mark.setSource(before_token);
+          mark.setSource(previous_token);
           grouping_parser.appendBranch(mark);
           this->getRanger().incrementToken(1);
           continue;
@@ -1023,9 +1022,9 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
   rq::Expression &operation =
       this->getContext().getTopStaticFrame().acquireExpression();
   if (keyword_token.getKind() ==
-      rq::TokenKind::LEFT_PARENTHESIS_GROUPING) { // its an
-                                                  // _anonymous_function
-                                                  // expression
+      rq::TokenKind::LEFT_BRACKET_GROUPING) { // its an
+                                              // _anonymous_function
+                                              // expression
     operation.setKeyword(rq::Keyword::_ANONYMOUS_FUNCTION);
     operation.setSource(left_token);
     rq::TreeParser parser;
@@ -1035,132 +1034,43 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
     capture.setKeyword(rq::Keyword::_DYNAMIC_CAPTURE);
     capture.setSource(keyword_token);
     this->getRanger().incrementToken(1);
-    std::ignore = this->parseCommaSeparatedBranches(
-        capture, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING, true);
+    std::ignore = this->parseCommaBranches(
+        capture, rq::TokenKind::RIGHT_BRACKET_GROUPING, true);
     parser.appendBranch(capture);
   } else {
     const rq::Keyword keyword = this->parseKeyword();
     operation.setKeyword(keyword);
     operation.setSource(left_token);
   }
-  if (operation.getHasSemicolonSeparatedBranches()) {
-    rq::TreeParser parser;
-    parser.startTree(operation);
-    const unsigned comma_count = operation.getCommaBranchCount();
-    if (comma_count != 0) {
-      unsigned commas_left = comma_count;
-      while (commas_left > 0) {
-        const rq::Token &before_token = this->getRanger().getToken();
-        const rq::TokenKind previous_kind = before_token.getKind();
-        if (previous_kind == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
-          if ((commas_left != comma_count && commas_left != 0) ||
-              !operation.getIsNullaryWhenNoBranches()) {
-            this->parseTacitCommas(
-                commas_left, before_token.getAfterSourceTextPtr(), parser);
-          }
-          this->getRanger().incrementToken(1);
-          parser.finishOperation(before_token);
-          return operation;
-        } else if (previous_kind == rq::TokenKind::TRAILER_SEPARATOR) {
-          if (commas_left != comma_count && commas_left != 0) {
-            this->parseTacitCommas(
-                commas_left, before_token.getAfterSourceTextPtr(), parser);
-          }
-          this->parseTrailer(operation, keyword_ranger);
-          const rq::Token &last_token = this->getRanger().getToken();
-          this->getRanger().incrementToken(1);
-          parser.finishOperation(last_token);
-          return operation;
-        }
-        rq::Expression &next = this->parseExpression();
-        const rq::Token &after_token = this->getRanger().getToken();
-        const rq::TokenKind next_kind = after_token.getKind();
-        if (next_kind == rq::TokenKind::SEMICOLON_SEPARATOR ||
-            next_kind == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
-          if (commas_left != comma_count && commas_left != 0) {
-            this->parseTacitCommas(
-                commas_left, after_token.getBeforeSourceTextPtr(), parser);
-          }
-          parser.appendBranch(next);
-          if (next_kind == rq::TokenKind::SEMICOLON_SEPARATOR) {
-            this->getRanger().incrementToken(1);
-            const rq::Token &next_after = this->getRanger().getToken();
-            const rq::TokenKind next_next_kind = next_after.getKind();
-            if (next_next_kind == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
-              this->getRanger().incrementToken(1);
-              parser.finishOperation(next_after);
-              return operation;
-            }
-          }
-          break;
-        }
-        commas_left--;
-        parser.appendBranch(next);
-        switch (next_kind) {
-        case rq::TokenKind::COMMA_SEPARATOR:
-          this->getRanger().incrementToken(1);
-          break;
-        case rq::TokenKind::RIGHT_BRACKET_GROUPING:
-          break;
-        default:
-          this->getContext().logErrorExpectedCommaSeparator(next);
-          this->setNotOk();
-          break;
-        }
-      }
-    }
-    bool in_if_chunk = false;
-    while (!this->getRanger().getIsDone()) { // semicolons
-      const rq::Token &before_token = this->getRanger().getToken();
-      const rq::TokenKind previous_kind = before_token.getKind();
-      if (previous_kind == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
-        this->getRanger().incrementToken(1);
-        parser.finishOperation(before_token);
-        return operation;
-      } else if (previous_kind == rq::TokenKind::TRAILER_SEPARATOR) {
-        this->parseTrailer(operation, keyword_ranger);
-        const rq::Token &last_token = this->getRanger().getToken();
-        this->getRanger().incrementToken(1);
-        parser.finishOperation(last_token);
-        return operation;
-      }
-      rq::Expression &next = this->parseExpression();
-      parser.appendBranch(next);
-      if (in_if_chunk) {
-        in_if_chunk = false;
-        if (!next.getIsIfChunkNotStart()) {
-          this->getContext().logErrorNotSecondOrSubsequentIfChunkExpression(
-              next);
-        }
-      }
-      if (next.getCanBeArm()) {
-        continue;
-      }
-      const rq::Token &after_token = this->getRanger().getToken();
-      const rq::TokenKind next_kind = after_token.getKind();
-      switch (next_kind) {
-      case rq::TokenKind::SEMICOLON_SEPARATOR:
-        this->getRanger().incrementToken(1);
-        break;
-      case rq::TokenKind::COMMA_SEPARATOR:
-        this->getRanger().incrementToken(1);
-        [[fallthrough]];
-      case rq::TokenKind::RIGHT_BRACKET_GROUPING:
-        [[fallthrough]];
-      default:
-        if (next.getIsIfChunkNotEnd()) {
-          in_if_chunk = true;
-          break;
-        }
-        this->getContext().logErrorExpectedSemicolonSeparator(next);
-        this->setNotOk();
-        break;
-      }
-    }
-    RQ_UNREACHABLE();
+  if (!operation.getHasSemicolonBranches()) {
+    std::ignore = this->parseCommaBranches(
+        operation, rq::TokenKind::RIGHT_BRACKET_GROUPING, true);
+    return operation;
   }
-  std::ignore = this->parseCommaSeparatedBranches(
-      operation, rq::TokenKind::RIGHT_BRACKET_GROUPING, true);
+  RQ_ASSERT(this->getRanger().getIsDone(),
+            "ranger is done. should have been prevented by tokenizer.");
+  rq::TreeParser gropuing_parser;
+  grouping_parser.startTree(operation);
+  while (!this->getRanger().getIsDone()) {
+    const rq::Token &next_token = this->getRanger().getToken();
+    if (next_token.getKind() == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
+      this->getRanger().incrementToken(1);
+      grouping_parser.finishOperation(next_token);
+      return operation;
+    }
+    rq::Expression &branch = this->parseExpression();
+    tree_parser.appendBranch(branch);
+    const rq::Token &after_token = this->getRanger().getToken();
+    const rq::TokenKind after_kind = after_token.getKind();
+    if (after_kind == rq::TokenKind::COMMA_SEPARATOR) {
+      this->getRanger().incrementToken(1);
+      branch.setIsBold();
+    } else if (after_kind == rq::TokenKind::SEMICOLON_SEPARATOR) {
+      this->getRanger().incrementToken(1);
+    } else {
+      branch.setIsChainLink();
+    }
+  }
   return operation;
 }
 
@@ -1216,7 +1126,7 @@ rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
   default:
     break;
   }
-  bool has_parameter_marks = this->parseCommaSeparatedBranches(
+  bool has_parameter_marks = this->parseCommaBranches(
       brace, rq::TokenKind::RIGHT_BRACE_GROUPING, false);
   if (has_parameter_marks) {
     brace.changeKeyword(rq::Keyword::_LAYOUT_TYPE);
@@ -1294,7 +1204,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
         this->getContext().getTopStaticFrame().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(at_token);
-    std::ignore = this->parseCommaSeparatedBranches(
+    std::ignore = this->parseCommaBranches(
         attribute, rq::TokenKind::RIGHT_BRACKET_GROUPING, true);
     return attribute;
   } else if (next_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
@@ -1303,7 +1213,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
     attribute.setKeyword(rq::Keyword::TEMPLATE);
     attribute.setSource(at_token);
     this->getRanger().incrementToken(1);
-    bool has_parameter_marks = this->parseCommaSeparatedBranches(
+    bool has_parameter_marks = this->parseCommaBranches(
         attribute, rq::TokenKind::RIGHT_BRACE_GROUPING, false);
     if (!has_parameter_marks) {
       this->getContext().logErrorMustHaveParameterMarks(attribute);
@@ -1317,7 +1227,7 @@ rq::Expression &NormativeParser::parseStatementAttribute() {
     attribute.setKeyword(rq::Keyword::STATIC_CAPTURE);
     attribute.setSource(at_token);
     this->getRanger().incrementToken(1);
-    std::ignore = this->parseCommaSeparatedBranches(
+    std::ignore = this->parseCommaBranches(
         attribute, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING, true);
     return attribute;
   }
@@ -1343,7 +1253,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
         this->getContext().getTopStaticFrame().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(dollar_token);
-    std::ignore = this->parseCommaSeparatedBranches(
+    std::ignore = this->parseCommaBranches(
         attribute, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING, true);
     return attribute;
   } else if (next_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
@@ -1352,7 +1262,7 @@ rq::Expression &NormativeParser::parseTypeAttribute() {
     attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
     this->getRanger().incrementToken(1);
-    bool has_parameter_marks = this->parseCommaSeparatedBranches(
+    bool has_parameter_marks = this->parseCommaBranches(
         attribute, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING, false);
     if (!has_parameter_marks) {
       this->getContext().logErrorMustHaveParameterMarks(attribute);
@@ -1377,7 +1287,7 @@ rq::Expression &NormativeParser::parseEnclosedParenthesisExpression() {
   parenthesis.setKeyword(rq::Keyword::_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->getRanger().incrementToken(1);
-  bool has_parameter_marks = this->parseCommaSeparatedBranches(
+  bool has_parameter_marks = this->parseCommaBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING, false);
   if (has_parameter_marks) {
     parenthesis.changeKeyword(rq::Keyword::_SIGNATURE_TYPE);

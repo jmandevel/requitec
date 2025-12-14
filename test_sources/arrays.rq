@@ -1,0 +1,15 @@
+[import "std"];
+
+[entry_point
+    my_array :`= {0, 1, 2, 3, 4};
+    my_view := my_array.`[view];
+    std.print(line="stats: size:{my_array.[byte_size]} count:{my_array.[element_count]} depth:{my_array.[bit_depth]}!");
+    [for index:=[index], element:=[value].`[borrow], my_array,
+        element *= index;
+    ];
+    [for index:=[index], element:=[value], my_array,
+        std.print(line="element {index} is {element}!");
+        index += 1;
+    ];
+    std.print(line="it starts with {my_array[0]}!");
+];

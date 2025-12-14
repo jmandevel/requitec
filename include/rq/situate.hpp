@@ -653,7 +653,11 @@ struct Situator final {
       return;
     }
     rq::Expression &value = expression.popBranch();
-    this->situateBranch<SITUATION_PARAM, rq::Situation::RVALUE>(
+    constexpr FIRST_BRANCH_SITUATION = 
+        (SITUATION_PARAM == rq::Situation::VIGNETTE_RVALUE)
+            ? rq::Situation::VIGNETTE_RVALUE
+            : rq::Situation::RVALUE;
+    this->situateBranch<SITUATION_PARAM, FIRST_BRANCH_SITUATION>(
         "first branch", expression, branch_i++, value);
     rq::Expression *inner_ptr = &value;
     rq::Expression *next_ptr = value.popNextPtr();

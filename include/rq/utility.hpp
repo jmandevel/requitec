@@ -1,6 +1,7 @@
 #pragma once
 
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/PointerIntPair.h>
 
 #include <cstdint>
 #include <format>
@@ -272,5 +273,71 @@ struct ErrorCategory final : public std::error_category {
 [[nodiscard]] inline std::error_code getErrorCode(rq::Error error) {
   return std::error_code{static_cast<int>(error), rq::getErrorCategory()};
 }
+
+template<typename TypeParam, unsigned FLAG_BITS_PARAM, typename FlagsParam>
+struct PtrFlags {
+  using TypeAttribute = TypeParam;
+  static constexpr unsigned FLAG_BITS = FLAG_BITS_PARAM;
+  using Flags = FlagsParam;
+  using Self = rq::FlagsParam<Type, FLAG_BITS, Flags>;
+#if defined(_NDEBUG)
+  llvm::PointerIntPair<Type*, FLAG_BITS, Flags> _ptr_int_pair;
+#else
+  Type* _ptr{nullptr};
+  Flags _flags{};
+#endif
+
+  PtrFlags() = default;
+  PtrFlags(const Self &) = default;
+  PtrFlags(Self &&) = default;
+  ~PtrFlags() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Type* getPtr() const {
+#if defined(_NDEBUG)
+    return _ptr_int_pair.getPointer();
+#else
+    return _ptr;
+#endif
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Type* getPtr() {
+#if defined(_NDEBUG)
+    return _ptr_int_pair.getPointer();
+#else
+    return _ptr;
+#endif
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Type& getRef() const {
+    return rq::dereferencePtr(this->getPtr());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Type& getRef() {
+    return rq::dereferencePtr(this->getPtr());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Flags getFlags() const {
+#if defined(_NDEBUG)
+    return static_cast<Flags>(this->_ptr_int_pair.getInt());
+#else
+    return this->_flags;
+#endif
+  }
+  RQ_ALWAYS_INLINE void setPtr(Type* ptr) {
+#if defined(_NDEBUG)
+    this->_ptr_int_pair.setPointer(ptr);
+#else
+    this->_ptr = ptr;
+#endif
+  }
+  RQ_ALWAYS_INLINE void assignSingleValue(Type* ptr) {
+    RQ_ASSERT(this->getPtr() == nullptr, "single value reassignment");
+    this->setPtr(ptr);
+  }
+  RQ_ALWAYS_INLINE void addFlags(Flags flags) {
+#if defined(_NDEBUG)
+    this->_ptr_int_pair.getInt() |= rq::getUnderlying(flags);
+#else
+    this->_flags |= flags;
+#endif
+  }
+};
 
 } // namespace rq
