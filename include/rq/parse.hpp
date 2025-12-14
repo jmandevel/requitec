@@ -269,7 +269,7 @@ struct NormativeParser final {
   [[nodiscard]] rq::Expression &parsePrecedence0();
   // returns if has parameter marks
   [[nodiscard]] bool
-  parseCommaBranches(rq::Expression &operation, rq::TokenKind end,
+  parseNonStatementBranches(rq::Expression &operation, rq::TokenKind end,
                               bool must_not_have_parameter_marks);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();

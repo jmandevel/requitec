@@ -996,7 +996,7 @@ enum class KeywordFlags : std::uint32_t {
   UNQUOTED_LEFT = rq::getBit(29),
   UNQUOTED_RIGHT = rq::getBit(28),
   INTERNAL = rq::getBit(27),
-  SEMICOLON_BRANCHES = rq::getBit(26),
+  STATEMENT_BRANCHES = rq::getBit(26),
   CHAINLINK = rq::getBit(25),
   // ROOT_STATEMENT
   TOP_STATEMENT = rq::getBit(24),
@@ -1273,29 +1273,29 @@ getFlags(rq::Keyword keyword) {
   case K::_MOVE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ENTRY_POINT:
-    return KF::SEMICOLON_BRANCHES | KF::TOP_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
            KF::RVALUE;
   case K::FUNCTION:
-    return KF::SEMICOLON_BRANCHES | KF::TOP_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::METHOD:
-    return KF::SEMICOLON_BRANCHES | KF::TOP_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::CONSTRUCTOR:
-    return KF::SEMICOLON_BRANCHES | KF::OBJECT_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT |
            KF::REFLECTION | KF::RVALUE;
   case K::LAYOUT_CONSTRUCTOR:
     return KF::OBJECT_STATEMENT | KF::REFLECTION | KF::RVALUE;
   case K::DESTRUCTOR:
-    return KF::SEMICOLON_BRANCHES | KF::OBJECT_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT |
            KF::REFLECTION | KF::RVALUE;
   case K::RANGER:
-    return KF::SEMICOLON_BRANCHES | KF::OBJECT_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT |
            KF::REFLECTION | KF::RVALUE;
   case K::_ANONYMOUS_FUNCTION:
-    return KF::SEMICOLON_BRANCHES | KF::RVALUE | KF::ARGUMENT;
+    return KF::STATEMENT_BRANCHES | KF::RVALUE | KF::ARGUMENT;
   case K::_DYNAMIC_CAPTURE:
     return KF::DYNAMIC_CAPTURE;
 
@@ -1321,11 +1321,11 @@ getFlags(rq::Keyword keyword) {
 
   // DECLARED TYPES
   case K::OBJECT:
-    return KF::SEMICOLON_BRANCHES | KF::TOP_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
            KF::REFLECTION | KF::RVALUE;
   case K::ENUMERATION:
-    return KF::SEMICOLON_BRANCHES | KF::TOP_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
            KF::REFLECTION | KF::RVALUE;
 
@@ -1433,49 +1433,49 @@ getFlags(rq::Keyword keyword) {
 
   // SCOPES
   case K::IF:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::CHAINLINK;
   case K::ELSE_IF:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::CHAINLINK;
   case K::ELSE:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::CHAINLINK;
   case K::MATCH:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::INLINE_MATCH:
-    return KF::SEMICOLON_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::RVALUE;
   case K::SWITCH:
-    return KF::SEMICOLON_BRANCHES | KF::ARM |
+    return KF::STATEMENT_BRANCHES | KF::ARM |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::CASE:
-    return KF::SEMICOLON_BRANCHES | KF::ARM | KF::CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::ARM | KF::CHAINLINK;
   case K::DEFAULT:
-    return KF::SEMICOLON_BRANCHES | KF::ARM | KF::CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::ARM | KF::CHAINLINK;
   case K::FOR:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::WHILE:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::SCOPE:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::REFLECTION | KF::RVALUE;
   case K::INLINE_SCOPE:
-    return KF::SEMICOLON_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::RVALUE;
   case K::BLOCK:
-    return KF::SEMICOLON_BRANCHES | KF::LOCAL_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
            KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::INLINE_BLOCK:
-    return KF::SEMICOLON_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::RVALUE;
 
   // RANGES
   case K::RANGE:
@@ -1529,7 +1529,7 @@ getFlags(rq::Keyword keyword) {
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::TABLE:
-    return KF::SEMICOLON_BRANCHES | KF::TOP_STATEMENT |
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
            KF::TABLE_STATEMENT | KF::RVALUE | KF::REFLECTION;
   case K::MODULE:
     return KF::REFLECTION | KF::RVALUE;
@@ -1731,17 +1731,17 @@ getIsInternal(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getHasSemicolonBranches(rq::Keyword keyword) {
+getHasStatementBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags,
-                       rq::KeywordFlags::SEMICOLON_BRANCHES);
+                       rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getHasCommaBranches(rq::Keyword keyword) {
+getHasNonStatementBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasNone(flags,
-                       rq::KeywordFlags::SEMICOLON_BRANCHES);
+                       rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -2695,11 +2695,11 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInternal() const {
     return rq::getIsInternal(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSemicolonBranches() const {
-    return rq::getHasSemicolonBranches(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatementBranches() const {
+    return rq::getHasStatementBranches(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCommaBranches() const {
-    return rq::getHasCommaBranches(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNonStatementBranches() const {
+    return rq::getHasNonStatementBranches(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
     return rq::getCanBeChainLink(this->getKeyword());
