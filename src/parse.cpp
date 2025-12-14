@@ -864,21 +864,25 @@ bool NormativeParser::parseNonStatementBranches(
     bool must_not_have_parameter_marks) {
   RQ_ASSERT(operation.getHasNonStatementBranches(),
             "operation must have comma branches");
-  RQ_ASSERT(this->getRanger().getIsDone(),
-            "ranger is done. should have been prevented by tokenizer.");
   bool found_invalid_parameter_mark = false;
   rq::TreeParser grouping_parser;
   grouping_parser.startTree(operation);
   bool has_parameter_marks = false;
-  while (!this->getRanger().getIsDone()) {
+  while (true) {
+    RQ_ASSERT(this->getRanger().getIsDone(),
+              "ranger is done. should have been prevented by tokenizer.");
     const rq::Token &first_token = this->getRanger().getToken();
     if (first_token.getKind() == end) {
       this->getRanger().incrementToken(1);
       grouping_parser.finishOperation(first_token);
       return has_parameter_marks;
     }
-    while (!this->getRanger().getIsDone()) {
-      while (!this->getRanger().getIsDone()) {
+    while (true) {
+      RQ_ASSERT(this->getRanger().getIsDone(),
+                "ranger is done. should have been prevented by tokenizer.");
+      while (true) {
+        RQ_ASSERT(this->getRanger().getIsDone(),
+                  "ranger is done. should have been prevented by tokenizer.");
         const rq::Token &previous_token = this->getRanger().getToken();
         const rq::TokenKind previous_kind = previous_token.getKind();
         if (previous_kind == end) {
@@ -1047,11 +1051,11 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
         operation, rq::TokenKind::RIGHT_BRACKET_GROUPING, true);
     return operation;
   }
-  RQ_ASSERT(this->getRanger().getIsDone(),
-            "ranger is done. should have been prevented by tokenizer.");
-  rq::TreeParser gropuing_parser;
+  rq::TreeParser grouping_parser;
   grouping_parser.startTree(operation);
-  while (!this->getRanger().getIsDone()) {
+  while (true) {
+    RQ_ASSERT(this->getRanger().getIsDone(),
+              "ranger is done. should have been prevented by tokenizer.");
     const rq::Token &next_token = this->getRanger().getToken();
     if (next_token.getKind() == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
       this->getRanger().incrementToken(1);
@@ -1071,7 +1075,7 @@ rq::Expression &NormativeParser::parseEnclosedBracketExpression() {
       branch.setIsChainLink();
     }
   }
-  return operation;
+  RQ_UNREACHABLE();
 }
 
 rq::Expression &NormativeParser::parseEnclosedBraceExpression() {
