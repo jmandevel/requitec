@@ -141,12 +141,11 @@ Context::loadRequiteFileBuffer(llvm::StringRef path) {
 bool Context::loadSourceModule() {
   RQ_ASSERT(!this->getHasSourceModule(), "already has source module");
   llvm::SmallString<128> input_path = rq::getInputFilePath();
-  rq::Language language;
   llvm::StringRef file_extension = llvm::sys::path::extension(input_path);
-  language = rq::getLanguageOfExtension(file_extension);
-  if (language == rq::Language::UNKNOWN) {
+  if (file_extension != rq::REQUITE_EXTENSION) {
     this->logMessage(
-        llvm::Twine("error: unknown language file extension\n\tpath: ") +
+        llvm::Twine(
+            "error: source file does not have a \".rq\" extension\n\tpath: ") +
         input_path);
     return false;
   }
@@ -155,7 +154,7 @@ bool Context::loadSourceModule() {
     this->logMessage(
         llvm::Twine(
             "error: failed to canonicalize source file path\n\tpath: ") +
-        input_path + "\n\treason:" + ec.message());
+        input_path + "\n\treason: " + ec.message());
     return false;
   }
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
@@ -169,7 +168,7 @@ bool Context::loadSourceModule() {
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(input_path);
   rq::Module &source_module =
       this->getTopStaticFrame().allocateValue<rq::Module>(
-          rq::ModuleKind::SOURCE, language, final_path,
+          rq::ModuleKind::SOURCE, final_path,
           std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
@@ -181,23 +180,12 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
                                       llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
-  rq::Language language;
   for (const std::string &dir : rq::getImportDirectories()) {
-    for (llvm::StringRef extension :
-         {".rq", ".srq"}) { // normative extension goes first because if there
-                            // are files of both extensions, the normative
-                            // requite import is choosen
-      llvm::SmallString<128> candidate_path(dir);
-      llvm::sys::path::append(candidate_path, import_string);
-      llvm::sys::path::replace_extension(candidate_path, extension);
-      if (llvm::sys::fs::exists(candidate_path)) {
-        language = rq::getLanguageOfExtension(extension);
-        found_path = candidate_path;
-        file_found = true;
-        break;
-      }
-    }
-    if (file_found) {
+    llvm::SmallString<128> candidate_path(dir);
+    llvm::sys::path::append(candidate_path, import_string, rq::REQUITE_EXTENSION);
+    if (llvm::sys::fs::exists(candidate_path)) {
+      found_path = candidate_path;
+      file_found = true;
       break;
     }
   }
@@ -235,7 +223,7 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
   rq::Module &import_module =
       this->getTopStaticFrame().allocateValue<rq::Module>(
-          rq::ModuleKind::IMPORT, language, final_path,
+          rq::ModuleKind::IMPORT, final_path,
           std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
@@ -289,21 +277,13 @@ bool Context::run() {
       return true;
     }
     this->initializeKeywordMap();
-    if (this->getSourceModule().getLanguage() ==
-        rq::Language::NORMATIVE_REQUITE) {
-      if (!this->parseNormativeRequite(this->getSourceModule(), tokens)) {
-        return false;
-      }
-    } else if (this->getSourceModule().getLanguage() ==
-               rq::Language::SYMBOLIC_REQUITE) {
-      if (!this->parseSymbolicRequite(this->getSourceModule(), tokens)) {
-        return false;
-      }
+    if (!this->parseRequite(this->getSourceModule(), tokens)) {
+      return false;
     }
   }
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
-    if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
-                                   this->getSourceModule().getExpression())) {
+    if (!this->emitRequite(rq::getOutputFilePath(),
+                           this->getSourceModule().getExpression())) {
       return false;
     }
     return true;
@@ -312,8 +292,8 @@ bool Context::run() {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
-    if (!this->emitSymbolicRequite(rq::getOutputFilePath(),
-                                   this->getSourceModule().getExpression())) {
+    if (!this->emitRequite(rq::getOutputFilePath(),
+                           this->getSourceModule().getExpression())) {
       return false;
     }
     return true;
@@ -359,17 +339,9 @@ bool Context::run() {
   return true;
 }
 
-bool Context::parseNormativeRequite(rq::Module &module,
-                                    const std::vector<rq::Token> &tokens) {
-  rq::NormativeParser parser(*this, tokens);
-  rq::Expression *root_ptr = parser.parseExpressions();
-  module.setExpression(root_ptr);
-  return parser.getIsOk();
-}
-
-bool Context::parseSymbolicRequite(rq::Module &module,
-                                   const std::vector<rq::Token> &tokens) {
-  rq::SymbolicParser parser(*this, tokens);
+bool Context::parseRequite(rq::Module &module,
+                           const std::vector<rq::Token> &tokens) {
+  rq::RequiteParser parser(*this, tokens);
   rq::Expression *root_ptr = parser.parseExpressions();
   module.setExpression(root_ptr);
   return parser.getIsOk();
@@ -421,10 +393,8 @@ static void emitIndent(llvm::raw_fd_ostream &fout, unsigned indent) {
   }
 }
 
-static void emitSymbolicRequiteBranch(rq::Context &context,
-                                      llvm::raw_fd_ostream &fout,
-                                      const rq::Expression &trunk,
-                                      unsigned indent) {
+static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
+                              const rq::Expression &trunk, unsigned indent) {
   if (!rq::getNoComment()) {
     rq::emitIndent(fout, indent);
     fout << "// ";
@@ -468,7 +438,7 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
   if (trunk.getHasBranch()) {
     fout << '\n';
     for (const rq::Expression &branch : trunk.getBranchSubrange()) {
-      rq::emitSymbolicRequiteBranch(context, fout, branch, indent + 1);
+      rq::emitRequiteBranch(context, fout, branch, indent + 1);
     }
     rq::emitIndent(fout, indent);
   }
@@ -479,8 +449,7 @@ static void emitSymbolicRequiteBranch(rq::Context &context,
   fout << '\n';
 }
 
-bool Context::emitSymbolicRequite(llvm::StringRef path,
-                                  const rq::Expression &trunk) {
+bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
@@ -490,7 +459,7 @@ bool Context::emitSymbolicRequite(llvm::StringRef path,
     return false;
   }
   for (const rq::Expression &branch : trunk.getHorizontalSubrange()) {
-    rq::emitSymbolicRequiteBranch(*this, fout, branch, 0);
+    rq::emitRequiteBranch(*this, fout, branch, 0);
   }
   fout.close();
   return true;

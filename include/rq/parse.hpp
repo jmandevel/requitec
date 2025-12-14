@@ -47,16 +47,16 @@ struct Module;
 struct Expression;
 struct Token;
 
-struct ForestParser final {
-  using Self = rq::ForestParser;
+struct ForestBuilder final {
+  using Self = rq::ForestBuilder;
 
   rq::Expression *_operation_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
-  ForestParser() = default;
-  ForestParser(const Self &) = default;
-  ForestParser(Self &&) = default;
-  ~ForestParser() = default;
+  ForestBuilder() = default;
+  ForestBuilder(const Self &) = default;
+  ForestBuilder(Self &&) = default;
+  ~ForestBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
@@ -92,16 +92,16 @@ struct ForestParser final {
   void appendTree(rq::Expression &tree);
 };
 
-struct TreeParser final {
-  using Self = rq::TreeParser;
+struct TreeBuilder final {
+  using Self = rq::TreeBuilder;
 
   rq::Expression *_operation_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
-  TreeParser() = default;
-  TreeParser(const Self &) = default;
-  TreeParser(Self &&) = default;
-  ~TreeParser() = default;
+  TreeBuilder() = default;
+  TreeBuilder(const Self &) = default;
+  TreeBuilder(Self &&) = default;
+  ~TreeBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
@@ -133,8 +133,8 @@ struct TreeParser final {
   void finishOperation(const rq::Token &last_token);
 };
 
-struct PrecedenceParser final {
-  using Self = rq::PrecedenceParser;
+struct PrecedenceBuilder final {
+  using Self = rq::PrecedenceBuilder;
 
   // the static static_frame is used only for acquiring new expressions
   std::reference_wrapper<rq::StaticFrame> _static_frame_ref;
@@ -148,10 +148,10 @@ struct PrecedenceParser final {
   // the last branch that was appended to the operation
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceParser(rq::StaticFrame &static_frame) : _static_frame_ref(static_frame) {}
-  PrecedenceParser(const Self &) = delete;
-  PrecedenceParser(Self &&) = delete;
-  ~PrecedenceParser() = default;
+  PrecedenceBuilder(rq::StaticFrame &static_frame) : _static_frame_ref(static_frame) {}
+  PrecedenceBuilder(const Self &) = delete;
+  PrecedenceBuilder(Self &&) = delete;
+  ~PrecedenceBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] rq::StaticFrame &getStaticFrame() { return this->_static_frame_ref.get(); }
@@ -223,18 +223,18 @@ struct PrecedenceParser final {
   }
 };
 
-struct NormativeParser final {
-  using Self = rq::NormativeParser;
+struct RequiteParser final {
+  using Self = rq::RequiteParser;
 
   std::reference_wrapper<rq::Context> _context_ref;
   rq::TokenRanger _token_ranger;
   bool _is_ok = true;
 
-  NormativeParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
+  RequiteParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
       : _context_ref(context), _token_ranger(tokens) {}
-  NormativeParser(const Self &) = delete;
-  NormativeParser(Self &&) = delete;
-  ~NormativeParser() = default;
+  RequiteParser(const Self &) = delete;
+  RequiteParser(Self &&) = delete;
+  ~RequiteParser() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
@@ -276,51 +276,12 @@ struct NormativeParser final {
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
   void parseTrailer(rq::Expression& operation, rq::TokenRanger& keyword_ranger);
-  void parseTacitCommas(unsigned count, const char* source_text_ptr, rq::TreeParser& parser);
+  void parseTacitCommas(unsigned count, const char* source_text_ptr, rq::TreeBuilder& parser);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();
   [[nodiscard]] rq::Expression &parseLiteral(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseNullaryOperator(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseInterpolatedString();
-};
-
-struct SymbolicParser final {
-  using Self = rq::SymbolicParser;
-
-  std::reference_wrapper<rq::Context> _context_ref;
-  rq::TokenRanger _token_ranger;
-  bool _is_ok = true;
-
-  SymbolicParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
-      : _context_ref(context), _token_ranger(tokens) {}
-  SymbolicParser(const Self &) = delete;
-  SymbolicParser(Self &&) = delete;
-  ~SymbolicParser() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
-  RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
-    return this->_context_ref.get();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
-    return this->_context_ref.get();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenRanger &getRanger() {
-    return this->_token_ranger;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TokenRanger &getRanger() const {
-    return this->_token_ranger;
-  }
-  [[nodiscard]] void parseTrailingCommma(rq::Expression& expression);
-  [[nodiscard]] rq::Expression& parseLiteral(rq::Keyword keyword);
-  [[nodiscard]] rq::Expression *parseExpressions();
 };
 
 } // namespace rq

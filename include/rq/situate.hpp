@@ -709,13 +709,13 @@ struct Situator final {
     if (expression.getHasBranch()) {
       return;
     }
-    rq::TreeParser parser;
-    parser.setOperation(expression);
+    rq::TreeBuilder builder;
+    builder.setOperation(expression);
     for (unsigned comma_i = 0; comma_i < comma_count; comma_i++) {
       rq::Expression &comma = this->getStaticFrame().acquireExpression();
       comma.setSourceInsertedAtEnd(expression);
       comma.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
-      parser.appendBranch(comma);
+      builder.appendBranch(comma);
     }
   }
   template <rq::Situation SITUATION_PARAM>

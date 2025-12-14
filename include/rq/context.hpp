@@ -144,15 +144,13 @@ struct Context final {
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool
-  parseNormativeRequite(rq::Module &module,
+  parseRequite(rq::Module &module,
                         const std::vector<rq::Token> &tokens);
-  [[nodiscard]] bool parseSymbolicRequite(rq::Module &module,
-                                          const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateAst(rq::Module &module);
   [[nodiscard]] bool tabulateModule(rq::Module& module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
-  [[nodiscard]] bool emitSymbolicRequite(llvm::StringRef path,
+  [[nodiscard]] bool emitRequite(llvm::StringRef path,
                                          const rq::Expression &trunk);
   // [[nodiscard]] bool emitSymbols(llvm::StringRef path, const rq::SymbolTable&
   // table);

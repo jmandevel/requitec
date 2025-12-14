@@ -129,6 +129,8 @@ struct Procedure final : public rq::Table {
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
+static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
+
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
   switch (kind) {
   case rq::ModuleKind::NONE:
@@ -141,50 +143,17 @@ enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
   RQ_UNREACHABLE();
 }
 
-enum class Language : std::uint_fast8_t {
-  NONE,
-  UNKNOWN,
-  NORMATIVE_REQUITE,
-  SYMBOLIC_REQUITE
-};
-
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
-getDescription(rq::Language language) {
-  switch (language) {
-  case rq::Language::NONE:
-    return "none";
-  case rq::Language::UNKNOWN:
-    return "unknown language";
-  case rq::Language::NORMATIVE_REQUITE:
-    return "normative requite";
-  case rq::Language::SYMBOLIC_REQUITE:
-    return "symbolic requite";
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Language
-getLanguageOfExtension(llvm::StringRef extension) {
-  if (extension == ".rq") {
-    return rq::Language::NORMATIVE_REQUITE;
-  } else if (extension == ".srq") {
-    return rq::Language::SYMBOLIC_REQUITE;
-  }
-  return rq::Language::UNKNOWN;
-}
-
 struct Module final : public rq::StaticValue {
   using Self = rq::Module;
 
   rq::ModuleKind _kind;
-  rq::Language _language;
   llvm::MemoryBufferRef _llvm_buffer_ref;
   llvm::StringRef _path;
   rq::Expression *_expression_ptr = nullptr;
 
-  Module(rq::ModuleKind kind, rq::Language language, llvm::StringRef path,
+  Module(rq::ModuleKind kind, llvm::StringRef path,
          llvm::MemoryBufferRef &&buffer)
-      : rq::StaticValue(rq::ValueKind::MODULE), _kind(kind), _language(language),
+      : rq::StaticValue(rq::ValueKind::MODULE), _kind(kind),
         _llvm_buffer_ref(std::move(buffer)), _path(path) {}
   Module(const Self &) = delete;
   Module(Self &&) = delete;
@@ -195,13 +164,6 @@ struct Module final : public rq::StaticValue {
   bool operator!=(const Self &rhs) const { return this != &rhs; }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const {
     return this->_kind;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Language getLanguage() const {
-    return this->_language;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInitialized() const {
-    return this->getLanguage() != rq::Language::NONE &&
-           this->getKind() != rq::ModuleKind::NONE && !this->_path.empty();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
     return this->_path;
