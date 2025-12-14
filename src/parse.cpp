@@ -886,21 +886,20 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &operation,
       this->getRanger().incrementToken(1);
     } else if (after_token.getKind() == end) {
       this->getRanger().incrementToken(1);
-      builder.finishOperation(next_token);
+      builder.finishOperation(after_token);
       return operation;
     } else if (after_token.getCanBeMark()) {
       while (true) {
         const rq::Token &mark_token = this->getRanger().getToken();
         this->getRanger().incrementToken(1);
         if (mark_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
-          rq::Expression &mark = this->getTopStaticFrame().acquireExpression();
-          mark.setSource(after_token);
-          mark.setKeyword(rq::Keyword::_POSITIONAL_PARAMETERS_END);
+          rq::Expression &mark =
+              this->parseLiteralOrMark(rq::Keyword::_POSITIONAL_PARAMETERS_END);
+          builder.appendBranch(mark);
           continue;
         } else if (mark_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
-          rq::Expression &mark = this->getTopStaticFrame().acquireExpression();
-          mark.setSource(after_token);
-          mark.setKeyword(rq::Keyword::_NAMED_PARAMETERS_BEGIN);
+          rq::Expression &mark =
+              this->parseLiteralOrMark(rq::Keyword::_NAMED_PARAMETERS_BEGIN);
           builder.appendBranch(mark);
           continue;
         } else if (mark_token.getKind() != rq::TokenKind::COMMA_SEPARATOR) {
@@ -990,6 +989,11 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
       this->getRanger().incrementToken(1);
       builder.finishOperation(next_token);
       return operation;
+    } else if (next_token.getKind() == rq::TokenKind::TRAILER_SEPARATOR) {
+      this->parseTrailer(operation, keyword_ranger);
+      const rq::Token &last_token = this->getRanger().getToken();
+      builder.finishOperation(last_token);
+      return operation;
     }
     rq::Expression &branch = this->parseExpression();
     builder.appendBranch(branch);
@@ -1058,18 +1062,6 @@ void RequiteParser::parseTrailer(rq::Expression &operation,
     }
     this->getRanger().incrementToken(1);
     keyword_ranger.incrementToken(1);
-  }
-}
-
-void RequiteParser::parseTacitCommas(unsigned count,
-                                     const char *source_text_ptr,
-                                     rq::TreeBuilder &parser) {
-  for (unsigned comma_i = 0; comma_i < count; comma_i++) {
-    rq::Expression &inference =
-        this->getContext().getTopStaticFrame().acquireExpression();
-    inference.setKeyword(rq::Keyword::_TACIT_COMMA_EXPRESSION);
-    inference.setSourceInsertedAt(source_text_ptr);
-    parser.appendBranch(inference);
   }
 }
 
@@ -1173,16 +1165,6 @@ rq::Expression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
   identifier.setSource(token);
   this->getRanger().incrementToken(1);
   return identifier;
-}
-
-rq::Expression &RequiteParser::parseNullaryOperator(rq::Keyword keyword) {
-  const rq::Token &token = this->getRanger().getToken();
-  rq::Expression &expression =
-      this->getContext().getTopStaticFrame().acquireExpression();
-  expression.setKeyword(keyword);
-  expression.setSource(token);
-  this->getRanger().incrementToken(1);
-  return expression;
 }
 
 rq::Expression &RequiteParser::parseInterpolatedString() {

@@ -273,11 +273,9 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
   void parseTrailer(rq::Expression& operation, rq::TokenRanger& keyword_ranger);
-  void parseTacitCommas(unsigned count, const char* source_text_ptr, rq::TreeBuilder& parser);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();
   [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
-  [[nodiscard]] rq::Expression &parseNullaryOperator(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseInterpolatedString();
 };
 
