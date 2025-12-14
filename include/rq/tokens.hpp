@@ -104,7 +104,7 @@ enum class TokenKind : std::uint_fast16_t {
 enum class TokenFlags : std::uint8_t {
   NONE = 0,
   OPERATOR = rq::getBit(7),
-  SIGIL = rq::getBit(6),
+  MARK = rq::getBit(6),
   SEPARATOR = rq::getBit(5),
   LITERAL = rq::getBit(4),
   LEFT_GROUPING = rq::getBit(3),
@@ -473,13 +473,13 @@ getFlags(rq::TokenKind kind) {
   case T::HASH_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::GREATER_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::MARK;
   case T::DOUBLE_GREATER_OPERATOR:
     return TF::OPERATOR;
   case T::GREATER_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::LESS_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::MARK;
   case T::DOUBLE_LESS_OPERATOR:
     return TF::OPERATOR;
   case T::LESS_EQUAL_OPERATOR:
@@ -565,15 +565,15 @@ getFlags(rq::TokenKind kind) {
   case T::DOT_BANG_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::AT_SIGIL:
-    return TF::SIGIL;
+    return TF::NONE; // SIGIL
   case T::DOLLAR_SIGIL:
-    return TF::SIGIL;
+    return TF::NONE; // SIGIL
   case T::TRAILER_SEPARATOR:
     return TF::SEPARATOR;
   case T::SEMICOLON_SEPARATOR:
     return TF::SEPARATOR;
   case T::COMMA_SEPARATOR:
-    return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
+    return TF::SEPARATOR;
   case T::LEFT_BRACKET_GROUPING:
     return TF::LEFT_GROUPING;
   case T::RIGHT_BRACKET_GROUPING:
@@ -654,8 +654,8 @@ getIsOperator(rq::TokenKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::SIGIL);
+  return kind == rq::TokenKind::AT_SIGIL ||
+         kind == rq::TokenKind::DOLLAR_SIGIL;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -672,8 +672,8 @@ getIsLiteral(rq::TokenKind kind) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getCanBeMark(rq::TokenKind kind) {
-  return kind == rq::TokenKind::GREATER_OPERATOR ||
-         kind == rq::TokenKind::LESS_OPERATOR;
+  const rq::TokenFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::TokenFlags::MARK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool

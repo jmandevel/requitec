@@ -885,7 +885,9 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &operation,
     if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       this->getRanger().incrementToken(1);
     } else if (after_token.getKind() == end) {
-      continue;
+      this->getRanger().incrementToken(1);
+      builder.finishOperation(next_token);
+      return operation;
     } else if (after_token.getCanBeMark()) {
       while (true) {
         const rq::Token &mark_token = this->getRanger().getToken();
