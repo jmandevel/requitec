@@ -48,7 +48,10 @@ void Situator::logErrorInvalidBranchSituation(
           llvm::Twine(branch_i) + ".\n",
       {branch.getLlvmSourceRange()}, {});
 }
-void Situator::situateTree(rq::Situation situation, rq::Module &module) {
+void Situator::situateModule(rq::Module &module) {
+  // TODO
+}
+void Situator::situateTree(rq::Situation situation, rq::Expression &expression) {
   // TODO
 }
 

@@ -287,7 +287,7 @@ bool Context::run() {
     }
     return true;
   }
-  if (!this->situateAst(this->getSourceModule())) {
+  if (!this->situateModule(this->getSourceModule())) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
@@ -346,9 +346,9 @@ bool Context::parseRequite(rq::Module &module,
   return parser.getIsOk();
 }
 
-bool Context::situateAst(rq::Module &module) {
+bool Context::situateModule(rq::Module &module) {
   rq::Situator situator(*this, this->getTopStaticFrame());
-  situator.situateTree(rq::Situation::ROOT_STATEMENT, module);
+  situator.situateModule(module);
   return situator.getIsOk();
 }
 
