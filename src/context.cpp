@@ -348,7 +348,7 @@ bool Context::parseRequite(rq::Module &module,
 
 bool Context::situateAst(rq::Module &module) {
   rq::Situator situator(*this, this->getTopStaticFrame());
-  situator.situateRoot(module);
+  situator.situateTree(rq::Situation::ROOT_STATEMENT, module);
   return situator.getIsOk();
 }
 
@@ -441,7 +441,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
         } else {
           fout << ";\n";
         }
-      } else if (trunk.getHasNonStatementBranches())  {
+      } else if (trunk.getHasNonStatementBranches()) {
         fout << ",\n";
       } else {
         RQ_UNREACHABLE();
@@ -567,9 +567,11 @@ void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnexpectedParameterMark(const rq::Expression &expression) {
+void Context::logErrorUnexpectedParameterMark(
+    const rq::Expression &expression) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "invalid parameter mark", {expression.getLlvmSourceRange()}, {});
+                   "invalid parameter mark", {expression.getLlvmSourceRange()},
+                   {});
 }
 
 void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {

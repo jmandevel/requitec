@@ -4,6 +4,7 @@ target_sources(
         context.cpp
         options.cpp
         parse.cpp
+        situate.cpp
         static.cpp
         tabulate.cpp
         tokenize.cpp
