@@ -2129,7 +2129,7 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
 }
 
 [[nodiscard]] constexpr bool
-getCanBeSituation(rq::Keyword keywo d, rq::Situation situation) {
+getCanBeSituation(rq::Keyword keyword, rq::Situation situation) {
   switch (situation) {
     case rq::Situation::NONE:
       return rq::getIsNone(keyword);
