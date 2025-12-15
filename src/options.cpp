@@ -45,7 +45,7 @@ static llvm::cl::opt<Emit> EMIT(
         clEnumValN(EMIT_OBJECT, "object", "Output an object file.")),
     llvm::cl::init(EMIT_OBJECT));
 
-bool parseCommandLineOptions(unsigned argc, const char **argv) {
+bool parseCommandLineOptions(int argc, const char **argv) {
   llvm::cl::ParseCommandLineOptions(argc, argv);
   llvm::SmallString<256> buffer;
   bool is_ok = true;

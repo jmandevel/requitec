@@ -845,7 +845,7 @@ struct Token final {
 
 enum class GroupingKind { NONE, INTERPOLATION, BRACKET, BRACE, PARENTHESIS };
 
-constexpr llvm::StringRef getDescription(rq::GroupingKind kind) {
+inline llvm::StringRef getDescription(rq::GroupingKind kind) {
   using namespace rq;
   using G = GroupingKind;
   switch (kind) {
@@ -859,10 +859,8 @@ constexpr llvm::StringRef getDescription(rq::GroupingKind kind) {
     return "brace";
   case G::PARENTHESIS:
     return "parenthsis";
-  default:
-    break;
   }
-  return "unknown";
+  RQ_UNREACHABLE();
 }
 
 struct Grouping final {

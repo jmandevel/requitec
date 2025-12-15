@@ -20,9 +20,9 @@ target_link_libraries(
 )   
 
 target_compile_options(requite PRIVATE    
-    # Warnings as errors (all configs)
+    # warnings as errors (all configs)
     $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Werror>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Werror -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-switch-enum -Wno-extra-semi-stmt -Wno-unsafe-buffer-usage -Wno-global-constructors -Wno-exit-time-destructors>
 
     # no exceptions on release builds
     $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:/EHs-c- /D_HAS_EXCEPTIONS=0>
@@ -42,7 +42,5 @@ target_link_libraries(
     PRIVATE
         requite   
 )
-
-
 
 add_subdirectory(src)

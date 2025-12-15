@@ -89,7 +89,7 @@ struct Table : rq::StaticValue {
   Table(rq::ValueKind kind) : rq::StaticValue(kind) {}
   Table(const Self &) = delete;
   Table(Self &&) = delete;
-  ~Table() {
+  ~Table() override {
     // TODO call destructors of all contained terms
   }
   Self &operator=(const Self &) = delete;
@@ -110,7 +110,7 @@ struct Procedure final : public rq::Table {
   Procedure(rq::ValueKind kind) : rq::Table(kind) {}
   Procedure(const Self&) = delete;
   Procedure(Self&&) = delete;
-  ~Procedure() = default;
+  ~Procedure() override = default;
   Self& operator=(const Self&) = delete;
   Self& operator=(Self&&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self& rhs) const {
@@ -146,14 +146,14 @@ static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 struct Module final : public rq::StaticValue {
   using Self = rq::Module;
 
-  rq::ModuleKind _kind;
+  rq::ModuleKind _module_kind;
   llvm::MemoryBufferRef _llvm_buffer_ref;
   llvm::StringRef _path;
   rq::Expression *_expression_ptr = nullptr;
 
   Module(rq::ModuleKind kind, llvm::StringRef path,
          llvm::MemoryBufferRef &&buffer)
-      : rq::StaticValue(rq::ValueKind::MODULE), _kind(kind),
+      : rq::StaticValue(rq::ValueKind::MODULE), _module_kind(kind),
         _llvm_buffer_ref(std::move(buffer)), _path(path) {}
   Module(const Self &) = delete;
   Module(Self &&) = delete;
@@ -162,8 +162,8 @@ struct Module final : public rq::StaticValue {
   Self &operator=(Self &&) = delete;
   bool operator==(const Self &rhs) const { return this == &rhs; }
   bool operator!=(const Self &rhs) const { return this != &rhs; }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const {
-    return this->_kind;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const {
+    return this->_module_kind;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
     return this->_path;

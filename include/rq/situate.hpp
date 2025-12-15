@@ -35,7 +35,8 @@ struct Situator final {
     return this->_static_frame_ref.get();
   }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
-  void logErrorNotAtLeastBranchCount(rq::Siatuation situation,
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
+  void logErrorNotAtLeastBranchCount(rq::Situation situation,
                                      rq::Expression &expression,
                                      unsigned count);
   void logErrorNotExactBranchCount(rq::Situation situation,

@@ -11,109 +11,110 @@
 namespace rq {
 
 // NOTE:
-//  two underscores at the front means that the keyword is for internal use only
+//  two underscores at the front of name and I_ in C++ means that the keyword is
+//  for internal use only
 
 // NOTE:
-//  one underscore at the front means that the keyword is not meant to be
-//  normally used directly. Might be used by a standard library, or might be
-//  useful only in symbolic requite. There should be other ways to write these
-//  things most of the time that are more concise.
+//  one underscore at the front of name and S_ means that the keyword is not
+//  meant to be normally used directly. Might be used by a standard library, or
+//  might be useful only in symbolic requite. There should be other ways to
+//  write these things most of the time that are more concise.
 
 enum class Keyword : std::uint32_t {
   // this should never occur.
-  __NONE,
+  I_NONE,
 
   // LITERALS
   // a literal that represents an integer value. May have a base.
-  __INTEGER_LITERAL,
+  I_INTEGER_LITERAL,
   // a literal that represents a float value with a decimal point.
-  __FLOAT_LITERAL,
+  I_FLOAT_LITERAL,
   // a literal that represents a string of text characters.
-  __STRING_LITERAL,
+  I_STRING_LITERAL,
   // left string interpolation (string literal with no end quote mark).
-  __LEFT_INTERPOLATION_LITERAL,
+  I_LEFT_INTERPOLATION_LITERAL,
   // middle string interpolation (string literal with no quote marks).
-  __MIDDLE_INTERPOLATION_LITERAL,
+  I_MIDDLE_INTERPOLATION_LITERAL,
   // right string interpolation (string literal with start quote mark).
-  __RIGHT_INTERPOLATION_LITERAL,
+  I_RIGHT_INTERPOLATION_LITERAL,
   // a literal that represents a single text character.
-  __CODEUNIT_LITERAL,
+  I_CODEUNIT_LITERAL,
   // a literal that is used to refeer to user defined symbols.
-  __IDENTIFIER_LITERAL,
+  I_IDENTIFIER_LITERAL,
 
   // ERRORS
-  __ERROR,
+  I_ERROR,
 
   // SITUATIONAL
-  _PARENTHESIS_GROUP,
-  _EQUAL_OPERATOR,
-  _COLON_OPERATOR,
-  _INFERENCE,
+  S_PARENTHESIS_GROUP,
+  S_EQUAL_OPERATOR,
+  S_COLON_OPERATOR,
+  S_INFERENCE,
 
   // LOGICAL
-  _LOGICAL_AND,
-  _LOGICAL_OR,
-  _LOGICAL_COMPLEMENT,
+  S_LOGICAL_AND,
+  S_LOGICAL_OR,
+  S_LOGICAL_COMPLEMENT,
 
   // COMPARISON
-  _GREATER,
-  _GREATER_EQUAL,
-  _LESS,
-  _LESS_EQUAL,
-  _EQUAL,
-  _NOT_EQUAL,
+  S_GREATER,
+  S_GREATER_EQUAL,
+  S_LESS,
+  S_LESS_EQUAL,
+  S_EQUAL,
+  S_NOT_EQUAL,
 
   // APPLY
-  _EXTEND,
-  _BINDING,
-  _ASCRIBE_TYPE,
-  _ASCRIBE_STATEMENT,
-  _ASCRIBE_TYPE_OF_ELEMENTS,
-  _CAST,
-  _IDENTIFY,
+  S_EXTEND,
+  S_BINDING,
+  S_ASCRIBE_TYPE,
+  S_ASCRIBE_STATEMENT,
+  S_ASCRIBE_TYPE_OF_ELEMENTS,
+  S_CAST,
+  S_IDENTIFY,
 
   // ARITHMETIC
-  _ADD,
-  _SUBTRACT,
-  _MULTIPLY,
-  _DIVIDE,
-  _MODULUS,
-  _NEGATE,
+  S_ADD,
+  S_SUBTRACT,
+  S_MULTIPLY,
+  S_DIVIDE,
+  S_MODULUS,
+  S_NEGATE,
 
   // BITWISE
-  _BITWISE_CAST,
-  _BITWISE_OR,
-  _BITWISE_AND,
-  _BITWISE_XOR,
-  _BITWISE_COMPLEMENT,
-  _BITWISE_SHIFT_LEFT,
-  _BITWISE_SHIFT_RIGHT,
+  S_BITWISE_CAST,
+  S_BITWISE_OR,
+  S_BITWISE_AND,
+  S_BITWISE_XOR,
+  S_BITWISE_COMPLEMENT,
+  S_BITWISE_SHIFT_LEFT,
+  S_BITWISE_SHIFT_RIGHT,
   BITWISE_ROTATE_LEFT,
   BITWISE_ROTATE_RIGHT,
 
   // MEMORY
   SINGLETON,
-  _SINGLETON_OF,
+  S_SINGLETON_OF,
   CONTENT,
-  _CONTENT_OF,
+  S_CONTENT_OF,
   ADDRESS,
-  _ADDRESS_OF,
+  S_ADDRESS_OF,
   BORROW,
-  _BORROW_OF,
+  S_BORROW_OF,
 
   // ASSIGNMENT
-  _ASSIGN,
-  _ASSIGN_ADD,
-  _ASSIGN_SUBTRACT,
-  _ASSIGN_MULTIPLY,
-  _ASSIGN_DIVIDE,
-  _ASSIGN_MODULUS,
+  S_ASSIGN,
+  S_ASSIGN_ADD,
+  S_ASSIGN_SUBTRACT,
+  S_ASSIGN_MULTIPLY,
+  S_ASSIGN_DIVIDE,
+  S_ASSIGN_MODULUS,
 
   // SUBTYPE
-  _ARRAY,
-  _REFERENCE,
-  _POINTER,
-  _FAT_POINTER,
+  S_ARRAY,
+  S_REFERENCE,
+  S_POINTER,
+  S_FAT_POINTER,
 
   // TYPE MODIFIER
   MUTABLE,
@@ -127,32 +128,32 @@ enum class Keyword : std::uint32_t {
   DYNAMIC_CAPTURE_LAYOUT,
 
   // PARAMETER RULES
-  _POSITIONAL_PARAMETERS_END,
-  _NAMED_PARAMETERS_BEGIN,
+  S_POSITIONAL_PARAMETERS_END,
+  S_NAMED_PARAMETERS_BEGIN,
 
   // BRACES
-  _TUPLE,
-  _LAYOUT_TYPE,
-  _NULL,
-  _NULL_TYPE,
-  _STRUCTURED_BINDING,
-  _IGNORE,
-  _SPECIALIZATION,
+  S_TUPLE,
+  S_LAYOUT_TYPE,
+  S_NULL,
+  S_NULL_TYPE,
+  S_STRUCTURED_BINDING,
+  S_IGNORE,
+  S_SPECIALIZATION,
 
   // PROCEDURES
-  _CALL,
-  _NAMED_ARGUMENT,
-  _INDEX_INTO,
-  _SIGNATURE_TYPE,
-  _DEFAULT_VALUE_PARAMETER,
+  S_CALL,
+  S_NAMED_ARGUMENT,
+  S_INDEX_INTO,
+  S_SIGNATURE_TYPE,
+  S_DEFAULT_VALUE_PARAMETER,
   DESTROY,
-  _DESTROY_VALUE,
+  S_DESTROY_VALUE,
   DROP,
-  _DROP_VALUE,
+  S_DROP_VALUE,
   EXTRACT,
-  _EXTRACT_OF,
+  S_EXTRACT_OF,
   MOVE,
-  _MOVE_OF,
+  S_MOVE_OF,
   ENTRY_POINT,
   FUNCTION,
   METHOD,
@@ -162,8 +163,8 @@ enum class Keyword : std::uint32_t {
   LAYOUT_CONSTRUCTOR,
   DESTRUCTOR,
   RANGER,
-  _ANONYMOUS_FUNCTION,
-  _DYNAMIC_CAPTURE,
+  S_ANONYMOUS_FUNCTION,
+  S_DYNAMIC_CAPTURE,
 
   // CONTROL FLOW
   RETURN,
@@ -187,7 +188,7 @@ enum class Keyword : std::uint32_t {
   INDEX,
   // vignette or reflected enumerator index.
   DISCRIMINANT,
-  _DISCRIMINANT_OF,
+  S_DISCRIMINANT_OF,
   // vignette value returned into a block.
   IN,
   // vignette value returned from a block.
@@ -243,9 +244,9 @@ enum class Keyword : std::uint32_t {
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
   FIRST_VARIADIC_ARGUMENT,
-  _FIRST_VARIADIC_ARGUMENT_OF,
+  S_FIRST_VARIADIC_ARGUMENT_OF,
   NEXT_VARIADIC_ARGUMENT,
-  _NEXT_VARIADIC_ARGUMENT_OF,
+  S_NEXT_VARIADIC_ARGUMENT_OF,
 
   // SCOPES
   IF,
@@ -266,19 +267,19 @@ enum class Keyword : std::uint32_t {
   // RANGES
   RANGE,
   CONTAINS,
-  _CONTAINS_VALUE,
-  _SEQUENCE,
-  _SEQUENCE_STEP_ADD,
-  _SEQUENCE_STEP_SUBTRACT,
-  _SEQUENCE_STEP_MULTIPLY,
-  _SEQUENCE_STEP_DIVIDE,
-  _SEQUENCE_STEP_MODULUS,
-  _SEQUENCE_WHILE_LESS,
-  _SEQUENCE_WHILE_GREATER,
-  _SEQUENCE_WHILE_LESS_EQUAL,
-  _SEQUENCE_WHILE_GREATER_EQUAL,
-  _SEQUENCE_WHILE_EQUAL,
-  _SEQUENCE_WHILE_NOT_EQUAL,
+  S_CONTAINS_VALUE,
+  S_SEQUENCE,
+  S_SEQUENCE_STEP_ADD,
+  S_SEQUENCE_STEP_SUBTRACT,
+  S_SEQUENCE_STEP_MULTIPLY,
+  S_SEQUENCE_STEP_DIVIDE,
+  S_SEQUENCE_STEP_MODULUS,
+  S_SEQUENCE_WHILE_LESS,
+  S_SEQUENCE_WHILE_GREATER,
+  S_SEQUENCE_WHILE_LESS_EQUAL,
+  S_SEQUENCE_WHILE_GREATER_EQUAL,
+  S_SEQUENCE_WHILE_EQUAL,
+  S_SEQUENCE_WHILE_NOT_EQUAL,
 
   // ACCESS MODIFIERS
   PRIVATE,
@@ -291,7 +292,7 @@ enum class Keyword : std::uint32_t {
   USE_TABLE,
   TABLE,
   MODULE,
-  _MODULE_ROOT,
+  S_MODULE_ROOT,
 
   // ERROR HANDLING AND DEBUGGING
   PANIC_TRAP,
@@ -315,7 +316,7 @@ enum class Keyword : std::uint32_t {
   POSITION,
   INLINE,
   MANGLED_NAME,
-  _MANGLED_NAME_OF,
+  S_MANGLED_NAME_OF,
   PACK,
   USER,
   LABEL,
@@ -329,165 +330,163 @@ enum class Keyword : std::uint32_t {
   QUOTE,
   EXPRESSION,
   EXPAND,
-  _EXPAND_TOP_STATEMENT,
-  _EXPAND_TABLE_STATEMENT,
-  _EXPAND_OBJECT_STATEMENT,
-  _EXPAND_LOCAL_STATEMENT,
-  _EXPAND_LVALUE,
-  _EXPAND_RVALUE,
-  _EXPAND_REFLECTION,
-  _EXPAND_ARGUMENT,
-  _EXPAND_PARAMETER,
-  _EXPAND_ENUMERATOR,
-  _EXPAND_PATH,
-  _EXPAND_NAME,
-  _EXPAND_SEQUENCE_STAGE,
-  _EXPAND_VIGNETTE,
-  _EXPAND_VIGNETTE_RVALUE,
-  _EXPAND_ARM,
-  _EXPAND_DYNAMIC_CAPTURE,
+  S_EXPAND_TOP_STATEMENT,
+  S_EXPAND_TABLE_STATEMENT,
+  S_EXPAND_OBJECT_STATEMENT,
+  S_EXPAND_LOCAL_STATEMENT,
+  S_EXPAND_LVALUE,
+  S_EXPAND_RVALUE,
+  S_EXPAND_REFLECTION,
+  S_EXPAND_ARGUMENT,
+  S_EXPAND_PARAMETER,
+  S_EXPAND_ENUMERATOR,
+  S_EXPAND_PATH,
+  S_EXPAND_NAME,
+  S_EXPAND_SEQUENCE_STAGE,
+  S_EXPAND_VIGNETTE,
+  S_EXPAND_VIGNETTE_RVALUE,
+  S_EXPAND_ARM,
+  S_EXPAND_DYNAMIC_CAPTURE,
 
   // REFLECTIONS
-  _REFLECT,
-  _MEMBER_OF,
+  S_REFLECT,
+  S_MEMBER_OF,
   BYTE_SIZE,
-  _BYTE_SIZE_OF,
+  S_BYTE_SIZE_OF,
   BIT_DEPTH,
-  _BIT_DEPTH_OF,
+  S_BIT_DEPTH_OF,
   ELEMENT_COUNT,
-  _ELEMENT_COUNT_OF,
+  S_ELEMENT_COUNT_OF,
   NAME,
-  _NAME_OF,
+  S_NAME_OF,
   LINE,
-  _LINE_OF,
+  S_LINE_OF,
   COLUMN,
-  _COLUMN_OF,
+  S_COLUMN_OF,
   IS,
-  _VALUE_IS,
+  S_VALUE_IS,
   HOLDS,
-  _VALUE_HOLDS,
-  CONTAINS,
-  _VALUE_CONTAINS,
+  S_VALUE_HOLDS,
   TYPE,
-  _TYPE_OF,
+  S_TYPE_OF,
   SYMBOL,
-  _SYMBOL_OF,
+  S_SYMBOL_OF,
   LAYOUT,
-  _LAYOUT_OF,
+  S_LAYOUT_OF,
   SIGNATURE,
-  _SIGNATURE_OF,
+  S_SIGNATURE_OF,
 
-  __LAST
+  I_LAST
 };
 
 constexpr std::size_t KEYWORD_COUNT =
-    static_cast<std::size_t>(rq::Keyword::__LAST);
+    static_cast<std::size_t>(rq::Keyword::I_LAST);
 
 [[nodiscard]] inline constexpr llvm::StringRef getName(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
-  case K::__NONE:
+  case K::I_NONE:
     return "__none";
 
   // LITERALS
-  case K::__INTEGER_LITERAL:
+  case K::I_INTEGER_LITERAL:
     return "__integer_literal";
-  case K::__FLOAT_LITERAL:
+  case K::I_FLOAT_LITERAL:
     return "__float_literal";
-  case K::__STRING_LITERAL:
+  case K::I_STRING_LITERAL:
     return "__string_literal";
-  case K::__LEFT_INTERPOLATION_LITERAL:
+  case K::I_LEFT_INTERPOLATION_LITERAL:
     return "__left_interpolation_literal";
-  case K::__MIDDLE_INTERPOLATION_LITERAL:
+  case K::I_MIDDLE_INTERPOLATION_LITERAL:
     return "__middle_interpolation_literal";
-  case K::__RIGHT_INTERPOLATION_LITERAL:
+  case K::I_RIGHT_INTERPOLATION_LITERAL:
     return "__right_interpolation_literal";
-  case K::__CODEUNIT_LITERAL:
+  case K::I_CODEUNIT_LITERAL:
     return "__codeunit_literal";
-  case K::__IDENTIFIER_LITERAL:
+  case K::I_IDENTIFIER_LITERAL:
     return "__identifier_literal";
 
   // ERRORS
-  case K::__ERROR:
+  case K::I_ERROR:
     return "__error";
 
   // SITUATIONAL
-  case K::_PARENTHESIS_GROUP:
+  case K::S_PARENTHESIS_GROUP:
     return "_parenthesis_group";
-  case K::_EQUAL_OPERATOR:
+  case K::S_EQUAL_OPERATOR:
     return "_equal_operator";
-  case K::_COLON_OPERATOR:
+  case K::S_COLON_OPERATOR:
     return "_colon_operator";
-  case K::_INFERENCE:
+  case K::S_INFERENCE:
     return "_inference";
 
   // LOGICAL
-  case K::_LOGICAL_AND:
+  case K::S_LOGICAL_AND:
     return "_logical_and";
-  case K::_LOGICAL_OR:
+  case K::S_LOGICAL_OR:
     return "_logical_or";
-  case K::_LOGICAL_COMPLEMENT:
+  case K::S_LOGICAL_COMPLEMENT:
     return "_logical_complement";
 
   // COMPARISON
-  case K::_GREATER:
+  case K::S_GREATER:
     return "_greater";
-  case K::_GREATER_EQUAL:
+  case K::S_GREATER_EQUAL:
     return "_greater_equal";
-  case K::_LESS:
+  case K::S_LESS:
     return "_less";
-  case K::_LESS_EQUAL:
+  case K::S_LESS_EQUAL:
     return "_less_equal";
-  case K::_EQUAL:
+  case K::S_EQUAL:
     return "_equal";
-  case K::_NOT_EQUAL:
+  case K::S_NOT_EQUAL:
     return "_not_equal";
 
   // APPLY
-  case K::_EXTEND:
+  case K::S_EXTEND:
     return "_extend";
-  case K::_BINDING:
+  case K::S_BINDING:
     return "_binding";
-  case K::_ASCRIBE_TYPE:
+  case K::S_ASCRIBE_TYPE:
     return "_ascribe_type";
-  case K::_ASCRIBE_STATEMENT:
+  case K::S_ASCRIBE_STATEMENT:
     return "_ascribe_statement";
-  case K::_ASCRIBE_TYPE_OF_ELEMENTS:
+  case K::S_ASCRIBE_TYPE_OF_ELEMENTS:
     return "_ascribe_type_of_elements";
-  case K::_CAST:
+  case K::S_CAST:
     return "_cast";
-  case K::_IDENTIFY:
+  case K::S_IDENTIFY:
     return "_identify";
 
   // ARITHMETIC
-  case K::_ADD:
+  case K::S_ADD:
     return "_add";
-  case K::_SUBTRACT:
+  case K::S_SUBTRACT:
     return "_subtract";
-  case K::_MULTIPLY:
+  case K::S_MULTIPLY:
     return "_multiply";
-  case K::_DIVIDE:
+  case K::S_DIVIDE:
     return "_divide";
-  case K::_MODULUS:
+  case K::S_MODULUS:
     return "_modulus";
-  case K::_NEGATE:
+  case K::S_NEGATE:
     return "_negate";
 
   // BITWISE
-  case K::_BITWISE_CAST:
+  case K::S_BITWISE_CAST:
     return "_bitwise_cast";
-  case K::_BITWISE_OR:
+  case K::S_BITWISE_OR:
     return "_bitwise_or";
-  case K::_BITWISE_AND:
+  case K::S_BITWISE_AND:
     return "_bitwise_and";
-  case K::_BITWISE_XOR:
+  case K::S_BITWISE_XOR:
     return "_bitwise_xor";
-  case K::_BITWISE_COMPLEMENT:
+  case K::S_BITWISE_COMPLEMENT:
     return "_bitwise_complement";
-  case K::_BITWISE_SHIFT_LEFT:
+  case K::S_BITWISE_SHIFT_LEFT:
     return "_bitwise_shift_left";
-  case K::_BITWISE_SHIFT_RIGHT:
+  case K::S_BITWISE_SHIFT_RIGHT:
     return "_bitwise_shift_right";
   case K::BITWISE_ROTATE_LEFT:
     return "bitwise_rotate_left";
@@ -497,43 +496,43 @@ constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::SINGLETON:
     return "singleton";
-  case K::_SINGLETON_OF:
+  case K::S_SINGLETON_OF:
     return "_singleton_of";
   case K::CONTENT:
     return "content";
-  case K::_CONTENT_OF:
+  case K::S_CONTENT_OF:
     return "_content_of";
   case K::ADDRESS:
     return "address";
-  case K::_ADDRESS_OF:
+  case K::S_ADDRESS_OF:
     return "_address_of";
   case K::BORROW:
     return "borrow";
-  case K::_BORROW_OF:
+  case K::S_BORROW_OF:
     return "_borrow_of";
 
   // ASSIGNMENT
-  case K::_ASSIGN:
+  case K::S_ASSIGN:
     return "_assign";
-  case K::_ASSIGN_ADD:
+  case K::S_ASSIGN_ADD:
     return "_assign_add";
-  case K::_ASSIGN_SUBTRACT:
+  case K::S_ASSIGN_SUBTRACT:
     return "_assign_subtract";
-  case K::_ASSIGN_MULTIPLY:
+  case K::S_ASSIGN_MULTIPLY:
     return "_assign_multiply";
-  case K::_ASSIGN_DIVIDE:
+  case K::S_ASSIGN_DIVIDE:
     return "_assign_divide";
-  case K::_ASSIGN_MODULUS:
+  case K::S_ASSIGN_MODULUS:
     return "_assign_modulus";
 
   // SUBTYPE
-  case K::_ARRAY:
+  case K::S_ARRAY:
     return "_array";
-  case K::_REFERENCE:
+  case K::S_REFERENCE:
     return "_reference";
-  case K::_POINTER:
+  case K::S_POINTER:
     return "_pointer";
-  case K::_FAT_POINTER:
+  case K::S_FAT_POINTER:
     return "_fat_pointer";
 
   // TYPE MODIFIER
@@ -557,53 +556,53 @@ constexpr std::size_t KEYWORD_COUNT =
     return "dynamic_capture_layout";
 
   // PARAMETER RULES
-  case K::_POSITIONAL_PARAMETERS_END:
+  case K::S_POSITIONAL_PARAMETERS_END:
     return "_positional_parameters_end";
-  case K::_NAMED_PARAMETERS_BEGIN:
+  case K::S_NAMED_PARAMETERS_BEGIN:
     return "_named_parameters_begin";
 
   // BRACES
-  case K::_TUPLE:
+  case K::S_TUPLE:
     return "_tuple";
-  case K::_LAYOUT_TYPE:
+  case K::S_LAYOUT_TYPE:
     return "_layout_type";
-  case K::_NULL:
+  case K::S_NULL:
     return "_null";
-  case K::_NULL_TYPE:
+  case K::S_NULL_TYPE:
     return "_null_type";
-  case K::_STRUCTURED_BINDING:
+  case K::S_STRUCTURED_BINDING:
     return "_structured_binding";
-  case K::_IGNORE:
+  case K::S_IGNORE:
     return "_ignore";
-  case K::_SPECIALIZATION:
+  case K::S_SPECIALIZATION:
     return "_specialization";
 
   // PROCEDURES
-  case K::_CALL:
+  case K::S_CALL:
     return "_call";
-  case K::_NAMED_ARGUMENT:
+  case K::S_NAMED_ARGUMENT:
     return "_named_argument";
-  case K::_INDEX_INTO:
+  case K::S_INDEX_INTO:
     return "_index_into";
-  case K::_SIGNATURE_TYPE:
+  case K::S_SIGNATURE_TYPE:
     return "_signature_type";
-  case K::_DEFAULT_VALUE_PARAMETER:
+  case K::S_DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
   case K::DESTROY:
     return "destroy";
-  case K::_DESTROY_VALUE:
+  case K::S_DESTROY_VALUE:
     return "_destroy_value";
   case K::DROP:
     return "drop";
-  case K::_DROP_VALUE:
+  case K::S_DROP_VALUE:
     return "_drop_value";
   case K::EXTRACT:
     return "extract";
-  case K::_EXTRACT_OF:
+  case K::S_EXTRACT_OF:
     return "_extract_of";
   case K::MOVE:
     return "move";
-  case K::_MOVE_OF:
+  case K::S_MOVE_OF:
     return "_move_of";
   case K::ENTRY_POINT:
     return "entry_point";
@@ -611,6 +610,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "function";
   case K::METHOD:
     return "method";
+  case K::EXTENSION_FUNCTION:
+    return "extension_function";
+  case K::EXTENSION_METHOD:
+    return "extension_method";
   case K::CONSTRUCTOR:
     return "constructor";
   case K::LAYOUT_CONSTRUCTOR:
@@ -619,9 +622,9 @@ constexpr std::size_t KEYWORD_COUNT =
     return "destructor";
   case K::RANGER:
     return "ranger";
-  case K::_ANONYMOUS_FUNCTION:
+  case K::S_ANONYMOUS_FUNCTION:
     return "_anonymous_function";
-  case K::_DYNAMIC_CAPTURE:
+  case K::S_DYNAMIC_CAPTURE:
     return "_dynamic_capture";
 
   // CONTROL FLOW
@@ -657,7 +660,9 @@ constexpr std::size_t KEYWORD_COUNT =
     return "index";
   case K::DISCRIMINANT:
     return "discriminant";
-  case K::_DISCRIMINANT_OF return "_discriminant_of"; case K::IN:
+  case K::S_DISCRIMINANT_OF:
+    return "_discriminant_of";
+  case K::IN:
     return "in";
   case K::OUT:
     return "out";
@@ -737,11 +742,11 @@ constexpr std::size_t KEYWORD_COUNT =
     return "variadic_arguments";
   case K::FIRST_VARIADIC_ARGUMENT:
     return "first_variadic_argument";
-  case K::_FIRST_VARIADIC_ARGUMENT_OF:
+  case K::S_FIRST_VARIADIC_ARGUMENT_OF:
     return "_first_variadic_argument_of";
   case K::NEXT_VARIADIC_ARGUMENT:
     return "next_variadic_argument";
-  case K::_NEXT_VARIADIC_ARGUMENT_OF:
+  case K::S_NEXT_VARIADIC_ARGUMENT_OF:
     return "_next_variadic_argument_of";
 
   // SCOPES
@@ -779,31 +784,31 @@ constexpr std::size_t KEYWORD_COUNT =
     return "range";
   case K::CONTAINS:
     return "contains";
-  case K::_CONTAINS_VALUE:
+  case K::S_CONTAINS_VALUE:
     return "_contains_value";
-  case K::_SEQUENCE:
+  case K::S_SEQUENCE:
     return "_sequence";
-  case K::_SEQUENCE_STEP_ADD:
+  case K::S_SEQUENCE_STEP_ADD:
     return "_sequence_step_add";
-  case K::_SEQUENCE_STEP_SUBTRACT:
+  case K::S_SEQUENCE_STEP_SUBTRACT:
     return "_sequence_step_subtract";
-  case K::_SEQUENCE_STEP_MULTIPLY:
+  case K::S_SEQUENCE_STEP_MULTIPLY:
     return "_sequence_step_multiply";
-  case K::_SEQUENCE_STEP_DIVIDE:
+  case K::S_SEQUENCE_STEP_DIVIDE:
     return "_sequence_step_divide";
-  case K::_SEQUENCE_STEP_MODULUS:
+  case K::S_SEQUENCE_STEP_MODULUS:
     return "_sequence_step_modulus";
-  case K::_SEQUENCE_WHILE_LESS:
+  case K::S_SEQUENCE_WHILE_LESS:
     return "_sequence_while_less";
-  case K::_SEQUENCE_WHILE_GREATER:
+  case K::S_SEQUENCE_WHILE_GREATER:
     return "_sequence_while_greater";
-  case K::_SEQUENCE_WHILE_LESS_EQUAL:
+  case K::S_SEQUENCE_WHILE_LESS_EQUAL:
     return "_sequence_while_less_equal";
-  case K::_SEQUENCE_WHILE_GREATER_EQUAL:
+  case K::S_SEQUENCE_WHILE_GREATER_EQUAL:
     return "_sequence_while_greater_equal";
-  case K::_SEQUENCE_WHILE_EQUAL:
+  case K::S_SEQUENCE_WHILE_EQUAL:
     return "_sequence_while_equal";
-  case K::_SEQUENCE_WHILE_NOT_EQUAL:
+  case K::S_SEQUENCE_WHILE_NOT_EQUAL:
     return "_sequence_while_not_equal";
 
   // ACCESS MODIFIERS
@@ -825,7 +830,7 @@ constexpr std::size_t KEYWORD_COUNT =
     return "table";
   case K::MODULE:
     return "module";
-  case K::_MODULE_ROOT:
+  case K::S_MODULE_ROOT:
     return "_module_root";
 
   // ERROR HANDLING AND DEBUGGING
@@ -867,7 +872,7 @@ constexpr std::size_t KEYWORD_COUNT =
     return "inline";
   case K::MANGLED_NAME:
     return "mangled_name";
-  case K::_MANGLED_NAME_OF:
+  case K::S_MANGLED_NAME_OF:
     return "_mangled_name_of";
   case K::PACK:
     return "pack";
@@ -893,96 +898,96 @@ constexpr std::size_t KEYWORD_COUNT =
     return "expression";
   case K::EXPAND:
     return "expand";
-  case K::_EXPAND_TOP_STATEMENT:
+  case K::S_EXPAND_TOP_STATEMENT:
     return "_expand_top_statement";
-  case K::_EXPAND_TABLE_STATEMENT:
+  case K::S_EXPAND_TABLE_STATEMENT:
     return "_expand_table_statement";
-  case K::_EXPAND_OBJECT_STATEMENT:
+  case K::S_EXPAND_OBJECT_STATEMENT:
     return "_expand_object_statement";
-  case K::_EXPAND_LOCAL_STATEMENT:
+  case K::S_EXPAND_LOCAL_STATEMENT:
     return "_expand_local_statement";
-  case K::_EXPAND_LVALUE:
+  case K::S_EXPAND_LVALUE:
     return "_expand_lvalue";
-  case K::_EXPAND_RVALUE:
+  case K::S_EXPAND_RVALUE:
     return "_expand_rvalue";
-  case K::_EXPAND_REFLECTION:
+  case K::S_EXPAND_REFLECTION:
     return "_expand_reflection";
-  case K::_EXPAND_ARGUMENT:
+  case K::S_EXPAND_ARGUMENT:
     return "_expand_argument";
-  case K::_EXPAND_PARAMETER:
+  case K::S_EXPAND_PARAMETER:
     return "_expand_parameter";
-  case K::_EXPAND_ENUMERATOR:
+  case K::S_EXPAND_ENUMERATOR:
     return "_expand_enumerator";
-  case K::_EXPAND_PATH:
+  case K::S_EXPAND_PATH:
     return "_expand_path";
-  case K::_EXPAND_NAME:
+  case K::S_EXPAND_NAME:
     return "_expand_name";
-  case K::_EXPAND_SEQUENCE_STAGE:
+  case K::S_EXPAND_SEQUENCE_STAGE:
     return "_expand_sequence_stage";
-  case K::_EXPAND_VIGNETTE:
+  case K::S_EXPAND_VIGNETTE:
     return "_expand_vignette";
-  case K::_EXPAND_VIGNETTE_RVALUE:
+  case K::S_EXPAND_VIGNETTE_RVALUE:
     return "_expand_vignette_rvalue";
-  case K::_EXPAND_ARM:
+  case K::S_EXPAND_ARM:
     return "_expand_arm";
-  case K::_EXPAND_DYNAMIC_CAPTURE:
+  case K::S_EXPAND_DYNAMIC_CAPTURE:
     return "_expand_dynamic_capture";
 
   // REFLECTIONS
-  case K::_REFLECT:
+  case K::S_REFLECT:
     return "_reflect";
-  case K::_MEMBER_OF:
+  case K::S_MEMBER_OF:
     return "_member_of";
   case K::BYTE_SIZE:
     return "byte_size";
-  case K::_BYTE_SIZE_OF:
+  case K::S_BYTE_SIZE_OF:
     return "_byte_size_of";
   case K::BIT_DEPTH:
     return "bit_depth";
-  case K::_BIT_DEPTH_OF:
+  case K::S_BIT_DEPTH_OF:
     return "_bit_depth_of";
   case K::ELEMENT_COUNT:
     return "element_count";
-  case K::_ELEMENT_COUNT_OF:
+  case K::S_ELEMENT_COUNT_OF:
     return "_element_count_of";
   case K::NAME:
     return "name";
-  case K::_NAME_OF:
+  case K::S_NAME_OF:
     return "_name_of";
   case K::LINE:
     return "line";
-  case K::_LINE_OF:
+  case K::S_LINE_OF:
     return "_line_of";
   case K::COLUMN:
     return "column";
-  case K::_COLUMN_OF:
+  case K::S_COLUMN_OF:
     return "_column_of";
   case K::IS:
     return "is";
-  case K::_VALUE_IS:
+  case K::S_VALUE_IS:
     return "_value_is";
   case K::HOLDS:
     return "holds";
-  case K::_VALUE_HOLDS:
+  case K::S_VALUE_HOLDS:
     return "_value_holds";
   case K::TYPE:
     return "type";
-  case K::_TYPE_OF:
+  case K::S_TYPE_OF:
     return "_type_of";
   case K::SYMBOL:
     return "symbol";
-  case K::_SYMBOL_OF:
+  case K::S_SYMBOL_OF:
     return "_symbol_of";
   case K::SIGNATURE:
     return "signature";
-  case K::_SIGNATURE_OF:
+  case K::S_SIGNATURE_OF:
     return "_signature_of";
   case K::LAYOUT:
     return "layout";
-  case K::_LAYOUT_OF:
+  case K::S_LAYOUT_OF:
     return "_layout_of";
 
-  case K::__LAST:
+  case K::I_LAST:
     return "__last";
   }
 
@@ -1033,117 +1038,117 @@ getFlags(rq::Keyword keyword) {
   using K = Keyword;
   using KF = KeywordFlags;
   switch (keyword) {
-  case K::__NONE:
+  case K::I_NONE:
     return KF::NONE;
 
   // LITERALS
-  case K::__INTEGER_LITERAL:
+  case K::I_INTEGER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
-  case K::__FLOAT_LITERAL:
+  case K::I_FLOAT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
-  case K::__STRING_LITERAL:
+  case K::I_STRING_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
-  case K::__LEFT_INTERPOLATION_LITERAL:
+  case K::I_LEFT_INTERPOLATION_LITERAL:
     return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
            KF::ARGUMENT;
-  case K::__MIDDLE_INTERPOLATION_LITERAL:
+  case K::I_MIDDLE_INTERPOLATION_LITERAL:
     return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
            KF::RVALUE | KF::ARGUMENT;
-  case K::__RIGHT_INTERPOLATION_LITERAL:
+  case K::I_RIGHT_INTERPOLATION_LITERAL:
     return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
            KF::ARGUMENT;
-  case K::__CODEUNIT_LITERAL:
+  case K::I_CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
-  case K::__IDENTIFIER_LITERAL:
+  case K::I_IDENTIFIER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
            KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::PATH | KF::NAME;
 
   // ERRORS
-  case K::__ERROR:
+  case K::I_ERROR:
     return KF::INTERNAL;
 
   // SITUATIONAL
-  case K::_PARENTHESIS_GROUP:
+  case K::S_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE | KF::PATH |
            KF::NAME | KF::SEQUENCE_STAGE;
-  case K::_EQUAL_OPERATOR:
+  case K::S_EQUAL_OPERATOR:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::ARGUMENT | KF::PARAMETER | KF::ENUMERATOR;
-  case K::_COLON_OPERATOR:
+  case K::S_COLON_OPERATOR:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::ENUMERATOR;
-  case K::_INFERENCE:
+  case K::S_INFERENCE:
     return KF::RVALUE | KF::ARGUMENT;
 
   // LOGICAL
-  case K::_LOGICAL_AND:
+  case K::S_LOGICAL_AND:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_LOGICAL_OR:
+  case K::S_LOGICAL_OR:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_LOGICAL_COMPLEMENT:
+  case K::S_LOGICAL_COMPLEMENT:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
 
   // COMPARISON
-  case K::_GREATER:
+  case K::S_GREATER:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_GREATER_EQUAL:
+  case K::S_GREATER_EQUAL:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_LESS:
+  case K::S_LESS:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_LESS_EQUAL:
+  case K::S_LESS_EQUAL:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_EQUAL:
+  case K::S_EQUAL:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_NOT_EQUAL:
+  case K::S_NOT_EQUAL:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
 
   // APPLY
-  case K::_EXTEND:
+  case K::S_EXTEND:
     return KF::RVALUE;
-  case K::_BINDING:
+  case K::S_BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::ENUMERATOR;
-  case K::_ASCRIBE_TYPE:
+  case K::S_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
-  case K::_ASCRIBE_STATEMENT:
+  case K::S_ASCRIBE_STATEMENT:
     return KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::PARAMETER | KF::ASCRIPTION;
-  case K::_ASCRIBE_TYPE_OF_ELEMENTS:
+  case K::S_ASCRIBE_TYPE_OF_ELEMENTS:
     return KF::RVALUE | KF::ASCRIPTION;
-  case K::_CAST:
+  case K::S_CAST:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_IDENTIFY:
+  case K::S_IDENTIFY:
     return KF::PATH | KF::NAME | KF::RVALUE | KF::ARGUMENT;
 
   // ARITHMETIC
-  case K::_ADD:
+  case K::S_ADD:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_SUBTRACT:
+  case K::S_SUBTRACT:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_MULTIPLY:
+  case K::S_MULTIPLY:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_DIVIDE:
+  case K::S_DIVIDE:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_MODULUS:
+  case K::S_MODULUS:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_NEGATE:
+  case K::S_NEGATE:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
 
   // BITWISE
-  case K::_BITWISE_CAST:
+  case K::S_BITWISE_CAST:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_BITWISE_OR:
+  case K::S_BITWISE_OR:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_BITWISE_AND:
+  case K::S_BITWISE_AND:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_BITWISE_XOR:
+  case K::S_BITWISE_XOR:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
-  case K::_BITWISE_COMPLEMENT:
+  case K::S_BITWISE_COMPLEMENT:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_BITWISE_SHIFT_LEFT:
+  case K::S_BITWISE_SHIFT_LEFT:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_BITWISE_SHIFT_RIGHT:
+  case K::S_BITWISE_SHIFT_RIGHT:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BITWISE_ROTATE_LEFT:
     return KF::RVALUE | KF::ARGUMENT;
@@ -1153,49 +1158,49 @@ getFlags(rq::Keyword keyword) {
   // MEMORY
   case K::SINGLETON:
     return KF::REFLECTION;
-  case K::_SINGLETON_OF:
+  case K::S_SINGLETON_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::CONTENT:
     return KF::REFLECTION;
-  case K::_CONTENT_OF:
+  case K::S_CONTENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ADDRESS:
     return KF::REFLECTION;
-  case K::_ADDRESS_OF:
+  case K::S_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BORROW:
     return KF::REFLECTION;
-  case K::_BORROW_OF:
+  case K::S_BORROW_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   // ASSIGNMENT
-  case K::_ASSIGN:
+  case K::S_ASSIGN:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::VIGNETTE;
-  case K::_ASSIGN_ADD:
+  case K::S_ASSIGN_ADD:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
-  case K::_ASSIGN_SUBTRACT:
+  case K::S_ASSIGN_SUBTRACT:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
-  case K::_ASSIGN_MULTIPLY:
+  case K::S_ASSIGN_MULTIPLY:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
-  case K::_ASSIGN_DIVIDE:
+  case K::S_ASSIGN_DIVIDE:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
-  case K::_ASSIGN_MODULUS:
+  case K::S_ASSIGN_MODULUS:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
 
   // SUBTYPE
-  case K::_ARRAY:
+  case K::S_ARRAY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::_REFERENCE:
+  case K::S_REFERENCE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::_POINTER:
+  case K::S_POINTER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::_FAT_POINTER:
+  case K::S_FAT_POINTER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE MODIFIER
@@ -1219,84 +1224,91 @@ getFlags(rq::Keyword keyword) {
     return KF::TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
-  case K::_POSITIONAL_PARAMETERS_END:
+  case K::S_POSITIONAL_PARAMETERS_END:
     return KF::PARAMETER;
-  case K::_NAMED_PARAMETERS_BEGIN:
+  case K::S_NAMED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
 
   // BRACES
-  case K::_TUPLE:
+  case K::S_TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_LAYOUT_TYPE:
+  case K::S_LAYOUT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::_NULL:
+  case K::S_NULL:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_NULL_TYPE:
+  case K::S_NULL_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::_STRUCTURED_BINDING:
+  case K::S_STRUCTURED_BINDING:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
-  case K::_IGNORE:
+  case K::S_IGNORE:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
-  case K::_SPECIALIZATION:
+  case K::S_SPECIALIZATION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // PROCEDURES
-  case K::_CALL:
+  case K::S_CALL:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::_NAMED_ARGUMENT:
+  case K::S_NAMED_ARGUMENT:
     return KF::ARGUMENT;
-  case K::_INDEX_INTO:
+  case K::S_INDEX_INTO:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::_SIGNATURE_TYPE:
+  case K::S_SIGNATURE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::_DEFAULT_VALUE_PARAMETER:
+  case K::S_DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
   case K::DESTROY:
     return KF::REFLECTION;
-  case K::_DESTROY_VALUE:
+  case K::S_DESTROY_VALUE:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::DROP:
     return KF::REFLECTION;
-  case K::_DROP_VALUE:
+  case K::S_DROP_VALUE:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::EXTRACT:
     return KF::REFLECTION;
-  case K::_EXTRACT_OF:
+  case K::S_EXTRACT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::MOVE:
     return KF::REFLECTION;
-  case K::_MOVE_OF:
+  case K::S_MOVE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ENTRY_POINT:
-    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
-           KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::RVALUE;
   case K::FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::METHOD:
-    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+  case K::EXTENSION_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+  case K::EXTENSION_METHOD:
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::CONSTRUCTOR:
-    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT |
-           KF::REFLECTION | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT | KF::REFLECTION |
+           KF::RVALUE;
   case K::LAYOUT_CONSTRUCTOR:
     return KF::OBJECT_STATEMENT | KF::REFLECTION | KF::RVALUE;
   case K::DESTRUCTOR:
-    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT |
-           KF::REFLECTION | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT | KF::REFLECTION |
+           KF::RVALUE;
   case K::RANGER:
-    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT |
-           KF::REFLECTION | KF::RVALUE;
-  case K::_ANONYMOUS_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::OBJECT_STATEMENT | KF::REFLECTION |
+           KF::RVALUE;
+  case K::S_ANONYMOUS_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::RVALUE | KF::ARGUMENT;
-  case K::_DYNAMIC_CAPTURE:
+  case K::S_DYNAMIC_CAPTURE:
     return KF::DYNAMIC_CAPTURE;
 
   // CONTROL FLOW
@@ -1321,13 +1333,13 @@ getFlags(rq::Keyword keyword) {
 
   // DECLARED TYPES
   case K::OBJECT:
-    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
-           KF::REFLECTION | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::REFLECTION |
+           KF::RVALUE;
   case K::ENUMERATION:
-    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT |
-           KF::REFLECTION | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::REFLECTION |
+           KF::RVALUE;
 
   // VALUES;
   case K::TRUE:
@@ -1342,7 +1354,7 @@ getFlags(rq::Keyword keyword) {
     return KF::VIGNETTE_RVALUE;
   case K::DISCRIMINANT:
     return KF::REFLECTION | KF::VIGNETTE_RVALUE;
-  case K::_DISCRIMINANT_OF:
+  case K::S_DISCRIMINANT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::IN:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
@@ -1424,56 +1436,50 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::FIRST_VARIADIC_ARGUMENT:
     return KF::REFLECTION;
-  case K::_FIRST_VARIADIC_ARGUMENT_OF:
+  case K::S_FIRST_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NEXT_VARIADIC_ARGUMENT:
     return KF::REFLECTION;
-  case K::_NEXT_VARIADIC_ARGUMENT_OF:
+  case K::S_NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES
   case K::IF:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
-           KF::CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::CHAINLINK;
   case K::ELSE_IF:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
-           KF::CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::CHAINLINK;
   case K::ELSE:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
-           KF::CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::CHAINLINK;
   case K::MATCH:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::INLINE_MATCH:
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
   case K::SWITCH:
-    return KF::STATEMENT_BRANCHES | KF::ARM |
-           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::ARM | KF::LOCAL_STATEMENT |
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::CASE:
     return KF::STATEMENT_BRANCHES | KF::ARM | KF::CHAINLINK;
   case K::DEFAULT:
     return KF::STATEMENT_BRANCHES | KF::ARM | KF::CHAINLINK;
   case K::FOR:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::LOCAL_STATEMENT |
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::WHILE:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::LOCAL_STATEMENT |
+           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::SCOPE:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
-           KF::REFLECTION | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT | KF::REFLECTION |
+           KF::RVALUE;
   case K::INLINE_SCOPE:
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
   case K::BLOCK:
-    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT |
-           KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
+    return KF::STATEMENT_BRANCHES | KF::LOCAL_STATEMENT | KF::TOP_STATEMENT |
+           KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT;
   case K::INLINE_BLOCK:
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
 
@@ -1482,31 +1488,31 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CONTAINS:
     return KF::REFLECTION;
-  case K::_CONTAINS_VALUE:
+  case K::S_CONTAINS_VALUE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_SEQUENCE:
+  case K::S_SEQUENCE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::_SEQUENCE_STEP_ADD:
+  case K::S_SEQUENCE_STEP_ADD:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_STEP_SUBTRACT:
+  case K::S_SEQUENCE_STEP_SUBTRACT:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_STEP_MULTIPLY:
+  case K::S_SEQUENCE_STEP_MULTIPLY:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_STEP_DIVIDE:
+  case K::S_SEQUENCE_STEP_DIVIDE:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_STEP_MODULUS:
+  case K::S_SEQUENCE_STEP_MODULUS:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_WHILE_LESS:
+  case K::S_SEQUENCE_WHILE_LESS:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_WHILE_GREATER:
+  case K::S_SEQUENCE_WHILE_GREATER:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_WHILE_LESS_EQUAL:
+  case K::S_SEQUENCE_WHILE_LESS_EQUAL:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_WHILE_GREATER_EQUAL:
+  case K::S_SEQUENCE_WHILE_GREATER_EQUAL:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_WHILE_EQUAL:
+  case K::S_SEQUENCE_WHILE_EQUAL:
     return KF::SEQUENCE_STAGE;
-  case K::_SEQUENCE_WHILE_NOT_EQUAL:
+  case K::S_SEQUENCE_WHILE_NOT_EQUAL:
     return KF::SEQUENCE_STAGE;
 
   // ACCESS MODIFIERS
@@ -1529,11 +1535,11 @@ getFlags(rq::Keyword keyword) {
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::TABLE:
-    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT |
-           KF::TABLE_STATEMENT | KF::RVALUE | KF::REFLECTION;
+    return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::RVALUE | KF::REFLECTION;
   case K::MODULE:
     return KF::REFLECTION | KF::RVALUE;
-  case K::_MODULE_ROOT:
+  case K::S_MODULE_ROOT:
     return KF::NONE; // KF::ROOT_STATEMENT
 
   // ERROR HANDLING AND DEBUGGING
@@ -1579,7 +1585,7 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::MANGLED_NAME:
     return KF::REFLECTION | KF::STATEMENT_ATTRIBUTE;
-  case K::_MANGLED_NAME_OF:
+  case K::S_MANGLED_NAME_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
     return KF::STATEMENT_ATTRIBUTE;
@@ -1605,96 +1611,96 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXPAND:
     return KF::REFLECTION;
-  case K::_EXPAND_TOP_STATEMENT:
+  case K::S_EXPAND_TOP_STATEMENT:
     return KF::TOP_STATEMENT;
-  case K::_EXPAND_TABLE_STATEMENT:
+  case K::S_EXPAND_TABLE_STATEMENT:
     return KF::TABLE_STATEMENT;
-  case K::_EXPAND_OBJECT_STATEMENT:
+  case K::S_EXPAND_OBJECT_STATEMENT:
     return KF::OBJECT_STATEMENT;
-  case K::_EXPAND_LOCAL_STATEMENT:
+  case K::S_EXPAND_LOCAL_STATEMENT:
     return KF::LOCAL_STATEMENT;
-  case K::_EXPAND_LVALUE:
+  case K::S_EXPAND_LVALUE:
     return KF::LVALUE;
-  case K::_EXPAND_RVALUE:
+  case K::S_EXPAND_RVALUE:
     return KF::RVALUE;
-  case K::_EXPAND_REFLECTION:
+  case K::S_EXPAND_REFLECTION:
     return KF::REFLECTION;
-  case K::_EXPAND_ARGUMENT:
+  case K::S_EXPAND_ARGUMENT:
     return KF::ARGUMENT;
-  case K::_EXPAND_PARAMETER:
+  case K::S_EXPAND_PARAMETER:
     return KF::PARAMETER;
-  case K::_EXPAND_ENUMERATOR:
+  case K::S_EXPAND_ENUMERATOR:
     return KF::ENUMERATOR;
-  case K::_EXPAND_PATH:
+  case K::S_EXPAND_PATH:
     return KF::PATH;
-  case K::_EXPAND_NAME:
+  case K::S_EXPAND_NAME:
     return KF::NAME;
-  case K::_EXPAND_SEQUENCE_STAGE:
+  case K::S_EXPAND_SEQUENCE_STAGE:
     return KF::SEQUENCE_STAGE;
-  case K::_EXPAND_VIGNETTE:
+  case K::S_EXPAND_VIGNETTE:
     return KF::VIGNETTE;
-  case K::_EXPAND_VIGNETTE_RVALUE:
+  case K::S_EXPAND_VIGNETTE_RVALUE:
     return KF::VIGNETTE_RVALUE;
-  case K::_EXPAND_ARM:
+  case K::S_EXPAND_ARM:
     return KF::ARM;
-  case K::_EXPAND_DYNAMIC_CAPTURE:
+  case K::S_EXPAND_DYNAMIC_CAPTURE:
     return KF::DYNAMIC_CAPTURE;
 
   // REFLECTIONS
-  case K::_REFLECT:
+  case K::S_REFLECT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER | KF::PATH;
-  case K::_MEMBER_OF:
+  case K::S_MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PATH;
   case K::BYTE_SIZE:
     return KF::REFLECTION;
-  case K::_BYTE_SIZE_OF:
+  case K::S_BYTE_SIZE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BIT_DEPTH:
     return KF::REFLECTION;
-  case K::_BIT_DEPTH_OF:
+  case K::S_BIT_DEPTH_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ELEMENT_COUNT:
     return KF::REFLECTION;
-  case K::_ELEMENT_COUNT_OF:
+  case K::S_ELEMENT_COUNT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::NAME:
     return KF::REFLECTION;
-  case K::_NAME_OF:
+  case K::S_NAME_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::LINE:
     return KF::REFLECTION;
-  case K::_LINE_OF:
+  case K::S_LINE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::COLUMN:
     return KF::REFLECTION;
-  case K::_COLUMN_OF:
+  case K::S_COLUMN_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::IS:
     return KF::REFLECTION;
-  case K::_VALUE_IS:
+  case K::S_VALUE_IS:
     return KF::RVALUE | KF::ARGUMENT;
   case K::HOLDS:
     return KF::REFLECTION;
-  case K::_VALUE_HOLDS:
+  case K::S_VALUE_HOLDS:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION;
-  case K::_TYPE_OF:
+  case K::S_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::SYMBOL:
     return KF::REFLECTION;
-  case K::_SYMBOL_OF:
+  case K::S_SYMBOL_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::SIGNATURE:
     return KF::REFLECTION;
-  case K::_SIGNATURE_OF:
+  case K::S_SIGNATURE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::LAYOUT:
     return KF::REFLECTION;
-  case K::_LAYOUT_OF:
+  case K::S_LAYOUT_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
-  case K::__LAST:
+  case K::I_LAST:
     break;
   }
   return KF::NONE;
@@ -1733,15 +1739,13 @@ getIsInternal(rq::Keyword keyword) {
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getHasStatementBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags,
-                       rq::KeywordFlags::STATEMENT_BRANCHES);
+  return rq::getHasAll(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getHasNonStatementBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasNone(flags,
-                       rq::KeywordFlags::STATEMENT_BRANCHES);
+  return rq::getHasNone(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -1828,185 +1832,113 @@ getDescription(rq::Situation situation) {
   return "error expression";
 }
 
-template <rq::Situation SITUATION_PARAM>
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::Keyword
-getUniversalized(rq::Keyword keyword) {
+[[nodiscard]] inline constexpr rq::Keyword
+getUniversalized(rq::Keyword keyword, rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   using S = Situation;
-  constexpr S SP = SITUATION_PARAM;
-  if constexpr (SP == S::RVALUE || SP == S::ARGUMENT) {
-    switch (keyword) {
-    case K::CONTAINS:
-      return K::_CONTAINS_VALUE;
-    case K::SINGLETON:
-      return K::_SINGLETON_OF;
-    case K::CONTENT:
-      return K::_CONTENT_OF;
-    case K::ADDRESS:
-      return K::_ADDRESS_OF;
-    case K::BORROW:
-      return K::_BORROW_OF;
-    case K::EXTRACT:
-      return K::_EXTRACT_OF;
-    case K::MOVE:
-      return K::_MOVE_OF;
-    case K::DESTROY:
-      return K::_DESTROY_VALUE;
-    case K::DROP:
-      return K::_DROP_VALUE;
-    case K::FIRST_VARIADIC_ARGUMENT:
-      return K::_FIRST_VARIADIC_ARGUMENT_OF;
-    case K::NEXT_VARIADIC_ARGUMENT:
-      return K::_NEXT_VARIADIC_ARGUMENT_OF;
-    case K::MANGLED_NAME:
-      return K::_MANGLED_NAME_OF;
-    case K::EXPAND:
-      if constexpr (SP == S::RVALUE) {
-        return K::_EXPAND_RVALUE;
-      } else if constexpr (SP == S::ARGUMENT) {
-        return K::_EXPAND_ARGUMENT;
-      } else {
-        static_assert(false, "invalid situtation");
-      }
-    case K::BYTE_SIZE:
-      return K::_BYTE_SIZE_OF;
-    case K::BIT_DEPTH:
-      return K::_BIT_DEPTH_OF;
-    case K::ELEMENT_COUNT:
-      return K::_ELEMENT_COUNT_OF;
-    case K::NAME:
-      return K::_NAME_OF;
-    case K::LINE:
-      return K::_LINE_OF;
-    case K::COLUMN:
-      return K::_COLUMN_OF;
-    case K::IS:
-      return K::_VALUE_IS;
-    case K::HOLDS:
-      return K::_VALUE_HOLDS;
-    case K::TYPE:
-      return K::_TYPE_OF;
-    case K::SYMBOL:
-      return K::_SYMBOL_OF;
-    case K::SIGNATURE:
-      return K::_SIGNATURE_OF;
-    case K::LAYOUT:
-      return K::_LAYOUT_OF;
+  switch (keyword) {
+  case K::CONTAINS:
+    return K::S_CONTAINS_VALUE;
+  case K::SINGLETON:
+    return K::S_SINGLETON_OF;
+  case K::CONTENT:
+    return K::S_CONTENT_OF;
+  case K::ADDRESS:
+    return K::S_ADDRESS_OF;
+  case K::BORROW:
+    return K::S_BORROW_OF;
+  case K::EXTRACT:
+    return K::S_EXTRACT_OF;
+  case K::MOVE:
+    return K::S_MOVE_OF;
+  case K::DESTROY:
+    return K::S_DESTROY_VALUE;
+  case K::DROP:
+    return K::S_DROP_VALUE;
+  case K::FIRST_VARIADIC_ARGUMENT:
+    return K::S_FIRST_VARIADIC_ARGUMENT_OF;
+  case K::NEXT_VARIADIC_ARGUMENT:
+    return K::S_NEXT_VARIADIC_ARGUMENT_OF;
+  case K::MANGLED_NAME:
+    return K::S_MANGLED_NAME_OF;
+  case K::EXPAND:
+    switch (situation) {
+    case S::TOP_STATEMENT:
+      return K::S_EXPAND_TOP_STATEMENT;
+    case S::TABLE_STATEMENT:
+      return K::S_EXPAND_TABLE_STATEMENT;
+    case S::OBJECT_STATEMENT:
+      return K::S_EXPAND_OBJECT_STATEMENT;
+    case S::LOCAL_STATEMENT:
+      return K::S_EXPAND_LOCAL_STATEMENT;
+    case S::LVALUE:
+      return K::S_EXPAND_LVALUE;
+    case S::RVALUE:
+      return K::S_EXPAND_RVALUE;
+    case S::REFLECTION:
+      return K::S_EXPAND_REFLECTION;
+    case S::ARGUMENT:
+      return K::S_EXPAND_ARGUMENT;
+    case S::PARAMETER:
+      return K::S_EXPAND_PARAMETER;
+    case S::ENUMERATOR:
+      return K::S_EXPAND_ENUMERATOR;
+    case S::PATH:
+      return K::S_EXPAND_PATH;
+    case S::NAME:
+      return K::S_EXPAND_NAME;
+    case S::SEQUENCE_STAGE:
+      return K::S_EXPAND_SEQUENCE_STAGE;
+    case S::VIGNETTE:
+      return K::S_EXPAND_VIGNETTE;
+    case S::VIGNETTE_RVALUE:
+      return K::S_EXPAND_VIGNETTE_RVALUE;
+    case S::ARM:
+      return K::S_EXPAND_ARM;
+    case S::DYNAMIC_CAPTURE:
+      return K::S_EXPAND_DYNAMIC_CAPTURE;
     default:
       break;
     }
-  } else if constexpr (SP == S::TOP_STATEMENT) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_TOP_STATEMENT;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::TABLE_STATEMENT) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_TABLE_STATEMENT;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::OBJECT_STATEMENT) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_OBJECT_STATEMENT;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::LOCAL_STATEMENT) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_LOCAL_STATEMENT;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::LVALUE) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_LVALUE;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::RVALUE) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_RVALUE;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::REFLECTION) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_REFLECTION;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::PARAMETER) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_PARAMETER;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::ENUMERATOR) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_ENUMERATOR;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::PATH) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_PATH;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::NAME) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_NAME;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::SEQUENCE_STAGE) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_SEQUENCE_STAGE;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::ARM) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_ARM;
-    default:
-      break;
-    }
-  } else if constexpr (SP == S::DYNAMIC_CAPTURE) {
-    switch (keyword) {
-    case K::EXPAND:
-      return K::_EXPAND_DYNAMIC_CAPTURE;
-    default:
-      break;
-    }
-  } else {
-    static_assert(false, "invalid situation");
+    break;
+  case K::BYTE_SIZE:
+    return K::S_BYTE_SIZE_OF;
+  case K::BIT_DEPTH:
+    return K::S_BIT_DEPTH_OF;
+  case K::ELEMENT_COUNT:
+    return K::S_ELEMENT_COUNT_OF;
+  case K::NAME:
+    return K::S_NAME_OF;
+  case K::LINE:
+    return K::S_LINE_OF;
+  case K::COLUMN:
+    return K::S_COLUMN_OF;
+  case K::IS:
+    return K::S_VALUE_IS;
+  case K::HOLDS:
+    return K::S_VALUE_HOLDS;
+  case K::TYPE:
+    return K::S_TYPE_OF;
+  case K::SYMBOL:
+    return K::S_SYMBOL_OF;
+  case K::SIGNATURE:
+    return K::S_SIGNATURE_OF;
+  case K::LAYOUT:
+    return K::S_LAYOUT_OF;
+  default:
+    break;
   }
-  return K::__ERROR;
+  return K::I_ERROR;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsNone(rq::Keyword keyword) {
-  return keyword == rq::Keyword::__NONE;
+  return keyword == rq::Keyword::I_NONE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getCanBeRootStatement(rq::Keyword keyword) {
-  return keyword == rq::Keyword::_MODULE_ROOT;
+  return keyword == rq::Keyword::S_MODULE_ROOT;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -2128,53 +2060,53 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::DYNAMIC_CAPTURE);
 }
 
-[[nodiscard]] constexpr bool
-getCanBeSituation(rq::Keyword keyword, rq::Situation situation) {
+[[nodiscard]] constexpr bool getCanBeSituation(rq::Keyword keyword,
+                                               rq::Situation situation) {
   switch (situation) {
-    case rq::Situation::NONE:
-      return rq::getIsNone(keyword);
-    case rq::Situation::ROOT_STATEMENT:
-      return rq::getCanBeRootStatement(keyword);
-    case rq::Situation::TOP_STATEMENT:
-      return rq::getCanBeTopStatement(keyword);
-    case rq::Situation::TABLE_STATEMENT:
-      return rq::getCanBeTableStatement(keyword);
-    case rq::Situation::OBJECT_STATEMENT:
-      return rq::getCanBeObjectStatement(keyword);
-    case rq::Situation::LOCAL_STATEMENT:
-      return rq::getCanBeLocalStatement(keyword);
-    case rq::Situation::LVALUE:
-      return rq::getCanBeLValue(keyword);
-    case rq::Situation::RVALUE:
-      return rq::getCanBeRValue(keyword);
-    case rq::Situation::REFLECTION:
-      return rq::getCanBeReflection(keyword);
-    case rq::Situation::ARGUMENT:
-      return rq::getCanBeArgument(keyword);
-    case rq::Situation::PARAMETER:
-      return rq::getCanBeParameter(keyword);
-    case rq::Situation::ENUMERATOR:
-      return rq::getCanBeEnumerator(keyword);
-    case rq::Situation::PATH:
-      return rq::getCanBePath(keyword);
-    case rq::Situation::NAME:
-      return rq::getCanBeName(keyword);
-    case rq::Situation::ASCRIPTION:
-      return rq::getCanBeAscription(keyword);
-    case rq::Situation::TYPE_ATTRIBUTE:
-      return rq::getCanBeTypeAttribute(keyword);
-    case rq::Situation::STATEMENT_ATTRIBUTE:
-      return rq::getCanBeStatementAttribute(keyword);
-    case rq::Situation::SEQUENCE_STAGE:
-      return rq::getCanBeSequenceStage(keyword);
-    case rq::Situation::VIGNETTE:
-      return rq::getCanBeVignette(keyword);
-    case rq::Situation::VIGNETTE_RVALUE:
-      return rq::getCanBeVignetteRValue(keyword);
-    case rq::Situation::ARM:
-      return rq::getCanBeArm(keyword);
-    case rq::Situation::DYNAMIC_CAPTURE:
-      return rq::getCanBeDynamicCapture(keyword);
+  case rq::Situation::NONE:
+    return rq::getIsNone(keyword);
+  case rq::Situation::ROOT_STATEMENT:
+    return rq::getCanBeRootStatement(keyword);
+  case rq::Situation::TOP_STATEMENT:
+    return rq::getCanBeTopStatement(keyword);
+  case rq::Situation::TABLE_STATEMENT:
+    return rq::getCanBeTableStatement(keyword);
+  case rq::Situation::OBJECT_STATEMENT:
+    return rq::getCanBeObjectStatement(keyword);
+  case rq::Situation::LOCAL_STATEMENT:
+    return rq::getCanBeLocalStatement(keyword);
+  case rq::Situation::LVALUE:
+    return rq::getCanBeLValue(keyword);
+  case rq::Situation::RVALUE:
+    return rq::getCanBeRValue(keyword);
+  case rq::Situation::REFLECTION:
+    return rq::getCanBeReflection(keyword);
+  case rq::Situation::ARGUMENT:
+    return rq::getCanBeArgument(keyword);
+  case rq::Situation::PARAMETER:
+    return rq::getCanBeParameter(keyword);
+  case rq::Situation::ENUMERATOR:
+    return rq::getCanBeEnumerator(keyword);
+  case rq::Situation::PATH:
+    return rq::getCanBePath(keyword);
+  case rq::Situation::NAME:
+    return rq::getCanBeName(keyword);
+  case rq::Situation::ASCRIPTION:
+    return rq::getCanBeAscription(keyword);
+  case rq::Situation::TYPE_ATTRIBUTE:
+    return rq::getCanBeTypeAttribute(keyword);
+  case rq::Situation::STATEMENT_ATTRIBUTE:
+    return rq::getCanBeStatementAttribute(keyword);
+  case rq::Situation::SEQUENCE_STAGE:
+    return rq::getCanBeSequenceStage(keyword);
+  case rq::Situation::VIGNETTE:
+    return rq::getCanBeVignette(keyword);
+  case rq::Situation::VIGNETTE_RVALUE:
+    return rq::getCanBeVignetteRValue(keyword);
+  case rq::Situation::ARM:
+    return rq::getCanBeArm(keyword);
+  case rq::Situation::DYNAMIC_CAPTURE:
+    return rq::getCanBeDynamicCapture(keyword);
   }
   return false;
 }
@@ -2521,8 +2453,6 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::LINEAR;
   case TA::DYNAMIC_CAPTURE_LAYOUT:
     return TF::DYNAMIC_CAPTURE_LAYOUT;
-  default:
-    break;
   }
   return TF::NONE;
 }
@@ -2647,10 +2577,12 @@ struct is_flags<rq::ExpressionSourceFlags> final : std::true_type {};
 struct Expression final {
   using Self = rq::Expression;
 
-  rq::Keyword _keyword{rq::Keyword::__NONE};
-  rq::PtrFlags<rq::Expression*, 2, rq::ExpressionNextFlags> _next_ptr_flags{};
+  rq::Keyword _keyword{rq::Keyword::I_NONE};
+  rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextFlags>
+      _next_ptr_flags{};
   rq::Expression *_branch_ptr{nullptr};
-  rq::PtrFlags<const char*, 1, rq::ExpressionSourceFlags> _source_ptr_flags{};
+  rq::PtrWithFlags<const char, 1, rq::ExpressionSourceFlags>
+      _source_ptr_flags{};
   unsigned _source_text_length{0};
 
   Expression() = default;
@@ -2677,12 +2609,12 @@ struct Expression final {
   }
   RQ_ALWAYS_INLINE void clear() { std::memset(this, 0, sizeof(*this)); }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_keyword == rq::Keyword::__NONE,
+    RQ_ASSERT(this->_keyword == rq::Keyword::I_NONE,
               "keyword must not already be set");
     this->_keyword = keyword;
   }
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_keyword != rq::Keyword::__NONE,
+    RQ_ASSERT(this->_keyword != rq::Keyword::I_NONE,
               "keyword must already be set");
     this->_keyword = keyword;
   }
@@ -2776,57 +2708,54 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeDynamicCapture() const {
     return rq::getCanBeDynamicCapture(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSituation(
-      rq::Situation situation) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getCanBeSituation(rq::Situation situation) const {
     return rq::getCanBeSituation(this->getKeyword(), situation);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
-    return rq::getHasAll(
-        this->_source_ptr_flags.getFlags(),
-        rq::ExpressionSourceFlags::INSERTED);
+    return rq::getHasAll(this->_source_ptr_flags.getFlags(),
+                         rq::ExpressionSourceFlags::INSERTED);
   }
   RQ_ALWAYS_INLINE void setIsInserted() {
-    this->_source_ptr_flags.addFlags(
-        rq::ExpressionSourceFlags::INSERTED);
+    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::INSERTED);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBold() const {
-    return rq::getHasAll(
-        this->_next_ptr_flags.getFlags(),
-        rq::ExpressionNextFlags::BOLD);
+    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
+                         rq::ExpressionNextFlags::BOLD);
   }
   void RQ_ALWAYS_INLINE setIsBold() {
     this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::BOLD);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
-    return rq::getHasAll(
-        this->_next_ptr_flags.getFlags(),
-        rq::ExpressionNextFlags::CHAINLINK);
+    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
+                         rq::ExpressionNextFlags::CHAINLINK);
   }
   void RQ_ALWAYS_INLINE setIsChainLink() {
     this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::CHAINLINK);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
-    return this->_source_text_ptr != nullptr;
+    return this->_source_ptr_flags.getPtr() != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
-    return llvm::StringRef(this->_source_text_ptr, this->_source_text_length);
+    return llvm::StringRef(this->_source_ptr_flags.getPtr(),
+                           this->_source_text_length);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const char *getSourceTextPtr() const {
-    return this->_source_text_ptr;
+    return this->_source_ptr_flags.getPtr();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSourceTextLength() const {
     return this->_source_text_length;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceStart() const {
-    return llvm::SMLoc::getFromPointer(this->_source_text_ptr);
+    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBefore() const {
-    return llvm::SMLoc::getFromPointer(this->_source_text_ptr - 1);
+    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() - 1);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
-    return llvm::SMLoc::getFromPointer(this->_source_text_ptr +
+    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() +
                                        this->_source_text_length);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
@@ -2835,8 +2764,8 @@ struct Expression final {
   RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
     RQ_ASSERT(!source.empty(), "source text is empty");
-    this->_source_text_ptr = source.data();
-    this->_source_text_length = source.size();
+    this->_source_ptr_flags.setPtr(source.data());
+    this->_source_text_length = static_cast<unsigned>(source.size());
   }
   template <typename SourceParam>
   RQ_ALWAYS_INLINE void setSource(const SourceParam &source) {
@@ -2846,16 +2775,17 @@ struct Expression final {
   inline void setSource(const FirstSourceParam &first,
                         const LastSourceParam &last) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
-    rq::assignSingleValue(this->_source_text_ptr, first.getSourceTextPtr());
+    rq::assignSingleValue(this->_source_ptr_flags.getPtr(),
+                          first.getSourceTextPtr());
     this->_source_text_length = rq::getSourceLengthBetween(first, last);
   }
   template <typename SourceParam>
   inline void extendSourceOver(const SourceParam &source) {
     RQ_ASSERT(this->getHasSourceText(), "expression source not set");
-    if (source.getSourceTextPtr() >= this->_source_text_ptr) {
+    if (source.getSourceTextPtr() >= this->_source_ptr_flags.getPtr()) {
       this->_source_text_length = rq::getSourceLengthBetween(*this, source);
     } else {
-      this->_source_text_ptr = source.getSourceTextPtr();
+      this->_source_ptr_flags.setPtr(source.getSourceTextPtr());
       this->_source_text_length = rq::getSourceLengthBetween(source, *this);
     }
   }
@@ -2872,13 +2802,7 @@ struct Expression final {
     return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
   }
   RQ_ALWAYS_INLINE void setSourceAt(const char *source_ptr) {
-    RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
-#if defined(_NDEBUG)
-    this->_next_ptr.setInt(true);
-#else
-    this->_is_inserted = true;
-#endif
-    rq::assignSingleValue(this->_source_text_ptr, source_ptr);
+    rq::assignSingleValue(this->_source_ptr_flags.getPtr(), source_ptr);
   }
   template <typename SourceParam>
   RQ_ALWAYS_INLINE void setSourceBefore(const SourceParam &source) {
@@ -2900,20 +2824,20 @@ struct Expression final {
     return rq::dereferencePtr(this->_branch_ptr);
   }
   RQ_ALWAYS_INLINE rq::Expression &getNext() {
-    return this->_next_ptr_flags.getRef();
+    return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
   }
   RQ_ALWAYS_INLINE const rq::Expression &getNext() const {
-    return this->_next_ptr_flags.getRef();
+    return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
   }
   RQ_ALWAYS_INLINE rq::Expression *getBranchPtr() { return this->_branch_ptr; }
   RQ_ALWAYS_INLINE const rq::Expression *getBranchPtr() const {
     return this->_branch_ptr;
   }
   RQ_ALWAYS_INLINE rq::Expression *getNextPtr() {
-    return this->_next_ptr_flags.getPointer();
+    return this->_next_ptr_flags.getPtr();
   }
   RQ_ALWAYS_INLINE const rq::Expression *getNextPtr() const {
-    return this->_next_ptr_flags.getPointer();
+    return this->_next_ptr_flags.getPtr();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastNext() {
     rq::Expression *expression_ptr = this;
@@ -2949,13 +2873,13 @@ struct Expression final {
     rq::assignSingleValue(this->_branch_ptr, &branch);
   }
   RQ_ALWAYS_INLINE void setNext(rq::Expression &next) {
-    this->_next_ptr_flags.assignSingleValue(&next);
+    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
   }
   RQ_ALWAYS_INLINE void setBranch(rq::Expression *branch_ptr) {
     rq::assignSingleValue(this->_branch_ptr, branch_ptr);
   }
   RQ_ALWAYS_INLINE void setNext(rq::Expression *next_ptr) {
-    this->_next_ptr_flags.assignSingleValue(next_ptr);
+    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), next_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceBranch(rq::Expression &branch) {
@@ -2989,7 +2913,7 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression &next) {
-    rq::Expression *replaced_next_ptr = this->_next_ptr.getPtr();
+    rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(&next);
     return replaced_next_ptr;
   }
@@ -3001,8 +2925,8 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression *next_ptr) {
-    rq::Expression *replaced_next_ptr = this->_next_ptr.getPtr();
-    this->_next_ptr_flags.setPtr(&next);
+    rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
+    this->_next_ptr_flags.setPtr(next_ptr);
     return replaced_next_ptr;
   }
   RQ_ALWAYS_INLINE bool getHasBranch() const {
@@ -3032,7 +2956,7 @@ struct Expression final {
     RQ_ASSERT(this->getHasNext(), "does not have next");
     rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(nullptr);
-    return *old_next_ptr;
+    return old_next_ptr;
   }
   inline rq::Expression &mergeAndPopBranch() {
     rq::Expression &branch = this->popBranch();

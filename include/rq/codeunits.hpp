@@ -1650,7 +1650,7 @@ getIsNumeric(char codeunit) {
   return rq::getHasAll(flags, rq::CodeunitFlags::NUMERIC);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr unsigned char
+[[nodiscard]] RQ_ALWAYS_INLINE std::underlying_type_t<rq::CodeunitFlags>
 getDigitBaseMultiplier(char codeunit) {
   RQ_ASSERT(rq::getIsDigit(codeunit), "codeunit not digit");
   const rq::CodeunitFlags flags = rq::getFlags(codeunit);
@@ -1718,7 +1718,7 @@ getIsIdentifierBody(char codeunit) {
   return (codeunit & rq::CHAR_EXTENDED_BIT) == rq::CHAR_EXTENDED_BIT;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr unsigned char
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<rq::CodeunitFlags>
 getExtendedStartCount(char codeunit) {
   RQ_ASSERT(rq::getIsExtended(codeunit), "codeunit not extended");
   const rq::CodeunitFlags flags = rq::getFlags(codeunit);

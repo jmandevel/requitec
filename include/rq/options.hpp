@@ -15,7 +15,7 @@ enum Emit {
     EMIT_OBJECT
 };
 
-[[nodiscard]] bool parseCommandLineOptions(unsigned argc, const char** argv);
+[[nodiscard]] bool parseCommandLineOptions(int argc, const char** argv);
 
 [[nodiscard]] llvm::StringRef getInputFilePath();
 
@@ -26,9 +26,5 @@ enum Emit {
 [[nodiscard]] rq::Emit getEmitMode();
 
 [[nodiscard]] bool getNoComment();
-
-[[nodiscard]] bool getIsNormativeRequiteOk();
-
-[[nodiscard]] bool getIsIntermediateRequiteOk();
 
 }

@@ -49,9 +49,12 @@ void Situator::logErrorInvalidBranchSituation(
       {branch.getLlvmSourceRange()}, {});
 }
 void Situator::situateModule(rq::Module &module) {
+  std::ignore = module;
   // TODO
 }
 void Situator::situateTree(rq::Situation situation, rq::Expression &expression) {
+  std::ignore = situation;
+  std::ignore = expression;
   // TODO
 }
 

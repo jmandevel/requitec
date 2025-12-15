@@ -11,8 +11,8 @@ namespace rq {
 struct TokenRanger final {
   using Self = rq::TokenRanger;
 
-  std::vector<rq::Token>::const_iterator _it;
-  std::vector<rq::Token>::const_iterator _end;
+  const rq::Token* _it;
+  const rq::Token* _end;
 
   TokenRanger(llvm::ArrayRef<rq::Token> tokens)
       : _it(tokens.begin()), _end(tokens.end()) {}
@@ -267,7 +267,7 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence2();
   [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
-  [[nodiscard]] void parseNonStatementBranches(rq::Expression &operation, rq::TokenKind end);
+  void parseNonStatementBranches(rq::Expression &operation, rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();

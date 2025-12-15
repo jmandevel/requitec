@@ -17,6 +17,7 @@
 #include <llvm/Support/Path.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/TargetParser/Host.h>
+#include <llvm/TargetParser/Triple.h>
 
 #include <system_error>
 #include <utility>
@@ -79,7 +80,7 @@ void Context::initializeKeywordMap() {
 }
 
 rq::SourceLocation Context::getSourceLocation(llvm::SMLoc llvm_location) {
-  const int buffer_i =
+  const unsigned buffer_i =
       this->_llvm_source_mgr.FindBufferContainingLoc(llvm_location);
   auto line_and_column =
       this->_llvm_source_mgr.getLineAndColumn(llvm_location, buffer_i);
@@ -96,7 +97,7 @@ rq::Keyword Context::getKeyword(llvm::Twine name) {
   llvm::StringMapIterator<rq::Keyword> it =
       this->_keyword_map.find(name.toStringRef(buffer));
   if (it == this->_keyword_map.end()) {
-    return rq::Keyword::__NONE;
+    return rq::Keyword::I_NONE;
   }
   return it->getValue();
 }
@@ -252,8 +253,8 @@ bool Context::initializeLlvm() {
   llvm::TargetOptions options;
   this->_llvm_target_machine_ptr =
       rq::dereferencePtr(target_ptr)
-          .createTargetMachine(target_triple, "generic", "", options,
-                               llvm::Reloc::PIC_);
+          .createTargetMachine(llvm::Triple(target_triple), "generic", "",
+                               options, llvm::Reloc::PIC_);
   return true;
 }
 
@@ -569,7 +570,7 @@ void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
 
 void Context::logErrorUnexpectedParameterMark(
     const rq::Expression &expression) {
-  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
                    "invalid parameter mark", {expression.getLlvmSourceRange()},
                    {});
 }

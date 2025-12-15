@@ -15,8 +15,8 @@
 
 namespace rq {
 
-struct _AssertException final : public std::logic_error {
-  _AssertException(
+struct AssertException final : public std::logic_error {
+  AssertException(
       std::string_view snippet, std::string_view reason,
       std::source_location source_location = std::source_location::current())
       : std::logic_error(std::format("{} in \"{}\" at: {}:{}\n\t\"{}\"", reason,
@@ -38,11 +38,11 @@ struct _AssertException final : public std::logic_error {
 #if !defined(_NDEBUG)
 #define RQ_ASSERT(condition, reason)                                           \
   if (!(condition)) {                                                          \
-    throw rq::_AssertException(#condition, reason);                            \
+    throw rq::AssertException(#condition, reason);                            \
   }
 #define RQ_ASSERT_LOCATION(condition, reason, location)                        \
   if (!(condition)) {                                                          \
-    throw rq::_AssertException(#condition, reason, location);                  \
+    throw rq::AssertException(#condition, reason, location);                  \
   }
 #else
 #define RQ_ASSERT(condition, reason)
@@ -51,14 +51,14 @@ struct _AssertException final : public std::logic_error {
 
 #if !defined(_NDEBUG)
 #define RQ_UNREACHABLE()                                                       \
-  throw rq::_AssertException("RQ_UNREACHABLE()", "unreachable code detected");
+  throw rq::AssertException("RQ_UNREACHABLE()", "unreachable code detected");
 #else
 #define RQ_UNREACHABLE() std::unreachable()
 #endif
 
 #if !defined(_NDEBUG)
 #define RQ_TODO_IMPLEMENTATION()                                               \
-  throw rq::_AssertException("RQ_NOT_IMPLEMENTED()", "not implemented yet");
+  throw rq::AssertException("RQ_NOT_IMPLEMENTED()", "not implemented yet");
 #else
 #define RQ_NOT_IMPLEMENTED() std::unreachable()
 #endif
@@ -181,6 +181,22 @@ operator^(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
 }
 
 template <rq::flags FlagsParam>
+RQ_ALWAYS_INLINE constexpr FlagsParam& operator|=(FlagsParam& lhs,
+                                                              FlagsParam rhs) {
+  lhs = static_cast<FlagsParam>(rq::getUnderlying(lhs) |
+                                 rq::getUnderlying(rhs));
+  return lhs;
+}
+
+template <rq::flags FlagsParam>
+RQ_ALWAYS_INLINE constexpr FlagsParam& operator&=(FlagsParam& lhs,
+                                                              FlagsParam rhs) {
+  lhs = static_cast<FlagsParam>(rq::getUnderlying(lhs) &
+                                 rq::getUnderlying(rhs));
+  return lhs;
+}
+
+template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator<<(FlagsParam lhs,
                                                                FlagsParam rhs) {
   return static_cast<FlagsParam>(rq::getUnderlying(lhs)
@@ -258,8 +274,6 @@ struct ErrorCategory final : public std::error_category {
     switch (static_cast<rq::Error>(ec)) {
     case rq::Error::OK:
       return "ok";
-    default:
-      break;
     }
     return "unrecognized error";
   }
@@ -275,11 +289,11 @@ struct ErrorCategory final : public std::error_category {
 }
 
 template<typename TypeParam, unsigned FLAG_BITS_PARAM, typename FlagsParam>
-struct PtrFlags {
-  using TypeAttribute = TypeParam;
+struct PtrWithFlags {
+  using Type = TypeParam;
   static constexpr unsigned FLAG_BITS = FLAG_BITS_PARAM;
   using Flags = FlagsParam;
-  using Self = rq::FlagsParam<Type, FLAG_BITS, Flags>;
+  using Self = rq::PtrWithFlags<Type, FLAG_BITS, Flags>;
 #if defined(_NDEBUG)
   llvm::PointerIntPair<Type*, FLAG_BITS, Flags> _ptr_int_pair;
 #else
@@ -287,31 +301,25 @@ struct PtrFlags {
   Flags _flags{};
 #endif
 
-  PtrFlags() = default;
-  PtrFlags(const Self &) = default;
-  PtrFlags(Self &&) = default;
-  ~PtrFlags() = default;
+  PtrWithFlags() = default;
+  PtrWithFlags(const Self &) = default;
+  PtrWithFlags(Self &&) = default;
+  ~PtrWithFlags() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE const Type* getPtr() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE Type* const& getPtr() const {
+#if defined(_NDEBUG)
+    return this->_ptr_int_pair.getPointer();
+#else
+    return this->_ptr;
+#endif
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Type*& getPtr() {
 #if defined(_NDEBUG)
     return _ptr_int_pair.getPointer();
 #else
     return _ptr;
 #endif
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE Type* getPtr() {
-#if defined(_NDEBUG)
-    return _ptr_int_pair.getPointer();
-#else
-    return _ptr;
-#endif
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Type& getRef() const {
-    return rq::dereferencePtr(this->getPtr());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE Type& getRef() {
-    return rq::dereferencePtr(this->getPtr());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Flags getFlags() const {
 #if defined(_NDEBUG)
@@ -326,10 +334,6 @@ struct PtrFlags {
 #else
     this->_ptr = ptr;
 #endif
-  }
-  RQ_ALWAYS_INLINE void assignSingleValue(Type* ptr) {
-    RQ_ASSERT(this->getPtr() == nullptr, "single value reassignment");
-    this->setPtr(ptr);
   }
   RQ_ALWAYS_INLINE void addFlags(Flags flags) {
 #if defined(_NDEBUG)

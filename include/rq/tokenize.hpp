@@ -71,7 +71,8 @@ struct SourceRanger final {
     RQ_ASSERT(this->_sub_start != nullptr, "sub token not started");
     RQ_ASSERT(this->_current > this->_sub_start,
               "current token before sub token start");
-    rq::Token token(kind, this->_sub_start, this->_current - this->_sub_start);
+    rq::Token token(kind, this->_sub_start,
+                    static_cast<unsigned>(this->_current - this->_sub_start));
     return token;
   }
 
@@ -198,10 +199,10 @@ struct Tokenizer final {
   [[nodiscard]] bool tokenizeSourceText();
   void tokenizeLengthToken(rq::TokenKind kind, unsigned length);
   void tokenizeUnmatchedLengthToken(rq::TokenKind kind, unsigned length);
-  void tokenizeLeftGrouping(rq::GroupingKind grouping_kind, rq::TokenKind token_kind,
-                            unsigned length);
-  void tokenizeRightGrouping(rq::GroupingKind grouping_kind, rq::TokenKind token_kind,
-                             unsigned length);
+  void tokenizeLeftGrouping(rq::GroupingKind grouping_kind,
+                            rq::TokenKind token_kind, unsigned length);
+  void tokenizeRightGrouping(rq::GroupingKind grouping_kind,
+                             rq::TokenKind token_kind, unsigned length);
   void checkFinalGroupings();
   void logErrorUnmatchedRightToken(const rq::Token &token);
   template <bool CAN_HAVE_INTERPOLATION_PARAM, char END_QUOTE_PARAM,
