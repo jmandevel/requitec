@@ -2111,6 +2111,12 @@ getCanBeVignette(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::VIGNETTE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeVignetteRValue(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::VIGNETTE_RVALUE);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getCanBeArm(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARM);
@@ -2122,55 +2128,55 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::DYNAMIC_CAPTURE);
 }
 
-template <rq::Situation SITUATION_PARAM>
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeSituation(rq::Keyword keyword) {
-  if constexpr (SITUATION_PARAM == rq::Situation::NONE) {
-    return rq::getIsNone(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::ROOT_STATEMENT) {
-    return rq::getCanBeRootStatement(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::TOP_STATEMENT) {
-    return rq::getCanBeTopStatement(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::TABLE_STATEMENT) {
-    return rq::getCanBeTableStatement(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::OBJECT_STATEMENT) {
-    return rq::getCanBeObjectStatement(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::LOCAL_STATEMENT) {
-    return rq::getCanBeLocalStatement(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::LVALUE) {
-    return rq::getCanBeLValue(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::RVALUE) {
-    return rq::getCanBeRValue(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::REFLECTION) {
-    return rq::getCanBeReflection(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::ARGUMENT) {
-    return rq::getCanBeArgument(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::PARAMETER) {
-    return rq::getCanBeParameter(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::ENUMERATOR) {
-    return rq::getCanBeEnumerator(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::PATH) {
-    return rq::getCanBePath(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::NAME) {
-    return rq::getCanBeName(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::ASCRIPTION) {
-    return rq::getCanBeAscription(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::TYPE_ATTRIBUTE) {
-    return rq::getCanBeTypeAttribute(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::STATEMENT_ATTRIBUTE) {
-    return rq::getCanBeStatementAttribute(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::SEQUENCE_STAGE) {
-    return rq::getCanBeSequenceStage(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::ARM) {
-    return rq::getCanBeArm(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::VIGNETTE) {
-    return rq::getCanBeVignette(keyword);
-  } else if constexpr (SITUATION_PARAM == rq::Situation::DYNAMIC_CAPTURE) {
-    return rq::getCanBeDynamicCapture(keyword);
-  } else {
-    static_assert(
-        false, "invalid situation or function not implemented for situation");
+[[nodiscard]] constexpr bool
+getCanBeSituation(rq::Keyword keywo d, rq::Situation situation) {
+  switch (situation) {
+    case rq::Situation::NONE:
+      return rq::getIsNone(keyword);
+    case rq::Situation::ROOT_STATEMENT:
+      return rq::getCanBeRootStatement(keyword);
+    case rq::Situation::TOP_STATEMENT:
+      return rq::getCanBeTopStatement(keyword);
+    case rq::Situation::TABLE_STATEMENT:
+      return rq::getCanBeTableStatement(keyword);
+    case rq::Situation::OBJECT_STATEMENT:
+      return rq::getCanBeObjectStatement(keyword);
+    case rq::Situation::LOCAL_STATEMENT:
+      return rq::getCanBeLocalStatement(keyword);
+    case rq::Situation::LVALUE:
+      return rq::getCanBeLValue(keyword);
+    case rq::Situation::RVALUE:
+      return rq::getCanBeRValue(keyword);
+    case rq::Situation::REFLECTION:
+      return rq::getCanBeReflection(keyword);
+    case rq::Situation::ARGUMENT:
+      return rq::getCanBeArgument(keyword);
+    case rq::Situation::PARAMETER:
+      return rq::getCanBeParameter(keyword);
+    case rq::Situation::ENUMERATOR:
+      return rq::getCanBeEnumerator(keyword);
+    case rq::Situation::PATH:
+      return rq::getCanBePath(keyword);
+    case rq::Situation::NAME:
+      return rq::getCanBeName(keyword);
+    case rq::Situation::ASCRIPTION:
+      return rq::getCanBeAscription(keyword);
+    case rq::Situation::TYPE_ATTRIBUTE:
+      return rq::getCanBeTypeAttribute(keyword);
+    case rq::Situation::STATEMENT_ATTRIBUTE:
+      return rq::getCanBeStatementAttribute(keyword);
+    case rq::Situation::SEQUENCE_STAGE:
+      return rq::getCanBeSequenceStage(keyword);
+    case rq::Situation::VIGNETTE:
+      return rq::getCanBeVignette(keyword);
+    case rq::Situation::VIGNETTE_RVALUE:
+      return rq::getCanBeVignetteRValue(keyword);
+    case rq::Situation::ARM:
+      return rq::getCanBeArm(keyword);
+    case rq::Situation::DYNAMIC_CAPTURE:
+      return rq::getCanBeDynamicCapture(keyword);
   }
+  return false;
 }
 
 enum class StatementAttribute : std::uint_fast8_t {
@@ -2758,11 +2764,21 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSequenceStage() const {
     return rq::getCanBeSequenceStage(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeVignette() const {
+    return rq::getCanBeVignette(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeVignetteRValue() const {
+    return rq::getCanBeVignetteRValue(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArm() const {
     return rq::getCanBeArm(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeDynamicCapture() const {
     return rq::getCanBeDynamicCapture(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSituation(
+      rq::Situation situation) const {
+    return rq::getCanBeSituation(this->getKeyword(), situation);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
