@@ -47,7 +47,8 @@ struct Situator final {
       rq::Situation situation, rq::Situation branch_situation,
       rq::Expression &branch, rq::Keyword outer_keyword,
       rq::Keyword branch_keyword, unsigned branch_i, llvm::Twine log_context);
-  void situateTree(rq::Situation situation, rq::Module &module);
+  void situateModule(rq::Module &module);
+  void situateTree(rq::Situation situation, rq::Expression &expression);
 };
 
 } // namespace rq

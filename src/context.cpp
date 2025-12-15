@@ -348,7 +348,7 @@ bool Context::parseRequite(rq::Module &module,
 
 bool Context::situateAst(rq::Module &module) {
   rq::Situator situator(*this, this->getTopStaticFrame());
-  situator.situateTree(rq::Situation::ROOT_STATEMENT, module);
+  situator.situateModule(module);
   return situator.getIsOk();
 }
 
