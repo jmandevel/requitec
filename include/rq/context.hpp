@@ -144,9 +144,9 @@ struct Context final {
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool
-  situateModule(rq::Module &module,
+  parseRequite(rq::Module &module,
                         const std::vector<rq::Token> &tokens);
-  [[nodiscard]] bool situateAst(rq::Module &module);
+  [[nodiscard]] bool situateModule(rq::Module &module);
   [[nodiscard]] bool tabulateModule(rq::Module& module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
