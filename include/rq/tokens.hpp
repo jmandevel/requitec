@@ -831,7 +831,7 @@ struct Token final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionEnd() const {
     return rq::getIsExpressionEnd(this->getKind());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceStart() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBegin() const {
     return llvm::SMLoc::getFromPointer(this->_lexume_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
@@ -839,7 +839,7 @@ struct Token final {
                                        this->_lexume_length);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
-    return llvm::SMRange(this->getLlvmSourceStart(), this->getLlvmSourceEnd());
+    return llvm::SMRange(this->getLlvmSourceBegin(), this->getLlvmSourceEnd());
   }
   void RQ_ALWAYS_INLINE setUnmatched() {
     this->_kind = rq::getUnmatched(this->_kind);

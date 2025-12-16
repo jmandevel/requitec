@@ -195,7 +195,7 @@ struct Context final {
   void logErrorSoloRightToken(const rq::Token &token);
   void logErrorUnterminatedStringLiteral(const rq::Token &token);
   void logErrorUnmatchedLeftToken(const rq::Token &token);
-  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token, const rq::Token &front_token, const rq::Expression &operation);
+  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token, const rq::Token &front_token, const rq::Expression &expression);
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
@@ -203,6 +203,7 @@ struct Context final {
   void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
+  void logErrorExpressionShouldNeverOccur(const rq::Expression& expression);
   void logErrorInvalidBranchSituation(
       rq::Expression &branch, rq::Situation situation,
       rq::Situation branch_situation, rq::Keyword outer_keyword,

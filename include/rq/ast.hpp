@@ -2766,10 +2766,7 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSourceTextLength() const {
     return this->_source_text_length;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceStart() const {
-    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBefore() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBegin() const {
     return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() - 1);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
@@ -2777,7 +2774,7 @@ struct Expression final {
                                        this->_source_text_length);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
-    return llvm::SMRange(this->getLlvmSourceStart(), this->getLlvmSourceEnd());
+    return llvm::SMRange(this->getLlvmSourceBegin(), this->getLlvmSourceEnd());
   }
   RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");

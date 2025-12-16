@@ -12,10 +12,9 @@
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/MemoryBufferRef.h>
 #include <llvm/Support/Allocator.h>
+#include <llvm/Support/MemoryBufferRef.h>
 #include <llvm/Support/StringSaver.h>
-
 
 #include <bit>
 #include <cstdint>
@@ -72,10 +71,10 @@ struct StaticValue {
 
 struct Node;
 
-using EntryPtr = llvm::PointerUnion<rq::StaticValue*, rq::Node *>;
+using EntryPtr = llvm::PointerUnion<rq::StaticValue *, rq::Node *>;
 
 struct Node final {
-  rq::StaticValue* _this_ptr{nullptr};
+  rq::StaticValue *_this_ptr{nullptr};
   llvm::PointerIntPair<rq::EntryPtr, 1> _next_ptr{nullptr};
 };
 
@@ -108,21 +107,21 @@ struct Procedure final : public rq::Table {
   const rq::Expression *_expression_ptr{nullptr};
 
   Procedure(rq::ValueKind kind) : rq::Table(kind) {}
-  Procedure(const Self&) = delete;
-  Procedure(Self&&) = delete;
+  Procedure(const Self &) = delete;
+  Procedure(Self &&) = delete;
   ~Procedure() override = default;
-  Self& operator=(const Self&) = delete;
-  Self& operator=(Self&&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self& rhs) const {
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this == &rhs;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(Self&& rhs) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(Self &&rhs) const {
     return this != &rhs;
   }
-  void setExpression(const rq::Expression& expression) {
+  void setExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getExpression() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
 };
@@ -168,7 +167,10 @@ struct Module final : public rq::StaticValue {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
     return this->_path;
   }
-  llvm::StringRef getSourceText() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
+    return this->_llvm_buffer_ref.getBufferSize() != 0;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     return this->_llvm_buffer_ref.getBuffer();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
@@ -183,6 +185,11 @@ struct Module final : public rq::StaticValue {
   RQ_ALWAYS_INLINE void changeExpression(rq::Expression &expression) {
     RQ_ASSERT(this->_expression_ptr != nullptr, "no expression");
     this->_expression_ptr = &expression;
+  }
+  [[nodiscard]] rq::Expression &popExpression() {
+    rq::Expression &expression = rq::dereferencePtr(this->_expression_ptr);
+    this->_expression_ptr = nullptr;
+    return expression;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
@@ -305,7 +312,7 @@ cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
 
 template <typename NumericParam>
 [[nodiscard]] inline rq::NumericResult getNumericValue(llvm::StringRef text,
-                                                      NumericParam &ost_term) {
+                                                       NumericParam &ost_term) {
   using Numeric = NumericParam;
   text = text.trim();
   if (text.empty()) {
@@ -440,9 +447,9 @@ template <typename NumericParam>
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::NumericResult getNumericValue(llvm::StringRef text,
-                                                      llvm::APFloat &ost_term,
-                                                      rq::ValueKind semantics) {
+[[nodiscard]] inline rq::NumericResult
+getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
+                rq::ValueKind semantics) {
   llvm::SmallString<16> buffer;
   rq::NumericResult result = rq::cleanFloatText(text, buffer);
   if (result != rq::NumericResult::OK) {
@@ -453,7 +460,6 @@ template <typename NumericParam>
   ost_term = llvm::APFloat(llvm_semantics, buffer);
   return result;
 }
-
 
 struct Token;
 struct Expression;
@@ -495,10 +501,8 @@ struct StaticFrame final {
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
   void replaceWithRecursiveCopy(rq::Expression &initial,
                                 rq::Expression &replacement);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Table& getTable() {
-    return this->_table;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table& getTable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Table &getTable() { return this->_table; }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &getTable() const {
     return this->_table;
   }
 };

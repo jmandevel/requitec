@@ -36,8 +36,12 @@ struct Situator final {
   }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
+  [[nodiscard]] rq::Expression &makeModuleRoot(rq::Module& module);
   void situateModule(rq::Module &module);
   void situateTree(rq::Situation situation, rq::Expression &expression);
+  void situateBranch(rq::Situation situation, rq::Expression& expression, rq::Situation branch_situation, rq::Expression& branch, unsigned branch_i, llvm::StringRef log_context);
+  void situateNullaryExpression(rq::Situation situation, rq::Expression& expression);
+  void situateUnaryExpression(rq::Situation situation, rq::Expression& expression, rq::Situation branch0_situation);
 };
 
 } // namespace rq

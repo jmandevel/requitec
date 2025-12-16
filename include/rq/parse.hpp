@@ -50,7 +50,7 @@ struct Token;
 struct ForestBuilder final {
   using Self = rq::ForestBuilder;
 
-  rq::Expression *_operation_ptr = nullptr;
+  rq::Expression *_expression_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
   ForestBuilder() = default;
@@ -59,23 +59,23 @@ struct ForestBuilder final {
   ~ForestBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
-    return this->_operation_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
+    return this->_expression_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setOperation(rq::Expression &operation) {
-    rq::assignSingleValue(this->_operation_ptr, &operation);
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+    rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getOperation() {
-    return rq::dereferencePtr(this->_operation_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOperation() const {
-    return rq::dereferencePtr(this->_operation_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getOperationPtr() {
-    return this->_operation_ptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr() {
+    return this->_expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getOperationPtr() const {
-    return this->_operation_ptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const {
+    return this->_expression_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
     return this->_last_ptr != nullptr;
@@ -95,7 +95,7 @@ struct ForestBuilder final {
 struct TreeBuilder final {
   using Self = rq::TreeBuilder;
 
-  rq::Expression *_operation_ptr = nullptr;
+  rq::Expression *_expression_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
   TreeBuilder() = default;
@@ -104,17 +104,17 @@ struct TreeBuilder final {
   ~TreeBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
-    return this->_operation_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
+    return this->_expression_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setOperation(rq::Expression &operation) {
-    rq::assignSingleValue(this->_operation_ptr, &operation);
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+    rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getOperation() {
-    return rq::dereferencePtr(this->_operation_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOperation() const {
-    return rq::dereferencePtr(this->_operation_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
     return this->_last_ptr != nullptr;
@@ -130,7 +130,7 @@ struct TreeBuilder final {
   }
   void startTree(rq::Expression &trunk);
   void appendBranch(rq::Expression &branch);
-  void finishOperation(const rq::Token &last_token);
+  void finishExpression(const rq::Token &last_token);
 };
 
 struct PrecedenceBuilder final {
@@ -138,14 +138,14 @@ struct PrecedenceBuilder final {
 
   // the static static_frame is used only for acquiring new expressions
   std::reference_wrapper<rq::StaticFrame> _static_frame_ref;
-  // the outermost operation that is returned at the end of the precedence
+  // the outermost expression that is returned at the end of the precedence
   rq::Expression *_outer_ptr = nullptr;
-  // the current operation that is being filled with branches
-  rq::Expression *_operation_ptr = nullptr;
+  // the current expression that is being filled with branches
+  rq::Expression *_expression_ptr = nullptr;
   // the most recent parsed branch, which is not yet appended because it might
-  // need to nest inside the next operation
+  // need to nest inside the next expression
   rq::Expression *_recent_ptr = nullptr;
-  // the last branch that was appended to the operation
+  // the last branch that was appended to the expression
   rq::Expression *_last_ptr = nullptr;
 
   PrecedenceBuilder(rq::StaticFrame &static_frame) : _static_frame_ref(static_frame) {}
@@ -171,9 +171,9 @@ struct PrecedenceBuilder final {
   void setRecent(rq::Expression &branch);
   void setOnlyRecent(rq::Expression &branch);
   void appendRecent();
-  RQ_ALWAYS_INLINE void setOuterOperation(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void setOuterExpression(rq::Expression &expression) {
     this->_outer_ptr = &expression;
-    this->_operation_ptr = &expression;
+    this->_expression_ptr = &expression;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOuter() const {
     return this->_outer_ptr != nullptr;
@@ -181,14 +181,14 @@ struct PrecedenceBuilder final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getOuter() {
     return rq::dereferencePtr(this->_outer_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOperation() const {
-    return this->_operation_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
+    return this->_expression_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOperation() const {
-    return rq::dereferencePtr(this->_operation_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getOperation() {
-    return rq::dereferencePtr(this->_operation_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRecent() const {
     return this->_recent_ptr != nullptr;
@@ -214,12 +214,12 @@ struct PrecedenceBuilder final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getUnary() const {
     RQ_ASSERT(this->getHasUnary(),
               "previous operator in precedence was not unary");
-    return rq::dereferencePtr(this->_operation_ptr);
+    return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getUnary() {
     RQ_ASSERT(this->getHasUnary(),
               "previous operator in precedence was not unary");
-    return rq::dereferencePtr(this->_operation_ptr);
+    return rq::dereferencePtr(this->_expression_ptr);
   }
 };
 
@@ -267,12 +267,12 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence2();
   [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
-  void parseNonStatementBranches(rq::Expression &operation, rq::TokenKind end);
+  void parseNonStatementBranches(rq::Expression &expression, rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
-  void parseTrailer(rq::Expression& operation, rq::TokenRanger& keyword_ranger);
+  void parseTrailer(rq::Expression& expression, rq::TokenRanger& keyword_ranger);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();
   [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
