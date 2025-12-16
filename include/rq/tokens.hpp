@@ -45,6 +45,7 @@ enum class TokenKind : std::uint_fast8_t {
   GRAVE_OPERATOR,             // `
   DOUBLE_GRAVE_OPERATOR,      // ``
   ARROW_OPERATOR,             // ->
+  THICK_ARROW_OPERATOR,       // =>
   CONCATENATE_OPERATOR,       // +>
   DOT_OPERATOR,               // .
   DOT_PLUS_OPERATOR,          // .+
@@ -192,6 +193,8 @@ getName(rq::TokenKind kind) {
     return "double_grave_operator";
   case T::ARROW_OPERATOR:
     return "arrow_operator";
+  case T::THICK_ARROW_OPERATOR:
+    return "thick_arrow_operator";
   case T::CONCATENATE_OPERATOR:
     return "concatenate_operator";
   case T::DOT_OPERATOR:
@@ -365,6 +368,8 @@ getDescription(rq::TokenKind kind) {
     return "double grave operator";
   case T::ARROW_OPERATOR:
     return "arrow operator";
+  case T::THICK_ARROW_OPERATOR:
+    return "thick arrow operator";
   case T::CONCATENATE_OPERATOR:
     return "concatenate operator";
   case T::DOT_OPERATOR:
@@ -537,6 +542,8 @@ getFlags(rq::TokenKind kind) {
   case T::DOUBLE_GRAVE_OPERATOR:
     return TF::OPERATOR;
   case T::ARROW_OPERATOR:
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
+  case T::THICK_ARROW_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::CONCATENATE_OPERATOR:
     return TF::OPERATOR;

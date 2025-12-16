@@ -124,7 +124,8 @@ void PrecedenceBuilder::parseNary(const rq::Token &token, rq::Keyword keyword) {
       return;
     }
   }
-  // need to make a new expression of this keyword because one does not exist yet
+  // need to make a new expression of this keyword because one does not exist
+  // yet
   rq::Expression &new_expression = this->getStaticFrame().acquireExpression();
   new_expression.setKeyword(keyword);
   new_expression.setSource(this->getRecent(), token);
@@ -688,6 +689,17 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_builder.parseNary(token, rq::Keyword::S_EXTEND);
         continue;
       }
+      case rq::TokenKind::THICK_ARROW_OPERATOR: {
+        rq::Expression &expression =
+            this->getContext().getTopStaticFrame().acquireExpression();
+        expression.setKeyword(rq::Keyword::S_INFERENCE);
+        expression.setIsInserted();
+        expression.setSourceBefore(token);
+        precedence_builder.setRecent(expression);
+        this->getRanger().incrementToken(1);
+        precedence_builder.parseNary(token, rq::Keyword::S_EXTENSION);
+        continue;
+      }
       case rq::TokenKind::HASH_OPERATOR: {
         rq::Expression &expression =
             this->getContext().getTopStaticFrame().acquireExpression();
@@ -771,7 +783,11 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       continue;
     case rq::TokenKind::ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_builder.parseNary(post_token, rq::Keyword::S_EXTEND);
+      precedence_builder.parseBinary(post_token, rq::Keyword::S_EXTEND);
+      continue;
+    case rq::TokenKind::THICK_ARROW_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_builder.parseBinary(post_token, rq::Keyword::S_EXTENSION);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
@@ -862,26 +878,35 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &expression,
     this->getRanger().incrementToken(1);
     builder.finishExpression(first_token);
     return;
+  } else if (first_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
+    const rq::Token &second_token = this->getRanger().getToken(1);
+    if (second_token.getKind() == rq::TokenKind::LESS_EQUAL_OPERATOR) {
+      const rq::Token &third_token = this->getRanger().getToken(2);
+      if (third_token.getKind() == end) {
+        rq::Expression &first_mark =
+            this->getContext().getTopStaticFrame().acquireExpression();
+        first_mark.setSource(first_token);
+        first_mark.setKeyword(rq::Keyword::S_NAMED_PARAMETERS_BEGIN);
+        builder.appendBranch(first_mark);
+        rq::Expression &second_mark =
+            this->getContext().getTopStaticFrame().acquireExpression();
+        second_mark.setSource(second_token);
+        second_mark.setKeyword(rq::Keyword::S_POSITIONAL_PARAMETERS_END);
+        builder.appendBranch(second_mark);
+        builder.finishExpression(third_token);
+        this->getRanger().incrementToken(3);
+        return;
+      }
+    }
   }
   while (true) {
     const rq::Token &next_token = this->getRanger().getToken();
-    if (next_token.getCanBeMark()) {
-      while (true) {
-        const rq::Token &mark_token = this->getRanger().getToken();
-        if (mark_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
-          rq::Expression &mark = this->parseLiteralOrMark(
-              rq::Keyword::S_POSITIONAL_PARAMETERS_END);
-          builder.appendBranch(mark);
-          continue;
-        } else if (mark_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
-          rq::Expression &mark =
-              this->parseLiteralOrMark(rq::Keyword::S_NAMED_PARAMETERS_BEGIN);
-          builder.appendBranch(mark);
-          continue;
-        }
-        break;
-      }
-      continue;
+    if (next_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
+      rq::Expression &mark =
+          this->getContext().getTopStaticFrame().acquireExpression();
+      mark.setSource(next_token);
+      mark.setKeyword(rq::Keyword::S_NAMED_PARAMETERS_BEGIN);
+      builder.appendBranch(mark);
     }
     rq::Expression &branch = this->parseExpression();
     builder.appendBranch(branch);
@@ -893,32 +918,12 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &expression,
       this->getRanger().incrementToken(1);
       builder.finishExpression(after_token);
       return;
-    } else if (after_token.getCanBeMark()) {
-      while (true) {
-        const rq::Token &mark_token = this->getRanger().getToken();
-        if (mark_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
-          rq::Expression &mark = this->parseLiteralOrMark(
-              rq::Keyword::S_POSITIONAL_PARAMETERS_END);
-          builder.appendBranch(mark);
-          continue;
-        } else if (mark_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
-          rq::Expression &mark =
-              this->parseLiteralOrMark(rq::Keyword::S_NAMED_PARAMETERS_BEGIN);
-          builder.appendBranch(mark);
-          continue;
-        } else if (mark_token.getKind() == end) {
-          this->getRanger().incrementToken(1);
-          builder.finishExpression(mark_token);
-          return;
-        } else if (mark_token.getKind() != rq::TokenKind::COMMA_SEPARATOR) {
-          this->getContext().logErrorExpectedCommaSeparator(branch);
-          this->setNotOk();
-          break;
-        } else {
-          this->getRanger().incrementToken(1);
-          break;
-        }
-      }
+    } else if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
+      rq::Expression &mark =
+          this->getContext().getTopStaticFrame().acquireExpression();
+      mark.setSource(next_token);
+      mark.setKeyword(rq::Keyword::S_POSITIONAL_PARAMETERS_END);
+      builder.appendBranch(mark);
     } else {
       this->getRanger().incrementToken(1);
       this->getContext().logErrorExpectedCommaSeparator(branch);
@@ -1050,8 +1055,7 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
     const rq::Token &front_token = keyword_ranger.getToken();
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
       this->getContext().logErrorTrailerTokenMismatch(trailer_token,
-                                                       front_token,
-                                                       expression);
+                                                      front_token, expression);
       this->setNotOk();
     }
     this->getRanger().incrementToken(1);

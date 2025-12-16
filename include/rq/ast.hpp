@@ -66,6 +66,7 @@ enum class Keyword : std::uint32_t {
 
   // APPLY
   S_EXTEND,
+  S_EXTENSION,
   S_BINDING,
   S_ASCRIBE_TYPE,
   S_ASCRIBE_STATEMENT,
@@ -450,6 +451,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // APPLY
   case K::S_EXTEND:
     return "_extend";
+  case K::S_EXTENSION:
+    return "_extension";
   case K::S_BINDING:
     return "_binding";
   case K::S_ASCRIBE_TYPE:
@@ -1119,6 +1122,8 @@ getFlags(rq::Keyword keyword) {
 
   // APPLY
   case K::S_EXTEND:
+    return KF::RVALUE;
+  case K::S_EXTENSION:
     return KF::RVALUE;
   case K::S_BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::ENUMERATOR |

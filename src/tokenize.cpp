@@ -371,6 +371,9 @@ void Tokenizer::_tokenizeSourceText() {
       case '=':
         this->tokenizeLengthToken(T::DOUBLE_EQUAL_OPERATOR, 2);
         break;
+      case '>':
+        this->tokenizeLengthToken(T::THICK_ARROW_OPERATOR, 2);
+        break;
       default:
         this->tokenizeLengthToken(T::EQUAL_OPERATOR, 1);
       }
