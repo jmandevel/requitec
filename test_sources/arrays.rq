@@ -4,10 +4,10 @@
     my_array :`= {0, 1, 2, 3, 4};
     my_view := my_array.`[view];
     std.print(line="stats: size:{my_array.[byte_size]} count:{my_array.[element_count]} depth:{my_array.[bit_depth]}!");
-    [for index:=[index], element:=[value].`[borrow], my_array,
+    [for my_array, index:=[index], element:=[value].`[borrow], 
         element *= index;
     ];
-    [for index:=[index], element:=[value], my_array,
+    [for my_array, index:=[index], element:=[value], 
         std.print(line="element {index} is {element}!");
         index += 1;
     ];
