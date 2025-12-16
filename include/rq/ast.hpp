@@ -101,6 +101,8 @@ enum class Keyword : std::uint32_t {
   S_ADDRESS_OF,
   BORROW,
   S_BORROW_OF,
+  VIEW,
+  S_VIEW_OF,
 
   // ASSIGNMENT
   S_ASSIGN,
@@ -510,6 +512,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "borrow";
   case K::S_BORROW_OF:
     return "_borrow_of";
+  case K::VIEW:
+    return "view";
+  case K::S_VIEW_OF:
+    return "_view_of";
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -1171,6 +1177,10 @@ getFlags(rq::Keyword keyword) {
   case K::BORROW:
     return KF::REFLECTION;
   case K::S_BORROW_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::VIEW:
+    return KF::REFLECTION;
+  case K::S_VIEW_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   // ASSIGNMENT
@@ -1848,6 +1858,8 @@ getUniversalized(rq::Keyword keyword, rq::Situation situation) {
     return K::S_ADDRESS_OF;
   case K::BORROW:
     return K::S_BORROW_OF;
+  case K::VIEW:
+    return K::S_VIEW_OF;
   case K::EXTRACT:
     return K::S_EXTRACT_OF;
   case K::MOVE:

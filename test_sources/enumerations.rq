@@ -7,21 +7,21 @@
 [entry_point
     fruit := MyEnum.APPLE(3);
     [match fruit,
-        [case apple:=[value].`[borrow], APPLE,
+        [case APPLE, apple:=[value].`[borrow], 
             apple += 1;
-        ][case orange:=[value].`[borrow], ORANGE,
+        ][case ORANGE, orange:=[value].`[borrow],
             orange *= 2;
         ][default
             // do nothing!
         ];
     ];
     value :=
-        [inline_match out:=[out].`[borrow], fruit,
-            [case apple:=[in], APPLE,
+        [inline_match fruit, out:=[out].`[borrow],
+            [case APPLE, apple:=[in], 
                 out := apple;
-            ][case orange:=[in], ORANGE,
+            ][case ORANGE, orange:=[in],
                 out := [signed]:orange;
-            ][case grape:=[in], GRAPE,
+            ][case GRAPE, grape:=[in],
                 out := [signed]:grape;
             ];
         ];

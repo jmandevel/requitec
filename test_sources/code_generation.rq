@@ -1,16 +1,16 @@
 [import "std"];
 
 @static
-[for_each index:, 0.<=10,
-    @(index) @global 
-    \std.format(text="VAR{index}").[view] :`= index;
+[for 0.<=10, num:=[value],
+    @(num) @global 
+    \std.format(text="VAR{num}").[view] :`= index;
 ];
 
 [entry_point
     @static
-    [for_each index:, 0.<=10,
+    [for 0.<=10, num:=[value], 
         @static
-        varname := std.format(text="VAR{index}");
+        varname := std.format(text="VAR{num}");
         std.print(line="{varname} is {\varname.[view]}!");        
     ];
 ];

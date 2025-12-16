@@ -8,7 +8,7 @@
     [constructor];
 
     [constructor (>x:[signed], y:[signed], z:[signed]<),
-        {x=x, y=y, z=z}
+        {x=x, y=y, z=z},
     ];
 
     [method getTotal, (><)[signed],

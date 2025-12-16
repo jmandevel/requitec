@@ -3,17 +3,17 @@
     // all of these loops are equivalent
 
     // equal limit interval
-    [for value:=[value], 0..9,
+    [for 0..9, value:=[value],
         std.print(line="value is {value}");    
     ]
 
     // less limit interval
-    [for value:=[value], 0..<10,
+    [for 0..<10, value:=[value], 
         std.print(line="value is {value}");    
     ];
 
     // interval
-    [for value:=[value], 0.<10.+1,
+    [for 0.<10.+1, value:=[value], 
         std.print(line="value is {value}");    
     ]
 
@@ -27,7 +27,7 @@
     ];
 
     // element range
-    [for value:=[value], {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},    
+    [for {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, value:=[value],     
         std.print(line="value is {value}");
     ];
 
@@ -40,7 +40,7 @@
         [constructor]
 
         [ranger [signed],
-            [for value:=[value], [this].data,
+            [for [this].data, value:=[value], 
               [range_over 
                 value
               ];
@@ -48,7 +48,7 @@
         ];
     ];
     object := MyObject();
-    [for value:=[value], object,
+    [for object, value:=[value], 
         std.print(line="value is {value}");
     ];
 
