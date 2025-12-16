@@ -179,6 +179,8 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   OBJECT,
   ENUMERATION,
+  S_ENUMERATOR,
+  S_ENUMERATOR_WITH_DISCRIMINANT,
 
   // VALUES
   TRUE,
@@ -652,6 +654,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
+  case K::S_ENUMERATOR:
+    return "_enumerator";
+  case K::S_ENUMERATOR_WITH_DISCRIMINANT:
+    return "_enumerator_with_discriminant";
 
   // VALUES
   case K::TRUE:
@@ -1020,20 +1026,22 @@ enum class KeywordFlags : std::uint32_t {
   ARGUMENT = rq::getBit(17),
   PARAMETER = rq::getBit(16),
   ENUMERATOR = rq::getBit(15),
-  PATH = rq::getBit(14),
-  NAME = rq::getBit(13),
-  ASCRIPTION = rq::getBit(12),
-  TYPE_ATTRIBUTE = rq::getBit(11),
-  STATEMENT_ATTRIBUTE = rq::getBit(10),
-  SEQUENCE_STAGE = rq::getBit(9),
-  VIGNETTE = rq::getBit(8),
-  VIGNETTE_RVALUE = rq::getBit(7),
-  ARM = rq::getBit(6),
-  DYNAMIC_CAPTURE = rq::getBit(5),
+  BINDING = rq::getBit(14),
+  PATH = rq::getBit(13),
+  NAME = rq::getBit(12),
+  ASCRIPTION = rq::getBit(11),
+  TYPE_ATTRIBUTE = rq::getBit(10),
+  STATEMENT_ATTRIBUTE = rq::getBit(9),
+  SEQUENCE_STAGE = rq::getBit(8),
+  VIGNETTE = rq::getBit(7),
+  VIGNETTE_RVALUE = rq::getBit(6),
+  ARM = rq::getBit(5),
+  DYNAMIC_CAPTURE = rq::getBit(4),
   ALL = TOP_STATEMENT | TABLE_STATEMENT | OBJECT_STATEMENT | LOCAL_STATEMENT |
         RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER | ENUMERATOR |
-        PATH | NAME | ASCRIPTION | TYPE_ATTRIBUTE | STATEMENT_ATTRIBUTE |
-        SEQUENCE_STAGE | VIGNETTE | VIGNETTE_RVALUE | ARM | DYNAMIC_CAPTURE
+        BINDING | PATH | NAME | ASCRIPTION | TYPE_ATTRIBUTE |
+        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | VIGNETTE | VIGNETTE_RVALUE |
+        ARM | DYNAMIC_CAPTURE
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1079,7 +1087,8 @@ getFlags(rq::Keyword keyword) {
            KF::NAME | KF::SEQUENCE_STAGE;
   case K::S_EQUAL_OPERATOR:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT | KF::ARGUMENT | KF::PARAMETER | KF::ENUMERATOR;
+           KF::OBJECT_STATEMENT | KF::ARGUMENT | KF::PARAMETER |
+           KF::ENUMERATOR | KF::BINDING;
   case K::S_COLON_OPERATOR:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::ENUMERATOR;
@@ -1112,7 +1121,8 @@ getFlags(rq::Keyword keyword) {
   case K::S_EXTEND:
     return KF::RVALUE;
   case K::S_BINDING:
-    return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::ENUMERATOR;
+    return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::ENUMERATOR |
+           KF::BINDING;
   case K::S_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
@@ -1350,6 +1360,10 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::REFLECTION |
            KF::RVALUE;
+  case K::S_ENUMERATOR:
+    return KF::ENUMERATOR;
+  case K::S_ENUMERATOR_WITH_DISCRIMINANT:
+    return KF::ENUMERATOR;
 
   // VALUES;
   case K::TRUE:
@@ -1777,6 +1791,7 @@ enum class Situation : std::uint_fast8_t {
   ARGUMENT,
   PARAMETER,
   ENUMERATOR,
+  BINDING,
   PATH,
   NAME,
   ASCRIPTION,
@@ -1817,19 +1832,21 @@ getDescription(rq::Situation situation) {
   case S::PARAMETER:
     return "parameter expression";
   case S::ENUMERATOR:
-    return "enumeration value expression";
+    return "enumerator expression";
+  case S::BINDING:
+    return "binding expression";
   case S::PATH:
     return "path expression";
   case S::NAME:
     return "name expression";
   case S::ASCRIPTION:
-    return "path expression";
+    return "ascription expression";
   case S::TYPE_ATTRIBUTE:
     return "type attribute";
   case S::STATEMENT_ATTRIBUTE:
     return "statement attribute";
   case S::SEQUENCE_STAGE:
-    return "short range stage expression";
+    return "sequence stage expression";
   case S::VIGNETTE:
     return "vignette expression";
   case S::VIGNETTE_RVALUE:
@@ -2014,6 +2031,12 @@ getCanBeEnumerator(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeBinding(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::BINDING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getCanBePath(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::PATH);
@@ -2099,6 +2122,8 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
     return rq::getCanBeParameter(keyword);
   case rq::Situation::ENUMERATOR:
     return rq::getCanBeEnumerator(keyword);
+  case rq::Situation::BINDING:
+    return rq::getCanBeBinding(keyword);
   case rq::Situation::PATH:
     return rq::getCanBePath(keyword);
   case rq::Situation::NAME:
@@ -2695,6 +2720,9 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeEnumerator() const {
     return rq::getCanBeEnumerator(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeBinding() const {
+    return rq::getCanBeBinding(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath() const {
     return rq::getCanBePath(this->getKeyword());

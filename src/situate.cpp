@@ -34,10 +34,15 @@ void Situator::situateModule(rq::Module &module) {
   RQ_ASSERT(expression.getCanBeSituation(situation),                           \
             "keyword not valid for situation")
 
+#define RQ_ASSERT_NOT_CHAIN_LINK(expression)                                   \
+  RQ_ASSERT(!branch0.getIsChainLink(), "branch must never be chain link")
+
+#define RQ_ASSERT_NOT_BOLD(expression)                                         \
+  RQ_ASSERT(!branch0.getIsChainLink(), "branch must never be bold")
+
 void Situator::situateTree(rq::Situation situation,
                            rq::Expression &expression) {
   RQ_ASSERT_VALID_SITUATION(situation, expression);
-                          /*
   using S = rq::Situation;
   using K = rq::Keyword;
   switch (expression.getKeyword()) {
@@ -72,27 +77,58 @@ void Situator::situateTree(rq::Situation situation,
 
   // SITUATIONAL
   case K::S_PARENTHESIS_GROUP:
-    this->situateUnaryExpression(situation, expression, situation);
+    this->situateUnaryNonStatementBranches(situation, expression, situation);
     this->getStaticFrame().discardExpression(expression.mergeAndPopBranch());
     break;
+  case K::S_EQUAL_OPERATOR:
+    switch (situation) {
+    case S::ARGUMENT:
+      this->situateBinaryNonStatementBranches(situation, expression, S::NAME,
+                                              S::RVALUE);
+      expression.changeKeyword(K::S_NAMED_ARGUMENT);
+      break;
+    case S::PARAMETER:
+      this->situateBinaryNonStatementBranches(situation, expression, S::BINDING,
+                                              S::RVALUE);
+      expression.changeKeyword(K::S_DEFAULT_VALUE_PARAMETER);
+      break;
+    case S::ENUMERATOR:
+      this->situateBinaryNonStatementBranches(situation, expression, S::NAME,
+                                              S::RVALUE);
+      expression.changeKeyword(K::S_ENUMERATOR_WITH_DISCRIMINANT);
+      break;
+    case S::LOCAL_STATEMENT:
+      [[fallthrough]];
+    case S::TOP_STATEMENT:
+      [[fallthrough]];
+    case S::TABLE_STATEMENT:
+      [[fallthrough]];
+    case S::OBJECT_STATEMENT: {
+      
+    }
+    default:
+      RQ_UNREACHABLE();
+    }
   }
-    */
   RQ_UNREACHABLE();
 }
 
-void Situator::situateUnaryExpression(rq::Situation situation,
-                                      rq::Expression &expression,
-                                      rq::Situation branch0_situation) {
+void Situator::situateUnaryNonStatementBranches(
+    rq::Situation situation, rq::Expression &expression,
+    rq::Situation branch0_situation) {
   RQ_ASSERT_VALID_SITUATION(situation, expression);
   if (!expression.getHasBranch()) {
-    //this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
+    this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
     this->setNotOk();
     return;
   }
-  rq::Expression& branch0 = expression.getBranch();
-  //this->situateBranch(situation, expression, branch0_situation, branch0, 0, "first branch");
+  rq::Expression &branch0 = expression.getBranch();
+  RQ_ASSERT_NOT_BOLD(branch0);
+  RQ_ASSERT_NOT_CHAIN_LINK(branch0);
+  this->situateBranch(situation, expression, branch0_situation, branch0, 0,
+                      "first branch");
   if (branch0.getHasNext()) {
-    //this->logErrorNotExactBranchCount(situation, expression, 1);
+    this->logErrorNotExactBranchCount(situation, expression, 1);
     this->setNotOk();
     return;
   }
