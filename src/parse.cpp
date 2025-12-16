@@ -937,26 +937,17 @@ rq::Keyword RequiteParser::parseKeyword() {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
     this->setNotOk();
-    this->getContext().logMessage(
-        token.getLlvmSourceStart(), rq::LogType::ERROR,
-        "expected identifier literal", {token.getLlvmSourceRange()}, {});
+
     return rq::Keyword::I_ERROR;
   }
   if (keyword == rq::Keyword::I_NONE) {
+    this->getContext().logErrorExpectedIdentifierLiteral(token);
     this->setNotOk();
-    this->getContext().logMessage(
-        token.getLlvmSourceStart(), rq::LogType::ERROR,
-        llvm::Twine(rq::getDescription(token.getKind())) +
-            " does not represent a keyword",
-        {token.getLlvmSourceRange()}, {});
     return rq::Keyword::I_ERROR;
   }
   if (rq::getIsInternal(keyword)) {
+    this->getContext().logErrorInternalUseOnlyKeyword(token, keyword);
     this->setNotOk();
-    this->getContext().logMessage(
-        token.getLlvmSourceStart(), rq::LogType::ERROR,
-        llvm::Twine(rq::getName(keyword)) + " is for internal use only",
-        {token.getLlvmSourceRange()}, {});
     return rq::Keyword::I_ERROR;
   }
   return keyword;
@@ -1058,18 +1049,9 @@ void RequiteParser::parseTrailer(rq::Expression &operation,
     }
     const rq::Token &front_token = keyword_ranger.getToken();
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
-      this->getContext().logMessage(
-          trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
-          "trailer token does not match token from start of "
-          "operation",
-          {trailer_token.getLlvmSourceRange()}, {});
-      this->getContext().logMessage(operation.getLlvmSourceStart(),
-                                    rq::LogType::NOTE, "for operation",
-                                    {operation.getLlvmSourceRange()}, {});
-      this->getContext().logMessage(front_token.getLlvmSourceStart(),
-                                    rq::LogType::NOTE,
-                                    "for token from start of operation",
-                                    {front_token.getLlvmSourceRange()}, {});
+      this->getContext().logErrorTrailerTokenMismatch(trailer_token,
+                                                       front_token,
+                                                       operation);
       this->setNotOk();
     }
     this->getRanger().incrementToken(1);
@@ -1233,10 +1215,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       break;
     }
   }
-  this->getContext().logMessage(left_token.getLlvmSourceStart(),
-                                rq::LogType::ERROR,
-                                "found unterminated interpolated string",
-                                {left_token.getLlvmSourceRange()}, {});
+  this->getContext().logErrorUnterminatedInterpolatedString(left_token);
   this->setNotOk();
   rq::Expression &error =
       this->getContext().getTopStaticFrame().acquireExpression();

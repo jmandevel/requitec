@@ -70,6 +70,7 @@ bool parseCommandLineOptions(int argc, const char **argv) {
   }
   {
     buffer.clear();
+    // context does not exist yet so log directly to error output stream
     std::error_code ec = llvm::sys::fs::real_path(rq::INPUT_FILE, buffer, true);
     if (ec) {
       llvm::errs() << "Failed to resolve path of input file\n\tpath: "

@@ -36,18 +36,6 @@ struct Situator final {
   }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
-  void logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                     rq::Expression &expression,
-                                     unsigned count);
-  void logErrorNotExactBranchCount(rq::Situation situation,
-                                   rq::Expression &expression, unsigned count);
-  void logErrorTooManyBranchCount(rq::Situation situation,
-                                  rq::Expression &expression,
-                                  unsigned max_count);
-  void logErrorInvalidBranchSituation(
-      rq::Situation situation, rq::Situation branch_situation,
-      rq::Expression &branch, rq::Keyword outer_keyword,
-      rq::Keyword branch_keyword, unsigned branch_i, llvm::Twine log_context);
   void situateModule(rq::Module &module);
   void situateTree(rq::Situation situation, rq::Expression &expression);
 };

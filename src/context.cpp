@@ -30,23 +30,16 @@ bool Context::validateSourceText(const rq::Module &module) {
   llvm::SMLoc extended_char_start;
   for (const char &c : module.getSourceText()) {
     if (!rq::getIsValid(c)) {
-      llvm::Twine message =
-          llvm::Twine("invalid utf-8 codeunit \"") + rq::getUtf8Name(c) + "\"";
-      this->logMessage(llvm::SMLoc::getFromPointer(&c), rq::LogType::ERROR,
-                       message, {}, {});
+      this->logErrorInvalidUtf8Codeunit(llvm::SMLoc::getFromPointer(&c), c);
       is_ok = false;
     }
     if (rq::getIsExtended(c)) {
       const unsigned new_continue_bytes = rq::getExtendedStartCount(c);
       if (continue_bytes != 0) {
         if (new_continue_bytes != 0) {
-          llvm::Twine message =
-              llvm::Twine("invalid utf-8 continuation codeunit \"") +
-              rq::getUtf8Name(c) + "\"";
           llvm::SMLoc cur_location = llvm::SMLoc::getFromPointer(&c);
-          this->logMessage(cur_location, rq::LogType::ERROR, message,
-                           {llvm::SMRange(extended_char_start, cur_location)},
-                           {});
+          this->logErrorInvalidUtf8Continuation(extended_char_start,
+                                                 cur_location, c);
           is_ok = false;
           extended_char_start = llvm::SMLoc();
           continue_bytes = 0;
@@ -144,26 +137,19 @@ bool Context::loadSourceModule() {
   llvm::SmallString<128> input_path = rq::getInputFilePath();
   llvm::StringRef file_extension = llvm::sys::path::extension(input_path);
   if (file_extension != rq::REQUITE_EXTENSION) {
-    this->logMessage(
-        llvm::Twine(
-            "error: source file does not have a \".rq\" extension\n\tpath: ") +
-        input_path);
+    this->logErrorSourceFileNoRqExtension(input_path);
     return false;
   }
   std::error_code ec = this->canonicalizePath(input_path);
   if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "error: failed to canonicalize source file path\n\tpath: ") +
-        input_path + "\n\treason: " + ec.message());
+    this->logErrorFailedToCanonicalizePath(input_path, ec);
     return false;
   }
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
       this->loadRequiteFileBuffer(input_path);
   if (!buffer_eo) {
-    this->logMessage(
-        llvm::Twine("error: failed to load source file buffer\n\tpath: ") +
-        input_path + "\n\treason:" + buffer_eo.getError().message());
+    this->logErrorFailedToLoadSourceFileBuffer(input_path,
+                                                 buffer_eo.getError());
     return false;
   }
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(input_path);
@@ -191,20 +177,12 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     }
   }
   if (!file_found) {
-    this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
-                     llvm::Twine("error: could not locate import file \"") +
-                         import_string + "\" in any import directory\n",
-                     {expression.getLlvmSourceRange()}, {});
+    this->logErrorImportFileNotFound(expression, import_string);
     return nullptr;
   }
   std::error_code ec = this->canonicalizePath(found_path);
   if (ec) {
-    this->logMessage(
-        expression.getLlvmSourceStart(), rq::LogType::NOTE,
-        llvm::Twine(
-            "error: failed to canonicalize import file path\n\treason:") +
-            ec.message(),
-        {expression.getLlvmSourceRange()}, {});
+    this->logErrorFailedToCanonicializeImportPath(expression, ec);
     return nullptr;
   }
   auto found_it = this->_module_map.find(found_path);
@@ -214,11 +192,7 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
       this->loadRequiteFileBuffer(found_path);
   if (!buffer_eo) {
-    this->logMessage(
-        expression.getLlvmSourceStart(), rq::LogType::NOTE,
-        llvm::Twine("error: failed to load import file buffer\n\treason:") +
-            ec.message(),
-        {expression.getLlvmSourceRange()}, {});
+    this->logErrorFailedToLoadImportFileBuffer(expression, ec);
     return nullptr;
   }
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
@@ -244,10 +218,7 @@ bool Context::initializeLlvm() {
   const llvm::Target *target_ptr =
       llvm::TargetRegistry::lookupTarget(target_triple, error);
   if (target_ptr == nullptr) {
-    this->logMessage(
-        llvm::Twine("error: failed to find llvm target.\n\ttriple: ") +
-        llvm::Twine(target_triple.c_str()) + llvm::Twine("\n\terror: ") +
-        llvm::Twine(error.c_str()));
+    this->logErrorFailedToFindLlvmTarget(target_triple, error);
     return false;
   }
   llvm::TargetOptions options;
@@ -364,9 +335,7 @@ bool Context::emitTokens(llvm::StringRef path,
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logMessage(
-        llvm::Twine("error: failed to open output file for writing\n\tpath: ") +
-        path + llvm::Twine("\n\treason: ") + llvm::Twine(ec.message()) + "\n");
+    this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
   for (const rq::Token &token : tokens) {
@@ -462,9 +431,7 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logMessage(
-        llvm::Twine("error: failed to open output file for writing\n\tpath: ") +
-        path + llvm::Twine("\n\treason: ") + llvm::Twine(ec.message()) + "\n");
+    this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
   for (const rq::Expression &branch : trunk.getHorizontalSubrange()) {
@@ -485,10 +452,7 @@ bool Context::emitLlvmIr(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tpath: ") +
-        path + llvm::Twine("\n\treason: ") + llvm::Twine(ec.message()) + "\n");
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
   this->getLlvmModule().print(fout, nullptr);
@@ -500,20 +464,14 @@ bool Context::emitAssembly(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tpath: ") +
-        llvm::Twine(path) + llvm::Twine("\n\treason: ") +
-        llvm::Twine(ec.message()) + "\n");
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::AssemblyFile;
   llvm::TargetMachine &target_machine = this->getLlvmTargetMachine();
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
-    this->logMessage(
-        llvm::Twine("error: failed to add passes to emit file\n\tpath: ") +
-        path);
+    this->logErrorFailedToAddPassesToEmitFile(path);
     return false;
   }
   pass.run(this->getLlvmModule());
@@ -525,19 +483,14 @@ bool Context::emitObject(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logMessage(
-        llvm::Twine(
-            "error: failed to open intermediate file for writing\n\tpath: ") +
-        path + llvm::Twine("\n\treason: ") + llvm::Twine(ec.message()) + "\n");
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::ObjectFile;
   llvm::TargetMachine &target_machine = this->getLlvmTargetMachine();
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
-    this->logMessage(
-        llvm::Twine("error: failed to add passes to emit file\n\tpath: ") +
-        path + "\n");
+    this->logErrorFailedToAddPassesToEmitFile(path);
     return false;
   }
   pass.run(this->getLlvmModule());
@@ -545,16 +498,172 @@ bool Context::emitObject(llvm::StringRef path) {
   return true;
 }
 
+void Context::logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c) {
+  llvm::Twine message =
+      llvm::Twine("invalid utf-8 codeunit \"") + rq::getUtf8Name(c) + "\"";
+  this->logMessage(location, rq::LogType::ERROR, message, {}, {});
+}
+
+void Context::logErrorInvalidUtf8Continuation(llvm::SMLoc start,
+                                               llvm::SMLoc cur, char c) {
+  llvm::Twine message =
+      llvm::Twine("invalid utf-8 continuation codeunit \"") +
+      rq::getUtf8Name(c) + "\"";
+  this->logMessage(cur, rq::LogType::ERROR, message,
+                   {llvm::SMRange(start, cur)}, {});
+}
+
+void Context::logErrorSourceFileNoRqExtension(llvm::StringRef path) {
+  this->logMessage(
+      llvm::Twine("error: source file does not have a \".rq\" extension\n") +
+      llvm::Twine("\tpath: ") + path);
+}
+
+void Context::logErrorFailedToCanonicalizePath(llvm::StringRef path,
+                                                const std::error_code &ec) {
+  this->logMessage(
+      llvm::Twine("error: failed to canonicalize source file path\n") +
+      llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
+      ec.message());
+}
+
+void Context::logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
+                                                    const std::error_code &ec) {
+  this->logMessage(
+      llvm::Twine("error: failed to load source file buffer\n\tpath: ") +
+      path + llvm::Twine("\n\treason:") + ec.message());
+}
+
+void Context::logErrorImportFileNotFound(const rq::Expression &expression,
+                                          llvm::StringRef import_string) {
+  this->logMessage(expression.getLlvmSourceStart(), rq::LogType::NOTE,
+                   llvm::Twine("error: could not locate import file \"") +
+                       import_string + "\" in any import directory\n",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorFailedToCanonicializeImportPath(
+    const rq::Expression &expression, const std::error_code &ec) {
+  this->logMessage(
+      expression.getLlvmSourceStart(), rq::LogType::NOTE,
+      llvm::Twine("error: failed to canonicalize import file path\n") +
+          llvm::Twine("\treason:") + ec.message(),
+      {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorFailedToLoadImportFileBuffer(
+    const rq::Expression &expression, const std::error_code &ec) {
+  this->logMessage(
+      expression.getLlvmSourceStart(), rq::LogType::NOTE,
+      llvm::Twine("error: failed to load import file buffer\n") +
+          llvm::Twine("\treason:") + ec.message(),
+      {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple,
+                                              llvm::StringRef error) {
+  this->logMessage(
+      llvm::Twine("error: failed to find llvm target.\n\ttriple: ") +
+      target_triple + llvm::Twine("\n\terror: ") + error);
+}
+
+void Context::logErrorFailedToOpenOutputFile(llvm::StringRef path,
+                                              const std::error_code &ec) {
+  this->logMessage(
+      llvm::Twine("error: failed to open output file for writing\n") +
+      llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
+      ec.message() + "\n");
+}
+
+void Context::logErrorFailedToOpenIntermediateFile(llvm::StringRef path,
+                                                    const std::error_code &ec) {
+  this->logMessage(
+      llvm::Twine("error: failed to open intermediate file for writing\n") +
+      llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
+      ec.message() + "\n");
+}
+
+void Context::logErrorFailedToAddPassesToEmitFile(llvm::StringRef path) {
+  this->logMessage(
+      llvm::Twine("error: failed to add passes to emit file\n\tpath: ") +
+      path);
+}
+
 void Context::logErrorFoundErrorToken(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
-                   llvm::Twine("found ") + rq::getDescription(token.getKind()),
+                   llvm::Twine("found ") + token.getDescription(),
                    {token.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedToken(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
                    llvm::Twine("found unexpected ") +
-                       rq::getDescription(token.getKind()),
+                       token.getDescription(),
+                   {token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorExpectedIdentifierLiteral(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   "expected identifier literal", {token.getLlvmSourceRange()},
+                   {});
+}
+
+void Context::logErrorInternalUseOnlyKeyword(const rq::Token &token,
+                                             rq::Keyword keyword) {
+  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   llvm::Twine(rq::getName(keyword)) +
+                       " is for internal use only",
+                   {token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnmatchedRightToken(const rq::Token &left_token,
+                                          const rq::Token &right_token) {
+  this->logMessage(right_token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   llvm::Twine(right_token.getDescription()) +
+                       " does not match previous left grouping token",
+                   {right_token.getLlvmSourceRange()}, {});
+  this->logMessage(left_token.getLlvmSourceStart(), rq::LogType::NOTE,
+                   llvm::Twine("previous left grouping token is ") +
+                       left_token.getDescription(),
+                   {left_token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorSoloRightToken(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   llvm::Twine(token.getDescription()) +
+                       " does not follow a left grouping token",
+                   {token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnterminatedStringLiteral(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   "unterminated string literal",
+                   {token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnmatchedLeftToken(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   llvm::Twine(token.getDescription()) + " has no match",
+                   {token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
+                                           const rq::Token &front_token,
+                                           const rq::Expression &operation) {
+  this->logMessage(trailer_token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   "trailer token does not match token from start of operation",
+                   {trailer_token.getLlvmSourceRange()}, {});
+  this->logMessage(operation.getLlvmSourceStart(), rq::LogType::NOTE,
+                   "for operation",
+                   {operation.getLlvmSourceRange()}, {});
+  this->logMessage(front_token.getLlvmSourceStart(), rq::LogType::NOTE,
+                   "for token from start of operation",
+                   {front_token.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceStart(), rq::LogType::ERROR,
+                   "found unterminated interpolated string",
                    {token.getLlvmSourceRange()}, {});
 }
 
@@ -576,8 +685,8 @@ void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
 void Context::logErrorUnexpectedParameterMark(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceStart(), rq::LogType::ERROR,
-                   "invalid parameter mark", {expression.getLlvmSourceRange()},
-                   {});
+                   "unexpected parameter mark",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {

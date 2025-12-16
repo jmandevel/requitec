@@ -7,7 +7,7 @@
 
 namespace rq {
 
-enum class TokenKind : std::uint_fast16_t {
+enum class TokenKind : std::uint_fast8_t {
   NONE,
 
   // OPERATORS
@@ -762,6 +762,9 @@ struct Token final {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return rq::getName(this->_kind);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getDescription() const {
+    return rq::getDescription(this->_kind);
+  }
   [[nodiscard]] llvm::StringRef getSourceText() const {
     return llvm::StringRef(this->_lexume_ptr, this->_lexume_length);
   }
@@ -871,6 +874,9 @@ struct Grouping final {
       : _kind(kind), _token_i(token_i) {}
   rq::GroupingKind getKind() const { return this->_kind; }
   unsigned getTokenI() const { return this->_token_i; }
+  llvm::StringRef getDescription() const {
+    return rq::getDescription(this->_kind);
+  }
 };
 
 } // namespace rq

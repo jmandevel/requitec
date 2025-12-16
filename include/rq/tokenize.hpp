@@ -195,6 +195,10 @@ struct Tokenizer final {
     RQ_ASSERT(this->getHasGrouping(), "no grouping");
     this->_grouping_stack.pop_back();
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token& getLeftToken(const rq::Grouping& grouping) {
+    RQ_ASSERT(this->getTokens().size() > grouping.getTokenI(), "left token out of range");
+    return this->getTokens().at(grouping.getTokenI());
+  }
   void _tokenizeSourceText();
   [[nodiscard]] bool tokenizeSourceText();
   void tokenizeLengthToken(rq::TokenKind kind, unsigned length);
@@ -204,7 +208,6 @@ struct Tokenizer final {
   void tokenizeRightGrouping(rq::GroupingKind grouping_kind,
                              rq::TokenKind token_kind, unsigned length);
   void checkFinalGroupings();
-  void logErrorUnmatchedRightToken(const rq::Token &token);
   template <bool CAN_HAVE_INTERPOLATION_PARAM, char END_QUOTE_PARAM,
             rq::TokenKind KIND_PARAM, rq::TokenKind ERROR_UNTERMINATED_PARAM>
   void tokenizeQuotedLiteral() {

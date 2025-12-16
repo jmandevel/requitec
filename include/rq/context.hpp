@@ -24,6 +24,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <cstdint>
 
 namespace rq {
 
@@ -32,6 +33,7 @@ struct Expression;
 struct Module;
 enum class Keyword : std::uint32_t;
 enum class Situation : std::uint_fast8_t;
+enum class TokenKind : std::uint_fast8_t;
 
 enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
   ERROR = llvm::SourceMgr::DiagKind::DK_Error,
@@ -173,8 +175,28 @@ struct Context final {
     }
 #endif
   }
+  void logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c);
+  void logErrorInvalidUtf8Continuation(llvm::SMLoc start, llvm::SMLoc cur, char c);
+  void logErrorSourceFileNoRqExtension(llvm::StringRef path);
+  void logErrorFailedToCanonicalizePath(llvm::StringRef path, const std::error_code &ec);
+  void logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path, const std::error_code &ec);
+  void logErrorImportFileNotFound(const rq::Expression &expression, llvm::StringRef import_string);
+  void logErrorFailedToCanonicializeImportPath(const rq::Expression &expression, const std::error_code &ec);
+  void logErrorFailedToLoadImportFileBuffer(const rq::Expression &expression, const std::error_code &ec);
+  void logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple, llvm::StringRef error);
+  void logErrorFailedToOpenOutputFile(llvm::StringRef path, const std::error_code &ec);
+  void logErrorFailedToOpenIntermediateFile(llvm::StringRef path, const std::error_code &ec);
+  void logErrorFailedToAddPassesToEmitFile(llvm::StringRef path);
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
+  void logErrorExpectedIdentifierLiteral(const rq::Token &token);
+  void logErrorInternalUseOnlyKeyword(const rq::Token &token, rq::Keyword keyword);
+  void logErrorUnmatchedRightToken(const rq::Token& left_token, const rq::Token &right_token);
+  void logErrorSoloRightToken(const rq::Token &token);
+  void logErrorUnterminatedStringLiteral(const rq::Token &token);
+  void logErrorUnmatchedLeftToken(const rq::Token &token);
+  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token, const rq::Token &front_token, const rq::Expression &operation);
+  void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
   void logErrorUnexpectedParameterMark(const rq::Expression &expression);
