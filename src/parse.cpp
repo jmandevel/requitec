@@ -219,6 +219,7 @@ rq::Expression *RequiteParser::parseExpressions() {
       break;
     } 
     const rq::Token& after_token = this->getRanger().getToken();
+    this->getRanger().incrementToken(1);
     if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       this->getContext().logErrorUnexpectedToken(after_token);
       this->setNotOk();
@@ -663,9 +664,9 @@ rq::Expression &RequiteParser::parsePrecedence2() {
 rq::Expression &RequiteParser::parsePrecedence1() {
   rq::PrecedenceBuilder precedence_builder(
       this->getContext().getTopStaticFrame());
-  bool previous_call = false;
+  bool previous_horned = false;
   while (!this->getRanger().getIsDone()) {
-    if (!previous_call) {
+    if (!previous_horned) {
       const rq::Token &token = this->getRanger().getToken();
       const rq::TokenKind kind = token.getKind();
       switch (kind) {
@@ -740,7 +741,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       default:
         break;
       }
-      if (previous_call) {
+      if (previous_horned) {
         precedence_builder.appendRecent();
         return precedence_builder.getOuter();
       }
@@ -756,7 +757,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       rq::Expression &expression = this->parsePrecedence0();
       precedence_builder.setRecent(expression);
     }
-    previous_call = false;
+    previous_horned = false;
     if (this->getRanger().getIsDone()) {
       precedence_builder.appendRecent();
       break;
@@ -787,6 +788,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       this->parseNonStatementBranches(
           call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
       precedence_builder.setOnlyRecent(call);
+      previous_horned = true;
       continue;
     }
     case rq::TokenKind::LEFT_BRACE_GROUPING: {
@@ -801,7 +803,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       this->parseNonStatementBranches(specialization,
                                       rq::TokenKind::RIGHT_BRACE_GROUPING);
       precedence_builder.setOnlyRecent(specialization);
-      previous_call = true;
+      previous_horned = true;
       continue;
     }
     default:

@@ -2603,11 +2603,17 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return rq::getName(this->_keyword);
   }
-  template <typename rq::Situation SITUATION_PARAM>
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
-    return rq::getUniversalized<SITUATION_PARAM>(this->_keyword);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
+  getUniversalized(rq::Situation situation) const {
+    return rq::getUniversalized(this->_keyword, situation);
   }
-  RQ_ALWAYS_INLINE void clear() { std::memset(this, 0, sizeof(*this)); }
+  RQ_ALWAYS_INLINE void clear() {
+    this->_keyword = rq::Keyword::I_NONE;
+    this->_next_ptr_flags = {};
+    this->_branch_ptr = nullptr;
+    this->_source_ptr_flags = {};
+    this->_source_text_length = 0;
+  }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
     RQ_ASSERT(this->_keyword == rq::Keyword::I_NONE,
               "keyword must not already be set");

@@ -414,6 +414,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     if (trunk.getIsInserted()) {
       fout << " (inserted)";
     }
+    fout << "\n";
   }
   rq::emitIndent(fout, indent);
   if (trunk.getIsLiteral()) {
@@ -443,7 +444,11 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
           fout << ";\n";
         }
       } else if (trunk.getHasNonStatementBranches()) {
-        fout << ",\n";
+        if (branch.getHasNext()) {
+          fout << ",\n";
+        } else {
+          fout << "\n";
+        }
       } else {
         RQ_UNREACHABLE();
       }
@@ -592,14 +597,6 @@ void Context::logErrorExpectedSemicolonSeparator(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected semicolon separator after statement",
-                   {expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorNotSecondOrSubsequentIfChunkExpression(
-    const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceBefore(), rq::LogType::ERROR,
-                   "expected semicolon before expression because can not be "
-                   "second or subsequent branch of if chunk",
                    {expression.getLlvmSourceRange()}, {});
 }
 

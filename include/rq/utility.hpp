@@ -302,11 +302,6 @@ struct PtrWithFlags {
 #endif
 
   PtrWithFlags() = default;
-  PtrWithFlags(const Self &) = default;
-  PtrWithFlags(Self &&) = default;
-  ~PtrWithFlags() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE Type* const& getPtr() const {
 #if defined(_NDEBUG)
     return this->_ptr_int_pair.getPointer();
