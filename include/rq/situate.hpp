@@ -42,7 +42,7 @@ struct Situator final {
   void situateBranch(rq::Situation situation, rq::Expression &expression,
                      rq::Situation branch_situation, rq::Expression &branch,
                      unsigned branch_i, llvm::StringRef log_context);
-  void situateNullaryNonStatementBranches(rq::Situation situation,
+  void situateNullaryExpression(rq::Situation situation,
                                 rq::Expression &expression);
   void situateUnaryNonStatementBranches(rq::Situation situation,
                               rq::Expression &expression,

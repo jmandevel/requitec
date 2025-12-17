@@ -648,9 +648,10 @@ void Context::logErrorUnmatchedLeftToken(const rq::Token &token) {
 void Context::logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                            const rq::Token &front_token,
                                            const rq::Expression &expression) {
-  this->logMessage(trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "trailer token does not match token from start of expression",
-                   {trailer_token.getLlvmSourceRange()}, {});
+  this->logMessage(
+      trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
+      "trailer token does not match token from start of expression",
+      {trailer_token.getLlvmSourceRange()}, {});
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    "for expression", {expression.getLlvmSourceRange()}, {});
   this->logMessage(front_token.getLlvmSourceBegin(), rq::LogType::NOTE,
@@ -708,25 +709,37 @@ void Context::logErrorExpectedSemicolonSeparator(
 
 void Context::logErrorExpressionShouldNeverOccur(
     const rq::Expression &expression) {
-  this->logMessage(
-      expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine(expression.getName()) +
-          " expression should never occur.",
-      {expression.getLlvmSourceRange()}, {});
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(expression.getName()) +
+                       " expression should never occur.",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidBranchSituation(
-    rq::Expression &branch, rq::Situation situation,
-    rq::Situation branch_situation, rq::Keyword outer_keyword,
-    rq::Keyword branch_keyword, unsigned branch_i, llvm::Twine log_context) {
+void Context::logErrorNotExactBranchCount(rq::Situation situation,
+                                          const rq::Expression &expression,
+                                          unsigned count) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(rq::getDescription(situation)) + " " +
+                       expression.getName() + " must have exactly " +
+                       llvm::Twine(count) + " branches",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorInvalidBranchSituation(const rq::Expression &outer,
+                                             rq::Situation outer_situation,
+                                             rq::Expression &branch,
+                                             rq::Situation branch_situation,
+                                             unsigned branch_i,
+                                             llvm::Twine log_context) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(branch_situation)) +
                        " expression expected for " + log_context + " of " +
-                       rq::getDescription(situation) + " " +
-                       rq::getName(outer_keyword) + " but found " +
-                       rq::getName(branch_keyword) + " at index " +
-                       llvm::Twine(branch_i) + ".\n",
+                       rq::getDescription(outer_situation) + " " +
+                       outer.getName() + " but found " + branch.getName() +
+                       " at index " + llvm::Twine(branch_i),
                    {branch.getLlvmSourceRange()}, {});
+  this->logMessage(outer.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   "for outer expression", {outer.getLlvmSourceRange()}, {});
 }
 
 } // namespace rq

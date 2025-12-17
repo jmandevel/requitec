@@ -19,12 +19,12 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <cstdint>
 
 namespace rq {
 
@@ -145,15 +145,14 @@ struct Context final {
                                              llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
-  [[nodiscard]] bool
-  parseRequite(rq::Module &module,
-                        const std::vector<rq::Token> &tokens);
+  [[nodiscard]] bool parseRequite(rq::Module &module,
+                                  const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateModule(rq::Module &module);
-  [[nodiscard]] bool tabulateModule(rq::Module& module);
+  [[nodiscard]] bool tabulateModule(rq::Module &module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
-                                         const rq::Expression &trunk);
+                                 const rq::Expression &trunk);
   // [[nodiscard]] bool emitSymbols(llvm::StringRef path, const rq::SymbolTable&
   // table);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
@@ -176,26 +175,39 @@ struct Context final {
 #endif
   }
   void logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c);
-  void logErrorInvalidUtf8Continuation(llvm::SMLoc start, llvm::SMLoc cur, char c);
+  void logErrorInvalidUtf8Continuation(llvm::SMLoc start, llvm::SMLoc cur,
+                                       char c);
   void logErrorSourceFileNoRqExtension(llvm::StringRef path);
-  void logErrorFailedToCanonicalizePath(llvm::StringRef path, const std::error_code &ec);
-  void logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path, const std::error_code &ec);
-  void logErrorImportFileNotFound(const rq::Expression &expression, llvm::StringRef import_string);
-  void logErrorFailedToCanonicializeImportPath(const rq::Expression &expression, const std::error_code &ec);
-  void logErrorFailedToLoadImportFileBuffer(const rq::Expression &expression, const std::error_code &ec);
-  void logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple, llvm::StringRef error);
-  void logErrorFailedToOpenOutputFile(llvm::StringRef path, const std::error_code &ec);
-  void logErrorFailedToOpenIntermediateFile(llvm::StringRef path, const std::error_code &ec);
+  void logErrorFailedToCanonicalizePath(llvm::StringRef path,
+                                        const std::error_code &ec);
+  void logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
+                                            const std::error_code &ec);
+  void logErrorImportFileNotFound(const rq::Expression &expression,
+                                  llvm::StringRef import_string);
+  void logErrorFailedToCanonicializeImportPath(const rq::Expression &expression,
+                                               const std::error_code &ec);
+  void logErrorFailedToLoadImportFileBuffer(const rq::Expression &expression,
+                                            const std::error_code &ec);
+  void logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple,
+                                      llvm::StringRef error);
+  void logErrorFailedToOpenOutputFile(llvm::StringRef path,
+                                      const std::error_code &ec);
+  void logErrorFailedToOpenIntermediateFile(llvm::StringRef path,
+                                            const std::error_code &ec);
   void logErrorFailedToAddPassesToEmitFile(llvm::StringRef path);
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorExpectedIdentifierLiteral(const rq::Token &token);
-  void logErrorInternalUseOnlyKeyword(const rq::Token &token, rq::Keyword keyword);
-  void logErrorUnmatchedRightToken(const rq::Token& left_token, const rq::Token &right_token);
+  void logErrorInternalUseOnlyKeyword(const rq::Token &token,
+                                      rq::Keyword keyword);
+  void logErrorUnmatchedRightToken(const rq::Token &left_token,
+                                   const rq::Token &right_token);
   void logErrorSoloRightToken(const rq::Token &token);
   void logErrorUnterminatedStringLiteral(const rq::Token &token);
   void logErrorUnmatchedLeftToken(const rq::Token &token);
-  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token, const rq::Token &front_token, const rq::Expression &expression);
+  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
+                                    const rq::Token &front_token,
+                                    const rq::Expression &expression);
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
   void logErrorMustHaveParameterMarks(const rq::Expression &expression);
@@ -203,11 +215,16 @@ struct Context final {
   void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
-  void logErrorExpressionShouldNeverOccur(const rq::Expression& expression);
-  void logErrorInvalidBranchSituation(
-      rq::Expression &branch, rq::Situation situation,
-      rq::Situation branch_situation, rq::Keyword outer_keyword,
-      rq::Keyword branch_keyword, unsigned branch_i, llvm::Twine log_context);
+  void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
+  void logErrorNotExactBranchCount(rq::Situation situation,
+                                   const rq::Expression &expression,
+                                   unsigned count);
+  void logErrorInvalidBranchSituation(const rq::Expression &outer,
+                                      rq::Situation outer_situation,
+                                      rq::Expression &branch,
+                                      rq::Situation branch_situation,
+                                      unsigned branch_i,
+                                      llvm::Twine log_context);
 };
 
 } // namespace rq
