@@ -980,7 +980,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   rq::TokenRanger keyword_ranger = this->getRanger();
   rq::Expression &expression =
       this->getContext().getTopStaticFrame().acquireExpression();
-  if (keyword_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
+  if (keyword_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
     expression.setKeyword(rq::Keyword::S_ANONYMOUS_FUNCTION);
     expression.setSource(left_token);
     rq::TreeBuilder builder;
@@ -991,7 +991,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
     capture.setSource(keyword_token);
     this->getRanger().incrementToken(1);
     this->parseNonStatementBranches(capture,
-                                    rq::TokenKind::RIGHT_BRACE_GROUPING);
+                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
     builder.appendBranch(capture);
   } else {
     const rq::Keyword keyword = this->parseKeyword();
@@ -1137,14 +1137,14 @@ rq::Expression &RequiteParser::parseTypeAttribute() {
     this->parseNonStatementBranches(attribute,
                                     rq::TokenKind::RIGHT_BRACKET_GROUPING);
     return attribute;
-  } else if (next_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
+  } else if (next_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
     rq::Expression &attribute =
         this->getContext().getTopStaticFrame().acquireExpression();
     attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
     this->getRanger().incrementToken(1);
     this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_BRACE_GROUPING);
+                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
     return attribute;
   }
   const rq::Token &keyword_token = this->getRanger().getToken();
