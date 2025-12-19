@@ -1,0 +1,8 @@
+[entry_point
+    my_functor_signature := ${x:[signed], y:[signed]} (>z:[signed]<)[signed];
+    [function myFunctor, my_functor_signature,
+        [result] := x + y + z;
+    ];
+    my_functor_value := myFunctor[x=1, y=2];
+    [exit_code] := my_functor_value(z=3);
+];

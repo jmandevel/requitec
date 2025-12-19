@@ -823,6 +823,21 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       previous_horned = true;
       continue;
     }
+    case rq::TokenKind::LEFT_BRACKET_GROUPING: {
+      this->getRanger().incrementToken(1);
+      precedence_builder.appendRecent();
+      rq::Expression &target = precedence_builder.getOuter();
+      rq::Expression &construction =
+          this->getContext().getTopStaticFrame().acquireExpression();
+      construction.setKeyword(rq::Keyword::S_CONSTRUCT_FUNCTOR);
+      construction.setBranch(target);
+      construction.setSource(target, post_token);
+      this->parseNonStatementBranches(construction,
+                                      rq::TokenKind::RIGHT_BRACKET_GROUPING);
+      precedence_builder.setOnlyRecent(construction);
+      previous_horned = true;
+      continue;
+    }
     default:
       precedence_builder.appendRecent();
       break;
@@ -1112,7 +1127,7 @@ rq::Expression &RequiteParser::parseTypeAttribute() {
             "not dollar sigil");
   this->getRanger().incrementToken(1);
   const rq::Token &next_token = this->getRanger().getToken();
-  if (next_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
+  if (next_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
     this->getRanger().incrementToken(1);
     rq::Keyword keyword = this->parseKeyword();
     rq::Expression &attribute =
@@ -1120,16 +1135,16 @@ rq::Expression &RequiteParser::parseTypeAttribute() {
     attribute.setKeyword(keyword);
     attribute.setSource(dollar_token);
     this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+                                    rq::TokenKind::RIGHT_BRACKET_GROUPING);
     return attribute;
-  } else if (next_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
+  } else if (next_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
     rq::Expression &attribute =
         this->getContext().getTopStaticFrame().acquireExpression();
     attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
     this->getRanger().incrementToken(1);
     this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+                                    rq::TokenKind::RIGHT_BRACE_GROUPING);
     return attribute;
   }
   const rq::Token &keyword_token = this->getRanger().getToken();

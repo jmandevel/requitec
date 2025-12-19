@@ -105,7 +105,7 @@ bool Situator::situateTree(rq::Situation situation,
       const bool is_ok = this->situateBinaryNonStatementBranches(
           situation, expression, S::NAME, S::RVALUE);
       if (is_ok) {
-        expression.changeKeyword(K::S_ASSIGN);
+        expression.changeKeyword(K::S_DISCRIMINANT_VALUE_ENUMERATOR);
       }
       return is_ok;
     } break;
@@ -262,9 +262,6 @@ bool Situator::situateTree(rq::Situation situation,
     }
     rq::Expression &unascribed = expression.getBranch();
     if (unascribed.getKeyword() == K::S_EXTENSION) {
-      if (!unascribed.getHasBranch()) {
-        return true; // this is an error but already been logged
-      }
       rq::Expression &extended = unascribed.getBranch();
       if (extended.getKeyword() == K::S_ASCRIBE_TYPE) {
         rq::Expression &extended_last =
@@ -476,12 +473,10 @@ bool Situator::situateTree(rq::Situation situation,
   // PROCEDURES
   case K::S_CALL:
     return this->situateNaryNonStatementBranches(situation, expression, 1, S::RVALUE, S::ARGUMENT);
-  case K::S_NAMED_ARGUMENT:
-    break;
   case K::S_INDEX_INTO:
-    break;
+    return this->situateBinaryNonStatementBranches(situation, expression, S::RVALUE, S::RVALUE);
   case K::S_SIGNATURE_TYPE:
-    break;
+    return false; // TODO
   case K::S_DEFAULT_VALUE_PARAMETER:
     break;
   case K::DESTROY:

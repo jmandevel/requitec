@@ -103,8 +103,6 @@ enum class Keyword : std::uint32_t {
   S_ADDRESS_OF,
   BORROW,
   S_BORROW_OF,
-  VIEW,
-  S_VIEW_OF,
 
   // ASSIGNMENT
   S_ASSIGN,
@@ -147,6 +145,7 @@ enum class Keyword : std::uint32_t {
   // PROCEDURES
   S_CALL,
   S_NAMED_ARGUMENT,
+  S_CONSTRUCT_FUNCTOR,
   S_INDEX_INTO,
   S_SIGNATURE_TYPE,
   S_DEFAULT_VALUE_PARAMETER,
@@ -181,6 +180,7 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   OBJECT,
   ENUMERATION,
+  S_DISCRIMINANT_VALUE_ENUMERATOR,
 
   // VALUES
   TRUE,
@@ -518,10 +518,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "borrow";
   case K::S_BORROW_OF:
     return "_borrow_of";
-  case K::VIEW:
-    return "view";
-  case K::S_VIEW_OF:
-    return "_view_of";
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -594,6 +590,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_call";
   case K::S_NAMED_ARGUMENT:
     return "_named_argument";
+  case K::S_CONSTRUCT_FUNCTOR:
+    return "_construct_functor";
   case K::S_INDEX_INTO:
     return "_index_into";
   case K::S_SIGNATURE_TYPE:
@@ -658,6 +656,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
+  case K::S_DISCRIMINANT_VALUE_ENUMERATOR:
+    return "_discriminant_value_enumerator";
 
   // VALUES
   case K::TRUE:
@@ -1192,10 +1192,6 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION;
   case K::S_BORROW_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::VIEW:
-    return KF::REFLECTION;
-  case K::S_VIEW_OF:
-    return KF::RVALUE | KF::ARGUMENT;
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -1277,6 +1273,8 @@ getFlags(rq::Keyword keyword) {
            KF::OBJECT_STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::S_NAMED_ARGUMENT:
     return KF::ARGUMENT;
+  case K::S_CONSTRUCT_FUNCTOR:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::S_INDEX_INTO:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::S_SIGNATURE_TYPE:
@@ -1333,7 +1331,7 @@ getFlags(rq::Keyword keyword) {
   case K::S_ANONYMOUS_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::RVALUE | KF::ARGUMENT;
   case K::S_DYNAMIC_CAPTURE:
-    return KF::DYNAMIC_CAPTURE;
+    return KF::DYNAMIC_CAPTURE | KF::RVALUE | KF::ARGUMENT;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1364,6 +1362,8 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::REFLECTION |
            KF::RVALUE;
+  case K::S_DISCRIMINANT_VALUE_ENUMERATOR:
+    return KF::ENUMERATOR;
 
   // VALUES;
   case K::TRUE:
@@ -1875,8 +1875,6 @@ getUniversalized(rq::Keyword keyword, rq::Situation situation) {
     return K::S_ADDRESS_OF;
   case K::BORROW:
     return K::S_BORROW_OF;
-  case K::VIEW:
-    return K::S_VIEW_OF;
   case K::EXTRACT:
     return K::S_EXTRACT_OF;
   case K::MOVE:
