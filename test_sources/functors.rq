@@ -1,8 +1,9 @@
 [entry_point
+    @static 
     my_functor_signature := ${x:[signed], y:[signed]} (>z:[signed]<)[signed];
-    [function myFunctor, my_functor_signature,
+    [function myFunctionWithCapture, my_functor_signature,
         [result] := x + y + z;
     ];
-    my_functor_value := myFunctor[x=1, y=2];
+    my_functor_value := myFunctionWithCapture[x=1, y=2];
     [exit_code] := my_functor_value(z=3);
 ];
