@@ -1,6 +1,6 @@
 [entry_point
     @static 
-    my_functor_signature := $(x:[signed], y:[signed]) (>z:[sig6ned]<)[signed];
+    my_functor_signature := $(x:[signed], y:[signed]) (>z:[signed]<)[signed];
     [function myFunctionWithCapture, my_functor_signature,
         [result] := x + y + z;
     ];
