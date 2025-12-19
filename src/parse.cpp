@@ -1203,7 +1203,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       previous_ptr = &string;
       rq::Expression &tuple =
           this->getContext().getTopStaticFrame().acquireExpression();
-      tuple.setKeyword(rq::Keyword::S_TUPLE);
+      tuple.setKeyword(rq::Keyword::S_BRACE_GROUP);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
       this->getRanger().incrementToken(1);

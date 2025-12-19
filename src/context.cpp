@@ -320,8 +320,8 @@ bool Context::parseRequite(rq::Module &module,
 
 bool Context::situateModule(rq::Module &module) {
   rq::Situator situator(*this, this->getTopStaticFrame());
-  situator.situateModule(module);
-  return situator.getIsOk();
+  const bool is_ok = situator.situateModule(module);
+  return is_ok;
 }
 
 bool Context::tabulateModule(rq::Module &module) {
@@ -725,10 +725,20 @@ void Context::logErrorNotExactBranchCount(rq::Situation situation,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidBranchSituation(const rq::Expression &outer,
-                                             rq::Situation outer_situation,
-                                             rq::Expression &branch,
+void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
+                                            const rq::Expression &expression,
+                                            unsigned count) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(rq::getDescription(situation)) + " " +
+                       expression.getName() + " must have at least " +
+                       llvm::Twine(count) + " branches",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorInvalidBranchSituation(rq::Situation outer_situation,
+                                             const rq::Expression &outer,
                                              rq::Situation branch_situation,
+                                             rq::Expression &branch,
                                              unsigned branch_i,
                                              llvm::Twine log_context) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,

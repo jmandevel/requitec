@@ -219,10 +219,13 @@ struct Context final {
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
-  void logErrorInvalidBranchSituation(const rq::Expression &outer,
-                                      rq::Situation outer_situation,
-                                      rq::Expression &branch,
+  void logErrorNotAtLeastBranchCount(rq::Situation situation,
+                                     const rq::Expression &expression,
+                                     unsigned count);
+  void logErrorInvalidBranchSituation(rq::Situation outer_situation,
+                                      const rq::Expression &outer,
                                       rq::Situation branch_situation,
+                                      rq::Expression &branch,
                                       unsigned branch_i,
                                       llvm::Twine log_context);
 };

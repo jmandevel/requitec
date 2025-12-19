@@ -47,6 +47,7 @@ enum class Keyword : std::uint32_t {
 
   // SITUATIONAL
   S_PARENTHESIS_GROUP,
+  S_BRACE_GROUP,
   S_EQUAL_OPERATOR,
   S_COLON_OPERATOR,
   S_INFERENCE,
@@ -180,8 +181,6 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   OBJECT,
   ENUMERATION,
-  S_ENUMERATOR,
-  S_ENUMERATOR_WITH_DISCRIMINANT,
 
   // VALUES
   TRUE,
@@ -419,6 +418,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // SITUATIONAL
   case K::S_PARENTHESIS_GROUP:
     return "_parenthesis_group";
+  case K::S_BRACE_GROUP:
+    return "_brace_group";
   case K::S_EQUAL_OPERATOR:
     return "_equal_operator";
   case K::S_COLON_OPERATOR:
@@ -657,10 +658,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
-  case K::S_ENUMERATOR:
-    return "_enumerator";
-  case K::S_ENUMERATOR_WITH_DISCRIMINANT:
-    return "_enumerator_with_discriminant";
 
   // VALUES
   case K::TRUE:
@@ -1088,6 +1085,8 @@ getFlags(rq::Keyword keyword) {
   case K::S_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE | KF::PATH |
            KF::NAME | KF::SEQUENCE_STAGE;
+  case K::S_BRACE_GROUP:
+    return KF::RVALUE | KF::ARGUMENT | KF::LVALUE;
   case K::S_EQUAL_OPERATOR:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::ARGUMENT | KF::PARAMETER |
@@ -1365,10 +1364,6 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::LOCAL_STATEMENT | KF::REFLECTION |
            KF::RVALUE;
-  case K::S_ENUMERATOR:
-    return KF::ENUMERATOR;
-  case K::S_ENUMERATOR_WITH_DISCRIMINANT:
-    return KF::ENUMERATOR;
 
   // VALUES;
   case K::TRUE:
@@ -2887,6 +2882,7 @@ struct Expression final {
   RQ_ALWAYS_INLINE const rq::Expression *getNextPtr() const {
     return this->_next_ptr_flags.getPtr();
   }
+  // TODO: get rid of the getLastNext and getLastBranch functions to avoid excessive pointer chasing
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastNext() {
     rq::Expression *expression_ptr = this;
     while (expression_ptr->getNextPtr() != nullptr) {
