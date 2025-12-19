@@ -389,11 +389,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_BORROW_OF:
     return this->situateUnaryNonStatementBranches(situation, expression,
                                                   S::RVALUE);
-  case K::VIEW:
-    return this->situateNullaryExpression(situation, expression);
-  case K::S_VIEW_OF:
-    return this->situateUnaryNonStatementBranches(situation, expression,
-                                                  S::RVALUE);
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -440,9 +435,14 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::LINEAR:
     return this->situateNullaryExpression(situation, expression);
-  case K::DYNAMIC_CAPTURE_LAYOUT:{
-    // TODO
-    return false;
+  case K::DYNAMIC_CAPTURE_LAYOUT: {
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       1);
+      return false;
+    }
+    rq::Expression &branch = expression.getBranch();
+    return this->situateNaryParameterBranches(situation, expression, branch, 0);
   }
 
   // PARAMETER RULES
@@ -456,35 +456,69 @@ bool Situator::situateTree(rq::Situation situation,
     return this->situateNaryNonStatementBranches(situation, expression, 1,
                                                  S::RVALUE);
   case K::S_LAYOUT_TYPE: {
-    // TODO
-    return false;
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       1);
+      return false;
+    }
+    rq::Expression &branch = expression.getBranch();
+    return this->situateNaryParameterBranches(situation, expression, branch, 0);
   }
   case K::S_NULL:
     [[fallthrough]];
   case K::S_NULL_TYPE:
     return this->situateNullaryExpression(situation, expression);
   case K::S_STRUCTURED_BINDING:
-    return this->situateNaryWithLastNonStatementBranches(situation, expression, 2, S::LVALUE, S::RVALUE);
+    return this->situateNaryWithLastNonStatementBranches(
+        situation, expression, 2, S::LVALUE, S::RVALUE);
   case K::S_IGNORE:
-    return this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::S_SPECIALIZATION:
-    return this->situateNaryNonStatementBranches(situation, expression, 1, S::RVALUE, S::ARGUMENT);
+    return this->situateNaryNonStatementBranches(situation, expression, 1,
+                                                 S::RVALUE, S::ARGUMENT);
 
   // PROCEDURES
   case K::S_CALL:
-    return this->situateNaryNonStatementBranches(situation, expression, 1, S::RVALUE, S::ARGUMENT);
+    return this->situateNaryNonStatementBranches(situation, expression, 1,
+                                                 S::RVALUE, S::ARGUMENT);
+  case K::S_NAMED_ARGUMENT:
+    return this->situateBinaryNonStatementBranches(situation, expression,
+                                                   S::NAME, S::RVALUE);
+  case K::S_CONSTRUCT_FUNCTOR:
+    return this->situateNaryNonStatementBranches(situation, expression, 1,
+                                                 S::RVALUE, S::ARGUMENT);
   case K::S_INDEX_INTO:
-    return this->situateBinaryNonStatementBranches(situation, expression, S::RVALUE, S::RVALUE);
-  case K::S_SIGNATURE_TYPE:
-    return false; // TODO
+    return this->situateBinaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE, S::RVALUE);
+  case K::S_SIGNATURE_TYPE: {
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       1);
+      return false;
+    }
+    rq::Expression &first = expression.getBranch();
+    bool is_ok = this->situateBranch(situation, expression, S::RVALUE, first, 0,
+                                     "first branch");
+    if (!first.getHasNext()) {
+      return is_ok;
+    }
+    rq::Expression &second = first.getNext();
+    if (!this->situateNaryParameterBranches(situation, expression, second, 1)) {
+      is_ok = false;
+    }
+    return is_ok;
+  }
   case K::S_DEFAULT_VALUE_PARAMETER:
-    break;
+    return this->situateBinaryNonStatementBranches(situation, expression,
+                                                   S::BINDING, S::RVALUE);
   case K::DESTROY:
-    break;
+    return this->situateNullaryExpression(situation, expression);
   case K::S_DESTROY_VALUE:
-    break;
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::DROP:
-    break;
+    this->situateNullaryExpression(situation, expression);
   case K::S_DROP_VALUE:
     break;
   case K::EXTRACT:

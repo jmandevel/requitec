@@ -1,0 +1,10 @@
+[object NameData,
+    {> name:^[utf8] <},
+    [layout_constructor];
+];
+
+[entry_point
+    ?NameData(name="Hello, world!")
+    var := 0;
+    std.print(line="{var.[symbol].[get_attribute NameData].name}");
+];

@@ -35,28 +35,36 @@ struct Situator final {
   }
   [[nodiscard]] rq::Expression &makeModuleRoot(rq::Module &module);
   [[nodiscard]] bool situateModule(rq::Module &module);
-  [[nodiscard]] bool situateTree(rq::Situation situation, rq::Expression &expression);
-  [[nodiscard]] bool situateBranch(rq::Situation situation, rq::Expression &expression,
-                     rq::Situation branch_situation, rq::Expression &branch,
-                     unsigned branch_i, llvm::StringRef log_context);
+  [[nodiscard]] bool situateTree(rq::Situation situation,
+                                 rq::Expression &expression);
+  [[nodiscard]] bool situateBranch(rq::Situation situation,
+                                   rq::Expression &expression,
+                                   rq::Situation branch_situation,
+                                   rq::Expression &branch, unsigned branch_i,
+                                   llvm::StringRef log_context);
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
-                                rq::Expression &expression);
-  [[nodiscard]] bool situateUnaryNonStatementBranches(rq::Situation situation,
-                                        rq::Expression &expression,
-                                        rq::Situation branch0_situation);
-  [[nodiscard]] bool situateBinaryNonStatementBranches(rq::Situation situation,
-                                         rq::Expression &expression,
-                                         rq::Situation branch0_situation,
-                                         rq::Situation branch1_situation);
-  [[nodiscard]] bool situateNaryNonStatementBranches(rq::Situation situation,
-                                       rq::Expression &expression,
-                                       unsigned minimum_branch_count,
-                                       rq::Situation branchn_situation);
-  [[nodiscard]] bool situateNaryNonStatementBranches(rq::Situation situation,
-                                       rq::Expression &expression,
-                                       unsigned minimum_branch_count,
-                                       rq::Situation branch0_situation,
-                                       rq::Situation branchn_situation);
+                                              rq::Expression &expression);
+  [[nodiscard]] bool
+  situateUnaryNonStatementBranches(rq::Situation situation,
+                                   rq::Expression &expression,
+                                   rq::Situation branch0_situation);
+  [[nodiscard]] bool situateBinaryNonStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Situation branch0_situation, rq::Situation branch1_situation);
+  [[nodiscard]] bool situateNaryNonStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      unsigned minimum_branch_count, rq::Situation branchn_situation);
+  [[nodiscard]] bool situateNaryNonStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      unsigned minimum_branch_count, rq::Situation branch0_situation,
+      rq::Situation branchn_situation);
+  [[nodiscard]] bool situateNaryWithLastNonStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      unsigned minimum_branch_count, rq::Situation branch0_situation,
+      rq::Situation branch1_situation);
+  [[nodiscard]] bool situateNaryParameterBranches(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Expression &first_parameter, unsigned first_parameter_i);
 };
 
 } // namespace rq
