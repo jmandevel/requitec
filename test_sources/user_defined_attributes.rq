@@ -6,5 +6,5 @@
 [entry_point
     ?NameData(name="Hello, world!")
     var := 0;
-    std.print(line="{var.[symbol].[get_attribute NameData].name}");
+    std.print(line="{var.[symbol].[attribute NameData].name}");
 ];
