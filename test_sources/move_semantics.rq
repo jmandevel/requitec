@@ -1,27 +1,18 @@
 [import "std"];
 
-// ?std.pinned // uncomment this line to disable std.move and std.extract
-[object MyObject,
-
-  #std.useExtensions();
-
-  /*
-  std.useExtensions returns a quote that is expanded to get 
-  [use_extension_table std];
-  */
-];
+[object MyObject,];
 
 [entry_point
   object :`= MyObject();
   copy := object;
-  reference := object.borrow();
-  reference_to_mutable := object.borrow`();
-  pointer := object.address();
-  pointer_to_mutable := object.address`();
-  copy_value_at_pointer := pointer.content();
-  non_destructive_move := object.extract();
-  non_destructive_move.destroy(); // explicit destroy
-  destructive_move := object.move();
+  reference := object.[borrow];
+  reference_to_mutable := object.`[borrow];
+  pointer := object.[address];
+  pointer_to_mutable := object.`[address];
+  copy_value_at_pointer := pointer.[content];
+  non_destructive_move := object.[extract];
+  non_destructive_move.[destroy]; // explicit destroy
+  destructive_move := object.[move];
   // object was dropped
-  destructive_move.drop(); // explicit drop without destroy
+  destructive_move.[drop]; // explicit drop without destroy
 ];

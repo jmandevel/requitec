@@ -7,9 +7,9 @@
 [entry_point
     fruit := MyEnum.APPLE(3);
     [match fruit,
-        [case APPLE, apple:=[value].borrow`(), 
+        [case APPLE, apple:=[value].`[borrow], 
             apple += 1;
-        ][case ORANGE, orange:=[value].borrow`(),
+        ][case ORANGE, orange:=[value].`[borrow];
             orange *= 2;
         ][default
             // do nothing!

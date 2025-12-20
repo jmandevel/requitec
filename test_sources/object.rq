@@ -7,8 +7,6 @@
         @private z := 0
     <},
 
-    #std.useExtensions();
-
     [constructor];
 
     [constructor (>x:[signed], y:[signed], z:[signed]<),
