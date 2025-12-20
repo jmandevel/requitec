@@ -11,7 +11,7 @@
     [layout_constructor];
     [constructor];
     [array_constructor input:[_array Type, LENGTH],
-        { data=input.assignLinearly() }, // assignLinearaly() is standard library extension of _assign_linearly, which only can be in constructor initializer lists
+        { data=input->std.assignLinearly() }, // assignLinearaly() is standard library extension of _assign_linearly, which only can be in constructor initializer lists
     ];
 ];
 
