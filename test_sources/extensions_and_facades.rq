@@ -6,7 +6,7 @@
     ];
 
     @{> Type:[type], LENGTH:[unsigned] <}
-    [extension_method, getElementCount, LENGTH#Type->(><)[unsigned],
+    [extension_method, getElementCount, LENGTH#Type=>(><)[unsigned],
         [result] := LENGTH;
     ];
 
@@ -14,7 +14,7 @@
         [constructor];
     ];
 
-    [extension_method bar, Foo->(><)[void],
+    [extension_method bar, Foo=>(><)[void],
     
     ];
 ];
