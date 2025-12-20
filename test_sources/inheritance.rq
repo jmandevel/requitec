@@ -1,4 +1,4 @@
-[import "std"]
+[import "stde"]
 
 @may_parent
 [object Parent,

@@ -1,3 +1,5 @@
+[import "stde"];
+
 [entry_point
 
     // all of these loops are equivalent
@@ -52,7 +54,7 @@
         std.print(line="value is {value}");
     ];
 
-    [if (0.<10).[contains 5],
+    [if (0.<10)->contains(5),
         std.print(line="5 is within interval over 0 to 10");
     ];
 ];

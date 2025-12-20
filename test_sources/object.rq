@@ -25,7 +25,7 @@
     ];
 ];
 
-[import "std"];
+[import "stde"];
 
 [entry_point
 

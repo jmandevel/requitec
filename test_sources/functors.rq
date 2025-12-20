@@ -1,10 +1,12 @@
+[import "stde"];
+
 [entry_point
     @static 
     my_functor_signature := $(x:[signed], y:[signed]) (>z:[signed]<)[signed];
     [function myFunctionWithCapture, my_functor_signature,
         [result] := x + y + z;
     ];
-    my_functor_value :my_functor_signature= myFunctionWithCapture[x=1, y=2];
+    my_functor_value :my_functor_signature= myFunctionWithCapture->constructFunctor(x=1, y=2);
     my_functor_value2 :my_functor_signature= 
         [(x:=10, y:= 2) (>z:[signed]<)[signed], 
             [result] := x * y * z;

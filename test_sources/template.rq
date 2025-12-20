@@ -1,8 +1,10 @@
 @{> Type:[type], LENGTH:[unsigned] <}
 [object Array,
     {>
-        data := LENGTH#Type:[indeterminate]
+        data := Type[LENGTH]:[indeterminate]
     <},
+
+    [layout_constructor];
 
     [constructor];
 ];
@@ -10,5 +12,7 @@
 [entry_point
 
     my_array := Array{[binary32], 64}();
+
+    my_other_array := Array({1, 2, 3, 4});
 
 ];

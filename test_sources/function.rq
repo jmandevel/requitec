@@ -1,4 +1,4 @@
-[import "std"];
+[import "stde"];
 
 [function myFunc, (>a:[signed], b:[signed]<)[signed],
     [if a > b,
