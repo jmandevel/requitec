@@ -1,5 +1,3 @@
-[import "stde"];
-
 [enumeration MyEnum, 32,
     APPLE:[signed]    = 0;
     ORANGE:[unsigned] = 2;
@@ -9,21 +7,21 @@
 [entry_point
     fruit := MyEnum.APPLE(3);
     [match fruit,
-        [case APPLE, apple:=[value]->borrow`(), 
+        [case APPLE, apple:=[value].`[borrow], 
             apple += 1;
-        ][case ORANGE, orange:=[value]->borrow`(),
+        ][case ORANGE, orange:=[value].`[borrow],
             orange *= 2;
         ][default
             // do nothing!
         ];
     ];
     value :=
-        [inline_match fruit, <=out,
-            [case APPLE, apple:=[value], 
+        [inline_match fruit, out:=[out].`[borrow],
+            [case APPLE, apple:=[in], 
                 out := apple;
-            ][case ORANGE, orange:=[value],
+            ][case ORANGE, orange:=[in],
                 out := [signed]:orange;
-            ][case GRAPE, grape:=[value],
+            ][case GRAPE, grape:=[in],
                 out := [signed]:grape;
             ];
         ];

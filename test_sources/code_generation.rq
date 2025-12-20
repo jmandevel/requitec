@@ -1,4 +1,4 @@
-[import "stde"];
+[import "std"];
 
 @static
 [for 0.<=10, num:=[value],
