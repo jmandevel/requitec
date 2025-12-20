@@ -1,0 +1,43 @@
+
+[table example,
+    @{> Type:[type], LENGTH:[unsigned] <}
+    [extension_function, getElementCount, LENGTH#Type, (><)[unsigned],
+        [result] := LENGTH;
+    ];
+
+    @{> Type:[type], LENGTH:[unsigned] <}
+    [extension_method, getElementCount(), LENGTH#Type->(><)[unsigned],
+        [result] := LENGTH;
+    ];
+
+    [object Foo,
+        [constructor];
+    ];
+
+    [extension_method bar, Foo->(><)[void],
+    
+    ];
+];
+
+[entry_point
+    my_array :5#[signed]= {0, 1, 2, 3, 4};
+
+    // call extension function
+    {} = my_array.[type]->example.getElementCount();
+    // call extension method
+    {} = my_array->example.getElementCount();
+
+    // apply the facade so can treat viable extensions in table as members of builtin types
+    [builtin_facade example];
+
+    // call extension function
+    {} = my_array.[type].getElementCount();
+    // call extension method
+    {} = my_array.getElementCount();
+    
+    // construct variable of type declared in same table as extension functions
+    foo := example.Foo();
+
+    // call extension function
+    foo.bar();
+];
