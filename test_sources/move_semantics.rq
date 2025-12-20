@@ -1,6 +1,6 @@
 [import "std"];
 
-[object MyObject,];
+[object MyObject, [constructor];];
 
 [entry_point
   object :`= MyObject();
