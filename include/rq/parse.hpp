@@ -267,7 +267,7 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence2();
   [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
-  void parseNonStatementBranches(rq::Expression &expression, rq::TokenKind end);
+  [[nodiscard]] bool parseNonStatementBranches(rq::Expression &expression, rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();

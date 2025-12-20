@@ -802,7 +802,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       call.setKeyword(rq::Keyword::S_CALL);
       call.setBranch(callee);
       call.setSource(callee, post_token);
-      this->parseNonStatementBranches(
+      std::ignore = this->parseNonStatementBranches(
           call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
       precedence_builder.setOnlyRecent(call);
       previous_horned = true;
@@ -817,8 +817,8 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       specialization.setKeyword(rq::Keyword::S_SPECIALIZATION);
       specialization.setBranch(target);
       specialization.setSource(target, post_token);
-      this->parseNonStatementBranches(specialization,
-                                      rq::TokenKind::RIGHT_BRACE_GROUPING);
+      std::ignore = this->parseNonStatementBranches(
+          specialization, rq::TokenKind::RIGHT_BRACE_GROUPING);
       precedence_builder.setOnlyRecent(specialization);
       previous_horned = true;
       continue;
@@ -829,11 +829,11 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       rq::Expression &target = precedence_builder.getOuter();
       rq::Expression &construction =
           this->getContext().getTopStaticFrame().acquireExpression();
-      construction.setKeyword(rq::Keyword::S_CONSTRUCT_FUNCTOR);
+      construction.setKeyword(rq::Keyword::S_INDEX_INTO);
       construction.setBranch(target);
       construction.setSource(target, post_token);
-      this->parseNonStatementBranches(construction,
-                                      rq::TokenKind::RIGHT_BRACKET_GROUPING);
+      std::ignore = this->parseNonStatementBranches(
+          construction, rq::TokenKind::RIGHT_BRACKET_GROUPING);
       precedence_builder.setOnlyRecent(construction);
       previous_horned = true;
       continue;
@@ -882,8 +882,9 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   return error;
 }
 
-void RequiteParser::parseNonStatementBranches(rq::Expression &expression,
-                                              rq::TokenKind end) {
+[[nodiscard]] bool
+RequiteParser::parseNonStatementBranches(rq::Expression &expression,
+                                         rq::TokenKind end) {
   RQ_ASSERT(expression.getHasNonStatementBranches(),
             "expression must have non-statement branches");
   rq::TreeBuilder builder;
@@ -892,7 +893,7 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &expression,
   if (first_token.getKind() == end) {
     this->getRanger().incrementToken(1);
     builder.finishExpression(first_token);
-    return;
+    return false;
   } else if (first_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
     const rq::Token &second_token = this->getRanger().getToken(1);
     if (second_token.getKind() == rq::TokenKind::LESS_EQUAL_OPERATOR) {
@@ -910,13 +911,15 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &expression,
         builder.appendBranch(second_mark);
         builder.finishExpression(third_token);
         this->getRanger().incrementToken(3);
-        return;
+        return true;
       }
     }
   }
+  bool parameter_mark_found = false;
   while (true) {
     const rq::Token &next_token = this->getRanger().getToken();
     if (next_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
+      parameter_mark_found = true;
       rq::Expression &mark =
           this->getContext().getTopStaticFrame().acquireExpression();
       mark.setSource(next_token);
@@ -932,8 +935,9 @@ void RequiteParser::parseNonStatementBranches(rq::Expression &expression,
     } else if (after_token.getKind() == end) {
       this->getRanger().incrementToken(1);
       builder.finishExpression(after_token);
-      return;
+      return parameter_mark_found;
     } else if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
+      parameter_mark_found = true;
       rq::Expression &mark =
           this->getContext().getTopStaticFrame().acquireExpression();
       mark.setSource(next_token);
@@ -990,8 +994,8 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
     capture.setKeyword(rq::Keyword::S_DYNAMIC_CAPTURE);
     capture.setSource(keyword_token);
     this->getRanger().incrementToken(1);
-    this->parseNonStatementBranches(capture,
-                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        capture, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
     builder.appendBranch(capture);
   } else {
     const rq::Keyword keyword = this->parseKeyword();
@@ -999,8 +1003,8 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
     expression.setSource(left_token);
   }
   if (!expression.getHasStatementBranches()) {
-    this->parseNonStatementBranches(expression,
-                                    rq::TokenKind::RIGHT_BRACKET_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        expression, rq::TokenKind::RIGHT_BRACKET_GROUPING);
     return expression;
   }
   rq::TreeBuilder builder;
@@ -1040,7 +1044,11 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   brace.setKeyword(rq::Keyword::S_TUPLE);
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
-  this->parseNonStatementBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
+  const bool parameter_mark_found = this->parseNonStatementBranches(
+      brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
+  if (parameter_mark_found) {
+    brace.setKeyword(rq::Keyword::S_LAYOUT);
+  }
   return brace;
 }
 
@@ -1090,8 +1098,8 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
         this->getContext().getTopStaticFrame().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(at_token);
-    this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_BRACKET_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        attribute, rq::TokenKind::RIGHT_BRACKET_GROUPING);
     return attribute;
   } else if (next_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
     rq::Expression &attribute =
@@ -1099,8 +1107,8 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
     attribute.setKeyword(rq::Keyword::TEMPLATE);
     attribute.setSource(at_token);
     this->getRanger().incrementToken(1);
-    this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_BRACE_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        attribute, rq::TokenKind::RIGHT_BRACE_GROUPING);
     return attribute;
   } else if (next_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
     rq::Expression &attribute =
@@ -1108,8 +1116,8 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
     attribute.setKeyword(rq::Keyword::STATIC_CAPTURE);
     attribute.setSource(at_token);
     this->getRanger().incrementToken(1);
-    this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        attribute, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
     return attribute;
   }
   const rq::Token &keyword_token = this->getRanger().getToken();
@@ -1134,8 +1142,8 @@ rq::Expression &RequiteParser::parseTypeAttribute() {
         this->getContext().getTopStaticFrame().acquireExpression();
     attribute.setKeyword(keyword);
     attribute.setSource(dollar_token);
-    this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_BRACKET_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        attribute, rq::TokenKind::RIGHT_BRACKET_GROUPING);
     return attribute;
   } else if (next_token.getKind() == rq::TokenKind::LEFT_PARENTHESIS_GROUPING) {
     rq::Expression &attribute =
@@ -1143,8 +1151,8 @@ rq::Expression &RequiteParser::parseTypeAttribute() {
     attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
     this->getRanger().incrementToken(1);
-    this->parseNonStatementBranches(attribute,
-                                    rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+    std::ignore = this->parseNonStatementBranches(
+        attribute, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
     return attribute;
   }
   const rq::Token &keyword_token = this->getRanger().getToken();
@@ -1163,8 +1171,17 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   parenthesis.setKeyword(rq::Keyword::S_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->getRanger().incrementToken(1);
-  this->parseNonStatementBranches(parenthesis,
-                                  rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+  const bool has_parameter_marks = this->parseNonStatementBranches(
+      parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+  if (has_parameter_marks) {
+    parenthesis.setKeyword(rq::Keyword::S_SIGNATURE);
+    rq::Expression &return_type = this->parseExpression();
+    if (parenthesis.getHasBranch()) {
+      return_type.setNext(parenthesis.replaceBranch(return_type));
+    } else {
+      parenthesis.setBranch(return_type);
+    }
+  }
   return parenthesis;
 }
 

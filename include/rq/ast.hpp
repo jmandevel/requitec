@@ -47,7 +47,6 @@ enum class Keyword : std::uint32_t {
 
   // SITUATIONAL
   S_PARENTHESIS_GROUP,
-  S_BRACE_GROUP,
   S_EQUAL_OPERATOR,
   S_COLON_OPERATOR,
   S_INFERENCE,
@@ -418,8 +417,6 @@ constexpr std::size_t KEYWORD_COUNT =
   // SITUATIONAL
   case K::S_PARENTHESIS_GROUP:
     return "_parenthesis_group";
-  case K::S_BRACE_GROUP:
-    return "_brace_group";
   case K::S_EQUAL_OPERATOR:
     return "_equal_operator";
   case K::S_COLON_OPERATOR:
@@ -1085,8 +1082,6 @@ getFlags(rq::Keyword keyword) {
   case K::S_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE | KF::PATH |
            KF::NAME | KF::SEQUENCE_STAGE;
-  case K::S_BRACE_GROUP:
-    return KF::RVALUE | KF::ARGUMENT | KF::LVALUE;
   case K::S_EQUAL_OPERATOR:
     return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT | KF::ARGUMENT | KF::PARAMETER |
