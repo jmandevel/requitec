@@ -36,5 +36,5 @@
 
     added := MyObject.add(a, b);
 
-    [result] := added.getTotal();
+    [exit_code] := added.getTotal();
 ];

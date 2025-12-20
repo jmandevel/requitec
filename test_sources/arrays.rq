@@ -1,10 +1,11 @@
 [import "std"];
+[builtin_facade std];
 
 [entry_point
     my_array :`= {0, 1, 2, 3, 4};
-    my_span := my_array.[span];
-    my_span_to_mutable := my_array.`[span];
-    std.print(line="stats: size:{my_array.[byte_size]} count:{my_array.[element_count]} depth:{my_array.[bit_depth]}!");
+    const_fat_pointer := my_array.getView();
+    mutable_fat_pointer := my_array.getSpan();
+    std.print(line="stats: size:{my_array.[type].[byte_size]} count:{my_array.[type].getElementCount()} depth:{my_array.[type].[bit_depth]}!");
     [for my_array, index:=[index], element:=[value].`[borrow], 
         element *= index;
     ];
@@ -12,5 +13,5 @@
         std.print(line="element {index} is {element}!");
         index += 1;
     ];
-    std.print(line="it starts with {my_array[0]}!");
+    std.print(line="it starts with {my_array.at(0)}!");
 ];

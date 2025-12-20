@@ -1,4 +1,5 @@
-[import "std"]
+[import "std"];
+[builtin_facade std];
 
 @may_parent
 [object Parent,
