@@ -896,7 +896,7 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
     return false;
   } else if (first_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
     const rq::Token &second_token = this->getRanger().getToken(1);
-    if (second_token.getKind() == rq::TokenKind::LESS_EQUAL_OPERATOR) {
+    if (second_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
       const rq::Token &third_token = this->getRanger().getToken(2);
       if (third_token.getKind() == end) {
         rq::Expression &first_mark =
@@ -1047,7 +1047,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const bool parameter_mark_found = this->parseNonStatementBranches(
       brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found) {
-    brace.setKeyword(rq::Keyword::S_LAYOUT);
+    brace.changeKeyword(rq::Keyword::LAYOUT);
   }
   return brace;
 }
@@ -1174,7 +1174,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const bool has_parameter_marks = this->parseNonStatementBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks) {
-    parenthesis.setKeyword(rq::Keyword::S_SIGNATURE);
+    parenthesis.changeKeyword(rq::Keyword::SIGNATURE);
     rq::Expression &return_type = this->parseExpression();
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));
@@ -1235,7 +1235,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       previous_ptr = &string;
       rq::Expression &tuple =
           this->getContext().getTopStaticFrame().acquireExpression();
-      tuple.setKeyword(rq::Keyword::S_BRACE_GROUP);
+      tuple.setKeyword(rq::Keyword::S_TUPLE);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
       this->getRanger().incrementToken(1);

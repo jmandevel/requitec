@@ -23,8 +23,7 @@ bool Situator::situateModule(rq::Module &module) {
   rq::Expression &first = module.getExpression();
   if (first.getKeyword() != rq::Keyword::S_MODULE_ROOT) {
     rq::Expression &root = this->makeModuleRoot(module);
-    std::ignore = module.popExpression();
-    root.setBranch(first);
+    root.setNext(module.replaceExpression(root));
   }
   rq::Expression &root = module.getExpression();
   return this->situateTree(rq::Situation::ROOT_STATEMENT, root);
@@ -42,6 +41,10 @@ bool Situator::situateModule(rq::Module &module) {
 
 bool Situator::situateTree(rq::Situation situation,
                            rq::Expression &expression) {
+                            std::ignore = situation;
+                            std::ignore = expression;
+                            return false;
+                            /*
   RQ_ASSERT_VALID_SITUATION(situation, expression);
   using S = rq::Situation;
   using K = rq::Keyword;
@@ -936,6 +939,7 @@ bool Situator::situateUnaryNonStatementBranches(
     return false;
   }
   return is_ok;
+  */
 }
 
 } // namespace rq

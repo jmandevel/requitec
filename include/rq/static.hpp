@@ -197,6 +197,12 @@ struct Module final : public rq::StaticValue {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+  replaceExpression(rq::Expression &expression) {
+    rq::Expression &replaced_expression = this->getExpression();
+    this->_expression_ptr = &expression;
+    return replaced_expression;
+  }
 };
 
 inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::ValueKind kind) {

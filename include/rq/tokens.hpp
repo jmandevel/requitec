@@ -575,8 +575,8 @@ getFlags(rq::TokenKind kind) {
     return TF::NONE; // SIGIL
   case T::DOLLAR_SIGIL:
     return TF::NONE; // SIGIL
-  case T::TRAILER_SEPARATOR | TF::INFERENCE_TERMINATOR:
-    return TF::SEPARATOR;
+  case T::TRAILER_SEPARATOR:
+    return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
   case T::SEMICOLON_SEPARATOR:
     return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
   case T::COMMA_SEPARATOR:
