@@ -1,14 +1,25 @@
+[import "std"];
+
 @{> Type:[type], LENGTH:[unsigned] <}
 [object Array,
     {>
-        data := LENGTH#Type:[indeterminate]
+        data := [_array Type, LENGTH]:[indeterminate]
     <},
 
+    #std.useExtensions();
+
+    [layout_constructor];
     [constructor];
+    [array_constructor input:[_array Type, LENGTH],
+        { data=input.assignLinearly() }, // assignLinearaly() is standard library extension of _assign_linearly, which only can be in constructor initializer lists
+    ];
 ];
 
 [entry_point
 
     my_array := Array{[binary32], 64}();
 
+    my_other_array := Array(1, 2, 3, 4);
+
+    array_size := my_other_array.getByteSize();
 ];

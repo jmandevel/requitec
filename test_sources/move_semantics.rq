@@ -1,14 +1,34 @@
+[import "std"];
+
+[object MyObject,
+
+  #std.useExtensions();
+
+  /*
+  std.useExtensions returns a quote that is expanded to get the following expressions:
+  [use_extension std.borrow];
+  [use_extension std.address];
+  [use_extension std.content];
+  [use_extension std.move];
+  [use_extension std.extract];
+  [use_extension std.destroy];
+  [use_extension std.drop];
+  [use_extension std.getByteSize];
+  [use_extension std.getBitDepth];
+  */
+];
+
 [entry_point
   object :`= MyObject();
   copy := object;
-  reference := object.[borrow];
-  reference_to_mutable := object.`[borrow];
-  pointer := object.[address];
-  pointer_to_mutable := object.`[address];
-  copy_value_at_pointer := pointer.[content];
-  non_destructive_move := object.[extract];
-  non_destructive_move.[destroy]; // explicit destroy
-  destructive_move := object.[move];
+  reference := object.borrow();
+  reference_to_mutable := object.borrow`();
+  pointer := object.address();
+  pointer_to_mutable := object.address`();
+  copy_value_at_pointer := pointer.content();
+  non_destructive_move := object.extract();
+  non_destructive_move.destroy(); // explicit destroy
+  destructive_move := object.move();
   // object was dropped
-  destructive_move.[drop]; // explicit drop without destroy
+  destructive_move.drop(); // explicit drop without destroy
 ];

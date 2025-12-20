@@ -3,7 +3,7 @@
 @static
 [for 0.<=10, num:=[value],
     @(num) @global 
-    \std.format(text="VAR{num}").getView() :`= index;
+    \std.format(text="VAR{num}") :`= index;
 ];
 
 [entry_point
@@ -11,6 +11,6 @@
     [for 0.<=10, num:=[value], 
         @static
         varname := std.format(text="VAR{num}");
-        std.print(line="{varname} is {\varname.getView()}!");        
+        std.print(line="{varname} is {\varname}!");        
     ];
 ];

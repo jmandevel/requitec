@@ -1,10 +1,12 @@
+[import "std"];
+
 [object NameData,
-    {> name:^[utf8] <},
+    {> name:std.StringView <},
     [layout_constructor];
 ];
 
 [entry_point
     ?NameData(name="Hello, world!")
     var := 0;
-    std.print(line="{var.[symbol].[attribute NameData].name}");
+    std.print(line="{^var.getUserAttribute{NameData}.name}");
 ];

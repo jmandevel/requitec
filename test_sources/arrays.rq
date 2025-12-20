@@ -1,15 +1,15 @@
 [import "std"];
 
 [entry_point
-    my_array :`= {0, 1, 2, 3, 4};
-    my_span := my_array->std.getSpan();
-    std.print(line="stats: size:{my_array.[byte_size]} count:{my_array.[element_count]} depth:{my_array.[bit_depth]}!");
-    [for my_array, index:=[index], element:=[value].`[borrow], 
+    my_array :`= std.Array(0, 1, 2, 3, 4);
+    my_view := my_array.getView();
+    std.print(line="stats: size:{my_array.getByteSize()} count:{my_array.getCount()} depth:{my_array.getBitDepth()}!");
+    [for my_array, index:=[index], element:=[value].borrow`(), 
         element *= index;
     ];
     [for my_array, index:=[index], element:=[value], 
         std.print(line="element {index} is {element}!");
         index += 1;
     ];
-    std.print(line="it starts with {my_array->std.at(0)}!");
+    std.print(line="it starts with {my_array.at(0)}!");
 ];

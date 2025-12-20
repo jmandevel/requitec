@@ -1,9 +1,13 @@
+[import "std"];
+
 [object MyObject,
     {>
         @private x := 0,
         @private y := 0,
         @private z := 0
     <},
+
+    #std.useExtensions();
 
     [constructor];
 
@@ -24,8 +28,6 @@
             );
     ];
 ];
-
-[import "std"];
 
 [entry_point
 
