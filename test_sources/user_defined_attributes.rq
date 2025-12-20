@@ -8,5 +8,5 @@
 [entry_point
     ?NameData(name="Hello, world!")
     var := 0;
-    std.print(line="{^^var->std.getUserAttribute{NameData}.name}");
+    std.print(line="{^^var.getUserAttribute{NameData}.name}");
 ];

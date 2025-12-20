@@ -1,9 +1,9 @@
 [import "std"];
 
 [entry_point
-    my_array :`= std.Array(0, 1, 2, 3, 4);
+    my_array :`= {0, 1, 2, 3, 4};
     my_view := my_array.getView();
-    std.print(line="stats: size:{my_array.getByteSize()} count:{my_array.getCount()} depth:{my_array.getBitDepth()}!");
+    std.print(line="stats: size:{my_array.getByteSize()} count:{my_array.getElementCount()} depth:{my_array.getBitDepth()}!");
     [for my_array, index:=[index], element:=[value].borrow`(), 
         element *= index;
     ];

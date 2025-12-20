@@ -1,0 +1,27 @@
+[table asdf,
+    @{> Type:[type], LENGTH:[unsigned] <}
+    [object Array,
+        {>
+            data:[_array Type, LENGTH]=[zeroed];
+        <},
+
+        [layout_constructor];
+        [constructor];
+        [array_constructor array:[_array Type, LENGTH],
+            {> data=array->std.linearAssign() <},
+        ];
+    ];
+
+    [array_facade asdf.Array];
+];
+
+[entry_point
+    my_array := asdf.Array{[binary32], 64}();
+
+    my_other_array := asdf.Array(1 , 2, 3, 4);
+
+    my_next_array := asdf.{1, 2, 3, 4};
+
+    [use_facade_table asdf];
+    my_final_array := {1, 2, 3, 4};
+];

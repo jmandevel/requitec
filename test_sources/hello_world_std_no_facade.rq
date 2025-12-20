@@ -1,0 +1,9 @@
+// this export is same as "std" except it does not
+// include export of [use_facade_table std]
+[import "std_no_facade"];
+
+
+[entry_point
+    // you have to explicitly say the string literal uses facade from table std
+    std.print(line=std."Hello, world!");
+];

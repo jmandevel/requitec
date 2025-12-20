@@ -34,7 +34,7 @@
     a := MyObject();
     b := MyObject(1, 2, 3);
 
-    std.print(line="a total:{a.getTotal()}");
+    std.print(line=std."a total:{a.getTotal()}");
 
     added := MyObject.add(a, b);
 

@@ -1,20 +1,13 @@
 [import "std"];
 
+// ?std.pinned // uncomment this line to disable std.move and std.extract
 [object MyObject,
 
   #std.useExtensions();
 
   /*
-  std.useExtensions returns a quote that is expanded to get the following expressions:
-  [use_extension std.borrow];
-  [use_extension std.address];
-  [use_extension std.content];
-  [use_extension std.move];
-  [use_extension std.extract];
-  [use_extension std.destroy];
-  [use_extension std.drop];
-  [use_extension std.getByteSize];
-  [use_extension std.getBitDepth];
+  std.useExtensions returns a quote that is expanded to get 
+  [use_extension_table std];
   */
 ];
 
