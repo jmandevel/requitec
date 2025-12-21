@@ -386,6 +386,9 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
       fout << " (inserted)";
     }
     fout << "\n";
+    if (trunk.getIsLiteral()) {
+      fout << " // " << trunk.getName() << "\n";
+    }
   }
   rq::emitIndent(fout, indent);
   if (trunk.getIsLiteral()) {
@@ -395,9 +398,6 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << trunk.getSourceText();
     if (trunk.getHasUnquotedRight()) {
       fout << "\"";
-    }
-    if (!rq::getNoComment()) {
-      fout << " // " << trunk.getName();
     }
     return;
   }
