@@ -4,12 +4,12 @@
 @may_parent
 [object Parent,
     
-    [method myFunc, 
+    [method myFunc, &=>(><),
         std.print(line="in parent");
     ];
     
     @virtual
-    [method myFuncB, 
+    [method myFuncB, &=>(><),
         std.print(line="in parent");
     ];
     
@@ -24,7 +24,7 @@
     [use [self].parent.myFunc];
     
     @[override [self].parent.myFuncB]
-    [method myFuncB,
+    [method myFuncB, &=>(><),
         std.print(line="in child");
     ];
 
@@ -35,8 +35,8 @@
     parent := Parent();
     child := Child();
 
-    parent.myFunc();
-    child.myFunc();
-    parent.myFuncB();
-    child.myFuncB();
+    parent.[borrow].myFunc();
+    child.[borrow].myFunc();
+    parent.[borrow].myFuncB();
+    child.[borrow].myFuncB();
 ];

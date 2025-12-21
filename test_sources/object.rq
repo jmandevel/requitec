@@ -13,7 +13,7 @@
         {x=x, y=y, z=z},
     ];
 
-    [method getTotal, (><)[signed],
+    [method getTotal, &=>(><)[signed],
         [result] := [this].x + [this].y + [this].z;
     ];
 
@@ -32,9 +32,9 @@
     a := MyObject();
     b := MyObject(1, 2, 3);
 
-    std.print(line=std."a total:{a.getTotal()}");
+    std.print(line=std."a total:{a.[borrow].getTotal()}");
 
     added := MyObject.add(a, b);
 
-    [exit_code] := added.getTotal();
+    [exit_code] := added.[borrow].getTotal();
 ];

@@ -1,4 +1,5 @@
 [import "std"];
+[builtin_facade std];
 
 [object MyObject, [constructor];];
 
@@ -10,7 +11,7 @@
   pointer := object.[address];
   pointer_to_mutable := object.`[address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := object.[extract];
+  non_destructive_move := object.[move].extract();
   non_destructive_move.[destroy]; // explicit destroy
   destructive_move := object.[move];
   // object was dropped

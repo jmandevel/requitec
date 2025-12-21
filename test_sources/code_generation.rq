@@ -11,6 +11,6 @@
     [for 0.<=10, num:=[value], 
         @static
         varname := std.format(text="VAR{num}");
-        std.print(line="{varname} is {\varname}!");        
+        std.print(line="{varname.[borrow].span()} is {\varname}!");        
     ];
 ];

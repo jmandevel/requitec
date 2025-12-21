@@ -51,11 +51,11 @@
         ];
     ];
     object := MyObject();
-    [for object, value:=[value], 
+    [for object.[borrow], value:=[value], 
         std.print(line="value is {value}");
     ];
 
-    [if (0.<10).getContains(5),
+    [if (0.<10).[borrow].getContains(5),
         std.print(line="5 is within interval over 0 to 10");
     ];
 ];
