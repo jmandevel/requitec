@@ -286,7 +286,7 @@ enum class Keyword : std::uint32_t {
   S_SEQUENCE_WHILE_NOT_EQUAL,
 
   // ACCESS MODIFIERS
-  PRIVATE,
+  PUBLIC,
   PROTECTED,
   EXPORT,
 
@@ -826,8 +826,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_sequence_while_not_equal";
 
   // ACCESS MODIFIERS
-  case K::PRIVATE:
-    return "private";
+  case K::PUBLIC:
+    return "public";
   case K::PROTECTED:
     return "protected";
   case K::EXPORT:
@@ -1546,7 +1546,7 @@ getFlags(rq::Keyword keyword) {
     return KF::SEQUENCE_STAGE;
 
   // ACCESS MODIFIERS
-  case K::PRIVATE:
+  case K::PUBLIC:
     return KF::STATEMENT_ATTRIBUTE;
   case K::PROTECTED:
     return KF::STATEMENT_ATTRIBUTE;
@@ -2178,7 +2178,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   UNLIKELY,
   DEPRECIATED,
   EXPORT,
-  PRIVATE,
+  PUBLIC,
   PROTECTED,
   MAY_SHALLOW_COPY,
   MAY_MOVE,
@@ -2232,8 +2232,8 @@ getName(rq::StatementAttribute attribute) {
     return "depreciated";
   case SA::EXPORT:
     return "export";
-  case SA::PRIVATE:
-    return "private";
+  case SA::PUBLIC:
+    return "public";
   case SA::PROTECTED:
     return "protected";
   case SA::MAY_SHALLOW_COPY:
@@ -2292,8 +2292,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::DEPRECIATED;
   case K::EXPORT:
     return SA::EXPORT;
-  case K::PRIVATE:
-    return SA::PRIVATE;
+  case K::PUBLIC:
+    return SA::PUBLIC;
   case K::PROTECTED:
     return SA::PROTECTED;
   case K::MAY_SHALLOW_COPY:
@@ -2330,7 +2330,7 @@ enum class StatementFlags : std::uint32_t {
   UNLIKELY = rq::getBit(14),
   DEPRECIATED = rq::getBit(13),
   EXPORT = rq::getBit(12),
-  PRIVATE = rq::getBit(11),
+  PUBLIC = rq::getBit(11),
   PROTECTED = rq::getBit(10),
   MAY_SHALLOW_COPY = rq::getBit(9),
   MAY_MOVE = rq::getBit(8),
@@ -2387,8 +2387,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::DEPRECIATED;
   case SA::EXPORT:
     return SF::EXPORT;
-  case SA::PRIVATE:
-    return SF::PRIVATE;
+  case SA::PUBLIC:
+    return SF::PUBLIC;
   case SA::PROTECTED:
     return SF::PROTECTED;
   case SA::MAY_SHALLOW_COPY:
