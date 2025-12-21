@@ -1,7 +1,7 @@
 [import "std"];
 
 [object NameData,
-    {> name:^[utf8] <},
+    {> @public name:^[utf8] <},
     [layout_constructor];
 ];
 
