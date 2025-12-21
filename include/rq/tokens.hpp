@@ -41,7 +41,6 @@ enum class TokenKind : std::uint_fast8_t {
   STAR_EQUAL_OPERATOR,        // *=
   SLASH_EQUAL_OPERATOR,       // /=
   PERCENT_EQUAL_OPERATOR,     // %=
-  QUESTION_OPERATOR,          // ?
   GRAVE_OPERATOR,             // `
   DOUBLE_GRAVE_OPERATOR,      // ``
   ARROW_OPERATOR,             // ->
@@ -63,6 +62,7 @@ enum class TokenKind : std::uint_fast8_t {
   // SIGILS
   AT_SIGIL,     // @
   DOLLAR_SIGIL, // $
+  WHAT_SIGIL,   // ?
 
   // SEPARATOR SYMBOLS
   TRAILER_SEPARATOR,   // %%
@@ -185,8 +185,6 @@ getName(rq::TokenKind kind) {
     return "slash_equal_operator";
   case T::PERCENT_EQUAL_OPERATOR:
     return "percent_equal_operator";
-  case T::QUESTION_OPERATOR:
-    return "question_operator";
   case T::GRAVE_OPERATOR:
     return "grave_operator";
   case T::DOUBLE_GRAVE_OPERATOR:
@@ -227,6 +225,8 @@ getName(rq::TokenKind kind) {
     return "at_sigil";
   case T::DOLLAR_SIGIL:
     return "dollar_sigil";
+  case T::WHAT_SIGIL:
+    return "what_sigil";
 
   // SEPARATOR SYMBOLS
   case T::TRAILER_SEPARATOR:
@@ -360,8 +360,6 @@ getDescription(rq::TokenKind kind) {
     return "slash equal operator";
   case T::PERCENT_EQUAL_OPERATOR:
     return "percent equal operator";
-  case T::QUESTION_OPERATOR:
-    return "question operator";
   case T::GRAVE_OPERATOR:
     return "grave operator";
   case T::DOUBLE_GRAVE_OPERATOR:
@@ -399,9 +397,11 @@ getDescription(rq::TokenKind kind) {
 
   // SIGILS
   case T::AT_SIGIL:
-    return "at_sigil";
+    return "at sigil";
   case T::DOLLAR_SIGIL:
-    return "dollar_sigil";
+    return "dollar sigil";
+  case T::WHAT_SIGIL:
+    return "what sigil";
 
   // SEPARATOR SYMBOLS
   case T::TRAILER_SEPARATOR:
@@ -535,8 +535,6 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::PERCENT_EQUAL_OPERATOR:
     return TF::OPERATOR;
-  case T::QUESTION_OPERATOR:
-    return TF::OPERATOR;
   case T::GRAVE_OPERATOR:
     return TF::OPERATOR;
   case T::DOUBLE_GRAVE_OPERATOR:
@@ -574,6 +572,8 @@ getFlags(rq::TokenKind kind) {
   case T::AT_SIGIL:
     return TF::NONE; // SIGIL
   case T::DOLLAR_SIGIL:
+    return TF::NONE; // SIGIL
+  case T::WHAT_SIGIL:
     return TF::NONE; // SIGIL
   case T::TRAILER_SEPARATOR:
     return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
@@ -662,7 +662,8 @@ getIsOperator(rq::TokenKind kind) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenKind kind) {
   return kind == rq::TokenKind::AT_SIGIL ||
-         kind == rq::TokenKind::DOLLAR_SIGIL;
+         kind == rq::TokenKind::DOLLAR_SIGIL ||
+         kind == rq::TokenKind::WHAT_SIGIL;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
