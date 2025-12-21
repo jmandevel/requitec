@@ -10,7 +10,7 @@
 
 [entry_point
     foo :`= Foo(); // of type `Foo
-    foo_borrow := foo.ClassA`[borrow]; // of type&ClassA`Foo
+    foo_borrow := foo.ClassA`[borrow]; // of type &ClassA`Foo
 
     foo_a.a += 1;
     // this is invalid
