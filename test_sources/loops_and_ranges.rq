@@ -1,5 +1,5 @@
 [import "std"];
-[builtin_facade std];
+[facade std];
 
 [entry_point
 
