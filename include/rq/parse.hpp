@@ -11,8 +11,8 @@ namespace rq {
 struct TokenRanger final {
   using Self = rq::TokenRanger;
 
-  const rq::Token* _it;
-  const rq::Token* _end;
+  const rq::Token *_it;
+  const rq::Token *_end;
 
   TokenRanger(llvm::ArrayRef<rq::Token> tokens)
       : _it(tokens.begin()), _end(tokens.end()) {}
@@ -74,7 +74,8 @@ struct ForestBuilder final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr() {
     return this->_expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getExpressionPtr() const {
     return this->_expression_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
@@ -148,13 +149,16 @@ struct PrecedenceBuilder final {
   // the last branch that was appended to the expression
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceBuilder(rq::StaticFrame &static_frame) : _static_frame_ref(static_frame) {}
+  PrecedenceBuilder(rq::StaticFrame &static_frame)
+      : _static_frame_ref(static_frame) {}
   PrecedenceBuilder(const Self &) = delete;
   PrecedenceBuilder(Self &&) = delete;
   ~PrecedenceBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] rq::StaticFrame &getStaticFrame() { return this->_static_frame_ref.get(); }
+  [[nodiscard]] rq::StaticFrame &getStaticFrame() {
+    return this->_static_frame_ref.get();
+  }
   [[nodiscard]] const rq::StaticFrame &getStaticFrame() const {
     return this->_static_frame_ref.get();
   }
@@ -167,10 +171,16 @@ struct PrecedenceBuilder final {
   void parseSequenceBranch(const rq::Token &token, rq::Keyword keyword,
                            rq::Expression &rvalue);
   void appendBranch(rq::Expression &branch);
-  void appendUnaryAttribute(const rq::Token &token, rq::Keyword keyword);
+  void appendNullaryAttribute(const rq::Token &token, rq::Keyword keyword);
+  void appendPostunaryAttribute(const rq::Token &token, rq::Keyword keyword);
   void setRecent(rq::Expression &branch);
   void setOnlyRecent(rq::Expression &branch);
   void appendRecent();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &popRecent() {
+    rq::Expression &recent = rq::dereferencePtr(this->_recent_ptr);
+    this->_recent_ptr = nullptr;
+    return recent;
+  }
   RQ_ALWAYS_INLINE void setOuterExpression(rq::Expression &expression) {
     this->_outer_ptr = &expression;
     this->_expression_ptr = &expression;
@@ -267,12 +277,14 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence2();
   [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
-  [[nodiscard]] bool parseNonStatementBranches(rq::Expression &expression, rq::TokenKind end);
+  [[nodiscard]] bool parseNonStatementBranches(rq::Expression &expression,
+                                               rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
-  void parseTrailer(rq::Expression& expression, rq::TokenRanger& keyword_ranger);
+  void parseTrailer(rq::Expression &expression,
+                    rq::TokenRanger &keyword_ranger);
   [[nodiscard]] rq::Expression &parseStatementAttribute();
   [[nodiscard]] rq::Expression &parseUserAttribute();
   [[nodiscard]] rq::Expression &parseTypeAttribute();

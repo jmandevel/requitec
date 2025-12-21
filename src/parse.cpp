@@ -174,11 +174,20 @@ void PrecedenceBuilder::appendBranch(rq::Expression &branch) {
   this->_last_ptr = &branch;
 }
 
-void PrecedenceBuilder::appendUnaryAttribute(const rq::Token &token,
-                                             rq::Keyword keyword) {
+void PrecedenceBuilder::appendNullaryAttribute(const rq::Token &token,
+                                               rq::Keyword keyword) {
   rq::Expression &expression = this->getStaticFrame().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
+  this->appendBranch(expression);
+}
+
+void PrecedenceBuilder::appendPostunaryAttribute(const rq::Token &token,
+                                                 rq::Keyword keyword) {
+  rq::Expression &expression = this->getStaticFrame().acquireExpression();
+  expression.setKeyword(keyword);
+  expression.setSource(this->getRecent(), token);
+  expression.setBranch(this->popRecent());
   this->appendBranch(expression);
 }
 
@@ -750,12 +759,12 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       case rq::TokenKind::GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_TYPE);
-        precedence_builder.appendUnaryAttribute(token, rq::Keyword::MUTABLE);
+        precedence_builder.appendNullaryAttribute(token, rq::Keyword::MUTABLE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_TYPE);
-        precedence_builder.appendUnaryAttribute(token, rq::Keyword::CONSTANT);
+        precedence_builder.appendNullaryAttribute(token, rq::Keyword::CONSTANT);
         continue;
       default:
         break;
@@ -844,6 +853,12 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       previous_horned = true;
       continue;
     }
+    case rq::TokenKind::GRAVE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_builder.parseAscribe(post_token, rq::Keyword::S_ASCRIBE_TYPE);
+      precedence_builder.appendPostunaryAttribute(
+          post_token, rq::Keyword::PARTIALLY_MUTABLE);
+      continue;
     default:
       precedence_builder.appendRecent();
       break;
@@ -1136,12 +1151,13 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
 }
 
 rq::Expression &RequiteParser::parseUserAttribute() {
-  const rq::Token& what_token = this->getRanger().getToken();
+  const rq::Token &what_token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
   RQ_ASSERT(what_token.getKind() == rq::TokenKind::WHAT_SIGIL,
             "not what sigil");
   rq::Expression &value = this->parseExpression();
-  rq::Expression &expression = this->getContext().getTopStaticFrame().acquireExpression();
+  rq::Expression &expression =
+      this->getContext().getTopStaticFrame().acquireExpression();
   expression.setSource(what_token, value);
   expression.setKeyword(rq::Keyword::USER);
   expression.setBranch(value);
