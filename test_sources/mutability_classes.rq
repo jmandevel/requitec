@@ -1,0 +1,18 @@
+@may_copy @may_move
+[object Foo,
+    {>
+        @[mutability_class ClassA] a := 0,
+        b := 0
+    <}
+
+    [constructor],
+];
+
+[entry_point
+    foo :`= Foo(); // of type `Foo
+    foo_borrow := foo.ClassA`[borrow]; // of type&ClassA`Foo
+
+    foo_a.a += 1;
+    // this is invalid
+    // foo_a.b += 1;
+];
