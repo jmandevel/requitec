@@ -1,5 +1,6 @@
 [import "std"];
 
+@may_copy @may_move
 [object MyObject,
     {>
         @private x := 0,

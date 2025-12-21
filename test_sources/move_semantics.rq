@@ -1,6 +1,7 @@
 [import "std"];
 [facade std];
 
+@may_copy @may_move
 [object MyObject, [constructor];];
 
 [entry_point
