@@ -940,6 +940,7 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
   while (true) {
     const rq::Token &next_token = this->getRanger().getToken();
     if (next_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
+      this->getRanger().incrementToken(1);
       parameter_mark_found = true;
       rq::Expression &mark =
           this->getContext().getTopStaticFrame().acquireExpression();
@@ -958,6 +959,7 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
       builder.finishExpression(after_token);
       return parameter_mark_found;
     } else if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
+      this->getRanger().incrementToken(1);
       parameter_mark_found = true;
       rq::Expression &mark =
           this->getContext().getTopStaticFrame().acquireExpression();
