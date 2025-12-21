@@ -2834,7 +2834,7 @@ struct Expression final {
     return this->_source_text_length;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBegin() const {
-    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() - 1);
+    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
     return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() +
