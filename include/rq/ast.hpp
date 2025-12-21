@@ -120,6 +120,7 @@ enum class Keyword : std::uint32_t {
   // TYPE MODIFIER
   MUTABLE,
   CONSTANT,
+  PARTIALLY_MUTABLE,
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
@@ -547,6 +548,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mutable";
   case K::CONSTANT:
     return "constant";
+  case K::PARTIALLY_MUTABLE:
+    return "partially_mutable";
   case K::VOLATILE:
     return "volatile";
   case K::ATOMIC:
@@ -1228,6 +1231,8 @@ getFlags(rq::Keyword keyword) {
   case K::MUTABLE:
     return KF::TYPE_ATTRIBUTE;
   case K::CONSTANT:
+    return KF::TYPE_ATTRIBUTE;
+  case K::PARTIALLY_MUTABLE:
     return KF::TYPE_ATTRIBUTE;
   case K::VOLATILE:
     return KF::TYPE_ATTRIBUTE;
@@ -2400,6 +2405,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   NONE,
   MUTABLE,
   CONSTANT,
+  PARTIALLY_MUTABLE,
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
@@ -2420,6 +2426,8 @@ getName(rq::TypeAttribute attribute) {
     return "mutable";
   case TA::CONSTANT:
     return "constant";
+  case TA::PARTIALLY_MUTABLE:
+    return "PARTIALLY_MUTABLE";
   case TA::VOLATILE:
     return "volatile";
   case TA::ATOMIC:
@@ -2448,6 +2456,8 @@ getTypeAttribute(rq::Keyword keyword) {
     return TA::MUTABLE;
   case K::CONSTANT:
     return TA::CONSTANT;
+  case K::PARTIALLY_MUTABLE:
+    return TA::PARTIALLY_MUTABLE;
   case K::VOLATILE:
     return TA::VOLATILE;
   case K::ATOMIC:
@@ -2472,13 +2482,14 @@ enum class TypeFlags : std::uint16_t {
   NONE = 0,
   MUTABLE = rq::getBit(15),
   CONSTANT = rq::getBit(14),
-  VOLATILE = rq::getBit(13),
-  ATOMIC = rq::getBit(12),
-  NULL_TERMINATED = rq::getBit(11),
-  MAY_DISCARD = rq::getBit(10),
-  DEBUG_TRAP_ON_PANIC = rq::getBit(9),
-  LINEAR = rq::getBit(8),
-  DYNAMIC_CAPTURE_LAYOUT = rq::getBit(7)
+  PARTIALLY_MUTABLE = rq::getBit(13),
+  VOLATILE = rq::getBit(12),
+  ATOMIC = rq::getBit(11),
+  NULL_TERMINATED = rq::getBit(10),
+  MAY_DISCARD = rq::getBit(9),
+  DEBUG_TRAP_ON_PANIC = rq::getBit(8),
+  LINEAR = rq::getBit(7),
+  DYNAMIC_CAPTURE_LAYOUT = rq::getBit(6)
 };
 
 template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
@@ -2495,6 +2506,8 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::MUTABLE;
   case TA::CONSTANT:
     return TF::CONSTANT;
+  case TA::PARTIALLY_MUTABLE:
+    return TF::PARTIALLY_MUTABLE;
   case TA::VOLATILE:
     return TF::VOLATILE;
   case TA::ATOMIC:
