@@ -816,7 +816,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::DEPRECIATED:
     break;
-  case K::MAY_SHALLOW_COPY:
+  case K::MAY_COPY:
     break;
 
   // EXPRESSIONS

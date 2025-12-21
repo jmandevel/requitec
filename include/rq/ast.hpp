@@ -329,7 +329,7 @@ enum class Keyword : std::uint32_t {
   LIKELY,
   UNLIKELY,
   DEPRECIATED,
-  MAY_SHALLOW_COPY,
+  MAY_COPY,
   MAY_MOVE,
   MUTABILITY_CLASS,
 
@@ -905,8 +905,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "unlikely";
   case K::DEPRECIATED:
     return "depreciated";
-  case K::MAY_SHALLOW_COPY:
-    return "may_shallow_copy";
+  case K::MAY_COPY:
+    return "may_copy";
   case K::MAY_MOVE:
     return "may_move";
   case K::MUTABILITY_CLASS:
@@ -1638,7 +1638,7 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::DEPRECIATED:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::MAY_SHALLOW_COPY:
+  case K::MAY_COPY:
     return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_MOVE:
     return KF::STATEMENT_ATTRIBUTE;
@@ -2187,7 +2187,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   EXPORT,
   PUBLIC,
   PROTECTED,
-  MAY_SHALLOW_COPY,
+  MAY_COPY,
   MAY_MOVE,
   MUTABILITY_CLASS
 };
@@ -2243,8 +2243,8 @@ getName(rq::StatementAttribute attribute) {
     return "public";
   case SA::PROTECTED:
     return "protected";
-  case SA::MAY_SHALLOW_COPY:
-    return "may_shallow_copy";
+  case SA::MAY_COPY:
+    return "may_copy";
   case SA::MAY_MOVE:
     return "may_move";
   case SA::MUTABILITY_CLASS:
@@ -2303,8 +2303,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::PUBLIC;
   case K::PROTECTED:
     return SA::PROTECTED;
-  case K::MAY_SHALLOW_COPY:
-    return SA::MAY_SHALLOW_COPY;
+  case K::MAY_COPY:
+    return SA::MAY_COPY;
   case K::MAY_MOVE:
     return SA::MAY_MOVE;
   case K::MUTABILITY_CLASS:
@@ -2339,7 +2339,7 @@ enum class StatementFlags : std::uint32_t {
   EXPORT = rq::getBit(12),
   PUBLIC = rq::getBit(11),
   PROTECTED = rq::getBit(10),
-  MAY_SHALLOW_COPY = rq::getBit(9),
+  MAY_COPY = rq::getBit(9),
   MAY_MOVE = rq::getBit(8),
   MUTABILITY_CLASS = rq::getBit(7)
 };
@@ -2398,8 +2398,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::PUBLIC;
   case SA::PROTECTED:
     return SF::PROTECTED;
-  case SA::MAY_SHALLOW_COPY:
-    return SF::MAY_SHALLOW_COPY;
+  case SA::MAY_COPY:
+    return SF::MAY_COPY;
   case SA::MAY_MOVE:
     return SF::MAY_MOVE;
   case SA::MUTABILITY_CLASS:
