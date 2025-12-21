@@ -294,6 +294,7 @@ enum class Keyword : std::uint32_t {
   IMPORT,
   USE,
   USE_TABLE,
+  FACADE,
   TABLE,
   MODULE,
   S_MODULE_ROOT,
@@ -840,6 +841,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "use";
   case K::USE_TABLE:
     return "use_table";
+  case K::FACADE:
+    return "facade";
   case K::TABLE:
     return "table";
   case K::MODULE:
@@ -1561,6 +1564,10 @@ getFlags(rq::Keyword keyword) {
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
   case K::USE_TABLE:
+    return KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
+           KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
+           KF::OBJECT_STATEMENT;
+  case K::FACADE:
     return KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::OBJECT_STATEMENT;
