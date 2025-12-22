@@ -607,6 +607,12 @@ void Context::logErrorExpectedIdentifierLiteral(const rq::Token &token) {
                    {});
 }
 
+void Context::logErrorNotKeyword(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "not keyword", {token.getLlvmSourceRange()},
+                   {});
+}
+
 void Context::logErrorInternalUseOnlyKeyword(const rq::Token &token,
                                              rq::Keyword keyword) {
   this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,

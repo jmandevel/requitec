@@ -198,6 +198,7 @@ struct Context final {
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorExpectedIdentifierLiteral(const rq::Token &token);
+  void logErrorNotKeyword(const rq::Token &token);
   void logErrorInternalUseOnlyKeyword(const rq::Token &token,
                                       rq::Keyword keyword);
   void logErrorUnmatchedRightToken(const rq::Token &left_token,

@@ -984,12 +984,12 @@ rq::Keyword RequiteParser::parseKeyword() {
   if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
+    this->getContext().logErrorExpectedIdentifierLiteral(token);
     this->setNotOk();
-
     return rq::Keyword::I_ERROR;
   }
   if (keyword == rq::Keyword::I_NONE) {
-    this->getContext().logErrorExpectedIdentifierLiteral(token);
+    this->getContext().logErrorNotKeyword(token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
