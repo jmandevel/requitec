@@ -387,7 +387,8 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     }
     fout << "\n";
     if (trunk.getIsLiteral()) {
-      fout << " // " << trunk.getName() << "\n";
+      rq::emitIndent(fout, indent);
+      fout << "// " << trunk.getName() << "\n";
     }
   }
   rq::emitIndent(fout, indent);
