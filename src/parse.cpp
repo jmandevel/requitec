@@ -854,21 +854,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       previous_horned = true;
       continue;
     }
-    case rq::TokenKind::LEFT_BRACKET_GROUPING: {
-      this->getRanger().incrementToken(1);
-      precedence_builder.appendRecent();
-      rq::Expression &target = precedence_builder.getOuter();
-      rq::Expression &construction =
-          this->getContext().getTopStaticFrame().acquireExpression();
-      construction.setKeyword(rq::Keyword::S_INDEX_INTO);
-      construction.setBranch(target);
-      construction.setSource(target, post_token);
-      std::ignore = this->parseNonStatementBranches(
-          construction, rq::TokenKind::RIGHT_BRACKET_GROUPING);
-      precedence_builder.setOnlyRecent(construction);
-      previous_horned = true;
-      continue;
-    }
     case rq::TokenKind::GRAVE_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_builder.parseAscribe(post_token, rq::Keyword::S_ASCRIBE_TYPE);
