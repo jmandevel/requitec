@@ -41,7 +41,7 @@
         <},
 
         @public
-        [constructor]
+        [constructor];
 
         @public
         [ranger [signed],
