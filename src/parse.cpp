@@ -275,7 +275,7 @@ rq::Expression &RequiteParser::parsePrecedence10() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence9());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_builder.getRecent().getHasStatementBranches()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -325,6 +325,9 @@ rq::Expression &RequiteParser::parsePrecedence9() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence8());
   while (!this->getRanger().getIsDone()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
+      break;
+    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getKind()) {
     case rq::TokenKind::COLON_OPERATOR:
@@ -352,6 +355,9 @@ rq::Expression &RequiteParser::parsePrecedence8() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence7());
   while (!this->getRanger().getIsDone()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
+      break;
+    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getKind()) {
     case rq::TokenKind::DOT_PLUS_OPERATOR:
@@ -431,6 +437,9 @@ rq::Expression &RequiteParser::parsePrecedence7() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence6());
   while (!this->getRanger().getIsDone()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
+      break;
+    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getKind()) {
     case rq::TokenKind::DOUBLE_AMPERSAND_OPERATOR:
@@ -458,6 +467,9 @@ rq::Expression &RequiteParser::parsePrecedence6() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence5());
   while (!this->getRanger().getIsDone()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
+      break;
+    }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getKind()) {
     case rq::TokenKind::GREATER_OPERATOR: {
@@ -541,7 +553,7 @@ rq::Expression &RequiteParser::parsePrecedence5() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence4());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_builder.getRecent().getHasStatementBranches()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -576,7 +588,7 @@ rq::Expression &RequiteParser::parsePrecedence4() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence3());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_builder.getRecent().getHasStatementBranches()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -606,7 +618,7 @@ rq::Expression &RequiteParser::parsePrecedence3() {
       this->getContext().getTopStaticFrame());
   precedence_builder.setRecent(this->parsePrecedence2());
   while (!this->getRanger().getIsDone()) {
-    if (precedence_builder.getRecent().getHasStatementBranches()) {
+    if (precedence_builder.getRecent().getCanBeChainLink()) {
       break;
     }
     const rq::Token &token = this->getRanger().getToken();
@@ -784,6 +796,10 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       }
       rq::Expression &expression = this->parsePrecedence0();
       precedence_builder.setRecent(expression);
+      if (expression.getCanBeChainLink()) {
+        precedence_builder.appendRecent();
+        break;
+      }
     }
     previous_horned = false;
     if (this->getRanger().getIsDone()) {
