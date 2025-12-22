@@ -378,10 +378,12 @@ enum class Keyword : std::uint32_t {
   S_TYPE_OF,
   SYMBOL,
   S_SYMBOL_OF,
-  LAYOUT,
-  S_LAYOUT_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
+  LAYOUT,
+  S_LAYOUT_OF,
+  CONSTRUCT_FUNCTOR,
+  S_CONSTRUCT_FUNCTOR_OF,
 
   I_LAST
 };
@@ -1007,6 +1009,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "layout";
   case K::S_LAYOUT_OF:
     return "_layout_of";
+  case K::CONSTRUCT_FUNCTOR:
+    return "construct_functor";
+  case K::S_CONSTRUCT_FUNCTOR_OF:
+    return "_construct_functor_of";
 
   case K::I_LAST:
     return "__last";
@@ -1740,6 +1746,10 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION;
   case K::S_LAYOUT_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::CONSTRUCT_FUNCTOR:
+    return KF::REFLECTION;
+  case K::S_CONSTRUCT_FUNCTOR_OF:
+    return KF::RVALUE | KV::ARGUMENT;
 
   case K::I_LAST:
     break;
@@ -1970,6 +1980,8 @@ getUniversalized(rq::Keyword keyword, rq::Situation situation) {
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
     return K::S_LAYOUT_OF;
+  case K::CONSTRUCT_FUNCTOR:
+    return K::S_CONSTRUCT_FUNCTOR_OF;
   default:
     break;
   }
