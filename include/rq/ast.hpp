@@ -193,12 +193,12 @@ enum class Keyword : std::uint32_t {
   // vignette or reflected enumerator index.
   DISCRIMINANT,
   S_DISCRIMINANT_OF,
-  // vignette value returned into a block.
-  IN,
   // vignette value returned from a block.
   OUT,
   // reference to extended value of method or extension_method.
   THIS,
+  // type of object extending or member of.
+  THIS_TYPE,
   // value returned from a function.
   RESULT,
   // retrieve command line arguments within entry_point.
@@ -679,12 +679,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "discriminant";
   case K::S_DISCRIMINANT_OF:
     return "_discriminant_of";
-  case K::IN:
-    return "in";
   case K::OUT:
     return "out";
   case K::THIS:
     return "this";
+  case K::THIS_TYPE:
+    return "this_type";
   case K::RESULT:
     return "result";
   case K::COMMAND_LINE_ARGUMENTS:
@@ -1395,11 +1395,11 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION | KF::VIGNETTE_RVALUE;
   case K::S_DISCRIMINANT_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IN:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::OUT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
+  case K::THIS_TYPE:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
@@ -2933,7 +2933,8 @@ struct Expression final {
   RQ_ALWAYS_INLINE const rq::Expression *getNextPtr() const {
     return this->_next_ptr_flags.getPtr();
   }
-  // TODO: get rid of the getLastNext and getLastBranch functions to avoid excessive pointer chasing
+  // TODO: get rid of the getLastNext and getLastBranch functions to avoid
+  // excessive pointer chasing
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastNext() {
     rq::Expression *expression_ptr = this;
     while (expression_ptr->getNextPtr() != nullptr) {
