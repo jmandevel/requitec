@@ -366,16 +366,19 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
                               const rq::Expression &trunk, unsigned indent) {
   if (!rq::getNoComment()) {
     rq::emitIndent(fout, indent);
-    fout << "// ";
+    fout << "//";
+    if (trunk.getIsInternal()) {
+      fout << " " << trunk.getName();
+    }
     if (!trunk.getHasSourceText()) {
-      fout << "(no position)";
+      fout << " (no position)";
     } else if (trunk.getSourceTextLength() == 0) {
       rq::SourceLocation location =
           context.getSourceLocation(trunk.getLlvmSourceBegin());
-      fout << location.file << ":" << location.line << ":" << location.column;
+      fout << " " << location.file << ":" << location.line << ":" << location.column;
     } else {
       rq::SourceRange range = context.getSourceRange(trunk);
-      fout << range.start.file << ":" << range.start.line << ":"
+      fout << " " << range.start.file << ":" << range.start.line << ":"
            << range.start.column << "-";
       if (range.start.file != range.end.file) {
         fout << range.end.file << ":";
@@ -386,10 +389,6 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
       fout << " (inserted)";
     }
     fout << "\n";
-    if (trunk.getIsLiteral()) {
-      rq::emitIndent(fout, indent);
-      fout << "// " << trunk.getName() << "\n";
-    }
   }
   rq::emitIndent(fout, indent);
   if (trunk.getIsLiteral()) {
@@ -437,7 +436,7 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
     this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
-  for (const rq::Expression &branch : trunk.getHorizontalSubrange()) {
+  for (const rq::Expression &branch : trunk.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
     if (branch.getIsBold()) {
       fout << ",\n";
@@ -609,8 +608,8 @@ void Context::logErrorExpectedIdentifierLiteral(const rq::Token &token) {
 
 void Context::logErrorNotKeyword(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "not keyword", {token.getLlvmSourceRange()},
-                   {});
+                   llvm::Twine(token.getSourceText()) + "is not keyword",
+                   {token.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorInternalUseOnlyKeyword(const rq::Token &token,
@@ -722,6 +721,17 @@ void Context::logErrorExpressionShouldNeverOccur(
                    {expression.getLlvmSourceRange()}, {});
 }
 
+void Context::logErrorDuplicateParameterMark(rq::Situation situation,
+                                             rq::Expression &expression,
+                                             rq::Expression &parameter,
+                                             unsigned branch_i,
+                                             rq::Expression &first,
+                                             unsigned first_i) {}
+
+void Context::logErrorNamedBeginAfterPositionalEnd(
+    r::Situation situation, rq::Expression &expression,
+    rq::Expression &parameter, rq::Expression &first_positional_end) {}
+
 void Context::logErrorNotExactBranchCount(rq::Situation situation,
                                           const rq::Expression &expression,
                                           unsigned count) {
@@ -738,6 +748,16 @@ void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have at least " +
+                       llvm::Twine(count) + " branches",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorTooManyBranchCount(rq::Situation situation,
+                                         const rq::Expression &expression,
+                                         unsigned count) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(rq::getDescription(situation)) + " " +
+                       expression.getName() + " must not have more than " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
