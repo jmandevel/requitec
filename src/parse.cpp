@@ -1162,7 +1162,7 @@ rq::Expression &RequiteParser::parseUserAttribute() {
   rq::Expression &expression =
       this->getContext().getTopStaticFrame().acquireExpression();
   expression.setSource(what_token, value);
-  expression.setKeyword(rq::Keyword::USER);
+  expression.setKeyword(rq::Keyword::USER_ATTRIBUTE);
   expression.setBranch(value);
   return expression;
 }
