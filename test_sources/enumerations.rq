@@ -16,13 +16,13 @@
         ];
     ];
     value :=
-        [inline_match fruit, <=out,
+        [inline_match fruit,
             [case APPLE, apple:=[value], 
-                out := apple;
+                [out] := apple;
             ][case ORANGE, orange:=[value],
-                out := [signed]:orange;
+                [out] := [signed]:orange;
             ][case GRAPE, grape:=[value],
-                out := [signed]:grape;
+                [out] := [signed]:grape;
             ];
         ];
     [exit_code] := value;
