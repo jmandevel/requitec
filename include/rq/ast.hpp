@@ -1749,7 +1749,7 @@ getFlags(rq::Keyword keyword) {
   case K::CONSTRUCT_FUNCTOR:
     return KF::REFLECTION;
   case K::S_CONSTRUCT_FUNCTOR_OF:
-    return KF::RVALUE | KV::ARGUMENT;
+    return KF::RVALUE | KF::ARGUMENT;
 
   case K::I_LAST:
     break;
