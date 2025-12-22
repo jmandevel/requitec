@@ -323,7 +323,8 @@ enum class Keyword : std::uint32_t {
   MANGLED_NAME,
   S_MANGLED_NAME_OF,
   PACK,
-  USER,
+  USER_ATTRIBUTE,
+  S_USER_ATTRIBUTE_OF,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -895,8 +896,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_mangled_name_of";
   case K::PACK:
     return "pack";
-  case K::USER:
-    return "user";
+  case K::USER_ATTRIBUTE:
+    return "user_attribute";
+  case K::S_USER_ATTRIBUTE_OF:
+    return "_user_attribute_of";
   case K::LABEL:
     return "label";
   case K::TEMPLATE:
@@ -1632,7 +1635,9 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::USER:
+  case K::USER_ATTRIBUTE:
+    return KF::REFLECTION | KF::STATEMENT_ATTRIBUTE;
+  case K::S_USER_ATTRIBUTE_OF:
     return KF::STATEMENT_ATTRIBUTE;
   case K::LABEL:
     return KF::STATEMENT_ATTRIBUTE;
@@ -1916,6 +1921,8 @@ getUniversalized(rq::Keyword keyword, rq::Situation situation) {
     return K::S_NEXT_VARIADIC_ARGUMENT_OF;
   case K::MANGLED_NAME:
     return K::S_MANGLED_NAME_OF;
+  case K::USER_ATTRIBUTE:
+    return K::S_USER_ATTRIBUTE_OF;
   case K::EXPAND:
     switch (situation) {
     case S::TOP_STATEMENT:
@@ -2190,7 +2197,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   POSITION,
   MANGLED_NAME,
   PACK,
-  USER,
+  USER_ATTRIBUTE,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -2237,8 +2244,8 @@ getName(rq::StatementAttribute attribute) {
     return "mangled_name";
   case SA::PACK:
     return "pack";
-  case SA::USER:
-    return "user";
+  case SA::USER_ATTRIBUTE:
+    return "user_attribute";
   case SA::LABEL:
     return "label";
   case SA::TEMPLATE:
@@ -2297,8 +2304,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MANGLED_NAME;
   case K::PACK:
     return SA::PACK;
-  case K::USER:
-    return SA::USER;
+  case K::USER_ATTRIBUTE:
+    return SA::USER_ATTRIBUTE;
   case K::LABEL:
     return SA::LABEL;
   case K::TEMPLATE:
@@ -2342,7 +2349,7 @@ enum class StatementFlags : std::uint32_t {
   POSITION = rq::getBit(21),
   MANGLED_NAME = rq::getBit(20),
   PACK = rq::getBit(19),
-  USER = rq::getBit(18),
+  USER_ATTRIBUTE = rq::getBit(18),
   LABEL = rq::getBit(17),
   TEMPLATE = rq::getBit(16),
   LIKELY = rq::getBit(15),
@@ -2392,8 +2399,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::POSITION;
   case SA::PACK:
     return SF::PACK;
-  case SA::USER:
-    return SF::USER;
+  case SA::USER_ATTRIBUTE:
+    return SF::USER_ATTRIBUTE;
   case SA::LABEL:
     return SF::LABEL;
   case SA::TEMPLATE:
