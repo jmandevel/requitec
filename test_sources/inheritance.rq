@@ -21,13 +21,16 @@
         @parent parent := Parent() 
     <},
     
-    [use [self].parent.myFunc];
+    @public
+    [use [this_type].parent.myFunc];
     
-    @[override [self].parent.myFuncB]
+    @public
+    @[override [this_type].parent.myFuncB]
     [method myFuncB, &=>(><),
         std.print(line="in child");
     ];
 
+    @public 
     [constructor];
 ];
 

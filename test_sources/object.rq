@@ -8,16 +8,20 @@
         z := 0
     <},
 
+    @public
     [constructor];
 
+    @public
     [constructor (>x:[signed], y:[signed], z:[signed]<),
         {x=x, y=y, z=z},
     ];
 
+    @public
     [method getTotal, &=>(><)[signed],
         [result] := [this].x + [this].y + [this].z;
     ];
 
+    @public
     [function add, (>a:MyObject, b:MyObject<)MyObject,
         [result] :=
             MyObject(

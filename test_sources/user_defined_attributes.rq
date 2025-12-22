@@ -2,6 +2,7 @@
 
 [object NameData,
     {> @public name:^[utf8] <},
+    @public
     [layout_constructor];
 ];
 

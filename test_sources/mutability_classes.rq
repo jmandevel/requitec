@@ -5,6 +5,7 @@
         @public b := 0
     <}
 
+    @public
     [constructor],
 ];
 

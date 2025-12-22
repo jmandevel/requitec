@@ -2,7 +2,7 @@
 [facade std];
 
 @may_copy @may_move
-[object MyObject, [constructor];];
+[object MyObject, @public [constructor];];
 
 [entry_point
   object :`= MyObject();
