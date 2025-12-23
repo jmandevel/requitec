@@ -26,26 +26,4 @@ rq::Expression &StaticFrame::copyExpression(rq::Expression &expression) {
   return new_expression;
 }
 
-void StaticFrame::replaceWithRecursiveCopy(rq::Expression &initial,
-                                           rq::Expression &replacement) {
-  if (initial.getHasBranch()) {
-    rq::Expression &branch = initial.popBranch();
-    this->discardExpression(branch);
-  }
-  if (initial.getHasNext()) {
-    rq::Expression &next = initial.popNext();
-    this->discardExpression(next);
-  }
-  if (initial.getHasBranch()) {
-    rq::Expression &branch = replacement.getBranch();
-    initial.setBranch(this->copyExpression(branch));
-  }
-  if (replacement.getHasNext()) {
-    rq::Expression &next = replacement.getNext();
-    initial.setNext(this->copyExpression(next));
-  }
-  initial.changeKeyword(replacement.getKeyword());
-  replacement.setSource(replacement);
-}
-
 } // namespace rq

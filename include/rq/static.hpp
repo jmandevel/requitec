@@ -505,8 +505,6 @@ struct StaticFrame final {
     this->_unused_expression_ptrs.emplace_back(&expression);
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  void replaceWithRecursiveCopy(rq::Expression &initial,
-                                rq::Expression &replacement);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Table &getTable() { return this->_table; }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &getTable() const {
     return this->_table;
