@@ -16,7 +16,7 @@ void Tabulator::tabulateModule() {
 
 void Tabulator::tabulateGlobalForest(const rq::Expression &first,
                                      rq::Table &table) {
-  for (const rq::Expression &statement : first.getHorizontalSubrange()) {
+  for (const rq::Expression &statement : first.getInclusiveNextSubrange()) {
     switch (statement.getKeyword()) {
     case rq::Keyword::ENTRY_POINT:
       this->tabulateEntryPoint(statement, table);

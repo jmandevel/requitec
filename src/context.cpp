@@ -375,7 +375,8 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     } else if (trunk.getSourceTextLength() == 0) {
       rq::SourceLocation location =
           context.getSourceLocation(trunk.getLlvmSourceBegin());
-      fout << " " << location.file << ":" << location.line << ":" << location.column;
+      fout << " " << location.file << ":" << location.line << ":"
+           << location.column;
     } else {
       rq::SourceRange range = context.getSourceRange(trunk);
       fout << " " << range.start.file << ":" << range.start.line << ":"
@@ -671,26 +672,37 @@ void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorMustNotHaveParameterMarks(
-    const rq::Expression &expression) {
+void Context::logErrorMustHaveParameterMark(rq::Situation situation,
+                                            const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(rq::getName(expression.getKeyword())) +
-                       " must not have parameter marks",
+                   llvm::Twine(rq::getDescription(situation)) + " " +
+                       expression.getName() + " must have parameter mark",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorMustHaveParameterMarks(const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(rq::getName(expression.getKeyword())) +
-                       " must have parameter marks",
-                   {expression.getLlvmSourceRange()}, {});
+void Context::logErrorPositionalEndIsFirst(rq::Situation situation,
+                                           const rq::Expression &expression,
+                                           const rq::Expression &positional_end,
+                                           unsigned positional_end_i) {
+  this->logMessage(positional_end.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("first branch of ") +
+                       rq ::getDescription(situation) + " " +
+                       expression.getName() + " at index " +
+                       llvm::Twine(positional_end_i) + " must not be " +
+                       rq::getName(rq::Keyword::S_POSITIONAL_PARAMETERS_END),
+                   {positional_end.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnexpectedParameterMark(
-    const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "unexpected parameter mark",
-                   {expression.getLlvmSourceRange()}, {});
+void Context::logErrorNamedBeginIsLast(rq::Situation situation,
+                                       const rq::Expression &expression,
+                                       const rq::Expression &named_begin,
+                                       unsigned named_begin_i) {
+  this->logMessage(
+      named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
+      llvm::Twine("last branch of ") + rq ::getDescription(situation) + " " +
+          expression.getName() + " at index " + llvm::Twine(named_begin_i) +
+          " must not be " + rq::getName(rq::Keyword::S_NAMED_PARAMETERS_BEGIN),
+      {named_begin.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {
@@ -726,11 +738,45 @@ void Context::logErrorDuplicateParameterMark(rq::Situation situation,
                                              rq::Expression &parameter,
                                              unsigned branch_i,
                                              rq::Expression &first,
-                                             unsigned first_i) {}
+                                             unsigned first_i) {
+  RQ_ASSERT(parameter.getIsParameterMark(), "not parameter mark");
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(rq::getDescription(situation)) + " " +
+                       expression.getName() + " must not have more than one " +
+                       parameter.getName(),
+                   {expression.getLlvmSourceRange()}, {});
+  this->logMessage(parameter.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   llvm::Twine("duplicate ") + parameter.getName() +
+                       " was found at index " + llvm::Twine(branch_i),
+                   {parameter.getLlvmSourceRange()}, {});
+  this->logMessage(first.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   llvm::Twine("first ") + first.getName() +
+                       " was found at at index " + llvm::Twine(first_i),
+                   {first.getLlvmSourceRange()}, {});
+}
 
 void Context::logErrorNamedBeginAfterPositionalEnd(
-    r::Situation situation, rq::Expression &expression,
-    rq::Expression &parameter, rq::Expression &first_positional_end) {}
+    rq::Situation situation, rq::Expression &expression,
+    rq::Expression &named_begin, unsigned named_begin_i,
+    rq::Expression &first_positional_end, unsigned first_positional_end_i) {
+  RQ_ASSERT(named_begin.getKeyword() == rq::Keyword::S_NAMED_PARAMETERS_BEGIN,
+            "invalid keyword");
+  RQ_ASSERT(first_positional_end.getKeyword() ==
+                rq::Keyword::S_POSITIONAL_PARAMETERS_END,
+            "invalid keyword");
+  this->logMessage(
+      expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+      llvm::Twine(rq::getDescription(situation)) + " " + expression.getName() +
+          " must have _named_parameters_begin after _positional_parameters_end",
+      {expression.getLlvmSourceRange()}, {});
+  this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   "_named_parameters_begin at index " + named_begin_i,
+                   {named_begin.getLlvmSourceRange()}, {});
+  this->logMessage(first_positional_end.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   "first found _positional_parameters_end at index " +
+                       first_positional_end_i,
+                   {first_positional_end.getLlvmSourceRange()}, {});
+}
 
 void Context::logErrorNotExactBranchCount(rq::Situation situation,
                                           const rq::Expression &expression,

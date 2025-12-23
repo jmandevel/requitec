@@ -70,7 +70,6 @@ enum class Keyword : std::uint32_t {
   S_BINDING,
   S_ASCRIBE_TYPE,
   S_ASCRIBE_STATEMENT,
-  S_ASCRIBE_TYPE_OF_ELEMENTS,
   S_CAST,
   S_IDENTIFY,
 
@@ -464,8 +463,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_type";
   case K::S_ASCRIBE_STATEMENT:
     return "_ascribe_statement";
-  case K::S_ASCRIBE_TYPE_OF_ELEMENTS:
-    return "_ascribe_type_of_elements";
   case K::S_CAST:
     return "_cast";
   case K::S_IDENTIFY:
@@ -1150,8 +1147,6 @@ getFlags(rq::Keyword keyword) {
     return KF::TOP_STATEMENT | KF::TABLE_STATEMENT | KF::OBJECT_STATEMENT |
            KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
            KF::PARAMETER | KF::ASCRIPTION;
-  case K::S_ASCRIBE_TYPE_OF_ELEMENTS:
-    return KF::RVALUE | KF::ASCRIPTION;
   case K::S_CAST:
     return KF::RVALUE | KF::ARGUMENT;
   case K::S_IDENTIFY:
@@ -1760,6 +1755,12 @@ getFlags(rq::Keyword keyword) {
     break;
   }
   return KF::NONE;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getIsParameterMark(rq::Keyword keyword) {
+  return keyword == rq::Keyword::S_NAMED_PARAMETERS_BEGIN ||
+         keyword == rq::Keyword::S_POSITIONAL_PARAMETERS_END;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -2719,6 +2720,9 @@ struct Expression final {
               "keyword must already be set");
     this->_keyword = keyword;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterMark() const {
+    return rq::getIsParameterMark(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
     return rq::getIsLiteral(this->getKeyword());
   }
@@ -3094,7 +3098,7 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
                             std::ranges::subrange_kind::unsized>
-      getHorizontalSubrange() {
+      getInclusiveNextSubrange() {
     return std::ranges::subrange(rq::ExpressionIterator(this),
                                  rq::ExpressionIterator());
   }
@@ -3102,7 +3106,7 @@ struct Expression final {
       std::ranges::subrange<rq::ConstExpressionIterator,
                             rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
-      getHorizontalSubrange() const {
+      getInclusiveNextSubrange() const {
     return std::ranges::subrange(rq::ConstExpressionIterator(this),
                                  rq::ConstExpressionIterator());
   }

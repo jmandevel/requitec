@@ -210,24 +210,35 @@ struct Context final {
                                     const rq::Token &front_token,
                                     const rq::Expression &expression);
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
-  void logErrorMustNotHaveParameterMarks(const rq::Expression &expression);
-  void logErrorMustHaveParameterMarks(const rq::Expression &expression);
-  void logErrorUnexpectedParameterMark(const rq::Expression &expression);
+  void logErrorMustHaveParameterMark(rq::Situation situation, const rq::Expression &expression);
+  void logErrorPositionalEndIsFirst(rq::Situation situation, const rq::Expression& expression, const rq::Expression &positional_end, unsigned positional_end_i);
+  void logErrorNamedBeginIsLast(rq::Situation situation, const rq::Expression& expression, const rq::Expression& named_begin, unsigned named_begin_i);
   void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
   void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
+  void logErrorDuplicateParameterMark(rq::Situation situation,
+                                      rq::Expression &expression,
+                                      rq::Expression &parameter,
+                                      unsigned branch_i, rq::Expression &first,
+                                      unsigned first_i);
+  void logErrorNamedBeginAfterPositionalEnd(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Expression &named_begin, unsigned named_begin_i,
+      rq::Expression &first_positional_end, unsigned first_positional_end_i);
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
   void logErrorNotAtLeastBranchCount(rq::Situation situation,
                                      const rq::Expression &expression,
                                      unsigned count);
+  void logErrorTooManyBranchCount(rq::Situation situation,
+                                  const rq::Expression &expression,
+                                  unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation outer_situation,
                                       const rq::Expression &outer,
                                       rq::Situation branch_situation,
-                                      rq::Expression &branch,
-                                      unsigned branch_i,
+                                      rq::Expression &branch, unsigned branch_i,
                                       llvm::Twine log_context);
 };
 
