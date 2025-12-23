@@ -94,13 +94,9 @@ enum class Keyword : std::uint32_t {
 
   // MEMORY
   SINGLETON,
-  S_SINGLETON_OF,
   CONTENT,
-  S_CONTENT_OF,
   ADDRESS,
-  S_ADDRESS_OF,
   BORROW,
-  S_BORROW_OF,
 
   // ASSIGNMENT
   S_ASSIGN,
@@ -149,13 +145,8 @@ enum class Keyword : std::uint32_t {
   S_SIGNATURE_TYPE,
   S_DEFAULT_VALUE_PARAMETER,
   DESTROY,
-  S_DESTROY_VALUE,
   DROP,
-  S_DROP_VALUE,
-  EXTRACT,
-  S_EXTRACT_OF,
   MOVE,
-  S_MOVE_OF,
   ENTRY_POINT,
   FUNCTION,
   METHOD,
@@ -191,7 +182,6 @@ enum class Keyword : std::uint32_t {
   INDEX,
   // vignette or reflected enumerator index.
   DISCRIMINANT,
-  S_DISCRIMINANT_OF,
   // vignette value returned from a block.
   OUT,
   // reference to extended value of method or extension_method.
@@ -247,9 +237,7 @@ enum class Keyword : std::uint32_t {
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
   FIRST_VARIADIC_ARGUMENT,
-  S_FIRST_VARIADIC_ARGUMENT_OF,
   NEXT_VARIADIC_ARGUMENT,
-  S_NEXT_VARIADIC_ARGUMENT_OF,
 
   // SCOPES
   IF,
@@ -270,7 +258,6 @@ enum class Keyword : std::uint32_t {
   // RANGES
   RANGE,
   CONTAINS,
-  S_CONTAINS_VALUE,
   S_SEQUENCE,
   S_SEQUENCE_STEP_ADD,
   S_SEQUENCE_STEP_SUBTRACT,
@@ -320,10 +307,8 @@ enum class Keyword : std::uint32_t {
   POSITION,
   INLINE,
   MANGLED_NAME,
-  S_MANGLED_NAME_OF,
   PACK,
   USER_ATTRIBUTE,
-  S_USER_ATTRIBUTE_OF,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -357,33 +342,19 @@ enum class Keyword : std::uint32_t {
 
   // REFLECTIONS
   S_REFLECT,
-  S_MEMBER_OF,
   BYTE_SIZE,
-  S_BYTE_SIZE_OF,
   BIT_DEPTH,
-  S_BIT_DEPTH_OF,
   ELEMENT_COUNT,
-  S_ELEMENT_COUNT_OF,
   NAME,
-  S_NAME_OF,
   LINE,
-  S_LINE_OF,
   COLUMN,
-  S_COLUMN_OF,
   IS,
-  S_VALUE_IS,
   HOLDS,
-  S_VALUE_HOLDS,
   TYPE,
-  S_TYPE_OF,
   SYMBOL,
-  S_SYMBOL_OF,
   SIGNATURE,
-  S_SIGNATURE_OF,
   LAYOUT,
-  S_LAYOUT_OF,
   CONSTRUCT_FUNCTOR,
-  S_CONSTRUCT_FUNCTOR_OF,
 
   I_LAST
 };
@@ -505,20 +476,12 @@ constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::SINGLETON:
     return "singleton";
-  case K::S_SINGLETON_OF:
-    return "_singleton_of";
   case K::CONTENT:
     return "content";
-  case K::S_CONTENT_OF:
-    return "_content_of";
   case K::ADDRESS:
     return "address";
-  case K::S_ADDRESS_OF:
-    return "_address_of";
   case K::BORROW:
     return "borrow";
-  case K::S_BORROW_OF:
-    return "_borrow_of";
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -603,20 +566,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_default_value_parameter";
   case K::DESTROY:
     return "destroy";
-  case K::S_DESTROY_VALUE:
-    return "_destroy_value";
   case K::DROP:
     return "drop";
-  case K::S_DROP_VALUE:
-    return "_drop_value";
-  case K::EXTRACT:
-    return "extract";
-  case K::S_EXTRACT_OF:
-    return "_extract_of";
   case K::MOVE:
     return "move";
-  case K::S_MOVE_OF:
-    return "_move_of";
   case K::ENTRY_POINT:
     return "entry_point";
   case K::FUNCTION:
@@ -675,8 +628,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "index";
   case K::DISCRIMINANT:
     return "discriminant";
-  case K::S_DISCRIMINANT_OF:
-    return "_discriminant_of";
   case K::OUT:
     return "out";
   case K::THIS:
@@ -757,12 +708,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "variadic_arguments";
   case K::FIRST_VARIADIC_ARGUMENT:
     return "first_variadic_argument";
-  case K::S_FIRST_VARIADIC_ARGUMENT_OF:
-    return "_first_variadic_argument_of";
   case K::NEXT_VARIADIC_ARGUMENT:
     return "next_variadic_argument";
-  case K::S_NEXT_VARIADIC_ARGUMENT_OF:
-    return "_next_variadic_argument_of";
 
   // SCOPES
   case K::IF:
@@ -799,8 +746,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "range";
   case K::CONTAINS:
     return "contains";
-  case K::S_CONTAINS_VALUE:
-    return "_contains_value";
   case K::S_SEQUENCE:
     return "_sequence";
   case K::S_SEQUENCE_STEP_ADD:
@@ -889,14 +834,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "inline";
   case K::MANGLED_NAME:
     return "mangled_name";
-  case K::S_MANGLED_NAME_OF:
-    return "_mangled_name_of";
   case K::PACK:
     return "pack";
   case K::USER_ATTRIBUTE:
     return "user_attribute";
-  case K::S_USER_ATTRIBUTE_OF:
-    return "_user_attribute_of";
   case K::LABEL:
     return "label";
   case K::TEMPLATE:
@@ -959,60 +900,32 @@ constexpr std::size_t KEYWORD_COUNT =
   // REFLECTIONS
   case K::S_REFLECT:
     return "_reflect";
-  case K::S_MEMBER_OF:
-    return "_member_of";
   case K::BYTE_SIZE:
     return "byte_size";
-  case K::S_BYTE_SIZE_OF:
-    return "_byte_size_of";
   case K::BIT_DEPTH:
     return "bit_depth";
-  case K::S_BIT_DEPTH_OF:
-    return "_bit_depth_of";
   case K::ELEMENT_COUNT:
     return "element_count";
-  case K::S_ELEMENT_COUNT_OF:
-    return "_element_count_of";
   case K::NAME:
     return "name";
-  case K::S_NAME_OF:
-    return "_name_of";
   case K::LINE:
     return "line";
-  case K::S_LINE_OF:
-    return "_line_of";
   case K::COLUMN:
     return "column";
-  case K::S_COLUMN_OF:
-    return "_column_of";
   case K::IS:
     return "is";
-  case K::S_VALUE_IS:
-    return "_value_is";
   case K::HOLDS:
     return "holds";
-  case K::S_VALUE_HOLDS:
-    return "_value_holds";
   case K::TYPE:
     return "type";
-  case K::S_TYPE_OF:
-    return "_type_of";
   case K::SYMBOL:
     return "symbol";
-  case K::S_SYMBOL_OF:
-    return "_symbol_of";
   case K::SIGNATURE:
     return "signature";
-  case K::S_SIGNATURE_OF:
-    return "_signature_of";
   case K::LAYOUT:
     return "layout";
-  case K::S_LAYOUT_OF:
-    return "_layout_of";
   case K::CONSTRUCT_FUNCTOR:
     return "construct_functor";
-  case K::S_CONSTRUCT_FUNCTOR_OF:
-    return "_construct_functor_of";
 
   case K::I_LAST:
     return "__last";
@@ -1189,20 +1102,12 @@ getFlags(rq::Keyword keyword) {
   // MEMORY
   case K::SINGLETON:
     return KF::REFLECTION;
-  case K::S_SINGLETON_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::CONTENT:
     return KF::REFLECTION;
-  case K::S_CONTENT_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::ADDRESS:
     return KF::REFLECTION;
-  case K::S_ADDRESS_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::BORROW:
     return KF::REFLECTION;
-  case K::S_BORROW_OF:
-    return KF::RVALUE | KF::ARGUMENT;
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -1296,22 +1201,10 @@ getFlags(rq::Keyword keyword) {
     return KF::PARAMETER;
   case K::DESTROY:
     return KF::REFLECTION;
-  case K::S_DESTROY_VALUE:
-    return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT;
   case K::DROP:
     return KF::REFLECTION;
-  case K::S_DROP_VALUE:
-    return KF::LOCAL_STATEMENT | KF::TOP_STATEMENT | KF::TABLE_STATEMENT |
-           KF::OBJECT_STATEMENT;
-  case K::EXTRACT:
-    return KF::REFLECTION;
-  case K::S_EXTRACT_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::MOVE:
     return KF::REFLECTION;
-  case K::S_MOVE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::ENTRY_POINT:
     return KF::STATEMENT_BRANCHES | KF::TOP_STATEMENT | KF::RVALUE;
   case K::FUNCTION:
@@ -1391,8 +1284,6 @@ getFlags(rq::Keyword keyword) {
     return KF::VIGNETTE_RVALUE;
   case K::DISCRIMINANT:
     return KF::REFLECTION | KF::VIGNETTE_RVALUE;
-  case K::S_DISCRIMINANT_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::OUT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS:
@@ -1473,12 +1364,8 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::FIRST_VARIADIC_ARGUMENT:
     return KF::REFLECTION;
-  case K::S_FIRST_VARIADIC_ARGUMENT_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NEXT_VARIADIC_ARGUMENT:
     return KF::REFLECTION;
-  case K::S_NEXT_VARIADIC_ARGUMENT_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES
   case K::IF:
@@ -1525,8 +1412,6 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CONTAINS:
     return KF::REFLECTION;
-  case K::S_CONTAINS_VALUE:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::S_SEQUENCE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::S_SEQUENCE_STEP_ADD:
@@ -1626,14 +1511,10 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT_ATTRIBUTE;
   case K::MANGLED_NAME:
     return KF::REFLECTION | KF::STATEMENT_ATTRIBUTE;
-  case K::S_MANGLED_NAME_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
     return KF::STATEMENT_ATTRIBUTE;
   case K::USER_ATTRIBUTE:
     return KF::REFLECTION | KF::STATEMENT_ATTRIBUTE;
-  case K::S_USER_ATTRIBUTE_OF:
-    return KF::STATEMENT_ATTRIBUTE;
   case K::LABEL:
     return KF::STATEMENT_ATTRIBUTE;
   case K::TEMPLATE:
@@ -1696,60 +1577,32 @@ getFlags(rq::Keyword keyword) {
   // REFLECTIONS
   case K::S_REFLECT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER | KF::PATH;
-  case K::S_MEMBER_OF:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PATH;
   case K::BYTE_SIZE:
     return KF::REFLECTION;
-  case K::S_BYTE_SIZE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::BIT_DEPTH:
     return KF::REFLECTION;
-  case K::S_BIT_DEPTH_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::ELEMENT_COUNT:
     return KF::REFLECTION;
-  case K::S_ELEMENT_COUNT_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::NAME:
     return KF::REFLECTION;
-  case K::S_NAME_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::LINE:
     return KF::REFLECTION;
-  case K::S_LINE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::COLUMN:
     return KF::REFLECTION;
-  case K::S_COLUMN_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::IS:
     return KF::REFLECTION;
-  case K::S_VALUE_IS:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::HOLDS:
     return KF::REFLECTION;
-  case K::S_VALUE_HOLDS:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION;
-  case K::S_TYPE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::SYMBOL:
     return KF::REFLECTION;
-  case K::S_SYMBOL_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::SIGNATURE:
     return KF::REFLECTION;
-  case K::S_SIGNATURE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::LAYOUT:
     return KF::REFLECTION;
-  case K::S_LAYOUT_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::CONSTRUCT_FUNCTOR:
     return KF::REFLECTION;
-  case K::S_CONSTRUCT_FUNCTOR_OF:
-    return KF::RVALUE | KF::ARGUMENT;
 
   case K::I_LAST:
     break;
@@ -1890,110 +1743,6 @@ getDescription(rq::Situation situation) {
     return "dynamic capture expression";
   }
   return "error expression";
-}
-
-[[nodiscard]] inline constexpr rq::Keyword
-getUniversalized(rq::Keyword keyword, rq::Situation situation) {
-  using namespace rq;
-  using K = Keyword;
-  using S = Situation;
-  switch (keyword) {
-  case K::CONTAINS:
-    return K::S_CONTAINS_VALUE;
-  case K::SINGLETON:
-    return K::S_SINGLETON_OF;
-  case K::CONTENT:
-    return K::S_CONTENT_OF;
-  case K::ADDRESS:
-    return K::S_ADDRESS_OF;
-  case K::BORROW:
-    return K::S_BORROW_OF;
-  case K::EXTRACT:
-    return K::S_EXTRACT_OF;
-  case K::MOVE:
-    return K::S_MOVE_OF;
-  case K::DESTROY:
-    return K::S_DESTROY_VALUE;
-  case K::DROP:
-    return K::S_DROP_VALUE;
-  case K::FIRST_VARIADIC_ARGUMENT:
-    return K::S_FIRST_VARIADIC_ARGUMENT_OF;
-  case K::NEXT_VARIADIC_ARGUMENT:
-    return K::S_NEXT_VARIADIC_ARGUMENT_OF;
-  case K::MANGLED_NAME:
-    return K::S_MANGLED_NAME_OF;
-  case K::USER_ATTRIBUTE:
-    return K::S_USER_ATTRIBUTE_OF;
-  case K::EXPAND:
-    switch (situation) {
-    case S::TOP_STATEMENT:
-      return K::S_EXPAND_TOP_STATEMENT;
-    case S::TABLE_STATEMENT:
-      return K::S_EXPAND_TABLE_STATEMENT;
-    case S::OBJECT_STATEMENT:
-      return K::S_EXPAND_OBJECT_STATEMENT;
-    case S::LOCAL_STATEMENT:
-      return K::S_EXPAND_LOCAL_STATEMENT;
-    case S::LVALUE:
-      return K::S_EXPAND_LVALUE;
-    case S::RVALUE:
-      return K::S_EXPAND_RVALUE;
-    case S::REFLECTION:
-      return K::S_EXPAND_REFLECTION;
-    case S::ARGUMENT:
-      return K::S_EXPAND_ARGUMENT;
-    case S::PARAMETER:
-      return K::S_EXPAND_PARAMETER;
-    case S::ENUMERATOR:
-      return K::S_EXPAND_ENUMERATOR;
-    case S::PATH:
-      return K::S_EXPAND_PATH;
-    case S::NAME:
-      return K::S_EXPAND_NAME;
-    case S::SEQUENCE_STAGE:
-      return K::S_EXPAND_SEQUENCE_STAGE;
-    case S::VIGNETTE:
-      return K::S_EXPAND_VIGNETTE;
-    case S::VIGNETTE_RVALUE:
-      return K::S_EXPAND_VIGNETTE_RVALUE;
-    case S::ARM:
-      return K::S_EXPAND_ARM;
-    case S::DYNAMIC_CAPTURE:
-      return K::S_EXPAND_DYNAMIC_CAPTURE;
-    default:
-      break;
-    }
-    break;
-  case K::BYTE_SIZE:
-    return K::S_BYTE_SIZE_OF;
-  case K::BIT_DEPTH:
-    return K::S_BIT_DEPTH_OF;
-  case K::ELEMENT_COUNT:
-    return K::S_ELEMENT_COUNT_OF;
-  case K::NAME:
-    return K::S_NAME_OF;
-  case K::LINE:
-    return K::S_LINE_OF;
-  case K::COLUMN:
-    return K::S_COLUMN_OF;
-  case K::IS:
-    return K::S_VALUE_IS;
-  case K::HOLDS:
-    return K::S_VALUE_HOLDS;
-  case K::TYPE:
-    return K::S_TYPE_OF;
-  case K::SYMBOL:
-    return K::S_SYMBOL_OF;
-  case K::SIGNATURE:
-    return K::S_SIGNATURE_OF;
-  case K::LAYOUT:
-    return K::S_LAYOUT_OF;
-  case K::CONSTRUCT_FUNCTOR:
-    return K::S_CONSTRUCT_FUNCTOR_OF;
-  default:
-    break;
-  }
-  return K::I_ERROR;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsNone(rq::Keyword keyword) {
@@ -2698,10 +2447,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return rq::getName(this->_keyword);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
-  getUniversalized(rq::Situation situation) const {
-    return rq::getUniversalized(this->_keyword, situation);
   }
   RQ_ALWAYS_INLINE void clear() {
     this->_keyword = rq::Keyword::I_NONE;
