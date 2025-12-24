@@ -1819,6 +1819,75 @@ getHasNonStatementBranches(rq::Keyword keyword) {
   return rq::getHasNone(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
+[[nodiscard]] inline constexpr rq::Keyword
+getDeuniversalized(rq::Keyword keyword) {
+  using namespace rq;
+  using K = Keyword;
+  switch (keyword) {
+  // MEMORY
+  case K::SINGLETON:
+    return K::S_SINGLETON_OF;
+  case K::CONTENT:
+    return K::S_CONTENT_OF;
+  case K::ADDRESS:
+    return K::S_ADDRESS_OF;
+  case K::BORROW:
+    return K::S_BORROW_OF;
+  // PROCEDURES
+  case K::DESTROY:
+    return K::S_DESTROY_VALUE;
+  case K::DROP:
+    return K::S_DROP_VALUE;
+  case K::MOVE:
+    return K::S_MOVE_VALUE;
+  // VARIADIC ARGUMENTS
+  case K::FIRST_VARIADIC_ARGUMENT:
+    return K::S_FIRST_VARIADIC_ARGUMENT_OF;
+  case K::NEXT_VARIADIC_ARGUMENT:
+    return K::S_NEXT_VARIADIC_ARGUMENT_OF;
+  // STATEMENT ATTRIBUTES
+  case K::MANGLED_NAME:
+    return K::S_MANGLED_NAME_OF;
+  case K::USER_ATTRIBUTE:
+    return K::S_USER_ATTRIBUTE_OF;
+  // REFLECTIONS
+  case K::BYTE_SIZE:
+    return K::S_BYTE_SIZE_OF;
+  case K::BIT_DEPTH:
+    return K::S_BIT_DEPTH_OF;
+  case K::ELEMENT_COUNT:
+    return K::S_ELEMENT_COUNT_OF;
+  case K::NAME:
+    return K::S_NAME_OF;
+  case K::LINE:
+    return K::S_LINE_OF;
+  case K::COLUMN:
+    return K::S_COLUMN_OF;
+  case K::IS:
+    return K::S_IS_ENUMERATOR;
+  case K::HOLDS:
+    return K::S_HOLDS_ENUMERATOR;
+  case K::TYPE:
+    return K::S_TYPE_OF;
+  case K::SYMBOL:
+    return K::S_SYMBOL_OF;
+  case K::SIGNATURE:
+    return K::S_SIGNATURE_OF;
+  case K::LAYOUT:
+    return K::S_LAYOUT_OF;
+  case K::CONSTRUCT_FUNCTOR:
+    return K::S_CONSTRUCT_FUNCTOR_OF;
+  default:
+    break;
+  }
+  return K::I_NONE;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getIsDeuniversalizable(rq::Keyword keyword) {
+  return rq::getDeuniversalized(keyword) != rq::Keyword::I_NONE;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getCanBeChainLink(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
@@ -1827,7 +1896,41 @@ getCanBeChainLink(rq::Keyword keyword) {
                                    rq::KeywordFlags::FINISHING_CHAINLINK);
 }
 
-// TODO
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeStartingChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::STARTING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeContinuingChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::CONTINUING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeFinishingChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::FINISHING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeIfChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeArmChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::ARM_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeTryChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::TRY_CHAINLINK);
+}
 
 enum class Situation : std::uint_fast8_t {
   NONE,
@@ -2097,7 +2200,7 @@ getCanBeBinding(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeSYMBOL_PATH(rq::Keyword keyword) {
+getCanBeSymbolPath(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::SYMBOL_PATH);
 }
@@ -2181,7 +2284,7 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
   case rq::Situation::BINDING:
     return rq::getCanBeBinding(keyword);
   case rq::Situation::SYMBOL_PATH:
-    return rq::getCanBeSYMBOL_PATH(keyword);
+    return rq::getCanBeSymbolPath(keyword);
   case rq::Situation::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case rq::Situation::TYPE_ATTRIBUTE:
@@ -2758,6 +2861,30 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
     return rq::getCanBeChainLink(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingChainLink() const {
+    return rq::getCanBeStartingChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingChainLink() const {
+    return rq::getCanBeContinuingChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
+    return rq::getCanBeFinishingChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainLink() const {
+    return rq::getCanBeIfChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
+    return rq::getCanBeArmChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTryChainLink() const {
+    return rq::getCanBeTryChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getDeuniversalized() const {
+    return rq::getDeuniversalized(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDeuniversalizable() const {
+    return rq::getIsDeuniversalizable(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
     return rq::getIsNone(this->getKeyword());
   }
@@ -2797,8 +2924,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeBinding() const {
     return rq::getCanBeBinding(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSYMBOL_PATH() const {
-    return rq::getCanBeSYMBOL_PATH(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolPath() const {
+    return rq::getCanBeSymbolPath(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());
