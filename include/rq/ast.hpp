@@ -348,6 +348,8 @@ enum class Keyword : std::uint32_t {
   S_EXPAND_SYMBOL_PATH,
   S_EXPAND_SEQUENCE_STAGE,
   S_EXPAND_DYNAMIC_CAPTURE,
+  S_EXPAND_VIGNETTE,
+  S_EXPAND_VIGNETTE_RVALUE,
 
   // REFLECTIONS
   S_REFLECT,
@@ -930,6 +932,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_expand_sequence_stage";
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return "_expand_dynamic_capture";
+  case K::S_EXPAND_VIGNETTE:
+    return "_expand_vignette";
+  case K::S_EXPAND_VIGNETTE_RVALUE:
+    return "_expand_vignette_rvalue";
 
   // REFLECTIONS
   case K::S_REFLECT:
@@ -1018,9 +1024,12 @@ enum class KeywordFlags : std::uint32_t {
   STATEMENT_ATTRIBUTE = rq::getBit(9),
   SEQUENCE_STAGE = rq::getBit(8),
   DYNAMIC_CAPTURE = rq::getBit(7),
+  VIGNETTE = rq::getBit(6),
+  VIGNETTE_RVALUE = rq::getBit(5),
   ALL = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
         BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE |
-        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | DYNAMIC_CAPTURE
+        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | DYNAMIC_CAPTURE | VIGNETTE |
+        VIGNETTE_RVALUE
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1077,7 +1086,7 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
   case K::S_UNSITUATED_ASCRIBE_STATEMENT:
-    return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
+    return KF::STATEMENT | KF::PARAMETER | KF::VIGNETTE_RVALUE | KF::ASCRIPTION;
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -1113,7 +1122,7 @@ getFlags(rq::Keyword keyword) {
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
   case K::S_ASCRIBE_STATEMENT:
-    return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
+    return KF::STATEMENT | KF::PARAMETER | KF::VIGNETTE_RVALUE | KF::ASCRIPTION;
   case K::S_CAST:
     return KF::RVALUE | KF::ARGUMENT;
   case K::S_IDENTIFY:
@@ -1173,7 +1182,7 @@ getFlags(rq::Keyword keyword) {
 
   // ASSIGNMENT
   case K::S_ASSIGN:
-    return KF::STATEMENT;
+    return KF::STATEMENT | KF::VIGNETTE_RVALUE;
   case K::S_ASSIGN_ADD:
     return KF::STATEMENT;
   case K::S_ASSIGN_SUBTRACT:
@@ -1315,11 +1324,11 @@ getFlags(rq::Keyword keyword) {
   case K::INDETERMINATE:
     return KF::RVALUE;
   case K::VALUE:
-    return KF::RVALUE;
+    return KF::VIGNETTE_RVALUE;
   case K::INDEX:
-    return KF::RVALUE;
+    return KF::VIGNETTE_RVALUE;
   case K::DISCRIMINANT:
-    return KF::RVALUE;
+    return KF::VIGNETTE_RVALUE;
   case K::OUT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS:
@@ -1594,11 +1603,15 @@ getFlags(rq::Keyword keyword) {
     return KF::SEQUENCE_STAGE;
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return KF::DYNAMIC_CAPTURE;
+  case K::S_EXPAND_VIGNETTE:
+    return KF::VIGNETTE;
+  case K::S_EXPAND_VIGNETTE_RVALUE:
+    return KF::VIGNETTE_RVALUE;
 
   // REFLECTIONS
   case K::S_REFLECT:
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
-           KF::PARAMETER | KF::SYMBOL_PATH | KF::STARTING_CHAINLINK |
+           KF::PARAMETER | KF::SYMBOL_PATH | KF::VIGNETTE | KF::VIGNETTE_RVALUE | KF::STARTING_CHAINLINK |
            KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK |
            KF::IF_CHAINLINK | KF::ARM_CHAINLINK | KF::TRY_CHAINLINK;
   case K::BYTE_SIZE:
@@ -1832,7 +1845,9 @@ enum class Situation : std::uint_fast8_t {
   TYPE_ATTRIBUTE,
   STATEMENT_ATTRIBUTE,
   SEQUENCE_STAGE,
-  DYNAMIC_CAPTURE
+  DYNAMIC_CAPTURE, 
+  VIGNETTE,
+  VIGNETTE_RVALUE
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
@@ -1870,6 +1885,10 @@ getDescription(rq::Situation situation) {
     return "sequence stage expression";
   case S::DYNAMIC_CAPTURE:
     return "dynamic capture expression";
+  case S::VIGNETTE:
+    return "vignette expression";
+  case S::VIGNETTE_RVALUE:
+    return "vignette rvalue expression";
   }
   return "error expression";
 }
@@ -1925,6 +1944,10 @@ getDescription(rq::ChainKind chainKind) {
     return K::S_EXPAND_SEQUENCE_STAGE;
   case S::DYNAMIC_CAPTURE:
     return K::S_EXPAND_DYNAMIC_CAPTURE;
+  case S::VIGNETTE:
+    return K::S_EXPAND_VIGNETTE;
+  case S::VIGNETTE_RVALUE:
+    return K::S_EXPAND_VIGNETTE_RVALUE;
   }
   RQ_UNREACHABLE();
 }
@@ -1954,6 +1977,10 @@ getDescription(rq::ChainKind chainKind) {
     return S::SEQUENCE_STAGE;
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return S::DYNAMIC_CAPTURE;
+  case K::S_EXPAND_VIGNETTE:
+    return S::VIGNETTE;
+  case K::S_EXPAND_VIGNETTE_RVALUE:
+    return S::VIGNETTE_RVALUE;
   default:
     break;
   }
@@ -2047,6 +2074,18 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::DYNAMIC_CAPTURE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeVignette(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::VIGNETTE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeVignetteRValue(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::VIGNETTE_RVALUE);
+}
+
 [[nodiscard]] constexpr bool getCanBeSituation(rq::Keyword keyword,
                                                rq::Situation situation) {
   switch (situation) {
@@ -2080,6 +2119,10 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
     return rq::getCanBeSequenceStage(keyword);
   case rq::Situation::DYNAMIC_CAPTURE:
     return rq::getCanBeDynamicCapture(keyword);
+  case rq::Situation::VIGNETTE:
+    return rq::getCanBeVignette(keyword);
+  case rq::Situation::VIGNETTE_RVALUE:
+    return rq::getCanBeVignetteRValue(keyword);
   }
   return false;
 }
