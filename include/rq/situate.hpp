@@ -58,15 +58,11 @@ struct Situator final {
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
       rq::Situation branchn_situation);
-  [[nodiscard]] bool situateNaryDifferentFirstAndSecondNonStatementBranches(
-      rq::Situation situation, rq::Expression &expression,
-      unsigned minimum_branch_count, rq::Situation branch0_situation,
-      rq::Situation branch1_situation, rq::Situation branchn_situation);
   [[nodiscard]] bool situateNaryDifferentLastNonStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branchn_situation,
       rq::Situation last_situation);
-  [[nodiscard]] bool situateNaryDifferentLastNonStatementBranches(
+  [[nodiscard]] bool situateNaryDifferentFirstAndLastNonStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
       rq::Situation branchn_situation, rq::Situation last_situation);

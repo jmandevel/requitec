@@ -147,8 +147,9 @@ enum class Keyword : std::uint32_t {
 
   // PROCEDURES
   S_CALL,
+  CONSTRUCT_FUNCTOR,
+  S_CONSTRUCT_FUNCTOR_OF,
   S_NAMED_ARGUMENT,
-  S_CONSTRUCT_FUNCTOR,
   S_INDEX_INTO,
   S_SIGNATURE_TYPE,
   S_DEFAULT_VALUE_PARAMETER,
@@ -374,8 +375,6 @@ enum class Keyword : std::uint32_t {
   S_SIGNATURE_OF,
   LAYOUT,
   S_LAYOUT_OF,
-  CONSTRUCT_FUNCTOR,
-  S_CONSTRUCT_FUNCTOR_OF,
 
   I_LAST
 };
@@ -587,10 +586,12 @@ constexpr std::size_t KEYWORD_COUNT =
   // PROCEDURES
   case K::S_CALL:
     return "_call";
+  case K::CONSTRUCT_FUNCTOR:
+    return "construct_functor";
+  case K::S_CONSTRUCT_FUNCTOR_OF:
+    return "_construct_functor_of";
   case K::S_NAMED_ARGUMENT:
     return "_named_argument";
-  case K::S_CONSTRUCT_FUNCTOR:
-    return "_construct_functor";
   case K::S_INDEX_INTO:
     return "_index_into";
   case K::S_SIGNATURE_TYPE:
@@ -981,10 +982,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "layout";
   case K::S_LAYOUT_OF:
     return "_layout_of";
-  case K::CONSTRUCT_FUNCTOR:
-    return "construct_functor";
-  case K::S_CONSTRUCT_FUNCTOR_OF:
-    return "_construct_functor_of";
 
   case K::I_LAST:
     return "__last";
@@ -1243,10 +1240,12 @@ getFlags(rq::Keyword keyword) {
   // PROCEDURES
   case K::S_CALL:
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
+  case K::CONSTRUCT_FUNCTOR:
+    return KF::REFLECTION;
+  case K::S_CONSTRUCT_FUNCTOR_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::S_NAMED_ARGUMENT:
     return KF::ARGUMENT;
-  case K::S_CONSTRUCT_FUNCTOR:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::S_INDEX_INTO:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::S_SIGNATURE_TYPE:
@@ -1650,10 +1649,6 @@ getFlags(rq::Keyword keyword) {
     return KF::REFLECTION;
   case K::S_LAYOUT_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CONSTRUCT_FUNCTOR:
-    return KF::REFLECTION;
-  case K::S_CONSTRUCT_FUNCTOR_OF:
-    return KF::RVALUE | KF::ARGUMENT;
 
   case K::I_LAST:
     break;
@@ -1730,6 +1725,8 @@ getDeuniversalized(rq::Keyword keyword) {
     return K::S_DROP_VALUE;
   case K::MOVE:
     return K::S_MOVE_VALUE;
+  case K::CONSTRUCT_FUNCTOR:
+    return K::S_CONSTRUCT_FUNCTOR_OF;
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::S_FIRST_VARIADIC_ARGUMENT_OF;
@@ -1765,8 +1762,6 @@ getDeuniversalized(rq::Keyword keyword) {
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
     return K::S_LAYOUT_OF;
-  case K::CONSTRUCT_FUNCTOR:
-    return K::S_CONSTRUCT_FUNCTOR_OF;
   default:
     break;
   }
