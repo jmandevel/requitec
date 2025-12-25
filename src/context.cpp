@@ -389,6 +389,9 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     if (trunk.getIsInserted()) {
       fout << " (inserted)";
     }
+    if (trunk.getHasSituatorError()) {
+      fout << " (situator error)";
+    }
     fout << "\n";
   }
   rq::emitIndent(fout, indent);

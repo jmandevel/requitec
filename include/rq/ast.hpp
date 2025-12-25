@@ -2563,7 +2563,9 @@ enum class ExpressionSourceFlags : std::uint8_t {
   NONE = 0,
   // NOTE: an "inserted" expression is one that was not present in the source
   // and was inserted into the AST by the compiler
-  INSERTED
+  INSERTED = rq::getBit(0),
+  // NOTE: this flag is set if there is an error with situating this expression
+  SITUATOR_ERROR = rq::getBit(1)
 };
 
 template <>
@@ -2722,6 +2724,13 @@ struct Expression final {
   }
   RQ_ALWAYS_INLINE void setIsInserted() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::INSERTED);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSituatorError() const {
+    return rq::getHasAll(this->_source_ptr_flags.getFlags(),
+                         rq::ExpressionSourceFlags::SITUATE_ERROR);
+  }
+  RQ_ALWAYS_INLINE void setHasSituatorError() {
+    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATE_ERROR);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBold() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
