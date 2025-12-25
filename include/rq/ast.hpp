@@ -41,9 +41,6 @@ enum class Keyword : std::uint32_t {
   I_CODEUNIT_LITERAL,
   // a literal that is used to refeer to user defined symbols.
   I_IDENTIFIER_LITERAL,
-  // an identifier that has a branch which is the next identifier in a symbol
-  // path.
-  I_PATH_IDENTIFIER_LITERAL,
 
   // ERRORS
   I_ERROR,
@@ -408,8 +405,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "__codeunit_literal";
   case K::I_IDENTIFIER_LITERAL:
     return "__identifier_literal";
-  case K::I_PATH_IDENTIFIER_LITERAL:
-    return "__path_identifier_literal";
 
   // ERRORS
   case K::I_ERROR:
@@ -1064,9 +1059,6 @@ getFlags(rq::Keyword keyword) {
   case K::I_IDENTIFIER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
            KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH;
-  case K::I_PATH_IDENTIFIER_LITERAL:
-    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
-           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH;
 
   // ERRORS
   case K::I_ERROR:
@@ -1610,10 +1602,12 @@ getFlags(rq::Keyword keyword) {
 
   // REFLECTIONS
   case K::S_REFLECT:
-    return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT |
-           KF::PARAMETER | KF::SYMBOL_PATH | KF::VIGNETTE | KF::VIGNETTE_RVALUE | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK |
-           KF::IF_CHAINLINK | KF::ARM_CHAINLINK | KF::TRY_CHAINLINK;
+    return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
+           KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH | KF::SEQUENCE_STAGE |
+           KF::DYNAMIC_CAPTURE | KF::VIGNETTE | KF::VIGNETTE_RVALUE |
+           KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
+           KF::FINISHING_CHAINLINK | KF::IF_CHAINLINK | KF::ARM_CHAINLINK |
+           KF::TRY_CHAINLINK;
   case K::BYTE_SIZE:
     return KF::REFLECTION;
   case K::S_BYTE_SIZE_OF:
