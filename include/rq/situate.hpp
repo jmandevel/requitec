@@ -33,7 +33,7 @@ struct Situator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticFrame &getStaticFrame() {
     return this->_static_frame_ref.get();
   }
-  [[nodiscard]] rq::Expression &makeModuleRoot(rq::Module &module);
+  [[nodiscard]] rq::Expression &makeModuleTrunk(rq::Module &module);
   [[nodiscard]] bool situateModule(rq::Module &module);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
@@ -43,8 +43,6 @@ struct Situator final {
                                    rq::Expression &branch, unsigned branch_i,
                                    llvm::StringRef log_context);
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
-                                              rq::Expression &expression);
-  [[nodiscard]] bool situateUnaryExpression(rq::Situation situation,
                                               rq::Expression &expression);
   [[nodiscard]] bool
   situateUnaryNonStatementBranches(rq::Situation situation,
@@ -56,10 +54,14 @@ struct Situator final {
   [[nodiscard]] bool situateNaryNonStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branchn_situation);
-  [[nodiscard]] bool situateNaryNonStatementBranches(
+  [[nodiscard]] bool situateNaryDifferentFirstNonStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
       rq::Situation branchn_situation);
+  [[nodiscard]] bool situateNaryDifferentFirstAndSecondNonStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      unsigned minimum_branch_count, rq::Situation branch0_situation,
+      rq::Situation branch1_situation, rq::Situation branchn_situation);
   [[nodiscard]] bool situateNaryDifferentLastNonStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branchn_situation,
@@ -68,17 +70,23 @@ struct Situator final {
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
       rq::Situation branchn_situation, rq::Situation last_situation);
-  [[nodiscard]] bool situateNaryDifferentFirstParamterBranches(
-      rq::Situation situation, rq::Expression &expression, rq::Situation branch0_situation);
-  [[nodiscard]] bool situateNaryParameterBranches(
-      rq::Situation situation, rq::Expression &expression);
+  [[nodiscard]] bool
+  situateNaryDifferentFirstParamterBranches(rq::Situation situation,
+                                            rq::Expression &expression,
+                                            rq::Situation branch0_situation);
+  [[nodiscard]] bool situateNaryParameterBranches(rq::Situation situation,
+                                                  rq::Expression &expression);
   [[nodiscard]] bool situateNaryFromFirstParameterBranches(
       rq::Situation situation, rq::Expression &expression,
-      rq::Expression &first_parameter, unsigned first_parameter_i, llvm::StringRef log_context);
-  [[nodiscard]] bool situateNaryStatementBranches(
-      rq::Situation situation, rq::Expression &expression, rq::Situation statement_situation);
-    [[nodiscard]] bool situateNaryStatementBranchesFromFirst(
-        rq::Situation situation, rq::Expression &expression, rq::Situation statement_situation, rq::Expression& first_statement, unsigned first_statement_i);
+      rq::Expression &first_parameter, unsigned first_parameter_i,
+      llvm::StringRef log_context);
+  [[nodiscard]] bool
+  situateNaryStatementBranches(rq::Situation situation,
+                               rq::Expression &expression,
+                               unsigned minimum_branch_count);
+  [[nodiscard]] bool situateNaryBoldFirstStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      unsigned minimum_branch_count, rq::Situation branch0_situation);
 };
 
 } // namespace rq

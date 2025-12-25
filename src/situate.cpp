@@ -7,26 +7,26 @@
 
 namespace rq {
 
-rq::Expression &Situator::makeModuleRoot(rq::Module &module) {
-  rq::Expression &root = this->getStaticFrame().acquireExpression();
-  root.setIsInserted();
-  root.setSource(module);
-  return root;
+rq::Expression &Situator::makeModuleTrunk(rq::Module &module) {
+  rq::Expression &trunk = this->getStaticFrame().acquireExpression();
+  trunk.setIsInserted();
+  trunk.setSource(module);
+  return trunk;
 }
 
 bool Situator::situateModule(rq::Module &module) {
   if (!module.getHasExpression()) {
-    rq::Expression &root = this->makeModuleRoot(module);
-    module.setExpression(root);
+    rq::Expression &trunk = this->makeModuleTrunk(module);
+    module.setExpression(trunk);
     return true;
   }
   rq::Expression &first = module.getExpression();
-  if (first.getKeyword() != rq::Keyword::S_MODULE_ROOT) {
-    rq::Expression &root = this->makeModuleRoot(module);
-    root.setNext(module.replaceExpression(root));
+  if (first.getKeyword() != rq::Keyword::S_MODULE_TRUNK) {
+    rq::Expression &trunk = this->makeModuleTrunk(module);
+    trunk.setNext(module.replaceExpression(trunk));
   }
-  rq::Expression &root = module.getExpression();
-  return this->situateTree(rq::Situation::ROOT_STATEMENT, root);
+  rq::Expression &trunk = module.getExpression();
+  return this->situateTree(rq::Situation::TRUNK, trunk);
 }
 
 #define RQ_ASSERT_VALID_SITUATION(situation, expression)                       \
@@ -65,7 +65,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::I_CODEUNIT_LITERAL:
     [[fallthrough]];
   case K::I_IDENTIFIER_LITERAL:
-    RQ_ASSERT(!expression.getHasBranch(), "literal with branch");
+    RQ_ASSERT(!expression.getHasBranch(), "has branch");
+    return true;
+  case K::I_PATH_IDENTIFIER_LITERAL:
+    RQ_ASSERT(expression.getHasBranch(), "does not have branch");
     return true;
 
   // ERRORS
@@ -86,7 +89,7 @@ bool Situator::situateTree(rq::Situation situation,
     switch (situation) {
     case S::ARGUMENT: {
       const bool is_ok = this->situateBinaryNonStatementBranches(
-          situation, expression, S::NAME, S::RVALUE);
+          situation, expression, S::SYMBOL_PATH, S::RVALUE);
       if (is_ok) {
         expression.changeKeyword(K::S_NAMED_ARGUMENT);
       }
@@ -100,21 +103,7 @@ bool Situator::situateTree(rq::Situation situation,
       }
       return is_ok;
     } break;
-    case S::ENUMERATOR: {
-      const bool is_ok = this->situateBinaryNonStatementBranches(
-          situation, expression, S::NAME, S::RVALUE);
-      if (is_ok) {
-        expression.changeKeyword(K::S_DISCRIMINANT_VALUE_ENUMERATOR);
-      }
-      return is_ok;
-    } break;
-    case S::LOCAL_STATEMENT:
-      [[fallthrough]];
-    case S::TOP_STATEMENT:
-      [[fallthrough]];
-    case S::TABLE_STATEMENT:
-      [[fallthrough]];
-    case S::OBJECT_STATEMENT: {
+    case S::STATEMENT: {
       if (!expression.getHasBranch()) {
         this->getContext().logErrorNotExactBranchCount(situation, expression,
                                                        2);
@@ -165,7 +154,7 @@ bool Situator::situateTree(rq::Situation situation,
     switch (situation) {
     case S::PARAMETER:
       [[fallthrough]];
-    case S::ENUMERATOR:
+    case S::STATEMENT:
       expression.changeKeyword(K::S_BINDING);
       return true;
     case S::RVALUE:
@@ -179,6 +168,10 @@ bool Situator::situateTree(rq::Situation situation,
     RQ_UNREACHABLE();
   case K::S_INFERENCE:
     return this->situateNullaryExpression(situation, expression);
+  case K::S_UNSITUATED_ASCRIBE_STATEMENT:
+    return false; // TODO
+  case K::S_UNSITUATED_ASCRIBE_TYPE:
+    return false; // TODO
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -213,59 +206,13 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::RVALUE, S::RVALUE);
   case K::S_BINDING:
     return this->situateBinaryNonStatementBranches(situation, expression,
-                                                   S::NAME, S::RVALUE);
+                                                   S::SYMBOL_PATH, S::RVALUE);
   case K::S_ASCRIBE_TYPE:
-    [[fallthrough]];
-  case K::S_ASCRIBE_STATEMENT: {
-    rq::Situation attribute_situation = S::TYPE_ATTRIBUTE;
-    if (expression.getKeyword() == K::S_ASCRIBE_STATEMENT) {
-      attribute_situation = S::STATEMENT_ATTRIBUTE;
-    }
-    bool is_ok = true;
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       2);
-      return false;
-    }
-    rq::Expression &first = expression.getBranch();
-    if (!first.getCanBeTypeAttribute()) {
-      is_ok = this->situateNaryNonStatementBranches(
-          situation, expression, 2, situation, attribute_situation);
-    } else {
-      unsigned branch_i = 0;
-      is_ok = this->situateBranch(situation, expression, attribute_situation,
-                                  first, 0, "first to penultimate branch");
-      if (!first.getHasNext()) {
-        this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                         2);
-        return false;
-      }
-      rq::Expression *previous_ptr = &first;
-      for (rq::Expression &next : first.getNextSubrange()) {
-        if (!next.getHasNext()) {
-          if (!this->situateBranch(situation, expression, situation, next,
-                                   branch_i++, "last branch")) {
-            is_ok = false;
-          }
-          if (is_ok) {
-            rq::Expression &previous = rq::dereferencePtr(previous_ptr);
-            next.setNext(expression.replaceBranch(previous.popNext()));
-          }
-          return is_ok;
-        }
-        if (!this->situateBranch(situation, expression, attribute_situation,
-                                 next, branch_i++,
-                                 "first to penultimate branch")) {
-          is_ok = false;
-        }
-        previous_ptr = &next;
-      }
-    }
-    if (!is_ok) {
-      return false;
-    }
-  }
-    return true;
+    return this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 2, situation, S::TYPE_ATTRIBUTE);
+  case K::S_ASCRIBE_STATEMENT:
+    return this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 2, situation, S::STATEMENT_ATTRIBUTE);
   case K::S_CAST:
     return this->situateBinaryNonStatementBranches(situation, expression,
                                                    S::RVALUE, S::RVALUE);
@@ -315,13 +262,25 @@ bool Situator::situateTree(rq::Situation situation,
 
   // MEMORY
   case K::SINGLETON:
-    [[fallthrough]];
+    return this->situateNullaryExpression(situation, expression);
+  case K::S_SINGLETON_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::CONTENT:
-    [[fallthrough]];
+    return this->situateNullaryExpression(situation, expression);
+  case K::S_CONTENT_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::ADDRESS:
-    [[fallthrough]];
+    return this->situateNullaryExpression(situation, expression);
+  case K::S_ADDRESS_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::BORROW:
     return this->situateNullaryExpression(situation, expression);
+  case K::S_BORROW_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -368,8 +327,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::DEBUG_TRAP_ON_PANIC:
     [[fallthrough]];
-  case K::LINEAR:
-    return this->situateNullaryExpression(situation, expression);
   case K::DYNAMIC_CAPTURE_LAYOUT:
     return this->situateNaryParameterBranches(situation, expression);
 
@@ -405,10 +362,10 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, S::RVALUE);
   case K::S_NAMED_ARGUMENT:
     return this->situateBinaryNonStatementBranches(situation, expression,
-                                                   S::NAME, S::RVALUE);
+                                                   S::SYMBOL_PATH, S::RVALUE);
   case K::S_CONSTRUCT_FUNCTOR:
-    return this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                 S::RVALUE, S::ARGUMENT);
+    return this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 1, S::RVALUE, S::ARGUMENT);
   case K::S_INDEX_INTO:
     return this->situateBinaryNonStatementBranches(situation, expression,
                                                    S::RVALUE, S::RVALUE);
@@ -420,13 +377,16 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::BINDING, S::RVALUE);
   case K::DESTROY:
     [[fallthrough]];
+  case K::S_DESTROY_VALUE:
   case K::DROP:
     [[fallthrough]];
+  case K::S_DROP_VALUE:
   case K::MOVE:
     return this->situateNullaryExpression(situation, expression);
+  case K::S_MOVE_VALUE:
   case K::ENTRY_POINT:
     return this->situateNaryNonStatementBranches(situation, expression, 0,
-                                                 S::LOCAL_STATEMENT);
+                                                 S::STATEMENT);
   case K::FUNCTION:
     [[fallthrough]];
   case K::METHOD:
@@ -434,22 +394,21 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXTENSION_FUNCTION:
     [[fallthrough]];
   case K::EXTENSION_METHOD:
-    return this->situateNaryNonStatementBranches(situation, expression, 2,
-                                                 S::RVALUE, S::LOCAL_STATEMENT);
+    return this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 2, S::RVALUE, S::STATEMENT);
   case K::CONSTRUCTOR:
-    return this->situateNaryNonStatementBranches(situation, expression, 2,
-                                                 S::RVALUE, S::LOCAL_STATEMENT);
+    return this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 2, S::RVALUE, S::STATEMENT);
   case K::LAYOUT_CONSTRUCTOR:
     return this->situateNullaryExpression(situation, expression);
   case K::DESTRUCTOR:
     return this->situateNaryNonStatementBranches(situation, expression, 0,
-                                                 S::LOCAL_STATEMENT);
+                                                 S::STATEMENT);
   case K::RANGER:
-    return this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                 S::RVALUE, S::LOCAL_STATEMENT);
+    return this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 2, S::RVALUE, S::STATEMENT);
   case K::S_ANONYMOUS_FUNCTION:
-    return this->situateNaryNonStatementBranches(situation, expression, 2,
-                                                 S::RVALUE, S::LOCAL_STATEMENT);
+    return false; // TODO
   case K::S_DYNAMIC_CAPTURE:
     return this->situateNaryNonStatementBranches(situation, expression, 0,
                                                  S::ARGUMENT);
@@ -476,17 +435,10 @@ bool Situator::situateTree(rq::Situation situation,
 
   // DECLARED TYPES
   case K::OBJECT:
-    [[fallthrough]];
+    return false; // TODO
   case K::ENUMERATION:
-    if (situation == S::REFLECTION || situation == S::RVALUE) {
-      return this->situateNullaryExpression(situation, expression);
-    }
-    return this->situateNaryNonStatementBranches(
-        situation, expression, 2, S::RVALUE, S::OBJECT_STATEMENT);
-  case K::S_DISCRIMINANT_VALUE_ENUMERATOR:
-    return this->situateBinaryNonStatementBranches(situation, expression,
-                                                   S::LVALUE, S::RVALUE);
-
+    return false; // TODO
+    
   // VALUES
   case K::TRUE:
     [[fallthrough]];
@@ -581,89 +533,52 @@ bool Situator::situateTree(rq::Situation situation,
 
   // VARIADIC ARGUMENTS
   case K::VARIADIC_ARGUMENTS:
-    [[fallthrough]];
+    return this->situateNullaryExpression(situation, expression);
   case K::FIRST_VARIADIC_ARGUMENT:
-    [[fallthrough]];
+    return this->situateNullaryExpression(situation, expression);
+  case K::S_FIRST_VARIADIC_ARGUMENT_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::NEXT_VARIADIC_ARGUMENT:
     return this->situateNullaryExpression(situation, expression);
+  case K::S_NEXT_VARIADIC_ARGUMENT_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
 
   // SCOPES
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF:
-    return this->situateSingleBoldRValueStatementsExpression()
+    return this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
+                                                       S::RVALUE);
   case K::ELSE:
     return this->situateNaryNonStatementBranches(situation, expression, 0,
                                                  situation);
+  case K::TRY:
+    return this->situateNaryStatementBranches(situation, expression, 0);
+  case K::CATCH:
+    [[fallthrough]];
+  case K::FINALLY:
+    return this->situateNaryStatementBranches(situation, expression, 0);
   case K::MATCH:
     [[fallthrough]];
   case K::INLINE_MATCH:
     [[fallthrough]];
   case K::SWITCH:
     [[fallthrough]];
-  case K::INLINE_SWITCH: {
-    bool is_ok = true;
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       1);
-      is_ok = false;
-      return is_ok;
-    }
-    rq::Expression &condition = expression.getBranch();
-    if (!this->situateBranch(situation, expression, S::RVALUE, condition, 0,
-                             "condition branch")) {
-      is_ok = false;
-    }
-    if (!condition.getIsBold()) {
-      this->getContext().logErrorNotBoldExpression(
-          situation, expression, condition, 0, "condition branch");
-      is_ok = false;
-    }
-    if (!condition.getHasNext()) {
-      return is_ok;
-    }
-    bool previous_is_chainlink = false;
-    unsigned branch_i = 1;
-    for (rq::Expression &arm : condition.getNextSubrange()) {
-      switch (arm.getKeyword()) {
-      case K::CASE:
-        [[fallthrough]];
-      case K::DEFAULT:
-        if (arm.getIsChainlink()) {
-          previous_is_chainlink = true;
-        }
-        if (!arm.getHasNext() && arm.getIsChainLink()) {
-          this->getContext().logErrorChainLinkExpressionWithNothingAfter(
-              situation, expression, S::ARM, arm, branch_i);
-          is_ok = false;
-        } else if (!arm.getIsChainLink()) {
-          this->getContext().logErrorNotChainLinkExpression(
-              situation, expression, S::ARM, arm, branch_i);
-          is_ok = false;
-        }
-        break;
-      default:
-        break;
-      }
-      if (!this->situateBranch(situation, expression, S::ARM, arm, branch_i,
-                               "second to last branch")) {
-        is_ok = false;
-      }
-      branch_i++;
-    }
-    return is_ok;
-  } break;
+  case K::INLINE_SWITCH:
+    return this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
+                                                       S::RVALUE);
   case K::CASE:
-    return this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                 S::RVALUE, S::LOCAL_STATEMENT);
+    return this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
+                                                       S::RVALUE);
   case K::DEFAULT:
-    return this->situateNaryNonStatementBranches(situation, expression, 0,
-                                                 S::LOCAL_STATEMENT);
+    return this->situateNaryStatementBranches(situation, expression, 0);
   case K::FOR:
-    [[fallthrough]];
+    return false; // TODO
   case K::WHILE:
-    return this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                 S::RVALUE, S::LOCAL_STATEMENT);
+    return this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
+                                                       S::RVALUE);
   case K::SCOPE:
     [[fallthrough]];
   case K::INLINE_SCOPE:
@@ -748,19 +663,15 @@ bool Situator::situateTree(rq::Situation situation,
   case K::USE:
     [[fallthrough]];
   case K::USE_TABLE:
+    [[fallthrough]];
+  case K::FACADE:
     return this->situateUnaryNonStatementBranches(situation, expression,
                                                   S::RVALUE);
-  case K::FACADE:
-    return this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                 S::SYMBOL_PATH, S::TABLE_STATEMENT);
   case K::TABLE:
-    [[fallthrough]];
-  case K::MODULE:
-    return this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                 S::SYMBOL_PATH, S::TABLE_STATEMENT);
-  case K::S_MODULE_ROOT:
-    return this->situateNaryNonStatementBranches(situation, expression, 0,
-                                                 S::TOP_STATEMENT);
+    return this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
+                                                       S::SYMBOL_PATH);
+  case K::S_MODULE_TRUNK:
+    return this->situateNaryStatementBranches(situation, expression, 0);
 
   // ERROR HANDLING AND DEBUGGING
   case K::PANIC_TRAP:
@@ -814,9 +725,15 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     RQ_UNREACHABLE();
+  case K::S_MANGLED_NAME_OF:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
   case K::PACK:
     return this->situateNullaryExpression(situation, expression);
   case K::USER_ATTRIBUTE:
+    return this->situateUnaryNonStatementBranches(situation, expression,
+                                                  S::RVALUE);
+  case K::S_USER_ATTRIBUTE_OF:
     return this->situateUnaryNonStatementBranches(situation, expression,
                                                   S::RVALUE);
   case K::LABEL:
@@ -852,17 +769,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXPAND:
     return this->situateNullaryExpression(situation, expression);
-  case K::S_EXPAND_TOP_STATEMENT:
-    [[fallthrough]];
-  case K::S_EXPAND_TABLE_STATEMENT:
-    [[fallthrough]];
-  case K::S_EXPAND_OBJECT_STATEMENT:
-    [[fallthrough]];
-  case K::S_EXPAND_LOCAL_STATEMENT:
-    [[fallthrough]];
-  case K::S_EXPAND_ARM_STATEMENT:
-    [[fallthrough]];
-  case K::S_EXPAND_ENUMERATOR_STATEMENT:
+  case K::S_EXPAND_STATEMENT:
     [[fallthrough]];
   case K::S_EXPAND_LVALUE:
     [[fallthrough]];
@@ -874,11 +781,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::S_EXPAND_PARAMETER:
     [[fallthrough]];
+  case K::S_EXPAND_SYMBOL_PATH:
+    [[fallthrough]];
   case K::S_EXPAND_SEQUENCE_STAGE:
-    [[fallthrough]];
-  case K::S_EXPAND_VIGNETTE:
-    [[fallthrough]];
-  case K::S_EXPAND_VIGNETTE_RVALUE:
     [[fallthrough]];
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return this->situateUnaryNonStatementBranches(situation, expression,
@@ -926,30 +831,53 @@ bool Situator::situateTree(rq::Situation situation,
   }
   case K::BYTE_SIZE:
     [[fallthrough]];
+  case K::S_BYTE_SIZE_OF:
+
   case K::BIT_DEPTH:
     [[fallthrough]];
+  case K::S_BIT_DEPTH_OF:
+
   case K::ELEMENT_COUNT:
     [[fallthrough]];
+
+  case K::S_ELEMENT_COUNT_OF:
   case K::NAME:
     [[fallthrough]];
+
+  case K::S_NAME_OF:
   case K::LINE:
     [[fallthrough]];
+
+  case K::S_LINE_OF:
+
   case K::COLUMN:
     [[fallthrough]];
+
+  case K::S_COLUMN_OF:
   case K::IS:
     [[fallthrough]];
+
+  case K::S_IS_TYPE:
   case K::HOLDS:
     [[fallthrough]];
+
+  case K::S_HOLDS_ENUMERATOR:
+
   case K::TYPE:
     [[fallthrough]];
+  case K::S_TYPE_OF:
   case K::SYMBOL:
     [[fallthrough]];
+  case K::S_SYMBOL_OF:
   case K::SIGNATURE:
     [[fallthrough]];
+  case K::S_SIGNATURE_OF:
   case K::LAYOUT:
     [[fallthrough]];
+  case K::S_LAYOUT_OF:
   case K::CONSTRUCT_FUNCTOR:
     return this->situateNullaryExpression(situation, expression);
+  case K::S_CONSTRUCT_FUNCTOR_OF:
 
   case K::I_LAST:
     RQ_UNREACHABLE();
@@ -978,21 +906,6 @@ bool Situator::situateNullaryExpression(rq::Situation situation,
   RQ_ASSERT_VALID_SITUATION(situation, expression);
   if (expression.getHasBranch()) {
     this->getContext().logErrorNotExactBranchCount(situation, expression, 0);
-    return false;
-  }
-  return true;
-}
-
-bool Situator::situateUnaryExpression(rq::Situation situation,
-                                      rq::Expression &expression) {
-  RQ_ASSERT_VALID_SITUATION(situation, expression);
-  if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
-    return false;
-  }
-  rq::Expression &branch = expression.getBranch();
-  if (branch.getHasNext()) {
-    this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
     return false;
   }
   return true;
@@ -1071,7 +984,7 @@ bool Situator::situateNaryNonStatementBranches(
   return is_ok;
 }
 
-bool Situator::situateNaryNonStatementBranches(
+bool Situator::situateNaryDifferentFirstNonStatementBranches(
     rq::Situation situation, rq::Expression &expression,
     unsigned minimum_branch_count, rq::Situation branch0_situation,
     rq::Situation branchn_situation) {

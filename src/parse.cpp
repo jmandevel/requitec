@@ -250,13 +250,13 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     switch (kind) {
     case rq::TokenKind::AT_SIGIL: {
       rq::Expression &attribute = this->parseStatementAttribute();
-      precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_STATEMENT);
+      precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
       precedence_builder.appendBranch(attribute);
       continue;
     }
     case rq::TokenKind::WHAT_SIGIL: {
       rq::Expression &attribute = this->parseUserAttribute();
-      precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_STATEMENT);
+      precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
       precedence_builder.appendBranch(attribute);
       continue;
     }
@@ -701,7 +701,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       switch (kind) {
       case rq::TokenKind::DOLLAR_SIGIL: {
         rq::Expression &attribute = this->parseTypeAttribute();
-        precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_TYPE);
+        precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_builder.appendBranch(attribute);
         continue;
       }
@@ -770,12 +770,12 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         continue;
       case rq::TokenKind::GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_TYPE);
+        precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_builder.appendNullaryAttribute(token, rq::Keyword::MUTABLE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_builder.parseAscribe(token, rq::Keyword::S_ASCRIBE_TYPE);
+        precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_builder.appendNullaryAttribute(token, rq::Keyword::CONSTANT);
         continue;
       default:
@@ -856,7 +856,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     }
     case rq::TokenKind::GRAVE_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_builder.parseAscribe(post_token, rq::Keyword::S_ASCRIBE_TYPE);
+      precedence_builder.parseAscribe(post_token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
       precedence_builder.appendPostunaryAttribute(
           post_token, rq::Keyword::PARTIALLY_MUTABLE);
       continue;
