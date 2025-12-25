@@ -65,12 +65,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::I_RIGHT_INTERPOLATION_LITERAL:
     [[fallthrough]];
   case K::I_CODEUNIT_LITERAL:
-    [[fallthrough]];
-  case K::I_IDENTIFIER_LITERAL:
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     break;
-  case K::I_PATH_IDENTIFIER_LITERAL:
-    RQ_ASSERT(expression.getHasBranch(), "does not have branch");
+  case K::I_IDENTIFIER_LITERAL:
     break;
 
   // ERRORS
@@ -622,8 +619,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF:
-    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
-                                                        S::RVALUE);
+    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression,
+                                                        1, S::RVALUE);
     break;
   case K::ELSE:
     is_ok = this->situateNaryNonStatementBranches(situation, expression, 0,
@@ -644,12 +641,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SWITCH:
     [[fallthrough]];
   case K::INLINE_SWITCH:
-    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
-                                                        S::RVALUE);
+    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression,
+                                                        1, S::RVALUE);
     break;
   case K::CASE:
-    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
-                                                        S::RVALUE);
+    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression,
+                                                        1, S::RVALUE);
     break;
   case K::DEFAULT:
     is_ok = this->situateNaryStatementBranches(situation, expression, 0);
@@ -657,8 +654,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::FOR:
     RQ_TODO_IMPLEMENTATION();
   case K::WHILE:
-    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
-                                                        S::RVALUE);
+    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression,
+                                                        1, S::RVALUE);
     break;
   case K::SCOPE:
     [[fallthrough]];
@@ -757,8 +754,8 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::RVALUE);
     break;
   case K::TABLE:
-    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression, 1,
-                                                        S::SYMBOL_PATH);
+    is_ok = this->situateNaryBoldFirstStatementBranches(situation, expression,
+                                                        1, S::SYMBOL_PATH);
     break;
   case K::S_MODULE_TRUNK:
     is_ok = this->situateNaryStatementBranches(situation, expression, 0);
@@ -898,6 +895,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_EXPAND_SEQUENCE_STAGE:
     [[fallthrough]];
   case K::S_EXPAND_DYNAMIC_CAPTURE:
+    [[fallthrough]];
+  case K::S_EXPAND_VIGNETTE:
+    [[fallthrough]];
+  case K::S_EXPAND_VIGNETTE_RVALUE:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
