@@ -2764,10 +2764,10 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSituatorError() const {
     return rq::getHasAll(this->_source_ptr_flags.getFlags(),
-                         rq::ExpressionSourceFlags::SITUATE_ERROR);
+                         rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
   RQ_ALWAYS_INLINE void setHasSituatorError() {
-    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATE_ERROR);
+    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBold() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
