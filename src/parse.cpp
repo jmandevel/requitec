@@ -224,14 +224,16 @@ rq::Expression *RequiteParser::parseExpressions() {
     rq::Expression &next = this->parseExpression();
     builder.appendTree(next);
     if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorExpectedSemicolonSeparator(next);
+      this->getContext().logErrorExpectedSemicolonSeparator(rq::System::PARSING,
+                                                            next);
       this->setNotOk();
       break;
     }
     const rq::Token &after_token = this->getRanger().getToken();
     this->getRanger().incrementToken(1);
     if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
-      this->getContext().logErrorUnexpectedToken(after_token);
+      this->getContext().logErrorUnexpectedToken(rq::System::PARSING,
+                                                 after_token);
       this->setNotOk();
     } else if (after_token.getKind() != rq::TokenKind::SEMICOLON_SEPARATOR) {
       next.setIsChainLink();
@@ -250,13 +252,15 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     switch (kind) {
     case rq::TokenKind::AT_SIGIL: {
       rq::Expression &attribute = this->parseStatementAttribute();
-      precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
+      precedence_builder.parseAscribe(
+          token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
       precedence_builder.appendBranch(attribute);
       continue;
     }
     case rq::TokenKind::WHAT_SIGIL: {
       rq::Expression &attribute = this->parseUserAttribute();
-      precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
+      precedence_builder.parseAscribe(
+          token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
       precedence_builder.appendBranch(attribute);
       continue;
     }
@@ -701,7 +705,8 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       switch (kind) {
       case rq::TokenKind::DOLLAR_SIGIL: {
         rq::Expression &attribute = this->parseTypeAttribute();
-        precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
+        precedence_builder.parseAscribe(token,
+                                        rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_builder.appendBranch(attribute);
         continue;
       }
@@ -770,12 +775,14 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         continue;
       case rq::TokenKind::GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
+        precedence_builder.parseAscribe(token,
+                                        rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_builder.appendNullaryAttribute(token, rq::Keyword::MUTABLE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_builder.parseAscribe(token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
+        precedence_builder.parseAscribe(token,
+                                        rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_builder.appendNullaryAttribute(token, rq::Keyword::CONSTANT);
         continue;
       default:
@@ -856,7 +863,8 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     }
     case rq::TokenKind::GRAVE_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_builder.parseAscribe(post_token, rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
+      precedence_builder.parseAscribe(post_token,
+                                      rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
       precedence_builder.appendPostunaryAttribute(
           post_token, rq::Keyword::PARTIALLY_MUTABLE);
       continue;
@@ -895,7 +903,7 @@ rq::Expression &RequiteParser::parsePrecedence0() {
     break;
   }
   this->getRanger().incrementToken(1);
-  this->getContext().logErrorUnexpectedToken(token);
+  this->getContext().logErrorUnexpectedToken(rq::System::PARSING, token);
   this->setNotOk();
   rq::Expression &error =
       this->getContext().getTopStaticFrame().acquireExpression();
@@ -969,7 +977,8 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
       builder.appendBranch(mark);
     } else {
       this->getRanger().incrementToken(1);
-      this->getContext().logErrorExpectedCommaSeparator(branch);
+      this->getContext().logErrorExpectedCommaSeparator(rq::System::PARSING,
+                                                        branch);
       this->setNotOk();
       continue;
     }
@@ -984,17 +993,19 @@ rq::Keyword RequiteParser::parseKeyword() {
   if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
-    this->getContext().logErrorExpectedIdentifierLiteral(token);
+    this->getContext().logErrorExpectedIdentifierLiteral(rq::System::PARSING,
+                                                         token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
   if (keyword == rq::Keyword::I_NONE) {
-    this->getContext().logErrorNotKeyword(token);
+    this->getContext().logErrorNotKeyword(rq::System::PARSING, token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
   if (rq::getIsInternal(keyword)) {
-    this->getContext().logErrorInternalUseOnlyKeyword(token, keyword);
+    this->getContext().logErrorInternalUseOnlyKeyword(rq::System::PARSING,
+                                                      token, keyword);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
@@ -1051,7 +1062,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
     const rq::Token &after_token = this->getRanger().getToken();
     if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       this->getRanger().incrementToken(1);
-      branch.setIsBold();
+      branch.setIsHeader();
     } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
       this->getRanger().incrementToken(1);
     } else {
@@ -1083,7 +1094,8 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
             "first token not trailer separator");
   this->getRanger().incrementToken(1);
   if (expression.getKeyword() == rq::Keyword::S_ANONYMOUS_FUNCTION) {
-    this->getContext().logErrorUnexpectedToken(first_token);
+    this->getContext().logErrorUnexpectedToken(rq::System::PARSING,
+                                               first_token);
     this->setNotOk();
     return;
   }
@@ -1101,8 +1113,8 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
     }
     const rq::Token &front_token = keyword_ranger.getToken();
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
-      this->getContext().logErrorTrailerTokenMismatch(trailer_token,
-                                                      front_token, expression);
+      this->getContext().logErrorTrailerTokenMismatch(
+          rq::System::PARSING, trailer_token, front_token, expression);
       this->setNotOk();
     }
     this->getRanger().incrementToken(1);
@@ -1289,7 +1301,8 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       break;
     }
   }
-  this->getContext().logErrorUnterminatedInterpolatedString(left_token);
+  this->getContext().logErrorUnterminatedInterpolatedString(rq::System::PARSING,
+                                                            left_token);
   this->setNotOk();
   rq::Expression &error =
       this->getContext().getTopStaticFrame().acquireExpression();

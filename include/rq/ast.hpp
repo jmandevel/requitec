@@ -1807,6 +1807,14 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getCanBeAllChainLink(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK |
+                                  rq::KeywordFlags::ARM_CHAINLINK |
+                                  rq::KeywordFlags::TRY_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getCanBeIfChainLink(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK);
@@ -1839,7 +1847,7 @@ enum class Situation : std::uint_fast8_t {
   TYPE_ATTRIBUTE,
   STATEMENT_ATTRIBUTE,
   SEQUENCE_STAGE,
-  DYNAMIC_CAPTURE, 
+  DYNAMIC_CAPTURE,
   VIGNETTE,
   VIGNETTE_RVALUE
 };
@@ -1885,25 +1893,6 @@ getDescription(rq::Situation situation) {
     return "vignette rvalue expression";
   }
   return "error expression";
-}
-
-enum class ChainKind : std::uint_fast8_t { NONE, IF, ARM, TRY };
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
-getDescription(rq::ChainKind chainKind) {
-  using namespace rq;
-  using CK = ChainKind;
-  switch (chainKind) {
-  case CK::NONE:
-    return "no chain";
-  case CK::IF:
-    return "if chain";
-  case CK::ARM:
-    return "arm chain";
-  case CK::TRY:
-    return "try chain";
-  }
-  return "error chain";
 }
 
 [[nodiscard]] inline rq::Keyword getExpandOfSituation(rq::Situation situation) {
@@ -2119,6 +2108,40 @@ getCanBeVignetteRValue(rq::Keyword keyword) {
     return rq::getCanBeVignetteRValue(keyword);
   }
   return false;
+}
+
+enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM, TRY };
+
+[[nodiscard]] inline constexpr llvm::StringRef
+getDescription(rq::ChainKind chainKind) {
+  using namespace rq;
+  using CK = ChainKind;
+  switch (chainKind) {
+  case CK::NONE:
+    return "no chain";
+  case CK::UNKNOWN:
+    return "unknown chain";
+  case CK::IF:
+    return "if chain";
+  case CK::ARM:
+    return "arm chain";
+  case CK::TRY:
+    return "try chain";
+  }
+  return "error chain";
+}
+
+[[nodiscard]] inline rq::ChainKind getChainKind(rq::Keyword keyword) {
+  if (!rq::getCanBeChainLink(keyword)) [[likely]] {
+    return rq::ChainKind::NONE;
+  } else if (rq::getCanBeAllChainLink(keyword)) {
+    return rq::ChainKind::UNKNOWN;
+  } else if (rq::getCanBeIfChainLink(keyword)) {
+    return rq::ChainKind::IF;
+  } else if (rq::getCanBeTryChainLink(keyword)) {
+    return rq::ChainKind::TRY;
+  }
+  RQ_UNREACHABLE();
 }
 
 enum class StatementAttribute : std::uint_fast8_t {
@@ -2589,9 +2612,9 @@ enum class ExpressionNextFlags : std::uint8_t {
   // and not seperated with semicolons. Used in things like if->else_if->else
   // chains.
   CHAINLINK = rq::getBit(0),
-  // NOTE: a "bold" expression is one that terminates with a comma in a
-  // semicolon terminating context
-  BOLD = rq::getBit(1)
+  // NOTE: a "header" expression is one that terminates with a comma in a
+  // semicolon terminating context (usually before all statements)
+  HEADER = rq::getBit(1)
 };
 
 template <> struct is_flags<rq::ExpressionNextFlags> final : std::true_type {};
@@ -2678,6 +2701,9 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNonStatementBranches() const {
     return rq::getHasNonStatementBranches(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind getChainKind() const {
+    return rq::getChainKind(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
     return rq::getCanBeChainLink(this->getKeyword());
   }
@@ -2689,6 +2715,9 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
     return rq::getCanBeFinishingChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAllChainLink() const {
+    return rq::getCanBeAllChainLink(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainLink() const {
     return rq::getCanBeIfChainLink(this->getKeyword());
@@ -2769,12 +2798,12 @@ struct Expression final {
   RQ_ALWAYS_INLINE void setHasSituatorError() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBold() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::BOLD);
+                         rq::ExpressionNextFlags::HEADER);
   }
-  void RQ_ALWAYS_INLINE setIsBold() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::BOLD);
+  void RQ_ALWAYS_INLINE setIsHeader() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::HEADER);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
