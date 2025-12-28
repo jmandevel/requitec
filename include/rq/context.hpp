@@ -42,62 +42,6 @@ enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
   NOTE = llvm::SourceMgr::DiagKind::DK_Note
 };
 
-enum class System : std::uint_fast8_t {
-  // before first stage (before source file is loaded)
-  PRE,
-  // loading source files
-  LOAD,
-  // STAGE 1: validation of raw source file text
-  VALIDATOR,
-  // STAGE 2: seperation of source lexemes into tokens
-  TOKENIZER,
-  // STAGE 3: construction of abstract-syntax-tree (AST)
-  PARSER,
-  // STAGE 4: constext-sensitive error detection and modification of AST
-  SITUATOR,
-  // STAGE 5: construction of symbol tables
-  TABULATOR,
-  // STAGE 6: generation of LLVM ir
-  GENERATOR,
-  // after last stage (after ir is generated)
-  POST,
-  // when emitting to an output or intermediate file
-  EMITER,
-  // systems used by stages 5 and 6
-  TYPE_SYSTEM,
-  SYMBOLIC_EXECUTION_ENGINE
-};
-
-[[nodiscard]] inline llvm::StringLiteral getLogTag(rq::System system) {
-  switch (system) {
-  case rq::System::PRE:
-    return "pre";
-  case rq::System::LOAD:
-    return "load";
-  case rq::System::VALIDATOR:
-    return "vald";
-  case rq::System::TOKENIZER:
-    return "tokn";
-  case rq::System::PARSER:
-    return "pars";
-  case rq::System::SITUATOR:
-    return "sit";
-  case rq::System::TABULATOR:
-    return "tab";
-  case rq::System::GENERATOR:
-    return "gen";
-  case rq::System::POST:
-    return "post";
-  case rq::System::EMITER:
-    return "emit";
-  case rq::System::TYPE_SYSTEM:
-    return "tsys";
-  case rq::System::SYMBOLIC_EXECUTION_ENGINE:
-    return "see";
-  }
-  RQ_UNREACHABLE();
-}
-
 struct SourceLocation final {
   llvm::StringRef file = {};
   unsigned line = 0;
@@ -214,110 +158,85 @@ struct Context final {
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
-  RQ_ALWAYS_INLINE void logMessage(rq::System system, llvm::Twine twine) {
-    llvm::outs() << "[" << rq::getLogTag(system) << "]" << twine << "\n";
+  RQ_ALWAYS_INLINE void logMessage(llvm::Twine twine) {
+    llvm::outs() << twine << "\n";
   }
-  RQ_ALWAYS_INLINE void logMessage(rq::System system, llvm::SMLoc location,
-                                   rq::LogType type, llvm::Twine message,
+  RQ_ALWAYS_INLINE void logMessage(llvm::SMLoc location, rq::LogType type,
+                                   llvm::Twine message,
                                    llvm::ArrayRef<llvm::SMRange> ranges,
                                    llvm::ArrayRef<llvm::SMFixIt> fixits) {
     this->_llvm_source_mgr.PrintMessage(
         llvm::outs(), location, static_cast<llvm::SourceMgr::DiagKind>(type),
-        llvm::Twine("[") + rq::getLogTag(system) + "] " + message, ranges,
-        fixits, true);
-#if !defined(_NDEBUG) && __has_builtin(__builtin_debugtrap)
+        message, ranges, fixits, true);
+#if !defined(_NDEBUG)
     if (type == rq::LogType::ERROR) {
+#if __has_builtin(__builtin_debugtrap)
       __builtin_debugtrap();
+#endif
     }
 #endif
   }
-  void logErrorInvalidUtf8Codeunit(rq::System system, llvm::SMLoc location,
-                                   char c);
-  void logErrorInvalidUtf8Continuation(rq::System system, llvm::SMLoc start,
-                                       llvm::SMLoc cur, char c);
-  void logErrorSourceFileNoRqExtension(rq::System system, llvm::StringRef path);
-  void logErrorFailedToCanonicalizePath(rq::System system, llvm::StringRef path,
+  void logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c);
+  void logErrorInvalidUtf8Continuation(llvm::SMLoc start, llvm::SMLoc cur,
+                                       char c);
+  void logErrorSourceFileNoRqExtension(llvm::StringRef path);
+  void logErrorFailedToCanonicalizePath(llvm::StringRef path,
                                         const std::error_code &ec);
-  void logErrorFailedToLoadSourceFileBuffer(rq::System system,
-                                            llvm::StringRef path,
+  void logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
                                             const std::error_code &ec);
-  void logErrorImportFileNotFound(rq::System system,
-                                  const rq::Expression &expression,
+  void logErrorImportFileNotFound(const rq::Expression &expression,
                                   llvm::StringRef import_string);
-  void logErrorFailedToCanonicializeImportPath(rq::System system,
-                                               const rq::Expression &expression,
+  void logErrorFailedToCanonicializeImportPath(const rq::Expression &expression,
                                                const std::error_code &ec);
-  void logErrorFailedToLoadImportFileBuffer(rq::System system,
-                                            const rq::Expression &expression,
+  void logErrorFailedToLoadImportFileBuffer(const rq::Expression &expression,
                                             const std::error_code &ec);
-  void logErrorFailedToFindLlvmTarget(rq::System system,
-                                      llvm::StringRef target_triple,
+  void logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple,
                                       llvm::StringRef error);
-  void logErrorFailedToOpenOutputFile(rq::System system, llvm::StringRef path,
+  void logErrorFailedToOpenOutputFile(llvm::StringRef path,
                                       const std::error_code &ec);
-  void logErrorFailedToOpenIntermediateFile(rq::System system,
-                                            llvm::StringRef path,
+  void logErrorFailedToOpenIntermediateFile(llvm::StringRef path,
                                             const std::error_code &ec);
-  void logErrorFailedToAddPassesToEmitFile(rq::System system,
-                                           llvm::StringRef path);
-  void logErrorFoundErrorToken(rq::System system, const rq::Token &token);
-  void logErrorUnexpectedToken(rq::System system, const rq::Token &token);
-  void logErrorExpectedIdentifierLiteral(rq::System system,
-                                         const rq::Token &token);
-  void logErrorNotKeyword(rq::System system, const rq::Token &token);
-  void logErrorInternalUseOnlyKeyword(rq::System system, const rq::Token &token,
+  void logErrorFailedToAddPassesToEmitFile(llvm::StringRef path);
+  void logErrorFoundErrorToken(const rq::Token &token);
+  void logErrorUnexpectedToken(const rq::Token &token);
+  void logErrorExpectedIdentifierLiteral(const rq::Token &token);
+  void logErrorNotKeyword(const rq::Token &token);
+  void logErrorInternalUseOnlyKeyword(const rq::Token &token,
                                       rq::Keyword keyword);
-  void logErrorUnmatchedRightToken(rq::System system,
-                                   const rq::Token &left_token,
+  void logErrorUnmatchedRightToken(const rq::Token &left_token,
                                    const rq::Token &right_token);
-  void logErrorSoloRightToken(rq::System system, const rq::Token &token);
-  void logErrorUnterminatedStringLiteral(rq::System system,
-                                         const rq::Token &token);
-  void logErrorUnmatchedLeftToken(rq::System system, const rq::Token &token);
-  void logErrorTrailerTokenMismatch(rq::System system,
-                                    const rq::Token &trailer_token,
+  void logErrorSoloRightToken(const rq::Token &token);
+  void logErrorUnterminatedStringLiteral(const rq::Token &token);
+  void logErrorUnmatchedLeftToken(const rq::Token &token);
+  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                     const rq::Token &front_token,
                                     const rq::Expression &expression);
-  void logErrorUnterminatedInterpolatedString(rq::System system,
-                                              const rq::Token &token);
-  void logErrorMustHaveParameterMark(rq::System system, rq::Situation situation,
+  void logErrorUnterminatedInterpolatedString(const rq::Token &token);
+  void logErrorMustHaveParameterMark(rq::Situation situation,
                                      const rq::Expression &expression);
-  void logErrorPositionalEndIsFirst(rq::System system,
-                                    const rq::Expression &mark);
-  void logErrorNamedBeginIsLast(rq::System system,
-                                const rq::Expression &mark);
-  void logErrorExpectedCommaSeparator(rq::System system,
-                                      const rq::Expression &expression);
-  void logErrorExpectedSeparatorOrRightBracket(rq::System system,
-                                               const rq::Token &token);
-  void logErrorExpectedSemicolonSeparator(rq::System system,
-                                          const rq::Expression &expression);
-  void logErrorExpressionShouldNeverOccur(rq::System system,
-                                          const rq::Expression &expression);
-  void logErrorDuplicateParameterMark(rq::System system,
-                                      const rq::Expression &mark);
-  void logErrorNamedBeginAfterPositionalEnd(rq::System system,
-                                            const rq::Expression &named_begin);
-  void logErrorNotExactBranchCount(rq::System system, rq::Situation situation,
+  void logErrorPositionalEndIsFirst(const rq::Expression &mark);
+  void logErrorNamedBeginIsLast(const rq::Expression &mark);
+  void logErrorExpectedCommaSeparator(const rq::Expression &expression);
+  void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
+  void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
+  void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
+  void logErrorDuplicateParameterMark(const rq::Expression &mark);
+  void logErrorNamedBeginAfterPositionalEnd(const rq::Expression &named_begin);
+  void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
-  void logErrorNotAtLeastBranchCount(rq::System system, rq::Situation situation,
+  void logErrorNotAtLeastBranchCount(rq::Situation situation,
                                      const rq::Expression &expression,
                                      unsigned count);
-  void logErrorTooManyBranchCount(rq::System system, rq::Situation situation,
+  void logErrorTooManyBranchCount(rq::Situation situation,
                                   const rq::Expression &expression,
                                   unsigned count);
-  void logErrorInvalidBranchSituation(rq::System system,
-                                      rq::Situation situation,
+  void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::Expression &branch);
-  void logErrorExpectedHeaderExpression(rq::System system,
-                                        const rq::Expression &expresison);
-  void logErrorUnexpectedHeaderExpression(rq::System system,
-                                          const rq::Expression &expresison);
-  void logErrorExpectedChainLinkExpression(rq::System system,
-                                           const rq::Expression &expresison);
-  void logErrorUnexpectedChainLinkExpression(rq::System system,
-                                             const rq::Expression &expresison);
+  void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
 };
 
 } // namespace rq

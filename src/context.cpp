@@ -30,8 +30,7 @@ bool Context::validateSourceText(const rq::Module &module) {
   llvm::SMLoc extended_char_start;
   for (const char &c : module.getSourceText()) {
     if (!rq::getIsValid(c)) {
-      this->logErrorInvalidUtf8Codeunit(rq::System::VALIDATOR,
-                                        llvm::SMLoc::getFromPointer(&c), c);
+      this->logErrorInvalidUtf8Codeunit(llvm::SMLoc::getFromPointer(&c), c);
       is_ok = false;
     }
     if (rq::getIsExtended(c)) {
@@ -39,8 +38,8 @@ bool Context::validateSourceText(const rq::Module &module) {
       if (continue_bytes != 0) {
         if (new_continue_bytes != 0) {
           llvm::SMLoc cur_location = llvm::SMLoc::getFromPointer(&c);
-          this->logErrorInvalidUtf8Continuation(
-              rq::System::VALIDATOR, extended_char_start, cur_location, c);
+          this->logErrorInvalidUtf8Continuation(extended_char_start,
+                                                cur_location, c);
           is_ok = false;
           extended_char_start = llvm::SMLoc();
           continue_bytes = 0;
@@ -138,18 +137,18 @@ bool Context::loadSourceModule() {
   llvm::SmallString<128> input_path = rq::getInputFilePath();
   llvm::StringRef file_extension = llvm::sys::path::extension(input_path);
   if (file_extension != rq::REQUITE_EXTENSION) {
-    this->logErrorSourceFileNoRqExtension(rq::System::LOAD, input_path);
+    this->logErrorSourceFileNoRqExtension(input_path);
     return false;
   }
   std::error_code ec = this->canonicalizePath(input_path);
   if (ec) {
-    this->logErrorFailedToCanonicalizePath(rq::System::LOAD, input_path, ec);
+    this->logErrorFailedToCanonicalizePath(input_path, ec);
     return false;
   }
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
       this->loadRequiteFileBuffer(input_path);
   if (!buffer_eo) {
-    this->logErrorFailedToLoadSourceFileBuffer(rq::System::LOAD, input_path,
+    this->logErrorFailedToLoadSourceFileBuffer(input_path,
                                                buffer_eo.getError());
     return false;
   }
@@ -178,14 +177,12 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     }
   }
   if (!file_found) {
-    this->logErrorImportFileNotFound(rq::System::LOAD, expression,
-                                     import_string);
+    this->logErrorImportFileNotFound(expression, import_string);
     return nullptr;
   }
   std::error_code ec = this->canonicalizePath(found_path);
   if (ec) {
-    this->logErrorFailedToCanonicializeImportPath(rq::System::LOAD, expression,
-                                                  ec);
+    this->logErrorFailedToCanonicializeImportPath(expression, ec);
     return nullptr;
   }
   auto found_it = this->_module_map.find(found_path);
@@ -195,8 +192,7 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
   llvm::ErrorOr<llvm::MemoryBufferRef> buffer_eo =
       this->loadRequiteFileBuffer(found_path);
   if (!buffer_eo) {
-    this->logErrorFailedToLoadImportFileBuffer(rq::System::LOAD, expression,
-                                               ec);
+    this->logErrorFailedToLoadImportFileBuffer(expression, ec);
     return nullptr;
   }
   llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
@@ -222,8 +218,7 @@ bool Context::initializeLlvm() {
   const llvm::Target *target_ptr =
       llvm::TargetRegistry::lookupTarget(target_triple, error);
   if (target_ptr == nullptr) {
-    this->logErrorFailedToFindLlvmTarget(rq::System::LOAD, target_triple,
-                                         error);
+    this->logErrorFailedToFindLlvmTarget(target_triple, error);
     return false;
   }
   llvm::TargetOptions options;
@@ -340,7 +335,7 @@ bool Context::emitTokens(llvm::StringRef path,
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenOutputFile(rq::System::EMITER, path, ec);
+    this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
   for (const rq::Token &token : tokens) {
@@ -442,7 +437,7 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenOutputFile(rq::System::EMITER, path, ec);
+    this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
   for (const rq::Expression &branch : trunk.getInclusiveNextSubrange()) {
@@ -463,7 +458,7 @@ bool Context::emitLlvmIr(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(rq::System::EMITER, path, ec);
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
   this->getLlvmModule().print(fout, nullptr);
@@ -475,14 +470,14 @@ bool Context::emitAssembly(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(rq::System::EMITER, path, ec);
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::AssemblyFile;
   llvm::TargetMachine &target_machine = this->getLlvmTargetMachine();
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
-    this->logErrorFailedToAddPassesToEmitFile(rq::System::EMITER, path);
+    this->logErrorFailedToAddPassesToEmitFile(path);
     return false;
   }
   pass.run(this->getLlvmModule());
@@ -494,14 +489,14 @@ bool Context::emitObject(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(rq::System::EMITER, path, ec);
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::ObjectFile;
   llvm::TargetMachine &target_machine = this->getLlvmTargetMachine();
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
-    this->logErrorFailedToAddPassesToEmitFile(rq::System::EMITER, path);
+    this->logErrorFailedToAddPassesToEmitFile(path);
     return false;
   }
   pass.run(this->getLlvmModule());
@@ -509,336 +504,300 @@ bool Context::emitObject(llvm::StringRef path) {
   return true;
 }
 
-void Context::logErrorInvalidUtf8Codeunit(rq::System system,
-                                          llvm::SMLoc location, char c) {
+void Context::logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c) {
   llvm::Twine message =
       llvm::Twine("invalid utf-8 codeunit \"") + rq::getUtf8Name(c) + "\"";
-  this->logMessage(system, location, rq::LogType::ERROR, message, {}, {});
+  this->logMessage(location, rq::LogType::ERROR, message, {}, {});
 }
 
-void Context::logErrorInvalidUtf8Continuation(rq::System system,
-                                              llvm::SMLoc start,
+void Context::logErrorInvalidUtf8Continuation(llvm::SMLoc start,
                                               llvm::SMLoc cur, char c) {
   llvm::Twine message = llvm::Twine("invalid utf-8 continuation codeunit \"") +
                         rq::getUtf8Name(c) + "\"";
-  this->logMessage(system, cur, rq::LogType::ERROR, message,
+  this->logMessage(cur, rq::LogType::ERROR, message,
                    {llvm::SMRange(start, cur)}, {});
 }
 
-void Context::logErrorSourceFileNoRqExtension(rq::System system,
-                                              llvm::StringRef path) {
+void Context::logErrorSourceFileNoRqExtension(llvm::StringRef path) {
   this->logMessage(
-      system,
       llvm::Twine("error: source file does not have a \".rq\" extension\n") +
-          llvm::Twine("\tpath: ") + path);
+      llvm::Twine("\tpath: ") + path);
 }
 
-void Context::logErrorFailedToCanonicalizePath(rq::System system,
-                                               llvm::StringRef path,
+void Context::logErrorFailedToCanonicalizePath(llvm::StringRef path,
                                                const std::error_code &ec) {
   this->logMessage(
-      system, llvm::Twine("error: failed to canonicalize source file path\n") +
-                  llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
-                  ec.message());
+      llvm::Twine("error: failed to canonicalize source file path\n") +
+      llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
+      ec.message());
 }
 
-void Context::logErrorFailedToLoadSourceFileBuffer(rq::System system,
-                                                   llvm::StringRef path,
+void Context::logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
                                                    const std::error_code &ec) {
   this->logMessage(
-      system,
       llvm::Twine("error: failed to load source file buffer\n\tpath: ") + path +
-          llvm::Twine("\n\treason:") + ec.message());
+      llvm::Twine("\n\treason:") + ec.message());
 }
 
-void Context::logErrorImportFileNotFound(rq::System system,
-                                         const rq::Expression &expression,
+void Context::logErrorImportFileNotFound(const rq::Expression &expression,
                                          llvm::StringRef import_string) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("error: could not locate import file \"") +
                        import_string + "\" in any import directory\n",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorFailedToCanonicializeImportPath(
-    rq::System system, const rq::Expression &expression,
-    const std::error_code &ec) {
+    const rq::Expression &expression, const std::error_code &ec) {
   this->logMessage(
-      system, expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+      expression.getLlvmSourceBegin(), rq::LogType::NOTE,
       llvm::Twine("error: failed to canonicalize import file path\n") +
           llvm::Twine("\treason:") + ec.message(),
       {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorFailedToLoadImportFileBuffer(
-    rq::System system, const rq::Expression &expression,
-    const std::error_code &ec) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+    const rq::Expression &expression, const std::error_code &ec) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("error: failed to load import file buffer\n") +
                        llvm::Twine("\treason:") + ec.message(),
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorFailedToFindLlvmTarget(rq::System system,
-                                             llvm::StringRef target_triple,
+void Context::logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple,
                                              llvm::StringRef error) {
   this->logMessage(
-      system, llvm::Twine("error: failed to find llvm target.\n\ttriple: ") +
-                  target_triple + llvm::Twine("\n\terror: ") + error);
+      llvm::Twine("error: failed to find llvm target.\n\ttriple: ") +
+      target_triple + llvm::Twine("\n\terror: ") + error);
 }
 
-void Context::logErrorFailedToOpenOutputFile(rq::System system,
-                                             llvm::StringRef path,
+void Context::logErrorFailedToOpenOutputFile(llvm::StringRef path,
                                              const std::error_code &ec) {
   this->logMessage(
-      system, llvm::Twine("error: failed to open output file for writing\n") +
-                  llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
-                  ec.message() + "\n");
+      llvm::Twine("error: failed to open output file for writing\n") +
+      llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
+      ec.message() + "\n");
 }
 
-void Context::logErrorFailedToOpenIntermediateFile(rq::System system,
-                                                   llvm::StringRef path,
+void Context::logErrorFailedToOpenIntermediateFile(llvm::StringRef path,
                                                    const std::error_code &ec) {
   this->logMessage(
-      system,
       llvm::Twine("error: failed to open intermediate file for writing\n") +
-          llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
-          ec.message() + "\n");
+      llvm::Twine("\tpath: ") + path + llvm::Twine("\n\treason: ") +
+      ec.message() + "\n");
 }
 
-void Context::logErrorFailedToAddPassesToEmitFile(rq::System system,
-                                                  llvm::StringRef path) {
+void Context::logErrorFailedToAddPassesToEmitFile(llvm::StringRef path) {
   this->logMessage(
-      system,
       llvm::Twine("error: failed to add passes to emit file\n\tpath: ") + path);
 }
 
-void Context::logErrorFoundErrorToken(rq::System system,
-                                      const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorFoundErrorToken(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("found ") + token.getDescription(),
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnexpectedToken(rq::System system,
-                                      const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorUnexpectedToken(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("found unexpected ") + token.getDescription(),
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedIdentifierLiteral(rq::System system,
-                                                const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorExpectedIdentifierLiteral(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "expected identifier literal", {token.getLlvmSourceRange()},
                    {});
 }
 
-void Context::logErrorNotKeyword(rq::System system, const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorNotKeyword(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(token.getSourceText()) + "is not keyword",
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInternalUseOnlyKeyword(rq::System system,
-                                             const rq::Token &token,
+void Context::logErrorInternalUseOnlyKeyword(const rq::Token &token,
                                              rq::Keyword keyword) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getName(keyword)) +
                        " is for internal use only",
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnmatchedRightToken(rq::System system,
-                                          const rq::Token &left_token,
+void Context::logErrorUnmatchedRightToken(const rq::Token &left_token,
                                           const rq::Token &right_token) {
-  this->logMessage(system, right_token.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(right_token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(right_token.getDescription()) +
                        " does not match previous left grouping token",
                    {right_token.getLlvmSourceRange()}, {});
-  this->logMessage(system, left_token.getLlvmSourceBegin(), rq::LogType::NOTE,
+  this->logMessage(left_token.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("previous left grouping token is ") +
                        left_token.getDescription(),
                    {left_token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorSoloRightToken(rq::System system,
-                                     const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorSoloRightToken(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(token.getDescription()) +
                        " does not follow a left grouping token",
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnterminatedStringLiteral(rq::System system,
-                                                const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorUnterminatedStringLiteral(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "unterminated string literal", {token.getLlvmSourceRange()},
                    {});
 }
 
-void Context::logErrorUnmatchedLeftToken(rq::System system,
-                                         const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorUnmatchedLeftToken(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(token.getDescription()) + " has no match",
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorTrailerTokenMismatch(rq::System system,
-                                           const rq::Token &trailer_token,
+void Context::logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                            const rq::Token &front_token,
                                            const rq::Expression &expression) {
   this->logMessage(
-      system, trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
+      trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
       "trailer token does not match token from start of expression",
       {trailer_token.getLlvmSourceRange()}, {});
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    "for expression", {expression.getLlvmSourceRange()}, {});
-  this->logMessage(system, front_token.getLlvmSourceBegin(), rq::LogType::NOTE,
+  this->logMessage(front_token.getLlvmSourceBegin(), rq::LogType::NOTE,
                    "for token from start of expression",
                    {front_token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnterminatedInterpolatedString(rq::System system,
-                                                     const rq::Token &token) {
-  this->logMessage(system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
+  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "found unterminated interpolated string",
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorMustHaveParameterMark(rq::System system,
-                                            rq::Situation situation,
+void Context::logErrorMustHaveParameterMark(rq::Situation situation,
                                             const rq::Expression &expression) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have parameter mark",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorPositionalEndIsFirst(rq::System system,
-                                           const rq::Expression &mark) {
-  this->logMessage(system, mark.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorPositionalEndIsFirst(const rq::Expression &mark) {
+  this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(mark.getName()) + " is first",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNamedBeginIsLast(rq::System system,
-                                       const rq::Expression &mark) {
-  this->logMessage(system, mark.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorNamedBeginIsLast(const rq::Expression &mark) {
+  this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(mark.getName()) + " is last",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedCommaSeparator(rq::System system,
-                                             const rq::Expression &expression) {
-  this->logMessage(system, expression.getLlvmSourceEnd(), rq::LogType::ERROR,
+void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected comma separator after expression",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedSeparatorOrRightBracket(rq::System system,
-                                                      const rq::Token &token) {
+void Context::logErrorExpectedSeparatorOrRightBracket(const rq::Token &token) {
   this->logMessage(
-      system, token.getLlvmSourceBegin(), rq::LogType::ERROR,
+      token.getLlvmSourceBegin(), rq::LogType::ERROR,
       "expected separator or right bracket after statement or expression",
       {token.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedSemicolonSeparator(
-    rq::System system, const rq::Expression &expression) {
-  this->logMessage(system, expression.getLlvmSourceEnd(), rq::LogType::ERROR,
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected semicolon separator after statement",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpressionShouldNeverOccur(
-    rq::System system, const rq::Expression &expression) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(expression.getName()) +
                        " expression should never occur.",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateParameterMark(rq::System system,
-                                             const rq::Expression &mark) {
-  this->logMessage(system, mark.getLlvmSourceBegin(), rq::LogType::ERROR,
+void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
+  this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + mark.getName(),
                    {mark.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNamedBeginAfterPositionalEnd(
-    rq::System system, const rq::Expression &named_begin) {
-  this->logMessage(system, named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
+    const rq::Expression &named_begin) {
+  this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "named begin after positional end",
                    {named_begin.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotExactBranchCount(rq::System system,
-                                          rq::Situation situation,
+void Context::logErrorNotExactBranchCount(rq::Situation situation,
                                           const rq::Expression &expression,
                                           unsigned count) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have exactly " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotAtLeastBranchCount(rq::System system,
-                                            rq::Situation situation,
+void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
                                             const rq::Expression &expression,
                                             unsigned count) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have at least " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorTooManyBranchCount(rq::System system,
-                                         rq::Situation situation,
+void Context::logErrorTooManyBranchCount(rq::Situation situation,
                                          const rq::Expression &expression,
                                          unsigned count) {
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must not have more than " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidBranchSituation(rq::System system,
-                                             rq::Situation situation,
+void Context::logErrorInvalidBranchSituation(rq::Situation situation,
                                              const rq::Expression &branch) {
-  this->logMessage(system, branch.getLlvmSourceBegin(), rq::LogType::ERROR,
+  this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(branch.getName()) + " can not be " +
                        rq::getDescription(situation),
                    {branch.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedHeaderExpression(
-    rq::System system, const rq::Expression &expresison) {
-  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+    const rq::Expression &expresison) {
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is not header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedHeaderExpression(
-    rq::System system, const rq::Expression &expresison) {
-  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+    const rq::Expression &expresison) {
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedChainLinkExpression(
-    rq::System system, const rq::Expression &expresison) {
-  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+    const rq::Expression &expresison) {
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is not chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedChainLinkExpression(
-    rq::System system, const rq::Expression &expresison) {
-  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+    const rq::Expression &expresison) {
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }

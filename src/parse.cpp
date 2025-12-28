@@ -224,16 +224,14 @@ rq::Expression *RequiteParser::parseExpressions() {
     rq::Expression &next = this->parseExpression();
     builder.appendTree(next);
     if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorExpectedSemicolonSeparator(rq::System::PARSER,
-                                                            next);
+      this->getContext().logErrorExpectedSemicolonSeparator(next);
       this->setNotOk();
       break;
     }
     const rq::Token &after_token = this->getRanger().getToken();
     this->getRanger().incrementToken(1);
     if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
-      this->getContext().logErrorUnexpectedToken(rq::System::PARSER,
-                                                 after_token);
+      this->getContext().logErrorUnexpectedToken(after_token);
       this->setNotOk();
     } else if (after_token.getKind() != rq::TokenKind::SEMICOLON_SEPARATOR) {
       next.setIsChainLink();
@@ -903,7 +901,7 @@ rq::Expression &RequiteParser::parsePrecedence0() {
     break;
   }
   this->getRanger().incrementToken(1);
-  this->getContext().logErrorUnexpectedToken(rq::System::PARSER, token);
+  this->getContext().logErrorUnexpectedToken(token);
   this->setNotOk();
   rq::Expression &error =
       this->getContext().getTopStaticFrame().acquireExpression();
@@ -977,8 +975,7 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
       builder.appendBranch(mark);
     } else {
       this->getRanger().incrementToken(1);
-      this->getContext().logErrorExpectedCommaSeparator(rq::System::PARSER,
-                                                        branch);
+      this->getContext().logErrorExpectedCommaSeparator(branch);
       this->setNotOk();
       continue;
     }
@@ -993,19 +990,17 @@ rq::Keyword RequiteParser::parseKeyword() {
   if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
-    this->getContext().logErrorExpectedIdentifierLiteral(rq::System::PARSER,
-                                                         token);
+    this->getContext().logErrorExpectedIdentifierLiteral(token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
   if (keyword == rq::Keyword::I_NONE) {
-    this->getContext().logErrorNotKeyword(rq::System::PARSER, token);
+    this->getContext().logErrorNotKeyword(token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
   if (rq::getIsInternal(keyword)) {
-    this->getContext().logErrorInternalUseOnlyKeyword(rq::System::PARSER,
-                                                      token, keyword);
+    this->getContext().logErrorInternalUseOnlyKeyword(token, keyword);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
@@ -1095,8 +1090,7 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
             "first token not trailer separator");
   this->getRanger().incrementToken(1);
   if (expression.getKeyword() == rq::Keyword::S_ANONYMOUS_FUNCTION) {
-    this->getContext().logErrorUnexpectedToken(rq::System::PARSER,
-                                               first_token);
+    this->getContext().logErrorUnexpectedToken(first_token);
     this->setNotOk();
     return;
   }
@@ -1114,8 +1108,8 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
     }
     const rq::Token &front_token = keyword_ranger.getToken();
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
-      this->getContext().logErrorTrailerTokenMismatch(
-          rq::System::PARSER, trailer_token, front_token, expression);
+      this->getContext().logErrorTrailerTokenMismatch(trailer_token,
+                                                      front_token, expression);
       this->setNotOk();
     }
     this->getRanger().incrementToken(1);
@@ -1302,8 +1296,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       break;
     }
   }
-  this->getContext().logErrorUnterminatedInterpolatedString(rq::System::PARSER,
-                                                            left_token);
+  this->getContext().logErrorUnterminatedInterpolatedString(left_token);
   this->setNotOk();
   rq::Expression &error =
       this->getContext().getTopStaticFrame().acquireExpression();

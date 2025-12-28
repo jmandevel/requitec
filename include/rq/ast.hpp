@@ -3042,7 +3042,6 @@ struct Expression final {
     return *old_next_ptr;
   }
   inline rq::Expression *popNextPtr() {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
     rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(nullptr);
     return old_next_ptr;
