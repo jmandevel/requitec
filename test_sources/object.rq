@@ -37,7 +37,7 @@
     a := MyObject();
     b := MyObject(1, 2, 3);
 
-    std.print(line=std."a total:{a.[borrow].getTotal()}");
+    std.print(line="a total:{a.[borrow].getTotal()}");
 
     added := MyObject.add(a, b);
 
