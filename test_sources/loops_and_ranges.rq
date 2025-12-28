@@ -6,7 +6,7 @@
     // all of these loops are equivalent
 
     // equal limit interval
-    [for 0.=9, value:=[value],
+    [for 0.==9, value:=[value],
         std.print(line="value is {value}");    
     ]
 

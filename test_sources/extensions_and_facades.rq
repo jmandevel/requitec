@@ -1,12 +1,12 @@
 
 [table example,
     @{> Type:[type], LENGTH:[unsigned] <}
-    [extension_function, getElementCount, LENGTH#Type, (><)[unsigned],
+    [extension_function getElementCount, LENGTH#Type, (><)[unsigned],
         [result] := LENGTH;
     ];
 
     @{> Type:[type], LENGTH:[unsigned] <}
-    [extension_method, getElementCount, &LENGTH#Type=>(><)[unsigned],
+    [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned],
         [result] := LENGTH;
     ];
 
