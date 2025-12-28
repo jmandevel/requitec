@@ -30,7 +30,7 @@ bool Context::validateSourceText(const rq::Module &module) {
   llvm::SMLoc extended_char_start;
   for (const char &c : module.getSourceText()) {
     if (!rq::getIsValid(c)) {
-      this->logErrorInvalidUtf8Codeunit(rq::System::VALIDATION,
+      this->logErrorInvalidUtf8Codeunit(rq::System::VALIDATOR,
                                         llvm::SMLoc::getFromPointer(&c), c);
       is_ok = false;
     }
@@ -40,7 +40,7 @@ bool Context::validateSourceText(const rq::Module &module) {
         if (new_continue_bytes != 0) {
           llvm::SMLoc cur_location = llvm::SMLoc::getFromPointer(&c);
           this->logErrorInvalidUtf8Continuation(
-              rq::System::VALIDATION, extended_char_start, cur_location, c);
+              rq::System::VALIDATOR, extended_char_start, cur_location, c);
           is_ok = false;
           extended_char_start = llvm::SMLoc();
           continue_bytes = 0;
@@ -340,7 +340,7 @@ bool Context::emitTokens(llvm::StringRef path,
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenOutputFile(rq::System::EMIT, path, ec);
+    this->logErrorFailedToOpenOutputFile(rq::System::EMITER, path, ec);
     return false;
   }
   for (const rq::Token &token : tokens) {
@@ -442,7 +442,7 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenOutputFile(rq::System::EMIT, path, ec);
+    this->logErrorFailedToOpenOutputFile(rq::System::EMITER, path, ec);
     return false;
   }
   for (const rq::Expression &branch : trunk.getInclusiveNextSubrange()) {
@@ -463,7 +463,7 @@ bool Context::emitLlvmIr(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(rq::System::EMIT, path, ec);
+    this->logErrorFailedToOpenIntermediateFile(rq::System::EMITER, path, ec);
     return false;
   }
   this->getLlvmModule().print(fout, nullptr);
@@ -475,14 +475,14 @@ bool Context::emitAssembly(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(rq::System::EMIT, path, ec);
+    this->logErrorFailedToOpenIntermediateFile(rq::System::EMITER, path, ec);
     return false;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::AssemblyFile;
   llvm::TargetMachine &target_machine = this->getLlvmTargetMachine();
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
-    this->logErrorFailedToAddPassesToEmitFile(rq::System::EMIT, path);
+    this->logErrorFailedToAddPassesToEmitFile(rq::System::EMITER, path);
     return false;
   }
   pass.run(this->getLlvmModule());
@@ -494,14 +494,14 @@ bool Context::emitObject(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(rq::System::EMIT, path, ec);
+    this->logErrorFailedToOpenIntermediateFile(rq::System::EMITER, path, ec);
     return false;
   }
   llvm::legacy::PassManager pass;
   const auto file_type = llvm::CodeGenFileType::ObjectFile;
   llvm::TargetMachine &target_machine = this->getLlvmTargetMachine();
   if (target_machine.addPassesToEmitFile(pass, fout, nullptr, file_type)) {
-    this->logErrorFailedToAddPassesToEmitFile(rq::System::EMIT, path);
+    this->logErrorFailedToAddPassesToEmitFile(rq::System::EMITER, path);
     return false;
   }
   pass.run(this->getLlvmModule());
@@ -716,30 +716,17 @@ void Context::logErrorMustHaveParameterMark(rq::System system,
 }
 
 void Context::logErrorPositionalEndIsFirst(rq::System system,
-                                           rq::Situation situation,
-                                           const rq::Expression &expression,
-                                           const rq::Expression &positional_end,
-                                           unsigned positional_end_i) {
-  this->logMessage(
-      system, positional_end.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("first branch of ") + rq ::getDescription(situation) + " " +
-          expression.getName() + " at index " + llvm::Twine(positional_end_i) +
-          " must not be " +
-          rq::getName(rq::Keyword::S_POSITIONAL_PARAMETERS_END),
-      {positional_end.getLlvmSourceRange()}, {});
+                                           const rq::Expression &mark) {
+  this->logMessage(system, mark.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(mark.getName()) + " is first",
+                   {mark.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNamedBeginIsLast(rq::System system,
-                                       rq::Situation situation,
-                                       const rq::Expression &expression,
-                                       const rq::Expression &named_begin,
-                                       unsigned named_begin_i) {
-  this->logMessage(
-      system, named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("last branch of ") + rq ::getDescription(situation) + " " +
-          expression.getName() + " at index " + llvm::Twine(named_begin_i) +
-          " must not be " + rq::getName(rq::Keyword::S_NAMED_PARAMETERS_BEGIN),
-      {named_begin.getLlvmSourceRange()}, {});
+                                       const rq::Expression &mark) {
+  this->logMessage(system, mark.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine(mark.getName()) + " is last",
+                   {mark.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedCommaSeparator(rq::System system,
@@ -772,48 +759,18 @@ void Context::logErrorExpressionShouldNeverOccur(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateParameterMark(
-    rq::System system, rq::Situation situation, rq::Expression &expression,
-    rq::Expression &parameter, unsigned branch_i, rq::Expression &first,
-    unsigned first_i) {
-  RQ_ASSERT(parameter.getIsParameterMark(), "not parameter mark");
-  this->logMessage(system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getName() + " must not have more than one " +
-                       parameter.getName(),
-                   {expression.getLlvmSourceRange()}, {});
-  this->logMessage(system, parameter.getLlvmSourceBegin(), rq::LogType::NOTE,
-                   llvm::Twine("duplicate ") + parameter.getName() +
-                       " was found at index " + llvm::Twine(branch_i),
-                   {parameter.getLlvmSourceRange()}, {});
-  this->logMessage(system, first.getLlvmSourceBegin(), rq::LogType::NOTE,
-                   llvm::Twine("first ") + first.getName() +
-                       " was found at at index " + llvm::Twine(first_i),
-                   {first.getLlvmSourceRange()}, {});
+void Context::logErrorDuplicateParameterMark(rq::System system,
+                                             const rq::Expression &mark) {
+  this->logMessage(system, mark.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("duplicate ") + mark.getName(),
+                   {mark.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNamedBeginAfterPositionalEnd(
-    rq::System system, rq::Situation situation, rq::Expression &expression,
-    rq::Expression &named_begin, unsigned named_begin_i,
-    rq::Expression &first_positional_end, unsigned first_positional_end_i) {
-  RQ_ASSERT(named_begin.getKeyword() == rq::Keyword::S_NAMED_PARAMETERS_BEGIN,
-            "invalid keyword");
-  RQ_ASSERT(first_positional_end.getKeyword() ==
-                rq::Keyword::S_POSITIONAL_PARAMETERS_END,
-            "invalid keyword");
-  this->logMessage(
-      system, expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine(rq::getDescription(situation)) + " " + expression.getName() +
-          " must have _named_parameters_begin after _positional_parameters_end",
-      {expression.getLlvmSourceRange()}, {});
-  this->logMessage(system, named_begin.getLlvmSourceBegin(), rq::LogType::NOTE,
-                   "_named_parameters_begin at index " + named_begin_i,
+    rq::System system, const rq::Expression &named_begin) {
+  this->logMessage(system, named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "named begin after positional end",
                    {named_begin.getLlvmSourceRange()}, {});
-  this->logMessage(system, first_positional_end.getLlvmSourceBegin(),
-                   rq::LogType::NOTE,
-                   "first found _positional_parameters_end at index " +
-                       first_positional_end_i,
-                   {first_positional_end.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotExactBranchCount(rq::System system,
@@ -849,30 +806,41 @@ void Context::logErrorTooManyBranchCount(rq::System system,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidBranchSituation(
-    rq::System system, rq::Situation outer_situation,
-    const rq::Expression &outer, rq::Situation branch_situation,
-    rq::Expression &branch, unsigned branch_i, llvm::Twine log_context) {
+void Context::logErrorInvalidBranchSituation(rq::System system,
+                                             rq::Situation situation,
+                                             const rq::Expression &branch) {
   this->logMessage(system, branch.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(rq::getDescription(branch_situation)) +
-                       " expression expected for " + log_context + " of " +
-                       rq::getDescription(outer_situation) + " " +
-                       outer.getName() + " but found " + branch.getName() +
-                       " at index " + llvm::Twine(branch_i),
+                   llvm::Twine(branch.getName()) + " can not be " +
+                       rq::getDescription(situation),
                    {branch.getLlvmSourceRange()}, {});
-  this->logMessage(system, outer.getLlvmSourceBegin(), rq::LogType::NOTE,
-                   "for outer expression", {outer.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorFirstBranchNotHeader(rq::System system,
-                                           rq::Situation situation,
-                                           const rq::Expression &expression,
-                                           const rq::Expression &branch0) {
-  this->logMessage(system, branch0.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("first branch of ") +
-                       rq::getDescription(situation) + " " +
-                       expression.getName() + " must be header",
-                   {branch0.getLlvmSourceRange()}, {});
+void Context::logErrorExpectedHeaderExpression(
+    rq::System system, const rq::Expression &expresison) {
+  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " is not header",
+                   {expresison.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnexpectedHeaderExpression(
+    rq::System system, const rq::Expression &expresison) {
+  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " is header",
+                   {expresison.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorExpectedChainLinkExpression(
+    rq::System system, const rq::Expression &expresison) {
+  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " is not chain-link",
+                   {expresison.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnexpectedChainLinkExpression(
+    rq::System system, const rq::Expression &expresison) {
+  this->logMessage(system, expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " is chain-link",
+                   {expresison.getLlvmSourceRange()}, {});
 }
 
 } // namespace rq

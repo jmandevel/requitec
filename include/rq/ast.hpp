@@ -253,9 +253,6 @@ enum class Keyword : std::uint32_t {
   IF,
   ELSE_IF,
   ELSE,
-  TRY,
-  CATCH,
-  FINALLY,
   MATCH,
   INLINE_MATCH,
   SWITCH,
@@ -757,12 +754,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "else_if";
   case K::ELSE:
     return "else";
-  case K::TRY:
-    return "try";
-  case K::CATCH:
-    return "catch";
-  case K::FINALLY:
-    return "finally";
   case K::MATCH:
     return "match";
   case K::INLINE_MATCH:
@@ -1004,23 +995,22 @@ enum class KeywordFlags : std::uint32_t {
   FINISHING_CHAINLINK = rq::getBit(23),
   IF_CHAINLINK = rq::getBit(22),
   ARM_CHAINLINK = rq::getBit(21),
-  TRY_CHAINLINK = rq::getBit(20),
   // TRUNK
-  STATEMENT = rq::getBit(19),
-  RVALUE = rq::getBit(18),
-  LVALUE = rq::getBit(17),
-  REFLECTION = rq::getBit(16),
-  ARGUMENT = rq::getBit(15),
-  PARAMETER = rq::getBit(14),
-  BINDING = rq::getBit(13),
-  SYMBOL_PATH = rq::getBit(12),
-  ASCRIPTION = rq::getBit(11),
-  TYPE_ATTRIBUTE = rq::getBit(10),
-  STATEMENT_ATTRIBUTE = rq::getBit(9),
-  SEQUENCE_STAGE = rq::getBit(8),
-  DYNAMIC_CAPTURE = rq::getBit(7),
-  VIGNETTE = rq::getBit(6),
-  VIGNETTE_RVALUE = rq::getBit(5),
+  STATEMENT = rq::getBit(20),
+  RVALUE = rq::getBit(19),
+  LVALUE = rq::getBit(18),
+  REFLECTION = rq::getBit(17),
+  ARGUMENT = rq::getBit(16),
+  PARAMETER = rq::getBit(15),
+  BINDING = rq::getBit(14),
+  SYMBOL_PATH = rq::getBit(13),
+  ASCRIPTION = rq::getBit(12),
+  TYPE_ATTRIBUTE = rq::getBit(11),
+  STATEMENT_ATTRIBUTE = rq::getBit(10),
+  SEQUENCE_STAGE = rq::getBit(9),
+  DYNAMIC_CAPTURE = rq::getBit(8),
+  VIGNETTE = rq::getBit(7),
+  VIGNETTE_RVALUE = rq::getBit(6),
   ALL = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
         BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE |
         STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | DYNAMIC_CAPTURE | VIGNETTE |
@@ -1418,15 +1408,6 @@ getFlags(rq::Keyword keyword) {
   case K::ELSE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::FINISHING_CHAINLINK |
            KF::IF_CHAINLINK;
-  case K::TRY:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::TRY_CHAINLINK;
-  case K::CATCH:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::CONTINUING_CHAINLINK |
-           KF::FINISHING_CHAINLINK | KF::TRY_CHAINLINK;
-  case K::FINALLY:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::FINISHING_CHAINLINK |
-           KF::TRY_CHAINLINK;
   case K::MATCH:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::INLINE_MATCH:
@@ -1604,10 +1585,7 @@ getFlags(rq::Keyword keyword) {
   case K::S_REFLECT:
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
            KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH | KF::SEQUENCE_STAGE |
-           KF::DYNAMIC_CAPTURE | KF::VIGNETTE | KF::VIGNETTE_RVALUE |
-           KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
-           KF::FINISHING_CHAINLINK | KF::IF_CHAINLINK | KF::ARM_CHAINLINK |
-           KF::TRY_CHAINLINK;
+           KF::DYNAMIC_CAPTURE | KF::VIGNETTE | KF::VIGNETTE_RVALUE;
   case K::BYTE_SIZE:
     return KF::REFLECTION;
   case K::S_BYTE_SIZE_OF:
@@ -1810,8 +1788,7 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
 getCanBeAllChainLink(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK |
-                                  rq::KeywordFlags::ARM_CHAINLINK |
-                                  rq::KeywordFlags::TRY_CHAINLINK);
+                                  rq::KeywordFlags::ARM_CHAINLINK;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -1824,12 +1801,6 @@ getCanBeIfChainLink(rq::Keyword keyword) {
 getCanBeArmChainLink(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARM_CHAINLINK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeTryChainLink(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::TRY_CHAINLINK);
 }
 
 enum class Situation : std::uint_fast8_t {
@@ -2110,7 +2081,7 @@ getCanBeVignetteRValue(rq::Keyword keyword) {
   return false;
 }
 
-enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM, TRY };
+enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 
 [[nodiscard]] inline constexpr llvm::StringRef
 getDescription(rq::ChainKind chainKind) {
@@ -2125,8 +2096,6 @@ getDescription(rq::ChainKind chainKind) {
     return "if chain";
   case CK::ARM:
     return "arm chain";
-  case CK::TRY:
-    return "try chain";
   }
   return "error chain";
 }
@@ -2138,8 +2107,6 @@ getDescription(rq::ChainKind chainKind) {
     return rq::ChainKind::UNKNOWN;
   } else if (rq::getCanBeIfChainLink(keyword)) {
     return rq::ChainKind::IF;
-  } else if (rq::getCanBeTryChainLink(keyword)) {
-    return rq::ChainKind::TRY;
   }
   RQ_UNREACHABLE();
 }
@@ -2724,9 +2691,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
     return rq::getCanBeArmChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTryChainLink() const {
-    return rq::getCanBeTryChainLink(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getDeuniversalized() const {
     return rq::getDeuniversalized(this->getKeyword());

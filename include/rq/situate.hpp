@@ -37,11 +37,11 @@ struct Situator final {
   [[nodiscard]] bool situateModule(rq::Module &module);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
-  [[nodiscard]] bool situateBranch(rq::Situation situation,
-                                   rq::Expression &expression,
-                                   rq::Situation branch_situation,
-                                   rq::Expression &branch, unsigned branch_i,
-                                   llvm::StringRef log_context);
+  [[nodiscard]] bool situateNonStatementBranch(rq::Situation branch_situation,
+                                               rq::Expression &branch);
+  [[nodiscard]] bool situateHeaderBranch(rq::Situation branch_situation,
+                                         rq::Expression &branch);
+  [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
                                               rq::Expression &expression);
   [[nodiscard]] bool
@@ -72,17 +72,17 @@ struct Situator final {
                                             rq::Situation branch0_situation);
   [[nodiscard]] bool situateNaryParameterBranches(rq::Situation situation,
                                                   rq::Expression &expression);
-  [[nodiscard]] bool situateNaryFromFirstParameterBranches(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Expression &first_parameter, unsigned first_parameter_i,
-      llvm::StringRef log_context);
   [[nodiscard]] bool
-  situateNaryStatementBranches(rq::Situation situation,
-                               rq::Expression &expression,
-                               unsigned minimum_branch_count);
-  [[nodiscard]] bool situateNaryBoldFirstStatementBranches(
-      rq::Situation situation, rq::Expression &expression,
-      unsigned minimum_branch_count, rq::Situation branch0_situation);
+  situateNaryFromFirstParameterBranches(rq::Situation situation,
+                                        rq::Expression &expression,
+                                        rq::Expression &first_parameter);
+  [[nodiscard]] bool situateNaryStatementBranches(rq::Expression &expression);
+  [[nodiscard]] bool
+  situateNaryHeaderFirstStatementBranches(rq::Situation situation,
+                                          rq::Expression &expression,
+                                          rq::Situation branch0_situation);
+  [[nodiscard]] bool situateNamedMemberProcedure(rq::Situation situation,
+                                                 rq::Expression &expression);
 };
 
 } // namespace rq

@@ -48,21 +48,21 @@ enum class System : std::uint_fast8_t {
   // loading source files
   LOAD,
   // STAGE 1: validation of raw source file text
-  VALIDATION,
+  VALIDATOR,
   // STAGE 2: seperation of source lexemes into tokens
-  TOKENIZATION,
+  TOKENIZER,
   // STAGE 3: construction of abstract-syntax-tree (AST)
-  PARSING,
+  PARSER,
   // STAGE 4: constext-sensitive error detection and modification of AST
-  SITUATION,
+  SITUATOR,
   // STAGE 5: construction of symbol tables
-  TABULATION,
+  TABULATOR,
   // STAGE 6: generation of LLVM ir
-  GENERATION,
+  GENERATOR,
   // after last stage (after ir is generated)
   POST,
   // when emitting to an output or intermediate file
-  EMIT,
+  EMITER,
   // systems used by stages 5 and 6
   TYPE_SYSTEM,
   SYMBOLIC_EXECUTION_ENGINE
@@ -74,21 +74,21 @@ enum class System : std::uint_fast8_t {
     return "pre";
   case rq::System::LOAD:
     return "load";
-  case rq::System::VALIDATION:
+  case rq::System::VALIDATOR:
     return "vald";
-  case rq::System::TOKENIZATION:
+  case rq::System::TOKENIZER:
     return "tokn";
-  case rq::System::PARSING:
+  case rq::System::PARSER:
     return "pars";
-  case rq::System::SITUATION:
+  case rq::System::SITUATOR:
     return "sit";
-  case rq::System::TABULATION:
+  case rq::System::TABULATOR:
     return "tab";
-  case rq::System::GENERATION:
+  case rq::System::GENERATOR:
     return "gen";
   case rq::System::POST:
     return "post";
-  case rq::System::EMIT:
+  case rq::System::EMITER:
     return "emit";
   case rq::System::TYPE_SYSTEM:
     return "tsys";
@@ -282,14 +282,10 @@ struct Context final {
                                               const rq::Token &token);
   void logErrorMustHaveParameterMark(rq::System system, rq::Situation situation,
                                      const rq::Expression &expression);
-  void logErrorPositionalEndIsFirst(rq::System system, rq::Situation situation,
-                                    const rq::Expression &expression,
-                                    const rq::Expression &positional_end,
-                                    unsigned positional_end_i);
-  void logErrorNamedBeginIsLast(rq::System system, rq::Situation situation,
-                                const rq::Expression &expression,
-                                const rq::Expression &named_begin,
-                                unsigned named_begin_i);
+  void logErrorPositionalEndIsFirst(rq::System system,
+                                    const rq::Expression &mark);
+  void logErrorNamedBeginIsLast(rq::System system,
+                                const rq::Expression &mark);
   void logErrorExpectedCommaSeparator(rq::System system,
                                       const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(rq::System system,
@@ -299,15 +295,9 @@ struct Context final {
   void logErrorExpressionShouldNeverOccur(rq::System system,
                                           const rq::Expression &expression);
   void logErrorDuplicateParameterMark(rq::System system,
-                                      rq::Situation situation,
-                                      rq::Expression &expression,
-                                      rq::Expression &parameter,
-                                      unsigned branch_i, rq::Expression &first,
-                                      unsigned first_i);
-  void logErrorNamedBeginAfterPositionalEnd(
-      rq::System system, rq::Situation situation, rq::Expression &expression,
-      rq::Expression &named_begin, unsigned named_begin_i,
-      rq::Expression &first_positional_end, unsigned first_positional_end_i);
+                                      const rq::Expression &mark);
+  void logErrorNamedBeginAfterPositionalEnd(rq::System system,
+                                            const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::System system, rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
@@ -318,14 +308,16 @@ struct Context final {
                                   const rq::Expression &expression,
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::System system,
-                                      rq::Situation outer_situation,
-                                      const rq::Expression &outer,
-                                      rq::Situation branch_situation,
-                                      rq::Expression &branch, unsigned branch_i,
-                                      llvm::Twine log_context);
-  void logErrorFirstBranchNotHeader(rq::System system, rq::Situation situation,
-                                    const rq::Expression &expression,
-                                    const rq::Expression &branch0);
+                                      rq::Situation situation,
+                                      const rq::Expression &branch);
+  void logErrorExpectedHeaderExpression(rq::System system,
+                                        const rq::Expression &expresison);
+  void logErrorUnexpectedHeaderExpression(rq::System system,
+                                          const rq::Expression &expresison);
+  void logErrorExpectedChainLinkExpression(rq::System system,
+                                           const rq::Expression &expresison);
+  void logErrorUnexpectedChainLinkExpression(rq::System system,
+                                             const rq::Expression &expresison);
 };
 
 } // namespace rq

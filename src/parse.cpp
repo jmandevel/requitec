@@ -224,7 +224,7 @@ rq::Expression *RequiteParser::parseExpressions() {
     rq::Expression &next = this->parseExpression();
     builder.appendTree(next);
     if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorExpectedSemicolonSeparator(rq::System::PARSING,
+      this->getContext().logErrorExpectedSemicolonSeparator(rq::System::PARSER,
                                                             next);
       this->setNotOk();
       break;
@@ -232,7 +232,7 @@ rq::Expression *RequiteParser::parseExpressions() {
     const rq::Token &after_token = this->getRanger().getToken();
     this->getRanger().incrementToken(1);
     if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
-      this->getContext().logErrorUnexpectedToken(rq::System::PARSING,
+      this->getContext().logErrorUnexpectedToken(rq::System::PARSER,
                                                  after_token);
       this->setNotOk();
     } else if (after_token.getKind() != rq::TokenKind::SEMICOLON_SEPARATOR) {
@@ -903,7 +903,7 @@ rq::Expression &RequiteParser::parsePrecedence0() {
     break;
   }
   this->getRanger().incrementToken(1);
-  this->getContext().logErrorUnexpectedToken(rq::System::PARSING, token);
+  this->getContext().logErrorUnexpectedToken(rq::System::PARSER, token);
   this->setNotOk();
   rq::Expression &error =
       this->getContext().getTopStaticFrame().acquireExpression();
@@ -977,7 +977,7 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
       builder.appendBranch(mark);
     } else {
       this->getRanger().incrementToken(1);
-      this->getContext().logErrorExpectedCommaSeparator(rq::System::PARSING,
+      this->getContext().logErrorExpectedCommaSeparator(rq::System::PARSER,
                                                         branch);
       this->setNotOk();
       continue;
@@ -993,18 +993,18 @@ rq::Keyword RequiteParser::parseKeyword() {
   if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
-    this->getContext().logErrorExpectedIdentifierLiteral(rq::System::PARSING,
+    this->getContext().logErrorExpectedIdentifierLiteral(rq::System::PARSER,
                                                          token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
   if (keyword == rq::Keyword::I_NONE) {
-    this->getContext().logErrorNotKeyword(rq::System::PARSING, token);
+    this->getContext().logErrorNotKeyword(rq::System::PARSER, token);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
   }
   if (rq::getIsInternal(keyword)) {
-    this->getContext().logErrorInternalUseOnlyKeyword(rq::System::PARSING,
+    this->getContext().logErrorInternalUseOnlyKeyword(rq::System::PARSER,
                                                       token, keyword);
     this->setNotOk();
     return rq::Keyword::I_ERROR;
@@ -1028,6 +1028,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
         this->getContext().getTopStaticFrame().acquireExpression();
     capture.setKeyword(rq::Keyword::S_DYNAMIC_CAPTURE);
     capture.setSource(keyword_token);
+    capture.setIsHeader();
     this->getRanger().incrementToken(1);
     std::ignore = this->parseNonStatementBranches(
         capture, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
@@ -1094,7 +1095,7 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
             "first token not trailer separator");
   this->getRanger().incrementToken(1);
   if (expression.getKeyword() == rq::Keyword::S_ANONYMOUS_FUNCTION) {
-    this->getContext().logErrorUnexpectedToken(rq::System::PARSING,
+    this->getContext().logErrorUnexpectedToken(rq::System::PARSER,
                                                first_token);
     this->setNotOk();
     return;
@@ -1114,7 +1115,7 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
     const rq::Token &front_token = keyword_ranger.getToken();
     if (trailer_token.getSourceText() != front_token.getSourceText()) {
       this->getContext().logErrorTrailerTokenMismatch(
-          rq::System::PARSING, trailer_token, front_token, expression);
+          rq::System::PARSER, trailer_token, front_token, expression);
       this->setNotOk();
     }
     this->getRanger().incrementToken(1);
@@ -1301,7 +1302,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       break;
     }
   }
-  this->getContext().logErrorUnterminatedInterpolatedString(rq::System::PARSING,
+  this->getContext().logErrorUnterminatedInterpolatedString(rq::System::PARSER,
                                                             left_token);
   this->setNotOk();
   rq::Expression &error =

@@ -589,7 +589,7 @@ void Tokenizer::_tokenizeSourceText() {
             this->getTokens().push_back(this->getRanger().getSubToken(
                 T::ERROR_UNTERMINATED_STRING_LITERAL));
             this->getContext().logErrorUnterminatedStringLiteral(
-                rq::System::TOKENIZATION, this->getTokens().back());
+                rq::System::TOKENIZER, this->getTokens().back());
             this->setNotOk();
             break;
           } else {
@@ -890,7 +890,7 @@ void Tokenizer::checkFinalGroupings() {
     RQ_ASSERT(this->getTokens().size() > grouping.getTokenI(),
               "token out of range");
     rq::Token &token = this->getTokens().at(grouping.getTokenI());
-    this->getContext().logErrorUnmatchedLeftToken(rq::System::TOKENIZATION,
+    this->getContext().logErrorUnmatchedLeftToken(rq::System::TOKENIZER,
                                                   token);
     token.setUnmatched();
     this->popGrouping();
@@ -900,7 +900,7 @@ void Tokenizer::checkFinalGroupings() {
 void Tokenizer::tokenizeUnmatchedLengthToken(rq::TokenKind type,
                                              unsigned length) {
   rq::Token token = this->getRanger().getLengthToken(type, length);
-  this->getContext().logErrorSoloRightToken(rq::System::TOKENIZATION, token);
+  this->getContext().logErrorSoloRightToken(rq::System::TOKENIZER, token);
   token.setUnmatched();
   this->getTokens().push_back(token);
   this->setNotOk();
@@ -926,7 +926,7 @@ void Tokenizer::tokenizeRightGrouping(rq::GroupingKind grouping_kind,
     const rq::Grouping &top_grouping = this->getTopGrouping();
     if (top_grouping.getKind() != grouping_kind) {
       const rq::Token &left_token = this->getLeftToken(top_grouping);
-      this->getContext().logErrorUnmatchedRightToken(rq::System::TOKENIZATION,
+      this->getContext().logErrorUnmatchedRightToken(rq::System::TOKENIZER,
                                                      left_token, right_token);
       right_token.setUnmatched();
       this->setNotOk();
