@@ -1266,43 +1266,65 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
     case rq::TokenKind::LEFT_INTERPOLATION_LITERAL: {
       RQ_ASSERT(first_ptr == nullptr && previous_ptr == nullptr,
                 "left interpolated string literal must be first");
+      this->getRanger().incrementToken(1);
+      if (token.getSourceTextLength() == 0) {
+        continue;
+      }
       rq::Expression &string =
           this->getContext().getTopStaticFrame().acquireExpression();
       string.setKeyword(rq::Keyword::I_LEFT_INTERPOLATION_LITERAL);
       string.setSource(token);
       first_ptr = &string;
       previous_ptr = &string;
-      this->getRanger().incrementToken(1);
       continue;
     }
     case rq::TokenKind::MIDDLE_INTERPOLATION_LITERAL: {
+      this->getRanger().incrementToken(1);
+      if (token.getSourceTextLength() == 0) {
+        continue;
+      }
       rq::Expression &string =
           this->getContext().getTopStaticFrame().acquireExpression();
       string.setKeyword(rq::Keyword::I_MIDDLE_INTERPOLATION_LITERAL);
       string.setSource(token);
-      rq::dereferencePtr(previous_ptr).setNext(string);
+      if (previous_ptr != nullptr) {
+        rq::dereferencePtr(previous_ptr).setNext(string);
+      }
+      if (first_ptr == nullptr) {
+        first_ptr = &string;
+      }
       previous_ptr = &string;
-      this->getRanger().incrementToken(1);
       continue;
     }
     case rq::TokenKind::RIGHT_INTERPOLATION_LITERAL: {
+      this->getRanger().incrementToken(1);
+      if (token.getSourceTextLength() == 0) {
+        continue;
+      }
       rq::Expression &string =
           this->getContext().getTopStaticFrame().acquireExpression();
       string.setKeyword(rq::Keyword::I_RIGHT_INTERPOLATION_LITERAL);
       string.setSource(token);
-      rq::dereferencePtr(previous_ptr).setNext(string);
+      if (previous_ptr != nullptr) {
+        rq::dereferencePtr(previous_ptr).setNext(string);
+      }
+      if (first_ptr == nullptr) {
+        first_ptr = &string;
+      }
       previous_ptr = &string;
       rq::Expression &tuple =
           this->getContext().getTopStaticFrame().acquireExpression();
       tuple.setKeyword(rq::Keyword::S_TUPLE);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
-      this->getRanger().incrementToken(1);
       return tuple;
     }
     case rq::TokenKind::LEFT_BRACE_GROUPING: {
       rq::Expression &interpolation = this->parseEnclosedBraceExpression();
       rq::dereferencePtr(previous_ptr).setNext(interpolation);
+      if (first_ptr == nullptr) {
+        first_ptr = &interpolation;
+      }
       previous_ptr = &interpolation;
       continue;
     }
