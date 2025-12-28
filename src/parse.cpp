@@ -114,6 +114,17 @@ void PrecedenceBuilder::parseBinary(const rq::Token &token,
   this->appendRecent();
 }
 
+void PrecedenceBuilder::parseOuterBinary(const rq::Token &token,
+                                         rq::Keyword keyword) {
+  rq::Expression &expression = this->getStaticFrame().acquireExpression();
+  expression.setKeyword(keyword);
+  expression.setSource(this->getOuter(), token);
+  expression.setBranch(this->getOuter());
+  this->_expression_ptr = &expression;
+  this->_last_ptr = this->_outer_ptr;
+  this->_outer_ptr = &expression;
+}
+
 void PrecedenceBuilder::parseNary(const rq::Token &token, rq::Keyword keyword) {
   if (this->getHasExpression()) {
     rq::Expression &existing_expression = this->getExpression();
@@ -133,17 +144,6 @@ void PrecedenceBuilder::parseNary(const rq::Token &token, rq::Keyword keyword) {
   this->_expression_ptr = &new_expression;
   this->_last_ptr = nullptr;
   this->appendRecent();
-}
-
-void PrecedenceBuilder::parseNestingNary(const rq::Token &token,
-                                         rq::Keyword keyword) {
-  rq::Expression &expression = this->getStaticFrame().acquireExpression();
-  expression.setKeyword(keyword);
-  expression.setSource(this->getOuter(), token);
-  expression.setBranch(this->getOuter());
-  this->_expression_ptr = &expression;
-  this->_last_ptr = this->_outer_ptr;
-  this->_outer_ptr = &expression;
 }
 
 void PrecedenceBuilder::parseSequenceBranch(const rq::Token &token,
@@ -813,17 +813,20 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     }
     const rq::Token &post_token = this->getRanger().getToken();
     switch (post_token.getKind()) {
-    case rq::TokenKind::HASH_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_builder.parseNary(post_token, rq::Keyword::S_ARRAY);
-      continue;
     case rq::TokenKind::ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_builder.parseBinary(post_token, rq::Keyword::S_EXTEND);
+      precedence_builder.appendRecent();
+      precedence_builder.parseOuterBinary(post_token, rq::Keyword::S_EXTEND);
       continue;
     case rq::TokenKind::THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_builder.parseBinary(post_token, rq::Keyword::S_EXTENSION);
+      precedence_builder.appendRecent();
+      precedence_builder.parseOuterBinary(post_token,
+                                              rq::Keyword::S_EXTENSION);
+      continue;
+    case rq::TokenKind::HASH_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_builder.parseNary(post_token, rq::Keyword::S_ARRAY);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
@@ -973,6 +976,17 @@ RequiteParser::parseNonStatementBranches(rq::Expression &expression,
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::S_POSITIONAL_PARAMETERS_END);
       builder.appendBranch(mark);
+      const rq::Token &next_after = this->getRanger().getToken();
+      if (next_after.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+        this->getRanger().incrementToken(1);
+        continue;
+      } else if (next_after.getKind() == end) {
+        this->getRanger().incrementToken(1);
+        builder.finishExpression(next_after);
+        return parameter_mark_found;
+      }
+      this->getContext().logErrorExpectedCommaSeparator(branch);
+      this->setNotOk();
     } else {
       this->getRanger().incrementToken(1);
       this->getContext().logErrorExpectedCommaSeparator(branch);

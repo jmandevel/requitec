@@ -166,8 +166,8 @@ struct PrecedenceBuilder final {
   void parseUnary(const rq::Token &token, rq::Keyword keyword);
   void parseAscribe(const rq::Token &token, rq::Keyword keyword);
   void parseBinary(const rq::Token &token, rq::Keyword keyword);
+  void parseOuterBinary(const rq::Token &token, rq::Keyword keyword);
   void parseNary(const rq::Token &token, rq::Keyword keyword);
-  void parseNestingNary(const rq::Token &token, rq::Keyword keyword);
   void parseSequenceBranch(const rq::Token &token, rq::Keyword keyword,
                            rq::Expression &rvalue);
   void appendBranch(rq::Expression &branch);

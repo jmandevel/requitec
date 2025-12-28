@@ -81,6 +81,9 @@ struct Situator final {
   situateNaryHeaderFirstStatementBranches(rq::Situation situation,
                                           rq::Expression &expression,
                                           rq::Situation branch0_situation);
+  [[nodiscard]] bool situateNaryHeaderFirstAndSecondStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Situation branch0_situation, rq::Situation branch1_situation);
   [[nodiscard]] bool situateNamedMemberProcedure(rq::Situation situation,
                                                  rq::Expression &expression);
 };
