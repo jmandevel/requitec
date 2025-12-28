@@ -163,9 +163,38 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::S_UNSITUATED_ASCRIBE_STATEMENT:
-    RQ_TODO_IMPLEMENTATION();
-  case K::S_UNSITUATED_ASCRIBE_TYPE:
-    RQ_TODO_IMPLEMENTATION();
+    [[fallthrough]];
+  case K::S_UNSITUATED_ASCRIBE_TYPE: {
+    unsigned branch_i = 0;
+    const rq::Situation attribute_situation =
+        expression.getAttributeSituation();
+    rq::Expression *last_ptr = nullptr;
+    for (rq::Expression &branch : expression.getBranchSubrange()) {
+      if (!branch.getHasNext()) {
+        if (branch_i < 1) {
+          this->getContext().logErrorNotAtLeastBranchCount(
+              rq::System::SITUATOR, situation, expression, 2);
+          is_ok = false;
+          break;
+        }
+        if (!this->situateNonStatementBranch(situation, branch)) {
+          is_ok = false;
+        }
+        last_ptr = &branch;
+        break;
+      }
+      if (!this->situateNonStatementBranch(attribute_situation, branch)) {
+        is_ok = false;
+      }
+      branch_i++;
+    }
+    if (!is_ok) {
+      break;
+    }
+    rq::Expression &last = rq::dereferencePtr(last_ptr);
+    last.setNext(expression.replaceBranch(last));
+    expression.changeKeyword(expression.getSituatedAscribe());
+  } break;
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -213,6 +242,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_ASCRIBE_STATEMENT:
     is_ok = this->situateNaryDifferentFirstNonStatementBranches(
         situation, expression, 2, situation, S::STATEMENT_ATTRIBUTE);
+    break;
+  case K::S_ASCRIBE_ROOT_OF_VALUE:
+    is_ok = this->situateNaryDifferentFirstNonStatementBranches(
+        situation, expression, 2, situation, S::TYPE_ATTRIBUTE);
     break;
   case K::S_CAST:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
@@ -296,7 +329,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::S_BORROW_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
+                                                   situation);
     break;
 
   // ASSIGNMENT
@@ -433,14 +466,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::S_MOVE_VALUE:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::THROW:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_THROW_VALUE:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
+                                                   situation);
     break;
   case K::ENTRY_POINT:
     is_ok = this->situateNaryStatementBranches(expression);
@@ -813,14 +839,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryNonStatementBranches(situation, expression, 0,
                                                   situation);
     break;
-  case K::TRY:
-    is_ok = this->situateNaryStatementBranches(expression);
-    break;
-  case K::CATCH:
-    [[fallthrough]];
-  case K::FINALLY:
-    is_ok = this->situateNaryStatementBranches(expression);
-    break;
   case K::MATCH:
     [[fallthrough]];
   case K::INLINE_MATCH:
@@ -1075,9 +1093,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::MAY_MOVE:
     [[fallthrough]];
-  case K::MAY_THROW:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
   case K::MUTABILITY_CLASS:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::SYMBOL_PATH);
@@ -1122,8 +1137,64 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // REFLECTIONS
-  case K::S_REFLECT:
-    RQ_TODO_IMPLEMENTATION();
+  case K::S_REFLECT: {
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(
+          rq::System::SITUATOR, situation, expression, 2);
+      is_ok = false;
+      break;
+    }
+    rq::Expression &value = expression.popBranch();
+    if (!this->situateNonStatementBranch(S::RVALUE, value)) {
+      is_ok = false;
+    }
+    rq::Expression *inner_ptr = &value;
+    rq::Expression *next_ptr = value.popNextPtr();
+    if (next_ptr == nullptr) {
+      this->getContext().logErrorNotAtLeastBranchCount(
+          rq::System::SITUATOR, situation, expression, 2);
+      is_ok = false;
+      break;
+    }
+    while (next_ptr != nullptr) {
+      rq::Expression &inner = rq::dereferencePtr(inner_ptr);
+      rq::Expression &next = rq::dereferencePtr(next_ptr);
+      if (!this->situateNonStatementBranch(S::REFLECTION, next)) {
+        is_ok = false;
+      }
+      next_ptr = next.popNextPtr();
+      if (next.getKeyword() == rq::Keyword::I_IDENTIFIER_LITERAL) {
+        rq::Expression &member = this->getStaticFrame().acquireExpression();
+        member.setKeyword(rq::Keyword::S_MEMBER_OF);
+        member.setSource(inner, next);
+        member.setBranch(inner);
+        inner.setNext(next);
+        inner_ptr = &member;
+        continue;
+      } else if (next.getKeyword() == rq::Keyword::S_ASCRIBE_TYPE) {
+        next.changeKeyword(rq::Keyword::S_ASCRIBE_ROOT_OF_VALUE);
+        if (!next.getHasBranch()) {
+          continue;
+        }
+        rq::Expression &next_branch = next.getBranch();
+        const rq::Keyword universalized = next_branch.getUniversalized();
+        next_branch.changeKeyword(universalized);
+        inner.setNext(next_branch.replaceBranchPtr(inner));
+        inner_ptr = &next;
+        continue;
+      }
+      const rq::Keyword universalized = next.getUniversalized();
+      next.changeKeyword(universalized);
+      inner.setNext(next.replaceBranchPtr(inner));
+      inner_ptr = &next;
+    }
+    expression.setBranch(inner_ptr);
+    this->getStaticFrame().discardExpression(expression.mergeAndPopBranch());
+  } break;
+  case K::S_MEMBER_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
   case K::BYTE_SIZE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;

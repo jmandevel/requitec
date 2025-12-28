@@ -72,6 +72,7 @@ enum class Keyword : std::uint32_t {
   S_BINDING,
   S_ASCRIBE_TYPE,
   S_ASCRIBE_STATEMENT,
+  S_ASCRIBE_ROOT_OF_VALUE,
   S_CAST,
   S_IDENTIFY,
 
@@ -347,6 +348,7 @@ enum class Keyword : std::uint32_t {
 
   // REFLECTIONS
   S_REFLECT,
+  S_MEMBER_OF,
   BYTE_SIZE,
   S_BYTE_SIZE_OF,
   BIT_DEPTH,
@@ -454,6 +456,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_type";
   case K::S_ASCRIBE_STATEMENT:
     return "_ascribe_statement";
+  case K::S_ASCRIBE_ROOT_OF_VALUE:
+    return "_ascribe_root_of_value";
   case K::S_CAST:
     return "_cast";
   case K::S_IDENTIFY:
@@ -926,6 +930,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // REFLECTIONS
   case K::S_REFLECT:
     return "_reflect";
+  case K::S_MEMBER_OF:
+    return "_member_of";
   case K::BYTE_SIZE:
     return "byte_size";
   case K::S_BYTE_SIZE_OF:
@@ -1105,6 +1111,8 @@ getFlags(rq::Keyword keyword) {
            KF::ASCRIPTION;
   case K::S_ASCRIBE_STATEMENT:
     return KF::STATEMENT | KF::PARAMETER | KF::VIGNETTE_RVALUE | KF::ASCRIPTION;
+  case K::S_ASCRIBE_ROOT_OF_VALUE:
+    return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::S_CAST:
     return KF::RVALUE | KF::ARGUMENT;
   case K::S_IDENTIFY:
@@ -1586,6 +1594,8 @@ getFlags(rq::Keyword keyword) {
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
            KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH | KF::SEQUENCE_STAGE |
            KF::DYNAMIC_CAPTURE | KF::VIGNETTE | KF::VIGNETTE_RVALUE;
+  case K::S_MEMBER_OF:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH;
   case K::BYTE_SIZE:
     return KF::REFLECTION;
   case K::S_BYTE_SIZE_OF:
@@ -1689,8 +1699,21 @@ getHasNonStatementBranches(rq::Keyword keyword) {
   return rq::getHasNone(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
+[[nodiscard]] inline rq::Keyword 
+getSituatedAscribe(rq::Keyword keyword) {
+  switch (keyword) {
+    case rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT:
+      return rq::Keyword::S_ASCRIBE_STATEMENT;
+    case rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE:
+      return rq::Keyword::S_ASCRIBE_TYPE;
+    default:
+      break;
+  }
+  RQ_UNREACHABLE();
+}
+
 [[nodiscard]] inline constexpr rq::Keyword
-getDeuniversalized(rq::Keyword keyword) {
+getUniversalized(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
@@ -1754,8 +1777,8 @@ getDeuniversalized(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsDeuniversalizable(rq::Keyword keyword) {
-  return rq::getDeuniversalized(keyword) != rq::Keyword::I_NONE;
+getIsUniversalizable(rq::Keyword keyword) {
+  return rq::getUniversalized(keyword) != rq::Keyword::I_NONE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -1788,7 +1811,7 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
 getCanBeAllChainLink(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK |
-                                  rq::KeywordFlags::ARM_CHAINLINK;
+                                  rq::KeywordFlags::ARM_CHAINLINK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -1937,6 +1960,25 @@ getDescription(rq::Situation situation) {
     return S::VIGNETTE_RVALUE;
   default:
     break;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::Situation 
+getAttributeSituation(rq::Keyword keyword) {
+  switch (keyword) {
+    case rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT:
+      [[fallthrough]];
+    case rq::Keyword::S_ASCRIBE_STATEMENT:
+      return rq::Situation::STATEMENT_ATTRIBUTE;
+    case rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE:
+      [[fallthrough]];
+    case rq::Keyword::S_ASCRIBE_TYPE:
+      [[fallthrough]];
+    case rq::Keyword::S_ASCRIBE_ROOT_OF_VALUE:
+      return rq::Situation::TYPE_ATTRIBUTE;
+    default:
+      break;
   }
   RQ_UNREACHABLE();
 }
@@ -2668,6 +2710,12 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNonStatementBranches() const {
     return rq::getHasNonStatementBranches(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
+    return rq::getSituatedAscribe(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Situation getAttributeSituation() const {
+    return rq::getAttributeSituation(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind getChainKind() const {
     return rq::getChainKind(this->getKeyword());
   }
@@ -2692,11 +2740,11 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
     return rq::getCanBeArmChainLink(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getDeuniversalized() const {
-    return rq::getDeuniversalized(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
+    return rq::getUniversalized(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDeuniversalizable() const {
-    return rq::getIsDeuniversalizable(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
+    return rq::getIsUniversalizable(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
     return rq::getIsNone(this->getKeyword());
