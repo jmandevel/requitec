@@ -32,7 +32,7 @@ Requite is a programming language that is designed to fill the same nitche as C+
     * Writability is sacrificed for the sake or readability wherever possible.
 2. Parity Between Denotational and Operational Semantics
     * There are no optimizations with side effects.
-    * Move semantics are explicit.
+    * Move semantics are explicit and consistent between values of different types.
     * No implicit conversions.
     * There are no operator overloads.
 3. Great Defaults
