@@ -36,6 +36,7 @@ Requite is a programming language that is designed to fill the same nitche as C+
 3. Great Defaults
     * Variables are constant by default, mutable only if specified.
     * Object members are private by default.
+    * Function returns must be utilized by default.
 4. Easy Interoperability with C (and maybe C++)
     * Able to include C (and maybe C++) headers and utilize external APIs with ease (planned).
     * Easily able to convert requite files into C (and maybe C++) headers and source code files (planned).
