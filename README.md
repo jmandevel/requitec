@@ -27,6 +27,7 @@ Requite is a programming language that is designed to fill the same nitche as C+
     * A lot of meaningfully named keywords, and none of them are reserved.
     * Interpolated strings.
     * Extension methods to allow for function chaining over nesting.
+    * Named and positional function arguments, with explicit control over which arguments may be positional or named.
     * Type definitions which use symbols are always read from left to right.
     * Writability is sacrificed for the sake or readability wherever possible.
 2. Parity Between Denotational and Operational Semantics
