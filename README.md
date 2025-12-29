@@ -20,7 +20,7 @@ Requite is a statically typed systems programming langauge with a homoiconic syn
 
 ## Language Goals
 
-Requite is a programming language that is designed to fill the same nitche as C++. However, it has a number of design goals that make it uniquely suited for systems programming.
+Requite is a programming language that is designed to fill the same nitche as C++. However, it has a number of design goals that make it uniquely suited for systems programming. Not all of these goals are fully implemented yet.
 
 1. Focus on Readability
     * Low multiplicity. 
@@ -40,8 +40,8 @@ Requite is a programming language that is designed to fill the same nitche as C+
     * Object members are private by default.
     * Function returns must be utilized by default.
 4. Easy Interoperability with C (and maybe C++)
-    * Able to include C (and maybe C++) headers and utilize external APIs with ease (planned).
-    * Easily able to convert requite files into C (and maybe C++) headers and source code files (planned).
+    * Able to include C (and maybe C++) headers and utilize external APIs with ease.
+    * Easily able to convert requite files into C (and maybe C++) headers and source code files.
 
 ## How it Works
 
