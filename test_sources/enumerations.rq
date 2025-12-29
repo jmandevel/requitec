@@ -1,16 +1,29 @@
-[import "std"];
-
-[function myFunc, (>a:[signed], b:[signed]<)[signed],
-    [if a > b,
-        std.print(line="a is greater than b");
-    ][else_if b > a,
-        std.print(line="b is greater than a");
-    ][else 
-        std.print(line="a and b are equal");
-    ];
-    [result] := a + b;
+[enumeration MyEnum, 32,
+    APPLE:[signed]    = 0;
+    ORANGE:[unsigned] = 2;
+    GRAPE:[binary32]  = 3;
 ];
 
 [entry_point
-    std.print(line="the result is {myFunc(1, 2)}");
+    fruit := MyEnum.APPLE(3);
+    [match fruit,
+        [with APPLE, apple:=[value].`[borrow], 
+            apple += 1;
+        ][with ORANGE, orange:=[value].`[borrow],
+            orange *= 2;
+        ][default
+            // do nothing!
+        ];
+    ];
+    value :=
+        [inline_match fruit,
+            [with APPLE, apple:=[value], 
+                [out] := apple;
+            ][with ORANGE, orange:=[value],
+                [out] := [signed]:orange;
+            ][with GRAPE, grape:=[value],
+                [out] := [signed]:grape;
+            ];
+        ];
+    [exit_code] := value;
 ];
