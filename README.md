@@ -31,7 +31,7 @@ Requite is a programming language that is designed to fill the same nitche as C+
     * Type definitions which use symbols are always read from left to right.
     * Writability is sacrificed for the sake or readability wherever possible.
 2. Parity Between Denotational and Operational Semantics
-    * There are no optimizations with side effects.
+    * No optimizations with side effects.
     * Move semantics are explicit and consistent between values of different types.
     * No implicit conversions.
     * No operator overloads.
