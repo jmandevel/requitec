@@ -10,6 +10,37 @@ __NOTICE: This repository contains a compiler front-end that is in the early sta
 
 Requite is a statically typed systems programming langauge with a homoiconic syntax. Look in the [test_sources](test_sources) folder for example source code files.
 
+```
+[import "std"];
+
+[entry_point
+    std.print(line="Hello, world!");
+];
+```
+
+## Language Goals
+
+Requite is a programming language that is designed to fill the same nitche as C++. However, it has a number of design goals that make it uniquely suited for systems programming.
+
+1. Focus on Readability
+    * Low multiplicity. 
+    * Requite has a lot of keywords, and none of them are reserved.
+    * Keywords are meaningfully named.
+    * Interpolated strings.
+    * Type definitions which use symbols are always read from left to right.
+    * Writability is sacrificed for the sake or readability wherever possible.
+2. Parity Between Denotational and Operational Semantics
+    * There are no optimizations with side effects.
+    * Move semantics are explicit.
+    * No implicit conversions.
+    * There are no operator overloads.
+3. Great Defaults
+    * Variables are constant by default, mutable only if specified.
+    * Object members are private by default.
+4. Easy Interoperability with C (and maybe C++)
+    * Able to include C (and maybe C++) headers and utilize external APIs with ease (planned).
+    * Easily able to convert requite files into C (and maybe C++) headers and source code files (planned).
+
 ## How it Works
 
 The requitec compiler is an LLVM front-end application written in C++. All source code for the front-end is contained within this repository. While language specific functionality is handled within this project, all back-end functionality related to generating machine code for specific target machines is handled by LLVM.
