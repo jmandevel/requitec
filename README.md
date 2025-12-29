@@ -24,8 +24,7 @@ Requite is a programming language that is designed to fill the same nitche as C+
 
 1. Focus on Readability
     * Low multiplicity. 
-    * Requite has a lot of keywords, and none of them are reserved.
-    * Keywords are meaningfully named.
+    * A lot of meaningfully named keywords, and none of them are reserved.
     * Interpolated strings.
     * Type definitions which use symbols are always read from left to right.
     * Writability is sacrificed for the sake or readability wherever possible.
