@@ -70,42 +70,42 @@ struct StaticValue {
   }
 };
 
-struct Node;
+struct ScopeNode;
 
 struct ScopeEntry final {
   using Self = rq::ScopeEntry;
 
-  llvm::PointerUnion<rq::StaticValue *, rq::Node *> _ptr_union{nullptr};
+  llvm::PointerUnion<rq::StaticValue *, rq::ScopeNode *> _ptr_union{nullptr};
 
   ScopeEntry() = default;
   ScopeEntry(rq::StaticValue& value) 
     : _ptr_union(&value) {}
-  ScopeEntry(rq::Node& node)
+  ScopeEntry(rq::ScopeNode& node)
     : _ptr_union(&node) {}
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticValue() const {
-    return _ptr_union.template is<rq::StaticValue*>();
+    return llvm::isa<rq::StaticValue*>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
-    return _ptr_union.template is<rq::Node*>();
+    return llvm::isa<rq::ScopeNode*>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
-    return _ptr_union.isNull();
+    return this->_ptr_union.isNull();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue& getStaticValue() {
-    return rq::dereferencePtr(_ptr_union.template get<rq::StaticValue*>());
+    return rq::dereferencePtr(llvm::cast<rq::StaticValue*>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue& getStaticValue() const {
-    return rq::dereferencePtr(_ptr_union.template get<rq::StaticValue*>());
+    return rq::dereferencePtr(llvm::cast<const rq::StaticValue*>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Node& getNode() {
-    return rq::dereferencePtr(_ptr_union.template get<rq::Node*>());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeNode& getScopeNode() {
+    return rq::dereferencePtr(llvm::cast<rq::ScopeNode*>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Node& getNode() const {
-    return rq::dereferencePtr(_ptr_union.template get<rq::Node*>());
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode& getNgetScopeNodeode() const {
+    return rq::dereferencePtr(llvm::cast<const rq::ScopeNode*>(this->_ptr_union));
   }
 }; 
 
-struct Node final {
+struct ScopeNode final {
   rq::StaticValue *_this_ptr{nullptr};
   rq::ScopeEntry _next{};
 };
