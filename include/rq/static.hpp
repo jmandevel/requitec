@@ -43,7 +43,8 @@ enum class ValueKind : std::uint_fast8_t {
   BINARY128,
   MODULE,
   TABLE,
-  OBJECT_SYMBOL,
+  SCOPE,
+  OBJECT_TYPE,
   ENUMERATION_TYPE,
   ENUMERATOR,
   TUPLE_TYPE,
@@ -71,31 +72,62 @@ struct StaticValue {
 
 struct Node;
 
-using EntryPtr = llvm::PointerUnion<rq::StaticValue *, rq::Node *>;
+struct ScopeEntry final {
+  using Self = rq::ScopeEntry;
+
+  llvm::PointerUnion<rq::StaticValue *, rq::Node *> _ptr_union{nullptr};
+
+  ScopeEntry() = default;
+  ScopeEntry(rq::StaticValue& value) 
+    : _ptr_union(&value) {}
+  ScopeEntry(rq::Node& node)
+    : _ptr_union(&node) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticValue() const {
+    return _ptr_union.template is<rq::StaticValue*>();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
+    return _ptr_union.template is<rq::Node*>();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return _ptr_union.isNull();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue& getStaticValue() {
+    return rq::dereferencePtr(_ptr_union.template get<rq::StaticValue*>());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue& getStaticValue() const {
+    return rq::dereferencePtr(_ptr_union.template get<rq::StaticValue*>());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Node& getNode() {
+    return rq::dereferencePtr(_ptr_union.template get<rq::Node*>());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Node& getNode() const {
+    return rq::dereferencePtr(_ptr_union.template get<rq::Node*>());
+  }
+}; 
 
 struct Node final {
   rq::StaticValue *_this_ptr{nullptr};
-  llvm::PointerIntPair<rq::EntryPtr, 1> _next_ptr{nullptr};
+  rq::ScopeEntry _next{};
 };
 
-struct Table : rq::StaticValue {
-  using Self = rq::Table;
+struct Scope : rq::StaticValue {
+  using Self = rq::Scope;
 
-  llvm::SmallDenseMap<llvm::StringRef, rq::EntryPtr, 4> _named_values{};
-  rq::EntryPtr _unamed_values{};
+  llvm::SmallDenseMap<llvm::StringRef, rq::ScopeEntry, 4> _named_values{};
+  rq::ScopeEntry _unamed_values{};
 
-  Table() : rq::StaticValue(rq::ValueKind::TABLE) {}
-  Table(rq::ValueKind kind) : rq::StaticValue(kind) {}
-  Table(const Self &) = delete;
-  Table(Self &&) = delete;
-  ~Table() override {
+  Scope() : rq::StaticValue(rq::ValueKind::TABLE) {}
+  Scope(rq::ValueKind kind) : rq::StaticValue(kind) {}
+  Scope(const Self &) = delete;
+  Scope(Self &&) = delete;
+  ~Scope() override {
     // TODO call destructors of all contained terms
   }
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-struct Layout final : public rq::Table {
+struct Layout final : public rq::Scope {
   using Self = rq::Layout;
 
   Layout(rq::ValueKind kind) : rq::Table(kind) {}
