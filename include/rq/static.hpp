@@ -127,18 +127,18 @@ struct Scope : rq::StaticValue {
   Self &operator=(Self &&) = delete;
 };
 
-struct Layout final : public rq::Scope {
+struct Layout final : public rq::StaticValue {
   using Self = rq::Layout;
 
-  Layout(rq::ValueKind kind) : rq::Table(kind) {}
+  Layout(rq::ValueKind kind) : rq::StaticValue(kind) {}
 };
 
-struct Procedure final : public rq::Table {
+struct Procedure final : public rq::StaticValue {
   using Self = rq::Procedure;
 
   const rq::Expression *_expression_ptr{nullptr};
 
-  Procedure(rq::ValueKind kind) : rq::Table(kind) {}
+  Procedure(rq::ValueKind kind) : rq::StaticValue(kind) {}
   Procedure(const Self &) = delete;
   Procedure(Self &&) = delete;
   ~Procedure() override = default;
@@ -508,7 +508,7 @@ struct StaticFrame final {
   llvm::BumpPtrAllocator _llvm_arena;
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
   std::vector<rq::Expression *> _unused_expression_ptrs;
-  rq::Table _table;
+  rq::Scope _table;
 
   StaticFrame() = default;
   StaticFrame(const Self &) = delete;
@@ -537,10 +537,6 @@ struct StaticFrame final {
     this->_unused_expression_ptrs.emplace_back(&expression);
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Table &getTable() { return this->_table; }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &getTable() const {
-    return this->_table;
-  }
 };
 
 } // namespace rq
