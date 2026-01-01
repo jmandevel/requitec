@@ -454,6 +454,12 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   return true;
 }
 
+bool emitSymbols(llvm::StringRef path, const rq::StaticValue& value) {
+  std::ignore = path;
+  std::ignore = value;
+  RQ_TODO_IMPLEMENTATION();
+}
+
 bool Context::emitLlvmIr(llvm::StringRef path) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);

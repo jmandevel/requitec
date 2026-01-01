@@ -67,13 +67,14 @@ struct Context final {
 
   std::string _executable_path;
   llvm::SourceMgr _llvm_source_mgr;
-  llvm::TargetMachine *_llvm_target_machine_ptr = nullptr;
+  llvm::TargetMachine *_llvm_target_machine_ptr{nullptr};
   llvm::StringMap<rq::Keyword> _keyword_map;
   llvm::StringMap<rq::Module *> _module_map;
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  rq::StaticFrame _top_static_frame{};
+  rq::Scope _top_scope{rq::ValueKind::TOP_SCOPE};
+  rq::StaticFrame _top_static_frame{this->_top_scope};
   rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
@@ -153,8 +154,8 @@ struct Context final {
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
                                  const rq::Expression &trunk);
-  // [[nodiscard]] bool emitSymbols(llvm::StringRef path, const rq::SymbolTable&
-  // table);
+  [[nodiscard]] bool emitSymbols(llvm::StringRef path,
+                                 const rq::StaticValue &value);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
