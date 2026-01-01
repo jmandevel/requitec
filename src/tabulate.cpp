@@ -11,15 +11,15 @@ void Tabulator::tabulateModule() {
     return;
   }
   this->tabulateGlobalForest(root.getBranch(),
-                             this->getContext().getTopStaticFrame().getTable());
+                             this->getContext().getTopStaticFrame().getScope());
 }
 
 void Tabulator::tabulateGlobalForest(const rq::Expression &first,
-                                     rq::Table &table) {
+                                     rq::Scope &scope) {
   for (const rq::Expression &statement : first.getInclusiveNextSubrange()) {
     switch (statement.getKeyword()) {
     case rq::Keyword::ENTRY_POINT:
-      this->tabulateEntryPoint(statement, table);
+      this->tabulateEntryPoint(statement, scope);
       break;
     default:
       RQ_TODO_IMPLEMENTATION();
@@ -28,14 +28,14 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first,
 }
 
 void Tabulator::tabulateEntryPoint(const rq::Expression &expression,
-                                   rq::Table &table) {
+                                   rq::Scope &scope) {
   RQ_ASSERT(expression.getKeyword() == rq::Keyword::ENTRY_POINT,
             "wrong keyword");
   rq::Procedure &procedure =
       this->getContext().getTopStaticFrame().allocateValue<rq::Procedure>(
           rq::ValueKind::ENTRY_POINT);
   procedure.setExpression(expression);
-  std::ignore = table; // TODO implement rest
+  std::ignore = scope; // TODO implement rest
   //table.addUnamedValue(procedure);
 }
 

@@ -84,25 +84,25 @@ struct ScopeEntry final {
   ScopeEntry(rq::StaticValue &value) : _ptr_union(&value) {}
   ScopeEntry(rq::ScopeNode &node) : _ptr_union(&node) {}
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticValue() const {
-    return llvm::isa<rq::StaticValue>(this->_ptr_union);
+    return llvm::isa<rq::StaticValue*>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeNode() const {
-    return llvm::isa<rq::ScopeNode>(this->_ptr_union);
+    return llvm::isa<rq::ScopeNode*>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_ptr_union.isNull();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getStaticValue() {
-    return llvm::cast<rq::StaticValue>(this->_ptr_union);
+    return rq::dereferencePtr(llvm::cast<rq::StaticValue*>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getStaticValue() const {
-    return llvm::cast<const rq::StaticValue>(this->_ptr_union);
+    return rq::dereferencePtr(llvm::cast<rq::StaticValue*>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeNode &getScopeNode() {
-    return llvm::cast<rq::ScopeNode>(this->_ptr_union);
+    return rq::dereferencePtr(llvm::cast<rq::ScopeNode*>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode &getScopeNode() const {
-    return llvm::cast<const rq::ScopeNode>(this->_ptr_union);
+    return rq::dereferencePtr(llvm::cast<rq::ScopeNode*>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self& rhs) const {
     return this->_ptr_union == rhs._ptr_union;
@@ -687,7 +687,7 @@ struct StaticFrame final {
   llvm::BumpPtrAllocator _llvm_arena;
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
   std::vector<rq::Expression *> _unused_expression_ptrs;
-  rq::Scope _table;
+  rq::Scope _scope;
 
   StaticFrame() = default;
   StaticFrame(const Self &) = delete;
@@ -716,6 +716,12 @@ struct StaticFrame final {
     this->_unused_expression_ptrs.emplace_back(&expression);
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  [[nodiscard]] rq::Scope &getScope() {
+    return this->_scope;
+  }
+  [[nodiscard]] const rq::Scope &getScope() const {
+    return this->_scope;
+  }
 };
 
 } // namespace rq
