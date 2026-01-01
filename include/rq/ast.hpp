@@ -2510,8 +2510,8 @@ struct ExpressionIterator final {
   }
 };
 
-struct essionIterator final {
-  using Self = rq::essionIterator;
+struct ConstExpressionIterator final {
+  using Self = rq::ConstExpressionIterator;
   using value_type = const rq::Expression;
   using reference = const rq::Expression &;
   using pointer = rq::Expression *;
@@ -2520,12 +2520,12 @@ struct essionIterator final {
 
   const rq::Expression *_expression_ptr = nullptr;
 
-  essionIterator() = default;
-  essionIterator(const rq::Expression *expression_ptr)
+  ConstExpressionIterator() = default;
+  ConstExpressionIterator(const rq::Expression *expression_ptr)
       : _expression_ptr(expression_ptr) {}
-  essionIterator(const Self &) = default;
-  essionIterator(Self &&) = default;
-  ~essionIterator() = default;
+  ConstExpressionIterator(const Self &) = default;
+  ConstExpressionIterator(Self &&) = default;
+  ~ConstExpressionIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
@@ -3016,11 +3016,11 @@ struct Expression final {
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::essionIterator, rq::essionIterator,
+      std::ranges::subrange<rq::ConstExpressionIterator, rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getInclusiveNextSubrange() const {
-    return std::ranges::subrange(rq::essionIterator(this),
-                                 rq::essionIterator());
+    return std::ranges::subrange(rq::ConstExpressionIterator(this),
+                                 rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
@@ -3030,11 +3030,11 @@ struct Expression final {
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::essionIterator, rq::essionIterator,
+      std::ranges::subrange<rq::ConstExpressionIterator, rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getNextSubrange() const {
-    return std::ranges::subrange(rq::essionIterator(this->getNextPtr()),
-                                 rq::essionIterator());
+    return std::ranges::subrange(rq::ConstExpressionIterator(this->getNextPtr()),
+                                 rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
@@ -3044,11 +3044,11 @@ struct Expression final {
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::essionIterator, rq::essionIterator,
+      std::ranges::subrange<rq::ConstExpressionIterator, rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getBranchSubrange() const {
-    return std::ranges::subrange(rq::essionIterator(this->getBranchPtr()),
-                                 rq::essionIterator());
+    return std::ranges::subrange(rq::ConstExpressionIterator(this->getBranchPtr()),
+                                 rq::ConstExpressionIterator());
   }
 };
 
@@ -3062,14 +3062,14 @@ rq::ExpressionIterator ExpressionIterator::operator++(int) {
   return rq::ExpressionIterator(++this->_expression_ptr);
 }
 
-rq::essionIterator &essionIterator::operator++() {
+rq::ConstExpressionIterator &ConstExpressionIterator::operator++() {
   this->_expression_ptr =
       rq::dereferencePtr(this->_expression_ptr).getNextPtr();
   return *this;
 }
 
-rq::essionIterator essionIterator::operator++(int) {
-  return rq::essionIterator(++this->_expression_ptr);
+rq::ConstExpressionIterator ConstExpressionIterator::operator++(int) {
+  return rq::ConstExpressionIterator(++this->_expression_ptr);
 }
 
 } // namespace rq

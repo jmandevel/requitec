@@ -71,6 +71,9 @@ struct StaticValue {
 };
 
 struct ScopeNode;
+struct ScopeEntry;
+struct ScopeEntryIterator;
+struct ConstScopeEntryIterator;
 
 struct ScopeEntry final {
   using Self = rq::ScopeEntry;
@@ -78,39 +81,215 @@ struct ScopeEntry final {
   llvm::PointerUnion<rq::StaticValue *, rq::ScopeNode *> _ptr_union{nullptr};
 
   ScopeEntry() = default;
-  ScopeEntry(rq::StaticValue& value) 
-    : _ptr_union(&value) {}
-  ScopeEntry(rq::ScopeNode& node)
-    : _ptr_union(&node) {}
+  ScopeEntry(rq::StaticValue &value) : _ptr_union(&value) {}
+  ScopeEntry(rq::ScopeNode &node) : _ptr_union(&node) {}
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticValue() const {
-    return llvm::isa<rq::StaticValue*>(this->_ptr_union);
+    return llvm::isa<rq::StaticValue>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
-    return llvm::isa<rq::ScopeNode*>(this->_ptr_union);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeNode() const {
+    return llvm::isa<rq::ScopeNode>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_ptr_union.isNull();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue& getStaticValue() {
-    return rq::dereferencePtr(llvm::cast<rq::StaticValue*>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getStaticValue() {
+    return llvm::cast<rq::StaticValue>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue& getStaticValue() const {
-    return rq::dereferencePtr(llvm::cast<const rq::StaticValue*>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getStaticValue() const {
+    return llvm::cast<const rq::StaticValue>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeNode& getScopeNode() {
-    return rq::dereferencePtr(llvm::cast<rq::ScopeNode*>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeNode &getScopeNode() {
+    return llvm::cast<rq::ScopeNode>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode& getNgetScopeNodeode() const {
-    return rq::dereferencePtr(llvm::cast<const rq::ScopeNode*>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode &getScopeNode() const {
+    return llvm::cast<const rq::ScopeNode>(this->_ptr_union);
   }
-}; 
-
-struct ScopeNode final {
-  rq::StaticValue *_this_ptr{nullptr};
-  rq::ScopeEntry _next{};
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self& rhs) const {
+    return this->_ptr_union == rhs._ptr_union;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self& rhs) const {
+    return this->_ptr_union != rhs._ptr_union;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntryIterator begin();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntryIterator end();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator begin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator end() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator cbegin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator cend() const;
 };
 
-struct Scope : rq::StaticValue {
+struct ScopeNode final {
+  using Self = rq::ScopeNode;
+
+  rq::StaticValue *_value_ptr{nullptr};
+  rq::ScopeEntry _scope_entry{};
+
+  ScopeNode() = default;
+  ScopeNode(rq::StaticValue &value_a, rq::StaticValue &value_b)
+      : _value_ptr(&value_a), _scope_entry(value_b) {}
+  ScopeNode(rq::StaticValue &value, rq::ScopeNode &node)
+      : _value_ptr(&value), _scope_entry(node) {}
+  ScopeNode(const Self &) = delete;
+  ScopeNode(Self &&) = delete;
+  ~ScopeNode() {
+    if (this->_value_ptr != nullptr) {
+      std::destroy_at(this->_value_ptr);
+    }
+    if (this->_scope_entry.getIsScopeNode()) {
+      std::destroy_at(&this->_scope_entry.getScopeNode());
+    } else if (this->_scope_entry.getIsStaticValue()) {
+      std::destroy_at(&this->_scope_entry.getStaticValue());
+    }
+  }
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticValue() const {
+    return this->_value_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeEntry() const {
+    return !this->_scope_entry.getIsEmpty();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getStaticValue() {
+    return rq::dereferencePtr(this->_value_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getStaticValue() const {
+    return rq::dereferencePtr(this->_value_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntry &getScopeEntry() {
+    return this->_scope_entry;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeEntry &getScopeEntry() const {
+    return this->_scope_entry;
+  }
+};
+
+struct ScopeEntryIterator final {
+  using Self = rq::ScopeEntryIterator;
+  using value_type = rq::StaticValue;
+  using reference = rq::StaticValue &;
+  using pointer = rq::StaticValue *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::ScopeEntry _entry;
+
+  ScopeEntryIterator() = default;
+  explicit ScopeEntryIterator(rq::ScopeEntry& entry) 
+    : _entry(entry)
+  {}
+  RQ_ALWAYS_INLINE Self &operator++() {
+    if (this->_entry.getIsStaticValue()) {
+      this->_entry = rq::ScopeEntry();
+    } else if (this->_entry.getIsScopeNode()) {
+      this->_entry = rq::ScopeEntry(this->_entry.getScopeNode());
+    } else {
+      RQ_UNREACHABLE();
+    }
+  }
+  RQ_ALWAYS_INLINE Self operator++(int) {
+    Self backup = *this;
+    (*this)++;
+    return backup;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_entry == it._entry;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_entry != it._entry;;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &operator*() {
+    if (this->_entry.getIsStaticValue()) {
+      return this->_entry.getStaticValue();
+    } else if (this->_entry.getIsScopeNode()) {
+      return this->_entry.getScopeNode().getStaticValue();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &operator*() const {
+    if (this->_entry.getIsStaticValue()) {
+      return this->_entry.getStaticValue();
+    } else if (this->_entry.getIsScopeNode()) {
+      return this->_entry.getScopeNode().getStaticValue();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue *operator->() {
+    if (this->_entry.getIsStaticValue()) {
+      return &this->_entry.getStaticValue();
+    } else if (this->_entry.getIsScopeNode()) {
+      return &this->_entry.getScopeNode().getStaticValue();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *operator->() const {
+    if (this->_entry.getIsStaticValue()) {
+      return &this->_entry.getStaticValue();
+    } else if (this->_entry.getIsScopeNode()) {
+      return &this->_entry.getScopeNode().getStaticValue();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_entry.getIsEmpty();
+  }
+};
+
+struct ConstScopeEntryIterator final {
+  using Self = rq::ConstScopeEntryIterator;
+  using value_type = const rq::StaticValue;
+  using reference = const rq::StaticValue &;
+  using pointer = rq::StaticValue *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::ScopeEntry _entry;
+
+  ConstScopeEntryIterator() = default;
+  explicit ConstScopeEntryIterator(const rq::ScopeEntry& entry)
+    : _entry(entry)
+  {}
+  RQ_ALWAYS_INLINE Self &operator++() {
+    if (this->_entry.getIsStaticValue()) {
+      this->_entry = rq::ScopeEntry();
+    } else if (this->_entry.getIsScopeNode()) {
+      this->_entry = rq::ScopeEntry(this->_entry.getScopeNode());
+    } else {
+      RQ_UNREACHABLE();
+    }
+  }
+  RQ_ALWAYS_INLINE Self operator++(int) {
+    Self backup = *this;
+    (*this)++;
+    return backup;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_entry == it._entry;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_entry != it._entry;;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &operator*() const {
+    if (this->_entry.getIsStaticValue()) {
+      return this->_entry.getStaticValue();
+    } else if (this->_entry.getIsScopeNode()) {
+      return this->_entry.getScopeNode().getStaticValue();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *operator->() const {
+    if (this->_entry.getIsStaticValue()) {
+      return &this->_entry.getStaticValue();
+    } else if (this->_entry.getIsScopeNode()) {
+      return &this->_entry.getScopeNode().getStaticValue();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_entry.getIsEmpty();
+  }
+};
+
+struct Scope final : rq::StaticValue {
   using Self = rq::Scope;
 
   llvm::SmallDenseMap<llvm::StringRef, rq::ScopeEntry, 4> _named_values{};
