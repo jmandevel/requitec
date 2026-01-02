@@ -2,7 +2,7 @@
 
 #include <rq/ast.hpp>
 #include <rq/context.hpp>
-#include <rq/static.hpp>
+#include <rq/value.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/Twine.h>
@@ -18,10 +18,10 @@ struct Situator final {
   using Self = rq::Situator;
 
   std::reference_wrapper<rq::Context> _context_ref;
-  std::reference_wrapper<rq::StaticFrame> _static_frame_ref;
+  std::reference_wrapper<rq::Frame> _frame_ref;
 
-  Situator(rq::Context &context, rq::StaticFrame &static_frame)
-      : _context_ref(context), _static_frame_ref(static_frame) {}
+  Situator(rq::Context &context, rq::Frame &frame)
+      : _context_ref(context), _frame_ref(frame) {}
   Situator(const Self &) = delete;
   Situator(Self &&) = delete;
   ~Situator() = default;
@@ -30,8 +30,8 @@ struct Situator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return this->_context_ref.get();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticFrame &getStaticFrame() {
-    return this->_static_frame_ref.get();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getStaticFrame() {
+    return this->_frame_ref.get();
   }
   [[nodiscard]] rq::Expression &makeModuleTrunk(rq::Module &module);
   [[nodiscard]] bool situateModule(rq::Module &module);

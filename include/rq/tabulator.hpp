@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rq/context.hpp>
-#include <rq/static.hpp>
+#include <rq/value.hpp>
 #include <rq/utility.hpp>
 
 #include <functional>

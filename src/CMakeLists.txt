@@ -5,9 +5,9 @@ target_sources(
         options.cpp
         parse.cpp
         situate.cpp
-        static.cpp
         tabulate.cpp
         tokenize.cpp
+        value.cpp
 )
 
 target_sources(

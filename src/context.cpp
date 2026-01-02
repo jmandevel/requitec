@@ -8,6 +8,7 @@
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
+#include <rq/value.hpp>
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LegacyPassManager.h>
@@ -275,12 +276,10 @@ bool Context::run() {
   if (!this->tabulateModule(this->getSourceModule())) {
     return false;
   }
-  // this->propogateExportedImports();
-  // this->diffuseUses();
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
-    // if (!this->writeUserSymbols(output_path)) {
-    //   return false;
-    // }
+    if (!this->emitSymbols(rq::getOutputFilePath(), this->getTopScope())) {
+      return false;
+    }
     return true;
   }
   // if (!this->implementAll()) {
@@ -454,7 +453,56 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   return true;
 }
 
-bool emitSymbols(llvm::StringRef path, const rq::StaticValue& value) {
+static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
+                       const rq::Value &symbol, unsigned indent) {
+  rq::emitIndent(fout, indent);
+  fout << rq::getName(symbol.getKind()) << ":{\n";
+  indent++;
+  switch (symbol.getKind()) {
+  case rq::ValueKind::TOP_SCOPE:
+    [[fallthrough]];
+  case rq::ValueKind::SCOPE: {
+    const rq::Scope &scope = symbol.getScope();
+    rq::emitIndent(fout, indent);
+    fout << "symbol_table:{\n";
+    indent++;
+    for (auto kvp : scope.getNamedEntryRange()) {
+      llvm::StringRef name = kvp.first;
+      rq::emitIndent(fout, indent);
+      fout << name << ":{\n";
+      indent++;
+      for (const rq::Value &symbol : kvp.second) {
+        rq::emitSymbol(context, fout, symbol, indent);
+      }
+      indent--;
+      rq::emitIndent(fout, indent);
+      fout << "unamed:{\n";
+      indent++;
+      for (const rq::Value &symbol : scope.getUnamedEntry()) {
+        rq::emitSymbol(context, fout, symbol, indent);
+      }
+      indent--;
+      rq::emitIndent(fout, indent);
+      fout << "\n";
+      indent--;
+      rq::emitIndent(fout, indent);
+      fout << "}\n";
+    }
+    rq::emitIndent(fout, indent);
+    indent--;
+    fout << "}\n";
+  } break;
+  case rq::ValueKind::ENTRY_POINT:
+    break;
+  default:
+    RQ_TODO_IMPLEMENTATION();
+  }
+  indent--;
+  rq::emitIndent(fout, indent);
+  fout << "}\n";
+}
+
+bool emitSymbols(llvm::StringRef path, const rq::Value &value) {
   std::ignore = path;
   std::ignore = value;
   RQ_TODO_IMPLEMENTATION();

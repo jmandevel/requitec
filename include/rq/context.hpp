@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/static.hpp>
+#include <rq/value.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -74,7 +74,7 @@ struct Context final {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::Scope _top_scope{rq::ValueKind::TOP_SCOPE};
-  rq::StaticFrame _top_static_frame{this->_top_scope};
+  rq::Frame _top_frame{this->_top_scope};
   rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
@@ -90,12 +90,19 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticFrame &getTopStaticFrame() {
-    return this->_top_static_frame;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Scope &getTopScope() {
+    return this->_top_scope;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticFrame &
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Scope &
+  getTopScope() const {
+    return this->_top_scope;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getTopStaticFrame() {
+    return this->_top_frame;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Frame &
   getTopStaticFrame() const {
-    return this->_top_static_frame;
+    return this->_top_frame;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
     return this->_executable_path;
@@ -155,7 +162,7 @@ struct Context final {
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
                                  const rq::Expression &trunk);
   [[nodiscard]] bool emitSymbols(llvm::StringRef path,
-                                 const rq::StaticValue &value);
+                                 const rq::Value &value);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);

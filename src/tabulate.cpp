@@ -35,8 +35,7 @@ void Tabulator::tabulateEntryPoint(const rq::Expression &expression,
       this->getContext().getTopStaticFrame().allocateValue<rq::Procedure>(
           rq::ValueKind::ENTRY_POINT);
   procedure.setExpression(expression);
-  std::ignore = scope; // TODO implement rest
-  //table.addUnamedValue(procedure);
+  scope.tabulateUnamedSymbol(this->getContext().getTopStaticFrame(), procedure);
 }
 
 } // namespace rq
