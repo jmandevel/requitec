@@ -153,9 +153,9 @@ bool Context::loadSourceModule() {
                                                buffer_eo.getError());
     return false;
   }
-  llvm::StringRef final_path = this->getTopStaticFrame().saveString(input_path);
+  llvm::StringRef final_path = this->getTopFrame().saveString(input_path);
   rq::Module &source_module =
-      this->getTopStaticFrame().allocateValue<rq::Module>(
+      this->getTopFrame().allocateValue<rq::Module>(
           rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
@@ -196,9 +196,9 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     this->logErrorFailedToLoadImportFileBuffer(expression, ec);
     return nullptr;
   }
-  llvm::StringRef final_path = this->getTopStaticFrame().saveString(found_path);
+  llvm::StringRef final_path = this->getTopFrame().saveString(found_path);
   rq::Module &import_module =
-      this->getTopStaticFrame().allocateValue<rq::Module>(
+      this->getTopFrame().allocateValue<rq::Module>(
           rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
@@ -318,7 +318,7 @@ bool Context::parseRequite(rq::Module &module,
 }
 
 bool Context::situateModule(rq::Module &module) {
-  rq::Situator situator(*this, this->getTopStaticFrame());
+  rq::Situator situator(*this, this->getTopFrame());
   const bool is_ok = situator.situateModule(module);
   return is_ok;
 }
@@ -457,14 +457,13 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
                        const rq::Value &symbol, unsigned indent) {
   rq::emitIndent(fout, indent);
   fout << rq::getName(symbol.getKind()) << ":{\n";
-  indent++;
   switch (symbol.getKind()) {
   case rq::ValueKind::TOP_SCOPE:
     [[fallthrough]];
   case rq::ValueKind::SCOPE: {
     const rq::Scope &scope = symbol.getScope();
     rq::emitIndent(fout, indent);
-    fout << "symbol_table:{\n";
+    fout << "named:{\n";
     indent++;
     for (auto kvp : scope.getNamedEntryRange()) {
       llvm::StringRef name = kvp.first;
@@ -476,23 +475,23 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
       }
       indent--;
       rq::emitIndent(fout, indent);
-      fout << "unamed:{\n";
-      indent++;
-      for (const rq::Value &symbol : scope.getUnamedEntry()) {
-        rq::emitSymbol(context, fout, symbol, indent);
-      }
-      indent--;
-      rq::emitIndent(fout, indent);
-      fout << "\n";
-      indent--;
-      rq::emitIndent(fout, indent);
       fout << "}\n";
     }
+    indent--;
     rq::emitIndent(fout, indent);
+    fout << "}\n";
+    rq::emitIndent(fout, indent);
+    fout << "unamed:{\n";
+    indent++;
+    for (const rq::Value& unamed : scope.getUnamedEntry()) {
+      rq::emitSymbol(context, fout, unamed, indent);
+    }
     indent--;
     fout << "}\n";
   } break;
   case rq::ValueKind::ENTRY_POINT:
+    rq::emitIndent(fout, indent);
+    fout << "}\n";
     break;
   default:
     RQ_TODO_IMPLEMENTATION();
@@ -502,10 +501,16 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "}\n";
 }
 
-bool emitSymbols(llvm::StringRef path, const rq::Value &value) {
-  std::ignore = path;
-  std::ignore = value;
-  RQ_TODO_IMPLEMENTATION();
+bool Context::emitSymbols(llvm::StringRef path, const rq::Value &value) {
+  std::error_code ec;
+  llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
+  if (ec) {
+    this->logErrorFailedToOpenIntermediateFile(path, ec);
+    return false;
+  }
+  rq::emitSymbol(*this, fout, value, 0);
+  fout.close();
+  return true;
 }
 
 bool Context::emitLlvmIr(llvm::StringRef path) {

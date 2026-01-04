@@ -308,7 +308,7 @@ enum class Keyword : std::uint32_t {
   GLOBAL,
   STATIC,
   STATIC_CAPTURE,
-  EVALUATE_IMMEDIATELY,
+  EAGER,
   MAY_PARENT,
   PARENT,
   ABSTRACT,
@@ -851,8 +851,8 @@ constexpr std::size_t KEYWORD_COUNT = static_cast<std::size_t>(rq::Keyword::I_LA
     return "static";
   case K::STATIC_CAPTURE:
     return "static_capture";
-  case K::EVALUATE_IMMEDIATELY:
-    return "evaluate_immediately";
+  case K::EAGER:
+    return "eager";
   case K::MAY_PARENT:
     return "may_parent";
   case K::PARENT:
@@ -1508,7 +1508,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_ATTRIBUTE;
   case K::STATIC_CAPTURE:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::EVALUATE_IMMEDIATELY:
+  case K::EAGER:
     return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_PARENT:
     return KF::STATEMENT_ATTRIBUTE;
@@ -2095,7 +2095,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   GLOBAL,
   STATIC,
   STATIC_CAPTURE,
-  EVALUATE_IMMEDIATELY,
+  EAGER,
   MAY_PARENT,
   PARENT,
   ABSTRACT,
@@ -2132,8 +2132,8 @@ enum class StatementAttribute : std::uint_fast8_t {
     return "static";
   case SA::STATIC_CAPTURE:
     return "static_capture";
-  case SA::EVALUATE_IMMEDIATELY:
-    return "evaluate_immediately";
+  case SA::EAGER:
+    return "eager";
   case SA::MAY_PARENT:
     return "may_parent";
   case SA::PARENT:
@@ -2192,8 +2192,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::STATIC;
   case K::STATIC_CAPTURE:
     return SA::STATIC_CAPTURE;
-  case K::EVALUATE_IMMEDIATELY:
-    return SA::EVALUATE_IMMEDIATELY;
+  case K::EAGER:
+    return SA::EAGER;
   case K::MAY_PARENT:
     return SA::MAY_PARENT;
   case K::PARENT:
@@ -2246,7 +2246,7 @@ enum class StatementFlags : std::uint32_t {
   GLOBAL = rq::getBit(30),
   STATIC = rq::getBit(29),
   STATIC_CAPTURE = rq::getBit(28),
-  EVALUATE_IMMEDIATELY = rq::getBit(27),
+  EAGER = rq::getBit(27),
   MAY_PARENT = rq::getBit(26),
   PARENT = rq::getBit(25),
   ABSTRACT = rq::getBit(24),
@@ -2287,8 +2287,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::STATIC;
   case SA::STATIC_CAPTURE:
     return SF::STATIC_CAPTURE;
-  case SA::EVALUATE_IMMEDIATELY:
-    return SF::EVALUATE_IMMEDIATELY;
+  case SA::EAGER:
+    return SF::EAGER;
   case SA::MAY_PARENT:
     return SF::MAY_PARENT;
   case SA::PARENT:

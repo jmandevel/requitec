@@ -11,7 +11,7 @@ void Tabulator::tabulateModule() {
     return;
   }
   this->tabulateGlobalForest(root.getBranch(),
-                             this->getContext().getTopStaticFrame().getScope());
+                             this->getContext().getTopScope());
 }
 
 void Tabulator::tabulateGlobalForest(const rq::Expression &first,
@@ -32,10 +32,10 @@ void Tabulator::tabulateEntryPoint(const rq::Expression &expression,
   RQ_ASSERT(expression.getKeyword() == rq::Keyword::ENTRY_POINT,
             "wrong keyword");
   rq::Procedure &procedure =
-      this->getContext().getTopStaticFrame().allocateValue<rq::Procedure>(
+      this->getContext().getTopFrame().allocateValue<rq::Procedure>(
           rq::ValueKind::ENTRY_POINT);
   procedure.setExpression(expression);
-  scope.tabulateUnamedSymbol(this->getContext().getTopStaticFrame(), procedure);
+  scope.tabulateUnamedSymbol(this->getContext().getTopFrame(), procedure);
 }
 
 } // namespace rq

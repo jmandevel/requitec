@@ -1019,7 +1019,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryNonStatementBranches(situation, expression, 0,
                                                   S::ARGUMENT);
     break;
-  case K::EVALUATE_IMMEDIATELY:
+  case K::EAGER:
     [[fallthrough]];
   case K::MAY_PARENT:
     [[fallthrough]];
