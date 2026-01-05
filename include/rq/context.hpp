@@ -74,7 +74,6 @@ struct Context final : public rq::ContextCache {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::Scope _top_scope{rq::ValueKind::TOP_SCOPE};
-  rq::Frame _top_frame{this->_top_scope};
   rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
@@ -96,13 +95,6 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Scope &
   getTopScope() const {
     return this->_top_scope;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getTopFrame() {
-    return this->_top_frame;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Frame &
-  getTopFrame() const {
-    return this->_top_frame;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
     return this->_executable_path;
@@ -161,8 +153,8 @@ struct Context final : public rq::ContextCache {
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
                                  const rq::Expression &trunk);
-  [[nodiscard]] bool emitSymbols(llvm::StringRef path,
-                                 const rq::Value &value);
+  [[nodiscard]] bool emitSymbol(llvm::StringRef path,
+                                 const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);

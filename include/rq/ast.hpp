@@ -226,22 +226,6 @@ enum class Keyword : std::uint32_t {
   BINARY64,
   BINARY128,
   UTF8,
-  // the rest are C analogs for portability
-  C_CHAR,
-  C_UNSIGNED_CHAR,
-  C_SIGNED_CHAR,
-  C_WCHAR_T,
-  C_SHORT_INT,
-  C_UNSIGNED_SHORT_INT,
-  C_INT,
-  C_UNSIGNED_INT,
-  C_LONG_INT,
-  C_UNSIGNED_LONG_INT,
-  C_LONG_LONG_INT,
-  C_UNSIGNED_LONG_LONG_INT,
-  C_FLOAT,
-  C_DOUBLE,
-  C_LONG_DOUBLE,
 
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
@@ -705,36 +689,6 @@ constexpr std::size_t KEYWORD_COUNT = static_cast<std::size_t>(rq::Keyword::I_LA
     return "binary128";
   case K::UTF8:
     return "utf8";
-  case K::C_CHAR:
-    return "c_char";
-  case K::C_UNSIGNED_CHAR:
-    return "c_unsigned_char";
-  case K::C_SIGNED_CHAR:
-    return "c_signed_char";
-  case K::C_WCHAR_T:
-    return "c_wchar_t";
-  case K::C_SHORT_INT:
-    return "c_short_int";
-  case K::C_UNSIGNED_SHORT_INT:
-    return "c_unsigned_short_int";
-  case K::C_INT:
-    return "c_int";
-  case K::C_UNSIGNED_INT:
-    return "c_unsigned_int";
-  case K::C_LONG_INT:
-    return "c_long_int";
-  case K::C_UNSIGNED_LONG_INT:
-    return "c_unsigned_long_int";
-  case K::C_LONG_LONG_INT:
-    return "c_long_long_int";
-  case K::C_UNSIGNED_LONG_LONG_INT:
-    return "c_unsigned_long_long_int";
-  case K::C_FLOAT:
-    return "c_float";
-  case K::C_DOUBLE:
-    return "c_double";
-  case K::C_LONG_DOUBLE:
-    return "c_long_double";
 
   // VARIADIC ARGUMENTS
   case K::VARIADIC_ARGUMENTS:
@@ -1352,36 +1306,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::BINARY128:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UTF8:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_CHAR:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_UNSIGNED_CHAR:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_SIGNED_CHAR:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_WCHAR_T:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_SHORT_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_UNSIGNED_SHORT_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_UNSIGNED_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_LONG_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_UNSIGNED_LONG_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_LONG_LONG_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_UNSIGNED_LONG_LONG_INT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_FLOAT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_DOUBLE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::C_LONG_DOUBLE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // VARIADIC ARGUMENTS

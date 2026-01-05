@@ -2,7 +2,7 @@
 
 namespace rq {
 
-rq::Expression &Frame::acquireExpression() {
+rq::Expression &ContextCache::acquireExpression() {
   if (this->_unused_expression_ptrs.empty()) {
     rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
@@ -14,7 +14,7 @@ rq::Expression &Frame::acquireExpression() {
   return unused_expression;
 }
 
-rq::Expression &Frame::copyExpression(rq::Expression &expression) {
+rq::Expression &ContextCache::copyExpression(rq::Expression &expression) {
   rq::Expression &new_expression = rq::dereferencePtr(new rq::Expression());
   if (expression.getHasBranch()) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));

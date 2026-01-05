@@ -153,9 +153,9 @@ bool Context::loadSourceModule() {
                                                buffer_eo.getError());
     return false;
   }
-  llvm::StringRef final_path = this->getTopFrame().saveString(input_path);
+  llvm::StringRef final_path = this->saveString(input_path);
   rq::Module &source_module =
-      this->getTopFrame().allocateValue<rq::Module>(
+      this->allocateValue<rq::Module>(
           rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
@@ -196,9 +196,9 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     this->logErrorFailedToLoadImportFileBuffer(expression, ec);
     return nullptr;
   }
-  llvm::StringRef final_path = this->getTopFrame().saveString(found_path);
+  llvm::StringRef final_path = this->saveString(found_path);
   rq::Module &import_module =
-      this->getTopFrame().allocateValue<rq::Module>(
+      this->allocateValue<rq::Module>(
           rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
@@ -277,7 +277,7 @@ bool Context::run() {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
-    if (!this->emitSymbols(rq::getOutputFilePath(), this->getTopScope())) {
+    if (!this->emitSymbol(rq::getOutputFilePath(), this->getTopScope())) {
       return false;
     }
     return true;
@@ -318,7 +318,7 @@ bool Context::parseRequite(rq::Module &module,
 }
 
 bool Context::situateModule(rq::Module &module) {
-  rq::Situator situator(*this, this->getTopFrame());
+  rq::Situator situator(*this);
   const bool is_ok = situator.situateModule(module);
   return is_ok;
 }
@@ -454,7 +454,7 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
 }
 
 static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
-                       const rq::Value &symbol, unsigned indent) {
+                       const rq::Symbol &symbol, unsigned indent) {
   rq::emitIndent(fout, indent);
   fout << rq::getName(symbol.getKind()) << ":{";
   indent++;
@@ -472,7 +472,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
       rq::emitIndent(fout, indent);
       fout << name << ":{\n";
       indent++;
-      for (const rq::Value &symbol : kvp.second) {
+      for (const rq::Symbol &symbol : kvp.second) {
         rq::emitSymbol(context, fout, symbol, indent);
       }
       indent--;
@@ -485,7 +485,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
     rq::emitIndent(fout, indent);
     fout << "unamed:{\n";
     indent++;
-    for (const rq::Value& unamed : scope.getUnamedEntry()) {
+    for (const rq::Symbol& unamed : scope.getUnamedEntry()) {
       rq::emitSymbol(context, fout, unamed, indent);
     }
     indent--;
@@ -503,14 +503,14 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "}\n";
 }
 
-bool Context::emitSymbols(llvm::StringRef path, const rq::Value &value) {
+bool Context::emitSymbol(llvm::StringRef path, const rq::Symbol &symbol) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
     this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
-  rq::emitSymbol(*this, fout, value, 0);
+  rq::emitSymbol(*this, fout, symbol, 0);
   fout.close();
   return true;
 }

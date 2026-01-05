@@ -137,8 +137,8 @@ struct TreeBuilder final {
 struct PrecedenceBuilder final {
   using Self = rq::PrecedenceBuilder;
 
-  // the static frame is used only for acquiring new expressions
-  std::reference_wrapper<rq::Frame> _frame_ref;
+  // the context is used only for acquiring new expressions
+  std::reference_wrapper<rq::Context> _context_ref;
   // the outermost expression that is returned at the end of the precedence
   rq::Expression *_outer_ptr = nullptr;
   // the current expression that is being filled with branches
@@ -149,18 +149,18 @@ struct PrecedenceBuilder final {
   // the last branch that was appended to the expression
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceBuilder(rq::Frame &frame)
-      : _frame_ref(frame) {}
+  PrecedenceBuilder(rq::Context &context)
+      : _context_ref(context) {}
   PrecedenceBuilder(const Self &) = delete;
   PrecedenceBuilder(Self &&) = delete;
   ~PrecedenceBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] rq::Frame &getStaticFrame() {
-    return this->_frame_ref.get();
+  [[nodiscard]] rq::Context &getContext() {
+    return this->_context_ref.get();
   }
-  [[nodiscard]] const rq::Frame &getStaticFrame() const {
-    return this->_frame_ref.get();
+  [[nodiscard]] const rq::Context &getContext() const {
+    return this->_context_ref.get();
   }
   void parseDoubleUnary(const rq::Token &token, rq::Keyword keyword);
   void parseUnary(const rq::Token &token, rq::Keyword keyword);

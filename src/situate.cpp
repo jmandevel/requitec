@@ -10,7 +10,7 @@
 namespace rq {
 
 rq::Expression &Situator::makeModuleTrunk(rq::Module &module) {
-  rq::Expression &trunk = this->getStaticFrame().acquireExpression();
+  rq::Expression &trunk = this->getContext().acquireExpression();
   trunk.setIsInserted();
   trunk.setSource(module);
   trunk.setKeyword(rq::Keyword::S_MODULE_TRUNK);

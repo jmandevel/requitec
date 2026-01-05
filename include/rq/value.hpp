@@ -23,7 +23,6 @@
 
 namespace rq {
 
-struct Frame;
 struct Scope;
 struct Module;
 
@@ -31,23 +30,33 @@ struct Module;
 // symbols all that are needed).
 
 enum class ValueKind : std::uint_fast8_t {
-  // no data symbols
-  VOID,
+  // builtin simple types
+  EXPRESSION_TYPE,
+  VOID_TYPE,
   NULL_TYPE,
-  NO_RETURN,
+  NO_RETURN_TYPE,
   VARIADIC_ARGUMENTS_TYPE,
-  BOOLEAN,
-  UTF8,
-  BFLOAT16,
-  BINARY16,
-  BINARY32,
-  BINARY64,
-  BINARY128,
+  BOOLEAN_TYPE,
+  UTF8_TYPE,
+  BFLOAT16_TYPE,
+  BINARY16_TYPE,
+  BINARY32_TYPE,
+  BINARY64_TYPE,
+  BINARY128_TYPE,
 
-  // depth symbols
-  WORD,
-  SIGNED,
-  UNSIGNED,
+  // builtin depth types
+  WORD_TYPE,
+  SIGNED_TYPE,
+  UNSIGNED_TYPE,
+
+  // simple subtypes
+  RANGE_TYPE,
+  REFERENCE_TYPE,
+  POINTER_TYPE,
+  FAT_POINTER_TYPE,
+  ARRAY_TYPE,
+  TWO_PART_SEQUENCE_TYPE,
+  THREE_PART_SEQUENCE_TYPE,
 
   // data symbols
   MODULE,
@@ -55,13 +64,20 @@ enum class ValueKind : std::uint_fast8_t {
   TABLE,
   SCOPE,
   OBJECT,
-  ENUMERATION,
+  ENUMERATION_TYPE,
   ENUMERATOR,
   LAYOUT,
+  TUPLE,
+  SIGNATURE,
   VARIABLE,
   FUNCTION,
   METHOD,
-  ENTRY_POINT
+  ENTRY_POINT,
+  EXTENSION_FUNCTION,
+  EXTENSION_METHOD,
+  CONSTRUCTOR,
+  DESTRUCTOR,
+  RANGER
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ValueKind kind) {
@@ -124,23 +140,90 @@ enum class ValueKind : std::uint_fast8_t {
 
 enum class ValueFlags : std::uint_fast8_t {
   NONE = 0,
-  NO_DATA = rq::getBit(0),
-  SCOPE = rq::getBit(1),
-  PROCEDURE = rq::getBit(2)
+  TYPE = rq::getBit(1),
+  SYMBOL = rq::getBit(2),
+  BUILTIN_SIMPLE_TYPE = rq::getBit(3),
+  BUILTIN_DEPTHED_TYPE = rq::getBit(4),
+  SCOPE = rq::getBit(5),
+  PROCEDURE = rq::getBit(6)
 };
 
 template <> struct is_flags<rq::ValueFlags> : std::true_type {};
 
 static constexpr unsigned NO_DATA_SYMBOL_COUNT = 11;
 
-struct Value : public llvm::FoldingSetNode {
+struct VoidType;
+struct NullType;
+struct NoReturnType;
+struct VariadicArgumentsType;
+struct BooleanType;
+struct Utf8Type;
+struct Bfloat16Type;
+struct Binary16Type;
+struct Binary32Type;
+struct Binary64Type;
+struct Binary128Type;
+struct WordType;
+struct UnsignedType;
+struct SignedType;
+struct BuiltinDepthedType;
+
+struct ContextCache {
+  using Self = ContextCache;
+
+  llvm::BumpPtrAllocator _llvm_arena{};
+  llvm::StringSaver _llvm_string_saver{_llvm_arena};
+  std::vector<rq::Expression *> _unused_expression_ptrs{};
+  rq::VoidType *_void_type{nullptr};
+  rq::NullType *_null_type{nullptr};
+  rq::NoReturnType *_no_return_type{nullptr};
+  rq::VariadicArgumentsType *_variadic_arguments_type{nullptr};
+  rq::BooleanType *_boolean_type{nullptr};
+  rq::Utf8Type *_utf8_type{nullptr};
+  rq::Bfloat16Type *_bfloat16_type{nullptr};
+  rq::Binary16Type *_binary16_type{nullptr};
+  rq::Binary32Type *_binary32_type{nullptr};
+  rq::Binary64Type *_binary64_type{nullptr};
+  rq::Binary128Type *_binary128_type{nullptr};
+  llvm::FoldingSet<rq::BuiltinDepthedType> _builtin_depthed_types{};
+
+  ContextCache() = default;
+  ContextCache(const Self &) = delete;
+  ContextCache(Self &&) = delete;
+  ~ContextCache() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  template <typename TypeParam, typename... ArgNParam>
+  [[nodiscard]] TypeParam &allocateValue(ArgNParam &&...arg_n);
+  [[nodiscard]] llvm::StringRef saveString(llvm::Twine twine);
+  [[nodiscard]] rq::Expression &acquireExpression();
+  void discardExpression(rq::Expression &expression);
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  [[nodiscard]] rq::VoidType &getVoidType();
+  [[nodiscard]] rq::NullType &getNullType();
+  [[nodiscard]] rq::NoReturnType &getNoReturnType();
+  [[nodiscard]] rq::VariadicArgumentsType &getVariadicArgumentsType();
+  [[nodiscard]] rq::BooleanType &getBooleanType();
+  [[nodiscard]] rq::Utf8Type &getUtf8Type();
+  [[nodiscard]] rq::Bfloat16Type &getBfloat16Type();
+  [[nodiscard]] rq::Binary16Type &getBinary16Type();
+  [[nodiscard]] rq::Binary32Type &getBinary32Type();
+  [[nodiscard]] rq::Binary64Type &getBinary64Type();
+  [[nodiscard]] rq::Binary128Type &getBinary128Type();
+  [[nodiscard]] rq::WordType &getWordType(unsigned bit_depth);
+  [[nodiscard]] rq::UnsignedType &getUnsignedType(unsigned bit_depth);
+  [[nodiscard]] rq::SignedType &getSignedType(unsigned bit_depth);
+  [[nodiscard]] rq::BuiltinDepthedType &
+  _getOrInsertBuiltinDepthType(rq::ValueKind kind, unsigned depth);
+};
+
+struct Value {
   using Self = rq::Value;
 
   rq::ValueKind _kind;
-  unsigned _parameter{0};  // For parameterized types (bit width, etc.)
 
-  Value(rq::ValueKind kind) : _kind(kind), _parameter(0) {}
-  Value(rq::ValueKind kind, unsigned parameter) : _kind(kind), _parameter(parameter) {}
+  Value(rq::ValueKind kind) : _kind(kind) {}
   Value(const Self &) = delete;
   Value(Self &&) = delete;
   virtual ~Value() {}
@@ -149,19 +232,375 @@ struct Value : public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getKind() const {
     return this->_kind;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameter() const {
-    return this->_parameter;
+};
+
+} // namespace rq
+namespace llvm {
+
+template <> struct isa_impl<rq::Symbol, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() != rq::ValueKind::MODULE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Scope &getScope() {
-    return *std::bit_cast<rq::Scope *>(this);
+};
+
+template <> struct isa_impl<rq::Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    auto kind = val.getKind();
+    return kind >= rq::ValueKind::VOID && kind <= rq::ValueKind::UNSIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Scope &getScope() const {
-    return *std::bit_cast<rq::Scope *>(this);
+};
+
+template <> struct isa_impl<rq::BuiltinType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    auto kind = val.getKind();
+    return kind >= rq::ValueKind::VOID && kind <= rq::ValueKind::UNSIGNED;
+  }
+};
+
+template <> struct isa_impl<rq::BuiltinSimpleType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    auto kind = val.getKind();
+    return kind >= rq::ValueKind::VOID && kind <= rq::ValueKind::BINARY128;
+  }
+};
+
+template <> struct isa_impl<rq::BuiltinDepthedType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    auto kind = val.getKind();
+    return kind >= rq::ValueKind::WORD && kind <= rq::ValueKind::UNSIGNED;
+  }
+};
+
+template <> struct isa_impl<rq::VoidType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::VOID;
+  }
+};
+
+template <> struct isa_impl<rq::NullType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::NULL_TYPE;
+  }
+};
+
+template <> struct isa_impl<rq::NoReturnType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::NO_RETURN;
+  }
+};
+
+template <> struct isa_impl<rq::VariadicArgumentsType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::VARIADIC_ARGUMENTS_TYPE;
+  }
+};
+
+template <> struct isa_impl<rq::BooleanType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::BOOLEAN;
+  }
+};
+
+template <> struct isa_impl<rq::Utf8Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::UTF8;
+  }
+};
+
+template <> struct isa_impl<rq::Bfloat16Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::BFLOAT16;
+  }
+};
+
+template <> struct isa_impl<rq::Binary16Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::BINARY16;
+  }
+};
+
+template <> struct isa_impl<rq::Binary32Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::BINARY32;
+  }
+};
+
+template <> struct isa_impl<rq::Binary64Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::BINARY64;
+  }
+};
+
+template <> struct isa_impl<rq::Binary128Type, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::BINARY128;
+  }
+};
+
+template <> struct isa_impl<rq::WordType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::WORD;
+  }
+};
+
+template <> struct isa_impl<rq::SignedType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::SIGNED;
+  }
+};
+
+template <> struct isa_impl<rq::UnsignedType, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::UNSIGNED;
+  }
+};
+
+template <> struct isa_impl<rq::Scope, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    auto kind = val.getKind();
+    return kind >= rq::ValueKind::TOP_SCOPE && kind <= rq::ValueKind::LAYOUT;
+  }
+};
+
+template <> struct isa_impl<rq::Procedure, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    auto kind = val.getKind();
+    return kind == rq::ValueKind::FUNCTION || kind == rq::ValueKind::METHOD ||
+           kind == rq::ValueKind::ENTRY_POINT;
+  }
+};
+
+template <> struct isa_impl<rq::Module, rq::Value> {
+  static inline bool doit(const rq::Value &val) {
+    return val.getKind() == rq::ValueKind::MODULE;
+  }
+};
+
+} // namespace llvm
+namespace rq {
+
+struct Symbol : public rq::Value {
+  using Self = rq::Symbol;
+
+  Symbol(rq::ValueKind kind) : rq::Value(kind) {}
+  Symbol(const Self &) = delete;
+  Symbol(Self &&) = delete;
+  virtual ~Symbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Type : public rq::Symbol {
+  using Self = rq::Type;
+
+  Type(rq::ValueKind kind) : rq::Symbol(kind) {}
+  Type(const Self &) = delete;
+  Type(Self &&) = delete;
+  virtual ~Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct BuiltinType : public rq::Type {
+  using Self = rq::Type;
+
+  BuiltinType(rq::ValueKind kind) : rq::Type(kind) {}
+  BuiltinType(const Self &) = delete;
+  BuiltinType(Self &&) = delete;
+  virtual ~BuiltinType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct BuiltinSimpleType : public rq::BuiltinType {
+  using Self = rq::BuiltinSimpleType;
+
+  BuiltinSimpleType(rq::ValueKind kind) : rq::BuiltinType(kind) {}
+  BuiltinSimpleType(const Self &) = delete;
+  BuiltinSimpleType(Self &&) = delete;
+  virtual ~BuiltinSimpleType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct VoidType : public rq::BuiltinSimpleType {
+  using Self = rq::VoidType;
+
+  VoidType() : rq::BuiltinSimpleType(rq::ValueKind::VOID) {}
+  VoidType(const Self &) = delete;
+  VoidType(Self &&) = delete;
+  virtual ~VoidType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct NullType : public rq::BuiltinSimpleType {
+  using Self = rq::NullType;
+
+  NullType() : rq::BuiltinSimpleType(rq::ValueKind::NULL_TYPE) {}
+  NullType(const Self &) = delete;
+  NullType(Self &&) = delete;
+  virtual ~NullType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct NoReturnType : public rq::BuiltinSimpleType {
+  using Self = rq::NullType;
+
+  NoReturnType() : rq::BuiltinSimpleType(rq::ValueKind::NO_RETURN) {}
+  NoReturnType(const Self &) = delete;
+  NoReturnType(Self &&) = delete;
+  virtual ~NoReturnType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct VariadicArgumentsType : public rq::BuiltinSimpleType {
+  using Self = rq::NullType;
+
+  VariadicArgumentsType()
+      : rq::BuiltinSimpleType(rq::ValueKind::VARIADIC_ARGUMENTS_TYPE) {}
+  VariadicArgumentsType(const Self &) = delete;
+  VariadicArgumentsType(Self &&) = delete;
+  virtual ~VariadicArgumentsType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct BooleanType : public rq::BuiltinSimpleType {
+  using Self = rq::NullType;
+
+  BooleanType() : rq::BuiltinSimpleType(rq::ValueKind::BOOLEAN) {}
+  BooleanType(const Self &) = delete;
+  BooleanType(Self &&) = delete;
+  virtual ~BooleanType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Utf8Type : public rq::BuiltinSimpleType {
+  using Self = rq::NullType;
+
+  Utf8Type() : rq::BuiltinSimpleType(rq::ValueKind::UTF8) {}
+  Utf8Type(const Self &) = delete;
+  Utf8Type(Self &&) = delete;
+  virtual ~Utf8Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Bfloat16Type : public rq::BuiltinSimpleType {
+  using Self = rq::Bfloat16Type;
+
+  Bfloat16Type() : rq::BuiltinSimpleType(rq::ValueKind::BFLOAT16) {}
+  Bfloat16Type(const Self &) = delete;
+  Bfloat16Type(Self &&) = delete;
+  virtual ~Bfloat16Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary16Type : public rq::BuiltinSimpleType {
+  using Self = rq::Binary16Type;
+
+  Binary16Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY16) {}
+  Binary16Type(const Self &) = delete;
+  Binary16Type(Self &&) = delete;
+  virtual ~Binary16Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary32Type : public rq::BuiltinSimpleType {
+  using Self = rq::Binary16Type;
+
+  Binary32Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY32) {}
+  Binary32Type(const Self &) = delete;
+  Binary32Type(Self &&) = delete;
+  virtual ~Binary32Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary64Type : public rq::BuiltinSimpleType {
+  using Self = rq::Binary64Type;
+
+  Binary64Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY64) {}
+  Binary64Type(const Self &) = delete;
+  Binary64Type(Self &&) = delete;
+  virtual ~Binary64Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary128Type : public rq::BuiltinSimpleType {
+  using Self = rq::Binary64Type;
+
+  Binary128Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY128) {}
+  Binary128Type(const Self &) = delete;
+  Binary128Type(Self &&) = delete;
+  virtual ~Binary128Type() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct BuiltinDepthedType : public rq::BuiltinType,
+                            public llvm::FoldingSetNode {
+  using Self = rq::BuiltinDepthedType;
+
+  unsigned _bit_depth;
+
+  BuiltinDepthedType(rq::ValueKind kind, unsigned bit_depth)
+      : rq::BuiltinType(kind), _bit_depth(bit_depth) {}
+  BuiltinDepthedType(const Self &) = delete;
+  BuiltinDepthedType(Self &&) = delete;
+  virtual ~BuiltinDepthedType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getBitDepth() const {
+    return this->_bit_depth;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
     id.AddInteger(static_cast<unsigned>(this->_kind));
-    id.AddInteger(this->_parameter);
+    id.AddInteger(this->_bit_depth);
   }
+};
+
+struct WordType : public rq::BuiltinDepthedType {
+  using Self = WordType;
+
+  WordType(unsigned bit_depth)
+      : rq::BuiltinDepthedType(rq::ValueKind::WORD, bit_depth) {}
+  WordType(const Self &) = delete;
+  WordType(Self &&) = delete;
+  virtual ~WordType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct UnsignedType : public rq::BuiltinDepthedType {
+  using Self = WordType;
+
+  UnsignedType(unsigned bit_depth)
+      : rq::BuiltinDepthedType(rq::ValueKind::UNSIGNED, bit_depth) {}
+  UnsignedType(const Self &) = delete;
+  UnsignedType(Self &&) = delete;
+  virtual ~UnsignedType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct SignedType : public rq::BuiltinDepthedType {
+  using Self = WordType;
+
+  SignedType(unsigned bit_depth)
+      : rq::BuiltinDepthedType(rq::ValueKind::SIGNED, bit_depth) {}
+  SignedType(const Self &) = delete;
+  SignedType(Self &&) = delete;
+  virtual ~SignedType() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
 };
 
 struct ScopeNode;
@@ -172,18 +611,18 @@ struct ConstScopeEntryIterator;
 struct ScopeEntry final {
   using Self = rq::ScopeEntry;
 
-  llvm::PointerUnion<rq::Value *, rq::ScopeNode *> _ptr_union{nullptr};
+  llvm::PointerUnion<rq::Symbol *, rq::ScopeNode *> _ptr_union{nullptr};
 
   RQ_ALWAYS_INLINE ScopeEntry() = default;
-  RQ_ALWAYS_INLINE ScopeEntry(rq::Value &value) : _ptr_union(&value) {}
+  RQ_ALWAYS_INLINE ScopeEntry(rq::Symbol &symbol) : _ptr_union(&symbol) {}
   RQ_ALWAYS_INLINE ScopeEntry(rq::ScopeNode &node) : _ptr_union(&node) {}
   RQ_ALWAYS_INLINE ~ScopeEntry() = default;
   RQ_ALWAYS_INLINE ScopeEntry(const Self &) = default;
   RQ_ALWAYS_INLINE ScopeEntry(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator=(const Self &) = default;
   RQ_ALWAYS_INLINE Self &operator=(Self &&) = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticValue() const {
-    return llvm::isa<rq::Value *>(this->_ptr_union);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
+    return llvm::isa<rq::Symbol *>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeNode() const {
     return llvm::isa<rq::ScopeNode *>(this->_ptr_union);
@@ -191,11 +630,11 @@ struct ScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_ptr_union.isNull();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Value &getStaticValue() {
-    return rq::dereferencePtr(llvm::cast<rq::Value *>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
+    return rq::dereferencePtr(llvm::cast<rq::Symbol *>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value &getStaticValue() const {
-    return rq::dereferencePtr(llvm::cast<rq::Value *>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
+    return rq::dereferencePtr(llvm::cast<rq::Symbol *>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeNode &getScopeNode() {
     return rq::dereferencePtr(llvm::cast<rq::ScopeNode *>(this->_ptr_union));
@@ -220,23 +659,23 @@ struct ScopeEntry final {
 struct ConstScopeEntry final {
   using Self = rq::ConstScopeEntry;
 
-  llvm::PointerUnion<const rq::Value *, const rq::ScopeNode *> _ptr_union{
+  llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *> _ptr_union{
       nullptr};
 
   RQ_ALWAYS_INLINE ConstScopeEntry() = default;
   RQ_ALWAYS_INLINE ConstScopeEntry(const rq::ScopeEntry &rhs)
       : _ptr_union(
             std::bit_cast<
-                llvm::PointerUnion<const rq::Value *, const rq::ScopeNode *>>(
+                llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
                 rhs._ptr_union)) {}
   RQ_ALWAYS_INLINE ConstScopeEntry(rq::ScopeEntry &&rhs) {
     this->_ptr_union = std::bit_cast<
-        llvm::PointerUnion<const rq::Value *, const rq::ScopeNode *>>(
+        llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
         rhs._ptr_union);
     rhs._ptr_union = nullptr;
   }
-  RQ_ALWAYS_INLINE ConstScopeEntry(const rq::Value &value)
-      : _ptr_union(&value) {}
+  RQ_ALWAYS_INLINE ConstScopeEntry(const rq::Symbol &symbol)
+      : _ptr_union(&symbol) {}
   RQ_ALWAYS_INLINE ConstScopeEntry(const rq::ScopeNode &node)
       : _ptr_union(&node) {}
   ~ConstScopeEntry() = default;
@@ -246,19 +685,19 @@ struct ConstScopeEntry final {
   RQ_ALWAYS_INLINE Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator=(const rq::ScopeEntry &rhs) {
     this->_ptr_union = std::bit_cast<
-        llvm::PointerUnion<const rq::Value *, const rq::ScopeNode *>>(
+        llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
         rhs._ptr_union);
     return *this;
   }
   Self RQ_ALWAYS_INLINE &operator=(rq::ScopeEntry &&rhs) {
     this->_ptr_union = std::bit_cast<
-        llvm::PointerUnion<const rq::Value *, const rq::ScopeNode *>>(
+        llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
         rhs._ptr_union);
     rhs._ptr_union = nullptr;
     return *this;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticValue() const {
-    return llvm::isa<const rq::Value *>(this->_ptr_union);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
+    return llvm::isa<const rq::Symbol *>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeNode() const {
     return llvm::isa<const rq::ScopeNode *>(this->_ptr_union);
@@ -266,8 +705,8 @@ struct ConstScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_ptr_union.isNull();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value &getStaticValue() const {
-    return rq::dereferencePtr(llvm::cast<const rq::Value *>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
+    return rq::dereferencePtr(llvm::cast<const rq::Symbol *>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode &getScopeNode() const {
     return rq::dereferencePtr(
@@ -288,32 +727,32 @@ struct ConstScopeEntry final {
 struct ScopeNode final {
   using Self = rq::ScopeNode;
 
-  rq::Value *_value_ptr{nullptr};
+  rq::Symbol *_symbol_ptr{nullptr};
   rq::ScopeEntry _scope_entry{};
 
   RQ_ALWAYS_INLINE ScopeNode() = default;
-  RQ_ALWAYS_INLINE ScopeNode(rq::Value &value_a, rq::Value &value_b)
-      : _value_ptr(&value_a), _scope_entry(value_b) {}
-  RQ_ALWAYS_INLINE ScopeNode(rq::Value &value, rq::ScopeNode &node)
-      : _value_ptr(&value), _scope_entry(node) {}
-  RQ_ALWAYS_INLINE ScopeNode(rq::Value &value, const rq::ScopeEntry &entry)
-      : _value_ptr(&value), _scope_entry(entry) {}
+  RQ_ALWAYS_INLINE ScopeNode(rq::Symbol &symbol_a, rq::Symbol &symbol_b)
+      : _symbol_ptr(&symbol_a), _scope_entry(symbol_b) {}
+  RQ_ALWAYS_INLINE ScopeNode(rq::Symbol &symbol, rq::ScopeNode &node)
+      : _symbol_ptr(&symbol), _scope_entry(node) {}
+  RQ_ALWAYS_INLINE ScopeNode(rq::Symbol &symbol, const rq::ScopeEntry &entry)
+      : _symbol_ptr(&symbol), _scope_entry(entry) {}
   ScopeNode(const Self &) = delete;
   ScopeNode(Self &&) = delete;
   RQ_ALWAYS_INLINE ~ScopeNode() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticValue() const {
-    return this->_value_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSymbol() const {
+    return this->_symbol_ptr != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeEntry() const {
     return !this->_scope_entry.getIsEmpty();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Value &getStaticValue() {
-    return rq::dereferencePtr(this->_value_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
+    return rq::dereferencePtr(this->_symbol_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value &getStaticValue() const {
-    return rq::dereferencePtr(this->_value_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
+    return rq::dereferencePtr(this->_symbol_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntry &getScopeEntry() {
     return this->_scope_entry;
@@ -325,9 +764,9 @@ struct ScopeNode final {
 
 struct ScopeEntryIterator final {
   using Self = rq::ScopeEntryIterator;
-  using value_type = rq::Value;
-  using reference = rq::Value &;
-  using pointer = rq::Value *;
+  using value_type = rq::Symbol;
+  using reference = rq::Symbol &;
+  using pointer = rq::Symbol *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
@@ -337,7 +776,7 @@ struct ScopeEntryIterator final {
   RQ_ALWAYS_INLINE explicit ScopeEntryIterator(rq::ScopeEntry &entry)
       : _entry(entry) {}
   RQ_ALWAYS_INLINE Self &operator++() {
-    if (this->_entry.getIsStaticValue()) {
+    if (this->_entry.getIsSymbol()) {
       this->_entry = rq::ScopeEntry();
     } else if (this->_entry.getIsScopeNode()) {
       this->_entry = rq::ScopeEntry(this->_entry.getScopeNode());
@@ -358,35 +797,35 @@ struct ScopeEntryIterator final {
     return this->_entry != it._entry;
     ;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Value &operator*() {
-    if (this->_entry.getIsStaticValue()) {
-      return this->_entry.getStaticValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &operator*() {
+    if (this->_entry.getIsSymbol()) {
+      return this->_entry.getSymbol();
     } else if (this->_entry.getIsScopeNode()) {
-      return this->_entry.getScopeNode().getStaticValue();
+      return this->_entry.getScopeNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value &operator*() const {
-    if (this->_entry.getIsStaticValue()) {
-      return this->_entry.getStaticValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &operator*() const {
+    if (this->_entry.getIsSymbol()) {
+      return this->_entry.getSymbol();
     } else if (this->_entry.getIsScopeNode()) {
-      return this->_entry.getScopeNode().getStaticValue();
+      return this->_entry.getScopeNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Value *operator->() {
-    if (this->_entry.getIsStaticValue()) {
-      return &this->_entry.getStaticValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *operator->() {
+    if (this->_entry.getIsSymbol()) {
+      return &this->_entry.getSymbol();
     } else if (this->_entry.getIsScopeNode()) {
-      return &this->_entry.getScopeNode().getStaticValue();
+      return &this->_entry.getScopeNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value *operator->() const {
-    if (this->_entry.getIsStaticValue()) {
-      return &this->_entry.getStaticValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *operator->() const {
+    if (this->_entry.getIsSymbol()) {
+      return &this->_entry.getSymbol();
     } else if (this->_entry.getIsScopeNode()) {
-      return &this->_entry.getScopeNode().getStaticValue();
+      return &this->_entry.getScopeNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
@@ -397,9 +836,9 @@ struct ScopeEntryIterator final {
 
 struct ConstScopeEntryIterator final {
   using Self = rq::ConstScopeEntryIterator;
-  using value_type = const rq::Value;
-  using reference = const rq::Value &;
-  using pointer = rq::Value *;
+  using value_type = const rq::Symbol;
+  using reference = const rq::Symbol &;
+  using pointer = rq::Symbol *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
@@ -412,7 +851,7 @@ struct ConstScopeEntryIterator final {
       const rq::ConstScopeEntry &entry)
       : _entry(entry) {}
   RQ_ALWAYS_INLINE Self &operator++() {
-    if (this->_entry.getIsStaticValue()) {
+    if (this->_entry.getIsSymbol()) {
       this->_entry = rq::ConstScopeEntry();
     } else if (this->_entry.getIsScopeNode()) {
       this->_entry = rq::ConstScopeEntry(this->_entry.getScopeNode());
@@ -433,19 +872,19 @@ struct ConstScopeEntryIterator final {
     return this->_entry != it._entry;
     ;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value &operator*() const {
-    if (this->_entry.getIsStaticValue()) {
-      return this->_entry.getStaticValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &operator*() const {
+    if (this->_entry.getIsSymbol()) {
+      return this->_entry.getSymbol();
     } else if (this->_entry.getIsScopeNode()) {
-      return this->_entry.getScopeNode().getStaticValue();
+      return this->_entry.getScopeNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value *operator->() const {
-    if (this->_entry.getIsStaticValue()) {
-      return &this->_entry.getStaticValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *operator->() const {
+    if (this->_entry.getIsSymbol()) {
+      return &this->_entry.getSymbol();
     } else if (this->_entry.getIsScopeNode()) {
-      return &this->_entry.getScopeNode().getStaticValue();
+      return &this->_entry.getScopeNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
@@ -492,14 +931,14 @@ rq::ConstScopeEntryIterator ConstScopeEntry::cend() const {
   return rq::ConstScopeEntryIterator();
 }
 
-struct Scope : rq::Value {
+struct Scope : rq::Symbol {
   using Self = rq::Scope;
 
   llvm::SmallDenseMap<llvm::StringRef, rq::ScopeEntry> _named_values{};
   rq::ScopeEntry _unamed_values{};
 
-  Scope() : rq::Value(rq::ValueKind::SCOPE) {}
-  Scope(rq::ValueKind kind) : rq::Value(kind) {}
+  Scope() : rq::Symbol(rq::ValueKind::SCOPE) {}
+  Scope(rq::ValueKind kind) : rq::Symbol(kind) {}
   Scope(const Self &) = delete;
   Scope(Self &&) = delete;
   ~Scope() override {
@@ -513,24 +952,25 @@ struct Scope : rq::Value {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
-  void inline tabulateNamedSymbol(rq::Frame &frame, llvm::StringRef name,
-                                  rq::Value &symbol) {
+  void inline tabulateNamedSymbol(rq::ContextCache &cache, llvm::StringRef name,
+                                  rq::Symbol &symbol) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       rq::ScopeEntry &entry = it->second;
-      rq::ScopeNode &node = frame.allocateValue<rq::ScopeNode>(symbol, entry);
+      rq::ScopeNode &node = cache.allocateValue<rq::ScopeNode>(symbol, entry);
       entry = rq::ScopeEntry(node);
     } else {
       this->_named_values.insert({name, rq::ScopeEntry(symbol)});
     }
   }
-  inline void tabulateUnamedSymbol(rq::Frame &frame, rq::Value &symbol) {
+  inline void tabulateUnamedSymbol(rq::ContextCache &cache,
+                                   rq::Symbol &symbol) {
     rq::ScopeEntry &entry = this->_unamed_values;
     if (entry.getIsEmpty()) {
       entry = symbol;
       return;
     }
-    rq::ScopeNode &node = frame.allocateValue<rq::ScopeNode>(symbol, entry);
+    rq::ScopeNode &node = cache.allocateValue<rq::ScopeNode>(symbol, entry);
     entry = rq::ScopeEntry(node);
   }
   [[nodiscard]] inline rq::ScopeEntry getNamedEntry(llvm::StringRef name) {
@@ -619,7 +1059,7 @@ static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
   RQ_UNREACHABLE();
 }
 
-struct Module final : public rq::Value {
+struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
   rq::ModuleKind _module_kind;
@@ -629,7 +1069,7 @@ struct Module final : public rq::Value {
 
   Module(rq::ModuleKind kind, llvm::StringRef path,
          llvm::MemoryBufferRef &&buffer)
-      : rq::Value(rq::ValueKind::MODULE), _module_kind(kind),
+      : rq::Symbol(rq::ValueKind::MODULE), _module_kind(kind),
         _llvm_buffer_ref(std::move(buffer)), _path(path) {}
   Module(const Self &) = delete;
   Module(Self &&) = delete;
@@ -944,154 +1384,129 @@ getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
   return result;
 }
 
-struct ContextCache {
-  using Self = ContextCache;
+template <typename TypeParam, typename... ArgNParam>
+inline TypeParam &rq::ContextCache::allocateValue(ArgNParam &&...arg_n) {
+  TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
+  ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+  return rq::dereferencePtr(ptr);
+}
 
-  llvm::BumpPtrAllocator _llvm_arena{};
-  llvm::StringSaver _llvm_string_saver{_llvm_arena};
-  std::vector<rq::Expression *> _unused_expression_ptrs{};
-  rq::Value *_void_type{nullptr};
-  rq::Value *_null_type{nullptr};
-  rq::Value *_no_return_type{nullptr};
-  rq::Value *_variadic_arguments_type{nullptr};
-  rq::Value *_boolean_type{nullptr};
-  rq::Value *_utf8_type{nullptr};
-  rq::Value *_bfloat16_type{nullptr};
-  rq::Value *_binary16_type{nullptr};
-  rq::Value *_binary32_type{nullptr};
-  rq::Value *_binary64_type{nullptr};
-  rq::Value *_binary128_type{nullptr};
-  llvm::FoldingSet<rq::Value> _parameterized_types{};
+inline llvm::StringRef rq::ContextCache::saveString(llvm::Twine twine) {
+  return this->_llvm_string_saver.save(twine);
+}
 
-  ContextCache() = default;
-  ContextCache(const Self &) = delete;
-  ContextCache(Self &&) = delete;
-  ~ContextCache() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
+inline void rq::ContextCache::discardExpression(rq::Expression &expression) {
+  this->_unused_expression_ptrs.emplace_back(&expression);
+}
 
-  template <typename TypeParam, typename... ArgNParam>
-  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &
-  allocateValue(ArgNParam &&...arg_n) {
-    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
-    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
-    return rq::dereferencePtr(ptr);
+inline rq::VoidType &rq::ContextCache::getVoidType() {
+  if (!this->_void_type) {
+    this->_void_type = &this->allocateValue<rq::VoidType>();
   }
+  return rq::dereferencePtr(this->_void_type);
+}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef saveString(llvm::Twine twine) {
-    return this->_llvm_string_saver.save(twine);
+inline rq::NullType &rq::ContextCache::getNullType() {
+  if (!this->_null_type) {
+    this->_null_type = &this->allocateValue<rq::NullType>();
   }
+  return rq::dereferencePtr(this->_null_type);
+}
 
-  [[nodiscard]] rq::Expression &acquireExpression();
-  RQ_ALWAYS_INLINE void discardExpression(rq::Expression &expression) {
-    this->_unused_expression_ptrs.emplace_back(&expression);
+inline rq::NoReturnType &rq::ContextCache::getNoReturnType() {
+  if (!this->_no_return_type) {
+    this->_no_return_type = &this->allocateValue<rq::NoReturnType>();
   }
+  return rq::dereferencePtr(this->_no_return_type);
+}
 
-  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-
-  [[nodiscard]] rq::Value &getVoidType() {
-    if (!this->_void_type) {
-      this->_void_type = &this->allocateValue<rq::Value>(rq::ValueKind::VOID);
-    }
-    return rq::dereferencePtr(this->_void_type);
+inline rq::VariadicArgumentsType &rq::ContextCache::getVariadicArgumentsType() {
+  if (!this->_variadic_arguments_type) {
+    this->_variadic_arguments_type =
+        &this->allocateValue<rq::VariadicArgumentsType>();
   }
+  return rq::dereferencePtr(this->_variadic_arguments_type);
+}
 
-  [[nodiscard]] rq::Value &getNullType() {
-    if (!this->_null_type) {
-      this->_null_type = &this->allocateValue<rq::Value>(rq::ValueKind::NULL_TYPE);
-    }
-    return rq::dereferencePtr(this->_null_type);
+inline rq::BooleanType &rq::ContextCache::getBooleanType() {
+  if (!this->_boolean_type) {
+    this->_boolean_type = &this->allocateValue<rq::BooleanType>();
   }
+  return rq::dereferencePtr(this->_boolean_type);
+}
 
-  [[nodiscard]] rq::Value &getNoReturnType() {
-    if (!this->_no_return_type) {
-      this->_no_return_type = &this->allocateValue<rq::Value>(rq::ValueKind::NO_RETURN);
-    }
-    return rq::dereferencePtr(this->_no_return_type);
+inline rq::Utf8Type &rq::ContextCache::getUtf8Type() {
+  if (!this->_utf8_type) {
+    this->_utf8_type = &this->allocateValue<rq::Utf8Type>();
   }
+  return rq::dereferencePtr(this->_utf8_type);
+}
 
-  [[nodiscard]] rq::Value &getVariadicArgumentsType() {
-    if (!this->_variadic_arguments_type) {
-      this->_variadic_arguments_type = &this->allocateValue<rq::Value>(rq::ValueKind::VARIADIC_ARGUMENTS_TYPE);
-    }
-    return rq::dereferencePtr(this->_variadic_arguments_type);
+inline rq::Bfloat16Type &rq::ContextCache::getBfloat16Type() {
+  if (!this->_bfloat16_type) {
+    this->_bfloat16_type = &this->allocateValue<rq::Bfloat16Type>();
   }
+  return rq::dereferencePtr(this->_bfloat16_type);
+}
 
-  [[nodiscard]] rq::Value &getBooleanType() {
-    if (!this->_boolean_type) {
-      this->_boolean_type = &this->allocateValue<rq::Value>(rq::ValueKind::BOOLEAN);
-    }
-    return rq::dereferencePtr(this->_boolean_type);
+inline rq::Binary16Type &rq::ContextCache::getBinary16Type() {
+  if (!this->_binary16_type) {
+    this->_binary16_type = &this->allocateValue<rq::Binary16Type>();
   }
+  return rq::dereferencePtr(this->_binary16_type);
+}
 
-  [[nodiscard]] rq::Value &getUtf8Type() {
-    if (!this->_utf8_type) {
-      this->_utf8_type = &this->allocateValue<rq::Value>(rq::ValueKind::UTF8);
-    }
-    return rq::dereferencePtr(this->_utf8_type);
+inline rq::Binary32Type &rq::ContextCache::getBinary32Type() {
+  if (!this->_binary32_type) {
+    this->_binary32_type = &this->allocateValue<rq::Binary32Type>();
   }
+  return rq::dereferencePtr(this->_binary32_type);
+}
 
-  [[nodiscard]] rq::Value &getBfloat16Type() {
-    if (!this->_bfloat16_type) {
-      this->_bfloat16_type = &this->allocateValue<rq::Value>(rq::ValueKind::BFLOAT16);
-    }
-    return rq::dereferencePtr(this->_bfloat16_type);
+inline rq::Binary64Type &rq::ContextCache::getBinary64Type() {
+  if (!this->_binary64_type) {
+    this->_binary64_type = &this->allocateValue<rq::Binary64Type>();
   }
+  return rq::dereferencePtr(this->_binary64_type);
+}
 
-  [[nodiscard]] rq::Value &getBinary16Type() {
-    if (!this->_binary16_type) {
-      this->_binary16_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY16);
-    }
-    return rq::dereferencePtr(this->_binary16_type);
+inline rq::Binary128Type &rq::ContextCache::getBinary128Type() {
+  if (!this->_binary128_type) {
+    this->_binary128_type = &this->allocateValue<rq::Binary128Type>();
   }
+  return rq::dereferencePtr(this->_binary128_type);
+}
 
-  [[nodiscard]] rq::Value &getBinary32Type() {
-    if (!this->_binary32_type) {
-      this->_binary32_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY32);
-    }
-    return rq::dereferencePtr(this->_binary32_type);
+inline rq::BuiltinDepthedType &
+rq::ContextCache::_getOrInsertBuiltinDepthType(rq::ValueKind kind,
+                                               unsigned parameter) {
+  llvm::FoldingSetNodeID id;
+  id.AddInteger(static_cast<unsigned>(kind));
+  id.AddInteger(parameter);
+  void *insert_pos = nullptr;
+  if (rq::BuiltinDepthedType *existing =
+          this->_builtin_depthed_types.FindNodeOrInsertPos(id, insert_pos)) {
+    return rq::dereferencePtr(existing);
   }
+  rq::BuiltinDepthedType &new_type =
+      this->allocateValue<rq::BuiltinDepthedType>(kind, parameter);
+  this->_builtin_depthed_types.InsertNode(&new_type, insert_pos);
+  return new_type;
+}
 
-  [[nodiscard]] rq::Value &getBinary64Type() {
-    if (!this->_binary64_type) {
-      this->_binary64_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY64);
-    }
-    return rq::dereferencePtr(this->_binary64_type);
-  }
+inline rq::WordType &rq::ContextCache::getWordType(unsigned bit_depth) {
+  return this->_getOrInsertBuiltinDepthType(rq::ValueKind::WORD, bit_depth)
+      .getWordType();
+}
 
-  [[nodiscard]] rq::Value &getBinary128Type() {
-    if (!this->_binary128_type) {
-      this->_binary128_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY128);
-    }
-    return rq::dereferencePtr(this->_binary128_type);
-  }
+inline rq::UnsignedType &rq::ContextCache::getUnsignedType(unsigned bit_depth) {
+  return this->_getOrInsertBuiltinDepthType(rq::ValueKind::UNSIGNED, bit_depth)
+      .getUnsignedType();
+}
 
-  [[nodiscard]] rq::Value &_getOrInsertParameterizedType(rq::ValueKind kind, unsigned parameter) {
-    llvm::FoldingSetNodeID id;
-    id.AddInteger(static_cast<unsigned>(kind));
-    id.AddInteger(parameter);
-    
-    void *insert_pos = nullptr;
-    if (rq::Value *existing = this->_parameterized_types.FindNodeOrInsertPos(id, insert_pos)) {
-      return *existing;
-    }
-    
-    rq::Value &new_type = this->allocateValue<rq::Value>(kind, parameter);
-    this->_parameterized_types.InsertNode(&new_type, insert_pos);
-    return new_type;
-  }
-
-  [[nodiscard]] rq::Value &getWordType(unsigned bit_depth) {
-    return this->_getOrInsertParameterizedType(rq::ValueKind::WORD, bit_depth);
-  }
-
-  [[nodiscard]] rq::Value &getUnsignedType(unsigned bit_depth) {
-    return this->_getOrInsertParameterizedType(rq::ValueKind::UNSIGNED, bit_depth);
-  }
-
-  [[nodiscard]] rq::Value &getSignedType(unsigned bit_depth) {
-    return this->_getOrInsertParameterizedType(rq::ValueKind::SIGNED, bit_depth);
-  }
-};
+inline rq::SignedType &rq::ContextCache::getSignedType(unsigned bit_depth) {
+  return this->_getOrInsertBuiltinDepthType(rq::ValueKind::SIGNED, bit_depth)
+      .getSignedType();
+}
 
 } // namespace rq
