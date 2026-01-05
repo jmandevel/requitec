@@ -26,147 +26,488 @@ namespace rq {
 struct Scope;
 struct Module;
 
-// TODO static values. only care about dynamic runtime for now (types and
-// symbols all that are needed).
+enum class SymbolKind : std::uint_fast8_t {
+  NONE,
 
-enum class ValueKind : std::uint_fast8_t {
-  // builtin simple types
-  EXPRESSION_TYPE,
-  VOID_TYPE,
-  NULL_TYPE,
-  NO_RETURN_TYPE,
-  VARIADIC_ARGUMENTS_TYPE,
-  BOOLEAN_TYPE,
-  UTF8_TYPE,
-  BFLOAT16_TYPE,
-  BINARY16_TYPE,
-  BINARY32_TYPE,
-  BINARY64_TYPE,
-  BINARY128_TYPE,
+  // ROOT WITH TYPE ATTRIBUTES
+  TYPE,
 
-  // builtin depth types
-  WORD_TYPE,
-  SIGNED_TYPE,
-  UNSIGNED_TYPE,
+  // BUILTIN SIMPLE
+  EXPRESSION,
+  VOID,
+  NULL_,
+  NO_RETURN,
+  VARIADIC_ARGUMENTS,
+  BOOLEAN,
+  UTF8,
+  BFLOAT16,
+  BINARY16,
+  BINARY32,
+  BINARY64,
+  BINARY128,
 
-  // simple subtypes
-  RANGE_TYPE,
-  REFERENCE_TYPE,
-  POINTER_TYPE,
-  FAT_POINTER_TYPE,
-  ARRAY_TYPE,
-  TWO_PART_SEQUENCE_TYPE,
-  THREE_PART_SEQUENCE_TYPE,
+  // BUILTIN DEPTH
+  WORD,
+  SIGNED,
+  UNSIGNED,
 
-  // data symbols
+  // SUBTYPE
+  RANGE,
+  REFERENCE,
+  POINTER,
+  FAT_POINTER,
+  ARRAY,
+  TWO_PART_SEQUENCE,
+  THREE_PART_SEQUENCE,
+
+  // EVALUATED
   MODULE,
   TOP_SCOPE,
   TABLE,
   SCOPE,
   OBJECT,
-  ENUMERATION_TYPE,
+  ENUMERATION,
   ENUMERATOR,
   LAYOUT,
-  TUPLE,
   SIGNATURE,
   VARIABLE,
+  ENTRY_POINT,
   FUNCTION,
   METHOD,
-  ENTRY_POINT,
   EXTENSION_FUNCTION,
   EXTENSION_METHOD,
   CONSTRUCTOR,
   DESTRUCTOR,
-  RANGER
+  RANGER,
+
+  // TEMPLATE
+  TEMPLATE_OBJECT,
+  TEMPLATE_ENUMERATION,
+  TEMPLATE_VARIABLE,
+  TEMPLATE_FUNCTION,
+  TEMPLATE_METHOD,
+  TEMPLATE_EXTENSION_FUNCTION,
+  TEMPLATE_EXTENSION_METHOD,
+  TEMPLATE_CONSTRUCTOR,
+
+  // PARTIAL SPECIALIZATION
+  PARTIAL_OBJECT,
+  PARTIAL_ENUMERATION,
+  PARTIAL_VARIABLE,
+  PARTIAL_METHOD,
+  PARTIAL_FUNCTION,
+  PARTIAL_EXTENSION_FUNCTION,
+  PARTIAL_EXTENSION_METHOD,
+  PARTIAL_CONSTRUCTOR,
+
+  // FULL SPECIALIZATION
+  FULL_OBJECT,
+  FULL_ENUMERATION,
+  FULL_VARIABLE,
+  FULL_FUNCTION,
+  FULL_METHOD,
+  FULL_EXTENSION_FUNCTION,
+  FULL_EXTENSION_METHOD,
+  FULL_CONSTRUCTOR
 };
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ValueKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::SymbolKind kind) {
   switch (kind) {
-  case rq::ValueKind::VOID:
+  case rq::SymbolKind::NONE:
+    return "none";
+
+  // ROOT WITH TYPE ATTRIBUTES
+  case rq::SymbolKind::TYPE:
+    return "type";
+
+  // BUILTIN SIMPLE
+  case rq::SymbolKind::EXPRESSION:
+    return "expression";
+  case rq::SymbolKind::VOID:
     return "void";
-  case rq::ValueKind::NULL_TYPE:
-    return "null-type";
-  case rq::ValueKind::NO_RETURN:
+  case rq::SymbolKind::NULL_:
+    return "null";
+  case rq::SymbolKind::NO_RETURN:
     return "no-return";
-  case rq::ValueKind::VARIADIC_ARGUMENTS_TYPE:
-    return "variadic-arguments-type";
-  case rq::ValueKind::BOOLEAN:
+  case rq::SymbolKind::VARIADIC_ARGUMENTS:
+    return "variadic-arguments";
+  case rq::SymbolKind::BOOLEAN:
     return "boolean";
-  case rq::ValueKind::UTF8:
+  case rq::SymbolKind::UTF8:
     return "utf8";
-  case rq::ValueKind::BFLOAT16:
+  case rq::SymbolKind::BFLOAT16:
     return "bfloat16";
-  case rq::ValueKind::BINARY16:
+  case rq::SymbolKind::BINARY16:
     return "binary16";
-  case rq::ValueKind::BINARY32:
+  case rq::SymbolKind::BINARY32:
     return "binary32";
-  case rq::ValueKind::BINARY64:
+  case rq::SymbolKind::BINARY64:
     return "binary64";
-  case rq::ValueKind::BINARY128:
+  case rq::SymbolKind::BINARY128:
     return "binary128";
-  case rq::ValueKind::WORD:
+
+  // BUILTIN DEPTH
+  case rq::SymbolKind::WORD:
     return "word";
-  case rq::ValueKind::SIGNED:
+  case rq::SymbolKind::SIGNED:
     return "signed";
-  case rq::ValueKind::UNSIGNED:
+  case rq::SymbolKind::UNSIGNED:
     return "unsigned";
-  case rq::ValueKind::MODULE:
+
+  // SUBTYPE
+  case rq::SymbolKind::RANGE:
+    return "range";
+  case rq::SymbolKind::REFERENCE:
+    return "reference";
+  case rq::SymbolKind::POINTER:
+    return "pointer";
+  case rq::SymbolKind::FAT_POINTER:
+    return "fat-pointer";
+  case rq::SymbolKind::ARRAY:
+    return "array";
+  case rq::SymbolKind::TWO_PART_SEQUENCE:
+    return "two-part-sequence";
+  case rq::SymbolKind::THREE_PART_SEQUENCE:
+    return "three-part-sequence";
+
+  // EVALUATED
+  case rq::SymbolKind::MODULE:
     return "module";
-  case rq::ValueKind::TOP_SCOPE:
+  case rq::SymbolKind::TOP_SCOPE:
     return "top-scope";
-  case rq::ValueKind::TABLE:
+  case rq::SymbolKind::TABLE:
     return "table";
-  case rq::ValueKind::SCOPE:
+  case rq::SymbolKind::SCOPE:
     return "scope";
-  case rq::ValueKind::OBJECT:
+  case rq::SymbolKind::OBJECT:
     return "object";
-  case rq::ValueKind::ENUMERATION:
+  case rq::SymbolKind::ENUMERATION:
     return "enumeration";
-  case rq::ValueKind::ENUMERATOR:
+  case rq::SymbolKind::ENUMERATOR:
     return "enumerator";
-  case rq::ValueKind::LAYOUT:
+  case rq::SymbolKind::LAYOUT:
     return "layout";
-  case rq::ValueKind::VARIABLE:
+  case rq::SymbolKind::SIGNATURE:
+    return "signature";
+  case rq::SymbolKind::VARIABLE:
     return "variable";
-  case rq::ValueKind::FUNCTION:
-    return "function";
-  case rq::ValueKind::METHOD:
-    return "method";
-  case rq::ValueKind::ENTRY_POINT:
+  case rq::SymbolKind::ENTRY_POINT:
     return "entry-point";
+  case rq::SymbolKind::FUNCTION:
+    return "function";
+  case rq::SymbolKind::METHOD:
+    return "method";
+  case rq::SymbolKind::EXTENSION_FUNCTION:
+    return "extension-function";
+  case rq::SymbolKind::EXTENSION_METHOD:
+    return "extension-method";
+  case rq::SymbolKind::CONSTRUCTOR:
+    return "constructor";
+  case rq::SymbolKind::DESTRUCTOR:
+    return "destructor";
+  case rq::SymbolKind::RANGER:
+    return "ranger";
+
+  // TEMPLATE
+  case rq::SymbolKind::TEMPLATE_OBJECT:
+    return "template-object";
+  case rq::SymbolKind::TEMPLATE_ENUMERATION:
+    return "template-enumeration";
+  case rq::SymbolKind::TEMPLATE_VARIABLE:
+    return "template-variable";
+  case rq::SymbolKind::TEMPLATE_FUNCTION:
+    return "template-function";
+  case rq::SymbolKind::TEMPLATE_METHOD:
+    return "template-method";
+  case rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION:
+    return "template-extension-function";
+  case rq::SymbolKind::TEMPLATE_EXTENSION_METHOD:
+    return "template-extension-method";
+  case rq::SymbolKind::TEMPLATE_CONSTRUCTOR:
+    return "template-constructor";
+
+  // PARTIAL SPECIALIZATION
+  case rq::SymbolKind::PARTIAL_OBJECT:
+    return "partial-object";
+  case rq::SymbolKind::PARTIAL_ENUMERATION:
+    return "partial-enumeration";
+  case rq::SymbolKind::PARTIAL_VARIABLE:
+    return "partial-variable";
+  case rq::SymbolKind::PARTIAL_METHOD:
+    return "partial-method";
+  case rq::SymbolKind::PARTIAL_FUNCTION:
+    return "partial-function";
+  case rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION:
+    return "partial-extension-function";
+  case rq::SymbolKind::PARTIAL_EXTENSION_METHOD:
+    return "partial-extension-method";
+  case rq::SymbolKind::PARTIAL_CONSTRUCTOR:
+    return "partial-constructor";
+
+  // FULL SPECIALIZATION
+  case rq::SymbolKind::FULL_OBJECT:
+    return "full-object";
+  case rq::SymbolKind::FULL_ENUMERATION:
+    return "full-enumeration";
+  case rq::SymbolKind::FULL_VARIABLE:
+    return "full-variable";
+  case rq::SymbolKind::FULL_FUNCTION:
+    return "full-function";
+  case rq::SymbolKind::FULL_METHOD:
+    return "full-method";
+  case rq::SymbolKind::FULL_EXTENSION_FUNCTION:
+    return "full-extension-function";
+  case rq::SymbolKind::FULL_EXTENSION_METHOD:
+    return "full-extension-method";
+  case rq::SymbolKind::FULL_CONSTRUCTOR:
+    return "full-constructor";
   }
   RQ_UNREACHABLE();
 }
 
-enum class ValueFlags : std::uint_fast8_t {
+enum class SymbolFlags : std::uint_fast16_t {
   NONE = 0,
-  TYPE = rq::getBit(1),
-  SYMBOL = rq::getBit(2),
-  BUILTIN_SIMPLE_TYPE = rq::getBit(3),
-  BUILTIN_DEPTHED_TYPE = rq::getBit(4),
-  SCOPE = rq::getBit(5),
-  PROCEDURE = rq::getBit(6)
+  ROOT = rq::getBit(0),
+  SUBTYPE = rq::getBit(1),
+  SIMPLE = rq::getBit(2),
+  DEPTHED = rq::getBit(3),
+  SCOPE = rq::getBit(4),
+  PROCEDURE = rq::getBit(5),
+  FLOAT = rq::getBit(6),
+  TEMPLATE = rq::getBit(7),
+  PARTIAL_SPECIALIZATION = rq::getBit(8),
+  FULL_SPECIALIZTION = rq::getBit(9)
 };
 
-template <> struct is_flags<rq::ValueFlags> : std::true_type {};
+template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
 
-static constexpr unsigned NO_DATA_SYMBOL_COUNT = 11;
+[[nodiscard]] inline rq::SymbolFlags getFlags(rq::SymbolKind kind) {
+  using SF = rq::SymbolFlags;
+  switch (kind) {
+  case rq::SymbolKind::NONE:
+    return SF::NONE;
 
-struct VoidType;
-struct NullType;
-struct NoReturnType;
-struct VariadicArgumentsType;
-struct BooleanType;
-struct Utf8Type;
-struct Bfloat16Type;
-struct Binary16Type;
-struct Binary32Type;
-struct Binary64Type;
-struct Binary128Type;
-struct WordType;
-struct UnsignedType;
-struct SignedType;
-struct BuiltinDepthedType;
+  // ROOT WITH TYPE ATTRIBUTES
+  case rq::SymbolKind::TYPE:
+    return SF::ROOT;
+
+  // BUILTIN SIMPLE
+  case rq::SymbolKind::EXPRESSION:
+    return SF::SIMPLE;
+  case rq::SymbolKind::VOID:
+    return SF::SIMPLE;
+  case rq::SymbolKind::NULL_:
+    return SF::SIMPLE;
+  case rq::SymbolKind::NO_RETURN:
+    return SF::SIMPLE;
+  case rq::SymbolKind::VARIADIC_ARGUMENTS:
+    return SF::SIMPLE;
+  case rq::SymbolKind::BOOLEAN:
+    return SF::SIMPLE;
+  case rq::SymbolKind::UTF8:
+    return SF::SIMPLE;
+  case rq::SymbolKind::BFLOAT16:
+    return SF::SIMPLE | SF::FLOAT;
+  case rq::SymbolKind::BINARY16:
+    return SF::SIMPLE | SF::FLOAT;
+  case rq::SymbolKind::BINARY32:
+    return SF::SIMPLE | SF::FLOAT;
+  case rq::SymbolKind::BINARY64:
+    return SF::SIMPLE | SF::FLOAT;
+  case rq::SymbolKind::BINARY128:
+    return SF::SIMPLE | SF::FLOAT;
+
+  // BUILTIN DEPTH
+  case rq::SymbolKind::WORD:
+    return SF::DEPTHED;
+  case rq::SymbolKind::SIGNED:
+    return SF::DEPTHED;
+  case rq::SymbolKind::UNSIGNED:
+    return SF::DEPTHED;
+
+  // SUBTYPE
+  case rq::SymbolKind::RANGE:
+    return SF::SUBTYPE;
+  case rq::SymbolKind::REFERENCE:
+    return SF::SUBTYPE;
+  case rq::SymbolKind::POINTER:
+    return SF::SUBTYPE;
+  case rq::SymbolKind::FAT_POINTER:
+    return SF::SUBTYPE;
+  case rq::SymbolKind::ARRAY:
+    return SF::SUBTYPE;
+  case rq::SymbolKind::TWO_PART_SEQUENCE:
+    return SF::SUBTYPE;
+  case rq::SymbolKind::THREE_PART_SEQUENCE:
+    return SF::SUBTYPE;
+
+  // EVALUATED
+  case rq::SymbolKind::MODULE:
+    return SF::NONE;
+  case rq::SymbolKind::TOP_SCOPE:
+    return SF::SCOPE;
+  case rq::SymbolKind::TABLE:
+    return SF::SCOPE;
+  case rq::SymbolKind::SCOPE:
+    return SF::SCOPE;
+  case rq::SymbolKind::OBJECT:
+    return SF::NONE | SF::SCOPE;
+  case rq::SymbolKind::ENUMERATION:
+    return SF::SCOPE;
+  case rq::SymbolKind::ENUMERATOR:
+    return SF::NONE;
+  case rq::SymbolKind::LAYOUT:
+    return SF::NONE;
+  case rq::SymbolKind::SIGNATURE:
+    return SF::NONE;
+  case rq::SymbolKind::VARIABLE:
+    return SF::NONE;
+  case rq::SymbolKind::ENTRY_POINT:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::FUNCTION:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::METHOD:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::EXTENSION_FUNCTION:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::EXTENSION_METHOD:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::CONSTRUCTOR:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::DESTRUCTOR:
+    return SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::RANGER:
+    return SF::PROCEDURE | SF::SCOPE;
+
+  // TEMPLATE
+  case rq::SymbolKind::TEMPLATE_OBJECT:
+    return SF::TEMPLATE;
+  case rq::SymbolKind::TEMPLATE_ENUMERATION:
+    return SF::TEMPLATE;
+  case rq::SymbolKind::TEMPLATE_VARIABLE:
+    return SF::TEMPLATE;
+  case rq::SymbolKind::TEMPLATE_FUNCTION:
+    return SF::TEMPLATE | SF::PROCEDURE;
+  case rq::SymbolKind::TEMPLATE_METHOD:
+    return SF::TEMPLATE | SF::PROCEDURE;
+  case rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION:
+    return SF::TEMPLATE | SF::PROCEDURE;
+  case rq::SymbolKind::TEMPLATE_EXTENSION_METHOD:
+    return SF::TEMPLATE | SF::PROCEDURE;
+  case rq::SymbolKind::TEMPLATE_CONSTRUCTOR:
+    return SF::TEMPLATE | SF::PROCEDURE;
+
+  // PARTIAL SPECIALIZATION
+  case rq::SymbolKind::PARTIAL_OBJECT:
+    return SF::PARTIAL_SPECIALIZATION;
+  case rq::SymbolKind::PARTIAL_ENUMERATION:
+    return SF::PARTIAL_SPECIALIZATION;
+  case rq::SymbolKind::PARTIAL_VARIABLE:
+    return SF::PARTIAL_SPECIALIZATION;
+  case rq::SymbolKind::PARTIAL_METHOD:
+    return SF::PARTIAL_SPECIALIZATION | SF::PROCEDURE;
+  case rq::SymbolKind::PARTIAL_FUNCTION:
+    return SF::PARTIAL_SPECIALIZATION | SF::PROCEDURE;
+  case rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION:
+    return SF::PARTIAL_SPECIALIZATION | SF::PROCEDURE;
+  case rq::SymbolKind::PARTIAL_EXTENSION_METHOD:
+    return SF::PARTIAL_SPECIALIZATION | SF::PROCEDURE;
+  case rq::SymbolKind::PARTIAL_CONSTRUCTOR:
+    return SF::PARTIAL_SPECIALIZATION | SF::PROCEDURE;
+
+  // FULL SPECIALIZATION
+  case rq::SymbolKind::FULL_OBJECT:
+    return SF::FULL_SPECIALIZTION | SF::SCOPE;
+  case rq::SymbolKind::FULL_ENUMERATION:
+    return SF::FULL_SPECIALIZTION | SF::SCOPE;
+  case rq::SymbolKind::FULL_VARIABLE:
+    return SF::FULL_SPECIALIZTION | SF::SCOPE;
+  case rq::SymbolKind::FULL_FUNCTION:
+    return SF::FULL_SPECIALIZTION | SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::FULL_METHOD:
+    return SF::FULL_SPECIALIZTION | SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::FULL_EXTENSION_FUNCTION:
+    return SF::FULL_SPECIALIZTION | SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::FULL_EXTENSION_METHOD:
+    return SF::FULL_SPECIALIZTION | SF::PROCEDURE | SF::SCOPE;
+  case rq::SymbolKind::FULL_CONSTRUCTOR:
+    return SF::FULL_SPECIALIZTION | SF::PROCEDURE | SF::SCOPE;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
+  return kind == rq::SymbolKind::TYPE;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoot(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::ROOT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::SUBTYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimple(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::SIMPLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDepthed(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::DEPTHED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScope(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::SCOPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::PROCEDURE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::FLOAT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::TEMPLATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSpecialization(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::PARTIAL_SPECIALIZATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFullSpecialization(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::FULL_SPECIALIZTION);
+}
+
+struct TypeSymbol;
+struct SimpleSymbol;
+struct DepthedSymbol;
+
+struct VoidSymbol;
+struct NullSymbol;
+struct NoReturnSymbol;
+struct VariadicArgumentsSymbol;
+struct BooleanSymbol;
+struct Utf8Symbol;
+struct Bfloat16Symbol;
+struct Binary16Symbol;
+struct Binary32Symbol;
+struct Binary64Symbol;
+struct Binary128Symbol;
+struct WordSymbol;
+struct UnsignedSymbol;
+struct SignedSymbol;
 
 struct ContextCache {
   using Self = ContextCache;
@@ -174,18 +515,18 @@ struct ContextCache {
   llvm::BumpPtrAllocator _llvm_arena{};
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
   std::vector<rq::Expression *> _unused_expression_ptrs{};
-  rq::VoidType *_void_type{nullptr};
-  rq::NullType *_null_type{nullptr};
-  rq::NoReturnType *_no_return_type{nullptr};
-  rq::VariadicArgumentsType *_variadic_arguments_type{nullptr};
-  rq::BooleanType *_boolean_type{nullptr};
-  rq::Utf8Type *_utf8_type{nullptr};
-  rq::Bfloat16Type *_bfloat16_type{nullptr};
-  rq::Binary16Type *_binary16_type{nullptr};
-  rq::Binary32Type *_binary32_type{nullptr};
-  rq::Binary64Type *_binary64_type{nullptr};
-  rq::Binary128Type *_binary128_type{nullptr};
-  llvm::FoldingSet<rq::BuiltinDepthedType> _builtin_depthed_types{};
+  rq::VoidSymbol *_void_symbol{nullptr};
+  rq::NullSymbol *_null_symbol{nullptr};
+  rq::NoReturnSymbol *_no_return_symbol{nullptr};
+  rq::VariadicArgumentsSymbol *_variadic_arguments_symbol{nullptr};
+  rq::BooleanSymbol *_boolean_symbol{nullptr};
+  rq::Utf8Symbol *_utf8_symbol{nullptr};
+  rq::Bfloat16Symbol *_bfloat16_symbol{nullptr};
+  rq::Binary16Symbol *_binary16_symbol{nullptr};
+  rq::Binary32Symbol *_binary32_symbol{nullptr};
+  rq::Binary64Symbol *_binary64_symbol{nullptr};
+  rq::Binary128Symbol *_binary128_symbol{nullptr};
+  llvm::FoldingSet<rq::DepthedSymbol> _depthed_symbols{};
 
   ContextCache() = default;
   ContextCache(const Self &) = delete;
@@ -200,37 +541,68 @@ struct ContextCache {
   [[nodiscard]] rq::Expression &acquireExpression();
   void discardExpression(rq::Expression &expression);
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] rq::VoidType &getVoidType();
-  [[nodiscard]] rq::NullType &getNullType();
-  [[nodiscard]] rq::NoReturnType &getNoReturnType();
-  [[nodiscard]] rq::VariadicArgumentsType &getVariadicArgumentsType();
-  [[nodiscard]] rq::BooleanType &getBooleanType();
-  [[nodiscard]] rq::Utf8Type &getUtf8Type();
-  [[nodiscard]] rq::Bfloat16Type &getBfloat16Type();
-  [[nodiscard]] rq::Binary16Type &getBinary16Type();
-  [[nodiscard]] rq::Binary32Type &getBinary32Type();
-  [[nodiscard]] rq::Binary64Type &getBinary64Type();
-  [[nodiscard]] rq::Binary128Type &getBinary128Type();
-  [[nodiscard]] rq::WordType &getWordType(unsigned bit_depth);
-  [[nodiscard]] rq::UnsignedType &getUnsignedType(unsigned bit_depth);
-  [[nodiscard]] rq::SignedType &getSignedType(unsigned bit_depth);
-  [[nodiscard]] rq::BuiltinDepthedType &
-  _getOrInsertBuiltinDepthType(rq::ValueKind kind, unsigned depth);
+  [[nodiscard]] rq::TypeSymbol &getTypeSymbol();
+  [[nodiscard]] rq::VoidSymbol &getVoidSymbol();
+  [[nodiscard]] rq::NullSymbol &getNullSymbol();
+  [[nodiscard]] rq::NoReturnSymbol &getNoReturnSymbol();
+  [[nodiscard]] rq::VariadicArgumentsSymbol &getVariadicArgumentsSymbol();
+  [[nodiscard]] rq::BooleanSymbol &getBooleanSymbol();
+  [[nodiscard]] rq::Utf8Symbol &getUtf8Symbol();
+  [[nodiscard]] rq::Bfloat16Symbol &getBfloat16Symbol();
+  [[nodiscard]] rq::Binary16Symbol &getBinary16Symbol();
+  [[nodiscard]] rq::Binary32Symbol &getBinary32Symbol();
+  [[nodiscard]] rq::Binary64Symbol &getBinary64Symbol();
+  [[nodiscard]] rq::Binary128Symbol &getBinary128Symbol();
+  [[nodiscard]] rq::WordSymbol &getWordSymbol(unsigned bit_depth);
+  [[nodiscard]] rq::UnsignedSymbol &getUnsignedSymbol(unsigned bit_depth);
+  [[nodiscard]] rq::SignedSymbol &getSignedSymbol(unsigned bit_depth);
+  [[nodiscard]] rq::DepthedSymbol &
+  _getOrInsertBuiltinDepthSymbol(rq::SymbolKind kind, unsigned depth);
 };
 
-struct Value {
-  using Self = rq::Value;
+struct Symbol {
+  using Self = rq::Symbol;
 
-  rq::ValueKind _kind;
+  rq::SymbolKind _kind;
 
-  Value(rq::ValueKind kind) : _kind(kind) {}
-  Value(const Self &) = delete;
-  Value(Self &&) = delete;
-  virtual ~Value() {}
+  Symbol(rq::SymbolKind kind) : _kind(kind) {}
+  Symbol(const Self &) = delete;
+  Symbol(Self &&) = delete;
+  virtual ~Symbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getKind() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const {
     return this->_kind;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
+    return rq::getIsType(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoot() const {
+    return rq::getIsRoot(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
+    return rq::getIsSubtype(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimple() const {
+    return rq::getIsSimple(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScope() const {
+    return rq::getIsScope(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure() const {
+    return rq::getIsProcedure(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
+    return rq::getIsFloat(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate() const {
+    return rq::getIsTemplate(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSpecialization() const {
+    return rq::getIsPartialSpecialization(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFullSpecialization() const {
+    return rq::getIsFullSpecialization(this->_kind);
   }
 };
 
@@ -257,14 +629,14 @@ template <> struct isa_impl<rq::BuiltinType, rq::Value> {
   }
 };
 
-template <> struct isa_impl<rq::BuiltinSimpleType, rq::Value> {
+template <> struct isa_impl<rq::SimpleType, rq::Value> {
   static inline bool doit(const rq::Value &val) {
     auto kind = val.getKind();
     return kind >= rq::ValueKind::VOID && kind <= rq::ValueKind::BINARY128;
   }
 };
 
-template <> struct isa_impl<rq::BuiltinDepthedType, rq::Value> {
+template <> struct isa_impl<rq::DepthedType, rq::Value> {
   static inline bool doit(const rq::Value &val) {
     auto kind = val.getKind();
     return kind >= rq::ValueKind::WORD && kind <= rq::ValueKind::UNSIGNED;
@@ -379,54 +751,106 @@ template <> struct isa_impl<rq::Module, rq::Value> {
 } // namespace llvm
 namespace rq {
 
-struct Symbol : public rq::Value {
-  using Self = rq::Symbol;
+struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::TypeSymbol;
 
-  Symbol(rq::ValueKind kind) : rq::Value(kind) {}
-  Symbol(const Self &) = delete;
-  Symbol(Self &&) = delete;
-  virtual ~Symbol() {}
+  rq::Symbol *_root_ptr{nullptr};
+  rq::TypeFlags _flags{};
+
+  TypeSymbol(rq::SymbolKind kind, rq::Symbol &root, rq::TypeFlags flags)
+      : rq::Symbol(kind), _root_ptr(&root), _flags(flags) {
+    RQ_ASSERT(root.getIsValid(flags), "not valid");
+  }
+  TypeSymbol(const Self &) = delete;
+  TypeSymbol(Self &&) = delete;
+  virtual ~TypeSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
+    return rq::dereferencePtr(this->_root_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttribute(rq::TypeAttribute attribute) const {
+    return rq::getHasAttribute(this->_flags, attribute);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutable() const {
+    return rq::getIsMutable(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const {
+    return rq::getIsConstant(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartiallyMutable() const {
+    return rq::getIsPartiallyMutable(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability() const {
+    return rq::getHasMutability(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVolatile() const {
+    return rq::getIsVolatile(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAtomic() const {
+    return rq::getIsAtomic(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullTerminated() const {
+    return rq::getIsNullTerminated(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMayDiscard() const {
+    return rq::getIsMayDiscard(this->_flags);
+  }
+  [[nodsicard]] RQ_ALWAYS_INLINE bool getIsDebugTrapOnPanic() const {
+    return rq::getIsDebugTrapOnPanic(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicCaptureLayout() const {
+    return rq::getIsDynamicCaptureLayout(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutabilityClassFlags getMutabilityClassFlags() const {
+    return rq::getMutabilityClassFlags(this->_flags);
+  }
+  void Profile(llvm::FoldingSetNodeID &id) const {
+    id.AddInteger(static_cast<unsigned>(this->_kind));
+    id.AddPointer(this->_root_ptr);
+    id.AddInteger(static_cast<unsigned>(this->_flags));
+  }
+};
+
+struct SimpleSymbol : public rq::Symbol {
+  using Self = rq::SimpleSymbol;
+
+  SimpleSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {
+    RQ_ASSERT(rq::getIsSimple(kind), "kind not builtin simple");
+  }
+  SimpleSymbol(const Self &) = delete;
+  SimpleSymbol(Self &&) = delete;
+  virtual ~SimpleSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-struct Type : public rq::Symbol {
-  using Self = rq::Type;
+struct DepthedSymbol : public rq::Symbol {
+  using Self = rq::SimpleSymbol;
 
-  Type(rq::ValueKind kind) : rq::Symbol(kind) {}
-  Type(const Self &) = delete;
-  Type(Self &&) = delete;
-  virtual ~Type() {}
+  unsigned _bit_depth{};
+
+  DepthedSymbol(rq::SymbolKind kind, unsigned bit_depth)
+      : rq::Symbol(kind), _bit_depth(bit_depth) {
+    RQ_ASSERT(rq::getIsDepthed(kind), "kind not builtin depthed");
+  }
+  DepthedSymbol(const Self &) = delete;
+  DepthedSymbol(Self &&) = delete;
+  virtual ~DepthedSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getBitDepth() const {
+    return this->_bit_depth;
+  }
 };
 
-struct BuiltinType : public rq::Type {
-  using Self = rq::Type;
-
-  BuiltinType(rq::ValueKind kind) : rq::Type(kind) {}
-  BuiltinType(const Self &) = delete;
-  BuiltinType(Self &&) = delete;
-  virtual ~BuiltinType() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct BuiltinSimpleType : public rq::BuiltinType {
-  using Self = rq::BuiltinSimpleType;
-
-  BuiltinSimpleType(rq::ValueKind kind) : rq::BuiltinType(kind) {}
-  BuiltinSimpleType(const Self &) = delete;
-  BuiltinSimpleType(Self &&) = delete;
-  virtual ~BuiltinSimpleType() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct VoidType : public rq::BuiltinSimpleType {
+struct VoidType : public rq::SimpleType {
   using Self = rq::VoidType;
 
-  VoidType() : rq::BuiltinSimpleType(rq::ValueKind::VOID) {}
+  VoidType() : rq::SimpleType(rq::ValueKind::VOID) {}
   VoidType(const Self &) = delete;
   VoidType(Self &&) = delete;
   virtual ~VoidType() {}
@@ -434,10 +858,10 @@ struct VoidType : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct NullType : public rq::BuiltinSimpleType {
+struct NullType : public rq::SimpleType {
   using Self = rq::NullType;
 
-  NullType() : rq::BuiltinSimpleType(rq::ValueKind::NULL_TYPE) {}
+  NullType() : rq::SimpleType(rq::ValueKind::NULL_TYPE) {}
   NullType(const Self &) = delete;
   NullType(Self &&) = delete;
   virtual ~NullType() {}
@@ -445,10 +869,10 @@ struct NullType : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct NoReturnType : public rq::BuiltinSimpleType {
+struct NoReturnType : public rq::SimpleType {
   using Self = rq::NullType;
 
-  NoReturnType() : rq::BuiltinSimpleType(rq::ValueKind::NO_RETURN) {}
+  NoReturnType() : rq::SimpleType(rq::ValueKind::NO_RETURN) {}
   NoReturnType(const Self &) = delete;
   NoReturnType(Self &&) = delete;
   virtual ~NoReturnType() {}
@@ -456,11 +880,11 @@ struct NoReturnType : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct VariadicArgumentsType : public rq::BuiltinSimpleType {
+struct VariadicArgumentsType : public rq::SimpleType {
   using Self = rq::NullType;
 
   VariadicArgumentsType()
-      : rq::BuiltinSimpleType(rq::ValueKind::VARIADIC_ARGUMENTS_TYPE) {}
+      : rq::SimpleType(rq::ValueKind::VARIADIC_ARGUMENTS_TYPE) {}
   VariadicArgumentsType(const Self &) = delete;
   VariadicArgumentsType(Self &&) = delete;
   virtual ~VariadicArgumentsType() {}
@@ -468,10 +892,10 @@ struct VariadicArgumentsType : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct BooleanType : public rq::BuiltinSimpleType {
+struct BooleanType : public rq::SimpleType {
   using Self = rq::NullType;
 
-  BooleanType() : rq::BuiltinSimpleType(rq::ValueKind::BOOLEAN) {}
+  BooleanType() : rq::SimpleType(rq::ValueKind::BOOLEAN) {}
   BooleanType(const Self &) = delete;
   BooleanType(Self &&) = delete;
   virtual ~BooleanType() {}
@@ -479,10 +903,10 @@ struct BooleanType : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct Utf8Type : public rq::BuiltinSimpleType {
+struct Utf8Type : public rq::SimpleType {
   using Self = rq::NullType;
 
-  Utf8Type() : rq::BuiltinSimpleType(rq::ValueKind::UTF8) {}
+  Utf8Type() : rq::SimpleType(rq::ValueKind::UTF8) {}
   Utf8Type(const Self &) = delete;
   Utf8Type(Self &&) = delete;
   virtual ~Utf8Type() {}
@@ -490,10 +914,10 @@ struct Utf8Type : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct Bfloat16Type : public rq::BuiltinSimpleType {
+struct Bfloat16Type : public rq::SimpleType {
   using Self = rq::Bfloat16Type;
 
-  Bfloat16Type() : rq::BuiltinSimpleType(rq::ValueKind::BFLOAT16) {}
+  Bfloat16Type() : rq::SimpleType(rq::ValueKind::BFLOAT16) {}
   Bfloat16Type(const Self &) = delete;
   Bfloat16Type(Self &&) = delete;
   virtual ~Bfloat16Type() {}
@@ -501,10 +925,10 @@ struct Bfloat16Type : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct Binary16Type : public rq::BuiltinSimpleType {
+struct Binary16Type : public rq::SimpleType {
   using Self = rq::Binary16Type;
 
-  Binary16Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY16) {}
+  Binary16Type() : rq::SimpleType(rq::ValueKind::BINARY16) {}
   Binary16Type(const Self &) = delete;
   Binary16Type(Self &&) = delete;
   virtual ~Binary16Type() {}
@@ -512,10 +936,10 @@ struct Binary16Type : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct Binary32Type : public rq::BuiltinSimpleType {
+struct Binary32Type : public rq::SimpleType {
   using Self = rq::Binary16Type;
 
-  Binary32Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY32) {}
+  Binary32Type() : rq::SimpleType(rq::ValueKind::BINARY32) {}
   Binary32Type(const Self &) = delete;
   Binary32Type(Self &&) = delete;
   virtual ~Binary32Type() {}
@@ -523,10 +947,10 @@ struct Binary32Type : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct Binary64Type : public rq::BuiltinSimpleType {
+struct Binary64Type : public rq::SimpleType {
   using Self = rq::Binary64Type;
 
-  Binary64Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY64) {}
+  Binary64Type() : rq::SimpleType(rq::ValueKind::BINARY64) {}
   Binary64Type(const Self &) = delete;
   Binary64Type(Self &&) = delete;
   virtual ~Binary64Type() {}
@@ -534,10 +958,10 @@ struct Binary64Type : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct Binary128Type : public rq::BuiltinSimpleType {
+struct Binary128Type : public rq::SimpleType {
   using Self = rq::Binary64Type;
 
-  Binary128Type() : rq::BuiltinSimpleType(rq::ValueKind::BINARY128) {}
+  Binary128Type() : rq::SimpleType(rq::ValueKind::BINARY128) {}
   Binary128Type(const Self &) = delete;
   Binary128Type(Self &&) = delete;
   virtual ~Binary128Type() {}
@@ -545,17 +969,17 @@ struct Binary128Type : public rq::BuiltinSimpleType {
   Self &operator=(Self &&) = delete;
 };
 
-struct BuiltinDepthedType : public rq::BuiltinType,
+struct DepthedType : public rq::BuiltinType,
                             public llvm::FoldingSetNode {
-  using Self = rq::BuiltinDepthedType;
+  using Self = rq::DepthedType;
 
   unsigned _bit_depth;
 
-  BuiltinDepthedType(rq::ValueKind kind, unsigned bit_depth)
+  DepthedType(rq::ValueKind kind, unsigned bit_depth)
       : rq::BuiltinType(kind), _bit_depth(bit_depth) {}
-  BuiltinDepthedType(const Self &) = delete;
-  BuiltinDepthedType(Self &&) = delete;
-  virtual ~BuiltinDepthedType() {}
+  DepthedType(const Self &) = delete;
+  DepthedType(Self &&) = delete;
+  virtual ~DepthedType() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getBitDepth() const {
@@ -567,11 +991,11 @@ struct BuiltinDepthedType : public rq::BuiltinType,
   }
 };
 
-struct WordType : public rq::BuiltinDepthedType {
+struct WordType : public rq::DepthedType {
   using Self = WordType;
 
   WordType(unsigned bit_depth)
-      : rq::BuiltinDepthedType(rq::ValueKind::WORD, bit_depth) {}
+      : rq::DepthedType(rq::ValueKind::WORD, bit_depth) {}
   WordType(const Self &) = delete;
   WordType(Self &&) = delete;
   virtual ~WordType() {}
@@ -579,11 +1003,11 @@ struct WordType : public rq::BuiltinDepthedType {
   Self &operator=(Self &&) = delete;
 };
 
-struct UnsignedType : public rq::BuiltinDepthedType {
+struct UnsignedType : public rq::DepthedType {
   using Self = WordType;
 
   UnsignedType(unsigned bit_depth)
-      : rq::BuiltinDepthedType(rq::ValueKind::UNSIGNED, bit_depth) {}
+      : rq::DepthedType(rq::ValueKind::UNSIGNED, bit_depth) {}
   UnsignedType(const Self &) = delete;
   UnsignedType(Self &&) = delete;
   virtual ~UnsignedType() {}
@@ -591,11 +1015,11 @@ struct UnsignedType : public rq::BuiltinDepthedType {
   Self &operator=(Self &&) = delete;
 };
 
-struct SignedType : public rq::BuiltinDepthedType {
+struct SignedType : public rq::DepthedType {
   using Self = WordType;
 
   SignedType(unsigned bit_depth)
-      : rq::BuiltinDepthedType(rq::ValueKind::SIGNED, bit_depth) {}
+      : rq::DepthedType(rq::ValueKind::SIGNED, bit_depth) {}
   SignedType(const Self &) = delete;
   SignedType(Self &&) = delete;
   virtual ~SignedType() {}
@@ -1399,114 +1823,117 @@ inline void rq::ContextCache::discardExpression(rq::Expression &expression) {
   this->_unused_expression_ptrs.emplace_back(&expression);
 }
 
-inline rq::VoidType &rq::ContextCache::getVoidType() {
-  if (!this->_void_type) {
-    this->_void_type = &this->allocateValue<rq::VoidType>();
+inline rq::VoidSymbol &rq::ContextCache::getVoidSymbol() {
+  if (!this->_void_symbol) {
+    this->_void_symbol = &this->allocateValue<rq::VoidSymbol>();
   }
-  return rq::dereferencePtr(this->_void_type);
+  return rq::dereferencePtr(this->_void_symbol);
 }
 
-inline rq::NullType &rq::ContextCache::getNullType() {
-  if (!this->_null_type) {
-    this->_null_type = &this->allocateValue<rq::NullType>();
+inline rq::NullSymbol &rq::ContextCache::getNullSymbol() {
+  if (!this->_null_symbol) {
+    this->_null_symbol = &this->allocateValue<rq::NullSymbol>();
   }
-  return rq::dereferencePtr(this->_null_type);
+  return rq::dereferencePtr(this->_null_symbol);
 }
 
-inline rq::NoReturnType &rq::ContextCache::getNoReturnType() {
-  if (!this->_no_return_type) {
-    this->_no_return_type = &this->allocateValue<rq::NoReturnType>();
+inline rq::NoReturnSymbol &rq::ContextCache::getNoReturnSymbol() {
+  if (!this->_no_return_symbol) {
+    this->_no_return_symbol = &this->allocateValue<rq::NoReturnSymbol>();
   }
-  return rq::dereferencePtr(this->_no_return_type);
+  return rq::dereferencePtr(this->_no_return_symbol);
 }
 
-inline rq::VariadicArgumentsType &rq::ContextCache::getVariadicArgumentsType() {
-  if (!this->_variadic_arguments_type) {
-    this->_variadic_arguments_type =
-        &this->allocateValue<rq::VariadicArgumentsType>();
+inline rq::VariadicArgumentsSymbol &
+rq::ContextCache::getVariadicArgumentsSymbol() {
+  if (!this->_variadic_arguments_symbol) {
+    this->_variadic_arguments_symbol =
+        &this->allocateValue<rq::VariadicArgumentsSymbol>();
   }
-  return rq::dereferencePtr(this->_variadic_arguments_type);
+  return rq::dereferencePtr(this->_variadic_arguments_symbol);
 }
 
-inline rq::BooleanType &rq::ContextCache::getBooleanType() {
-  if (!this->_boolean_type) {
-    this->_boolean_type = &this->allocateValue<rq::BooleanType>();
+inline rq::BooleanSymbol &rq::ContextCache::getBooleanSymbol() {
+  if (!this->_boolean_symbol) {
+    this->_boolean_symbol = &this->allocateValue<rq::BooleanSymbol>();
   }
-  return rq::dereferencePtr(this->_boolean_type);
+  return rq::dereferencePtr(this->_boolean_symbol);
 }
 
-inline rq::Utf8Type &rq::ContextCache::getUtf8Type() {
-  if (!this->_utf8_type) {
-    this->_utf8_type = &this->allocateValue<rq::Utf8Type>();
+inline rq::Utf8Symbol &rq::ContextCache::getUtf8Symbol() {
+  if (!this->_utf8_symbol) {
+    this->_utf8_symbol = &this->allocateValue<rq::Utf8Symbol>();
   }
-  return rq::dereferencePtr(this->_utf8_type);
+  return rq::dereferencePtr(this->_utf8_symbol);
 }
 
-inline rq::Bfloat16Type &rq::ContextCache::getBfloat16Type() {
-  if (!this->_bfloat16_type) {
-    this->_bfloat16_type = &this->allocateValue<rq::Bfloat16Type>();
+inline rq::Bfloat16Symbol &rq::ContextCache::getBfloat16Symbol() {
+  if (!this->_bfloat16_symbol) {
+    this->_bfloat16_symbol = &this->allocateValue<rq::Bfloat16Symbol>();
   }
-  return rq::dereferencePtr(this->_bfloat16_type);
+  return rq::dereferencePtr(this->_bfloat16_symbol);
 }
 
-inline rq::Binary16Type &rq::ContextCache::getBinary16Type() {
-  if (!this->_binary16_type) {
-    this->_binary16_type = &this->allocateValue<rq::Binary16Type>();
+inline rq::Binary16Symbol &rq::ContextCache::getBinary16Symbol() {
+  if (!this->_binary16_symbol) {
+    this->_binary16_symbol = &this->allocateValue<rq::Binary16Symbol>();
   }
-  return rq::dereferencePtr(this->_binary16_type);
+  return rq::dereferencePtr(this->_binary16_symbol);
 }
 
-inline rq::Binary32Type &rq::ContextCache::getBinary32Type() {
-  if (!this->_binary32_type) {
-    this->_binary32_type = &this->allocateValue<rq::Binary32Type>();
+inline rq::Binary32Symbol &rq::ContextCache::getBinary32Symbol() {
+  if (!this->_binary32_symbol) {
+    this->_binary32_symbol = &this->allocateValue<rq::Binary32Symbol>();
   }
-  return rq::dereferencePtr(this->_binary32_type);
+  return rq::dereferencePtr(this->_binary32_symbol);
 }
 
-inline rq::Binary64Type &rq::ContextCache::getBinary64Type() {
-  if (!this->_binary64_type) {
-    this->_binary64_type = &this->allocateValue<rq::Binary64Type>();
+inline rq::Binary64Symbol &rq::ContextCache::getBinary64Symbol() {
+  if (!this->_binary64_symbol) {
+    this->_binary64_symbol = &this->allocateValue<rq::Binary64Symbol>();
   }
-  return rq::dereferencePtr(this->_binary64_type);
+  return rq::dereferencePtr(this->_binary64_symbol);
 }
 
-inline rq::Binary128Type &rq::ContextCache::getBinary128Type() {
-  if (!this->_binary128_type) {
-    this->_binary128_type = &this->allocateValue<rq::Binary128Type>();
+inline rq::Binary128Symbol &rq::ContextCache::getBinary128Symbol() {
+  if (!this->_binary128_symbol) {
+    this->_binary128_symbol = &this->allocateValue<rq::Binary128Symbol>();
   }
-  return rq::dereferencePtr(this->_binary128_type);
+  return rq::dereferencePtr(this->_binary128_symbol);
 }
 
-inline rq::BuiltinDepthedType &
-rq::ContextCache::_getOrInsertBuiltinDepthType(rq::ValueKind kind,
-                                               unsigned parameter) {
+inline rq::DepthedSymbol &
+rq::ContextCache::_getOrInsertBuiltinDepthSymbol(rq::ValueKind kind,
+                                                 unsigned parameter) {
   llvm::FoldingSetNodeID id;
   id.AddInteger(static_cast<unsigned>(kind));
   id.AddInteger(parameter);
   void *insert_pos = nullptr;
-  if (rq::BuiltinDepthedType *existing =
-          this->_builtin_depthed_types.FindNodeOrInsertPos(id, insert_pos)) {
+  if (rq::DepthedSymbol *existing =
+          this->_depthed_symbols.FindNodeOrInsertPos(id, insert_pos)) {
     return rq::dereferencePtr(existing);
   }
-  rq::BuiltinDepthedType &new_type =
-      this->allocateValue<rq::BuiltinDepthedType>(kind, parameter);
-  this->_builtin_depthed_types.InsertNode(&new_type, insert_pos);
+  rq::DepthedSymbol &new_type =
+      this->allocateValue<rq::DepthedSymbol>(kind, parameter);
+  this->_depthed_symbols.InsertNode(&new_type, insert_pos);
   return new_type;
 }
 
-inline rq::WordType &rq::ContextCache::getWordType(unsigned bit_depth) {
-  return this->_getOrInsertBuiltinDepthType(rq::ValueKind::WORD, bit_depth)
-      .getWordType();
+inline rq::WordSymbol &rq::ContextCache::getWordSymbol(unsigned bit_depth) {
+  return this->_getOrInsertBuiltinDepthSymbol(rq::ValueKind::WORD, bit_depth)
+      .getWordSymbol();
 }
 
-inline rq::UnsignedType &rq::ContextCache::getUnsignedType(unsigned bit_depth) {
-  return this->_getOrInsertBuiltinDepthType(rq::ValueKind::UNSIGNED, bit_depth)
-      .getUnsignedType();
+inline rq::UnsignedSymbol &
+rq::ContextCache::getUnsignedSymbol(unsigned bit_depth) {
+  return this
+      ->_getOrInsertBuiltinDepthSymbol(rq::ValueKind::UNSIGNED, bit_depth)
+      .getUnsignedSymbol();
 }
 
-inline rq::SignedType &rq::ContextCache::getSignedType(unsigned bit_depth) {
-  return this->_getOrInsertBuiltinDepthType(rq::ValueKind::SIGNED, bit_depth)
-      .getSignedType();
+inline rq::SignedSymbol &rq::ContextCache::getSignedSymbol(unsigned bit_depth) {
+  return this->_getOrInsertBuiltinDepthSymbol(rq::ValueKind::SIGNED, bit_depth)
+      .getSignedSymbol();
 }
 
 } // namespace rq

@@ -359,7 +359,8 @@ enum class Keyword : std::uint32_t {
   I_LAST
 };
 
-constexpr std::size_t KEYWORD_COUNT = static_cast<std::size_t>(rq::Keyword::I_LAST);
+constexpr std::size_t KEYWORD_COUNT =
+    static_cast<std::size_t>(rq::Keyword::I_LAST);
 
 [[nodiscard]] inline llvm::StringRef getName(rq::Keyword keyword) {
   using namespace rq;
@@ -1542,7 +1543,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::S_HOLDS_ENUMERATOR:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
+           KF::UNIVERSALIZABLE;
   case K::S_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SYMBOL:
@@ -1788,7 +1790,8 @@ getDescription(rq::Situation situation) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::Keyword getUniversalized(rq::Keyword keyword, rq::Situation situation) {
+[[nodiscard]] inline rq::Keyword getUniversalized(rq::Keyword keyword,
+                                                  rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
@@ -2267,7 +2270,6 @@ enum class TypeAttribute : std::uint_fast8_t {
   NULL_TERMINATED,
   MAY_DISCARD,
   DEBUG_TRAP_ON_PANIC,
-  LINEAR,
   DYNAMIC_CAPTURE_LAYOUT
 };
 
@@ -2293,8 +2295,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "may_discard";
   case TA::DEBUG_TRAP_ON_PANIC:
     return "debug_trap_on_panic";
-  case TA::LINEAR:
-    return "linear";
   case TA::DYNAMIC_CAPTURE_LAYOUT:
     return "dynamic_capture_layout";
   }
@@ -2330,7 +2330,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   return TA::NONE;
 }
 
-enum class TypeFlags : std::uint16_t {
+enum class TypeFlags : std::uint32_t {
   NONE = 0,
   MUTABLE = rq::getBit(15),
   CONSTANT = rq::getBit(14),
@@ -2340,11 +2340,19 @@ enum class TypeFlags : std::uint16_t {
   NULL_TERMINATED = rq::getBit(10),
   MAY_DISCARD = rq::getBit(9),
   DEBUG_TRAP_ON_PANIC = rq::getBit(8),
-  LINEAR = rq::getBit(7),
-  DYNAMIC_CAPTURE_LAYOUT = rq::getBit(6)
+  // NOTE: data for DYNAMIC_CAPTURE_LAYOUT is in the root SignatureSymbol of
+  // TypeSymbol
+  DYNAMIC_CAPTURE_LAYOUT = rq::getBit(7),
+  MUTABILITY_CLASS_MASK = 0xFFFF
 };
 
 template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
+
+enum class MutabilityClassFlags : std::uint16_t { NONE = 0 };
+
+template <> struct is_flags<rq::MutabilityClassFlags> final : std::true_type {};
+
+static constexpr unsigned MAX_MUTABILITY_CLASS_COUNT = 16;
 
 [[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
   using namespace rq;
@@ -2369,12 +2377,95 @@ template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
     return TF::MAY_DISCARD;
   case TA::DEBUG_TRAP_ON_PANIC:
     return TF::DEBUG_TRAP_ON_PANIC;
-  case TA::LINEAR:
-    return TF::LINEAR;
   case TA::DYNAMIC_CAPTURE_LAYOUT:
     return TF::DYNAMIC_CAPTURE_LAYOUT;
   }
   return TF::NONE;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
+  return rq::getHasAll(flags, rq::getFlags(attribute));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutable(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::MUTABLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::CONSTANT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartiallyMutable(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability(rq::TypeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeFlags::MUTABLE |
+                                   rq::TypeFlags::CONSTANT |
+                                   rq::TypeFlags::PARTIALLY_MUTABLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsVolatile(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::VOLATILE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsAtomic(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::ATOMIC);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullTerminated(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsMayDiscard(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::MAY_DISCARD);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDebugTrapOnPanic(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::DEBUG_TRAP_ON_PANIC);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsDynamicCaptureLayout(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::DYNAMIC_CAPTURE_LAYOUT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::MutabilityClassFlags
+getMutabilityClassFlags(rq::TypeFlags flags) {
+  RQ_ASSERT(rq::getIsPartiallyMutable(flags), "not partially mutable");
+  return static_cast<rq::MutabilityClassFlags>(
+      rq::getMaskValue(flags, rq::TypeFlags::MUTABILITY_CLASS_MASK));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
+  if (rq::getHasMutability(flags)) {
+    unsigned mutability_count = 0;
+    if (rq::getIsMutable(flags)) {
+      mutability_count++;
+    }
+    if (rq::getIsConstant(flags)) {
+      mutability_count++;
+    }
+    if (rq::getIsPartiallyMutable(flags)) {
+      mutability_count++;
+    }
+    if (mutability_count != 1) {
+      return false;
+    }
+  }
+  return true;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsValidMutabilityClass(rq::TypeFlags flags) {
+  if (!rq::getIsPartiallyMutable(flags)) {
+    rq::MutabilityClassFlags classes = rq::getMutabilityClassFlags(flags);
+    if (classes != rq::MutabilityClassFlags::NONE) {
+      return false;
+    }
+  }
+  return true;
 }
 
 template <typename SourceAParam, typename SourceBParam>
@@ -2596,7 +2687,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
     return rq::getCanBeArmChainLink(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized(rq::Situation situation) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
+  getUniversalized(rq::Situation situation) const {
     return rq::getUniversalized(this->getKeyword(), situation);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
@@ -2940,7 +3032,8 @@ struct Expression final {
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator, rq::ConstExpressionIterator,
+      std::ranges::subrange<rq::ConstExpressionIterator,
+                            rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getInclusiveNextSubrange() const {
     return std::ranges::subrange(rq::ConstExpressionIterator(this),
@@ -2954,11 +3047,13 @@ struct Expression final {
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator, rq::ConstExpressionIterator,
+      std::ranges::subrange<rq::ConstExpressionIterator,
+                            rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getNextSubrange() const {
-    return std::ranges::subrange(rq::ConstExpressionIterator(this->getNextPtr()),
-                                 rq::ConstExpressionIterator());
+    return std::ranges::subrange(
+        rq::ConstExpressionIterator(this->getNextPtr()),
+        rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
@@ -2968,11 +3063,13 @@ struct Expression final {
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator, rq::ConstExpressionIterator,
+      std::ranges::subrange<rq::ConstExpressionIterator,
+                            rq::ConstExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getBranchSubrange() const {
-    return std::ranges::subrange(rq::ConstExpressionIterator(this->getBranchPtr()),
-                                 rq::ConstExpressionIterator());
+    return std::ranges::subrange(
+        rq::ConstExpressionIterator(this->getBranchPtr()),
+        rq::ConstExpressionIterator());
   }
 };
 
