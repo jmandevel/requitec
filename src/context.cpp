@@ -456,12 +456,14 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
 static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
                        const rq::Value &symbol, unsigned indent) {
   rq::emitIndent(fout, indent);
-  fout << rq::getName(symbol.getKind()) << ":{\n";
+  fout << rq::getName(symbol.getKind()) << ":{";
+  indent++;
   switch (symbol.getKind()) {
   case rq::ValueKind::TOP_SCOPE:
     [[fallthrough]];
   case rq::ValueKind::SCOPE: {
     const rq::Scope &scope = symbol.getScope();
+    fout << "\n";
     rq::emitIndent(fout, indent);
     fout << "named:{\n";
     indent++;
@@ -490,8 +492,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << "}\n";
   } break;
   case rq::ValueKind::ENTRY_POINT:
-    rq::emitIndent(fout, indent);
-    fout << "}\n";
+    fout << "{}\n";
     break;
   default:
     RQ_TODO_IMPLEMENTATION();
