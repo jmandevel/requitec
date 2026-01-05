@@ -47,16 +47,16 @@ struct Module;
 struct Expression;
 struct Token;
 
-struct ForestBuilder final {
-  using Self = rq::ForestBuilder;
+struct ForestFactory final {
+  using Self = rq::ForestFactory;
 
   rq::Expression *_expression_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
-  ForestBuilder() = default;
-  ForestBuilder(const Self &) = default;
-  ForestBuilder(Self &&) = default;
-  ~ForestBuilder() = default;
+  ForestFactory() = default;
+  ForestFactory(const Self &) = default;
+  ForestFactory(Self &&) = default;
+  ~ForestFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
@@ -93,16 +93,16 @@ struct ForestBuilder final {
   void appendTree(rq::Expression &tree);
 };
 
-struct TreeBuilder final {
-  using Self = rq::TreeBuilder;
+struct TreeFactory final {
+  using Self = rq::TreeFactory;
 
   rq::Expression *_expression_ptr = nullptr;
   rq::Expression *_last_ptr = nullptr;
 
-  TreeBuilder() = default;
-  TreeBuilder(const Self &) = default;
-  TreeBuilder(Self &&) = default;
-  ~TreeBuilder() = default;
+  TreeFactory() = default;
+  TreeFactory(const Self &) = default;
+  TreeFactory(Self &&) = default;
+  ~TreeFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
@@ -134,8 +134,8 @@ struct TreeBuilder final {
   void finishExpression(const rq::Token &last_token);
 };
 
-struct PrecedenceBuilder final {
-  using Self = rq::PrecedenceBuilder;
+struct PrecedenceFactory final {
+  using Self = rq::PrecedenceFactory;
 
   // the context is used only for acquiring new expressions
   std::reference_wrapper<rq::Context> _context_ref;
@@ -149,11 +149,11 @@ struct PrecedenceBuilder final {
   // the last branch that was appended to the expression
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceBuilder(rq::Context &context)
+  PrecedenceFactory(rq::Context &context)
       : _context_ref(context) {}
-  PrecedenceBuilder(const Self &) = delete;
-  PrecedenceBuilder(Self &&) = delete;
-  ~PrecedenceBuilder() = default;
+  PrecedenceFactory(const Self &) = delete;
+  PrecedenceFactory(Self &&) = delete;
+  ~PrecedenceFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] rq::Context &getContext() {
