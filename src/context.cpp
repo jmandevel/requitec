@@ -489,6 +489,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
       rq::emitSymbol(context, fout, unamed, indent);
     }
     indent--;
+    rq::emitIndent(fout, indent);
     fout << "}\n";
   } break;
   case rq::ValueKind::ENTRY_POINT:
