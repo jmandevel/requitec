@@ -1,7 +1,9 @@
+[mutability_class ClassA];
+
 @may_copy @may_move
 [object Foo,
     {>
-        @public @[mutability_class ClassA] a := 0,
+        @public @[mutable_with ClassA] a := 0,
         @public b := 0
     <}
 

@@ -180,6 +180,7 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   OBJECT,
   ENUMERATION,
+  MUTABILITY_CLASS,
 
   // VALUES
   TRUE,
@@ -312,7 +313,7 @@ enum class Keyword : std::uint32_t {
   DEPRECIATED,
   MAY_COPY,
   MAY_MOVE,
-  MUTABILITY_CLASS,
+  MUTABLE_WITH,
 
   // EXPRESSIONS
   QUOTE,
@@ -632,6 +633,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
+  case K::MUTABILITY_CLASS:
+    return "mutability_class";
 
   // VALUES
   case K::TRUE:
@@ -846,8 +849,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "may_copy";
   case K::MAY_MOVE:
     return "may_move";
-  case K::MUTABILITY_CLASS:
-    return "mutability_class";
+  case K::MUTABLE_WITH:
+    return "mutable_with";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1247,9 +1250,11 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // DECLARED TYPES
   case K::OBJECT:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::MUTABILITY_CLASS:
+    return KF::STATEMENT;
 
   // VALUES;
   case K::TRUE:
@@ -1473,7 +1478,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_MOVE:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::MUTABILITY_CLASS:
+  case K::MUTABLE_WITH:
     return KF::STATEMENT_ATTRIBUTE;
 
   // EXPRESSIONS
@@ -2042,7 +2047,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   PROTECTED,
   MAY_COPY,
   MAY_MOVE,
-  MUTABILITY_CLASS
+  MUTABLE_WITH
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::StatementAttribute attribute) {
@@ -2099,8 +2104,8 @@ enum class StatementAttribute : std::uint_fast8_t {
     return "may_copy";
   case SA::MAY_MOVE:
     return "may_move";
-  case SA::MUTABILITY_CLASS:
-    return "mutability_class";
+  case SA::MUTABLE_WITH:
+    return "mutable_with";
   }
   return "error";
 }
@@ -2159,8 +2164,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MAY_COPY;
   case K::MAY_MOVE:
     return SA::MAY_MOVE;
-  case K::MUTABILITY_CLASS:
-    return SA::MUTABILITY_CLASS;
+  case K::MUTABLE_WITH:
+    return SA::MUTABLE_WITH;
   default:
     break;
   }
@@ -2193,7 +2198,7 @@ enum class StatementFlags : std::uint32_t {
   PROTECTED = rq::getBit(10),
   MAY_COPY = rq::getBit(9),
   MAY_MOVE = rq::getBit(8),
-  MUTABILITY_CLASS = rq::getBit(7)
+  MUTABLE_WITH = rq::getBit(7)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2254,8 +2259,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::MAY_COPY;
   case SA::MAY_MOVE:
     return SF::MAY_MOVE;
-  case SA::MUTABILITY_CLASS:
-    return SF::MUTABILITY_CLASS;
+  case SA::MUTABLE_WITH:
+    return SF::MUTABLE_WITH;
   }
   return SF::NONE;
 }

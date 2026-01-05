@@ -383,7 +383,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::PARTIALLY_MUTABLE:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::SYMBOL_PATH);
+                                                   S::RVALUE);
     break;
   case K::VOLATILE:
     [[fallthrough]];
@@ -707,6 +707,9 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
+  case K::MUTABILITY_CLASS:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::SYMBOL_PATH);
+    break;
 
   // VALUES
   case K::TRUE:
@@ -1059,7 +1062,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MAY_MOVE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::MUTABILITY_CLASS:
+  case K::MUTABLE_WITH:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::SYMBOL_PATH);
     break;
