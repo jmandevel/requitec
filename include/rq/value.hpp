@@ -365,7 +365,7 @@ struct ScopeEntryIterator final {
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
     Self backup = *this;
-    (*this)++;
+    ++(*this);
     return backup;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
@@ -440,7 +440,7 @@ struct ConstScopeEntryIterator final {
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
     Self backup = *this;
-    (*this)++;
+    ++(*this);
     return backup;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
