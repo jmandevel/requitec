@@ -118,12 +118,12 @@ bool Situator::situateTree(rq::Situation situation,
       switch (lvalue.getKeyword()) {
       case K::S_NULL:
         expression.changeKeyword(K::S_IGNORE);
-        this->getStaticFrame().discardExpression(
+        this->getContext().discardExpression(
             expression.replaceBranch(rvalue));
         break;
       case K::S_TUPLE:
         lvalue.changeKeyword(K::S_STRUCTURED_BINDING);
-        this->getStaticFrame().discardExpression(
+        this->getContext().discardExpression(
             expression.mergeAndPopBranch());
         break;
         ;
@@ -771,36 +771,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::BINARY128:
     [[fallthrough]];
   case K::UTF8:
-    [[fallthrough]];
-  case K::C_CHAR:
-    [[fallthrough]];
-  case K::C_UNSIGNED_CHAR:
-    [[fallthrough]];
-  case K::C_SIGNED_CHAR:
-    [[fallthrough]];
-  case K::C_WCHAR_T:
-    [[fallthrough]];
-  case K::C_SHORT_INT:
-    [[fallthrough]];
-  case K::C_UNSIGNED_SHORT_INT:
-    [[fallthrough]];
-  case K::C_INT:
-    [[fallthrough]];
-  case K::C_UNSIGNED_INT:
-    [[fallthrough]];
-  case K::C_LONG_INT:
-    [[fallthrough]];
-  case K::C_UNSIGNED_LONG_INT:
-    [[fallthrough]];
-  case K::C_LONG_LONG_INT:
-    [[fallthrough]];
-  case K::C_UNSIGNED_LONG_LONG_INT:
-    [[fallthrough]];
-  case K::C_FLOAT:
-    [[fallthrough]];
-  case K::C_DOUBLE:
-    [[fallthrough]];
-  case K::C_LONG_DOUBLE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
@@ -1157,7 +1127,7 @@ bool Situator::situateTree(rq::Situation situation,
         continue;
       }
       if (next.getKeyword() == rq::Keyword::I_IDENTIFIER_LITERAL) {
-        rq::Expression &member = this->getStaticFrame().acquireExpression();
+        rq::Expression &member = this->getContext().acquireExpression();
         member.setIsInserted();
         member.setSource(inner, next);
         member.setKeyword(rq::Keyword::S_MEMBER_OF);
@@ -1187,7 +1157,7 @@ bool Situator::situateTree(rq::Situation situation,
       inner_ptr = &next;
     }
     expression.setBranch(inner_ptr);
-    this->getStaticFrame().discardExpression(expression.mergeAndPopBranch());
+    this->getContext().discardExpression(expression.mergeAndPopBranch());
   } break;
   case K::S_MEMBER_OF:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
@@ -1287,7 +1257,7 @@ bool Situator::situateTree(rq::Situation situation,
   if (is_ok && expression.getIsConverging()) {
     for (rq::Expression &branch : expression.getBranchSubrange()) {
       if (expression.getKeyword() == branch.getKeyword()) {
-        this->getStaticFrame().discardExpression(
+        this->getContext().discardExpression(
             expression.mergeAndPopBranch());
       }
     }

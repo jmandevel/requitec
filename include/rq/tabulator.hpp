@@ -1,12 +1,13 @@
 #pragma once
 
-#include <rq/context.hpp>
-#include <rq/value.hpp>
 #include <rq/utility.hpp>
 
 #include <functional>
 
 namespace rq {
+
+struct Context;
+struct Module;
 
 struct Tabulator final {
   using Self = rq::Tabulator;

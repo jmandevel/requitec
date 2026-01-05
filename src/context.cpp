@@ -8,7 +8,7 @@
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
-#include <rq/value.hpp>
+#include <rq/symbol.hpp>
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LegacyPassManager.h>
@@ -459,10 +459,10 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << rq::getName(symbol.getKind()) << ":{";
   indent++;
   switch (symbol.getKind()) {
-  case rq::ValueKind::TOP_SCOPE:
+  case rq::SymbolKind::TOP_SCOPE:
     [[fallthrough]];
-  case rq::ValueKind::SCOPE: {
-    const rq::Scope &scope = symbol.getScope();
+  case rq::SymbolKind::SCOPE: {
+    const rq::Scope &scope = llvm::cast<rq::Scope>(symbol);
     fout << "\n";
     rq::emitIndent(fout, indent);
     fout << "named:{\n";
@@ -492,7 +492,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
     rq::emitIndent(fout, indent);
     fout << "}\n";
   } break;
-  case rq::ValueKind::ENTRY_POINT:
+  case rq::SymbolKind::ENTRY_POINT:
     fout << "{}\n";
     break;
   default:

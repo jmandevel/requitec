@@ -2,7 +2,6 @@
 
 #include <rq/ast.hpp>
 #include <rq/context.hpp>
-#include <rq/value.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/Twine.h>
@@ -27,9 +26,6 @@ struct Situator final {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
-    return this->_context_ref.get();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getStaticFrame() {
     return this->_context_ref.get();
   }
   [[nodiscard]] rq::Expression &makeModuleTrunk(rq::Module &module);
