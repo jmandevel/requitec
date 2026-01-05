@@ -33,7 +33,7 @@ void Tabulator::tabulateEntryPoint(const rq::Expression &expression,
             "wrong keyword");
   rq::Procedure &procedure =
       this->getContext().getTopFrame().allocateValue<rq::Procedure>(
-          rq::ValueKind::ENTRY_POINT);
+          rq::ValueKind::ENTRY_POINT, this->getModule());
   procedure.setExpression(expression);
   scope.tabulateUnamedSymbol(this->getContext().getTopFrame(), procedure);
 }

@@ -62,7 +62,7 @@ struct SourceRange final {
   rq::SourceLocation end = {};
 };
 
-struct Context final {
+struct Context final : public rq::ContextCache {
   using Self = rq::Context;
 
   std::string _executable_path;

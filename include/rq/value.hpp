@@ -6,6 +6,7 @@
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
+#include <llvm/ADT/FoldingSet.h>
 #include <llvm/ADT/PointerIntPair.h>
 #include <llvm/ADT/PointerUnion.h>
 #include <llvm/ADT/SmallString.h>
@@ -22,71 +23,33 @@
 
 namespace rq {
 
-struct Expression;
+struct Frame;
 struct Scope;
-
-struct Frame final {
-  using Self = rq::Frame;
-
-  llvm::BumpPtrAllocator _llvm_arena;
-  llvm::StringSaver _llvm_string_saver{_llvm_arena};
-  std::vector<rq::Expression *> _unused_expression_ptrs;
-  rq::Scope *_scope_ptr;
-
-  Frame(rq::Scope &scope) : _scope_ptr(&scope) {};
-  Frame(const Self &) = delete;
-  Frame(Self &&) = delete;
-  ~Frame() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
-  }
-  template <typename TypeParam, typename... ArgNParam>
-  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &
-  allocateValue(ArgNParam &&...arg_n) {
-    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
-    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
-    return rq::dereferencePtr(ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef saveString(llvm::Twine twine) {
-    llvm::StringRef saved_string = this->_llvm_string_saver.save(twine);
-    return saved_string;
-  }
-  [[nodiscard]] rq::Expression &acquireExpression();
-  RQ_ALWAYS_INLINE void discardExpression(rq::Expression &expression) {
-    this->_unused_expression_ptrs.emplace_back(&expression);
-  }
-  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] rq::Scope &getScope() {
-    return rq::dereferencePtr(this->_scope_ptr);
-  }
-  [[nodiscard]] const rq::Scope &getScope() const {
-    return rq::dereferencePtr(this->_scope_ptr);
-  }
-};
+struct Module;
 
 // TODO static values. only care about dynamic runtime for now (types and
 // symbols all that are needed).
 
 enum class ValueKind : std::uint_fast8_t {
+  // no data symbols
   VOID,
   NULL_TYPE,
   NO_RETURN,
   VARIADIC_ARGUMENTS_TYPE,
   BOOLEAN,
-  WORD,
-  SIGNED,
-  UNSIGNED,
   UTF8,
   BFLOAT16,
   BINARY16,
   BINARY32,
   BINARY64,
   BINARY128,
+
+  // depth symbols
+  WORD,
+  SIGNED,
+  UNSIGNED,
+
+  // data symbols
   MODULE,
   TOP_SCOPE,
   TABLE,
@@ -113,12 +76,6 @@ enum class ValueKind : std::uint_fast8_t {
     return "variadic-arguments-type";
   case rq::ValueKind::BOOLEAN:
     return "boolean";
-  case rq::ValueKind::WORD:
-    return "word";
-  case rq::ValueKind::SIGNED:
-    return "signed";
-  case rq::ValueKind::UNSIGNED:
-    return "unsigned";
   case rq::ValueKind::UTF8:
     return "utf8";
   case rq::ValueKind::BFLOAT16:
@@ -131,6 +88,12 @@ enum class ValueKind : std::uint_fast8_t {
     return "binary64";
   case rq::ValueKind::BINARY128:
     return "binary128";
+  case rq::ValueKind::WORD:
+    return "word";
+  case rq::ValueKind::SIGNED:
+    return "signed";
+  case rq::ValueKind::UNSIGNED:
+    return "unsigned";
   case rq::ValueKind::MODULE:
     return "module";
   case rq::ValueKind::TOP_SCOPE:
@@ -159,12 +122,25 @@ enum class ValueKind : std::uint_fast8_t {
   RQ_UNREACHABLE();
 }
 
-struct Value {
+enum class ValueFlags : std::uint_fast8_t {
+  NONE = 0,
+  NO_DATA = rq::getBit(0),
+  SCOPE = rq::getBit(1),
+  PROCEDURE = rq::getBit(2)
+};
+
+template <> struct is_flags<rq::ValueFlags> : std::true_type {};
+
+static constexpr unsigned NO_DATA_SYMBOL_COUNT = 11;
+
+struct Value : public llvm::FoldingSetNode {
   using Self = rq::Value;
 
   rq::ValueKind _kind;
+  unsigned _parameter{0};  // For parameterized types (bit width, etc.)
 
-  Value(rq::ValueKind kind) : _kind(kind) {}
+  Value(rq::ValueKind kind) : _kind(kind), _parameter(0) {}
+  Value(rq::ValueKind kind, unsigned parameter) : _kind(kind), _parameter(parameter) {}
   Value(const Self &) = delete;
   Value(Self &&) = delete;
   virtual ~Value() {}
@@ -173,11 +149,18 @@ struct Value {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getKind() const {
     return this->_kind;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameter() const {
+    return this->_parameter;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Scope &getScope() {
     return *std::bit_cast<rq::Scope *>(this);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Scope &getScope() const {
     return *std::bit_cast<rq::Scope *>(this);
+  }
+  void Profile(llvm::FoldingSetNodeID &id) const {
+    id.AddInteger(static_cast<unsigned>(this->_kind));
+    id.AddInteger(this->_parameter);
   }
 };
 
@@ -590,9 +573,11 @@ struct Layout final : public rq::Scope {
 struct Procedure final : public rq::Scope {
   using Self = rq::Procedure;
 
+  rq::Module *_module_ptr{nullptr};
   const rq::Expression *_expression_ptr{nullptr};
 
-  Procedure(rq::ValueKind kind) : rq::Scope(kind) {}
+  Procedure(rq::ValueKind kind, rq::Module &module)
+      : rq::Scope(kind), _module_ptr(&module) {}
   Procedure(const Self &) = delete;
   Procedure(Self &&) = delete;
   ~Procedure() override = default;
@@ -603,6 +588,12 @@ struct Procedure final : public rq::Scope {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(Self &&rhs) const {
     return this != &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule() {
+    return rq::dereferencePtr(this->_module_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const {
+    return rq::dereferencePtr(this->_module_ptr);
   }
   void setExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
@@ -874,17 +865,17 @@ template <typename NumericParam>
     ost_term = std::bit_cast<Numeric>(unsigned_term);
     return rq::NumericResult::OK;
   } else if constexpr (std::same_as<Numeric, llvm::APInt>) {
-    const unsigned bit_width = ost_term.getBitWidth();
-    llvm::APInt max_base = llvm::APInt(bit_width, rq::MAX_BASE);
-    llvm::APInt min_upper_base = llvm::APInt(bit_width, rq::MIN_UPPER_BASE);
-    const llvm::APInt unsigned_max = llvm::APInt::getMaxValue(bit_width);
-    llvm::APInt base = llvm::APInt(bit_width, 10);
+    const unsigned bit_depth = ost_term.getBitWidth();
+    llvm::APInt max_base = llvm::APInt(bit_depth, rq::MAX_BASE);
+    llvm::APInt min_upper_base = llvm::APInt(bit_depth, rq::MIN_UPPER_BASE);
+    const llvm::APInt unsigned_max = llvm::APInt::getMaxValue(bit_depth);
+    llvm::APInt base = llvm::APInt(bit_depth, 10);
     llvm::APInt max_digit_multiplier = base - 1;
     llvm::APInt max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
     llvm::APInt max_before_add = unsigned_max - max_digit_multiplier;
     bool explicit_base = false;
     bool digit_found = false;
-    llvm::APInt unsigned_term = llvm::APInt(bit_width, 0);
+    llvm::APInt unsigned_term = llvm::APInt(bit_depth, 0);
     for (const char c : text) {
       if (!explicit_base && c == 'x') {
         base = unsigned_term;
@@ -909,7 +900,7 @@ template <typename NumericParam>
           lower_c = rq::getLowercaseLetter(c);
         }
         const llvm::APInt digit_base_multiplier =
-            llvm::APInt(bit_width, rq::getDigitBaseMultiplier(lower_c));
+            llvm::APInt(bit_depth, rq::getDigitBaseMultiplier(lower_c));
         if (digit_base_multiplier.uge(base)) {
           return rq::NumericResult::ERROR_INVALID_DIGIT;
         }
@@ -952,5 +943,155 @@ getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
   ost_term = llvm::APFloat(llvm_semantics, buffer);
   return result;
 }
+
+struct ContextCache {
+  using Self = ContextCache;
+
+  llvm::BumpPtrAllocator _llvm_arena{};
+  llvm::StringSaver _llvm_string_saver{_llvm_arena};
+  std::vector<rq::Expression *> _unused_expression_ptrs{};
+  rq::Value *_void_type{nullptr};
+  rq::Value *_null_type{nullptr};
+  rq::Value *_no_return_type{nullptr};
+  rq::Value *_variadic_arguments_type{nullptr};
+  rq::Value *_boolean_type{nullptr};
+  rq::Value *_utf8_type{nullptr};
+  rq::Value *_bfloat16_type{nullptr};
+  rq::Value *_binary16_type{nullptr};
+  rq::Value *_binary32_type{nullptr};
+  rq::Value *_binary64_type{nullptr};
+  rq::Value *_binary128_type{nullptr};
+  llvm::FoldingSet<rq::Value> _parameterized_types{};
+
+  ContextCache() = default;
+  ContextCache(const Self &) = delete;
+  ContextCache(Self &&) = delete;
+  ~ContextCache() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  template <typename TypeParam, typename... ArgNParam>
+  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam &
+  allocateValue(ArgNParam &&...arg_n) {
+    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
+    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+    return rq::dereferencePtr(ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef saveString(llvm::Twine twine) {
+    return this->_llvm_string_saver.save(twine);
+  }
+
+  [[nodiscard]] rq::Expression &acquireExpression();
+  RQ_ALWAYS_INLINE void discardExpression(rq::Expression &expression) {
+    this->_unused_expression_ptrs.emplace_back(&expression);
+  }
+
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+
+  [[nodiscard]] rq::Value &getVoidType() {
+    if (!this->_void_type) {
+      this->_void_type = &this->allocateValue<rq::Value>(rq::ValueKind::VOID);
+    }
+    return rq::dereferencePtr(this->_void_type);
+  }
+
+  [[nodiscard]] rq::Value &getNullType() {
+    if (!this->_null_type) {
+      this->_null_type = &this->allocateValue<rq::Value>(rq::ValueKind::NULL_TYPE);
+    }
+    return rq::dereferencePtr(this->_null_type);
+  }
+
+  [[nodiscard]] rq::Value &getNoReturnType() {
+    if (!this->_no_return_type) {
+      this->_no_return_type = &this->allocateValue<rq::Value>(rq::ValueKind::NO_RETURN);
+    }
+    return rq::dereferencePtr(this->_no_return_type);
+  }
+
+  [[nodiscard]] rq::Value &getVariadicArgumentsType() {
+    if (!this->_variadic_arguments_type) {
+      this->_variadic_arguments_type = &this->allocateValue<rq::Value>(rq::ValueKind::VARIADIC_ARGUMENTS_TYPE);
+    }
+    return rq::dereferencePtr(this->_variadic_arguments_type);
+  }
+
+  [[nodiscard]] rq::Value &getBooleanType() {
+    if (!this->_boolean_type) {
+      this->_boolean_type = &this->allocateValue<rq::Value>(rq::ValueKind::BOOLEAN);
+    }
+    return rq::dereferencePtr(this->_boolean_type);
+  }
+
+  [[nodiscard]] rq::Value &getUtf8Type() {
+    if (!this->_utf8_type) {
+      this->_utf8_type = &this->allocateValue<rq::Value>(rq::ValueKind::UTF8);
+    }
+    return rq::dereferencePtr(this->_utf8_type);
+  }
+
+  [[nodiscard]] rq::Value &getBfloat16Type() {
+    if (!this->_bfloat16_type) {
+      this->_bfloat16_type = &this->allocateValue<rq::Value>(rq::ValueKind::BFLOAT16);
+    }
+    return rq::dereferencePtr(this->_bfloat16_type);
+  }
+
+  [[nodiscard]] rq::Value &getBinary16Type() {
+    if (!this->_binary16_type) {
+      this->_binary16_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY16);
+    }
+    return rq::dereferencePtr(this->_binary16_type);
+  }
+
+  [[nodiscard]] rq::Value &getBinary32Type() {
+    if (!this->_binary32_type) {
+      this->_binary32_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY32);
+    }
+    return rq::dereferencePtr(this->_binary32_type);
+  }
+
+  [[nodiscard]] rq::Value &getBinary64Type() {
+    if (!this->_binary64_type) {
+      this->_binary64_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY64);
+    }
+    return rq::dereferencePtr(this->_binary64_type);
+  }
+
+  [[nodiscard]] rq::Value &getBinary128Type() {
+    if (!this->_binary128_type) {
+      this->_binary128_type = &this->allocateValue<rq::Value>(rq::ValueKind::BINARY128);
+    }
+    return rq::dereferencePtr(this->_binary128_type);
+  }
+
+  [[nodiscard]] rq::Value &_getOrInsertParameterizedType(rq::ValueKind kind, unsigned parameter) {
+    llvm::FoldingSetNodeID id;
+    id.AddInteger(static_cast<unsigned>(kind));
+    id.AddInteger(parameter);
+    
+    void *insert_pos = nullptr;
+    if (rq::Value *existing = this->_parameterized_types.FindNodeOrInsertPos(id, insert_pos)) {
+      return *existing;
+    }
+    
+    rq::Value &new_type = this->allocateValue<rq::Value>(kind, parameter);
+    this->_parameterized_types.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+
+  [[nodiscard]] rq::Value &getWordType(unsigned bit_depth) {
+    return this->_getOrInsertParameterizedType(rq::ValueKind::WORD, bit_depth);
+  }
+
+  [[nodiscard]] rq::Value &getUnsignedType(unsigned bit_depth) {
+    return this->_getOrInsertParameterizedType(rq::ValueKind::UNSIGNED, bit_depth);
+  }
+
+  [[nodiscard]] rq::Value &getSignedType(unsigned bit_depth) {
+    return this->_getOrInsertParameterizedType(rq::ValueKind::SIGNED, bit_depth);
+  }
+};
 
 } // namespace rq
