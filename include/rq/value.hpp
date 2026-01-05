@@ -543,6 +543,10 @@ struct Scope : rq::Value {
   }
   inline void tabulateUnamedSymbol(rq::Frame &frame, rq::Value &symbol) {
     rq::ScopeEntry &entry = this->_unamed_values;
+    if (entry.getIsEmpty()) {
+      entry = symbol;
+      return;
+    }
     rq::ScopeNode &node = frame.allocateValue<rq::ScopeNode>(symbol, entry);
     entry = rq::ScopeEntry(node);
   }

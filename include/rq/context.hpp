@@ -97,11 +97,11 @@ struct Context final {
   getTopScope() const {
     return this->_top_scope;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getTopStaticFrame() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Frame &getTopFrame() {
     return this->_top_frame;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Frame &
-  getTopStaticFrame() const {
+  getTopFrame() const {
     return this->_top_frame;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
