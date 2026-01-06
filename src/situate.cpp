@@ -1062,7 +1062,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MAY_MOVE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::MUTABLE_WITH:
+  case K::MUTATE_WITH:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::SYMBOL_PATH);
     break;

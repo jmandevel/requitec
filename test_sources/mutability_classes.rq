@@ -7,8 +7,8 @@
 @may_copy @may_move
 [object Foo,
     {>
-        @public @[mutable_with ClassA] a := 0,
-        @public @[mutable_with stuff.ClassB] b := 0
+        @public @[mutate_with ClassA] a := 0,
+        @public @[mutate_with stuff.ClassB] b := 0
     <},
 
     @public

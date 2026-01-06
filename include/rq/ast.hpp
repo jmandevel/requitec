@@ -313,7 +313,7 @@ enum class Keyword : std::uint32_t {
   DEPRECIATED,
   MAY_COPY,
   MAY_MOVE,
-  MUTABLE_WITH,
+  MUTATE_WITH,
 
   // EXPRESSIONS
   QUOTE,
@@ -849,8 +849,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "may_copy";
   case K::MAY_MOVE:
     return "may_move";
-  case K::MUTABLE_WITH:
-    return "mutable_with";
+  case K::MUTATE_WITH:
+    return "mutate_with";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1478,7 +1478,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_ATTRIBUTE;
   case K::MAY_MOVE:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::MUTABLE_WITH:
+  case K::MUTATE_WITH:
     return KF::STATEMENT_ATTRIBUTE;
 
   // EXPRESSIONS
@@ -2047,7 +2047,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   PROTECTED,
   MAY_COPY,
   MAY_MOVE,
-  MUTABLE_WITH
+  MUTATE_WITH
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::StatementAttribute attribute) {
@@ -2104,8 +2104,8 @@ enum class StatementAttribute : std::uint_fast8_t {
     return "may_copy";
   case SA::MAY_MOVE:
     return "may_move";
-  case SA::MUTABLE_WITH:
-    return "mutable_with";
+  case SA::MUTATE_WITH:
+    return "mutate_with";
   }
   return "error";
 }
@@ -2164,8 +2164,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MAY_COPY;
   case K::MAY_MOVE:
     return SA::MAY_MOVE;
-  case K::MUTABLE_WITH:
-    return SA::MUTABLE_WITH;
+  case K::MUTATE_WITH:
+    return SA::MUTATE_WITH;
   default:
     break;
   }
@@ -2198,7 +2198,7 @@ enum class StatementFlags : std::uint32_t {
   PROTECTED = rq::getBit(10),
   MAY_COPY = rq::getBit(9),
   MAY_MOVE = rq::getBit(8),
-  MUTABLE_WITH = rq::getBit(7)
+  MUTATE_WITH = rq::getBit(7)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2259,8 +2259,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::MAY_COPY;
   case SA::MAY_MOVE:
     return SF::MAY_MOVE;
-  case SA::MUTABLE_WITH:
-    return SF::MUTABLE_WITH;
+  case SA::MUTATE_WITH:
+    return SF::MUTATE_WITH;
   }
   return SF::NONE;
 }
