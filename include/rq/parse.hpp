@@ -162,7 +162,6 @@ struct PrecedenceFactory final {
   [[nodiscard]] const rq::Context &getContext() const {
     return this->_context_ref.get();
   }
-  void parseDoubleUnary(const rq::Token &token, rq::Keyword keyword);
   void parseUnary(const rq::Token &token, rq::Keyword keyword);
   void parseAscribe(const rq::Token &token, rq::Keyword keyword);
   void parseBinary(const rq::Token &token, rq::Keyword keyword);

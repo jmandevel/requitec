@@ -32,8 +32,8 @@ enum class TokenKind : std::uint_fast8_t {
   PIPE_OPERATOR,              // |
   TILDE_OPERATOR,             // ~
   AMPERSAND_OPERATOR,         // &
-  DOUBLE_AMPERSAND_OPERATOR,  // &&
-  DOUBLE_PIPE_OPERATOR,       // ||
+  DOWN_ARROW_OPERATOR,        // \/
+  UP_ARROW_OPERATOR,          // /\   .
   EQUAL_OPERATOR,             // =
   DOUBLE_EQUAL_OPERATOR,      // ==
   PLUS_EQUAL_OPERATOR,        // +=
@@ -167,10 +167,10 @@ getName(rq::TokenKind kind) {
     return "tilde_operator";
   case T::AMPERSAND_OPERATOR:
     return "ampersand_operator";
-  case T::DOUBLE_AMPERSAND_OPERATOR:
-    return "double_ampersand_operator";
-  case T::DOUBLE_PIPE_OPERATOR:
-    return "double_pipe_operator";
+  case T::DOWN_ARROW_OPERATOR:
+    return "down_arrow_operator";
+  case T::UP_ARROW_OPERATOR:
+    return "up_arrow_operator";
   case T::EQUAL_OPERATOR:
     return "equal_operator";
   case T::DOUBLE_EQUAL_OPERATOR:
@@ -342,9 +342,9 @@ getDescription(rq::TokenKind kind) {
     return "tilde operator";
   case T::AMPERSAND_OPERATOR:
     return "ampersand operator";
-  case T::DOUBLE_AMPERSAND_OPERATOR:
+  case T::DOWN_ARROW_OPERATOR:
     return "double ampersand operator";
-  case T::DOUBLE_PIPE_OPERATOR:
+  case T::UP_ARROW_OPERATOR:
     return "double pipe operator";
   case T::EQUAL_OPERATOR:
     return "equal operator";
@@ -517,9 +517,9 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::AMPERSAND_OPERATOR:
     return TF::OPERATOR;
-  case T::DOUBLE_AMPERSAND_OPERATOR:
+  case T::DOWN_ARROW_OPERATOR:
     return TF::OPERATOR;
-  case T::DOUBLE_PIPE_OPERATOR:
+  case T::UP_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::EQUAL_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
@@ -672,14 +672,12 @@ getIsSeparator(rq::TokenKind kind) {
   return rq::getHasAll(flags, rq::TokenFlags::SEPARATOR);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsLiteral(rq::TokenKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsLiteral(rq::TokenKind kind) {
   const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::LITERAL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getCanBeMark(rq::TokenKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getCanBeMark(rq::TokenKind kind) {
   const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::MARK);
 }

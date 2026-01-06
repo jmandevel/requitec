@@ -109,17 +109,17 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '&':
-      switch (this->getRanger().getChar(1)) {
-      case '&':
-        this->tokenizeLengthToken(T::DOUBLE_AMPERSAND_OPERATOR, 2);
-        break;
-      default:
-        this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
       continue;
     case '\'':
-      this->tokenizeQuotedLiteral<false, '\'', T::CODEUNIT_LITERAL,
-                                  T::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
+      switch (this->getRanger().getChar(1)) {
+      case '/':
+        this->tokenizeLengthToken(T::DOWN_ARROW_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeQuotedLiteral<false, '\'', T::CODEUNIT_LITERAL,
+                                    T::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
+      }
       continue;
     case '(':
       this->tokenizeLeftGrouping(G::PARENTHESIS, T::LEFT_PARENTHESIS_GROUPING,
@@ -290,6 +290,9 @@ void Tokenizer::_tokenizeSourceText() {
         }
       case '=':
         this->tokenizeLengthToken(T::SLASH_EQUAL_OPERATOR, 2);
+        break;
+      case '\\':
+        this->tokenizeLengthToken(T::UP_ARROW_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(T::SLASH_OPERATOR, 1);
@@ -527,13 +530,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLeftGrouping(G::BRACE, T::LEFT_BRACE_GROUPING, 1);
       continue;
     case '|':
-      switch (this->getRanger().getChar(1)) {
-      case '|':
-        this->tokenizeLengthToken(rq::TokenKind::DOUBLE_PIPE_OPERATOR, 2);
-        break;
-      default:
-        this->tokenizeLengthToken(rq::TokenKind::PIPE_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(rq::TokenKind::PIPE_OPERATOR, 1);
       continue;
     case '}':
       if (!this->getHasGrouping()) {

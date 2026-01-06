@@ -44,22 +44,6 @@ void TreeFactory::finishExpression(const rq::Token &last_token) {
   expression.extendSourceOver(last_token);
 }
 
-void PrecedenceFactory::parseDoubleUnary(const rq::Token &token,
-                                         rq::Keyword keyword) {
-  rq::Expression &expression0 = this->getContext().acquireExpression();
-  expression0.setKeyword(keyword);
-  expression0.setSource(token);
-  this->appendBranch(expression0);
-  this->_expression_ptr = &expression0;
-  this->_last_ptr = nullptr;
-  rq::Expression &expression1 = this->getContext().acquireExpression();
-  expression1.setKeyword(keyword);
-  expression1.setSource(token);
-  this->appendBranch(expression1);
-  this->_expression_ptr = &expression1;
-  this->_last_ptr = nullptr;
-}
-
 void PrecedenceFactory::parseUnary(const rq::Token &token,
                                    rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
@@ -444,12 +428,12 @@ rq::Expression &RequiteParser::parsePrecedence7() {
     }
     const rq::Token &token = this->getRanger().getToken();
     switch (token.getKind()) {
-    case rq::TokenKind::DOUBLE_AMPERSAND_OPERATOR:
+    case rq::TokenKind::DOWN_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::S_LOGICAL_AND);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
-    case rq::TokenKind::DOUBLE_PIPE_OPERATOR:
+    case rq::TokenKind::UP_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::S_LOGICAL_OR);
       precedence_factory.setRecent(this->parsePrecedence6());
@@ -763,9 +747,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       case rq::TokenKind::AMPERSAND_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token, rq::Keyword::S_REFERENCE);
-        continue;
-      case rq::TokenKind::DOUBLE_AMPERSAND_OPERATOR:
-        precedence_factory.parseDoubleUnary(token, rq::Keyword::S_REFERENCE);
         continue;
       case rq::TokenKind::STAR_OPERATOR:
         this->getRanger().incrementToken(1);

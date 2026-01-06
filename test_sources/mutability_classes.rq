@@ -24,7 +24,7 @@
     foo_borrow_b := foo.(stuff.ClassB)`[borrow]; // of type &(foo.ClassB`Foo)
     foo_borrow_b.b := 2;
 
-    foo_borrow_ab := foo.(ClassA && stuff.ClassB)`[borrow]; // of type &(ClassA && foo.ClassB)`Foo
+    foo_borrow_ab := foo.(ClassA \/ stuff.ClassB)`[borrow]; // of type &(ClassA \/ foo.ClassB)`Foo
     foo_borrow_ab.a := 3;
     foo_borrow_ab.b := 4;
 ];
