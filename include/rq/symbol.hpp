@@ -783,8 +783,8 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicCaptureLayout() const {
     return rq::getIsDynamicCaptureLayout(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutabilityClassFlags getMutabilityClassFlags() const {
-    return rq::getMutabilityClassFlags(this->_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags getMutationFlags() const {
+    return rq::getMutationFlags(this->_flags);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
     id.AddInteger(static_cast<unsigned>(this->_kind));

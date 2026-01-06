@@ -707,7 +707,7 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::MUTATION_CLASS:
+  case K::MUTATION:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::SYMBOL_PATH);
     break;
 

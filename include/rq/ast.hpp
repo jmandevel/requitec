@@ -180,7 +180,7 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   OBJECT,
   ENUMERATION,
-  MUTATION_CLASS,
+  MUTATION,
 
   // VALUES
   TRUE,
@@ -633,8 +633,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
-  case K::MUTATION_CLASS:
-    return "mutation_class";
+  case K::MUTATION:
+    return "mutation";
 
   // VALUES
   case K::TRUE:
@@ -1253,7 +1253,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::MUTATION_CLASS:
+  case K::MUTATION:
     return KF::STATEMENT;
 
   // VALUES;
@@ -2348,16 +2348,20 @@ enum class TypeFlags : std::uint32_t {
   // NOTE: data for DYNAMIC_CAPTURE_LAYOUT is in the root SignatureSymbol of
   // TypeSymbol
   DYNAMIC_CAPTURE_LAYOUT = rq::getBit(7),
-  MUTATION_CLASS_MASK = 0xFFFF
+  MUTATION_MASK = 0xFFFF
 };
 
 template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
 
-enum class MutabilityClassFlags : std::uint16_t { NONE = 0 };
+enum class MutationFlags : std::uint16_t {
+  NONE = 0,
+  INDEPENDENT_CLASS = rq::getBit(0),
+  USER_CLASS_MASK = 0xFFFE
+};
 
-template <> struct is_flags<rq::MutabilityClassFlags> final : std::true_type {};
+template <> struct is_flags<rq::MutationFlags> final : std::true_type {};
 
-static constexpr unsigned MAX_MUTATION_CLASS_COUNT = 16;
+static constexpr unsigned MAX_MUTATION_COUNT = 16;
 
 [[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
   using namespace rq;
@@ -2436,11 +2440,11 @@ getIsDynamicCaptureLayout(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::DYNAMIC_CAPTURE_LAYOUT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::MutabilityClassFlags
-getMutabilityClassFlags(rq::TypeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags
+getMutationFlags(rq::TypeFlags flags) {
   RQ_ASSERT(rq::getIsPartiallyMutable(flags), "not partially mutable");
-  return static_cast<rq::MutabilityClassFlags>(
-      rq::getMaskValue(flags, rq::TypeFlags::MUTATION_CLASS_MASK));
+  return static_cast<rq::MutationFlags>(
+      rq::getMaskValue(flags, rq::TypeFlags::MUTATION_MASK));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
@@ -2465,8 +2469,8 @@ getMutabilityClassFlags(rq::TypeFlags flags) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsValidMutabilityClass(rq::TypeFlags flags) {
   if (!rq::getIsPartiallyMutable(flags)) {
-    rq::MutabilityClassFlags classes = rq::getMutabilityClassFlags(flags);
-    if (classes != rq::MutabilityClassFlags::NONE) {
+    rq::MutationFlags classes = rq::getMutationFlags(flags);
+    if (classes != rq::MutationFlags::NONE) {
       return false;
     }
   }

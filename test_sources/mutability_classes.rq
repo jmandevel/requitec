@@ -1,7 +1,7 @@
-[mutation_class ClassA];
+[mutation ClassA];
 
 [table stuff,
-    [mutation_class ClassB];
+    [mutation ClassB];
 ];
 
 @may_copy @may_move
