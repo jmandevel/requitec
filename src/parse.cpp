@@ -133,7 +133,7 @@ void PrecedenceFactory::parseNary(const rq::Token &token, rq::Keyword keyword) {
 void PrecedenceFactory::parseSequenceBranch(const rq::Token &token,
                                             rq::Keyword keyword,
                                             rq::Expression &rvalue) {
-  this->parseNary(token, rq::Keyword::S_SEQUENCE);
+  this->parseNary(token, rq::Keyword::S_ARITHMETIC_SEQUENCE);
   rq::Expression &step = this->getContext().acquireExpression();
   step.setKeyword(keyword);
   step.setSource(token, rvalue);
@@ -349,63 +349,63 @@ rq::Expression &RequiteParser::parsePrecedence8() {
     case rq::TokenKind::DOT_PLUS_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_STEP_ADD, this->parsePrecedence7());
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_STEP_ADD, this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_DASH_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_STEP_SUBTRACT,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_STAR_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_STEP_MULTIPLY,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_SLASH_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_STEP_DIVIDE, this->parsePrecedence7());
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE, this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_PERCENT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_STEP_MODULUS,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_STEP_MODULUS,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_LESS_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_WHILE_LESS, this->parsePrecedence7());
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_LESS, this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_WHILE_GREATER,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_LESS_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_WHILE_LESS_EQUAL,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_GREATER_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_WHILE_GREATER_EQUAL,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_DOUBLE_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_WHILE_EQUAL, this->parsePrecedence7());
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL, this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_BANG_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::S_SEQUENCE_WHILE_NOT_EQUAL,
+          token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL,
           this->parsePrecedence7());
       continue;
     default:

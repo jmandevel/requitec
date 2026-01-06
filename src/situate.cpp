@@ -78,8 +78,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_EQUAL_OPERATOR:
     switch (situation) {
     case S::ARGUMENT: {
-      is_ok = this->situateBinaryNonStatementBranches(
-          situation, expression, S::LVALUE, S::RVALUE);
+      is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                      S::LVALUE, S::RVALUE);
       if (is_ok) {
         expression.changeKeyword(K::S_NAMED_ARGUMENT);
       }
@@ -118,13 +118,11 @@ bool Situator::situateTree(rq::Situation situation,
       switch (lvalue.getKeyword()) {
       case K::S_NULL:
         expression.changeKeyword(K::S_IGNORE);
-        this->getContext().discardExpression(
-            expression.replaceBranch(rvalue));
+        this->getContext().discardExpression(expression.replaceBranch(rvalue));
         break;
       case K::S_TUPLE:
         lvalue.changeKeyword(K::S_STRUCTURED_BINDING);
-        this->getContext().discardExpression(
-            expression.mergeAndPopBranch());
+        this->getContext().discardExpression(expression.mergeAndPopBranch());
         break;
         ;
       default:
@@ -708,7 +706,8 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   }
   case K::MUTATION:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::SYMBOL_PATH);
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::SYMBOL_PATH);
     break;
 
   // VALUES
@@ -879,7 +878,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
-  case K::S_SEQUENCE: {
+  case K::S_ARITHMETIC_SEQUENCE: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        2);
@@ -895,12 +894,14 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &stage_one = value.getNext();
-    if (!this->situateNonStatementBranch(S::SEQUENCE_STAGE, stage_one)) {
+    if (!this->situateNonStatementBranch(S::ARITHMETIC_SEQUENCE_CONDITION,
+                                         stage_one)) {
       is_ok = false;
     }
     if (stage_one.getHasNext()) {
       rq::Expression &stage_two = stage_one.getNext();
-      if (!this->situateNonStatementBranch(S::SEQUENCE_STAGE, stage_two)) {
+      if (!this->situateNonStatementBranch(S::ARITHMETIC_SEQUENCE_STEP,
+                                           stage_two)) {
         is_ok = false;
       }
       if (stage_two.getHasNext()) {
@@ -911,27 +912,27 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::S_SEQUENCE_STEP_ADD:
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
     [[fallthrough]];
-  case K::S_SEQUENCE_STEP_SUBTRACT:
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
     [[fallthrough]];
-  case K::S_SEQUENCE_STEP_MULTIPLY:
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
     [[fallthrough]];
-  case K::S_SEQUENCE_STEP_DIVIDE:
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
     [[fallthrough]];
-  case K::S_SEQUENCE_STEP_MODULUS:
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
     [[fallthrough]];
-  case K::S_SEQUENCE_WHILE_LESS:
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
     [[fallthrough]];
-  case K::S_SEQUENCE_WHILE_GREATER:
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
     [[fallthrough]];
-  case K::S_SEQUENCE_WHILE_LESS_EQUAL:
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL:
     [[fallthrough]];
-  case K::S_SEQUENCE_WHILE_GREATER_EQUAL:
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL:
     [[fallthrough]];
-  case K::S_SEQUENCE_WHILE_EQUAL:
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
     [[fallthrough]];
-  case K::S_SEQUENCE_WHILE_NOT_EQUAL:
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
@@ -1094,7 +1095,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::S_EXPAND_SYMBOL_PATH:
     [[fallthrough]];
-  case K::S_EXPAND_SEQUENCE_STAGE:
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
+    [[fallthrough]];
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
     [[fallthrough]];
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     break;
@@ -1260,8 +1263,7 @@ bool Situator::situateTree(rq::Situation situation,
   if (is_ok && expression.getIsConverging()) {
     for (rq::Expression &branch : expression.getBranchSubrange()) {
       if (expression.getKeyword() == branch.getKeyword()) {
-        this->getContext().discardExpression(
-            expression.mergeAndPopBranch());
+        this->getContext().discardExpression(expression.mergeAndPopBranch());
       }
     }
   }

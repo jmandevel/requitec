@@ -255,18 +255,18 @@ enum class Keyword : std::uint32_t {
 
   // RANGES
   RANGE,
-  S_SEQUENCE,
-  S_SEQUENCE_STEP_ADD,
-  S_SEQUENCE_STEP_SUBTRACT,
-  S_SEQUENCE_STEP_MULTIPLY,
-  S_SEQUENCE_STEP_DIVIDE,
-  S_SEQUENCE_STEP_MODULUS,
-  S_SEQUENCE_WHILE_LESS,
-  S_SEQUENCE_WHILE_GREATER,
-  S_SEQUENCE_WHILE_LESS_EQUAL,
-  S_SEQUENCE_WHILE_GREATER_EQUAL,
-  S_SEQUENCE_WHILE_EQUAL,
-  S_SEQUENCE_WHILE_NOT_EQUAL,
+  S_ARITHMETIC_SEQUENCE,
+  S_ARITHMETIC_SEQUENCE_STEP_ADD,
+  S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT,
+  S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY,
+  S_ARITHMETIC_SEQUENCE_STEP_DIVIDE,
+  S_ARITHMETIC_SEQUENCE_STEP_MODULUS,
+  S_ARITHMETIC_SEQUENCE_CONDITION_LESS,
+  S_ARITHMETIC_SEQUENCE_CONDITION_GREATER,
+  S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
+  S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
+  S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL,
+  S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL,
 
   // ACCESS MODIFIERS
   PUBLIC,
@@ -326,7 +326,8 @@ enum class Keyword : std::uint32_t {
   S_EXPAND_ARGUMENT,
   S_EXPAND_PARAMETER,
   S_EXPAND_SYMBOL_PATH,
-  S_EXPAND_SEQUENCE_STAGE,
+  S_EXPAND_ARITHMETIC_SEQUENCE_STEP,
+  S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION,
   S_EXPAND_DYNAMIC_CAPTURE,
 
   // REFLECTIONS
@@ -743,30 +744,30 @@ constexpr std::size_t KEYWORD_COUNT =
   // RANGES
   case K::RANGE:
     return "range";
-  case K::S_SEQUENCE:
-    return "_sequence";
-  case K::S_SEQUENCE_STEP_ADD:
-    return "_sequence_step_add";
-  case K::S_SEQUENCE_STEP_SUBTRACT:
-    return "_sequence_step_subtract";
-  case K::S_SEQUENCE_STEP_MULTIPLY:
-    return "_sequence_step_multiply";
-  case K::S_SEQUENCE_STEP_DIVIDE:
-    return "_sequence_step_divide";
-  case K::S_SEQUENCE_STEP_MODULUS:
-    return "_sequence_step_modulus";
-  case K::S_SEQUENCE_WHILE_LESS:
-    return "_sequence_while_less";
-  case K::S_SEQUENCE_WHILE_GREATER:
-    return "_sequence_while_greater";
-  case K::S_SEQUENCE_WHILE_LESS_EQUAL:
-    return "_sequence_while_less_equal";
-  case K::S_SEQUENCE_WHILE_GREATER_EQUAL:
-    return "_sequence_while_greater_equal";
-  case K::S_SEQUENCE_WHILE_EQUAL:
-    return "_sequence_while_equal";
-  case K::S_SEQUENCE_WHILE_NOT_EQUAL:
-    return "_sequence_while_not_equal";
+  case K::S_ARITHMETIC_SEQUENCE:
+    return "_arithmetic_sequence";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+    return "_arithmetic_sequence_step_add";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+    return "_arithmetic_sequence_step_subtract";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+    return "_arithmetic_sequence_step_multiply";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+    return "_arithmetic_sequence_step_divide";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
+    return "_arithmetic_sequence_step_modulus";
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
+    return "_arithmetic_sequence_condition_less";
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
+    return "_arithmetic_sequence_condition_greater";
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL:
+    return "_arithmetic_sequence_condition_less_equal";
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL:
+    return "_arithmetic_sequence_condition_greater_equal";
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
+    return "_arithmetic_sequence_condition_equal";
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
+    return "_arithmetic_sequence_condition_not_equal";
 
   // ACCESS MODIFIERS
   case K::PUBLIC:
@@ -873,8 +874,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_expand_parameter";
   case K::S_EXPAND_SYMBOL_PATH:
     return "_expand_symbol_path";
-  case K::S_EXPAND_SEQUENCE_STAGE:
-    return "_expand_sequence_stage";
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
+    return "_expand_arithmetic_sequence_step";
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
+    return "_expand_arithmetic_sequence_condition";
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return "_expand_dynamic_capture";
 
@@ -965,11 +968,13 @@ enum class KeywordFlags : std::uint32_t {
   ASCRIPTION = rq::getBit(11),
   TYPE_ATTRIBUTE = rq::getBit(10),
   STATEMENT_ATTRIBUTE = rq::getBit(9),
-  SEQUENCE_STAGE = rq::getBit(8),
-  DYNAMIC_CAPTURE = rq::getBit(7),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(8),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(7),
+  DYNAMIC_CAPTURE = rq::getBit(6),
   ALL = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
         BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE |
-        STATEMENT_ATTRIBUTE | SEQUENCE_STAGE | DYNAMIC_CAPTURE
+        STATEMENT_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
+        ARITHMETIC_SEQUENCE_CONDITION | DYNAMIC_CAPTURE
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1011,7 +1016,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   // SITUATIONAL
   case K::S_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE |
-           KF::SYMBOL_PATH | KF::SEQUENCE_STAGE;
+           KF::SYMBOL_PATH | KF::ARITHMETIC_SEQUENCE_STEP |
+           KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
   case K::S_COLON_OPERATOR:
@@ -1372,30 +1378,30 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   // RANGES
   case K::RANGE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::S_SEQUENCE:
+  case K::S_ARITHMETIC_SEQUENCE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::S_SEQUENCE_STEP_ADD:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_STEP_SUBTRACT:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_STEP_MULTIPLY:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_STEP_DIVIDE:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_STEP_MODULUS:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_WHILE_LESS:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_WHILE_GREATER:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_WHILE_LESS_EQUAL:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_WHILE_GREATER_EQUAL:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_WHILE_EQUAL:
-    return KF::SEQUENCE_STAGE;
-  case K::S_SEQUENCE_WHILE_NOT_EQUAL:
-    return KF::SEQUENCE_STAGE;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
 
   // ACCESS MODIFIERS
   case K::PUBLIC:
@@ -1502,15 +1508,18 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
   case K::S_EXPAND_SYMBOL_PATH:
     return KF::SYMBOL_PATH;
-  case K::S_EXPAND_SEQUENCE_STAGE:
-    return KF::SEQUENCE_STAGE;
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
+    return KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return KF::DYNAMIC_CAPTURE;
 
   // REFLECTIONS
   case K::S_REFLECT:
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
-           KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH | KF::SEQUENCE_STAGE |
+           KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH |
+           KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
            KF::DYNAMIC_CAPTURE;
   case K::S_MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
@@ -1685,7 +1694,8 @@ enum class Situation : std::uint_fast8_t {
   ASCRIPTION,
   TYPE_ATTRIBUTE,
   STATEMENT_ATTRIBUTE,
-  SEQUENCE_STAGE,
+  ARITHMETIC_SEQUENCE_STEP,
+  ARITHMETIC_SEQUENCE_CONDITION,
   DYNAMIC_CAPTURE
 };
 
@@ -1720,8 +1730,10 @@ getDescription(rq::Situation situation) {
     return "type attribute";
   case S::STATEMENT_ATTRIBUTE:
     return "statement attribute";
-  case S::SEQUENCE_STAGE:
-    return "sequence stage expression";
+  case S::ARITHMETIC_SEQUENCE_STEP:
+    return "sequence step expression";
+  case S::ARITHMETIC_SEQUENCE_CONDITION:
+    return "sequence condition expression";
   case S::DYNAMIC_CAPTURE:
     return "dynamic capture expression";
   }
@@ -1756,8 +1768,10 @@ getDescription(rq::Situation situation) {
   case S::TYPE_ATTRIBUTE:
   case S::STATEMENT_ATTRIBUTE:
     break;
-  case S::SEQUENCE_STAGE:
-    return K::S_EXPAND_SEQUENCE_STAGE;
+  case S::ARITHMETIC_SEQUENCE_STEP:
+    return K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP;
+  case S::ARITHMETIC_SEQUENCE_CONDITION:
+    return K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION;
   case S::DYNAMIC_CAPTURE:
     return K::S_EXPAND_DYNAMIC_CAPTURE;
   }
@@ -1785,8 +1799,10 @@ getDescription(rq::Situation situation) {
     return S::PARAMETER;
   case K::S_EXPAND_SYMBOL_PATH:
     return S::SYMBOL_PATH;
-  case K::S_EXPAND_SEQUENCE_STAGE:
-    return S::SEQUENCE_STAGE;
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
+    return S::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
+    return S::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return S::DYNAMIC_CAPTURE;
   default:
@@ -1944,9 +1960,14 @@ getCanBeStatementAttribute(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::STATEMENT_ATTRIBUTE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSequenceStage(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::SEQUENCE_STAGE);
+  return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1984,8 +2005,10 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
     return rq::getCanBeTypeAttribute(keyword);
   case rq::Situation::STATEMENT_ATTRIBUTE:
     return rq::getCanBeStatementAttribute(keyword);
-  case rq::Situation::SEQUENCE_STAGE:
-    return rq::getCanBeSequenceStage(keyword);
+  case rq::Situation::ARITHMETIC_SEQUENCE_STEP:
+    return rq::getCanBeArithmeticSequenceStep(keyword);
+  case rq::Situation::ARITHMETIC_SEQUENCE_CONDITION:
+    return rq::getCanBeArithmeticSequenceCondition(keyword);
   case rq::Situation::DYNAMIC_CAPTURE:
     return rq::getCanBeDynamicCapture(keyword);
   }
@@ -2477,6 +2500,116 @@ getIsValidMutabilityClass(rq::TypeFlags flags) {
   return true;
 }
 
+enum class ArithmeticSequenceStepKind : std::uint_fast8_t {
+  NONE,
+  ADD,
+  SUBTRACT,
+  MULTIPLY,
+  DIVIDE,
+  MODULUS
+};
+
+[[nodiscard]] inline llvm::StringRef
+getDescription(rq::ArithmeticSequenceStepKind step) {
+  using namespace rq;
+  using ASS = ArithmeticSequenceStepKind;
+  using K = Keyword;
+  switch (step) {
+  case ASS::NONE:
+    return "no step";
+  case ASS::ADD:
+    return "add step";
+  case ASS::SUBTRACT:
+    return "subtract step";
+  case ASS::MULTIPLY:
+    return "multiply step";
+  case ASS::DIVIDE:
+    return "divide step";
+  case ASS::MODULUS:
+    return "modulus step";
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::ArithmeticSequenceStepKind
+getArithmeticSequenceStep(rq::Keyword keyword) {
+  using namespace rq;
+  using ASS = ArithmeticSequenceStepKind;
+  using K = Keyword;
+  switch (keyword) {
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+    return ASS::ADD;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+    return ASS::SUBTRACT;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+    return ASS::MULTIPLY;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+    return ASS::DIVIDE;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
+    return ASS::MODULUS;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
+enum class ArithmeticSequenceConditionKind : std::uint_fast8_t {
+  NONE,
+  LESS,
+  LESS_EQUAL,
+  GREATER,
+  GREATER_EQUAL,
+  EQUAL,
+  NOT_EQUAL
+};
+
+[[nodiscard]] inline llvm::StringRef
+getDescription(rq::ArithmeticSequenceConditionKind condition) {
+  using namespace rq;
+  using ASC = ArithmeticSequenceConditionKind;
+  switch (condition) {
+  case ASC::NONE:
+    return "no condition";
+  case ASC::LESS:
+    return "less condition";
+  case ASC::LESS_EQUAL:
+    return "less equal condition";
+  case ASC::GREATER:
+    return "greater condition";
+  case ASC::GREATER_EQUAL:
+    return "greater equal condition";
+  case ASC::EQUAL:
+    return "equal condition";
+  case ASC::NOT_EQUAL:
+    return "not equal condition";
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::ArithmeticSequenceConditionKind
+getArithmeticSequenceCondition(rq::Keyword keyword) {
+  using namespace rq;
+  using ASC = ArithmeticSequenceConditionKind;
+  using K = Keyword;
+  switch (keyword) {
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
+    return ASC::LESS;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL:
+    return ASC::LESS_EQUAL;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
+    return ASC::GREATER;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL:
+    return ASC::GREATER_EQUAL;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
+    return ASC::EQUAL;
+  case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
+    return ASC::NOT_EQUAL;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
 template <typename SourceAParam, typename SourceBParam>
 [[nodiscard]] inline unsigned getSourceLengthBetween(const SourceAParam &first,
                                                      const SourceBParam &last) {
@@ -2742,8 +2875,11 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatementAttribute() const {
     return rq::getCanBeStatementAttribute(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSequenceStage() const {
-    return rq::getCanBeSequenceStage(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep() const {
+    return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceCondition() const {
+    return rq::getCanBeArithmeticSequenceCondition(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeDynamicCapture() const {
     return rq::getCanBeDynamicCapture(this->getKeyword());
