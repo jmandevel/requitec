@@ -73,7 +73,7 @@ struct Context final : public rq::ContextCache {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  rq::Scope _top_scope{rq::SymbolKind::TOP_SCOPE};
+  rq::Scope _top_scope{};
   rq::Module *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)

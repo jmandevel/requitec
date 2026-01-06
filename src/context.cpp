@@ -461,8 +461,6 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << rq::getName(symbol.getKind()) << ":{";
   indent++;
   switch (symbol.getKind()) {
-  case rq::SymbolKind::TOP_SCOPE:
-    [[fallthrough]];
   case rq::SymbolKind::SCOPE: {
     const rq::Scope &scope = llvm::cast<rq::Scope>(symbol);
     fout << "\n";
