@@ -180,7 +180,7 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   OBJECT,
   ENUMERATION,
-  MUTABILITY_CLASS,
+  MUTATION_CLASS,
 
   // VALUES
   TRUE,
@@ -633,8 +633,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "object";
   case K::ENUMERATION:
     return "enumeration";
-  case K::MUTABILITY_CLASS:
-    return "mutability_class";
+  case K::MUTATION_CLASS:
+    return "mutation_class";
 
   // VALUES
   case K::TRUE:
@@ -1253,7 +1253,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::MUTABILITY_CLASS:
+  case K::MUTATION_CLASS:
     return KF::STATEMENT;
 
   // VALUES;
@@ -2348,7 +2348,7 @@ enum class TypeFlags : std::uint32_t {
   // NOTE: data for DYNAMIC_CAPTURE_LAYOUT is in the root SignatureSymbol of
   // TypeSymbol
   DYNAMIC_CAPTURE_LAYOUT = rq::getBit(7),
-  MUTABILITY_CLASS_MASK = 0xFFFF
+  MUTATION_CLASS_MASK = 0xFFFF
 };
 
 template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
@@ -2357,7 +2357,7 @@ enum class MutabilityClassFlags : std::uint16_t { NONE = 0 };
 
 template <> struct is_flags<rq::MutabilityClassFlags> final : std::true_type {};
 
-static constexpr unsigned MAX_MUTABILITY_CLASS_COUNT = 16;
+static constexpr unsigned MAX_MUTATION_CLASS_COUNT = 16;
 
 [[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
   using namespace rq;
@@ -2440,7 +2440,7 @@ getIsDynamicCaptureLayout(rq::TypeFlags flags) {
 getMutabilityClassFlags(rq::TypeFlags flags) {
   RQ_ASSERT(rq::getIsPartiallyMutable(flags), "not partially mutable");
   return static_cast<rq::MutabilityClassFlags>(
-      rq::getMaskValue(flags, rq::TypeFlags::MUTABILITY_CLASS_MASK));
+      rq::getMaskValue(flags, rq::TypeFlags::MUTATION_CLASS_MASK));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
