@@ -112,14 +112,8 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
       continue;
     case '\'':
-      switch (this->getRanger().getChar(1)) {
-      case '/':
-        this->tokenizeLengthToken(T::DOWN_ARROW_OPERATOR, 2);
-        break;
-      default:
-        this->tokenizeQuotedLiteral<false, '\'', T::CODEUNIT_LITERAL,
-                                    T::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
-      }
+      this->tokenizeQuotedLiteral<false, '\'', T::CODEUNIT_LITERAL,
+                                  T::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
       continue;
     case '(':
       this->tokenizeLeftGrouping(G::PARENTHESIS, T::LEFT_PARENTHESIS_GROUPING,
@@ -455,7 +449,13 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLeftGrouping(G::BRACKET, T::LEFT_BRACKET_GROUPING, 1);
       continue;
     case '\\':
-      this->tokenizeLengthToken(T::BACKSLASH_OPERATOR, 1);
+      switch (this->getRanger().getChar(1)) {
+      case '/':
+        this->tokenizeLengthToken(T::DOWN_ARROW_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeLengthToken(T::BACKSLASH_OPERATOR, 1);
+      }
       continue;
     case ']':
       this->tokenizeRightGrouping(G::BRACKET, T::RIGHT_BRACKET_GROUPING, 1);
