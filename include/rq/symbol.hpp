@@ -987,29 +987,29 @@ struct SignedSymbol : public rq::DepthedSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct ScopeNode;
-struct ScopeEntry;
-struct ScopeEntryIterator;
-struct ConstScopeEntryIterator;
+struct SymbolNode;
+struct SymbolEntry;
+struct SymbolEntryIterator;
+struct ConstSymbolEntryIterator;
 
-struct ScopeEntry final {
-  using Self = rq::ScopeEntry;
+struct SymbolEntry final {
+  using Self = rq::SymbolEntry;
 
-  llvm::PointerUnion<rq::Symbol *, rq::ScopeNode *> _ptr_union{nullptr};
+  llvm::PointerUnion<rq::Symbol *, rq::SymbolNode *> _ptr_union{nullptr};
 
-  RQ_ALWAYS_INLINE ScopeEntry() = default;
-  RQ_ALWAYS_INLINE ScopeEntry(rq::Symbol &symbol) : _ptr_union(&symbol) {}
-  RQ_ALWAYS_INLINE ScopeEntry(rq::ScopeNode &node) : _ptr_union(&node) {}
-  RQ_ALWAYS_INLINE ~ScopeEntry() = default;
-  RQ_ALWAYS_INLINE ScopeEntry(const Self &) = default;
-  RQ_ALWAYS_INLINE ScopeEntry(Self &&) = default;
+  RQ_ALWAYS_INLINE SymbolEntry() = default;
+  RQ_ALWAYS_INLINE SymbolEntry(rq::Symbol &symbol) : _ptr_union(&symbol) {}
+  RQ_ALWAYS_INLINE SymbolEntry(rq::SymbolNode &node) : _ptr_union(&node) {}
+  RQ_ALWAYS_INLINE ~SymbolEntry() = default;
+  RQ_ALWAYS_INLINE SymbolEntry(const Self &) = default;
+  RQ_ALWAYS_INLINE SymbolEntry(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator=(const Self &) = default;
   RQ_ALWAYS_INLINE Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
     return llvm::isa<rq::Symbol *>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeNode() const {
-    return llvm::isa<rq::ScopeNode *>(this->_ptr_union);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolNode() const {
+    return llvm::isa<rq::SymbolNode *>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_ptr_union.isNull();
@@ -1020,11 +1020,11 @@ struct ScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
     return rq::dereferencePtr(llvm::cast<rq::Symbol *>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeNode &getScopeNode() {
-    return rq::dereferencePtr(llvm::cast<rq::ScopeNode *>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolNode &getSymbolNode() {
+    return rq::dereferencePtr(llvm::cast<rq::SymbolNode *>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode &getScopeNode() const {
-    return rq::dereferencePtr(llvm::cast<rq::ScopeNode *>(this->_ptr_union));
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolNode &getSymbolNode() const {
+    return rq::dereferencePtr(llvm::cast<rq::SymbolNode *>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this->_ptr_union == rhs._ptr_union;
@@ -1032,50 +1032,50 @@ struct ScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this->_ptr_union != rhs._ptr_union;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntryIterator begin();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntryIterator end();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator begin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator end() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator cbegin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator cend() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolEntryIterator begin();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolEntryIterator end();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator begin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator end() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator cbegin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator cend() const;
 };
 
-struct ConstScopeEntry final {
-  using Self = rq::ConstScopeEntry;
+struct ConstSymbolEntry final {
+  using Self = rq::ConstSymbolEntry;
 
-  llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *> _ptr_union{
+  llvm::PointerUnion<const rq::Symbol *, const rq::SymbolNode *> _ptr_union{
       nullptr};
 
-  RQ_ALWAYS_INLINE ConstScopeEntry() = default;
-  RQ_ALWAYS_INLINE ConstScopeEntry(const rq::ScopeEntry &rhs)
+  RQ_ALWAYS_INLINE ConstSymbolEntry() = default;
+  RQ_ALWAYS_INLINE ConstSymbolEntry(const rq::SymbolEntry &rhs)
       : _ptr_union(
             std::bit_cast<
-                llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
+                llvm::PointerUnion<const rq::Symbol *, const rq::SymbolNode *>>(
                 rhs._ptr_union)) {}
-  RQ_ALWAYS_INLINE ConstScopeEntry(rq::ScopeEntry &&rhs) {
+  RQ_ALWAYS_INLINE ConstSymbolEntry(rq::SymbolEntry &&rhs) {
     this->_ptr_union = std::bit_cast<
-        llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
+        llvm::PointerUnion<const rq::Symbol *, const rq::SymbolNode *>>(
         rhs._ptr_union);
     rhs._ptr_union = nullptr;
   }
-  RQ_ALWAYS_INLINE ConstScopeEntry(const rq::Symbol &symbol)
+  RQ_ALWAYS_INLINE ConstSymbolEntry(const rq::Symbol &symbol)
       : _ptr_union(&symbol) {}
-  RQ_ALWAYS_INLINE ConstScopeEntry(const rq::ScopeNode &node)
+  RQ_ALWAYS_INLINE ConstSymbolEntry(const rq::SymbolNode &node)
       : _ptr_union(&node) {}
-  ~ConstScopeEntry() = default;
-  RQ_ALWAYS_INLINE ConstScopeEntry(const Self &) = default;
-  RQ_ALWAYS_INLINE ConstScopeEntry(Self &&) = default;
+  ~ConstSymbolEntry() = default;
+  RQ_ALWAYS_INLINE ConstSymbolEntry(const Self &) = default;
+  RQ_ALWAYS_INLINE ConstSymbolEntry(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator=(const Self &) = default;
   RQ_ALWAYS_INLINE Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator=(const rq::ScopeEntry &rhs) {
+  RQ_ALWAYS_INLINE Self &operator=(const rq::SymbolEntry &rhs) {
     this->_ptr_union = std::bit_cast<
-        llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
+        llvm::PointerUnion<const rq::Symbol *, const rq::SymbolNode *>>(
         rhs._ptr_union);
     return *this;
   }
-  Self RQ_ALWAYS_INLINE &operator=(rq::ScopeEntry &&rhs) {
+  Self RQ_ALWAYS_INLINE &operator=(rq::SymbolEntry &&rhs) {
     this->_ptr_union = std::bit_cast<
-        llvm::PointerUnion<const rq::Symbol *, const rq::ScopeNode *>>(
+        llvm::PointerUnion<const rq::Symbol *, const rq::SymbolNode *>>(
         rhs._ptr_union);
     rhs._ptr_union = nullptr;
     return *this;
@@ -1083,8 +1083,8 @@ struct ConstScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
     return llvm::isa<const rq::Symbol *>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeNode() const {
-    return llvm::isa<const rq::ScopeNode *>(this->_ptr_union);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolNode() const {
+    return llvm::isa<const rq::SymbolNode *>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_ptr_union.isNull();
@@ -1092,9 +1092,9 @@ struct ConstScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
     return rq::dereferencePtr(llvm::cast<const rq::Symbol *>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeNode &getScopeNode() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolNode &getSymbolNode() const {
     return rq::dereferencePtr(
-        llvm::cast<const rq::ScopeNode *>(this->_ptr_union));
+        llvm::cast<const rq::SymbolNode *>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this->_ptr_union == rhs._ptr_union;
@@ -1102,34 +1102,34 @@ struct ConstScopeEntry final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this->_ptr_union != rhs._ptr_union;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator begin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator end() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator cbegin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstScopeEntryIterator cend() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator begin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator end() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator cbegin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstSymbolEntryIterator cend() const;
 };
 
-struct ScopeNode final {
-  using Self = rq::ScopeNode;
+struct SymbolNode final {
+  using Self = rq::SymbolNode;
 
   rq::Symbol *_symbol_ptr{nullptr};
-  rq::ScopeEntry _scope_entry{};
+  rq::SymbolEntry _scope_entry{};
 
-  RQ_ALWAYS_INLINE ScopeNode() = default;
-  RQ_ALWAYS_INLINE ScopeNode(rq::Symbol &symbol_a, rq::Symbol &symbol_b)
+  RQ_ALWAYS_INLINE SymbolNode() = default;
+  RQ_ALWAYS_INLINE SymbolNode(rq::Symbol &symbol_a, rq::Symbol &symbol_b)
       : _symbol_ptr(&symbol_a), _scope_entry(symbol_b) {}
-  RQ_ALWAYS_INLINE ScopeNode(rq::Symbol &symbol, rq::ScopeNode &node)
+  RQ_ALWAYS_INLINE SymbolNode(rq::Symbol &symbol, rq::SymbolNode &node)
       : _symbol_ptr(&symbol), _scope_entry(node) {}
-  RQ_ALWAYS_INLINE ScopeNode(rq::Symbol &symbol, const rq::ScopeEntry &entry)
+  RQ_ALWAYS_INLINE SymbolNode(rq::Symbol &symbol, const rq::SymbolEntry &entry)
       : _symbol_ptr(&symbol), _scope_entry(entry) {}
-  ScopeNode(const Self &) = delete;
-  ScopeNode(Self &&) = delete;
-  RQ_ALWAYS_INLINE ~ScopeNode() = default;
+  SymbolNode(const Self &) = delete;
+  SymbolNode(Self &&) = delete;
+  RQ_ALWAYS_INLINE ~SymbolNode() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSymbol() const {
     return this->_symbol_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeEntry() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSymbolEntry() const {
     return !this->_scope_entry.getIsEmpty();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
@@ -1138,32 +1138,32 @@ struct ScopeNode final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
     return rq::dereferencePtr(this->_symbol_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeEntry &getScopeEntry() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolEntry &getSymbolEntry() {
     return this->_scope_entry;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeEntry &getScopeEntry() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolEntry &getSymbolEntry() const {
     return this->_scope_entry;
   }
 };
 
-struct ScopeEntryIterator final {
-  using Self = rq::ScopeEntryIterator;
+struct SymbolEntryIterator final {
+  using Self = rq::SymbolEntryIterator;
   using value_type = rq::Symbol;
   using reference = rq::Symbol &;
   using pointer = rq::Symbol *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  rq::ScopeEntry _entry;
+  rq::SymbolEntry _entry;
 
-  RQ_ALWAYS_INLINE ScopeEntryIterator() = default;
-  RQ_ALWAYS_INLINE explicit ScopeEntryIterator(rq::ScopeEntry &entry)
+  RQ_ALWAYS_INLINE SymbolEntryIterator() = default;
+  RQ_ALWAYS_INLINE explicit SymbolEntryIterator(rq::SymbolEntry &entry)
       : _entry(entry) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (this->_entry.getIsSymbol()) {
-      this->_entry = rq::ScopeEntry();
-    } else if (this->_entry.getIsScopeNode()) {
-      this->_entry = rq::ScopeEntry(this->_entry.getScopeNode());
+      this->_entry = rq::SymbolEntry();
+    } else if (this->_entry.getIsSymbolNode()) {
+      this->_entry = rq::SymbolEntry(this->_entry.getSymbolNode());
     } else {
       RQ_UNREACHABLE();
     }
@@ -1184,32 +1184,32 @@ struct ScopeEntryIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &operator*() {
     if (this->_entry.getIsSymbol()) {
       return this->_entry.getSymbol();
-    } else if (this->_entry.getIsScopeNode()) {
-      return this->_entry.getScopeNode().getSymbol();
+    } else if (this->_entry.getIsSymbolNode()) {
+      return this->_entry.getSymbolNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &operator*() const {
     if (this->_entry.getIsSymbol()) {
       return this->_entry.getSymbol();
-    } else if (this->_entry.getIsScopeNode()) {
-      return this->_entry.getScopeNode().getSymbol();
+    } else if (this->_entry.getIsSymbolNode()) {
+      return this->_entry.getSymbolNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *operator->() {
     if (this->_entry.getIsSymbol()) {
       return &this->_entry.getSymbol();
-    } else if (this->_entry.getIsScopeNode()) {
-      return &this->_entry.getScopeNode().getSymbol();
+    } else if (this->_entry.getIsSymbolNode()) {
+      return &this->_entry.getSymbolNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *operator->() const {
     if (this->_entry.getIsSymbol()) {
       return &this->_entry.getSymbol();
-    } else if (this->_entry.getIsScopeNode()) {
-      return &this->_entry.getScopeNode().getSymbol();
+    } else if (this->_entry.getIsSymbolNode()) {
+      return &this->_entry.getSymbolNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
@@ -1218,27 +1218,27 @@ struct ScopeEntryIterator final {
   }
 };
 
-struct ConstScopeEntryIterator final {
-  using Self = rq::ConstScopeEntryIterator;
+struct ConstSymbolEntryIterator final {
+  using Self = rq::ConstSymbolEntryIterator;
   using value_type = const rq::Symbol;
   using reference = const rq::Symbol &;
   using pointer = rq::Symbol *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  rq::ConstScopeEntry _entry;
+  rq::ConstSymbolEntry _entry;
 
-  RQ_ALWAYS_INLINE ConstScopeEntryIterator() = default;
-  RQ_ALWAYS_INLINE explicit ConstScopeEntryIterator(const rq::ScopeEntry &entry)
+  RQ_ALWAYS_INLINE ConstSymbolEntryIterator() = default;
+  RQ_ALWAYS_INLINE explicit ConstSymbolEntryIterator(const rq::SymbolEntry &entry)
       : _entry(entry) {}
-  RQ_ALWAYS_INLINE explicit ConstScopeEntryIterator(
-      const rq::ConstScopeEntry &entry)
+  RQ_ALWAYS_INLINE explicit ConstSymbolEntryIterator(
+      const rq::ConstSymbolEntry &entry)
       : _entry(entry) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (this->_entry.getIsSymbol()) {
-      this->_entry = rq::ConstScopeEntry();
-    } else if (this->_entry.getIsScopeNode()) {
-      this->_entry = rq::ConstScopeEntry(this->_entry.getScopeNode());
+      this->_entry = rq::ConstSymbolEntry();
+    } else if (this->_entry.getIsSymbolNode()) {
+      this->_entry = rq::ConstSymbolEntry(this->_entry.getSymbolNode());
     } else {
       RQ_UNREACHABLE();
     }
@@ -1259,16 +1259,16 @@ struct ConstScopeEntryIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &operator*() const {
     if (this->_entry.getIsSymbol()) {
       return this->_entry.getSymbol();
-    } else if (this->_entry.getIsScopeNode()) {
-      return this->_entry.getScopeNode().getSymbol();
+    } else if (this->_entry.getIsSymbolNode()) {
+      return this->_entry.getSymbolNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *operator->() const {
     if (this->_entry.getIsSymbol()) {
       return &this->_entry.getSymbol();
-    } else if (this->_entry.getIsScopeNode()) {
-      return &this->_entry.getScopeNode().getSymbol();
+    } else if (this->_entry.getIsSymbolNode()) {
+      return &this->_entry.getSymbolNode().getSymbol();
     }
     RQ_UNREACHABLE();
   }
@@ -1277,49 +1277,49 @@ struct ConstScopeEntryIterator final {
   }
 };
 
-rq::ScopeEntryIterator ScopeEntry::begin() {
-  return rq::ScopeEntryIterator(*this);
+rq::SymbolEntryIterator SymbolEntry::begin() {
+  return rq::SymbolEntryIterator(*this);
 }
 
-rq::ScopeEntryIterator ScopeEntry::end() { return rq::ScopeEntryIterator(); }
+rq::SymbolEntryIterator SymbolEntry::end() { return rq::SymbolEntryIterator(); }
 
-rq::ConstScopeEntryIterator ScopeEntry::begin() const {
-  return rq::ConstScopeEntryIterator(*this);
+rq::ConstSymbolEntryIterator SymbolEntry::begin() const {
+  return rq::ConstSymbolEntryIterator(*this);
 }
 
-rq::ConstScopeEntryIterator ScopeEntry::end() const {
-  return rq::ConstScopeEntryIterator();
+rq::ConstSymbolEntryIterator SymbolEntry::end() const {
+  return rq::ConstSymbolEntryIterator();
 }
 
-rq::ConstScopeEntryIterator ScopeEntry::cbegin() const {
-  return rq::ConstScopeEntryIterator(*this);
+rq::ConstSymbolEntryIterator SymbolEntry::cbegin() const {
+  return rq::ConstSymbolEntryIterator(*this);
 }
 
-rq::ConstScopeEntryIterator ScopeEntry::cend() const {
-  return rq::ConstScopeEntryIterator();
+rq::ConstSymbolEntryIterator SymbolEntry::cend() const {
+  return rq::ConstSymbolEntryIterator();
 }
 
-rq::ConstScopeEntryIterator ConstScopeEntry::begin() const {
-  return rq::ConstScopeEntryIterator(*this);
+rq::ConstSymbolEntryIterator ConstSymbolEntry::begin() const {
+  return rq::ConstSymbolEntryIterator(*this);
 }
 
-rq::ConstScopeEntryIterator ConstScopeEntry::end() const {
-  return rq::ConstScopeEntryIterator();
+rq::ConstSymbolEntryIterator ConstSymbolEntry::end() const {
+  return rq::ConstSymbolEntryIterator();
 }
 
-rq::ConstScopeEntryIterator ConstScopeEntry::cbegin() const {
-  return rq::ConstScopeEntryIterator(*this);
+rq::ConstSymbolEntryIterator ConstSymbolEntry::cbegin() const {
+  return rq::ConstSymbolEntryIterator(*this);
 }
 
-rq::ConstScopeEntryIterator ConstScopeEntry::cend() const {
-  return rq::ConstScopeEntryIterator();
+rq::ConstSymbolEntryIterator ConstSymbolEntry::cend() const {
+  return rq::ConstSymbolEntryIterator();
 }
 
 struct Scope : rq::Symbol {
   using Self = rq::Scope;
 
-  llvm::SmallDenseMap<llvm::StringRef, rq::ScopeEntry> _named_values{};
-  rq::ScopeEntry _unamed_values{};
+  llvm::SmallDenseMap<llvm::StringRef, rq::SymbolEntry> _named_values{};
+  rq::SymbolEntry _unamed_values{};
 
   Scope() : rq::Symbol(rq::SymbolKind::SCOPE) {}
   Scope(rq::SymbolKind kind) : rq::Symbol(kind) {}
@@ -1340,42 +1340,42 @@ struct Scope : rq::Symbol {
                                   rq::Symbol &symbol) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
-      rq::ScopeEntry &entry = it->second;
-      rq::ScopeNode &node = cache.allocateValue<rq::ScopeNode>(symbol, entry);
-      entry = rq::ScopeEntry(node);
+      rq::SymbolEntry &entry = it->second;
+      rq::SymbolNode &node = cache.allocateValue<rq::SymbolNode>(symbol, entry);
+      entry = rq::SymbolEntry(node);
     } else {
-      this->_named_values.insert({name, rq::ScopeEntry(symbol)});
+      this->_named_values.insert({name, rq::SymbolEntry(symbol)});
     }
   }
   inline void tabulateUnamedSymbol(rq::ContextCache &cache,
                                    rq::Symbol &symbol) {
-    rq::ScopeEntry &entry = this->_unamed_values;
+    rq::SymbolEntry &entry = this->_unamed_values;
     if (entry.getIsEmpty()) {
       entry = symbol;
       return;
     }
-    rq::ScopeNode &node = cache.allocateValue<rq::ScopeNode>(symbol, entry);
-    entry = rq::ScopeEntry(node);
+    rq::SymbolNode &node = cache.allocateValue<rq::SymbolNode>(symbol, entry);
+    entry = rq::SymbolEntry(node);
   }
-  [[nodiscard]] inline rq::ScopeEntry getNamedEntry(llvm::StringRef name) {
+  [[nodiscard]] inline rq::SymbolEntry getNamedEntry(llvm::StringRef name) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       return it->second;
     }
-    return rq::ScopeEntry();
+    return rq::SymbolEntry();
   }
-  [[nodiscard]] inline rq::ConstScopeEntry
+  [[nodiscard]] inline rq::ConstSymbolEntry
   getNamedEntry(llvm::StringRef name) const {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       return it->second;
     }
-    return rq::ConstScopeEntry();
+    return rq::ConstSymbolEntry();
   }
-  [[nodiscard]] inline rq::ScopeEntry getUnamedEntry() {
+  [[nodiscard]] inline rq::SymbolEntry getUnamedEntry() {
     return this->_unamed_values;
   }
-  [[nodiscard]] inline rq::ConstScopeEntry getUnamedEntry() const {
+  [[nodiscard]] inline rq::ConstSymbolEntry getUnamedEntry() const {
     return this->_unamed_values;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() {

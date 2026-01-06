@@ -4,11 +4,11 @@
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
+#include <rq/symbol.hpp>
 #include <rq/tabulator.hpp>
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
-#include <rq/symbol.hpp>
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LegacyPassManager.h>
@@ -154,9 +154,8 @@ bool Context::loadSourceModule() {
     return false;
   }
   llvm::StringRef final_path = this->saveString(input_path);
-  rq::Module &source_module =
-      this->allocateValue<rq::Module>(
-          rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
+  rq::Module &source_module = this->allocateValue<rq::Module>(
+      rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       input_path, &this->getSourceModule()));
@@ -197,9 +196,8 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     return nullptr;
   }
   llvm::StringRef final_path = this->saveString(found_path);
-  rq::Module &import_module =
-      this->allocateValue<rq::Module>(
-          rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
+  rq::Module &import_module = this->allocateValue<rq::Module>(
+      rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -349,7 +347,11 @@ bool Context::emitTokens(llvm::StringRef path,
     for (const char c : text) {
       fout << rq::getCsvQuotedValueText(c);
     }
-    fout << "\",\n";
+    if (&token != &tokens.back()) {
+      fout << "\",\n";
+    } else {
+      fout << "\"";
+    }
   }
   fout.close();
   return true;
@@ -485,7 +487,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
     rq::emitIndent(fout, indent);
     fout << "unamed:{\n";
     indent++;
-    for (const rq::Symbol& unamed : scope.getUnamedEntry()) {
+    for (const rq::Symbol &unamed : scope.getUnamedEntry()) {
       rq::emitSymbol(context, fout, unamed, indent);
     }
     indent--;
