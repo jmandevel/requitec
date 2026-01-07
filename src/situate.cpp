@@ -912,16 +912,6 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
-    [[fallthrough]];
-  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
-    [[fallthrough]];
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
-    [[fallthrough]];
-  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
-    [[fallthrough]];
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
-    [[fallthrough]];
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
     [[fallthrough]];
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
@@ -933,6 +923,16 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
     [[fallthrough]];
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;

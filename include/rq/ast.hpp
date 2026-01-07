@@ -256,17 +256,17 @@ enum class Keyword : std::uint32_t {
   // RANGES
   RANGE,
   S_ARITHMETIC_SEQUENCE,
-  S_ARITHMETIC_SEQUENCE_STEP_ADD,
-  S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT,
-  S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY,
-  S_ARITHMETIC_SEQUENCE_STEP_DIVIDE,
-  S_ARITHMETIC_SEQUENCE_STEP_MODULUS,
   S_ARITHMETIC_SEQUENCE_CONDITION_LESS,
   S_ARITHMETIC_SEQUENCE_CONDITION_GREATER,
   S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
   S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
   S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL,
   S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL,
+  S_ARITHMETIC_SEQUENCE_STEP_ADD,
+  S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT,
+  S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY,
+  S_ARITHMETIC_SEQUENCE_STEP_DIVIDE,
+  S_ARITHMETIC_SEQUENCE_STEP_MODULUS,
 
   // ACCESS MODIFIERS
   PUBLIC,
@@ -746,16 +746,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "range";
   case K::S_ARITHMETIC_SEQUENCE:
     return "_arithmetic_sequence";
-  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
-    return "_arithmetic_sequence_step_add";
-  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
-    return "_arithmetic_sequence_step_subtract";
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
-    return "_arithmetic_sequence_step_multiply";
-  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
-    return "_arithmetic_sequence_step_divide";
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
-    return "_arithmetic_sequence_step_modulus";
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
     return "_arithmetic_sequence_condition_less";
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
@@ -768,6 +758,16 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_arithmetic_sequence_condition_equal";
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
     return "_arithmetic_sequence_condition_not_equal";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+    return "_arithmetic_sequence_step_add";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+    return "_arithmetic_sequence_step_subtract";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+    return "_arithmetic_sequence_step_multiply";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+    return "_arithmetic_sequence_step_divide";
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
+    return "_arithmetic_sequence_step_modulus";
 
   // ACCESS MODIFIERS
   case K::PUBLIC:
@@ -1380,16 +1380,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_ARITHMETIC_SEQUENCE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
-    return KF::ARITHMETIC_SEQUENCE_STEP;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
-    return KF::ARITHMETIC_SEQUENCE_STEP;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
-    return KF::ARITHMETIC_SEQUENCE_STEP;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
-    return KF::ARITHMETIC_SEQUENCE_STEP;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
-    return KF::ARITHMETIC_SEQUENCE_STEP;
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
     return KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
@@ -1402,6 +1392,16 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
     return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
+  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
+    return KF::ARITHMETIC_SEQUENCE_STEP;
 
   // ACCESS MODIFIERS
   case K::PUBLIC:
