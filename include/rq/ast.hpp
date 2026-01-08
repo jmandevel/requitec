@@ -2485,7 +2485,7 @@ getIsValidMutabilityClass(rq::TypeFlags flags) {
   return true;
 }
 
-enum class ArithmeticSequenceStepKind : std::uint_fast8_t {
+enum class ArithmeticSequenceStep : std::uint_fast8_t {
   NONE,
   ADD,
   SUBTRACT,
@@ -2495,9 +2495,9 @@ enum class ArithmeticSequenceStepKind : std::uint_fast8_t {
 };
 
 [[nodiscard]] inline llvm::StringRef
-getDescription(rq::ArithmeticSequenceStepKind step) {
+getDescription(rq::ArithmeticSequenceStep step) {
   using namespace rq;
-  using ASS = ArithmeticSequenceStepKind;
+  using ASS = ArithmeticSequenceStep;
   switch (step) {
   case ASS::NONE:
     return "no step";
@@ -2515,10 +2515,10 @@ getDescription(rq::ArithmeticSequenceStepKind step) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ArithmeticSequenceStepKind
+[[nodiscard]] inline rq::ArithmeticSequenceStep
 getArithmeticSequenceStep(rq::Keyword keyword) {
   using namespace rq;
-  using ASS = ArithmeticSequenceStepKind;
+  using ASS = ArithmeticSequenceStep;
   using K = Keyword;
   switch (keyword) {
   case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
@@ -2537,7 +2537,7 @@ getArithmeticSequenceStep(rq::Keyword keyword) {
   RQ_UNREACHABLE();
 }
 
-enum class ArithmeticSequenceConditionKind : std::uint_fast8_t {
+enum class ArithmeticSequenceCondition : std::uint_fast8_t {
   NONE,
   LESS,
   LESS_EQUAL,
@@ -2548,9 +2548,9 @@ enum class ArithmeticSequenceConditionKind : std::uint_fast8_t {
 };
 
 [[nodiscard]] inline llvm::StringRef
-getDescription(rq::ArithmeticSequenceConditionKind condition) {
+getDescription(rq::ArithmeticSequenceCondition condition) {
   using namespace rq;
-  using ASC = ArithmeticSequenceConditionKind;
+  using ASC = ArithmeticSequenceCondition;
   switch (condition) {
   case ASC::NONE:
     return "no condition";
@@ -2570,10 +2570,10 @@ getDescription(rq::ArithmeticSequenceConditionKind condition) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ArithmeticSequenceConditionKind
+[[nodiscard]] inline rq::ArithmeticSequenceCondition
 getArithmeticSequenceCondition(rq::Keyword keyword) {
   using namespace rq;
-  using ASC = ArithmeticSequenceConditionKind;
+  using ASC = ArithmeticSequenceCondition;
   using K = Keyword;
   switch (keyword) {
   case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:

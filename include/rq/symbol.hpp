@@ -62,7 +62,8 @@ enum class SymbolKind : std::uint_fast8_t {
 
   // ARITHMETIC SEQUENCE
   ARITHMETIC_INTERVAL,
-  ARITHMETIC_PROGRESSION,
+  FINITE_ARITHMETIC_PROGRESSION,
+  INFINITE_ARITHMETIC_PROGRESSION,
 
   // MISC
   MODULE,
@@ -185,8 +186,10 @@ enum class SymbolKind : std::uint_fast8_t {
   // ARITHMETIC SEQUENCE
   case SY::ARITHMETIC_INTERVAL:
     return "arithmetic_interval";
-  case SY::ARITHMETIC_PROGRESSION:
-    return "arithmetic_progression";
+  case SY::FINITE_ARITHMETIC_PROGRESSION:
+    return "finite_arithmetic_progression";
+  case SY::INFINITE_ARITHMETIC_PROGRESSION:
+    return "infinite_arithmetic_progression";
 
   // MISC
   case SY::MODULE:
@@ -372,7 +375,9 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   // ARITHMETIC SEQUENCE
   case SY::ARITHMETIC_INTERVAL:
     return SYF::ARITHMETIC_SEQUENCE;
-  case SY::ARITHMETIC_PROGRESSION:
+  case SY::FINITE_ARITHMETIC_PROGRESSION:
+    return SYF::ARITHMETIC_SEQUENCE;
+  case SY::INFINITE_ARITHMETIC_PROGRESSION:
     return SYF::ARITHMETIC_SEQUENCE;
 
   // MISC
@@ -449,15 +454,20 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   case SY::PARTIAL_VARIABLE:
     return SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
+           SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
+           SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
+           SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
+           SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
+           SYF::PARTIAL_SPECIALIZATION;
   }
   RQ_UNREACHABLE();
 }
@@ -492,7 +502,8 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::SymbolFlags::COMPOSITE_SUBTYE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsArithmeticSequence(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::ARITHMETIC_SEQUENCE);
 }
@@ -517,7 +528,8 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::SymbolFlags::TEMPLATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSpecialization(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPartialSpecialization(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::PARTIAL_SPECIALIZATION);
 }
@@ -539,7 +551,8 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::SymbolFlags::INTEGER | rq::SymbolFlags::FLOAT);
+  return rq::getHasSome(flags,
+                        rq::SymbolFlags::INTEGER | rq::SymbolFlags::FLOAT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::SymbolKind kind) {
@@ -767,8 +780,9 @@ struct ExtensionSymbol;
 
 // ARITHMETIC SEQUENCE
 struct ArithmeticSequenceSymbol;
-struct ArithmeticARITHMETIC_INTERVALSymbol;
-struct ArithmeticARITHMETIC_PROGRESSIONSymbol;
+struct ArithmeticIntervalSymbolSymbol;
+struct FiniteArithmeticProgressionSymbol;
+struct InfiniteArithmeticProgressionSymbol;
 
 // MISC
 struct ModuleSymbol;
@@ -903,15 +917,15 @@ struct ContextCache {
   [[nodiscard]] inline rq::ArithmeticSequenceSymbol &
   _getOrInsertArithmeticSequenceSymbol(
       rq::SymbolKind kind, rq::TypeSymbol &root,
-      rq::ArithmeticSequenceStepKind step,
-      rq::ArithmeticSequenceConditionKind condition);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticARITHMETIC_INTERVALSymbol &
+      rq::ArithmeticSequenceStep step,
+      rq::ArithmeticSequenceCondition condition);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalSymbol &
   getArithmeticARITHMETIC_INTERVAL(rq::TypeSymbol &root,
-                        rq::ArithmeticSequenceStepKind step);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticARITHMETIC_PROGRESSIONSymbol &
-  getArithmeticARITHMETIC_PROGRESSION(rq::TypeSymbol &root,
-                           rq::ArithmeticSequenceStepKind step,
-                           rq::ArithmeticSequenceConditionKind condition);
+                                   rq::ArithmeticSequenceStep step);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
+  getArithmeticARITHMETIC_PROGRESSION(
+      rq::TypeSymbol &root, rq::ArithmeticSequenceStep step,
+      rq::ArithmeticSequenceCondition condition);
 };
 
 struct Symbol {
@@ -1208,7 +1222,9 @@ template <> struct isa_impl<rq::TypeSymbol, rq::Symbol> {
 
 // SIMPLE BUILTIN
 template <> struct isa_impl<rq::InferenceSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsInference(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsInference();
+  }
 };
 
 template <> struct isa_impl<rq::VoidSymbol, rq::Symbol> {
@@ -1224,7 +1240,9 @@ template <> struct isa_impl<rq::NoReturnSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::VariadicArgumentsSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsVariadicArguments(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsVariadicArguments();
+  }
 };
 
 template <> struct isa_impl<rq::BooleanSymbol, rq::Symbol> {
@@ -1252,12 +1270,16 @@ template <> struct isa_impl<rq::Binary64Symbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::Binary128Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary128(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsBinary128();
+  }
 };
 
 // DEPTHED BUILTIN
 template <> struct isa_impl<rq::DepthedBuiltinSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsDepthedBuiltin(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsDepthedBuiltin();
+  }
 };
 
 template <> struct isa_impl<rq::WordSymbol, rq::Symbol> {
@@ -1274,7 +1296,9 @@ template <> struct isa_impl<rq::UnsignedSymbol, rq::Symbol> {
 
 // SIMPLE SUBTYPE
 template <> struct isa_impl<rq::SimpleSubtypeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsSimpleSubtype(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsSimpleSubtype();
+  }
 };
 
 template <> struct isa_impl<rq::RangeSymbol, rq::Symbol> {
@@ -1282,7 +1306,9 @@ template <> struct isa_impl<rq::RangeSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::ReferenceSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsReference(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsReference();
+  }
 };
 
 template <> struct isa_impl<rq::PointerSymbol, rq::Symbol> {
@@ -1290,11 +1316,15 @@ template <> struct isa_impl<rq::PointerSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::FatPointerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsFatPointer(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsFatPointer();
+  }
 };
 
 template <> struct isa_impl<rq::InferencedCountArraySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsInferencedCountArray(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsInferencedCountArray();
+  }
 };
 
 // COUNTED SUBTYPE
@@ -1308,24 +1338,34 @@ template <> struct isa_impl<rq::LayoutSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::SignatureSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsSignature(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsSignature();
+  }
 };
 
 template <> struct isa_impl<rq::ExtensionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsExtension(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsExtension();
+  }
 };
 
 // ARITHMETIC SEQUENCE
 template <> struct isa_impl<rq::ArithmeticSequenceSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsArithmeticSequence(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsArithmeticSequence();
+  }
 };
 
-template <> struct isa_impl<rq::ArithmeticARITHMETIC_INTERVALSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsARITHMETIC_INTERVAL(); }
+template <> struct isa_impl<rq::ArithmeticIntervalSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsARITHMETIC_INTERVAL();
+  }
 };
 
-template <> struct isa_impl<rq::ArithmeticARITHMETIC_PROGRESSIONSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsARITHMETIC_PROGRESSION(); }
+template <> struct isa_impl<rq::FiniteArithmeticProgressionSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsARITHMETIC_PROGRESSION();
+  }
 };
 
 // MISC
@@ -1343,7 +1383,9 @@ template <> struct isa_impl<rq::VariableSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::EnumeratorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsEnumerator(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsEnumerator();
+  }
 };
 
 template <> struct isa_impl<rq::PropertySymbol, rq::Symbol> {
@@ -1351,11 +1393,15 @@ template <> struct isa_impl<rq::PropertySymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::SignatureParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsSignatureParameter(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsSignatureParameter();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateParameter(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateParameter();
+  }
 };
 
 // SCOPES
@@ -1372,16 +1418,22 @@ template <> struct isa_impl<rq::ClassSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::EnumerationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsEnumeration(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsEnumeration();
+  }
 };
 
 // PROCEDURES
 template <> struct isa_impl<rq::ProcedureSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsProcedure(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsProcedure();
+  }
 };
 
 template <> struct isa_impl<rq::EntryPointSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsEntryPoint(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsEntryPoint();
+  }
 };
 
 template <> struct isa_impl<rq::FunctionSymbol, rq::Symbol> {
@@ -1393,19 +1445,27 @@ template <> struct isa_impl<rq::MethodSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::ExtensionFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsExtensionFunction(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsExtensionFunction();
+  }
 };
 
 template <> struct isa_impl<rq::ExtensionMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsExtensionMethod(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsExtensionMethod();
+  }
 };
 
 template <> struct isa_impl<rq::ConstructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsConstructor(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsConstructor();
+  }
 };
 
 template <> struct isa_impl<rq::DestructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsDestructor(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsDestructor();
+  }
 };
 
 template <> struct isa_impl<rq::RangerSymbol, rq::Symbol> {
@@ -1413,7 +1473,9 @@ template <> struct isa_impl<rq::RangerSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::AnonymousFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsAnonymousFunction(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsAnonymousFunction();
+  }
 };
 
 // TEMPLATE
@@ -1422,72 +1484,106 @@ template <> struct isa_impl<rq::TemplateSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::TemplateClassSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateClass(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateClass();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateEnumerationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateEnumeration(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateEnumeration();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateVariable(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateVariable();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateFunction(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateFunction();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateMethod(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateMethod();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateExtensionFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateExtensionFunction(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateExtensionFunction();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateExtensionMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateExtensionMethod(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateExtensionMethod();
+  }
 };
 
 template <> struct isa_impl<rq::TemplateConstructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateConstructor(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateConstructor();
+  }
 };
 
 // PARTIAL SPECIALIZATION
 template <> struct isa_impl<rq::PartialSpecializationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialSpecialization(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialSpecialization();
+  }
 };
 
 template <> struct isa_impl<rq::PartialClassSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialClass(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialClass();
+  }
 };
 
 template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialEnumeration(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialEnumeration();
+  }
 };
 
 template <> struct isa_impl<rq::PartialVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialVariable(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialVariable();
+  }
 };
 
 template <> struct isa_impl<rq::PartialFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialFunction(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialFunction();
+  }
 };
 
 template <> struct isa_impl<rq::PartialMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialMethod(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialMethod();
+  }
 };
 
 template <> struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialExtensionFunction(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialExtensionFunction();
+  }
 };
 
 template <> struct isa_impl<rq::PartialExtensionMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialExtensionMethod(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialExtensionMethod();
+  }
 };
 
 template <> struct isa_impl<rq::PartialConstructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialConstructor(); }
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialConstructor();
+  }
 };
 
 } // namespace llvm
@@ -2227,20 +2323,21 @@ struct LayoutSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::SignatureSymbol;
 
-  rq::Symbol* _return_ptr;
+  rq::Symbol *_return_ptr;
   rq::SymbolEntry _parameters;
 
-  SignatureSymbol(rq::Symbol& return_, rq::SymbolEntry parameters)
-      : rq::Symbol(rq::SymbolKind::SIGNATURE), _return_ptr(&return_), _parameters(parameters) {}
+  SignatureSymbol(rq::Symbol &return_, rq::SymbolEntry parameters)
+      : rq::Symbol(rq::SymbolKind::SIGNATURE), _return_ptr(&return_),
+        _parameters(parameters) {}
   SignatureSymbol(const Self &) = delete;
   SignatureSymbol(Self &&) = delete;
   virtual ~SignatureSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol& getReturn() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getReturn() {
     return rq::dereferencePtr(this->_return_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol& getReturn() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getReturn() const {
     return rq::dereferencePtr(this->_return_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolEntry getParameters() const {
@@ -2255,26 +2352,27 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct ExtensionSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ExtensionSymbol;
 
-  rq::Symbol* _lvalue_ptr;
-  rq::Symbol* _rvalue_ptr;
+  rq::Symbol *_lvalue_ptr;
+  rq::Symbol *_rvalue_ptr;
 
-  ExtensionSymbol(rq::Symbol& rvalue, rq::Symbol& lvalue)
-      : rq::Symbol(rq::SymbolKind::EXTENSION), _lvalue_ptr(&lvalue), _rvalue_ptr(&rvalue) {}
+  ExtensionSymbol(rq::Symbol &rvalue, rq::Symbol &lvalue)
+      : rq::Symbol(rq::SymbolKind::EXTENSION), _lvalue_ptr(&lvalue),
+        _rvalue_ptr(&rvalue) {}
   ExtensionSymbol(const Self &) = delete;
   ExtensionSymbol(Self &&) = delete;
   virtual ~ExtensionSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol& getLValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getLValue() {
     return rq::dereferencePtr(this->_lvalue_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol& getLValue() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getLValue() const {
     return rq::dereferencePtr(this->_lvalue_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol& getRValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRValue() {
     return rq::dereferencePtr(this->_rvalue_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol& getRValue() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRValue() const {
     return rq::dereferencePtr(this->_rvalue_ptr);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
@@ -2283,73 +2381,94 @@ struct ExtensionSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   }
 };
 
-struct ArithmeticSequenceSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+struct ArithmeticSequenceSymbol : public rq::Symbol,
+                                  public llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequenceSymbol;
 
   rq::Symbol *_root_ptr;
-  rq::ArithmeticSequenceConditionKind _condition;
-  rq::ArithmeticSequenceStepKind _step;
+  rq::ArithmeticSequenceCondition _condition;
+  rq::ArithmeticSequenceStep _step;
 
-  ArithmeticSequenceSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {
-    RQ_ASSERT(rq::getIsArithmeticSequence(kind), "kind not arithmetic sequence symbol");
+  ArithmeticSequenceSymbol(rq::SymbolKind kind, rq::Symbol &root,
+                           rq::ArithmeticSequenceCondition condition,
+                           rq::ArithmeticSequenceStep step)
+      : rq::Symbol(kind), _root_ptr(&root), _condition(condition), _step(step) {
+    RQ_ASSERT(rq::getIsArithmeticSequence(kind),
+              "kind not arithmetic sequence symbol");
   }
   ArithmeticSequenceSymbol(const Self &) = delete;
   ArithmeticSequenceSymbol(Self &&) = delete;
   virtual ~ArithmeticSequenceSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol& getRoot() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot() {
     return rq::dereferencePtr(this->_root_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol& getRoot() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
     return rq::dereferencePtr(this->_root_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceConditionKind getCondition() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
+  getCondition() const {
     return this->_condition;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStepKind getStep() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep
+  getStep() const {
     return this->_step;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
+    // no need to fold kind
     id.AddPointer(this->_root_ptr);
     id.AddInteger(static_cast<unsigned>(this->_condition));
     id.AddInteger(static_cast<unsigned>(this->_step));
   }
 };
 
-struct ArithmeticARITHMETIC_INTERVALSymbol : public rq::ArithmeticSequenceSymbol {
-  using Self = rq::ArithmeticARITHMETIC_INTERVALSymbol;
+struct ArithmeticIntervalSymbol : public rq::ArithmeticSequenceSymbol {
+  using Self = rq::ArithmeticIntervalSymbol;
 
-  ArithmeticARITHMETIC_INTERVALSymbol(rq::Symbol& root, rq::ArithmeticSequenceConditionKind condition)
-      : rq::ArithmeticSequenceSymbol(rq::SymbolKind::ARITHMETIC_INTERVAL) {
-    this->_root_ptr = &root;
-    this->_condition = condition;
-    this->_step = rq::ArithmeticSequenceStepKind::NONE;
-  }
-  ArithmeticARITHMETIC_INTERVALSymbol(const Self &) = delete;
-  ArithmeticARITHMETIC_INTERVALSymbol(Self &&) = delete;
-  virtual ~ArithmeticARITHMETIC_INTERVALSymbol() {}
+  ArithmeticIntervalSymbol(rq::Symbol &root,
+                           rq::ArithmeticSequenceCondition condition)
+      : rq::ArithmeticSequenceSymbol(rq::SymbolKind::ARITHMETIC_INTERVAL, root,
+                                     condition,
+                                     rq::ArithmeticSequenceStep::NONE) {}
+  ArithmeticIntervalSymbol(const Self &) = delete;
+  ArithmeticIntervalSymbol(Self &&) = delete;
+  virtual ~ArithmeticIntervalSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-struct ArithmeticARITHMETIC_PROGRESSIONSymbol : public rq::ArithmeticSequenceSymbol {
-  using Self = rq::ArithmeticARITHMETIC_PROGRESSIONSymbol;
+struct FiniteArithmeticProgressionSymbol : public rq::ArithmeticSequenceSymbol {
+  using Self = rq::FiniteArithmeticProgressionSymbol;
 
-  ArithmeticARITHMETIC_PROGRESSIONSymbol(rq::Symbol &root, rq::ArithmeticSequenceConditionKind condition, rq::ArithmeticSequenceStepKind step)
-      : rq::ArithmeticSequenceSymbol(rq::SymbolKind::ARITHMETIC_PROGRESSION) {
-    this->_root_ptr = &root;
-    this->_condition = condition;
-    this->_step = step;
-  }
-  ArithmeticARITHMETIC_PROGRESSIONSymbol(const Self &) = delete;
-  ArithmeticARITHMETIC_PROGRESSIONSymbol(Self &&) = delete;
-  virtual ~ArithmeticARITHMETIC_PROGRESSIONSymbol() {}
+  FiniteArithmeticProgressionSymbol(
+      rq::Symbol &root, rq::ArithmeticSequenceCondition condition,
+      rq::ArithmeticSequenceStep step)
+      : rq::ArithmeticSequenceSymbol(
+            rq::SymbolKind::FINITE_ARITHMETIC_PROGRESSION, root, condition,
+            step) {}
+  FiniteArithmeticProgressionSymbol(const Self &) = delete;
+  FiniteArithmeticProgressionSymbol(Self &&) = delete;
+  virtual ~FiniteArithmeticProgressionSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-// TODO fix order of stuff bellow here to match enum class
+struct InfiniteArithmeticProgressionSymbol
+    : public rq::ArithmeticSequenceSymbol {
+  using Self = rq::FiniteArithmeticProgressionSymbol;
+
+  InfiniteArithmeticProgressionSymbol(rq::Symbol &root,
+                                      rq::ArithmeticSequenceStep step)
+      : rq::ArithmeticSequenceSymbol(
+            rq::SymbolKind::INFINITE_ARITHMETIC_PROGRESSION, root,
+            rq::ArithmeticSequenceCondition::NONE, step) {}
+  InfiniteArithmeticProgressionSymbol(const Self &) = delete;
+  InfiniteArithmeticProgressionSymbol(Self &&) = delete;
+  virtual ~InfiniteArithmeticProgressionSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
 
 struct ScopeSymbol : rq::Symbol {
   using Self = rq::ScopeSymbol;
@@ -2460,7 +2579,8 @@ struct PropertySymbol : public rq::Symbol {
 struct SignatureParameterSymbol : public rq::Symbol {
   using Self = rq::SignatureParameterSymbol;
 
-  SignatureParameterSymbol() : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER) {}
+  SignatureParameterSymbol()
+      : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER) {}
   SignatureParameterSymbol(const Self &) = delete;
   SignatureParameterSymbol(Self &&) = delete;
   virtual ~SignatureParameterSymbol() {}
@@ -2673,7 +2793,9 @@ struct TemplateSymbol : public rq::ScopeSymbol {
 struct TemplateClassSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateClassSymbol;
 
-  TemplateClassSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_CLASS; }
+  TemplateClassSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_CLASS;
+  }
   TemplateClassSymbol(const Self &) = delete;
   TemplateClassSymbol(Self &&) = delete;
   virtual ~TemplateClassSymbol() {}
@@ -2684,7 +2806,9 @@ struct TemplateClassSymbol : public rq::TemplateSymbol {
 struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateEnumerationSymbol;
 
-  TemplateEnumerationSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_ENUMERATION; }
+  TemplateEnumerationSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_ENUMERATION;
+  }
   TemplateEnumerationSymbol(const Self &) = delete;
   TemplateEnumerationSymbol(Self &&) = delete;
   virtual ~TemplateEnumerationSymbol() {}
@@ -2695,7 +2819,9 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
 struct TemplateVariableSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateVariableSymbol;
 
-  TemplateVariableSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_VARIABLE; }
+  TemplateVariableSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_VARIABLE;
+  }
   TemplateVariableSymbol(const Self &) = delete;
   TemplateVariableSymbol(Self &&) = delete;
   virtual ~TemplateVariableSymbol() {}
@@ -2706,7 +2832,9 @@ struct TemplateVariableSymbol : public rq::TemplateSymbol {
 struct TemplateFunctionSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateFunctionSymbol;
 
-  TemplateFunctionSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_FUNCTION; }
+  TemplateFunctionSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_FUNCTION;
+  }
   TemplateFunctionSymbol(const Self &) = delete;
   TemplateFunctionSymbol(Self &&) = delete;
   virtual ~TemplateFunctionSymbol() {}
@@ -2717,7 +2845,9 @@ struct TemplateFunctionSymbol : public rq::TemplateSymbol {
 struct TemplateMethodSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateMethodSymbol;
 
-  TemplateMethodSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_METHOD; }
+  TemplateMethodSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_METHOD;
+  }
   TemplateMethodSymbol(const Self &) = delete;
   TemplateMethodSymbol(Self &&) = delete;
   virtual ~TemplateMethodSymbol() {}
@@ -2728,7 +2858,9 @@ struct TemplateMethodSymbol : public rq::TemplateSymbol {
 struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateExtensionFunctionSymbol;
 
-  TemplateExtensionFunctionSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION; }
+  TemplateExtensionFunctionSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION;
+  }
   TemplateExtensionFunctionSymbol(const Self &) = delete;
   TemplateExtensionFunctionSymbol(Self &&) = delete;
   virtual ~TemplateExtensionFunctionSymbol() {}
@@ -2739,7 +2871,9 @@ struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol {
 struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateExtensionMethodSymbol;
 
-  TemplateExtensionMethodSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_EXTENSION_METHOD; }
+  TemplateExtensionMethodSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_EXTENSION_METHOD;
+  }
   TemplateExtensionMethodSymbol(const Self &) = delete;
   TemplateExtensionMethodSymbol(Self &&) = delete;
   virtual ~TemplateExtensionMethodSymbol() {}
@@ -2750,7 +2884,9 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol {
 struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateConstructorSymbol;
 
-  TemplateConstructorSymbol() : rq::TemplateSymbol() { this->_kind = rq::SymbolKind::TEMPLATE_CONSTRUCTOR; }
+  TemplateConstructorSymbol() : rq::TemplateSymbol() {
+    this->_kind = rq::SymbolKind::TEMPLATE_CONSTRUCTOR;
+  }
   TemplateConstructorSymbol(const Self &) = delete;
   TemplateConstructorSymbol(Self &&) = delete;
   virtual ~TemplateConstructorSymbol() {}
@@ -2761,7 +2897,8 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
 struct PartialSpecializationSymbol : public rq::ScopeSymbol {
   using Self = rq::PartialSpecializationSymbol;
 
-  PartialSpecializationSymbol() : rq::ScopeSymbol(rq::SymbolKind::PARTIAL_CLASS) {}
+  PartialSpecializationSymbol()
+      : rq::ScopeSymbol(rq::SymbolKind::PARTIAL_CLASS) {}
   PartialSpecializationSymbol(rq::SymbolKind kind) : rq::ScopeSymbol(kind) {}
   PartialSpecializationSymbol(const Self &) = delete;
   PartialSpecializationSymbol(Self &&) = delete;
@@ -2773,7 +2910,9 @@ struct PartialSpecializationSymbol : public rq::ScopeSymbol {
 struct PartialClassSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialClassSymbol;
 
-  PartialClassSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_CLASS; }
+  PartialClassSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_CLASS;
+  }
   PartialClassSymbol(const Self &) = delete;
   PartialClassSymbol(Self &&) = delete;
   virtual ~PartialClassSymbol() {}
@@ -2784,7 +2923,9 @@ struct PartialClassSymbol : public rq::PartialSpecializationSymbol {
 struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialEnumerationSymbol;
 
-  PartialEnumerationSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_ENUMERATION; }
+  PartialEnumerationSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_ENUMERATION;
+  }
   PartialEnumerationSymbol(const Self &) = delete;
   PartialEnumerationSymbol(Self &&) = delete;
   virtual ~PartialEnumerationSymbol() {}
@@ -2795,7 +2936,9 @@ struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
 struct PartialVariableSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialVariableSymbol;
 
-  PartialVariableSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_VARIABLE; }
+  PartialVariableSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_VARIABLE;
+  }
   PartialVariableSymbol(const Self &) = delete;
   PartialVariableSymbol(Self &&) = delete;
   virtual ~PartialVariableSymbol() {}
@@ -2806,7 +2949,9 @@ struct PartialVariableSymbol : public rq::PartialSpecializationSymbol {
 struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialFunctionSymbol;
 
-  PartialFunctionSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_FUNCTION; }
+  PartialFunctionSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_FUNCTION;
+  }
   PartialFunctionSymbol(const Self &) = delete;
   PartialFunctionSymbol(Self &&) = delete;
   virtual ~PartialFunctionSymbol() {}
@@ -2817,7 +2962,9 @@ struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol {
 struct PartialMethodSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialMethodSymbol;
 
-  PartialMethodSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_METHOD; }
+  PartialMethodSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_METHOD;
+  }
   PartialMethodSymbol(const Self &) = delete;
   PartialMethodSymbol(Self &&) = delete;
   virtual ~PartialMethodSymbol() {}
@@ -2828,7 +2975,9 @@ struct PartialMethodSymbol : public rq::PartialSpecializationSymbol {
 struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialExtensionFunctionSymbol;
 
-  PartialExtensionFunctionSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION; }
+  PartialExtensionFunctionSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION;
+  }
   PartialExtensionFunctionSymbol(const Self &) = delete;
   PartialExtensionFunctionSymbol(Self &&) = delete;
   virtual ~PartialExtensionFunctionSymbol() {}
@@ -2839,7 +2988,9 @@ struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol {
 struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialExtensionMethodSymbol;
 
-  PartialExtensionMethodSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_METHOD; }
+  PartialExtensionMethodSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_METHOD;
+  }
   PartialExtensionMethodSymbol(const Self &) = delete;
   PartialExtensionMethodSymbol(Self &&) = delete;
   virtual ~PartialExtensionMethodSymbol() {}
@@ -2850,7 +3001,9 @@ struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol {
 struct PartialConstructorSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialConstructorSymbol;
 
-  PartialConstructorSymbol() : rq::PartialSpecializationSymbol() { this->_kind = rq::SymbolKind::PARTIAL_CONSTRUCTOR; }
+  PartialConstructorSymbol() : rq::PartialSpecializationSymbol() {
+    this->_kind = rq::SymbolKind::PARTIAL_CONSTRUCTOR;
+  }
   PartialConstructorSymbol(const Self &) = delete;
   PartialConstructorSymbol(Self &&) = delete;
   virtual ~PartialConstructorSymbol() {}
@@ -2883,7 +3036,7 @@ struct ModuleSymbol final : public rq::Symbol {
   rq::Expression *_expression_ptr = nullptr;
 
   ModuleSymbol(rq::ModuleKind kind, llvm::StringRef path,
-         llvm::MemoryBufferRef &&buffer)
+               llvm::MemoryBufferRef &&buffer)
       : rq::Symbol(rq::SymbolKind::MODULE), _module_kind(kind),
         _llvm_buffer_ref(std::move(buffer)), _path(path) {}
   ModuleSymbol(const Self &) = delete;
