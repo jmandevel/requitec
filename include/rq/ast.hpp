@@ -2496,6 +2496,133 @@ getFlags(rq::StatementAttribute attribute) {
   return SF::NONE;
 }
 
+[[nodiscard]] inline bool getHasOpaque(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::OPAQUE);
+}
+
+[[nodiscard]] inline bool getHasGlobal(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::GLOBAL);
+}
+
+[[nodiscard]] inline bool getHasStatic(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::STATIC);
+}
+
+[[nodiscard]] inline bool getHasStaticCapture(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::STATIC_CAPTURE);
+}
+
+[[nodiscard]] inline bool getHasEager(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::EAGER);
+}
+
+[[nodiscard]] inline bool getHasMayParent(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::MAY_PARENT);
+}
+
+[[nodiscard]] inline bool getHasParent(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::PARENT);
+}
+
+[[nodiscard]] inline bool getHasAbstract(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::ABSTRACT);
+}
+
+[[nodiscard]] inline bool getHasVirtual(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::VIRTUAL);
+}
+
+[[nodiscard]] inline bool getHasOverride(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::OVERRIDE);
+}
+
+[[nodiscard]] inline bool getHasPosition(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::POSITION);
+}
+
+[[nodiscard]] inline bool getHasMangle(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::MANGLE);
+}
+
+[[nodiscard]] inline bool getHasPack(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::PACK);
+}
+
+[[nodiscard]] inline bool getHasUserAttribute(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::USER_ATTRIBUTE);
+}
+
+[[nodiscard]] inline bool getHasLabel(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::LABEL);
+}
+
+[[nodiscard]] inline bool getHasTemplate(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::TEMPLATE);
+}
+
+[[nodiscard]] inline bool getHasLikely(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::LIKELY);
+}
+
+[[nodiscard]] inline bool getHasUnlikely(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::UNLIKELY);
+}
+
+[[nodiscard]] inline bool getHasDepreciated(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::DEPRECIATED);
+}
+
+[[nodiscard]] inline bool getHasExport(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::EXPORT);
+}
+
+[[nodiscard]] inline bool getHasPublic(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::PUBLIC);
+}
+
+[[nodiscard]] inline bool getHasProtected(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::PROTECTED);
+}
+
+[[nodiscard]] inline bool getHasMayCopy(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::MAY_COPY);
+}
+
+[[nodiscard]] inline bool getHasMayMove(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::MAY_MOVE);
+}
+
+[[nodiscard]] inline bool getHasMutateWith(rq::StatementAttribute attribute) {
+  rq::StatementFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::StatementFlags::MUTATE_WITH);
+}
+
+
+
 enum class TypeAttribute : std::uint_fast8_t {
   NONE,
   MUTABLE,
@@ -2623,21 +2750,54 @@ static constexpr unsigned MAX_MUTATION_COUNT = 16;
   return TF::NONE;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
-  return rq::getHasAll(flags, rq::getFlags(attribute));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutable(rq::TypeFlags flags) {
+[[nodiscard]] inline bool getHasMutable(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeFlags::MUTABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::TypeFlags flags) {
+[[nodiscard]] inline bool getHasConstant(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeFlags::CONSTANT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartiallyMutable(rq::TypeFlags flags) {
+[[nodiscard]] inline bool getHasPartiallyMutable(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE);
+}
+
+[[nodiscard]] inline bool getHasVolatile(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeFlags::VOLATILE);
+}
+
+[[nodiscard]] inline bool getHasAtomic(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeFlags::ATOMIC);
+}
+
+[[nodiscard]] inline bool getHasNullTerminated(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATED);
+}
+
+[[nodiscard]] inline bool getHasMayDiscard(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeFlags::MAY_DISCARD);
+}
+
+[[nodiscard]] inline bool getHasDebugTrapOnPanic(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeFlags::DEBUG_TRAP_ON_PANIC);
+}
+
+[[nodiscard]] inline bool getHasDynamicCaptureLayout(rq::TypeAttribute attribute) {
+  rq::TypeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeFlags::DYNAMIC_CAPTURE_LAYOUT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
+  return rq::getHasAll(flags, rq::getFlags(attribute));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability(rq::TypeFlags flags) {
@@ -2646,34 +2806,9 @@ getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
                                    rq::TypeFlags::PARTIALLY_MUTABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsVolatile(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::VOLATILE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsAtomic(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::ATOMIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullTerminated(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATED);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsMayDiscard(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::MAY_DISCARD);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDebugTrapOnPanic(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::DEBUG_TRAP_ON_PANIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsDynamicCaptureLayout(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::DYNAMIC_CAPTURE_LAYOUT);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags
 getMutationFlags(rq::TypeFlags flags) {
-  RQ_ASSERT(rq::getIsPartiallyMutable(flags), "not partially mutable");
+  RQ_ASSERT(rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE), "not partially mutable");
   return static_cast<rq::MutationFlags>(
       rq::getMaskValue(flags, rq::TypeFlags::MUTATION_MASK));
 }
@@ -2681,13 +2816,13 @@ getMutationFlags(rq::TypeFlags flags) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
   if (rq::getHasMutability(flags)) {
     unsigned mutability_count = 0;
-    if (rq::getIsMutable(flags)) {
+    if (rq::getHasAll(flags, rq::TypeFlags::MUTABLE)) {
       mutability_count++;
     }
-    if (rq::getIsConstant(flags)) {
+    if (rq::getHasAll(flags, rq::TypeFlags::CONSTANT)) {
       mutability_count++;
     }
-    if (rq::getIsPartiallyMutable(flags)) {
+    if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE)) {
       mutability_count++;
     }
     if (mutability_count != 1) {
@@ -2699,7 +2834,7 @@ getMutationFlags(rq::TypeFlags flags) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsValidMutabilityClass(rq::TypeFlags flags) {
-  if (!rq::getIsPartiallyMutable(flags)) {
+  if (!rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE)) {
     rq::MutationFlags classes = rq::getMutationFlags(flags);
     if (classes != rq::MutationFlags::NONE) {
       return false;
