@@ -1094,6 +1094,11 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     [[fallthrough]];
   case K::S_EXPAND_DYNAMIC_CAPTURE:
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       1);
+      is_ok = false;
+    }
     break;
 
   // REFLECTIONS
