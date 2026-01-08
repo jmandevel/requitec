@@ -325,8 +325,7 @@ enum class Keyword : std::uint32_t {
   S_EXPAND_ARGUMENT,
   S_EXPAND_PARAMETER,
   S_EXPAND_SYMBOL_PATH,
-  S_EXPAND_ARITHMETIC_SEQUENCE_STEP,
-  S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION,
+  S_EXPAND_ARITHMETIC_SEQUENCE_STAGE,
   S_EXPAND_DYNAMIC_CAPTURE,
 
   // REFLECTIONS
@@ -871,10 +870,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_expand_parameter";
   case K::S_EXPAND_SYMBOL_PATH:
     return "_expand_symbol_path";
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
-    return "_expand_arithmetic_sequence_step";
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
-    return "_expand_arithmetic_sequence_condition";
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
+    return "_expand_arithmetic_sequence_stage";
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return "_expand_dynamic_capture";
 
@@ -1503,10 +1500,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
   case K::S_EXPAND_SYMBOL_PATH:
     return KF::SYMBOL_PATH;
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
-    return KF::ARITHMETIC_SEQUENCE_STEP;
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
-    return KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
+    return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return KF::DYNAMIC_CAPTURE;
 
@@ -1689,8 +1684,7 @@ enum class Situation : std::uint_fast8_t {
   ASCRIPTION,
   TYPE_ATTRIBUTE,
   STATEMENT_ATTRIBUTE,
-  ARITHMETIC_SEQUENCE_STEP,
-  ARITHMETIC_SEQUENCE_CONDITION,
+  ARITHMETIC_SEQUENCE_STAGE,
   DYNAMIC_CAPTURE
 };
 
@@ -1725,10 +1719,8 @@ getDescription(rq::Situation situation) {
     return "type attribute";
   case S::STATEMENT_ATTRIBUTE:
     return "statement attribute";
-  case S::ARITHMETIC_SEQUENCE_STEP:
-    return "sequence step expression";
-  case S::ARITHMETIC_SEQUENCE_CONDITION:
-    return "sequence condition expression";
+  case S::ARITHMETIC_SEQUENCE_STAGE:
+    return "sequence stage expression";
   case S::DYNAMIC_CAPTURE:
     return "dynamic capture expression";
   }
@@ -1763,10 +1755,8 @@ getDescription(rq::Situation situation) {
   case S::TYPE_ATTRIBUTE:
   case S::STATEMENT_ATTRIBUTE:
     break;
-  case S::ARITHMETIC_SEQUENCE_STEP:
-    return K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP;
-  case S::ARITHMETIC_SEQUENCE_CONDITION:
-    return K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION;
+  case S::ARITHMETIC_SEQUENCE_STAGE:
+    return K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE;
   case S::DYNAMIC_CAPTURE:
     return K::S_EXPAND_DYNAMIC_CAPTURE;
   }
@@ -1794,10 +1784,8 @@ getDescription(rq::Situation situation) {
     return S::PARAMETER;
   case K::S_EXPAND_SYMBOL_PATH:
     return S::SYMBOL_PATH;
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
-    return S::ARITHMETIC_SEQUENCE_STEP;
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
-    return S::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
+    return S::ARITHMETIC_SEQUENCE_STAGE;
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     return S::DYNAMIC_CAPTURE;
   default:
@@ -1953,14 +1941,20 @@ getCanBeStatementAttribute(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::STATEMENT_ATTRIBUTE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
+  return rq::getHasSome(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION | rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
+
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1998,10 +1992,8 @@ getCanBeDynamicCapture(rq::Keyword keyword) {
     return rq::getCanBeTypeAttribute(keyword);
   case rq::Situation::STATEMENT_ATTRIBUTE:
     return rq::getCanBeStatementAttribute(keyword);
-  case rq::Situation::ARITHMETIC_SEQUENCE_STEP:
-    return rq::getCanBeArithmeticSequenceStep(keyword);
-  case rq::Situation::ARITHMETIC_SEQUENCE_CONDITION:
-    return rq::getCanBeArithmeticSequenceCondition(keyword);
+  case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
+    return rq::getCanBeArithmeticSequenceStage(keyword);
   case rq::Situation::DYNAMIC_CAPTURE:
     return rq::getCanBeDynamicCapture(keyword);
   }

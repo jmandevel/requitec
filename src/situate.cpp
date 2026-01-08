@@ -894,13 +894,13 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &stage_one = value.getNext();
-    if (!this->situateNonStatementBranch(S::ARITHMETIC_SEQUENCE_CONDITION,
+    if (!this->situateNonStatementBranch(S::ARITHMETIC_SEQUENCE_STAGE,
                                          stage_one)) {
       is_ok = false;
     }
     if (stage_one.getHasNext()) {
       rq::Expression &stage_two = stage_one.getNext();
-      if (!this->situateNonStatementBranch(S::ARITHMETIC_SEQUENCE_STEP,
+      if (!this->situateNonStatementBranch(S::ARITHMETIC_SEQUENCE_STAGE,
                                            stage_two)) {
         is_ok = false;
       }
@@ -1091,9 +1091,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::S_EXPAND_SYMBOL_PATH:
     [[fallthrough]];
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STEP:
-    [[fallthrough]];
-  case K::S_EXPAND_ARITHMETIC_SEQUENCE_CONDITION:
+  case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     [[fallthrough]];
   case K::S_EXPAND_DYNAMIC_CAPTURE:
     break;
