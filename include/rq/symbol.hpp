@@ -780,7 +780,7 @@ struct ExtensionSymbol;
 
 // ARITHMETIC SEQUENCE
 struct ArithmeticSequenceSymbol;
-struct ArithmeticIntervalSymbolSymbol;
+struct ArithmeticIntervalSymbol;
 struct FiniteArithmeticProgressionSymbol;
 struct InfiniteArithmeticProgressionSymbol;
 
@@ -920,12 +920,14 @@ struct ContextCache {
       rq::ArithmeticSequenceStep step,
       rq::ArithmeticSequenceCondition condition);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalSymbol &
-  getArithmeticARITHMETIC_INTERVAL(rq::TypeSymbol &root,
-                                   rq::ArithmeticSequenceStep step);
+  getArithmeticInterval(rq::TypeSymbol &root, rq::ArithmeticSequenceStep step);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
-  getArithmeticARITHMETIC_PROGRESSION(
-      rq::TypeSymbol &root, rq::ArithmeticSequenceStep step,
-      rq::ArithmeticSequenceCondition condition);
+  getFiniteArithmeticProgression(rq::TypeSymbol &root,
+                                 rq::ArithmeticSequenceStep step,
+                                 rq::ArithmeticSequenceCondition condition);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
+  getInfiniteArithmeticProgression(rq::TypeSymbol &root,
+                                   rq::ArithmeticSequenceStep step);
 };
 
 struct Symbol {
@@ -1052,11 +1054,14 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence() const {
     return rq::getIsArithmeticSequence(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsARITHMETIC_INTERVAL() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticInterval() const {
     return this->_kind == rq::SymbolKind::ARITHMETIC_INTERVAL;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsARITHMETIC_PROGRESSION() const {
-    return this->_kind == rq::SymbolKind::ARITHMETIC_PROGRESSION;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFiniteArithmeticProgression() const {
+    return this->_kind == rq::SymbolKind::FINITE_ARITHMETIC_PROGRESSION;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInfiniteArithmeticProgression() const {
+    return this->_kind == rq::SymbolKind::INFINITE_ARITHMETIC_PROGRESSION;
   }
 
   // MISC
@@ -1358,13 +1363,19 @@ template <> struct isa_impl<rq::ArithmeticSequenceSymbol, rq::Symbol> {
 
 template <> struct isa_impl<rq::ArithmeticIntervalSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsARITHMETIC_INTERVAL();
+    return val.getIsArithmeticInterval();
+  }
+};
+
+template <> struct isa_impl<rq::InfiniteArithmeticProgressionSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsInfiniteArithmeticProgression();
   }
 };
 
 template <> struct isa_impl<rq::FiniteArithmeticProgressionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsARITHMETIC_PROGRESSION();
+    return val.getIsFiniteArithmeticProgression();
   }
 };
 
@@ -2411,8 +2422,7 @@ struct ArithmeticSequenceSymbol : public rq::Symbol,
   getCondition() const {
     return this->_condition;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep
-  getStep() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const {
     return this->_step;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
@@ -2441,9 +2451,9 @@ struct ArithmeticIntervalSymbol : public rq::ArithmeticSequenceSymbol {
 struct FiniteArithmeticProgressionSymbol : public rq::ArithmeticSequenceSymbol {
   using Self = rq::FiniteArithmeticProgressionSymbol;
 
-  FiniteArithmeticProgressionSymbol(
-      rq::Symbol &root, rq::ArithmeticSequenceCondition condition,
-      rq::ArithmeticSequenceStep step)
+  FiniteArithmeticProgressionSymbol(rq::Symbol &root,
+                                    rq::ArithmeticSequenceCondition condition,
+                                    rq::ArithmeticSequenceStep step)
       : rq::ArithmeticSequenceSymbol(
             rq::SymbolKind::FINITE_ARITHMETIC_PROGRESSION, root, condition,
             step) {}
