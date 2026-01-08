@@ -9,7 +9,7 @@
 
 namespace rq {
 
-rq::Expression &Situator::makeModuleTrunk(rq::Module &module) {
+rq::Expression &Situator::makeModuleTrunk(rq::ModuleSymbol &module) {
   rq::Expression &trunk = this->getContext().acquireExpression();
   trunk.setIsInserted();
   trunk.setSource(module);
@@ -17,7 +17,7 @@ rq::Expression &Situator::makeModuleTrunk(rq::Module &module) {
   return trunk;
 }
 
-bool Situator::situateModule(rq::Module &module) {
+bool Situator::situateModule(rq::ModuleSymbol &module) {
   if (!module.getHasExpression()) {
     rq::Expression &trunk = this->makeModuleTrunk(module);
     module.setExpression(trunk);
@@ -1025,10 +1025,6 @@ bool Situator::situateTree(rq::Situation situation,
     default:
       break;
     }
-    break;
-  case K::S_MANGLE_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
     break;
   case K::PACK:
     is_ok = this->situateNullaryExpression(situation, expression);

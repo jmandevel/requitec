@@ -15,7 +15,7 @@ void Tabulator::tabulateModule() {
 }
 
 void Tabulator::tabulateGlobalForest(const rq::Expression &first,
-                                     rq::Scope &scope) {
+                                     rq::ScopeSymbol &scope) {
   for (const rq::Expression &statement : first.getInclusiveNextSubrange()) {
     switch (statement.getKeyword()) {
     case rq::Keyword::ENTRY_POINT:
@@ -28,12 +28,11 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first,
 }
 
 void Tabulator::tabulateEntryPoint(const rq::Expression &expression,
-                                   rq::Scope &scope) {
+                                   rq::ScopeSymbol &scope) {
   RQ_ASSERT(expression.getKeyword() == rq::Keyword::ENTRY_POINT,
             "wrong keyword");
-  rq::Procedure &procedure =
-      this->getContext().allocateValue<rq::Procedure>(
-          rq::SymbolKind::ENTRY_POINT, this->getModule());
+  rq::EntryPointSymbol &procedure =
+      this->getContext().allocateValue<rq::EntryPointSymbol>(this->getModule());
   procedure.setExpression(expression);
   scope.tabulateUnamedSymbol(this->getContext(), procedure);
 }

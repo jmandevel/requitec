@@ -2506,7 +2506,6 @@ enum class ArithmeticSequenceStepKind : std::uint_fast8_t {
 getDescription(rq::ArithmeticSequenceStepKind step) {
   using namespace rq;
   using ASS = ArithmeticSequenceStepKind;
-  using K = Keyword;
   switch (step) {
   case ASS::NONE:
     return "no step";

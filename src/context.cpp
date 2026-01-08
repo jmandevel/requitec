@@ -25,7 +25,7 @@
 
 namespace rq {
 
-bool Context::validateSourceText(const rq::Module &module) {
+bool Context::validateSourceText(const rq::ModuleSymbol &module) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
   llvm::SMLoc extended_char_start;
@@ -56,7 +56,7 @@ bool Context::validateSourceText(const rq::Module &module) {
   return is_ok;
 }
 
-bool Context::tokenizeSourceText(const rq::Module &module,
+bool Context::tokenizeSourceText(const rq::ModuleSymbol &module,
                                  std::vector<rq::Token> &tokens) {
   rq::Tokenizer tokenizer(*this, module.getSourceText(), tokens);
   const bool is_ok = tokenizer.tokenizeSourceText();
@@ -154,15 +154,15 @@ bool Context::loadSourceModule() {
     return false;
   }
   llvm::StringRef final_path = this->saveString(input_path);
-  rq::Module &source_module = this->allocateValue<rq::Module>(
+  rq::ModuleSymbol &source_module = this->allocateValue<rq::ModuleSymbol>(
       rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
-  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
+  this->_module_map.insert(std::pair<llvm::StringRef, rq::ModuleSymbol *>(
       input_path, &this->getSourceModule()));
   return true;
 }
 
-rq::Module *Context::loadImportModule(rq::Expression &expression,
+rq::ModuleSymbol *Context::loadImportModule(rq::Expression &expression,
                                       llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
@@ -196,9 +196,9 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     return nullptr;
   }
   llvm::StringRef final_path = this->saveString(found_path);
-  rq::Module &import_module = this->allocateValue<rq::Module>(
+  rq::ModuleSymbol &import_module = this->allocateValue<rq::ModuleSymbol>(
       rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
-  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
+  this->_module_map.insert(std::pair<llvm::StringRef, rq::ModuleSymbol *>(
       import_module.getPath(), &import_module));
   return &import_module;
 }
@@ -307,7 +307,7 @@ bool Context::run() {
   return true;
 }
 
-bool Context::parseRequite(rq::Module &module,
+bool Context::parseRequite(rq::ModuleSymbol &module,
                            const std::vector<rq::Token> &tokens) {
   rq::RequiteParser parser(*this, tokens);
   rq::Expression *root_ptr = parser.parseExpressions();
@@ -315,13 +315,13 @@ bool Context::parseRequite(rq::Module &module,
   return parser.getIsOk();
 }
 
-bool Context::situateModule(rq::Module &module) {
+bool Context::situateModule(rq::ModuleSymbol &module) {
   rq::Situator situator(*this);
   const bool is_ok = situator.situateModule(module);
   return is_ok;
 }
 
-bool Context::tabulateModule(rq::Module &module) {
+bool Context::tabulateModule(rq::ModuleSymbol &module) {
   rq::Tabulator tabulator(*this, module);
   tabulator.tabulateModule();
   return tabulator.getIsOk();
@@ -462,7 +462,7 @@ static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
   indent++;
   switch (symbol.getKind()) {
   case rq::SymbolKind::SCOPE: {
-    const rq::Scope &scope = llvm::cast<rq::Scope>(symbol);
+    const rq::ScopeSymbol &scope = llvm::cast<rq::ScopeSymbol>(symbol);
     fout << "\n";
     rq::emitIndent(fout, indent);
     fout << "named:{\n";

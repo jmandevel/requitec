@@ -30,7 +30,7 @@ namespace rq {
 
 struct Token;
 struct Expression;
-struct Module;
+struct ModuleSymbol;
 enum class Keyword : std::uint32_t;
 enum class Situation : std::uint_fast8_t;
 enum class TokenKind : std::uint_fast8_t;
@@ -69,12 +69,12 @@ struct Context final : public rq::ContextCache {
   llvm::SourceMgr _llvm_source_mgr;
   llvm::TargetMachine *_llvm_target_machine_ptr{nullptr};
   llvm::StringMap<rq::Keyword> _keyword_map;
-  llvm::StringMap<rq::Module *> _module_map;
+  llvm::StringMap<rq::ModuleSymbol *> _module_map;
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  rq::Scope _top_scope{};
-  rq::Module *_source_module_ptr = nullptr;
+  rq::ScopeSymbol _top_scope{};
+  rq::ModuleSymbol *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -89,10 +89,10 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Scope &getTopScope() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeSymbol &getTopScope() {
     return this->_top_scope;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Scope &
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeSymbol &
   getTopScope() const {
     return this->_top_scope;
   }
@@ -102,10 +102,10 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceModule() const {
     return this->_source_module_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getSourceModule() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getSourceModule() {
     return rq::dereferencePtr(this->_source_module_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getSourceModule() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &getSourceModule() const {
     return rq::dereferencePtr(this->_source_module_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::TargetMachine &getLlvmTargetMachine() {
@@ -128,8 +128,8 @@ struct Context final : public rq::ContextCache {
   getLlvmContext() const {
     return rq::dereferenceUptr(this->_llvm_context_uptr);
   }
-  [[nodiscard]] bool validateSourceText(const rq::Module &module);
-  [[nodiscard]] bool tokenizeSourceText(const rq::Module &module,
+  [[nodiscard]] bool validateSourceText(const rq::ModuleSymbol &module);
+  [[nodiscard]] bool tokenizeSourceText(const rq::ModuleSymbol &module,
                                         std::vector<rq::Token> &tokens);
   void initializeKeywordMap();
   [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
@@ -141,14 +141,14 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
   loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module *loadImportModule(rq::Expression &expression,
+  [[nodiscard]] rq::ModuleSymbol *loadImportModule(rq::Expression &expression,
                                              llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
-  [[nodiscard]] bool parseRequite(rq::Module &module,
+  [[nodiscard]] bool parseRequite(rq::ModuleSymbol &module,
                                   const std::vector<rq::Token> &tokens);
-  [[nodiscard]] bool situateModule(rq::Module &module);
-  [[nodiscard]] bool tabulateModule(rq::Module &module);
+  [[nodiscard]] bool situateModule(rq::ModuleSymbol &module);
+  [[nodiscard]] bool tabulateModule(rq::ModuleSymbol &module);
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
