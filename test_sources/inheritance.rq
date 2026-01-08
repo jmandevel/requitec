@@ -2,7 +2,7 @@
 [facade std];
 
 @may_parent
-[object Parent,
+[class Parent,
     
     [method myFunc, &=>(><),
         std.print(line="in parent");
@@ -16,9 +16,9 @@
     [constructor];
 ];
 
-[object Child,
+[class Child,
     {> 
-        @parent parent := Parent() 
+        @parent :parent = Parent() 
     <},
     
     @public
@@ -35,8 +35,8 @@
 ];
 
 [entry_point
-    parent := Parent();
-    child := Child();
+    :parent = Parent();
+    :child = Child();
 
     parent.[borrow].myFunc();
     child.[borrow].myFunc();

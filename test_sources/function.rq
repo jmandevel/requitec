@@ -1,6 +1,6 @@
 [import "std"];
 
-[function myFunc, (>a:[signed], b:[signed]<)[signed],
+[function myFunc, (>[signed]:a, [signed]:b<)[signed],
     [if a > b,
         std.print(line="a is greater than b");
     ][else_if b > a,
@@ -8,7 +8,7 @@
     ][else 
         std.print(line="a and b are equal");
     ];
-    [result] := a + b;
+    :[result] = a + b;
 ];
 
 [entry_point

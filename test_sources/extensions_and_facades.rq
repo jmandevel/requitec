@@ -2,15 +2,15 @@
 [table example,
     @{> Type:[type], LENGTH:[unsigned] <}
     [extension_function getElementCount, LENGTH#Type, (><)[unsigned],
-        [result] := LENGTH;
+        :[result] = LENGTH;
     ];
 
     @{> Type:[type], LENGTH:[unsigned] <}
     [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned],
-        [result] := LENGTH;
+        :[result] = LENGTH;
     ];
 
-    [object Foo,
+    [class Foo,
         [constructor];
     ];
 
@@ -20,7 +20,7 @@
 ];
 
 [entry_point
-    my_array :5#[signed]= {0, 1, 2, 3, 4};
+    5#[signed]:my_array = {0, 1, 2, 3, 4};
 
     // call extension function
     {} = my_array.[type]->example.getElementCount();
@@ -36,7 +36,7 @@
     {} = my_array.[borrow].getElementCount();
     
     // construct variable of type declared in same table as extension functions
-    foo := example.Foo();
+    :foo = example.Foo();
 
     // call extension function
     foo.[borrow].bar();

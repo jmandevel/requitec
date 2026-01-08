@@ -1,13 +1,13 @@
 [import "std"];
 
-[object NameData,
-    {> @public name:^[utf8] <},
+[class NameData,
+    {> @public ^[utf8]:name <},
     @public
     [layout_constructor];
 ];
 
 [entry_point
     ?NameData(name="Hello, world!")
-    var := 0;
+    :var = 0;
     std.print(line="{var.[symbol].[user_attribute NameData].name}");
 ];

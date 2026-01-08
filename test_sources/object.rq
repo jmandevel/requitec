@@ -1,30 +1,30 @@
 [import "std"];
 
 @may_copy @may_move
-[object MyObject,
+[class MyClass,
     {>
-        x := 0,
-        y := 0,
-        z := 0
+        :x = 0,
+        :y = 0,
+        :z = 0
     <},
 
     @public
     [constructor];
 
     @public
-    [constructor (>x:[signed], y:[signed], z:[signed]<),
+    [constructor (>[signed]:x, [signed]:y, [signed]:z<),
         {x=x, y=y, z=z},
     ];
 
     @public
     [method getTotal, &=>(><)[signed],
-        [result] := [this].x + [this].y + [this].z;
+        :[result] = [this].x + [this].y + [this].z;
     ];
 
     @public
-    [function add, (>a:MyObject, b:MyObject<)MyObject,
-        [result] :=
-            MyObject(
+    [function add, (>MyClass:a, MyClass:b<)MyClass,
+        :[result] =
+            MyClass(
                 a.x + b.x,
                 a.y + b.y,
                 a.z + b.z
@@ -34,12 +34,12 @@
 
 [entry_point
 
-    a := MyObject();
-    b := MyObject(1, 2, 3);
+    :a = MyClass();
+    :b = MyClass(1, 2, 3);
 
     std.print(line="a total:{a.[borrow].getTotal()}");
 
-    added := MyObject.add(a, b);
+    :added = MyClass.add(a, b);
 
-    [exit_code] := added.[borrow].getTotal();
+    :[exit_code] = added.[borrow].getTotal();
 ];

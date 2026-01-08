@@ -18,7 +18,7 @@ namespace rq {
 // one underscore at the front of name and S_ means that the keyword is not
 // meant to be normally used directly. Might be used by a standard library, or
 // might be useful only in symbolic requite. There should be other ways to
-// write these things most of the time that are more concise.
+// write these things that are more concise.
 
 enum class Keyword : std::uint32_t {
   // this should never occur.
@@ -178,7 +178,7 @@ enum class Keyword : std::uint32_t {
   RANGE_OVER,
 
   // DECLARED TYPES
-  OBJECT,
+  CLASS,
   ENUMERATION,
   MUTATION,
 
@@ -196,7 +196,7 @@ enum class Keyword : std::uint32_t {
   OUT,
   // reference to extended value of method or extension_method.
   THIS,
-  // type of object extending or member of.
+  // type of class extending or member of.
   THIS_TYPE,
   // value returned from a function.
   RESULT,
@@ -301,8 +301,7 @@ enum class Keyword : std::uint32_t {
   OVERRIDE,
   POSITION,
   INLINE,
-  MANGLED_NAME,
-  S_MANGLED_NAME_OF,
+  MANGLE,
   PACK,
   USER_ATTRIBUTE,
   S_USER_ATTRIBUTE_OF,
@@ -630,8 +629,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "range_over";
 
   // DECLARED TYPES
-  case K::OBJECT:
-    return "object";
+  case K::CLASS:
+    return "class";
   case K::ENUMERATION:
     return "enumeration";
   case K::MUTATION:
@@ -826,10 +825,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "position";
   case K::INLINE:
     return "inline";
-  case K::MANGLED_NAME:
-    return "mangled_name";
-  case K::S_MANGLED_NAME_OF:
-    return "_mangled_name_of";
+  case K::MANGLE:
+    return "mangle";
   case K::PACK:
     return "pack";
   case K::USER_ATTRIBUTE:
@@ -1255,7 +1252,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // DECLARED TYPES
-  case K::OBJECT:
+  case K::CLASS:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
@@ -1460,10 +1457,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_ATTRIBUTE;
   case K::INLINE:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::MANGLED_NAME:
+  case K::MANGLE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE | KF::STATEMENT_ATTRIBUTE;
-  case K::S_MANGLED_NAME_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
     return KF::STATEMENT_ATTRIBUTE;
   case K::USER_ATTRIBUTE:
@@ -1840,8 +1835,6 @@ getDescription(rq::Situation situation) {
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::S_NEXT_VARIADIC_ARGUMENT_OF;
   // STATEMENT ATTRIBUTES
-  case K::MANGLED_NAME:
-    return K::S_MANGLED_NAME_OF;
   case K::USER_ATTRIBUTE:
     return K::S_USER_ATTRIBUTE_OF;
   // EXPANSIONS
@@ -2057,7 +2050,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   VIRTUAL,
   OVERRIDE,
   POSITION,
-  MANGLED_NAME,
+  MANGLE,
   PACK,
   USER_ATTRIBUTE,
   LABEL,
@@ -2101,8 +2094,8 @@ enum class StatementAttribute : std::uint_fast8_t {
     return "override";
   case SA::POSITION:
     return "position";
-  case SA::MANGLED_NAME:
-    return "mangled_name";
+  case SA::MANGLE:
+    return "mangle";
   case SA::PACK:
     return "pack";
   case SA::USER_ATTRIBUTE:
@@ -2161,8 +2154,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::OVERRIDE;
   case K::POSITION:
     return SA::POSITION;
-  case K::MANGLED_NAME:
-    return SA::MANGLED_NAME;
+  case K::MANGLE:
+    return SA::MANGLE;
   case K::PACK:
     return SA::PACK;
   case K::USER_ATTRIBUTE:
@@ -2208,7 +2201,7 @@ enum class StatementFlags : std::uint32_t {
   VIRTUAL = rq::getBit(23),
   OVERRIDE = rq::getBit(22),
   POSITION = rq::getBit(21),
-  MANGLED_NAME = rq::getBit(20),
+  MANGLE = rq::getBit(20),
   PACK = rq::getBit(19),
   USER_ATTRIBUTE = rq::getBit(18),
   LABEL = rq::getBit(17),
@@ -2256,7 +2249,7 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::OVERRIDE;
   case SA::POSITION:
     return SF::POSITION;
-  case SA::MANGLED_NAME:
+  case SA::MANGLE:
     return SF::POSITION;
   case SA::PACK:
     return SF::PACK;
@@ -2312,7 +2305,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   case TA::CONSTANT:
     return "constant";
   case TA::PARTIALLY_MUTABLE:
-    return "PARTIALLY_MUTABLE";
+    return "partially_mutable";
   case TA::VOLATILE:
     return "volatile";
   case TA::ATOMIC:

@@ -484,7 +484,7 @@ getFlags(rq::TokenKind kind) {
   case T::GREATER_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::LESS_OPERATOR:
-    return TF::OPERATOR | TF::MARK;
+    return TF::OPERATOR | TF::MARK | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_LESS_OPERATOR:
     return TF::OPERATOR;
   case T::LESS_EQUAL_OPERATOR:
@@ -522,7 +522,7 @@ getFlags(rq::TokenKind kind) {
   case T::UP_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::EQUAL_OPERATOR:
-    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
+    return TF::OPERATOR;
   case T::DOUBLE_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::PLUS_EQUAL_OPERATOR:
@@ -546,7 +546,7 @@ getFlags(rq::TokenKind kind) {
   case T::CONCATENATE_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
-    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
+    return TF::OPERATOR;
   case T::DOT_PLUS_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_DASH_OPERATOR:

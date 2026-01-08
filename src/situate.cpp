@@ -242,7 +242,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::S_BINDING:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::SYMBOL_PATH, S::RVALUE);
+                                                    S::RVALUE, S::SYMBOL_PATH);
     break;
   case K::S_ASCRIBE_TYPE:
     is_ok = this->situateNaryDifferentFirstNonStatementBranches(
@@ -643,7 +643,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // DECLARED TYPES
-  case K::OBJECT: {
+  case K::CLASS: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        1);
@@ -1013,7 +1013,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INLINE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::MANGLED_NAME:
+  case K::MANGLE:
     switch (situation) {
     case S::STATEMENT_ATTRIBUTE:
       is_ok = this->situateUnaryNonStatementBranches(situation, expression,
@@ -1026,7 +1026,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     break;
-  case K::S_MANGLED_NAME_OF:
+  case K::S_MANGLE_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
