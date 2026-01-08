@@ -11,53 +11,93 @@ enum class TokenKind : std::uint_fast8_t {
   NONE,
 
   // OPERATORS
-  HASH_OPERATOR,              // #
-  GREATER_OPERATOR,           // >
-  DOUBLE_GREATER_OPERATOR,    // >>
-  GREATER_EQUAL_OPERATOR,     // >=
-  LESS_OPERATOR,              // <
-  DOUBLE_LESS_OPERATOR,       // <<
-  LESS_EQUAL_OPERATOR,        // <=
-  BANG_EQUAL_OPERATOR,        // !=
-  BANG_OPERATOR,              // !
-  COLON_OPERATOR,             // :
-  DOUBLE_COLON_OPERATOR,      // ::
-  PLUS_OPERATOR,              // +
-  DASH_OPERATOR,              // -
-  STAR_OPERATOR,              // *
-  SLASH_OPERATOR,             // /
-  PERCENT_OPERATOR,           // %
-  BACKSLASH_OPERATOR,         // \    .
-  CAROT_OPERATOR,             // ^
-  PIPE_OPERATOR,              // |
-  TILDE_OPERATOR,             // ~
-  AMPERSAND_OPERATOR,         // &
-  DOWN_ARROW_OPERATOR,        // \/
-  UP_ARROW_OPERATOR,          // /\   .
-  EQUAL_OPERATOR,             // =
-  DOUBLE_EQUAL_OPERATOR,      // ==
-  PLUS_EQUAL_OPERATOR,        // +=
-  DASH_EQUAL_OPERATOR,        // -=
-  STAR_EQUAL_OPERATOR,        // *=
-  SLASH_EQUAL_OPERATOR,       // /=
-  PERCENT_EQUAL_OPERATOR,     // %=
-  GRAVE_OPERATOR,             // `
-  DOUBLE_GRAVE_OPERATOR,      // ``
-  ARROW_OPERATOR,             // ->
-  THICK_ARROW_OPERATOR,       // =>
-  CONCATENATE_OPERATOR,       // +>
-  DOT_OPERATOR,               // .
-  DOT_PLUS_OPERATOR,          // .+
-  DOT_DASH_OPERATOR,          // .-
-  DOT_STAR_OPERATOR,          // .*
-  DOT_SLASH_OPERATOR,         // ./
-  DOT_PERCENT_OPERATOR,       // .%
-  DOT_LESS_OPERATOR,          // .<
-  DOT_LESS_EQUAL_OPERATOR,    // .<=
-  DOT_GREATER_OPERATOR,       // .>
-  DOT_GREATER_EQUAL_OPERATOR, // .>=
-  DOT_DOUBLE_EQUAL_OPERATOR,  // .==
-  DOT_BANG_EQUAL_OPERATOR,    // .!=
+  HASH_OPERATOR,                          // #
+  GREATER_OPERATOR,                       // >
+  DOUBLE_GREATER_OPERATOR,                // >>
+  GREATER_EQUAL_OPERATOR,                 // >=
+  LESS_OPERATOR,                          // <
+  DOUBLE_LESS_OPERATOR,                   // <<
+  LESS_EQUAL_OPERATOR,                    // <=
+  BANG_EQUAL_OPERATOR,                    // !=
+  BANG_OPERATOR,                          // !
+  COLON_OPERATOR,                         // :
+  DOUBLE_COLON_OPERATOR,                  // ::
+  PLUS_OPERATOR,                          // +
+  DASH_OPERATOR,                          // -
+  STAR_OPERATOR,                          // *
+  SLASH_OPERATOR,                         // /
+  PERCENT_OPERATOR,                       // %
+  BACKSLASH_OPERATOR,                     // \    .
+  CAROT_OPERATOR,                         // ^
+  PIPE_OPERATOR,                          // |
+  TILDE_OPERATOR,                         // ~
+  AMPERSAND_OPERATOR,                     // &
+  DOWN_ARROW_OPERATOR,                    // \/
+  UP_ARROW_OPERATOR,                      // /\   .
+  EQUAL_OPERATOR,                         // =
+  DOUBLE_EQUAL_OPERATOR,                  // ==
+  PLUS_EQUAL_OPERATOR,                    // +=
+  DASH_EQUAL_OPERATOR,                    // -=
+  STAR_EQUAL_OPERATOR,                    // *=
+  SLASH_EQUAL_OPERATOR,                   // /=
+  PERCENT_EQUAL_OPERATOR,                 // %=
+  GRAVE_OPERATOR,                         // `
+  DOUBLE_GRAVE_OPERATOR,                  // ``
+  ARROW_OPERATOR,                         // ->
+  THICK_ARROW_OPERATOR,                   // =>
+  CONCATENATE_OPERATOR,                   // +>
+  DOT_OPERATOR,                           // .
+  DOT_PLUS_OPERATOR,                      // .+
+  DOT_DASH_OPERATOR,                      // .-
+  DOT_STAR_OPERATOR,                      // .*
+  DOT_SLASH_OPERATOR,                     // ./
+  DOT_PERCENT_OPERATOR,                   // .%
+  DOT_LESS_OPERATOR,                      // .<
+  DOT_LESS_EQUAL_OPERATOR,                // .<=
+  DOT_GREATER_OPERATOR,                   // .>
+  DOT_GREATER_EQUAL_OPERATOR,             // .>=
+  DOT_DOUBLE_EQUAL_OPERATOR,              // .==
+  DOT_BANG_EQUAL_OPERATOR,                // .!=
+  DOT_PLUS_DOT_OPERTATOR,                 // .+.
+  DOT_DASH_DOT_OPERATOR,                  // .-.
+  DOT_STAR_DOT_OPERATOR,                  // .*.
+  DOT_SLASH_DOT_OPERATOR,                 // ./.
+  DOT_PERCENT_DOT_OPERATOR,               // .%.
+  DOT_LESS_DOT_OPERATOR,                  // .<.
+  DOT_LESS_EQUAL_DOT_OPERATOR,            // .<=.
+  DOT_GREATER_DOT_OPERATOR,               // .>.
+  DOT_GREATER_EQUAL_DOT_OPERATOR,         // .>=.
+  DOT_DOUBLE_EQUAL_DOT_OPERATOR,          // .==.
+  DOT_LESS_PLUS_DOT_OPERATOR,             // .<+.
+  DOT_LESS_DASH_DOT_OPERATOR,             // .<-.
+  DOT_LESS_STAR_DOT_OPERATOR,             // .<*.
+  DOT_LESS_SLASH_DOT_OPERATOR,            // .</.
+  DOT_LESS_PERCENT_DOT_OPERATOR,          // .<%
+  DOT_GREATER_PLUS_DOT_OPERATOR,          // .>+.
+  DOT_GREATER_DASH_DOT_OPERATOR,          // .>-.
+  DOT_GREATER_STAR_DOT_OPERATOR,          // .>*.
+  DOT_GREATER_SLASH_DOT_OPERATOR,         // .>/.
+  DOT_GREATER_PERCENT_DOT_OPERATOR,       // .>%.
+  DOT_LESS_EQUAL_PLUS_DOT_OPERATOR,       // .<=+.
+  DOT_LESS_EQUAL_DASH_DOT_OPERATOR,       // .<=-.
+  DOT_LESS_EQUAL_STAR_DOT_OPERATOR,       // .<=*.
+  DOT_LESS_EQUAL_SLASH_DOT_OPERATOR,      // .<=/.
+  DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR,    // .<=%
+  DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR,    // .>=+.
+  DOT_GREATER_EQUAL_DASH_DOT_OPERATOR,    // .>=-.
+  DOT_GREATER_EQUAL_STAR_DOT_OPERATOR,    // .>=*.
+  DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR,   // .>=/.
+  DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR, // .>=%
+  DOT_EQUAL_PLUS_DOT_OPERATOR,            // .==+.
+  DOT_EQUAL_DASH_DOT_OPERATOR,            // .==-.
+  DOT_EQUAL_STAR_DOT_OPERATOR,            // .==*.
+  DOT_EQUAL_SLASH_DOT_OPERATOR,           // .==/.
+  DOT_EQUAL_PERCENT_DOT_OPERATOR,         // .==%
+  DOT_BANG_EQUAL_PLUS_DOT_OPERATOR,       // .!=+.
+  DOT_BANG_EQUAL_DASH_DOT_OPERATOR,       // .!=-.
+  DOT_BANG_EQUAL_STAR_DOT_OPERATOR,       // .!=*.
+  DOT_BANG_EQUAL_SLASH_DOT_OPERATOR,      // .!=/.
+  DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR,    // .!=%
 
   // SIGILS
   AT_SIGIL,     // @
@@ -219,6 +259,86 @@ getName(rq::TokenKind kind) {
     return "dot_double_equal_operator";
   case T::DOT_BANG_EQUAL_OPERATOR:
     return "dot_bang_equal_operator";
+  case T::DOT_PLUS_DOT_OPERTATOR:
+    return "dot_plus_dot_operator";
+  case T::DOT_DASH_DOT_OPERATOR:
+    return "dot_dash_dot_operator";
+  case T::DOT_STAR_DOT_OPERATOR:
+    return "dot_star_dot_operator";
+  case T::DOT_SLASH_DOT_OPERATOR:
+    return "dot_slash_dot_operator";
+  case T::DOT_PERCENT_DOT_OPERATOR:
+    return "dot_percent_dot_operator";
+  case T::DOT_LESS_DOT_OPERATOR:
+    return "dot_less_dot_operator";
+  case T::DOT_LESS_EQUAL_DOT_OPERATOR:
+    return "dot_less_equal_dot_operator";
+  case T::DOT_GREATER_DOT_OPERATOR:
+    return "dot_greater_dot_operator";
+  case T::DOT_GREATER_EQUAL_DOT_OPERATOR:
+    return "dot_greater_equal_dot_operator";
+  case T::DOT_DOUBLE_EQUAL_DOT_OPERATOR:
+    return "dot_double_equal_dot_operator";
+  case T::DOT_LESS_PLUS_DOT_OPERATOR:
+    return "dot_less_plus_dot_operator";
+  case T::DOT_LESS_DASH_DOT_OPERATOR:
+    return "dot_less_dash_dot_operator";
+  case T::DOT_LESS_STAR_DOT_OPERATOR:
+    return "dot_less_star_dot_operator";
+  case T::DOT_LESS_SLASH_DOT_OPERATOR:
+    return "dot_less_slash_dot_operator";
+  case T::DOT_LESS_PERCENT_DOT_OPERATOR:
+    return "dot_less_percent_dot_operator";
+  case T::DOT_GREATER_PLUS_DOT_OPERATOR:
+    return "dot_greater_plus_dot_operator";
+  case T::DOT_GREATER_DASH_DOT_OPERATOR:
+    return "dot_greater_dash_dot_operator";
+  case T::DOT_GREATER_STAR_DOT_OPERATOR:
+    return "dot_greater_star_dot_operator";
+  case T::DOT_GREATER_SLASH_DOT_OPERATOR:
+    return "dot_greater_slash_dot_operator";
+  case T::DOT_GREATER_PERCENT_DOT_OPERATOR:
+    return "dot_greater_percent_dot_operator";
+  case T::DOT_LESS_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot_less_equal_plus_dot_operator";
+  case T::DOT_LESS_EQUAL_DASH_DOT_OPERATOR:
+    return "dot_less_equal_dash_dot_operator";
+  case T::DOT_LESS_EQUAL_STAR_DOT_OPERATOR:
+    return "dot_less_equal_star_dot_operator";
+  case T::DOT_LESS_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot_less_equal_slash_dot_operator";
+  case T::DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot_less_equal_percent_dot_operator";
+  case T::DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot_greater_equal_plus_dot_operator";
+  case T::DOT_GREATER_EQUAL_DASH_DOT_OPERATOR:
+    return "dot_greater_equal_dash_dot_operator";
+  case T::DOT_GREATER_EQUAL_STAR_DOT_OPERATOR:
+    return "dot_greater_equal_star_dot_operator";
+  case T::DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot_greater_equal_slash_dot_operator";
+  case T::DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot_greater_equal_percent_dot_operator";
+  case T::DOT_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot_equal_plus_dot_operator";
+  case T::DOT_EQUAL_DASH_DOT_OPERATOR:
+    return "dot_equal_dash_dot_operator";
+  case T::DOT_EQUAL_STAR_DOT_OPERATOR:
+    return "dot_equal_star_dot_operator";
+  case T::DOT_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot_equal_slash_dot_operator";
+  case T::DOT_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot_equal_percent_dot_operator";
+  case T::DOT_BANG_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot_bang_equal_plus_dot_operator";
+  case T::DOT_BANG_EQUAL_DASH_DOT_OPERATOR:
+    return "dot_bang_equal_dash_dot_operator";
+  case T::DOT_BANG_EQUAL_STAR_DOT_OPERATOR:
+    return "dot_bang_equal_star_dot_operator";
+  case T::DOT_BANG_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot_bang_equal_slash_dot_operator";
+  case T::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot_bang_equal_percent_dot_operator";
 
   // SIGILS
   case T::AT_SIGIL:
@@ -394,6 +514,86 @@ getDescription(rq::TokenKind kind) {
     return "dot double equal operator";
   case T::DOT_BANG_EQUAL_OPERATOR:
     return "dot bang equal operator";
+  case T::DOT_PLUS_DOT_OPERTATOR:
+    return "dot plus dot operator";
+  case T::DOT_DASH_DOT_OPERATOR:
+    return "dot dash dot operator";
+  case T::DOT_STAR_DOT_OPERATOR:
+    return "dot star dot operator";
+  case T::DOT_SLASH_DOT_OPERATOR:
+    return "dot slash dot operator";
+  case T::DOT_PERCENT_DOT_OPERATOR:
+    return "dot percent dot operator";
+  case T::DOT_LESS_DOT_OPERATOR:
+    return "dot less dot operator";
+  case T::DOT_LESS_EQUAL_DOT_OPERATOR:
+    return "dot less equal dot operator";
+  case T::DOT_GREATER_DOT_OPERATOR:
+    return "dot greater dot operator";
+  case T::DOT_GREATER_EQUAL_DOT_OPERATOR:
+    return "dot greater equal dot operator";
+  case T::DOT_DOUBLE_EQUAL_DOT_OPERATOR:
+    return "dot double equal dot operator";
+  case T::DOT_LESS_PLUS_DOT_OPERATOR:
+    return "dot less plus dot operator";
+  case T::DOT_LESS_DASH_DOT_OPERATOR:
+    return "dot less dash dot operator";
+  case T::DOT_LESS_STAR_DOT_OPERATOR:
+    return "dot less star dot operator";
+  case T::DOT_LESS_SLASH_DOT_OPERATOR:
+    return "dot less slash dot operator";
+  case T::DOT_LESS_PERCENT_DOT_OPERATOR:
+    return "dot less percent dot operator";
+  case T::DOT_GREATER_PLUS_DOT_OPERATOR:
+    return "dot greater plus dot operator";
+  case T::DOT_GREATER_DASH_DOT_OPERATOR:
+    return "dot greater dash dot operator";
+  case T::DOT_GREATER_STAR_DOT_OPERATOR:
+    return "dot greater star dot operator";
+  case T::DOT_GREATER_SLASH_DOT_OPERATOR:
+    return "dot greater slash dot operator";
+  case T::DOT_GREATER_PERCENT_DOT_OPERATOR:
+    return "dot greater percent dot operator";
+  case T::DOT_LESS_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot less equal plus dot operator";
+  case T::DOT_LESS_EQUAL_DASH_DOT_OPERATOR:
+    return "dot less equal dash dot operator";
+  case T::DOT_LESS_EQUAL_STAR_DOT_OPERATOR:
+    return "dot less equal star dot operator";
+  case T::DOT_LESS_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot less equal slash dot operator";
+  case T::DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot less equal percent dot operator";
+  case T::DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot greater equal plus dot operator";
+  case T::DOT_GREATER_EQUAL_DASH_DOT_OPERATOR:
+    return "dot greater equal dash dot operator";
+  case T::DOT_GREATER_EQUAL_STAR_DOT_OPERATOR:
+    return "dot greater equal star dot operator";
+  case T::DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot greater equal slash dot operator";
+  case T::DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot greater equal percent dot operator";
+  case T::DOT_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot equal plus dot operator";
+  case T::DOT_EQUAL_DASH_DOT_OPERATOR:
+    return "dot equal dash dot operator";
+  case T::DOT_EQUAL_STAR_DOT_OPERATOR:
+    return "dot equal star dot operator";
+  case T::DOT_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot equal slash dot operator";
+  case T::DOT_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot equal percent dot operator";
+  case T::DOT_BANG_EQUAL_PLUS_DOT_OPERATOR:
+    return "dot bang equal plus dot operator";
+  case T::DOT_BANG_EQUAL_DASH_DOT_OPERATOR:
+    return "dot bang equal dash dot operator";
+  case T::DOT_BANG_EQUAL_STAR_DOT_OPERATOR:
+    return "dot bang equal star dot operator";
+  case T::DOT_BANG_EQUAL_SLASH_DOT_OPERATOR:
+    return "dot bang equal slash dot operator";
+  case T::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
+    return "dot bang equal percent dot operator";
 
   // SIGILS
   case T::AT_SIGIL:
@@ -568,6 +768,86 @@ getFlags(rq::TokenKind kind) {
   case T::DOT_DOUBLE_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_BANG_EQUAL_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_PLUS_DOT_OPERTATOR:
+    return TF::OPERATOR;
+  case T::DOT_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_PERCENT_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_EQUAL_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_EQUAL_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_DOUBLE_EQUAL_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_PLUS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_PERCENT_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_PLUS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_PERCENT_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_EQUAL_PLUS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_EQUAL_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_EQUAL_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_EQUAL_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_EQUAL_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_EQUAL_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_EQUAL_PLUS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_EQUAL_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_EQUAL_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_EQUAL_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_EQUAL_PERCENT_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_BANG_EQUAL_PLUS_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_BANG_EQUAL_DASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_BANG_EQUAL_STAR_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_BANG_EQUAL_SLASH_DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
     return TF::OPERATOR;
   case T::AT_SIGIL:
     return TF::NONE; // SIGIL

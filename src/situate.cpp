@@ -124,7 +124,6 @@ bool Situator::situateTree(rq::Situation situation,
         lvalue.changeKeyword(K::S_STRUCTURED_BINDING);
         this->getContext().discardExpression(expression.mergeAndPopBranch());
         break;
-        ;
       default:
         expression.changeKeyword(K::S_ASSIGN);
         break;
@@ -369,6 +368,100 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_POINTER:
     [[fallthrough]];
   case K::S_FAT_POINTER:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+
+  // ARITHMETIC INTERVAL OPERATORS
+  case K::S_ARITHMETIC_INTERVAL_LESS:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_INTERVAL_LESS_EQUAL:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_INTERVAL_GREATER:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_INTERVAL_GREATER_EQUAL:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_INTERVAL_EQUAL:
+    [[fallthrough]];
+  case K::S_ARITHMETIC_INTERVAL_NOT_EQUAL:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+
+  // FINITE ARITHMETIC PROGRESSION OPERATORS
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_ADD:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_SUBTRACT:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_MULTIPLY:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_DIVIDE:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_MODULUS:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_ADD:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_SUBTRACT:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MULTIPLY:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_DIVIDE:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MODULUS:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_ADD:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_SUBTRACT:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_MULTIPLY:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_DIVIDE:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_MODULUS:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_ADD:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_SUBTRACT:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MULTIPLY:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_DIVIDE:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MODULUS:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_ADD:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_SUBTRACT:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_MULTIPLY:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_DIVIDE:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_MODULUS:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_ADD:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_SUBTRACT:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MULTIPLY:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_DIVIDE:
+    [[fallthrough]];
+  case K::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MODULUS:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+
+  // INFINITE ARITHMETIC PROGRESSION OPERATORS
+  case K::S_INFINITE_ARITHMETIC_PROGRESSION_ADD:
+    [[fallthrough]];
+  case K::S_INFINITE_ARITHMETIC_PROGRESSION_SUBTRACT:
+    [[fallthrough]];
+  case K::S_INFINITE_ARITHMETIC_PROGRESSION_MULTIPLY:
+    [[fallthrough]];
+  case K::S_INFINITE_ARITHMETIC_PROGRESSION_DIVIDE:
+    [[fallthrough]];
+  case K::S_INFINITE_ARITHMETIC_PROGRESSION_MODULUS:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;

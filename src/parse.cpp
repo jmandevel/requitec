@@ -752,6 +752,170 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token, rq::Keyword::S_POINTER);
         continue;
+      case rq::TokenKind::DOT_LESS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_ARITHMETIC_INTERVAL_LESS);
+        continue;
+      case rq::TokenKind::DOT_LESS_EQUAL_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_ARITHMETIC_INTERVAL_LESS_EQUAL);
+        continue;
+      case rq::TokenKind::DOT_GREATER_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_ARITHMETIC_INTERVAL_GREATER);
+        continue;
+      case rq::TokenKind::DOT_GREATER_EQUAL_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_ARITHMETIC_INTERVAL_GREATER_EQUAL);
+        continue;
+      case rq::TokenKind::DOT_DOUBLE_EQUAL_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_ARITHMETIC_INTERVAL_EQUAL);
+        continue;
+      case rq::TokenKind::DOT_BANG_EQUAL_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_ARITHMETIC_INTERVAL_NOT_EQUAL);
+        continue;
+      case rq::TokenKind::DOT_LESS_PLUS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_ADD);
+        continue;
+      case rq::TokenKind::DOT_LESS_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_LESS_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_LESS_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_LESS_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_MODULUS);
+        continue;
+      case rq::TokenKind::DOT_GREATER_PLUS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_ADD);
+        continue;
+      case rq::TokenKind::DOT_GREATER_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_GREATER_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_GREATER_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_GREATER_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_MODULUS);
+        continue;
+      case rq::TokenKind::DOT_LESS_EQUAL_PLUS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_ADD);
+        continue;
+      case rq::TokenKind::DOT_LESS_EQUAL_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_LESS_EQUAL_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_LESS_EQUAL_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MODULUS);
+        continue;
+      case rq::TokenKind::DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_ADD);
+        continue;
+      case rq::TokenKind::DOT_GREATER_EQUAL_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_GREATER_EQUAL_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MODULUS);
+        continue;
+      case rq::TokenKind::DOT_EQUAL_PLUS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_ADD);
+        continue;
+      case rq::TokenKind::DOT_EQUAL_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_EQUAL_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_EQUAL_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_EQUAL_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_EQUAL_MODULUS);
+        continue;
+      case rq::TokenKind::DOT_BANG_EQUAL_PLUS_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_ADD);
+        continue;
+      case rq::TokenKind::DOT_BANG_EQUAL_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_BANG_EQUAL_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_BANG_EQUAL_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MODULUS);
+        continue;
+      case rq::TokenKind::DOT_PLUS_DOT_OPERTATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_INFINITE_ARITHMETIC_PROGRESSION_ADD);
+        continue;
+      case rq::TokenKind::DOT_DASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_INFINITE_ARITHMETIC_PROGRESSION_SUBTRACT);
+        continue;
+      case rq::TokenKind::DOT_STAR_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_INFINITE_ARITHMETIC_PROGRESSION_MULTIPLY);
+        continue;
+      case rq::TokenKind::DOT_SLASH_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_INFINITE_ARITHMETIC_PROGRESSION_DIVIDE);
+        continue;
+      case rq::TokenKind::DOT_PERCENT_DOT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseUnary(token, rq::Keyword::S_INFINITE_ARITHMETIC_PROGRESSION_MODULUS);
+        continue;
       case rq::TokenKind::GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
