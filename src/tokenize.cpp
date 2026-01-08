@@ -294,8 +294,7 @@ void Tokenizer::_tokenizeSourceText() {
             default:
               break;
             }
-            this->tokenizeLengthToken(T::DOT_GREATER_EQUAL_OPERATOR, 3);
-            continue;
+            break;
           case '-':
             switch (this->getRanger().getChar(4)) {
             case '.':

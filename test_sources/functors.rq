@@ -2,7 +2,7 @@
 
 [entry_point
     @static 
-    my_functor_signature := $([signed]:x, [signed]:y<) (>[signed]:z<)[signed];
+    :my_functor_signature = $([signed]:x, [signed]:y<) (>[signed]:z<)[signed];
     [function myFunctionWithCapture, my_functor_signature,
         :[result] = x + y + z;
     ];
