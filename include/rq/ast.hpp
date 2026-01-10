@@ -188,6 +188,8 @@ enum class Keyword : std::uint32_t {
   THIS,
   // type of class extending or member of.
   THIS_TYPE,
+  // symbol of symbol extending or member of.
+  THIS_SYMBOL,
   // value returned from a function.
   RESULT,
   // retrieve command line arguments within entry.
@@ -671,6 +673,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "this";
   case K::THIS_TYPE:
     return "this_type";
+  case K::THIS_SYMBOL:
+    return "this_symbol";
   case K::RESULT:
     return "result";
   case K::COMMAND_LINE_ARGUMENTS:
@@ -1358,6 +1362,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::THIS:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS_TYPE:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
+  case K::THIS_SYMBOL:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
