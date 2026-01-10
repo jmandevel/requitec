@@ -2,7 +2,7 @@
 
 @static
 [for 0.<=10, :num=[value],
-    @(num) @global 
+    @[num] @global 
     `:\std.format(text="VAR{num}") = index;
 ];
 

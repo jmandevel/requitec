@@ -25,5 +25,5 @@
                 :[out] = [signed]:grape;
             ];
         ];
-    [exit_code] := value;
+    :[exit_code] = value;
 ];
