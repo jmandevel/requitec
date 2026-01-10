@@ -11,7 +11,6 @@
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 
         std.print(line="element {index} is {element}!");
-        index = index + 1;
     ];
     std.print(line="it starts with {my_array.[borrow].at(0)}!");
 ];
