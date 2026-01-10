@@ -1,7 +1,7 @@
 [import "std"];
 
 [entry_point
-    @static_capture..{name:="Bob", age:=25}
+    @static_capture..{@public name:="Bob", @public age:=25}
     var := 0;
     std.print(line="Hello, my name is {var.[symbol].name} and I am {var.[symbol].age} years old");
 ];
