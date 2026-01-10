@@ -2710,9 +2710,6 @@ struct StatementAscribedSymbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const {
     return rq::getHasPack(this->_attributes);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUserAttribute() const {
-    return rq::getHasUserAttribute(this->_attributes);
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const {
     return rq::getHasLabel(this->_attributes);
   }

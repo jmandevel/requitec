@@ -386,8 +386,8 @@ enum class Keyword : std::uint32_t {
   S_TYPE_OF,
   SYMBOL,
   S_SYMBOL_OF,
-  HAS_CAPTURE,
-  S_HAS_CAPTURE_OF,
+  HAS_MEMBER,
+  S_HAS_MEMBER_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
   LAYOUT,
@@ -1021,10 +1021,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "symbol";
   case K::S_SYMBOL_OF:
     return "_symbol_of";
-  case K::HAS_CAPTURE:
-    return "has_capture";
-  case K::S_HAS_CAPTURE_OF:
-    return "_has_capture_of";
+  case K::HAS_MEMBER:
+    return "has_member";
+  case K::S_HAS_MEMBER_OF:
+    return "_has_member_of";
   case K::SIGNATURE:
     return "signature";
   case K::S_SIGNATURE_OF:
@@ -1722,9 +1722,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_SYMBOL_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::HAS_CAPTURE:
+  case K::HAS_MEMBER:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_HAS_CAPTURE_OF:
+  case K::S_HAS_MEMBER_OF:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2008,8 +2008,8 @@ getDescription(rq::Situation situation) {
     return K::S_TYPE_OF;
   case K::SYMBOL:
     return K::S_SYMBOL_OF;
-  case K::HAS_CAPTURE:
-    return K::S_HAS_CAPTURE_OF;
+  case K::HAS_MEMBER:
+    return K::S_HAS_MEMBER_OF;
   case K::SIGNATURE:
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
