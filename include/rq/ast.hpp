@@ -50,8 +50,8 @@ enum class Keyword : std::uint32_t {
   S_EQUAL_OPERATOR,
   S_COLON_OPERATOR,
   S_INFERENCE,
-  S_UNSITUATED_ASCRIBE_STATEMENT,
-  S_UNSITUATED_ASCRIBE_TYPE,
+  S_REVERSED_ASCRIBE_STATEMENT,
+  S_REVERSED_ASCRIBE_TYPE,
 
   // LOGICAL
   S_LOGICAL_AND,
@@ -439,10 +439,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_colon_operator";
   case K::S_INFERENCE:
     return "_inference";
-  case K::S_UNSITUATED_ASCRIBE_STATEMENT:
-    return "_unsituated_ascribe_statement";
-  case K::S_UNSITUATED_ASCRIBE_TYPE:
-    return "_unsituated_ascribe_type";
+  case K::S_REVERSED_ASCRIBE_STATEMENT:
+    return "_reversed_ascribe_statement";
+  case K::S_REVERSED_ASCRIBE_TYPE:
+    return "_reversed_ascribe_type";
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -1126,10 +1126,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER | KF::BINDING;
   case K::S_INFERENCE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::S_UNSITUATED_ASCRIBE_TYPE:
+  case K::S_REVERSED_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
-  case K::S_UNSITUATED_ASCRIBE_STATEMENT:
+  case K::S_REVERSED_ASCRIBE_STATEMENT:
     return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
 
   // LOGICAL
@@ -1791,9 +1791,9 @@ getHasNonStatementBranches(rq::Keyword keyword) {
 
 [[nodiscard]] inline rq::Keyword getSituatedAscribe(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT:
+  case rq::Keyword::S_REVERSED_ASCRIBE_STATEMENT:
     return rq::Keyword::S_ASCRIBE_STATEMENT;
-  case rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE:
+  case rq::Keyword::S_REVERSED_ASCRIBE_TYPE:
     return rq::Keyword::S_ASCRIBE_TYPE;
   default:
     break;
@@ -2028,7 +2028,7 @@ getDescription(rq::Situation situation) {
 
 [[nodiscard]] inline rq::Situation getAttributeSituation(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT:
+  case rq::Keyword::S_REVERSED_ASCRIBE_STATEMENT:
     [[fallthrough]];
   case rq::Keyword::S_ASCRIBE_STATEMENT:
     return rq::Situation::SYMBOL_ATTRIBUTE;

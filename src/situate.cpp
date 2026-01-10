@@ -160,9 +160,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_INFERENCE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::S_UNSITUATED_ASCRIBE_STATEMENT:
+  case K::S_REVERSED_ASCRIBE_STATEMENT:
     [[fallthrough]];
-  case K::S_UNSITUATED_ASCRIBE_TYPE: {
+  case K::S_REVERSED_ASCRIBE_TYPE: {
     unsigned branch_i = 0;
     const rq::Situation attribute_situation =
         expression.getAttributeSituation();
