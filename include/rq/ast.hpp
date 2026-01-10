@@ -345,7 +345,7 @@ enum class Keyword : std::uint32_t {
   INLINE,
   MANGLE,
   PACK,
-  S_USER_ATTRIBUTE,
+  ASCRIBE,
   LABEL,
   S_TEMPLATE,
   LIKELY,
@@ -951,8 +951,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mangle";
   case K::PACK:
     return "pack";
-  case K::S_USER_ATTRIBUTE:
-    return "_user_attribute";
+  case K::ASCRIBE:
+    return "ascribe";
   case K::LABEL:
     return "label";
   case K::S_TEMPLATE:
@@ -1665,7 +1665,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_ATTRIBUTE;
   case K::PACK:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::S_USER_ATTRIBUTE:
+  case K::ASCRIBE:
     return KF::STATEMENT_ATTRIBUTE;
   case K::LABEL:
     return KF::STATEMENT_ATTRIBUTE;
@@ -2367,7 +2367,7 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MANGLE;
   case K::PACK:
     return SA::PACK;
-  case K::S_USER_ATTRIBUTE:
+  case K::ASCRIBE:
     return SA::USER_ATTRIBUTE;
   case K::LABEL:
     return SA::LABEL;

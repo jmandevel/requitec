@@ -1110,8 +1110,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::PACK:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::S_USER_ATTRIBUTE:
-    is_ok = this->situateNaryNonStatementBranches(situation, expression, 1,
+  case K::ASCRIBE:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
   case K::LABEL:

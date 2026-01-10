@@ -7,7 +7,7 @@
 ];
 
 [entry_point
-    ?NameData(name="Hello, world!")
+    @ascribe..NameData(name="Hello, world!")
     var := 0;
     std.print(line="{var.[symbol].[user_attribute NameData].name}");
 ];

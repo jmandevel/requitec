@@ -668,7 +668,7 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '?':
-      this->tokenizeLengthToken(T::WHAT_SIGIL, 1);
+      this->tokenizeLengthToken(T::WHAT_OPERATOR, 1);
       continue;
     case '@':
       this->tokenizeLengthToken(T::AT_SIGIL, 1);

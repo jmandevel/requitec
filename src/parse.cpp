@@ -237,13 +237,6 @@ rq::Expression &RequiteParser::parsePrecedence11() {
       precedence_factory.appendBranch(attribute);
       continue;
     }
-    case rq::TokenKind::WHAT_SIGIL: {
-      rq::Expression &attribute = this->parseUserAttribute();
-      precedence_factory.parseAscribe(
-          token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
-      precedence_factory.appendBranch(attribute);
-      continue;
-    }
     default:
       precedence_factory.appendBranch(this->parsePrecedence10());
       break;
@@ -1319,19 +1312,6 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
     attribute.extendSourceOver(branch);
   }
   return attribute;
-}
-
-rq::Expression &RequiteParser::parseUserAttribute() {
-  const rq::Token &what_token = this->getRanger().getToken();
-  this->getRanger().incrementToken(1);
-  RQ_ASSERT(what_token.getKind() == rq::TokenKind::WHAT_SIGIL,
-            "not what sigil");
-  rq::Expression &value = this->parseExpression();
-  rq::Expression &expression = this->getContext().acquireExpression();
-  expression.setSource(what_token, value);
-  expression.setKeyword(rq::Keyword::USER_ATTRIBUTE);
-  expression.setBranch(value);
-  return expression;
 }
 
 rq::Expression &RequiteParser::parseTypeAttribute() {
