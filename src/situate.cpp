@@ -241,7 +241,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::S_BINDING:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::SYMBOL_PATH);
+                                                    S::SYMBOL_PATH, S::RVALUE);
     break;
   case K::S_ASCRIBE_TYPE:
     is_ok = this->situateNaryDifferentFirstNonStatementBranches(
@@ -344,18 +344,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_ASSIGN:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::LVALUE, S::RVALUE);
-    break;
-  case K::S_ASSIGN_ADD:
-    [[fallthrough]];
-  case K::S_ASSIGN_SUBTRACT:
-    [[fallthrough]];
-  case K::S_ASSIGN_MULTIPLY:
-    [[fallthrough]];
-  case K::S_ASSIGN_DIVIDE:
-    [[fallthrough]];
-  case K::S_ASSIGN_MODULUS:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
     break;
 
   // SUBTYPE

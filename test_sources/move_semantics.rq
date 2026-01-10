@@ -5,16 +5,16 @@
 [class MyClass, @public [constructor];];
 
 [entry_point
-  `:class = MyClass();
-  :copy = class;
-  :reference = class.[borrow];
-  :reference_to_mutable = class.`[borrow];
-  :pointer = class.[address];
-  :pointer_to_mutable = class.`[address];
-  :copy_value_at_pointer = pointer.[content];
-  :non_destructive_move = class.`[borrow].extract();
+  class :`= MyClass();
+  copy := class;
+  reference := class.[borrow];
+  reference_to_mutable := class.`[borrow];
+  pointer := class.[address];
+  pointer_to_mutable := class.`[address];
+  copy_value_at_pointer := pointer.[content];
+  non_destructive_move := class.`[borrow].extract();
   non_destructive_move.[destroy]; // explicit destroy
-  :destructive_move = class.[move];
+  destructive_move := class.[move];
   // class was dropped
   destructive_move.[drop]; // explicit drop without destroy
 ];

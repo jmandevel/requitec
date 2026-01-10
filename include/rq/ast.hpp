@@ -107,11 +107,6 @@ enum class Keyword : std::uint32_t {
 
   // ASSIGNMENT
   S_ASSIGN,
-  S_ASSIGN_ADD,
-  S_ASSIGN_SUBTRACT,
-  S_ASSIGN_MULTIPLY,
-  S_ASSIGN_DIVIDE,
-  S_ASSIGN_MODULUS,
 
   // SUBTYPE
   S_ARRAY,
@@ -547,16 +542,6 @@ constexpr std::size_t KEYWORD_COUNT =
   // ASSIGNMENT
   case K::S_ASSIGN:
     return "_assign";
-  case K::S_ASSIGN_ADD:
-    return "_assign_add";
-  case K::S_ASSIGN_SUBTRACT:
-    return "_assign_subtract";
-  case K::S_ASSIGN_MULTIPLY:
-    return "_assign_multiply";
-  case K::S_ASSIGN_DIVIDE:
-    return "_assign_divide";
-  case K::S_ASSIGN_MODULUS:
-    return "_assign_modulus";
 
   // SUBTYPE
   case K::S_ARRAY:
@@ -1255,16 +1240,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // ASSIGNMENT
   case K::S_ASSIGN:
-    return KF::STATEMENT;
-  case K::S_ASSIGN_ADD:
-    return KF::STATEMENT;
-  case K::S_ASSIGN_SUBTRACT:
-    return KF::STATEMENT;
-  case K::S_ASSIGN_MULTIPLY:
-    return KF::STATEMENT;
-  case K::S_ASSIGN_DIVIDE:
-    return KF::STATEMENT;
-  case K::S_ASSIGN_MODULUS:
     return KF::STATEMENT;
 
   // SUBTYPE

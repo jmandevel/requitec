@@ -3,14 +3,14 @@
 @static
 [for 0.<=10, :num=[value],
     @[num] @global 
-    `:\std.format(text="VAR{num}") = index;
+    \std.format(text="VAR{num}") :`= index;
 ];
 
 [entry_point
     @static
-    [for 0.<=10, :num=[value], 
+    [for 0.<=10, num:=[value], 
         @static
-        :varname = std.format(text="VAR{num}");
+        varname := std.format(text="VAR{num}");
         std.print(line="{varname.[borrow].span()} is {\varname}!");        
     ];
 ];

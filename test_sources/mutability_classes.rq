@@ -7,8 +7,8 @@
 @may_copy @may_move
 [class Foo,
     {>
-        @public @mutate_with..class :a = 0,
-        @public @mutate_with..stuff.ClassB :b = 0
+        @public @mutate_with..class a := 0,
+        @public @mutate_with..stuff.ClassB b := 0
     <},
 
     @public
@@ -16,15 +16,15 @@
 ];
 
 [entry_point
-    `:foo = Foo(); // of type `Foo
+    foo :`= Foo(); // of type `Foo
     
-    :foo_borrow_a = foo.ClassA`[borrow]; // of type &ClassA`Foo
-    foo_borrow_a.a += 1;
+    foo_borrow_a := foo.ClassA`[borrow]; // of type &ClassA`Foo
+    foo_borrow_a.a = foo_borrow_a.a + 1;
 
-    :foo_borrow_b = foo.(stuff.ClassB)`[borrow]; // of type &(foo.ClassB`Foo)
+    foo_borrow_b := foo.(stuff.ClassB)`[borrow]; // of type &(foo.ClassB`Foo)
     foo_borrow_b.b = 2;
 
-    :foo_borrow_ab = foo.(ClassA \/ stuff.ClassB)`[borrow]; // of type &(ClassA \/ foo.ClassB)`Foo
+    foo_borrow_ab := foo.(ClassA \/ stuff.ClassB)`[borrow]; // of type &(ClassA \/ foo.ClassB)`Foo
     foo_borrow_ab.a = 3;
     foo_borrow_ab.b = 4;
 ];

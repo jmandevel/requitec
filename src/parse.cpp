@@ -268,31 +268,6 @@ rq::Expression &RequiteParser::parsePrecedence10() {
       precedence_factory.parseBinary(token, rq::Keyword::S_EQUAL_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
-    case rq::TokenKind::PLUS_EQUAL_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_ASSIGN_ADD);
-      precedence_factory.setRecent(this->parsePrecedence9());
-      continue;
-    case rq::TokenKind::DASH_EQUAL_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_ASSIGN_SUBTRACT);
-      precedence_factory.setRecent(this->parsePrecedence9());
-      continue;
-    case rq::TokenKind::STAR_EQUAL_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_ASSIGN_MULTIPLY);
-      precedence_factory.setRecent(this->parsePrecedence9());
-      continue;
-    case rq::TokenKind::SLASH_EQUAL_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_ASSIGN_DIVIDE);
-      precedence_factory.setRecent(this->parsePrecedence9());
-      continue;
-    case rq::TokenKind::PERCENT_EQUAL_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_ASSIGN_MODULUS);
-      precedence_factory.setRecent(this->parsePrecedence9());
-      continue;
     default:
       break;
     }

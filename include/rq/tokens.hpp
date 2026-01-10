@@ -36,11 +36,6 @@ enum class TokenKind : std::uint_fast8_t {
   UP_ARROW_OPERATOR,                      // /\   .
   EQUAL_OPERATOR,                         // =
   DOUBLE_EQUAL_OPERATOR,                  // ==
-  PLUS_EQUAL_OPERATOR,                    // +=
-  DASH_EQUAL_OPERATOR,                    // -=
-  STAR_EQUAL_OPERATOR,                    // *=
-  SLASH_EQUAL_OPERATOR,                   // /=
-  PERCENT_EQUAL_OPERATOR,                 // %=
   GRAVE_OPERATOR,                         // `
   DOUBLE_GRAVE_OPERATOR,                  // ``
   ARROW_OPERATOR,                         // ->
@@ -83,12 +78,12 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_LESS_EQUAL_DASH_DOT_OPERATOR,       // .<=-.
   DOT_LESS_EQUAL_STAR_DOT_OPERATOR,       // .<=*.
   DOT_LESS_EQUAL_SLASH_DOT_OPERATOR,      // .<=/.
-  DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR,    // .<=%
+  DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR,    // .<=%.
   DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR,    // .>=+.
   DOT_GREATER_EQUAL_DASH_DOT_OPERATOR,    // .>=-.
   DOT_GREATER_EQUAL_STAR_DOT_OPERATOR,    // .>=*.
   DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR,   // .>=/.
-  DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR, // .>=%
+  DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR, // .>=%.
   DOT_EQUAL_PLUS_DOT_OPERATOR,            // .==+.
   DOT_EQUAL_DASH_DOT_OPERATOR,            // .==-.
   DOT_EQUAL_STAR_DOT_OPERATOR,            // .==*.
@@ -98,7 +93,7 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_BANG_EQUAL_DASH_DOT_OPERATOR,       // .!=-.
   DOT_BANG_EQUAL_STAR_DOT_OPERATOR,       // .!=*.
   DOT_BANG_EQUAL_SLASH_DOT_OPERATOR,      // .!=/.
-  DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR,    // .!=%
+  DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR,    // .!=%.
 
   // SIGILS
   AT_SIGIL,     // @
@@ -141,7 +136,7 @@ enum class TokenKind : std::uint_fast8_t {
   ERROR_UNMATCHED_RIGHT_BRACE_GROUPING,
   ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING,
   ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING,
-}
+};
 
 enum class TokenFlags : std::uint8_t {
   NONE = 0,
@@ -216,16 +211,6 @@ getName(rq::TokenKind kind) {
     return "equal_operator";
   case T::DOUBLE_EQUAL_OPERATOR:
     return "double_equal_operator";
-  case T::PLUS_EQUAL_OPERATOR:
-    return "plus_equal_operator";
-  case T::DASH_EQUAL_OPERATOR:
-    return "dash_equal_operator";
-  case T::STAR_EQUAL_OPERATOR:
-    return "star_equal_operator";
-  case T::SLASH_EQUAL_OPERATOR:
-    return "slash_equal_operator";
-  case T::PERCENT_EQUAL_OPERATOR:
-    return "percent_equal_operator";
   case T::GRAVE_OPERATOR:
     return "grave_operator";
   case T::DOUBLE_GRAVE_OPERATOR:
@@ -473,16 +458,6 @@ getDescription(rq::TokenKind kind) {
     return "equal operator";
   case T::DOUBLE_EQUAL_OPERATOR:
     return "double equal operator";
-  case T::PLUS_EQUAL_OPERATOR:
-    return "plus equal operator";
-  case T::DASH_EQUAL_OPERATOR:
-    return "dash equal operator";
-  case T::STAR_EQUAL_OPERATOR:
-    return "star equal operator";
-  case T::SLASH_EQUAL_OPERATOR:
-    return "slash equal operator";
-  case T::PERCENT_EQUAL_OPERATOR:
-    return "percent equal operator";
   case T::GRAVE_OPERATOR:
     return "grave operator";
   case T::DOUBLE_GRAVE_OPERATOR:
@@ -727,18 +702,8 @@ getFlags(rq::TokenKind kind) {
   case T::UP_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::EQUAL_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::PLUS_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::DASH_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::STAR_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::SLASH_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::PERCENT_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::GRAVE_OPERATOR:
     return TF::OPERATOR;
@@ -1139,13 +1104,7 @@ struct Token final {
   }
 };
 
-enum class GroupingKind {
-  NONE,
-  INTERPOLATION,
-  BRACKET,
-  BRACE,
-  PARENTHESIS
-};
+enum class GroupingKind { NONE, INTERPOLATION, BRACKET, BRACE, PARENTHESIS };
 
 inline llvm::StringRef getDescription(rq::GroupingKind kind) {
   using namespace rq;

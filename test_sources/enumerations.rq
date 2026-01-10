@@ -1,29 +1,29 @@
 [enumeration MyEnum, 32,
-    [signed]   :APPLE  = 0;
-    [unsigned] :ORANGE = 2;
-    [binary32] :GRAPE  = 3;
+    APPLE  :[signed]   = 0;
+    ORANGE :[unsigned] = 2;
+    GRAPE  :[binary32] = 3;
 ];
 
 [entry_point
-    :fruit = MyEnum.APPLE(3);
+    fruit := MyEnum.APPLE(3);
     [match fruit,
-        [with APPLE, :apple=[value].`[borrow], 
-            apple += 1;
+        [with APPLE, apple:=[value].`[borrow], 
+            apple = apple + 1;
         ][with ORANGE, :orange=[value].`[borrow],
-            orange *= 2;
+            orange = orange * 2;
         ][default
             // do nothing!
         ];
     ];
     :value =
         [inline_match fruit,
-            [with APPLE, :apple=[value], 
-                :[out] = apple;
+            [with APPLE, apple:=[value], 
+                [out] := apple;
             ][with ORANGE, orange:=[value],
-                :[out] = [signed]:orange;
+                [out] := [signed]:orange;
             ][with GRAPE, grape:=[value],
-                :[out] = [signed]:grape;
+                [out] := [signed]:grape;
             ];
         ];
-    :[exit_code] = value;
+    [exit_code] := value;
 ];

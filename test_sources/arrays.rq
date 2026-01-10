@@ -2,16 +2,16 @@
 [facade std];
 
 [entry_point
-    `:my_array= {0, 1, 2, 3, 4};
-    :const_fat_pointer= my_array.[borrow].getSpan();
-    :mutable_fat_pointer= my_array.`[borrow].getSpan();
+    my_array :`= {0, 1, 2, 3, 4};
+    const_fat_pointer := my_array.[borrow].getSpan();
+    mutable_fat_pointer := my_array.`[borrow].getSpan();
     std.print(line="stats: size:{my_array.[type].[byte_size]} count:{my_array.[type].[element_count]} depth:{my_array.[type].[bit_depth]}!");
-    [for my_array, :index=[index], :element=[value].`[borrow], 
-        element *= index;
+    [for my_array, index:=[index], element:=[value].`[borrow], 
+        element = element * index;
     ];
-    [for my_array.[borrow], :index=[index], :element=[value], 
+    [for my_array.[borrow], index:=[index], element:=[value], 
         std.print(line="element {index} is {element}!");
-        index += 1;
+        index = index + 1;
     ];
     std.print(line="it starts with {my_array.[borrow].at(0)}!");
 ];
