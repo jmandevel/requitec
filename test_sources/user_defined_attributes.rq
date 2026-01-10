@@ -1,13 +1,7 @@
 [import "std"];
 
-[class NameData,
-    {> @public name:^[utf8] <},
-    @public
-    [layout_constructor];
-];
-
 [entry_point
-    @ascribe..NameData(name="Hello, world!")
+    @static_capture..{name:="Bob", age:=25}
     var := 0;
-    std.print(line="{var.[symbol].[user_attribute NameData].name}");
+    std.print(line="Hello, my name is {var.[symbol].name} and I am {var.[symbol].age} years old");
 ];

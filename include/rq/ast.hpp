@@ -386,10 +386,8 @@ enum class Keyword : std::uint32_t {
   S_TYPE_OF,
   SYMBOL,
   S_SYMBOL_OF,
-  HAS_USER_ATTRIBUTE,
-  S_HAS_USER_ATTRIBUTE_OF,
-  USER_ATTRIBUTE,
-  S_USER_ATTRIBUTE_OF,
+  HAS_STATIC_CAPTURE,
+  S_HAS_STATIC_CAPTURE_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
   LAYOUT,
@@ -1023,14 +1021,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "symbol";
   case K::S_SYMBOL_OF:
     return "_symbol_of";
-  case K::HAS_USER_ATTRIBUTE:
-    return "has_user_attribute";
-  case K::S_HAS_USER_ATTRIBUTE_OF:
-    return "_has_user_attribute_of";
-  case K::USER_ATTRIBUTE:
-    return "user_attribute";
-  case K::S_USER_ATTRIBUTE_OF:
-    return "_user_attribute_of";
+  case K::HAS_STATIC_CAPTURE:
+    return "has_static_capture";
+  case K::S_HAS_STATIC_CAPTURE_OF:
+    return "_has_static_capture_of";
   case K::SIGNATURE:
     return "signature";
   case K::S_SIGNATURE_OF:
@@ -1728,13 +1722,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_SYMBOL_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::HAS_USER_ATTRIBUTE:
+  case K::HAS_STATIC_CAPTURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_HAS_USER_ATTRIBUTE_OF:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::USER_ATTRIBUTE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_USER_ATTRIBUTE_OF:
+  case K::S_HAS_STATIC_CAPTURE_OF:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2018,10 +2008,8 @@ getDescription(rq::Situation situation) {
     return K::S_TYPE_OF;
   case K::SYMBOL:
     return K::S_SYMBOL_OF;
-  case K::USER_ATTRIBUTE:
-    return K::S_USER_ATTRIBUTE_OF;
-  case K::HAS_USER_ATTRIBUTE:
-    return K::S_HAS_USER_ATTRIBUTE_OF;
+  case K::HAS_STATIC_CAPTURE:
+    return K::S_HAS_STATIC_CAPTURE_OF;
   case K::SIGNATURE:
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
@@ -2212,7 +2200,6 @@ enum class StatementAttribute : std::uint_fast8_t {
   POSITION,
   MANGLE,
   PACK,
-  USER_ATTRIBUTE,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -2258,8 +2245,6 @@ enum class StatementAttribute : std::uint_fast8_t {
     return "mangle";
   case SA::PACK:
     return "pack";
-  case SA::USER_ATTRIBUTE:
-    return "user_attribute";
   case SA::LABEL:
     return "label";
   case SA::TEMPLATE:
@@ -2318,8 +2303,6 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MANGLE;
   case K::PACK:
     return SA::PACK;
-  case K::ASCRIBE:
-    return SA::USER_ATTRIBUTE;
   case K::LABEL:
     return SA::LABEL;
   case K::TEMPLATE:
@@ -2363,18 +2346,17 @@ enum class StatementFlags : std::uint32_t {
   POSITION = rq::getBit(21),
   MANGLE = rq::getBit(20),
   PACK = rq::getBit(19),
-  USER_ATTRIBUTE = rq::getBit(18),
-  LABEL = rq::getBit(17),
-  TEMPLATE = rq::getBit(16),
-  LIKELY = rq::getBit(15),
-  UNLIKELY = rq::getBit(14),
-  DEPRECIATED = rq::getBit(13),
-  EXPORT = rq::getBit(12),
-  PUBLIC = rq::getBit(11),
-  PROTECTED = rq::getBit(10),
-  MAY_COPY = rq::getBit(9),
-  MAY_MOVE = rq::getBit(8),
-  MUTATE_WITH = rq::getBit(7)
+  LABEL = rq::getBit(18),
+  TEMPLATE = rq::getBit(17),
+  LIKELY = rq::getBit(16),
+  UNLIKELY = rq::getBit(15),
+  DEPRECIATED = rq::getBit(14),
+  EXPORT = rq::getBit(13),
+  PUBLIC = rq::getBit(12),
+  PROTECTED = rq::getBit(11),
+  MAY_COPY = rq::getBit(10),
+  MAY_MOVE = rq::getBit(9),
+  MUTATE_WITH = rq::getBit(8)
 };
 
 template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
@@ -2413,8 +2395,6 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::POSITION;
   case SA::PACK:
     return SF::PACK;
-  case SA::USER_ATTRIBUTE:
-    return SF::USER_ATTRIBUTE;
   case SA::LABEL:
     return SF::LABEL;
   case SA::TEMPLATE:
@@ -2507,12 +2487,6 @@ getHasStaticCapture(rq::StatementAttribute attribute) {
   return rq::getHasAll(flags, rq::StatementFlags::PACK);
 }
 
-[[nodiscard]] inline bool
-getHasUserAttribute(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::USER_ATTRIBUTE);
-}
-
 [[nodiscard]] inline bool getHasLabel(rq::StatementAttribute attribute) {
   rq::StatementFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::StatementFlags::LABEL);
@@ -2573,7 +2547,6 @@ struct Expression;
 struct StatementFlagsFactory final {
   using Self = rq::StatementFlagsFactory;
 
-  rq::Expression *_user_attribute_ptr{nullptr};
   rq::Expression *_static_capture_ptr{nullptr};
   rq::Expression *_override_ptr{nullptr};
   rq::Expression *_position_ptr{nullptr};
