@@ -1,8 +1,8 @@
 [import "std"];
 
 @static
-[for 0.<=10, :num=[value],
-    @[num] @global 
+[for 0.<=10, num:=[value],
+    @global @static_capture..{num:=num}
     \std.format(text="VAR{num}") :`= index;
 ];
 

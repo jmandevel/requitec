@@ -223,7 +223,7 @@ rq::Expression *RequiteParser::parseExpressions() {
   return factory.getExpressionPtr();
 }
 
-// STATEMENT ATTRIBUTES
+// SYMBOL ATTRIBUTES
 rq::Expression &RequiteParser::parsePrecedence11() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
@@ -231,7 +231,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     const rq::TokenKind kind = token.getKind();
     switch (kind) {
     case rq::TokenKind::AT_SIGIL: {
-      rq::Expression &attribute = this->parseStatementAttribute();
+      rq::Expression &attribute = this->parseAttribute();
       precedence_factory.parseAscribe(
           token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
       precedence_factory.appendBranch(attribute);
@@ -646,7 +646,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       const rq::TokenKind kind = token.getKind();
       switch (kind) {
       case rq::TokenKind::DOLLAR_SIGIL: {
-        rq::Expression &attribute = this->parseTypeAttribute();
+        rq::Expression &attribute = this->parseAttribute();
         precedence_factory.parseAscribe(token,
                                         rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_factory.appendBranch(attribute);
@@ -1173,27 +1173,11 @@ rq::Keyword RequiteParser::parseKeyword() {
 rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   const rq::Token &left_token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
-  const rq::Token &keyword_token = this->getRanger().getToken();
   rq::TokenRanger keyword_ranger = this->getRanger();
   rq::Expression &expression = this->getContext().acquireExpression();
-  if (keyword_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
-    expression.setKeyword(rq::Keyword::S_ANONYMOUS_FUNCTION);
-    expression.setSource(left_token);
-    rq::TreeFactory factory;
-    factory.startTree(expression);
-    rq::Expression &capture = this->getContext().acquireExpression();
-    capture.setKeyword(rq::Keyword::S_DYNAMIC_CAPTURE);
-    capture.setSource(keyword_token);
-    capture.setIsHeader();
-    this->getRanger().incrementToken(1);
-    std::ignore = this->parseNonStatementBranches(
-        capture, rq::TokenKind::RIGHT_BRACKET_GROUPING);
-    factory.appendBranch(capture);
-  } else {
-    const rq::Keyword keyword = this->parseKeyword();
-    expression.setKeyword(keyword);
-    expression.setSource(left_token);
-  }
+  const rq::Keyword keyword = this->parseKeyword();
+  expression.setKeyword(keyword);
+  expression.setSource(left_token);
   if (!expression.getHasStatementBranches()) {
     std::ignore = this->parseNonStatementBranches(
         expression, rq::TokenKind::RIGHT_BRACKET_GROUPING);
@@ -1249,11 +1233,6 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
   RQ_ASSERT(first_token.getKind() == rq::TokenKind::TRAILER_SEPARATOR,
             "first token not trailer separator");
   this->getRanger().incrementToken(1);
-  if (expression.getKeyword() == rq::Keyword::S_ANONYMOUS_FUNCTION) {
-    this->getContext().logErrorUnexpectedToken(first_token);
-    this->setNotOk();
-    return;
-  }
   unsigned bracket_depth = 1;
   while (!this->getRanger().getIsDone()) {
     const rq::Token &trailer_token = this->getRanger().getToken();
@@ -1277,63 +1256,15 @@ void RequiteParser::parseTrailer(rq::Expression &expression,
   }
 }
 
-rq::Expression &RequiteParser::parseStatementAttribute() {
-  const rq::Token &at_token = this->getRanger().getToken();
-  RQ_ASSERT(at_token.getKind() == rq::TokenKind::AT_SIGIL, "not at sigil");
+rq::Expression &RequiteParser::parseAttribute() {
+  const rq::Token &sigil_token = this->getRanger().getToken();
+  RQ_ASSERT(sigil_token.getIsSigil(), "not sigil");
   this->getRanger().incrementToken(1);
-  const rq::Token &next_token = this->getRanger().getToken();
-  if (next_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
-    rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::S_TEMPLATE);
-    attribute.setSource(at_token);
-    this->getRanger().incrementToken(1);
-    std::ignore = this->parseNonStatementBranches(
-        attribute, rq::TokenKind::RIGHT_BRACE_GROUPING);
-    return attribute;
-  } else if (next_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
-    rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::S_STATIC_CAPTURE);
-    attribute.setSource(at_token);
-    this->getRanger().incrementToken(1);
-    std::ignore = this->parseNonStatementBranches(
-        attribute, rq::TokenKind::RIGHT_BRACKET_GROUPING);
-    return attribute;
-  }
   const rq::Token &keyword_token = this->getRanger().getToken();
   rq::Keyword keyword = this->parseKeyword();
   rq::Expression &attribute = this->getContext().acquireExpression();
-  attribute.setSource(at_token, keyword_token);
+  attribute.setSource(sigil_token, keyword_token);
   attribute.setKeyword(keyword);
-  const rq::Token &after_token = this->getRanger().getToken();
-  if (after_token.getKind() == rq::TokenKind::DOUBLE_DOT_OPERATOR) {
-    this->getRanger().incrementToken(1);
-    rq::Expression &branch = this->parseExpression();
-    attribute.setBranch(branch);
-    attribute.extendSourceOver(branch);
-  }
-  return attribute;
-}
-
-rq::Expression &RequiteParser::parseTypeAttribute() {
-  const rq::Token &dollar_token = this->getRanger().getToken();
-  RQ_ASSERT(dollar_token.getKind() == rq::TokenKind::DOLLAR_SIGIL,
-            "not dollar sigil");
-  this->getRanger().incrementToken(1);
-  const rq::Token &next_token = this->getRanger().getToken();
-  if (next_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
-    rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::S_DYNAMIC_CAPTURE_LAYOUT);
-    attribute.setSource(dollar_token);
-    this->getRanger().incrementToken(1);
-    std::ignore = this->parseNonStatementBranches(
-        attribute, rq::TokenKind::RIGHT_BRACKET_GROUPING);
-    return attribute;
-  }
-  const rq::Token &keyword_token = this->getRanger().getToken();
-  const rq::Keyword keyword = this->parseKeyword();
-  rq::Expression &attribute = this->getContext().acquireExpression();
-  attribute.setKeyword(keyword);
-  attribute.setSource(dollar_token, keyword_token);
   const rq::Token &after_token = this->getRanger().getToken();
   if (after_token.getKind() == rq::TokenKind::DOUBLE_DOT_OPERATOR) {
     this->getRanger().incrementToken(1);

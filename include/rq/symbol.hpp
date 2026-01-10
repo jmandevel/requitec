@@ -92,7 +92,6 @@ enum class SymbolKind : std::uint_fast8_t {
   CONSTRUCTOR,
   DESTRUCTOR,
   RANGER,
-  ANONYMOUS_FUNCTION,
 
   // TEMPLATE
   TEMPLATE_CLASS,
@@ -239,8 +238,6 @@ enum class SymbolKind : std::uint_fast8_t {
     return "destructor";
   case SY::RANGER:
     return "ranger";
-  case SY::ANONYMOUS_FUNCTION:
-    return "anonymous_function";
 
   // TEMPLATE
   case SY::TEMPLATE_CLASS:
@@ -430,8 +427,6 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED;
   case SY::RANGER:
     return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED;
-  case SY::ANONYMOUS_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED;
 
   // TEMPLATE
   case SY::TEMPLATE_CLASS:
@@ -817,7 +812,6 @@ struct ExtensionMethodSymbol;
 struct ConstructorSymbol;
 struct DestructorSymbol;
 struct RangerSymbol;
-struct AnonymousFunctionSymbol;
 
 // TEMPLATE
 struct TemplateSymbol;
@@ -1147,9 +1141,6 @@ struct Symbol {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger() const {
     return this->_kind == rq::SymbolKind::RANGER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAnonymousFunction() const {
-    return this->_kind == rq::SymbolKind::ANONYMOUS_FUNCTION;
   }
 
   // TEMPLATE
@@ -1506,12 +1497,6 @@ template <> struct isa_impl<rq::RangerSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsRanger(); }
 };
 
-template <> struct isa_impl<rq::AnonymousFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsAnonymousFunction();
-  }
-};
-
 // TEMPLATE
 template <> struct isa_impl<rq::TemplateSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsTemplate(); }
@@ -1680,10 +1665,6 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasDebugTrapOnPanic(rq::TypeAttribute attribute) const {
     return rq::getHasDebugTrapOnPanic(attribute);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasDynamicCaptureLayout(rq::TypeAttribute attribute) const {
-    return rq::getHasDynamicCaptureLayout(attribute);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
     id.AddInteger(static_cast<unsigned>(this->_kind));
@@ -3217,21 +3198,6 @@ struct RangerSymbol : public rq::ProcedureSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct AnonymousFunctionSymbol : public rq::ProcedureSymbol {
-  using Self = rq::AnonymousFunctionSymbol;
-
-  AnonymousFunctionSymbol(
-      rq::ModuleSymbol &module, const rq::Expression &expression,
-      rq::StatementAttribute attributes = rq::StatementAttribute::NONE)
-      : rq::ProcedureSymbol(rq::SymbolKind::ANONYMOUS_FUNCTION, module,
-                            expression, attributes) {}
-  AnonymousFunctionSymbol(const Self &) = delete;
-  AnonymousFunctionSymbol(Self &&) = delete;
-  virtual ~AnonymousFunctionSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
 struct TemplateSymbol : public rq::ScopeSymbol, public rq::detail::NamedSymbol {
   using Self = rq::TemplateSymbol;
 
@@ -3264,8 +3230,9 @@ struct TemplateClassSymbol : public rq::TemplateSymbol {
 struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateEnumerationSymbol;
 
-  TemplateEnumerationSymbol(llvm::StringRef name,
-                            const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+  TemplateEnumerationSymbol(
+      llvm::StringRef name,
+      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_ENUMERATION,
                            parameters) {}
   TemplateEnumerationSymbol(const Self &) = delete;
@@ -3278,8 +3245,9 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
 struct TemplateVariableSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateVariableSymbol;
 
-  TemplateVariableSymbol(llvm::StringRef name,
-                         const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+  TemplateVariableSymbol(
+      llvm::StringRef name,
+      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_VARIABLE,
                            parameters) {}
   TemplateVariableSymbol(const Self &) = delete;
@@ -3292,8 +3260,9 @@ struct TemplateVariableSymbol : public rq::TemplateSymbol {
 struct TemplateFunctionSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateFunctionSymbol;
 
-  TemplateFunctionSymbol(llvm::StringRef name,
-                         const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+  TemplateFunctionSymbol(
+      llvm::StringRef name,
+      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_FUNCTION,
                            parameters) {}
   TemplateFunctionSymbol(const Self &) = delete;
@@ -3308,8 +3277,7 @@ struct TemplateMethodSymbol : public rq::TemplateSymbol {
 
   TemplateMethodSymbol(llvm::StringRef name,
                        const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_METHOD,
-                           parameters) {}
+      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_METHOD, parameters) {}
   TemplateMethodSymbol(const Self &) = delete;
   TemplateMethodSymbol(Self &&) = delete;
   virtual ~TemplateMethodSymbol() {}
@@ -3350,8 +3318,9 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol {
 struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateConstructorSymbol;
 
-  TemplateConstructorSymbol(llvm::StringRef name,
-                            const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+  TemplateConstructorSymbol(
+      llvm::StringRef name,
+      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_CONSTRUCTOR,
                            parameters) {}
   TemplateConstructorSymbol(const Self &) = delete;
