@@ -673,7 +673,7 @@ void Context::logErrorExpectedIdentifierLiteral(const rq::Token &token) {
 
 void Context::logErrorNotKeyword(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(token.getSourceText()) + "is not keyword",
+                   llvm::Twine(token.getSourceText()) + " is not keyword",
                    {token.getLlvmSourceRange()}, {});
 }
 
