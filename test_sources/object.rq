@@ -32,7 +32,7 @@
     ];
 ];
 
-[entry_point
+[entry
 
     a := MyClass();
     b := MyClass(1, 2, 3);

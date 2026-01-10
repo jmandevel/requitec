@@ -557,7 +557,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    situation);
     break;
-  case K::ENTRY_POINT:
+  case K::ENTRY:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
   case K::FUNCTION:
@@ -1027,7 +1027,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::STATIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::STATIC_CAPTURE:
+  case K::CAPTURE:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;

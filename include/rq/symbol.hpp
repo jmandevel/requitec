@@ -84,7 +84,7 @@ enum class SymbolKind : std::uint_fast8_t {
   ENUMERATION,
 
   // PROCEDURES
-  ENTRY_POINT,
+  ENTRY,
   FUNCTION,
   METHOD,
   EXTENSION_FUNCTION,
@@ -222,8 +222,8 @@ enum class SymbolKind : std::uint_fast8_t {
     return "enumeration";
 
   // PROCEDURES
-  case SY::ENTRY_POINT:
-    return "entry_point";
+  case SY::ENTRY:
+    return "entry";
   case SY::FUNCTION:
     return "function";
   case SY::METHOD:
@@ -411,7 +411,7 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::SCOPE | SYF::NAMED | SYF::HAS_TEMPLATE;
 
   // PROCEDURES
-  case SY::ENTRY_POINT:
+  case SY::ENTRY:
     return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED;
   case SY::FUNCTION:
     return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::HAS_TEMPLATE;
@@ -804,7 +804,7 @@ struct EnumerationSymbol;
 
 // PROCEDURES
 struct ProcedureSymbol;
-struct EntryPointSymbol;
+struct EntrySymbol;
 struct FunctionSymbol;
 struct MethodSymbol;
 struct ExtensionFunctionSymbol;
@@ -1118,8 +1118,8 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure() const {
     return rq::getIsProcedure(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntryPoint() const {
-    return this->_kind == rq::SymbolKind::ENTRY_POINT;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntry() const {
+    return this->_kind == rq::SymbolKind::ENTRY;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunction() const {
     return this->_kind == rq::SymbolKind::FUNCTION;
@@ -1455,9 +1455,9 @@ template <> struct isa_impl<rq::ProcedureSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::EntryPointSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::EntrySymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEntryPoint();
+    return val.getIsEntry();
   }
 };
 
@@ -2680,8 +2680,8 @@ struct StatementAscribedSymbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
     return rq::getHasStatic(this->_attributes);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticCapture() const {
-    return rq::getHasStaticCapture(this->_attributes);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const {
+    return rq::getHasCapture(this->_attributes);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const {
     return rq::getHasEager(this->_attributes);
@@ -3071,14 +3071,14 @@ struct ProcedureSymbol : public rq::ScopeSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct EntryPointSymbol : public rq::ProcedureSymbol {
-  using Self = rq::EntryPointSymbol;
+struct EntrySymbol : public rq::ProcedureSymbol {
+  using Self = rq::EntrySymbol;
 
-  EntryPointSymbol(rq::ModuleSymbol &module, const rq::Expression &expression)
-      : rq::ProcedureSymbol(rq::SymbolKind::ENTRY_POINT, module, expression) {}
-  EntryPointSymbol(const Self &) = delete;
-  EntryPointSymbol(Self &&) = delete;
-  virtual ~EntryPointSymbol() {}
+  EntrySymbol(rq::ModuleSymbol &module, const rq::Expression &expression)
+      : rq::ProcedureSymbol(rq::SymbolKind::ENTRY, module, expression) {}
+  EntrySymbol(const Self &) = delete;
+  EntrySymbol(Self &&) = delete;
+  virtual ~EntrySymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };

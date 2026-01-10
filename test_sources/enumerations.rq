@@ -4,7 +4,7 @@
     GRAPE  :[binary32] = 3;
 ];
 
-[entry_point
+[entry
     fruit := MyEnum.APPLE(3);
     [match fruit,
         [with APPLE, apple:=[value].`[borrow], 

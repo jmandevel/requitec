@@ -1,5 +1,5 @@
 [import "std"];
 
-[entry_point
+[entry
     std.print(line="Hello, world!");
 ];

@@ -34,7 +34,7 @@
     [constructor];
 ];
 
-[entry_point
+[entry
     parent := Parent();
     child := Child();
 

@@ -1,7 +1,7 @@
 [import "std"];
 [facade std];
 
-[entry_point
+[entry
     my_array :`= {0, 1, 2, 3, 4};
     const_fat_pointer := my_array.[borrow].getSpan();
     mutable_fat_pointer := my_array.`[borrow].getSpan();

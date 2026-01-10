@@ -1,7 +1,7 @@
 [import "std"];
 [facade std];
 
-[entry_point
+[entry
 
     // all of these loops are equivalent
 

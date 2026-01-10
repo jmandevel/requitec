@@ -149,7 +149,7 @@ enum class Keyword : std::uint32_t {
   S_DROP_VALUE,
   MOVE,
   S_MOVE_VALUE,
-  ENTRY_POINT,
+  ENTRY,
   FUNCTION,
   METHOD,
   EXTENSION_FUNCTION,
@@ -190,9 +190,9 @@ enum class Keyword : std::uint32_t {
   THIS_TYPE,
   // value returned from a function.
   RESULT,
-  // retrieve command line arguments within entry_point.
+  // retrieve command line arguments within entry.
   COMMAND_LINE_ARGUMENTS,
-  // resulting exit code within entry_point.
+  // resulting exit code within entry.
   EXIT_CODE,
   // the byte size of memory addresses on the current architecture.
   ADDRESS_BYTE_SIZE,
@@ -329,7 +329,7 @@ enum class Keyword : std::uint32_t {
   OPAQUE,
   GLOBAL,
   STATIC,
-  STATIC_CAPTURE,
+  CAPTURE,
   EAGER,
   MAY_PARENT,
   PARENT,
@@ -386,8 +386,8 @@ enum class Keyword : std::uint32_t {
   S_TYPE_OF,
   SYMBOL,
   S_SYMBOL_OF,
-  HAS_STATIC_CAPTURE,
-  S_HAS_STATIC_CAPTURE_OF,
+  HAS_CAPTURE,
+  S_HAS_CAPTURE_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
   LAYOUT,
@@ -611,8 +611,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "move";
   case K::S_MOVE_VALUE:
     return "_move_value";
-  case K::ENTRY_POINT:
-    return "entry_point";
+  case K::ENTRY:
+    return "entry";
   case K::FUNCTION:
     return "function";
   case K::METHOD:
@@ -911,8 +911,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "global";
   case K::STATIC:
     return "static";
-  case K::STATIC_CAPTURE:
-    return "static_capture";
+  case K::CAPTURE:
+    return "capture";
   case K::EAGER:
     return "eager";
   case K::MAY_PARENT:
@@ -1021,10 +1021,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "symbol";
   case K::S_SYMBOL_OF:
     return "_symbol_of";
-  case K::HAS_STATIC_CAPTURE:
-    return "has_static_capture";
-  case K::S_HAS_STATIC_CAPTURE_OF:
-    return "_has_static_capture_of";
+  case K::HAS_CAPTURE:
+    return "has_capture";
+  case K::S_HAS_CAPTURE_OF:
+    return "_has_capture_of";
   case K::SIGNATURE:
     return "signature";
   case K::S_SIGNATURE_OF:
@@ -1299,7 +1299,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_MOVE_VALUE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::ENTRY_POINT:
+  case K::ENTRY:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
@@ -1608,7 +1608,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_ATTRIBUTE;
   case K::STATIC:
     return KF::SYMBOL_ATTRIBUTE;
-  case K::STATIC_CAPTURE:
+  case K::CAPTURE:
     return KF::SYMBOL_ATTRIBUTE;
   case K::EAGER:
     return KF::SYMBOL_ATTRIBUTE;
@@ -1722,9 +1722,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_SYMBOL_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::HAS_STATIC_CAPTURE:
+  case K::HAS_CAPTURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_HAS_STATIC_CAPTURE_OF:
+  case K::S_HAS_CAPTURE_OF:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2008,8 +2008,8 @@ getDescription(rq::Situation situation) {
     return K::S_TYPE_OF;
   case K::SYMBOL:
     return K::S_SYMBOL_OF;
-  case K::HAS_STATIC_CAPTURE:
-    return K::S_HAS_STATIC_CAPTURE_OF;
+  case K::HAS_CAPTURE:
+    return K::S_HAS_CAPTURE_OF;
   case K::SIGNATURE:
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
@@ -2190,7 +2190,7 @@ enum class StatementAttribute : std::uint_fast8_t {
   OPAQUE,
   GLOBAL,
   STATIC,
-  STATIC_CAPTURE,
+  CAPTURE,
   EAGER,
   MAY_PARENT,
   PARENT,
@@ -2225,8 +2225,8 @@ enum class StatementAttribute : std::uint_fast8_t {
     return "global";
   case SA::STATIC:
     return "static";
-  case SA::STATIC_CAPTURE:
-    return "static_capture";
+  case SA::CAPTURE:
+    return "capture";
   case SA::EAGER:
     return "eager";
   case SA::MAY_PARENT:
@@ -2283,8 +2283,8 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::GLOBAL;
   case K::STATIC:
     return SA::STATIC;
-  case K::STATIC_CAPTURE:
-    return SA::STATIC_CAPTURE;
+  case K::CAPTURE:
+    return SA::CAPTURE;
   case K::EAGER:
     return SA::EAGER;
   case K::MAY_PARENT:
@@ -2336,7 +2336,7 @@ enum class StatementFlags : std::uint32_t {
   OPAQUE = rq::getBit(31),
   GLOBAL = rq::getBit(30),
   STATIC = rq::getBit(29),
-  STATIC_CAPTURE = rq::getBit(28),
+  CAPTURE = rq::getBit(28),
   EAGER = rq::getBit(27),
   MAY_PARENT = rq::getBit(26),
   PARENT = rq::getBit(25),
@@ -2375,8 +2375,8 @@ getFlags(rq::StatementAttribute attribute) {
     return SF::GLOBAL;
   case SA::STATIC:
     return SF::STATIC;
-  case SA::STATIC_CAPTURE:
-    return SF::STATIC_CAPTURE;
+  case SA::CAPTURE:
+    return SF::CAPTURE;
   case SA::EAGER:
     return SF::EAGER;
   case SA::MAY_PARENT:
@@ -2437,9 +2437,9 @@ getFlags(rq::StatementAttribute attribute) {
 }
 
 [[nodiscard]] inline bool
-getHasStaticCapture(rq::StatementAttribute attribute) {
+getHasCapture(rq::StatementAttribute attribute) {
   rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::STATIC_CAPTURE);
+  return rq::getHasAll(flags, rq::StatementFlags::CAPTURE);
 }
 
 [[nodiscard]] inline bool getHasEager(rq::StatementAttribute attribute) {
@@ -2547,7 +2547,7 @@ struct Expression;
 struct StatementFlagsFactory final {
   using Self = rq::StatementFlagsFactory;
 
-  rq::Expression *_static_capture_ptr{nullptr};
+  rq::Expression *_capture_ptr{nullptr};
   rq::Expression *_override_ptr{nullptr};
   rq::Expression *_position_ptr{nullptr};
   rq::Expression *_mangle_ptr{nullptr};

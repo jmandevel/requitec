@@ -4,7 +4,7 @@
 @may_copy @may_move
 [class MyClass, @public [constructor];];
 
-[entry_point
+[entry
   class :`= MyClass();
   copy := class;
   reference := class.[borrow];

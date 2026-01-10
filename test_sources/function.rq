@@ -11,6 +11,6 @@
     [result] := a + b;
 ];
 
-[entry_point
+[entry
     std.print(line="the result is {myFunc(1, 2)}");
 ];

@@ -15,7 +15,7 @@
     [constructor];
 ];
 
-[entry_point
+[entry
     foo :`= Foo(); // of type `Foo
     
     foo_borrow_a := foo. $partially_mutable..ClassA [borrow]; // of type &($partially_mutable..ClassB)Foo
