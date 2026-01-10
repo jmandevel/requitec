@@ -455,12 +455,12 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // TYPE MODIFIER
-  case K::MUTABLE:
+  case K::S_MUTABLE:
     [[fallthrough]];
-  case K::CONSTANT:
+  case K::S_CONSTANT:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::PARTIALLY_MUTABLE:
+  case K::S_PARTIALLY_MUTABLE:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
@@ -475,7 +475,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DEBUG_TRAP_ON_PANIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::DYNAMIC_CAPTURE_LAYOUT:
+  case K::S_DYNAMIC_CAPTURE_LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
 
@@ -1070,7 +1070,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::STATIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::STATIC_CAPTURE:
+  case K::S_STATIC_CAPTURE:
     is_ok = this->situateNaryNonStatementBranches(situation, expression, 0,
                                                   S::ARGUMENT);
     break;
@@ -1110,19 +1110,15 @@ bool Situator::situateTree(rq::Situation situation,
   case K::PACK:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::USER_ATTRIBUTE:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_USER_ATTRIBUTE_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+  case K::S_USER_ATTRIBUTE:
+    is_ok = this->situateNaryNonStatementBranches(situation, expression, 1,
                                                    S::RVALUE);
     break;
   case K::LABEL:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::SYMBOL_PATH);
     break;
-  case K::TEMPLATE:
+  case K::S_TEMPLATE:
     is_ok = this->situateNaryDifferentFirstParamterBranches(
         situation, expression, S::PARAMETER);
     break;
@@ -1316,6 +1312,20 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::S_SYMBOL_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::HAS_USER_ATTRIBUTE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_HAS_USER_ATTRIBUTE_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::USER_ATTRIBUTE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_USER_ATTRIBUTE_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;

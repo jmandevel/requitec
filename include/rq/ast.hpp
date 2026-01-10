@@ -115,15 +115,15 @@ enum class Keyword : std::uint32_t {
   S_FAT_POINTER,
 
   // TYPE MODIFIER
-  MUTABLE,
-  CONSTANT,
-  PARTIALLY_MUTABLE,
+  S_MUTABLE,
+  S_CONSTANT,
+  S_PARTIALLY_MUTABLE,
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
   DEBUG_TRAP_ON_PANIC,
-  DYNAMIC_CAPTURE_LAYOUT,
+  S_DYNAMIC_CAPTURE_LAYOUT,
 
   // PARAMETER RULES
   S_POSITIONAL_PARAMETERS_END,
@@ -334,7 +334,7 @@ enum class Keyword : std::uint32_t {
   OPAQUE,
   GLOBAL,
   STATIC,
-  STATIC_CAPTURE,
+  S_STATIC_CAPTURE,
   EAGER,
   MAY_PARENT,
   PARENT,
@@ -345,10 +345,9 @@ enum class Keyword : std::uint32_t {
   INLINE,
   MANGLE,
   PACK,
-  USER_ATTRIBUTE,
-  S_USER_ATTRIBUTE_OF,
+  S_USER_ATTRIBUTE,
   LABEL,
-  TEMPLATE,
+  S_TEMPLATE,
   LIKELY,
   UNLIKELY,
   DEPRECIATED,
@@ -393,6 +392,10 @@ enum class Keyword : std::uint32_t {
   S_TYPE_OF,
   SYMBOL,
   S_SYMBOL_OF,
+  HAS_USER_ATTRIBUTE,
+  S_HAS_USER_ATTRIBUTE_OF,
+  USER_ATTRIBUTE,
+  S_USER_ATTRIBUTE_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
   LAYOUT,
@@ -554,12 +557,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_fat_pointer";
 
   // TYPE MODIFIER
-  case K::MUTABLE:
-    return "mutable";
-  case K::CONSTANT:
-    return "constant";
-  case K::PARTIALLY_MUTABLE:
-    return "partially_mutable";
+  case K::S_MUTABLE:
+    return "_mutable";
+  case K::S_CONSTANT:
+    return "_constant";
+  case K::S_PARTIALLY_MUTABLE:
+    return "_partially_mutable";
   case K::VOLATILE:
     return "volatile";
   case K::ATOMIC:
@@ -570,8 +573,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "may_discard";
   case K::DEBUG_TRAP_ON_PANIC:
     return "debug_trap_on_panic";
-  case K::DYNAMIC_CAPTURE_LAYOUT:
-    return "dynamic_capture_layout";
+  case K::S_DYNAMIC_CAPTURE_LAYOUT:
+    return "_dynamic_capture_layout";
 
   // PARAMETER RULES
   case K::S_POSITIONAL_PARAMETERS_END:
@@ -926,8 +929,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "global";
   case K::STATIC:
     return "static";
-  case K::STATIC_CAPTURE:
-    return "static_capture";
+  case K::S_STATIC_CAPTURE:
+    return "_static_capture";
   case K::EAGER:
     return "eager";
   case K::MAY_PARENT:
@@ -948,14 +951,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mangle";
   case K::PACK:
     return "pack";
-  case K::USER_ATTRIBUTE:
-    return "user_attribute";
-  case K::S_USER_ATTRIBUTE_OF:
-    return "_user_attribute_of";
+  case K::S_USER_ATTRIBUTE:
+    return "_user_attribute";
   case K::LABEL:
     return "label";
-  case K::TEMPLATE:
-    return "template";
+  case K::S_TEMPLATE:
+    return "_template";
   case K::LIKELY:
     return "likely";
   case K::UNLIKELY:
@@ -1040,6 +1041,14 @@ constexpr std::size_t KEYWORD_COUNT =
     return "symbol";
   case K::S_SYMBOL_OF:
     return "_symbol_of";
+  case K::HAS_USER_ATTRIBUTE:
+    return "has_user_attribute";
+  case K::S_HAS_USER_ATTRIBUTE_OF:
+    return "_has_user_attribute_of";
+  case K::USER_ATTRIBUTE:
+    return "user_attribute";
+  case K::S_USER_ATTRIBUTE_OF:
+    return "_user_attribute_of";
   case K::SIGNATURE:
     return "signature";
   case K::S_SIGNATURE_OF:
@@ -1253,11 +1262,11 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE MODIFIER
-  case K::MUTABLE:
+  case K::S_MUTABLE:
     return KF::TYPE_ATTRIBUTE;
-  case K::CONSTANT:
+  case K::S_CONSTANT:
     return KF::TYPE_ATTRIBUTE;
-  case K::PARTIALLY_MUTABLE:
+  case K::S_PARTIALLY_MUTABLE:
     return KF::TYPE_ATTRIBUTE;
   case K::VOLATILE:
     return KF::TYPE_ATTRIBUTE;
@@ -1269,7 +1278,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::TYPE_ATTRIBUTE;
   case K::DEBUG_TRAP_ON_PANIC:
     return KF::TYPE_ATTRIBUTE;
-  case K::DYNAMIC_CAPTURE_LAYOUT:
+  case K::S_DYNAMIC_CAPTURE_LAYOUT:
     return KF::TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
@@ -1634,7 +1643,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT_ATTRIBUTE;
   case K::STATIC:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::STATIC_CAPTURE:
+  case K::S_STATIC_CAPTURE:
     return KF::STATEMENT_ATTRIBUTE;
   case K::EAGER:
     return KF::STATEMENT_ATTRIBUTE;
@@ -1653,16 +1662,14 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::INLINE:
     return KF::STATEMENT_ATTRIBUTE;
   case K::MANGLE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE | KF::STATEMENT_ATTRIBUTE;
+    return KF::STATEMENT_ATTRIBUTE;
   case K::PACK:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::USER_ATTRIBUTE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE | KF::STATEMENT_ATTRIBUTE;
-  case K::S_USER_ATTRIBUTE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
+  case K::S_USER_ATTRIBUTE:
+    return KF::STATEMENT_ATTRIBUTE;
   case K::LABEL:
     return KF::STATEMENT_ATTRIBUTE;
-  case K::TEMPLATE:
+  case K::S_TEMPLATE:
     return KF::STATEMENT_ATTRIBUTE;
   case K::LIKELY:
     return KF::STATEMENT_ATTRIBUTE;
@@ -1753,6 +1760,14 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_SYMBOL_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::HAS_USER_ATTRIBUTE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_HAS_USER_ATTRIBUTE_OF:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::USER_ATTRIBUTE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_USER_ATTRIBUTE_OF:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_SIGNATURE_OF:
@@ -2020,9 +2035,6 @@ getDescription(rq::Situation situation) {
     return K::S_FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::S_NEXT_VARIADIC_ARGUMENT_OF;
-  // STATEMENT ATTRIBUTES
-  case K::USER_ATTRIBUTE:
-    return K::S_USER_ATTRIBUTE_OF;
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);
@@ -2047,6 +2059,10 @@ getDescription(rq::Situation situation) {
     return K::S_TYPE_OF;
   case K::SYMBOL:
     return K::S_SYMBOL_OF;
+  case K::USER_ATTRIBUTE:
+    return K::S_USER_ATTRIBUTE_OF;
+  case K::HAS_USER_ATTRIBUTE:
+    return K::S_HAS_USER_ATTRIBUTE_OF;
   case K::SIGNATURE:
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
@@ -2139,18 +2155,21 @@ getCanBeStatementAttribute(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::STATEMENT_ATTRIBUTE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasSome(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION | rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
+  return rq::getHasSome(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION |
+                                   rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
 
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
@@ -2328,7 +2347,7 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::GLOBAL;
   case K::STATIC:
     return SA::STATIC;
-  case K::STATIC_CAPTURE:
+  case K::S_STATIC_CAPTURE:
     return SA::STATIC_CAPTURE;
   case K::EAGER:
     return SA::EAGER;
@@ -2348,11 +2367,11 @@ getStatementAttribute(rq::Keyword keyword) {
     return SA::MANGLE;
   case K::PACK:
     return SA::PACK;
-  case K::USER_ATTRIBUTE:
+  case K::S_USER_ATTRIBUTE:
     return SA::USER_ATTRIBUTE;
   case K::LABEL:
     return SA::LABEL;
-  case K::TEMPLATE:
+  case K::S_TEMPLATE:
     return SA::TEMPLATE;
   case K::LIKELY:
     return SA::LIKELY;
@@ -2486,7 +2505,8 @@ getFlags(rq::StatementAttribute attribute) {
   return rq::getHasAll(flags, rq::StatementFlags::STATIC);
 }
 
-[[nodiscard]] inline bool getHasStaticCapture(rq::StatementAttribute attribute) {
+[[nodiscard]] inline bool
+getHasStaticCapture(rq::StatementAttribute attribute) {
   rq::StatementFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::StatementFlags::STATIC_CAPTURE);
 }
@@ -2536,7 +2556,8 @@ getFlags(rq::StatementAttribute attribute) {
   return rq::getHasAll(flags, rq::StatementFlags::PACK);
 }
 
-[[nodiscard]] inline bool getHasUserAttribute(rq::StatementAttribute attribute) {
+[[nodiscard]] inline bool
+getHasUserAttribute(rq::StatementAttribute attribute) {
   rq::StatementFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::StatementFlags::USER_ATTRIBUTE);
 }
@@ -2596,7 +2617,23 @@ getFlags(rq::StatementAttribute attribute) {
   return rq::getHasAll(flags, rq::StatementFlags::MUTATE_WITH);
 }
 
+struct Expression;
 
+struct StatementFlagsFactory final {
+  using Self = rq::StatementFlagsFactory;
+
+  rq::Expression *_user_attribute_ptr{nullptr};
+  rq::Expression *_static_capture_ptr{nullptr};
+  rq::Expression *_override_ptr{nullptr};
+  rq::Expression *_position_ptr{nullptr};
+  rq::Expression *_mangle_ptr{nullptr};
+  rq::Expression *_label_ptr{nullptr};
+  rq::Expression *_template_ptr{nullptr};
+  rq::Expression *_depreciated_ptr{nullptr};
+  rq::Expression *_mutate_with_ptr{nullptr};
+
+  StatementFlagsFactory() = default;
+};
 
 enum class TypeAttribute : std::uint_fast8_t {
   NONE,
@@ -2644,11 +2681,11 @@ enum class TypeAttribute : std::uint_fast8_t {
   using K = Keyword;
   using TA = TypeAttribute;
   switch (keyword) {
-  case K::MUTABLE:
+  case K::S_MUTABLE:
     return TA::MUTABLE;
-  case K::CONSTANT:
+  case K::S_CONSTANT:
     return TA::CONSTANT;
-  case K::PARTIALLY_MUTABLE:
+  case K::S_PARTIALLY_MUTABLE:
     return TA::PARTIALLY_MUTABLE;
   case K::VOLATILE:
     return TA::VOLATILE;
@@ -2660,7 +2697,7 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::MAY_DISCARD;
   case K::DEBUG_TRAP_ON_PANIC:
     return TA::DEBUG_TRAP_ON_PANIC;
-  case K::DYNAMIC_CAPTURE_LAYOUT:
+  case K::S_DYNAMIC_CAPTURE_LAYOUT:
     return TA::DYNAMIC_CAPTURE_LAYOUT;
   default:
     break;
@@ -2765,7 +2802,8 @@ static constexpr unsigned MAX_MUTATION_COUNT = 16;
   return rq::getHasAll(flags, rq::TypeFlags::DEBUG_TRAP_ON_PANIC);
 }
 
-[[nodiscard]] inline bool getHasDynamicCaptureLayout(rq::TypeAttribute attribute) {
+[[nodiscard]] inline bool
+getHasDynamicCaptureLayout(rq::TypeAttribute attribute) {
   rq::TypeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeFlags::DYNAMIC_CAPTURE_LAYOUT);
 }
@@ -2783,7 +2821,8 @@ getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags
 getMutationFlags(rq::TypeFlags flags) {
-  RQ_ASSERT(rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE), "not partially mutable");
+  RQ_ASSERT(rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE),
+            "not partially mutable");
   return static_cast<rq::MutationFlags>(
       rq::getMaskValue(flags, rq::TypeFlags::MUTATION_MASK));
 }
@@ -3195,7 +3234,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep() const {
     return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceCondition() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getCanBeArithmeticSequenceCondition() const {
     return rq::getCanBeArithmeticSequenceCondition(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeDynamicCapture() const {

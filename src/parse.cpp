@@ -940,13 +940,13 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
                                         rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
-        precedence_factory.appendNullaryAttribute(token, rq::Keyword::MUTABLE);
+        precedence_factory.appendNullaryAttribute(token, rq::Keyword::S_MUTABLE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
                                         rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
-        precedence_factory.appendNullaryAttribute(token, rq::Keyword::CONSTANT);
+        precedence_factory.appendNullaryAttribute(token, rq::Keyword::S_CONSTANT);
         continue;
       default:
         break;
@@ -1028,7 +1028,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.parseAscribe(post_token,
                                       rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
       precedence_factory.appendPostunaryAttribute(
-          post_token, rq::Keyword::PARTIALLY_MUTABLE);
+          post_token, rq::Keyword::S_PARTIALLY_MUTABLE);
       continue;
     default:
       precedence_factory.appendRecent();
@@ -1291,7 +1291,7 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
   const rq::Token &next_token = this->getRanger().getToken();
   if (next_token.getKind() == rq::TokenKind::LEFT_BRACE_GROUPING) {
     rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::TEMPLATE);
+    attribute.setKeyword(rq::Keyword::S_TEMPLATE);
     attribute.setSource(at_token);
     this->getRanger().incrementToken(1);
     std::ignore = this->parseNonStatementBranches(
@@ -1299,7 +1299,7 @@ rq::Expression &RequiteParser::parseStatementAttribute() {
     return attribute;
   } else if (next_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
     rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::STATIC_CAPTURE);
+    attribute.setKeyword(rq::Keyword::S_STATIC_CAPTURE);
     attribute.setSource(at_token);
     this->getRanger().incrementToken(1);
     std::ignore = this->parseNonStatementBranches(
@@ -1342,7 +1342,7 @@ rq::Expression &RequiteParser::parseTypeAttribute() {
   const rq::Token &next_token = this->getRanger().getToken();
   if (next_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
     rq::Expression &attribute = this->getContext().acquireExpression();
-    attribute.setKeyword(rq::Keyword::DYNAMIC_CAPTURE_LAYOUT);
+    attribute.setKeyword(rq::Keyword::S_DYNAMIC_CAPTURE_LAYOUT);
     attribute.setSource(dollar_token);
     this->getRanger().incrementToken(1);
     std::ignore = this->parseNonStatementBranches(
