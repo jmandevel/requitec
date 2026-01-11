@@ -35,6 +35,7 @@ Requite is a programming language that is designed to fill the same nitche as C+
     * Move semantics are explicit and consistent between values of different types.
     * No implicit conversions.
     * No operator overloads.
+    * Absolute symbol paths.
 3. Great Defaults
     * Variables are constant by default, mutable only if specified.
     * Object members are private by default.
