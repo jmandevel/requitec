@@ -15,7 +15,7 @@
             // do nothing!
         ];
     ];
-    :value =
+    value :=
         [inline_match fruit,
             [with APPLE, apple:=[value], 
                 [out] := apple;
