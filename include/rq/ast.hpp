@@ -189,8 +189,6 @@ enum class Keyword : std::uint32_t {
   THIS_TYPE,
   // symbol of symbol extending or member of.
   THIS_SYMBOL,
-  // the top scope
-  TOP,
   // value returned from a function.
   RESULT,
   // retrieve command line arguments within entry.
@@ -371,6 +369,7 @@ enum class Keyword : std::uint32_t {
   // REFLECTIONS
   S_REFLECT,
   S_MEMBER_OF,
+  S_MEMBER_OF_TOP,
   BYTE_SIZE,
   S_BYTE_SIZE_OF,
   BIT_DEPTH,
@@ -678,8 +677,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "this_type";
   case K::THIS_SYMBOL:
     return "this_symbol";
-  case K::TOP:
-    return "top";
   case K::RESULT:
     return "result";
   case K::COMMAND_LINE_ARGUMENTS:
@@ -994,6 +991,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_reflect";
   case K::S_MEMBER_OF:
     return "_member_of";
+  case K::S_MEMBER_OF_TOP:
+    return "_member_of_top";
   case K::BYTE_SIZE:
     return "byte_size";
   case K::S_BYTE_SIZE_OF:
@@ -1375,8 +1374,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS_SYMBOL:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::TOP:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::COMMAND_LINE_ARGUMENTS:
@@ -1701,6 +1698,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
            KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH |
            KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_MEMBER_OF:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
+           KF::SYMBOL_PATH;
+  case K::S_MEMBER_OF_TOP:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::SYMBOL_PATH;
   case K::BYTE_SIZE:

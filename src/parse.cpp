@@ -627,6 +627,10 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::Keyword::S_IDENTIFY);
       continue;
+    case rq::TokenKind::DOT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseUnary(token, rq::Keyword::S_MEMBER_OF_TOP);
+      continue;
     default:
       precedence_factory.appendBranch(this->parsePrecedence1());
       break;
@@ -690,16 +694,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_factory.setRecent(expression);
         this->getRanger().incrementToken(1);
         precedence_factory.parseNary(token, rq::Keyword::S_ARRAY);
-        continue;
-      }
-      case rq::TokenKind::DOUBLE_COLON_OPERATOR: {
-        rq::Expression &expression = this->getContext().acquireExpression();
-        expression.setKeyword(rq::Keyword::TOP);
-        expression.setIsInserted();
-        expression.setSourceBefore(token);
-        precedence_factory.setRecent(expression);
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::S_REFLECT);
         continue;
       }
       case rq::TokenKind::CAROT_OPERATOR:

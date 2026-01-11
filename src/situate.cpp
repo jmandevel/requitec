@@ -796,8 +796,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::THIS_SYMBOL:
     [[fallthrough]];
-  case K::TOP:
-    [[fallthrough]];
   case K::RESULT:
     [[fallthrough]];
   case K::COMMAND_LINE_ARGUMENTS:
@@ -1232,6 +1230,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_MEMBER_OF:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::RVALUE, S::RVALUE);
+    break;
+  case K::S_MEMBER_OF_TOP:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE);
     break;
   case K::BYTE_SIZE:
     is_ok = this->situateNullaryExpression(situation, expression);

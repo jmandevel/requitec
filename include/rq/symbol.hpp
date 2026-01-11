@@ -68,6 +68,7 @@ enum class SymbolKind : std::uint_fast8_t {
   // MISC
   MODULE,
   IMPORT,
+  FACADE,
   MUTATION,
 
   // BINDING
