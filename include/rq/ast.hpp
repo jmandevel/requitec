@@ -370,6 +370,8 @@ enum class Keyword : std::uint32_t {
   S_REFLECT,
   S_MEMBER_OF,
   S_MEMBER_OF_TOP,
+  S_ASCEND_FRAME,
+  S_ASCEND_FRAME_OF,
   BYTE_SIZE,
   S_BYTE_SIZE_OF,
   BIT_DEPTH,
@@ -993,6 +995,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_member_of";
   case K::S_MEMBER_OF_TOP:
     return "_member_of_top";
+  case K::S_ASCEND_FRAME:
+    return "_ascend_frame";
+  case K::S_ASCEND_FRAME_OF:
+    return "_ascend_frame_of";
   case K::BYTE_SIZE:
     return "byte_size";
   case K::S_BYTE_SIZE_OF:
@@ -1701,6 +1707,12 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::SYMBOL_PATH;
   case K::S_MEMBER_OF_TOP:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
+           KF::SYMBOL_PATH;
+  case K::S_ASCEND_FRAME:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
+           KF::SYMBOL_PATH;
+  case K::S_ASCEND_FRAME_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::SYMBOL_PATH;
   case K::BYTE_SIZE:

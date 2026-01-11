@@ -262,8 +262,9 @@ struct RequiteParser final {
   }
   [[nodiscard]] rq::Expression *parseExpressions();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseExpression() {
-    return this->parsePrecedence11();
+    return this->parsePrecedence12();
   }
+  [[nodiscard]] rq::Expression &parsePrecedence12();
   [[nodiscard]] rq::Expression &parsePrecedence11();
   [[nodiscard]] rq::Expression &parsePrecedence10();
   [[nodiscard]] rq::Expression &parsePrecedence9();
