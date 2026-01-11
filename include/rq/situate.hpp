@@ -32,6 +32,8 @@ struct Situator final {
   [[nodiscard]] bool situateModule(rq::ModuleSymbol &module);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
+  [[nodiscard]] bool situateAttributes(rq::Situation situation,
+                                 rq::Expression &expression);
   [[nodiscard]] bool situateNonStatementBranch(rq::Situation branch_situation,
                                                rq::Expression &branch);
   [[nodiscard]] bool situateHeaderBranch(rq::Situation branch_situation,

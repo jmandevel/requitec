@@ -258,7 +258,7 @@ rq::Expression &RequiteParser::parsePrecedence10() {
     switch (token.getKind()) {
     case rq::TokenKind::EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_EQUAL_OPERATOR);
+      precedence_factory.parseBinary(token, rq::Keyword::S_UNSITUATED_EQUAL_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
     default:
@@ -282,10 +282,10 @@ rq::Expression &RequiteParser::parsePrecedence9() {
     switch (token.getKind()) {
     case rq::TokenKind::COLON_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::S_COLON_OPERATOR);
+      precedence_factory.parseBinary(token, rq::Keyword::S_UNSITUATED_COLON_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence8());
       continue;
-    case rq::TokenKind::DOUBLE_COLON_OPERATOR:
+    case rq::TokenKind::DOUBLE_UNSITUATED_COLON_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token, rq::Keyword::S_BITWISE_CAST);
       precedence_factory.setRecent(this->parsePrecedence8());
@@ -351,25 +351,25 @@ rq::Expression &RequiteParser::parsePrecedence8() {
           token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER,
           this->parsePrecedence7());
       continue;
-    case rq::TokenKind::DOT_LESS_EQUAL_OPERATOR:
+    case rq::TokenKind::DOT_LESS_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
           token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
           this->parsePrecedence7());
       continue;
-    case rq::TokenKind::DOT_GREATER_EQUAL_OPERATOR:
+    case rq::TokenKind::DOT_GREATER_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
           token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
           this->parsePrecedence7());
       continue;
-    case rq::TokenKind::DOT_DOUBLE_EQUAL_OPERATOR:
+    case rq::TokenKind::DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
           token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL,
           this->parsePrecedence7());
       continue;
-    case rq::TokenKind::DOT_BANG_EQUAL_OPERATOR:
+    case rq::TokenKind::DOT_BANG_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
           token, rq::Keyword::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL,
@@ -446,7 +446,7 @@ rq::Expression &RequiteParser::parsePrecedence6() {
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
     }
-    case rq::TokenKind::GREATER_EQUAL_OPERATOR:
+    case rq::TokenKind::GREATER_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::S_GREATER_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence5());
@@ -474,17 +474,17 @@ rq::Expression &RequiteParser::parsePrecedence6() {
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
     }
-    case rq::TokenKind::LESS_EQUAL_OPERATOR:
+    case rq::TokenKind::LESS_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::S_LESS_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
-    case rq::TokenKind::DOUBLE_EQUAL_OPERATOR:
+    case rq::TokenKind::DOUBLE_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::S_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
-    case rq::TokenKind::BANG_EQUAL_OPERATOR:
+    case rq::TokenKind::BANG_UNSITUATED_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::S_NOT_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence5());
@@ -733,7 +733,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_factory.parseUnary(token,
                                       rq::Keyword::S_ARITHMETIC_INTERVAL_EQUAL);
         continue;
-      case rq::TokenKind::DOT_BANG_EQUAL_OPERATOR:
+      case rq::TokenKind::DOT_BANG_UNSITUATED_EQUAL_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
             token, rq::Keyword::S_ARITHMETIC_INTERVAL_NOT_EQUAL);
@@ -988,7 +988,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(post_token, rq::Keyword::S_REFLECT);
       continue;
-    case rq::TokenKind::LEFT_PARENTHESIS_GROUPING: {
+    case rq::TokenKind::LEFT_UNSITUATED_PARENTHESIS_GROUPING: {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       rq::Expression &callee = precedence_factory.getOuter();
@@ -997,7 +997,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       call.setBranch(callee);
       call.setSource(callee, post_token);
       std::ignore = this->parseNonStatementBranches(
-          call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+          call, rq::TokenKind::RIGHT_UNSITUATED_PARENTHESIS_GROUPING);
       precedence_factory.setOnlyRecent(call);
       previous_horned = true;
       continue;
@@ -1038,7 +1038,7 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   switch (token.getKind()) {
   case rq::TokenKind::LEFT_BRACKET_GROUPING:
     return this->parseEnclosedBracketExpression();
-  case rq::TokenKind::LEFT_PARENTHESIS_GROUPING:
+  case rq::TokenKind::LEFT_UNSITUATED_PARENTHESIS_GROUPING:
     return this->parseEnclosedParenthesisExpression();
   case rq::TokenKind::LEFT_BRACE_GROUPING:
     return this->parseEnclosedBraceExpression();
@@ -1278,11 +1278,11 @@ rq::Expression &RequiteParser::parseAttribute() {
 rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const rq::Token &first_token = this->getRanger().getToken();
   rq::Expression &parenthesis = this->getContext().acquireExpression();
-  parenthesis.setKeyword(rq::Keyword::S_PARENTHESIS_GROUP);
+  parenthesis.setKeyword(rq::Keyword::S_UNSITUATED_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->getRanger().incrementToken(1);
   const bool has_parameter_marks = this->parseNonStatementBranches(
-      parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+      parenthesis, rq::TokenKind::RIGHT_UNSITUATED_PARENTHESIS_GROUPING);
   if (has_parameter_marks) {
     parenthesis.changeKeyword(rq::Keyword::S_SIGNATURE_TYPE);
     rq::Expression &return_type = this->parseExpression();
@@ -1291,6 +1291,12 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
     } else {
       parenthesis.setBranch(return_type);
     }
+  } else if (!parenthesis.getHasBranch()) {
+    rq::Expression& inference = this->getContext().acquireExpression();
+    inference.setKeyword(rq::Keyword::S_INFERENCE);
+    inference.setSource(parenthesis);
+    inference.setIsInserted();
+    parenthesis.setBranch(inference);
   }
   return parenthesis;
 }

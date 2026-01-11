@@ -46,10 +46,9 @@ enum class Keyword : std::uint32_t {
   I_ERROR,
 
   // SITUATIONAL
-  S_PARENTHESIS_GROUP,
-  S_EQUAL_OPERATOR,
-  S_COLON_OPERATOR,
-  S_INFERENCE,
+  S_UNSITUATED_PARENTHESIS_GROUP,
+  S_UNSITUATED_EQUAL_OPERATOR,
+  S_UNSITUATED_COLON_OPERATOR,
   S_UNSITUATED_ASCRIBE_SYMBOL,
   S_UNSITUATED_ASCRIBE_TYPE,
 
@@ -204,6 +203,7 @@ enum class Keyword : std::uint32_t {
   BITS_PER_BYTE,
 
   // BUILTIN TYPES
+  S_INFERENCE,
   VOID,
   NO_RETURN,
   BOOLEAN,
@@ -332,6 +332,7 @@ enum class Keyword : std::uint32_t {
   GLOBAL,
   STATIC,
   CAPTURE,
+  S_SITUATED_CAPTURE,
   EAGER,
   MAY_PARENT,
   PARENT,
@@ -364,6 +365,7 @@ enum class Keyword : std::uint32_t {
   S_EXPAND_PARAMETER,
   S_EXPAND_SYMBOL_PATH,
   S_EXPAND_ARITHMETIC_SEQUENCE_STAGE,
+  S_EXPAND_CAPTURE,
 
   // REFLECTIONS
   S_REFLECT,
@@ -431,14 +433,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "__error";
 
   // SITUATIONAL
-  case K::S_PARENTHESIS_GROUP:
-    return "_parenthesis_group";
-  case K::S_EQUAL_OPERATOR:
-    return "_equal_operator";
-  case K::S_COLON_OPERATOR:
-    return "_colon_operator";
-  case K::S_INFERENCE:
-    return "_inference";
+  case K::S_UNSITUATED_PARENTHESIS_GROUP:
+    return "_unsituated_parenthesis_group";
+  case K::S_UNSITUATED_EQUAL_OPERATOR:
+    return "_unsituated_equal_operator";
+  case K::S_UNSITUATED_COLON_OPERATOR:
+    return "_unsituated_colon_operator";
   case K::S_UNSITUATED_ASCRIBE_SYMBOL:
     return "_unsituated_ascribe_symbol";
   case K::S_UNSITUATED_ASCRIBE_TYPE:
@@ -689,6 +689,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "bits_per_byte";
 
   // BUILTIN TYPES
+  case K::S_INFERENCE:
+    return "_inference";
   case K::VOID:
     return "void";
   case K::NO_RETURN:
@@ -917,6 +919,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "static";
   case K::CAPTURE:
     return "capture";
+  case K::S_SITUATED_CAPTURE:
+    return "_situated_capture";
   case K::EAGER:
     return "eager";
   case K::MAY_PARENT:
@@ -979,6 +983,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_expand_symbol_path";
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return "_expand_arithmetic_sequence_stage";
+  case K::S_EXPAND_CAPTURE:
+    return "_expand_capture";
 
   // REFLECTIONS
   case K::S_REFLECT:
@@ -1073,10 +1079,10 @@ enum class KeywordFlags : std::uint32_t {
   SYMBOL_ATTRIBUTE = rq::getBit(9),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(8),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(7),
+  CAPTURE = rq::getBit(6),
   ALL = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
-        BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE |
-        SYMBOL_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
-        ARITHMETIC_SEQUENCE_CONDITION
+        BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE | SYMBOL_ATTRIBUTE |
+        ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION | CAPTURE
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1116,21 +1122,19 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::INTERNAL;
 
   // SITUATIONAL
-  case K::S_PARENTHESIS_GROUP:
+  case K::S_UNSITUATED_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE |
            KF::SYMBOL_PATH | KF::ARITHMETIC_SEQUENCE_STEP |
            KF::ARITHMETIC_SEQUENCE_CONDITION;
-  case K::S_EQUAL_OPERATOR:
+  case K::S_UNSITUATED_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
-  case K::S_COLON_OPERATOR:
+  case K::S_UNSITUATED_COLON_OPERATOR:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER | KF::BINDING;
-  case K::S_INFERENCE:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::S_UNSITUATED_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
   case K::S_UNSITUATED_ASCRIBE_SYMBOL:
-    return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
+    return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -1166,7 +1170,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
   case K::S_ASCRIBE_SYMBOL:
-    return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
+    return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
   case K::S_ASCRIBE_ROOT_OF_VALUE:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::S_CAST:
@@ -1266,7 +1270,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::S_TUPLE:
-    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT | KF::CAPTURE;
   case K::S_LAYOUT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_NULL:
@@ -1379,6 +1383,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
 
   // BUILTIN TYPES
+  case K::S_INFERENCE:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::VOID:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NO_RETURN:
@@ -1616,6 +1622,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_ATTRIBUTE;
   case K::CAPTURE:
     return KF::SYMBOL_ATTRIBUTE;
+  case K::S_SITUATED_CAPTURE:
+    return KF::SYMBOL_ATTRIBUTE;
   case K::EAGER:
     return KF::SYMBOL_ATTRIBUTE;
   case K::MAY_PARENT:
@@ -1678,6 +1686,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_PATH;
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
+  case K::S_EXPAND_CAPTURE:
+    return KF::CAPTURE;
 
   // REFLECTIONS
   case K::S_REFLECT:
@@ -1861,7 +1871,8 @@ enum class Situation : std::uint_fast8_t {
   ASCRIPTION,
   TYPE_ATTRIBUTE,
   SYMBOL_ATTRIBUTE,
-  ARITHMETIC_SEQUENCE_STAGE
+  ARITHMETIC_SEQUENCE_STAGE,
+  CAPTURE
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
@@ -1897,6 +1908,8 @@ getDescription(rq::Situation situation) {
     return "symbol attribute";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
+  case S::CAPTURE:
+    return "capture";
   }
   return "error expression";
 }
@@ -1931,6 +1944,8 @@ getDescription(rq::Situation situation) {
     break;
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE;
+  case S::CAPTURE:
+    return K::S_EXPAND_CAPTURE;
   }
   RQ_UNREACHABLE();
 }
@@ -1958,6 +1973,8 @@ getDescription(rq::Situation situation) {
     return S::SYMBOL_PATH;
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return S::ARITHMETIC_SEQUENCE_STAGE;
+  case K::S_EXPAND_CAPTURE:
+    return S::CAPTURE;
   default:
     break;
   }
@@ -2103,7 +2120,7 @@ getDescription(rq::Situation situation) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeStatementAttribute(rq::Keyword keyword) {
+getCanBeSymbolAttribute(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::SYMBOL_ATTRIBUTE);
 }
@@ -2125,6 +2142,12 @@ getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
 getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeStaticCapture(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::CAPTURE);
 }
 
 [[nodiscard]] inline bool getCanBeSituation(rq::Keyword keyword,
@@ -2155,9 +2178,11 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   case rq::Situation::TYPE_ATTRIBUTE:
     return rq::getCanBeTypeAttribute(keyword);
   case rq::Situation::SYMBOL_ATTRIBUTE:
-    return rq::getCanBeStatementAttribute(keyword);
+    return rq::getCanBeSymbolAttribute(keyword);
   case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceStage(keyword);
+  case rq::Situation::CAPTURE:
+    return rq::getCanBeStaticCapture(keyword);
   }
   return false;
 }
@@ -2191,7 +2216,7 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
   RQ_UNREACHABLE();
 }
 
-enum class StatementAttribute : std::uint_fast8_t {
+enum class SymbolAttribute : std::uint_fast8_t {
   NONE,
   OPAQUE,
   GLOBAL,
@@ -2219,9 +2244,9 @@ enum class StatementAttribute : std::uint_fast8_t {
   MUTATE_WITH
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::StatementAttribute attribute) {
+[[nodiscard]] inline llvm::StringRef getName(rq::SymbolAttribute attribute) {
   using namespace rq;
-  using SA = StatementAttribute;
+  using SA = SymbolAttribute;
   switch (attribute) {
   case SA::NONE:
     return "none";
@@ -2277,11 +2302,11 @@ enum class StatementAttribute : std::uint_fast8_t {
   return "error";
 }
 
-[[nodiscard]] inline rq::StatementAttribute
-getStatementAttribute(rq::Keyword keyword) {
+[[nodiscard]] inline rq::SymbolAttribute
+getSymbolAttribute(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using SA = StatementAttribute;
+  using SA = SymbolAttribute;
   switch (keyword) {
   case K::OPAQUE:
     return SA::OPAQUE;
@@ -2290,6 +2315,8 @@ getStatementAttribute(rq::Keyword keyword) {
   case K::STATIC:
     return SA::STATIC;
   case K::CAPTURE:
+    [[fallthrough]];
+  case K::S_SITUATED_CAPTURE:
     return SA::CAPTURE;
   case K::EAGER:
     return SA::EAGER;
@@ -2337,7 +2364,7 @@ getStatementAttribute(rq::Keyword keyword) {
   return SA::NONE;
 }
 
-enum class StatementFlags : std::uint32_t {
+enum class SymbolAttributeFlags : std::uint32_t {
   NONE = 0,
   OPAQUE = rq::getBit(31),
   GLOBAL = rq::getBit(30),
@@ -2365,13 +2392,13 @@ enum class StatementFlags : std::uint32_t {
   MUTATE_WITH = rq::getBit(8)
 };
 
-template <> struct is_flags<rq::StatementFlags> final : std::true_type {};
+template <> struct is_flags<rq::SymbolAttributeFlags> final : std::true_type {};
 
-[[nodiscard]] inline rq::StatementFlags
-getFlags(rq::StatementAttribute attribute) {
+[[nodiscard]] inline rq::SymbolAttributeFlags
+getFlags(rq::SymbolAttribute attribute) {
   using namespace rq;
-  using SA = StatementAttribute;
-  using SF = StatementFlags;
+  using SA = SymbolAttribute;
+  using SF = SymbolAttributeFlags;
   switch (attribute) {
   case SA::NONE:
     return SF::NONE;
@@ -2427,132 +2454,114 @@ getFlags(rq::StatementAttribute attribute) {
   return SF::NONE;
 }
 
-[[nodiscard]] inline bool getHasOpaque(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::OPAQUE);
+[[nodiscard]] inline bool getHasOpaque(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::OPAQUE);
 }
 
-[[nodiscard]] inline bool getHasGlobal(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::GLOBAL);
+[[nodiscard]] inline bool getHasGlobal(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::GLOBAL);
 }
 
-[[nodiscard]] inline bool getHasStatic(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::STATIC);
+[[nodiscard]] inline bool getHasStatic(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::STATIC);
 }
 
-[[nodiscard]] inline bool
-getHasCapture(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::CAPTURE);
+[[nodiscard]] inline bool getHasCapture(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::CAPTURE);
 }
 
-[[nodiscard]] inline bool getHasEager(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::EAGER);
+[[nodiscard]] inline bool getHasEager(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::EAGER);
 }
 
-[[nodiscard]] inline bool getHasMayParent(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::MAY_PARENT);
+[[nodiscard]] inline bool getHasMayParent(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_PARENT);
 }
 
-[[nodiscard]] inline bool getHasParent(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::PARENT);
+[[nodiscard]] inline bool getHasParent(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PARENT);
 }
 
-[[nodiscard]] inline bool getHasAbstract(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::ABSTRACT);
+[[nodiscard]] inline bool getHasAbstract(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::ABSTRACT);
 }
 
-[[nodiscard]] inline bool getHasVirtual(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::VIRTUAL);
+[[nodiscard]] inline bool getHasVirtual(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::VIRTUAL);
 }
 
-[[nodiscard]] inline bool getHasOverride(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::OVERRIDE);
+[[nodiscard]] inline bool getHasOverride(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::OVERRIDE);
 }
 
-[[nodiscard]] inline bool getHasPosition(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::POSITION);
+[[nodiscard]] inline bool getHasPosition(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::POSITION);
 }
 
-[[nodiscard]] inline bool getHasMangle(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::MANGLE);
+[[nodiscard]] inline bool getHasMangle(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MANGLE);
 }
 
-[[nodiscard]] inline bool getHasPack(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::PACK);
+[[nodiscard]] inline bool getHasPack(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PACK);
 }
 
-[[nodiscard]] inline bool getHasLabel(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::LABEL);
+[[nodiscard]] inline bool getHasLabel(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::LABEL);
 }
 
-[[nodiscard]] inline bool getHasTemplate(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::TEMPLATE);
+[[nodiscard]] inline bool getHasTemplate(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::TEMPLATE);
 }
 
-[[nodiscard]] inline bool getHasLikely(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::LIKELY);
+[[nodiscard]] inline bool getHasLikely(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::LIKELY);
 }
 
-[[nodiscard]] inline bool getHasUnlikely(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::UNLIKELY);
+[[nodiscard]] inline bool getHasUnlikely(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::UNLIKELY);
 }
 
-[[nodiscard]] inline bool getHasDepreciated(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::DEPRECIATED);
+[[nodiscard]] inline bool getHasDepreciated(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::DEPRECIATED);
 }
 
-[[nodiscard]] inline bool getHasExport(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::EXPORT);
+[[nodiscard]] inline bool getHasExport(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::EXPORT);
 }
 
-[[nodiscard]] inline bool getHasPublic(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::PUBLIC);
+[[nodiscard]] inline bool getHasPublic(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PUBLIC);
 }
 
-[[nodiscard]] inline bool getHasProtected(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::PROTECTED);
+[[nodiscard]] inline bool getHasProtected(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PROTECTED);
 }
 
-[[nodiscard]] inline bool getHasMayCopy(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::MAY_COPY);
+[[nodiscard]] inline bool getHasMayCopy(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_COPY);
 }
 
-[[nodiscard]] inline bool getHasMayMove(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::MAY_MOVE);
+[[nodiscard]] inline bool getHasMayMove(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_MOVE);
 }
 
-[[nodiscard]] inline bool getHasMutateWith(rq::StatementAttribute attribute) {
-  rq::StatementFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::StatementFlags::MUTATE_WITH);
+[[nodiscard]] inline bool getHasMutateWith(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MUTATE_WITH);
+}
+
+[[nodiscard]] inline bool getHasAttribute(rq::SymbolAttributeFlags flags,
+                                          rq::SymbolAttribute attribute) {
+  rq::SymbolAttributeFlags attribute_flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, attribute_flags);
 }
 
 struct Expression;
 
-struct StatementFlagsFactory final {
-  using Self = rq::StatementFlagsFactory;
+struct SymbolAttributeFlagsFactory final {
+  using Self = rq::SymbolAttributeFlagsFactory;
 
+  rq::SymbolAttributeFlags _flags{};
   rq::Expression *_capture_ptr{nullptr};
   rq::Expression *_override_ptr{nullptr};
   rq::Expression *_position_ptr{nullptr};
@@ -2562,7 +2571,8 @@ struct StatementFlagsFactory final {
   rq::Expression *_depreciated_ptr{nullptr};
   rq::Expression *_mutate_with_ptr{nullptr};
 
-  StatementFlagsFactory() = default;
+  SymbolAttributeFlagsFactory() = default;
+  inline void addAttribute(rq::Expression &expression);
 };
 
 enum class TypeAttribute : std::uint_fast8_t {
@@ -2630,7 +2640,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   return TA::NONE;
 }
 
-enum class TypeFlags : std::uint32_t {
+enum class TypeAttributeFlags : std::uint32_t {
   NONE = 0,
   MUTABLE = rq::getBit(15),
   CONSTANT = rq::getBit(14),
@@ -2643,7 +2653,7 @@ enum class TypeFlags : std::uint32_t {
   MUTATION_MASK = 0xFFFF
 };
 
-template <> struct is_flags<rq::TypeFlags> final : std::true_type {};
+template <> struct is_flags<rq::TypeAttributeFlags> final : std::true_type {};
 
 enum class MutationFlags : std::uint16_t {
   NONE = 0,
@@ -2655,10 +2665,11 @@ template <> struct is_flags<rq::MutationFlags> final : std::true_type {};
 
 static constexpr unsigned MAX_MUTATION_COUNT = 16;
 
-[[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
+[[nodiscard]] inline rq::TypeAttributeFlags
+getFlags(rq::TypeAttribute attribute) {
   using namespace rq;
   using TA = TypeAttribute;
-  using TF = TypeFlags;
+  using TF = TypeAttributeFlags;
   switch (attribute) {
   case TA::NONE:
     return TF::NONE;
@@ -2683,74 +2694,76 @@ static constexpr unsigned MAX_MUTATION_COUNT = 16;
 }
 
 [[nodiscard]] inline bool getHasMutable(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::MUTABLE);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE);
 }
 
 [[nodiscard]] inline bool getHasConstant(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::CONSTANT);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT);
 }
 
 [[nodiscard]] inline bool getHasPartiallyMutable(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
 }
 
 [[nodiscard]] inline bool getHasVolatile(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::VOLATILE);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILE);
 }
 
 [[nodiscard]] inline bool getHasAtomic(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::ATOMIC);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMIC);
 }
 
 [[nodiscard]] inline bool getHasNullTerminated(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATED);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATED);
 }
 
 [[nodiscard]] inline bool getHasMayDiscard(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::MAY_DISCARD);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::MAY_DISCARD);
 }
 
 [[nodiscard]] inline bool getHasDebugTrapOnPanic(rq::TypeAttribute attribute) {
-  rq::TypeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeFlags::DEBUG_TRAP_ON_PANIC);
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::DEBUG_TRAP_ON_PANIC);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
+getHasAttribute(rq::TypeAttributeFlags flags, rq::TypeAttribute attribute) {
   return rq::getHasAll(flags, rq::getFlags(attribute));
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::MUTABLE |
-                                   rq::TypeFlags::CONSTANT |
-                                   rq::TypeFlags::PARTIALLY_MUTABLE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMutability(rq::TypeAttributeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeAttributeFlags::MUTABLE |
+                                   rq::TypeAttributeFlags::CONSTANT |
+                                   rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags
-getMutationFlags(rq::TypeFlags flags) {
-  RQ_ASSERT(rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE),
+getMutationFlags(rq::TypeAttributeFlags flags) {
+  RQ_ASSERT(rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE),
             "not partially mutable");
   return static_cast<rq::MutationFlags>(
-      rq::getMaskValue(flags, rq::TypeFlags::MUTATION_MASK));
+      rq::getMaskValue(flags, rq::TypeAttributeFlags::MUTATION_MASK));
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsValidMutability(rq::TypeAttributeFlags flags) {
   if (rq::getHasMutability(flags)) {
     unsigned mutability_count = 0;
-    if (rq::getHasAll(flags, rq::TypeFlags::MUTABLE)) {
+    if (rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE)) {
       mutability_count++;
     }
-    if (rq::getHasAll(flags, rq::TypeFlags::CONSTANT)) {
+    if (rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT)) {
       mutability_count++;
     }
-    if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE)) {
+    if (rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
       mutability_count++;
     }
     if (mutability_count != 1) {
@@ -2761,8 +2774,8 @@ getMutationFlags(rq::TypeFlags flags) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsValidMutabilityClass(rq::TypeFlags flags) {
-  if (!rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE)) {
+getIsValidMutabilityClass(rq::TypeAttributeFlags flags) {
+  if (!rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
     rq::MutationFlags classes = rq::getMutationFlags(flags);
     if (classes != rq::MutationFlags::NONE) {
       return false;
@@ -3142,19 +3155,29 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTypeAttribute() const {
     return rq::getCanBeTypeAttribute(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatementAttribute() const {
-    return rq::getCanBeStatementAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolAttribute() const {
+    return rq::getCanBeSymbolAttribute(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep() const {
-    return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
+    return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeArithmeticSequenceCondition() const {
     return rq::getCanBeArithmeticSequenceCondition(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep() const {
+    return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeSituation(rq::Situation situation) const {
     return rq::getCanBeSituation(this->getKeyword(), situation);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolAttribute
+  getSymbolAttribute() const {
+    return rq::getSymbolAttribute(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute getTypeAttribute() const {
+    return rq::getTypeAttribute(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
@@ -3379,35 +3402,57 @@ struct Expression final {
     this->_next_ptr_flags.setPtr(next_ptr);
     return replaced_next_ptr;
   }
-  RQ_ALWAYS_INLINE bool getHasBranch() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
     return this->_branch_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE bool getHasNext() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
     return this->_next_ptr_flags.getPtr() != nullptr;
   }
-  inline rq::Expression &popBranch() {
+  [[nodiscard]] inline rq::Expression &popBranch() {
     RQ_ASSERT(this->_branch_ptr != nullptr, "does not have branch");
     rq::Expression *old_branch_ptr = this->_branch_ptr;
     this->_branch_ptr = nullptr;
-    return *old_branch_ptr;
+    return rq::dereferencePtr(old_branch_ptr);
   }
-  inline rq::Expression *popBranchPtr() {
+  [[nodiscard]] inline rq::Expression *popBranchPtr() {
     rq::Expression *old_branch_ptr = this->_branch_ptr;
     this->_branch_ptr = nullptr;
     return old_branch_ptr;
   }
-  inline rq::Expression &popNext() {
+  [[nodiscard]] inline rq::Expression &popNext() {
     RQ_ASSERT(this->getHasNext(), "does not have next");
     rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(nullptr);
-    return *old_next_ptr;
+    return rq::dereferencePtr(old_next_ptr);
   }
-  inline rq::Expression *popNextPtr() {
+  [[nodiscard]] inline rq::Expression *popNextPtr() {
     rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(nullptr);
     return old_next_ptr;
   }
-  inline rq::Expression &mergeAndPopBranch() {
+  [[nodiscard]] inline rq::Expression &changeNext(rq::Expression &new_next) {
+    RQ_ASSERT(this->getHasNext(), "does not have next");
+    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+    this->_next_ptr_flags.setPtr(&new_next);
+    return rq::dereferencePtr(old_next_ptr);
+  }
+  [[nodiscard]] inline rq::Expression &changeNext(rq::Expression *new_next_ptr) {
+    RQ_ASSERT(this->getHasNext(), "does not have next");
+    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+    this->_next_ptr_flags.setPtr(new_next_ptr);
+    return rq::dereferencePtr(old_next_ptr);
+  }
+  [[nodiscard]] inline rq::Expression *changeNextPtr(rq::Expression &new_next) {
+    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+    this->_next_ptr_flags.setPtr(&new_next);
+    return old_next_ptr;
+  }
+  [[nodiscard]] inline rq::Expression *changeNextPtr(rq::Expression *new_next_ptr) {
+    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+    this->_next_ptr_flags.setPtr(new_next_ptr);
+    return old_next_ptr;
+  }
+  [[nodiscard]] inline rq::Expression &mergeAndPopBranch() {
     rq::Expression &branch = this->popBranch();
     if (this->getHasNext()) {
       rq::Expression &branch_last_next = branch.getLastNext();
@@ -3424,6 +3469,21 @@ struct Expression final {
     this->setSource(branch);
     branch.clear();
     return branch;
+  }
+  [[nodiscard]] inline rq::Expression &mergeAndPopNext() {
+    rq::Expression &next = this->popNext();
+    RQ_ASSERT(!this->getHasBranch(), "has branch");
+    this->clear();
+    this->setKeyword(next.getKeyword());
+    if (next.getHasBranch()) {
+      this->setBranch(next.popBranch());
+    }
+    if (next.getHasNext()) {
+      this->setNext(next.popNext());
+    }
+    this->setSource(next);
+    next.clear();
+    return next;
   }
   [[nodiscard]] inline rq::Expression &getUnascribed() {
     if (this->getCanBeAscription()) {
@@ -3490,6 +3550,42 @@ rq::ExpressionIterator &ExpressionIterator::operator++() {
   this->_expression_ptr =
       rq::dereferencePtr(this->_expression_ptr).getNextPtr();
   return *this;
+}
+
+inline void
+SymbolAttributeFlagsFactory::addAttribute(rq::Expression &expression) {
+  RQ_ASSERT(expression.getCanBeSymbolAttribute(), "not symbol attribute");
+  // TODO ensure no duplicates by combining like attributes in situator
+  RQ_ASSERT(!rq::getHasAttribute(this->_flags, expression.getSymbolAttribute()),
+            "duplicate attribute");
+  switch (expression.getKeyword()) {
+  case rq::Keyword::S_SITUATED_CAPTURE:
+    this->_capture_ptr = &expression;
+    break;
+  case rq::Keyword::OVERRIDE:
+    this->_override_ptr = &expression;
+    break;
+  case rq::Keyword::POSITION:
+    this->_position_ptr = &expression;
+    break;
+  case rq::Keyword::MANGLE:
+    this->_mangle_ptr = &expression;
+    break;
+  case rq::Keyword::LABEL:
+    this->_label_ptr = &expression;
+    break;
+  case rq::Keyword::TEMPLATE:
+    this->_template_ptr = &expression;
+    break;
+  case rq::Keyword::DEPRECIATED:
+    this->_depreciated_ptr = &expression;
+    break;
+  case rq::Keyword::MUTATE_WITH:
+    this->_mutate_with_ptr = &expression;
+    break;
+  default:
+    break;
+  }
 }
 
 rq::ExpressionIterator ExpressionIterator::operator++(int) { return ++*this; }

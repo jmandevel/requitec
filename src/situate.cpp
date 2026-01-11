@@ -1,5 +1,6 @@
 #include <rq/ast.hpp>
 #include <rq/context.hpp>
+#include <rq/parse.hpp>
 #include <rq/situate.hpp>
 #include <rq/utility.hpp>
 
@@ -71,11 +72,14 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // SITUATIONAL
-  case K::S_PARENTHESIS_GROUP:
+  case K::S_UNSITUATED_PARENTHESIS_GROUP:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    situation);
+    if (is_ok) {
+      this->getContext().discardExpression(expression.mergeAndPopBranch());
+    }
     break;
-  case K::S_EQUAL_OPERATOR:
+  case K::S_UNSITUATED_EQUAL_OPERATOR:
     switch (situation) {
     case S::ARGUMENT: {
       is_ok = this->situateBinaryNonStatementBranches(situation, expression,
@@ -134,7 +138,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     break;
-  case K::S_COLON_OPERATOR:
+  case K::S_UNSITUATED_COLON_OPERATOR:
     if (!this->situateBinaryNonStatementBranches(situation, expression,
                                                  S::RVALUE, S::RVALUE)) {
       is_ok = false;
@@ -157,52 +161,11 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     break;
-  case K::S_INFERENCE:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
   case K::S_UNSITUATED_ASCRIBE_SYMBOL:
     [[fallthrough]];
-  case K::S_UNSITUATED_ASCRIBE_TYPE: {
-    unsigned branch_i = 0;
-    const rq::Situation attribute_situation =
-        expression.getAttributeSituation();
-    rq::Expression *previous_ptr = nullptr;
-    rq::Expression *next_ptr = expression.getBranchPtr();
-    if (next_ptr == nullptr) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       2);
-      is_ok = false;
-      break;
-    }
-    while (next_ptr != nullptr) {
-      rq::Expression &branch = rq::dereferencePtr(next_ptr);
-      if (!branch.getHasNext()) {
-        if (branch_i < 1) {
-          this->getContext().logErrorNotAtLeastBranchCount(situation,
-                                                           expression, 2);
-          is_ok = false;
-          break;
-        }
-        if (!this->situateNonStatementBranch(situation, branch)) {
-          is_ok = false;
-        }
-        break;
-      }
-      previous_ptr = next_ptr;
-      next_ptr = branch.getNextPtr();
-      if (!this->situateNonStatementBranch(attribute_situation, branch)) {
-        is_ok = false;
-      }
-      branch_i++;
-    }
-    if (!is_ok) {
-      break;
-    }
-    rq::Expression &previous_last = rq::dereferencePtr(previous_ptr);
-    rq::Expression &last = previous_last.popNext();
-    last.setNext(expression.replaceBranch(last));
-    expression.changeKeyword(expression.getSituatedAscribe());
-  } break;
+  case K::S_UNSITUATED_ASCRIBE_TYPE:
+    is_ok = this->situateAttributes(situation, expression);
+    break;
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -784,6 +747,8 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // BUILTIN TYPES
+  case K::S_INFERENCE:
+    [[fallthrough]];
   case K::VOID:
     [[fallthrough]];
   case K::NO_RETURN:
@@ -1033,6 +998,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
+  case K::S_SITUATED_CAPTURE:
+    is_ok = this->situateNaryNonStatementBranches(situation, expression, 1,
+                                                  S::ARGUMENT);
+    break;
   case K::EAGER:
     [[fallthrough]];
   case K::MAY_PARENT:
@@ -1128,6 +1097,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_EXPAND_SYMBOL_PATH:
     [[fallthrough]];
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
+    [[fallthrough]];
+  case K::S_EXPAND_CAPTURE:
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        1);
@@ -1307,6 +1278,93 @@ bool Situator::situateTree(rq::Situation situation,
       }
     }
   }
+  return is_ok;
+}
+
+bool Situator::situateAttributes(rq::Situation situation,
+                                 rq::Expression &expression) {
+  bool is_ok = true;
+  unsigned branch_i = 0;
+  const rq::Situation attribute_situation = expression.getAttributeSituation();
+  rq::Expression *previous_ptr = nullptr;
+  rq::Expression *next_ptr = expression.getBranchPtr();
+  if (next_ptr == nullptr) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
+    is_ok = false;
+    return is_ok;
+  }
+  llvm::SmallDenseMap<rq::Keyword, rq::Expression *, 16> found_attribute_map{};
+  while (next_ptr != nullptr) {
+    rq::Expression &branch = rq::dereferencePtr(next_ptr);
+    if (!branch.getHasNext()) {
+      if (!this->situateNonStatementBranch(situation, branch)) {
+        is_ok = false;
+        break;
+      }
+      if (branch_i < 1) {
+        this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                         2);
+        is_ok = false;
+      }
+      break;
+    }
+    next_ptr = branch.getNextPtr();
+    branch_i++;
+    if (!this->situateNonStatementBranch(attribute_situation, branch)) {
+      is_ok = false;
+      previous_ptr = &branch;
+      continue;
+    }
+    if (branch.getKeyword() == rq::Keyword::CAPTURE) {
+      // special case to concatinate tuple of capture
+      rq::Expression &branch_tuple = branch.popBranch();
+      RQ_ASSERT(branch_tuple.getKeyword() == rq::Keyword::S_TUPLE, "not tuple");
+      auto it = found_attribute_map.find(rq::Keyword::S_SITUATED_CAPTURE);
+      if (it != found_attribute_map.end()) {
+        rq::Expression &found = rq::dereferencePtr(it->getSecond());
+        found.getLastBranch().setNext(branch_tuple.popBranch());
+        if (previous_ptr != nullptr) {
+          rq::Expression &previous = rq::dereferencePtr(previous_ptr);
+          std::ignore = previous.changeNextPtr(branch.popNextPtr());
+        }
+        this->getContext().discardExpression(branch_tuple);
+        this->getContext().discardExpression(branch);
+      } else {
+        branch.changeKeyword(rq::Keyword::S_SITUATED_CAPTURE);
+        this->getContext().discardExpression(branch_tuple.mergeAndPopBranch());
+        branch.setBranch(branch_tuple);
+        found_attribute_map.insert({rq::Keyword::S_SITUATED_CAPTURE, &branch});
+      }
+      previous_ptr = &branch;
+      continue;
+    }
+    auto it = found_attribute_map.find(branch.getKeyword());
+    if (it != found_attribute_map.end()) {
+      rq::Expression &found = rq::dereferencePtr(it->getSecond());
+      if (branch.getHasBranch()) {
+        if (found.getHasBranch()) {
+          found.getLastBranch().setNext(branch.popBranch());
+        } else {
+          found.setBranch(branch.popBranch());
+        }
+      }
+      if (previous_ptr != nullptr) {
+        rq::Expression &previous = rq::dereferencePtr(previous_ptr);
+        std::ignore = previous.changeNextPtr(branch.popNextPtr());
+      }
+      this->getContext().discardExpression(branch);
+    } else {
+      found_attribute_map.insert({branch.getKeyword(), &branch});
+    }
+    previous_ptr = &branch;
+  }
+  if (!is_ok) {
+    return !is_ok;
+  }
+  rq::Expression &previous_last = rq::dereferencePtr(previous_ptr);
+  rq::Expression &last = previous_last.popNext();
+  last.setNext(expression.replaceBranch(last));
+  expression.changeKeyword(expression.getSituatedAscribe());
   return is_ok;
 }
 
