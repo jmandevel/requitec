@@ -1099,6 +1099,8 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   case K::PACK:
+    [[fallthrough]];
+  case K::ATTRIBUTE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::ASCRIBE:
@@ -1303,6 +1305,13 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::S_HAS_MEMBER_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::HAS_ATTRIBUTE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_HAS_ATTRIBUTE_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;

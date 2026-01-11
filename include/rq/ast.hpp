@@ -342,6 +342,7 @@ enum class Keyword : std::uint32_t {
   INLINE,
   MANGLE,
   PACK,
+  ATTRIBUTE,
   ASCRIBE,
   LABEL,
   TEMPLATE,
@@ -390,6 +391,8 @@ enum class Keyword : std::uint32_t {
   S_SYMBOL_OF,
   HAS_MEMBER,
   S_HAS_MEMBER_OF,
+  HAS_ATTRIBUTE,
+  S_HAS_ATTRIBUTE_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
   LAYOUT,
@@ -937,6 +940,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mangle";
   case K::PACK:
     return "pack";
+  case K::ATTRIBUTE:
+    return "attribute";
   case K::ASCRIBE:
     return "ascribe";
   case K::LABEL:
@@ -1029,6 +1034,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "has_member";
   case K::S_HAS_MEMBER_OF:
     return "_has_member_of";
+  case K::HAS_ATTRIBUTE:
+    return "has_attribute";
+  case K::S_HAS_ATTRIBUTE_OF:
+    return "_has_attribute_of";
   case K::SIGNATURE:
     return "signature";
   case K::S_SIGNATURE_OF:
@@ -1635,6 +1644,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_ATTRIBUTE;
   case K::PACK:
     return KF::SYMBOL_ATTRIBUTE;
+  case K::ATTRIBUTE:
+    return KF::SYMBOL_ATTRIBUTE;
   case K::ASCRIBE:
     return KF::SYMBOL_ATTRIBUTE;
   case K::LABEL:
@@ -1730,6 +1741,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::HAS_MEMBER:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_HAS_MEMBER_OF:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::HAS_ATTRIBUTE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_HAS_ATTRIBUTE_OF:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2015,6 +2030,8 @@ getDescription(rq::Situation situation) {
     return K::S_SYMBOL_OF;
   case K::HAS_MEMBER:
     return K::S_HAS_MEMBER_OF;
+  case K::HAS_ATTRIBUTE:
+    return K::S_HAS_ATTRIBUTE_OF;
   case K::SIGNATURE:
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
@@ -2205,6 +2222,7 @@ enum class SymbolAttribute : std::uint_fast8_t {
   POSITION,
   MANGLE,
   PACK,
+  ATTRIBUTE,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -2250,6 +2268,8 @@ enum class SymbolAttribute : std::uint_fast8_t {
     return "mangle";
   case SA::PACK:
     return "pack";
+  case SA::ATTRIBUTE:
+    return "attribute";
   case SA::LABEL:
     return "label";
   case SA::TEMPLATE:
@@ -2308,6 +2328,8 @@ getSymbolAttribute(rq::Keyword keyword) {
     return SA::MANGLE;
   case K::PACK:
     return SA::PACK;
+  case K::ATTRIBUTE:
+    return SA::ATTRIBUTE;
   case K::LABEL:
     return SA::LABEL;
   case K::TEMPLATE:
@@ -2351,17 +2373,18 @@ enum class SymbolAttributeFlags : std::uint32_t {
   POSITION = rq::getBit(21),
   MANGLE = rq::getBit(20),
   PACK = rq::getBit(19),
-  LABEL = rq::getBit(18),
-  TEMPLATE = rq::getBit(17),
-  LIKELY = rq::getBit(16),
-  UNLIKELY = rq::getBit(15),
-  DEPRECIATED = rq::getBit(14),
-  EXPORT = rq::getBit(13),
-  PUBLIC = rq::getBit(12),
-  PROTECTED = rq::getBit(11),
-  MAY_COPY = rq::getBit(10),
-  MAY_MOVE = rq::getBit(9),
-  MUTATE_WITH = rq::getBit(8)
+  ATTRIBUTE = rq::getBit(18),
+  LABEL = rq::getBit(17),
+  TEMPLATE = rq::getBit(16),
+  LIKELY = rq::getBit(15),
+  UNLIKELY = rq::getBit(14),
+  DEPRECIATED = rq::getBit(13),
+  EXPORT = rq::getBit(12),
+  PUBLIC = rq::getBit(11),
+  PROTECTED = rq::getBit(10),
+  MAY_COPY = rq::getBit(9),
+  MAY_MOVE = rq::getBit(8),
+  MUTATE_WITH = rq::getBit(7)
 };
 
 template <> struct is_flags<rq::SymbolAttributeFlags> final : std::true_type {};
@@ -2400,6 +2423,8 @@ getFlags(rq::SymbolAttribute attribute) {
     return SF::POSITION;
   case SA::PACK:
     return SF::PACK;
+  case SA::ATTRIBUTE:
+    return SF::ATTRIBUTE;
   case SA::LABEL:
     return SF::LABEL;
   case SA::TEMPLATE:
@@ -2476,6 +2501,10 @@ getFlags(rq::SymbolAttribute attribute) {
 
 [[nodiscard]] inline bool getHasPack(rq::SymbolAttributeFlags flags) {
   return rq::getHasAll(flags, rq::SymbolAttributeFlags::PACK);
+}
+
+[[nodiscard]] inline bool getHasAttribute(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::ATTRIBUTE);
 }
 
 [[nodiscard]] inline bool getHasLabel(rq::SymbolAttributeFlags flags) {
@@ -2586,6 +2615,7 @@ struct SymbolAttributeFlagsFactory final {
     return rq::getHasMangle(this->_flags);
   }
   [[nodiscard]] bool getHasPack() const { return rq::getHasPack(this->_flags); }
+  [[nodiscard]] bool getHasAttribute() const { return rq::getHasAttribute(this->_flags); }
   [[nodiscard]] bool getHasLabel() const {
     return rq::getHasLabel(this->_flags);
   }
