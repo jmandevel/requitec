@@ -221,6 +221,7 @@ struct Context final : public rq::ContextCache {
   void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
   void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
   void logErrorDuplicateParameterMark(const rq::Expression &mark);
+  void logErrorDuplicateAttribute(const rq::Expression &attribute);
   void logErrorNamedBeginAfterPositionalEnd(const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,

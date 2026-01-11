@@ -332,7 +332,6 @@ enum class Keyword : std::uint32_t {
   OUTSIDE,
   STATIC,
   CAPTURE,
-  S_SITUATED_CAPTURE,
   EAGER,
   MAY_PARENT,
   PARENT,
@@ -365,7 +364,6 @@ enum class Keyword : std::uint32_t {
   S_EXPAND_PARAMETER,
   S_EXPAND_SYMBOL_PATH,
   S_EXPAND_ARITHMETIC_SEQUENCE_STAGE,
-  S_EXPAND_CAPTURE,
 
   // REFLECTIONS
   S_REFLECT,
@@ -919,8 +917,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "static";
   case K::CAPTURE:
     return "capture";
-  case K::S_SITUATED_CAPTURE:
-    return "_situated_capture";
   case K::EAGER:
     return "eager";
   case K::MAY_PARENT:
@@ -983,8 +979,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_expand_symbol_path";
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return "_expand_arithmetic_sequence_stage";
-  case K::S_EXPAND_CAPTURE:
-    return "_expand_capture";
 
   // REFLECTIONS
   case K::S_REFLECT:
@@ -1079,10 +1073,9 @@ enum class KeywordFlags : std::uint32_t {
   SYMBOL_ATTRIBUTE = rq::getBit(9),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(8),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(7),
-  CAPTURE = rq::getBit(6),
   ALL = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
         BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE | SYMBOL_ATTRIBUTE |
-        ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION | CAPTURE
+        ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1270,7 +1263,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::S_TUPLE:
-    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT | KF::CAPTURE;
+    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT;
   case K::S_LAYOUT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_NULL:
@@ -1622,8 +1615,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_ATTRIBUTE;
   case K::CAPTURE:
     return KF::SYMBOL_ATTRIBUTE;
-  case K::S_SITUATED_CAPTURE:
-    return KF::SYMBOL_ATTRIBUTE;
   case K::EAGER:
     return KF::SYMBOL_ATTRIBUTE;
   case K::MAY_PARENT:
@@ -1686,8 +1677,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_PATH;
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
-  case K::S_EXPAND_CAPTURE:
-    return KF::CAPTURE;
 
   // REFLECTIONS
   case K::S_REFLECT:
@@ -1871,8 +1860,7 @@ enum class Situation : std::uint_fast8_t {
   ASCRIPTION,
   TYPE_ATTRIBUTE,
   SYMBOL_ATTRIBUTE,
-  ARITHMETIC_SEQUENCE_STAGE,
-  CAPTURE
+  ARITHMETIC_SEQUENCE_STAGE
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
@@ -1908,8 +1896,6 @@ getDescription(rq::Situation situation) {
     return "symbol attribute";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
-  case S::CAPTURE:
-    return "capture";
   }
   return "error expression";
 }
@@ -1944,8 +1930,6 @@ getDescription(rq::Situation situation) {
     break;
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE;
-  case S::CAPTURE:
-    return K::S_EXPAND_CAPTURE;
   }
   RQ_UNREACHABLE();
 }
@@ -1973,8 +1957,6 @@ getDescription(rq::Situation situation) {
     return S::SYMBOL_PATH;
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return S::ARITHMETIC_SEQUENCE_STAGE;
-  case K::S_EXPAND_CAPTURE:
-    return S::CAPTURE;
   default:
     break;
   }
@@ -2144,12 +2126,6 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeStaticCapture(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::CAPTURE);
-}
-
 [[nodiscard]] inline bool getCanBeSituation(rq::Keyword keyword,
                                             rq::Situation situation) {
   switch (situation) {
@@ -2181,8 +2157,6 @@ getCanBeStaticCapture(rq::Keyword keyword) {
     return rq::getCanBeSymbolAttribute(keyword);
   case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceStage(keyword);
-  case rq::Situation::CAPTURE:
-    return rq::getCanBeStaticCapture(keyword);
   }
   return false;
 }
@@ -2242,10 +2216,7 @@ enum class SymbolAttribute : std::uint_fast8_t {
   MAY_COPY,
   MAY_MOVE,
   MUTATE_WITH,
-  I_LAST
 };
-
-static constexpr unsigned SYMBOL_ATTRIBUTE_COUNT = static_cast<unsigned>(rq::SymbolAttribute::I_LAST);
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolAttribute attribute) {
   using namespace rq;
@@ -2301,8 +2272,6 @@ static constexpr unsigned SYMBOL_ATTRIBUTE_COUNT = static_cast<unsigned>(rq::Sym
     return "may_move";
   case SA::MUTATE_WITH:
     return "mutate_with";
-  case SA::I_LAST:
-    break;
   }
   RQ_UNREACHABLE();
 }
@@ -2320,8 +2289,6 @@ getSymbolAttribute(rq::Keyword keyword) {
   case K::STATIC:
     return SA::STATIC;
   case K::CAPTURE:
-    [[fallthrough]];
-  case K::S_SITUATED_CAPTURE:
     return SA::CAPTURE;
   case K::EAGER:
     return SA::EAGER;
@@ -2363,8 +2330,6 @@ getSymbolAttribute(rq::Keyword keyword) {
     return SA::MAY_MOVE;
   case K::MUTATE_WITH:
     return SA::MUTATE_WITH;
-  case K::I_LAST:
-    break;
   default:
     break;
   }
@@ -2457,8 +2422,6 @@ getFlags(rq::SymbolAttribute attribute) {
     return SF::MAY_MOVE;
   case SA::MUTATE_WITH:
     return SF::MUTATE_WITH;
-  case SA::I_LAST:
-    break;
   }
   return SF::NONE;
 }
@@ -2593,11 +2556,8 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
-  DEBUG_TRAP_ON_PANIC,
-  I_LAST
+  DEBUG_TRAP_ON_PANIC
 };
-
-static constexpr unsigned TYPE_ATTRIBUTE_COUNT = static_cast<unsigned>(rq::TypeAttribute::I_LAST);
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
   using namespace rq;
@@ -2621,8 +2581,6 @@ static constexpr unsigned TYPE_ATTRIBUTE_COUNT = static_cast<unsigned>(rq::TypeA
     return "may_discard";
   case TA::DEBUG_TRAP_ON_PANIC:
     return "debug_trap_on_panic";
-  case TA::I_LAST:
-    break;
   }
   RQ_UNREACHABLE();
 }
@@ -2703,8 +2661,6 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::MAY_DISCARD;
   case TA::DEBUG_TRAP_ON_PANIC:
     return TF::DEBUG_TRAP_ON_PANIC;
-  case TA::I_LAST:
-    break;
   }
   return TF::NONE;
 }
@@ -3575,7 +3531,7 @@ SymbolAttributeFlagsFactory::addAttribute(rq::Expression &expression) {
   RQ_ASSERT(!rq::getHasAttribute(this->_flags, expression.getSymbolAttribute()),
             "duplicate attribute");
   switch (expression.getKeyword()) {
-  case rq::Keyword::S_SITUATED_CAPTURE:
+  case rq::Keyword::CAPTURE:
     this->_capture_ptr = &expression;
     break;
   case rq::Keyword::OVERRIDE:

@@ -163,9 +163,73 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::S_UNSITUATED_ASCRIBE_SYMBOL:
     [[fallthrough]];
-  case K::S_UNSITUATED_ASCRIBE_TYPE:
-    is_ok = this->situateAttributes(situation, expression);
-    break;
+  case K::S_UNSITUATED_ASCRIBE_TYPE: {
+    unsigned branch_i = 0;
+    const rq::Situation attribute_situation =
+        expression.getAttributeSituation();
+    rq::Expression *previous_ptr = nullptr;
+    rq::Expression *next_ptr = expression.getBranchPtr();
+    if (next_ptr == nullptr) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       2);
+      is_ok = false;
+      break;
+    }
+    std::uint32_t found_flags = 0;
+    while (next_ptr != nullptr) {
+      rq::Expression &branch = rq::dereferencePtr(next_ptr);
+      if (!branch.getHasNext()) {
+        if (!this->situateNonStatementBranch(situation, branch)) {
+          is_ok = false;
+          break;
+        }
+        if (branch_i < 1) {
+          this->getContext().logErrorNotAtLeastBranchCount(situation,
+                                                           expression, 2);
+          is_ok = false;
+        }
+        break;
+      }
+      next_ptr = branch.getNextPtr();
+      branch_i++;
+      if (!this->situateNonStatementBranch(attribute_situation, branch)) {
+        is_ok = false;
+        previous_ptr = &branch;
+        continue;
+      }
+      bool has_flags = false;
+      if (attribute_situation == rq::Situation::SYMBOL_ATTRIBUTE) {
+        rq::SymbolAttributeFlags flags =
+            rq::getFlags(branch.getSymbolAttribute());
+        if (rq::getHasAll(static_cast<rq::SymbolAttributeFlags>(found_flags),
+                          flags)) {
+          has_flags = true;
+        }
+        found_flags = static_cast<std::uint32_t>(
+            static_cast<rq::SymbolAttributeFlags>(found_flags) | flags);
+      } else if (attribute_situation == rq::Situation::TYPE_ATTRIBUTE) {
+        rq::TypeAttributeFlags flags = rq::getFlags(branch.getTypeAttribute());
+        if (rq::getHasAll(static_cast<rq::TypeAttributeFlags>(found_flags),
+                          flags)) {
+          has_flags = true;
+        }
+        found_flags = static_cast<std::uint32_t>(
+            static_cast<rq::TypeAttributeFlags>(found_flags) | flags);
+      }
+      if (has_flags) {
+        this->getContext().logErrorDuplicateAttribute(branch);
+        is_ok = false;
+      }
+      previous_ptr = &branch;
+    }
+    if (!is_ok) {
+      break;
+    }
+    rq::Expression &previous_last = rq::dereferencePtr(previous_ptr);
+    rq::Expression &last = previous_last.popNext();
+    last.setNext(expression.replaceBranch(last));
+    expression.changeKeyword(expression.getSituatedAscribe());
+  } break;
 
   // LOGICAL
   case K::S_LOGICAL_AND:
@@ -1001,10 +1065,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
-  case K::S_SITUATED_CAPTURE:
-    is_ok = this->situateNaryNonStatementBranches(situation, expression, 1,
-                                                  S::ARGUMENT);
-    break;
   case K::EAGER:
     [[fallthrough]];
   case K::MAY_PARENT:
@@ -1101,13 +1161,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     [[fallthrough]];
-  case K::S_EXPAND_CAPTURE:
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       1);
-      is_ok = false;
-    }
-    break;
 
   // REFLECTIONS
   case K::S_REFLECT: {
@@ -1281,100 +1334,6 @@ bool Situator::situateTree(rq::Situation situation,
       }
     }
   }
-  return is_ok;
-}
-
-bool Situator::situateAttributes(rq::Situation situation,
-                                 rq::Expression &expression) {
-  bool is_ok = true;
-  unsigned branch_i = 0;
-  const rq::Situation attribute_situation = expression.getAttributeSituation();
-  rq::Expression *previous_ptr = nullptr;
-  rq::Expression *next_ptr = expression.getBranchPtr();
-  if (next_ptr == nullptr) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
-    is_ok = false;
-    return is_ok;
-  }
-  constexpr unsigned MAX_ATTRIBUTE_COUNT =
-      rq::SYMBOL_ATTRIBUTE_COUNT > rq::TYPE_ATTRIBUTE_COUNT
-          ? rq::SYMBOL_ATTRIBUTE_COUNT
-          : rq::TYPE_ATTRIBUTE_COUNT;
-  std::array<rq::Expression *, MAX_ATTRIBUTE_COUNT> found_attributes{nullptr};
-  while (next_ptr != nullptr) {
-    rq::Expression &branch = rq::dereferencePtr(next_ptr);
-    if (!branch.getHasNext()) {
-      if (!this->situateNonStatementBranch(situation, branch)) {
-        is_ok = false;
-        break;
-      }
-      if (branch_i < 1) {
-        this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                         2);
-        is_ok = false;
-      }
-      break;
-    }
-    next_ptr = branch.getNextPtr();
-    branch_i++;
-    if (!this->situateNonStatementBranch(attribute_situation, branch)) {
-      is_ok = false;
-      previous_ptr = &branch;
-      continue;
-    }
-    unsigned attribute_i =
-        situation == rq::Situation::SYMBOL_ATTRIBUTE
-            ? static_cast<unsigned>(expression.getSymbolAttribute())
-            : static_cast<unsigned>(expression.getTypeAttribute());
-    if (branch.getKeyword() == rq::Keyword::CAPTURE) {
-      // special case to concatinate tuple of capture
-      rq::Expression &branch_tuple = branch.popBranch();
-      RQ_ASSERT(branch_tuple.getKeyword() == rq::Keyword::S_TUPLE, "not tuple");
-      if (found_attributes[attribute_i] != nullptr) {
-        rq::Expression &found =
-            rq::dereferencePtr(found_attributes[attribute_i]);
-        found.getLastBranch().setNext(branch_tuple.popBranch());
-        if (previous_ptr != nullptr) {
-          rq::Expression &previous = rq::dereferencePtr(previous_ptr);
-          std::ignore = previous.changeNextPtr(branch.popNextPtr());
-        }
-        this->getContext().discardExpression(branch_tuple);
-        this->getContext().discardExpression(branch);
-      } else {
-        branch.changeKeyword(rq::Keyword::S_SITUATED_CAPTURE);
-        this->getContext().discardExpression(branch_tuple.mergeAndPopBranch());
-        branch.setBranch(branch_tuple);
-        found_attributes[attribute_i] = &branch;
-      }
-      previous_ptr = &branch;
-      continue;
-    }
-    if (found_attributes[attribute_i] != nullptr) {
-      rq::Expression &found = rq::dereferencePtr(found_attributes[attribute_i]);
-      if (branch.getHasBranch()) {
-        if (found.getHasBranch()) {
-          found.getLastBranch().setNext(branch.popBranch());
-        } else {
-          found.setBranch(branch.popBranch());
-        }
-      }
-      if (previous_ptr != nullptr) {
-        rq::Expression &previous = rq::dereferencePtr(previous_ptr);
-        std::ignore = previous.changeNextPtr(branch.popNextPtr());
-      }
-      this->getContext().discardExpression(branch);
-    } else {
-      found_attributes[attribute_i] = &branch;
-    }
-    previous_ptr = &branch;
-  }
-  if (!is_ok) {
-    return !is_ok;
-  }
-  rq::Expression &previous_last = rq::dereferencePtr(previous_ptr);
-  rq::Expression &last = previous_last.popNext();
-  last.setNext(expression.replaceBranch(last));
-  expression.changeKeyword(expression.getSituatedAscribe());
   return is_ok;
 }
 

@@ -790,6 +790,12 @@ void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
                    {mark.getLlvmSourceRange()}, {});
 }
 
+void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
+  this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("duplicate ") + attribute.getName(),
+                   {attribute.getLlvmSourceRange()}, {});
+}
+
 void Context::logErrorNamedBeginAfterPositionalEnd(
     const rq::Expression &named_begin) {
   this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
