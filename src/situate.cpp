@@ -767,6 +767,8 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::THIS_TYPE:
     [[fallthrough]];
+  case K::THIS_SYMBOL:
+    [[fallthrough]];
   case K::RESULT:
     [[fallthrough]];
   case K::COMMAND_LINE_ARGUMENTS:
