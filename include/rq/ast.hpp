@@ -50,7 +50,7 @@ enum class Keyword : std::uint32_t {
   S_EQUAL_OPERATOR,
   S_COLON_OPERATOR,
   S_INFERENCE,
-  S_UNSITUATED_ASCRIBE_STATEMENT,
+  S_UNSITUATED_ASCRIBE_SYMBOL,
   S_UNSITUATED_ASCRIBE_TYPE,
 
   // LOGICAL
@@ -71,7 +71,7 @@ enum class Keyword : std::uint32_t {
   S_EXTENSION,
   S_BINDING,
   S_ASCRIBE_TYPE,
-  S_ASCRIBE_STATEMENT,
+  S_ASCRIBE_SYMBOL,
   S_ASCRIBE_ROOT_OF_VALUE,
   S_CAST,
   S_IDENTIFY,
@@ -439,8 +439,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_colon_operator";
   case K::S_INFERENCE:
     return "_inference";
-  case K::S_UNSITUATED_ASCRIBE_STATEMENT:
-    return "_unsituated_ascribe_statement";
+  case K::S_UNSITUATED_ASCRIBE_SYMBOL:
+    return "_unsituated_ascribe_symbol";
   case K::S_UNSITUATED_ASCRIBE_TYPE:
     return "_unsituated_ascribe_type";
 
@@ -475,8 +475,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_binding";
   case K::S_ASCRIBE_TYPE:
     return "_ascribe_type";
-  case K::S_ASCRIBE_STATEMENT:
-    return "_ascribe_statement";
+  case K::S_ASCRIBE_SYMBOL:
+    return "_ascribe_symbol";
   case K::S_ASCRIBE_ROOT_OF_VALUE:
     return "_ascribe_root_of_value";
   case K::S_CAST:
@@ -1129,7 +1129,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::S_UNSITUATED_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
-  case K::S_UNSITUATED_ASCRIBE_STATEMENT:
+  case K::S_UNSITUATED_ASCRIBE_SYMBOL:
     return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
 
   // LOGICAL
@@ -1165,7 +1165,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::S_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
-  case K::S_ASCRIBE_STATEMENT:
+  case K::S_ASCRIBE_SYMBOL:
     return KF::STATEMENT | KF::PARAMETER | KF::ASCRIPTION;
   case K::S_ASCRIBE_ROOT_OF_VALUE:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
@@ -1791,8 +1791,8 @@ getHasNonStatementBranches(rq::Keyword keyword) {
 
 [[nodiscard]] inline rq::Keyword getSituatedAscribe(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT:
-    return rq::Keyword::S_ASCRIBE_STATEMENT;
+  case rq::Keyword::S_UNSITUATED_ASCRIBE_SYMBOL:
+    return rq::Keyword::S_ASCRIBE_SYMBOL;
   case rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE:
     return rq::Keyword::S_ASCRIBE_TYPE;
   default:
@@ -2028,11 +2028,11 @@ getDescription(rq::Situation situation) {
 
 [[nodiscard]] inline rq::Situation getAttributeSituation(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT:
+  case rq::Keyword::S_UNSITUATED_ASCRIBE_SYMBOL:
     [[fallthrough]];
-  case rq::Keyword::S_ASCRIBE_STATEMENT:
+  case rq::Keyword::S_ASCRIBE_SYMBOL:
     return rq::Situation::SYMBOL_ATTRIBUTE;
-  case rq::Keyword::S_REVERSED_ASCRIBE_TYPE:
+  case rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE:
     [[fallthrough]];
   case rq::Keyword::S_ASCRIBE_TYPE:
     [[fallthrough]];
