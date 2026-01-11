@@ -387,7 +387,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::RVALUE);
     break;
 
-  // ARITHMETIC INTERVAL OPERATORS
+  // ARITHMETIC INTERVAL
   case K::S_ARITHMETIC_INTERVAL_LESS:
     [[fallthrough]];
   case K::S_ARITHMETIC_INTERVAL_LESS_EQUAL:
@@ -403,7 +403,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::RVALUE);
     break;
 
-  // FINITE ARITHMETIC PROGRESSION OPERATORS
+  // FINITE ARITHMETIC PROGRESSION TYPES
   case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_ADD:
     [[fallthrough]];
   case K::S_FINITE_ARITHMETIC_PROGRESSION_LESS_SUBTRACT:
@@ -467,7 +467,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::RVALUE);
     break;
 
-  // INFINITE ARITHMETIC PROGRESSION OPERATORS
+  // INFINITE ARITHMETIC PROGRESSION TYPES
   case K::S_INFINITE_ARITHMETIC_PROGRESSION_ADD:
     [[fallthrough]];
   case K::S_INFINITE_ARITHMETIC_PROGRESSION_SUBTRACT:
