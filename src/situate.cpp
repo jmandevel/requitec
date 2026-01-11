@@ -991,7 +991,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::OUTSIDE:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::SYMBOL_PATH);
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::SYMBOL_PATH);
     break;
   case K::STATIC:
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -1295,7 +1296,11 @@ bool Situator::situateAttributes(rq::Situation situation,
     is_ok = false;
     return is_ok;
   }
-  llvm::SmallDenseMap<rq::Keyword, rq::Expression *, 16> found_attribute_map{};
+  constexpr unsigned MAX_ATTRIBUTE_COUNT =
+      rq::SYMBOL_ATTRIBUTE_COUNT > rq::TYPE_ATTRIBUTE_COUNT
+          ? rq::SYMBOL_ATTRIBUTE_COUNT
+          : rq::TYPE_ATTRIBUTE_COUNT;
+  std::array<rq::Expression *, MAX_ATTRIBUTE_COUNT> found_attributes{nullptr};
   while (next_ptr != nullptr) {
     rq::Expression &branch = rq::dereferencePtr(next_ptr);
     if (!branch.getHasNext()) {
@@ -1317,13 +1322,17 @@ bool Situator::situateAttributes(rq::Situation situation,
       previous_ptr = &branch;
       continue;
     }
+    unsigned attribute_i =
+        situation == rq::Situation::SYMBOL_ATTRIBUTE
+            ? static_cast<unsigned>(expression.getSymbolAttribute())
+            : static_cast<unsigned>(expression.getTypeAttribute());
     if (branch.getKeyword() == rq::Keyword::CAPTURE) {
       // special case to concatinate tuple of capture
       rq::Expression &branch_tuple = branch.popBranch();
       RQ_ASSERT(branch_tuple.getKeyword() == rq::Keyword::S_TUPLE, "not tuple");
-      auto it = found_attribute_map.find(rq::Keyword::S_SITUATED_CAPTURE);
-      if (it != found_attribute_map.end()) {
-        rq::Expression &found = rq::dereferencePtr(it->getSecond());
+      if (found_attributes[attribute_i] != nullptr) {
+        rq::Expression &found =
+            rq::dereferencePtr(found_attributes[attribute_i]);
         found.getLastBranch().setNext(branch_tuple.popBranch());
         if (previous_ptr != nullptr) {
           rq::Expression &previous = rq::dereferencePtr(previous_ptr);
@@ -1335,14 +1344,13 @@ bool Situator::situateAttributes(rq::Situation situation,
         branch.changeKeyword(rq::Keyword::S_SITUATED_CAPTURE);
         this->getContext().discardExpression(branch_tuple.mergeAndPopBranch());
         branch.setBranch(branch_tuple);
-        found_attribute_map.insert({rq::Keyword::S_SITUATED_CAPTURE, &branch});
+        found_attributes[attribute_i] = &branch;
       }
       previous_ptr = &branch;
       continue;
     }
-    auto it = found_attribute_map.find(branch.getKeyword());
-    if (it != found_attribute_map.end()) {
-      rq::Expression &found = rq::dereferencePtr(it->getSecond());
+    if (found_attributes[attribute_i] != nullptr) {
+      rq::Expression &found = rq::dereferencePtr(found_attributes[attribute_i]);
       if (branch.getHasBranch()) {
         if (found.getHasBranch()) {
           found.getLastBranch().setNext(branch.popBranch());
@@ -1356,7 +1364,7 @@ bool Situator::situateAttributes(rq::Situation situation,
       }
       this->getContext().discardExpression(branch);
     } else {
-      found_attribute_map.insert({branch.getKeyword(), &branch});
+      found_attributes[attribute_i] = &branch;
     }
     previous_ptr = &branch;
   }

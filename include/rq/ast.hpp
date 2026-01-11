@@ -2241,8 +2241,11 @@ enum class SymbolAttribute : std::uint_fast8_t {
   PROTECTED,
   MAY_COPY,
   MAY_MOVE,
-  MUTATE_WITH
+  MUTATE_WITH,
+  I_LAST
 };
+
+static constexpr unsigned SYMBOL_ATTRIBUTE_COUNT = static_cast<unsigned>(rq::SymbolAttribute::I_LAST);
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolAttribute attribute) {
   using namespace rq;
@@ -2298,8 +2301,10 @@ enum class SymbolAttribute : std::uint_fast8_t {
     return "may_move";
   case SA::MUTATE_WITH:
     return "mutate_with";
+  case SA::I_LAST:
+    break;
   }
-  return "error";
+  RQ_UNREACHABLE();
 }
 
 [[nodiscard]] inline rq::SymbolAttribute
@@ -2358,6 +2363,8 @@ getSymbolAttribute(rq::Keyword keyword) {
     return SA::MAY_MOVE;
   case K::MUTATE_WITH:
     return SA::MUTATE_WITH;
+  case K::I_LAST:
+    break;
   default:
     break;
   }
@@ -2450,6 +2457,8 @@ getFlags(rq::SymbolAttribute attribute) {
     return SF::MAY_MOVE;
   case SA::MUTATE_WITH:
     return SF::MUTATE_WITH;
+  case SA::I_LAST:
+    break;
   }
   return SF::NONE;
 }
@@ -2584,8 +2593,11 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
-  DEBUG_TRAP_ON_PANIC
+  DEBUG_TRAP_ON_PANIC,
+  I_LAST
 };
+
+static constexpr unsigned TYPE_ATTRIBUTE_COUNT = static_cast<unsigned>(rq::TypeAttribute::I_LAST);
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
   using namespace rq;
@@ -2609,8 +2621,10 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "may_discard";
   case TA::DEBUG_TRAP_ON_PANIC:
     return "debug_trap_on_panic";
+  case TA::I_LAST:
+    break;
   }
-  return "none";
+  RQ_UNREACHABLE();
 }
 
 [[nodiscard]] inline rq::TypeAttribute getTypeAttribute(rq::Keyword keyword) {
@@ -2689,6 +2703,8 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::MAY_DISCARD;
   case TA::DEBUG_TRAP_ON_PANIC:
     return TF::DEBUG_TRAP_ON_PANIC;
+  case TA::I_LAST:
+    break;
   }
   return TF::NONE;
 }
