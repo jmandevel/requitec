@@ -684,7 +684,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       }
       case rq::TokenKind::DOT_OPERATOR: {
         rq::Expression &expression = this->getContext().acquireExpression();
-        expression.setKeyword(rq::Keyword::S_INFERENCE);
+        expression.setKeyword(rq::Keyword::TOP);
         expression.setIsInserted();
         expression.setSourceBefore(token);
         precedence_factory.setRecent(expression);
@@ -1266,7 +1266,7 @@ rq::Expression &RequiteParser::parseAttribute() {
   attribute.setSource(sigil_token, keyword_token);
   attribute.setKeyword(keyword);
   const rq::Token &after_token = this->getRanger().getToken();
-  if (after_token.getKind() == rq::TokenKind::DOUBLE_DOT_OPERATOR) {
+  if (after_token.getKind() == rq::TokenKind::DOUBLE_DASH_OPERATOR) {
     this->getRanger().incrementToken(1);
     rq::Expression &branch = this->parseExpression();
     attribute.setBranch(branch);

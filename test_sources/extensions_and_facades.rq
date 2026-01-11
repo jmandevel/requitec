@@ -1,11 +1,11 @@
 
 [table example,
-    @template..{> Type:[type], LENGTH:[unsigned] <}
+    @template--{> Type:[type], LENGTH:[unsigned] <}
     [extension_function getElementCount, LENGTH#Type, (><)[unsigned],
         [result] := LENGTH;
     ];
 
-    @template..{> Type:[type], LENGTH:[unsigned] <}
+    @template--{> Type:[type], LENGTH:[unsigned] <}
     [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned],
         [result] := LENGTH;
     ];
@@ -23,21 +23,25 @@
     my_array :5#[signed]= {0, 1, 2, 3, 4};
 
     // call extension function
-    {} = my_array.[type]->example.getElementCount();
+    {} = my_array.[type]->.example.getElementCount();
     // call extension method
-    {} = my_array.[borrow]->example.getElementCount();
-
-    // apply the facade so can treat viable extensions in table as members of types
-    [facade example];
-
-    // call extension function
-    {} = my_array.[type].getElementCount();
-    // call extension method
-    {} = my_array.[borrow].getElementCount();
+    {} = my_array.[borrow]->.example.getElementCount();
     
     // construct variable of type declared in same table as extension functions
-    foo := example.Foo();
+    foo := .example.Foo();
 
     // call extension function
-    foo.[borrow].bar();
+    foo.[borrow]->.example.bar();
+
+    // apply facades
+    [facade &5#[signed] .example.getElementCount];
+    [facade &.example.Foo .example.bar];
+
+    // call extension function
+    {} = my_array.[type]->getElementCount();
+    // call extension method
+    {} = my_array.[borrow]->getElementCount();
+
+    // call extension function
+    foo.[borrow]->bar();
 ];

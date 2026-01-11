@@ -2,15 +2,15 @@
 
 [function myFunc, (>a:[signed], b:[signed]<)[signed],
     [if a > b,
-        std.print(line="a is greater than b");
+        .std.print(line="a is greater than b");
     ][else_if b > a,
-        std.print(line="b is greater than a");
+        .std.print(line="b is greater than a");
     ][else 
-        std.print(line="a and b are equal");
+        .std.print(line="a and b are equal");
     ];
     [result] := a + b;
 ];
 
 [entry
-    std.print(line="the result is {myFunc(1, 2)}");
+    .std.print(line="the result is {.myFunc(1, 2)}");
 ];

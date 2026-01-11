@@ -2,5 +2,5 @@
 
 [entry
     @static my_quote :[expression]= [quote line="Hello, world!"];
-    std.print(my_quote.[expand]);
+    .std.print(my_quote.[expand]);
 ];

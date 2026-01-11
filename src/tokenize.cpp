@@ -113,8 +113,8 @@ void Tokenizer::_tokenizeSourceText() {
                                   T::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
       continue;
     case '(':
-      this->tokenizeLeftGrouping(G::PARENTHESIS, T::LEFT_UNSITUATED_PARENTHESIS_GROUPING,
-                                 1);
+      this->tokenizeLeftGrouping(G::PARENTHESIS,
+                                 T::LEFT_UNSITUATED_PARENTHESIS_GROUPING, 1);
       continue;
     case ')':
       this->tokenizeRightGrouping(rq::GroupingKind::PARENTHESIS,
@@ -140,6 +140,9 @@ void Tokenizer::_tokenizeSourceText() {
       case '>':
         this->tokenizeLengthToken(T::ARROW_OPERATOR, 2);
         break;
+      case '-':
+        this->tokenizeLengthToken(T::DOUBLE_DASH_OPERATOR, 2);
+        break;
       default:
         this->tokenizeLengthToken(T::DASH_OPERATOR, 1);
         break;
@@ -147,9 +150,6 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '.':
       switch (this->getRanger().getChar(1)) {
-      case '.':
-        this->tokenizeLengthToken(T::DOUBLE_DOT_OPERATOR, 2);
-        break;
       case '+':
         this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
         break;

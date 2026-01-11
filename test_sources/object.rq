@@ -34,12 +34,12 @@
 
 [entry
 
-    a := MyClass();
-    b := MyClass(1, 2, 3);
+    a := .MyClass();
+    b := .MyClass(1, 2, 3);
 
-    std.print(line="a total:{a.[borrow].getTotal()}");
+    .std.print(line="a total:{a.[borrow].getTotal()}");
 
-    added := MyClass.add(a, b);
+    added := .MyClass.add(a, b);
 
     [exit_code] := added.[borrow].getTotal();
 ];

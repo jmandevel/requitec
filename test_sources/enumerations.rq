@@ -5,7 +5,7 @@
 ];
 
 [entry
-    fruit := MyEnum.APPLE(3);
+    fruit := .MyEnum.APPLE(3);
     [match fruit,
         [with APPLE, apple:=[value].`[borrow], 
             apple = apple + 1;

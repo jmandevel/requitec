@@ -14,15 +14,15 @@ enum class TokenKind : std::uint_fast8_t {
   HASH_OPERATOR,                          // #
   GREATER_OPERATOR,                       // >
   DOUBLE_GREATER_OPERATOR,                // >>
-  GREATER_UNSITUATED_EQUAL_OPERATOR,                 // >=
+  GREATER_UNSITUATED_EQUAL_OPERATOR,      // >=
   LESS_OPERATOR,                          // <
   DOUBLE_LESS_OPERATOR,                   // <<
-  LESS_UNSITUATED_EQUAL_OPERATOR,                    // <=
-  BANG_UNSITUATED_EQUAL_OPERATOR,                    // !=
+  LESS_UNSITUATED_EQUAL_OPERATOR,         // <=
+  BANG_UNSITUATED_EQUAL_OPERATOR,         // !=
   BANG_OPERATOR,                          // !
   WHAT_OPERATOR,                          // ? // unused
   COLON_OPERATOR,                         // :
-  DOUBLE_UNSITUATED_COLON_OPERATOR,                  // ::
+  DOUBLE_UNSITUATED_COLON_OPERATOR,       // ::
   PLUS_OPERATOR,                          // +
   DASH_OPERATOR,                          // -
   STAR_OPERATOR,                          // *
@@ -36,25 +36,25 @@ enum class TokenKind : std::uint_fast8_t {
   DOWN_ARROW_OPERATOR,                    // \/
   UP_ARROW_OPERATOR,                      // /\   .
   EQUAL_OPERATOR,                         // =
-  DOUBLE_UNSITUATED_EQUAL_OPERATOR,                  // ==
+  DOUBLE_UNSITUATED_EQUAL_OPERATOR,       // ==
   GRAVE_OPERATOR,                         // `
   DOUBLE_GRAVE_OPERATOR,                  // ``
   ARROW_OPERATOR,                         // ->
   THICK_ARROW_OPERATOR,                   // =>
   CONCATENATE_OPERATOR,                   // +>
   DOT_OPERATOR,                           // .
-  DOUBLE_DOT_OPERATOR,                    // ..
+  DOUBLE_DASH_OPERATOR,                   // --
   DOT_PLUS_OPERATOR,                      // .+
   DOT_DASH_OPERATOR,                      // .-
   DOT_STAR_OPERATOR,                      // .*
   DOT_SLASH_OPERATOR,                     // ./
   DOT_PERCENT_OPERATOR,                   // .%
   DOT_LESS_OPERATOR,                      // .<
-  DOT_LESS_UNSITUATED_EQUAL_OPERATOR,                // .<=
+  DOT_LESS_UNSITUATED_EQUAL_OPERATOR,     // .<=
   DOT_GREATER_OPERATOR,                   // .>
-  DOT_GREATER_UNSITUATED_EQUAL_OPERATOR,             // .>=
-  DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR,              // .==
-  DOT_BANG_UNSITUATED_EQUAL_OPERATOR,                // .!=
+  DOT_GREATER_UNSITUATED_EQUAL_OPERATOR,  // .>=
+  DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR,   // .==
+  DOT_BANG_UNSITUATED_EQUAL_OPERATOR,     // .!=
   DOT_PLUS_DOT_OPERTATOR,                 // .+.
   DOT_DASH_DOT_OPERATOR,                  // .-.
   DOT_STAR_DOT_OPERATOR,                  // .*.
@@ -106,10 +106,10 @@ enum class TokenKind : std::uint_fast8_t {
   COMMA_SEPARATOR,     // ,
 
   // GROUPING SYMBOLS
-  LEFT_BRACKET_GROUPING,      // [
-  RIGHT_BRACKET_GROUPING,     // ]
-  LEFT_BRACE_GROUPING,        // {
-  RIGHT_BRACE_GROUPING,       // }
+  LEFT_BRACKET_GROUPING,                 // [
+  RIGHT_BRACKET_GROUPING,                // ]
+  LEFT_BRACE_GROUPING,                   // {
+  RIGHT_BRACE_GROUPING,                  // }
   LEFT_UNSITUATED_PARENTHESIS_GROUPING,  // (
   RIGHT_UNSITUATED_PARENTHESIS_GROUPING, // )
 
@@ -225,8 +225,8 @@ getName(rq::TokenKind kind) {
     return "concatenate_operator";
   case T::DOT_OPERATOR:
     return "dot_operator";
-  case T::DOUBLE_DOT_OPERATOR:
-    return "double_dot_operator";
+  case T::DOUBLE_DASH_OPERATOR:
+    return "double_dash_operator";
   case T::DOT_PLUS_OPERATOR:
     return "dot_plus_operator";
   case T::DOT_DASH_OPERATOR:
@@ -472,8 +472,8 @@ getDescription(rq::TokenKind kind) {
     return "concatenate operator";
   case T::DOT_OPERATOR:
     return "dot operator";
-  case T::DOUBLE_DOT_OPERATOR:
-    return "double dot operator";
+  case T::DOUBLE_DASH_OPERATOR:
+    return "double dash operator";
   case T::DOT_PLUS_OPERATOR:
     return "dot plus operator";
   case T::DOT_DASH_OPERATOR:
@@ -719,7 +719,7 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
     return TF::OPERATOR;
-  case T::DOUBLE_DOT_OPERATOR:
+  case T::DOUBLE_DASH_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_PLUS_OPERATOR:
     return TF::OPERATOR;
@@ -913,8 +913,7 @@ getIsOperator(rq::TokenKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenKind kind) {
-  return kind == rq::TokenKind::AT_SIGIL ||
-         kind == rq::TokenKind::DOLLAR_SIGIL;
+  return kind == rq::TokenKind::AT_SIGIL || kind == rq::TokenKind::DOLLAR_SIGIL;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool

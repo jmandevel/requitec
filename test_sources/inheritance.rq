@@ -1,16 +1,15 @@
 [import "std"];
-[facade std];
 
 @may_parent
 [class Parent,
     
     [method myFunc, &=>(><),
-        std.print(line="in parent");
+        .std.print(line="in parent");
     ];
     
     @virtual
     [method myFuncB, &=>(><),
-        std.print(line="in parent");
+        .std.print(line="in parent");
     ];
     
     [constructor];
@@ -18,16 +17,16 @@
 
 [class Child,
     {> 
-        @parent parent := Parent() 
+        @parent parent := .Parent() 
     <},
     
     @public
     [use [this_type].parent.myFunc];
     
     @public
-    @override..[this_type].parent.myFuncB
+    @override--[this_type].parent.myFuncB
     [method myFuncB, &=>(><),
-        std.print(line="in child");
+        .std.print(line="in child");
     ];
 
     @public 
@@ -35,8 +34,8 @@
 ];
 
 [entry
-    parent := Parent();
-    child := Child();
+    parent := .Parent();
+    child := .Child();
 
     parent.[borrow].myFunc();
     child.[borrow].myFunc();

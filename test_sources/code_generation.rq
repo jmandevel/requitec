@@ -1,16 +1,16 @@
 [import "std"];
 
-@static @label..Loop
+@static @label--Loop
 [for 0.<=10, num:=[value],
-    @outside..Loop @capture..{num:=num}
-    \std.format(text="VAR{num}") :`= index;
+    @outside--Loop @capture--{num:=num}
+    \.std.format(text="VAR{num}") :`= index;
 ];
 
 [entry
     @static
     [for 0.<=10, num:=[value], 
         @static
-        varname := std.format(text="VAR{num}");
-        std.print(line="{varname.[borrow].span()} is {\varname}!");        
+        varname := .std.format(text="VAR{num}");
+        .std.print(line="{varname.[borrow]} is {.\varname}!");        
     ];
 ];
