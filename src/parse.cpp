@@ -1021,7 +1021,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.parseAscribe(post_token,
                                       rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
       precedence_factory.appendPostunaryAttribute(
-          post_token, rq::Keyword::S_PARTIALLY_MUTABLE);
+          post_token, rq::Keyword::PARTIALLY_MUTABLE);
       continue;
     default:
       precedence_factory.appendRecent();
