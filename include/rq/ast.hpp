@@ -2534,17 +2534,123 @@ struct SymbolAttributeFlagsFactory final {
   using Self = rq::SymbolAttributeFlagsFactory;
 
   rq::SymbolAttributeFlags _flags{};
-  rq::Expression *_capture_ptr{nullptr};
-  rq::Expression *_override_ptr{nullptr};
-  rq::Expression *_position_ptr{nullptr};
-  rq::Expression *_mangle_ptr{nullptr};
-  rq::Expression *_label_ptr{nullptr};
-  rq::Expression *_template_ptr{nullptr};
-  rq::Expression *_depreciated_ptr{nullptr};
-  rq::Expression *_mutate_with_ptr{nullptr};
+  const rq::Expression *_capture_ptr{nullptr};
+  const rq::Expression *_override_ptr{nullptr};
+  const rq::Expression *_position_ptr{nullptr};
+  const rq::Expression *_mangle_ptr{nullptr};
+  const rq::Expression *_label_ptr{nullptr};
+  const rq::Expression *_template_ptr{nullptr};
+  const rq::Expression *_depreciated_ptr{nullptr};
+  const rq::Expression *_mutate_with_ptr{nullptr};
 
   SymbolAttributeFlagsFactory() = default;
-  inline void addAttribute(rq::Expression &expression);
+  inline void addAttribute(const rq::Expression &expression);
+  inline void addAllAttributres(const rq::Expression &ascribed);
+  [[nodiscard]] rq::SymbolAttributeFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] bool getHasOpaque() const {
+    return rq::getHasOpaque(this->_flags);
+  }
+  [[nodiscard]] bool getHasOutside() const {
+    return rq::getHasOutside(this->_flags);
+  }
+  [[nodiscard]] bool getHasStatic() const {
+    return rq::getHasStatic(this->_flags);
+  }
+  [[nodiscard]] bool getHasCapture() const {
+    return rq::getHasCapture(this->_flags);
+  }
+  [[nodiscard]] bool getHasEager() const {
+    return rq::getHasEager(this->_flags);
+  }
+  [[nodiscard]] bool getHasMayParent() const {
+    return rq::getHasMayParent(this->_flags);
+  }
+  [[nodiscard]] bool getHasParent() const {
+    return rq::getHasParent(this->_flags);
+  }
+  [[nodiscard]] bool getHasAbstract() const {
+    return rq::getHasAbstract(this->_flags);
+  }
+  [[nodiscard]] bool getHasVirtual() const {
+    return rq::getHasVirtual(this->_flags);
+  }
+  [[nodiscard]] bool getHasOverride() const {
+    return rq::getHasOverride(this->_flags);
+  }
+  [[nodiscard]] bool getHasPosition() const {
+    return rq::getHasPosition(this->_flags);
+  }
+  [[nodiscard]] bool getHasMangle() const {
+    return rq::getHasMangle(this->_flags);
+  }
+  [[nodiscard]] bool getHasPack() const { return rq::getHasPack(this->_flags); }
+  [[nodiscard]] bool getHasLabel() const {
+    return rq::getHasLabel(this->_flags);
+  }
+  [[nodiscard]] bool getHasTemplate() const {
+    return rq::getHasTemplate(this->_flags);
+  }
+  [[nodiscard]] bool getHasLikely() const {
+    return rq::getHasLikely(this->_flags);
+  }
+  [[nodiscard]] bool getHasUnlikely() const {
+    return rq::getHasUnlikely(this->_flags);
+  }
+  [[nodiscard]] bool getHasDepreciated() const {
+    return rq::getHasDepreciated(this->_flags);
+  }
+  [[nodiscard]] bool getHasExport() const {
+    return rq::getHasExport(this->_flags);
+  }
+  [[nodiscard]] bool getHasPublic() const {
+    return rq::getHasPublic(this->_flags);
+  }
+  [[nodiscard]] bool getHasProtected() const {
+    return rq::getHasProtected(this->_flags);
+  }
+  [[nodiscard]] bool getHasMayCopy() const {
+    return rq::getHasMayCopy(this->_flags);
+  }
+  [[nodiscard]] bool getHasMayMove() const {
+    return rq::getHasMayMove(this->_flags);
+  }
+  [[nodiscard]] bool getHasMutateWith() const {
+    return rq::getHasMutateWith(this->_flags);
+  }
+  [[nodiscard]] const rq::Expression &getCapture() const {
+    RQ_ASSERT(this->getHasCapture(), "no capture");
+    return rq::dereferencePtr(this->_capture_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getOverride() const {
+    RQ_ASSERT(this->getHasOverride(), "no override");
+    return rq::dereferencePtr(this->_override_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getPosition() const {
+    RQ_ASSERT(this->getHasPosition(), "no position");
+    return rq::dereferencePtr(this->_position_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getMangle() const {
+    RQ_ASSERT(this->getHasMangle(), "no mangle");
+    return rq::dereferencePtr(this->_mangle_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getLabel() const {
+    RQ_ASSERT(this->getHasLabel(), "no label");
+    return rq::dereferencePtr(this->_label_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getTemplate() const {
+    RQ_ASSERT(this->getHasTemplate(), "no template");
+    return rq::dereferencePtr(this->_template_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getDepreciated() const {
+    RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
+    return rq::dereferencePtr(this->_depreciated_ptr);
+  }
+  [[nodiscard]] const rq::Expression &getMutateWith() const {
+    RQ_ASSERT(this->getHasMutateWith(), "no mutate_with");
+    return rq::dereferencePtr(this->_mutate_with_ptr);
+  }
 };
 
 enum class TypeAttribute : std::uint_fast8_t {
@@ -3408,7 +3514,8 @@ struct Expression final {
     this->_next_ptr_flags.setPtr(&new_next);
     return rq::dereferencePtr(old_next_ptr);
   }
-  [[nodiscard]] inline rq::Expression &changeNext(rq::Expression *new_next_ptr) {
+  [[nodiscard]] inline rq::Expression &
+  changeNext(rq::Expression *new_next_ptr) {
     RQ_ASSERT(this->getHasNext(), "does not have next");
     rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(new_next_ptr);
@@ -3419,7 +3526,8 @@ struct Expression final {
     this->_next_ptr_flags.setPtr(&new_next);
     return old_next_ptr;
   }
-  [[nodiscard]] inline rq::Expression *changeNextPtr(rq::Expression *new_next_ptr) {
+  [[nodiscard]] inline rq::Expression *
+  changeNextPtr(rq::Expression *new_next_ptr) {
     rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
     this->_next_ptr_flags.setPtr(new_next_ptr);
     return old_next_ptr;
@@ -3525,11 +3633,12 @@ rq::ExpressionIterator &ExpressionIterator::operator++() {
 }
 
 inline void
-SymbolAttributeFlagsFactory::addAttribute(rq::Expression &expression) {
+SymbolAttributeFlagsFactory::addAttribute(const rq::Expression &expression) {
   RQ_ASSERT(expression.getCanBeSymbolAttribute(), "not symbol attribute");
-  // TODO ensure no duplicates by combining like attributes in situator
-  RQ_ASSERT(!rq::getHasAttribute(this->_flags, expression.getSymbolAttribute()),
+  const rq::SymbolAttribute attribute = expression.getSymbolAttribute();
+  RQ_ASSERT(!rq::getHasAttribute(this->_flags, attribute),
             "duplicate attribute");
+  this->_flags |= rq::getFlags(attribute);
   switch (expression.getKeyword()) {
   case rq::Keyword::CAPTURE:
     this->_capture_ptr = &expression;
@@ -3557,6 +3666,13 @@ SymbolAttributeFlagsFactory::addAttribute(rq::Expression &expression) {
     break;
   default:
     break;
+  }
+}
+
+inline void
+SymbolAttributeFlagsFactory::addAllAttributres(const rq::Expression &ascribed) {
+  for (const rq::Expression &attribute : ascribed.getNextSubrange()) {
+    this->addAttribute(attribute);
   }
 }
 

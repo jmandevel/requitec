@@ -10,30 +10,70 @@ void Tabulator::tabulateModule() {
   if (!root.getHasBranch()) {
     return;
   }
-  this->tabulateGlobalForest(root.getBranch(),
-                             this->getContext().getTopScope());
+  this->tabulateForest(root.getBranch(), this->getContext().getTopScope());
 }
 
-void Tabulator::tabulateGlobalForest(const rq::Expression &first,
-                                     rq::ScopeSymbol &scope) {
-  for (const rq::Expression &statement : first.getInclusiveNextSubrange()) {
+void Tabulator::tabulateForest(const rq::Expression &first,
+                               rq::ScopeSymbol &scope) {
+  for (const rq::Expression &branch : first.getInclusiveNextSubrange()) {
+    const bool ascribed = branch.getKeyword() == rq::Keyword::S_ASCRIBE_SYMBOL;
+    const rq::Expression &statement = ascribed ? branch.getBranch() : branch;
+    rq::SymbolAttributeFlagsFactory flags_factory;
+    std::ignore = scope;
+    if (ascribed) {
+      flags_factory.addAllAttributres(statement);
+    }
+    if (flags_factory.getHasStatic()) {
+      continue;
+      // TODO symbolic execution
+    }
     switch (statement.getKeyword()) {
-    case rq::Keyword::ENTRY_POINT:
-      this->tabulateEntryPoint(statement, scope);
+    case rq::Keyword::IMPORT:
+
+      break;
+    case rq::Keyword::MUTATION:
+
+      break;
+    case rq::Keyword::S_ASSIGN:
+
+      break;
+    case rq::Keyword::TABLE:
+
+      break;
+    case rq::Keyword::CLASS:
+
+      break;
+    case rq::Keyword::ENUMERATION:
+
+      break;
+    case rq::Keyword::ENTRY:
+
+      break;
+    case rq::Keyword::FUNCTION:
+
+      break;
+    case rq::Keyword::METHOD:
+
+      break;
+    case rq::Keyword::EXTENSION_FUNCTION:
+
+      break;
+    case rq::Keyword::EXTENSION_METHOD:
+
+      break;
+    case rq::Keyword::CONSTRUCTOR:
+
+      break;
+    case rq::Keyword::DESTRUCTOR:
+
+      break;
+    case rq::Keyword::RANGER:
+
       break;
     default:
       RQ_TODO_IMPLEMENTATION();
     }
   }
-}
-
-void Tabulator::tabulateEntryPoint(const rq::Expression &expression,
-                                   rq::ScopeSymbol &scope) {
-  RQ_ASSERT(expression.getKeyword() == rq::Keyword::ENTRY_POINT,
-            "wrong keyword");
-  rq::EntryPointSymbol &procedure =
-      this->getContext().allocateValue<rq::EntryPointSymbol>(this->getModule(), expression);
-  scope.tabulateUnamedSymbol(this->getContext(), procedure);
 }
 
 } // namespace rq
