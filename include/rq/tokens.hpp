@@ -14,15 +14,15 @@ enum class TokenKind : std::uint_fast8_t {
   HASH_OPERATOR,                          // #
   GREATER_OPERATOR,                       // >
   DOUBLE_GREATER_OPERATOR,                // >>
-  GREATER_UNSITUATED_EQUAL_OPERATOR,      // >=
+  GREATER_EQUAL_OPERATOR,                 // >=
   LESS_OPERATOR,                          // <
   DOUBLE_LESS_OPERATOR,                   // <<
-  LESS_UNSITUATED_EQUAL_OPERATOR,         // <=
-  BANG_UNSITUATED_EQUAL_OPERATOR,         // !=
+  LESS_EQUAL_OPERATOR,                    // <=
+  BANG_EQUAL_OPERATOR,                    // !=
   BANG_OPERATOR,                          // !
   WHAT_OPERATOR,                          // ? // unused
   COLON_OPERATOR,                         // :
-  DOUBLE_UNSITUATED_COLON_OPERATOR,       // ::
+  DOUBLE_COLON_OPERATOR,                  // ::
   PLUS_OPERATOR,                          // +
   DASH_OPERATOR,                          // -
   STAR_OPERATOR,                          // *
@@ -36,25 +36,24 @@ enum class TokenKind : std::uint_fast8_t {
   DOWN_ARROW_OPERATOR,                    // \/
   UP_ARROW_OPERATOR,                      // /\   .
   EQUAL_OPERATOR,                         // =
-  DOUBLE_UNSITUATED_EQUAL_OPERATOR,       // ==
+  DOUBLE_EQUAL_OPERATOR,                  // ==
   GRAVE_OPERATOR,                         // `
   DOUBLE_GRAVE_OPERATOR,                  // ``
   ARROW_OPERATOR,                         // ->
   THICK_ARROW_OPERATOR,                   // =>
   CONCATENATE_OPERATOR,                   // +>
   DOT_OPERATOR,                           // .
-  DOUBLE_DASH_OPERATOR,                   // --
   DOT_PLUS_OPERATOR,                      // .+
   DOT_DASH_OPERATOR,                      // .-
   DOT_STAR_OPERATOR,                      // .*
   DOT_SLASH_OPERATOR,                     // ./
   DOT_PERCENT_OPERATOR,                   // .%
   DOT_LESS_OPERATOR,                      // .<
-  DOT_LESS_UNSITUATED_EQUAL_OPERATOR,     // .<=
+  DOT_LESS_EQUAL_OPERATOR,                // .<=
   DOT_GREATER_OPERATOR,                   // .>
-  DOT_GREATER_UNSITUATED_EQUAL_OPERATOR,  // .>=
-  DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR,   // .==
-  DOT_BANG_UNSITUATED_EQUAL_OPERATOR,     // .!=
+  DOT_GREATER_EQUAL_OPERATOR,             // .>=
+  DOT_DOUBLE_EQUAL_OPERATOR,              // .==
+  DOT_BANG_EQUAL_OPERATOR,                // .!=
   DOT_PLUS_DOT_OPERTATOR,                 // .+.
   DOT_DASH_DOT_OPERATOR,                  // .-.
   DOT_STAR_DOT_OPERATOR,                  // .*.
@@ -106,12 +105,12 @@ enum class TokenKind : std::uint_fast8_t {
   COMMA_SEPARATOR,     // ,
 
   // GROUPING SYMBOLS
-  LEFT_BRACKET_GROUPING,                 // [
-  RIGHT_BRACKET_GROUPING,                // ]
-  LEFT_BRACE_GROUPING,                   // {
-  RIGHT_BRACE_GROUPING,                  // }
-  LEFT_UNSITUATED_PARENTHESIS_GROUPING,  // (
-  RIGHT_UNSITUATED_PARENTHESIS_GROUPING, // )
+  LEFT_BRACKET_GROUPING,      // [
+  RIGHT_BRACKET_GROUPING,     // ]
+  LEFT_BRACE_GROUPING,        // {
+  RIGHT_BRACE_GROUPING,       // }
+  LEFT_PARENTHESIS_GROUPING,  // (
+  RIGHT_PARENTHESIS_GROUPING, // )
 
   // LITERAL
   IDENTIFIER_LITERAL, // var0 MyType ☺
@@ -134,8 +133,8 @@ enum class TokenKind : std::uint_fast8_t {
   ERROR_UNMATCHED_RIGHT_BRACKET_GROUPING,
   ERROR_UNMATCHED_LEFT_BRACE_GROUPING,
   ERROR_UNMATCHED_RIGHT_BRACE_GROUPING,
-  ERROR_UNMATCHED_LEFT_UNSITUATED_PARENTHESIS_GROUPING,
-  ERROR_UNMATCHED_RIGHT_UNSITUATED_PARENTHESIS_GROUPING,
+  ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING,
+  ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING,
 };
 
 enum class TokenFlags : std::uint8_t {
@@ -167,24 +166,24 @@ getName(rq::TokenKind kind) {
     return "greater_operator";
   case T::DOUBLE_GREATER_OPERATOR:
     return "double_greater_operator";
-  case T::GREATER_UNSITUATED_EQUAL_OPERATOR:
-    return "greater_unsituated_equal_operator";
+  case T::GREATER_EQUAL_OPERATOR:
+    return "greater_equal_operator";
   case T::LESS_OPERATOR:
     return "less_operator";
   case T::DOUBLE_LESS_OPERATOR:
     return "double_less_operator";
-  case T::LESS_UNSITUATED_EQUAL_OPERATOR:
-    return "less_unsituated_equal_operator";
-  case T::BANG_UNSITUATED_EQUAL_OPERATOR:
-    return "bang_unsituated_equal_operator";
+  case T::LESS_EQUAL_OPERATOR:
+    return "less_equal_operator";
+  case T::BANG_EQUAL_OPERATOR:
+    return "bang_equal_operator";
   case T::BANG_OPERATOR:
     return "bang_operator";
   case T::WHAT_OPERATOR:
     return "what_operator";
   case T::COLON_OPERATOR:
     return "colon_operator";
-  case T::DOUBLE_UNSITUATED_COLON_OPERATOR:
-    return "double_unsituated_colon_operator";
+  case T::DOUBLE_COLON_OPERATOR:
+    return "double_colon_operator";
   case T::PLUS_OPERATOR:
     return "plus_operator";
   case T::DASH_OPERATOR:
@@ -211,8 +210,8 @@ getName(rq::TokenKind kind) {
     return "up_arrow_operator";
   case T::EQUAL_OPERATOR:
     return "equal_operator";
-  case T::DOUBLE_UNSITUATED_EQUAL_OPERATOR:
-    return "double_unsituated_equal_operator";
+  case T::DOUBLE_EQUAL_OPERATOR:
+    return "double_equal_operator";
   case T::GRAVE_OPERATOR:
     return "grave_operator";
   case T::DOUBLE_GRAVE_OPERATOR:
@@ -225,8 +224,6 @@ getName(rq::TokenKind kind) {
     return "concatenate_operator";
   case T::DOT_OPERATOR:
     return "dot_operator";
-  case T::DOUBLE_DASH_OPERATOR:
-    return "double_dash_operator";
   case T::DOT_PLUS_OPERATOR:
     return "dot_plus_operator";
   case T::DOT_DASH_OPERATOR:
@@ -239,16 +236,16 @@ getName(rq::TokenKind kind) {
     return "dot_percent_operator";
   case T::DOT_LESS_OPERATOR:
     return "dot_less_operator";
-  case T::DOT_LESS_UNSITUATED_EQUAL_OPERATOR:
-    return "dot_less_unsituated_equal_operator";
+  case T::DOT_LESS_EQUAL_OPERATOR:
+    return "dot_less_equal_operator";
   case T::DOT_GREATER_OPERATOR:
     return "dot_greater_operator";
-  case T::DOT_GREATER_UNSITUATED_EQUAL_OPERATOR:
-    return "dot_greater_unsituated_equal_operator";
-  case T::DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR:
-    return "dot_double_unsituated_equal_operator";
-  case T::DOT_BANG_UNSITUATED_EQUAL_OPERATOR:
-    return "dot_bang_unsituated_equal_operator";
+  case T::DOT_GREATER_EQUAL_OPERATOR:
+    return "dot_greater_equal_operator";
+  case T::DOT_DOUBLE_EQUAL_OPERATOR:
+    return "dot_double_equal_operator";
+  case T::DOT_BANG_EQUAL_OPERATOR:
+    return "dot_bang_equal_operator";
   case T::DOT_PLUS_DOT_OPERTATOR:
     return "dot_plus_dot_operator";
   case T::DOT_DASH_DOT_OPERATOR:
@@ -353,10 +350,10 @@ getName(rq::TokenKind kind) {
     return "left_brace_grouping";
   case T::RIGHT_BRACE_GROUPING:
     return "right_brace_grouping";
-  case T::LEFT_UNSITUATED_PARENTHESIS_GROUPING:
-    return "left_unsituated_parenthesis_grouping";
-  case T::RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
-    return "right_unsituated_parenthesis_grouping";
+  case T::LEFT_PARENTHESIS_GROUPING:
+    return "left_parenthesis_grouping";
+  case T::RIGHT_PARENTHESIS_GROUPING:
+    return "right_parenthesis_grouping";
 
   // LITERAL
   case T::IDENTIFIER_LITERAL:
@@ -391,10 +388,10 @@ getName(rq::TokenKind kind) {
     return "error_unmatched_left_brace_grouping";
   case T::ERROR_UNMATCHED_RIGHT_BRACE_GROUPING:
     return "error_unmatched_right_brace_grouping";
-  case T::ERROR_UNMATCHED_LEFT_UNSITUATED_PARENTHESIS_GROUPING:
-    return "error_unmatched_left_unsituated_parenthesis_grouping";
-  case T::ERROR_UNMATCHED_RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
-    return "error_unmatched_right_unsituated_parenthesis_grouping";
+  case T::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING:
+    return "error_unmatched_left_parenthesis_grouping";
+  case T::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING:
+    return "error_unmatched_right_parenthesis_grouping";
   }
   return "unknown";
 }
@@ -414,15 +411,15 @@ getDescription(rq::TokenKind kind) {
     return "greater operator";
   case T::DOUBLE_GREATER_OPERATOR:
     return "double greater operator";
-  case T::GREATER_UNSITUATED_EQUAL_OPERATOR:
+  case T::GREATER_EQUAL_OPERATOR:
     return "greater equal operator";
   case T::LESS_OPERATOR:
     return "less operator";
   case T::DOUBLE_LESS_OPERATOR:
     return "double less operator";
-  case T::LESS_UNSITUATED_EQUAL_OPERATOR:
+  case T::LESS_EQUAL_OPERATOR:
     return "less equal operator";
-  case T::BANG_UNSITUATED_EQUAL_OPERATOR:
+  case T::BANG_EQUAL_OPERATOR:
     return "bang equal operator";
   case T::BANG_OPERATOR:
     return "bang operator";
@@ -430,7 +427,7 @@ getDescription(rq::TokenKind kind) {
     return "what operator";
   case T::COLON_OPERATOR:
     return "colon operator";
-  case T::DOUBLE_UNSITUATED_COLON_OPERATOR:
+  case T::DOUBLE_COLON_OPERATOR:
     return "double colon operator";
   case T::PLUS_OPERATOR:
     return "plus operator";
@@ -458,7 +455,7 @@ getDescription(rq::TokenKind kind) {
     return "double pipe operator";
   case T::EQUAL_OPERATOR:
     return "equal operator";
-  case T::DOUBLE_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOUBLE_EQUAL_OPERATOR:
     return "double equal operator";
   case T::GRAVE_OPERATOR:
     return "grave operator";
@@ -472,8 +469,6 @@ getDescription(rq::TokenKind kind) {
     return "concatenate operator";
   case T::DOT_OPERATOR:
     return "dot operator";
-  case T::DOUBLE_DASH_OPERATOR:
-    return "double dash operator";
   case T::DOT_PLUS_OPERATOR:
     return "dot plus operator";
   case T::DOT_DASH_OPERATOR:
@@ -486,15 +481,15 @@ getDescription(rq::TokenKind kind) {
     return "dot percent operator";
   case T::DOT_LESS_OPERATOR:
     return "dot less operator";
-  case T::DOT_LESS_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_LESS_EQUAL_OPERATOR:
     return "dot less equal operator";
   case T::DOT_GREATER_OPERATOR:
     return "dot greater operator";
-  case T::DOT_GREATER_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_GREATER_EQUAL_OPERATOR:
     return "dot greater equal operator";
-  case T::DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_DOUBLE_EQUAL_OPERATOR:
     return "dot double equal operator";
-  case T::DOT_BANG_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_BANG_EQUAL_OPERATOR:
     return "dot bang equal operator";
   case T::DOT_PLUS_DOT_OPERTATOR:
     return "dot plus dot operator";
@@ -600,9 +595,9 @@ getDescription(rq::TokenKind kind) {
     return "left brace grouping";
   case T::RIGHT_BRACE_GROUPING:
     return "right brace grouping";
-  case T::LEFT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::LEFT_PARENTHESIS_GROUPING:
     return "left parenthesis grouping";
-  case T::RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::RIGHT_PARENTHESIS_GROUPING:
     return "right parenthesis grouping";
 
   // LITERAL
@@ -638,9 +633,9 @@ getDescription(rq::TokenKind kind) {
     return "unmatched left brace grouping";
   case T::ERROR_UNMATCHED_RIGHT_BRACE_GROUPING:
     return "unmatched right brace grouping";
-  case T::ERROR_UNMATCHED_LEFT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING:
     return "unmatched left parenthesis grouping";
-  case T::ERROR_UNMATCHED_RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING:
     return "unmatched right parenthesis grouping";
   }
 
@@ -661,15 +656,15 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR | TF::MARK;
   case T::DOUBLE_GREATER_OPERATOR:
     return TF::OPERATOR;
-  case T::GREATER_UNSITUATED_EQUAL_OPERATOR:
+  case T::GREATER_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::LESS_OPERATOR:
     return TF::OPERATOR | TF::MARK | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_LESS_OPERATOR:
     return TF::OPERATOR;
-  case T::LESS_UNSITUATED_EQUAL_OPERATOR:
+  case T::LESS_EQUAL_OPERATOR:
     return TF::OPERATOR;
-  case T::BANG_UNSITUATED_EQUAL_OPERATOR:
+  case T::BANG_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::BANG_OPERATOR:
     return TF::OPERATOR;
@@ -677,8 +672,8 @@ getFlags(rq::TokenKind kind) {
     return TF::ERROR;
   case T::COLON_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
-  case T::DOUBLE_UNSITUATED_COLON_OPERATOR:
-    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
+  case T::DOUBLE_COLON_OPERATOR:
+    return TF::OPERATOR;
   case T::PLUS_OPERATOR:
     return TF::OPERATOR;
   case T::DASH_OPERATOR:
@@ -705,7 +700,7 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::EQUAL_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
-  case T::DOUBLE_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOUBLE_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::GRAVE_OPERATOR:
     return TF::OPERATOR;
@@ -719,8 +714,6 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
     return TF::OPERATOR;
-  case T::DOUBLE_DASH_OPERATOR:
-    return TF::OPERATOR;
   case T::DOT_PLUS_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_DASH_OPERATOR:
@@ -733,15 +726,15 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOT_LESS_OPERATOR:
     return TF::OPERATOR;
-  case T::DOT_LESS_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_LESS_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_GREATER_OPERATOR:
     return TF::OPERATOR;
-  case T::DOT_GREATER_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_GREATER_EQUAL_OPERATOR:
     return TF::OPERATOR;
-  case T::DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_DOUBLE_EQUAL_OPERATOR:
     return TF::OPERATOR;
-  case T::DOT_BANG_UNSITUATED_EQUAL_OPERATOR:
+  case T::DOT_BANG_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_PLUS_DOT_OPERTATOR:
     return TF::OPERATOR;
@@ -841,9 +834,9 @@ getFlags(rq::TokenKind kind) {
     return TF::LEFT_GROUPING;
   case T::RIGHT_BRACE_GROUPING:
     return TF::RIGHT_GROUPING | TF::INFERENCE_TERMINATOR;
-  case T::LEFT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::LEFT_PARENTHESIS_GROUPING:
     return TF::LEFT_GROUPING;
-  case T::RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::RIGHT_PARENTHESIS_GROUPING:
     return TF::RIGHT_GROUPING | TF::INFERENCE_TERMINATOR;
   case T::IDENTIFIER_LITERAL:
     return TF::LITERAL;
@@ -875,9 +868,9 @@ getFlags(rq::TokenKind kind) {
     return TF::ERROR | TF::LEFT_GROUPING;
   case T::ERROR_UNMATCHED_RIGHT_BRACE_GROUPING:
     return TF::ERROR | TF::RIGHT_GROUPING;
-  case T::ERROR_UNMATCHED_LEFT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING:
     return TF::ERROR | TF::LEFT_GROUPING;
-  case T::ERROR_UNMATCHED_RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
+  case T::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING:
     return TF::ERROR | TF::RIGHT_GROUPING;
   }
   return TF::ERROR;
@@ -896,10 +889,10 @@ getUnmatched(rq::TokenKind kind) {
     return T::ERROR_UNMATCHED_LEFT_BRACE_GROUPING;
   case T::RIGHT_BRACE_GROUPING:
     return T::ERROR_UNMATCHED_RIGHT_BRACE_GROUPING;
-  case T::LEFT_UNSITUATED_PARENTHESIS_GROUPING:
-    return T::ERROR_UNMATCHED_LEFT_UNSITUATED_PARENTHESIS_GROUPING;
-  case T::RIGHT_UNSITUATED_PARENTHESIS_GROUPING:
-    return T::ERROR_UNMATCHED_RIGHT_UNSITUATED_PARENTHESIS_GROUPING;
+  case T::LEFT_PARENTHESIS_GROUPING:
+    return T::ERROR_UNMATCHED_LEFT_PARENTHESIS_GROUPING;
+  case T::RIGHT_PARENTHESIS_GROUPING:
+    return T::ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING;
   default:
     break;
   }

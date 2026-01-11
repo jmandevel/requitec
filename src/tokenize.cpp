@@ -114,11 +114,11 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '(':
       this->tokenizeLeftGrouping(G::PARENTHESIS,
-                                 T::LEFT_UNSITUATED_PARENTHESIS_GROUPING, 1);
+                                 T::LEFT_PARENTHESIS_GROUPING, 1);
       continue;
     case ')':
       this->tokenizeRightGrouping(rq::GroupingKind::PARENTHESIS,
-                                  T::RIGHT_UNSITUATED_PARENTHESIS_GROUPING, 1);
+                                  T::RIGHT_PARENTHESIS_GROUPING, 1);
       continue;
     case '*':
       this->tokenizeLengthToken(T::STAR_OPERATOR, 1);
@@ -139,9 +139,6 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '>':
         this->tokenizeLengthToken(T::ARROW_OPERATOR, 2);
-        break;
-      case '-':
-        this->tokenizeLengthToken(T::DOUBLE_DASH_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(T::DASH_OPERATOR, 1);
@@ -222,7 +219,7 @@ void Tokenizer::_tokenizeSourceText() {
           default:
             break;
           }
-          this->tokenizeLengthToken(T::DOT_LESS_UNSITUATED_EQUAL_OPERATOR, 3);
+          this->tokenizeLengthToken(T::DOT_LESS_EQUAL_OPERATOR, 3);
           continue;
         case '+':
           switch (this->getRanger().getChar(3)) {
@@ -433,7 +430,7 @@ void Tokenizer::_tokenizeSourceText() {
           default:
             break;
           }
-          this->tokenizeLengthToken(T::DOT_DOUBLE_UNSITUATED_EQUAL_OPERATOR, 3);
+          this->tokenizeLengthToken(T::DOT_DOUBLE_EQUAL_OPERATOR, 3);
           continue;
         default:
           this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
@@ -493,7 +490,7 @@ void Tokenizer::_tokenizeSourceText() {
           default:
             break;
           }
-          this->tokenizeLengthToken(T::DOT_BANG_UNSITUATED_EQUAL_OPERATOR, 3);
+          this->tokenizeLengthToken(T::DOT_BANG_EQUAL_OPERATOR, 3);
           continue;
         default:
           this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
@@ -616,7 +613,7 @@ void Tokenizer::_tokenizeSourceText() {
     case ':':
       switch (this->getRanger().getChar(1)) {
       case ':':
-        this->tokenizeLengthToken(T::DOUBLE_UNSITUATED_COLON_OPERATOR, 2);
+        this->tokenizeLengthToken(T::DOUBLE_COLON_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(T::COLON_OPERATOR, 1);
@@ -631,7 +628,7 @@ void Tokenizer::_tokenizeSourceText() {
         this->tokenizeLengthToken(T::DOUBLE_LESS_OPERATOR, 2);
         break;
       case '=':
-        this->tokenizeLengthToken(T::LESS_UNSITUATED_EQUAL_OPERATOR, 2);
+        this->tokenizeLengthToken(T::LESS_EQUAL_OPERATOR, 2);
         break;
       case ':':
         switch (this->getRanger().getChar(2)) {
@@ -649,7 +646,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '=':
       switch (this->getRanger().getChar(1)) {
       case '=':
-        this->tokenizeLengthToken(T::DOUBLE_UNSITUATED_EQUAL_OPERATOR, 2);
+        this->tokenizeLengthToken(T::DOUBLE_EQUAL_OPERATOR, 2);
         break;
       case '>':
         this->tokenizeLengthToken(T::THICK_ARROW_OPERATOR, 2);
@@ -664,7 +661,7 @@ void Tokenizer::_tokenizeSourceText() {
         this->tokenizeLengthToken(T::DOUBLE_GREATER_OPERATOR, 2);
         break;
       case '=':
-        this->tokenizeLengthToken(T::GREATER_UNSITUATED_EQUAL_OPERATOR, 2);
+        this->tokenizeLengthToken(T::GREATER_EQUAL_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(T::GREATER_OPERATOR, 1);

@@ -1,14 +1,14 @@
 [import "std"];
 
 [entry
-    @capture--{@public name:="Bob", @public age:=25}
+    @capture::{@public name:="Bob", @public age:=25}
     var1 := 0;
     .std.print(line="Hello, my name is {var.[symbol].name} and I am {var.[symbol].age} years old");
 
     @attribute
     [class Foo, {> @public string:="Hello, attribute!" <} [constructor];];
 
-    @ascribe--{Foo()}
+    @ascribe::{Foo()}
     var0 := 1;
 
     @static

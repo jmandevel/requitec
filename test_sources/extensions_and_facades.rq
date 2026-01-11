@@ -1,11 +1,11 @@
 
 [table example,
-    @template--{> Type:[type], LENGTH:[unsigned] <}
+    @template::{> Type:[type], LENGTH:[unsigned] <}
     [extension_function getElementCount, LENGTH#Type, (><)[unsigned],
         [result] := LENGTH;
     ];
 
-    @template--{> Type:[type], LENGTH:[unsigned] <}
+    @template::{> Type:[type], LENGTH:[unsigned] <}
     [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned],
         [result] := LENGTH;
     ];

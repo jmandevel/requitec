@@ -7,8 +7,8 @@
 @may_copy @may_move
 [class Foo,
     {>
-        @public @mutate_with--class a := 0,
-        @public @mutate_with--stuff.ClassB b := 0
+        @public @mutate_with::class a := 0,
+        @public @mutate_with::stuff.ClassB b := 0
     <},
 
     @public
@@ -18,13 +18,13 @@
 [entry
     foo :`= .Foo(); // of type `Foo
     
-    foo_borrow_a := foo. $partially_mutable--.ClassA [borrow]; // of type &($partially_mutable..ClassB)Foo
+    foo_borrow_a := foo. $partially_mutable::.ClassA [borrow]; // of type &($partially_mutable::.ClassB)Foo
     foo_borrow_a.a = foo_borrow_a.a + 1;
 
-    foo_borrow_b := foo. $partially_mutable--.stuff.ClassB [borrow]; // of type &($partially_mutable--.stuff.ClassB Foo)
+    foo_borrow_b := foo. $partially_mutable::.stuff.ClassB [borrow]; // of type &($partially_mutable::.stuff.ClassB Foo)
     foo_borrow_b.b = 2;
 
-    foo_borrow_ab := foo.$partially_mutable--(.ClassA \/ .stuff.ClassB) [borrow]; // of type &($partially_mutable--(.ClassA \/ .stuff.ClassB))Foo
+    foo_borrow_ab := foo.$partially_mutable::(.ClassA \/ .stuff.ClassB) [borrow]; // of type &($partially_mutable::(.ClassA \/ .stuff.ClassB))Foo
     foo_borrow_ab.a = 3;
     foo_borrow_ab.b = 4;
 ];
