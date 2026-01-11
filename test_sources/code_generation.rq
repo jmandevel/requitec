@@ -1,8 +1,8 @@
 [import "std"];
 
-@static
+@static @label..Loop
 [for 0.<=10, num:=[value],
-    @global @capture..{num:=num}
+    @outside..Loop @capture..{num:=num}
     \std.format(text="VAR{num}") :`= index;
 ];
 

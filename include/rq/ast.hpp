@@ -329,7 +329,7 @@ enum class Keyword : std::uint32_t {
 
   // SYMBOL ATTRIBUTES
   OPAQUE,
-  GLOBAL,
+  OUTSIDE,
   STATIC,
   CAPTURE,
   S_SITUATED_CAPTURE,
@@ -913,8 +913,8 @@ constexpr std::size_t KEYWORD_COUNT =
   // SYMBOL ATTRIBUTES
   case K::OPAQUE:
     return "opaque";
-  case K::GLOBAL:
-    return "global";
+  case K::OUTSIDE:
+    return "outside";
   case K::STATIC:
     return "static";
   case K::CAPTURE:
@@ -1616,7 +1616,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   // SYMBOL ATTRIBUTES
   case K::OPAQUE:
     return KF::SYMBOL_ATTRIBUTE;
-  case K::GLOBAL:
+  case K::OUTSIDE:
     return KF::SYMBOL_ATTRIBUTE;
   case K::STATIC:
     return KF::SYMBOL_ATTRIBUTE;
@@ -2219,7 +2219,7 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 enum class SymbolAttribute : std::uint_fast8_t {
   NONE,
   OPAQUE,
-  GLOBAL,
+  OUTSIDE,
   STATIC,
   CAPTURE,
   EAGER,
@@ -2252,8 +2252,8 @@ enum class SymbolAttribute : std::uint_fast8_t {
     return "none";
   case SA::OPAQUE:
     return "opaque";
-  case SA::GLOBAL:
-    return "global";
+  case SA::OUTSIDE:
+    return "outside";
   case SA::STATIC:
     return "static";
   case SA::CAPTURE:
@@ -2310,8 +2310,8 @@ getSymbolAttribute(rq::Keyword keyword) {
   switch (keyword) {
   case K::OPAQUE:
     return SA::OPAQUE;
-  case K::GLOBAL:
-    return SA::GLOBAL;
+  case K::OUTSIDE:
+    return SA::OUTSIDE;
   case K::STATIC:
     return SA::STATIC;
   case K::CAPTURE:
@@ -2367,7 +2367,7 @@ getSymbolAttribute(rq::Keyword keyword) {
 enum class SymbolAttributeFlags : std::uint32_t {
   NONE = 0,
   OPAQUE = rq::getBit(31),
-  GLOBAL = rq::getBit(30),
+  OUTSIDE = rq::getBit(30),
   STATIC = rq::getBit(29),
   CAPTURE = rq::getBit(28),
   EAGER = rq::getBit(27),
@@ -2404,8 +2404,8 @@ getFlags(rq::SymbolAttribute attribute) {
     return SF::NONE;
   case SA::OPAQUE:
     return SF::OPAQUE;
-  case SA::GLOBAL:
-    return SF::GLOBAL;
+  case SA::OUTSIDE:
+    return SF::OUTSIDE;
   case SA::STATIC:
     return SF::STATIC;
   case SA::CAPTURE:
@@ -2458,8 +2458,8 @@ getFlags(rq::SymbolAttribute attribute) {
   return rq::getHasAll(flags, rq::SymbolAttributeFlags::OPAQUE);
 }
 
-[[nodiscard]] inline bool getHasGlobal(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::GLOBAL);
+[[nodiscard]] inline bool getHasOutside(rq::SymbolAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::SymbolAttributeFlags::OUTSIDE);
 }
 
 [[nodiscard]] inline bool getHasStatic(rq::SymbolAttributeFlags flags) {

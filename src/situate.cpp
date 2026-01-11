@@ -988,9 +988,11 @@ bool Situator::situateTree(rq::Situation situation,
 
   // SYMBOL ATTRIBUTES
   case K::OPAQUE:
-    [[fallthrough]];
-  case K::GLOBAL:
-    [[fallthrough]];
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::OUTSIDE:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::SYMBOL_PATH);
+    break;
   case K::STATIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
