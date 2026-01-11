@@ -233,7 +233,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     case rq::TokenKind::AT_SIGIL: {
       rq::Expression &attribute = this->parseAttribute();
       precedence_factory.parseAscribe(
-          token, rq::Keyword::S_REVERSED_ASCRIBE_STATEMENT);
+          token, rq::Keyword::S_UNSITUATED_ASCRIBE_STATEMENT);
       precedence_factory.appendBranch(attribute);
       continue;
     }
@@ -648,7 +648,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       case rq::TokenKind::DOLLAR_SIGIL: {
         rq::Expression &attribute = this->parseAttribute();
         precedence_factory.parseAscribe(token,
-                                        rq::Keyword::S_REVERSED_ASCRIBE_TYPE);
+                                        rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_factory.appendBranch(attribute);
         continue;
       }
@@ -932,13 +932,13 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       case rq::TokenKind::GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
-                                        rq::Keyword::S_REVERSED_ASCRIBE_TYPE);
+                                        rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_factory.appendNullaryAttribute(token, rq::Keyword::S_MUTABLE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
-                                        rq::Keyword::S_REVERSED_ASCRIBE_TYPE);
+                                        rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
         precedence_factory.appendNullaryAttribute(token, rq::Keyword::S_CONSTANT);
         continue;
       default:
@@ -1019,7 +1019,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     case rq::TokenKind::GRAVE_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseAscribe(post_token,
-                                      rq::Keyword::S_REVERSED_ASCRIBE_TYPE);
+                                      rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
       precedence_factory.appendPostunaryAttribute(
           post_token, rq::Keyword::S_PARTIALLY_MUTABLE);
       continue;
