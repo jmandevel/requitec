@@ -38,19 +38,15 @@ enum class SymbolKind : std::uint_fast8_t {
   VARIADIC_ARGUMENTS,
   BOOLEAN,
   UTF8,
+
+  // DEPTHED BUILTIN
+  WORD,
   SIGNED,
   UNSIGNED,
-  WORD,
-  FLOAT,
   BINARY,
   BFLOAT,
 
-  // DEPTHED BUILTIN
-  DEPTHED_WORD,
-  DEPTHED_SIGNED,
-  DEPTHED_UNSIGNED,
-
-  // SIMPLE SUBTYPE
+  // UNARY SUBTYPE
   RANGE,
   REFERENCE,
   POINTER,
@@ -63,7 +59,6 @@ enum class SymbolKind : std::uint_fast8_t {
   // COMPOSITE SUBTYPE
   LAYOUT,
   SIGNATURE,
-  EXTENSION,
 
   // ARITHMETIC SEQUENCE
   ARITHMETIC_INTERVAL,
@@ -75,14 +70,17 @@ enum class SymbolKind : std::uint_fast8_t {
   IMPORT,
   FACADE,
   MUTATION,
+  EXTENSION,
 
   // BINDING
-  VARIABLE,
+  DYNAMIC_VARIABLE,
+  STATIC_VARIABLE,
   ENUMERATOR,
-  LAYOUT_PROPERTY,
-  CLASS_PROPERTY,
-  SIGNATURE_PARAMETER,
+  PROPERTY,
   TEMPLATE_PARAMETER,
+  SIGNATURE_PARAMETER,
+  ATTRIBUTE_PARAMETER,
+  CAPTURE_PARAMETER,
 
   // SCOPES
   TOP,
@@ -148,16 +146,6 @@ enum class SymbolKind : std::uint_fast8_t {
     return "boolean";
   case SY::UTF8:
     return "utf8";
-  case SY::BFLOAT16:
-    return "bfloat16";
-  case SY::BINARY16:
-    return "binary16";
-  case SY::BINARY32:
-    return "binary32";
-  case SY::BINARY64:
-    return "binary64";
-  case SY::BINARY128:
-    return "binary128";
 
   // DEPTHED BUILTIN
   case SY::WORD:
@@ -166,6 +154,10 @@ enum class SymbolKind : std::uint_fast8_t {
     return "signed";
   case SY::UNSIGNED:
     return "unsigned";
+  case SY::BINARY:
+    return "binary";
+  case SY::BFLOAT:
+    return "bfloat";
 
   // SIMPLE SUBTYPE
   case SY::RANGE:
@@ -210,18 +202,22 @@ enum class SymbolKind : std::uint_fast8_t {
     return "mutation";
 
   // BINDING
-  case SY::VARIABLE:
-    return "variable";
+  case SY::DYNAMIC_VARIABLE:
+    return "dynamic_variable";
+  case SY::STATIC_VARIABLE:
+    return "static_variable";
   case SY::ENUMERATOR:
     return "enumerator";
-  case SY::LAYOUT_PROPERTY:
-    return "layout_property";
-  case SY::CLASS_PROPERTY:
-    return "class_property";
-  case SY::SIGNATURE_PARAMETER:
-    return "signature_parameter";
+  case SY::PROPERTY:
+    return "property";
   case SY::TEMPLATE_PARAMETER:
     return "template_parameter";
+  case SY::SIGNATURE_PARAMETER:
+    return "signature_parameter";
+  case SY::ATTRIBUTE_PARAMETER:
+    return "attribute_parameter";
+  case SY::CAPTURE_PARAMETER:
+    return "capture_parameter";
 
   // SCOPES
   case SY::TOP:
@@ -295,38 +291,45 @@ enum class SymbolKind : std::uint_fast8_t {
 enum class SymbolFlags : std::uint_fast32_t {
   NONE = 0,
   // USABLE INHERITING PROPERTIES - are implmented via inherited types that can
-  // be used themselves
-  SIMPLE_BUILTIN = rq::getBit(0),
-  DEPTHED_BUILTIN = rq::getBit(1),
-  SIMPLE_SUBTYPE = rq::getBit(2),
-  COUNTED_SUBTYPE = rq::getBit(3),
-  COMPOSITE_SUBTYE = rq::getBit(4),
-  ARITHMETIC_SEQUENCE = rq::getBit(5),
-  BINDING = rq::getBit(6),
-  SYMBOL_TABLE = rq::getBit(7),
+  // be used themselves. every symbol can have at most one of these.
+  TYPE = rq::getBit(0),
+  SIMPLE_BUILTIN = rq::getBit(1),
+  DEPTHED_BUILTIN = rq::getBit(2),
+  UNARY_SUBTYPE = rq::getBit(3),
+  COUNTED_SUBTYPE = rq::getBit(4),
+  COMPOSITE_SUBTYPE = rq::getBit(5),
+  ARITHMETIC_SEQUENCE = rq::getBit(6),
+  MAYBE_DEFAULT_VALUED = rq::getBit(7),
+  SYMBOL_TABLE = rq::getBit(8),
   PROCEDURE = rq::getBit(9),
   TEMPLATE = rq::getBit(10),
   PARTIAL_SPECIALIZATION = rq::getBit(11),
   // UNUSABLE INHERITING PROPERTIES - are implemented via inherited types that
   // can not be used themselves
-  LOCATED = rq::getBit(12),
+  HAS_LOCATION = rq::getBit(12),
   MODULE_MEMBER = rq::getBit(13),
-  SYMBOL_TABLE_MEMBER = rq::getBit(14),
-  ASCRIBED = rq::getBit(15),
-  MAYBE_NAMED = rq::getBit(16),
-  NAMED = rq::getBit(17),
-  TYPED = rq::getBit(18),
+  MAYBE_CLASS_MEMBER = rq::getBit(14),
+  HAS_LAYOUT = rq::getBit(15),
+  HAS_SIGNATURE = rq::getBit(16),
+  HAS_TEMPLATE_LAYOUT = rq::getBit(17),
+  HAS_POSITIONAL_ENTRIES = rq::getBit(18),
+  SYMBOL_TABLE_MEMBER = rq::getBit(19),
+  HAS_STATIC_VALUE = rq::getBit(20),
+  HAS_ATTRIBUTES = rq::getBit(21),
+  MAYBE_HAS_NAME = rq::getBit(22),
+  HAS_NAME = rq::getBit(23),
+  HAS_TYPE = rq::getBit(24),
   // INFO PROPERTIES - have no data associated
-  HAS_TEMPLATE = rq::getBit(19),
-  ROOT = rq::getBit(20),
-  INTEGER = rq::getBit(21),
-  FLOAT = rq::getBit(22),
-  CODEUNIT = rq::getBit(23)
+  HAS_TEMPLATE_ALTERNATIVE = rq::getBit(25),
+  ROOT = rq::getBit(26),
+  INTEGER = rq::getBit(27),
+  FLOAT = rq::getBit(28),
+  CODEUNIT = rq::getBit(29)
 };
 
 template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
 
-[[nodiscard]] inline rq::SymbolFlags getFlags(rq::SymbolKind kind) {
+[[nodiscard]] inline rq::SymbolFlags getFlags(SymbolKind kind) {
   using namespace rq;
   using SY = SymbolKind;
   using SYF = SymbolFlags;
@@ -336,7 +339,7 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
 
   // ROOT WITH TYPE ATTRIBUTES
   case SY::TYPE:
-    return SYF::ROOT;
+    return SYF::TYPE | SYF::ROOT;
 
   // SIMPLE BUILTIN
   case SY::INFERENCE:
@@ -353,16 +356,6 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::SIMPLE_BUILTIN | SYF::ROOT;
   case SY::UTF8:
     return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::CODEUNIT;
-  case SY::BFLOAT16:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
-  case SY::BINARY16:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
-  case SY::BINARY32:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
-  case SY::BINARY64:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
-  case SY::BINARY128:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
 
   // DEPTHED BUILTIN
   case SY::WORD:
@@ -371,132 +364,190 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::INTEGER;
   case SY::UNSIGNED:
     return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::INTEGER;
+  case SY::BINARY:
+    return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::FLOAT;
+  case SY::BFLOAT:
+    return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::FLOAT;
 
-  // SIMPLE SUBTYPE
+  // UNARY SUBTYPE
   case SY::RANGE:
-    return SYF::SIMPLE_SUBTYPE;
+    return SYF::UNARY_SUBTYPE | SYF::ROOT;
   case SY::REFERENCE:
-    return SYF::SIMPLE_SUBTYPE;
+    return SYF::UNARY_SUBTYPE | SYF::ROOT;
   case SY::POINTER:
-    return SYF::SIMPLE_SUBTYPE;
+    return SYF::UNARY_SUBTYPE | SYF::ROOT;
   case SY::FAT_POINTER:
-    return SYF::SIMPLE_SUBTYPE;
+    return SYF::UNARY_SUBTYPE | SYF::ROOT;
   case SY::INFERENCED_COUNT_ARRAY:
-    return SYF::SIMPLE_SUBTYPE;
+    return SYF::UNARY_SUBTYPE | SYF::ROOT;
 
   // COUNTED SUBTYPE
   case SY::ARRAY:
-    return SYF::COUNTED_SUBTYPE;
+    return SYF::COUNTED_SUBTYPE | SYF::ROOT;
 
   // COMPOSITE SUBTYPE
   case SY::LAYOUT:
-    return SYF::COMPOSITE_SUBTYE | SYF::SCOPE | SYF::NAMED;
+    return SYF::SYMBOL_TABLE | SYF::COMPOSITE_SUBTYPE | SYF::ROOT;
   case SY::SIGNATURE:
-    return SYF::COMPOSITE_SUBTYE;
-  case SY::EXTENSION:
-    return SYF::COMPOSITE_SUBTYE | SYF::SCOPE | SYF::NAMED;
+    return SYF::SYMBOL_TABLE | SYF::COMPOSITE_SUBTYPE | SYF::ROOT;
 
   // ARITHMETIC SEQUENCE
   case SY::ARITHMETIC_INTERVAL:
-    return SYF::ARITHMETIC_SEQUENCE;
+    return SYF::ARITHMETIC_SEQUENCE | SYF::ROOT;
   case SY::FINITE_ARITHMETIC_PROGRESSION:
-    return SYF::ARITHMETIC_SEQUENCE;
+    return SYF::ARITHMETIC_SEQUENCE | SYF::ROOT;
   case SY::INFINITE_ARITHMETIC_PROGRESSION:
-    return SYF::ARITHMETIC_SEQUENCE;
+    return SYF::ARITHMETIC_SEQUENCE | SYF::ROOT;
 
   // MISC
   case SY::MODULE:
-    return SYF::SCOPE | SYF::NAMED;
+    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION;
   case SY::IMPORT:
-    return SYF::NONE;
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES;
   case SY::FACADE:
-    return SYF::NONE;
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES;
   case SY::MUTATION:
-    return SYF::NAMED;
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES;
+  case SY::EXTENSION:
+    return SYF::HAS_SIGNATURE | SYF::HAS_TYPE;
 
   // BINDING
-  case SY::VARIABLE:
-    return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
+  case SY::DYNAMIC_VARIABLE:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::HAS_NAME | SYF::HAS_TYPE;
+  case SY::STATIC_VARIABLE:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_STATIC_VALUE | SYF::HAS_ATTRIBUTES | SYF::HAS_NAME |
+           SYF::HAS_TYPE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::ENUMERATOR:
-    return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
-  case SY::LAYOUT_PROPERTY:
-    return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
-  case SY::CLASS_PROPERTY:
-    return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED | SYF::HAS_NAME |
+           SYF::HAS_TYPE;
+  case SY::PROPERTY:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
+           SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
   case SY::SIGNATURE_PARAMETER:
-    return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
+           SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
   case SY::TEMPLATE_PARAMETER:
-    return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
+           SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
+  case SY::ATTRIBUTE_PARAMETER:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::HAS_TYPE;
+  case SY::CAPTURE_PARAMETER:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
 
-  // SCOPES
+    // SCOPES
   case SY::TOP:
     return SYF::SYMBOL_TABLE;
   case SY::SCOPE:
-    return SYF::SCOPE;
+    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION | SYF::MODULE_MEMBER |
+           SYF::SYMBOL_TABLE_MEMBER;
   case SY::TABLE:
-    return SYF::SCOPE | SYF::NAMED;
+    return SYF::SYMBOL_TABLE | SYF::HAS_NAME;
   case SY::CLASS:
-    return SYF::SCOPE | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION | SYF::MODULE_MEMBER |
+           SYF::HAS_LAYOUT | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE | SYF::ROOT;
   case SY::ENUMERATION:
-    return SYF::SCOPE | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION | SYF::MODULE_MEMBER |
+           SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES | SYF::HAS_NAME |
+           SYF::HAS_TEMPLATE_ALTERNATIVE | SYF::ROOT;
 
   // PROCEDURES
   case SY::ENTRY:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES;
   case SY::FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::HAS_TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::DESTRUCTOR:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES;
   case SY::RANGER:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES;
 
   // TEMPLATE
   case SY::TEMPLATE_CLASS:
-    return SYF::SCOPE | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_ENUMERATION:
-    return SYF::SCOPE | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_VARIABLE:
-    return SYF::SCOPED | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED | SYF::TEMPLATE;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::TEMPLATE;
 
   // PARTIAL SPECIALIZATION
   case SY::PARTIAL_CLASS:
-    return SYF::SCOPE | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_ENUMERATION:
-    return SYF::SCOPE | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_VARIABLE:
-    return SYF::SCOPED | SYF::NAMED | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME |
+           SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
+           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::SCOPED | SYF::NAMED |
+    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
+           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
            SYF::PARTIAL_SPECIALIZATION;
   }
   RQ_UNREACHABLE();
@@ -517,9 +568,9 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::SymbolFlags::DEPTHED_BUILTIN);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SIMPLE_SUBTYPE);
+  return rq::getHasAll(flags, rq::SymbolFlags::UNARY_SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::SymbolKind kind) {
@@ -529,7 +580,13 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::COMPOSITE_SUBTYE);
+  return rq::getHasAll(flags, rq::SymbolFlags::COMPOSITE_SUBTYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsMaybeDefaultValued(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::MAYBE_DEFAULT_VALUED);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -538,14 +595,15 @@ getIsArithmeticSequence(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::ARITHMETIC_SEQUENCE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScoped(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsSymbolTableMember(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SCOPED);
+  return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_TABLE_MEMBER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScope(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SCOPE);
+  return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_TABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::SymbolKind kind) {
@@ -564,9 +622,10 @@ getIsPartialSpecialization(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::PARTIAL_SPECIALIZATION);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasTemplateAlternative(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::SymbolFlags::HAS_TEMPLATE);
+  return rq::getHasSome(flags, rq::SymbolFlags::HAS_TEMPLATE_ALTERNATIVE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::SymbolKind kind) {
@@ -592,7 +651,7 @@ getIsPartialSpecialization(rq::SymbolKind kind) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::NAMED);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_NAME);
 }
 
 [[nodiscard]] inline rq::SymbolKind getTemplate(rq::SymbolKind symbol) {
@@ -603,7 +662,7 @@ getIsPartialSpecialization(rq::SymbolKind kind) {
     return SY::TEMPLATE_CLASS;
   case SY::ENUMERATION:
     return SY::TEMPLATE_ENUMERATION;
-  case SY::VARIABLE:
+  case SY::STATIC_VARIABLE:
     return SY::TEMPLATE_VARIABLE;
   case SY::FUNCTION:
     return SY::TEMPLATE_FUNCTION;
@@ -662,7 +721,7 @@ getPartialSpecialization(rq::SymbolKind symbol) {
     return SY::PARTIAL_CLASS;
   case SY::ENUMERATION:
     return SY::PARTIAL_ENUMERATION;
-  case SY::VARIABLE:
+  case SY::STATIC_VARIABLE:
     return SY::PARTIAL_VARIABLE;
   case SY::FUNCTION:
     return SY::PARTIAL_FUNCTION;
@@ -720,8 +779,8 @@ getFullSpecialization(rq::SymbolKind symbol) {
     return SY::CLASS;
   case SY::ENUMERATION:
     return SY::ENUMERATION;
-  case SY::VARIABLE:
-    return SY::VARIABLE;
+  case SY::STATIC_VARIABLE:
+    return SY::STATIC_VARIABLE;
   case SY::FUNCTION:
     return SY::FUNCTION;
   case SY::METHOD:
@@ -737,7 +796,7 @@ getFullSpecialization(rq::SymbolKind symbol) {
   case SY::TEMPLATE_ENUMERATION:
     return SY::ENUMERATION;
   case SY::TEMPLATE_VARIABLE:
-    return SY::VARIABLE;
+    return SY::STATIC_VARIABLE;
   case SY::TEMPLATE_FUNCTION:
     return SY::FUNCTION;
   case SY::TEMPLATE_METHOD:
@@ -753,7 +812,7 @@ getFullSpecialization(rq::SymbolKind symbol) {
   case SY::PARTIAL_ENUMERATION:
     return SY::ENUMERATION;
   case SY::PARTIAL_VARIABLE:
-    return SY::VARIABLE;
+    return SY::STATIC_VARIABLE;
   case SY::PARTIAL_FUNCTION:
     return SY::FUNCTION;
   case SY::PARTIAL_METHOD:
@@ -780,20 +839,17 @@ struct NoReturnSymbol;
 struct VariadicArgumentsSymbol;
 struct BooleanSymbol;
 struct Utf8Symbol;
-struct Bfloat16Symbol;
-struct Binary16Symbol;
-struct Binary32Symbol;
-struct Binary64Symbol;
-struct Binary128Symbol;
 
 // DEPTHED BUILTIN
 struct DepthedBuiltinSymbol;
 struct WordSymbol;
 struct SignedSymbol;
 struct UnsignedSymbol;
+struct BinarySymbol;
+struct BfloatSymbol;
 
-// SIMPLE SUBTYPE
-struct SimpleSubtypeSymbol;
+// UNARY SUBTYPE
+struct UnarySubtypeSymbol;
 struct RangeSymbol;
 struct ReferenceSymbol;
 struct PointerSymbol;
@@ -817,22 +873,26 @@ struct InfiniteArithmeticProgressionSymbol;
 // MISC
 struct ModuleSymbol;
 struct ImportSymbol;
+struct FacadeSymbol;
 struct MutationSymbol;
 
 // BINDING
-struct VariableSymbol;
+struct DynamicVariableSymbol;
+struct StaticVariableSymbol;
 struct EnumeratorSymbol;
-struct LayoutPropertySymbol;
-struct ClassPropertySymbol;
-struct SignatureParameterSymbol;
+struct PropertySymbol;
 struct TemplateParameterSymbol;
+struct SignatureParameterSymbol;
+struct AttributeParameterSymbol;
+struct CaptureParameterSymbol;
 
 // SCOPES
 struct SymbolTableSymbol;
+struct TopSymbol;
 struct ScopeSymbol;
 struct TableSymbol;
 struct ClassSymbol;
-c struct EnumerationSymbol;
+struct EnumerationSymbol;
 
 // PROCEDURE
 struct ProcedureSymbol;
@@ -881,13 +941,8 @@ struct ContextCache {
   rq::VariadicArgumentsSymbol *_variadic_arguments_symbol{nullptr};
   rq::BooleanSymbol *_boolean_symbol{nullptr};
   rq::Utf8Symbol *_utf8_symbol{nullptr};
-  rq::Bfloat16Symbol *_bfloat16_symbol{nullptr};
-  rq::Binary16Symbol *_binary16_symbol{nullptr};
-  rq::Binary32Symbol *_binary32_symbol{nullptr};
-  rq::Binary64Symbol *_binary64_symbol{nullptr};
-  rq::Binary128Symbol *_binary128_symbol{nullptr};
   llvm::FoldingSet<rq::DepthedBuiltinSymbol> _depthed_symbols{};
-  llvm::FoldingSet<rq::SimpleSubtypeSymbol> _simple_subtype_symbols{};
+  llvm::FoldingSet<rq::UnarySubtypeSymbol> _unary_subtype_symbols{};
   llvm::FoldingSet<rq::ArraySymbol> _array_symbols{};
   llvm::FoldingSet<rq::LayoutSymbol> _layout_symbols{};
   llvm::FoldingSet<rq::SignatureSymbol> _signature_symbols{};
@@ -916,11 +971,6 @@ struct ContextCache {
   getVariadicArgumentsSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanSymbol &getBooleanSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Symbol &getUtf8Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Symbol &getBfloat16Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Symbol &getBinary16Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Symbol &getBinary32Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Symbol &getBinary64Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Symbol &getBinary128Symbol();
   [[nodiscard]] inline rq::DepthedBuiltinSymbol &
   _getOrInsertBuiltinDepthSymbol(rq::SymbolKind kind, unsigned depth);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::WordSymbol &
@@ -929,8 +979,12 @@ struct ContextCache {
   getUnsignedSymbol(unsigned bit_depth);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedSymbol &
   getSignedSymbol(unsigned bit_depth);
-  [[nodiscard]] inline rq::SimpleSubtypeSymbol &
-  _getOrInsertSimpleSubtypeSymbol(rq::SymbolKind, unsigned depth);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BinarySymbol &
+  getBinarySymbol(unsigned bit_depth);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BfloatSymbol &
+  getBfloatSymbol(unsigned bit_depth);
+  [[nodiscard]] inline rq::UnarySubtypeSymbol &
+  _getOrInsertUnarySubtypeSymbol(rq::SymbolKind, unsigned depth);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &
   getRange(rq::TypeSymbol &root);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &
@@ -1010,21 +1064,6 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8() const {
     return this->_kind == rq::SymbolKind::UTF8;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16() const {
-    return this->_kind == rq::SymbolKind::BFLOAT16;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16() const {
-    return this->_kind == rq::SymbolKind::BINARY16;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32() const {
-    return this->_kind == rq::SymbolKind::BINARY32;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64() const {
-    return this->_kind == rq::SymbolKind::BINARY64;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128() const {
-    return this->_kind == rq::SymbolKind::BINARY128;
-  }
 
   // DEPTHED BUILTIN
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDepthedBuiltin() const {
@@ -1039,10 +1078,16 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
     return this->_kind == rq::SymbolKind::UNSIGNED;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const {
+    return this->_kind == rq::SymbolKind::BINARY;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat() const {
+    return this->_kind == rq::SymbolKind::BFLOAT;
+  }
 
-  // SIMPLE SUBTYPE
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype() const {
-    return rq::getIsSimpleSubtype(this->_kind);
+  // UNARY SUBTYPE
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype() const {
+    return rq::getIsUnarySubtype(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRange() const {
     return this->_kind == rq::SymbolKind::RANGE;
@@ -1109,33 +1154,44 @@ struct Symbol {
   }
 
   // BINDING
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScoped() const {
-    return rq::getIsScoped(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableMember() const {
+    return rq::getIsSymbolTableMember(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariable() const {
-    return this->_kind == rq::SymbolKind::VARIABLE;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMaybeDefaultValued() const {
+    return rq::getIsMaybeDefaultValued(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable() const {
+    return this->_kind == rq::SymbolKind::DYNAMIC_VARIABLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariable() const {
+    return this->_kind == rq::SymbolKind::STATIC_VARIABLE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumerator() const {
     return this->_kind == rq::SymbolKind::ENUMERATOR;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProperty() const {
-    return this->_kind == rq::SymbolKind::LAYOUT_PROPERTY ||
-           this->_kind == rq::SymbolKind::CLASS_PROPERTY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutProperty() const {
-    return this->_kind == rq::SymbolKind::LAYOUT_PROPERTY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassProperty() const {
-    return this->_kind == rq::SymbolKind::CLASS_PROPERTY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameter() const {
-    return this->_kind == rq::SymbolKind::SIGNATURE_PARAMETER;
+    return this->_kind == rq::SymbolKind::PROPERTY;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameter() const {
     return this->_kind == rq::SymbolKind::TEMPLATE_PARAMETER;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameter() const {
+    return this->_kind == rq::SymbolKind::SIGNATURE_PARAMETER;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeParameter() const {
+    return this->_kind == rq::SymbolKind::ATTRIBUTE_PARAMETER;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCaptureParameter() const {
+    return this->_kind == rq::SymbolKind::CAPTURE_PARAMETER;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacade() const {
+    return this->_kind == rq::SymbolKind::FACADE;
+  }
 
   // SCOPES
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTop() const {
+    return this->_kind == rq::SymbolKind::TOP;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScope() const {
     return this->_kind == rq::SymbolKind::SCOPE;
   }
@@ -1237,8 +1293,8 @@ struct Symbol {
   }
 
   // ADDITIONAL FLAG GETTERS
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const {
-    return rq::getHasTemplate(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const {
+    return rq::getHasTemplateAlternative(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
     return rq::getIsInteger(this->_kind);
@@ -1298,28 +1354,6 @@ template <> struct isa_impl<rq::Utf8Symbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsUtf8(); }
 };
 
-template <> struct isa_impl<rq::Bfloat16Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBfloat16(); }
-};
-
-template <> struct isa_impl<rq::Binary16Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary16(); }
-};
-
-template <> struct isa_impl<rq::Binary32Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary32(); }
-};
-
-template <> struct isa_impl<rq::Binary64Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary64(); }
-};
-
-template <> struct isa_impl<rq::Binary128Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBinary128();
-  }
-};
-
 // DEPTHED BUILTIN
 template <> struct isa_impl<rq::DepthedBuiltinSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
@@ -1339,10 +1373,18 @@ template <> struct isa_impl<rq::UnsignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsUnsigned(); }
 };
 
-// SIMPLE SUBTYPE
-template <> struct isa_impl<rq::SimpleSubtypeSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::BinarySymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary(); }
+};
+
+template <> struct isa_impl<rq::BfloatSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBfloat(); }
+};
+
+// UNARY SUBTYPE
+template <> struct isa_impl<rq::UnarySubtypeSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSimpleSubtype();
+    return val.getIsUnarySubtype();
   }
 };
 
@@ -1429,13 +1471,25 @@ template <> struct isa_impl<rq::ImportSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsImport(); }
 };
 
+template <> struct isa_impl<rq::FacadeSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsFacade(); }
+};
+
 template <> struct isa_impl<rq::MutationSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsMutation(); }
 };
 
 // BINDING
-template <> struct isa_impl<rq::VariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsVariable(); }
+template <> struct isa_impl<rq::DynamicVariableSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsDynamicVariable();
+  }
+};
+
+template <> struct isa_impl<rq::StaticVariableSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsStaticVariable();
+  }
 };
 
 template <> struct isa_impl<rq::EnumeratorSymbol, rq::Symbol> {
@@ -1444,15 +1498,13 @@ template <> struct isa_impl<rq::EnumeratorSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::LayoutPropertySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsLayoutProperty();
-  }
+template <> struct isa_impl<rq::PropertySymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsProperty(); }
 };
 
-template <> struct isa_impl<rq::ClassPropertySymbol, rq::Symbol> {
+template <> struct isa_impl<rq::TemplateParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsClassProperty();
+    return val.getIsTemplateParameter();
   }
 };
 
@@ -1462,13 +1514,23 @@ template <> struct isa_impl<rq::SignatureParameterSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::TemplateParameterSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::AttributeParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateParameter();
+    return val.getIsAttributeParameter();
+  }
+};
+
+template <> struct isa_impl<rq::CaptureParameterSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsCaptureParameter();
   }
 };
 
 // SCOPES
+template <> struct isa_impl<rq::TopSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsTop(); }
+};
+
 template <> struct isa_impl<rq::ScopeSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsScope(); }
 };
@@ -2167,61 +2229,6 @@ struct Utf8Symbol : public rq::SimpleBuiltinSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct Bfloat16Symbol : public rq::SimpleBuiltinSymbol {
-  using Self = rq::Bfloat16Symbol;
-
-  Bfloat16Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BFLOAT16) {}
-  Bfloat16Symbol(const Self &) = delete;
-  Bfloat16Symbol(Self &&) = delete;
-  virtual ~Bfloat16Symbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct Binary16Symbol : public rq::SimpleBuiltinSymbol {
-  using Self = rq::Binary16Symbol;
-
-  Binary16Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY16) {}
-  Binary16Symbol(const Self &) = delete;
-  Binary16Symbol(Self &&) = delete;
-  virtual ~Binary16Symbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct Binary32Symbol : public rq::SimpleBuiltinSymbol {
-  using Self = rq::Binary32Symbol;
-
-  Binary32Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY32) {}
-  Binary32Symbol(const Self &) = delete;
-  Binary32Symbol(Self &&) = delete;
-  virtual ~Binary32Symbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct Binary64Symbol : public rq::SimpleBuiltinSymbol {
-  using Self = rq::Binary64Symbol;
-
-  Binary64Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY64) {}
-  Binary64Symbol(const Self &) = delete;
-  Binary64Symbol(Self &&) = delete;
-  virtual ~Binary64Symbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct Binary128Symbol : public rq::SimpleBuiltinSymbol {
-  using Self = rq::Binary128Symbol;
-
-  Binary128Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY128) {}
-  Binary128Symbol(const Self &) = delete;
-  Binary128Symbol(Self &&) = delete;
-  virtual ~Binary128Symbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
 struct DepthedBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::DepthedBuiltinSymbol;
 
@@ -2281,18 +2288,42 @@ struct SignedSymbol : public rq::DepthedBuiltinSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct SimpleSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
-  using Self = rq::SimpleSubtypeSymbol;
+struct BinarySymbol : public rq::DepthedBuiltinSymbol {
+  using Self = rq::BinarySymbol;
+
+  BinarySymbol(unsigned bit_depth)
+      : rq::DepthedBuiltinSymbol(rq::SymbolKind::BINARY, bit_depth) {}
+  BinarySymbol(const Self &) = delete;
+  BinarySymbol(Self &&) = delete;
+  virtual ~BinarySymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct BfloatSymbol : public rq::DepthedBuiltinSymbol {
+  using Self = rq::BfloatSymbol;
+
+  BfloatSymbol(unsigned bit_depth)
+      : rq::DepthedBuiltinSymbol(rq::SymbolKind::BFLOAT, bit_depth) {}
+  BfloatSymbol(const Self &) = delete;
+  BfloatSymbol(Self &&) = delete;
+  virtual ~BfloatSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::UnarySubtypeSymbol;
 
   rq::Symbol *_root_ptr{nullptr};
 
-  SimpleSubtypeSymbol(rq::SymbolKind kind, rq::Symbol &base)
+  UnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &base)
       : rq::Symbol(kind), _root_ptr(&base) {
-    RQ_ASSERT(rq::getIsSimpleSubtype(kind), "kind not simple subtype symbol");
+    RQ_ASSERT(rq::getIsUnarySubtype(kind), "kind not unary subtype symbol");
   }
-  SimpleSubtypeSymbol(const Self &) = delete;
-  SimpleSubtypeSymbol(Self &&) = delete;
-  virtual ~SimpleSubtypeSymbol() {}
+  UnarySubtypeSymbol(const Self &) = delete;
+  UnarySubtypeSymbol(Self &&) = delete;
+  virtual ~UnarySubtypeSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot() {
@@ -2307,11 +2338,11 @@ struct SimpleSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   }
 };
 
-struct RangeSymbol : public rq::SimpleSubtypeSymbol {
+struct RangeSymbol : public rq::UnarySubtypeSymbol {
   using Self = rq::RangeSymbol;
 
   RangeSymbol(rq::Symbol &root)
-      : rq::SimpleSubtypeSymbol(rq::SymbolKind::RANGE, root) {}
+      : rq::UnarySubtypeSymbol(rq::SymbolKind::RANGE, root) {}
   RangeSymbol(const Self &) = delete;
   RangeSymbol(Self &&) = delete;
   virtual ~RangeSymbol() {}
@@ -2319,11 +2350,11 @@ struct RangeSymbol : public rq::SimpleSubtypeSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct ReferenceSymbol : public rq::SimpleSubtypeSymbol {
+struct ReferenceSymbol : public rq::UnarySubtypeSymbol {
   using Self = rq::ReferenceSymbol;
 
   ReferenceSymbol(rq::Symbol &root)
-      : rq::SimpleSubtypeSymbol(rq::SymbolKind::REFERENCE, root) {}
+      : rq::UnarySubtypeSymbol(rq::SymbolKind::REFERENCE, root) {}
   ReferenceSymbol(const Self &) = delete;
   ReferenceSymbol(Self &&) = delete;
   virtual ~ReferenceSymbol() {}
@@ -2331,11 +2362,11 @@ struct ReferenceSymbol : public rq::SimpleSubtypeSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PointerSymbol : public rq::SimpleSubtypeSymbol {
+struct PointerSymbol : public rq::UnarySubtypeSymbol {
   using Self = rq::PointerSymbol;
 
   PointerSymbol(rq::Symbol &root)
-      : rq::SimpleSubtypeSymbol(rq::SymbolKind::POINTER, root) {}
+      : rq::UnarySubtypeSymbol(rq::SymbolKind::POINTER, root) {}
   PointerSymbol(const Self &) = delete;
   PointerSymbol(Self &&) = delete;
   virtual ~PointerSymbol() {}
@@ -2343,11 +2374,11 @@ struct PointerSymbol : public rq::SimpleSubtypeSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct FatPointerSymbol : public rq::SimpleSubtypeSymbol {
+struct FatPointerSymbol : public rq::UnarySubtypeSymbol {
   using Self = rq::FatPointerSymbol;
 
   FatPointerSymbol(rq::Symbol &root)
-      : rq::SimpleSubtypeSymbol(rq::SymbolKind::FAT_POINTER, root) {}
+      : rq::UnarySubtypeSymbol(rq::SymbolKind::FAT_POINTER, root) {}
   FatPointerSymbol(const Self &) = delete;
   FatPointerSymbol(Self &&) = delete;
   virtual ~FatPointerSymbol() {}
@@ -2355,11 +2386,11 @@ struct FatPointerSymbol : public rq::SimpleSubtypeSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct InferencedCountArraySymbol : public rq::SimpleSubtypeSymbol {
+struct InferencedCountArraySymbol : public rq::UnarySubtypeSymbol {
   using Self = rq::InferencedCountArraySymbol;
 
   InferencedCountArraySymbol(rq::Symbol &root)
-      : rq::SimpleSubtypeSymbol(rq::SymbolKind::INFERENCED_COUNT_ARRAY, root) {}
+      : rq::UnarySubtypeSymbol(rq::SymbolKind::INFERENCED_COUNT_ARRAY, root) {}
   InferencedCountArraySymbol(const Self &) = delete;
   InferencedCountArraySymbol(Self &&) = delete;
   virtual ~InferencedCountArraySymbol() {}
@@ -2447,32 +2478,32 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct ExtensionSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ExtensionSymbol;
 
-  rq::Symbol *_lvalue_ptr;
-  rq::Symbol *_rvalue_ptr;
+  rq::SignatureSymbol *_signature_ptr{nullptr};
+  rq::TypeSymbol *_type_ptr{nullptr};
 
-  ExtensionSymbol(rq::Symbol &rvalue, rq::Symbol &lvalue)
-      : rq::Symbol(rq::SymbolKind::EXTENSION), _lvalue_ptr(&lvalue),
-        _rvalue_ptr(&rvalue) {}
+  ExtensionSymbol(rq::SignatureSymbol &signature, rq::TypeSymbol &type)
+      : rq::Symbol(rq::SymbolKind::EXTENSION), _signature_ptr(&signature),
+        _type_ptr(&type) {}
   ExtensionSymbol(const Self &) = delete;
   ExtensionSymbol(Self &&) = delete;
   virtual ~ExtensionSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getLValue() {
-    return rq::dereferencePtr(this->_lvalue_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureSymbol &getSignature() {
+    return rq::dereferencePtr(this->_signature_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getLValue() const {
-    return rq::dereferencePtr(this->_lvalue_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureSymbol &getSignature() const {
+    return rq::dereferencePtr(this->_signature_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRValue() {
-    return rq::dereferencePtr(this->_rvalue_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeSymbol &getType() {
+    return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRValue() const {
-    return rq::dereferencePtr(this->_rvalue_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeSymbol &getType() const {
+    return rq::dereferencePtr(this->_type_ptr);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddPointer(this->_lvalue_ptr);
-    id.AddPointer(this->_rvalue_ptr);
+    id.AddPointer(this->_signature_ptr);
+    id.AddPointer(this->_type_ptr);
   }
 };
 
@@ -2564,6 +2595,79 @@ struct InfiniteArithmeticProgressionSymbol
   Self &operator=(Self &&) = delete;
 };
 
+struct TopSymbol : rq::Symbol {
+  using Self = rq::TopSymbol;
+
+  llvm::SmallDenseMap<llvm::StringRef, rq::Entry<rq::Symbol>> _named_values{};
+  rq::Entry<rq::Symbol> _unamed_values{};
+
+  TopSymbol() : rq::Symbol(rq::SymbolKind::TOP) {}
+  TopSymbol(const Self &) = delete;
+  TopSymbol(Self &&) = delete;
+  ~TopSymbol() override {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this == &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this != &rhs;
+  }
+  void inline tabulateNamedSymbol(rq::ContextCache &cache, llvm::StringRef name,
+                                  rq::Symbol &symbol) {
+    auto it = this->_named_values.find(name);
+    if (it != this->_named_values.end()) {
+      rq::Entry<rq::Symbol> &entry = it->second;
+      rq::Node<rq::Symbol> &node =
+          cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
+      entry = rq::Entry<rq::Symbol>(node);
+    } else {
+      this->_named_values.insert({name, rq::Entry<rq::Symbol>(symbol)});
+    }
+  }
+  inline void tabulateUnamedSymbol(rq::ContextCache &cache,
+                                   rq::Symbol &symbol) {
+    rq::Entry<rq::Symbol> &entry = this->_unamed_values;
+    if (entry.getIsEmpty()) {
+      entry = symbol;
+      return;
+    }
+    rq::Node<rq::Symbol> &node =
+        cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
+    entry = rq::Entry<rq::Symbol>(node);
+  }
+  [[nodiscard]] inline rq::Entry<rq::Symbol>
+  getNamedEntry(llvm::StringRef name) {
+    auto it = this->_named_values.find(name);
+    if (it != this->_named_values.end()) {
+      return it->second;
+    }
+    return rq::Entry<rq::Symbol>();
+  }
+  [[nodiscard]] inline rq::ConstEntry<rq::Symbol>
+  getNamedEntry(llvm::StringRef name) const {
+    auto it = this->_named_values.find(name);
+    if (it != this->_named_values.end()) {
+      return it->second;
+    }
+    return rq::ConstEntry<rq::Symbol>();
+  }
+  [[nodiscard]] inline rq::Entry<rq::Symbol> getUnamedEntry() {
+    return this->_unamed_values;
+  }
+  [[nodiscard]] inline rq::ConstEntry<rq::Symbol> getUnamedEntry() const {
+    return this->_unamed_values;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() {
+    return std::ranges::subrange(this->_named_values.begin(),
+                                 this->_named_values.end());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() const {
+    return std::ranges::subrange(this->_named_values.begin(),
+                                 this->_named_values.end());
+  }
+};
+
 struct ScopeSymbol : rq::Symbol {
   using Self = rq::ScopeSymbol;
 
@@ -2641,20 +2745,33 @@ struct ScopeSymbol : rq::Symbol {
 };
 
 namespace detail {
-struct LocatedSymbol {
-  using Self = rq::detail::LocatedSymbol;
+struct HasLocationSymbol {
+  using Self = rq::detail::HasLocationSymbol;
 
-  const rq::Expression *_expression_ptr;
+  rq::Expression *_expression_ptr;
 
-  LocatedSymbol(const rq::Expression &expression)
+  HasLocationSymbol(rq::Expression &expression)
       : _expression_ptr(&expression) {}
-  LocatedSymbol(const Self &) = delete;
-  LocatedSymbol(Self &&) = delete;
-  virtual ~LocatedSymbol() {}
+  HasLocationSymbol() : _expression_ptr(nullptr) {}
+  HasLocationSymbol(const Self &) = delete;
+  HasLocationSymbol(Self &&) = delete;
+  virtual ~HasLocationSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
+    return this->_expression_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
+  }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+    rq::assignSingleValue(this->_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
+    rq::assignSingleValue(this->_expression_ptr, expression_ptr);
   }
 };
 struct ModuleMemberSymbol {
@@ -2693,16 +2810,16 @@ struct ScopeMemberSymbol {
     return rq::dereferencePtr(this->_scope_ptr);
   }
 };
-struct AscribedSymbol {
-  using Self = AscribedSymbol;
+struct HasAttributesSymbol {
+  using Self = HasAttributesSymbol;
 
   rq::SymbolAttributeFlags _attributes;
 
-  AscribedSymbol(rq::SymbolAttributeFlags attributes)
+  HasAttributesSymbol(rq::SymbolAttributeFlags attributes)
       : _attributes(attributes) {}
-  AscribedSymbol(const Self &) = delete;
-  AscribedSymbol(Self &&) = delete;
-  virtual ~AscribedSymbol() {}
+  HasAttributesSymbol(const Self &) = delete;
+  HasAttributesSymbol(Self &&) = delete;
+  virtual ~HasAttributesSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolAttributeFlags
@@ -2782,35 +2899,35 @@ struct AscribedSymbol {
     return rq::getHasMutateWith(this->_attributes);
   }
 };
-struct NamedSymbol {
-  using Self = rq::detail::NamedSymbol;
+struct HasNameSymbol {
+  using Self = rq::detail::HasNameSymbol;
 
   llvm::StringRef _name;
 
-  NamedSymbol(llvm::StringRef name) : _name(name) {
+  HasNameSymbol(llvm::StringRef name) : _name(name) {
     RQ_ASSERT(!name.empty(), "empty name");
   }
-  NamedSymbol(const Self &) = delete;
-  NamedSymbol(Self &&) = delete;
-  virtual ~NamedSymbol() {}
+  HasNameSymbol(const Self &) = delete;
+  HasNameSymbol(Self &&) = delete;
+  virtual ~HasNameSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return this->_name;
   }
 };
-struct MaybeNamedSymbol {
-  using Self = rq::detail::MaybeNamedSymbol;
+struct MaybeHasNameSymbol {
+  using Self = rq::detail::MaybeHasNameSymbol;
 
   llvm::StringRef _name{};
 
-  MaybeNamedSymbol() : _name() {}
-  MaybeNamedSymbol(llvm::StringRef name) : _name(name) {
+  MaybeHasNameSymbol() : _name() {}
+  MaybeHasNameSymbol(llvm::StringRef name) : _name(name) {
     RQ_ASSERT(!name.empty(), "empty name");
   }
-  MaybeNamedSymbol(const Self &) = delete;
-  MaybeNamedSymbol(Self &&) = delete;
-  virtual ~MaybeNamedSymbol() {}
+  MaybeHasNameSymbol(const Self &) = delete;
+  MaybeHasNameSymbol(Self &&) = delete;
+  virtual ~MaybeHasNameSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const {
@@ -2820,15 +2937,15 @@ struct MaybeNamedSymbol {
     return this->_name;
   }
 };
-struct TypedSymbol {
-  using Self = rq::detail::TypedSymbol;
+struct HasTypeSymbol {
+  using Self = rq::detail::HasTypeSymbol;
 
   rq::TypeSymbol *_type_ptr{nullptr};
 
-  TypedSymbol() {}
-  TypedSymbol(const Self &) = delete;
-  TypedSymbol(Self &&) = delete;
-  virtual ~TypedSymbol() {}
+  HasTypeSymbol() {}
+  HasTypeSymbol(const Self &) = delete;
+  HasTypeSymbol(Self &&) = delete;
+  virtual ~HasTypeSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
@@ -2846,47 +2963,70 @@ struct TypedSymbol {
 };
 } // namespace detail
 
-struct VariableSymbol : public rq::Symbol,
-                        public rq::detail::LocatedSymbol,
-                        public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::ScopeMemberSymbol,
-                        public rq::detail::AscribedSymbol,
-                        public rq::detail::NamedSymbol,
-                        public rq::detail::TypedSymbol {
-  using Self = rq::VariableSymbol;
+struct DynamicVariableSymbol : public rq::Symbol,
+                               public rq::detail::HasLocationSymbol,
+                               public rq::detail::ModuleMemberSymbol,
+                               public rq::detail::ScopeMemberSymbol,
+                               public rq::detail::HasAttributesSymbol,
+                               public rq::detail::HasNameSymbol,
+                               public rq::detail::HasTypeSymbol {
+  using Self = rq::DynamicVariableSymbol;
 
-  VariableSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::ScopeSymbol &scope, llvm::StringRef name,
-                 rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::VARIABLE),
-        rq::detail::LocatedSymbol(expression),
+  DynamicVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                        rq::ScopeSymbol &scope, llvm::StringRef name,
+                        rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::DYNAMIC_VARIABLE),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes), rq::detail::NamedSymbol(name) {}
-  VariableSymbol(const Self &) = delete;
-  VariableSymbol(Self &&) = delete;
-  virtual ~VariableSymbol() {}
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
+  DynamicVariableSymbol(const Self &) = delete;
+  DynamicVariableSymbol(Self &&) = delete;
+  virtual ~DynamicVariableSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct StaticVariableSymbol : public rq::Symbol,
+                              public rq::detail::HasLocationSymbol,
+                              public rq::detail::ModuleMemberSymbol,
+                              public rq::detail::ScopeMemberSymbol,
+                              public rq::detail::HasAttributesSymbol,
+                              public rq::detail::HasNameSymbol,
+                              public rq::detail::HasTypeSymbol {
+  using Self = rq::StaticVariableSymbol;
+
+  StaticVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                       rq::ScopeSymbol &scope, llvm::StringRef name,
+                       rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::STATIC_VARIABLE),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
+  StaticVariableSymbol(const Self &) = delete;
+  StaticVariableSymbol(Self &&) = delete;
+  virtual ~StaticVariableSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
 struct EnumeratorSymbol : public rq::Symbol,
-                          public rq::detail::LocatedSymbol,
+                          public rq::detail::HasLocationSymbol,
                           public rq::detail::ModuleMemberSymbol,
-                          public rq::detail::ScopeMemberSymbol,
-                          public rq::detail::AscribedSymbol,
-                          public rq::detail::NamedSymbol,
-                          public rq::detail::TypedSymbol {
+                          public rq::detail::HasAttributesSymbol,
+                          public rq::detail::HasNameSymbol,
+                          public rq::detail::HasTypeSymbol {
   using Self = rq::EnumeratorSymbol;
 
   rq::EnumerationSymbol *_enumeration_ptr;
 
-  EnumeratorSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  EnumeratorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                    llvm::StringRef name, rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::ENUMERATOR),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::AscribedSymbol(attributes), rq::detail::NamedSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   EnumeratorSymbol(const Self &) = delete;
   EnumeratorSymbol(Self &&) = delete;
   virtual ~EnumeratorSymbol() {}
@@ -2894,96 +3034,69 @@ struct EnumeratorSymbol : public rq::Symbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct LayoutPropertySymbol : public rq::Symbol,
-                              public rq::detail::LocatedSymbol,
-                              public rq::detail::ModuleMemberSymbol,
-                              public rq::detail::ScopeMemberSymbol,
-                              public rq::detail::AscribedSymbol,
-                              public rq::detail::MaybeNamedSymbol,
-                              public rq::detail::TypedSymbol {
-  using Self = rq::LayoutPropertySymbol;
+struct PropertySymbol : public rq::Symbol,
+                        public rq::detail::HasLocationSymbol,
+                        public rq::detail::ModuleMemberSymbol,
+                        public rq::detail::ScopeMemberSymbol,
+                        public rq::detail::HasAttributesSymbol,
+                        public rq::detail::MaybeHasNameSymbol,
+                        public rq::detail::HasTypeSymbol {
+  using Self = rq::PropertySymbol;
 
-  rq::LayoutSymbol *_layout_ptr;
-
-  LayoutPropertySymbol(const rq::Expression &expression,
-                       rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::LAYOUT_PROPERTY),
-        rq::detail::LocatedSymbol(expression),
-        rq::detail::AscribedSymbol(attributes), rq::detail::MaybeNamedSymbol() {
+  PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                 rq::ScopeSymbol &scope, rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::PROPERTY),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
-  LayoutPropertySymbol(const rq::Expression &expression, llvm::StringRef name,
-                       rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::LAYOUT_PROPERTY),
-        rq::detail::LocatedSymbol(expression),
-        rq::detail::AscribedSymbol(attributes),
-        rq::detail::MaybeNamedSymbol(name) {}
-  LayoutPropertySymbol(const Self &) = delete;
-  LayoutPropertySymbol(Self &&) = delete;
-  virtual ~LayoutPropertySymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct ClassPropertySymbol : public rq::Symbol,
-                             public rq::detail::LocatedSymbol,
-                             public rq::dtail::ModuleMemberSymbol,
-                             public rq::detail::ScopeMemberSymbol,
-                             public rq::detail::AscribedSymbol,
-                             public rq::detail::MaybeNamedSymbol,
-                             public rq::detail::TypedSymbol {
-  using Self = rq::ClassPropertySymbol;
-
-  rq::ClassSymbol *_class_ptr;
-
-  ClassPropertySymbol(const rq::Expression &expression,
-                      rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::CLASS_PROPERTY),
-        rq::detail::LocatedSymbol(expression),
-        rq::detail::AscribedSymbol(attributes), rq::detail::MaybeNamedSymbol() {
-  }
-  ClassPropertySymbol(const rq::Expression &expression, llvm::StringRef name,
-                      rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::CLASS_PROPERTY),
-        rq::detail::LocatedSymbol(expression),
-        rq::detail::AscribedSymbol(attributes),
-        rq::detail::MaybeNamedSymbol(name) {}
-  ClassPropertySymbol(const Self &) = delete;
-  ClassPropertySymbol(Self &&) = delete;
-  virtual ~ClassPropertySymbol() {}
+  PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                 rq::ScopeSymbol &scope, llvm::StringRef name,
+                 rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::PROPERTY),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes),
+        rq::detail::MaybeHasNameSymbol(name) {}
+  PropertySymbol(const Self &) = delete;
+  PropertySymbol(Self &&) = delete;
+  virtual ~PropertySymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
 struct SignatureParameterSymbol : public rq::Symbol,
-                                  public rq::detail::LocatedSymbol,
+                                  public rq::detail::HasLocationSymbol,
                                   public rq::detail::ModuleMemberSymbol,
                                   public rq::detail::ScopeMemberSymbol,
-                                  public rq::detail::AscribedSymbol,
-                                  public rq::detail::MaybeNamedSymbol,
-                                  public rq::detail::TypedSymbol {
+                                  public rq::detail::HasAttributesSymbol,
+                                  public rq::detail::MaybeHasNameSymbol,
+                                  public rq::detail::HasTypeSymbol {
   using Self = rq::SignatureParameterSymbol;
 
   rq::SignatureSymbol *_signature_ptr;
 
-  SignatureParameterSymbol(const rq::Expression &expression,
+  SignatureParameterSymbol(rq::Expression &expression,
                            rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes), rq::detail::MaybeNamedSymbol() {
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
-  SignatureParameterSymbol(const rq::Expression &expression,
+  SignatureParameterSymbol(rq::Expression &expression,
                            rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
                            llvm::StringRef name,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes),
-        rq::detail::MaybeNamedSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes),
+        rq::detail::MaybeHasNameSymbol(name) {}
   SignatureParameterSymbol(const Self &) = delete;
   SignatureParameterSymbol(Self &&) = delete;
   virtual ~SignatureParameterSymbol() {}
@@ -2992,35 +3105,35 @@ struct SignatureParameterSymbol : public rq::Symbol,
 };
 
 struct TemplateParameterSymbol : public rq::Symbol,
-                                 public rq::detail::LocatedSymbol,
+                                 public rq::detail::HasLocationSymbol,
                                  public rq::detail::ModuleMemberSymbol,
                                  public rq::detail::ScopeMemberSymbol,
-                                 public rq::detail::AscribedSymbol,
-                                 public rq::detail::MaybeNamedSymbol,
-                                 public rq::detail::TypedSymbol {
+                                 public rq::detail::HasAttributesSymbol,
+                                 public rq::detail::MaybeHasNameSymbol,
+                                 public rq::detail::HasTypeSymbol {
   using Self = rq::TemplateParameterSymbol;
 
   rq::TemplateSymbol *_template_ptr;
 
-  TemplateParameterSymbol(const rq::Expression &expression,
+  TemplateParameterSymbol(rq::Expression &expression,
                           rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
                           rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes), rq::detail::MaybeNamedSymbol() {
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
-  TemplateParameterSymbol(const rq::Expression &expression,
+  TemplateParameterSymbol(rq::Expression &expression,
                           rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
                           llvm::StringRef name,
                           rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes),
-        rq::detail::MaybeNamedSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes),
+        rq::detail::MaybeHasNameSymbol(name) {}
   TemplateParameterSymbol(const Self &) = delete;
   TemplateParameterSymbol(Self &&) = delete;
   virtual ~TemplateParameterSymbol() {}
@@ -3028,21 +3141,79 @@ struct TemplateParameterSymbol : public rq::Symbol,
   Self &operator=(Self &&) = delete;
 };
 
+struct AttributeParameterSymbol : public rq::Symbol,
+                                  public rq::detail::HasLocationSymbol,
+                                  public rq::detail::ModuleMemberSymbol,
+                                  public rq::detail::ScopeMemberSymbol,
+                                  public rq::detail::HasAttributesSymbol,
+                                  public rq::detail::HasTypeSymbol {
+  using Self = rq::AttributeParameterSymbol;
+
+  AttributeParameterSymbol(rq::Expression &expression,
+                           rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                           rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::ATTRIBUTE_PARAMETER),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes) {}
+  AttributeParameterSymbol(const Self &) = delete;
+  AttributeParameterSymbol(Self &&) = delete;
+  virtual ~AttributeParameterSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct CaptureParameterSymbol : public rq::Symbol,
+                                public rq::detail::HasLocationSymbol,
+                                public rq::detail::ModuleMemberSymbol,
+                                public rq::detail::ScopeMemberSymbol,
+                                public rq::detail::HasAttributesSymbol,
+                                public rq::detail::MaybeHasNameSymbol,
+                                public rq::detail::HasTypeSymbol {
+  using Self = rq::CaptureParameterSymbol;
+
+  CaptureParameterSymbol(rq::Expression &expression,
+                         rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                         rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::CAPTURE_PARAMETER),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {}
+  CaptureParameterSymbol(rq::Expression &expression,
+                         rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                         llvm::StringRef name,
+                         rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::CAPTURE_PARAMETER),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes),
+        rq::detail::MaybeHasNameSymbol(name) {}
+  CaptureParameterSymbol(const Self &) = delete;
+  CaptureParameterSymbol(Self &&) = delete;
+  virtual ~CaptureParameterSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
 struct MutationSymbol : public rq::Symbol,
-                        public rq::detail::LocatedSymbol,
+                        public rq::detail::HasLocationSymbol,
                         public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::AscribedSymbol,
-                        public rq::detail::NamedSymbol {
+                        public rq::detail::ScopeMemberSymbol,
+                        public rq::detail::HasAttributesSymbol,
+                        public rq::detail::HasNameSymbol {
   using Self = rq::MutationSymbol;
 
-  MutationSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  MutationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                  rq::ScopeSymbol &scope, llvm::StringRef name,
                  rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::MUTATION),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes), rq::detail::NamedSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   MutationSymbol(const Self &) = delete;
   MutationSymbol(Self &&) = delete;
   virtual ~MutationSymbol() {}
@@ -3050,11 +3221,11 @@ struct MutationSymbol : public rq::Symbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct TableSymbol : public rq::ScopeSymbol, public rq::detail::NamedSymbol {
+struct TableSymbol : public rq::ScopeSymbol, public rq::detail::HasNameSymbol {
   using Self = rq::TableSymbol;
 
   TableSymbol(llvm::StringRef name)
-      : rq::ScopeSymbol(rq::SymbolKind::TABLE), rq::detail::NamedSymbol(name) {}
+      : rq::ScopeSymbol(rq::SymbolKind::TABLE), rq::detail::HasNameSymbol(name) {}
   TableSymbol(const Self &) = delete;
   TableSymbol(Self &&) = delete;
   virtual ~TableSymbol() {}
@@ -3063,23 +3234,23 @@ struct TableSymbol : public rq::ScopeSymbol, public rq::detail::NamedSymbol {
 };
 
 struct ClassSymbol : public rq::ScopeSymbol,
-                     public rq::detail::LocatedSymbol,
+                     public rq::detail::HasLocationSymbol,
                      public rq::detail::ModuleMemberSymbol,
                      public rq::detail::ScopeMemberSymbol,
-                     public rq::detail::AscribedSymbol,
-                     public rq::detail::NamedSymbol {
+                     public rq::detail::HasAttributesSymbol,
+                     public rq::detail::HasNameSymbol {
   using Self = rq::ClassSymbol;
 
-  rq::Entry<rq::ClassPropertySymbol> _class_properties;
+  rq::Entry<rq::PropertySymbol> _class_properties;
 
-  ClassSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  ClassSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
               rq::ScopeSymbol &scope, llvm::StringRef name,
               rq::SymbolAttributeFlags attributes)
       : rq::ScopeSymbol(rq::SymbolKind::CLASS),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes), rq::detail::NamedSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   ClassSymbol(const Self &) = delete;
   ClassSymbol(Self &&) = delete;
   virtual ~ClassSymbol() {}
@@ -3088,23 +3259,23 @@ struct ClassSymbol : public rq::ScopeSymbol,
 };
 
 struct EnumerationSymbol : public rq::ScopeSymbol,
-                           public rq::detail::LocatedSymbol,
+                           public rq::detail::HasLocationSymbol,
                            public rq::detail::ModuleMemberSymbol,
                            public rq::detail::ScopeMemberSymbol,
-                           public rq::detail::AscribedSymbol,
-                           public rq::detail::NamedSymbol {
+                           public rq::detail::HasAttributesSymbol,
+                           public rq::detail::HasNameSymbol {
   using Self = rq::EnumerationSymbol;
 
   rq::Entry<rq::EnumeratorSymbol> _enumerators;
 
-  EnumerationSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  EnumerationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                     rq::ScopeSymbol &scope, llvm::StringRef name,
                     rq::SymbolAttributeFlags attributes)
       : rq::ScopeSymbol(rq::SymbolKind::ENUMERATION),
-        rq::detail::LocatedSymbol(expression),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::AscribedSymbol(attributes), rq::detail::NamedSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   EnumerationSymbol(const Self &) = delete;
   EnumerationSymbol(Self &&) = delete;
   virtual ~EnumerationSymbol() {}
@@ -3113,18 +3284,18 @@ struct EnumerationSymbol : public rq::ScopeSymbol,
 };
 
 struct ProcedureSymbol : public rq::ScopeSymbol,
-                         public rq::detail::LocatedSymbol,
+                         public rq::detail::HasLocationSymbol,
                          public rq::detail::ModuleMemberSymbol,
-                         public rq::detail::AscribedSymbol {
+                         public rq::detail::HasAttributesSymbol {
   using Self = rq::ProcedureSymbol;
 
   rq::SignatureSymbol *_signature_ptr;
 
-  ProcedureSymbol(rq::SymbolKind kind, const rq::Expression &expression,
+  ProcedureSymbol(rq::SymbolKind kind, rq::Expression &expression,
                   rq::ModuleSymbol &module, rq::SymbolAttributeFlags attributes)
-      : rq::ScopeSymbol(kind), rq::detail::LocatedSymbol(expression),
+      : rq::ScopeSymbol(kind), rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::AscribedSymbol(attributes), _signature_ptr(nullptr) {}
+        rq::detail::HasAttributesSymbol(attributes), _signature_ptr(nullptr) {}
   ProcedureSymbol(const Self &) = delete;
   ProcedureSymbol(Self &&) = delete;
   virtual ~ProcedureSymbol() {}
@@ -3135,7 +3306,7 @@ struct ProcedureSymbol : public rq::ScopeSymbol,
 struct EntrySymbol : public rq::ProcedureSymbol {
   using Self = rq::EntrySymbol;
 
-  EntrySymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  EntrySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
               rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::ENTRY, expression, module,
                             attributes) {}
@@ -3147,14 +3318,14 @@ struct EntrySymbol : public rq::ProcedureSymbol {
 };
 
 struct FunctionSymbol : public rq::ProcedureSymbol,
-                        public rq::detail::NamedSymbol {
+                        public rq::detail::HasNameSymbol {
   using Self = rq::FunctionSymbol;
 
-  FunctionSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  FunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                  llvm::StringRef name, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::FUNCTION, expression, module,
                             attributes),
-        rq::detail::NamedSymbol(name) {}
+        rq::detail::HasNameSymbol(name) {}
   FunctionSymbol(const Self &) = delete;
   FunctionSymbol(Self &&) = delete;
   virtual ~FunctionSymbol() {}
@@ -3163,14 +3334,14 @@ struct FunctionSymbol : public rq::ProcedureSymbol,
 };
 
 struct MethodSymbol : public rq::ProcedureSymbol,
-                      public rq::detail::NamedSymbol {
+                      public rq::detail::HasNameSymbol {
   using Self = rq::MethodSymbol;
 
-  MethodSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  MethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                llvm::StringRef name, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::METHOD, expression, module,
                             attributes),
-        rq::detail::NamedSymbol(name) {}
+        rq::detail::HasNameSymbol(name) {}
   MethodSymbol(const Self &) = delete;
   MethodSymbol(Self &&) = delete;
   virtual ~MethodSymbol() {}
@@ -3179,15 +3350,15 @@ struct MethodSymbol : public rq::ProcedureSymbol,
 };
 
 struct ExtensionFunctionSymbol : public rq::ProcedureSymbol,
-                                 public rq::detail::NamedSymbol {
+                                 public rq::detail::HasNameSymbol {
   using Self = rq::ExtensionFunctionSymbol;
 
-  ExtensionFunctionSymbol(const rq::Expression &expression,
+  ExtensionFunctionSymbol(rq::Expression &expression,
                           rq::ModuleSymbol &module, llvm::StringRef name,
                           rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::EXTENSION_FUNCTION, expression,
                             module, attributes),
-        rq::detail::NamedSymbol(name) {}
+        rq::detail::HasNameSymbol(name) {}
   ExtensionFunctionSymbol(const Self &) = delete;
   ExtensionFunctionSymbol(Self &&) = delete;
   virtual ~ExtensionFunctionSymbol() {}
@@ -3196,15 +3367,15 @@ struct ExtensionFunctionSymbol : public rq::ProcedureSymbol,
 };
 
 struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
-                               public rq::detail::NamedSymbol {
+                               public rq::detail::HasNameSymbol {
   using Self = rq::ExtensionMethodSymbol;
 
-  ExtensionMethodSymbol(const rq::Expression &expression,
+  ExtensionMethodSymbol(rq::Expression &expression,
                         rq::ModuleSymbol &module, llvm::StringRef name,
                         rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::EXTENSION_METHOD, expression,
                             module, attributes),
-        rq::detail::NamedSymbol(name) {}
+        rq::detail::HasNameSymbol(name) {}
   ExtensionMethodSymbol(const Self &) = delete;
   ExtensionMethodSymbol(Self &&) = delete;
   virtual ~ExtensionMethodSymbol() {}
@@ -3215,7 +3386,7 @@ struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
 struct ConstructorSymbol : public rq::ProcedureSymbol {
   using Self = rq::ConstructorSymbol;
 
-  ConstructorSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  ConstructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                     rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::CONSTRUCTOR, expression, module,
                             attributes) {}
@@ -3229,7 +3400,7 @@ struct ConstructorSymbol : public rq::ProcedureSymbol {
 struct DestructorSymbol : public rq::ProcedureSymbol {
   using Self = rq::DestructorSymbol;
 
-  DestructorSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  DestructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                    rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::DESTRUCTOR, expression, module,
                             attributes) {}
@@ -3243,7 +3414,7 @@ struct DestructorSymbol : public rq::ProcedureSymbol {
 struct RangerSymbol : public rq::ProcedureSymbol {
   using Self = rq::RangerSymbol;
 
-  RangerSymbol(const rq::Expression &expression, rq::ModuleSymbol &module,
+  RangerSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::RANGER, expression, module,
                             attributes) {}
@@ -3254,14 +3425,14 @@ struct RangerSymbol : public rq::ProcedureSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateSymbol : public rq::ScopeSymbol, public rq::detail::NamedSymbol {
+struct TemplateSymbol : public rq::ScopeSymbol, public rq::detail::HasNameSymbol {
   using Self = rq::TemplateSymbol;
 
   rq::Entry<rq::TemplateParameterSymbol> _template_parameters;
 
   TemplateSymbol(llvm::StringRef name, rq::SymbolKind kind,
                  const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::ScopeSymbol(kind), rq::detail::NamedSymbol(name),
+      : rq::ScopeSymbol(kind), rq::detail::HasNameSymbol(name),
         _template_parameters(parameters) {}
   TemplateSymbol(const Self &) = delete;
   TemplateSymbol(Self &&) = delete;
@@ -3533,18 +3704,18 @@ static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
   RQ_UNREACHABLE();
 }
 
-struct ModuleSymbol final : public rq::Symbol {
+struct ModuleSymbol final : public rq::Symbol,
+                            public rq::detail::HasLocationSymbol {
   using Self = rq::ModuleSymbol;
 
   rq::ModuleKind _module_kind;
   llvm::MemoryBufferRef _llvm_buffer_ref;
   llvm::StringRef _path;
-  rq::Expression *_expression_ptr = nullptr;
 
   ModuleSymbol(rq::ModuleKind kind, llvm::StringRef path,
                llvm::MemoryBufferRef &&buffer)
-      : rq::Symbol(rq::SymbolKind::MODULE), _module_kind(kind),
-        _llvm_buffer_ref(std::move(buffer)), _path(path) {}
+      : rq::Symbol(rq::SymbolKind::MODULE), rq::detail::HasLocationSymbol(),
+        _module_kind(kind), _llvm_buffer_ref(std::move(buffer)), _path(path) {}
   ModuleSymbol(const Self &) = delete;
   ModuleSymbol(Self &&) = delete;
   ~ModuleSymbol() override {}
@@ -3564,15 +3735,6 @@ struct ModuleSymbol final : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     return this->_llvm_buffer_ref.getBuffer();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
-    return this->_expression_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
-    rq::assignSingleValue(this->_expression_ptr, &expression);
-  }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
-    rq::assignSingleValue(this->_expression_ptr, expression_ptr);
-  }
   RQ_ALWAYS_INLINE void changeExpression(rq::Expression &expression) {
     RQ_ASSERT(this->_expression_ptr != nullptr, "no expression");
     this->_expression_ptr = &expression;
@@ -3581,12 +3743,6 @@ struct ModuleSymbol final : public rq::Symbol {
     rq::Expression &expression = rq::dereferencePtr(this->_expression_ptr);
     this->_expression_ptr = nullptr;
     return expression;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceExpression(rq::Expression &expression) {
@@ -3597,13 +3753,45 @@ struct ModuleSymbol final : public rq::Symbol {
 };
 
 struct ImportSymbol final : public rq::Symbol,
-                            public rq::detail::ModuleMemberSymbol {
+                            public rq::detail::HasLocationSymbol,
+                            public rq::detail::ModuleMemberSymbol,
+                            public rq::detail::ScopeMemberSymbol,
+                            public rq::detail::HasAttributesSymbol {
   using Self = rq::ImportSymbol;
+
+  ImportSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+               rq::ScopeSymbol &scope, rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::IMPORT),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes) {}
+  ImportSymbol(const Self &) = delete;
+  ImportSymbol(Self &&) = delete;
+  virtual ~ImportSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
 };
 
 struct FacadeSymbol final : public rq::Symbol,
-                            public rq::detail::ModuleMemberSymbol {
-  using Self = rq::ImportSymbol;
+                            public rq::detail::HasLocationSymbol,
+                            public rq::detail::ModuleMemberSymbol,
+                            public rq::detail::ScopeMemberSymbol,
+                            public rq::detail::HasAttributesSymbol {
+  using Self = rq::FacadeSymbol;
+
+  FacadeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+               rq::ScopeSymbol &scope, rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::FACADE),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasAttributesSymbol(attributes) {}
+  FacadeSymbol(const Self &) = delete;
+  FacadeSymbol(Self &&) = delete;
+  virtual ~FacadeSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
 };
 
 template <typename TypeParam, typename... ArgNParam>
@@ -3674,41 +3862,6 @@ inline rq::Utf8Symbol &rq::ContextCache::getUtf8Symbol() {
   return rq::dereferencePtr(this->_utf8_symbol);
 }
 
-inline rq::Bfloat16Symbol &rq::ContextCache::getBfloat16Symbol() {
-  if (!this->_bfloat16_symbol) {
-    this->_bfloat16_symbol = &this->allocateValue<rq::Bfloat16Symbol>();
-  }
-  return rq::dereferencePtr(this->_bfloat16_symbol);
-}
-
-inline rq::Binary16Symbol &rq::ContextCache::getBinary16Symbol() {
-  if (!this->_binary16_symbol) {
-    this->_binary16_symbol = &this->allocateValue<rq::Binary16Symbol>();
-  }
-  return rq::dereferencePtr(this->_binary16_symbol);
-}
-
-inline rq::Binary32Symbol &rq::ContextCache::getBinary32Symbol() {
-  if (!this->_binary32_symbol) {
-    this->_binary32_symbol = &this->allocateValue<rq::Binary32Symbol>();
-  }
-  return rq::dereferencePtr(this->_binary32_symbol);
-}
-
-inline rq::Binary64Symbol &rq::ContextCache::getBinary64Symbol() {
-  if (!this->_binary64_symbol) {
-    this->_binary64_symbol = &this->allocateValue<rq::Binary64Symbol>();
-  }
-  return rq::dereferencePtr(this->_binary64_symbol);
-}
-
-inline rq::Binary128Symbol &rq::ContextCache::getBinary128Symbol() {
-  if (!this->_binary128_symbol) {
-    this->_binary128_symbol = &this->allocateValue<rq::Binary128Symbol>();
-  }
-  return rq::dereferencePtr(this->_binary128_symbol);
-}
-
 inline rq::DepthedBuiltinSymbol &
 rq::ContextCache::_getOrInsertBuiltinDepthSymbol(rq::SymbolKind kind,
                                                  unsigned parameter) {
@@ -3740,6 +3893,16 @@ rq::ContextCache::getUnsignedSymbol(unsigned bit_depth) {
 inline rq::SignedSymbol &rq::ContextCache::getSignedSymbol(unsigned bit_depth) {
   return static_cast<rq::SignedSymbol &>(
       this->_getOrInsertBuiltinDepthSymbol(rq::SymbolKind::SIGNED, bit_depth));
+}
+
+inline rq::BinarySymbol &rq::ContextCache::getBinarySymbol(unsigned bit_depth) {
+  return static_cast<rq::BinarySymbol &>(
+      this->_getOrInsertBuiltinDepthSymbol(rq::SymbolKind::BINARY, bit_depth));
+}
+
+inline rq::BfloatSymbol &rq::ContextCache::getBfloatSymbol(unsigned bit_depth) {
+  return static_cast<rq::BfloatSymbol &>(
+      this->_getOrInsertBuiltinDepthSymbol(rq::SymbolKind::BFLOAT, bit_depth));
 }
 
 } // namespace rq
