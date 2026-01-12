@@ -667,6 +667,62 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::HAS_NAME);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getMaybeHasName(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::MAYBE_HAS_NAME);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_LOCATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleMember(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::MODULE_MEMBER);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsMaybeClassMember(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::MAYBE_CLASS_MEMBER);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLayout(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_LAYOUT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_SIGNATURE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateLayout(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_TEMPLATE_LAYOUT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPositionalEntries(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_POSITIONAL_ENTRIES);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticValue(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_STATIC_VALUE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttributes(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_ATTRIBUTES);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasType(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_TYPE);
+}
+
 [[nodiscard]] inline rq::SymbolKind getTemplate(rq::SymbolKind symbol) {
   using namespace rq;
   using SY = SymbolKind;
@@ -1355,8 +1411,44 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed() const {
     return rq::getIsNamed(this->_kind);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getMaybeHasName() const {
+    return rq::getMaybeHasName(this->_kind);
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const {
     return rq::getIsNumeric(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const {
+    return rq::getHasLocation(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleMember() const {
+    return rq::getIsModuleMember(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMaybeClassMember() const {
+    return rq::getIsMaybeClassMember(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLayout() const {
+    return rq::getHasLayout(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const {
+    return rq::getHasSignature(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateLayout() const {
+    return rq::getHasTemplateLayout(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPositionalEntries() const {
+    return rq::getHasPositionalEntries(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticValue() const {
+    return rq::getHasStaticValue(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttributes() const {
+    return rq::getHasAttributes(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
+    return rq::getHasType(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
+    return rq::getIsSymbolTable(this->_kind);
   }
 };
 
