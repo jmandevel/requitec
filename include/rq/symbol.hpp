@@ -102,7 +102,8 @@ enum class SymbolKind : std::uint_fast8_t {
   // TEMPLATE
   TEMPLATE_CLASS,
   TEMPLATE_ENUMERATION,
-  TEMPLATE_VARIABLE,
+  TEMPLATE_DYNAMIC_VARIABLE,
+  TEMPLATE_STATIC_VARIABLE,
   TEMPLATE_FUNCTION,
   TEMPLATE_METHOD,
   TEMPLATE_EXTENSION_FUNCTION,
@@ -112,7 +113,8 @@ enum class SymbolKind : std::uint_fast8_t {
   // PARTIAL SPECIALIZATION
   PARTIAL_CLASS,
   PARTIAL_ENUMERATION,
-  PARTIAL_VARIABLE,
+  PARTIAL_DYNAMIC_VARIABLE,
+  PARTIAL_STATIC_VARIABLE,
   PARTIAL_FUNCTION,
   PARTIAL_METHOD,
   PARTIAL_EXTENSION_FUNCTION,
@@ -254,8 +256,10 @@ enum class SymbolKind : std::uint_fast8_t {
     return "template_class";
   case SY::TEMPLATE_ENUMERATION:
     return "template_enumeration";
-  case SY::TEMPLATE_VARIABLE:
-    return "template_variable";
+  case SY::TEMPLATE_DYNAMIC_VARIABLE:
+    return "template_dynamic_variable";
+  case SY::TEMPLATE_STATIC_VARIABLE:
+    return "template_static_variable";
   case SY::TEMPLATE_FUNCTION:
     return "template_function";
   case SY::TEMPLATE_METHOD:
@@ -272,8 +276,10 @@ enum class SymbolKind : std::uint_fast8_t {
     return "partial_class";
   case SY::PARTIAL_ENUMERATION:
     return "partial_enumeration";
-  case SY::PARTIAL_VARIABLE:
-    return "partial_variable";
+  case SY::PARTIAL_DYNAMIC_VARIABLE:
+    return "partial_dynamic_variable";
+  case SY::PARTIAL_STATIC_VARIABLE:
+    return "partial_static_variable";
   case SY::PARTIAL_FUNCTION:
     return "partial_function";
   case SY::PARTIAL_METHOD:
@@ -417,7 +423,8 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   // BINDING
   case SY::DYNAMIC_VARIABLE:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::HAS_NAME | SYF::HAS_TYPE;
+           SYF::HAS_ATTRIBUTES | SYF::HAS_NAME | SYF::HAS_TYPE |
+           SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::STATIC_VARIABLE:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_STATIC_VALUE | SYF::HAS_ATTRIBUTES | SYF::HAS_NAME |
@@ -498,8 +505,11 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::TEMPLATE;
   case SY::TEMPLATE_ENUMERATION:
     return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::TEMPLATE;
-  case SY::TEMPLATE_VARIABLE:
+  case SY::TEMPLATE_DYNAMIC_VARIABLE:
     return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::TEMPLATE;
+  case SY::TEMPLATE_STATIC_VARIABLE:
+    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::HAS_STATIC_VALUE |
+           SYF::TEMPLATE;
   case SY::TEMPLATE_FUNCTION:
     return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
            SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
@@ -526,8 +536,11 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_ENUMERATION:
     return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
-  case SY::PARTIAL_VARIABLE:
+  case SY::PARTIAL_DYNAMIC_VARIABLE:
     return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME |
+           SYF::PARTIAL_SPECIALIZATION;
+  case SY::PARTIAL_STATIC_VARIABLE:
+    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::HAS_STATIC_VALUE |
            SYF::PARTIAL_SPECIALIZATION;
   case SY::PARTIAL_FUNCTION:
     return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
@@ -662,8 +675,10 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
     return SY::TEMPLATE_CLASS;
   case SY::ENUMERATION:
     return SY::TEMPLATE_ENUMERATION;
+  case SY::DYNAMIC_VARIABLE:
+    return SY::TEMPLATE_DYNAMIC_VARIABLE;
   case SY::STATIC_VARIABLE:
-    return SY::TEMPLATE_VARIABLE;
+    return SY::TEMPLATE_STATIC_VARIABLE;
   case SY::FUNCTION:
     return SY::TEMPLATE_FUNCTION;
   case SY::METHOD:
@@ -678,8 +693,10 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
     return SY::TEMPLATE_CLASS;
   case SY::PARTIAL_ENUMERATION:
     return SY::TEMPLATE_ENUMERATION;
-  case SY::PARTIAL_VARIABLE:
-    return SY::TEMPLATE_VARIABLE;
+  case SY::PARTIAL_DYNAMIC_VARIABLE:
+    return SY::TEMPLATE_DYNAMIC_VARIABLE;
+  case SY::PARTIAL_STATIC_VARIABLE:
+    return SY::TEMPLATE_STATIC_VARIABLE;
   case SY::PARTIAL_FUNCTION:
     return SY::TEMPLATE_FUNCTION;
   case SY::PARTIAL_METHOD:
@@ -694,8 +711,10 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
     return SY::TEMPLATE_CLASS;
   case SY::TEMPLATE_ENUMERATION:
     return SY::TEMPLATE_ENUMERATION;
-  case SY::TEMPLATE_VARIABLE:
-    return SY::TEMPLATE_VARIABLE;
+  case SY::TEMPLATE_DYNAMIC_VARIABLE:
+    return SY::TEMPLATE_DYNAMIC_VARIABLE;
+  case SY::TEMPLATE_STATIC_VARIABLE:
+    return SY::TEMPLATE_STATIC_VARIABLE;
   case SY::TEMPLATE_FUNCTION:
     return SY::TEMPLATE_FUNCTION;
   case SY::TEMPLATE_METHOD:
@@ -721,8 +740,10 @@ getPartialSpecialization(rq::SymbolKind symbol) {
     return SY::PARTIAL_CLASS;
   case SY::ENUMERATION:
     return SY::PARTIAL_ENUMERATION;
+  case SY::DYNAMIC_VARIABLE:
+    return SY::PARTIAL_DYNAMIC_VARIABLE;
   case SY::STATIC_VARIABLE:
-    return SY::PARTIAL_VARIABLE;
+    return SY::PARTIAL_STATIC_VARIABLE;
   case SY::FUNCTION:
     return SY::PARTIAL_FUNCTION;
   case SY::METHOD:
@@ -737,8 +758,10 @@ getPartialSpecialization(rq::SymbolKind symbol) {
     return SY::PARTIAL_CLASS;
   case SY::TEMPLATE_ENUMERATION:
     return SY::PARTIAL_ENUMERATION;
-  case SY::TEMPLATE_VARIABLE:
-    return SY::PARTIAL_VARIABLE;
+  case SY::TEMPLATE_DYNAMIC_VARIABLE:
+    return SY::PARTIAL_DYNAMIC_VARIABLE;
+  case SY::TEMPLATE_STATIC_VARIABLE:
+    return SY::PARTIAL_STATIC_VARIABLE;
   case SY::TEMPLATE_FUNCTION:
     return SY::PARTIAL_FUNCTION;
   case SY::TEMPLATE_METHOD:
@@ -753,8 +776,10 @@ getPartialSpecialization(rq::SymbolKind symbol) {
     return SY::PARTIAL_CLASS;
   case SY::PARTIAL_ENUMERATION:
     return SY::PARTIAL_ENUMERATION;
-  case SY::PARTIAL_VARIABLE:
-    return SY::PARTIAL_VARIABLE;
+  case SY::PARTIAL_DYNAMIC_VARIABLE:
+    return SY::PARTIAL_DYNAMIC_VARIABLE;
+  case SY::PARTIAL_STATIC_VARIABLE:
+    return SY::PARTIAL_STATIC_VARIABLE;
   case SY::PARTIAL_FUNCTION:
     return SY::PARTIAL_FUNCTION;
   case SY::PARTIAL_METHOD:
@@ -779,6 +804,8 @@ getFullSpecialization(rq::SymbolKind symbol) {
     return SY::CLASS;
   case SY::ENUMERATION:
     return SY::ENUMERATION;
+  case SY::DYNAMIC_VARIABLE:
+    return SY::DYNAMIC_VARIABLE;
   case SY::STATIC_VARIABLE:
     return SY::STATIC_VARIABLE;
   case SY::FUNCTION:
@@ -795,7 +822,9 @@ getFullSpecialization(rq::SymbolKind symbol) {
     return SY::CLASS;
   case SY::TEMPLATE_ENUMERATION:
     return SY::ENUMERATION;
-  case SY::TEMPLATE_VARIABLE:
+  case SY::TEMPLATE_DYNAMIC_VARIABLE:
+    return SY::DYNAMIC_VARIABLE;
+  case SY::TEMPLATE_STATIC_VARIABLE:
     return SY::STATIC_VARIABLE;
   case SY::TEMPLATE_FUNCTION:
     return SY::FUNCTION;
@@ -811,7 +840,9 @@ getFullSpecialization(rq::SymbolKind symbol) {
     return SY::CLASS;
   case SY::PARTIAL_ENUMERATION:
     return SY::ENUMERATION;
-  case SY::PARTIAL_VARIABLE:
+  case SY::PARTIAL_DYNAMIC_VARIABLE:
+    return SY::DYNAMIC_VARIABLE;
+  case SY::PARTIAL_STATIC_VARIABLE:
     return SY::STATIC_VARIABLE;
   case SY::PARTIAL_FUNCTION:
     return SY::FUNCTION;
@@ -909,7 +940,8 @@ struct RangerSymbol;
 struct TemplateSymbol;
 struct TemplateClassSymbol;
 struct TemplateEnumerationSymbol;
-struct TemplateVariableSymbol;
+struct TemplateDynamicVariableSymbol;
+struct TemplateStaticVariableSymbol;
 struct TemplateFunctionSymbol;
 struct TemplateMethodSymbol;
 struct TemplateExtensionFunctionSymbol;
@@ -920,7 +952,8 @@ struct TemplateConstructorSymbol;
 struct PartialSpecializationSymbol;
 struct PartialClassSymbol;
 struct PartialEnumerationSymbol;
-struct PartialVariableSymbol;
+struct PartialDynamicVariableSymbol;
+struct PartialStaticVariableSymbol;
 struct PartialFunctionSymbol;
 struct PartialMethodSymbol;
 struct PartialExtensionFunctionSymbol;
@@ -1245,7 +1278,14 @@ struct Symbol {
     return this->_kind == rq::SymbolKind::TEMPLATE_ENUMERATION;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateVariable() const {
-    return this->_kind == rq::SymbolKind::TEMPLATE_VARIABLE;
+    return this->_kind == rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE ||
+           this->_kind == rq::SymbolKind::TEMPLATE_STATIC_VARIABLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateDynamicVariable() const {
+    return this->_kind == rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateStaticVariable() const {
+    return this->_kind == rq::SymbolKind::TEMPLATE_STATIC_VARIABLE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateFunction() const {
     return this->_kind == rq::SymbolKind::TEMPLATE_FUNCTION;
@@ -1274,7 +1314,14 @@ struct Symbol {
     return this->_kind == rq::SymbolKind::PARTIAL_ENUMERATION;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialVariable() const {
-    return this->_kind == rq::SymbolKind::PARTIAL_VARIABLE;
+    return this->_kind == rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE ||
+           this->_kind == rq::SymbolKind::PARTIAL_STATIC_VARIABLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialDynamicVariable() const {
+    return this->_kind == rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialStaticVariable() const {
+    return this->_kind == rq::SymbolKind::PARTIAL_STATIC_VARIABLE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialFunction() const {
     return this->_kind == rq::SymbolKind::PARTIAL_FUNCTION;
@@ -1613,9 +1660,15 @@ template <> struct isa_impl<rq::TemplateEnumerationSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::TemplateVariableSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::TemplateDynamicVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateVariable();
+    return val.getIsTemplateDynamicVariable();
+  }
+};
+
+template <> struct isa_impl<rq::TemplateStaticVariableSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsTemplateStaticVariable();
   }
 };
 
@@ -1668,9 +1721,15 @@ template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::PartialVariableSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::PartialDynamicVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialVariable();
+    return val.getIsPartialDynamicVariable();
+  }
+};
+
+template <> struct isa_impl<rq::PartialStaticVariableSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsPartialStaticVariable();
   }
 };
 
@@ -3469,17 +3528,32 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateVariableSymbol : public rq::TemplateSymbol {
-  using Self = rq::TemplateVariableSymbol;
+struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol {
+  using Self = rq::TemplateDynamicVariableSymbol;
 
-  TemplateVariableSymbol(
+  TemplateDynamicVariableSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_VARIABLE,
+      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE,
                            parameters) {}
-  TemplateVariableSymbol(const Self &) = delete;
-  TemplateVariableSymbol(Self &&) = delete;
-  virtual ~TemplateVariableSymbol() {}
+  TemplateDynamicVariableSymbol(const Self &) = delete;
+  TemplateDynamicVariableSymbol(Self &&) = delete;
+  virtual ~TemplateDynamicVariableSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct TemplateStaticVariableSymbol : public rq::TemplateSymbol {
+  using Self = rq::TemplateStaticVariableSymbol;
+
+  TemplateStaticVariableSymbol(
+      llvm::StringRef name,
+      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_STATIC_VARIABLE,
+                           parameters) {}
+  TemplateStaticVariableSymbol(const Self &) = delete;
+  TemplateStaticVariableSymbol(Self &&) = delete;
+  virtual ~TemplateStaticVariableSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3601,17 +3675,32 @@ struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialVariableSymbol : public rq::PartialSpecializationSymbol {
-  using Self = rq::PartialVariableSymbol;
+struct PartialDynamicVariableSymbol : public rq::PartialSpecializationSymbol {
+  using Self = rq::PartialDynamicVariableSymbol;
 
-  PartialVariableSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_VARIABLE,
-                                        module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_VARIABLE;
+  PartialDynamicVariableSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(
+            rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE, module, scope) {
+    this->_kind = rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE;
   }
-  PartialVariableSymbol(const Self &) = delete;
-  PartialVariableSymbol(Self &&) = delete;
-  virtual ~PartialVariableSymbol() {}
+  PartialDynamicVariableSymbol(const Self &) = delete;
+  PartialDynamicVariableSymbol(Self &&) = delete;
+  virtual ~PartialDynamicVariableSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct PartialStaticVariableSymbol : public rq::PartialSpecializationSymbol {
+  using Self = rq::PartialStaticVariableSymbol;
+
+  PartialStaticVariableSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_STATIC_VARIABLE,
+                                        module, scope) {
+    this->_kind = rq::SymbolKind::PARTIAL_STATIC_VARIABLE;
+  }
+  PartialStaticVariableSymbol(const Self &) = delete;
+  PartialStaticVariableSymbol(Self &&) = delete;
+  virtual ~PartialStaticVariableSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
