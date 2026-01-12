@@ -20,6 +20,10 @@
 
 namespace rq {
 
+// NOTE: all symbols have unique instances. you can always test if two symbols
+// are exactly the same (including type attriubutes, etc) by comparing their
+// pointers.
+
 enum class SymbolKind : std::uint_fast8_t {
   NONE,
 
@@ -80,6 +84,7 @@ enum class SymbolKind : std::uint_fast8_t {
   TEMPLATE_PARAMETER,
 
   // SCOPES
+  TOP,
   SCOPE,
   TABLE,
   CLASS,
@@ -218,6 +223,8 @@ enum class SymbolKind : std::uint_fast8_t {
     return "template_parameter";
 
   // SCOPES
+  case SY::TOP:
+    return "top";
   case SY::SCOPE:
     return "scope";
   case SY::TABLE:
@@ -286,6 +293,8 @@ enum class SymbolKind : std::uint_fast8_t {
 
 enum class SymbolFlags : std::uint_fast32_t {
   NONE = 0,
+  // USABLE INHERITING PROPERTIES - are implmented via inherited types that can
+  // be used themselves
   SIMPLE_BUILTIN = rq::getBit(0),
   DEPTHED_BUILTIN = rq::getBit(1),
   SIMPLE_SUBTYPE = rq::getBit(2),
@@ -293,17 +302,25 @@ enum class SymbolFlags : std::uint_fast32_t {
   COMPOSITE_SUBTYE = rq::getBit(4),
   ARITHMETIC_SEQUENCE = rq::getBit(5),
   BINDING = rq::getBit(6),
-  SCOPED = rq::getBit(7),
-  SCOPE = rq::getBit(8),
+  SYMBOL_TABLE = rq::getBit(7),
   PROCEDURE = rq::getBit(9),
   TEMPLATE = rq::getBit(10),
   PARTIAL_SPECIALIZATION = rq::getBit(11),
-  HAS_TEMPLATE = rq::getBit(12),
-  ROOT = rq::getBit(13),
-  INTEGER = rq::getBit(14),
-  FLOAT = rq::getBit(15),
-  CODEUNIT = rq::getBit(16),
-  NAMED = rq::getBit(17)
+  // UNUSABLE INHERITING PROPERTIES - are implemented via inherited types that
+  // can not be used themselves
+  LOCATED = rq::getBit(12),
+  MODULE_MEMBER = rq::getBit(13),
+  SYMBOL_TABLE_MEMBER = rq::getBit(14),
+  ASCRIBED = rq::getBit(15),
+  MAYBE_NAMED = rq::getBit(16),
+  NAMED = rq::getBit(17),
+  TYPED = rq::getBit(18),
+  // INFO PROPERTIES - have no data associated
+  HAS_TEMPLATE = rq::getBit(19),
+  ROOT = rq::getBit(20),
+  INTEGER = rq::getBit(21),
+  FLOAT = rq::getBit(22),
+  CODEUNIT = rq::getBit(23)
 };
 
 template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
@@ -411,6 +428,8 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::SCOPED | SYF::BINDING | SYF::NAMED;
 
   // SCOPES
+  case SY::TOP:
+    return SYF::SYMBOL_TABLE;
   case SY::SCOPE:
     return SYF::SCOPE;
   case SY::TABLE:
@@ -808,12 +827,13 @@ struct SignatureParameterSymbol;
 struct TemplateParameterSymbol;
 
 // SCOPES
+struct SymbolTableSymbol;
 struct ScopeSymbol;
 struct TableSymbol;
 struct ClassSymbol;
-struct EnumerationSymbol;
+c struct EnumerationSymbol;
 
-// PROCEDURES
+// PROCEDURE
 struct ProcedureSymbol;
 struct EntrySymbol;
 struct FunctionSymbol;
@@ -2852,6 +2872,7 @@ struct VariableSymbol : public rq::Symbol,
 struct EnumeratorSymbol : public rq::Symbol,
                           public rq::detail::LocatedSymbol,
                           public rq::detail::ModuleMemberSymbol,
+                          public rq::detail::ScopeMemberSymbol,
                           public rq::detail::AscribedSymbol,
                           public rq::detail::NamedSymbol,
                           public rq::detail::TypedSymbol {
@@ -2874,6 +2895,8 @@ struct EnumeratorSymbol : public rq::Symbol,
 
 struct LayoutPropertySymbol : public rq::Symbol,
                               public rq::detail::LocatedSymbol,
+                              public rq::detail::ModuleMemberSymbol,
+                              public rq::detail::ScopeMemberSymbol,
                               public rq::detail::AscribedSymbol,
                               public rq::detail::MaybeNamedSymbol,
                               public rq::detail::TypedSymbol {
@@ -2902,6 +2925,8 @@ struct LayoutPropertySymbol : public rq::Symbol,
 
 struct ClassPropertySymbol : public rq::Symbol,
                              public rq::detail::LocatedSymbol,
+                             public rq::dtail::ModuleMemberSymbol,
+                             public rq::detail::ScopeMemberSymbol,
                              public rq::detail::AscribedSymbol,
                              public rq::detail::MaybeNamedSymbol,
                              public rq::detail::TypedSymbol {
@@ -3005,7 +3030,6 @@ struct TemplateParameterSymbol : public rq::Symbol,
 struct MutationSymbol : public rq::Symbol,
                         public rq::detail::LocatedSymbol,
                         public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::ScopeMemberSymbol,
                         public rq::detail::AscribedSymbol,
                         public rq::detail::NamedSymbol {
   using Self = rq::MutationSymbol;
@@ -3572,6 +3596,11 @@ struct ModuleSymbol final : public rq::Symbol {
 };
 
 struct ImportSymbol final : public rq::Symbol,
+                            public rq::detail::ModuleMemberSymbol {
+  using Self = rq::ImportSymbol;
+};
+
+struct FacadeSymbol final : public rq::Symbol,
                             public rq::detail::ModuleMemberSymbol {
   using Self = rq::ImportSymbol;
 };
