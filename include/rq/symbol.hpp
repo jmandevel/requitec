@@ -325,12 +325,13 @@ enum class SymbolFlags : std::uint_fast32_t {
   MAYBE_HAS_NAME = rq::getBit(22),
   HAS_NAME = rq::getBit(23),
   HAS_TYPE = rq::getBit(24),
+  HAS_IMPORT_MODULE = rq::getBit(25),
   // INFO PROPERTIES - have no data associated
-  HAS_TEMPLATE_ALTERNATIVE = rq::getBit(25),
-  ROOT = rq::getBit(26),
-  INTEGER = rq::getBit(27),
-  FLOAT = rq::getBit(28),
-  CODEUNIT = rq::getBit(29)
+  HAS_TEMPLATE_ALTERNATIVE = rq::getBit(26),
+  ROOT = rq::getBit(27),
+  INTEGER = rq::getBit(28),
+  FLOAT = rq::getBit(29),
+  CODEUNIT = rq::getBit(30),
 };
 
 template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
@@ -410,7 +411,7 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION;
   case SY::IMPORT:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES;
+           SYF::HAS_ATTRIBUTES | SYF::HAS_IMPORT_MODULE;
   case SY::FACADE:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_ATTRIBUTES;
@@ -721,6 +722,11 @@ getHasPositionalEntries(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::HAS_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_IMPORT_MODULE);
 }
 
 [[nodiscard]] inline rq::SymbolKind getTemplate(rq::SymbolKind symbol) {
@@ -1449,6 +1455,9 @@ struct Symbol {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
     return rq::getIsSymbolTable(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule() const {
+    return rq::getHasImportModule(this->_kind);
   }
 };
 
@@ -3112,6 +3121,30 @@ struct HasTypeSymbol {
     rq::assignSingleValue(this->_type_ptr, &type);
   }
 };
+struct HasImportModuleSymbol {
+  using Self = rq::detail::HasImportModuleSymbol;
+
+  rq::ModuleSymbol *_import_module_ptr{nullptr};
+
+  HasImportModuleSymbol() {}
+  HasImportModuleSymbol(const Self &) = delete;
+  HasImportModuleSymbol(Self &&) = delete;
+  virtual ~HasImportModuleSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule() const {
+    return this->_import_module_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &getImportModule() const {
+    return rq::dereferencePtr(this->_import_module_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getImportModule() {
+    return rq::dereferencePtr(this->_import_module_ptr);
+  }
+  RQ_ALWAYS_INLINE void setImportModule(rq::ModuleSymbol &import_module) {
+    rq::assignSingleValue(this->_import_module_ptr, &import_module);
+  }
+};
 } // namespace detail
 
 struct DynamicVariableSymbol : public rq::Symbol,
@@ -3937,7 +3970,8 @@ struct ImportSymbol final : public rq::Symbol,
                             public rq::detail::HasLocationSymbol,
                             public rq::detail::ModuleMemberSymbol,
                             public rq::detail::ScopeMemberSymbol,
-                            public rq::detail::HasAttributesSymbol {
+                            public rq::detail::HasAttributesSymbol,
+                            public rq::detail::HasImportModuleSymbol {
   using Self = rq::ImportSymbol;
 
   ImportSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
