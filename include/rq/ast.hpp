@@ -103,6 +103,8 @@ enum class Keyword : std::uint32_t {
   S_ADDRESS_OF,
   BORROW,
   S_BORROW_OF,
+  DATA_ADDRESS,
+  S_DATA_ADDRESS_OF,
 
   // ASSIGNMENT
   S_ASSIGN,
@@ -539,6 +541,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "borrow";
   case K::S_BORROW_OF:
     return "_borrow_of";
+  case K::DATA_ADDRESS:
+    return "data_address";
+  case K::S_DATA_ADDRESS_OF:
+    return "_data_address_of";
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -1239,6 +1245,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::BORROW:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_BORROW_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DATA_ADDRESS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   // ASSIGNMENT
@@ -2010,6 +2020,8 @@ getDescription(rq::Situation situation) {
     return K::S_ADDRESS_OF;
   case K::BORROW:
     return K::S_BORROW_OF;
+  case K::DATA_ADDRESS:
+    return K::S_DATA_ADDRESS_OF;
   // PROCEDURES
   case K::DESTROY:
     return K::S_DESTROY_VALUE;

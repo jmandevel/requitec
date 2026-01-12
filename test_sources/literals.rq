@@ -4,7 +4,7 @@
 // types like float can not cast to binary64 implicitly even if the underlying float is binary64 for platform
 
 [entry
-    a :                   [signed]=0;       // sized based on what is best for platform (usually [pointer_size] or 64)
+    a :                   [signed]=0;       // sized based on what is best for platform (usually [address_size] or 64)
     b :                   [signed]=0s;
     c :                 [unsigned]=0u;
     d :                [signed 32]=0s32;
@@ -20,5 +20,5 @@
     n :                     [bool]=[false];
     o :                     [utf8]='A';
     p :                    ^[utf8]="ASDF";
-    q :   $null_terminated *[utf8]="ASDF".[address];
+    q :   $null_terminated *[utf8]="ASDF".[data_address];
 ];
