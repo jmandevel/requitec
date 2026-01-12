@@ -1,24 +1,33 @@
 // NOTE: types in requite can have no implicit conversions, even from literals!
 // If you want to change from one numeric type to another you always must cast.
 
-// types like float can not cast to binary64 implicitly even if the underlying float is binary64 for platform
+@static ADDRESS_DEPTH := [address_byte_size] * [byte_bit_depth];
 
 [entry
-    a :                   [signed]=0;       // sized based on what is best for platform (usually [address_size] or 64)
+    a :                   [signed]=0;                     // depthed based on what is best for platform ([default_integer_bit_depth])
     b :                   [signed]=0s;
     c :                 [unsigned]=0u;
     d :                [signed 32]=0s32;
-    e :              [unsigned 48]=0s48;
-    f :                    [float]=0.0;     // [float] is the "best float" for platform (usually binary64)
-    g :                    [float]=0f;
-    h :                 [binary16]=0f16;
-    i :                 [binary32]=0f32;
-    j :                 [binary64]=0f64;
-    k :                [binary128]=0f128;
-    l :                 [bfloat16]=0bf;
-    m :                     [bool]=[true];
-    n :                     [bool]=[false];
-    o :                     [utf8]='A';
-    p :                    ^[utf8]="ASDF";
-    q :   $null_terminated *[utf8]="ASDF".[data_address];
+    e :              [unsigned 51]=0s51;                  // integer types can have any bit size, even non power of 2 sizes
+    f :                   [signed]=16xFFFFFF;             // hexadecimal
+    g :                   [signed]=2x101010;              // binary
+    h :              [unsigned 64]=16u64xDEADBEEF;        // hexadecimal
+    i :              [unsigned 64]=2u64x1011001;          // binary
+    j :                     [word]=16wxFFFF;              // words do not support arithmetic operations or comparison operations other than equality
+    k :                  [word 16]=16w16x1;               
+    l :                    [float]=0.0;                   // [float] is the "best float" for platform (usually [binary 64])
+    m :                    [float]=0f;
+    n :                [binary 16]=0b16;                  // binary floating point types have only a specific range of supported sizes (16, 32, 64, and 128)
+    o :                [binary 32]=0b32;
+    p :                [binary 64]=0b64;
+    q :               [binary 128]=0b128; 
+    r :                   [binary]=0b;                    // use "best size" for platform ([default_binary_bit_depth])
+    s :                [bfloat 16]=0bf16;
+    t :                     [bool]=[true];
+    u :                     [bool]=[false];
+    v :                     [utf8]='A';
+    w :   $null_terminated ^[utf8]="ASDF";                // when copied to a mutable, $null_terminated is removed
+    x :   $null_terminated *[utf8]="ASDF".[data_address];
+    y :  [unsigned .ADDRESS_DEPTH]=[signed].[byte_size];
+    z :  [unsigned .ADDRESS_DEPTH]=0uptr;
 ];
