@@ -198,6 +198,8 @@ enum class SymbolKind : std::uint_fast8_t {
     return "module";
   case SY::IMPORT:
     return "import";
+  case SY::FACADE:
+    return "facade";
   case SY::MUTATION:
     return "mutation";
 
@@ -388,6 +390,8 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   case SY::MODULE:
     return SYF::SCOPE | SYF::NAMED;
   case SY::IMPORT:
+    return SYF::NONE;
+  case SY::FACADE:
     return SYF::NONE;
   case SY::MUTATION:
     return SYF::NAMED;
@@ -3362,9 +3366,10 @@ struct PartialSpecializationSymbol : public rq::ScopeSymbol,
                                      public rq::detail::ScopeMemberSymbol {
   using Self = rq::PartialSpecializationSymbol;
 
-  PartialSpecializationSymbol()
-      : rq::ScopeSymbol(rq::SymbolKind::PARTIAL_CLASS) {}
-  PartialSpecializationSymbol(rq::SymbolKind kind) : rq::ScopeSymbol(kind) {}
+  PartialSpecializationSymbol(rq::SymbolKind kind, rq::ModuleSymbol &module,
+                              rq::ScopeSymbol &scope)
+      : rq::ScopeSymbol(kind), rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope) {}
   PartialSpecializationSymbol(const Self &) = delete;
   PartialSpecializationSymbol(Self &&) = delete;
   virtual ~PartialSpecializationSymbol() {}
@@ -3375,9 +3380,9 @@ struct PartialSpecializationSymbol : public rq::ScopeSymbol,
 struct PartialClassSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialClassSymbol;
 
-  PartialClassSymbol() : rq::PartialSpecializationSymbol() {
-    this->_kind = rq::SymbolKind::PARTIAL_CLASS;
-  }
+  PartialClassSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CLASS, module,
+                                        scope) {}
   PartialClassSymbol(const Self &) = delete;
   PartialClassSymbol(Self &&) = delete;
   virtual ~PartialClassSymbol() {}
@@ -3388,7 +3393,9 @@ struct PartialClassSymbol : public rq::PartialSpecializationSymbol {
 struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialEnumerationSymbol;
 
-  PartialEnumerationSymbol() : rq::PartialSpecializationSymbol() {
+  PartialEnumerationSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_ENUMERATION,
+                                        module, scope) {
     this->_kind = rq::SymbolKind::PARTIAL_ENUMERATION;
   }
   PartialEnumerationSymbol(const Self &) = delete;
@@ -3401,7 +3408,9 @@ struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
 struct PartialVariableSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialVariableSymbol;
 
-  PartialVariableSymbol() : rq::PartialSpecializationSymbol() {
+  PartialVariableSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_VARIABLE,
+                                        module, scope) {
     this->_kind = rq::SymbolKind::PARTIAL_VARIABLE;
   }
   PartialVariableSymbol(const Self &) = delete;
@@ -3414,7 +3423,9 @@ struct PartialVariableSymbol : public rq::PartialSpecializationSymbol {
 struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialFunctionSymbol;
 
-  PartialFunctionSymbol() : rq::PartialSpecializationSymbol() {
+  PartialFunctionSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_FUNCTION,
+                                        module, scope) {
     this->_kind = rq::SymbolKind::PARTIAL_FUNCTION;
   }
   PartialFunctionSymbol(const Self &) = delete;
@@ -3427,9 +3438,9 @@ struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol {
 struct PartialMethodSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialMethodSymbol;
 
-  PartialMethodSymbol() : rq::PartialSpecializationSymbol() {
-    this->_kind = rq::SymbolKind::PARTIAL_METHOD;
-  }
+  PartialMethodSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_METHOD, module,
+                                        scope) {}
   PartialMethodSymbol(const Self &) = delete;
   PartialMethodSymbol(Self &&) = delete;
   virtual ~PartialMethodSymbol() {}
@@ -3440,7 +3451,10 @@ struct PartialMethodSymbol : public rq::PartialSpecializationSymbol {
 struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialExtensionFunctionSymbol;
 
-  PartialExtensionFunctionSymbol() : rq::PartialSpecializationSymbol() {
+  PartialExtensionFunctionSymbol(rq::ModuleSymbol &module,
+                                 rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(
+            rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION, module, scope) {
     this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION;
   }
   PartialExtensionFunctionSymbol(const Self &) = delete;
@@ -3453,7 +3467,9 @@ struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol {
 struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialExtensionMethodSymbol;
 
-  PartialExtensionMethodSymbol() : rq::PartialSpecializationSymbol() {
+  PartialExtensionMethodSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(
+            rq::SymbolKind::PARTIAL_EXTENSION_METHOD, module, scope) {
     this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_METHOD;
   }
   PartialExtensionMethodSymbol(const Self &) = delete;
@@ -3466,9 +3482,9 @@ struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol {
 struct PartialConstructorSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialConstructorSymbol;
 
-  PartialConstructorSymbol() : rq::PartialSpecializationSymbol() {
-    this->_kind = rq::SymbolKind::PARTIAL_CONSTRUCTOR;
-  }
+  PartialConstructorSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CONSTRUCTOR,
+                                        module, scope) {}
   PartialConstructorSymbol(const Self &) = delete;
   PartialConstructorSymbol(Self &&) = delete;
   virtual ~PartialConstructorSymbol() {}
