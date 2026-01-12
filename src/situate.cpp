@@ -366,6 +366,13 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    situation);
     break;
+  case K::DATA_ADDRESS:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_DATA_ADDRESS_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   situation);
+    break;
 
   // ASSIGNMENT
   case K::S_ASSIGN:
@@ -792,8 +799,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::THIS:
     [[fallthrough]];
-  case K::THIS_TYPE:
-    [[fallthrough]];
   case K::THIS_SYMBOL:
     [[fallthrough]];
   case K::RESULT:
@@ -802,11 +807,17 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXIT_CODE:
     [[fallthrough]];
-  case K::ADDRESS_BYTE_SIZE:
-    [[fallthrough]];
   case K::ADDRESS_BIT_DEPTH:
     [[fallthrough]];
-  case K::BITS_PER_BYTE:
+  case K::BYTE_BIT_DEPTH:
+    [[fallthrough]];
+  case K::DEFAULT_SIGNED_BIT_DEPTH:
+    [[fallthrough]];
+  case K::DEFAULT_UNSIGNED_BIT_DEPTH:
+    [[fallthrough]];
+  case K::DEFAULT_BINARY_BIT_DEPTH:
+    [[fallthrough]];
+  case K::DEFAULT_BFLOAT_BIT_DEPTH:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 

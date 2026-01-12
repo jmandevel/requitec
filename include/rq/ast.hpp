@@ -187,8 +187,6 @@ enum class Keyword : std::uint32_t {
   OUT,
   // reference to extended value of method or extension_method.
   THIS,
-  // type of class extending or member of.
-  THIS_TYPE,
   // symbol of symbol extending or member of.
   THIS_SYMBOL,
   // value returned from a function.
@@ -197,30 +195,29 @@ enum class Keyword : std::uint32_t {
   COMMAND_LINE_ARGUMENTS,
   // resulting exit code within entry.
   EXIT_CODE,
-  // the byte size of memory addresses on the current architecture.
-  ADDRESS_BYTE_SIZE,
-  // the bit size of memory addresses on the current architecture.
+  // the bit depth of memory addresses on the current architecture.
   ADDRESS_BIT_DEPTH,
   // the amount of bits per byte on the current architecture. (almost always 8)
-  BITS_PER_BYTE,
+  BYTE_BIT_DEPTH,
+  DEFAULT_SIGNED_BIT_DEPTH,
+  DEFAULT_UNSIGNED_BIT_DEPTH,
+  DEFAULT_BINARY_BIT_DEPTH,
+  DEFAULT_BFLOAT_BIT_DEPTH,
 
   // BUILTIN TYPES
   S_INFERENCE,
   VOID,
   NO_RETURN,
   BOOLEAN,
-  // has branch with depth. if none specified, it uses bits_per_byte.
   WORD,
-  // has branch with depth. if none is specified, it uses address_depth.
   SIGNED,
-  // has branch with depth. if none is specified, it uses address_depth.
   UNSIGNED,
+  UTF8,
   BFLOAT16,
   BINARY16,
   BINARY32,
   BINARY64,
   BINARY128,
-  UTF8,
 
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
@@ -681,8 +678,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "out";
   case K::THIS:
     return "this";
-  case K::THIS_TYPE:
-    return "this_type";
   case K::THIS_SYMBOL:
     return "this_symbol";
   case K::RESULT:
@@ -691,12 +686,18 @@ constexpr std::size_t KEYWORD_COUNT =
     return "command_line_arguments";
   case K::EXIT_CODE:
     return "exit_code";
-  case K::ADDRESS_BYTE_SIZE:
-    return "address_byte_size";
   case K::ADDRESS_BIT_DEPTH:
     return "address_bit_depth";
-  case K::BITS_PER_BYTE:
-    return "bits_per_byte";
+  case K::BYTE_BIT_DEPTH:
+    return "byte_bit_depth";
+  case K::DEFAULT_SIGNED_BIT_DEPTH:
+    return "default_signed_bit_depth";
+  case K::DEFAULT_UNSIGNED_BIT_DEPTH:
+    return "default_unsigned_bit_depth";
+  case K::DEFAULT_BINARY_BIT_DEPTH:
+    return "default_binary_bit_depth";
+  case K::DEFAULT_BFLOAT_BIT_DEPTH:
+    return "default_bfloat_bit_depth";
 
   // BUILTIN TYPES
   case K::S_INFERENCE:
@@ -713,6 +714,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "signed";
   case K::UNSIGNED:
     return "unsigned";
+  case K::UTF8:
+    return "utf8";
   case K::BFLOAT16:
     return "bfloat16";
   case K::BINARY16:
@@ -723,8 +726,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "binary64";
   case K::BINARY128:
     return "binary128";
-  case K::UTF8:
-    return "utf8";
 
   // VARIADIC ARGUMENTS
   case K::VARIADIC_ARGUMENTS:
@@ -1386,8 +1387,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::THIS_TYPE:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS_SYMBOL:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
@@ -1396,11 +1395,17 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXIT_CODE:
     return KF::RVALUE | KF::LVALUE;
-  case K::ADDRESS_BYTE_SIZE:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::ADDRESS_BIT_DEPTH:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::BITS_PER_BYTE:
+  case K::BYTE_BIT_DEPTH:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DEFAULT_SIGNED_BIT_DEPTH:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DEFAULT_UNSIGNED_BIT_DEPTH:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DEFAULT_BINARY_BIT_DEPTH:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DEFAULT_BFLOAT_BIT_DEPTH:
     return KF::RVALUE | KF::ARGUMENT;
 
   // BUILTIN TYPES
