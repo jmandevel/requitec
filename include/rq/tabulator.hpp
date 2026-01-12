@@ -47,8 +47,8 @@ struct Tabulator final {
     this->_is_ok = false;
   }
   void tabulateModule();
-  void tabulateForest(const rq::Expression& first, rq::ScopeSymbol& scope);
-  void tabulateEntry(const rq::Expression& expression, rq::ScopeSymbol& scope);
+  void tabulateForest(const rq::Expression& first, rq::SymbolTableSymbol& scope);
+  void tabulateEntry(const rq::Expression& expression, rq::SymbolTableSymbol& scope);
 };
 
 } // namespace rq

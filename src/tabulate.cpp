@@ -14,7 +14,7 @@ void Tabulator::tabulateModule() {
 }
 
 void Tabulator::tabulateForest(const rq::Expression &first,
-                               rq::ScopeSymbol &scope) {
+                               rq::SymbolTableSymbol &scope) {
   for (const rq::Expression &branch : first.getInclusiveNextSubrange()) {
     const bool ascribed = branch.getKeyword() == rq::Keyword::S_ASCRIBE_SYMBOL;
     const rq::Expression &statement = ascribed ? branch.getBranch() : branch;

@@ -1675,6 +1675,10 @@ template <> struct isa_impl<rq::CaptureParameterSymbol, rq::Symbol> {
 };
 
 // SCOPES
+template <> struct isa_impl<rq::SymbolTableSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsSymbolTable(); }
+};
+
 template <> struct isa_impl<rq::TopSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsTop(); }
 };
@@ -2755,90 +2759,16 @@ struct InfiniteArithmeticProgressionSymbol
   Self &operator=(Self &&) = delete;
 };
 
-struct TopSymbol : rq::Symbol {
-  using Self = rq::TopSymbol;
+struct SymbolTableSymbol : rq::Symbol {
+  using Self = rq::SymbolTableSymbol;
 
   llvm::SmallDenseMap<llvm::StringRef, rq::Entry<rq::Symbol>> _named_values{};
   rq::Entry<rq::Symbol> _unamed_values{};
 
-  TopSymbol() : rq::Symbol(rq::SymbolKind::TOP) {}
-  TopSymbol(const Self &) = delete;
-  TopSymbol(Self &&) = delete;
-  ~TopSymbol() override {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
-  }
-  void inline tabulateNamedSymbol(rq::ContextCache &cache, llvm::StringRef name,
-                                  rq::Symbol &symbol) {
-    auto it = this->_named_values.find(name);
-    if (it != this->_named_values.end()) {
-      rq::Entry<rq::Symbol> &entry = it->second;
-      rq::Node<rq::Symbol> &node =
-          cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
-      entry = rq::Entry<rq::Symbol>(node);
-    } else {
-      this->_named_values.insert({name, rq::Entry<rq::Symbol>(symbol)});
-    }
-  }
-  inline void tabulateUnamedSymbol(rq::ContextCache &cache,
-                                   rq::Symbol &symbol) {
-    rq::Entry<rq::Symbol> &entry = this->_unamed_values;
-    if (entry.getIsEmpty()) {
-      entry = symbol;
-      return;
-    }
-    rq::Node<rq::Symbol> &node =
-        cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
-    entry = rq::Entry<rq::Symbol>(node);
-  }
-  [[nodiscard]] inline rq::Entry<rq::Symbol>
-  getNamedEntry(llvm::StringRef name) {
-    auto it = this->_named_values.find(name);
-    if (it != this->_named_values.end()) {
-      return it->second;
-    }
-    return rq::Entry<rq::Symbol>();
-  }
-  [[nodiscard]] inline rq::ConstEntry<rq::Symbol>
-  getNamedEntry(llvm::StringRef name) const {
-    auto it = this->_named_values.find(name);
-    if (it != this->_named_values.end()) {
-      return it->second;
-    }
-    return rq::ConstEntry<rq::Symbol>();
-  }
-  [[nodiscard]] inline rq::Entry<rq::Symbol> getUnamedEntry() {
-    return this->_unamed_values;
-  }
-  [[nodiscard]] inline rq::ConstEntry<rq::Symbol> getUnamedEntry() const {
-    return this->_unamed_values;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() {
-    return std::ranges::subrange(this->_named_values.begin(),
-                                 this->_named_values.end());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() const {
-    return std::ranges::subrange(this->_named_values.begin(),
-                                 this->_named_values.end());
-  }
-};
-
-struct ScopeSymbol : rq::Symbol {
-  using Self = rq::ScopeSymbol;
-
-  llvm::SmallDenseMap<llvm::StringRef, rq::Entry<rq::Symbol>> _named_values{};
-  rq::Entry<rq::Symbol> _unamed_values{};
-
-  ScopeSymbol() : rq::Symbol(rq::SymbolKind::SCOPE) {}
-  ScopeSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
-  ScopeSymbol(const Self &) = delete;
-  ScopeSymbol(Self &&) = delete;
-  ~ScopeSymbol() override {
+  SymbolTableSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
+  SymbolTableSymbol(const Self &) = delete;
+  SymbolTableSymbol(Self &&) = delete;
+  ~SymbolTableSymbol() override {
     // TODO call destructors of all contained terms
   }
   Self &operator=(const Self &) = delete;
@@ -2904,6 +2834,17 @@ struct ScopeSymbol : rq::Symbol {
   }
 };
 
+struct TopSymbol : rq::SymbolTableSymbol {
+  using Self = rq::TopSymbol;
+
+  TopSymbol() : rq::SymbolTableSymbol(rq::SymbolKind::TOP) {}
+  TopSymbol(const Self &) = delete;
+  TopSymbol(Self &&) = delete;
+  ~TopSymbol() override {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
 namespace detail {
 struct HasLocationSymbol {
   using Self = rq::detail::HasLocationSymbol;
@@ -2955,18 +2896,18 @@ struct ModuleMemberSymbol {
 struct ScopeMemberSymbol {
   using Self = rq::detail::ScopeMemberSymbol;
 
-  rq::ScopeSymbol *_scope_ptr;
+  rq::SymbolTableSymbol *_scope_ptr;
 
-  ScopeMemberSymbol(rq::ScopeSymbol &scope) : _scope_ptr(&scope) {}
+  ScopeMemberSymbol(rq::SymbolTableSymbol &scope) : _scope_ptr(&scope) {}
   ScopeMemberSymbol(const Self &) = delete;
   ScopeMemberSymbol(Self &&) = delete;
   virtual ~ScopeMemberSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeSymbol &getScope() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &getScope() const {
     return rq::dereferencePtr(this->_scope_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeSymbol &getScope() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &getScope() {
     return rq::dereferencePtr(this->_scope_ptr);
   }
 };
@@ -3147,6 +3088,25 @@ struct HasImportModuleSymbol {
 };
 } // namespace detail
 
+struct ScopeSymbol : public rq::SymbolTableSymbol,
+                     public rq::detail::HasLocationSymbol,
+                     public rq::detail::ModuleMemberSymbol,
+                     public rq::detail::ScopeMemberSymbol {
+  using Self = rq::ScopeSymbol;
+
+  ScopeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+              rq::SymbolTableSymbol &scope)
+      : rq::SymbolTableSymbol(rq::SymbolKind::SCOPE),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope) {}
+  ScopeSymbol(const Self &) = delete;
+  ScopeSymbol(Self &&) = delete;
+  ~ScopeSymbol() override {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
 struct DynamicVariableSymbol : public rq::Symbol,
                                public rq::detail::HasLocationSymbol,
                                public rq::detail::ModuleMemberSymbol,
@@ -3157,7 +3117,7 @@ struct DynamicVariableSymbol : public rq::Symbol,
   using Self = rq::DynamicVariableSymbol;
 
   DynamicVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                        rq::ScopeSymbol &scope, llvm::StringRef name,
+                        rq::SymbolTableSymbol &scope, llvm::StringRef name,
                         rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::DYNAMIC_VARIABLE),
         rq::detail::HasLocationSymbol(expression),
@@ -3181,7 +3141,7 @@ struct StaticVariableSymbol : public rq::Symbol,
   using Self = rq::StaticVariableSymbol;
 
   StaticVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                       rq::ScopeSymbol &scope, llvm::StringRef name,
+                       rq::SymbolTableSymbol &scope, llvm::StringRef name,
                        rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::STATIC_VARIABLE),
         rq::detail::HasLocationSymbol(expression),
@@ -3198,6 +3158,7 @@ struct StaticVariableSymbol : public rq::Symbol,
 struct EnumeratorSymbol : public rq::Symbol,
                           public rq::detail::HasLocationSymbol,
                           public rq::detail::ModuleMemberSymbol,
+                          public rq::detail::ScopeMemberSymbol,
                           public rq::detail::HasAttributesSymbol,
                           public rq::detail::HasNameSymbol,
                           public rq::detail::HasTypeSymbol {
@@ -3206,10 +3167,12 @@ struct EnumeratorSymbol : public rq::Symbol,
   rq::EnumerationSymbol *_enumeration_ptr;
 
   EnumeratorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                   llvm::StringRef name, rq::SymbolAttributeFlags attributes)
+                   rq::SymbolTableSymbol &scope, llvm::StringRef name,
+                   rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::ENUMERATOR),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   EnumeratorSymbol(const Self &) = delete;
   EnumeratorSymbol(Self &&) = delete;
@@ -3228,7 +3191,7 @@ struct PropertySymbol : public rq::Symbol,
   using Self = rq::PropertySymbol;
 
   PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::ScopeSymbol &scope, rq::SymbolAttributeFlags attributes)
+                 rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::PROPERTY),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
@@ -3236,7 +3199,7 @@ struct PropertySymbol : public rq::Symbol,
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
   PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::ScopeSymbol &scope, llvm::StringRef name,
+                 rq::SymbolTableSymbol &scope, llvm::StringRef name,
                  rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::PROPERTY),
         rq::detail::HasLocationSymbol(expression),
@@ -3263,7 +3226,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
   rq::SignatureSymbol *_signature_ptr;
 
   SignatureParameterSymbol(rq::Expression &expression,
-                           rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                           rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
@@ -3272,7 +3235,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
   SignatureParameterSymbol(rq::Expression &expression,
-                           rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                           rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                            llvm::StringRef name,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
@@ -3300,7 +3263,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
   rq::TemplateSymbol *_template_ptr;
 
   TemplateParameterSymbol(rq::Expression &expression,
-                          rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                          rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                           rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
@@ -3309,7 +3272,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
   TemplateParameterSymbol(rq::Expression &expression,
-                          rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                          rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                           llvm::StringRef name,
                           rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
@@ -3334,7 +3297,7 @@ struct AttributeParameterSymbol : public rq::Symbol,
   using Self = rq::AttributeParameterSymbol;
 
   AttributeParameterSymbol(rq::Expression &expression,
-                           rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                           rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::ATTRIBUTE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
@@ -3358,7 +3321,7 @@ struct CaptureParameterSymbol : public rq::Symbol,
   using Self = rq::CaptureParameterSymbol;
 
   CaptureParameterSymbol(rq::Expression &expression,
-                         rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                         rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                          rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::CAPTURE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
@@ -3366,7 +3329,7 @@ struct CaptureParameterSymbol : public rq::Symbol,
         rq::detail::ScopeMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {}
   CaptureParameterSymbol(rq::Expression &expression,
-                         rq::ModuleSymbol &module, rq::ScopeSymbol &scope,
+                         rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                          llvm::StringRef name,
                          rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::CAPTURE_PARAMETER),
@@ -3386,18 +3349,16 @@ struct MutationSymbol : public rq::Symbol,
                         public rq::detail::HasLocationSymbol,
                         public rq::detail::ModuleMemberSymbol,
                         public rq::detail::ScopeMemberSymbol,
-                        public rq::detail::HasAttributesSymbol,
-                        public rq::detail::HasNameSymbol {
+                        public rq::detail::HasAttributesSymbol {
   using Self = rq::MutationSymbol;
 
   MutationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::ScopeSymbol &scope, llvm::StringRef name,
-                 rq::SymbolAttributeFlags attributes)
+                 rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::MUTATION),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
-        rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
+        rq::detail::HasAttributesSymbol(attributes) {}
   MutationSymbol(const Self &) = delete;
   MutationSymbol(Self &&) = delete;
   virtual ~MutationSymbol() {}
@@ -3405,11 +3366,11 @@ struct MutationSymbol : public rq::Symbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct TableSymbol : public rq::ScopeSymbol, public rq::detail::HasNameSymbol {
+struct TableSymbol : public rq::SymbolTableSymbol, public rq::detail::HasNameSymbol {
   using Self = rq::TableSymbol;
 
   TableSymbol(llvm::StringRef name)
-      : rq::ScopeSymbol(rq::SymbolKind::TABLE), rq::detail::HasNameSymbol(name) {}
+      : rq::SymbolTableSymbol(rq::SymbolKind::TABLE), rq::detail::HasNameSymbol(name) {}
   TableSymbol(const Self &) = delete;
   TableSymbol(Self &&) = delete;
   virtual ~TableSymbol() {}
@@ -3417,7 +3378,7 @@ struct TableSymbol : public rq::ScopeSymbol, public rq::detail::HasNameSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct ClassSymbol : public rq::ScopeSymbol,
+struct ClassSymbol : public rq::SymbolTableSymbol,
                      public rq::detail::HasLocationSymbol,
                      public rq::detail::ModuleMemberSymbol,
                      public rq::detail::ScopeMemberSymbol,
@@ -3428,9 +3389,9 @@ struct ClassSymbol : public rq::ScopeSymbol,
   rq::Entry<rq::PropertySymbol> _class_properties;
 
   ClassSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-              rq::ScopeSymbol &scope, llvm::StringRef name,
+              rq::SymbolTableSymbol &scope, llvm::StringRef name,
               rq::SymbolAttributeFlags attributes)
-      : rq::ScopeSymbol(rq::SymbolKind::CLASS),
+      : rq::SymbolTableSymbol(rq::SymbolKind::CLASS),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
@@ -3442,7 +3403,7 @@ struct ClassSymbol : public rq::ScopeSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct EnumerationSymbol : public rq::ScopeSymbol,
+struct EnumerationSymbol : public rq::SymbolTableSymbol,
                            public rq::detail::HasLocationSymbol,
                            public rq::detail::ModuleMemberSymbol,
                            public rq::detail::ScopeMemberSymbol,
@@ -3453,9 +3414,9 @@ struct EnumerationSymbol : public rq::ScopeSymbol,
   rq::Entry<rq::EnumeratorSymbol> _enumerators;
 
   EnumerationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                    rq::ScopeSymbol &scope, llvm::StringRef name,
+                    rq::SymbolTableSymbol &scope, llvm::StringRef name,
                     rq::SymbolAttributeFlags attributes)
-      : rq::ScopeSymbol(rq::SymbolKind::ENUMERATION),
+      : rq::SymbolTableSymbol(rq::SymbolKind::ENUMERATION),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::ScopeMemberSymbol(scope),
@@ -3467,7 +3428,7 @@ struct EnumerationSymbol : public rq::ScopeSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct ProcedureSymbol : public rq::ScopeSymbol,
+struct ProcedureSymbol : public rq::SymbolTableSymbol,
                          public rq::detail::HasLocationSymbol,
                          public rq::detail::ModuleMemberSymbol,
                          public rq::detail::HasAttributesSymbol {
@@ -3477,7 +3438,7 @@ struct ProcedureSymbol : public rq::ScopeSymbol,
 
   ProcedureSymbol(rq::SymbolKind kind, rq::Expression &expression,
                   rq::ModuleSymbol &module, rq::SymbolAttributeFlags attributes)
-      : rq::ScopeSymbol(kind), rq::detail::HasLocationSymbol(expression),
+      : rq::SymbolTableSymbol(kind), rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::HasAttributesSymbol(attributes), _signature_ptr(nullptr) {}
   ProcedureSymbol(const Self &) = delete;
@@ -3609,15 +3570,14 @@ struct RangerSymbol : public rq::ProcedureSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateSymbol : public rq::ScopeSymbol, public rq::detail::HasNameSymbol {
+struct TemplateSymbol : public rq::Symbol {
   using Self = rq::TemplateSymbol;
 
   rq::Entry<rq::TemplateParameterSymbol> _template_parameters;
 
-  TemplateSymbol(llvm::StringRef name, rq::SymbolKind kind,
+  TemplateSymbol(rq::SymbolKind kind,
                  const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::ScopeSymbol(kind), rq::detail::HasNameSymbol(name),
-        _template_parameters(parameters) {}
+      : rq::Symbol(kind), _template_parameters(parameters) {}
   TemplateSymbol(const Self &) = delete;
   TemplateSymbol(Self &&) = delete;
   virtual ~TemplateSymbol() {}
@@ -3625,12 +3585,14 @@ struct TemplateSymbol : public rq::ScopeSymbol, public rq::detail::HasNameSymbol
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateClassSymbol : public rq::TemplateSymbol {
+struct TemplateClassSymbol : public rq::TemplateSymbol,
+                             public rq::detail::HasNameSymbol {
   using Self = rq::TemplateClassSymbol;
 
   TemplateClassSymbol(llvm::StringRef name,
                       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_CLASS, parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_CLASS, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateClassSymbol(const Self &) = delete;
   TemplateClassSymbol(Self &&) = delete;
   virtual ~TemplateClassSymbol() {}
@@ -3638,14 +3600,15 @@ struct TemplateClassSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
+struct TemplateEnumerationSymbol : public rq::TemplateSymbol,
+                                   public rq::detail::HasNameSymbol {
   using Self = rq::TemplateEnumerationSymbol;
 
   TemplateEnumerationSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_ENUMERATION,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_ENUMERATION, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateEnumerationSymbol(const Self &) = delete;
   TemplateEnumerationSymbol(Self &&) = delete;
   virtual ~TemplateEnumerationSymbol() {}
@@ -3653,14 +3616,15 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol {
+struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol,
+                                       public rq::detail::HasNameSymbol {
   using Self = rq::TemplateDynamicVariableSymbol;
 
   TemplateDynamicVariableSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateDynamicVariableSymbol(const Self &) = delete;
   TemplateDynamicVariableSymbol(Self &&) = delete;
   virtual ~TemplateDynamicVariableSymbol() {}
@@ -3668,14 +3632,15 @@ struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateStaticVariableSymbol : public rq::TemplateSymbol {
+struct TemplateStaticVariableSymbol : public rq::TemplateSymbol,
+                                      public rq::detail::HasNameSymbol {
   using Self = rq::TemplateStaticVariableSymbol;
 
   TemplateStaticVariableSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_STATIC_VARIABLE,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_STATIC_VARIABLE, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateStaticVariableSymbol(const Self &) = delete;
   TemplateStaticVariableSymbol(Self &&) = delete;
   virtual ~TemplateStaticVariableSymbol() {}
@@ -3683,14 +3648,15 @@ struct TemplateStaticVariableSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateFunctionSymbol : public rq::TemplateSymbol {
+struct TemplateFunctionSymbol : public rq::TemplateSymbol,
+                                public rq::detail::HasNameSymbol {
   using Self = rq::TemplateFunctionSymbol;
 
   TemplateFunctionSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_FUNCTION,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_FUNCTION, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateFunctionSymbol(const Self &) = delete;
   TemplateFunctionSymbol(Self &&) = delete;
   virtual ~TemplateFunctionSymbol() {}
@@ -3698,12 +3664,14 @@ struct TemplateFunctionSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateMethodSymbol : public rq::TemplateSymbol {
+struct TemplateMethodSymbol : public rq::TemplateSymbol,
+                              public rq::detail::HasNameSymbol {
   using Self = rq::TemplateMethodSymbol;
 
   TemplateMethodSymbol(llvm::StringRef name,
                        const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_METHOD, parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_METHOD, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateMethodSymbol(const Self &) = delete;
   TemplateMethodSymbol(Self &&) = delete;
   virtual ~TemplateMethodSymbol() {}
@@ -3711,14 +3679,15 @@ struct TemplateMethodSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol {
+struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol,
+                                         public rq::detail::HasNameSymbol {
   using Self = rq::TemplateExtensionFunctionSymbol;
 
   TemplateExtensionFunctionSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateExtensionFunctionSymbol(const Self &) = delete;
   TemplateExtensionFunctionSymbol(Self &&) = delete;
   virtual ~TemplateExtensionFunctionSymbol() {}
@@ -3726,14 +3695,15 @@ struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol {
+struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol,
+                                       public rq::detail::HasNameSymbol {
   using Self = rq::TemplateExtensionMethodSymbol;
 
   TemplateExtensionMethodSymbol(
       llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_EXTENSION_METHOD,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_EXTENSION_METHOD, parameters),
+        rq::detail::HasNameSymbol(name) {}
   TemplateExtensionMethodSymbol(const Self &) = delete;
   TemplateExtensionMethodSymbol(Self &&) = delete;
   virtual ~TemplateExtensionMethodSymbol() {}
@@ -3745,10 +3715,8 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateConstructorSymbol;
 
   TemplateConstructorSymbol(
-      llvm::StringRef name,
       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(name, rq::SymbolKind::TEMPLATE_CONSTRUCTOR,
-                           parameters) {}
+      : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_CONSTRUCTOR, parameters) {}
   TemplateConstructorSymbol(const Self &) = delete;
   TemplateConstructorSymbol(Self &&) = delete;
   virtual ~TemplateConstructorSymbol() {}
@@ -3756,15 +3724,11 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialSpecializationSymbol : public rq::ScopeSymbol,
-                                     public rq::detail::ModuleMemberSymbol,
-                                     public rq::detail::ScopeMemberSymbol {
+struct PartialSpecializationSymbol : public rq::Symbol {
   using Self = rq::PartialSpecializationSymbol;
 
-  PartialSpecializationSymbol(rq::SymbolKind kind, rq::ModuleSymbol &module,
-                              rq::ScopeSymbol &scope)
-      : rq::ScopeSymbol(kind), rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope) {}
+  PartialSpecializationSymbol(rq::SymbolKind kind)
+      : rq::Symbol(kind) {}
   PartialSpecializationSymbol(const Self &) = delete;
   PartialSpecializationSymbol(Self &&) = delete;
   virtual ~PartialSpecializationSymbol() {}
@@ -3772,12 +3736,13 @@ struct PartialSpecializationSymbol : public rq::ScopeSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialClassSymbol : public rq::PartialSpecializationSymbol {
+struct PartialClassSymbol : public rq::PartialSpecializationSymbol,
+                            public rq::detail::HasNameSymbol {
   using Self = rq::PartialClassSymbol;
 
-  PartialClassSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CLASS, module,
-                                        scope) {}
+  PartialClassSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CLASS),
+        rq::detail::HasNameSymbol(name) {}
   PartialClassSymbol(const Self &) = delete;
   PartialClassSymbol(Self &&) = delete;
   virtual ~PartialClassSymbol() {}
@@ -3785,14 +3750,13 @@ struct PartialClassSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
+struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol,
+                                  public rq::detail::HasNameSymbol {
   using Self = rq::PartialEnumerationSymbol;
 
-  PartialEnumerationSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_ENUMERATION,
-                                        module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_ENUMERATION;
-  }
+  PartialEnumerationSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_ENUMERATION),
+        rq::detail::HasNameSymbol(name) {}
   PartialEnumerationSymbol(const Self &) = delete;
   PartialEnumerationSymbol(Self &&) = delete;
   virtual ~PartialEnumerationSymbol() {}
@@ -3800,14 +3764,13 @@ struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialDynamicVariableSymbol : public rq::PartialSpecializationSymbol {
+struct PartialDynamicVariableSymbol : public rq::PartialSpecializationSymbol,
+                                      public rq::detail::HasNameSymbol {
   using Self = rq::PartialDynamicVariableSymbol;
 
-  PartialDynamicVariableSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE, module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE;
-  }
+  PartialDynamicVariableSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE),
+        rq::detail::HasNameSymbol(name) {}
   PartialDynamicVariableSymbol(const Self &) = delete;
   PartialDynamicVariableSymbol(Self &&) = delete;
   virtual ~PartialDynamicVariableSymbol() {}
@@ -3815,14 +3778,13 @@ struct PartialDynamicVariableSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialStaticVariableSymbol : public rq::PartialSpecializationSymbol {
+struct PartialStaticVariableSymbol : public rq::PartialSpecializationSymbol,
+                                     public rq::detail::HasNameSymbol {
   using Self = rq::PartialStaticVariableSymbol;
 
-  PartialStaticVariableSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_STATIC_VARIABLE,
-                                        module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_STATIC_VARIABLE;
-  }
+  PartialStaticVariableSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_STATIC_VARIABLE),
+        rq::detail::HasNameSymbol(name) {}
   PartialStaticVariableSymbol(const Self &) = delete;
   PartialStaticVariableSymbol(Self &&) = delete;
   virtual ~PartialStaticVariableSymbol() {}
@@ -3830,14 +3792,13 @@ struct PartialStaticVariableSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol {
+struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol,
+                               public rq::detail::HasNameSymbol {
   using Self = rq::PartialFunctionSymbol;
 
-  PartialFunctionSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_FUNCTION,
-                                        module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_FUNCTION;
-  }
+  PartialFunctionSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_FUNCTION),
+        rq::detail::HasNameSymbol(name) {}
   PartialFunctionSymbol(const Self &) = delete;
   PartialFunctionSymbol(Self &&) = delete;
   virtual ~PartialFunctionSymbol() {}
@@ -3845,12 +3806,13 @@ struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialMethodSymbol : public rq::PartialSpecializationSymbol {
+struct PartialMethodSymbol : public rq::PartialSpecializationSymbol,
+                             public rq::detail::HasNameSymbol {
   using Self = rq::PartialMethodSymbol;
 
-  PartialMethodSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_METHOD, module,
-                                        scope) {}
+  PartialMethodSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_METHOD),
+        rq::detail::HasNameSymbol(name) {}
   PartialMethodSymbol(const Self &) = delete;
   PartialMethodSymbol(Self &&) = delete;
   virtual ~PartialMethodSymbol() {}
@@ -3858,15 +3820,13 @@ struct PartialMethodSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol {
+struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol,
+                                        public rq::detail::HasNameSymbol {
   using Self = rq::PartialExtensionFunctionSymbol;
 
-  PartialExtensionFunctionSymbol(rq::ModuleSymbol &module,
-                                 rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION, module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION;
-  }
+  PartialExtensionFunctionSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION),
+        rq::detail::HasNameSymbol(name) {}
   PartialExtensionFunctionSymbol(const Self &) = delete;
   PartialExtensionFunctionSymbol(Self &&) = delete;
   virtual ~PartialExtensionFunctionSymbol() {}
@@ -3874,14 +3834,13 @@ struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol {
+struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol,
+                                      public rq::detail::HasNameSymbol {
   using Self = rq::PartialExtensionMethodSymbol;
 
-  PartialExtensionMethodSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_EXTENSION_METHOD, module, scope) {
-    this->_kind = rq::SymbolKind::PARTIAL_EXTENSION_METHOD;
-  }
+  PartialExtensionMethodSymbol(llvm::StringRef name)
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_EXTENSION_METHOD),
+        rq::detail::HasNameSymbol(name) {}
   PartialExtensionMethodSymbol(const Self &) = delete;
   PartialExtensionMethodSymbol(Self &&) = delete;
   virtual ~PartialExtensionMethodSymbol() {}
@@ -3892,9 +3851,8 @@ struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol {
 struct PartialConstructorSymbol : public rq::PartialSpecializationSymbol {
   using Self = rq::PartialConstructorSymbol;
 
-  PartialConstructorSymbol(rq::ModuleSymbol &module, rq::ScopeSymbol &scope)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CONSTRUCTOR,
-                                        module, scope) {}
+  PartialConstructorSymbol()
+      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CONSTRUCTOR) {}
   PartialConstructorSymbol(const Self &) = delete;
   PartialConstructorSymbol(Self &&) = delete;
   virtual ~PartialConstructorSymbol() {}
@@ -3975,7 +3933,7 @@ struct ImportSymbol final : public rq::Symbol,
   using Self = rq::ImportSymbol;
 
   ImportSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               rq::ScopeSymbol &scope, rq::SymbolAttributeFlags attributes)
+               rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::IMPORT),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
@@ -3996,7 +3954,7 @@ struct FacadeSymbol final : public rq::Symbol,
   using Self = rq::FacadeSymbol;
 
   FacadeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               rq::ScopeSymbol &scope, rq::SymbolAttributeFlags attributes)
+               rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::FACADE),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),

@@ -73,7 +73,7 @@ struct Context final : public rq::ContextCache {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  rq::ScopeSymbol _top_scope{};
+  rq::TopSymbol _top_scope{};
   rq::ModuleSymbol *_source_module_ptr = nullptr;
 
   Context(std::string &&executable_path)
@@ -89,10 +89,10 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeSymbol &getTopScope() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &getTopScope() {
     return this->_top_scope;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ScopeSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
   getTopScope() const {
     return this->_top_scope;
   }
