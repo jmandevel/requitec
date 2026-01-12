@@ -1,0 +1,24 @@
+// NOTE: types in requite can have no implicit conversions, even from literals!
+// If you want to change from one numeric type to another you always must cast.
+
+// types like float can not cast to binary64 implicitly even if the underlying float is binary64 for platform
+
+[entry
+    a :                   [signed]=0;       // sized based on what is best for platform (usually [pointer_size] or 64)
+    b :                   [signed]=0s;
+    c :                 [unsigned]=0u;
+    d :                [signed 32]=0s32;
+    e :              [unsigned 48]=0s48;
+    f :                    [float]=0.0;     // [float] is the "best float" for platform (usually binary64)
+    g :                    [float]=0f;
+    h :                 [binary16]=0f16;
+    i :                 [binary32]=0f32;
+    j :                 [binary64]=0f64;
+    k :                [binary128]=0f128;
+    l :                 [bfloat16]=0bf;
+    m :                     [bool]=[true];
+    n :                     [bool]=[false];
+    o :                     [utf8]='A';
+    p :                    ^[utf8]="ASDF";
+    q :   $null_terminated *[utf8]="ASDF".[address];
+];
