@@ -84,7 +84,6 @@ enum class SymbolKind : std::uint_fast8_t {
 
   // SCOPES
   TOP,
-  SCOPE,
   TABLE,
   CLASS,
   ENUMERATION,
@@ -224,8 +223,6 @@ enum class SymbolKind : std::uint_fast8_t {
   // SCOPES
   case SY::TOP:
     return "top";
-  case SY::SCOPE:
-    return "scope";
   case SY::TABLE:
     return "table";
   case SY::CLASS:
@@ -456,9 +453,6 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     // SCOPES
   case SY::TOP:
     return SYF::SYMBOL_TABLE;
-  case SY::SCOPE:
-    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION | SYF::MODULE_MEMBER |
-           SYF::SYMBOL_TABLE_MEMBER;
   case SY::TABLE:
     return SYF::SYMBOL_TABLE | SYF::HAS_NAME;
   case SY::CLASS:
@@ -982,7 +976,6 @@ struct CaptureParameterSymbol;
 // SCOPES
 struct SymbolTableSymbol;
 struct TopSymbol;
-struct ScopeSymbol;
 struct TableSymbol;
 struct ClassSymbol;
 struct EnumerationSymbol;
@@ -1286,9 +1279,6 @@ struct Symbol {
   // SCOPES
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTop() const {
     return this->_kind == rq::SymbolKind::TOP;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScope() const {
-    return this->_kind == rq::SymbolKind::SCOPE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTable() const {
     return this->_kind == rq::SymbolKind::TABLE;
@@ -1681,10 +1671,6 @@ template <> struct isa_impl<rq::SymbolTableSymbol, rq::Symbol> {
 
 template <> struct isa_impl<rq::TopSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsTop(); }
-};
-
-template <> struct isa_impl<rq::ScopeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsScope(); }
 };
 
 template <> struct isa_impl<rq::TableSymbol, rq::Symbol> {
@@ -3087,25 +3073,6 @@ struct HasImportModuleSymbol {
   }
 };
 } // namespace detail
-
-struct ScopeSymbol : public rq::SymbolTableSymbol,
-                     public rq::detail::HasLocationSymbol,
-                     public rq::detail::ModuleMemberSymbol,
-                     public rq::detail::ScopeMemberSymbol {
-  using Self = rq::ScopeSymbol;
-
-  ScopeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-              rq::SymbolTableSymbol &scope)
-      : rq::SymbolTableSymbol(rq::SymbolKind::SCOPE),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope) {}
-  ScopeSymbol(const Self &) = delete;
-  ScopeSymbol(Self &&) = delete;
-  ~ScopeSymbol() override {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
 
 struct DynamicVariableSymbol : public rq::Symbol,
                                public rq::detail::HasLocationSymbol,
