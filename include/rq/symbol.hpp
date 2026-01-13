@@ -81,6 +81,7 @@ enum class SymbolKind : std::uint_fast8_t {
   SIGNATURE_PARAMETER,
   ATTRIBUTE_PARAMETER,
   CAPTURE_PARAMETER,
+  LABEL,
 
   // SCOPES
   TOP,
@@ -219,6 +220,8 @@ enum class SymbolKind : std::uint_fast8_t {
     return "attribute_parameter";
   case SY::CAPTURE_PARAMETER:
     return "capture_parameter";
+  case SY::LABEL:
+    return "label";
 
   // SCOPES
   case SY::TOP:
@@ -449,6 +452,9 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   case SY::CAPTURE_PARAMETER:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_ATTRIBUTES | SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
+  case SY::LABEL:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_NAME;
 
     // SCOPES
   case SY::TOP:
@@ -979,6 +985,7 @@ struct TopSymbol;
 struct TableSymbol;
 struct ClassSymbol;
 struct EnumerationSymbol;
+struct LabelSymbol;
 
 // PROCEDURE
 struct ProcedureSymbol;
@@ -1274,6 +1281,9 @@ struct Symbol {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacade() const {
     return this->_kind == rq::SymbolKind::FACADE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabel() const {
+    return this->_kind == rq::SymbolKind::LABEL;
   }
 
   // SCOPES
@@ -1685,6 +1695,10 @@ template <> struct isa_impl<rq::EnumerationSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
     return val.getIsEnumeration();
   }
+};
+
+template <> struct isa_impl<rq::LabelSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsLabel(); }
 };
 
 // PROCEDURES
@@ -3331,6 +3345,40 @@ struct MutationSymbol : public rq::Symbol,
   virtual ~MutationSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+};
+
+struct LabelSymbol : public rq::Symbol,
+                     public rq::detail::HasLocationSymbol,
+                     public rq::detail::ModuleMemberSymbol,
+                     public rq::detail::ScopeMemberSymbol,
+                     public rq::detail::HasNameSymbol {
+  using Self = rq::LabelSymbol;
+
+  rq::Expression *_statement_ptr;
+
+  LabelSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+              rq::SymbolTableSymbol &scope, llvm::StringRef name,
+              rq::Expression &statement)
+      : rq::Symbol(rq::SymbolKind::LABEL),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::HasNameSymbol(name),
+        _statement_ptr(&statement) {}
+  LabelSymbol(const Self &) = delete;
+  LabelSymbol(Self &&) = delete;
+  virtual ~LabelSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getStatement() {
+    return rq::dereferencePtr(this->_statement_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatement() const {
+    return rq::dereferencePtr(this->_statement_ptr);
+  }
+  RQ_ALWAYS_INLINE void setStatement(rq::Expression &statement) {
+    rq::assignSingleValue(this->_statement_ptr, &statement);
+  }
 };
 
 struct TableSymbol : public rq::SymbolTableSymbol, public rq::detail::HasNameSymbol {
