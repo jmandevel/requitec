@@ -458,40 +458,10 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
 static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
                        const rq::Symbol &symbol, unsigned indent) {
   rq::emitIndent(fout, indent);
+  std::ignore = context;
   fout << rq::getName(symbol.getKind()) << ":{";
   indent++;
   switch (symbol.getKind()) {
-  case rq::SymbolKind::SCOPE: {
-    const rq::ScopeSymbol &scope = llvm::cast<rq::ScopeSymbol>(symbol);
-    fout << "\n";
-    rq::emitIndent(fout, indent);
-    fout << "named:{\n";
-    indent++;
-    for (auto kvp : scope.getNamedEntryRange()) {
-      llvm::StringRef name = kvp.first;
-      rq::emitIndent(fout, indent);
-      fout << name << ":{\n";
-      indent++;
-      for (const rq::Symbol &symbol : kvp.second) {
-        rq::emitSymbol(context, fout, symbol, indent);
-      }
-      indent--;
-      rq::emitIndent(fout, indent);
-      fout << "}\n";
-    }
-    indent--;
-    rq::emitIndent(fout, indent);
-    fout << "}\n";
-    rq::emitIndent(fout, indent);
-    fout << "unamed:{\n";
-    indent++;
-    for (const rq::Symbol &unamed : scope.getUnamedEntry()) {
-      rq::emitSymbol(context, fout, unamed, indent);
-    }
-    indent--;
-    rq::emitIndent(fout, indent);
-    fout << "}\n";
-  } break;
   case rq::SymbolKind::ENTRY:
     fout << "{}\n";
     break;
