@@ -2759,7 +2759,7 @@ struct InfiniteArithmeticProgressionSymbol
   Self &operator=(Self &&) = delete;
 };
 
-struct SymbolTableSymbol : rq::Symbol {
+struct SymbolTableSymbol : public rq::Symbol {
   using Self = rq::SymbolTableSymbol;
 
   llvm::SmallDenseMap<llvm::StringRef, rq::Entry<rq::Symbol>> _named_values{};
