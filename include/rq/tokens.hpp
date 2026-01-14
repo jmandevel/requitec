@@ -108,7 +108,7 @@ enum class TokenKind : std::uint_fast8_t {
   // GROUPING SYMBOLS
   LEFT_BRACKET_GROUPING,         // [
   RIGHT_BRACKET_GROUPING,        // ]
-  DOUBLE_LEFT_BRACKET_GROUPING,  // [[
+  LEFT_DOUBLE_BRACKET_GROUPING,  // [[
   RIGHT_DOUBLE_BRACKET_GROUPING, // [[
   LEFT_BRACE_GROUPING,           // {
   RIGHT_BRACE_GROUPING,          // }
@@ -134,7 +134,7 @@ enum class TokenKind : std::uint_fast8_t {
   ERROR_UNTERMINATED_CODEUNIT_LITERAL,
   ERROR_UNMATCHED_LEFT_BRACKET_GROUPING,
   ERROR_UNMATCHED_RIGHT_BRACKET_GROUPING,
-  ERROR_UNMATCHED_DOUBLE_LEFT_BRACKET_GROUPING,
+  ERROR_UNMATCHED_LEFT_DOUBLE_BRACKET_GROUPING,
   ERROR_UNMATCHED_RIGHT_DOUBLE_BRACKET_GROUPING,
   ERROR_UNMATCHED_LEFT_BRACE_GROUPING,
   ERROR_UNMATCHED_RIGHT_BRACE_GROUPING,
@@ -353,8 +353,8 @@ getName(rq::TokenKind kind) {
     return "left_bracket_grouping";
   case T::RIGHT_BRACKET_GROUPING:
     return "right_bracket_grouping";
-  case T::DOUBLE_LEFT_BRACKET_GROUPING:
-    return "double_left_bracket_grouping";
+  case T::LEFT_DOUBLE_BRACKET_GROUPING:
+    return "left_double_bracket_grouping";
   case T::RIGHT_DOUBLE_BRACKET_GROUPING:
     return "right_double_bracket_grouping";
   case T::LEFT_BRACE_GROUPING:
@@ -395,8 +395,8 @@ getName(rq::TokenKind kind) {
     return "error_nmatched_left_bracket_grouping";
   case T::ERROR_UNMATCHED_RIGHT_BRACKET_GROUPING:
     return "error_unmatched_right_bracket_grouping";
-  case T::ERROR_UNMATCHED_DOUBLE_LEFT_BRACKET_GROUPING:
-    return "error_nmatched_double_left_bracket_grouping";
+  case T::ERROR_UNMATCHED_LEFT_DOUBLE_BRACKET_GROUPING:
+    return "error_nmatched_left_double_bracket_grouping";
   case T::ERROR_UNMATCHED_RIGHT_DOUBLE_BRACKET_GROUPING:
     return "error_unmatched_right_double_bracket_grouping";
   case T::ERROR_UNMATCHED_LEFT_BRACE_GROUPING:
@@ -608,8 +608,8 @@ getDescription(rq::TokenKind kind) {
     return "left bracket grouping";
   case T::RIGHT_BRACKET_GROUPING:
     return "right bracket grouping";
-  case T::DOUBLE_LEFT_BRACKET_GROUPING:
-    return "double left bracket grouping";
+  case T::LEFT_DOUBLE_BRACKET_GROUPING:
+    return "left double bracket grouping";
   case T::RIGHT_DOUBLE_BRACKET_GROUPING:
     return "right double bracket grouping";
   case T::LEFT_BRACE_GROUPING:
@@ -650,8 +650,8 @@ getDescription(rq::TokenKind kind) {
     return "unmatched left bracket grouping";
   case T::ERROR_UNMATCHED_RIGHT_BRACKET_GROUPING:
     return "unmatched right bracket grouping";
-  case T::ERROR_UNMATCHED_DOUBLE_LEFT_BRACKET_GROUPING:
-    return "unmatched double left bracket grouping";
+  case T::ERROR_UNMATCHED_LEFT_DOUBLE_BRACKET_GROUPING:
+    return "unmatched left double bracket grouping";
   case T::ERROR_UNMATCHED_RIGHT_DOUBLE_BRACKET_GROUPING:
     return "unmatched right double bracket grouping";
   case T::ERROR_UNMATCHED_LEFT_BRACE_GROUPING:
@@ -857,7 +857,7 @@ getFlags(rq::TokenKind kind) {
     return TF::LEFT_GROUPING;
   case T::RIGHT_BRACKET_GROUPING:
     return TF::RIGHT_GROUPING | TF::INFERENCE_TERMINATOR;
-  case T::DOUBLE_LEFT_BRACKET_GROUPING:
+  case T::LEFT_DOUBLE_BRACKET_GROUPING:
     return TF::LEFT_GROUPING;
   case T::RIGHT_DOUBLE_BRACKET_GROUPING:
     return TF::RIGHT_GROUPING | TF::INFERENCE_TERMINATOR;
@@ -895,7 +895,7 @@ getFlags(rq::TokenKind kind) {
     return TF::ERROR | TF::LEFT_GROUPING;
   case T::ERROR_UNMATCHED_RIGHT_BRACKET_GROUPING:
     return TF::ERROR | TF::RIGHT_GROUPING;
-  case T::ERROR_UNMATCHED_DOUBLE_LEFT_BRACKET_GROUPING:
+  case T::ERROR_UNMATCHED_LEFT_DOUBLE_BRACKET_GROUPING:
     return TF::ERROR | TF::LEFT_GROUPING;
   case T::ERROR_UNMATCHED_RIGHT_DOUBLE_BRACKET_GROUPING:
     return TF::ERROR | TF::RIGHT_GROUPING;

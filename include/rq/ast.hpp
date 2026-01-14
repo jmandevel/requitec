@@ -1171,7 +1171,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // APPLY
   case K::S_EXTEND:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::RVALUE | KF::ARGUMENT;
   case K::S_EXTENSION:
     return KF::RVALUE | KF::ARGUMENT;
   case K::S_BINDING:

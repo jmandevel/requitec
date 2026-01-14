@@ -685,41 +685,41 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         continue;
       }
       case rq::TokenKind::ARROW_OPERATOR: {
-        rq::Expression &expression = this->getContext().acquireExpression();
-        expression.setKeyword(rq::Keyword::S_INFERENCE);
-        expression.setIsInserted();
-        expression.setSourceBefore(token);
-        precedence_factory.setRecent(expression);
+        rq::Expression &inference = this->getContext().acquireExpression();
+        inference.setKeyword(rq::Keyword::S_INFERENCE);
+        inference.setIsInserted();
+        inference.setSourceBefore(token);
+        precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
         precedence_factory.parseNary(token, rq::Keyword::S_EXTEND);
         continue;
       }
       case rq::TokenKind::COLON_OPERATOR: {
-        rq::Expression &expression = this->getContext().acquireExpression();
-        expression.setKeyword(rq::Keyword::S_INFERENCE);
-        expression.setIsInserted();
-        expression.setSourceBefore(token);
-        precedence_factory.setRecent(expression);
+        rq::Expression &inference = this->getContext().acquireExpression();
+        inference.setKeyword(rq::Keyword::S_INFERENCE);
+        inference.setIsInserted();
+        inference.setSourceBefore(token);
+        precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
         precedence_factory.parseNary(token, rq::Keyword::S_UNSITUATED_COLON_OPERATOR);
         continue;
       }
       case rq::TokenKind::THICK_ARROW_OPERATOR: {
-        rq::Expression &expression = this->getContext().acquireExpression();
-        expression.setKeyword(rq::Keyword::S_INFERENCE);
-        expression.setIsInserted();
-        expression.setSourceBefore(token);
-        precedence_factory.setRecent(expression);
+        rq::Expression &inference = this->getContext().acquireExpression();
+        inference.setKeyword(rq::Keyword::S_INFERENCE);
+        inference.setIsInserted();
+        inference.setSourceBefore(token);
+        precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
         precedence_factory.parseNary(token, rq::Keyword::S_EXTENSION);
         continue;
       }
       case rq::TokenKind::HASH_OPERATOR: {
-        rq::Expression &expression = this->getContext().acquireExpression();
-        expression.setKeyword(rq::Keyword::S_INFERENCE);
-        expression.setIsInserted();
-        expression.setSourceBefore(token);
-        precedence_factory.setRecent(expression);
+        rq::Expression &inference = this->getContext().acquireExpression();
+        inference.setKeyword(rq::Keyword::S_INFERENCE);
+        inference.setIsInserted();
+        inference.setSourceBefore(token);
+        precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
         precedence_factory.parseNary(token, rq::Keyword::S_ARRAY);
         continue;
@@ -1002,16 +1002,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     }
     const rq::Token &post_token = this->getRanger().getToken();
     switch (post_token.getKind()) {
-    case rq::TokenKind::ARROW_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::Keyword::S_EXTEND);
-      continue;
-    case rq::TokenKind::THICK_ARROW_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::Keyword::S_EXTENSION);
-      continue;
     case rq::TokenKind::HASH_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(post_token, rq::Keyword::S_ARRAY);
@@ -1070,6 +1060,8 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   switch (token.getKind()) {
   case rq::TokenKind::LEFT_BRACKET_GROUPING:
     return this->parseEnclosedBracketExpression();
+  case rq::TokenKind::LEFT_DOUBLE_BRACKET_GROUPING:
+    return this->parseEnclosedDoubleBracketExpression();
   case rq::TokenKind::LEFT_PARENTHESIS_GROUPING:
     return this->parseEnclosedParenthesisExpression();
   case rq::TokenKind::LEFT_BRACE_GROUPING:

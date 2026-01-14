@@ -732,7 +732,7 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '[':
         this->tokenizeLeftGrouping(G::DOUBLE_BRACKET,
-                                   T::DOUBLE_LEFT_BRACKET_GROUPING, 2);
+                                   T::LEFT_DOUBLE_BRACKET_GROUPING, 2);
         break;
       default:
         this->tokenizeLeftGrouping(G::BRACKET, T::LEFT_BRACKET_GROUPING, 1);
