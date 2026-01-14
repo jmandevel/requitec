@@ -783,6 +783,10 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // VALUES
+  case K::S_INITIALIZER_LIST:
+    is_ok = this->situateNaryNonStatementBranches(situation, expression, 0,
+                                                  S::RVALUE);
+    break;
   case K::TRUE:
     [[fallthrough]];
   case K::FALSE:
@@ -798,8 +802,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::OUT:
     [[fallthrough]];
   case K::THIS:
-    [[fallthrough]];
-  case K::THIS_SYMBOL:
     [[fallthrough]];
   case K::RESULT:
     [[fallthrough]];
@@ -1028,12 +1030,14 @@ bool Situator::situateTree(rq::Situation situation,
 
   // TABLE GRAPH
   case K::IMPORT:
-    [[fallthrough]];
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
   case K::USE:
     [[fallthrough]];
   case K::FACADE:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE, S::RVALUE);
+                                                    S::RVALUE, S::RVALUE);
     break;
   case K::TABLE:
     is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
@@ -1110,13 +1114,7 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   case K::PACK:
-    [[fallthrough]];
-  case K::ATTRIBUTE:
     is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::ASCRIBE:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
     break;
   case K::LABEL:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
@@ -1246,7 +1244,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::S_ASCEND_FRAME:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE);
+                                                   S::RVALUE);
     break;
   case K::S_ASCEND_FRAME_OF:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,

@@ -77,10 +77,10 @@ enum class SymbolKind : std::uint_fast8_t {
   STATIC_VARIABLE,
   ENUMERATOR,
   PROPERTY,
+  CLASS_PARAMETER,
+  LAYOUT_PARAMETER,
   TEMPLATE_PARAMETER,
   SIGNATURE_PARAMETER,
-  ATTRIBUTE_PARAMETER,
-  CAPTURE_PARAMETER,
   LABEL,
 
   // SCOPES
@@ -212,14 +212,14 @@ enum class SymbolKind : std::uint_fast8_t {
     return "enumerator";
   case SY::PROPERTY:
     return "property";
+  case SY::CLASS_PARAMETER:
+    return "class_parameter";
+  case SY::LAYOUT_PARAMETER:
+    return "layout_parameter";
   case SY::TEMPLATE_PARAMETER:
     return "template_parameter";
   case SY::SIGNATURE_PARAMETER:
     return "signature_parameter";
-  case SY::ATTRIBUTE_PARAMETER:
-    return "attribute_parameter";
-  case SY::CAPTURE_PARAMETER:
-    return "capture_parameter";
   case SY::LABEL:
     return "label";
 
@@ -438,6 +438,12 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
            SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
+  case SY::CLASS_PARAMETER:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::HAS_TYPE;
+  case SY::LAYOUT_PARAMETER:
+    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
+           SYF::HAS_ATTRIBUTES | SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
   case SY::SIGNATURE_PARAMETER:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
@@ -446,12 +452,6 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
            SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
-  case SY::ATTRIBUTE_PARAMETER:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::HAS_TYPE;
-  case SY::CAPTURE_PARAMETER:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
   case SY::LABEL:
     return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
            SYF::HAS_NAME;
@@ -974,10 +974,10 @@ struct DynamicVariableSymbol;
 struct StaticVariableSymbol;
 struct EnumeratorSymbol;
 struct PropertySymbol;
+struct ClassParameterSymbol;
+struct LayoutParameterSymbol;
 struct TemplateParameterSymbol;
 struct SignatureParameterSymbol;
-struct AttributeParameterSymbol;
-struct CaptureParameterSymbol;
 
 // SCOPES
 struct SymbolTableSymbol;
@@ -1267,17 +1267,17 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProperty() const {
     return this->_kind == rq::SymbolKind::PROPERTY;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameter() const {
+    return this->_kind == rq::SymbolKind::CLASS_PARAMETER;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameter() const {
+    return this->_kind == rq::SymbolKind::LAYOUT_PARAMETER;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameter() const {
     return this->_kind == rq::SymbolKind::TEMPLATE_PARAMETER;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameter() const {
     return this->_kind == rq::SymbolKind::SIGNATURE_PARAMETER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeParameter() const {
-    return this->_kind == rq::SymbolKind::ATTRIBUTE_PARAMETER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCaptureParameter() const {
-    return this->_kind == rq::SymbolKind::CAPTURE_PARAMETER;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacade() const {
     return this->_kind == rq::SymbolKind::FACADE;
@@ -1662,15 +1662,15 @@ template <> struct isa_impl<rq::SignatureParameterSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::AttributeParameterSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::ClassParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsAttributeParameter();
+    return val.getIsClassParameter();
   }
 };
 
-template <> struct isa_impl<rq::CaptureParameterSymbol, rq::Symbol> {
+template <> struct isa_impl<rq::LayoutParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsCaptureParameter();
+    return val.getIsLayoutParameter();
   }
 };
 
@@ -2893,15 +2893,15 @@ struct ModuleMemberSymbol {
     return rq::dereferencePtr(this->_module_ptr);
   }
 };
-struct ScopeMemberSymbol {
-  using Self = rq::detail::ScopeMemberSymbol;
+struct SymbolTableMemberSymbol {
+  using Self = rq::detail::SymbolTableMemberSymbol;
 
   rq::SymbolTableSymbol *_scope_ptr;
 
-  ScopeMemberSymbol(rq::SymbolTableSymbol &scope) : _scope_ptr(&scope) {}
-  ScopeMemberSymbol(const Self &) = delete;
-  ScopeMemberSymbol(Self &&) = delete;
-  virtual ~ScopeMemberSymbol() {}
+  SymbolTableMemberSymbol(rq::SymbolTableSymbol &scope) : _scope_ptr(&scope) {}
+  SymbolTableMemberSymbol(const Self &) = delete;
+  SymbolTableMemberSymbol(Self &&) = delete;
+  virtual ~SymbolTableMemberSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &getScope() const {
@@ -3091,7 +3091,7 @@ struct HasImportModuleSymbol {
 struct DynamicVariableSymbol : public rq::Symbol,
                                public rq::detail::HasLocationSymbol,
                                public rq::detail::ModuleMemberSymbol,
-                               public rq::detail::ScopeMemberSymbol,
+                               public rq::detail::SymbolTableMemberSymbol,
                                public rq::detail::HasAttributesSymbol,
                                public rq::detail::HasNameSymbol,
                                public rq::detail::HasTypeSymbol {
@@ -3103,7 +3103,7 @@ struct DynamicVariableSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::DYNAMIC_VARIABLE),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   DynamicVariableSymbol(const Self &) = delete;
   DynamicVariableSymbol(Self &&) = delete;
@@ -3115,7 +3115,7 @@ struct DynamicVariableSymbol : public rq::Symbol,
 struct StaticVariableSymbol : public rq::Symbol,
                               public rq::detail::HasLocationSymbol,
                               public rq::detail::ModuleMemberSymbol,
-                              public rq::detail::ScopeMemberSymbol,
+                              public rq::detail::SymbolTableMemberSymbol,
                               public rq::detail::HasAttributesSymbol,
                               public rq::detail::HasNameSymbol,
                               public rq::detail::HasTypeSymbol {
@@ -3127,7 +3127,7 @@ struct StaticVariableSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::STATIC_VARIABLE),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   StaticVariableSymbol(const Self &) = delete;
   StaticVariableSymbol(Self &&) = delete;
@@ -3139,7 +3139,7 @@ struct StaticVariableSymbol : public rq::Symbol,
 struct EnumeratorSymbol : public rq::Symbol,
                           public rq::detail::HasLocationSymbol,
                           public rq::detail::ModuleMemberSymbol,
-                          public rq::detail::ScopeMemberSymbol,
+                          public rq::detail::SymbolTableMemberSymbol,
                           public rq::detail::HasAttributesSymbol,
                           public rq::detail::HasNameSymbol,
                           public rq::detail::HasTypeSymbol {
@@ -3153,7 +3153,7 @@ struct EnumeratorSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::ENUMERATOR),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   EnumeratorSymbol(const Self &) = delete;
   EnumeratorSymbol(Self &&) = delete;
@@ -3165,7 +3165,7 @@ struct EnumeratorSymbol : public rq::Symbol,
 struct PropertySymbol : public rq::Symbol,
                         public rq::detail::HasLocationSymbol,
                         public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::ScopeMemberSymbol,
+                        public rq::detail::SymbolTableMemberSymbol,
                         public rq::detail::HasAttributesSymbol,
                         public rq::detail::MaybeHasNameSymbol,
                         public rq::detail::HasTypeSymbol {
@@ -3176,7 +3176,7 @@ struct PropertySymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::PROPERTY),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
   PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
@@ -3185,7 +3185,7 @@ struct PropertySymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::PROPERTY),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol(name) {}
   PropertySymbol(const Self &) = delete;
@@ -3198,7 +3198,7 @@ struct PropertySymbol : public rq::Symbol,
 struct SignatureParameterSymbol : public rq::Symbol,
                                   public rq::detail::HasLocationSymbol,
                                   public rq::detail::ModuleMemberSymbol,
-                                  public rq::detail::ScopeMemberSymbol,
+                                  public rq::detail::SymbolTableMemberSymbol,
                                   public rq::detail::HasAttributesSymbol,
                                   public rq::detail::MaybeHasNameSymbol,
                                   public rq::detail::HasTypeSymbol {
@@ -3212,7 +3212,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
   SignatureParameterSymbol(rq::Expression &expression,
@@ -3222,7 +3222,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol(name) {}
   SignatureParameterSymbol(const Self &) = delete;
@@ -3235,7 +3235,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
 struct TemplateParameterSymbol : public rq::Symbol,
                                  public rq::detail::HasLocationSymbol,
                                  public rq::detail::ModuleMemberSymbol,
-                                 public rq::detail::ScopeMemberSymbol,
+                                 public rq::detail::SymbolTableMemberSymbol,
                                  public rq::detail::HasAttributesSymbol,
                                  public rq::detail::MaybeHasNameSymbol,
                                  public rq::detail::HasTypeSymbol {
@@ -3249,7 +3249,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {
   }
   TemplateParameterSymbol(rq::Expression &expression,
@@ -3259,7 +3259,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol(name) {}
   TemplateParameterSymbol(const Self &) = delete;
@@ -3269,59 +3269,59 @@ struct TemplateParameterSymbol : public rq::Symbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct AttributeParameterSymbol : public rq::Symbol,
-                                  public rq::detail::HasLocationSymbol,
-                                  public rq::detail::ModuleMemberSymbol,
-                                  public rq::detail::ScopeMemberSymbol,
-                                  public rq::detail::HasAttributesSymbol,
-                                  public rq::detail::HasTypeSymbol {
-  using Self = rq::AttributeParameterSymbol;
+struct ClassParameterSymbol : public rq::Symbol,
+                              public rq::detail::HasLocationSymbol,
+                              public rq::detail::ModuleMemberSymbol,
+                              public rq::detail::SymbolTableMemberSymbol,
+                              public rq::detail::HasAttributesSymbol,
+                              public rq::detail::HasTypeSymbol {
+  using Self = rq::ClassParameterSymbol;
 
-  AttributeParameterSymbol(rq::Expression &expression,
-                           rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
-                           rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::ATTRIBUTE_PARAMETER),
+  ClassParameterSymbol(rq::Expression &expression,
+                       rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
+                       rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::CLASS_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes) {}
-  AttributeParameterSymbol(const Self &) = delete;
-  AttributeParameterSymbol(Self &&) = delete;
-  virtual ~AttributeParameterSymbol() {}
+  ClassParameterSymbol(const Self &) = delete;
+  ClassParameterSymbol(Self &&) = delete;
+  virtual ~ClassParameterSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-struct CaptureParameterSymbol : public rq::Symbol,
-                                public rq::detail::HasLocationSymbol,
-                                public rq::detail::ModuleMemberSymbol,
-                                public rq::detail::ScopeMemberSymbol,
-                                public rq::detail::HasAttributesSymbol,
-                                public rq::detail::MaybeHasNameSymbol,
-                                public rq::detail::HasTypeSymbol {
-  using Self = rq::CaptureParameterSymbol;
+struct LayoutParameterSymbol : public rq::Symbol,
+                               public rq::detail::HasLocationSymbol,
+                               public rq::detail::ModuleMemberSymbol,
+                               public rq::detail::SymbolTableMemberSymbol,
+                               public rq::detail::HasAttributesSymbol,
+                               public rq::detail::MaybeHasNameSymbol,
+                               public rq::detail::HasTypeSymbol {
+  using Self = rq::LayoutParameterSymbol;
 
-  CaptureParameterSymbol(rq::Expression &expression,
-                         rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
-                         rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::CAPTURE_PARAMETER),
+  LayoutParameterSymbol(rq::Expression &expression,
+                        rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
+                        rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::LAYOUT_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::MaybeHasNameSymbol() {}
-  CaptureParameterSymbol(rq::Expression &expression,
-                         rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
-                         llvm::StringRef name,
-                         rq::SymbolAttributeFlags attributes)
-      : rq::Symbol(rq::SymbolKind::CAPTURE_PARAMETER),
+  LayoutParameterSymbol(rq::Expression &expression,
+                        rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
+                        llvm::StringRef name,
+                        rq::SymbolAttributeFlags attributes)
+      : rq::Symbol(rq::SymbolKind::LAYOUT_PARAMETER),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol(name) {}
-  CaptureParameterSymbol(const Self &) = delete;
-  CaptureParameterSymbol(Self &&) = delete;
-  virtual ~CaptureParameterSymbol() {}
+  LayoutParameterSymbol(const Self &) = delete;
+  LayoutParameterSymbol(Self &&) = delete;
+  virtual ~LayoutParameterSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3329,7 +3329,7 @@ struct CaptureParameterSymbol : public rq::Symbol,
 struct MutationSymbol : public rq::Symbol,
                         public rq::detail::HasLocationSymbol,
                         public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::ScopeMemberSymbol,
+                        public rq::detail::SymbolTableMemberSymbol,
                         public rq::detail::HasAttributesSymbol {
   using Self = rq::MutationSymbol;
 
@@ -3338,7 +3338,7 @@ struct MutationSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::MUTATION),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes) {}
   MutationSymbol(const Self &) = delete;
   MutationSymbol(Self &&) = delete;
@@ -3350,7 +3350,7 @@ struct MutationSymbol : public rq::Symbol,
 struct LabelSymbol : public rq::Symbol,
                      public rq::detail::HasLocationSymbol,
                      public rq::detail::ModuleMemberSymbol,
-                     public rq::detail::ScopeMemberSymbol,
+                     public rq::detail::SymbolTableMemberSymbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::LabelSymbol;
 
@@ -3362,7 +3362,7 @@ struct LabelSymbol : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::LABEL),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasNameSymbol(name),
         _statement_ptr(&statement) {}
   LabelSymbol(const Self &) = delete;
@@ -3396,7 +3396,7 @@ struct TableSymbol : public rq::SymbolTableSymbol, public rq::detail::HasNameSym
 struct ClassSymbol : public rq::SymbolTableSymbol,
                      public rq::detail::HasLocationSymbol,
                      public rq::detail::ModuleMemberSymbol,
-                     public rq::detail::ScopeMemberSymbol,
+                     public rq::detail::SymbolTableMemberSymbol,
                      public rq::detail::HasAttributesSymbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::ClassSymbol;
@@ -3409,7 +3409,7 @@ struct ClassSymbol : public rq::SymbolTableSymbol,
       : rq::SymbolTableSymbol(rq::SymbolKind::CLASS),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   ClassSymbol(const Self &) = delete;
   ClassSymbol(Self &&) = delete;
@@ -3421,7 +3421,7 @@ struct ClassSymbol : public rq::SymbolTableSymbol,
 struct EnumerationSymbol : public rq::SymbolTableSymbol,
                            public rq::detail::HasLocationSymbol,
                            public rq::detail::ModuleMemberSymbol,
-                           public rq::detail::ScopeMemberSymbol,
+                           public rq::detail::SymbolTableMemberSymbol,
                            public rq::detail::HasAttributesSymbol,
                            public rq::detail::HasNameSymbol {
   using Self = rq::EnumerationSymbol;
@@ -3434,7 +3434,7 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
       : rq::SymbolTableSymbol(rq::SymbolKind::ENUMERATION),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), rq::detail::HasNameSymbol(name) {}
   EnumerationSymbol(const Self &) = delete;
   EnumerationSymbol(Self &&) = delete;
@@ -3942,7 +3942,7 @@ struct ModuleSymbol final : public rq::Symbol,
 struct ImportSymbol final : public rq::Symbol,
                             public rq::detail::HasLocationSymbol,
                             public rq::detail::ModuleMemberSymbol,
-                            public rq::detail::ScopeMemberSymbol,
+                            public rq::detail::SymbolTableMemberSymbol,
                             public rq::detail::HasAttributesSymbol,
                             public rq::detail::HasImportModuleSymbol {
   using Self = rq::ImportSymbol;
@@ -3952,7 +3952,7 @@ struct ImportSymbol final : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::IMPORT),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes) {}
   ImportSymbol(const Self &) = delete;
   ImportSymbol(Self &&) = delete;
@@ -3964,7 +3964,7 @@ struct ImportSymbol final : public rq::Symbol,
 struct FacadeSymbol final : public rq::Symbol,
                             public rq::detail::HasLocationSymbol,
                             public rq::detail::ModuleMemberSymbol,
-                            public rq::detail::ScopeMemberSymbol,
+                            public rq::detail::SymbolTableMemberSymbol,
                             public rq::detail::HasAttributesSymbol {
   using Self = rq::FacadeSymbol;
 
@@ -3973,7 +3973,7 @@ struct FacadeSymbol final : public rq::Symbol,
       : rq::Symbol(rq::SymbolKind::FACADE),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
-        rq::detail::ScopeMemberSymbol(scope),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes) {}
   FacadeSymbol(const Self &) = delete;
   FacadeSymbol(Self &&) = delete;

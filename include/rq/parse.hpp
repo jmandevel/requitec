@@ -281,6 +281,7 @@ struct RequiteParser final {
                                                rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
+  [[nodiscard]] rq::Expression &parseEnclosedDoubleBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
   void parseTrailer(rq::Expression &expression,

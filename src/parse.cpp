@@ -1245,6 +1245,17 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   RQ_UNREACHABLE();
 }
 
+rq::Expression &RequiteParser::parseEnclosedDoubleBracketExpression() {
+  const rq::Token &first_token = this->getRanger().getToken();
+  rq::Expression &brace = this->getContext().acquireExpression();
+  brace.setKeyword(rq::Keyword::S_INITIALIZER_LIST);
+  brace.setSource(first_token);
+  this->getRanger().incrementToken(1);
+  std::ignore = this->parseNonStatementBranches(
+      brace, rq::TokenKind::RIGHT_DOUBLE_BRACKET_GROUPING);
+  return brace;
+}
+
 rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const rq::Token &first_token = this->getRanger().getToken();
   rq::Expression &brace = this->getContext().acquireExpression();

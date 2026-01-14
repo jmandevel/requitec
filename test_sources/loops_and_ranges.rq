@@ -29,14 +29,14 @@
     ];
 
     // element range
-    [for {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, value:=[value],     
+    [for [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]], value:=[value],     
         .std.print(line="value is {value}");
     ];
 
     // ranger range
     [class MyClass,
         {> 
-            @public data:={0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 
+            @public data:=[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]] 
         <},
 
         @public

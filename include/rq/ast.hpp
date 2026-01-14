@@ -174,6 +174,7 @@ enum class Keyword : std::uint32_t {
   MUTATION,
 
   // VALUES
+  S_INITIALIZER_LIST,
   TRUE,
   FALSE,
   INDETERMINATE,
@@ -187,8 +188,6 @@ enum class Keyword : std::uint32_t {
   OUT,
   // reference to extended value of method or extension_method.
   THIS,
-  // symbol of symbol extending or member of.
-  THIS_SYMBOL,
   // value returned from a function.
   RESULT,
   // retrieve command line arguments within entry.
@@ -341,8 +340,6 @@ enum class Keyword : std::uint32_t {
   INLINE,
   MANGLE,
   PACK,
-  ATTRIBUTE,
-  ASCRIBE,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -662,6 +659,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mutation";
 
   // VALUES
+  case K::S_INITIALIZER_LIST:
+    return "_initializer_list";
   case K::TRUE:
     return "true";
   case K::FALSE:
@@ -678,8 +677,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "out";
   case K::THIS:
     return "this";
-  case K::THIS_SYMBOL:
-    return "this_symbol";
   case K::RESULT:
     return "result";
   case K::COMMAND_LINE_ARGUMENTS:
@@ -950,10 +947,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mangle";
   case K::PACK:
     return "pack";
-  case K::ATTRIBUTE:
-    return "attribute";
-  case K::ASCRIBE:
-    return "ascribe";
   case K::LABEL:
     return "label";
   case K::TEMPLATE:
@@ -1178,7 +1171,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // APPLY
   case K::S_EXTEND:
-    return KF::RVALUE | KF::ARGUMENT;
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_EXTENSION:
     return KF::RVALUE | KF::ARGUMENT;
   case K::S_BINDING:
@@ -1370,7 +1363,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::MUTATION:
     return KF::STATEMENT;
 
-  // VALUES;
+  // VALUES
+  case K::S_INITIALIZER_LIST:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::TRUE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::FALSE:
@@ -1386,8 +1381,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::OUT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::THIS:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::THIS_SYMBOL:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
@@ -1668,10 +1661,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::SYMBOL_ATTRIBUTE;
   case K::PACK:
     return KF::SYMBOL_ATTRIBUTE;
-  case K::ATTRIBUTE:
-    return KF::SYMBOL_ATTRIBUTE;
-  case K::ASCRIBE:
-    return KF::SYMBOL_ATTRIBUTE;
   case K::LABEL:
     return KF::SYMBOL_ATTRIBUTE;
   case K::TEMPLATE:
@@ -1720,10 +1709,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
            KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
-           KF::SYMBOL_PATH;
+           KF::SYMBOL_PATH | KF::STATEMENT;
   case K::S_MEMBER_OF_TOP:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
-           KF::SYMBOL_PATH;
+           KF::SYMBOL_PATH | KF::STATEMENT;
   case K::S_ASCEND_FRAME:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
            KF::SYMBOL_PATH;
@@ -2213,6 +2202,11 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   return false;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName(rq::Keyword keyword) {
+  return keyword == rq::Keyword::S_IDENTIFY ||
+         keyword == rq::Keyword::I_IDENTIFIER_LITERAL;
+}
+
 enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 
 [[nodiscard]] inline llvm::StringRef getDescription(rq::ChainKind chainKind) {
@@ -2363,8 +2357,6 @@ getSymbolAttribute(rq::Keyword keyword) {
     return SA::MANGLE;
   case K::PACK:
     return SA::PACK;
-  case K::ATTRIBUTE:
-    return SA::ATTRIBUTE;
   case K::LABEL:
     return SA::LABEL;
   case K::TEMPLATE:
@@ -3316,6 +3308,9 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeSituation(rq::Situation situation) const {
     return rq::getCanBeSituation(this->getKeyword(), situation);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
+    return rq::getIsEvaluatableName(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolAttribute
   getSymbolAttribute() const {

@@ -1,11 +1,15 @@
 #pragma once
 
+#include <rq/ast.hpp>
+
+#include <llvm/ADT/StringRef.h>
+
 namespace rq {
 
 struct SymbolicExecutionEngine final {
-    using Self = rq::SymbolicExecutionEngine;
+  using Self = rq::SymbolicExecutionEngine;
 
-    // TODO
+  [[nodiscard]] llvm::StringRef evaluateName(rq::Expression &expression);
 };
 
-}
+} // namespace rq

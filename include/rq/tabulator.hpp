@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rq/utility.hpp>
+#include <rq/see.hpp>
 
 #include <functional>
 
@@ -14,6 +15,7 @@ struct Tabulator final {
 
   std::reference_wrapper<rq::Context> _context_ref;
   std::reference_wrapper<rq::ModuleSymbol> _module_ref;
+  rq::SymbolicExecutionEngine _see{};
   bool _is_ok = true;
 
   Tabulator(rq::Context &context, rq::ModuleSymbol& module) : _context_ref(context), _module_ref(module) {}
@@ -40,6 +42,12 @@ struct Tabulator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &getModule() const {
     return this->_module_ref.get();
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicExecutionEngine &getSee() {
+    return this->_see;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicExecutionEngine &getSee() const {
+    return this->_see;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const {
     return this->_is_ok;
   }
@@ -47,8 +55,7 @@ struct Tabulator final {
     this->_is_ok = false;
   }
   void tabulateModule();
-  void tabulateForest(const rq::Expression& first, rq::SymbolTableSymbol& scope);
-  void tabulateEntry(const rq::Expression& expression, rq::SymbolTableSymbol& scope);
+  void tabulateForest(rq::Expression& first, rq::SymbolTableSymbol& scope);
 };
 
 } // namespace rq

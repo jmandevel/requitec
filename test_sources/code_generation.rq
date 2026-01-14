@@ -3,7 +3,7 @@
 @static @label::Loop
 [for 0.<=10, num:=[value],
     @outside::Loop @capture::{num:=num}
-    \.std.format(text="VAR{num}") :`= index;
+    \.std.format(text="VAR{[self].[capture].num}") :`= index;
 ];
 
 [entry
