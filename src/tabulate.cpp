@@ -24,7 +24,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       flags_factory.addAllAttributres(statement);
     }
     if (flags_factory.getHasStatic()) {
-        RQ_TODO_IMPLEMENTATION();
+      RQ_TODO_IMPLEMENTATION();
     }
     switch (statement.getKeyword()) {
     case rq::Keyword::IMPORT: {
@@ -40,11 +40,11 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateUnamedSymbol(this->getContext(), mutation);
     } break;
     case rq::Keyword::S_ASSIGN: {
-      rq::Expression &branch = statement.getBranch();
-      if (branch.getKeyword() != rq::Keyword::S_BINDING) {
+      rq::Expression &lvalue = statement.getBranch();
+      if (lvalue.getKeyword() != rq::Keyword::S_BINDING) {
         RQ_TODO_IMPLEMENTATION();
       }
-      rq::Expression &path = branch.getBranch();
+      rq::Expression &path = lvalue.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -55,39 +55,108 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, variable);
     } break;
-    case rq::Keyword::TABLE:
-
-      break;
-    case rq::Keyword::CLASS:
-
-      break;
-    case rq::Keyword::ENUMERATION:
-
-      break;
-    case rq::Keyword::ENTRY:
-
-      break;
-    case rq::Keyword::FUNCTION:
-
-      break;
-    case rq::Keyword::METHOD:
-
-      break;
-    case rq::Keyword::EXTENSION_FUNCTION:
-
-      break;
-    case rq::Keyword::EXTENSION_METHOD:
-
-      break;
-    case rq::Keyword::CONSTRUCTOR:
-
-      break;
-    case rq::Keyword::DESTRUCTOR:
-
-      break;
-    case rq::Keyword::RANGER:
-
-      break;
+    case rq::Keyword::TABLE: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::TableSymbol &table =
+          this->getContext().allocateValue<rq::TableSymbol>(name);
+      scope.tabulateNamedSymbol(this->getContext(), name, table);
+    } break;
+    case rq::Keyword::CLASS: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::ClassSymbol &class_ =
+          this->getContext().allocateValue<rq::ClassSymbol>(
+              statement, this->getModule(), scope, name,
+              flags_factory.getFlags());
+      scope.tabulateNamedSymbol(this->getContext(), name, class_);
+    } break;
+    case rq::Keyword::ENUMERATION: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::EnumerationSymbol &enumeration =
+          this->getContext().allocateValue<rq::EnumerationSymbol>(
+              statement, this->getModule(), scope, name,
+              flags_factory.getFlags());
+      scope.tabulateNamedSymbol(this->getContext(), name, enumeration);
+    } break;
+    case rq::Keyword::ENTRY: {
+      rq::EntrySymbol &entry =
+          this->getContext().allocateValue<rq::EntrySymbol>(
+              statement, this->getModule(), scope, flags_factory.getFlags());
+      scope.tabulateUnamedSymbol(this->getContext(), entry);
+    } break;
+    case rq::Keyword::FUNCTION: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::FunctionSymbol &function =
+          this->getContext().allocateValue<rq::FunctionSymbol>(
+              statement, this->getModule(), scope, name, flags_factory.getFlags());
+      scope.tabulateNamedSymbol(this->getContext(), name, function);
+    } break;
+    case rq::Keyword::METHOD: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::MethodSymbol &method =
+          this->getContext().allocateValue<rq::MethodSymbol>(
+              statement, this->getModule(), scope, name, flags_factory.getFlags());
+      scope.tabulateNamedSymbol(this->getContext(), name, method);
+    } break;
+    case rq::Keyword::EXTENSION_FUNCTION: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::ExtensionFunctionSymbol &extension_function =
+          this->getContext().allocateValue<rq::ExtensionFunctionSymbol>(
+              statement, this->getModule(), scope, name, flags_factory.getFlags());
+      scope.tabulateNamedSymbol(this->getContext(), name, extension_function);
+    } break;
+    case rq::Keyword::EXTENSION_METHOD: {
+      rq::Expression &path = statement.getBranch();
+      if (!path.getIsEvaluatableName()) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      llvm::StringRef name = this->getSee().evaluateName(path);
+      rq::ExtensionMethodSymbol &extension_method =
+          this->getContext().allocateValue<rq::ExtensionMethodSymbol>(
+              statement, this->getModule(), scope, name, flags_factory.getFlags());
+      scope.tabulateNamedSymbol(this->getContext(), name, extension_method);
+    } break;
+    case rq::Keyword::CONSTRUCTOR: {
+      rq::ConstructorSymbol &constructor =
+          this->getContext().allocateValue<rq::ConstructorSymbol>(
+              statement, this->getModule(), scope, flags_factory.getFlags());
+      scope.tabulateUnamedSymbol(this->getContext(), constructor);
+    } break;
+    case rq::Keyword::DESTRUCTOR: {
+      rq::DestructorSymbol &destructor =
+          this->getContext().allocateValue<rq::DestructorSymbol>(
+              statement, this->getModule(), scope, flags_factory.getFlags());
+      scope.tabulateUnamedSymbol(this->getContext(), destructor);
+    } break;
+    case rq::Keyword::RANGER:{
+      rq::RangerSymbol &ranger =
+          this->getContext().allocateValue<rq::RangerSymbol>(
+              statement, this->getModule(), scope, flags_factory.getFlags());
+      scope.tabulateUnamedSymbol(this->getContext(), ranger);
+    } break;
     default:
       RQ_TODO_IMPLEMENTATION();
     }
