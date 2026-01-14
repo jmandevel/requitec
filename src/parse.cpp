@@ -165,15 +165,6 @@ void PrecedenceFactory::appendNullaryAttribute(const rq::Token &token,
   this->appendBranch(expression);
 }
 
-void PrecedenceFactory::appendPostunaryAttribute(const rq::Token &token,
-                                                 rq::Keyword keyword) {
-  rq::Expression &expression = this->getContext().acquireExpression();
-  expression.setKeyword(keyword);
-  expression.setSource(this->getRecent(), token);
-  expression.setBranch(this->popRecent());
-  this->appendBranch(expression);
-}
-
 void PrecedenceFactory::setRecent(rq::Expression &branch) {
   rq::assignSingleValue(this->_recent_ptr, &branch);
 }
@@ -644,7 +635,7 @@ rq::Expression &RequiteParser::parsePrecedence3() {
   return precedence_factory.getOuter();
 }
 
-// ASCEND FRAME
+// ASCEND FRAME AND ARROWS
 rq::Expression &RequiteParser::parsePrecedence2() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence1());
@@ -657,6 +648,16 @@ rq::Expression &RequiteParser::parsePrecedence2() {
     case rq::TokenKind::DOUBLE_DOT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token, rq::Keyword::S_ASCEND_FRAME_OF);
+      precedence_factory.setRecent(this->parsePrecedence1());
+      continue;
+    case rq::TokenKind::ARROW_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::S_EXTEND);
+      precedence_factory.setRecent(this->parsePrecedence1());
+      continue;
+    case rq::TokenKind::THICK_ARROW_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::S_EXTENSION);
       precedence_factory.setRecent(this->parsePrecedence1());
       continue;
     default:
@@ -1038,13 +1039,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       previous_horned = true;
       continue;
     }
-    case rq::TokenKind::GRAVE_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseAscribe(post_token,
-                                      rq::Keyword::S_UNSITUATED_ASCRIBE_TYPE);
-      precedence_factory.appendPostunaryAttribute(
-          post_token, rq::Keyword::PARTIALLY_MUTABLE);
-      continue;
     default:
       precedence_factory.appendRecent();
       break;
