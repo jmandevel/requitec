@@ -459,6 +459,35 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol);
 
+static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
+                         const rq::Expression &expression) {
+  if (!expression.getHasSourceText()) {
+    json.emitNull("location");
+  } else if (expression.getSourceTextLength() == 0) {
+    rq::SourceLocation location =
+        context.getSourceLocation(expression.getLlvmSourceBegin());
+    json.beginObject("location");
+    json.emitString("file", location.file);
+    json.emit("line", location.line);
+    json.emit("column", location.column);
+    json.endObject();
+  } else {
+    rq::SourceRange range = context.getSourceRange(expression);
+    json.beginObject("location");
+    json.beginObject("start");
+    json.emitString("file", range.start.file);
+    json.emit("line", range.start.line);
+    json.emit("column", range.start.column);
+    json.endObject();
+    json.beginObject("end");
+    json.emitString("file", range.end.file);
+    json.emit("line", range.end.line);
+    json.emit("column", range.end.column);
+    json.endObject();
+    json.endObject();
+  }
+}
+
 static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
                             const rq::SymbolTableSymbol &table) {
   json.beginArray("named");
@@ -482,21 +511,21 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
 
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol) {
-  std::ignore = context;
   json.beginObject();
   json.emitString("kind", rq::getName(symbol.getKind()));
   switch (symbol.getKind()) {
   case rq::SymbolKind::IMPORT: {
     const auto &import = llvm::cast<rq::ImportSymbol>(symbol);
-    std::ignore = import;
+    rq::emitLocation(context, json, import.getExpression());
   } break;
   case rq::SymbolKind::MUTATION: {
     const auto &mutation = llvm::cast<rq::MutationSymbol>(symbol);
-    std::ignore = mutation;
+    rq::emitLocation(context, json, mutation.getExpression());
   } break;
   case rq::SymbolKind::DYNAMIC_VARIABLE: {
     const auto &variable = llvm::cast<rq::DynamicVariableSymbol>(symbol);
     json.emitString("name", variable.getName());
+    rq::emitLocation(context, json, variable.getExpression());
   } break;
   case rq::SymbolKind::TABLE: {
     const auto &table = llvm::cast<rq::TableSymbol>(symbol);
@@ -505,44 +534,50 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
   case rq::SymbolKind::CLASS: {
     const auto &class_ = llvm::cast<rq::ClassSymbol>(symbol);
     json.emitString("name", class_.getName());
+    rq::emitLocation(context, json, class_.getExpression());
   } break;
   case rq::SymbolKind::ENUMERATION: {
     const auto &enumeration = llvm::cast<rq::EnumerationSymbol>(symbol);
     json.emitString("name", enumeration.getName());
+    rq::emitLocation(context, json, enumeration.getExpression());
   } break;
   case rq::SymbolKind::ENTRY: {
     const auto &entry = llvm::cast<rq::EntrySymbol>(symbol);
-    std::ignore = entry;
+    rq::emitLocation(context, json, entry.getExpression());
   } break;
   case rq::SymbolKind::FUNCTION: {
     const auto &function = llvm::cast<rq::FunctionSymbol>(symbol);
     json.emitString("name", function.getName());
+    rq::emitLocation(context, json, function.getExpression());
   } break;
   case rq::SymbolKind::METHOD: {
     const auto &method = llvm::cast<rq::MethodSymbol>(symbol);
     json.emitString("name", method.getName());
+    rq::emitLocation(context, json, method.getExpression());
   } break;
   case rq::SymbolKind::EXTENSION_FUNCTION: {
     const auto &extension_function =
         llvm::cast<rq::ExtensionFunctionSymbol>(symbol);
     json.emitString("name", extension_function.getName());
+    rq::emitLocation(context, json, extension_function.getExpression());
   } break;
   case rq::SymbolKind::EXTENSION_METHOD: {
     const auto &extension_method =
         llvm::cast<rq::ExtensionMethodSymbol>(symbol);
     json.emitString("name", extension_method.getName());
+    rq::emitLocation(context, json, extension_method.getExpression());
   } break;
   case rq::SymbolKind::CONSTRUCTOR: {
     const auto &constructor = llvm::cast<rq::ConstructorSymbol>(symbol);
-    std::ignore = constructor;
+    rq::emitLocation(context, json, constructor.getExpression());
   } break;
   case rq::SymbolKind::DESTRUCTOR: {
     const auto &destructor = llvm::cast<rq::DestructorSymbol>(symbol);
-    std::ignore = destructor;
+    rq::emitLocation(context, json, destructor.getExpression());
   } break;
   case rq::SymbolKind::RANGER: {
     const auto &ranger = llvm::cast<rq::RangerSymbol>(symbol);
-    std::ignore = ranger;
+    rq::emitLocation(context, json, ranger.getExpression());
   } break;
   case rq::SymbolKind::TOP: {
     const auto &top = llvm::cast<rq::TopSymbol>(symbol);
