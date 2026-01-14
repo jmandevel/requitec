@@ -1125,7 +1125,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::I_CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::I_IDENTIFIER_LITERAL:
-    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
+    return KF::STATEMENT | KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
            KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH;
 
   // ERRORS
