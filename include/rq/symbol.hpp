@@ -3446,15 +3446,18 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
 struct ProcedureSymbol : public rq::SymbolTableSymbol,
                          public rq::detail::HasLocationSymbol,
                          public rq::detail::ModuleMemberSymbol,
+                         public rq::detail::SymbolTableMemberSymbol,
                          public rq::detail::HasAttributesSymbol {
   using Self = rq::ProcedureSymbol;
 
   rq::SignatureSymbol *_signature_ptr;
 
   ProcedureSymbol(rq::SymbolKind kind, rq::Expression &expression,
-                  rq::ModuleSymbol &module, rq::SymbolAttributeFlags attributes)
+                  rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
+                  rq::SymbolAttributeFlags attributes)
       : rq::SymbolTableSymbol(kind), rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
+        rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), _signature_ptr(nullptr) {}
   ProcedureSymbol(const Self &) = delete;
   ProcedureSymbol(Self &&) = delete;
@@ -3467,8 +3470,8 @@ struct EntrySymbol : public rq::ProcedureSymbol {
   using Self = rq::EntrySymbol;
 
   EntrySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-              rq::SymbolAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::SymbolKind::ENTRY, expression, module,
+              rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
+      : rq::ProcedureSymbol(rq::SymbolKind::ENTRY, expression, module, scope,
                             attributes) {}
   EntrySymbol(const Self &) = delete;
   EntrySymbol(Self &&) = delete;
@@ -3482,8 +3485,9 @@ struct FunctionSymbol : public rq::ProcedureSymbol,
   using Self = rq::FunctionSymbol;
 
   FunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 llvm::StringRef name, rq::SymbolAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::SymbolKind::FUNCTION, expression, module,
+                 rq::SymbolTableSymbol &scope, llvm::StringRef name,
+                 rq::SymbolAttributeFlags attributes)
+      : rq::ProcedureSymbol(rq::SymbolKind::FUNCTION, expression, module, scope,
                             attributes),
         rq::detail::HasNameSymbol(name) {}
   FunctionSymbol(const Self &) = delete;
@@ -3498,8 +3502,9 @@ struct MethodSymbol : public rq::ProcedureSymbol,
   using Self = rq::MethodSymbol;
 
   MethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               llvm::StringRef name, rq::SymbolAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::SymbolKind::METHOD, expression, module,
+               rq::SymbolTableSymbol &scope, llvm::StringRef name,
+               rq::SymbolAttributeFlags attributes)
+      : rq::ProcedureSymbol(rq::SymbolKind::METHOD, expression, module, scope,
                             attributes),
         rq::detail::HasNameSymbol(name) {}
   MethodSymbol(const Self &) = delete;
@@ -3514,10 +3519,10 @@ struct ExtensionFunctionSymbol : public rq::ProcedureSymbol,
   using Self = rq::ExtensionFunctionSymbol;
 
   ExtensionFunctionSymbol(rq::Expression &expression,
-                          rq::ModuleSymbol &module, llvm::StringRef name,
-                          rq::SymbolAttributeFlags attributes)
+                          rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
+                          llvm::StringRef name, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::EXTENSION_FUNCTION, expression,
-                            module, attributes),
+                            module, scope, attributes),
         rq::detail::HasNameSymbol(name) {}
   ExtensionFunctionSymbol(const Self &) = delete;
   ExtensionFunctionSymbol(Self &&) = delete;
@@ -3531,10 +3536,10 @@ struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
   using Self = rq::ExtensionMethodSymbol;
 
   ExtensionMethodSymbol(rq::Expression &expression,
-                        rq::ModuleSymbol &module, llvm::StringRef name,
-                        rq::SymbolAttributeFlags attributes)
+                        rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
+                        llvm::StringRef name, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::EXTENSION_METHOD, expression,
-                            module, attributes),
+                            module, scope, attributes),
         rq::detail::HasNameSymbol(name) {}
   ExtensionMethodSymbol(const Self &) = delete;
   ExtensionMethodSymbol(Self &&) = delete;
@@ -3547,9 +3552,9 @@ struct ConstructorSymbol : public rq::ProcedureSymbol {
   using Self = rq::ConstructorSymbol;
 
   ConstructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                    rq::SymbolAttributeFlags attributes)
+                    rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::CONSTRUCTOR, expression, module,
-                            attributes) {}
+                            scope, attributes) {}
   ConstructorSymbol(const Self &) = delete;
   ConstructorSymbol(Self &&) = delete;
   virtual ~ConstructorSymbol() {}
@@ -3561,9 +3566,9 @@ struct DestructorSymbol : public rq::ProcedureSymbol {
   using Self = rq::DestructorSymbol;
 
   DestructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                   rq::SymbolAttributeFlags attributes)
+                   rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::DESTRUCTOR, expression, module,
-                            attributes) {}
+                            scope, attributes) {}
   DestructorSymbol(const Self &) = delete;
   DestructorSymbol(Self &&) = delete;
   virtual ~DestructorSymbol() {}
@@ -3575,9 +3580,9 @@ struct RangerSymbol : public rq::ProcedureSymbol {
   using Self = rq::RangerSymbol;
 
   RangerSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               rq::SymbolAttributeFlags attributes)
+               rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::RANGER, expression, module,
-                            attributes) {}
+                            scope, attributes) {}
   RangerSymbol(const Self &) = delete;
   RangerSymbol(Self &&) = delete;
   virtual ~RangerSymbol() {}
