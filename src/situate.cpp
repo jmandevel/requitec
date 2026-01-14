@@ -642,8 +642,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   }
   case K::EXTENSION_METHOD:
-    is_ok = this->situateNaryHeaderFirstAndSecondStatementBranches(
-        situation, expression, S::SYMBOL_PATH, S::RVALUE);
+    is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::CONSTRUCTOR: {
     if (!expression.getHasBranch()) {
