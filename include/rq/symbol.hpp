@@ -2635,6 +2635,10 @@ struct HasAttributesSymbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutateWith() const {
     return rq::getHasMutateWith(this->_attributes);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getHasAttribute(rq::SymbolAttribute attribute) const {
+    return rq::getHasAttribute(this->_attributes, attribute);
+  }
 };
 struct HasNameSymbol {
   using Self = rq::detail::HasNameSymbol;

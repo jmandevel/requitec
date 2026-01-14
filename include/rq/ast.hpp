@@ -2251,7 +2251,6 @@ enum class SymbolAttribute : std::uint_fast8_t {
   POSITION,
   MANGLE,
   PACK,
-  ATTRIBUTE,
   LABEL,
   TEMPLATE,
   LIKELY,
@@ -2297,8 +2296,6 @@ enum class SymbolAttribute : std::uint_fast8_t {
     return "mangle";
   case SA::PACK:
     return "pack";
-  case SA::ATTRIBUTE:
-    return "attribute";
   case SA::LABEL:
     return "label";
   case SA::TEMPLATE:
@@ -2400,18 +2397,17 @@ enum class SymbolAttributeFlags : std::uint32_t {
   POSITION = rq::getBit(21),
   MANGLE = rq::getBit(20),
   PACK = rq::getBit(19),
-  ATTRIBUTE = rq::getBit(18),
-  LABEL = rq::getBit(17),
-  TEMPLATE = rq::getBit(16),
-  LIKELY = rq::getBit(15),
-  UNLIKELY = rq::getBit(14),
-  DEPRECIATED = rq::getBit(13),
-  EXPORT = rq::getBit(12),
-  PUBLIC = rq::getBit(11),
-  PROTECTED = rq::getBit(10),
-  MAY_COPY = rq::getBit(9),
-  MAY_MOVE = rq::getBit(8),
-  MUTATE_WITH = rq::getBit(7)
+  LABEL = rq::getBit(18),
+  TEMPLATE = rq::getBit(17),
+  LIKELY = rq::getBit(16),
+  UNLIKELY = rq::getBit(15),
+  DEPRECIATED = rq::getBit(14),
+  EXPORT = rq::getBit(13),
+  PUBLIC = rq::getBit(12),
+  PROTECTED = rq::getBit(11),
+  MAY_COPY = rq::getBit(11),
+  MAY_MOVE = rq::getBit(10),
+  MUTATE_WITH = rq::getBit(9)
 };
 
 template <> struct is_flags<rq::SymbolAttributeFlags> final : std::true_type {};
@@ -2450,8 +2446,6 @@ getFlags(rq::SymbolAttribute attribute) {
     return SF::POSITION;
   case SA::PACK:
     return SF::PACK;
-  case SA::ATTRIBUTE:
-    return SF::ATTRIBUTE;
   case SA::LABEL:
     return SF::LABEL;
   case SA::TEMPLATE:
@@ -2528,10 +2522,6 @@ getFlags(rq::SymbolAttribute attribute) {
 
 [[nodiscard]] inline bool getHasPack(rq::SymbolAttributeFlags flags) {
   return rq::getHasAll(flags, rq::SymbolAttributeFlags::PACK);
-}
-
-[[nodiscard]] inline bool getHasAttribute(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::ATTRIBUTE);
 }
 
 [[nodiscard]] inline bool getHasLabel(rq::SymbolAttributeFlags flags) {
@@ -2642,9 +2632,6 @@ struct SymbolAttributeFlagsFactory final {
     return rq::getHasMangle(this->_flags);
   }
   [[nodiscard]] bool getHasPack() const { return rq::getHasPack(this->_flags); }
-  [[nodiscard]] bool getHasAttribute() const {
-    return rq::getHasAttribute(this->_flags);
-  }
   [[nodiscard]] bool getHasLabel() const {
     return rq::getHasLabel(this->_flags);
   }
