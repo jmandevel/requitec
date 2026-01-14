@@ -77,13 +77,13 @@ void Context::initializeKeywordMap() {
 rq::SourceLocation Context::getSourceLocation(llvm::SMLoc llvm_location) {
   const unsigned buffer_i =
       this->_llvm_source_mgr.FindBufferContainingLoc(llvm_location);
-  auto line_and_column =
+  const auto [line, column] =
       this->_llvm_source_mgr.getLineAndColumn(llvm_location, buffer_i);
   rq::SourceLocation source_location = {};
   source_location.file =
       this->_llvm_source_mgr.getMemoryBuffer(buffer_i)->getBufferIdentifier();
-  source_location.line = line_and_column.first;
-  source_location.column = line_and_column.second;
+  source_location.line = line;
+  source_location.column = column;
   return source_location;
 }
 
