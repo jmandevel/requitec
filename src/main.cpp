@@ -12,7 +12,7 @@ int main(int argc, const char **argv) {
   // here for ease of use.
   if (argc == 1) {
     const char *fake_argv[] = {"./requite", "--emit=symbols", "test.rq", "-o",
-                               "test.symbols.trip"};
+                               "test.symbols.json"};
     if (!rq::parseCommandLineOptions(5, fake_argv)) {
       return 1;
     }

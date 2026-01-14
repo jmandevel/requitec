@@ -2,6 +2,7 @@
 
 #include <rq/ast.hpp>
 #include <rq/codeunits.hpp>
+#include <rq/node_list.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/FoldingSet.h>
@@ -1937,371 +1938,6 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   }
 };
 
-template <typename EntryElementParam> struct Node;
-template <typename EntryElementParam> struct Entry;
-template <typename EntryElementParam> struct EntryIterator;
-template <typename EntryElementParam> struct ConstEntryIterator;
-
-template <typename EntryElementParam> struct Entry final {
-  using EntryElement = EntryElementParam;
-  using Self = rq::Entry<EntryElement>;
-
-  llvm::PointerUnion<EntryElement *, rq::Node<EntryElement> *> _ptr_union{
-      nullptr};
-
-  RQ_ALWAYS_INLINE Entry() = default;
-  RQ_ALWAYS_INLINE Entry(EntryElement &element) : _ptr_union(&element) {}
-  RQ_ALWAYS_INLINE Entry(rq::Node<EntryElement> &node) : _ptr_union(&node) {}
-  RQ_ALWAYS_INLINE ~Entry() = default;
-  RQ_ALWAYS_INLINE Entry(const Self &) = default;
-  RQ_ALWAYS_INLINE Entry(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator=(const Self &) = default;
-  RQ_ALWAYS_INLINE Self &operator=(Self &&) = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntryElement() const {
-    return llvm::isa<EntryElement *>(this->_ptr_union);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
-    return llvm::isa<rq::Node<EntryElement> *>(this->_ptr_union);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
-    return this->_ptr_union.isNull();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE EntryElement &getEntryElement() {
-    return rq::dereferencePtr(llvm::cast<EntryElement *>(this->_ptr_union));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement &getEntryElement() const {
-    return rq::dereferencePtr(llvm::cast<EntryElement *>(this->_ptr_union));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Node<EntryElement> &getNode() {
-    return rq::dereferencePtr(
-        llvm::cast<rq::Node<EntryElement> *>(this->_ptr_union));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Node<EntryElement> &getNode() const {
-    return rq::dereferencePtr(
-        llvm::cast<rq::Node<EntryElement> *>(this->_ptr_union));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this->_ptr_union == rhs._ptr_union;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this->_ptr_union != rhs._ptr_union;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntryIterator<EntryElement> begin();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntryIterator<EntryElement> end();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  begin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  end() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  cbegin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  cend() const;
-};
-
-template <typename EntryElementParam> struct ConstEntry final {
-  using EntryElement = EntryElementParam;
-  using Self = rq::ConstEntry<EntryElement>;
-
-  llvm::PointerUnion<const EntryElement *, const rq::Node<EntryElement> *>
-      _ptr_union{nullptr};
-
-  RQ_ALWAYS_INLINE ConstEntry() = default;
-  RQ_ALWAYS_INLINE ConstEntry(const rq::Entry<EntryElement> &rhs)
-      : _ptr_union(
-            std::bit_cast<llvm::PointerUnion<const EntryElement *,
-                                             const rq::Node<EntryElement> *>>(
-                rhs._ptr_union)) {}
-  RQ_ALWAYS_INLINE ConstEntry(rq::Entry<EntryElement> &&rhs) {
-    this->_ptr_union = std::bit_cast<llvm::PointerUnion<
-        const EntryElement *, const rq::Node<EntryElement> *>>(rhs._ptr_union);
-    rhs._ptr_union = nullptr;
-  }
-  RQ_ALWAYS_INLINE ConstEntry(const EntryElement &element)
-      : _ptr_union(&element) {}
-  RQ_ALWAYS_INLINE ConstEntry(const rq::Node<EntryElement> &node)
-      : _ptr_union(&node) {}
-  ~ConstEntry() = default;
-  RQ_ALWAYS_INLINE ConstEntry(const Self &) = default;
-  RQ_ALWAYS_INLINE ConstEntry(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator=(const Self &) = default;
-  RQ_ALWAYS_INLINE Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator=(const rq::Entry<EntryElement> &rhs) {
-    this->_ptr_union = std::bit_cast<llvm::PointerUnion<
-        const EntryElement *, const rq::Node<EntryElement> *>>(rhs._ptr_union);
-    return *this;
-  }
-  Self RQ_ALWAYS_INLINE &operator=(rq::Entry<EntryElement> &&rhs) {
-    this->_ptr_union = std::bit_cast<llvm::PointerUnion<
-        const EntryElement *, const rq::Node<EntryElement> *>>(rhs._ptr_union);
-    rhs._ptr_union = nullptr;
-    return *this;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntryElement() const {
-    return llvm::isa<const EntryElement *>(this->_ptr_union);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
-    return llvm::isa<const rq::Node<EntryElement> *>(this->_ptr_union);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
-    return this->_ptr_union.isNull();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement &getEntryElement() const {
-    return rq::dereferencePtr(
-        llvm::cast<const EntryElement *>(this->_ptr_union));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Node<EntryElement> &getNode() const {
-    return rq::dereferencePtr(
-        llvm::cast<const rq::Node<EntryElement> *>(this->_ptr_union));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this->_ptr_union == rhs._ptr_union;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this->_ptr_union != rhs._ptr_union;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  begin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  end() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  cbegin() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstEntryIterator<EntryElement>
-  cend() const;
-};
-
-template <typename EntryElementParam> struct Node final {
-  using EntryElement = EntryElementParam;
-  using Self = rq::Node<EntryElement>;
-
-  EntryElement *_element_ptr{nullptr};
-  rq::Entry<EntryElement> _scope_entry{};
-
-  RQ_ALWAYS_INLINE Node() = default;
-  RQ_ALWAYS_INLINE Node(EntryElement &element_a, EntryElement &element_b)
-      : _element_ptr(&element_a), _scope_entry(element_b) {}
-  RQ_ALWAYS_INLINE Node(EntryElement &element, rq::Node<EntryElement> &node)
-      : _element_ptr(&element), _scope_entry(node) {}
-  RQ_ALWAYS_INLINE Node(EntryElement &element,
-                        const rq::Entry<EntryElement> &entry)
-      : _element_ptr(&element), _scope_entry(entry) {}
-  Node(const Self &) = delete;
-  Node(Self &&) = delete;
-  RQ_ALWAYS_INLINE ~Node() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasElement() const {
-    return this->_element_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEntry() const {
-    return !this->_scope_entry.getIsEmpty();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE EntryElement &getElement() {
-    return rq::dereferencePtr(this->_element_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement &getElement() const {
-    return rq::dereferencePtr(this->_element_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entry<EntryElement> &getEntry() {
-    return this->_scope_entry;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entry<EntryElement> &
-  getEntry() const {
-    return this->_scope_entry;
-  }
-};
-
-template <typename EntryElementParam> struct EntryIterator final {
-  using EntryElement = EntryElementParam;
-  using Self = rq::EntryIterator<EntryElement>;
-  using value_type = EntryElement;
-  using reference = EntryElement &;
-  using pointer = EntryElement *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Entry<EntryElement> _entry;
-
-  RQ_ALWAYS_INLINE EntryIterator() = default;
-  RQ_ALWAYS_INLINE explicit EntryIterator(rq::Entry<EntryElement> &entry)
-      : _entry(entry) {}
-  RQ_ALWAYS_INLINE Self &operator++() {
-    if (this->_entry.getIsEntryElement()) {
-      this->_entry = rq::Entry<EntryElement>();
-    } else if (this->_entry.getIsNode()) {
-      this->_entry = rq::Entry<EntryElement>(this->_entry.getNode());
-    } else {
-      RQ_UNREACHABLE();
-    }
-    return *this;
-  }
-  RQ_ALWAYS_INLINE Self operator++(int) {
-    Self backup = *this;
-    ++(*this);
-    return backup;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_entry == it._entry;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_entry != it._entry;
-    ;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE EntryElement &operator*() {
-    if (this->_entry.getIsEntryElement()) {
-      return this->_entry.getEntryElement();
-    } else if (this->_entry.getIsNode()) {
-      return this->_entry.getNode().getElement();
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement &operator*() const {
-    if (this->_entry.getIsEntryElement()) {
-      return this->_entry.getEntryElement();
-    } else if (this->_entry.getIsNode()) {
-      return this->_entry.getNode().getElement();
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE EntryElement *operator->() {
-    if (this->_entry.getIsEntryElement()) {
-      return &this->_entry.getEntryElement();
-    } else if (this->_entry.getIsNode()) {
-      return &this->_entry.getNode().getElement();
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement *operator->() const {
-    if (this->_entry.getIsEntryElement()) {
-      return &this->_entry.getEntryElement();
-    } else if (this->_entry.getIsNode()) {
-      return &this->_entry.getNode().getElement();
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_entry.getIsEmpty();
-  }
-};
-
-template <typename EntryElementParam> struct ConstEntryIterator final {
-  using EntryElement = EntryElementParam;
-  using Self = rq::ConstEntryIterator<EntryElement>;
-  using value_type = const EntryElement;
-  using reference = const EntryElement &;
-  using pointer = EntryElement *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::ConstEntry<EntryElement> _entry;
-
-  RQ_ALWAYS_INLINE ConstEntryIterator() = default;
-  RQ_ALWAYS_INLINE explicit ConstEntryIterator(
-      const rq::Entry<EntryElement> &entry)
-      : _entry(entry) {}
-  RQ_ALWAYS_INLINE explicit ConstEntryIterator(
-      const rq::ConstEntry<EntryElement> &entry)
-      : _entry(entry) {}
-  RQ_ALWAYS_INLINE Self &operator++() {
-    if (this->_entry.getIsEntryElement()) {
-      this->_entry = rq::ConstEntry<EntryElement>();
-    } else if (this->_entry.getIsNode()) {
-      this->_entry = rq::ConstEntry<EntryElement>(this->_entry.getNode());
-    } else {
-      RQ_UNREACHABLE();
-    }
-    return *this;
-  }
-  RQ_ALWAYS_INLINE Self operator++(int) {
-    Self backup = *this;
-    ++(*this);
-    return backup;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_entry == it._entry;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_entry != it._entry;
-    ;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement &operator*() const {
-    if (this->_entry.getIsEntryElement()) {
-      return this->_entry.getEntryElement();
-    } else if (this->_entry.getIsNode()) {
-      return this->_entry.getNode().getElement();
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const EntryElement *operator->() const {
-    if (this->_entry.getIsEntryElement()) {
-      return &this->_entry.getEntryElement();
-    } else if (this->_entry.getIsNode()) {
-      return &this->_entry.getNode().getElement();
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_entry.getIsEmpty();
-  }
-};
-
-template <typename EntryElementParam>
-inline rq::EntryIterator<EntryElementParam> Entry<EntryElementParam>::begin() {
-  return rq::EntryIterator<EntryElementParam>(*this);
-}
-
-template <typename EntryElementParam>
-inline rq::EntryIterator<EntryElementParam> Entry<EntryElementParam>::end() {
-  return rq::EntryIterator<EntryElementParam>();
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-Entry<EntryElementParam>::begin() const {
-  return rq::ConstEntryIterator<EntryElementParam>(*this);
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-Entry<EntryElementParam>::end() const {
-  return rq::ConstEntryIterator<EntryElementParam>();
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-Entry<EntryElementParam>::cbegin() const {
-  return rq::ConstEntryIterator<EntryElementParam>(*this);
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-Entry<EntryElementParam>::cend() const {
-  return rq::ConstEntryIterator<EntryElementParam>();
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-ConstEntry<EntryElementParam>::begin() const {
-  return rq::ConstEntryIterator<EntryElementParam>(*this);
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-ConstEntry<EntryElementParam>::end() const {
-  return rq::ConstEntryIterator<EntryElementParam>();
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-ConstEntry<EntryElementParam>::cbegin() const {
-  return rq::ConstEntryIterator<EntryElementParam>(*this);
-}
-
-template <typename EntryElementParam>
-inline rq::ConstEntryIterator<EntryElementParam>
-ConstEntry<EntryElementParam>::cend() const {
-  return rq::ConstEntryIterator<EntryElementParam>();
-}
-
 struct SimpleBuiltinSymbol : public rq::Symbol {
   using Self = rq::SimpleBuiltinSymbol;
 
@@ -2593,16 +2229,16 @@ struct ArraySymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct LayoutSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::LayoutSymbol;
 
-  rq::Entry<rq::Symbol> _properties;
+  rq::NodeList<rq::Symbol> _properties;
 
-  LayoutSymbol(rq::Entry<rq::Symbol> properties)
+  LayoutSymbol(rq::NodeList<rq::Symbol> properties)
       : rq::Symbol(rq::SymbolKind::LAYOUT), _properties(properties) {}
   LayoutSymbol(const Self &) = delete;
   LayoutSymbol(Self &&) = delete;
   virtual ~LayoutSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entry<rq::Symbol> getProperties() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Symbol> getProperties() const {
     return this->_properties;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
@@ -2614,9 +2250,9 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::SignatureSymbol;
 
   rq::Symbol *_return_ptr;
-  rq::Entry<rq::Symbol> _parameters;
+  rq::NodeList<rq::Symbol> _parameters;
 
-  SignatureSymbol(rq::Symbol &return_, rq::Entry<rq::Symbol> parameters)
+  SignatureSymbol(rq::Symbol &return_, rq::NodeList<rq::Symbol> parameters)
       : rq::Symbol(rq::SymbolKind::SIGNATURE), _return_ptr(&return_),
         _parameters(parameters) {}
   SignatureSymbol(const Self &) = delete;
@@ -2630,7 +2266,7 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getReturn() const {
     return rq::dereferencePtr(this->_return_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entry<rq::Symbol> getParameters() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Symbol> getParameters() const {
     return this->_parameters;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
@@ -2762,8 +2398,8 @@ struct InfiniteArithmeticProgressionSymbol
 struct SymbolTableSymbol : public rq::Symbol {
   using Self = rq::SymbolTableSymbol;
 
-  llvm::SmallDenseMap<llvm::StringRef, rq::Entry<rq::Symbol>> _named_values{};
-  rq::Entry<rq::Symbol> _unamed_values{};
+  llvm::SmallDenseMap<llvm::StringRef, rq::NodeList<rq::Symbol>> _named_values{};
+  rq::NodeList<rq::Symbol> _unamed_values{};
 
   SymbolTableSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
   SymbolTableSymbol(const Self &) = delete;
@@ -2783,52 +2419,52 @@ struct SymbolTableSymbol : public rq::Symbol {
                                   rq::Symbol &symbol) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
-      rq::Entry<rq::Symbol> &entry = it->second;
+      rq::NodeList<rq::Symbol> &entry = it->second;
       rq::Node<rq::Symbol> &node =
           cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
-      entry = rq::Entry<rq::Symbol>(node);
+      entry = rq::NodeList<rq::Symbol>(node);
     } else {
-      this->_named_values.insert({name, rq::Entry<rq::Symbol>(symbol)});
+      this->_named_values.insert({name, rq::NodeList<rq::Symbol>(symbol)});
     }
   }
   inline void tabulateUnamedSymbol(rq::ContextCache &cache,
                                    rq::Symbol &symbol) {
-    rq::Entry<rq::Symbol> &entry = this->_unamed_values;
+    rq::NodeList<rq::Symbol> &entry = this->_unamed_values;
     if (entry.getIsEmpty()) {
       entry = symbol;
       return;
     }
     rq::Node<rq::Symbol> &node =
         cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
-    entry = rq::Entry<rq::Symbol>(node);
+    entry = rq::NodeList<rq::Symbol>(node);
   }
-  [[nodiscard]] inline rq::Entry<rq::Symbol>
-  getNamedEntry(llvm::StringRef name) {
+  [[nodiscard]] inline rq::NodeList<rq::Symbol>
+  getNamedList(llvm::StringRef name) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       return it->second;
     }
-    return rq::Entry<rq::Symbol>();
+    return rq::NodeList<rq::Symbol>();
   }
-  [[nodiscard]] inline rq::ConstEntry<rq::Symbol>
-  getNamedEntry(llvm::StringRef name) const {
+  [[nodiscard]] inline rq::ConstNodeList<rq::Symbol>
+  getNamedList(llvm::StringRef name) const {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       return it->second;
     }
-    return rq::ConstEntry<rq::Symbol>();
+    return rq::ConstNodeList<rq::Symbol>();
   }
-  [[nodiscard]] inline rq::Entry<rq::Symbol> getUnamedEntry() {
+  [[nodiscard]] inline rq::NodeList<rq::Symbol> getUnnamedList() {
     return this->_unamed_values;
   }
-  [[nodiscard]] inline rq::ConstEntry<rq::Symbol> getUnamedEntry() const {
+  [[nodiscard]] inline rq::ConstNodeList<rq::Symbol> getUnnamedList() const {
     return this->_unamed_values;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() {
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange() {
     return std::ranges::subrange(this->_named_values.begin(),
                                  this->_named_values.end());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedEntryRange() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange() const {
     return std::ranges::subrange(this->_named_values.begin(),
                                  this->_named_values.end());
   }
@@ -3401,7 +3037,7 @@ struct ClassSymbol : public rq::SymbolTableSymbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::ClassSymbol;
 
-  rq::Entry<rq::PropertySymbol> _class_properties;
+  rq::NodeList<rq::PropertySymbol> _class_properties;
 
   ClassSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &scope, llvm::StringRef name,
@@ -3426,7 +3062,7 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
                            public rq::detail::HasNameSymbol {
   using Self = rq::EnumerationSymbol;
 
-  rq::Entry<rq::EnumeratorSymbol> _enumerators;
+  rq::NodeList<rq::EnumeratorSymbol> _enumerators;
 
   EnumerationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                     rq::SymbolTableSymbol &scope, llvm::StringRef name,
@@ -3593,10 +3229,10 @@ struct RangerSymbol : public rq::ProcedureSymbol {
 struct TemplateSymbol : public rq::Symbol {
   using Self = rq::TemplateSymbol;
 
-  rq::Entry<rq::TemplateParameterSymbol> _template_parameters;
+  rq::NodeList<rq::TemplateParameterSymbol> _template_parameters;
 
   TemplateSymbol(rq::SymbolKind kind,
-                 const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+                 const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::Symbol(kind), _template_parameters(parameters) {}
   TemplateSymbol(const Self &) = delete;
   TemplateSymbol(Self &&) = delete;
@@ -3610,7 +3246,7 @@ struct TemplateClassSymbol : public rq::TemplateSymbol,
   using Self = rq::TemplateClassSymbol;
 
   TemplateClassSymbol(llvm::StringRef name,
-                      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+                      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_CLASS, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateClassSymbol(const Self &) = delete;
@@ -3626,7 +3262,7 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol,
 
   TemplateEnumerationSymbol(
       llvm::StringRef name,
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_ENUMERATION, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateEnumerationSymbol(const Self &) = delete;
@@ -3642,7 +3278,7 @@ struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol,
 
   TemplateDynamicVariableSymbol(
       llvm::StringRef name,
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateDynamicVariableSymbol(const Self &) = delete;
@@ -3658,7 +3294,7 @@ struct TemplateStaticVariableSymbol : public rq::TemplateSymbol,
 
   TemplateStaticVariableSymbol(
       llvm::StringRef name,
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_STATIC_VARIABLE, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateStaticVariableSymbol(const Self &) = delete;
@@ -3674,7 +3310,7 @@ struct TemplateFunctionSymbol : public rq::TemplateSymbol,
 
   TemplateFunctionSymbol(
       llvm::StringRef name,
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_FUNCTION, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateFunctionSymbol(const Self &) = delete;
@@ -3689,7 +3325,7 @@ struct TemplateMethodSymbol : public rq::TemplateSymbol,
   using Self = rq::TemplateMethodSymbol;
 
   TemplateMethodSymbol(llvm::StringRef name,
-                       const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+                       const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_METHOD, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateMethodSymbol(const Self &) = delete;
@@ -3705,7 +3341,7 @@ struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol,
 
   TemplateExtensionFunctionSymbol(
       llvm::StringRef name,
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateExtensionFunctionSymbol(const Self &) = delete;
@@ -3721,7 +3357,7 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol,
 
   TemplateExtensionMethodSymbol(
       llvm::StringRef name,
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_EXTENSION_METHOD, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateExtensionMethodSymbol(const Self &) = delete;
@@ -3735,7 +3371,7 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateConstructorSymbol;
 
   TemplateConstructorSymbol(
-      const rq::Entry<rq::TemplateParameterSymbol> &parameters)
+      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_CONSTRUCTOR, parameters) {}
   TemplateConstructorSymbol(const Self &) = delete;
   TemplateConstructorSymbol(Self &&) = delete;

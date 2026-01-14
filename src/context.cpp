@@ -1,6 +1,7 @@
 #include <rq/ast.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
+#include <rq/json.hpp>
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
@@ -163,7 +164,7 @@ bool Context::loadSourceModule() {
 }
 
 rq::ModuleSymbol *Context::loadImportModule(rq::Expression &expression,
-                                      llvm::StringRef import_string) {
+                                            llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
   for (const std::string &dir : rq::getImportDirectories()) {
@@ -455,22 +456,102 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   return true;
 }
 
-static void emitSymbol(rq::Context &context, llvm::raw_fd_ostream &fout,
-                       const rq::Symbol &symbol, unsigned indent) {
-  rq::emitIndent(fout, indent);
+static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
+                       const rq::Symbol &symbol);
+
+static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
+                            const rq::SymbolTableSymbol &table) {
+  json.beginArray("named");
+  for (const auto &[name, list] : table.getNamedListRange()) {
+    json.beginObject();
+    json.emitString("name", name);
+    json.beginArray("symbols");
+    for (const rq::Symbol &symbol : list) {
+      rq::emitSymbol(context, json, symbol);
+    }
+    json.endArray();
+    json.endObject();
+  }
+  json.endArray();
+  json.beginArray("unnamed");
+  for (const rq::Symbol &symbol : table.getUnnamedList()) {
+    rq::emitSymbol(context, json, symbol);
+  }
+  json.endArray();
+}
+
+static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
+                       const rq::Symbol &symbol) {
   std::ignore = context;
-  fout << rq::getName(symbol.getKind()) << ":{";
-  indent++;
+  json.beginObject();
+  json.emitString("kind", rq::getName(symbol.getKind()));
   switch (symbol.getKind()) {
-  case rq::SymbolKind::ENTRY:
-    fout << "{}\n";
-    break;
+  case rq::SymbolKind::IMPORT: {
+    const auto &import = llvm::cast<rq::ImportSymbol>(symbol);
+    std::ignore = import;
+  } break;
+  case rq::SymbolKind::MUTATION: {
+    const auto &mutation = llvm::cast<rq::MutationSymbol>(symbol);
+    std::ignore = mutation;
+  } break;
+  case rq::SymbolKind::DYNAMIC_VARIABLE: {
+    const auto &variable = llvm::cast<rq::DynamicVariableSymbol>(symbol);
+    json.emitString("name", variable.getName());
+  } break;
+  case rq::SymbolKind::TABLE: {
+    const auto &table = llvm::cast<rq::TableSymbol>(symbol);
+    json.emitString("name", table.getName());
+  } break;
+  case rq::SymbolKind::CLASS: {
+    const auto &class_ = llvm::cast<rq::ClassSymbol>(symbol);
+    json.emitString("name", class_.getName());
+  } break;
+  case rq::SymbolKind::ENUMERATION: {
+    const auto &enumeration = llvm::cast<rq::EnumerationSymbol>(symbol);
+    json.emitString("name", enumeration.getName());
+  } break;
+  case rq::SymbolKind::ENTRY: {
+    const auto &entry = llvm::cast<rq::EntrySymbol>(symbol);
+    std::ignore = entry;
+  } break;
+  case rq::SymbolKind::FUNCTION: {
+    const auto &function = llvm::cast<rq::FunctionSymbol>(symbol);
+    json.emitString("name", function.getName());
+  } break;
+  case rq::SymbolKind::METHOD: {
+    const auto &method = llvm::cast<rq::MethodSymbol>(symbol);
+    json.emitString("name", method.getName());
+  } break;
+  case rq::SymbolKind::EXTENSION_FUNCTION: {
+    const auto &extension_function =
+        llvm::cast<rq::ExtensionFunctionSymbol>(symbol);
+    json.emitString("name", extension_function.getName());
+  } break;
+  case rq::SymbolKind::EXTENSION_METHOD: {
+    const auto &extension_method =
+        llvm::cast<rq::ExtensionMethodSymbol>(symbol);
+    json.emitString("name", extension_method.getName());
+  } break;
+  case rq::SymbolKind::CONSTRUCTOR: {
+    const auto &constructor = llvm::cast<rq::ConstructorSymbol>(symbol);
+    std::ignore = constructor;
+  } break;
+  case rq::SymbolKind::DESTRUCTOR: {
+    const auto &destructor = llvm::cast<rq::DestructorSymbol>(symbol);
+    std::ignore = destructor;
+  } break;
+  case rq::SymbolKind::RANGER: {
+    const auto &ranger = llvm::cast<rq::RangerSymbol>(symbol);
+    std::ignore = ranger;
+  } break;
+  case rq::SymbolKind::TOP: {
+    const auto &top = llvm::cast<rq::TopSymbol>(symbol);
+    rq::emitSymbolTable(context, json, top);
+  } break;
   default:
     RQ_TODO_IMPLEMENTATION();
   }
-  indent--;
-  rq::emitIndent(fout, indent);
-  fout << "}\n";
+  json.endObject();
 }
 
 bool Context::emitSymbol(llvm::StringRef path, const rq::Symbol &symbol) {
@@ -480,7 +561,9 @@ bool Context::emitSymbol(llvm::StringRef path, const rq::Symbol &symbol) {
     this->logErrorFailedToOpenIntermediateFile(path, ec);
     return false;
   }
-  rq::emitSymbol(*this, fout, symbol, 0);
+  rq::JsonEmitter json(fout);
+  rq::emitSymbol(*this, json, symbol);
+  fout << "\n";
   fout.close();
   return true;
 }
