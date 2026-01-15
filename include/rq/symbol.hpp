@@ -2,7 +2,7 @@
 
 #include <rq/ast.hpp>
 #include <rq/codeunits.hpp>
-#include <rq/node_list.hpp>
+#include <rq/bump_ptr_list.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/FoldingSet.h>
@@ -2229,16 +2229,16 @@ struct ArraySymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct LayoutSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::LayoutSymbol;
 
-  rq::NodeList<rq::Symbol> _properties;
+  rq::BumpPtrList<rq::Symbol> _properties;
 
-  LayoutSymbol(rq::NodeList<rq::Symbol> properties)
+  LayoutSymbol(rq::BumpPtrList<rq::Symbol> properties)
       : rq::Symbol(rq::SymbolKind::LAYOUT), _properties(properties) {}
   LayoutSymbol(const Self &) = delete;
   LayoutSymbol(Self &&) = delete;
   virtual ~LayoutSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Symbol> getProperties() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Symbol> getProperties() const {
     return this->_properties;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
@@ -2250,9 +2250,9 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::SignatureSymbol;
 
   rq::Symbol *_return_ptr;
-  rq::NodeList<rq::Symbol> _parameters;
+  rq::BumpPtrList<rq::Symbol> _parameters;
 
-  SignatureSymbol(rq::Symbol &return_, rq::NodeList<rq::Symbol> parameters)
+  SignatureSymbol(rq::Symbol &return_, rq::BumpPtrList<rq::Symbol> parameters)
       : rq::Symbol(rq::SymbolKind::SIGNATURE), _return_ptr(&return_),
         _parameters(parameters) {}
   SignatureSymbol(const Self &) = delete;
@@ -2266,7 +2266,7 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getReturn() const {
     return rq::dereferencePtr(this->_return_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Symbol> getParameters() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Symbol> getParameters() const {
     return this->_parameters;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
@@ -2398,8 +2398,8 @@ struct InfiniteArithmeticProgressionSymbol
 struct SymbolTableSymbol : public rq::Symbol {
   using Self = rq::SymbolTableSymbol;
 
-  llvm::SmallDenseMap<llvm::StringRef, rq::NodeList<rq::Symbol>> _named_values{};
-  rq::NodeList<rq::Symbol> _unamed_values{};
+  llvm::SmallDenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> _named_values{};
+  rq::BumpPtrList<rq::Symbol> _unamed_values{};
 
   SymbolTableSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
   SymbolTableSymbol(const Self &) = delete;
@@ -2419,45 +2419,45 @@ struct SymbolTableSymbol : public rq::Symbol {
                                   rq::Symbol &symbol) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
-      rq::NodeList<rq::Symbol> &entry = it->second;
+      rq::BumpPtrList<rq::Symbol> &entry = it->second;
       rq::Node<rq::Symbol> &node =
           cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
-      entry = rq::NodeList<rq::Symbol>(node);
+      entry = rq::BumpPtrList<rq::Symbol>(node);
     } else {
-      this->_named_values.insert({name, rq::NodeList<rq::Symbol>(symbol)});
+      this->_named_values.insert({name, rq::BumpPtrList<rq::Symbol>(symbol)});
     }
   }
   inline void tabulateUnamedSymbol(rq::ContextCache &cache,
                                    rq::Symbol &symbol) {
-    rq::NodeList<rq::Symbol> &entry = this->_unamed_values;
+    rq::BumpPtrList<rq::Symbol> &entry = this->_unamed_values;
     if (entry.getIsEmpty()) {
       entry = symbol;
       return;
     }
     rq::Node<rq::Symbol> &node =
         cache.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
-    entry = rq::NodeList<rq::Symbol>(node);
+    entry = rq::BumpPtrList<rq::Symbol>(node);
   }
-  [[nodiscard]] inline rq::NodeList<rq::Symbol>
+  [[nodiscard]] inline rq::BumpPtrList<rq::Symbol>
   getNamedList(llvm::StringRef name) {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       return it->second;
     }
-    return rq::NodeList<rq::Symbol>();
+    return rq::BumpPtrList<rq::Symbol>();
   }
-  [[nodiscard]] inline rq::ConstNodeList<rq::Symbol>
+  [[nodiscard]] inline rq::ConstBumpPtrList<rq::Symbol>
   getNamedList(llvm::StringRef name) const {
     auto it = this->_named_values.find(name);
     if (it != this->_named_values.end()) {
       return it->second;
     }
-    return rq::ConstNodeList<rq::Symbol>();
+    return rq::ConstBumpPtrList<rq::Symbol>();
   }
-  [[nodiscard]] inline rq::NodeList<rq::Symbol> getUnnamedList() {
+  [[nodiscard]] inline rq::BumpPtrList<rq::Symbol> getUnnamedList() {
     return this->_unamed_values;
   }
-  [[nodiscard]] inline rq::ConstNodeList<rq::Symbol> getUnnamedList() const {
+  [[nodiscard]] inline rq::ConstBumpPtrList<rq::Symbol> getUnnamedList() const {
     return this->_unamed_values;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange() {
@@ -3041,7 +3041,7 @@ struct ClassSymbol : public rq::SymbolTableSymbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::ClassSymbol;
 
-  rq::NodeList<rq::PropertySymbol> _class_properties;
+  rq::BumpPtrList<rq::PropertySymbol> _class_properties;
 
   ClassSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &scope, llvm::StringRef name,
@@ -3066,7 +3066,7 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
                            public rq::detail::HasNameSymbol {
   using Self = rq::EnumerationSymbol;
 
-  rq::NodeList<rq::EnumeratorSymbol> _enumerators;
+  rq::BumpPtrList<rq::EnumeratorSymbol> _enumerators;
 
   EnumerationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                     rq::SymbolTableSymbol &scope, llvm::StringRef name,
@@ -3233,10 +3233,10 @@ struct RangerSymbol : public rq::ProcedureSymbol {
 struct TemplateSymbol : public rq::Symbol {
   using Self = rq::TemplateSymbol;
 
-  rq::NodeList<rq::TemplateParameterSymbol> _template_parameters;
+  rq::BumpPtrList<rq::TemplateParameterSymbol> _template_parameters;
 
   TemplateSymbol(rq::SymbolKind kind,
-                 const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+                 const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::Symbol(kind), _template_parameters(parameters) {}
   TemplateSymbol(const Self &) = delete;
   TemplateSymbol(Self &&) = delete;
@@ -3250,7 +3250,7 @@ struct TemplateClassSymbol : public rq::TemplateSymbol,
   using Self = rq::TemplateClassSymbol;
 
   TemplateClassSymbol(llvm::StringRef name,
-                      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+                      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_CLASS, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateClassSymbol(const Self &) = delete;
@@ -3266,7 +3266,7 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol,
 
   TemplateEnumerationSymbol(
       llvm::StringRef name,
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_ENUMERATION, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateEnumerationSymbol(const Self &) = delete;
@@ -3282,7 +3282,7 @@ struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol,
 
   TemplateDynamicVariableSymbol(
       llvm::StringRef name,
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateDynamicVariableSymbol(const Self &) = delete;
@@ -3298,7 +3298,7 @@ struct TemplateStaticVariableSymbol : public rq::TemplateSymbol,
 
   TemplateStaticVariableSymbol(
       llvm::StringRef name,
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_STATIC_VARIABLE, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateStaticVariableSymbol(const Self &) = delete;
@@ -3314,7 +3314,7 @@ struct TemplateFunctionSymbol : public rq::TemplateSymbol,
 
   TemplateFunctionSymbol(
       llvm::StringRef name,
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_FUNCTION, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateFunctionSymbol(const Self &) = delete;
@@ -3329,7 +3329,7 @@ struct TemplateMethodSymbol : public rq::TemplateSymbol,
   using Self = rq::TemplateMethodSymbol;
 
   TemplateMethodSymbol(llvm::StringRef name,
-                       const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+                       const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_METHOD, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateMethodSymbol(const Self &) = delete;
@@ -3345,7 +3345,7 @@ struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol,
 
   TemplateExtensionFunctionSymbol(
       llvm::StringRef name,
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_EXTENSION_FUNCTION, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateExtensionFunctionSymbol(const Self &) = delete;
@@ -3361,7 +3361,7 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol,
 
   TemplateExtensionMethodSymbol(
       llvm::StringRef name,
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_EXTENSION_METHOD, parameters),
         rq::detail::HasNameSymbol(name) {}
   TemplateExtensionMethodSymbol(const Self &) = delete;
@@ -3375,7 +3375,7 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   using Self = rq::TemplateConstructorSymbol;
 
   TemplateConstructorSymbol(
-      const rq::NodeList<rq::TemplateParameterSymbol> &parameters)
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::TemplateSymbol(rq::SymbolKind::TEMPLATE_CONSTRUCTOR, parameters) {}
   TemplateConstructorSymbol(const Self &) = delete;
   TemplateConstructorSymbol(Self &&) = delete;
