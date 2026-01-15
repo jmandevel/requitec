@@ -1,31 +1,33 @@
 // NOTE: types in requite can have no implicit conversions, even from literals!
 // If you want to change from one numeric type to another you always must cast.
 
+// NOTE: no implicit casting between platform generic types and specific types even if the same underlying type.
+
 [entry
-    a :                        [signed]=0;                     // depthed based on what is best for platform ([default_integer_bit_depth])
-    b :                        [signed]=0s;
-    c :                      [unsigned]=0u;
-    d :                     [signed 32]=0s32;
-    e :                   [unsigned 51]=0s51;                  // integer types can have any bit size, even non power of 2 sizes
-    f :                        [signed]=16xFFFFFF;             // hexadecimal
-    g :                        [signed]=2x101010;              // binary
+    a :                   [signed_word]=0;                     // depthed based on what is best for platform (usually 64 for 64 bit machines)
+    b :                   [signed_word]=0sw;                   // 
+    c :                 [unsigned_word]=0uw;                   // twos complement unsigned integer with word size for platform
+    d :                     [signed 32]=0s32;                  // specify a specific size
+    e :                   [unsigned 51]=0u51;                  // integer types can have any bit size, even non power of 2 sizes
+    f :                   [signed_word]=16xFFFFFF;             // hexadecimal
+    g :                   [signed_word]=2x101010;              // binary
     h :                   [unsigned 64]=16u64xDEADBEEF;        // hexadecimal
     i :                   [unsigned 64]=2u64x1011001;          // binary
-    j :                          [word]=16wxFFFF;              // words do not support arithmetic operations or comparison operations other than equality
-    k :                       [word 16]=16w16x1;               
-    l :                         [float]=0.0;                   // [float] is the "best float" for platform (usually [binary 64])
-    m :                         [float]=0f;
+    j :                   [unsigned 32]=[unsigned 32]:15iu16;  // casting from 16-bit to 32-bit          
+    k :                   [unsigned 32]=[unsigned 32]!:16iu64; // casting to smaller sized type, so use downcast with !
+    l :                  [single_float]=0.0;                   // [single_float] is the "best float" for platform (usually a binary 64-bit IEEE 754 float on 64-bit machines)
+    m :                  [single_float]=0sf;
     n :                     [binary 16]=0b16;                  // binary floating point types have only a specific range of supported sizes (16, 32, 64, and 128)
     o :                     [binary 32]=0b32;
     p :                     [binary 64]=0b64;
     q :                    [binary 128]=0b128; 
-    r :                        [binary]=0b;                    // use "best size" for platform ([default_binary_bit_depth])
-    s :                     [bfloat 16]=0bf16;
-    t :                          [bool]=[true];
-    u :                          [bool]=[false];
-    v :                          [utf8]='A';
+    r :                        [binary]=0b;                    // use "best size" for platform (usually IEEE 754 64-bit binary floating point on 64-bit machines)
+    s :                     [bfloat 16]=0bf;                   // Google 16-bit brain floating point format
+    t :                       [boolean]=[true];                // can not get address of a bool
+    u :                       [boolean]=[false];
+    v :                         [ascii]='A'ascii;
     w :        $null_terminated ^[utf8]="ASDF";                // when copied to a mutable, $null_terminated is removed
     x :        $null_terminated *[utf8]="ASDF".[data_address];
-    y :  [unsigned [address_bit_depth]]=[signed].[byte_size];
-    z :  [unsigned address_bit_depth]=0uptr;
+    y :                [unsigned_index]=[signed].[byte_size];  // usually 64-bit unsigned integer on 64-bit machines
+    z :                [unsigned_index]=0udx;
 ];
