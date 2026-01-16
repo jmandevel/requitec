@@ -31,6 +31,8 @@
     y :                [unsigned_index]=[signed].[byte_size];  // usually 64-bit unsigned integer on 64-bit machines
     z :                [unsigned_index]=0udx;
 
+    // using downcasts when not necessary causes a compiler error:
+    // my_val :=  [signed 64]!:[signed 32]; // COMPILER ERROR!
 
     // unique types are a different type than the original, requiring a cast
     @static Signed32A := [signed 32].[unique];
@@ -45,7 +47,7 @@
 
     // this is possible because every static value has a flag that keeps track if its platform specific.
     // you can not use platform values for sizes of non-unique types:
-    // @static ByteSigned := [signed [signed_byte].[bit_depth]]; // COMPILE ERROR!
+    // @static ByteSigned := [signed [signed_byte].[bit_depth]]; // COMPILER ERROR!
 
     // this helps keep the type system strong across platforms where types may have different bit depths.
 ];
