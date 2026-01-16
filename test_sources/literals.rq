@@ -14,14 +14,14 @@
     h :                   [unsigned 64]=16u64xDEADBEEF;        // hexadecimal
     i :                   [unsigned 64]=2u64x1011001;          // binary
     j :                   [unsigned 32]=[unsigned 32]:15u16;   // casting from 16-bit to 32-bit          
-    k :                   [unsigned 32]=[unsigned 32]!:16u64;  // casting to smaller sized type, so use downcast with !
+    k :                   [unsigned 32]=[unsigned 32]!:16u64;  // casting to smaller sized type, so use downcast with !:
     l :                  [single_float]=0.0sf;                 // [single_float] is the "best float" for platform (usually a binary 64-bit IEEE 754 float on 64-bit machines)
     m :                  [single_float]=0sf;
     n :                     [binary 16]=0b16;                  // binary floating point types have only a specific range of supported sizes (16, 32, 64, and 128)
     o :                     [binary 32]=0b32;
     p :                     [binary 64]=0b64;
     q :                    [binary 128]=0b128; 
-    r :                        [binary]=0b;                    // use "best size" for platform (usually IEEE 754 64-bit binary floating point on 64-bit machines)
+    r :                  [single_float]=[single_float]?:0b64;  // platform cast to platform specific float that may loose data with ?:
     s :                     [bfloat 16]=0bf;                   // Google 16-bit brain floating point format
     t :                       [boolean]=[true];                // can not get address of a bool
     u :                       [boolean]=[false];
@@ -30,4 +30,22 @@
     x :        $null_terminated *[utf8]="ASDF".[data_address];
     y :                [unsigned_index]=[signed].[byte_size];  // usually 64-bit unsigned integer on 64-bit machines
     z :                [unsigned_index]=0udx;
+
+
+    // unique types are a different type than the original, requiring a cast
+    @static Signed32A := [signed 32].[unique];
+    @static Signed32B := [signed 32].[unique];
+
+    // example of usage:
+    a := Signed32A:0s32;
+    b := Signed32B:a;
+
+    // they accept platform specific static values for size
+    @static ByteSigned := [signed [signed_byte].[bit_depth]].[unique];
+
+    // this is possible because every static value has a flag that keeps track if its platform specific.
+    // you can not use platform values for sizes of non-unique types:
+    // @static ByteSigned := [signed [signed_byte].[bit_depth]]; // COMPILE ERROR!
+
+    // this helps keep the type system strong across platforms where types may have different bit depths.
 ];
