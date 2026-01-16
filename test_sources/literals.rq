@@ -13,9 +13,9 @@
     g :                   [signed_word]=2x101010;              // binary
     h :                   [unsigned 64]=16u64xDEADBEEF;        // hexadecimal
     i :                   [unsigned 64]=2u64x1011001;          // binary
-    j :                   [unsigned 32]=[unsigned 32]:15u16;   // casting from 16-bit to 32-bit          
-    k :                   [unsigned 32]=[unsigned 32]!:16u64;  // casting to smaller sized type, so use downcast with !:
-    l :                  [single_float]=0.0sf;                 // [single_float] is the "best float" for platform (usually a binary 64-bit IEEE 754 float on 64-bit machines)
+    j :                   [unsigned 32]=[unsigned 32]:15u16;  // casting from 16-bit to 32-bit          
+    k :                   [unsigned 32]=[unsigned 32]!:16u64; // casting to smaller sized type, so use downcast with !
+    l :                  [single_float]=0.0;                   // [single_float] is the "best float" for platform (usually a binary 64-bit IEEE 754 float on 64-bit machines)
     m :                  [single_float]=0sf;
     n :                     [binary 16]=0b16;                  // binary floating point types have only a specific range of supported sizes (16, 32, 64, and 128)
     o :                     [binary 32]=0b32;
