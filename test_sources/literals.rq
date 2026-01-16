@@ -32,7 +32,7 @@
     z :                [unsigned_index]=0udx;
 
     // using downcasts when not necessary causes a compiler error:
-    // my_val :=  [signed 64]!:[signed 32]; // COMPILER ERROR!
+    // my_val :=  [signed 64]!:0s32; // COMPILER ERROR!
 
     // unique types are a different type than the original, requiring a cast
     @static Signed32A := [signed 32].[unique];
