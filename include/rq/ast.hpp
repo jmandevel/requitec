@@ -194,29 +194,63 @@ enum class Keyword : std::uint32_t {
   COMMAND_LINE_ARGUMENTS,
   // resulting exit code within entry.
   EXIT_CODE,
-  // the bit depth of memory addresses on the current architecture.
-  ADDRESS_BIT_DEPTH,
-  // the amount of bits per byte on the current architecture. (almost always 8)
-  BYTE_BIT_DEPTH,
-  DEFAULT_SIGNED_BIT_DEPTH,
-  DEFAULT_UNSIGNED_BIT_DEPTH,
-  DEFAULT_BINARY_BIT_DEPTH,
-  DEFAULT_BFLOAT_BIT_DEPTH,
 
   // BUILTIN TYPES
   S_INFERENCE,
   VOID,
   NO_RETURN,
   BOOLEAN,
-  WORD,
+  FLOAT,
   SIGNED,
   UNSIGNED,
-  UTF8,
-  BFLOAT16,
   BINARY16,
   BINARY32,
   BINARY64,
   BINARY128,
+  BFLOAT16,
+  ASCII,
+  UTF8,
+
+  // TYPE REFLECTIONS
+  // the size in bits/bytes should be exact
+  EXACT_BITS,
+  S_EXACT_BITS_OF,
+  EXACT_BYTES,
+  S_EXACT_BYTES_OF,
+  EXACT_INDEX,
+  S_EXACT_INDEX_OF,
+  EXACT_ADDRESS,
+  S_EXACT_ADDRESS_OF,
+  // the size in bits/bytes can be increased to the fastest size for the current platform
+  FASTEST_BITS,
+  S_FASTEST_BITS_OF,
+  FASTEST_BYTES,
+  S_FASTEST_BYTES_OF,
+  FASTEST_INDEX,
+  S_FASTEST_INDEX_OF,
+  FASTEST_ADDRESS,
+  S_FASTEST_ADDRESS_OF,
+  // the size in bits/bytes can be increased to the least existing register size for the current platform
+  LEAST_BITS,  
+  S_LEAST_BITS_OF,
+  LEAST_BYTES,  
+  S_LEAST_BYTES_OF,
+  LEAST_INDEX,
+  S_LEAST_INDEX_OF,
+  LEAST_ADDRESS,
+  S_LEAST_ADDRESS_OF,
+  // best is similar to fastest, but may choose to pick a smaller size if no native least size exists
+  BEST_BITS,
+  S_BEST_BITS_OF,
+  BEST_BYTES,
+  S_BEST_BYTES_OF,
+  // make a unique clone of a type that is not implicitly convertable
+  // can only use platform specific values for size of builtin type if it is unique
+  UNIQUE,
+  S_UNIQUE_OF,
+  // get a signed or unsigned version of an integer type
+  S_SIGNED_OF,   // universalized signed
+  S_UNSIGNED_OF, // universalized unsigned
 
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS,
@@ -683,18 +717,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "command_line_arguments";
   case K::EXIT_CODE:
     return "exit_code";
-  case K::ADDRESS_BIT_DEPTH:
-    return "address_bit_depth";
-  case K::BYTE_BIT_DEPTH:
-    return "byte_bit_depth";
-  case K::DEFAULT_SIGNED_BIT_DEPTH:
-    return "default_signed_bit_depth";
-  case K::DEFAULT_UNSIGNED_BIT_DEPTH:
-    return "default_unsigned_bit_depth";
-  case K::DEFAULT_BINARY_BIT_DEPTH:
-    return "default_binary_bit_depth";
-  case K::DEFAULT_BFLOAT_BIT_DEPTH:
-    return "default_bfloat_bit_depth";
 
   // BUILTIN TYPES
   case K::S_INFERENCE:
@@ -705,16 +727,12 @@ constexpr std::size_t KEYWORD_COUNT =
     return "no_return";
   case K::BOOLEAN:
     return "boolean";
-  case K::WORD:
-    return "word";
+  case K::FLOAT:
+    return "float";
   case K::SIGNED:
     return "signed";
   case K::UNSIGNED:
     return "unsigned";
-  case K::UTF8:
-    return "utf8";
-  case K::BFLOAT16:
-    return "bfloat16";
   case K::BINARY16:
     return "binary16";
   case K::BINARY32:
@@ -723,7 +741,79 @@ constexpr std::size_t KEYWORD_COUNT =
     return "binary64";
   case K::BINARY128:
     return "binary128";
+  case K::BFLOAT16:
+    return "bfloat16";
+  case K::ASCII:
+    return "ascii";
+  case K::UTF8:
+    return "utf8";
 
+  // TYPE REFLECTIONS
+  case K::EXACT_BITS:
+    return "exact_bits";
+  case K::S_EXACT_BITS_OF:
+    return "_exact_bits_of";
+  case K::EXACT_BYTES:
+    return "exact_bytes";
+  case K::S_EXACT_BYTES_OF:
+    return "_exact_bytes_of";
+  case K::EXACT_INDEX:
+    return "exact_index";
+  case K::S_EXACT_INDEX_OF:
+    return "_exact_index_of";
+  case K::EXACT_ADDRESS:
+    return "exact_address";
+  case K::S_EXACT_ADDRESS_OF:
+    return "_exact_address_of";
+  case K::FASTEST_BITS:
+    return "fastest_bits";
+  case K::S_FASTEST_BITS_OF:
+    return "_fastest_bits_of";
+  case K::FASTEST_BYTES:
+    return "fastest_bytes";
+  case K::S_FASTEST_BYTES_OF:
+    return "_fastest_bytes_of";
+  case K::FASTEST_INDEX:
+    return "fastest_index";
+  case K::S_FASTEST_INDEX_OF:
+    return "_fastest_index_of";
+  case K::FASTEST_ADDRESS:
+    return "fastest_address";
+  case K::S_FASTEST_ADDRESS_OF:
+    return "_fastest_address_of";
+  case K::LEAST_BITS:
+    return "least_bites";
+  case K::S_LEAST_BITS_OF:
+    return "_least_bits_of";
+  case K::LEAST_BYTES:
+    return "least_bytes";
+  case K::S_LEAST_BYTES_OF:
+    return "_least_bytes_of";
+  case K::LEAST_INDEX:
+    return "least_index";
+  case K::S_LEAST_INDEX_OF:
+    return "_least_index_of";
+  case K::LEAST_ADDRESS:
+    return "least_address";
+  case K::S_LEAST_ADDRESS_OF:
+    return "_least_address_of";
+  case K::BEST_BITS:
+    return "best_bits";
+  case K::S_BEST_BITS_OF:
+    return "_best_bits_of";
+  case K::BEST_BYTES:
+    return "best_bytes";
+  case K::S_BEST_BYTES_OF:
+    return "_best_bytes_of";
+  case K::UNIQUE:
+    return "unique";
+  case K::S_UNIQUE_OF:
+    return "_unique_of";
+  case K::S_SIGNED_OF:
+    return "_signed_of";
+  case K::S_UNSIGNED_OF:
+    return "_unsigned_of";
+  
   // VARIADIC ARGUMENTS
   case K::VARIADIC_ARGUMENTS:
     return "variadic_arguments";
@@ -1125,8 +1215,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::I_CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::I_IDENTIFIER_LITERAL:
-    return KF::STATEMENT | KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
-           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH;
+    return KF::STATEMENT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
+           KF::LVALUE | KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
+           KF::SYMBOL_PATH;
 
   // ERRORS
   case K::I_ERROR:
@@ -1388,18 +1479,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXIT_CODE:
     return KF::RVALUE | KF::LVALUE;
-  case K::ADDRESS_BIT_DEPTH:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::BYTE_BIT_DEPTH:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::DEFAULT_SIGNED_BIT_DEPTH:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::DEFAULT_UNSIGNED_BIT_DEPTH:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::DEFAULT_BINARY_BIT_DEPTH:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::DEFAULT_BFLOAT_BIT_DEPTH:
-    return KF::RVALUE | KF::ARGUMENT;
 
   // BUILTIN TYPES
   case K::S_INFERENCE:
@@ -1410,13 +1489,11 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BOOLEAN:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::WORD:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::FLOAT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;    
   case K::SIGNED:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BFLOAT16:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINARY16:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1426,7 +1503,77 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINARY128:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::BFLOAT16:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ASCII:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UTF8:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+
+  // TYPE REFLECTIONS
+  case K::EXACT_BITS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_EXACT_BITS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::EXACT_BYTES:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_EXACT_BYTES_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::EXACT_INDEX:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_EXACT_INDEX_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::EXACT_ADDRESS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_EXACT_ADDRESS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::FASTEST_BITS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_FASTEST_BITS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::FASTEST_BYTES:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_FASTEST_BYTES_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::FASTEST_INDEX:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_FASTEST_INDEX_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::FASTEST_ADDRESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_FASTEST_ADDRESS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LEAST_BITS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_LEAST_BITS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LEAST_BYTES:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_LEAST_BYTES_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LEAST_INDEX:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_LEAST_INDEX_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LEAST_ADDRESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_LEAST_ADDRESS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::BEST_BITS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_BEST_BITS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::BEST_BYTES:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_BEST_BYTES_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UNIQUE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_UNIQUE_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_SIGNED_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::S_UNSIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // VARIADIC ARGUMENTS
@@ -2023,6 +2170,34 @@ getDescription(rq::Situation situation) {
     return K::S_DROP_VALUE;
   case K::MOVE:
     return K::S_MOVE_VALUE;
+  // TYPE REFLECTIONS
+  case K::EXACT_BITS:
+    return K::S_EXACT_BITS_OF;
+  case K::EXACT_BYTES:
+    return K::S_EXACT_BYTES_OF;
+  case K::EXACT_INDEX:
+    return K::S_EXACT_INDEX_OF;
+  case K::EXACT_ADDRESS:
+    return K::S_EXACT_ADDRESS_OF;
+  case K::FASTEST_BITS:
+    return K::S_FASTEST_BITS_OF;
+  case K::FASTEST_BYTES:
+    return K::S_FASTEST_BYTES_OF;
+  case K::FASTEST_INDEX:
+    return K::S_FASTEST_INDEX_OF;
+  case K::FASTEST_ADDRESS:
+    return K::S_FASTEST_ADDRESS_OF;
+  case K::LEAST_BITS:
+    return K::S_LEAST_BITS_OF;
+  case K::LEAST_BYTES:
+    return K::S_LEAST_BYTES_OF;
+  case K::UNIQUE:
+    return K::S_UNIQUE_OF;
+  case K::SIGNED:
+    return K::S_SIGNED_OF;
+  case K::UNSIGNED:
+    return K::S_UNSIGNED_OF;  
+
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::S_FIRST_VARIADIC_ARGUMENT_OF;
