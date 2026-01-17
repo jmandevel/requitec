@@ -20,8 +20,8 @@
     e := 0uf64;  // [unsigned].[fastest_bits 64]
     f := 0ul128; // [unsigned].[least_bits 128]   // smallest native unsigned integer with at least 128-bits
     // there are special types for working with memory across platforms
-    g := 0udx // [unsigned_index] // unsigned type the size of indexes used for memory address indexing
-    h := 0uad // [unsigned_address] // unsigned type the size of memory addresses
+    g := 0uedx // [unsigned].[exact_index] // unsigned type the size of indexes used for memory address indexing
+    h := 0ueds // [unsigned].[exact_address] // unsigned type the size of memory addresses
 
     // integer literals can be written with an alternate base in the format <base>x<digits>
     // bases in requite can be anything from 2 to 64
@@ -65,7 +65,7 @@
     t := 0.0;    // [float].[best_bits 32]  // its a float because of the decimal point
     u := 0.0f;   // [float].[best_bits 32]  // explicit float suffix
     v := 0f;     // [float].[best_bits 32]  // no decimal point, but we make it a float with the suffix
-    w := 128ff16 // [float].[best_bits 16]
+    w := 128f16 // [float].[best_bits 16]
 
     // it might be beneficial to be explicit about what types of floats you want to use instead
     x := 0binary16;   // [binary16]
