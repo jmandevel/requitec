@@ -245,7 +245,7 @@ enum class Keyword : std::uint32_t {
   BEST_BYTES,
   S_BEST_BYTES_OF,
   // make a unique clone of a type that is not implicitly convertable
-  // can only use platform specific values for size of builtin type if it is unique
+  // can use platform specific values for size only if type is unique
   UNIQUE,
   S_UNIQUE_OF,
   // get a signed or unsigned version of an integer type
