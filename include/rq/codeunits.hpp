@@ -691,7 +691,7 @@ getFlags(char codeunit) {
   case 0x39: // '9'
     return DECIMAL_DIGIT | 9;
   case 0x3A: // ':'
-    return DIGIT_SYMBOL | 62;
+    return SYMBOL;
   case 0x3B: // ';'
     return SYMBOL;
   case 0x3C: // '<'
@@ -701,7 +701,7 @@ getFlags(char codeunit) {
   case 0x3E: // '>'
     return SYMBOL;
   case 0x3F: // '?'
-    return SYMBOL;
+    return DIGIT_SYMBOL | 62;
   case 0x40: // '@'
     return SYMBOL;
   case 0x41: // 'A'
