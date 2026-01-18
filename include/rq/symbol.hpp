@@ -48,10 +48,15 @@ enum class SymbolKind : std::uint8_t {
   ASCII,
   UTF8,
 
-  // DEPTHED BUILTIN
+  // SCALED INTEGER
   SIGNED,
   UNSIGNED,
+
+  // TODO fixed (scaled? how would this work?)
+
+  // SCALED REAL
   FLOAT,
+  // DECIMAL, // TODO no support in llvm (yet)
 
   // UNARY SUBTYPE
   RANGE,
@@ -168,11 +173,13 @@ enum class SymbolKind : std::uint8_t {
   case SY::UTF8:
     return "utf8";
 
-  // DEPTHED BUILTIN
+  // SCALED INTEGER
   case SY::SIGNED:
     return "signed";
   case SY::UNSIGNED:
     return "unsigned";
+
+  // SCALED REAL
   case SY::FLOAT:
     return "float";
 
@@ -315,7 +322,7 @@ enum class SymbolFlags : std::uint_fast32_t {
   // be used themselves. every symbol can have at most one of these.
   TYPE = rq::getBit(0),
   SIMPLE_BUILTIN = rq::getBit(1),
-  DEPTHED_BUILTIN = rq::getBit(2),
+  SCALED_BUILTIN = rq::getBit(2),
   UNARY_SUBTYPE = rq::getBit(3),
   COUNTED_SUBTYPE = rq::getBit(4),
   COMPOSITE_SUBTYPE = rq::getBit(5),
@@ -345,7 +352,7 @@ enum class SymbolFlags : std::uint_fast32_t {
   HAS_TEMPLATE_ALTERNATIVE = rq::getBit(26),
   ROOT = rq::getBit(27),
   INTEGER = rq::getBit(28),
-  FLOAT = rq::getBit(29),
+  REAL = rq::getBit(29),
   CODEUNIT = rq::getBit(30)
 };
 
@@ -377,27 +384,29 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   case SY::BOOLEAN:
     return SYF::SIMPLE_BUILTIN | SYF::ROOT;
   case SY::BINARY16:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
   case SY::BINARY32:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
   case SY::BINARY64:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
   case SY::BINARY128:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
   case SY::BFLOAT16:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
   case SY::ASCII:
     return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::CODEUNIT;
   case SY::UTF8:
     return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::CODEUNIT;
 
-  // DEPTHED BUILTIN
+  // SCALED INTEGER
   case SY::SIGNED:
-    return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::INTEGER;
+    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::INTEGER;
   case SY::UNSIGNED:
-    return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::INTEGER;
+    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::INTEGER;
+
+  // SCALED FLOAT
   case SY::FLOAT:
-    return SYF::DEPTHED_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::REAL;
 
   // UNARY SUBTYPE
   case SY::RANGE:
@@ -600,9 +609,16 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::SymbolFlags::SIMPLE_BUILTIN);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDepthedBuiltin(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledInteger(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::DEPTHED_BUILTIN);
+  return rq::getHasAll(flags, rq::SymbolFlags::SCALED_BUILTIN |
+                                  rq::SymbolFlags::INTEGER);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledReal(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags,
+                       rq::SymbolFlags::SCALED_BUILTIN | rq::SymbolFlags::REAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::SymbolKind kind) {
@@ -670,15 +686,20 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::INTEGER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReal(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::FLOAT);
+  return rq::getHasAll(flags, rq::SymbolFlags::REAL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::SymbolKind kind) {
+  rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::SCALED_BUILTIN);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasSome(flags,
-                        rq::SymbolFlags::INTEGER | rq::SymbolFlags::FLOAT);
+                        rq::SymbolFlags::INTEGER | rq::SymbolFlags::REAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::SymbolKind kind) {
@@ -963,10 +984,13 @@ struct BFloat16Symbol;
 struct AsciiSymbol;
 struct Utf8Symbol;
 
-// DEPTHED BUILTIN
-struct DepthedBuiltinSymbol;
+// SCALED INTEGER
+struct ScaledInteger;
 struct SignedSymbol;
 struct UnsignedSymbol;
+
+// SCALED REAL
+struct ScaledReal;
 struct FloatSymbol;
 
 // UNARY SUBTYPE
@@ -1055,7 +1079,9 @@ struct Symbol {
 
   rq::SymbolKind _kind;
 
+protected:
   Symbol(rq::SymbolKind kind) : _kind(kind) {}
+public:
   Symbol(const Self &) = delete;
   Symbol(Self &&) = delete;
   virtual ~Symbol() {}
@@ -1102,9 +1128,9 @@ struct Symbol {
     return this->_kind == rq::SymbolKind::UTF8;
   }
 
-  // DEPTHED BUILTIN
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDepthedBuiltin() const {
-    return rq::getIsDepthedBuiltin(this->_kind);
+  // SCALED INTEGER
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledInteger() const {
+    return rq::getIsScaledInteger(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
     return this->_kind == rq::SymbolKind::SIGNED;
@@ -1112,11 +1138,13 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
     return this->_kind == rq::SymbolKind::UNSIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const {
-    return this->_kind == rq::SymbolKind::BINARY;
+
+  // SCALED REAL
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledReal() const {
+    return rq::getIsScaledReal(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat() const {
-    return this->_kind == rq::SymbolKind::BFLOAT;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
+    return this->_kind == rq::SymbolKind::FLOAT;
   }
 
   // UNARY SUBTYPE
@@ -1347,8 +1375,11 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
     return rq::getIsInteger(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
-    return rq::getIsFloat(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReal() const {
+    return rq::getIsReal(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin() const {
+    return rq::getIsScaledBuiltin(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const {
     return rq::getIsCodeunit(this->_kind);
@@ -1443,10 +1474,6 @@ template <> struct isa_impl<rq::BooleanSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsBoolean(); }
 };
 
-template <> struct isa_impl<rq::CodeunitSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsCodeunit(); }
-};
-
 template <> struct isa_impl<rq::AsciiSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsAscii(); }
 };
@@ -1455,15 +1482,11 @@ template <> struct isa_impl<rq::Utf8Symbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsUtf8(); }
 };
 
-// DEPTHED BUILTIN
-template <> struct isa_impl<rq::DepthedBuiltinSymbol, rq::Symbol> {
+// SCALED INTEGER
+template <> struct isa_impl<rq::ScaledInteger, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsDepthedBuiltin();
+    return val.getIsScaledInteger();
   }
-};
-
-template <> struct isa_impl<rq::IntegerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsInteger(); }
 };
 
 template <> struct isa_impl<rq::SignedSymbol, rq::Symbol> {
@@ -1472,6 +1495,13 @@ template <> struct isa_impl<rq::SignedSymbol, rq::Symbol> {
 
 template <> struct isa_impl<rq::UnsignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsUnsigned(); }
+};
+
+// SCALED REAL
+template <> struct isa_impl<rq::ScaledReal, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsScaledReal();
+  }
 };
 
 template <> struct isa_impl<rq::FloatSymbol, rq::Symbol> {
@@ -1891,9 +1921,11 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct SimpleBuiltinSymbol : public rq::Symbol {
   using Self = rq::SimpleBuiltinSymbol;
 
+protected:
   SimpleBuiltinSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {
     RQ_ASSERT(rq::getIsSimpleBuiltin(kind), "kind not builtin simple symbol");
   }
+public:
   SimpleBuiltinSymbol(const Self &) = delete;
   SimpleBuiltinSymbol(Self &&) = delete;
   virtual ~SimpleBuiltinSymbol() {}
@@ -2045,51 +2077,159 @@ struct Utf8Symbol : public rq::SimpleBuiltinSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-static constexpr unsigned MAX_DEPTHED_BITS =
+static constexpr unsigned MAX_SCALED_BUILTIN_SCALAR =
     std::numeric_limits<std::uint16_t>::max();
-  
-enum class DepthedBuiltinFlags : std::uint8_t {
+
+static constexpr unsigned MAX_SCALED_BUILTIN_UID =
+    std::numeric_limits<std::uint16_t>::max();
+
+enum class ScaledIntegerFlags : std::uint8_t {
   NONE,
-  BITS = rq::getBit(0),
-  BYTES = rq::getBit(1),
-  INDEX = rq::getBit(2),
-  ADDRESS = rq::getBit(3),
-  EXACT = rq::getBit(4),
-  FASTEST = rq::getBit(5),
-  LEAST = rq::getBit(6),
-  BEST = rq::getBit(7)
+  BYTES = rq::getBit(0),
+  INDEX = rq::getBit(1),
+  ADDRESS = rq::getBit(2),
+  BITS_NONE_MASK = BYTES | INDEX | ADDRESS,
+  FASTEST = rq::getBit(3),
+  LEAST = rq::getBit(4),
+  EXACT_NONE_MASK = FASTEST | LEAST,
+  LITTLE_ENDIAN_ = rq::getBit(5),
+  BIG_ENDIAN_ = rq::getBit(6),
+  PLATFORM_ENDIAN_NONE_MASK = LITTLE_ENDIAN_ | BIG_ENDIAN_,
+  PLATFORM_DEPENDENT_SCALAR = rq::getBit(7)
 };
 
-// TODO come up with name for this that makes more sense
-struct DepthedBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
-  using Self = rq::DepthedBuiltinSymbol;
+template <> struct is_flags<rq::ScaledIntegerFlags> : std::true_type {};
 
-  std::uint16_t _size_or_depth;
-  rq::DepthedBuiltinFlags _flags;
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasBitsScalar(rq::ScaledIntegerFlags flags) {
+  return rq::getHasNone(flags, rq::ScaledIntegerFlags::BITS_NONE_MASK);
+}
 
-  DepthedBuiltinSymbol(rq::SymbolKind kind, unsigned bit_depth)
-      : rq::Symbol(kind), _bit_depth(bit_depth) {
-    RQ_ASSERT(rq::getIsDepthedBuiltin(kind), "kind not builtin depthed symbol");
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasBytesScalar(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::BYTES);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasIndexScalar(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::INDEX);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAddressScalar(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::ADDRESS);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact(rq::ScaledIntegerFlags flags) {
+  return rq::getHasNone(flags, rq::ScaledIntegerFlags::EXACT_NONE_MASK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::FASTEST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::LEAST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformEndian(rq::ScaledIntegerFlags flags) {
+  return rq::getHasNone(flags, rq::ScaledIntegerFlags::PLATFORM_ENDIAN_NONE_MASK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsBigEndian(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::BIG_ENDIAN_);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsLittleEndian(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledIntegerFlags::LITTLE_ENDIAN_);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPlatformDependentScalar(rq::ScaledIntegerFlags flags) {
+  return rq::getHasAll(flags,
+                       rq::ScaledIntegerFlags::PLATFORM_DEPENDENT_SCALAR);
+}
+
+struct ScaledIntegerSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::ScaledInteger;
+
+  std::uint16_t _scalar;
+  std::uint16_t _uid;
+  rq::ScaledIntegerFlags _flags;
+
+protected:
+  ScaledIntegerSymbol(rq::SymbolKind kind, unsigned scalar, unsigned uid,
+                      rq::ScaledIntegerFlags flags)
+      : rq::Symbol(kind), _scalar(scalar), _uid(uid), _flags(flags) {
+    RQ_ASSERT(rq::getIsScaledInteger(kind), "kind not scaled integer symbol");
+    RQ_ASSERT(scalar < rq::MAX_SCALED_BUILTIN_SCALAR, "scalar too large");
+    RQ_ASSERT(uid < rq::MAX_SCALED_BUILTIN_UID, "uid too large");
   }
-  DepthedBuiltinSymbol(const Self &) = delete;
-  DepthedBuiltinSymbol(Self &&) = delete;
-  virtual ~DepthedBuiltinSymbol() {}
+
+public:
+  ScaledIntegerSymbol(const Self &) = delete;
+  ScaledIntegerSymbol(Self &&) = delete;
+  virtual ~ScaledIntegerSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getBitDepth() const {
-    return this->_bit_depth;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const {
+    return this->_scalar;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getUid() const {
+    return this->_uid;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledIntegerFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBytesScalar() const {
+    return rq::getHasBytesScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndexScalar() const {
+    return rq::getHasIndexScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressScalar() const {
+    return rq::getHasAddressScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact() const {
+    return rq::getIsExact(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest() const {
+    return rq::getIsFastest(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const {
+    return rq::getIsLeast(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformEndian() const {
+    return rq::getIsPlatformEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBigEndian() const {
+    return rq::getIsBigEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const {
+    return rq::getIsLittleEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformDependentScalar() const {
+    return rq::getHasPlatformDependentScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnique() const {
+    return this->_uid != 0;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
     id.AddInteger(static_cast<unsigned>(this->_kind));
-    id.AddInteger(this->_bit_depth);
+    id.AddInteger(this->_scalar);
+    id.AddInteger(this->_uid);
+    id.AddInteger(static_cast<unsigned>(this->_flags));
   }
 };
 
-struct UnsignedSymbol : public rq::DepthedBuiltinSymbol {
+struct UnsignedSymbol : public rq::ScaledIntegerSymbol {
   using Self = rq::UnsignedSymbol;
 
-  UnsignedSymbol(unsigned bit_depth)
-      : rq::DepthedBuiltinSymbol(rq::SymbolKind::UNSIGNED, bit_depth) {}
+  UnsignedSymbol(unsigned scalar, unsigned uid, rq::ScaledIntegerFlags flags)
+      : rq::ScaledIntegerSymbol(rq::SymbolKind::UNSIGNED, scalar, uid, flags) {}
   UnsignedSymbol(const Self &) = delete;
   UnsignedSymbol(Self &&) = delete;
   virtual ~UnsignedSymbol() {}
@@ -2097,11 +2237,11 @@ struct UnsignedSymbol : public rq::DepthedBuiltinSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct SignedSymbol : public rq::DepthedBuiltinSymbol {
+struct SignedSymbol : public rq::ScaledIntegerSymbol {
   using Self = rq::SignedSymbol;
 
-  SignedSymbol(unsigned bit_depth)
-      : rq::DepthedBuiltinSymbol(rq::SymbolKind::SIGNED, bit_depth) {}
+  SignedSymbol(unsigned scalar, unsigned uid, rq::ScaledIntegerFlags flags)
+      : rq::ScaledIntegerSymbol(rq::SymbolKind::SIGNED, scalar, uid, flags) {}
   SignedSymbol(const Self &) = delete;
   SignedSymbol(Self &&) = delete;
   virtual ~SignedSymbol() {}
@@ -2109,11 +2249,59 @@ struct SignedSymbol : public rq::DepthedBuiltinSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct FloatSymbol : public rq::DepthedBuiltinSymbol {
+enum class ScaledRealFlags : std::uint8_t {
+  NONE = 0,
+  PLATFORM_DEPENDENT_SCALAR = rq::getBit(0)
+};
+
+template <> struct is_flags<rq::ScaledRealFlags> : std::true_type {};
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPlatformDependentScalar(rq::ScaledRealFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledRealFlags::PLATFORM_DEPENDENT_SCALAR);
+}
+
+struct ScaledRealSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::ScaledInteger;
+
+  std::uint16_t _scalar;
+  rq::ScaledRealFlags _flags;
+
+protected:
+  ScaledRealSymbol(rq::SymbolKind kind, unsigned scalar,
+                   rq::ScaledRealFlags flags)
+      : rq::Symbol(kind), _scalar(scalar), _flags(flags) {
+    RQ_ASSERT(rq::getIsScaledReal(kind), "kind not scaled integer symbol");
+    RQ_ASSERT(scalar < rq::MAX_SCALED_BUILTIN_SCALAR, "scalar too large");
+  }
+
+public:
+  ScaledRealSymbol(const Self &) = delete;
+  ScaledRealSymbol(Self &&) = delete;
+  virtual ~ScaledRealSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const {
+    return this->_scalar;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledRealFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformDependentScale() const {
+    return rq::getHasPlatformDependentScalar(this->_flags);
+  }
+  void Profile(llvm::FoldingSetNodeID &id) const {
+    id.AddInteger(static_cast<unsigned>(this->_kind));
+    id.AddInteger(this->_scalar);
+    id.AddInteger(static_cast<unsigned>(this->_flags));
+  }
+};
+
+struct FloatSymbol : public rq::ScaledRealSymbol {
   using Self = rq::FloatSymbol;
 
-  FloatSymbol(rq::SymbolKind kind, unsigned bit_depth)
-      : rq::DepthedBuiltinSymbol(kind, bit_depth) {}
+  FloatSymbol(rq::SymbolKind kind, unsigned bit_depth, rq::ScaledRealFlags flags)
+      : rq::ScaledRealSymbol(kind, bit_depth, flags) {}
   FloatSymbol(const Self &) = delete;
   FloatSymbol(Self &&) = delete;
   virtual ~FloatSymbol() {}
@@ -2126,10 +2314,12 @@ struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 
   rq::Symbol *_root_ptr{nullptr};
 
+protected:
   UnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &base)
       : rq::Symbol(kind), _root_ptr(&base) {
     RQ_ASSERT(rq::getIsUnarySubtype(kind), "kind not unary subtype symbol");
   }
+public:
   UnarySubtypeSymbol(const Self &) = delete;
   UnarySubtypeSymbol(Self &&) = delete;
   virtual ~UnarySubtypeSymbol() {}
@@ -2327,6 +2517,7 @@ struct ArithmeticSequenceSymbol : public rq::Symbol,
   rq::ArithmeticSequenceCondition _condition;
   rq::ArithmeticSequenceStep _step;
 
+protected:
   ArithmeticSequenceSymbol(rq::SymbolKind kind, rq::Symbol &root,
                            rq::ArithmeticSequenceCondition condition,
                            rq::ArithmeticSequenceStep step)
@@ -2334,6 +2525,7 @@ struct ArithmeticSequenceSymbol : public rq::Symbol,
     RQ_ASSERT(rq::getIsArithmeticSequence(kind),
               "kind not arithmetic sequence symbol");
   }
+public:
   ArithmeticSequenceSymbol(const Self &) = delete;
   ArithmeticSequenceSymbol(Self &&) = delete;
   virtual ~ArithmeticSequenceSymbol() {}
@@ -2414,7 +2606,9 @@ struct SymbolTableSymbol : public rq::Symbol {
       _named_values{};
   rq::BumpPtrList<rq::Symbol> _unamed_values{};
 
+protected:
   SymbolTableSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
+public:
   SymbolTableSymbol(const Self &) = delete;
   SymbolTableSymbol(Self &&) = delete;
   ~SymbolTableSymbol() override {
@@ -2480,8 +2674,10 @@ struct HasLocationSymbol {
 
   rq::Expression *_expression_ptr;
 
+protected:
   HasLocationSymbol(rq::Expression &expression)
       : _expression_ptr(&expression) {}
+public:
   HasLocationSymbol() : _expression_ptr(nullptr) {}
   HasLocationSymbol(const Self &) = delete;
   HasLocationSymbol(Self &&) = delete;
@@ -2509,7 +2705,9 @@ struct ModuleMemberSymbol {
 
   rq::ModuleSymbol *_module_ptr;
 
+protected:
   ModuleMemberSymbol(rq::ModuleSymbol &module) : _module_ptr(&module) {}
+public:
   ModuleMemberSymbol(const Self &) = delete;
   ModuleMemberSymbol(Self &&) = delete;
   virtual ~ModuleMemberSymbol() {}
@@ -2527,7 +2725,9 @@ struct SymbolTableMemberSymbol {
 
   rq::SymbolTableSymbol *_scope_ptr;
 
+protected:
   SymbolTableMemberSymbol(rq::SymbolTableSymbol &scope) : _scope_ptr(&scope) {}
+public:
   SymbolTableMemberSymbol(const Self &) = delete;
   SymbolTableMemberSymbol(Self &&) = delete;
   virtual ~SymbolTableMemberSymbol() {}
@@ -2545,8 +2745,10 @@ struct HasAttributesSymbol {
 
   rq::SymbolAttributeFlags _attributes;
 
+protected:
   HasAttributesSymbol(rq::SymbolAttributeFlags attributes)
       : _attributes(attributes) {}
+public:
   HasAttributesSymbol(const Self &) = delete;
   HasAttributesSymbol(Self &&) = delete;
   virtual ~HasAttributesSymbol() {}
@@ -2638,9 +2840,11 @@ struct HasNameSymbol {
 
   llvm::StringRef _name;
 
+protected:
   HasNameSymbol(llvm::StringRef name) : _name(name) {
     RQ_ASSERT(!name.empty(), "empty name");
   }
+public:
   HasNameSymbol(const Self &) = delete;
   HasNameSymbol(Self &&) = delete;
   virtual ~HasNameSymbol() {}
@@ -2655,10 +2859,12 @@ struct MaybeHasNameSymbol {
 
   llvm::StringRef _name{};
 
+protected:
   MaybeHasNameSymbol() : _name() {}
   MaybeHasNameSymbol(llvm::StringRef name) : _name(name) {
     RQ_ASSERT(!name.empty(), "empty name");
   }
+public:
   MaybeHasNameSymbol(const Self &) = delete;
   MaybeHasNameSymbol(Self &&) = delete;
   virtual ~MaybeHasNameSymbol() {}
@@ -2676,7 +2882,9 @@ struct HasTypeSymbol {
 
   rq::TypeSymbol *_type_ptr{nullptr};
 
+protected:
   HasTypeSymbol() {}
+public:
   HasTypeSymbol(const Self &) = delete;
   HasTypeSymbol(Self &&) = delete;
   virtual ~HasTypeSymbol() {}
@@ -2700,7 +2908,9 @@ struct HasImportModuleSymbol {
 
   rq::ModuleSymbol *_import_module_ptr{nullptr};
 
+protected:
   HasImportModuleSymbol() {}
+public:
   HasImportModuleSymbol(const Self &) = delete;
   HasImportModuleSymbol(Self &&) = delete;
   virtual ~HasImportModuleSymbol() {}
@@ -3092,6 +3302,7 @@ struct ProcedureSymbol : public rq::SymbolTableSymbol,
 
   rq::SignatureSymbol *_signature_ptr;
 
+protected:
   ProcedureSymbol(rq::SymbolKind kind, rq::Expression &expression,
                   rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                   rq::SymbolAttributeFlags attributes)
@@ -3099,6 +3310,7 @@ struct ProcedureSymbol : public rq::SymbolTableSymbol,
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes), _signature_ptr(nullptr) {}
+public:
   ProcedureSymbol(const Self &) = delete;
   ProcedureSymbol(Self &&) = delete;
   virtual ~ProcedureSymbol() {}
@@ -3238,9 +3450,11 @@ struct TemplateSymbol : public rq::Symbol {
 
   rq::BumpPtrList<rq::TemplateParameterSymbol> _template_parameters;
 
+protected:
   TemplateSymbol(rq::SymbolKind kind,
                  const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
       : rq::Symbol(kind), _template_parameters(parameters) {}
+public:
   TemplateSymbol(const Self &) = delete;
   TemplateSymbol(Self &&) = delete;
   virtual ~TemplateSymbol() {}
@@ -3396,7 +3610,9 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
 struct PartialSpecializationSymbol : public rq::Symbol {
   using Self = rq::PartialSpecializationSymbol;
 
+protected:
   PartialSpecializationSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
+public:
   PartialSpecializationSymbol(const Self &) = delete;
   PartialSpecializationSymbol(Self &&) = delete;
   virtual ~PartialSpecializationSymbol() {}
@@ -3640,43 +3856,5 @@ struct FacadeSymbol final : public rq::Symbol,
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
-
-inline rq::DepthedBuiltinSymbol &
-rq::ContextCache::_getOrInsertBuiltinDepthSymbol(rq::SymbolKind kind,
-                                                 unsigned parameter) {
-  llvm::FoldingSetNodeID id;
-  id.AddInteger(static_cast<unsigned>(kind));
-  id.AddInteger(parameter);
-  void *insert_pos = nullptr;
-  if (rq::DepthedBuiltinSymbol *existing =
-          this->_depthed_symbols.FindNodeOrInsertPos(id, insert_pos)) {
-    return rq::dereferencePtr(existing);
-  }
-  rq::DepthedBuiltinSymbol &new_type =
-      this->allocateValue<rq::DepthedBuiltinSymbol>(kind, parameter);
-  this->_depthed_symbols.InsertNode(&new_type, insert_pos);
-  return new_type;
-}
-
-inline rq::UnsignedSymbol &
-rq::ContextCache::getUnsignedSymbol(unsigned bit_depth) {
-  return static_cast<rq::UnsignedSymbol &>(this->_getOrInsertBuiltinDepthSymbol(
-      rq::SymbolKind::UNSIGNED, bit_depth));
-}
-
-inline rq::SignedSymbol &rq::ContextCache::getSignedSymbol(unsigned bit_depth) {
-  return static_cast<rq::SignedSymbol &>(
-      this->_getOrInsertBuiltinDepthSymbol(rq::SymbolKind::SIGNED, bit_depth));
-}
-
-inline rq::BinarySymbol &rq::ContextCache::getBinarySymbol(unsigned bit_depth) {
-  return static_cast<rq::BinarySymbol &>(
-      this->_getOrInsertBuiltinDepthSymbol(rq::SymbolKind::BINARY, bit_depth));
-}
-
-inline rq::BfloatSymbol &rq::ContextCache::getBfloatSymbol(unsigned bit_depth) {
-  return static_cast<rq::BfloatSymbol &>(
-      this->_getOrInsertBuiltinDepthSymbol(rq::SymbolKind::BFLOAT, bit_depth));
-}
 
 } // namespace rq

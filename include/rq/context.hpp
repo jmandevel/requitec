@@ -62,7 +62,7 @@ struct SourceRange final {
   rq::SourceLocation end = {};
 };
 
-struct Context final : public rq::ContextCache {
+struct Context final {
   using Self = rq::Context;
 
   std::string _executable_path;
@@ -75,6 +75,26 @@ struct Context final : public rq::ContextCache {
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::TopSymbol _top_scope{};
   rq::ModuleSymbol *_source_module_ptr = nullptr;
+  llvm::BumpPtrAllocator _llvm_arena{};
+  llvm::StringSaver _llvm_string_saver{_llvm_arena};
+  std::vector<rq::Expression *> _unused_expression_ptrs{};
+  llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
+  rq::InferenceSymbol *_inference_symbol{nullptr};
+  rq::VoidSymbol *_void_symbol{nullptr};
+  rq::NullSymbol *_null_symbol{nullptr};
+  rq::NoReturnSymbol *_no_return_symbol{nullptr};
+  rq::VariadicArgumentsSymbol *_variadic_arguments_symbol{nullptr};
+  rq::BooleanSymbol *_boolean_symbol{nullptr};
+  rq::AsciiSymbol *_ascii_symbol{nullptr};
+  rq::Utf8Symbol *_utf8_symbol{nullptr};
+  llvm::FoldingSet<rq::ScaledIntegerSymbol> _scaled_integer_symbol{};
+  llvm::FoldingSet<rq::ScaledRealSymbol> _scaled_real_symbol{};
+  llvm::FoldingSet<rq::UnarySubtypeSymbol> _unary_subtype_symbols{};
+  llvm::FoldingSet<rq::ArraySymbol> _array_symbols{};
+  llvm::FoldingSet<rq::LayoutSymbol> _layout_symbols{};
+  llvm::FoldingSet<rq::SignatureSymbol> _signature_symbols{};
+  llvm::FoldingSet<rq::ExtensionSymbol> _extension_symbols{};
+  llvm::FoldingSet<rq::ArithmeticSequenceSymbol> _arithmetic_sequence_symbols{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -105,7 +125,8 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getSourceModule() {
     return rq::dereferencePtr(this->_source_module_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &getSourceModule() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &
+  getSourceModule() const {
     return rq::dereferencePtr(this->_source_module_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::TargetMachine &getLlvmTargetMachine() {
@@ -141,8 +162,8 @@ struct Context final : public rq::ContextCache {
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
   loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::ModuleSymbol *loadImportModule(rq::Expression &expression,
-                                             llvm::StringRef import_string);
+  [[nodiscard]] rq::ModuleSymbol *
+  loadImportModule(rq::Expression &expression, llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseRequite(rq::ModuleSymbol &module,
@@ -153,8 +174,7 @@ struct Context final : public rq::ContextCache {
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
                                  const rq::Expression &trunk);
-  [[nodiscard]] bool emitSymbol(llvm::StringRef path,
-                                 const rq::Symbol &symbol);
+  [[nodiscard]] bool emitSymbol(llvm::StringRef path, const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
@@ -238,6 +258,112 @@ struct Context final : public rq::ContextCache {
   void logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
   void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
+  template <typename TypeParam, typename... ArgNParam>
+  inline TypeParam &allocateValue(ArgNParam &&...arg_n) {
+    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
+    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+    return rq::dereferencePtr(ptr);
+  }
+
+  inline llvm::StringRef saveString(llvm::Twine twine) {
+    return this->_llvm_string_saver.save(twine);
+  }
+  [[nodiscard]] rq::Expression &acquireExpression();
+  inline void discardExpression(rq::Expression &expression) {
+    RQ_ASSERT(!expression.getHasBranch(), "has branch");
+    RQ_ASSERT(!expression.getHasNext(), "has next");
+    this->_unused_expression_ptrs.emplace_back(&expression);
+  }
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+
+  inline rq::InferenceSymbol &getInference() {
+    if (!this->_inference_symbol) {
+      this->_inference_symbol = &this->allocateValue<rq::InferenceSymbol>();
+    }
+    return rq::dereferencePtr(this->_inference_symbol);
+  }
+
+  inline rq::VoidSymbol &getVoid() {
+    if (!this->_void_symbol) {
+      this->_void_symbol = &this->allocateValue<rq::VoidSymbol>();
+    }
+    return rq::dereferencePtr(this->_void_symbol);
+  }
+
+  inline rq::NullSymbol &getNull() {
+    if (!this->_null_symbol) {
+      this->_null_symbol = &this->allocateValue<rq::NullSymbol>();
+    }
+    return rq::dereferencePtr(this->_null_symbol);
+  }
+
+  inline rq::NoReturnSymbol &getNoReturn() {
+    if (!this->_no_return_symbol) {
+      this->_no_return_symbol = &this->allocateValue<rq::NoReturnSymbol>();
+    }
+    return rq::dereferencePtr(this->_no_return_symbol);
+  }
+
+  inline rq::VariadicArgumentsSymbol &getVariadicArguments() {
+    if (!this->_variadic_arguments_symbol) {
+      this->_variadic_arguments_symbol =
+          &this->allocateValue<rq::VariadicArgumentsSymbol>();
+    }
+    return rq::dereferencePtr(this->_variadic_arguments_symbol);
+  }
+
+  inline rq::BooleanSymbol &getBoolean() {
+    if (!this->_boolean_symbol) {
+      this->_boolean_symbol = &this->allocateValue<rq::BooleanSymbol>();
+    }
+    return rq::dereferencePtr(this->_boolean_symbol);
+  }
+
+  [[nodiscard]] inline rq::AsciiSymbol &getAscii() {
+    if (!this->_ascii_symbol) {
+      this->_ascii_symbol = &this->allocateValue<rq::AsciiSymbol>();
+    }
+    return rq::dereferencePtr(this->_ascii_symbol);
+  }
+
+  [[nodiscard]] inline rq::Utf8Symbol &getUtf8() {
+    if (!this->_utf8_symbol) {
+      this->_utf8_symbol = &this->allocateValue<rq::Utf8Symbol>();
+    }
+    return rq::dereferencePtr(this->_utf8_symbol);
+  }
+  // TODO
+  [[nodiscard]] inline rq::UnarySubtypeSymbol &
+  _getOrInsertUnarySubtypeSymbol(rq::SymbolKind, unsigned depth);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &
+  getRange(rq::TypeSymbol &root);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &
+  getReference(rq::TypeSymbol &root);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &
+  getPointer(rq::TypeSymbol &root);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FatPointerSymbol &
+  getFatPointer(rq::TypeSymbol &root);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArraySymbol &
+  getInferecedCountArray(rq::TypeSymbol &root);
+  [[nodiscard]] inline rq::ArraySymbol &
+  _getOrInsertCountedSubtypeSymbol(rq::SymbolKind kind, rq::TypeSymbol &root,
+                                   unsigned count);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &getArray(rq::TypeSymbol &root,
+                                                           unsigned count);
+  [[nodiscard]] inline rq::ArithmeticSequenceSymbol &
+  _getOrInsertArithmeticSequenceSymbol(
+      rq::SymbolKind kind, rq::TypeSymbol &root,
+      rq::ArithmeticSequenceStep step,
+      rq::ArithmeticSequenceCondition condition);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalSymbol &
+  getArithmeticInterval(rq::TypeSymbol &root, rq::ArithmeticSequenceStep step);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
+  getFiniteArithmeticProgression(rq::TypeSymbol &root,
+                                 rq::ArithmeticSequenceStep step,
+                                 rq::ArithmeticSequenceCondition condition);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
+  getInfiniteArithmeticProgression(rq::TypeSymbol &root,
+                                   rq::ArithmeticSequenceStep step);
 };
 
 } // namespace rq

@@ -1,29 +1,32 @@
 #include <rq/symbol.hpp>
+#include <rq/context.hpp>
 
 namespace rq {
 
-rq::Expression &ContextCache::acquireExpression() {
-  if (this->_unused_expression_ptrs.empty()) {
-    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
-    return new_expression;
+void SymbolTableSymbol::tabulateNamedSymbol(rq::Context &context,
+                                            llvm::StringRef name,
+                                            rq::Symbol &symbol) {
+  auto it = this->_named_values.find(name);
+  if (it != this->_named_values.end()) {
+    rq::BumpPtrList<rq::Symbol> &entry = it->second;
+    rq::Node<rq::Symbol> &node =
+        context.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
+    entry = rq::BumpPtrList<rq::Symbol>(node);
+  } else {
+    this->_named_values.insert({name, rq::BumpPtrList<rq::Symbol>(symbol)});
   }
-  rq::Expression &unused_expression =
-      rq::dereferencePtr(this->_unused_expression_ptrs.back());
-  this->_unused_expression_ptrs.pop_back();
-  unused_expression.clear();
-  return unused_expression;
 }
 
-rq::Expression &ContextCache::copyExpression(rq::Expression &expression) {
-  rq::Expression &new_expression = rq::dereferencePtr(new rq::Expression());
-  if (expression.getHasBranch()) {
-    new_expression.setBranch(this->copyExpression(expression.getBranch()));
+void SymbolTableSymbol::tabulateUnamedSymbol(rq::Context &context,
+                                             rq::Symbol &symbol) {
+  rq::BumpPtrList<rq::Symbol> &entry = this->_unamed_values;
+  if (entry.getIsEmpty()) {
+    entry = symbol;
+    return;
   }
-  new_expression._next_ptr_flags = expression._next_ptr_flags;
-  new_expression._keyword = expression._keyword;
-  new_expression._source_ptr_flags = expression._source_ptr_flags;
-  new_expression._source_text_length = expression._source_text_length;
-  return new_expression;
+  rq::Node<rq::Symbol> &node =
+      context.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
+  entry = rq::BumpPtrList<rq::Symbol>(node);
 }
 
 } // namespace rq
