@@ -88,7 +88,7 @@ struct Context final {
   rq::AsciiSymbol *_ascii_symbol{nullptr};
   rq::Utf8Symbol *_utf8_symbol{nullptr};
   llvm::FoldingSet<rq::ScaledIntegerSymbol> _scaled_integer_symbol{};
-  llvm::FoldingSet<rq::ScaledRealSymbol> _scaled_real_symbol{};
+  llvm::FoldingSet<rq::ScaledFloatSymbol> _scaled_float_symbol{};
   llvm::FoldingSet<rq::UnarySubtypeSymbol> _unary_subtype_symbols{};
   llvm::FoldingSet<rq::ArraySymbol> _array_symbols{};
   llvm::FoldingSet<rq::LayoutSymbol> _layout_symbols{};

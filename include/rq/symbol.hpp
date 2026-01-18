@@ -54,7 +54,7 @@ enum class SymbolKind : std::uint8_t {
 
   // TODO fixed (scaled? how would this work?)
 
-  // SCALED REAL
+  // SCALED FLOAT
   FLOAT,
   // DECIMAL, // TODO no support in llvm (yet)
 
@@ -179,7 +179,7 @@ enum class SymbolKind : std::uint8_t {
   case SY::UNSIGNED:
     return "unsigned";
 
-  // SCALED REAL
+  // SCALED FLOAT
   case SY::FLOAT:
     return "float";
 
@@ -352,7 +352,7 @@ enum class SymbolFlags : std::uint_fast32_t {
   HAS_TEMPLATE_ALTERNATIVE = rq::getBit(26),
   ROOT = rq::getBit(27),
   INTEGER = rq::getBit(28),
-  REAL = rq::getBit(29),
+  FLOAT = rq::getBit(29),
   CODEUNIT = rq::getBit(30)
 };
 
@@ -384,15 +384,15 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
   case SY::BOOLEAN:
     return SYF::SIMPLE_BUILTIN | SYF::ROOT;
   case SY::BINARY16:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
   case SY::BINARY32:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
   case SY::BINARY64:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
   case SY::BINARY128:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
   case SY::BFLOAT16:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::REAL;
+    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::FLOAT;
   case SY::ASCII:
     return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::CODEUNIT;
   case SY::UTF8:
@@ -406,7 +406,7 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
 
   // SCALED FLOAT
   case SY::FLOAT:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::REAL;
+    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::FLOAT;
 
   // UNARY SUBTYPE
   case SY::RANGE:
@@ -615,10 +615,10 @@ template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
                                   rq::SymbolFlags::INTEGER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledReal(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledFloat(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags,
-                       rq::SymbolFlags::SCALED_BUILTIN | rq::SymbolFlags::REAL);
+                       rq::SymbolFlags::SCALED_BUILTIN | rq::SymbolFlags::FLOAT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::SymbolKind kind) {
@@ -686,9 +686,9 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::INTEGER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReal(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::REAL);
+  return rq::getHasAll(flags, rq::SymbolFlags::FLOAT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::SymbolKind kind) {
@@ -699,7 +699,7 @@ getHasTemplateAlternative(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::SymbolKind kind) {
   rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasSome(flags,
-                        rq::SymbolFlags::INTEGER | rq::SymbolFlags::REAL);
+                        rq::SymbolFlags::INTEGER | rq::SymbolFlags::FLOAT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::SymbolKind kind) {
@@ -989,8 +989,8 @@ struct ScaledInteger;
 struct SignedSymbol;
 struct UnsignedSymbol;
 
-// SCALED REAL
-struct ScaledReal;
+// SCALED FLOAT
+struct ScaledFloat;
 struct FloatSymbol;
 
 // UNARY SUBTYPE
@@ -1139,9 +1139,9 @@ public:
     return this->_kind == rq::SymbolKind::UNSIGNED;
   }
 
-  // SCALED REAL
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledReal() const {
-    return rq::getIsScaledReal(this->_kind);
+  // SCALED FLOAT
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledFloat() const {
+    return rq::getIsScaledFloat(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
     return this->_kind == rq::SymbolKind::FLOAT;
@@ -1375,8 +1375,8 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
     return rq::getIsInteger(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReal() const {
-    return rq::getIsReal(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
+    return rq::getIsFloat(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin() const {
     return rq::getIsScaledBuiltin(this->_kind);
@@ -1497,10 +1497,10 @@ template <> struct isa_impl<rq::UnsignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsUnsigned(); }
 };
 
-// SCALED REAL
-template <> struct isa_impl<rq::ScaledReal, rq::Symbol> {
+// SCALED FLOAT
+template <> struct isa_impl<rq::ScaledFloat, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledReal();
+    return val.getIsScaledFloat();
   }
 };
 
@@ -2249,42 +2249,42 @@ struct SignedSymbol : public rq::ScaledIntegerSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-enum class ScaledRealFlags : std::uint8_t {
+enum class ScaledFloatFlags : std::uint8_t {
   NONE = 0,
   PLATFORM_DEPENDENT_SCALAR = rq::getBit(0)
 };
 
-template <> struct is_flags<rq::ScaledRealFlags> : std::true_type {};
+template <> struct is_flags<rq::ScaledFloatFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPlatformDependentScalar(rq::ScaledRealFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledRealFlags::PLATFORM_DEPENDENT_SCALAR);
+getHasPlatformDependentScalar(rq::ScaledFloatFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledFloatFlags::PLATFORM_DEPENDENT_SCALAR);
 }
 
-struct ScaledRealSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+struct ScaledFloatSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ScaledInteger;
 
   std::uint16_t _scalar;
-  rq::ScaledRealFlags _flags;
+  rq::ScaledFloatFlags _flags;
 
 protected:
-  ScaledRealSymbol(rq::SymbolKind kind, unsigned scalar,
-                   rq::ScaledRealFlags flags)
+  ScaledFloatSymbol(rq::SymbolKind kind, unsigned scalar,
+                   rq::ScaledFloatFlags flags)
       : rq::Symbol(kind), _scalar(scalar), _flags(flags) {
-    RQ_ASSERT(rq::getIsScaledReal(kind), "kind not scaled integer symbol");
+    RQ_ASSERT(rq::getIsScaledFloat(kind), "kind not scaled integer symbol");
     RQ_ASSERT(scalar < rq::MAX_SCALED_BUILTIN_SCALAR, "scalar too large");
   }
 
 public:
-  ScaledRealSymbol(const Self &) = delete;
-  ScaledRealSymbol(Self &&) = delete;
-  virtual ~ScaledRealSymbol() {}
+  ScaledFloatSymbol(const Self &) = delete;
+  ScaledFloatSymbol(Self &&) = delete;
+  virtual ~ScaledFloatSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const {
     return this->_scalar;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledRealFlags getFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledFloatFlags getFlags() const {
     return this->_flags;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformDependentScale() const {
@@ -2297,11 +2297,11 @@ public:
   }
 };
 
-struct FloatSymbol : public rq::ScaledRealSymbol {
+struct FloatSymbol : public rq::ScaledFloatSymbol {
   using Self = rq::FloatSymbol;
 
-  FloatSymbol(rq::SymbolKind kind, unsigned bit_depth, rq::ScaledRealFlags flags)
-      : rq::ScaledRealSymbol(kind, bit_depth, flags) {}
+  FloatSymbol(rq::SymbolKind kind, unsigned bit_depth, rq::ScaledFloatFlags flags)
+      : rq::ScaledFloatSymbol(kind, bit_depth, flags) {}
   FloatSymbol(const Self &) = delete;
   FloatSymbol(Self &&) = delete;
   virtual ~FloatSymbol() {}
