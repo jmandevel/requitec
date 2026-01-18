@@ -2191,6 +2191,10 @@ getDescription(rq::Situation situation) {
     return K::S_LEAST_BITS_OF;
   case K::LEAST_BYTES:
     return K::S_LEAST_BYTES_OF;
+  case K::BEST_BITS:
+    return K::S_BEST_BITS_OF;
+  case K::BEST_BYTES:
+    return K::S_BEST_BYTES_OF;
   case K::UNIQUE:
     return K::S_UNIQUE_OF;
   case K::SIGNED:
