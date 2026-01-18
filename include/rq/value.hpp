@@ -14,7 +14,8 @@ namespace rq {
 enum class ValueKind : std::uint32_t {
   NONE,
   INDETERMINATE,
-  INT,
+  REFERENCE,
+  INTEGER,
   FLOAT,
   SYMBOL
 };
