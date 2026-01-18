@@ -56,6 +56,8 @@ enum class SymbolKind : std::uint8_t {
 
   // SCALED REAL
   FLOAT,
+  // NOTE: its always going to pick binary, but there could be more in the future...
+  // BINARY, // TODO its always going to pick binary anyways...
   // DECIMAL, // TODO no support in llvm (yet)
 
   // UNARY SUBTYPE

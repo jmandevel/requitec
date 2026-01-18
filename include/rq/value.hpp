@@ -28,8 +28,6 @@ enum class ValueFlags : std::uint32_t {
 
 template <> struct is_flags<rq::ValueFlags> final : std::true_type {};
 
-// https://clang.llvm.org/doxygen/APValue_8h_source.html
-
 struct Symbol;
 struct TypeSymbol;
 
