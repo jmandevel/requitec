@@ -7,7 +7,7 @@
 @may_copy @may_move
 [class Foo,
     {>
-        @public @mutate_with::class a := 0,
+        @public @mutate_with::ClassA := 0,
         @public @mutate_with::stuff.ClassB b := 0
     <},
 
