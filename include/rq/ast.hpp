@@ -68,6 +68,8 @@ enum class Keyword : std::uint32_t {
   // APPLY
   S_EXTEND,
   S_EXTENSION,
+  AS,
+  S_AS_OF,
   S_BINDING,
   S_ASCRIBE_TYPE,
   S_ASCRIBE_SYMBOL,
@@ -221,7 +223,8 @@ enum class Keyword : std::uint32_t {
   S_EXACT_INDEX_OF,
   EXACT_ADDRESS,
   S_EXACT_ADDRESS_OF,
-  // the size in bits/bytes can be increased to the fastest size for the current platform
+  // the size in bits/bytes can be increased to the fastest size for the current
+  // platform
   FASTEST_BITS,
   S_FASTEST_BITS_OF,
   FASTEST_BYTES,
@@ -230,16 +233,18 @@ enum class Keyword : std::uint32_t {
   S_FASTEST_INDEX_OF,
   FASTEST_ADDRESS,
   S_FASTEST_ADDRESS_OF,
-  // the size in bits/bytes can be increased to the least existing register size for the current platform
-  LEAST_BITS,  
+  // the size in bits/bytes can be increased to the least existing register size
+  // for the current platform
+  LEAST_BITS,
   S_LEAST_BITS_OF,
-  LEAST_BYTES,  
+  LEAST_BYTES,
   S_LEAST_BYTES_OF,
   LEAST_INDEX,
   S_LEAST_INDEX_OF,
   LEAST_ADDRESS,
   S_LEAST_ADDRESS_OF,
-  // best is similar to fastest, but may choose to pick a smaller size if no native least size exists
+  // best is similar to fastest, but may choose to pick a smaller size if no
+  // native least size exists
   BEST_BITS,
   S_BEST_BITS_OF,
   BEST_BYTES,
@@ -505,6 +510,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_extend";
   case K::S_EXTENSION:
     return "_extension";
+  case K::AS:
+    return "as";
+  case K::S_AS_OF:
+    return "_as_of";
   case K::S_BINDING:
     return "_binding";
   case K::S_ASCRIBE_TYPE:
@@ -813,7 +822,7 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_signed_of";
   case K::S_UNSIGNED_OF:
     return "_unsigned_of";
-  
+
   // VARIADIC ARGUMENTS
   case K::VARIADIC_ARGUMENTS:
     return "variadic_arguments";
@@ -1262,9 +1271,13 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // APPLY
   case K::S_EXTEND:
-    return KF::RVALUE | KF::ARGUMENT;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_EXTENSION:
-    return KF::RVALUE | KF::ARGUMENT;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::AS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_AS_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_BINDING:
     return KF::STATEMENT | KF::LVALUE | KF::PARAMETER | KF::ARGUMENT |
            KF::BINDING;
@@ -1490,7 +1503,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::BOOLEAN:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::FLOAT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;    
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SIGNED:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED:
@@ -2152,6 +2165,9 @@ getDescription(rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
+    // APPLY
+  case K::AS:
+    return K::S_ADDRESS_OF;
   // MEMORY
   case K::SINGLETON:
     return K::S_SINGLETON_OF;
@@ -2200,7 +2216,7 @@ getDescription(rq::Situation situation) {
   case K::SIGNED:
     return K::S_SIGNED_OF;
   case K::UNSIGNED:
-    return K::S_UNSIGNED_OF;  
+    return K::S_UNSIGNED_OF;
 
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:

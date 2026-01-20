@@ -266,6 +266,14 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::RVALUE, S::RVALUE);
     break;
+  case K::AS:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::S_AS_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
   case K::S_BINDING:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::SYMBOL_PATH, S::RVALUE);

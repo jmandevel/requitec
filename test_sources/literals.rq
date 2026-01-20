@@ -9,9 +9,9 @@
     // if no type specified, it defaults to fastest signed of at least 32-bits
     a := 0; // [signed].[fastest_bits 32] // could be larger than 32 bits on some platforms!
 
-    // can cast to make more specific
-    // if casted immediatly, then the literal is treated as the casted type.
-    b := [signed].[exact_bits 32]:0; // signed integer type of exactly 32 bits no matter what
+    // can use as reflection to make specific
+    // if used, then the literal is treated as the specified type.
+    b := 0.[as [signed].[exact_bits 32]]; // signed integer type of exactly 32 bits no matter what
 
     // can use suffixes to bake type info into the integer itself
     // this is more straight forward
