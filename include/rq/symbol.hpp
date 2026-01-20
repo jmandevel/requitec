@@ -1528,6 +1528,17 @@ getHasPlatformDependentScalar(rq::ScaledIntegerFlags flags) {
                        rq::ScaledIntegerFlags::PLATFORM_DEPENDENT_SCALAR);
 }
 
+void RQ_ALWAYS_INLINE profileScaledIntegerSymbol(llvm::FoldingSetNodeID &id,
+                                                 rq::SymbolKind kind,
+                                                 std::uint16_t scalar,
+                                                 std::uint16_t uid,
+                                                 rq::ScaledIntegerFlags flags) {
+  id.AddInteger(static_cast<unsigned>(kind));
+  id.AddInteger(static_cast<unsigned>(scalar));
+  id.AddInteger(static_cast<unsigned>(uid));
+  id.AddInteger(static_cast<unsigned>(flags));
+}
+
 struct ScaledIntegerSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ScaledIntegerSymbol;
   friend struct Context;
@@ -1594,10 +1605,8 @@ public:
     return this->_uid != 0;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddInteger(static_cast<unsigned>(this->_kind));
-    id.AddInteger(static_cast<unsigned>(this->_scalar));
-    id.AddInteger(static_cast<unsigned>(this->_uid));
-    id.AddInteger(static_cast<unsigned>(this->_flags));
+    rq::profileScaledIntegerSymbol(id, this->_kind, this->_scalar, this->_uid,
+                                   this->_flags);
   }
 };
 
@@ -1611,6 +1620,15 @@ template <> struct is_flags<rq::ScaledRealFlags> : std::true_type {};
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasPlatformDependentScalar(rq::ScaledRealFlags flags) {
   return rq::getHasAll(flags, rq::ScaledRealFlags::PLATFORM_DEPENDENT_SCALAR);
+}
+
+void RQ_ALWAYS_INLINE profileScaledRealSymbol(llvm::FoldingSetNodeID &id,
+                                              rq::SymbolKind kind,
+                                              std::uint16_t scalar,
+                                              rq::ScaledRealFlags flags) {
+  id.AddInteger(static_cast<unsigned>(kind));
+  id.AddInteger(static_cast<unsigned>(scalar));
+  id.AddInteger(static_cast<unsigned>(flags));
 }
 
 struct ScaledRealSymbol : public rq::Symbol, public llvm::FoldingSetNode {
@@ -1644,11 +1662,16 @@ public:
     return rq::getHasPlatformDependentScalar(this->_flags);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddInteger(static_cast<unsigned>(this->_kind));
-    id.AddInteger(static_cast<unsigned>(this->_scalar));
-    id.AddInteger(static_cast<unsigned>(this->_flags));
+    rq::profileScaledRealSymbol(id, this->_kind, this->_scalar, this->_flags);
   }
 };
+
+void RQ_ALWAYS_INLINE profileUnarySubtypeSymbol(llvm::FoldingSetNodeID &id,
+                                                rq::SymbolKind kind,
+                                                const rq::Symbol &root) {
+  id.AddInteger(static_cast<unsigned>(kind));
+  id.AddPointer(&root);
+}
 
 struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::UnarySubtypeSymbol;
@@ -1657,9 +1680,10 @@ struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   rq::Symbol *_root_ptr{nullptr};
 
 protected:
-  UnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &base)
-      : rq::Symbol(kind), _root_ptr(&base) {
+  UnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &root)
+      : rq::Symbol(kind), _root_ptr(&root) {
     RQ_ASSERT(rq::getIsUnarySubtype(kind), "kind not unary subtype symbol");
+    RQ_ASSERT(root.getIsRoot(), "not root");
   }
 
 public:
@@ -1675,10 +1699,18 @@ public:
     return rq::dereferencePtr(this->_root_ptr);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddPointer(this->_root_ptr);
-    id.AddInteger(static_cast<unsigned>(this->_kind));
+    rq::profileUnarySubtypeSymbol(id, this->getKind(), this->getRoot());
   }
 };
+
+void RQ_ALWAYS_INLINE profileCountedSubtypeSymbol(llvm::FoldingSetNodeID &id,
+                                                  rq::SymbolKind kind,
+                                                  const rq::Symbol &root,
+                                                  unsigned count) {
+  id.AddInteger(static_cast<unsigned>(kind));
+  id.AddPointer(&root);
+  id.AddInteger(count);
+}
 
 struct CountedSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::CountedSubtypeSymbol;
@@ -1691,6 +1723,7 @@ protected:
   CountedSubtypeSymbol(rq::SymbolKind kind, rq::Symbol &root, unsigned count)
       : rq::Symbol(kind), _root_ptr(&root), _count(count) {
     RQ_ASSERT(rq::getIsCountedSubtype(kind), "not counted subtype");
+    RQ_ASSERT(root.getIsRoot(), "not root");
   }
 
 public:
@@ -1709,11 +1742,20 @@ public:
     return this->_count;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddInteger(static_cast<unsigned>(this->_kind));
-    id.AddPointer(this->_root_ptr);
-    id.AddInteger(this->_count);
+    rq::profileCountedSubtypeSymbol(id, this->getKind(), this->getRoot(),
+                                    this->getCount());
   }
 };
+
+void RQ_ALWAYS_INLINE profileArithmeticSequenceSymbol(
+    llvm::FoldingSetNodeID &id, const rq::Symbol &root,
+    rq::ArithmeticSequenceCondition condition,
+    rq::ArithmeticSequenceStep step) {
+  // no need to fold kind
+  id.AddPointer(&root);
+  id.AddInteger(static_cast<unsigned>(condition));
+  id.AddInteger(static_cast<unsigned>(step));
+}
 
 struct ArithmeticSequenceSymbol : public rq::Symbol,
                                   public llvm::FoldingSetNode {
@@ -1729,6 +1771,7 @@ protected:
                            rq::ArithmeticSequenceCondition condition,
                            rq::ArithmeticSequenceStep step)
       : rq::Symbol(kind), _root_ptr(&root), _condition(condition), _step(step) {
+    RQ_ASSERT(root.getIsRoot(), "not root");
     RQ_ASSERT(rq::getIsArithmeticSequence(kind),
               "kind not arithmetic sequence symbol");
   }
@@ -1753,10 +1796,8 @@ public:
     return this->_step;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
-    // no need to fold kind
-    id.AddPointer(this->_root_ptr);
-    id.AddInteger(static_cast<unsigned>(this->_condition));
-    id.AddInteger(static_cast<unsigned>(this->_step));
+    rq::profileArithmeticSequenceSymbol(id, this->getRoot(),
+                                        this->getCondition(), this->getStep());
   }
 };
 
@@ -2134,7 +2175,6 @@ public:
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
-
 
 struct PartialSpecializationSymbol : public rq::Symbol {
   using Self = rq::PartialSpecializationSymbol;

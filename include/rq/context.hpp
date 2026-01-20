@@ -335,10 +335,7 @@ struct Context final {
   _getOrInsertScaledIntegerSymbol(rq::SymbolKind kind, unsigned scalar,
                                   unsigned uid, rq::ScaledIntegerFlags flags) {
     llvm::FoldingSetNodeID id;
-    id.AddInteger(static_cast<unsigned>(kind));
-    id.AddInteger(static_cast<unsigned>(scalar));
-    id.AddInteger(static_cast<unsigned>(uid));
-    id.AddInteger(static_cast<unsigned>(flags));
+    rq::profileScaledIntegerSymbol(id, kind, scalar, uid, flags);
     void *insert_pos = nullptr;
     if (rq::ScaledIntegerSymbol *existing =
             this->_scaled_integer_symbol.FindNodeOrInsertPos(id, insert_pos)) {
@@ -363,9 +360,7 @@ struct Context final {
   _getOrInsertScaledRealSymbol(rq::SymbolKind kind, unsigned scalar,
                                rq::ScaledRealFlags flags) {
     llvm::FoldingSetNodeID id;
-    id.AddInteger(static_cast<unsigned>(kind));
-    id.AddInteger(static_cast<unsigned>(scalar));
-    id.AddInteger(static_cast<unsigned>(flags));
+    rq::profileScaledRealSymbol(id, kind, scalar, flags);
     void *insert_pos = nullptr;
     if (rq::ScaledRealSymbol *existing =
             this->_scaled_real_symbol.FindNodeOrInsertPos(id, insert_pos)) {
@@ -384,8 +379,7 @@ struct Context final {
   [[nodiscard]] inline rq::UnarySubtypeSymbol &
   _getOrInsertUnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &subtype) {
     llvm::FoldingSetNodeID id;
-    id.AddPointer(&subtype);
-    id.AddInteger(static_cast<unsigned>(kind));
+    rq::profileUnarySubtypeSymbol(id, kind, subtype);
     void *insert_pos = nullptr;
     if (rq::UnarySubtypeSymbol *existing =
             this->_unary_subtype_symbols.FindNodeOrInsertPos(id, insert_pos)) {
@@ -427,9 +421,7 @@ struct Context final {
   _getOrInsertCountedSubtypeSymbol(rq::SymbolKind kind, rq::TypeSymbol &root,
                                    unsigned count) {
     llvm::FoldingSetNodeID id;
-    id.AddInteger(static_cast<unsigned>(kind));
-    id.AddPointer(&root);
-    id.AddInteger(count);
+    rq::profileCountedSubtypeSymbol(id, kind, root, count);
     void *insert_pos = nullptr;
     if (rq::CountedSubtypeSymbol *existing =
             this->_counted_subtype_symbols.FindNodeOrInsertPos(id,
@@ -452,9 +444,7 @@ struct Context final {
       rq::ArithmeticSequenceCondition condition,
       rq::ArithmeticSequenceStep step) {
     llvm::FoldingSetNodeID id;
-    id.AddPointer(&root);
-    id.AddInteger(static_cast<unsigned>(condition));
-    id.AddInteger(static_cast<unsigned>(step));
+    rq::profileArithmeticSequenceSymbol(id, root, condition, step);
     void *insert_pos = nullptr;
     if (rq::ArithmeticSequenceSymbol *existing =
             this->_arithmetic_sequence_symbols.FindNodeOrInsertPos(
