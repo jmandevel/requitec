@@ -90,7 +90,7 @@ struct Context final {
   llvm::FoldingSet<rq::ScaledIntegerSymbol> _scaled_integer_symbol{};
   llvm::FoldingSet<rq::ScaledRealSymbol> _scaled_real_symbol{};
   llvm::FoldingSet<rq::UnarySubtypeSymbol> _unary_subtype_symbols{};
-  llvm::FoldingSet<rq::ArraySymbol> _array_symbols{};
+  llvm::FoldingSet<rq::CountedSubtypeSymbol> _counted_subtype_symbols{};
   llvm::FoldingSet<rq::LayoutSymbol> _layout_symbols{};
   llvm::FoldingSet<rq::SignatureSymbol> _signature_symbols{};
   llvm::FoldingSet<rq::ExtensionSymbol> _extension_symbols{};
@@ -325,45 +325,173 @@ struct Context final {
     }
     return rq::dereferencePtr(this->_ascii_symbol);
   }
-
   [[nodiscard]] inline rq::Utf8Symbol &getUtf8() {
     if (!this->_utf8_symbol) {
       this->_utf8_symbol = &this->allocateValue<rq::Utf8Symbol>();
     }
     return rq::dereferencePtr(this->_utf8_symbol);
   }
-  // TODO
+  [[nodiscard]] inline rq::ScaledIntegerSymbol &
+  _getOrInsertScaledIntegerSymbol(rq::SymbolKind kind, unsigned scalar,
+                                  unsigned uid, rq::ScaledIntegerFlags flags) {
+    llvm::FoldingSetNodeID id;
+    id.AddInteger(static_cast<unsigned>(kind));
+    id.AddInteger(static_cast<unsigned>(scalar));
+    id.AddInteger(static_cast<unsigned>(uid));
+    id.AddInteger(static_cast<unsigned>(flags));
+    void *insert_pos = nullptr;
+    if (rq::ScaledIntegerSymbol *existing =
+            this->_scaled_integer_symbol.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::ScaledIntegerSymbol &new_type =
+        this->allocateValue<rq::ScaledIntegerSymbol>(kind, scalar, uid, flags);
+    this->_scaled_integer_symbol.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+  [[nodiscard]] inline rq::UnsignedSymbol &
+  getUnsigned(unsigned scalar, unsigned uid, rq::ScaledIntegerFlags flags) {
+    return llvm::cast<rq::UnsignedSymbol>(this->_getOrInsertScaledIntegerSymbol(
+        rq::SymbolKind::UNSIGNED, scalar, uid, flags));
+  }
+  [[nodiscard]] inline rq::SignedSymbol &
+  getSigned(unsigned scalar, unsigned uid, rq::ScaledIntegerFlags flags) {
+    return llvm::cast<rq::SignedSymbol>(this->_getOrInsertScaledIntegerSymbol(
+        rq::SymbolKind::UNSIGNED, scalar, uid, flags));
+  }
+  [[nodiscard]] inline rq::ScaledRealSymbol &
+  _getOrInsertScaledRealSymbol(rq::SymbolKind kind, unsigned scalar,
+                               rq::ScaledRealFlags flags) {
+    llvm::FoldingSetNodeID id;
+    id.AddInteger(static_cast<unsigned>(kind));
+    id.AddInteger(static_cast<unsigned>(scalar));
+    id.AddInteger(static_cast<unsigned>(flags));
+    void *insert_pos = nullptr;
+    if (rq::ScaledRealSymbol *existing =
+            this->_scaled_real_symbol.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::ScaledRealSymbol &new_type =
+        this->allocateValue<rq::ScaledRealSymbol>(kind, scalar, flags);
+    this->_scaled_real_symbol.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+  [[nodiscard]] inline rq::FloatSymbol &getFloat(unsigned scalar,
+                                                 rq::ScaledRealFlags flags) {
+    return llvm::cast<rq::FloatSymbol>(this->_getOrInsertScaledRealSymbol(
+        rq::SymbolKind::FLOAT, scalar, flags));
+  }
   [[nodiscard]] inline rq::UnarySubtypeSymbol &
-  _getOrInsertUnarySubtypeSymbol(rq::SymbolKind, unsigned depth);
+  _getOrInsertUnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &subtype) {
+    llvm::FoldingSetNodeID id;
+    id.AddPointer(&subtype);
+    id.AddInteger(static_cast<unsigned>(kind));
+    void *insert_pos = nullptr;
+    if (rq::UnarySubtypeSymbol *existing =
+            this->_unary_subtype_symbols.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::UnarySubtypeSymbol &new_type =
+        this->allocateValue<rq::UnarySubtypeSymbol>(kind, subtype);
+    this->_unary_subtype_symbols.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &
-  getRange(rq::TypeSymbol &root);
+  getRange(rq::TypeSymbol &root) {
+    return llvm::cast<rq::RangeSymbol>(
+        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::RANGE, root));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &
-  getReference(rq::TypeSymbol &root);
+  getReference(rq::TypeSymbol &root) {
+    return llvm::cast<rq::ReferenceSymbol>(
+        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::REFERENCE, root));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &
-  getPointer(rq::TypeSymbol &root);
+  getPointer(rq::TypeSymbol &root) {
+    return llvm::cast<rq::PointerSymbol>(
+        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::POINTER, root));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FatPointerSymbol &
-  getFatPointer(rq::TypeSymbol &root);
+  getFatPointer(rq::TypeSymbol &root) {
+    return llvm::cast<rq::FatPointerSymbol>(
+        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::FAT_POINTER,
+                                             root));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArraySymbol &
-  getInferecedCountArray(rq::TypeSymbol &root);
-  [[nodiscard]] inline rq::ArraySymbol &
+  getInferecedCountArray(rq::TypeSymbol &root) {
+    return llvm::cast<rq::InferencedCountArraySymbol>(
+        this->_getOrInsertUnarySubtypeSymbol(
+            rq::SymbolKind::INFERENCED_COUNT_ARRAY, root));
+  }
+  [[nodiscard]] inline rq::CountedSubtypeSymbol &
   _getOrInsertCountedSubtypeSymbol(rq::SymbolKind kind, rq::TypeSymbol &root,
-                                   unsigned count);
+                                   unsigned count) {
+    llvm::FoldingSetNodeID id;
+    id.AddInteger(static_cast<unsigned>(kind));
+    id.AddPointer(&root);
+    id.AddInteger(count);
+    void *insert_pos = nullptr;
+    if (rq::CountedSubtypeSymbol *existing =
+            this->_counted_subtype_symbols.FindNodeOrInsertPos(id,
+                                                               insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::CountedSubtypeSymbol &new_type =
+        this->allocateValue<rq::CountedSubtypeSymbol>(kind, root, count);
+    this->_counted_subtype_symbols.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &getArray(rq::TypeSymbol &root,
-                                                           unsigned count);
+                                                           unsigned count) {
+    return llvm::cast<rq::ArraySymbol>(this->_getOrInsertCountedSubtypeSymbol(
+        rq::SymbolKind::ARRAY, root, count));
+  }
   [[nodiscard]] inline rq::ArithmeticSequenceSymbol &
   _getOrInsertArithmeticSequenceSymbol(
       rq::SymbolKind kind, rq::TypeSymbol &root,
-      rq::ArithmeticSequenceStep step,
-      rq::ArithmeticSequenceCondition condition);
+      rq::ArithmeticSequenceCondition condition,
+      rq::ArithmeticSequenceStep step) {
+    llvm::FoldingSetNodeID id;
+    id.AddPointer(&root);
+    id.AddInteger(static_cast<unsigned>(condition));
+    id.AddInteger(static_cast<unsigned>(step));
+    void *insert_pos = nullptr;
+    if (rq::ArithmeticSequenceSymbol *existing =
+            this->_arithmetic_sequence_symbols.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::ArithmeticSequenceSymbol &new_type =
+        this->allocateValue<rq::ArithmeticSequenceSymbol>(kind, root, condition,
+                                                          step);
+    this->_arithmetic_sequence_symbols.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalSymbol &
-  getArithmeticInterval(rq::TypeSymbol &root, rq::ArithmeticSequenceStep step);
+  getArithmeticInterval(rq::TypeSymbol &root,
+                        rq::ArithmeticSequenceCondition condition) {
+    return llvm::cast<rq::ArithmeticIntervalSymbol>(
+        this->_getOrInsertArithmeticSequenceSymbol(
+            rq::SymbolKind::ARITHMETIC_INTERVAL, root, condition,
+            rq::ArithmeticSequenceStep::NONE));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
   getFiniteArithmeticProgression(rq::TypeSymbol &root,
                                  rq::ArithmeticSequenceStep step,
-                                 rq::ArithmeticSequenceCondition condition);
+                                 rq::ArithmeticSequenceCondition condition) {
+    return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(
+        this->_getOrInsertArithmeticSequenceSymbol(
+            rq::SymbolKind::FINITE_ARITHMETIC_PROGRESSION, root, condition,
+            step));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
   getInfiniteArithmeticProgression(rq::TypeSymbol &root,
-                                   rq::ArithmeticSequenceStep step);
+                                   rq::ArithmeticSequenceStep step) {
+    return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(
+        this->_getOrInsertArithmeticSequenceSymbol(
+            rq::SymbolKind::INFINITE_ARITHMETIC_PROGRESSION, root,
+            rq::ArithmeticSequenceCondition::NONE, step));
+  }
 };
 
 } // namespace rq

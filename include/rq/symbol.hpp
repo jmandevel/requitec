@@ -1652,6 +1652,7 @@ public:
 
 struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::UnarySubtypeSymbol;
+  friend struct Context;
 
   rq::Symbol *_root_ptr{nullptr};
 
@@ -1708,6 +1709,7 @@ public:
     return this->_count;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
+    id.AddInteger(static_cast<unsigned>(this->_kind));
     id.AddPointer(this->_root_ptr);
     id.AddInteger(this->_count);
   }
