@@ -87,8 +87,7 @@ struct Context final {
   rq::BooleanSymbol *_boolean_symbol{nullptr};
   rq::AsciiSymbol *_ascii_symbol{nullptr};
   rq::Utf8Symbol *_utf8_symbol{nullptr};
-  llvm::FoldingSet<rq::ScaledIntegerSymbol> _scaled_integer_symbol{};
-  llvm::FoldingSet<rq::ScaledRealSymbol> _scaled_real_symbol{};
+  llvm::FoldingSet<rq::ScaledBuiltinSymbol> _scaled_builtin_symbols{};
   llvm::FoldingSet<rq::UnarySubtypeSymbol> _unary_subtype_symbols{};
   llvm::FoldingSet<rq::CountedSubtypeSymbol> _counted_subtype_symbols{};
   llvm::FoldingSet<rq::LayoutSymbol> _layout_symbols{};
@@ -331,50 +330,50 @@ struct Context final {
     }
     return rq::dereferencePtr(this->_utf8_symbol);
   }
-  [[nodiscard]] inline rq::ScaledIntegerSymbol &
-  _getOrInsertScaledIntegerSymbol(rq::SymbolKind kind, unsigned scalar,
-                                  unsigned uid, rq::ScaledIntegerFlags flags) {
+  [[nodiscard]] inline rq::ScaledBuiltinSymbol &
+  _getOrInsertScaledBuiltin(rq::SymbolKind kind, unsigned scalar, unsigned uid,
+                            rq::ScaledBuiltinFlags flags) {
     llvm::FoldingSetNodeID id;
     rq::profileScaledIntegerSymbol(id, kind, scalar, uid, flags);
     void *insert_pos = nullptr;
-    if (rq::ScaledIntegerSymbol *existing =
-            this->_scaled_integer_symbol.FindNodeOrInsertPos(id, insert_pos)) {
+    if (rq::ScaledBuiltinSymbol *existing =
+            this->_scaled_builtin_symbols.FindNodeOrInsertPos(id, insert_pos)) {
       return rq::dereferencePtr(existing);
     }
-    rq::ScaledIntegerSymbol &new_type =
-        this->allocateValue<rq::ScaledIntegerSymbol>(kind, scalar, uid, flags);
-    this->_scaled_integer_symbol.InsertNode(&new_type, insert_pos);
+    rq::ScaledBuiltinSymbol &new_type =
+        this->allocateValue<rq::ScaledBuiltinSymbol>(kind, scalar, uid, flags);
+    this->_scaled_builtin_symbols.InsertNode(&new_type, insert_pos);
     return new_type;
   }
+  [[nodiscard]] inline rq::IntegerSymbol &
+  getInteger(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::IntegerSymbol>(this->_getOrInsertScaledBuiltin(
+        rq::SymbolKind::GENERIC_INTEGER, scalar, uid, flags));
+  }
   [[nodiscard]] inline rq::UnsignedSymbol &
-  getUnsigned(unsigned scalar, unsigned uid, rq::ScaledIntegerFlags flags) {
-    return llvm::cast<rq::UnsignedSymbol>(this->_getOrInsertScaledIntegerSymbol(
+  getUnsigned(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::UnsignedSymbol>(this->_getOrInsertScaledBuiltin(
         rq::SymbolKind::UNSIGNED, scalar, uid, flags));
   }
   [[nodiscard]] inline rq::SignedSymbol &
-  getSigned(unsigned scalar, unsigned uid, rq::ScaledIntegerFlags flags) {
-    return llvm::cast<rq::SignedSymbol>(this->_getOrInsertScaledIntegerSymbol(
+  getSigned(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::SignedSymbol>(this->_getOrInsertScaledBuiltin(
         rq::SymbolKind::UNSIGNED, scalar, uid, flags));
   }
-  [[nodiscard]] inline rq::ScaledRealSymbol &
-  _getOrInsertScaledRealSymbol(rq::SymbolKind kind, unsigned scalar,
-                               rq::ScaledRealFlags flags) {
-    llvm::FoldingSetNodeID id;
-    rq::profileScaledRealSymbol(id, kind, scalar, flags);
-    void *insert_pos = nullptr;
-    if (rq::ScaledRealSymbol *existing =
-            this->_scaled_real_symbol.FindNodeOrInsertPos(id, insert_pos)) {
-      return rq::dereferencePtr(existing);
-    }
-    rq::ScaledRealSymbol &new_type =
-        this->allocateValue<rq::ScaledRealSymbol>(kind, scalar, flags);
-    this->_scaled_real_symbol.InsertNode(&new_type, insert_pos);
-    return new_type;
+  [[nodiscard]] inline rq::FloatSymbol &getFloat(unsigned scalar, unsigned uid,
+                                                 rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::FloatSymbol>(this->_getOrInsertScaledBuiltin(
+        rq::SymbolKind::GENERIC_FLOAT, scalar, uid, flags));
   }
-  [[nodiscard]] inline rq::FloatSymbol &getFloat(unsigned scalar,
-                                                 rq::ScaledRealFlags flags) {
-    return llvm::cast<rq::FloatSymbol>(this->_getOrInsertScaledRealSymbol(
-        rq::SymbolKind::FLOAT, scalar, flags));
+  [[nodiscard]] inline rq::BinarySymbol &
+  getBinary(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::BinarySymbol>(this->_getOrInsertScaledBuiltin(
+        rq::SymbolKind::BINARY, scalar, uid, flags));
+  }
+  [[nodiscard]] inline rq::BfloatSymbol &
+  getBfloat(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::BfloatSymbol>(this->_getOrInsertScaledBuiltin(
+        rq::SymbolKind::BFLOAT, scalar, uid, flags));
   }
   [[nodiscard]] inline rq::UnarySubtypeSymbol &
   _getOrInsertUnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &subtype) {

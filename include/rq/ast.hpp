@@ -205,11 +205,8 @@ enum class Keyword : std::uint32_t {
   FLOAT,
   SIGNED,
   UNSIGNED,
-  BINARY16,
-  BINARY32,
-  BINARY64,
-  BINARY128,
-  BFLOAT16,
+  BINARY,
+  BFLOAT,
   ASCII,
   UTF8,
 
@@ -742,16 +739,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "signed";
   case K::UNSIGNED:
     return "unsigned";
-  case K::BINARY16:
-    return "binary16";
-  case K::BINARY32:
-    return "binary32";
-  case K::BINARY64:
-    return "binary64";
-  case K::BINARY128:
-    return "binary128";
-  case K::BFLOAT16:
-    return "bfloat16";
+  case K::BINARY:
+    return "binary";
+  case K::BFLOAT:
+    return "bfloat";
   case K::ASCII:
     return "ascii";
   case K::UTF8:
@@ -1508,15 +1499,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BINARY16:
+  case K::BINARY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BINARY32:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BINARY64:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BINARY128:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BFLOAT16:
+  case K::BFLOAT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCII:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;

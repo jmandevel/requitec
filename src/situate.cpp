@@ -832,15 +832,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED:
     [[fallthrough]];
-  case K::BINARY16:
+  case K::BINARY:
     [[fallthrough]];
-  case K::BINARY32:
-    [[fallthrough]];
-  case K::BINARY64:
-    [[fallthrough]];
-  case K::BINARY128:
-    [[fallthrough]];
-  case K::BFLOAT16:
+  case K::BFLOAT:
     [[fallthrough]];
   case K::ASCII:
     [[fallthrough]];
