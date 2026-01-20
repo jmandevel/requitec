@@ -41,6 +41,8 @@ enum class Keyword : std::uint32_t {
   I_CODEUNIT_LITERAL,
   // a literal that is used to refeer to user defined symbols.
   I_IDENTIFIER_LITERAL,
+  // apply an encoding to a literal
+  S_ENCODE,
 
   // ERRORS
   I_ERROR,
@@ -176,6 +178,7 @@ enum class Keyword : std::uint32_t {
   MUTATION,
 
   // VALUES
+  S_INTERPOLATED_STRING,
   S_INITIALIZER_LIST,
   TRUE,
   FALSE,
@@ -463,6 +466,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "__codeunit_literal";
   case K::I_IDENTIFIER_LITERAL:
     return "__identifier_literal";
+  case K::S_ENCODE:
+    return "_encode";
 
   // ERRORS
   case K::I_ERROR:
@@ -699,6 +704,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "mutation";
 
   // VALUES
+  case K::S_INTERPOLATED_STRING:
+    return "_interpolated_string";
   case K::S_INITIALIZER_LIST:
     return "_initializer_list";
   case K::TRUE:
@@ -1181,9 +1188,13 @@ enum class KeywordFlags : std::uint32_t {
   SYMBOL_ATTRIBUTE = rq::getBit(9),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(8),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(7),
+  ENCODING = rq::getBit(6),
+  QUOTED_LITERAL = rq::getBit(5),
+  INTERPOLATED_STRING_ELEMENT = rq::getBit(4),
   ALL = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT | PARAMETER |
         BINDING | SYMBOL_PATH | ASCRIPTION | TYPE_ATTRIBUTE | SYMBOL_ATTRIBUTE |
-        ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION
+        ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION | ENCODING |
+        QUOTED_LITERAL | INTERPOLATED_STRING_ELEMENT
 };
 
 template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
@@ -1202,22 +1213,24 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::I_FLOAT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::I_STRING_LITERAL:
-    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
+    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT |
+           KF::QUOTED_LITERAL;
   case K::I_LEFT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
-           KF::ARGUMENT;
+    return KF::UNQUOTED_RIGHT | KF::INTERNAL | KF::INTERPOLATED_STRING_ELEMENT;
   case K::I_MIDDLE_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
-           KF::RVALUE | KF::ARGUMENT;
+    return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::INTERNAL |
+           KF::INTERPOLATED_STRING_ELEMENT;
   case K::I_RIGHT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
-           KF::ARGUMENT;
+    return KF::UNQUOTED_LEFT | KF::INTERNAL | KF::INTERPOLATED_STRING_ELEMENT;
   case K::I_CODEUNIT_LITERAL:
-    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
+    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT |
+           KF::QUOTED_LITERAL;
   case K::I_IDENTIFIER_LITERAL:
     return KF::STATEMENT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
            KF::LVALUE | KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
            KF::SYMBOL_PATH;
+  case K::S_ENCODE:
+    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
 
   // ERRORS
   case K::I_ERROR:
@@ -1380,7 +1393,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::S_TUPLE:
-    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT |
+           KF::INTERPOLATED_STRING_ELEMENT;
   case K::S_LAYOUT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_NULL:
@@ -1459,6 +1473,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // VALUES
+  case K::S_INTERPOLATED_STRING:
+    return KF::RVALUE | KF::ARGUMENT | KF::QUOTED_LITERAL;
   case K::S_INITIALIZER_LIST:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TRUE:
@@ -1504,9 +1520,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::BFLOAT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCII:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::ENCODING;
   case K::UTF8:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::ENCODING;
 
   // TYPE REFLECTIONS
   case K::EXACT_BITS:
@@ -2042,7 +2058,10 @@ enum class Situation : std::uint_fast8_t {
   ASCRIPTION,
   TYPE_ATTRIBUTE,
   SYMBOL_ATTRIBUTE,
-  ARITHMETIC_SEQUENCE_STAGE
+  ARITHMETIC_SEQUENCE_STAGE,
+  ENCODING,
+  QUOTED_LITERAL,
+  INTERPOLATED_STRING_ELEMENT
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
@@ -2078,6 +2097,12 @@ getDescription(rq::Situation situation) {
     return "symbol attribute";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
+  case S::ENCODING:
+    return "encoding suffix";
+  case S::QUOTED_LITERAL:
+    return "quoted literal expression";
+  case S::INTERPOLATED_STRING_ELEMENT:
+    return "interpolated string element expression";
   }
   return "error expression";
 }
@@ -2112,6 +2137,10 @@ getDescription(rq::Situation situation) {
     break;
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return K::S_EXPAND_ARITHMETIC_SEQUENCE_STAGE;
+  case S::ENCODING:
+  case S::QUOTED_LITERAL:
+  case S::INTERPOLATED_STRING_ELEMENT:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -2347,6 +2376,22 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeEncoding(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::ENCODING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeQuotedLiteral(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::QUOTED_LITERAL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeInterpolatedStringElement(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::INTERPOLATED_STRING_ELEMENT);
+}
+
 [[nodiscard]] inline bool getCanBeSituation(rq::Keyword keyword,
                                             rq::Situation situation) {
   switch (situation) {
@@ -2378,6 +2423,12 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeSymbolAttribute(keyword);
   case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceStage(keyword);
+  case rq::Situation::ENCODING:
+    return rq::getCanBeEncoding(keyword);
+  case rq::Situation::QUOTED_LITERAL:
+    return rq::getCanBeQuotedLiteral(keyword);
+  case rq::Situation::INTERPOLATED_STRING_ELEMENT:
+    return rq::getCanBeInterpolatedStringElement(keyword);
   }
   return false;
 }
@@ -2387,1534 +2438,1572 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
          keyword == rq::Keyword::I_IDENTIFIER_LITERAL;
 }
 
-enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
+enum class ChainKind :
+    std::uint_fast8_t{NONE, UNKNOWN, IF, ARM};
 
-[[nodiscard]] inline llvm::StringRef getDescription(rq::ChainKind chainKind) {
-  using namespace rq;
-  using CK = ChainKind;
-  switch (chainKind) {
-  case CK::NONE:
-    return "no chain";
-  case CK::UNKNOWN:
-    return "unknown chain";
-  case CK::IF:
-    return "if chain";
-  case CK::ARM:
-    return "arm chain";
-  }
-  return "error chain";
-}
-
-[[nodiscard]] inline rq::ChainKind getChainKind(rq::Keyword keyword) {
-  if (!rq::getCanBeChainLink(keyword)) [[likely]] {
-    return rq::ChainKind::NONE;
-  } else if (rq::getCanBeAllChainLink(keyword)) {
-    return rq::ChainKind::UNKNOWN;
-  } else if (rq::getCanBeIfChainLink(keyword)) {
-    return rq::ChainKind::IF;
-  }
-  RQ_UNREACHABLE();
-}
-
-enum class SymbolAttribute : std::uint_fast8_t {
-  NONE,
-  OPAQUE,
-  OUTSIDE,
-  STATIC,
-  CAPTURE,
-  EAGER,
-  MAY_PARENT,
-  PARENT,
-  ABSTRACT,
-  VIRTUAL,
-  OVERRIDE,
-  POSITION,
-  MANGLE,
-  PACK,
-  LABEL,
-  TEMPLATE,
-  LIKELY,
-  UNLIKELY,
-  DEPRECIATED,
-  EXPORT,
-  PUBLIC,
-  PROTECTED,
-  MAY_COPY,
-  MAY_MOVE,
-  MUTATE_WITH,
-};
-
-[[nodiscard]] inline llvm::StringRef getName(rq::SymbolAttribute attribute) {
-  using namespace rq;
-  using SA = SymbolAttribute;
-  switch (attribute) {
-  case SA::NONE:
-    return "none";
-  case SA::OPAQUE:
-    return "opaque";
-  case SA::OUTSIDE:
-    return "outside";
-  case SA::STATIC:
-    return "static";
-  case SA::CAPTURE:
-    return "capture";
-  case SA::EAGER:
-    return "eager";
-  case SA::MAY_PARENT:
-    return "may_parent";
-  case SA::PARENT:
-    return "parent";
-  case SA::ABSTRACT:
-    return "abstract";
-  case SA::VIRTUAL:
-    return "virtual";
-  case SA::OVERRIDE:
-    return "override";
-  case SA::POSITION:
-    return "position";
-  case SA::MANGLE:
-    return "mangle";
-  case SA::PACK:
-    return "pack";
-  case SA::LABEL:
-    return "label";
-  case SA::TEMPLATE:
-    return "template";
-  case SA::LIKELY:
-    return "likely";
-  case SA::UNLIKELY:
-    return "unlikely";
-  case SA::DEPRECIATED:
-    return "depreciated";
-  case SA::EXPORT:
-    return "export";
-  case SA::PUBLIC:
-    return "public";
-  case SA::PROTECTED:
-    return "protected";
-  case SA::MAY_COPY:
-    return "may_copy";
-  case SA::MAY_MOVE:
-    return "may_move";
-  case SA::MUTATE_WITH:
-    return "mutate_with";
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::SymbolAttribute
-getSymbolAttribute(rq::Keyword keyword) {
-  using namespace rq;
-  using K = Keyword;
-  using SA = SymbolAttribute;
-  switch (keyword) {
-  case K::OPAQUE:
-    return SA::OPAQUE;
-  case K::OUTSIDE:
-    return SA::OUTSIDE;
-  case K::STATIC:
-    return SA::STATIC;
-  case K::CAPTURE:
-    return SA::CAPTURE;
-  case K::EAGER:
-    return SA::EAGER;
-  case K::MAY_PARENT:
-    return SA::MAY_PARENT;
-  case K::PARENT:
-    return SA::PARENT;
-  case K::ABSTRACT:
-    return SA::ABSTRACT;
-  case K::VIRTUAL:
-    return SA::VIRTUAL;
-  case K::OVERRIDE:
-    return SA::OVERRIDE;
-  case K::POSITION:
-    return SA::POSITION;
-  case K::MANGLE:
-    return SA::MANGLE;
-  case K::PACK:
-    return SA::PACK;
-  case K::LABEL:
-    return SA::LABEL;
-  case K::TEMPLATE:
-    return SA::TEMPLATE;
-  case K::LIKELY:
-    return SA::LIKELY;
-  case K::UNLIKELY:
-    return SA::UNLIKELY;
-  case K::DEPRECIATED:
-    return SA::DEPRECIATED;
-  case K::EXPORT:
-    return SA::EXPORT;
-  case K::PUBLIC:
-    return SA::PUBLIC;
-  case K::PROTECTED:
-    return SA::PROTECTED;
-  case K::MAY_COPY:
-    return SA::MAY_COPY;
-  case K::MAY_MOVE:
-    return SA::MAY_MOVE;
-  case K::MUTATE_WITH:
-    return SA::MUTATE_WITH;
-  default:
-    break;
-  }
-  return SA::NONE;
-}
-
-enum class SymbolAttributeFlags : std::uint32_t {
-  NONE = 0,
-  OPAQUE = rq::getBit(31),
-  OUTSIDE = rq::getBit(30),
-  STATIC = rq::getBit(29),
-  CAPTURE = rq::getBit(28),
-  EAGER = rq::getBit(27),
-  MAY_PARENT = rq::getBit(26),
-  PARENT = rq::getBit(25),
-  ABSTRACT = rq::getBit(24),
-  VIRTUAL = rq::getBit(23),
-  OVERRIDE = rq::getBit(22),
-  POSITION = rq::getBit(21),
-  MANGLE = rq::getBit(20),
-  PACK = rq::getBit(19),
-  LABEL = rq::getBit(18),
-  TEMPLATE = rq::getBit(17),
-  LIKELY = rq::getBit(16),
-  UNLIKELY = rq::getBit(15),
-  DEPRECIATED = rq::getBit(14),
-  EXPORT = rq::getBit(13),
-  PUBLIC = rq::getBit(12),
-  PROTECTED = rq::getBit(11),
-  MAY_COPY = rq::getBit(11),
-  MAY_MOVE = rq::getBit(10),
-  MUTATE_WITH = rq::getBit(9)
-};
-
-template <> struct is_flags<rq::SymbolAttributeFlags> final : std::true_type {};
-
-[[nodiscard]] inline rq::SymbolAttributeFlags
-getFlags(rq::SymbolAttribute attribute) {
-  using namespace rq;
-  using SA = SymbolAttribute;
-  using SF = SymbolAttributeFlags;
-  switch (attribute) {
-  case SA::NONE:
-    return SF::NONE;
-  case SA::OPAQUE:
-    return SF::OPAQUE;
-  case SA::OUTSIDE:
-    return SF::OUTSIDE;
-  case SA::STATIC:
-    return SF::STATIC;
-  case SA::CAPTURE:
-    return SF::CAPTURE;
-  case SA::EAGER:
-    return SF::EAGER;
-  case SA::MAY_PARENT:
-    return SF::MAY_PARENT;
-  case SA::PARENT:
-    return SF::PARENT;
-  case SA::ABSTRACT:
-    return SF::ABSTRACT;
-  case SA::VIRTUAL:
-    return SF::VIRTUAL;
-  case SA::OVERRIDE:
-    return SF::OVERRIDE;
-  case SA::POSITION:
-    return SF::POSITION;
-  case SA::MANGLE:
-    return SF::POSITION;
-  case SA::PACK:
-    return SF::PACK;
-  case SA::LABEL:
-    return SF::LABEL;
-  case SA::TEMPLATE:
-    return SF::TEMPLATE;
-  case SA::LIKELY:
-    return SF::LIKELY;
-  case SA::UNLIKELY:
-    return SF::UNLIKELY;
-  case SA::DEPRECIATED:
-    return SF::DEPRECIATED;
-  case SA::EXPORT:
-    return SF::EXPORT;
-  case SA::PUBLIC:
-    return SF::PUBLIC;
-  case SA::PROTECTED:
-    return SF::PROTECTED;
-  case SA::MAY_COPY:
-    return SF::MAY_COPY;
-  case SA::MAY_MOVE:
-    return SF::MAY_MOVE;
-  case SA::MUTATE_WITH:
-    return SF::MUTATE_WITH;
-  }
-  return SF::NONE;
-}
-
-[[nodiscard]] inline bool getHasOpaque(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::OPAQUE);
-}
-
-[[nodiscard]] inline bool getHasOutside(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::OUTSIDE);
-}
-
-[[nodiscard]] inline bool getHasStatic(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::STATIC);
-}
-
-[[nodiscard]] inline bool getHasCapture(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::CAPTURE);
-}
-
-[[nodiscard]] inline bool getHasEager(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::EAGER);
-}
-
-[[nodiscard]] inline bool getHasMayParent(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_PARENT);
-}
-
-[[nodiscard]] inline bool getHasParent(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PARENT);
-}
-
-[[nodiscard]] inline bool getHasAbstract(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::ABSTRACT);
-}
-
-[[nodiscard]] inline bool getHasVirtual(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::VIRTUAL);
-}
-
-[[nodiscard]] inline bool getHasOverride(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::OVERRIDE);
-}
-
-[[nodiscard]] inline bool getHasPosition(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::POSITION);
-}
-
-[[nodiscard]] inline bool getHasMangle(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MANGLE);
-}
-
-[[nodiscard]] inline bool getHasPack(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PACK);
-}
-
-[[nodiscard]] inline bool getHasLabel(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::LABEL);
-}
-
-[[nodiscard]] inline bool getHasTemplate(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::TEMPLATE);
-}
-
-[[nodiscard]] inline bool getHasLikely(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::LIKELY);
-}
-
-[[nodiscard]] inline bool getHasUnlikely(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::UNLIKELY);
-}
-
-[[nodiscard]] inline bool getHasDepreciated(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::DEPRECIATED);
-}
-
-[[nodiscard]] inline bool getHasExport(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::EXPORT);
-}
-
-[[nodiscard]] inline bool getHasPublic(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PUBLIC);
-}
-
-[[nodiscard]] inline bool getHasProtected(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::PROTECTED);
-}
-
-[[nodiscard]] inline bool getHasMayCopy(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_COPY);
-}
-
-[[nodiscard]] inline bool getHasMayMove(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_MOVE);
-}
-
-[[nodiscard]] inline bool getHasMutateWith(rq::SymbolAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::SymbolAttributeFlags::MUTATE_WITH);
-}
-
-[[nodiscard]] inline bool getHasAttribute(rq::SymbolAttributeFlags flags,
-                                          rq::SymbolAttribute attribute) {
-  rq::SymbolAttributeFlags attribute_flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, attribute_flags);
-}
-
-struct Expression;
-
-struct SymbolAttributeFlagsFactory final {
-  using Self = rq::SymbolAttributeFlagsFactory;
-
-  rq::SymbolAttributeFlags _flags{};
-  const rq::Expression *_capture_ptr{nullptr};
-  const rq::Expression *_override_ptr{nullptr};
-  const rq::Expression *_position_ptr{nullptr};
-  const rq::Expression *_mangle_ptr{nullptr};
-  const rq::Expression *_label_ptr{nullptr};
-  const rq::Expression *_template_ptr{nullptr};
-  const rq::Expression *_depreciated_ptr{nullptr};
-  const rq::Expression *_mutate_with_ptr{nullptr};
-
-  SymbolAttributeFlagsFactory() = default;
-  inline void addAttribute(const rq::Expression &expression);
-  inline void addAllAttributres(const rq::Expression &ascribed);
-  [[nodiscard]] rq::SymbolAttributeFlags getFlags() const {
-    return this->_flags;
-  }
-  [[nodiscard]] bool getHasOpaque() const {
-    return rq::getHasOpaque(this->_flags);
-  }
-  [[nodiscard]] bool getHasOutside() const {
-    return rq::getHasOutside(this->_flags);
-  }
-  [[nodiscard]] bool getHasStatic() const {
-    return rq::getHasStatic(this->_flags);
-  }
-  [[nodiscard]] bool getHasCapture() const {
-    return rq::getHasCapture(this->_flags);
-  }
-  [[nodiscard]] bool getHasEager() const {
-    return rq::getHasEager(this->_flags);
-  }
-  [[nodiscard]] bool getHasMayParent() const {
-    return rq::getHasMayParent(this->_flags);
-  }
-  [[nodiscard]] bool getHasParent() const {
-    return rq::getHasParent(this->_flags);
-  }
-  [[nodiscard]] bool getHasAbstract() const {
-    return rq::getHasAbstract(this->_flags);
-  }
-  [[nodiscard]] bool getHasVirtual() const {
-    return rq::getHasVirtual(this->_flags);
-  }
-  [[nodiscard]] bool getHasOverride() const {
-    return rq::getHasOverride(this->_flags);
-  }
-  [[nodiscard]] bool getHasPosition() const {
-    return rq::getHasPosition(this->_flags);
-  }
-  [[nodiscard]] bool getHasMangle() const {
-    return rq::getHasMangle(this->_flags);
-  }
-  [[nodiscard]] bool getHasPack() const { return rq::getHasPack(this->_flags); }
-  [[nodiscard]] bool getHasLabel() const {
-    return rq::getHasLabel(this->_flags);
-  }
-  [[nodiscard]] bool getHasTemplate() const {
-    return rq::getHasTemplate(this->_flags);
-  }
-  [[nodiscard]] bool getHasLikely() const {
-    return rq::getHasLikely(this->_flags);
-  }
-  [[nodiscard]] bool getHasUnlikely() const {
-    return rq::getHasUnlikely(this->_flags);
-  }
-  [[nodiscard]] bool getHasDepreciated() const {
-    return rq::getHasDepreciated(this->_flags);
-  }
-  [[nodiscard]] bool getHasExport() const {
-    return rq::getHasExport(this->_flags);
-  }
-  [[nodiscard]] bool getHasPublic() const {
-    return rq::getHasPublic(this->_flags);
-  }
-  [[nodiscard]] bool getHasProtected() const {
-    return rq::getHasProtected(this->_flags);
-  }
-  [[nodiscard]] bool getHasMayCopy() const {
-    return rq::getHasMayCopy(this->_flags);
-  }
-  [[nodiscard]] bool getHasMayMove() const {
-    return rq::getHasMayMove(this->_flags);
-  }
-  [[nodiscard]] bool getHasMutateWith() const {
-    return rq::getHasMutateWith(this->_flags);
-  }
-  [[nodiscard]] const rq::Expression &getCapture() const {
-    RQ_ASSERT(this->getHasCapture(), "no capture");
-    return rq::dereferencePtr(this->_capture_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getOverride() const {
-    RQ_ASSERT(this->getHasOverride(), "no override");
-    return rq::dereferencePtr(this->_override_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getPosition() const {
-    RQ_ASSERT(this->getHasPosition(), "no position");
-    return rq::dereferencePtr(this->_position_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getMangle() const {
-    RQ_ASSERT(this->getHasMangle(), "no mangle");
-    return rq::dereferencePtr(this->_mangle_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getLabel() const {
-    RQ_ASSERT(this->getHasLabel(), "no label");
-    return rq::dereferencePtr(this->_label_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getTemplate() const {
-    RQ_ASSERT(this->getHasTemplate(), "no template");
-    return rq::dereferencePtr(this->_template_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getDepreciated() const {
-    RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
-    return rq::dereferencePtr(this->_depreciated_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getMutateWith() const {
-    RQ_ASSERT(this->getHasMutateWith(), "no mutate_with");
-    return rq::dereferencePtr(this->_mutate_with_ptr);
-  }
-};
-
-enum class TypeAttribute : std::uint_fast8_t {
-  NONE,
-  MUTABLE,
-  CONSTANT,
-  PARTIALLY_MUTABLE,
-  VOLATILE,
-  ATOMIC,
-  NULL_TERMINATED,
-  MAY_DISCARD,
-  DEBUG_TRAP_ON_PANIC
-};
-
-[[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
-  using namespace rq;
-  using TA = TypeAttribute;
-  switch (attribute) {
-  case TA::NONE:
-    return "none";
-  case TA::MUTABLE:
-    return "mutable";
-  case TA::CONSTANT:
-    return "constant";
-  case TA::PARTIALLY_MUTABLE:
-    return "partially_mutable";
-  case TA::VOLATILE:
-    return "volatile";
-  case TA::ATOMIC:
-    return "atomic";
-  case TA::NULL_TERMINATED:
-    return "null_terminated";
-  case TA::MAY_DISCARD:
-    return "may_discard";
-  case TA::DEBUG_TRAP_ON_PANIC:
-    return "debug_trap_on_panic";
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::TypeAttribute getTypeAttribute(rq::Keyword keyword) {
-  using namespace rq;
-  using K = Keyword;
-  using TA = TypeAttribute;
-  switch (keyword) {
-  case K::S_MUTABLE:
-    return TA::MUTABLE;
-  case K::S_CONSTANT:
-    return TA::CONSTANT;
-  case K::PARTIALLY_MUTABLE:
-    return TA::PARTIALLY_MUTABLE;
-  case K::VOLATILE:
-    return TA::VOLATILE;
-  case K::ATOMIC:
-    return TA::ATOMIC;
-  case K::NULL_TERMINATED:
-    return TA::NULL_TERMINATED;
-  case K::MAY_DISCARD:
-    return TA::MAY_DISCARD;
-  case K::DEBUG_TRAP_ON_PANIC:
-    return TA::DEBUG_TRAP_ON_PANIC;
-  default:
-    break;
-  }
-  return TA::NONE;
-}
-
-enum class TypeAttributeFlags : std::uint32_t {
-  NONE = 0,
-  MUTABLE = rq::getBit(15),
-  CONSTANT = rq::getBit(14),
-  PARTIALLY_MUTABLE = rq::getBit(13),
-  VOLATILE = rq::getBit(12),
-  ATOMIC = rq::getBit(11),
-  NULL_TERMINATED = rq::getBit(10),
-  MAY_DISCARD = rq::getBit(9),
-  DEBUG_TRAP_ON_PANIC = rq::getBit(8),
-  MUTATION_MASK = 0xFFFF
-};
-
-template <> struct is_flags<rq::TypeAttributeFlags> final : std::true_type {};
-
-enum class MutationFlags : std::uint16_t {
-  NONE = 0,
-  INDEPENDENT_CLASS = rq::getBit(0),
-  USER_CLASS_MASK = 0xFFFE
-};
-
-template <> struct is_flags<rq::MutationFlags> final : std::true_type {};
-
-static constexpr unsigned MAX_MUTATION_COUNT = 16;
-
-[[nodiscard]] inline rq::TypeAttributeFlags
-getFlags(rq::TypeAttribute attribute) {
-  using namespace rq;
-  using TA = TypeAttribute;
-  using TF = TypeAttributeFlags;
-  switch (attribute) {
-  case TA::NONE:
-    return TF::NONE;
-  case TA::MUTABLE:
-    return TF::MUTABLE;
-  case TA::CONSTANT:
-    return TF::CONSTANT;
-  case TA::PARTIALLY_MUTABLE:
-    return TF::PARTIALLY_MUTABLE;
-  case TA::VOLATILE:
-    return TF::VOLATILE;
-  case TA::ATOMIC:
-    return TF::ATOMIC;
-  case TA::NULL_TERMINATED:
-    return TF::NULL_TERMINATED;
-  case TA::MAY_DISCARD:
-    return TF::MAY_DISCARD;
-  case TA::DEBUG_TRAP_ON_PANIC:
-    return TF::DEBUG_TRAP_ON_PANIC;
-  }
-  return TF::NONE;
-}
-
-[[nodiscard]] inline bool getHasMutable(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE);
-}
-
-[[nodiscard]] inline bool getHasConstant(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT);
-}
-
-[[nodiscard]] inline bool getHasPartiallyMutable(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
-}
-
-[[nodiscard]] inline bool getHasVolatile(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILE);
-}
-
-[[nodiscard]] inline bool getHasAtomic(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMIC);
-}
-
-[[nodiscard]] inline bool getHasNullTerminated(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATED);
-}
-
-[[nodiscard]] inline bool getHasMayDiscard(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::MAY_DISCARD);
-}
-
-[[nodiscard]] inline bool getHasDebugTrapOnPanic(rq::TypeAttribute attribute) {
-  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::DEBUG_TRAP_ON_PANIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasAttribute(rq::TypeAttributeFlags flags, rq::TypeAttribute attribute) {
-  return rq::getHasAll(flags, rq::getFlags(attribute));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasMutability(rq::TypeAttributeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeAttributeFlags::MUTABLE |
-                                   rq::TypeAttributeFlags::CONSTANT |
-                                   rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags
-getMutationFlags(rq::TypeAttributeFlags flags) {
-  RQ_ASSERT(rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE),
-            "not partially mutable");
-  return static_cast<rq::MutationFlags>(
-      rq::getMaskValue(flags, rq::TypeAttributeFlags::MUTATION_MASK));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsValidMutability(rq::TypeAttributeFlags flags) {
-  if (rq::getHasMutability(flags)) {
-    unsigned mutability_count = 0;
-    if (rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE)) {
-      mutability_count++;
+    [[nodiscard]] inline llvm::StringRef getDescription(
+        rq::ChainKind chainKind) {
+      using namespace rq;
+      using CK = ChainKind;
+      switch (chainKind) {
+      case CK::NONE:
+        return "no chain";
+      case CK::UNKNOWN:
+        return "unknown chain";
+      case CK::IF:
+        return "if chain";
+      case CK::ARM:
+        return "arm chain";
+      }
+      return "error chain";
     }
-    if (rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT)) {
-      mutability_count++;
+
+    [[nodiscard]] inline rq::ChainKind getChainKind(rq::Keyword keyword) {
+      if (!rq::getCanBeChainLink(keyword)) [[likely]] {
+        return rq::ChainKind::NONE;
+      } else if (rq::getCanBeAllChainLink(keyword)) {
+        return rq::ChainKind::UNKNOWN;
+      } else if (rq::getCanBeIfChainLink(keyword)) {
+        return rq::ChainKind::IF;
+      }
+      RQ_UNREACHABLE();
     }
-    if (rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
-      mutability_count++;
+
+    enum class SymbolAttribute : std::uint_fast8_t {
+      NONE,
+      OPAQUE,
+      OUTSIDE,
+      STATIC,
+      CAPTURE,
+      EAGER,
+      MAY_PARENT,
+      PARENT,
+      ABSTRACT,
+      VIRTUAL,
+      OVERRIDE,
+      POSITION,
+      MANGLE,
+      PACK,
+      LABEL,
+      TEMPLATE,
+      LIKELY,
+      UNLIKELY,
+      DEPRECIATED,
+      EXPORT,
+      PUBLIC,
+      PROTECTED,
+      MAY_COPY,
+      MAY_MOVE,
+      MUTATE_WITH,
+    };
+
+    [[nodiscard]] inline llvm::StringRef getName(
+        rq::SymbolAttribute attribute) {
+      using namespace rq;
+      using SA = SymbolAttribute;
+      switch (attribute) {
+      case SA::NONE:
+        return "none";
+      case SA::OPAQUE:
+        return "opaque";
+      case SA::OUTSIDE:
+        return "outside";
+      case SA::STATIC:
+        return "static";
+      case SA::CAPTURE:
+        return "capture";
+      case SA::EAGER:
+        return "eager";
+      case SA::MAY_PARENT:
+        return "may_parent";
+      case SA::PARENT:
+        return "parent";
+      case SA::ABSTRACT:
+        return "abstract";
+      case SA::VIRTUAL:
+        return "virtual";
+      case SA::OVERRIDE:
+        return "override";
+      case SA::POSITION:
+        return "position";
+      case SA::MANGLE:
+        return "mangle";
+      case SA::PACK:
+        return "pack";
+      case SA::LABEL:
+        return "label";
+      case SA::TEMPLATE:
+        return "template";
+      case SA::LIKELY:
+        return "likely";
+      case SA::UNLIKELY:
+        return "unlikely";
+      case SA::DEPRECIATED:
+        return "depreciated";
+      case SA::EXPORT:
+        return "export";
+      case SA::PUBLIC:
+        return "public";
+      case SA::PROTECTED:
+        return "protected";
+      case SA::MAY_COPY:
+        return "may_copy";
+      case SA::MAY_MOVE:
+        return "may_move";
+      case SA::MUTATE_WITH:
+        return "mutate_with";
+      }
+      RQ_UNREACHABLE();
     }
-    if (mutability_count != 1) {
-      return false;
+
+    [[nodiscard]] inline rq::SymbolAttribute getSymbolAttribute(
+        rq::Keyword keyword) {
+      using namespace rq;
+      using K = Keyword;
+      using SA = SymbolAttribute;
+      switch (keyword) {
+      case K::OPAQUE:
+        return SA::OPAQUE;
+      case K::OUTSIDE:
+        return SA::OUTSIDE;
+      case K::STATIC:
+        return SA::STATIC;
+      case K::CAPTURE:
+        return SA::CAPTURE;
+      case K::EAGER:
+        return SA::EAGER;
+      case K::MAY_PARENT:
+        return SA::MAY_PARENT;
+      case K::PARENT:
+        return SA::PARENT;
+      case K::ABSTRACT:
+        return SA::ABSTRACT;
+      case K::VIRTUAL:
+        return SA::VIRTUAL;
+      case K::OVERRIDE:
+        return SA::OVERRIDE;
+      case K::POSITION:
+        return SA::POSITION;
+      case K::MANGLE:
+        return SA::MANGLE;
+      case K::PACK:
+        return SA::PACK;
+      case K::LABEL:
+        return SA::LABEL;
+      case K::TEMPLATE:
+        return SA::TEMPLATE;
+      case K::LIKELY:
+        return SA::LIKELY;
+      case K::UNLIKELY:
+        return SA::UNLIKELY;
+      case K::DEPRECIATED:
+        return SA::DEPRECIATED;
+      case K::EXPORT:
+        return SA::EXPORT;
+      case K::PUBLIC:
+        return SA::PUBLIC;
+      case K::PROTECTED:
+        return SA::PROTECTED;
+      case K::MAY_COPY:
+        return SA::MAY_COPY;
+      case K::MAY_MOVE:
+        return SA::MAY_MOVE;
+      case K::MUTATE_WITH:
+        return SA::MUTATE_WITH;
+      default:
+        break;
+      }
+      return SA::NONE;
     }
-  }
-  return true;
-}
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsValidMutabilityClass(rq::TypeAttributeFlags flags) {
-  if (!rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
-    rq::MutationFlags classes = rq::getMutationFlags(flags);
-    if (classes != rq::MutationFlags::NONE) {
-      return false;
+    enum class SymbolAttributeFlags : std::uint32_t {
+      NONE = 0,
+      OPAQUE = rq::getBit(31),
+      OUTSIDE = rq::getBit(30),
+      STATIC = rq::getBit(29),
+      CAPTURE = rq::getBit(28),
+      EAGER = rq::getBit(27),
+      MAY_PARENT = rq::getBit(26),
+      PARENT = rq::getBit(25),
+      ABSTRACT = rq::getBit(24),
+      VIRTUAL = rq::getBit(23),
+      OVERRIDE = rq::getBit(22),
+      POSITION = rq::getBit(21),
+      MANGLE = rq::getBit(20),
+      PACK = rq::getBit(19),
+      LABEL = rq::getBit(18),
+      TEMPLATE = rq::getBit(17),
+      LIKELY = rq::getBit(16),
+      UNLIKELY = rq::getBit(15),
+      DEPRECIATED = rq::getBit(14),
+      EXPORT = rq::getBit(13),
+      PUBLIC = rq::getBit(12),
+      PROTECTED = rq::getBit(11),
+      MAY_COPY = rq::getBit(11),
+      MAY_MOVE = rq::getBit(10),
+      MUTATE_WITH = rq::getBit(9)
+    };
+
+    template <>
+    struct is_flags<rq::SymbolAttributeFlags> final : std::true_type {};
+
+    [[nodiscard]] inline rq::SymbolAttributeFlags getFlags(
+        rq::SymbolAttribute attribute) {
+      using namespace rq;
+      using SA = SymbolAttribute;
+      using SF = SymbolAttributeFlags;
+      switch (attribute) {
+      case SA::NONE:
+        return SF::NONE;
+      case SA::OPAQUE:
+        return SF::OPAQUE;
+      case SA::OUTSIDE:
+        return SF::OUTSIDE;
+      case SA::STATIC:
+        return SF::STATIC;
+      case SA::CAPTURE:
+        return SF::CAPTURE;
+      case SA::EAGER:
+        return SF::EAGER;
+      case SA::MAY_PARENT:
+        return SF::MAY_PARENT;
+      case SA::PARENT:
+        return SF::PARENT;
+      case SA::ABSTRACT:
+        return SF::ABSTRACT;
+      case SA::VIRTUAL:
+        return SF::VIRTUAL;
+      case SA::OVERRIDE:
+        return SF::OVERRIDE;
+      case SA::POSITION:
+        return SF::POSITION;
+      case SA::MANGLE:
+        return SF::POSITION;
+      case SA::PACK:
+        return SF::PACK;
+      case SA::LABEL:
+        return SF::LABEL;
+      case SA::TEMPLATE:
+        return SF::TEMPLATE;
+      case SA::LIKELY:
+        return SF::LIKELY;
+      case SA::UNLIKELY:
+        return SF::UNLIKELY;
+      case SA::DEPRECIATED:
+        return SF::DEPRECIATED;
+      case SA::EXPORT:
+        return SF::EXPORT;
+      case SA::PUBLIC:
+        return SF::PUBLIC;
+      case SA::PROTECTED:
+        return SF::PROTECTED;
+      case SA::MAY_COPY:
+        return SF::MAY_COPY;
+      case SA::MAY_MOVE:
+        return SF::MAY_MOVE;
+      case SA::MUTATE_WITH:
+        return SF::MUTATE_WITH;
+      }
+      return SF::NONE;
     }
-  }
-  return true;
-}
 
-enum class ArithmeticSequenceStep : std::uint_fast8_t {
-  NONE,
-  ADD,
-  SUBTRACT,
-  MULTIPLY,
-  DIVIDE,
-  MODULUS
-};
-
-[[nodiscard]] inline llvm::StringRef
-getDescription(rq::ArithmeticSequenceStep step) {
-  using namespace rq;
-  using ASS = ArithmeticSequenceStep;
-  switch (step) {
-  case ASS::NONE:
-    return "no step";
-  case ASS::ADD:
-    return "add step";
-  case ASS::SUBTRACT:
-    return "subtract step";
-  case ASS::MULTIPLY:
-    return "multiply step";
-  case ASS::DIVIDE:
-    return "divide step";
-  case ASS::MODULUS:
-    return "modulus step";
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::ArithmeticSequenceStep
-getArithmeticSequenceStep(rq::Keyword keyword) {
-  using namespace rq;
-  using ASS = ArithmeticSequenceStep;
-  using K = Keyword;
-  switch (keyword) {
-  case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
-    return ASS::ADD;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
-    return ASS::SUBTRACT;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
-    return ASS::MULTIPLY;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
-    return ASS::DIVIDE;
-  case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
-    return ASS::MODULUS;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-enum class ArithmeticSequenceCondition : std::uint_fast8_t {
-  NONE,
-  LESS,
-  LESS_EQUAL,
-  GREATER,
-  GREATER_EQUAL,
-  EQUAL,
-  NOT_EQUAL
-};
-
-[[nodiscard]] inline llvm::StringRef
-getDescription(rq::ArithmeticSequenceCondition condition) {
-  using namespace rq;
-  using ASC = ArithmeticSequenceCondition;
-  switch (condition) {
-  case ASC::NONE:
-    return "no condition";
-  case ASC::LESS:
-    return "less condition";
-  case ASC::LESS_EQUAL:
-    return "less equal condition";
-  case ASC::GREATER:
-    return "greater condition";
-  case ASC::GREATER_EQUAL:
-    return "greater equal condition";
-  case ASC::EQUAL:
-    return "equal condition";
-  case ASC::NOT_EQUAL:
-    return "not equal condition";
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::ArithmeticSequenceCondition
-getArithmeticSequenceCondition(rq::Keyword keyword) {
-  using namespace rq;
-  using ASC = ArithmeticSequenceCondition;
-  using K = Keyword;
-  switch (keyword) {
-  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
-    return ASC::LESS;
-  case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL:
-    return ASC::LESS_EQUAL;
-  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
-    return ASC::GREATER;
-  case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL:
-    return ASC::GREATER_EQUAL;
-  case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
-    return ASC::EQUAL;
-  case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
-    return ASC::NOT_EQUAL;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-template <typename SourceAParam, typename SourceBParam>
-[[nodiscard]] inline unsigned getSourceLengthBetween(const SourceAParam &first,
-                                                     const SourceBParam &last) {
-  RQ_ASSERT(first.getSourceTextPtr() != nullptr, "first must have source");
-  RQ_ASSERT(last.getSourceTextPtr() != nullptr, "last must have source");
-  RQ_ASSERT(first.getSourceTextPtr() <= last.getSourceTextPtr(),
-            "last source must start after first source");
-  return static_cast<unsigned>(last.getSourceTextPtr() -
-                               first.getSourceTextPtr()) +
-         last.getSourceTextLength();
-}
-
-struct Expression;
-
-struct ExpressionIterator final {
-  using Self = rq::ExpressionIterator;
-  using value_type = rq::Expression;
-  using reference = rq::Expression &;
-  using pointer = rq::Expression *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Expression *_expression_ptr = nullptr;
-
-  ExpressionIterator() = default;
-  ExpressionIterator(rq::Expression *expression_ptr)
-      : _expression_ptr(expression_ptr) {}
-  ExpressionIterator(const Self &) = default;
-  ExpressionIterator(Self &&) = default;
-  ~ExpressionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_expression_ptr == it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_expression_ptr != it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &operator*() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *operator->() {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_expression_ptr == nullptr;
-  }
-};
-
-struct ConstExpressionIterator final {
-  using Self = rq::ConstExpressionIterator;
-  using value_type = const rq::Expression;
-  using reference = const rq::Expression &;
-  using pointer = rq::Expression *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::Expression *_expression_ptr = nullptr;
-
-  ConstExpressionIterator() = default;
-  ConstExpressionIterator(const rq::Expression *expression_ptr)
-      : _expression_ptr(expression_ptr) {}
-  ConstExpressionIterator(const Self &) = default;
-  ConstExpressionIterator(Self &&) = default;
-  ~ConstExpressionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_expression_ptr == it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_expression_ptr != it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_expression_ptr == nullptr;
-  }
-};
-
-enum class ExpressionNextFlags : std::uint8_t {
-  NONE = 0,
-  // NOTE: a "chain-link" expression is a statement that is linked to the next
-  // and not seperated with semicolons. Used in things like if->else_if->else
-  // chains.
-  CHAINLINK = rq::getBit(0),
-  // NOTE: a "header" expression is one that terminates with a comma in a
-  // semicolon terminating context (usually before all statements)
-  HEADER = rq::getBit(1)
-};
-
-template <> struct is_flags<rq::ExpressionNextFlags> final : std::true_type {};
-
-enum class ExpressionSourceFlags : std::uint8_t {
-  NONE = 0,
-  // NOTE: an "inserted" expression is one that was not present in the source
-  // and was inserted into the AST by the compiler
-  INSERTED = rq::getBit(0),
-  // NOTE: this flag is set if there is an error with situating this expression
-  SITUATOR_ERROR = rq::getBit(1)
-};
-
-template <>
-struct is_flags<rq::ExpressionSourceFlags> final : std::true_type {};
-
-struct Expression final {
-  using Self = rq::Expression;
-
-  rq::Keyword _keyword{rq::Keyword::I_NONE};
-  rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextFlags>
-      _next_ptr_flags{};
-  rq::Expression *_branch_ptr{nullptr};
-  rq::PtrWithFlags<const char, 1, rq::ExpressionSourceFlags>
-      _source_ptr_flags{};
-  unsigned _source_text_length{0};
-
-  Expression() = default;
-  Expression(Self &) = delete;
-  Expression(Self &&) = delete;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  ~Expression() = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
-    return this->_keyword;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return rq::getName(this->_keyword);
-  }
-  RQ_ALWAYS_INLINE void clear() {
-    this->_keyword = rq::Keyword::I_NONE;
-    this->_next_ptr_flags = {};
-    this->_branch_ptr = nullptr;
-    this->_source_ptr_flags = {};
-    this->_source_text_length = 0;
-  }
-  RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_keyword == rq::Keyword::I_NONE,
-              "keyword must not already be set");
-    this->_keyword = keyword;
-  }
-  RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_keyword != rq::Keyword::I_NONE,
-              "keyword must already be set");
-    this->_keyword = keyword;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterMark() const {
-    return rq::getIsParameterMark(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
-    return rq::getIsLiteral(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedLeft() const {
-    return rq::getHasUnquotedLeft(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedRight() const {
-    return rq::getHasUnquotedRight(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConverging() const {
-    return rq::getIsConverging(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInternal() const {
-    return rq::getIsInternal(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatementBranches() const {
-    return rq::getHasStatementBranches(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNonStatementBranches() const {
-    return rq::getHasNonStatementBranches(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
-    return rq::getSituatedAscribe(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Situation getAttributeSituation() const {
-    return rq::getAttributeSituation(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind getChainKind() const {
-    return rq::getChainKind(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
-    return rq::getCanBeChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingChainLink() const {
-    return rq::getCanBeStartingChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingChainLink() const {
-    return rq::getCanBeContinuingChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
-    return rq::getCanBeFinishingChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAllChainLink() const {
-    return rq::getCanBeAllChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainLink() const {
-    return rq::getCanBeIfChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
-    return rq::getCanBeArmChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
-  getUniversalized(rq::Situation situation) const {
-    return rq::getUniversalized(this->getKeyword(), situation);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
-    return rq::getIsUniversalizable(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
-    return rq::getIsNone(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTrunk() const {
-    return rq::getCanBeTrunk(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatement() const {
-    return rq::getCanBeStatement(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRValue() const {
-    return rq::getCanBeRValue(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLValue() const {
-    return rq::getCanBeLValue(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
-    return rq::getCanBeReflection(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArgument() const {
-    return rq::getCanBeArgument(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeParameter() const {
-    return rq::getCanBeParameter(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeBinding() const {
-    return rq::getCanBeBinding(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolPath() const {
-    return rq::getCanBeSymbolPath(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
-    return rq::getCanBeAscription(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTypeAttribute() const {
-    return rq::getCanBeTypeAttribute(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolAttribute() const {
-    return rq::getCanBeSymbolAttribute(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
-    return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeArithmeticSequenceCondition() const {
-    return rq::getCanBeArithmeticSequenceCondition(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep() const {
-    return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeSituation(rq::Situation situation) const {
-    return rq::getCanBeSituation(this->getKeyword(), situation);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
-    return rq::getIsEvaluatableName(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolAttribute
-  getSymbolAttribute() const {
-    return rq::getSymbolAttribute(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute getTypeAttribute() const {
-    return rq::getTypeAttribute(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
-    RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
-    return rq::getHasAll(this->_source_ptr_flags.getFlags(),
-                         rq::ExpressionSourceFlags::INSERTED);
-  }
-  RQ_ALWAYS_INLINE void setIsInserted() {
-    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::INSERTED);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSituatorError() const {
-    return rq::getHasAll(this->_source_ptr_flags.getFlags(),
-                         rq::ExpressionSourceFlags::SITUATOR_ERROR);
-  }
-  RQ_ALWAYS_INLINE void setHasSituatorError() {
-    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
-    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::HEADER);
-  }
-  void RQ_ALWAYS_INLINE setIsHeader() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::HEADER);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
-    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::CHAINLINK);
-  }
-  void RQ_ALWAYS_INLINE setIsChainLink() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::CHAINLINK);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
-    return this->_source_ptr_flags.getPtr() != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
-    RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
-    return llvm::StringRef(this->_source_ptr_flags.getPtr(),
-                           this->_source_text_length);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const char *getSourceTextPtr() const {
-    return this->_source_ptr_flags.getPtr();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSourceTextLength() const {
-    return this->_source_text_length;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBegin() const {
-    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
-    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() +
-                                       this->_source_text_length);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
-    return llvm::SMRange(this->getLlvmSourceBegin(), this->getLlvmSourceEnd());
-  }
-  RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
-    RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
-    RQ_ASSERT(!source.empty(), "source text is empty");
-    this->_source_ptr_flags.setPtr(source.data());
-    this->_source_text_length = static_cast<unsigned>(source.size());
-  }
-  template <typename SourceParam>
-  RQ_ALWAYS_INLINE void setSource(const SourceParam &source) {
-    this->setSource(source.getSourceText());
-  }
-  template <typename FirstSourceParam, typename LastSourceParam>
-  inline void setSource(const FirstSourceParam &first,
-                        const LastSourceParam &last) {
-    RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
-    rq::assignSingleValue(this->_source_ptr_flags.getPtr(),
-                          first.getSourceTextPtr());
-    this->_source_text_length = rq::getSourceLengthBetween(first, last);
-  }
-  template <typename SourceParam>
-  inline void extendSourceOver(const SourceParam &source) {
-    RQ_ASSERT(this->getHasSourceText(), "expression source not set");
-    if (source.getSourceTextPtr() >= this->_source_ptr_flags.getPtr()) {
-      this->_source_text_length = rq::getSourceLengthBetween(*this, source);
-    } else {
-      this->_source_ptr_flags.setPtr(source.getSourceTextPtr());
-      this->_source_text_length = rq::getSourceLengthBetween(source, *this);
+    [[nodiscard]] inline bool getHasOpaque(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::OPAQUE);
     }
-  }
-  RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
-    return this->getSourceTextPtr();
-  }
-  RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
-    return this->getSourceTextPtr() + this->getSourceTextLength();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const char *getEndSourceTextPtr() const {
-    if (this->getSourceTextLength() == 0) {
-      return this->getSourceTextPtr();
-    }
-    return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
-  }
-  RQ_ALWAYS_INLINE void setSourceAt(const char *source_ptr) {
-    rq::assignSingleValue(this->_source_ptr_flags.getPtr(), source_ptr);
-  }
-  template <typename SourceParam>
-  RQ_ALWAYS_INLINE void setSourceBefore(const SourceParam &source) {
-    this->setSourceAt(source.getBeforeSourceTextPtr());
-  }
-  template <typename SourceParam>
-  inline void setSourceAfter(const SourceParam &source) {
-    this->setSourceAt(source.getAfterSourceTextPtr());
-  }
-  template <typename SourceParam>
-  inline void setSourceAtEnd(const SourceParam &source) {
-    this->setSourceAt(source.getEndSourceTextPtr());
-  }
-  // NOTE: no getBranchCount and getNextCount because bad performance!
-  RQ_ALWAYS_INLINE rq::Expression &getBranch() {
-    return rq::dereferencePtr(this->_branch_ptr);
-  }
-  RQ_ALWAYS_INLINE const rq::Expression &getBranch() const {
-    return rq::dereferencePtr(this->_branch_ptr);
-  }
-  RQ_ALWAYS_INLINE rq::Expression &getNext() {
-    return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
-  }
-  RQ_ALWAYS_INLINE const rq::Expression &getNext() const {
-    return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
-  }
-  RQ_ALWAYS_INLINE rq::Expression *getBranchPtr() { return this->_branch_ptr; }
-  RQ_ALWAYS_INLINE const rq::Expression *getBranchPtr() const {
-    return this->_branch_ptr;
-  }
-  RQ_ALWAYS_INLINE rq::Expression *getNextPtr() {
-    return this->_next_ptr_flags.getPtr();
-  }
-  RQ_ALWAYS_INLINE const rq::Expression *getNextPtr() const {
-    return this->_next_ptr_flags.getPtr();
-  }
-  // TODO: get rid of the getLastNext and getLastBranch functions to avoid
-  // excessive pointer chasing
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastNext() {
-    rq::Expression *expression_ptr = this;
-    while (expression_ptr->getNextPtr() != nullptr) {
-      expression_ptr = expression_ptr->getNextPtr();
-    }
-    return rq::dereferencePtr(expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLastNext() const {
-    const rq::Expression *expression_ptr = this;
-    while (expression_ptr->getNextPtr() != nullptr) {
-      expression_ptr = expression_ptr->getNextPtr();
-    }
-    return rq::dereferencePtr(expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastBranch() {
-    RQ_ASSERT(this->getHasBranch(), "does not have branch");
-    rq::Expression *expression_ptr = this->_branch_ptr;
-    while (expression_ptr->getNextPtr() != nullptr) {
-      expression_ptr = expression_ptr->getNextPtr();
-    }
-    return rq::dereferencePtr(expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLastBranch() const {
-    RQ_ASSERT(this->getHasBranch(), "does not have branch");
-    rq::Expression *expression_ptr = this->_branch_ptr;
-    while (expression_ptr->getNextPtr() != nullptr) {
-      expression_ptr = expression_ptr->getNextPtr();
-    }
-    return rq::dereferencePtr(expression_ptr);
-  }
-  RQ_ALWAYS_INLINE void setBranch(rq::Expression &branch) {
-    rq::assignSingleValue(this->_branch_ptr, &branch);
-  }
-  RQ_ALWAYS_INLINE void setNext(rq::Expression &next) {
-    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
-  }
-  RQ_ALWAYS_INLINE void setBranch(rq::Expression *branch_ptr) {
-    rq::assignSingleValue(this->_branch_ptr, branch_ptr);
-  }
-  RQ_ALWAYS_INLINE void setNext(rq::Expression *next_ptr) {
-    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), next_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceBranch(rq::Expression &branch) {
-    rq::Expression &replaced_branch = this->getBranch();
-    this->_branch_ptr = &branch;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceNext(rq::Expression &next) {
-    rq::Expression &replaced_next = this->getNext();
-    this->_next_ptr_flags.setPtr(&next);
-    return replaced_next;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceBranch(rq::Expression *branch_ptr) {
-    rq::Expression &replaced_branch = this->getBranch();
-    this->_branch_ptr = branch_ptr;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceNext(rq::Expression *next_ptr) {
-    rq::Expression &replaced_next = this->getNext();
-    this->_next_ptr_flags.setPtr(next_ptr);
-    return replaced_next;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceBranchPtr(rq::Expression &branch) {
-    rq::Expression *replaced_branch = this->_branch_ptr;
-    this->_branch_ptr = &branch;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceNextPtr(rq::Expression &next) {
-    rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(&next);
-    return replaced_next_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceBranchPtr(rq::Expression *branch_ptr) {
-    rq::Expression *replaced_branch = this->_branch_ptr;
-    this->_branch_ptr = branch_ptr;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceNextPtr(rq::Expression *next_ptr) {
-    rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(next_ptr);
-    return replaced_next_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
-    return this->_branch_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
-    return this->_next_ptr_flags.getPtr() != nullptr;
-  }
-  [[nodiscard]] inline rq::Expression &popBranch() {
-    RQ_ASSERT(this->_branch_ptr != nullptr, "does not have branch");
-    rq::Expression *old_branch_ptr = this->_branch_ptr;
-    this->_branch_ptr = nullptr;
-    return rq::dereferencePtr(old_branch_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *popBranchPtr() {
-    rq::Expression *old_branch_ptr = this->_branch_ptr;
-    this->_branch_ptr = nullptr;
-    return old_branch_ptr;
-  }
-  [[nodiscard]] inline rq::Expression &popNext() {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(nullptr);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *popNextPtr() {
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(nullptr);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression &changeNext(rq::Expression &new_next) {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(&new_next);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression &
-  changeNext(rq::Expression *new_next_ptr) {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(new_next_ptr);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *changeNextPtr(rq::Expression &new_next) {
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(&new_next);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression *
-  changeNextPtr(rq::Expression *new_next_ptr) {
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(new_next_ptr);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression &mergeAndPopBranch() {
-    rq::Expression &branch = this->popBranch();
-    if (this->getHasNext()) {
-      rq::Expression &branch_last_next = branch.getLastNext();
-      branch_last_next.setNext(this->popNext());
-    }
-    this->clear();
-    this->setKeyword(branch.getKeyword());
-    if (branch.getHasBranch()) {
-      this->setBranch(branch.popBranch());
-    }
-    if (branch.getHasNext()) {
-      this->setNext(branch.popNext());
-    }
-    this->setSource(branch);
-    branch.clear();
-    return branch;
-  }
-  [[nodiscard]] inline rq::Expression &mergeAndPopNext() {
-    rq::Expression &next = this->popNext();
-    RQ_ASSERT(!this->getHasBranch(), "has branch");
-    this->clear();
-    this->setKeyword(next.getKeyword());
-    if (next.getHasBranch()) {
-      this->setBranch(next.popBranch());
-    }
-    if (next.getHasNext()) {
-      this->setNext(next.popNext());
-    }
-    this->setSource(next);
-    next.clear();
-    return next;
-  }
-  [[nodiscard]] inline rq::Expression &getUnascribed() {
-    if (this->getCanBeAscription()) {
-      return this->getBranch().getUnascribed();
-    }
-    return *this;
-  }
-  [[nodiscard]] inline const rq::Expression &getUnascribed() const {
-    if (this->getCanBeAscription()) {
-      return this->getBranch().getUnascribed();
-    }
-    return *this;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
-      getInclusiveNextSubrange() {
-    return std::ranges::subrange(rq::ExpressionIterator(this),
-                                 rq::ExpressionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator,
-                            rq::ConstExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
-      getInclusiveNextSubrange() const {
-    return std::ranges::subrange(rq::ConstExpressionIterator(this),
-                                 rq::ConstExpressionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
-      getNextSubrange() {
-    return std::ranges::subrange(rq::ExpressionIterator(this->getNextPtr()),
-                                 rq::ExpressionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator,
-                            rq::ConstExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
-      getNextSubrange() const {
-    return std::ranges::subrange(
-        rq::ConstExpressionIterator(this->getNextPtr()),
-        rq::ConstExpressionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
-      getBranchSubrange() {
-    return std::ranges::subrange(rq::ExpressionIterator(this->getBranchPtr()),
-                                 rq::ExpressionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator,
-                            rq::ConstExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
-      getBranchSubrange() const {
-    return std::ranges::subrange(
-        rq::ConstExpressionIterator(this->getBranchPtr()),
-        rq::ConstExpressionIterator());
-  }
-};
 
-rq::ExpressionIterator &ExpressionIterator::operator++() {
-  this->_expression_ptr =
-      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
-  return *this;
-}
+    [[nodiscard]] inline bool getHasOutside(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::OUTSIDE);
+    }
 
-inline void
-SymbolAttributeFlagsFactory::addAttribute(const rq::Expression &expression) {
-  RQ_ASSERT(expression.getCanBeSymbolAttribute(), "not symbol attribute");
-  const rq::SymbolAttribute attribute = expression.getSymbolAttribute();
-  RQ_ASSERT(!rq::getHasAttribute(this->_flags, attribute),
-            "duplicate attribute");
-  this->_flags |= rq::getFlags(attribute);
-  switch (expression.getKeyword()) {
-  case rq::Keyword::CAPTURE:
-    this->_capture_ptr = &expression;
-    break;
-  case rq::Keyword::OVERRIDE:
-    this->_override_ptr = &expression;
-    break;
-  case rq::Keyword::POSITION:
-    this->_position_ptr = &expression;
-    break;
-  case rq::Keyword::MANGLE:
-    this->_mangle_ptr = &expression;
-    break;
-  case rq::Keyword::LABEL:
-    this->_label_ptr = &expression;
-    break;
-  case rq::Keyword::TEMPLATE:
-    this->_template_ptr = &expression;
-    break;
-  case rq::Keyword::DEPRECIATED:
-    this->_depreciated_ptr = &expression;
-    break;
-  case rq::Keyword::MUTATE_WITH:
-    this->_mutate_with_ptr = &expression;
-    break;
-  default:
-    break;
-  }
-}
+    [[nodiscard]] inline bool getHasStatic(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::STATIC);
+    }
 
-inline void
-SymbolAttributeFlagsFactory::addAllAttributres(const rq::Expression &ascribed) {
-  for (const rq::Expression &attribute : ascribed.getNextSubrange()) {
-    this->addAttribute(attribute);
-  }
-}
+    [[nodiscard]] inline bool getHasCapture(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::CAPTURE);
+    }
 
-rq::ExpressionIterator ExpressionIterator::operator++(int) { return ++*this; }
+    [[nodiscard]] inline bool getHasEager(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::EAGER);
+    }
 
-rq::ConstExpressionIterator &ConstExpressionIterator::operator++() {
-  this->_expression_ptr =
-      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
-  return *this;
-}
+    [[nodiscard]] inline bool getHasMayParent(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_PARENT);
+    }
 
-rq::ConstExpressionIterator ConstExpressionIterator::operator++(int) {
-  return ++*this;
-}
+    [[nodiscard]] inline bool getHasParent(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::PARENT);
+    }
 
-} // namespace rq
+    [[nodiscard]] inline bool getHasAbstract(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::ABSTRACT);
+    }
+
+    [[nodiscard]] inline bool getHasVirtual(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::VIRTUAL);
+    }
+
+    [[nodiscard]] inline bool getHasOverride(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::OVERRIDE);
+    }
+
+    [[nodiscard]] inline bool getHasPosition(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::POSITION);
+    }
+
+    [[nodiscard]] inline bool getHasMangle(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::MANGLE);
+    }
+
+    [[nodiscard]] inline bool getHasPack(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::PACK);
+    }
+
+    [[nodiscard]] inline bool getHasLabel(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::LABEL);
+    }
+
+    [[nodiscard]] inline bool getHasTemplate(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::TEMPLATE);
+    }
+
+    [[nodiscard]] inline bool getHasLikely(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::LIKELY);
+    }
+
+    [[nodiscard]] inline bool getHasUnlikely(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::UNLIKELY);
+    }
+
+    [[nodiscard]] inline bool getHasDepreciated(
+        rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::DEPRECIATED);
+    }
+
+    [[nodiscard]] inline bool getHasExport(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::EXPORT);
+    }
+
+    [[nodiscard]] inline bool getHasPublic(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::PUBLIC);
+    }
+
+    [[nodiscard]] inline bool getHasProtected(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::PROTECTED);
+    }
+
+    [[nodiscard]] inline bool getHasMayCopy(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_COPY);
+    }
+
+    [[nodiscard]] inline bool getHasMayMove(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::MAY_MOVE);
+    }
+
+    [[nodiscard]] inline bool getHasMutateWith(rq::SymbolAttributeFlags flags) {
+      return rq::getHasAll(flags, rq::SymbolAttributeFlags::MUTATE_WITH);
+    }
+
+    [[nodiscard]] inline bool getHasAttribute(rq::SymbolAttributeFlags flags,
+                                              rq::SymbolAttribute attribute) {
+      rq::SymbolAttributeFlags attribute_flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, attribute_flags);
+    }
+
+    struct Expression;
+
+    struct SymbolAttributeFlagsFactory final {
+      using Self = rq::SymbolAttributeFlagsFactory;
+
+      rq::SymbolAttributeFlags _flags{};
+      const rq::Expression *_capture_ptr{nullptr};
+      const rq::Expression *_override_ptr{nullptr};
+      const rq::Expression *_position_ptr{nullptr};
+      const rq::Expression *_mangle_ptr{nullptr};
+      const rq::Expression *_label_ptr{nullptr};
+      const rq::Expression *_template_ptr{nullptr};
+      const rq::Expression *_depreciated_ptr{nullptr};
+      const rq::Expression *_mutate_with_ptr{nullptr};
+
+      SymbolAttributeFlagsFactory() = default;
+      inline void addAttribute(const rq::Expression &expression);
+      inline void addAllAttributres(const rq::Expression &ascribed);
+      [[nodiscard]] rq::SymbolAttributeFlags getFlags() const {
+        return this->_flags;
+      }
+      [[nodiscard]] bool getHasOpaque() const {
+        return rq::getHasOpaque(this->_flags);
+      }
+      [[nodiscard]] bool getHasOutside() const {
+        return rq::getHasOutside(this->_flags);
+      }
+      [[nodiscard]] bool getHasStatic() const {
+        return rq::getHasStatic(this->_flags);
+      }
+      [[nodiscard]] bool getHasCapture() const {
+        return rq::getHasCapture(this->_flags);
+      }
+      [[nodiscard]] bool getHasEager() const {
+        return rq::getHasEager(this->_flags);
+      }
+      [[nodiscard]] bool getHasMayParent() const {
+        return rq::getHasMayParent(this->_flags);
+      }
+      [[nodiscard]] bool getHasParent() const {
+        return rq::getHasParent(this->_flags);
+      }
+      [[nodiscard]] bool getHasAbstract() const {
+        return rq::getHasAbstract(this->_flags);
+      }
+      [[nodiscard]] bool getHasVirtual() const {
+        return rq::getHasVirtual(this->_flags);
+      }
+      [[nodiscard]] bool getHasOverride() const {
+        return rq::getHasOverride(this->_flags);
+      }
+      [[nodiscard]] bool getHasPosition() const {
+        return rq::getHasPosition(this->_flags);
+      }
+      [[nodiscard]] bool getHasMangle() const {
+        return rq::getHasMangle(this->_flags);
+      }
+      [[nodiscard]] bool getHasPack() const {
+        return rq::getHasPack(this->_flags);
+      }
+      [[nodiscard]] bool getHasLabel() const {
+        return rq::getHasLabel(this->_flags);
+      }
+      [[nodiscard]] bool getHasTemplate() const {
+        return rq::getHasTemplate(this->_flags);
+      }
+      [[nodiscard]] bool getHasLikely() const {
+        return rq::getHasLikely(this->_flags);
+      }
+      [[nodiscard]] bool getHasUnlikely() const {
+        return rq::getHasUnlikely(this->_flags);
+      }
+      [[nodiscard]] bool getHasDepreciated() const {
+        return rq::getHasDepreciated(this->_flags);
+      }
+      [[nodiscard]] bool getHasExport() const {
+        return rq::getHasExport(this->_flags);
+      }
+      [[nodiscard]] bool getHasPublic() const {
+        return rq::getHasPublic(this->_flags);
+      }
+      [[nodiscard]] bool getHasProtected() const {
+        return rq::getHasProtected(this->_flags);
+      }
+      [[nodiscard]] bool getHasMayCopy() const {
+        return rq::getHasMayCopy(this->_flags);
+      }
+      [[nodiscard]] bool getHasMayMove() const {
+        return rq::getHasMayMove(this->_flags);
+      }
+      [[nodiscard]] bool getHasMutateWith() const {
+        return rq::getHasMutateWith(this->_flags);
+      }
+      [[nodiscard]] const rq::Expression &getCapture() const {
+        RQ_ASSERT(this->getHasCapture(), "no capture");
+        return rq::dereferencePtr(this->_capture_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getOverride() const {
+        RQ_ASSERT(this->getHasOverride(), "no override");
+        return rq::dereferencePtr(this->_override_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getPosition() const {
+        RQ_ASSERT(this->getHasPosition(), "no position");
+        return rq::dereferencePtr(this->_position_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getMangle() const {
+        RQ_ASSERT(this->getHasMangle(), "no mangle");
+        return rq::dereferencePtr(this->_mangle_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getLabel() const {
+        RQ_ASSERT(this->getHasLabel(), "no label");
+        return rq::dereferencePtr(this->_label_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getTemplate() const {
+        RQ_ASSERT(this->getHasTemplate(), "no template");
+        return rq::dereferencePtr(this->_template_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getDepreciated() const {
+        RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
+        return rq::dereferencePtr(this->_depreciated_ptr);
+      }
+      [[nodiscard]] const rq::Expression &getMutateWith() const {
+        RQ_ASSERT(this->getHasMutateWith(), "no mutate_with");
+        return rq::dereferencePtr(this->_mutate_with_ptr);
+      }
+    };
+
+    enum class TypeAttribute : std::uint_fast8_t {
+      NONE,
+      MUTABLE,
+      CONSTANT,
+      PARTIALLY_MUTABLE,
+      VOLATILE,
+      ATOMIC,
+      NULL_TERMINATED,
+      MAY_DISCARD,
+      DEBUG_TRAP_ON_PANIC
+    };
+
+    [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
+      using namespace rq;
+      using TA = TypeAttribute;
+      switch (attribute) {
+      case TA::NONE:
+        return "none";
+      case TA::MUTABLE:
+        return "mutable";
+      case TA::CONSTANT:
+        return "constant";
+      case TA::PARTIALLY_MUTABLE:
+        return "partially_mutable";
+      case TA::VOLATILE:
+        return "volatile";
+      case TA::ATOMIC:
+        return "atomic";
+      case TA::NULL_TERMINATED:
+        return "null_terminated";
+      case TA::MAY_DISCARD:
+        return "may_discard";
+      case TA::DEBUG_TRAP_ON_PANIC:
+        return "debug_trap_on_panic";
+      }
+      RQ_UNREACHABLE();
+    }
+
+    [[nodiscard]] inline rq::TypeAttribute getTypeAttribute(
+        rq::Keyword keyword) {
+      using namespace rq;
+      using K = Keyword;
+      using TA = TypeAttribute;
+      switch (keyword) {
+      case K::S_MUTABLE:
+        return TA::MUTABLE;
+      case K::S_CONSTANT:
+        return TA::CONSTANT;
+      case K::PARTIALLY_MUTABLE:
+        return TA::PARTIALLY_MUTABLE;
+      case K::VOLATILE:
+        return TA::VOLATILE;
+      case K::ATOMIC:
+        return TA::ATOMIC;
+      case K::NULL_TERMINATED:
+        return TA::NULL_TERMINATED;
+      case K::MAY_DISCARD:
+        return TA::MAY_DISCARD;
+      case K::DEBUG_TRAP_ON_PANIC:
+        return TA::DEBUG_TRAP_ON_PANIC;
+      default:
+        break;
+      }
+      return TA::NONE;
+    }
+
+    enum class TypeAttributeFlags : std::uint32_t {
+      NONE = 0,
+      MUTABLE = rq::getBit(15),
+      CONSTANT = rq::getBit(14),
+      PARTIALLY_MUTABLE = rq::getBit(13),
+      VOLATILE = rq::getBit(12),
+      ATOMIC = rq::getBit(11),
+      NULL_TERMINATED = rq::getBit(10),
+      MAY_DISCARD = rq::getBit(9),
+      DEBUG_TRAP_ON_PANIC = rq::getBit(8),
+      MUTATION_MASK = 0xFFFF
+    };
+
+    template <>
+    struct is_flags<rq::TypeAttributeFlags> final : std::true_type {};
+
+    enum class MutationFlags : std::uint16_t {
+      NONE = 0,
+      INDEPENDENT_CLASS = rq::getBit(0),
+      USER_CLASS_MASK = 0xFFFE
+    };
+
+    template <> struct is_flags<rq::MutationFlags> final : std::true_type {};
+
+    static constexpr unsigned MAX_MUTATION_COUNT = 16;
+
+    [[nodiscard]] inline rq::TypeAttributeFlags getFlags(
+        rq::TypeAttribute attribute) {
+      using namespace rq;
+      using TA = TypeAttribute;
+      using TF = TypeAttributeFlags;
+      switch (attribute) {
+      case TA::NONE:
+        return TF::NONE;
+      case TA::MUTABLE:
+        return TF::MUTABLE;
+      case TA::CONSTANT:
+        return TF::CONSTANT;
+      case TA::PARTIALLY_MUTABLE:
+        return TF::PARTIALLY_MUTABLE;
+      case TA::VOLATILE:
+        return TF::VOLATILE;
+      case TA::ATOMIC:
+        return TF::ATOMIC;
+      case TA::NULL_TERMINATED:
+        return TF::NULL_TERMINATED;
+      case TA::MAY_DISCARD:
+        return TF::MAY_DISCARD;
+      case TA::DEBUG_TRAP_ON_PANIC:
+        return TF::DEBUG_TRAP_ON_PANIC;
+      }
+      return TF::NONE;
+    }
+
+    [[nodiscard]] inline bool getHasMutable(rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE);
+    }
+
+    [[nodiscard]] inline bool getHasConstant(rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT);
+    }
+
+    [[nodiscard]] inline bool getHasPartiallyMutable(
+        rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
+    }
+
+    [[nodiscard]] inline bool getHasVolatile(rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILE);
+    }
+
+    [[nodiscard]] inline bool getHasAtomic(rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMIC);
+    }
+
+    [[nodiscard]] inline bool getHasNullTerminated(
+        rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATED);
+    }
+
+    [[nodiscard]] inline bool getHasMayDiscard(rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::MAY_DISCARD);
+    }
+
+    [[nodiscard]] inline bool getHasDebugTrapOnPanic(
+        rq::TypeAttribute attribute) {
+      rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+      return rq::getHasAll(flags, rq::TypeAttributeFlags::DEBUG_TRAP_ON_PANIC);
+    }
+
+    [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttribute(
+        rq::TypeAttributeFlags flags, rq::TypeAttribute attribute) {
+      return rq::getHasAll(flags, rq::getFlags(attribute));
+    }
+
+    [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability(
+        rq::TypeAttributeFlags flags) {
+      return rq::getHasSome(flags,
+                            rq::TypeAttributeFlags::MUTABLE |
+                                rq::TypeAttributeFlags::CONSTANT |
+                                rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
+    }
+
+    [[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags getMutationFlags(
+        rq::TypeAttributeFlags flags) {
+      RQ_ASSERT(rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE),
+                "not partially mutable");
+      return static_cast<rq::MutationFlags>(
+          rq::getMaskValue(flags, rq::TypeAttributeFlags::MUTATION_MASK));
+    }
+
+    [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(
+        rq::TypeAttributeFlags flags) {
+      if (rq::getHasMutability(flags)) {
+        unsigned mutability_count = 0;
+        if (rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE)) {
+          mutability_count++;
+        }
+        if (rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT)) {
+          mutability_count++;
+        }
+        if (rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
+          mutability_count++;
+        }
+        if (mutability_count != 1) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutabilityClass(
+        rq::TypeAttributeFlags flags) {
+      if (!rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
+        rq::MutationFlags classes = rq::getMutationFlags(flags);
+        if (classes != rq::MutationFlags::NONE) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    enum class ArithmeticSequenceStep : std::uint_fast8_t {
+      NONE,
+      ADD,
+      SUBTRACT,
+      MULTIPLY,
+      DIVIDE,
+      MODULUS
+    };
+
+    [[nodiscard]] inline llvm::StringRef getDescription(
+        rq::ArithmeticSequenceStep step) {
+      using namespace rq;
+      using ASS = ArithmeticSequenceStep;
+      switch (step) {
+      case ASS::NONE:
+        return "no step";
+      case ASS::ADD:
+        return "add step";
+      case ASS::SUBTRACT:
+        return "subtract step";
+      case ASS::MULTIPLY:
+        return "multiply step";
+      case ASS::DIVIDE:
+        return "divide step";
+      case ASS::MODULUS:
+        return "modulus step";
+      }
+      RQ_UNREACHABLE();
+    }
+
+    [[nodiscard]] inline rq::ArithmeticSequenceStep getArithmeticSequenceStep(
+        rq::Keyword keyword) {
+      using namespace rq;
+      using ASS = ArithmeticSequenceStep;
+      using K = Keyword;
+      switch (keyword) {
+      case K::S_ARITHMETIC_SEQUENCE_STEP_ADD:
+        return ASS::ADD;
+      case K::S_ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
+        return ASS::SUBTRACT;
+      case K::S_ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
+        return ASS::MULTIPLY;
+      case K::S_ARITHMETIC_SEQUENCE_STEP_DIVIDE:
+        return ASS::DIVIDE;
+      case K::S_ARITHMETIC_SEQUENCE_STEP_MODULUS:
+        return ASS::MODULUS;
+      default:
+        break;
+      }
+      RQ_UNREACHABLE();
+    }
+
+    enum class ArithmeticSequenceCondition : std::uint_fast8_t {
+      NONE,
+      LESS,
+      LESS_EQUAL,
+      GREATER,
+      GREATER_EQUAL,
+      EQUAL,
+      NOT_EQUAL
+    };
+
+    [[nodiscard]] inline llvm::StringRef getDescription(
+        rq::ArithmeticSequenceCondition condition) {
+      using namespace rq;
+      using ASC = ArithmeticSequenceCondition;
+      switch (condition) {
+      case ASC::NONE:
+        return "no condition";
+      case ASC::LESS:
+        return "less condition";
+      case ASC::LESS_EQUAL:
+        return "less equal condition";
+      case ASC::GREATER:
+        return "greater condition";
+      case ASC::GREATER_EQUAL:
+        return "greater equal condition";
+      case ASC::EQUAL:
+        return "equal condition";
+      case ASC::NOT_EQUAL:
+        return "not equal condition";
+      }
+      RQ_UNREACHABLE();
+    }
+
+    [[nodiscard]] inline rq::ArithmeticSequenceCondition
+    getArithmeticSequenceCondition(rq::Keyword keyword) {
+      using namespace rq;
+      using ASC = ArithmeticSequenceCondition;
+      using K = Keyword;
+      switch (keyword) {
+      case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS:
+        return ASC::LESS;
+      case K::S_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL:
+        return ASC::LESS_EQUAL;
+      case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER:
+        return ASC::GREATER;
+      case K::S_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL:
+        return ASC::GREATER_EQUAL;
+      case K::S_ARITHMETIC_SEQUENCE_CONDITION_EQUAL:
+        return ASC::EQUAL;
+      case K::S_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL:
+        return ASC::NOT_EQUAL;
+      default:
+        break;
+      }
+      RQ_UNREACHABLE();
+    }
+
+    template <typename SourceAParam, typename SourceBParam>
+    [[nodiscard]] inline unsigned getSourceLengthBetween(
+        const SourceAParam &first, const SourceBParam &last) {
+      RQ_ASSERT(first.getSourceTextPtr() != nullptr, "first must have source");
+      RQ_ASSERT(last.getSourceTextPtr() != nullptr, "last must have source");
+      RQ_ASSERT(first.getSourceTextPtr() <= last.getSourceTextPtr(),
+                "last source must start after first source");
+      return static_cast<unsigned>(last.getSourceTextPtr() -
+                                   first.getSourceTextPtr()) +
+             last.getSourceTextLength();
+    }
+
+    struct Expression;
+
+    struct ExpressionIterator final {
+      using Self = rq::ExpressionIterator;
+      using value_type = rq::Expression;
+      using reference = rq::Expression &;
+      using pointer = rq::Expression *;
+      using difference_type = std::ptrdiff_t;
+      using iterator_category = std::forward_iterator_tag;
+
+      rq::Expression *_expression_ptr = nullptr;
+
+      ExpressionIterator() = default;
+      ExpressionIterator(rq::Expression *expression_ptr)
+          : _expression_ptr(expression_ptr) {}
+      ExpressionIterator(const Self &) = default;
+      ExpressionIterator(Self &&) = default;
+      ~ExpressionIterator() = default;
+      Self &operator=(const Self &) = default;
+      Self &operator=(Self &&) = default;
+      RQ_ALWAYS_INLINE Self &operator++();
+      RQ_ALWAYS_INLINE Self operator++(int);
+      [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+        return this->_expression_ptr == it._expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+        return this->_expression_ptr != it._expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &operator*() {
+        return rq::dereferencePtr(this->_expression_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
+        return rq::dereferencePtr(this->_expression_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *operator->() {
+        return this->_expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
+        return this->_expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+        return this->_expression_ptr == nullptr;
+      }
+    };
+
+    struct ConstExpressionIterator final {
+      using Self = rq::ConstExpressionIterator;
+      using value_type = const rq::Expression;
+      using reference = const rq::Expression &;
+      using pointer = rq::Expression *;
+      using difference_type = std::ptrdiff_t;
+      using iterator_category = std::forward_iterator_tag;
+
+      const rq::Expression *_expression_ptr = nullptr;
+
+      ConstExpressionIterator() = default;
+      ConstExpressionIterator(const rq::Expression *expression_ptr)
+          : _expression_ptr(expression_ptr) {}
+      ConstExpressionIterator(const Self &) = default;
+      ConstExpressionIterator(Self &&) = default;
+      ~ConstExpressionIterator() = default;
+      Self &operator=(const Self &) = default;
+      Self &operator=(Self &&) = default;
+      RQ_ALWAYS_INLINE Self &operator++();
+      RQ_ALWAYS_INLINE Self operator++(int);
+      [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+        return this->_expression_ptr == it._expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+        return this->_expression_ptr != it._expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
+        return rq::dereferencePtr(this->_expression_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
+        return this->_expression_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+        return this->_expression_ptr == nullptr;
+      }
+    };
+
+    enum class ExpressionNextFlags : std::uint8_t {
+      NONE = 0,
+      // NOTE: a "chain-link" expression is a statement that is linked to the
+      // next and not seperated with semicolons. Used in things like
+      // if->else_if->else chains.
+      CHAINLINK = rq::getBit(0),
+      // NOTE: a "header" expression is one that terminates with a comma in a
+      // semicolon terminating context (usually before all statements)
+      HEADER = rq::getBit(1)
+    };
+
+    template <>
+    struct is_flags<rq::ExpressionNextFlags> final : std::true_type {};
+
+    enum class ExpressionSourceFlags : std::uint8_t {
+      NONE = 0,
+      // NOTE: an "inserted" expression is one that was not present in the
+      // source and was inserted into the AST by the compiler
+      INSERTED = rq::getBit(0),
+      // NOTE: this flag is set if there is an error with situating this
+      // expression
+      SITUATOR_ERROR = rq::getBit(1)
+    };
+
+    template <>
+    struct is_flags<rq::ExpressionSourceFlags> final : std::true_type {};
+
+    struct Expression final {
+      using Self = rq::Expression;
+
+      rq::Keyword _keyword{rq::Keyword::I_NONE};
+      rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextFlags>
+          _next_ptr_flags{};
+      rq::Expression *_branch_ptr{nullptr};
+      rq::PtrWithFlags<const char, 1, rq::ExpressionSourceFlags>
+          _source_ptr_flags{};
+      unsigned _source_text_length{0};
+
+      Expression() = default;
+      Expression(Self &) = delete;
+      Expression(Self &&) = delete;
+      Self &operator=(const Self &) = delete;
+      Self &operator=(Self &&) = delete;
+      ~Expression() = default;
+      [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+        return this == &rhs;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+        return this != &rhs;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
+        return this->_keyword;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
+        return rq::getName(this->_keyword);
+      }
+      RQ_ALWAYS_INLINE void clear() {
+        this->_keyword = rq::Keyword::I_NONE;
+        this->_next_ptr_flags = {};
+        this->_branch_ptr = nullptr;
+        this->_source_ptr_flags = {};
+        this->_source_text_length = 0;
+      }
+      RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
+        RQ_ASSERT(this->_keyword == rq::Keyword::I_NONE,
+                  "keyword must not already be set");
+        this->_keyword = keyword;
+      }
+      RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
+        RQ_ASSERT(this->_keyword != rq::Keyword::I_NONE,
+                  "keyword must already be set");
+        this->_keyword = keyword;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterMark() const {
+        return rq::getIsParameterMark(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
+        return rq::getIsLiteral(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedLeft() const {
+        return rq::getHasUnquotedLeft(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedRight() const {
+        return rq::getHasUnquotedRight(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConverging() const {
+        return rq::getIsConverging(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInternal() const {
+        return rq::getIsInternal(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatementBranches() const {
+        return rq::getHasStatementBranches(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNonStatementBranches() const {
+        return rq::getHasNonStatementBranches(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
+        return rq::getSituatedAscribe(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Situation
+      getAttributeSituation() const {
+        return rq::getAttributeSituation(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind getChainKind() const {
+        return rq::getChainKind(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
+        return rq::getCanBeChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingChainLink() const {
+        return rq::getCanBeStartingChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingChainLink() const {
+        return rq::getCanBeContinuingChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
+        return rq::getCanBeFinishingChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAllChainLink() const {
+        return rq::getCanBeAllChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainLink() const {
+        return rq::getCanBeIfChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
+        return rq::getCanBeArmChainLink(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
+      getUniversalized(rq::Situation situation) const {
+        return rq::getUniversalized(this->getKeyword(), situation);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
+        return rq::getIsUniversalizable(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
+        return rq::getIsNone(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTrunk() const {
+        return rq::getCanBeTrunk(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatement() const {
+        return rq::getCanBeStatement(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRValue() const {
+        return rq::getCanBeRValue(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLValue() const {
+        return rq::getCanBeLValue(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
+        return rq::getCanBeReflection(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArgument() const {
+        return rq::getCanBeArgument(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeParameter() const {
+        return rq::getCanBeParameter(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeBinding() const {
+        return rq::getCanBeBinding(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolPath() const {
+        return rq::getCanBeSymbolPath(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
+        return rq::getCanBeAscription(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTypeAttribute() const {
+        return rq::getCanBeTypeAttribute(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolAttribute() const {
+        return rq::getCanBeSymbolAttribute(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool
+      getCanBeArithmeticSequenceStage() const {
+        return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool
+      getCanBeArithmeticSequenceCondition() const {
+        return rq::getCanBeArithmeticSequenceCondition(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool
+      getCanBeArithmeticSequenceStep() const {
+        return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeEncoding() const {
+        return rq::getCanBeEncoding(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeQuotedLiteral() const {
+        return rq::getCanBeQuotedLiteral(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInterpolatedStringElement() const {
+        return rq::getCanBeInterpolatedStringElement(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool
+      getCanBeSituation(rq::Situation situation) const {
+        return rq::getCanBeSituation(this->getKeyword(), situation);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
+        return rq::getIsEvaluatableName(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolAttribute
+      getSymbolAttribute() const {
+        return rq::getSymbolAttribute(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute
+      getTypeAttribute() const {
+        return rq::getTypeAttribute(this->getKeyword());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
+        RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
+        return rq::getHasAll(this->_source_ptr_flags.getFlags(),
+                             rq::ExpressionSourceFlags::INSERTED);
+      }
+      RQ_ALWAYS_INLINE void setIsInserted() {
+        this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::INSERTED);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSituatorError() const {
+        return rq::getHasAll(this->_source_ptr_flags.getFlags(),
+                             rq::ExpressionSourceFlags::SITUATOR_ERROR);
+      }
+      RQ_ALWAYS_INLINE void setHasSituatorError() {
+        this->_source_ptr_flags.addFlags(
+            rq::ExpressionSourceFlags::SITUATOR_ERROR);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
+        return rq::getHasAll(this->_next_ptr_flags.getFlags(),
+                             rq::ExpressionNextFlags::HEADER);
+      }
+      void RQ_ALWAYS_INLINE setIsHeader() {
+        this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::HEADER);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
+        return rq::getHasAll(this->_next_ptr_flags.getFlags(),
+                             rq::ExpressionNextFlags::CHAINLINK);
+      }
+      void RQ_ALWAYS_INLINE setIsChainLink() {
+        this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::CHAINLINK);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
+        return this->_source_ptr_flags.getPtr() != nullptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
+        RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
+        return llvm::StringRef(this->_source_ptr_flags.getPtr(),
+                               this->_source_text_length);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const char *getSourceTextPtr() const {
+        return this->_source_ptr_flags.getPtr();
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSourceTextLength() const {
+        return this->_source_text_length;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBegin() const {
+        return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
+        return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() +
+                                           this->_source_text_length);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
+        return llvm::SMRange(this->getLlvmSourceBegin(),
+                             this->getLlvmSourceEnd());
+      }
+      RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
+        RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
+        RQ_ASSERT(!source.empty(), "source text is empty");
+        this->_source_ptr_flags.setPtr(source.data());
+        this->_source_text_length = static_cast<unsigned>(source.size());
+      }
+      template <typename SourceParam>
+      RQ_ALWAYS_INLINE void setSource(const SourceParam &source) {
+        this->setSource(source.getSourceText());
+      }
+      template <typename FirstSourceParam, typename LastSourceParam>
+      inline void setSource(const FirstSourceParam &first,
+                            const LastSourceParam &last) {
+        RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
+        rq::assignSingleValue(this->_source_ptr_flags.getPtr(),
+                              first.getSourceTextPtr());
+        this->_source_text_length = rq::getSourceLengthBetween(first, last);
+      }
+      template <typename SourceParam>
+      inline void extendSourceOver(const SourceParam &source) {
+        RQ_ASSERT(this->getHasSourceText(), "expression source not set");
+        if (source.getSourceTextPtr() >= this->_source_ptr_flags.getPtr()) {
+          this->_source_text_length = rq::getSourceLengthBetween(*this, source);
+        } else {
+          this->_source_ptr_flags.setPtr(source.getSourceTextPtr());
+          this->_source_text_length = rq::getSourceLengthBetween(source, *this);
+        }
+      }
+      RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
+        return this->getSourceTextPtr();
+      }
+      RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
+        return this->getSourceTextPtr() + this->getSourceTextLength();
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const char *getEndSourceTextPtr() const {
+        if (this->getSourceTextLength() == 0) {
+          return this->getSourceTextPtr();
+        }
+        return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
+      }
+      RQ_ALWAYS_INLINE void setSourceAt(const char *source_ptr) {
+        rq::assignSingleValue(this->_source_ptr_flags.getPtr(), source_ptr);
+      }
+      template <typename SourceParam>
+      RQ_ALWAYS_INLINE void setSourceBefore(const SourceParam &source) {
+        this->setSourceAt(source.getBeforeSourceTextPtr());
+      }
+      template <typename SourceParam>
+      inline void setSourceAfter(const SourceParam &source) {
+        this->setSourceAt(source.getAfterSourceTextPtr());
+      }
+      template <typename SourceParam>
+      inline void setSourceAtEnd(const SourceParam &source) {
+        this->setSourceAt(source.getEndSourceTextPtr());
+      }
+      // NOTE: no getBranchCount and getNextCount because bad performance!
+      RQ_ALWAYS_INLINE rq::Expression &getBranch() {
+        return rq::dereferencePtr(this->_branch_ptr);
+      }
+      RQ_ALWAYS_INLINE const rq::Expression &getBranch() const {
+        return rq::dereferencePtr(this->_branch_ptr);
+      }
+      RQ_ALWAYS_INLINE rq::Expression &getNext() {
+        return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
+      }
+      RQ_ALWAYS_INLINE const rq::Expression &getNext() const {
+        return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
+      }
+      RQ_ALWAYS_INLINE rq::Expression *getBranchPtr() {
+        return this->_branch_ptr;
+      }
+      RQ_ALWAYS_INLINE const rq::Expression *getBranchPtr() const {
+        return this->_branch_ptr;
+      }
+      RQ_ALWAYS_INLINE rq::Expression *getNextPtr() {
+        return this->_next_ptr_flags.getPtr();
+      }
+      RQ_ALWAYS_INLINE const rq::Expression *getNextPtr() const {
+        return this->_next_ptr_flags.getPtr();
+      }
+      // TODO: get rid of the getLastNext and getLastBranch functions to avoid
+      // excessive pointer chasing
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastNext() {
+        rq::Expression *expression_ptr = this;
+        while (expression_ptr->getNextPtr() != nullptr) {
+          expression_ptr = expression_ptr->getNextPtr();
+        }
+        return rq::dereferencePtr(expression_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLastNext() const {
+        const rq::Expression *expression_ptr = this;
+        while (expression_ptr->getNextPtr() != nullptr) {
+          expression_ptr = expression_ptr->getNextPtr();
+        }
+        return rq::dereferencePtr(expression_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastBranch() {
+        RQ_ASSERT(this->getHasBranch(), "does not have branch");
+        rq::Expression *expression_ptr = this->_branch_ptr;
+        while (expression_ptr->getNextPtr() != nullptr) {
+          expression_ptr = expression_ptr->getNextPtr();
+        }
+        return rq::dereferencePtr(expression_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+      getLastBranch() const {
+        RQ_ASSERT(this->getHasBranch(), "does not have branch");
+        rq::Expression *expression_ptr = this->_branch_ptr;
+        while (expression_ptr->getNextPtr() != nullptr) {
+          expression_ptr = expression_ptr->getNextPtr();
+        }
+        return rq::dereferencePtr(expression_ptr);
+      }
+      RQ_ALWAYS_INLINE void setBranch(rq::Expression &branch) {
+        rq::assignSingleValue(this->_branch_ptr, &branch);
+      }
+      RQ_ALWAYS_INLINE void setNext(rq::Expression &next) {
+        rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
+      }
+      RQ_ALWAYS_INLINE void setBranch(rq::Expression *branch_ptr) {
+        rq::assignSingleValue(this->_branch_ptr, branch_ptr);
+      }
+      RQ_ALWAYS_INLINE void setNext(rq::Expression *next_ptr) {
+        rq::assignSingleValue(this->_next_ptr_flags.getPtr(), next_ptr);
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+      replaceBranch(rq::Expression &branch) {
+        rq::Expression &replaced_branch = this->getBranch();
+        this->_branch_ptr = &branch;
+        return replaced_branch;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+      replaceNext(rq::Expression &next) {
+        rq::Expression &replaced_next = this->getNext();
+        this->_next_ptr_flags.setPtr(&next);
+        return replaced_next;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+      replaceBranch(rq::Expression *branch_ptr) {
+        rq::Expression &replaced_branch = this->getBranch();
+        this->_branch_ptr = branch_ptr;
+        return replaced_branch;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+      replaceNext(rq::Expression *next_ptr) {
+        rq::Expression &replaced_next = this->getNext();
+        this->_next_ptr_flags.setPtr(next_ptr);
+        return replaced_next;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+      replaceBranchPtr(rq::Expression &branch) {
+        rq::Expression *replaced_branch = this->_branch_ptr;
+        this->_branch_ptr = &branch;
+        return replaced_branch;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+      replaceNextPtr(rq::Expression &next) {
+        rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(&next);
+        return replaced_next_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+      replaceBranchPtr(rq::Expression *branch_ptr) {
+        rq::Expression *replaced_branch = this->_branch_ptr;
+        this->_branch_ptr = branch_ptr;
+        return replaced_branch;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+      replaceNextPtr(rq::Expression *next_ptr) {
+        rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(next_ptr);
+        return replaced_next_ptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
+        return this->_branch_ptr != nullptr;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
+        return this->_next_ptr_flags.getPtr() != nullptr;
+      }
+      [[nodiscard]] inline rq::Expression &popBranch() {
+        RQ_ASSERT(this->_branch_ptr != nullptr, "does not have branch");
+        rq::Expression *old_branch_ptr = this->_branch_ptr;
+        this->_branch_ptr = nullptr;
+        return rq::dereferencePtr(old_branch_ptr);
+      }
+      [[nodiscard]] inline rq::Expression *popBranchPtr() {
+        rq::Expression *old_branch_ptr = this->_branch_ptr;
+        this->_branch_ptr = nullptr;
+        return old_branch_ptr;
+      }
+      [[nodiscard]] inline rq::Expression &popNext() {
+        RQ_ASSERT(this->getHasNext(), "does not have next");
+        rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(nullptr);
+        return rq::dereferencePtr(old_next_ptr);
+      }
+      [[nodiscard]] inline rq::Expression *popNextPtr() {
+        rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(nullptr);
+        return old_next_ptr;
+      }
+      [[nodiscard]] inline rq::Expression &
+      changeNext(rq::Expression &new_next) {
+        RQ_ASSERT(this->getHasNext(), "does not have next");
+        rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(&new_next);
+        return rq::dereferencePtr(old_next_ptr);
+      }
+      [[nodiscard]] inline rq::Expression &
+      changeNext(rq::Expression *new_next_ptr) {
+        RQ_ASSERT(this->getHasNext(), "does not have next");
+        rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(new_next_ptr);
+        return rq::dereferencePtr(old_next_ptr);
+      }
+      [[nodiscard]] inline rq::Expression *
+      changeNextPtr(rq::Expression &new_next) {
+        rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(&new_next);
+        return old_next_ptr;
+      }
+      [[nodiscard]] inline rq::Expression *
+      changeNextPtr(rq::Expression *new_next_ptr) {
+        rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
+        this->_next_ptr_flags.setPtr(new_next_ptr);
+        return old_next_ptr;
+      }
+      [[nodiscard]] inline rq::Expression &mergeAndPopBranch() {
+        rq::Expression &branch = this->popBranch();
+        if (this->getHasNext()) {
+          rq::Expression &branch_last_next = branch.getLastNext();
+          branch_last_next.setNext(this->popNext());
+        }
+        this->clear();
+        this->setKeyword(branch.getKeyword());
+        if (branch.getHasBranch()) {
+          this->setBranch(branch.popBranch());
+        }
+        if (branch.getHasNext()) {
+          this->setNext(branch.popNext());
+        }
+        this->setSource(branch);
+        branch.clear();
+        return branch;
+      }
+      [[nodiscard]] inline rq::Expression &mergeAndPopNext() {
+        rq::Expression &next = this->popNext();
+        RQ_ASSERT(!this->getHasBranch(), "has branch");
+        this->clear();
+        this->setKeyword(next.getKeyword());
+        if (next.getHasBranch()) {
+          this->setBranch(next.popBranch());
+        }
+        if (next.getHasNext()) {
+          this->setNext(next.popNext());
+        }
+        this->setSource(next);
+        next.clear();
+        return next;
+      }
+      [[nodiscard]] inline rq::Expression &getUnascribed() {
+        if (this->getCanBeAscription()) {
+          return this->getBranch().getUnascribed();
+        }
+        return *this;
+      }
+      [[nodiscard]] inline const rq::Expression &getUnascribed() const {
+        if (this->getCanBeAscription()) {
+          return this->getBranch().getUnascribed();
+        }
+        return *this;
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE
+          std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
+                                std::ranges::subrange_kind::unsized>
+          getInclusiveNextSubrange() {
+        return std::ranges::subrange(rq::ExpressionIterator(this),
+                                     rq::ExpressionIterator());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE
+          std::ranges::subrange<rq::ConstExpressionIterator,
+                                rq::ConstExpressionIterator,
+                                std::ranges::subrange_kind::unsized>
+          getInclusiveNextSubrange() const {
+        return std::ranges::subrange(rq::ConstExpressionIterator(this),
+                                     rq::ConstExpressionIterator());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE
+          std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
+                                std::ranges::subrange_kind::unsized>
+          getNextSubrange() {
+        return std::ranges::subrange(rq::ExpressionIterator(this->getNextPtr()),
+                                     rq::ExpressionIterator());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE
+          std::ranges::subrange<rq::ConstExpressionIterator,
+                                rq::ConstExpressionIterator,
+                                std::ranges::subrange_kind::unsized>
+          getNextSubrange() const {
+        return std::ranges::subrange(
+            rq::ConstExpressionIterator(this->getNextPtr()),
+            rq::ConstExpressionIterator());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE
+          std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
+                                std::ranges::subrange_kind::unsized>
+          getBranchSubrange() {
+        return std::ranges::subrange(
+            rq::ExpressionIterator(this->getBranchPtr()),
+            rq::ExpressionIterator());
+      }
+      [[nodiscard]] RQ_ALWAYS_INLINE
+          std::ranges::subrange<rq::ConstExpressionIterator,
+                                rq::ConstExpressionIterator,
+                                std::ranges::subrange_kind::unsized>
+          getBranchSubrange() const {
+        return std::ranges::subrange(
+            rq::ConstExpressionIterator(this->getBranchPtr()),
+            rq::ConstExpressionIterator());
+      }
+    };
+
+    rq::ExpressionIterator &ExpressionIterator::operator++() {
+      this->_expression_ptr =
+          rq::dereferencePtr(this->_expression_ptr).getNextPtr();
+      return *this;
+    }
+
+    inline void SymbolAttributeFlagsFactory::addAttribute(
+        const rq::Expression &expression) {
+      RQ_ASSERT(expression.getCanBeSymbolAttribute(), "not symbol attribute");
+      const rq::SymbolAttribute attribute = expression.getSymbolAttribute();
+      RQ_ASSERT(!rq::getHasAttribute(this->_flags, attribute),
+                "duplicate attribute");
+      this->_flags |= rq::getFlags(attribute);
+      switch (expression.getKeyword()) {
+      case rq::Keyword::CAPTURE:
+        this->_capture_ptr = &expression;
+        break;
+      case rq::Keyword::OVERRIDE:
+        this->_override_ptr = &expression;
+        break;
+      case rq::Keyword::POSITION:
+        this->_position_ptr = &expression;
+        break;
+      case rq::Keyword::MANGLE:
+        this->_mangle_ptr = &expression;
+        break;
+      case rq::Keyword::LABEL:
+        this->_label_ptr = &expression;
+        break;
+      case rq::Keyword::TEMPLATE:
+        this->_template_ptr = &expression;
+        break;
+      case rq::Keyword::DEPRECIATED:
+        this->_depreciated_ptr = &expression;
+        break;
+      case rq::Keyword::MUTATE_WITH:
+        this->_mutate_with_ptr = &expression;
+        break;
+      default:
+        break;
+      }
+    }
+
+    inline void SymbolAttributeFlagsFactory::addAllAttributres(
+        const rq::Expression &ascribed) {
+      for (const rq::Expression &attribute : ascribed.getNextSubrange()) {
+        this->addAttribute(attribute);
+      }
+    }
+
+    rq::ExpressionIterator ExpressionIterator::operator++(int) {
+      return ++*this;
+    }
+
+    rq::ConstExpressionIterator &ConstExpressionIterator::operator++() {
+      this->_expression_ptr =
+          rq::dereferencePtr(this->_expression_ptr).getNextPtr();
+      return *this;
+    }
+
+    rq::ConstExpressionIterator ConstExpressionIterator::operator++(int) {
+      return ++*this;
+    }
+
+  } // namespace rq

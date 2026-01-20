@@ -60,9 +60,13 @@ bool Situator::situateTree(rq::Situation situation,
   case K::I_RIGHT_INTERPOLATION_LITERAL:
     [[fallthrough]];
   case K::I_CODEUNIT_LITERAL:
+    [[fallthrough]];
+  case K::I_IDENTIFIER_LITERAL:
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     break;
-  case K::I_IDENTIFIER_LITERAL:
+  case K::S_ENCODE:
+    is_ok = this->situateBinaryNonStatementBranches(
+        situation, expression, S::QUOTED_LITERAL, S::ENCODING);
     break;
 
   // ERRORS
@@ -790,6 +794,10 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // VALUES
+  case K::S_INTERPOLATED_STRING:
+    is_ok = this->situateNaryNonStatementBranches(
+        situation, expression, 1, S::INTERPOLATED_STRING_ELEMENT);
+    break;
   case K::S_INITIALIZER_LIST:
     is_ok = this->situateNaryNonStatementBranches(situation, expression, 0,
                                                   S::RVALUE);

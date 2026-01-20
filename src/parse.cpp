@@ -1063,9 +1063,9 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   case rq::TokenKind::IDENTIFIER_LITERAL:
     return this->parseLiteralOrMark(rq::Keyword::I_IDENTIFIER_LITERAL);
   case rq::TokenKind::CODEUNIT_LITERAL:
-    return this->parseLiteralOrMark(rq::Keyword::I_CODEUNIT_LITERAL);
+    return this->parseQuotedLiteral(rq::Keyword::I_CODEUNIT_LITERAL);
   case rq::TokenKind::STRING_LITERAL:
-    return this->parseLiteralOrMark(rq::Keyword::I_STRING_LITERAL);
+    return this->parseQuotedLiteral(rq::Keyword::I_STRING_LITERAL);
   case rq::TokenKind::INTEGER_LITERAL:
     return this->parseLiteralOrMark(rq::Keyword::I_INTEGER_LITERAL);
   case rq::TokenKind::FLOAT_LITERAL:
@@ -1334,11 +1334,36 @@ rq::Expression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
   const rq::Token &token = this->getRanger().getToken();
   RQ_ASSERT(token.getIsLiteral() || token.getCanBeMark(),
             "token is not literal or mark");
-  rq::Expression &identifier = this->getContext().acquireExpression();
-  identifier.setKeyword(keyword);
-  identifier.setSource(token);
+  rq::Expression &expression = this->getContext().acquireExpression();
+  expression.setKeyword(keyword);
+  expression.setSource(token);
   this->getRanger().incrementToken(1);
-  return identifier;
+  return expression;
+}
+
+
+rq::Expression &RequiteParser::parseQuotedLiteral(rq::Keyword keyword) {
+  const rq::Token &token = this->getRanger().getToken();
+  RQ_ASSERT(token.getKind() == rq::TokenKind::STRING_LITERAL || token.getKind() == rq::TokenKind::CODEUNIT_LITERAL,
+            "token is not quoted literal");
+  rq::Expression &literal = this->getContext().acquireExpression();
+  literal.setKeyword(keyword);
+  literal.setSource(token);
+  this->getRanger().incrementToken(1);
+  const rq::Token& suffix = this->getRanger().getToken();
+  if (suffix.getKind() != rq::TokenKind::IDENTIFIER_LITERAL) {
+    return literal;
+  }
+  rq::Expression& encode = this->getContext().acquireExpression();
+  encode.setKeyword(rq::Keyword::S_ENCODE);
+  encode.setSource(literal, suffix);
+  rq::Expression &encoding = this->getContext().acquireExpression();
+  rq::Keyword encoding_keyword = this->parseKeyword();
+  encoding.setKeyword(encoding_keyword);
+  encoding.setSource(suffix);
+  encode.setBranch(literal);
+  literal.setNext(encoding);
+  return encode;
 }
 
 rq::Expression &RequiteParser::parseInterpolatedString() {
@@ -1394,11 +1419,23 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
         first_ptr = &string;
       }
       previous_ptr = &string;
-      rq::Expression &tuple = this->getContext().acquireExpression();
-      tuple.setKeyword(rq::Keyword::S_TUPLE);
-      tuple.setSource(left_token, token);
-      tuple.setBranch(first_ptr);
-      return tuple;
+      rq::Expression &interpolated_string = this->getContext().acquireExpression();
+      interpolated_string.setKeyword(rq::Keyword::S_INTERPOLATED_STRING);
+      interpolated_string.setSource(left_token, token);
+      interpolated_string.setBranch(first_ptr);
+      const rq::Token& after_token = this->getRanger().getToken();
+      if (after_token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
+        rq::Expression &encode = this->getContext().acquireExpression();
+        encode.setKeyword(rq::Keyword::S_ENCODE);
+        encode.setSource(interpolated_string, after_token);
+        rq::Keyword encoding_keyword = this->parseKeyword();
+        rq::Expression &encoding = this->getContext().acquireExpression();
+        encoding.setKeyword(encoding_keyword);
+        encoding.setSource(after_token);
+        encode.setBranch(interpolated_string);
+        interpolated_string.setNext(encoding);
+      }
+      return interpolated_string;
     }
     case rq::TokenKind::LEFT_BRACE_GROUPING: {
       rq::Expression &interpolation = this->parseEnclosedBraceExpression();
