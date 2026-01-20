@@ -2167,7 +2167,7 @@ getDescription(rq::Situation situation) {
   switch (keyword) {
     // APPLY
   case K::AS:
-    return K::S_ADDRESS_OF;
+    return K::S_AS_OF;
   // MEMORY
   case K::SINGLETON:
     return K::S_SINGLETON_OF;
