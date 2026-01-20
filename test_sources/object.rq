@@ -3,9 +3,9 @@
 @may_copy @may_move
 [class MyClass,
     {>
-        x := 0sl32,
-        y := 0sl32,
-        z := 0sl32
+        x := 0s32l,
+        y := 0s32l,
+        z := 0s32l
     <},
 
     @public

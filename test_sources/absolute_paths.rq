@@ -3,7 +3,7 @@
 [table foo,
 
     [table bar,
-        text := "Hello, world!";    
+        text := "Hello, world!"ascii;    
 
         [function print, (><),
             .std.print(line=..text);

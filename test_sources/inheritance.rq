@@ -26,7 +26,7 @@
     @public
     @override::[this_type].parent.myFuncB
     [method myFuncB, &=>(><),
-        .std.print(line="in child");
+        .std.print(line="in child"ascii);
     ];
 
     @public 

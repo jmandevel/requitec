@@ -1,16 +1,16 @@
 [import "std"];
 
-[function myFunc, (>a:.std.sf32, b:.std.sf32<)[signed],
+[function myFunc, (>a:.std.s32f, b:.std.s32f<)[signed],
     [if a > b,
-        .std.print(line="a is greater than b");
+        .std.print(line="a is greater than b"ascii);
     ][else_if b > a,
-        .std.print(line="b is greater than a");
+        .std.print(line="b is greater than a"ascii);
     ][else 
-        .std.print(line="a and b are equal");
+        .std.print(line="a and b are equal"ascii);
     ];
     [result] := a + b;
 ];
 
 [entry
-    .std.print(line="the result is {.myFunc(1, 2)}");
+    .std.print(line="the result is {.myFunc(1, 2)}"ascii);
 ];

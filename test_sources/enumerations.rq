@@ -1,9 +1,9 @@
 [import "std"]
 
 [enumeration MyEnum, 32,
-    APPLE  :.std.sf32  = 0;
-    ORANGE :.std.uf32 = 2;
-    GRAPE  :.std.binary32 = 3;
+    APPLE  :.std.s32f  = 0;
+    ORANGE :.std.u32f = 2;
+    GRAPE  :.std.b32f = 3;
 ];
 .
 [entry
@@ -22,9 +22,9 @@
             [with APPLE, apple:=[value], 
                 [out] := apple;
             ][with ORANGE, orange:=[value],
-                [out] := .std.sf32:orange;
+                [out] := .std.s32f:orange;
             ][with GRAPE, grape:=[value],
-                [out] := .std.sf32:grape;
+                [out] := .std.s32f:grape;
             ];
         ];
     [exit_code] := value;

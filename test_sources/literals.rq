@@ -18,8 +18,8 @@
     d :[unsigned].[exact_bits 8]= 0i; // [unsigned].[exact_bits 8] // scalar deduced by inferencing. notice difference from last line
     e :[unsigned].[exact_bits 8]= 0;  // [unsigned].[exact_bits 8] // no suffix! notice difference from last two lines
     f := 0u64;  // [unsigned].[exact_bits 64]
-    g := 0uf64;  // [unsigned].[fastest_bits 64]
-    h := 0ul128; // [unsigned].[least_bits 128]   // smallest native unsigned integer with at least 128-bits
+    g := 0u64f;  // [unsigned].[fastest_bits 64]
+    h := 0u128l; // [unsigned].[least_bits 128]   // smallest native unsigned integer with at least 128-bits
     // there are special types for working with memory across platforms
     i := 0udx // [unsigned].[exact_index] // unsigned type the size of indexes used for memory address indexing
     j := 0uds // [unsigned].[exact_address] // unsigned type the size of memory addresses
@@ -28,9 +28,9 @@
     k :[signed].[exact_bits 32]=0; // the variable is defined as se32, so the literal is this as well
 
     [function doSomething, (>a:[signed].[exact_bits 32]<),];
-    [function doSomething, (>a:[binary 32]<),];
+    [function doSomething, (>a:[binary].[best_bits 32]<),];
 
-    doSomething(0se32); // the literal is of type se32 because this is the only overload that fastest_bits
+    doSomething(0s); // the literal is of type s32e because this is the only overload that fastest_bits
     // doSomething(0); // compiler error! can not determine which overload.
 
 
@@ -42,11 +42,11 @@
     n := 64xa3BzzZ!fe?3g // 64-decimal. notice that ! and ? are now treated as digits (digit value 62 is ? and 63 is !)
     
     // suffixes in literals with a base go after the base.
-    o := 2ue32x1001010111; // suffix makes it [unsigned].[exact_bits 32]
+    o := 2u32x1001010111; // suffix makes it [unsigned].[exact_bits 32]
 
     // underscores among integer literal digits are ignored
-    p := 16ue8xF_F;
-    q := 1_000_000_000ue64;
+    p := 16u8exF_F;
+    q := 1_000_000_000u64e;
 
     // encoding of codeunit can be specified with a suffix after the closing quote mark
     r := 'B'ascii; // [ascii]
@@ -69,10 +69,14 @@
     // floating point numbers work similarly to integers
     // numbers with a decimal points automatically become floating point
     // however, exact, least, and fastest sizes are not supported
-    v := 0.0f32;   // [float].[exact_bits 32]  // explicit float suffix
-    w := 128fb16 // [float].[best_bits 16] // may pick a smaller float type if there are none that work
+    v := 0.0f32b;   // [float].[exact_bits 32]  // explicit float suffix
+    w := 128fb16b // [float].[best_bits 16] // may pick a smaller float type if there are none that work
 
     // it might be beneficial to be explicit about what types of floats you want to use instead
-    x := 0binary16;   // [binary].[exact_bits 32]
-    y := 100bfloat16; // [bfloat].[exact_bits 32]
+    x := 0b32e;   // [binary].[exact_bits 32]
+    y := 100bf16e; // [bfloat].[exact_bits 32]
+
+    // the standard library has aliases to make it easier to write the types
+    [import "std"];
+    z :.std.s32f=0;
 ];
