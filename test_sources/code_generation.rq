@@ -1,14 +1,14 @@
 [import "std"];
 
 @static @label::Loop
-[for 0.<=10, num:=[value],
+[for 0sf32.<=10, num:=[value],
     @outside::Loop @capture::{num:=num}
     \.std.format(text="VAR{[self].[capture].num}") :`= index;
 ];
 
 [entry
     @static
-    [for 0.<=10, num:=[value], 
+    [for 0sf32.<=10, num:=[value], 
         @static
         varname := .std.format(text="VAR{num}");
         .std.print(line="{varname.[borrow]} is {.\varname}!");        

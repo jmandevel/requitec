@@ -16,7 +16,7 @@
     // can use suffixes to bake type info into the integer itself.
     c :[integer].[exact_bits 8]= 0u;  // [unsigned].[exact_bits 8] // scalar is deduced through substitution
     d :[unsigned].[exact_bits 8]= 0i; // [unsigned].[exact_bits 8] // scalar deduced by inferencing. notice difference from last line
-    e :[unsigned].[exact_bits 8]= 0;  // [unsigned].[exact_bits 8] // no deduction! notice difference from last two lines
+    e :[unsigned].[exact_bits 8]= 0;  // [unsigned].[exact_bits 8] // no suffix! notice difference from last two lines
     f := 0u64;  // [unsigned].[exact_bits 64]
     g := 0uf64;  // [unsigned].[fastest_bits 64]
     h := 0ul128; // [unsigned].[least_bits 128]   // smallest native unsigned integer with at least 128-bits
@@ -73,6 +73,6 @@
     w := 128fb16 // [float].[best_bits 16] // may pick a smaller float type if there are none that work
 
     // it might be beneficial to be explicit about what types of floats you want to use instead
-    x := 0binary16;   // [binary16]
-    y := 100bfloat16; // [bfloat16]
+    x := 0binary16;   // [binary].[exact_bits 32]
+    y := 100bfloat16; // [bfloat].[exact_bits 32]
 ];

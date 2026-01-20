@@ -1,6 +1,6 @@
 [import "std"];
 
 [entry
-    @static my_quote :[expression]= [quote line="Hello, world!"];
+    @static my_quote :[expression]= [quote line="Hello, world!"ascii];
     .std.print(my_quote.[expand]);
 ];

@@ -1,9 +1,11 @@
-[enumeration MyEnum, 32,
-    APPLE  :[signed]   = 0;
-    ORANGE :[unsigned] = 2;
-    GRAPE  :[binary32] = 3;
-];
+[import "std"]
 
+[enumeration MyEnum, 32,
+    APPLE  :.std.sf32  = 0;
+    ORANGE :.std.uf32 = 2;
+    GRAPE  :.std.binary32 = 3;
+];
+.
 [entry
     fruit := .MyEnum.APPLE(3);
     [match fruit,
@@ -20,9 +22,9 @@
             [with APPLE, apple:=[value], 
                 [out] := apple;
             ][with ORANGE, orange:=[value],
-                [out] := [signed]:orange;
+                [out] := .std.sf32:orange;
             ][with GRAPE, grape:=[value],
-                [out] := [signed]:grape;
+                [out] := .std.sf32:grape;
             ];
         ];
     [exit_code] := value;

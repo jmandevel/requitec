@@ -1,5 +1,5 @@
 [import "std"];
 
 [entry
-    .std.print(line="Hello, world!");
+    .std.print(line="Hello, world!"ascii);
 ];

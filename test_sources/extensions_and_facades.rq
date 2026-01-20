@@ -20,7 +20,7 @@
 ];
 
 [entry
-    my_array :5#[signed]= [[0, 1, 2, 3, 4]];
+    my_array :5#[signed]= [[0sf32, 1, 2, 3, 4]];
 
     // call extension function
     {} = my_array.[type]->.example.getElementCount();

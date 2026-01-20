@@ -4,12 +4,12 @@
 [class Parent,
     
     [method myFunc, &=>(><),
-        .std.print(line="in parent");
+        .std.print(line="in parent"ascii);
     ];
     
     @virtual
     [method myFuncB, &=>(><),
-        .std.print(line="in parent");
+        .std.print(line="in parent"ascii);
     ];
     
     [constructor];

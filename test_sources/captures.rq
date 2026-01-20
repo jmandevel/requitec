@@ -1,8 +1,8 @@
 [import "std"];
 
 [entry
-    @capture::{ @public name:="Bob", @public age:=25 }
-    var1 := 0;
+    @capture::{ @public name:="Bob"ascii, @public age:=25sf32 }
+    var1 := 0sf32;
     .std.print(line="Hello, my name is {var.[symbol].[capture].name} and I am {var.[symbol].[capture].age} years old");
 
     [class Foo, {> @public string:="Hello, attribute!" <} [constructor];];
@@ -10,7 +10,7 @@
     // NOTE: the compiler enforces that tuples can have only up to one unamed property for any given type.
     // if this rule is not followed, this results in a compiler error.
     @capture::{ @public Foo() }
-    var0 := 1;
+    var0 := 1sf32;
 
     @static
     [if var0.[symbol].[capture].[has Foo],
