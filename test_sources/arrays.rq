@@ -4,7 +4,7 @@
     my_array :`= [[0s32l, 1, 2, 3, 4]];
     const_fat_pointer := my_array.[borrow]->getSpan();
     mutable_fat_pointer := my_array.`[borrow]->getSpan();
-    .std.print(line="stats: size:{my_array.[type].[byte_size]} count:{my_array.[type].[element_count]} depth:{my_array.[type].[bit_depth]}!"ascii);
+    .std.print(line="stats: size:{my_array.[type].[byte_size]} count:{my_array.[type].[element_count]} depth:{my_array.[type].[bit_depth]}!");
     [for my_array, index:=[index], element:=[value].`[borrow], 
         element = element * index;
     ];

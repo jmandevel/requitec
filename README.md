@@ -14,7 +14,7 @@ Requite is a statically typed systems programming langauge with a homoiconic syn
 [import "std"];
 
 [entry
-    .std.print(line="Hello, world!"ascii);
+    .std.print(line="Hello, world!");
 ];
 ```
 
