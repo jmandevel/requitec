@@ -17,12 +17,12 @@
     c :[integer].[exact_bits 8]= 0u;  // [unsigned].[exact_bits 8] // scalar is deduced through substitution
     d :[unsigned].[exact_bits 8]= 0i; // [unsigned].[exact_bits 8] // scalar deduced by inferencing. notice difference from last line
     e :[unsigned].[exact_bits 8]= 0;  // [unsigned].[exact_bits 8] // no suffix! notice difference from last two lines
-    f := 0u64;  // [unsigned].[exact_bits 64]
+    f := 0u64e;  // [unsigned].[exact_bits 64]
     g := 0u64f;  // [unsigned].[fastest_bits 64]
     h := 0u128l; // [unsigned].[least_bits 128]   // smallest native unsigned integer with at least 128-bits
     // there are special types for working with memory across platforms
-    i := 0udx // [unsigned].[exact_index] // unsigned type the size of indexes used for memory address indexing
-    j := 0uds // [unsigned].[exact_address] // unsigned type the size of memory addresses
+    i := 0uie // [unsigned].[exact_index] // unsigned type the size of indexes used for memory address indexing
+    j := 0uae // [unsigned].[exact_address] // unsigned type the size of memory addresses
 
     // can deduce literal type if there is only one valid substitution
     k :[signed].[exact_bits 32]=0; // the variable is defined as se32, so the literal is this as well
@@ -42,11 +42,11 @@
     n := 64xa3BzzZ!fe?3g // 64-decimal. notice that ! and ? are now treated as digits (digit value 62 is ? and 63 is !)
     
     // suffixes in literals with a base go after the base.
-    o := 2u32x1001010111; // suffix makes it [unsigned].[exact_bits 32]
+    o := 2u32ex1001010111; // suffix makes it [unsigned].[exact_bits 32]
 
     // underscores among integer literal digits are ignored
     p := 16u8exF_F;
-    q := 1_000_000_000u64e;
+    q := 1_000_000_000u64;
 
     // encoding of codeunit can be specified with a suffix after the closing quote mark
     r := 'B'ascii; // [ascii]
@@ -56,7 +56,7 @@
 
     // if assigned to a mutable variable, the null_terminated attribute goes away unless explicitly reassigned
     // in practice, this limits how you can manipulate the value so you cant break its null_terminated status
-    t :$null_terminated `= "asdf"; // $null_terminated `^[utf8]    
+    t :$null_terminated `= "asdf"utf8; // $null_terminated `^[utf8]    
 
     // it stays if a const address is created
     u := "asdf"ascii.[address]; // $null_terminated *[ascii]
@@ -70,11 +70,11 @@
     // numbers with a decimal points automatically become floating point
     // however, exact, least, and fastest sizes are not supported
     v := 0.0f32b;   // [float].[exact_bits 32]  // explicit float suffix
-    w := 128fb16b // [float].[best_bits 16] // may pick a smaller float type if there are none that work
+    w := 128f16b // [float].[best_bits 16] // may pick a smaller float type if there are none that work
 
     // it might be beneficial to be explicit about what types of floats you want to use instead
     x := 0b32e;   // [binary].[exact_bits 32]
-    y := 100bf16e; // [bfloat].[exact_bits 32]
+    y := 100bf16e; // [bfloat].[exact_bits 16]
 
     // the standard library has aliases to make it easier to write the types
     [import "std"];
