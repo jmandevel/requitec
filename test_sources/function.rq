@@ -2,15 +2,15 @@
 
 [function myFunc, (>a:.std.s32f, b:.std.s32f<)[signed],
     [if a > b,
-        .std.print(line="a is greater than b"ascii);
+        .std.print(line="a is greater than b");
     ][else_if b > a,
-        .std.print(line="b is greater than a"ascii);
+        .std.print(line="b is greater than a");
     ][else 
-        .std.print(line="a and b are equal"ascii);
+        .std.print(line="a and b are equal");
     ];
     [result] := a + b;
 ];
 
 [entry
-    .std.print(line="the result is {.myFunc(1, 2)}"ascii);
+    .std.print(line="the result is {.myFunc(1, 2)}");
 ];

@@ -1,7 +1,7 @@
 [import "std"];
 
 [entry
-    @capture::{ @public name:="Bob"ascii, @public age:=25s32l }
+    @capture::{ @public name:="Bob", @public age:=25s32l }
     var1 := 0s32l;
     .std.print(line="Hello, my name is {var.[symbol].[capture].name} and I am {var.[symbol].[capture].age} years old");
 

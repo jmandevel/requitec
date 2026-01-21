@@ -9,7 +9,7 @@
         element = element * index;
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 
-        .std.print(line="element {index} is {element}!"ascii);
+        .std.print(line="element {index} is {element}!");
     ];
-    .std.print(line="it starts with {my_array.[borrow]->at(0)}!"ascii);
+    .std.print(line="it starts with {my_array.[borrow]->at(0)}!");
 ];

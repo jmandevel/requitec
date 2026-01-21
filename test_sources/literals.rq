@@ -48,18 +48,18 @@
     p := 16u8exF_F;
     q := 1_000_000_000u64;
 
-    // encoding of codeunit can be specified with a suffix after the closing quote mark
-    r := 'B'ascii; // [ascii]
+    // codeunits are utf8 by default
+    r := 'B'; // [utf8]
 
     // strings are null terminated fat pointers to utf8 by default and have suffixes that work the same way
-    s := "asdf"ascii; // $null_terminated ^[ascii]
+    s := "asdf"; // $null_terminated ^[utf8]
 
     // if assigned to a mutable variable, the null_terminated attribute goes away unless explicitly reassigned
     // in practice, this limits how you can manipulate the value so you cant break its null_terminated status
-    t :$null_terminated `= "asdf"utf8; // $null_terminated `^[utf8]    
+    t :$null_terminated `= "asdf"; // $null_terminated `^[utf8]    
 
     // it stays if a const address is created
-    u := "asdf"ascii.[address]; // $null_terminated *[ascii]
+    u := "asdf".[as [ascii]].[address]; // $null_terminated *[ascii]
 
     // function arguments can require a null terminated pointer, for example
     [function length, (>ptr:$null_terminated ^[utf8]<),

@@ -4,12 +4,12 @@
 [class Parent,
     
     [method myFunc, &=>(><),
-        .std.print(line="in parent"ascii);
+        .std.print(line="in parent");
     ];
     
     @virtual
     [method myFuncB, &=>(><),
-        .std.print(line="in parent"ascii);
+        .std.print(line="in parent");
     ];
     
     [constructor];
@@ -26,7 +26,7 @@
     @public
     @override::[this_type].parent.myFuncB
     [method myFuncB, &=>(><),
-        .std.print(line="in child"ascii);
+        .std.print(line="in child");
     ];
 
     @public 
