@@ -109,7 +109,7 @@ enum class TokenKind : std::uint_fast8_t {
   LEFT_BRACKET_GROUPING,         // [
   RIGHT_BRACKET_GROUPING,        // ]
   LEFT_DOUBLE_BRACKET_GROUPING,  // [[
-  RIGHT_DOUBLE_BRACKET_GROUPING, // [[
+  RIGHT_DOUBLE_BRACKET_GROUPING, // ]]
   LEFT_BRACE_GROUPING,           // {
   RIGHT_BRACE_GROUPING,          // }
   LEFT_PARENTHESIS_GROUPING,     // (
