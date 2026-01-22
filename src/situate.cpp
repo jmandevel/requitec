@@ -828,141 +828,79 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::FLOAT:
     [[fallthrough]];
-  case K::SIGNED:
+  case K::HALF:
     [[fallthrough]];
-  case K::UNSIGNED:
+  case K::SINGLE:
+    [[fallthrough]];
+  case K::DOUBLE:
+    [[fallthrough]];
+  case K::QUADRUPLE:
     [[fallthrough]];
   case K::BINARY:
     [[fallthrough]];
   case K::BFLOAT:
     [[fallthrough]];
+  case K::BINARY16:
+    [[fallthrough]];
+  case K::BINARY32:
+    [[fallthrough]];
+  case K::BINARY64:
+    [[fallthrough]];
+  case K::BINARY128:
+    [[fallthrough]];
+  case K::BFLOAT16:
+    [[fallthrough]];
+  case K::INTEGER:
+    [[fallthrough]];
+  case K::SIGNED:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_SIGNED_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    break;
+  case K::UNSIGNED:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_UNSIGNED_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    break;
+  case K::SIGNED_FAST_BITS:
+    [[fallthrough]];
+  case K::SIGNED_FAST_BYTES:
+    [[fallthrough]];
+  case K::SIGNED_LEAST_BITS:
+    [[fallthrough]];
+  case K::SIGNED_LEAST_BYTES:
+    [[fallthrough]];
+  case K::SIGNED_EXACT_BITS:
+    [[fallthrough]];
+  case K::SIGNED_EXACT_BYTES:
+    [[fallthrough]];
+  case K::SIGNED_INDEX:
+    [[fallthrough]];
+  case K::SIGNED_ADDRESS:
+    [[fallthrough]];
+  case K::UNSIGNED_FAST_BITS:
+    [[fallthrough]];
+  case K::UNSIGNED_FAST_BYTES:
+    [[fallthrough]];
+  case K::UNSIGNED_LEAST_BITS:
+    [[fallthrough]];
+  case K::UNSIGNED_LEAST_BTYES:
+    [[fallthrough]];
+  case K::UNSIGNED_EXACT_BITS:
+    [[fallthrough]];
+  case K::UNSIGNED_EXACT_BYTES:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    break;
+  case K::UNSIGNED_INDEX:
+    [[fallthrough]];
+  case K::UNSIGNED_ADDRESS:
+    [[fallthrough]];
   case K::ASCII:
     [[fallthrough]];
   case K::UTF8:
     is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-
-  // TYPE REFLECTIONS
-  case K::EXACT_BITS:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_EXACT_BITS_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::EXACT_BYTES:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_EXACT_BYTES_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::EXACT_INDEX:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_EXACT_INDEX_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::EXACT_ADDRESS:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_EXACT_ADDRESS_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::FASTEST_BITS:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_FASTEST_BITS_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::FASTEST_BYTES:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_FASTEST_BYTES_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::FASTEST_INDEX:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_FASTEST_INDEX_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::FASTEST_ADDRESS:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_FASTEST_ADDRESS_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::LEAST_BITS:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_LEAST_BITS_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::LEAST_BYTES:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_LEAST_BYTES_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::LEAST_INDEX:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_LEAST_INDEX_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::LEAST_ADDRESS:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_LEAST_ADDRESS_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::BEST_BITS:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_BEST_BITS_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::BEST_BYTES:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_BEST_BYTES_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
-  case K::UNIQUE:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_UNIQUE_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_SIGNED_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_UNSIGNED_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
     break;
 
   // VARIADIC ARGUMENTS
@@ -1452,6 +1390,13 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::S_LAYOUT_OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::UNIQUE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::S_UNIQUE_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;

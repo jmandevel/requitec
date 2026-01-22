@@ -540,7 +540,7 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol) {
   json.beginObject();
-  json.emitString("kind", rq::getName(symbol.getKind()));
+  json.emitString("kind", rq::getDescription(symbol.getKind()));
   switch (symbol.getKind()) {
   case rq::SymbolKind::IMPORT: {
     const auto &import = llvm::cast<rq::ImportSymbol>(symbol);

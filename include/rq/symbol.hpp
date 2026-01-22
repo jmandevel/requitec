@@ -30,26 +30,40 @@ struct Context;
 enum class SymbolKind : std::uint8_t {
   NONE,
 
-  // ROOT WITH TYPE ATTRIBUTES
-  TYPE,
+  // TYPE DEFINITION
+  TYPE_DEFINITION,
 
   // SIMPLE BUILTIN
   INFERENCE,
+  GENERIC_TYPE,
+  GENERIC_SYMBOL,
   VOID,
   NULL_,
   NO_RETURN,
   VARIADIC_ARGUMENTS,
   BOOLEAN,
+  GENERIC_FLOAT,
+  HALF,
+  SINGLE,
+  DOUBLE,
+  QUADRUPLE,
+  GENERIC_BINARY,
+  GENERIC_BFLOAT,
+  BINARY16,
+  BINARY32,
+  BINARY64,
+  BINARY128,
+  BFLOAT16,
+  GENERIC_INTEGER,
+  GENERIC_SIGNED,
+  GENERIC_UNSIGNED,
+  GENERIC_CODEUNIT,
   ASCII,
   UTF8,
 
   // SCALED BUILTIN
-  GENERIC_INTEGER,
-  SIGNED,
-  UNSIGNED,
-  GENERIC_FLOAT,
-  BINARY,
-  BFLOAT,
+  SCALED_SIGNED,
+  SCALED_UNSIGNED,
 
   // UNARY SUBTYPE
   RANGE,
@@ -127,50 +141,78 @@ enum class SymbolKind : std::uint8_t {
   PARTIAL_CONSTRUCTOR
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind) {
+[[nodiscard]] inline llvm::StringRef getDescription(rq::SymbolKind kind) {
   using namespace rq;
   using SY = SymbolKind;
   switch (kind) {
   case SY::NONE:
     return "none";
 
-  // ROOT WITH TYPE ATTRIBUTES
-  case SY::TYPE:
-    return "type";
+  // TYPE DEFINITION
+  case SY::TYPE_DEFINITION:
+    return "type definition";
 
   // SIMPLE BUILTIN
   case SY::INFERENCE:
     return "inference";
+  case SY::GENERIC_TYPE:
+    return "generic type";
+  case SY::GENERIC_SYMBOL:
+    return "generic symbol";
   case SY::VOID:
     return "void";
   case SY::NULL_:
     return "null";
   case SY::NO_RETURN:
-    return "no_return";
+    return "no return";
   case SY::VARIADIC_ARGUMENTS:
-    return "variadic_arguments";
+    return "variadic arguments";
   case SY::BOOLEAN:
     return "boolean";
+  case SY::GENERIC_FLOAT:
+    return "generic float";
+  case SY::HALF:
+    return "half";
+  case SY::SINGLE:
+    return "single";
+  case SY::DOUBLE:
+    return "double";
+  case SY::QUADRUPLE:
+    return "quadruple";
+  case SY::GENERIC_BINARY:
+    return "generic binary";
+  case SY::GENERIC_BFLOAT:
+    return "generic bfloat";
+  case SY::BINARY16:
+    return "binary16";
+  case SY::BINARY32:
+    return "binary32";
+  case SY::BINARY64:
+    return "binary64";
+  case SY::BINARY128:
+    return "binary128";
+  case SY::BFLOAT16:
+    return "bfloat16";
+  case SY::GENERIC_INTEGER:
+    return "generic integer";
+  case SY::GENERIC_SIGNED:
+    return "generic signed";
+  case SY::GENERIC_UNSIGNED:
+    return "generic unsigned";
+  case SY::GENERIC_CODEUNIT:
+    return "generic codeunit";
   case SY::ASCII:
     return "ascii";
   case SY::UTF8:
     return "utf8";
 
-  // SCALED
-  case SY::GENERIC_INTEGER:
-    return "integer";
-  case SY::SIGNED:
-    return "signed";
-  case SY::UNSIGNED:
-    return "unsigned";
-  case SY::GENERIC_FLOAT:
-    return "float";
-  case SY::BINARY:
-    return "binary";
-  case SY::BFLOAT:
-    return "bfloat";
+  // SCALED BUILTIN
+  case SY::SCALED_SIGNED:
+    return "scaled signed";
+  case SY::SCALED_UNSIGNED:
+    return "scaled unsigned";
 
-  // SIMPLE SUBTYPE
+  // UNARY SUBTYPE
   case SY::RANGE:
     return "range";
   case SY::REFERENCE:
@@ -178,9 +220,9 @@ enum class SymbolKind : std::uint8_t {
   case SY::POINTER:
     return "pointer";
   case SY::FAT_POINTER:
-    return "fat_pointer";
+    return "fat pointer";
   case SY::INFERENCED_COUNT_ARRAY:
-    return "inferenced_count_array";
+    return "inferenced count array";
 
   // COUNTED SUBTYPE
   case SY::ARRAY:
@@ -191,16 +233,14 @@ enum class SymbolKind : std::uint8_t {
     return "layout";
   case SY::SIGNATURE:
     return "signature";
-  case SY::EXTENSION:
-    return "extension";
 
   // ARITHMETIC SEQUENCE
   case SY::ARITHMETIC_INTERVAL:
-    return "arithmetic_interval";
+    return "arithmetic interval";
   case SY::FINITE_ARITHMETIC_PROGRESSION:
-    return "finite_arithmetic_progression";
+    return "finite arithmetic progression";
   case SY::INFINITE_ARITHMETIC_PROGRESSION:
-    return "infinite_arithmetic_progression";
+    return "infinite arithmetic progression";
 
   // MISC
   case SY::MODULE:
@@ -211,24 +251,26 @@ enum class SymbolKind : std::uint8_t {
     return "facade";
   case SY::MUTATION:
     return "mutation";
+  case SY::EXTENSION:
+    return "extension";
 
   // BINDING
   case SY::DYNAMIC_VARIABLE:
-    return "dynamic_variable";
+    return "dynamic variable";
   case SY::STATIC_VARIABLE:
-    return "static_variable";
+    return "static variable";
   case SY::ENUMERATOR:
     return "enumerator";
   case SY::PROPERTY:
     return "property";
   case SY::CLASS_PARAMETER:
-    return "class_parameter";
+    return "class parameter";
   case SY::LAYOUT_PARAMETER:
-    return "layout_parameter";
+    return "layout parameter";
   case SY::TEMPLATE_PARAMETER:
-    return "template_parameter";
+    return "template parameter";
   case SY::SIGNATURE_PARAMETER:
-    return "signature_parameter";
+    return "signature parameter";
   case SY::LABEL:
     return "label";
 
@@ -250,9 +292,9 @@ enum class SymbolKind : std::uint8_t {
   case SY::METHOD:
     return "method";
   case SY::EXTENSION_FUNCTION:
-    return "extension_function";
+    return "extension function";
   case SY::EXTENSION_METHOD:
-    return "extension_method";
+    return "extension method";
   case SY::CONSTRUCTOR:
     return "constructor";
   case SY::DESTRUCTOR:
@@ -262,43 +304,43 @@ enum class SymbolKind : std::uint8_t {
 
   // TEMPLATE
   case SY::TEMPLATE_CLASS:
-    return "template_class";
+    return "template class";
   case SY::TEMPLATE_ENUMERATION:
-    return "template_enumeration";
+    return "template enumeration";
   case SY::TEMPLATE_DYNAMIC_VARIABLE:
-    return "template_dynamic_variable";
+    return "template dynamic_variable";
   case SY::TEMPLATE_STATIC_VARIABLE:
-    return "template_static_variable";
+    return "template static_variable";
   case SY::TEMPLATE_FUNCTION:
-    return "template_function";
+    return "template function";
   case SY::TEMPLATE_METHOD:
-    return "template_method";
+    return "template method";
   case SY::TEMPLATE_EXTENSION_FUNCTION:
-    return "template_extension_function";
+    return "template extension function";
   case SY::TEMPLATE_EXTENSION_METHOD:
-    return "template_extension_method";
+    return "template extension method";
   case SY::TEMPLATE_CONSTRUCTOR:
-    return "template_constructor";
+    return "template constructor";
 
   // PARTIAL SPECIALIZATION
   case SY::PARTIAL_CLASS:
-    return "partial_class";
+    return "partial class";
   case SY::PARTIAL_ENUMERATION:
-    return "partial_enumeration";
+    return "partial enumeration";
   case SY::PARTIAL_DYNAMIC_VARIABLE:
-    return "partial_dynamic_variable";
+    return "partial dynamic variable";
   case SY::PARTIAL_STATIC_VARIABLE:
-    return "partial_static_variable";
+    return "partial static variable";
   case SY::PARTIAL_FUNCTION:
-    return "partial_function";
+    return "partial function";
   case SY::PARTIAL_METHOD:
-    return "partial_method";
+    return "partial method";
   case SY::PARTIAL_EXTENSION_FUNCTION:
-    return "partial_extension_function";
+    return "partial extension function";
   case SY::PARTIAL_EXTENSION_METHOD:
-    return "partial_extension_method";
+    return "partial extension method";
   case SY::PARTIAL_CONSTRUCTOR:
-    return "partial_constructor";
+    return "partial constructor";
   }
   RQ_UNREACHABLE();
 }
@@ -307,440 +349,355 @@ enum class SymbolFlags : std::uint_fast32_t {
   NONE = 0,
   // USABLE INHERITING PROPERTIES - are implmented via inherited types that can
   // be used themselves. every symbol can have at most one of these.
-  TYPE = rq::getBit(0),
-  SIMPLE_BUILTIN = rq::getBit(1),
-  SCALED_BUILTIN = rq::getBit(2),
-  UNARY_SUBTYPE = rq::getBit(3),
-  COUNTED_SUBTYPE = rq::getBit(4),
-  COMPOSITE_SUBTYPE = rq::getBit(5),
-  ARITHMETIC_SEQUENCE = rq::getBit(6),
-  MAYBE_DEFAULT_VALUED = rq::getBit(7),
-  SYMBOL_TABLE = rq::getBit(8),
-  PROCEDURE = rq::getBit(9),
-  TEMPLATE = rq::getBit(10),
-  PARTIAL_SPECIALIZATION = rq::getBit(11),
-  // UNUSABLE INHERITING PROPERTIES - are implemented via inherited types that
-  // can not be used themselves
-  HAS_LOCATION = rq::getBit(12),
-  MODULE_MEMBER = rq::getBit(13),
-  MAYBE_CLASS_MEMBER = rq::getBit(14),
-  HAS_LAYOUT = rq::getBit(15),
-  HAS_SIGNATURE = rq::getBit(16),
-  HAS_TEMPLATE_LAYOUT = rq::getBit(17),
-  HAS_POSITIONAL_ENTRIES = rq::getBit(18),
-  SYMBOL_TABLE_MEMBER = rq::getBit(19),
-  HAS_STATIC_VALUE = rq::getBit(20),
-  HAS_ATTRIBUTES = rq::getBit(21),
-  MAYBE_HAS_NAME = rq::getBit(22),
-  HAS_NAME = rq::getBit(23),
-  HAS_TYPE = rq::getBit(24),
-  HAS_IMPORT_MODULE = rq::getBit(25),
+  SIMPLE_BUILTIN = rq::getBit(0),
+  SCALED_BUILTIN = rq::getBit(1),
+  UNARY_SUBTYPE = rq::getBit(2),
+  COUNTED_SUBTYPE = rq::getBit(3),
+  COMPOSITE_SUBTYPE = rq::getBit(4),
+  ARITHMETIC_SEQUENCE = rq::getBit(5),
+  SYMBOL_TABLE = rq::getBit(6),
+  PROCEDURE = rq::getBit(7),
+  TEMPLATE = rq::getBit(8),
+  PARTIAL = rq::getBit(9),
   // INFO PROPERTIES - have no data associated
-  HAS_TEMPLATE_ALTERNATIVE = rq::getBit(26),
-  ROOT = rq::getBit(27),
-  INTEGER = rq::getBit(28),
-  FLOAT = rq::getBit(29),
-  CODEUNIT = rq::getBit(30),
-  GENERIC = rq::getBit(31)
+  HAS_TEMPLATE_ALTERNATIVE = rq::getBit(10),
+  TYPE = rq::getBit(11),
+  GENERIC = rq::getBit(12),
+  CONCRETE = rq::getBit(13),
+  SUBTYPE = rq::getBit(14),
+  PLATFORM_CHANGING = rq::getBit(15),
+  INTEGER = rq::getBit(16),
+  FLOAT = rq::getBit(17),
+  CODEUNIT = rq::getBit(18),
+  SIGNED = rq::getBit(19),
+  UNSIGNED = rq::getBit(20)
 };
 
 template <> struct is_flags<rq::SymbolFlags> : std::true_type {};
-
 [[nodiscard]] inline rq::SymbolFlags getFlags(SymbolKind kind) {
   using namespace rq;
   using SY = SymbolKind;
   using SYF = SymbolFlags;
   switch (kind) {
-  case rq::SymbolKind::NONE:
+  case SY::NONE:
     return SYF::NONE;
 
-  // ROOT WITH TYPE ATTRIBUTES
-  case SY::TYPE:
-    return SYF::TYPE | SYF::ROOT;
+  // TYPE DEFINITION
+  case SY::TYPE_DEFINITION:
+    return SYF::TYPE;
 
   // SIMPLE BUILTIN
   case SY::INFERENCE:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::GENERIC;
+  case SY::GENERIC_TYPE:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::GENERIC;
+  case SY::GENERIC_SYMBOL:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::GENERIC;
   case SY::VOID:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CONCRETE;
   case SY::NULL_:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CONCRETE;
   case SY::NO_RETURN:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CONCRETE;
   case SY::VARIADIC_ARGUMENTS:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CONCRETE;
   case SY::BOOLEAN:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT;
-  case SY::ASCII:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::CODEUNIT;
-  case SY::UTF8:
-    return SYF::SIMPLE_BUILTIN | SYF::ROOT | SYF::CODEUNIT;
-
-  // SCALED INTEGER
-  case SY::GENERIC_INTEGER:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::INTEGER | SYF::GENERIC;
-  case SY::SIGNED:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::INTEGER;
-  case SY::UNSIGNED:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::INTEGER;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CONCRETE;
   case SY::GENERIC_FLOAT:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::FLOAT | SYF::GENERIC;
-  case SY::BINARY:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::FLOAT;
-  case SY::BFLOAT:
-    return SYF::SCALED_BUILTIN | SYF::ROOT | SYF::FLOAT;
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::GENERIC;
+  case SY::HALF:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
+  case SY::SINGLE:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
+  case SY::DOUBLE:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
+  case SY::QUADRUPLE:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
+  case SY::GENERIC_BINARY:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::GENERIC;
+  case SY::GENERIC_BFLOAT:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::GENERIC;
+  case SY::BINARY16:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE;
+  case SY::BINARY32:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE;
+  case SY::BINARY64:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE;
+  case SY::BINARY128:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE;
+  case SY::BFLOAT16:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::FLOAT | SYF::CONCRETE;
+  case SY::GENERIC_INTEGER:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::INTEGER | SYF::GENERIC;
+  case SY::GENERIC_SIGNED:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::INTEGER | SYF::GENERIC;
+  case SY::GENERIC_UNSIGNED:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::INTEGER | SYF::GENERIC;
+  case SY::GENERIC_CODEUNIT:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CODEUNIT | SYF::GENERIC;
+  case SY::ASCII:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CODEUNIT | SYF::CONCRETE;
+  case SY::UTF8:
+    return SYF::SIMPLE_BUILTIN | SYF::TYPE | SYF::CODEUNIT | SYF::CONCRETE;
+
+  // SCALED BUILTIN
+  case SY::SCALED_SIGNED:
+    return SYF::SCALED_BUILTIN | SYF::TYPE | SYF::INTEGER | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING | SYF::SIGNED;
+  case SY::SCALED_UNSIGNED:
+    return SYF::SCALED_BUILTIN | SYF::TYPE | SYF::INTEGER | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
 
   // UNARY SUBTYPE
   case SY::RANGE:
-    return SYF::UNARY_SUBTYPE | SYF::ROOT;
+    return SYF::UNARY_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
   case SY::REFERENCE:
-    return SYF::UNARY_SUBTYPE | SYF::ROOT;
+    return SYF::UNARY_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
   case SY::POINTER:
-    return SYF::UNARY_SUBTYPE | SYF::ROOT;
+    return SYF::UNARY_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
   case SY::FAT_POINTER:
-    return SYF::UNARY_SUBTYPE | SYF::ROOT;
+    return SYF::UNARY_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
   case SY::INFERENCED_COUNT_ARRAY:
-    return SYF::UNARY_SUBTYPE | SYF::ROOT;
+    return SYF::UNARY_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::GENERIC;
 
   // COUNTED SUBTYPE
   case SY::ARRAY:
-    return SYF::COUNTED_SUBTYPE | SYF::ROOT;
+    return SYF::COUNTED_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
 
   // COMPOSITE SUBTYPE
   case SY::LAYOUT:
-    return SYF::SYMBOL_TABLE | SYF::COMPOSITE_SUBTYPE | SYF::ROOT;
+    return SYF::COMPOSITE_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE |
+           SYF::PLATFORM_CHANGING;
   case SY::SIGNATURE:
-    return SYF::SYMBOL_TABLE | SYF::COMPOSITE_SUBTYPE | SYF::ROOT;
+    return SYF::COMPOSITE_SUBTYPE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
 
   // ARITHMETIC SEQUENCE
   case SY::ARITHMETIC_INTERVAL:
-    return SYF::ARITHMETIC_SEQUENCE | SYF::ROOT;
+    return SYF::ARITHMETIC_SEQUENCE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
   case SY::FINITE_ARITHMETIC_PROGRESSION:
-    return SYF::ARITHMETIC_SEQUENCE | SYF::ROOT;
+    return SYF::ARITHMETIC_SEQUENCE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
   case SY::INFINITE_ARITHMETIC_PROGRESSION:
-    return SYF::ARITHMETIC_SEQUENCE | SYF::ROOT;
+    return SYF::ARITHMETIC_SEQUENCE | SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
 
   // MISC
   case SY::MODULE:
-    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION;
+    return SYF::NONE;
   case SY::IMPORT:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::HAS_IMPORT_MODULE;
+    return SYF::NONE;
   case SY::FACADE:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES;
+    return SYF::NONE;
   case SY::MUTATION:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES;
+    return SYF::NONE;
   case SY::EXTENSION:
-    return SYF::HAS_SIGNATURE | SYF::HAS_TYPE;
+    return SYF::TYPE | SYF::SUBTYPE | SYF::CONCRETE;
 
   // BINDING
   case SY::DYNAMIC_VARIABLE:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::HAS_NAME | SYF::HAS_TYPE |
-           SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::STATIC_VARIABLE:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_STATIC_VALUE | SYF::HAS_ATTRIBUTES | SYF::HAS_NAME |
-           SYF::HAS_TYPE | SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::ENUMERATOR:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED | SYF::HAS_NAME |
-           SYF::HAS_TYPE;
+    return SYF::NONE;
   case SY::PROPERTY:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
-           SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
+    return SYF::NONE;
   case SY::CLASS_PARAMETER:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::HAS_TYPE;
+    return SYF::NONE;
   case SY::LAYOUT_PARAMETER:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
-  case SY::SIGNATURE_PARAMETER:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
-           SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
+    return SYF::NONE;
   case SY::TEMPLATE_PARAMETER:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_ATTRIBUTES | SYF::MAYBE_DEFAULT_VALUED |
-           SYF::MAYBE_HAS_NAME | SYF::HAS_TYPE;
+    return SYF::NONE;
+  case SY::SIGNATURE_PARAMETER:
+    return SYF::NONE;
   case SY::LABEL:
-    return SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_LOCATION |
-           SYF::HAS_NAME;
+    return SYF::NONE;
 
-    // SYMBOL TABLES
+  // SYMBOL TABLES
   case SY::TOP:
     return SYF::SYMBOL_TABLE;
   case SY::TABLE:
-    return SYF::SYMBOL_TABLE | SYF::HAS_NAME;
+    return SYF::SYMBOL_TABLE;
   case SY::CLASS:
-    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION | SYF::MODULE_MEMBER |
-           SYF::HAS_LAYOUT | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE | SYF::ROOT;
+    return SYF::SYMBOL_TABLE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::ENUMERATION:
-    return SYF::SYMBOL_TABLE | SYF::HAS_LOCATION | SYF::MODULE_MEMBER |
-           SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES | SYF::HAS_NAME |
-           SYF::HAS_TEMPLATE_ALTERNATIVE | SYF::ROOT;
+    return SYF::SYMBOL_TABLE | SYF::HAS_TEMPLATE_ALTERNATIVE;
 
   // PROCEDURES
   case SY::ENTRY:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES;
+    return SYF::PROCEDURE;
   case SY::FUNCTION:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::PROCEDURE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::METHOD:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::PROCEDURE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::PROCEDURE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::PROCEDURE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_TEMPLATE_ALTERNATIVE;
+    return SYF::PROCEDURE | SYF::HAS_TEMPLATE_ALTERNATIVE;
   case SY::DESTRUCTOR:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES;
+    return SYF::PROCEDURE;
   case SY::RANGER:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES;
+    return SYF::PROCEDURE;
 
   // TEMPLATE
   case SY::TEMPLATE_CLASS:
-    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_ENUMERATION:
-    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_DYNAMIC_VARIABLE:
-    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_STATIC_VARIABLE:
-    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::HAS_STATIC_VALUE |
-           SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_FUNCTION:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_METHOD:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::TEMPLATE;
+    return SYF::TEMPLATE;
   case SY::TEMPLATE_CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::TEMPLATE;
+    return SYF::TEMPLATE;
 
   // PARTIAL SPECIALIZATION
   case SY::PARTIAL_CLASS:
-    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_ENUMERATION:
-    return SYF::SYMBOL_TABLE | SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_DYNAMIC_VARIABLE:
-    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_STATIC_VARIABLE:
-    return SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_NAME | SYF::HAS_STATIC_VALUE |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_FUNCTION:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_METHOD:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_EXTENSION_FUNCTION:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_EXTENSION_METHOD:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::HAS_NAME | SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   case SY::PARTIAL_CONSTRUCTOR:
-    return SYF::PROCEDURE | SYF::HAS_LOCATION | SYF::HAS_SIGNATURE |
-           SYF::MODULE_MEMBER | SYF::SYMBOL_TABLE_MEMBER | SYF::HAS_ATTRIBUTES |
-           SYF::PARTIAL_SPECIALIZATION;
+    return SYF::PARTIAL;
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoot(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::ROOT);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinition(rq::SymbolKind kind) {
+  return kind == rq::SymbolKind::TYPE_DEFINITION;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::SIMPLE_BUILTIN);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::SCALED_BUILTIN);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::UNARY_SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::COUNTED_SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::COMPOSITE_SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsMaybeDefaultValued(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::MAYBE_DEFAULT_VALUED);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsArithmeticSequence(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::ARITHMETIC_SEQUENCE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsSymbolTableMember(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_TABLE_MEMBER);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_TABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::PROCEDURE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::TEMPLATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPartialSpecialization(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::PARTIAL_SPECIALIZATION);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::PARTIAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasTemplateAlternative(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::SymbolFlags::HAS_TEMPLATE_ALTERNATIVE);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_TEMPLATE_ALTERNATIVE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::GENERIC);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::CONCRETE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::SUBTYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::PLATFORM_CHANGING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::INTEGER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::FLOAT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags,
-                        rq::SymbolFlags::INTEGER | rq::SymbolFlags::FLOAT);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
+  const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::CODEUNIT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_NAME);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::SIGNED);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getMaybeHasName(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::MAYBE_HAS_NAME);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_LOCATION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleMember(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::MODULE_MEMBER);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsMaybeClassMember(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::MAYBE_CLASS_MEMBER);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLayout(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_LAYOUT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_SIGNATURE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateLayout(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_TEMPLATE_LAYOUT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPositionalEntries(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_POSITIONAL_ENTRIES);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticValue(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_STATIC_VALUE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttributes(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_ATTRIBUTES);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasType(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_TYPE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule(rq::SymbolKind kind) {
-  rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_IMPORT_MODULE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::UNSIGNED);
 }
 
 [[nodiscard]] inline rq::SymbolKind getTemplate(rq::SymbolKind symbol) {
@@ -807,8 +764,7 @@ getHasPositionalEntries(rq::SymbolKind kind) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::SymbolKind
-getPartialSpecialization(rq::SymbolKind symbol) {
+[[nodiscard]] inline rq::SymbolKind getPartial(rq::SymbolKind symbol) {
   using namespace rq;
   using SY = SymbolKind;
   switch (symbol) {
@@ -946,17 +902,29 @@ struct NullSymbol;
 struct NoReturnSymbol;
 struct VariadicArgumentsSymbol;
 struct BooleanSymbol;
+struct GenericFloatSymbol;
+struct HalfSymbol;
+struct SingleSymbol;
+struct DoubleSymbol;
+struct QuadrupleSymbol;
+struct GenericBinarySymbol;
+struct GenericBfloatSymbol;
+struct Binary16Symbol;
+struct Binary32Symbol;
+struct Binary64Symbol;
+struct Binary128Symbol;
+struct Bfloat16Symbol;
+struct GenericIntegerSymbol;
+struct GenericSignedSymbol;
+struct GenericUnsignedSymbol;
+struct GenericCodeunitSymbol;
 struct AsciiSymbol;
 struct Utf8Symbol;
 
 // SCALED INTEGER
 struct ScaledBuiltinSymbol;
-struct IntegerSymbol;
-struct SignedSymbol;
-struct UnsignedSymbol;
-struct FloatSymbol;
-struct BinarySymbol;
-struct BfloatSymbol;
+struct ScaledSignedSymbol;
+struct ScaledUnsignedSymbol;
 
 // UNARY SUBTYPE
 struct UnarySubtypeSymbol;
@@ -1029,7 +997,7 @@ struct TemplateExtensionMethodSymbol;
 struct TemplateConstructorSymbol;
 
 // PARTIAL SPECIALIZATION
-struct PartialSpecializationSymbol;
+struct PartialSymbol;
 struct PartialClassSymbol;
 struct PartialEnumerationSymbol;
 struct PartialDynamicVariableSymbol;
@@ -1057,21 +1025,20 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const {
     return this->_kind;
   }
-
-  // ROOT WITH TYPE ATTRIBUTES
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoot() const {
-    return rq::getIsRoot(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinition() const {
+    return this->_kind == rq::SymbolKind::TYPE_DEFINITION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
-    return this->_kind == rq::SymbolKind::TYPE;
-  }
-
-  // SIMPLE BUILTIN
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin() const {
     return rq::getIsSimpleBuiltin(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInference() const {
     return this->_kind == rq::SymbolKind::INFERENCE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericType() const {
+    return this->_kind == rq::SymbolKind::GENERIC_TYPE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol() const {
+    return this->_kind == rq::SymbolKind::GENERIC_SYMBOL;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVoid() const {
     return this->_kind == rq::SymbolKind::VOID;
@@ -1088,34 +1055,69 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBoolean() const {
     return this->_kind == rq::SymbolKind::BOOLEAN;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloat() const {
+    return this->_kind == rq::SymbolKind::GENERIC_FLOAT;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHalf() const {
+    return this->_kind == rq::SymbolKind::HALF;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSingle() const {
+    return this->_kind == rq::SymbolKind::SINGLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDouble() const {
+    return this->_kind == rq::SymbolKind::DOUBLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQuadruple() const {
+    return this->_kind == rq::SymbolKind::QUADRUPLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBinary() const {
+    return this->_kind == rq::SymbolKind::GENERIC_BINARY;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBfloat() const {
+    return this->_kind == rq::SymbolKind::GENERIC_BFLOAT;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16() const {
+    return this->_kind == rq::SymbolKind::BINARY16;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32() const {
+    return this->_kind == rq::SymbolKind::BINARY32;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64() const {
+    return this->_kind == rq::SymbolKind::BINARY64;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128() const {
+    return this->_kind == rq::SymbolKind::BINARY128;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16() const {
+    return this->_kind == rq::SymbolKind::BFLOAT16;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericInteger() const {
+    return this->_kind == rq::SymbolKind::GENERIC_INTEGER;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSigned() const {
+    return this->_kind == rq::SymbolKind::GENERIC_SIGNED;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericUnsigned() const {
+    return this->_kind == rq::SymbolKind::GENERIC_UNSIGNED;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericCodeunit() const {
+    return this->_kind == rq::SymbolKind::GENERIC_CODEUNIT;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAscii() const {
     return this->_kind == rq::SymbolKind::ASCII;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8() const {
     return this->_kind == rq::SymbolKind::UTF8;
   }
-
-  // SCALED BUILTIN
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericInteger() const {
-    return this->_kind == rq::SymbolKind::GENERIC_INTEGER;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin() const {
+    return rq::getIsScaledBuiltin(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
-    return this->_kind == rq::SymbolKind::SIGNED;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledSigned() const {
+    return this->_kind == rq::SymbolKind::SCALED_SIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
-    return this->_kind == rq::SymbolKind::UNSIGNED;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledUnsigned() const {
+    return this->_kind == rq::SymbolKind::SCALED_UNSIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloat() const {
-    return this->_kind == rq::SymbolKind::GENERIC_FLOAT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const {
-    return this->_kind == rq::SymbolKind::BINARY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat() const {
-    return this->_kind == rq::SymbolKind::BFLOAT;
-  }
-
-  // UNARY SUBTYPE
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype() const {
     return rq::getIsUnarySubtype(this->_kind);
   }
@@ -1134,16 +1136,12 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferencedCountArray() const {
     return this->_kind == rq::SymbolKind::INFERENCED_COUNT_ARRAY;
   }
-
-  // COUNTED SUBTYPE
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype() const {
     return rq::getIsCountedSubtype(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArray() const {
     return this->_kind == rq::SymbolKind::ARRAY;
   }
-
-  // COMPOSITE SUBTYPE
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype() const {
     return rq::getIsCompositeSubtype(this->_kind);
   }
@@ -1153,11 +1151,6 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignature() const {
     return this->_kind == rq::SymbolKind::SIGNATURE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtension() const {
-    return this->_kind == rq::SymbolKind::EXTENSION;
-  }
-
-  // ARITHMETIC SEQUENCE
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence() const {
     return rq::getIsArithmeticSequence(this->_kind);
   }
@@ -1171,24 +1164,20 @@ public:
   getIsInfiniteArithmeticProgression() const {
     return this->_kind == rq::SymbolKind::INFINITE_ARITHMETIC_PROGRESSION;
   }
-
-  // MISC
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModule() const {
     return this->_kind == rq::SymbolKind::MODULE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImport() const {
     return this->_kind == rq::SymbolKind::IMPORT;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacade() const {
+    return this->_kind == rq::SymbolKind::FACADE;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutation() const {
     return this->_kind == rq::SymbolKind::MUTATION;
   }
-
-  // BINDING
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableMember() const {
-    return rq::getIsSymbolTableMember(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMaybeDefaultValued() const {
-    return rq::getIsMaybeDefaultValued(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtension() const {
+    return this->_kind == rq::SymbolKind::EXTENSION;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable() const {
     return this->_kind == rq::SymbolKind::DYNAMIC_VARIABLE;
@@ -1214,14 +1203,12 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameter() const {
     return this->_kind == rq::SymbolKind::SIGNATURE_PARAMETER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacade() const {
-    return this->_kind == rq::SymbolKind::FACADE;
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabel() const {
     return this->_kind == rq::SymbolKind::LABEL;
   }
-
-  // SYMBOL TABLES
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
+    return rq::getIsSymbolTable(this->_kind);
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTop() const {
     return this->_kind == rq::SymbolKind::TOP;
   }
@@ -1234,8 +1221,6 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeration() const {
     return this->_kind == rq::SymbolKind::ENUMERATION;
   }
-
-  // PROCEDURES
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure() const {
     return rq::getIsProcedure(this->_kind);
   }
@@ -1263,8 +1248,6 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger() const {
     return this->_kind == rq::SymbolKind::RANGER;
   }
-
-  // TEMPLATE
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate() const {
     return rq::getIsTemplate(this->_kind);
   }
@@ -1273,10 +1256,6 @@ public:
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateEnumeration() const {
     return this->_kind == rq::SymbolKind::TEMPLATE_ENUMERATION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateVariable() const {
-    return this->_kind == rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE ||
-           this->_kind == rq::SymbolKind::TEMPLATE_STATIC_VARIABLE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateDynamicVariable() const {
     return this->_kind == rq::SymbolKind::TEMPLATE_DYNAMIC_VARIABLE;
@@ -1299,20 +1278,14 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateConstructor() const {
     return this->_kind == rq::SymbolKind::TEMPLATE_CONSTRUCTOR;
   }
-
-  // PARTIAL SPECIALIZATION
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSpecialization() const {
-    return rq::getIsPartialSpecialization(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial() const {
+    return rq::getIsPartial(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialClass() const {
     return this->_kind == rq::SymbolKind::PARTIAL_CLASS;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialEnumeration() const {
     return this->_kind == rq::SymbolKind::PARTIAL_ENUMERATION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialVariable() const {
-    return this->_kind == rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE ||
-           this->_kind == rq::SymbolKind::PARTIAL_STATIC_VARIABLE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialDynamicVariable() const {
     return this->_kind == rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE;
@@ -1335,10 +1308,23 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialConstructor() const {
     return this->_kind == rq::SymbolKind::PARTIAL_CONSTRUCTOR;
   }
-
-  // ADDITIONAL FLAG GETTERS
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const {
     return rq::getHasTemplateAlternative(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
+    return rq::getIsType(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric() const {
+    return rq::getIsGeneric(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete() const {
+    return rq::getIsConcrete(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
+    return rq::getIsSubtype(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const {
+    return rq::getIsPlatformChanging(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
     return rq::getIsInteger(this->_kind);
@@ -1346,56 +1332,14 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
     return rq::getIsFloat(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin() const {
-    return rq::getIsScaledBuiltin(this->_kind);
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const {
     return rq::getIsCodeunit(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed() const {
-    return rq::getIsNamed(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
+    return rq::getIsSigned(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getMaybeHasName() const {
-    return rq::getMaybeHasName(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const {
-    return rq::getIsNumeric(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const {
-    return rq::getHasLocation(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleMember() const {
-    return rq::getIsModuleMember(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMaybeClassMember() const {
-    return rq::getIsMaybeClassMember(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLayout() const {
-    return rq::getHasLayout(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const {
-    return rq::getHasSignature(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateLayout() const {
-    return rq::getHasTemplateLayout(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPositionalEntries() const {
-    return rq::getHasPositionalEntries(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStaticValue() const {
-    return rq::getHasStaticValue(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttributes() const {
-    return rq::getHasAttributes(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
-    return rq::getHasType(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
-    return rq::getIsSymbolTable(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule() const {
-    return rq::getHasImportModule(this->_kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
+    return rq::getIsUnsigned(this->_kind);
   }
 };
 
@@ -1565,23 +1509,24 @@ public:
   }
 };
 
-struct IntegerSymbol : public rq::ScaledBuiltinSymbol {
-  using Self = rq::IntegerSymbol;
+struct ScaledIntegerSymbol : public rq::ScaledBuiltinSymbol {
+  using Self = rq::ScaledIntegerSymbol;
 
 public:
-  IntegerSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags)
+  ScaledIntegerSymbol(unsigned scalar, unsigned uid,
+                      rq::ScaledBuiltinFlags flags)
       : rq::ScaledBuiltinSymbol(rq::SymbolKind::GENERIC_INTEGER, scalar, uid,
                                 flags) {}
 
 protected:
-  IntegerSymbol(rq::SymbolKind kind, unsigned scalar, unsigned uid,
-                rq::ScaledBuiltinFlags flags)
+  ScaledIntegerSymbol(rq::SymbolKind kind, unsigned scalar, unsigned uid,
+                      rq::ScaledBuiltinFlags flags)
       : rq::ScaledBuiltinSymbol(kind, scalar, uid, flags) {}
 
 public:
-  IntegerSymbol(const Self &) = delete;
-  IntegerSymbol(Self &&) = delete;
-  virtual ~IntegerSymbol() {}
+  ScaledIntegerSymbol(const Self &) = delete;
+  ScaledIntegerSymbol(Self &&) = delete;
+  virtual ~ScaledIntegerSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -1624,7 +1569,7 @@ protected:
   UnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &root)
       : rq::Symbol(kind), _root_ptr(&root) {
     RQ_ASSERT(rq::getIsUnarySubtype(kind), "kind not unary subtype symbol");
-    RQ_ASSERT(root.getIsRoot(), "not root");
+    RQ_ASSERT(root.getIsType(), "not type");
   }
 
 public:
@@ -1664,7 +1609,7 @@ protected:
   CountedSubtypeSymbol(rq::SymbolKind kind, rq::Symbol &root, unsigned count)
       : rq::Symbol(kind), _root_ptr(&root), _count(count) {
     RQ_ASSERT(rq::getIsCountedSubtype(kind), "not counted subtype");
-    RQ_ASSERT(root.getIsRoot(), "not root");
+    RQ_ASSERT(root.getIsType(), "not type");
   }
 
 public:
@@ -1712,7 +1657,7 @@ protected:
                            rq::ArithmeticSequenceCondition condition,
                            rq::ArithmeticSequenceStep step)
       : rq::Symbol(kind), _root_ptr(&root), _condition(condition), _step(step) {
-    RQ_ASSERT(root.getIsRoot(), "not root");
+    RQ_ASSERT(root.getIsType(), "not type");
     RQ_ASSERT(rq::getIsArithmeticSequence(kind),
               "kind not arithmetic sequence symbol");
   }
@@ -2117,16 +2062,16 @@ public:
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialSpecializationSymbol : public rq::Symbol {
-  using Self = rq::PartialSpecializationSymbol;
+struct PartialSymbol : public rq::Symbol {
+  using Self = rq::PartialSymbol;
 
 protected:
-  PartialSpecializationSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
+  PartialSymbol(rq::SymbolKind kind) : rq::Symbol(kind) {}
 
 public:
-  PartialSpecializationSymbol(const Self &) = delete;
-  PartialSpecializationSymbol(Self &&) = delete;
-  virtual ~PartialSpecializationSymbol() {}
+  PartialSymbol(const Self &) = delete;
+  PartialSymbol(Self &&) = delete;
+  virtual ~PartialSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -2211,6 +2156,186 @@ template <> struct isa_impl<rq::BooleanSymbol, rq::SimpleBuiltinSymbol> {
   }
 };
 
+template <> struct isa_impl<rq::GenericFloatSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericFloat();
+  }
+};
+
+template <> struct isa_impl<rq::GenericFloatSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericFloat();
+  }
+};
+
+template <> struct isa_impl<rq::HalfSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsHalf(); }
+};
+
+template <> struct isa_impl<rq::HalfSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsHalf();
+  }
+};
+
+template <> struct isa_impl<rq::SingleSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsSingle(); }
+};
+
+template <> struct isa_impl<rq::SingleSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsSingle();
+  }
+};
+
+template <> struct isa_impl<rq::DoubleSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsDouble(); }
+};
+
+template <> struct isa_impl<rq::DoubleSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsDouble();
+  }
+};
+
+template <> struct isa_impl<rq::QuadrupleSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsQuadruple();
+  }
+};
+
+template <> struct isa_impl<rq::QuadrupleSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsQuadruple();
+  }
+};
+
+template <> struct isa_impl<rq::GenericBinarySymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericBinary();
+  }
+};
+
+template <> struct isa_impl<rq::GenericBinarySymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericBinary();
+  }
+};
+
+template <> struct isa_impl<rq::GenericBfloatSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericBfloat();
+  }
+};
+
+template <> struct isa_impl<rq::GenericBfloatSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericBfloat();
+  }
+};
+
+template <> struct isa_impl<rq::Binary16Symbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary16(); }
+};
+
+template <> struct isa_impl<rq::Binary16Symbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsBinary16();
+  }
+};
+
+template <> struct isa_impl<rq::Binary32Symbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary32(); }
+};
+
+template <> struct isa_impl<rq::Binary32Symbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsBinary32();
+  }
+};
+
+template <> struct isa_impl<rq::Binary64Symbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary64(); }
+};
+
+template <> struct isa_impl<rq::Binary64Symbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsBinary64();
+  }
+};
+
+template <> struct isa_impl<rq::Binary128Symbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsBinary128();
+  }
+};
+
+template <> struct isa_impl<rq::Binary128Symbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsBinary128();
+  }
+};
+
+template <> struct isa_impl<rq::Bfloat16Symbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBfloat16(); }
+};
+
+template <> struct isa_impl<rq::Bfloat16Symbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsBfloat16();
+  }
+};
+
+template <> struct isa_impl<rq::GenericIntegerSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericInteger();
+  }
+};
+
+template <> struct isa_impl<rq::GenericIntegerSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericInteger();
+  }
+};
+
+template <> struct isa_impl<rq::GenericSignedSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericSigned();
+  }
+};
+
+template <> struct isa_impl<rq::GenericSignedSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericSigned();
+  }
+};
+
+template <> struct isa_impl<rq::GenericUnsignedSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericUnsigned();
+  }
+};
+
+template <>
+struct isa_impl<rq::GenericUnsignedSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericUnsigned();
+  }
+};
+
+template <> struct isa_impl<rq::GenericCodeunitSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsGenericCodeunit();
+  }
+};
+
+template <>
+struct isa_impl<rq::GenericCodeunitSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsGenericCodeunit();
+  }
+};
+
 template <> struct isa_impl<rq::AsciiSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) { return val.getIsAscii(); }
 };
@@ -2238,89 +2363,27 @@ template <> struct isa_impl<rq::ScaledBuiltinSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::IntegerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::IntegerSymbol &val) {
-    return val.getIsInteger();
+template <> struct isa_impl<rq::ScaledSignedSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsScaledSigned();
   }
 };
 
-template <> struct isa_impl<rq::IntegerSymbol, rq::ScaledBuiltinSymbol> {
+template <> struct isa_impl<rq::ScaledSignedSymbol, rq::ScaledBuiltinSymbol> {
   static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsInteger();
+    return val.getIsScaledSigned();
   }
 };
 
-template <> struct isa_impl<rq::SignedSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsSigned(); }
+template <> struct isa_impl<rq::ScaledUnsignedSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsScaledUnsigned();
+  }
 };
 
-template <> struct isa_impl<rq::SignedSymbol, rq::ScaledBuiltinSymbol> {
+template <> struct isa_impl<rq::ScaledUnsignedSymbol, rq::ScaledBuiltinSymbol> {
   static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsSigned();
-  }
-};
-
-template <> struct isa_impl<rq::SignedSymbol, rq::IntegerSymbol> {
-  static inline bool doit(const rq::IntegerSymbol &val) {
-    return val.getIsSigned();
-  }
-};
-
-template <> struct isa_impl<rq::UnsignedSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsUnsigned(); }
-};
-
-template <> struct isa_impl<rq::UnsignedSymbol, rq::ScaledBuiltinSymbol> {
-  static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsUnsigned();
-  }
-};
-
-template <> struct isa_impl<rq::UnsignedSymbol, rq::IntegerSymbol> {
-  static inline bool doit(const rq::IntegerSymbol &val) {
-    return val.getIsSigned();
-  }
-};
-
-template <> struct isa_impl<rq::FloatSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsFloat(); }
-};
-
-template <> struct isa_impl<rq::FloatSymbol, rq::ScaledBuiltinSymbol> {
-  static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsFloat();
-  }
-};
-
-template <> struct isa_impl<rq::BinarySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary(); }
-};
-
-template <> struct isa_impl<rq::BinarySymbol, rq::FloatSymbol> {
-  static inline bool doit(const rq::FloatSymbol &val) {
-    return val.getIsBinary();
-  }
-};
-
-template <> struct isa_impl<rq::BinarySymbol, rq::ScaledBuiltinSymbol> {
-  static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsBinary();
-  }
-};
-
-template <> struct isa_impl<rq::BfloatSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBfloat(); }
-};
-
-template <> struct isa_impl<rq::BfloatSymbol, rq::ScaledBuiltinSymbol> {
-  static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsBfloat();
-  }
-};
-
-template <> struct isa_impl<rq::BfloatSymbol, rq::FloatSymbol> {
-  static inline bool doit(const rq::FloatSymbol &val) {
-    return val.getIsBfloat();
+    return val.getIsScaledUnsigned();
   }
 };
 
@@ -2801,10 +2864,8 @@ template <> struct isa_impl<rq::TemplateConstructorSymbol, rq::TemplateSymbol> {
 };
 
 // PARTIAL SPECIALIZATION
-template <> struct isa_impl<rq::PartialSpecializationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialSpecialization();
-  }
+template <> struct isa_impl<rq::PartialSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsPartial(); }
 };
 
 template <> struct isa_impl<rq::PartialClassSymbol, rq::Symbol> {
@@ -2813,9 +2874,8 @@ template <> struct isa_impl<rq::PartialClassSymbol, rq::Symbol> {
   }
 };
 
-template <>
-struct isa_impl<rq::PartialClassSymbol, rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+template <> struct isa_impl<rq::PartialClassSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialClass();
   }
 };
@@ -2826,9 +2886,8 @@ template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::Symbol> {
   }
 };
 
-template <>
-struct isa_impl<rq::PartialEnumerationSymbol, rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialEnumeration();
   }
 };
@@ -2840,9 +2899,8 @@ template <> struct isa_impl<rq::PartialDynamicVariableSymbol, rq::Symbol> {
 };
 
 template <>
-struct isa_impl<rq::PartialDynamicVariableSymbol,
-                rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+struct isa_impl<rq::PartialDynamicVariableSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialDynamicVariable();
   }
 };
@@ -2854,9 +2912,8 @@ template <> struct isa_impl<rq::PartialStaticVariableSymbol, rq::Symbol> {
 };
 
 template <>
-struct isa_impl<rq::PartialStaticVariableSymbol,
-                rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+struct isa_impl<rq::PartialStaticVariableSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialStaticVariable();
   }
 };
@@ -2867,9 +2924,8 @@ template <> struct isa_impl<rq::PartialFunctionSymbol, rq::Symbol> {
   }
 };
 
-template <>
-struct isa_impl<rq::PartialFunctionSymbol, rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+template <> struct isa_impl<rq::PartialFunctionSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialFunction();
   }
 };
@@ -2880,9 +2936,8 @@ template <> struct isa_impl<rq::PartialMethodSymbol, rq::Symbol> {
   }
 };
 
-template <>
-struct isa_impl<rq::PartialMethodSymbol, rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+template <> struct isa_impl<rq::PartialMethodSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialMethod();
   }
 };
@@ -2894,9 +2949,8 @@ template <> struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::Symbol> {
 };
 
 template <>
-struct isa_impl<rq::PartialExtensionFunctionSymbol,
-                rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialExtensionFunction();
   }
 };
@@ -2908,9 +2962,8 @@ template <> struct isa_impl<rq::PartialExtensionMethodSymbol, rq::Symbol> {
 };
 
 template <>
-struct isa_impl<rq::PartialExtensionMethodSymbol,
-                rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+struct isa_impl<rq::PartialExtensionMethodSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialExtensionMethod();
   }
 };
@@ -2921,9 +2974,8 @@ template <> struct isa_impl<rq::PartialConstructorSymbol, rq::Symbol> {
   }
 };
 
-template <>
-struct isa_impl<rq::PartialConstructorSymbol, rq::PartialSpecializationSymbol> {
-  static inline bool doit(const rq::PartialSpecializationSymbol &val) {
+template <> struct isa_impl<rq::PartialConstructorSymbol, rq::PartialSymbol> {
+  static inline bool doit(const rq::PartialSymbol &val) {
     return val.getIsPartialConstructor();
   }
 };
@@ -3064,6 +3116,182 @@ struct BooleanSymbol : public rq::SimpleBuiltinSymbol {
   Self &operator=(Self &&) = delete;
 };
 
+struct GenericFloatSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericFloatSymbol;
+
+  GenericFloatSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_FLOAT) {}
+  GenericFloatSymbol(const Self &) = delete;
+  GenericFloatSymbol(Self &&) = delete;
+  virtual ~GenericFloatSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct HalfSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::HalfSymbol;
+
+  HalfSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::HALF) {}
+  HalfSymbol(const Self &) = delete;
+  HalfSymbol(Self &&) = delete;
+  virtual ~HalfSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct SingleSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::SingleSymbol;
+
+  SingleSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::SINGLE) {}
+  SingleSymbol(const Self &) = delete;
+  SingleSymbol(Self &&) = delete;
+  virtual ~SingleSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct DoubleSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::DoubleSymbol;
+
+  DoubleSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::DOUBLE) {}
+  DoubleSymbol(const Self &) = delete;
+  DoubleSymbol(Self &&) = delete;
+  virtual ~DoubleSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct QuadrupleSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::QuadrupleSymbol;
+
+  QuadrupleSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::QUADRUPLE) {}
+  QuadrupleSymbol(const Self &) = delete;
+  QuadrupleSymbol(Self &&) = delete;
+  virtual ~QuadrupleSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericBinarySymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericBinarySymbol;
+
+  GenericBinarySymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_BINARY) {}
+  GenericBinarySymbol(const Self &) = delete;
+  GenericBinarySymbol(Self &&) = delete;
+  virtual ~GenericBinarySymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericBfloatSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericBfloatSymbol;
+
+  GenericBfloatSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_BFLOAT) {}
+  GenericBfloatSymbol(const Self &) = delete;
+  GenericBfloatSymbol(Self &&) = delete;
+  virtual ~GenericBfloatSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary16Symbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::Binary16Symbol;
+
+  Binary16Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY16) {}
+  Binary16Symbol(const Self &) = delete;
+  Binary16Symbol(Self &&) = delete;
+  virtual ~Binary16Symbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary32Symbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::Binary32Symbol;
+
+  Binary32Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY32) {}
+  Binary32Symbol(const Self &) = delete;
+  Binary32Symbol(Self &&) = delete;
+  virtual ~Binary32Symbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary64Symbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::Binary64Symbol;
+
+  Binary64Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY64) {}
+  Binary64Symbol(const Self &) = delete;
+  Binary64Symbol(Self &&) = delete;
+  virtual ~Binary64Symbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Binary128Symbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::Binary128Symbol;
+
+  Binary128Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BINARY128) {}
+  Binary128Symbol(const Self &) = delete;
+  Binary128Symbol(Self &&) = delete;
+  virtual ~Binary128Symbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct Bfloat16Symbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::Bfloat16Symbol;
+
+  Bfloat16Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::BFLOAT16) {}
+  Bfloat16Symbol(const Self &) = delete;
+  Bfloat16Symbol(Self &&) = delete;
+  virtual ~Bfloat16Symbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericIntegerSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericIntegerSymbol;
+
+  GenericIntegerSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_INTEGER) {}
+  GenericIntegerSymbol(const Self &) = delete;
+  GenericIntegerSymbol(Self &&) = delete;
+  virtual ~GenericIntegerSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericSignedSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericSignedSymbol;
+
+  GenericSignedSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_SIGNED) {}
+  GenericSignedSymbol(const Self &) = delete;
+  GenericSignedSymbol(Self &&) = delete;
+  virtual ~GenericSignedSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericUnsignedSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericUnsignedSymbol;
+
+  GenericUnsignedSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_UNSIGNED) {}
+  GenericUnsignedSymbol(const Self &) = delete;
+  GenericUnsignedSymbol(Self &&) = delete;
+  virtual ~GenericUnsignedSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericCodeunitSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericCodeunitSymbol;
+
+  GenericCodeunitSymbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::GENERIC_CODEUNIT) {}
+  GenericCodeunitSymbol(const Self &) = delete;
+  GenericCodeunitSymbol(Self &&) = delete;
+  virtual ~GenericCodeunitSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
 struct AsciiSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Utf8Symbol;
 
@@ -3081,6 +3309,7 @@ struct Utf8Symbol : public rq::SimpleBuiltinSymbol {
 
 private:
   Utf8Symbol() : rq::SimpleBuiltinSymbol(rq::SymbolKind::UTF8) {}
+
 public:
   Utf8Symbol(const Self &) = delete;
   Utf8Symbol(Self &&) = delete;
@@ -3089,66 +3318,38 @@ public:
   Self &operator=(Self &&) = delete;
 };
 
-struct UnsignedSymbol : public rq::IntegerSymbol {
-  using Self = rq::IntegerSymbol;
+struct ScaledUnsignedSymbol : public rq::ScaledIntegerSymbol {
+  using Self = rq::ScaledUnsignedSymbol;
   friend struct Context;
 
 private:
-  UnsignedSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags)
-      : rq::IntegerSymbol(rq::SymbolKind::UNSIGNED, scalar, uid, flags) {}
+  ScaledUnsignedSymbol(unsigned scalar, unsigned uid,
+                       rq::ScaledBuiltinFlags flags)
+      : rq::ScaledIntegerSymbol(rq::SymbolKind::SCALED_UNSIGNED, scalar, uid,
+                                flags) {}
 
 public:
-  UnsignedSymbol(const Self &) = delete;
-  UnsignedSymbol(Self &&) = delete;
-  virtual ~UnsignedSymbol() {}
+  ScaledUnsignedSymbol(const Self &) = delete;
+  ScaledUnsignedSymbol(Self &&) = delete;
+  virtual ~ScaledUnsignedSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-struct SignedSymbol : public rq::IntegerSymbol {
-  using Self = rq::SignedSymbol;
+struct ScaledSignedSymbol : public rq::ScaledIntegerSymbol {
+  using Self = rq::ScaledSignedSymbol;
   friend struct Context;
 
 private:
-  SignedSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags)
-      : rq::IntegerSymbol(rq::SymbolKind::SIGNED, scalar, uid, flags) {}
+  ScaledSignedSymbol(unsigned scalar, unsigned uid,
+                     rq::ScaledBuiltinFlags flags)
+      : rq::ScaledIntegerSymbol(rq::SymbolKind::SCALED_SIGNED, scalar, uid,
+                                flags) {}
 
 public:
-  SignedSymbol(const Self &) = delete;
-  SignedSymbol(Self &&) = delete;
-  virtual ~SignedSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct BinarySymbol : public rq::FloatSymbol {
-  using Self = rq::BinarySymbol;
-  friend struct Context;
-
-private:
-  BinarySymbol(unsigned scalar, std::uint16_t uid, rq::ScaledBuiltinFlags flags)
-      : rq::FloatSymbol(rq::SymbolKind::BINARY, scalar, uid, flags) {}
-
-public:
-  BinarySymbol(const Self &) = delete;
-  BinarySymbol(Self &&) = delete;
-  virtual ~BinarySymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct BfloatSymbol : public rq::ScaledBuiltinSymbol {
-  using Self = rq::FloatSymbol;
-  friend struct Context;
-
-private:
-  BfloatSymbol(unsigned scalar, rq::ScaledBuiltinFlags flags)
-      : rq::ScaledBuiltinSymbol(rq::SymbolKind::BFLOAT, scalar, 0, flags) {}
-
-public:
-  BfloatSymbol(const Self &) = delete;
-  BfloatSymbol(Self &&) = delete;
-  virtual ~BfloatSymbol() {}
+  ScaledSignedSymbol(const Self &) = delete;
+  ScaledSignedSymbol(Self &&) = delete;
+  virtual ~ScaledSignedSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4045,12 +4246,12 @@ struct TemplateConstructorSymbol : public rq::TemplateSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialClassSymbol : public rq::PartialSpecializationSymbol,
+struct PartialClassSymbol : public rq::PartialSymbol,
                             public rq::detail::HasNameSymbol {
   using Self = rq::PartialClassSymbol;
 
   PartialClassSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CLASS),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_CLASS),
         rq::detail::HasNameSymbol(name) {}
   PartialClassSymbol(const Self &) = delete;
   PartialClassSymbol(Self &&) = delete;
@@ -4059,12 +4260,12 @@ struct PartialClassSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol,
+struct PartialEnumerationSymbol : public rq::PartialSymbol,
                                   public rq::detail::HasNameSymbol {
   using Self = rq::PartialEnumerationSymbol;
 
   PartialEnumerationSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_ENUMERATION),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_ENUMERATION),
         rq::detail::HasNameSymbol(name) {}
   PartialEnumerationSymbol(const Self &) = delete;
   PartialEnumerationSymbol(Self &&) = delete;
@@ -4073,13 +4274,12 @@ struct PartialEnumerationSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialDynamicVariableSymbol : public rq::PartialSpecializationSymbol,
+struct PartialDynamicVariableSymbol : public rq::PartialSymbol,
                                       public rq::detail::HasNameSymbol {
   using Self = rq::PartialDynamicVariableSymbol;
 
   PartialDynamicVariableSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_DYNAMIC_VARIABLE),
         rq::detail::HasNameSymbol(name) {}
   PartialDynamicVariableSymbol(const Self &) = delete;
   PartialDynamicVariableSymbol(Self &&) = delete;
@@ -4088,13 +4288,12 @@ struct PartialDynamicVariableSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialStaticVariableSymbol : public rq::PartialSpecializationSymbol,
+struct PartialStaticVariableSymbol : public rq::PartialSymbol,
                                      public rq::detail::HasNameSymbol {
   using Self = rq::PartialStaticVariableSymbol;
 
   PartialStaticVariableSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_STATIC_VARIABLE),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_STATIC_VARIABLE),
         rq::detail::HasNameSymbol(name) {}
   PartialStaticVariableSymbol(const Self &) = delete;
   PartialStaticVariableSymbol(Self &&) = delete;
@@ -4103,12 +4302,12 @@ struct PartialStaticVariableSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol,
+struct PartialFunctionSymbol : public rq::PartialSymbol,
                                public rq::detail::HasNameSymbol {
   using Self = rq::PartialFunctionSymbol;
 
   PartialFunctionSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_FUNCTION),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_FUNCTION),
         rq::detail::HasNameSymbol(name) {}
   PartialFunctionSymbol(const Self &) = delete;
   PartialFunctionSymbol(Self &&) = delete;
@@ -4117,12 +4316,12 @@ struct PartialFunctionSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialMethodSymbol : public rq::PartialSpecializationSymbol,
+struct PartialMethodSymbol : public rq::PartialSymbol,
                              public rq::detail::HasNameSymbol {
   using Self = rq::PartialMethodSymbol;
 
   PartialMethodSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_METHOD),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_METHOD),
         rq::detail::HasNameSymbol(name) {}
   PartialMethodSymbol(const Self &) = delete;
   PartialMethodSymbol(Self &&) = delete;
@@ -4131,13 +4330,12 @@ struct PartialMethodSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol,
+struct PartialExtensionFunctionSymbol : public rq::PartialSymbol,
                                         public rq::detail::HasNameSymbol {
   using Self = rq::PartialExtensionFunctionSymbol;
 
   PartialExtensionFunctionSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_EXTENSION_FUNCTION),
         rq::detail::HasNameSymbol(name) {}
   PartialExtensionFunctionSymbol(const Self &) = delete;
   PartialExtensionFunctionSymbol(Self &&) = delete;
@@ -4146,13 +4344,12 @@ struct PartialExtensionFunctionSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol,
+struct PartialExtensionMethodSymbol : public rq::PartialSymbol,
                                       public rq::detail::HasNameSymbol {
   using Self = rq::PartialExtensionMethodSymbol;
 
   PartialExtensionMethodSymbol(llvm::StringRef name)
-      : rq::PartialSpecializationSymbol(
-            rq::SymbolKind::PARTIAL_EXTENSION_METHOD),
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_EXTENSION_METHOD),
         rq::detail::HasNameSymbol(name) {}
   PartialExtensionMethodSymbol(const Self &) = delete;
   PartialExtensionMethodSymbol(Self &&) = delete;
@@ -4161,11 +4358,11 @@ struct PartialExtensionMethodSymbol : public rq::PartialSpecializationSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct PartialConstructorSymbol : public rq::PartialSpecializationSymbol {
+struct PartialConstructorSymbol : public rq::PartialSymbol {
   using Self = rq::PartialConstructorSymbol;
 
   PartialConstructorSymbol()
-      : rq::PartialSpecializationSymbol(rq::SymbolKind::PARTIAL_CONSTRUCTOR) {}
+      : rq::PartialSymbol(rq::SymbolKind::PARTIAL_CONSTRUCTOR) {}
   PartialConstructorSymbol(const Self &) = delete;
   PartialConstructorSymbol(Self &&) = delete;
   virtual ~PartialConstructorSymbol() {}

@@ -85,6 +85,21 @@ struct Context final {
   rq::NoReturnSymbol *_no_return_symbol{nullptr};
   rq::VariadicArgumentsSymbol *_variadic_arguments_symbol{nullptr};
   rq::BooleanSymbol *_boolean_symbol{nullptr};
+  rq::GenericFloatSymbol *_generic_float_symbol{nullptr};
+  rq::HalfSymbol *_half_symbol{nullptr};
+  rq::SingleSymbol *_single_symbol{nullptr};
+  rq::DoubleSymbol *_double_symbol{nullptr};
+  rq::QuadrupleSymbol *_quadruple_symbol{nullptr};
+  rq::GenericBinarySymbol *_generic_binary_symbol{nullptr};
+  rq::GenericBfloatSymbol *_generic_bfloat_symbol{nullptr};
+  rq::Binary16Symbol *_binary16_symbol{nullptr};
+  rq::Binary32Symbol *_binary32_symbol{nullptr};
+  rq::Binary64Symbol *_binary64_symbol{nullptr};
+  rq::Binary128Symbol *_binary128_symbol{nullptr};
+  rq::Bfloat16Symbol *_bfloat16_symbol{nullptr};
+  rq::GenericIntegerSymbol *_generic_integer_symbol{nullptr};
+  rq::GenericSignedSymbol *_generic_signed_symbol{nullptr};
+  rq::GenericUnsignedSymbol *_generic_unsigned_symbol{nullptr};
   rq::AsciiSymbol *_ascii_symbol{nullptr};
   rq::Utf8Symbol *_utf8_symbol{nullptr};
   llvm::FoldingSet<rq::ScaledBuiltinSymbol> _scaled_builtin_symbols{};
@@ -318,6 +333,50 @@ struct Context final {
     return rq::dereferencePtr(this->_boolean_symbol);
   }
 
+  inline rq::GenericFloatSymbol &getGenericFloat() {
+    if (!this->_generic_float_symbol) {
+      this->_generic_float_symbol = &this->allocateValue<rq::GenericFloatSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_float_symbol);
+  }
+
+  inline rq::GenericBinarySymbol &getGenericBinary() {
+    if (!this->_generic_binary_symbol) {
+      this->_generic_binary_symbol = &this->allocateValue<rq::GenericBinarySymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_binary_symbol);
+  }
+
+  inline rq::GenericBfloatSymbol &getGenericBfloat() {
+    if (!this->_generic_bfloat_symbol) {
+      this->_generic_bfloat_symbol = &this->allocateValue<rq::GenericBfloatSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_bfloat_symbol);
+  }
+
+  inline rq::GenericIntegerSymbol &getGenericInteger() {
+    if (!this->_generic_integer_symbol) {
+      this->_generic_integer_symbol = &this->allocateValue<rq::GenericIntegerSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_integer_symbol);
+  }
+
+  inline rq::GenericSignedSymbol &getGenericSigned() {
+    if (!this->_generic_signed_symbol) {
+      this->_generic_signed_symbol = &this->allocateValue<rq::GenericSignedSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_signed_symbol);
+  }
+
+  inline rq::GenericUnsignedSymbol &getGenericUnsigned() {
+    if (!this->_generic_unsigned_symbol) {
+      this->_generic_unsigned_symbol = &this->allocateValue<rq::GenericUnsignedSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_unsigned_symbol);
+  }
+
+  
+
   [[nodiscard]] inline rq::AsciiSymbol &getAscii() {
     if (!this->_ascii_symbol) {
       this->_ascii_symbol = &this->allocateValue<rq::AsciiSymbol>();
@@ -344,36 +403,6 @@ struct Context final {
         this->allocateValue<rq::ScaledBuiltinSymbol>(kind, scalar, uid, flags);
     this->_scaled_builtin_symbols.InsertNode(&new_type, insert_pos);
     return new_type;
-  }
-  [[nodiscard]] inline rq::IntegerSymbol &
-  getInteger(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
-    return llvm::cast<rq::IntegerSymbol>(this->_getOrInsertScaledBuiltin(
-        rq::SymbolKind::GENERIC_INTEGER, scalar, uid, flags));
-  }
-  [[nodiscard]] inline rq::UnsignedSymbol &
-  getUnsigned(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
-    return llvm::cast<rq::UnsignedSymbol>(this->_getOrInsertScaledBuiltin(
-        rq::SymbolKind::UNSIGNED, scalar, uid, flags));
-  }
-  [[nodiscard]] inline rq::SignedSymbol &
-  getSigned(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
-    return llvm::cast<rq::SignedSymbol>(this->_getOrInsertScaledBuiltin(
-        rq::SymbolKind::UNSIGNED, scalar, uid, flags));
-  }
-  [[nodiscard]] inline rq::FloatSymbol &getFloat(unsigned scalar, unsigned uid,
-                                                 rq::ScaledBuiltinFlags flags) {
-    return llvm::cast<rq::FloatSymbol>(this->_getOrInsertScaledBuiltin(
-        rq::SymbolKind::GENERIC_FLOAT, scalar, uid, flags));
-  }
-  [[nodiscard]] inline rq::BinarySymbol &
-  getBinary(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
-    return llvm::cast<rq::BinarySymbol>(this->_getOrInsertScaledBuiltin(
-        rq::SymbolKind::BINARY, scalar, uid, flags));
-  }
-  [[nodiscard]] inline rq::BfloatSymbol &
-  getBfloat(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags) {
-    return llvm::cast<rq::BfloatSymbol>(this->_getOrInsertScaledBuiltin(
-        rq::SymbolKind::BFLOAT, scalar, uid, flags));
   }
   [[nodiscard]] inline rq::UnarySubtypeSymbol &
   _getOrInsertUnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &subtype) {
