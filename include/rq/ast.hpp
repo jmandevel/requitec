@@ -417,9 +417,9 @@ enum class Keyword : std::uint32_t {
   LAYOUT,
   S_LAYOUT_OF,
   // make a unique clone of a type that is not implicitly convertable
-  // can use platform specific values for bit depth only if type is unique
-  UNIQUE,
-  S_UNIQUE_OF,
+  // can use platform specific values for bit depth only if type is a synonym
+  SYNONYM,
+  S_SYNONYM_OF,
 
   I_LAST
 };
@@ -1123,10 +1123,10 @@ constexpr std::size_t KEYWORD_COUNT =
     return "layout";
   case K::S_LAYOUT_OF:
     return "_layout_of";
-  case K::UNIQUE:
-    return "unique";
-  case K::S_UNIQUE_OF:
-    return "_unique_of";
+  case K::SYNONYM:
+    return "synonym";
+  case K::S_SYNONYM_OF:
+    return "_synonym_of";
 
   case K::I_LAST:
     return "__last";
@@ -1509,9 +1509,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UTF8:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNIQUE:
+  case K::SYNONYM:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::S_UNIQUE_OF:
+  case K::S_SYNONYM_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_SIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2189,8 +2189,8 @@ getDescription(rq::Situation situation) {
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:
     return K::S_LAYOUT_OF;
-  case K::UNIQUE:
-    return K::S_UNIQUE_OF;
+  case K::SYNONYM:
+    return K::S_SYNONYM_OF;
   default:
     break;
   }

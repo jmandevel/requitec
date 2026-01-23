@@ -1393,10 +1393,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
-  case K::UNIQUE:
+  case K::SYNONYM:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::S_UNIQUE_OF:
+  case K::S_SYNONYM_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
