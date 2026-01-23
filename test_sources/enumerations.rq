@@ -1,9 +1,9 @@
-[import "std"]
+[import "std"];
 
-[enumeration MyEnum, 32,
-    APPLE  :.std.s32f  = 0;
-    ORANGE :.std.u32f = 2;
-    GRAPE  :.std.b32f = 3;
+[enumeration MyEnum, [unsigned_exact_bits 32],
+    APPLE  :[signed_fast_bits 32]  = 0;
+    ORANGE :[unsigned_fast_bits 32] = 2;
+    GRAPE  :[binary32] = 3;
 ];
 .
 [entry
@@ -11,7 +11,7 @@
     [match fruit,
         [with APPLE, apple:=[value].`[borrow], 
             apple = apple + 1;
-        ][with ORANGE, :orange=[value].`[borrow],
+        ][with ORANGE, orange:=[value].`[borrow],
             orange = orange * 2;
         ][default
             // do nothing!
@@ -22,9 +22,9 @@
             [with APPLE, apple:=[value], 
                 [out] := apple;
             ][with ORANGE, orange:=[value],
-                [out] := .std.s32f:orange;
+                [out] := orange.[down_cast];
             ][with GRAPE, grape:=[value],
-                [out] := .std.s32f:grape;
+                [out] := grape.[float_cast];
             ];
         ];
     [exit_code] := value;

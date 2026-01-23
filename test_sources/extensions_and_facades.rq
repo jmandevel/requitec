@@ -1,12 +1,12 @@
 
 [table example,
-    @template::{> Type:[type], LENGTH:[unsigned] <}
-    [extension_function getElementCount, LENGTH#Type, (><)[unsigned],
+    @template::{> Type:[type], LENGTH:[unsigned_index] <}
+    [extension_function getElementCount, LENGTH#Type, (><)[unsigned_index],
         [result] := LENGTH;
     ];
 
-    @template::{> Type:[type], LENGTH:[unsigned] <}
-    [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned],
+    @template::{> Type:[type], LENGTH:[unsigned_index] <}
+    [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned_index],
         [result] := LENGTH;
     ];
 
@@ -20,7 +20,7 @@
 ];
 
 [entry
-    my_array :5#[signed]= [[0s32f, 1, 2, 3, 4]];
+    my_array :5#[signed]= [[0, 1, 2, 3, 4]].[of [signed_fast_bits 32]];
 
     // call extension function
     {} = my_array.[type]->.example.getElementCount();
@@ -34,8 +34,8 @@
     foo.[borrow]->.example.bar();
 
     // apply facades
-    [facade &5#[signed] .example.getElementCount];
-    [facade &.example.Foo .example.bar];
+    [facade &5#[signed], .example.getElementCount];
+    [facade &.example.Foo, .example.bar];
 
     // call extension function
     {} = my_array.[type]->getElementCount();

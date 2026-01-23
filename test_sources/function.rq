@@ -1,6 +1,6 @@
 [import "std"];
 
-[function myFunc, (>a:.std.s32f, b:.std.s32f<)[signed],
+[function myFunc, (>a:[signed_fast_bits 32], b:[signed_fast_bits 32]<)[signed],
     [if a > b,
         .std.print(line="a is greater than b");
     ][else_if b > a,

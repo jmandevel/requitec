@@ -3,9 +3,9 @@
 @may_copy @may_move
 [class MyClass,
     {>
-        x := 0s32l,
-        y := 0s32l,
-        z := 0s32l
+        x : [signed_least_bits 32] = 0,
+        y : [signed_least_bits 32] = 0,
+        z : [signed_least_bits 32] = 0
     <},
 
     @public
@@ -15,12 +15,12 @@
     [layout_constructor];
 
     @public
-    [constructor (>scalar:[signed].[least_bits 32]<),
+    [constructor (>scalar:[signed_least_bits 32]<),
         { x=scalar, y=scalar, z=scalar},
     ];
 
     @public
-    [method getTotal, &=>(><)[signed].[least_bits 32],
+    [method getTotal, &=>(><)[signed_least_bits 32],
         [result] := [this].x + [this].y + [this].z;
     ];
 

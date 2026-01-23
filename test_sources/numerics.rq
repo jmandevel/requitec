@@ -1,0 +1,81 @@
+// NOTE: types in requite can have no implicit conversions, even from literals!
+// If you want to change from one numeric type to another you always must cast.
+
+// NOTE: no implicit casting between types even if they share the same underlying type.
+
+[entry
+    // if no type specified and no type can be inferred, integer literals become [signed_fast_bits 32]
+    // this is the fastest signed integer type that is supported on the platform with at least 32 bits
+    a := 0; // [signed_fast_bits 32]
+
+    // type can be set explicitly by binding type to variable with colon operator
+    b: [unsigned_fast_bits 64] = 0; // [unsigned_fast_bits 64]
+
+    // can use as reflection to specify type of literal
+    // if used, then the literal is treated as the specified type.
+    c := 0.[as [signed_fast_bits 32]];
+
+    // need to say (un)signed_fast_(bits/bytes), (un)signed_least_(bites/bytes), or (un)signed_exact_(bits/bytes)
+    // (un)signed itself is "generic" and not concrete
+    // generic types are types that encompass types in a group
+    // for integers they are 
+    //   * unsigned - all unsigned integers
+    //   * signed - all signed integers
+    //   * integer - all integers
+    // generic types can be used as template parameter contraints
+    // also they effect ADL either when specified for an argument
+    d: [unsigned 32] = 0; // compiler error! unsigned is generic. also cannot have depth.
+
+    // however, its ok to do it the other way around
+    // can assign generic literal type to concrete type
+    // it is inferred to be the concrete type
+    e :[signed_exact_bits 32]= 0.[as [integer]]; // the 0 literal is a [signed_exact_bits 32]
+
+    // can specify a custom base for integer literals 
+    f: [unsigned_fast_bits 32] = 16xDeadBeef;
+    g: [unsigned_fast_bits 16] = 2x011011011;
+    h: [unsigned_fast_bits 32] = 64x0aAbBcC?!dD;
+
+    // can ignore underscores in literal digits
+    i: [unsigned_fast_bits 64] = 123_456_789;
+
+    // special types for indexing memory and addresses
+    j: [unsigned_index] = 100; // unsigned index (like std::size_t in c++)
+    k: [signed_address] = 100; // signed address (like std::ptrdiff_t in c++)
+
+    // can write floats when adding a decimal point
+    // floats cannot have a base
+    // the default float type is a single, which uses and underlying type dependent on the platform
+    l := 0.0; // single
+
+    // there are four platform floating point types
+    // these each have an "underlying" type, which is different depending on the platform you are compiling for
+    m: [half]      = 0;  // usually underlying binary16
+    m: [single]    = 0;  // usually underlying binary32
+    n: [double]    = 0;  // usually underlying binary64
+    o: [quadruple] = 0;  // usually underlying binary128
+
+    // can create float based on exact type instead of platform type
+    // if the type is not supported on the current platform, this results in a compiler error
+    p: [binary16]  = 0;  // binary32
+    q: [binary32]  = 0;  // binary32
+    r: [binary64]  = 0;  // binary64
+    s: [binary128] = 0;  // binary128
+    t: [bfloat16]  = 0;  // bfloat16
+
+    // there are generic floating point types as well
+    //   binary - for any binary 
+    //   bfloat - for any bfloat
+    //   float  - for any float (including binary, bfloat, etc)
+    u: [binary32] = 0.[as [binary]];
+    v: [bfloat16] = 0.[as [bfloat]];
+    w: [binary64] = 0.[as [float]];
+
+    // there are NO implicit conversions in requite
+    // this is even the case when dealing with builtin numerics of different types!
+    x :[unsigned_exact_bits 32]= 0.[as [unsigned_exact_bits 64]]; // compiler error!
+
+    // this is the case even if the underlying types are the same
+    y :[binary32]= 0.0.[as [single]]; // compiler error!
+    z :[unsigned_exact_bits 64]=0.[as [unsigned_index]]; // compiler error!
+];

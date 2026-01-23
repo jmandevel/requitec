@@ -7,8 +7,8 @@
 @may_copy @may_move
 [class Foo,
     {>
-        @public @mutate_with::ClassA := 0s32f,
-        @public @mutate_with::stuff.ClassB b := 0s32f
+        @public @mutate_with::ClassA a :[signed_fast_bits 32] = 0,
+        @public @mutate_with::stuff.ClassB b : [signed_fast_bits 32] = 0
     <},
 
     @public

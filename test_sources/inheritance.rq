@@ -21,10 +21,10 @@
     <},
     
     @public
-    [use [this_type].parent.myFunc];
+    [use parent.myFunc];
     
     @public
-    @override::[this_type].parent.myFuncB
+    @override::parent.myFuncB
     [method myFuncB, &=>(><),
         .std.print(line="in child");
     ];
