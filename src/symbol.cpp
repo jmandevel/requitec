@@ -9,8 +9,8 @@ void SymbolTableSymbol::tabulateNamedSymbol(rq::Context &context,
   auto it = this->_named_values.find(name);
   if (it != this->_named_values.end()) {
     rq::BumpPtrList<rq::Symbol> &entry = it->second;
-    rq::Node<rq::Symbol> &node =
-        context.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
+    rq::BumpPtrListNode<rq::Symbol> &node =
+        context.allocateValue<rq::BumpPtrListNode<rq::Symbol>>(symbol, entry);
     entry = rq::BumpPtrList<rq::Symbol>(node);
   } else {
     this->_named_values.insert({name, rq::BumpPtrList<rq::Symbol>(symbol)});
@@ -24,8 +24,8 @@ void SymbolTableSymbol::tabulateUnamedSymbol(rq::Context &context,
     entry = symbol;
     return;
   }
-  rq::Node<rq::Symbol> &node =
-      context.allocateValue<rq::Node<rq::Symbol>>(symbol, entry);
+  rq::BumpPtrListNode<rq::Symbol> &node =
+      context.allocateValue<rq::BumpPtrListNode<rq::Symbol>>(symbol, entry);
   entry = rq::BumpPtrList<rq::Symbol>(node);
 }
 

@@ -29,7 +29,7 @@ struct SymbolicExecutionEngine final {
     this->_steps_left--;
     return this->getHasStepsLeft();
   }
-  [[nodiscard]] llvm::StringRef evaluateName(rq::Expression &expression);
+  [[nodiscard]] llvm::StringRef evaluateName(rq::Node &expression);
 };
 
 } // namespace rq

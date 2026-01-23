@@ -6,18 +6,18 @@ namespace rq {
 
 void Tabulator::tabulateModule() {
   RQ_ASSERT(this->getIsOk(), "tabulator can tabulate only once");
-  rq::Expression &root = this->getModule().getExpression();
+  rq::Node &root = this->getModule().getExpression();
   if (!root.getHasBranch()) {
     return;
   }
   this->tabulateForest(root.getBranch(), this->getContext().getTopScope());
 }
 
-void Tabulator::tabulateForest(rq::Expression &first,
+void Tabulator::tabulateForest(rq::Node &first,
                                rq::SymbolTableSymbol &scope) {
-  for (rq::Expression &branch : first.getInclusiveNextSubrange()) {
+  for (rq::Node &branch : first.getInclusiveNextSubrange()) {
     const bool ascribed = branch.getKeyword() == rq::Keyword::S_ASCRIBE_SYMBOL;
-    rq::Expression &statement = ascribed ? branch.getBranch() : branch;
+    rq::Node &statement = ascribed ? branch.getBranch() : branch;
     rq::SymbolAttributeFlagsFactory flags_factory;
     std::ignore = scope;
     if (ascribed) {
@@ -40,11 +40,11 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateUnamedSymbol(this->getContext(), mutation);
     } break;
     case rq::Keyword::S_ASSIGN: {
-      rq::Expression &lvalue = statement.getBranch();
+      rq::Node &lvalue = statement.getBranch();
       if (lvalue.getKeyword() != rq::Keyword::S_BINDING) {
         RQ_TODO_IMPLEMENTATION();
       }
-      rq::Expression &path = lvalue.getBranch();
+      rq::Node &path = lvalue.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -56,7 +56,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateNamedSymbol(this->getContext(), name, variable);
     } break;
     case rq::Keyword::TABLE: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -66,7 +66,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateNamedSymbol(this->getContext(), name, table);
     } break;
     case rq::Keyword::CLASS: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -78,7 +78,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateNamedSymbol(this->getContext(), name, class_);
     } break;
     case rq::Keyword::ENUMERATION: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -96,7 +96,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateUnamedSymbol(this->getContext(), entry);
     } break;
     case rq::Keyword::FUNCTION: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -107,7 +107,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateNamedSymbol(this->getContext(), name, function);
     } break;
     case rq::Keyword::METHOD: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -118,7 +118,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateNamedSymbol(this->getContext(), name, method);
     } break;
     case rq::Keyword::EXTENSION_FUNCTION: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
@@ -129,7 +129,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       scope.tabulateNamedSymbol(this->getContext(), name, extension_function);
     } break;
     case rq::Keyword::EXTENSION_METHOD: {
-      rq::Expression &path = statement.getBranch();
+      rq::Node &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }

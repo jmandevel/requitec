@@ -1691,10 +1691,10 @@ namespace detail {
 struct HasLocationSymbol {
   using Self = rq::detail::HasLocationSymbol;
 
-  rq::Expression *_expression_ptr;
+  rq::Node *_expression_ptr;
 
 protected:
-  HasLocationSymbol(rq::Expression &expression)
+  HasLocationSymbol(rq::Node &expression)
       : _expression_ptr(&expression) {}
 
 public:
@@ -1707,16 +1707,16 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
     return this->_expression_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Node &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Node &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void setExpression(rq::Node &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
+  RQ_ALWAYS_INLINE void setExpression(rq::Node *expression_ptr) {
     rq::assignSingleValue(this->_expression_ptr, expression_ptr);
   }
 };
@@ -2028,7 +2028,7 @@ struct ProcedureSymbol : public rq::SymbolTableSymbol,
   rq::SignatureSymbol *_signature_ptr;
 
 protected:
-  ProcedureSymbol(rq::SymbolKind kind, rq::Expression &expression,
+  ProcedureSymbol(rq::SymbolKind kind, rq::Node &expression,
                   rq::ModuleSymbol &module, rq::SymbolTableSymbol &scope,
                   rq::SymbolAttributeFlags attributes)
       : rq::SymbolTableSymbol(kind), rq::detail::HasLocationSymbol(expression),
@@ -3622,7 +3622,7 @@ struct DynamicVariableSymbol : public rq::Symbol,
                                public rq::detail::HasTypeSymbol {
   using Self = rq::DynamicVariableSymbol;
 
-  DynamicVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  DynamicVariableSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                         rq::SymbolTableSymbol &scope, llvm::StringRef name,
                         rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::DYNAMIC_VARIABLE),
@@ -3647,7 +3647,7 @@ struct StaticVariableSymbol : public rq::Symbol,
                               public rq::detail::HasTypeSymbol {
   using Self = rq::StaticVariableSymbol;
 
-  StaticVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  StaticVariableSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                        rq::SymbolTableSymbol &scope, llvm::StringRef name,
                        rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::STATIC_VARIABLE),
@@ -3674,7 +3674,7 @@ struct EnumeratorSymbol : public rq::Symbol,
 
   rq::EnumerationSymbol *_enumeration_ptr;
 
-  EnumeratorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  EnumeratorSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                    rq::SymbolTableSymbol &scope, llvm::StringRef name,
                    rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::ENUMERATOR),
@@ -3699,7 +3699,7 @@ struct PropertySymbol : public rq::Symbol,
                         public rq::detail::HasTypeSymbol {
   using Self = rq::PropertySymbol;
 
-  PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  PropertySymbol(rq::Node &expression, rq::ModuleSymbol &module,
                  rq::SymbolTableSymbol &scope,
                  rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::PROPERTY),
@@ -3708,7 +3708,7 @@ struct PropertySymbol : public rq::Symbol,
         rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol() {}
-  PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  PropertySymbol(rq::Node &expression, rq::ModuleSymbol &module,
                  rq::SymbolTableSymbol &scope, llvm::StringRef name,
                  rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::PROPERTY),
@@ -3735,7 +3735,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
 
   rq::SignatureSymbol *_signature_ptr;
 
-  SignatureParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  SignatureParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                            rq::SymbolTableSymbol &scope,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
@@ -3744,7 +3744,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
         rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol() {}
-  SignatureParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  SignatureParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                            rq::SymbolTableSymbol &scope, llvm::StringRef name,
                            rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::SIGNATURE_PARAMETER),
@@ -3771,7 +3771,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
 
   rq::TemplateSymbol *_template_ptr;
 
-  TemplateParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  TemplateParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                           rq::SymbolTableSymbol &scope,
                           rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
@@ -3780,7 +3780,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
         rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol() {}
-  TemplateParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  TemplateParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                           rq::SymbolTableSymbol &scope, llvm::StringRef name,
                           rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::TEMPLATE_PARAMETER),
@@ -3804,7 +3804,7 @@ struct ClassParameterSymbol : public rq::Symbol,
                               public rq::detail::HasTypeSymbol {
   using Self = rq::ClassParameterSymbol;
 
-  ClassParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  ClassParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                        rq::SymbolTableSymbol &scope,
                        rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::CLASS_PARAMETER),
@@ -3828,7 +3828,7 @@ struct LayoutParameterSymbol : public rq::Symbol,
                                public rq::detail::HasTypeSymbol {
   using Self = rq::LayoutParameterSymbol;
 
-  LayoutParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  LayoutParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                         rq::SymbolTableSymbol &scope,
                         rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::LAYOUT_PARAMETER),
@@ -3837,7 +3837,7 @@ struct LayoutParameterSymbol : public rq::Symbol,
         rq::detail::SymbolTableMemberSymbol(scope),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::MaybeHasNameSymbol() {}
-  LayoutParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  LayoutParameterSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                         rq::SymbolTableSymbol &scope, llvm::StringRef name,
                         rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::LAYOUT_PARAMETER),
@@ -3860,7 +3860,7 @@ struct MutationSymbol : public rq::Symbol,
                         public rq::detail::HasAttributesSymbol {
   using Self = rq::MutationSymbol;
 
-  MutationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  MutationSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                  rq::SymbolTableSymbol &scope,
                  rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::MUTATION),
@@ -3882,11 +3882,11 @@ struct LabelSymbol : public rq::Symbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::LabelSymbol;
 
-  rq::Expression *_statement_ptr;
+  rq::Node *_statement_ptr;
 
-  LabelSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  LabelSymbol(rq::Node &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &scope, llvm::StringRef name,
-              rq::Expression &statement)
+              rq::Node &statement)
       : rq::Symbol(rq::SymbolKind::LABEL),
         rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
@@ -3897,13 +3897,13 @@ struct LabelSymbol : public rq::Symbol,
   virtual ~LabelSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getStatement() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Node &getStatement() {
     return rq::dereferencePtr(this->_statement_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatement() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Node &getStatement() const {
     return rq::dereferencePtr(this->_statement_ptr);
   }
-  RQ_ALWAYS_INLINE void setStatement(rq::Expression &statement) {
+  RQ_ALWAYS_INLINE void setStatement(rq::Node &statement) {
     rq::assignSingleValue(this->_statement_ptr, &statement);
   }
 };
@@ -3932,7 +3932,7 @@ struct ClassSymbol : public rq::SymbolTableSymbol,
 
   rq::BumpPtrList<rq::PropertySymbol> _class_properties;
 
-  ClassSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  ClassSymbol(rq::Node &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &scope, llvm::StringRef name,
               rq::SymbolAttributeFlags attributes)
       : rq::SymbolTableSymbol(rq::SymbolKind::CLASS),
@@ -3958,7 +3958,7 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
 
   rq::BumpPtrList<rq::EnumeratorSymbol> _enumerators;
 
-  EnumerationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  EnumerationSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                     rq::SymbolTableSymbol &scope, llvm::StringRef name,
                     rq::SymbolAttributeFlags attributes)
       : rq::SymbolTableSymbol(rq::SymbolKind::ENUMERATION),
@@ -3977,7 +3977,7 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
 struct EntrySymbol : public rq::ProcedureSymbol {
   using Self = rq::EntrySymbol;
 
-  EntrySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  EntrySymbol(rq::Node &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &scope, rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::ENTRY, expression, module, scope,
                             attributes) {}
@@ -3992,7 +3992,7 @@ struct FunctionSymbol : public rq::ProcedureSymbol,
                         public rq::detail::HasNameSymbol {
   using Self = rq::FunctionSymbol;
 
-  FunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  FunctionSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                  rq::SymbolTableSymbol &scope, llvm::StringRef name,
                  rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::FUNCTION, expression, module, scope,
@@ -4009,7 +4009,7 @@ struct MethodSymbol : public rq::ProcedureSymbol,
                       public rq::detail::HasNameSymbol {
   using Self = rq::MethodSymbol;
 
-  MethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  MethodSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                rq::SymbolTableSymbol &scope, llvm::StringRef name,
                rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::METHOD, expression, module, scope,
@@ -4026,7 +4026,7 @@ struct ExtensionFunctionSymbol : public rq::ProcedureSymbol,
                                  public rq::detail::HasNameSymbol {
   using Self = rq::ExtensionFunctionSymbol;
 
-  ExtensionFunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  ExtensionFunctionSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                           rq::SymbolTableSymbol &scope, llvm::StringRef name,
                           rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::EXTENSION_FUNCTION, expression,
@@ -4043,7 +4043,7 @@ struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
                                public rq::detail::HasNameSymbol {
   using Self = rq::ExtensionMethodSymbol;
 
-  ExtensionMethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  ExtensionMethodSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                         rq::SymbolTableSymbol &scope, llvm::StringRef name,
                         rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::EXTENSION_METHOD, expression,
@@ -4059,7 +4059,7 @@ struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
 struct ConstructorSymbol : public rq::ProcedureSymbol {
   using Self = rq::ConstructorSymbol;
 
-  ConstructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  ConstructorSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                     rq::SymbolTableSymbol &scope,
                     rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::CONSTRUCTOR, expression, module,
@@ -4074,7 +4074,7 @@ struct ConstructorSymbol : public rq::ProcedureSymbol {
 struct DestructorSymbol : public rq::ProcedureSymbol {
   using Self = rq::DestructorSymbol;
 
-  DestructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  DestructorSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                    rq::SymbolTableSymbol &scope,
                    rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::DESTRUCTOR, expression, module,
@@ -4089,7 +4089,7 @@ struct DestructorSymbol : public rq::ProcedureSymbol {
 struct RangerSymbol : public rq::ProcedureSymbol {
   using Self = rq::RangerSymbol;
 
-  RangerSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  RangerSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                rq::SymbolTableSymbol &scope,
                rq::SymbolAttributeFlags attributes)
       : rq::ProcedureSymbol(rq::SymbolKind::RANGER, expression, module, scope,
@@ -4417,18 +4417,18 @@ struct ModuleSymbol final : public rq::Symbol,
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     return this->_llvm_buffer_ref.getBuffer();
   }
-  RQ_ALWAYS_INLINE void changeExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void changeExpression(rq::Node &expression) {
     RQ_ASSERT(this->_expression_ptr != nullptr, "no expression");
     this->_expression_ptr = &expression;
   }
-  [[nodiscard]] rq::Expression &popExpression() {
-    rq::Expression &expression = rq::dereferencePtr(this->_expression_ptr);
+  [[nodiscard]] rq::Node &popExpression() {
+    rq::Node &expression = rq::dereferencePtr(this->_expression_ptr);
     this->_expression_ptr = nullptr;
     return expression;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceExpression(rq::Expression &expression) {
-    rq::Expression &replaced_expression = this->getExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Node &
+  replaceExpression(rq::Node &expression) {
+    rq::Node &replaced_expression = this->getExpression();
     this->_expression_ptr = &expression;
     return replaced_expression;
   }
@@ -4442,7 +4442,7 @@ struct ImportSymbol final : public rq::Symbol,
                             public rq::detail::HasImportModuleSymbol {
   using Self = rq::ImportSymbol;
 
-  ImportSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  ImportSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                rq::SymbolTableSymbol &scope,
                rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::IMPORT),
@@ -4464,7 +4464,7 @@ struct FacadeSymbol final : public rq::Symbol,
                             public rq::detail::HasAttributesSymbol {
   using Self = rq::FacadeSymbol;
 
-  FacadeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+  FacadeSymbol(rq::Node &expression, rq::ModuleSymbol &module,
                rq::SymbolTableSymbol &scope,
                rq::SymbolAttributeFlags attributes)
       : rq::Symbol(rq::SymbolKind::FACADE),

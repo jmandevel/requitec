@@ -29,7 +29,7 @@
 namespace rq {
 
 struct Token;
-struct Expression;
+struct Node;
 struct ModuleSymbol;
 enum class Keyword : std::uint32_t;
 enum class Situation : std::uint_fast8_t;
@@ -77,7 +77,7 @@ struct Context final {
   rq::ModuleSymbol *_source_module_ptr = nullptr;
   llvm::BumpPtrAllocator _llvm_arena{};
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
-  std::vector<rq::Expression *> _unused_expression_ptrs{};
+  std::vector<rq::Node *> _unused_expression_ptrs{};
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
   rq::InferenceSymbol *_inference_symbol{nullptr};
   rq::VoidSymbol *_void_symbol{nullptr};
@@ -170,14 +170,14 @@ struct Context final {
   [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
-  getSourceRange(const rq::Expression &expression);
+  getSourceRange(const rq::Node &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE std::error_code
   canonicalizePath(llvm::SmallVectorImpl<char> &path);
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
   loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
   [[nodiscard]] rq::ModuleSymbol *
-  loadImportModule(rq::Expression &expression, llvm::StringRef import_string);
+  loadImportModule(rq::Node &expression, llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseRequite(rq::ModuleSymbol &module,
@@ -187,7 +187,7 @@ struct Context final {
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
-                                 const rq::Expression &trunk);
+                                 const rq::Node &trunk);
   [[nodiscard]] bool emitSymbol(llvm::StringRef path, const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
@@ -218,11 +218,11 @@ struct Context final {
                                         const std::error_code &ec);
   void logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
                                             const std::error_code &ec);
-  void logErrorImportFileNotFound(const rq::Expression &expression,
+  void logErrorImportFileNotFound(const rq::Node &expression,
                                   llvm::StringRef import_string);
-  void logErrorFailedToCanonicializeImportPath(const rq::Expression &expression,
+  void logErrorFailedToCanonicializeImportPath(const rq::Node &expression,
                                                const std::error_code &ec);
-  void logErrorFailedToLoadImportFileBuffer(const rq::Expression &expression,
+  void logErrorFailedToLoadImportFileBuffer(const rq::Node &expression,
                                             const std::error_code &ec);
   void logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple,
                                       llvm::StringRef error);
@@ -244,34 +244,34 @@ struct Context final {
   void logErrorUnmatchedLeftToken(const rq::Token &token);
   void logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                     const rq::Token &front_token,
-                                    const rq::Expression &expression);
+                                    const rq::Node &expression);
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustHaveParameterMark(rq::Situation situation,
-                                     const rq::Expression &expression);
-  void logErrorPositionalEndIsFirst(const rq::Expression &mark);
-  void logErrorNamedBeginIsLast(const rq::Expression &mark);
-  void logErrorExpectedCommaSeparator(const rq::Expression &expression);
+                                     const rq::Node &expression);
+  void logErrorPositionalEndIsFirst(const rq::Node &mark);
+  void logErrorNamedBeginIsLast(const rq::Node &mark);
+  void logErrorExpectedCommaSeparator(const rq::Node &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
-  void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
-  void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
-  void logErrorDuplicateParameterMark(const rq::Expression &mark);
-  void logErrorDuplicateAttribute(const rq::Expression &attribute);
-  void logErrorNamedBeginAfterPositionalEnd(const rq::Expression &named_begin);
+  void logErrorExpectedSemicolonSeparator(const rq::Node &expression);
+  void logErrorExpressionShouldNeverOccur(const rq::Node &expression);
+  void logErrorDuplicateParameterMark(const rq::Node &mark);
+  void logErrorDuplicateAttribute(const rq::Node &attribute);
+  void logErrorNamedBeginAfterPositionalEnd(const rq::Node &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
-                                   const rq::Expression &expression,
+                                   const rq::Node &expression,
                                    unsigned count);
   void logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                     const rq::Expression &expression,
+                                     const rq::Node &expression,
                                      unsigned count);
   void logErrorTooManyBranchCount(rq::Situation situation,
-                                  const rq::Expression &expression,
+                                  const rq::Node &expression,
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
-                                      const rq::Expression &branch);
-  void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
-  void logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
-  void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
-  void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
+                                      const rq::Node &branch);
+  void logErrorExpectedHeaderExpression(const rq::Node &expresison);
+  void logErrorUnexpectedHeaderExpression(const rq::Node &expresison);
+  void logErrorExpectedChainLinkExpression(const rq::Node &expresison);
+  void logErrorUnexpectedChainLinkExpression(const rq::Node &expresison);
   template <typename TypeParam, typename... ArgNParam>
   inline TypeParam &allocateValue(ArgNParam &&...arg_n) {
     TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
@@ -282,13 +282,13 @@ struct Context final {
   inline llvm::StringRef saveString(llvm::Twine twine) {
     return this->_llvm_string_saver.save(twine);
   }
-  [[nodiscard]] rq::Expression &acquireExpression();
-  inline void discardExpression(rq::Expression &expression) {
+  [[nodiscard]] rq::Node &acquireExpression();
+  inline void discardExpression(rq::Node &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
     this->_unused_expression_ptrs.emplace_back(&expression);
   }
-  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  [[nodiscard]] rq::Node &copyExpression(rq::Node &expression);
 
   inline rq::InferenceSymbol &getInference() {
     if (!this->_inference_symbol) {

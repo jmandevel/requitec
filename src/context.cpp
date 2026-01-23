@@ -97,7 +97,7 @@ rq::Keyword Context::getKeyword(llvm::Twine name) {
   return it->getValue();
 }
 
-rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
+rq::SourceRange Context::getSourceRange(const rq::Node &expression) {
   rq::SourceRange source_range = {};
   source_range.start = this->getSourceLocation(expression.getLlvmSourceBegin());
   source_range.end = this->getSourceLocation(expression.getLlvmSourceEnd());
@@ -163,7 +163,7 @@ bool Context::loadSourceModule() {
   return true;
 }
 
-rq::ModuleSymbol *Context::loadImportModule(rq::Expression &expression,
+rq::ModuleSymbol *Context::loadImportModule(rq::Node &expression,
                                             llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
@@ -311,7 +311,7 @@ bool Context::run() {
 bool Context::parseRequite(rq::ModuleSymbol &module,
                            const std::vector<rq::Token> &tokens) {
   rq::RequiteParser parser(*this, tokens);
-  rq::Expression *root_ptr = parser.parseExpressions();
+  rq::Node *root_ptr = parser.parseExpressions();
   module.setExpression(root_ptr);
   return parser.getIsOk();
 }
@@ -365,7 +365,7 @@ static void emitIndent(llvm::raw_fd_ostream &fout, unsigned indent) {
 }
 
 static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
-                              const rq::Expression &trunk, unsigned indent) {
+                              const rq::Node &trunk, unsigned indent) {
   if (!rq::getNoComment()) {
     rq::emitIndent(fout, indent);
     fout << "//";
@@ -410,7 +410,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "[" << trunk.getName();
   if (trunk.getHasBranch()) {
     fout << '\n';
-    for (const rq::Expression &branch : trunk.getBranchSubrange()) {
+    for (const rq::Node &branch : trunk.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
       if (trunk.getHasStatementBranches()) {
         if (branch.getIsHeader()) {
@@ -420,7 +420,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
         } else {
           fout << ";\n";
         }
-      } else if (trunk.getHasNonStatementBranches()) {
+      } else if (trunk.getHasExpressionBranches()) {
         if (branch.getHasNext()) {
           fout << ",\n";
         } else {
@@ -435,14 +435,14 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "]";
 }
 
-bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
+bool Context::emitRequite(llvm::StringRef path, const rq::Node &trunk) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
     this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
-  for (const rq::Expression &branch : trunk.getInclusiveNextSubrange()) {
+  for (const rq::Node &branch : trunk.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
     if (branch.getIsHeader()) {
       fout << ",\n";
@@ -460,7 +460,7 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol);
 
 static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
-                         const rq::Expression &expression) {
+                         const rq::Node &expression) {
   if (!expression.getHasSourceText()) {
     json.emitNull("location");
   } else if (expression.getSourceTextLength() == 0) {
@@ -716,7 +716,7 @@ void Context::logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
       llvm::Twine("\n\treason:") + ec.message());
 }
 
-void Context::logErrorImportFileNotFound(const rq::Expression &expression,
+void Context::logErrorImportFileNotFound(const rq::Node &expression,
                                          llvm::StringRef import_string) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("error: could not locate import file \"") +
@@ -725,7 +725,7 @@ void Context::logErrorImportFileNotFound(const rq::Expression &expression,
 }
 
 void Context::logErrorFailedToCanonicializeImportPath(
-    const rq::Expression &expression, const std::error_code &ec) {
+    const rq::Node &expression, const std::error_code &ec) {
   this->logMessage(
       expression.getLlvmSourceBegin(), rq::LogType::NOTE,
       llvm::Twine("error: failed to canonicalize import file path\n") +
@@ -734,7 +734,7 @@ void Context::logErrorFailedToCanonicializeImportPath(
 }
 
 void Context::logErrorFailedToLoadImportFileBuffer(
-    const rq::Expression &expression, const std::error_code &ec) {
+    const rq::Node &expression, const std::error_code &ec) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("error: failed to load import file buffer\n") +
                        llvm::Twine("\treason:") + ec.message(),
@@ -834,7 +834,7 @@ void Context::logErrorUnmatchedLeftToken(const rq::Token &token) {
 
 void Context::logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                            const rq::Token &front_token,
-                                           const rq::Expression &expression) {
+                                           const rq::Node &expression) {
   this->logMessage(
       trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
       "trailer token does not match token from start of expression",
@@ -853,26 +853,26 @@ void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
 }
 
 void Context::logErrorMustHaveParameterMark(rq::Situation situation,
-                                            const rq::Expression &expression) {
+                                            const rq::Node &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have parameter mark",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorPositionalEndIsFirst(const rq::Expression &mark) {
+void Context::logErrorPositionalEndIsFirst(const rq::Node &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(mark.getName()) + " is first",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNamedBeginIsLast(const rq::Expression &mark) {
+void Context::logErrorNamedBeginIsLast(const rq::Node &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(mark.getName()) + " is last",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {
+void Context::logErrorExpectedCommaSeparator(const rq::Node &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected comma separator after expression",
                    {expression.getLlvmSourceRange()}, {});
@@ -886,41 +886,41 @@ void Context::logErrorExpectedSeparatorOrRightBracket(const rq::Token &token) {
 }
 
 void Context::logErrorExpectedSemicolonSeparator(
-    const rq::Expression &expression) {
+    const rq::Node &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected semicolon separator after statement",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpressionShouldNeverOccur(
-    const rq::Expression &expression) {
+    const rq::Node &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(expression.getName()) +
                        " expression should never occur.",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
+void Context::logErrorDuplicateParameterMark(const rq::Node &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + mark.getName(),
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
+void Context::logErrorDuplicateAttribute(const rq::Node &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + attribute.getName(),
                    {attribute.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNamedBeginAfterPositionalEnd(
-    const rq::Expression &named_begin) {
+    const rq::Node &named_begin) {
   this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "named begin after positional end",
                    {named_begin.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotExactBranchCount(rq::Situation situation,
-                                          const rq::Expression &expression,
+                                          const rq::Node &expression,
                                           unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
@@ -930,7 +930,7 @@ void Context::logErrorNotExactBranchCount(rq::Situation situation,
 }
 
 void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                            const rq::Expression &expression,
+                                            const rq::Node &expression,
                                             unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
@@ -940,7 +940,7 @@ void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
 }
 
 void Context::logErrorTooManyBranchCount(rq::Situation situation,
-                                         const rq::Expression &expression,
+                                         const rq::Node &expression,
                                          unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
@@ -950,7 +950,7 @@ void Context::logErrorTooManyBranchCount(rq::Situation situation,
 }
 
 void Context::logErrorInvalidBranchSituation(rq::Situation situation,
-                                             const rq::Expression &branch) {
+                                             const rq::Node &branch) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(branch.getName()) + " can not be " +
                        rq::getDescription(situation),
@@ -958,47 +958,47 @@ void Context::logErrorInvalidBranchSituation(rq::Situation situation,
 }
 
 void Context::logErrorExpectedHeaderExpression(
-    const rq::Expression &expresison) {
+    const rq::Node &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is not header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedHeaderExpression(
-    const rq::Expression &expresison) {
+    const rq::Node &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedChainLinkExpression(
-    const rq::Expression &expresison) {
+    const rq::Node &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is not chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedChainLinkExpression(
-    const rq::Expression &expresison) {
+    const rq::Node &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
-rq::Expression &Context::acquireExpression() {
+rq::Node &Context::acquireExpression() {
   if (this->_unused_expression_ptrs.empty()) {
-    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
+    rq::Node &new_expression = this->allocateValue<rq::Node>();
     return new_expression;
   }
-  rq::Expression &unused_expression =
+  rq::Node &unused_expression =
       rq::dereferencePtr(this->_unused_expression_ptrs.back());
   this->_unused_expression_ptrs.pop_back();
   unused_expression.clear();
   return unused_expression;
 }
 
-rq::Expression &Context::copyExpression(rq::Expression &expression) {
-  rq::Expression &new_expression = rq::dereferencePtr(new rq::Expression());
+rq::Node &Context::copyExpression(rq::Node &expression) {
+  rq::Node &new_expression = rq::dereferencePtr(new rq::Node());
   if (expression.getHasBranch()) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));
   }
