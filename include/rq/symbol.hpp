@@ -1500,7 +1500,7 @@ public:
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const {
     return rq::getIsLittleEndian(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnique() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const {
     return this->_uid != 0;
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
