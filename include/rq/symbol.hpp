@@ -1373,11 +1373,11 @@ enum class ScaledBuiltinFlags : std::uint8_t {
   BITS_NONE_MASK = BYTES | INDEX | ADDRESS,
   FASTEST = rq::getBit(3),
   LEAST = rq::getBit(4),
-  BEST = rq::getBit(5),
-  EXACT_NONE_MASK = FASTEST | LEAST | BEST,
-  LITTLE_ENDIAN_ = rq::getBit(6),
-  BIG_ENDIAN_ = rq::getBit(7),
-  PLATFORM_ENDIAN_NONE_MASK = LITTLE_ENDIAN_ | BIG_ENDIAN_
+  EXACT_NONE_MASK = FASTEST | LEAST,
+  LITTLE_ENDIAN_ = rq::getBit(5),
+  BIG_ENDIAN_ = rq::getBit(6),
+  PLATFORM_ENDIAN_NONE_MASK = LITTLE_ENDIAN_ | BIG_ENDIAN_,
+  PLATFORM_SCALAR = rq::getBit(7)
 };
 
 template <> struct is_flags<rq::ScaledBuiltinFlags> : std::true_type {};
@@ -1428,6 +1428,11 @@ getIsBigEndian(rq::ScaledBuiltinFlags flags) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsLittleEndian(rq::ScaledBuiltinFlags flags) {
   return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LITTLE_ENDIAN_);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPlatformScalar(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::PLATFORM_SCALAR);
 }
 
 void RQ_ALWAYS_INLINE profileScaledIntegerSymbol(llvm::FoldingSetNodeID &id,
@@ -1499,6 +1504,9 @@ public:
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const {
     return rq::getIsLittleEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformScalar() const {
+    return rq::getHasPlatformScalar(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const {
     return this->_uid != 0;
