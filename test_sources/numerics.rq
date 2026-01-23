@@ -32,9 +32,10 @@
     e :[signed_exact_bits 32]= 0.[as [integer]]; // the 0 literal is a [signed_exact_bits 32]
 
     // can specify a custom base for integer literals 
-    f: [unsigned_fast_bits 32] = 16xDeadBeef;
-    g: [unsigned_fast_bits 16] = 2x011011011;
-    h: [unsigned_fast_bits 32] = 64x0aAbBcC?!dD;
+    // can support any base from 2 to 64, including non power of two bases
+    f: [unsigned_fast_bits 32] = 16xDeadBeef;     // bases less than 35 are not case sensitive
+    g: [unsigned_fast_bits 16] = 2x011011011;     
+    h: [unsigned_fast_bits 32] = 64x0aAbBcC?!dD;  // ? is a digit with value 62 and ! is a digit with value 63
 
     // can ignore underscores in literal digits
     i: [unsigned_fast_bits 64] = 123_456_789;
@@ -78,4 +79,7 @@
     // this is the case even if the underlying types are the same
     y :[binary32]= 0.0.[as [single]]; // compiler error!
     z :[unsigned_exact_bits 64]=0.[as [unsigned_index]]; // compiler error!
+
+    // if you want to convert between types, you need to use casts
+    // see casts.rq
 ];
