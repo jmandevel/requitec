@@ -80,28 +80,28 @@ struct Context final {
   std::vector<rq::Node *> _unused_expression_ptrs{};
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
   rq::InferenceSymbol *_inference_symbol{nullptr};
-  rq::VoidSymbol *_void_symbol{nullptr};
-  rq::NullSymbol *_null_symbol{nullptr};
-  rq::NoReturnSymbol *_no_return_symbol{nullptr};
-  rq::VariadicArgumentsSymbol *_variadic_arguments_symbol{nullptr};
-  rq::BooleanSymbol *_boolean_symbol{nullptr};
-  rq::GenericFloatSymbol *_generic_float_symbol{nullptr};
-  rq::HalfSymbol *_half_symbol{nullptr};
-  rq::SingleSymbol *_single_symbol{nullptr};
-  rq::DoubleSymbol *_double_symbol{nullptr};
-  rq::QuadrupleSymbol *_quadruple_symbol{nullptr};
-  rq::GenericBinarySymbol *_generic_binary_symbol{nullptr};
-  rq::GenericBfloatSymbol *_generic_bfloat_symbol{nullptr};
-  rq::Binary16Symbol *_binary16_symbol{nullptr};
-  rq::Binary32Symbol *_binary32_symbol{nullptr};
-  rq::Binary64Symbol *_binary64_symbol{nullptr};
-  rq::Binary128Symbol *_binary128_symbol{nullptr};
-  rq::Bfloat16Symbol *_bfloat16_symbol{nullptr};
-  rq::GenericIntegerSymbol *_generic_integer_symbol{nullptr};
-  rq::GenericSignedSymbol *_generic_signed_symbol{nullptr};
-  rq::GenericUnsignedSymbol *_generic_unsigned_symbol{nullptr};
-  rq::AsciiSymbol *_ascii_symbol{nullptr};
-  rq::Utf8Symbol *_utf8_symbol{nullptr};
+  rq::VoidSymbol *_void_symbol_ptr{nullptr};
+  rq::NullSymbol *_null_symbol_ptr{nullptr};
+  rq::NoReturnSymbol *_no_return_symbol_ptr{nullptr};
+  rq::VariadicArgumentsSymbol *_variadic_arguments_symbol_ptr{nullptr};
+  rq::BooleanSymbol *_boolean_symbol_ptr{nullptr};
+  rq::GenericFloatSymbol *_generic_float_symbol_ptr{nullptr};
+  rq::HalfSymbol *_half_symbol_ptr{nullptr};
+  rq::SingleSymbol *_single_symbol_ptr{nullptr};
+  rq::DoubleSymbol *_double_symbol_ptr{nullptr};
+  rq::QuadrupleSymbol *_quadruple_symbol_ptr{nullptr};
+  rq::GenericBinarySymbol *_generic_binary_symbol_ptr{nullptr};
+  rq::GenericBfloatSymbol *_generic_bfloat_symbol_ptr{nullptr};
+  rq::Binary16Symbol *_binary16_symbol_ptr{nullptr};
+  rq::Binary32Symbol *_binary32_symbol_ptr{nullptr};
+  rq::Binary64Symbol *_binary64_symbol_ptr{nullptr};
+  rq::Binary128Symbol *_binary128_symbol_ptr{nullptr};
+  rq::Bfloat16Symbol *_bfloat16_symbol_ptr{nullptr};
+  rq::GenericIntegerSymbol *_generic_integer_symbol_ptr{nullptr};
+  rq::GenericSignedSymbol *_generic_signed_symbol_ptr{nullptr};
+  rq::GenericUnsignedSymbol *_generic_unsigned_symbol_ptr{nullptr};
+  rq::AsciiSymbol *_ascii_symbol_ptr{nullptr};
+  rq::Utf8Symbol *_utf8_symbol_ptr{nullptr};
   llvm::FoldingSet<rq::ScaledBuiltinSymbol> _scaled_builtin_symbols{};
   llvm::FoldingSet<rq::UnarySubtypeSymbol> _unary_subtype_symbols{};
   llvm::FoldingSet<rq::CountedSubtypeSymbol> _counted_subtype_symbols{};
@@ -298,96 +298,96 @@ struct Context final {
   }
 
   inline rq::VoidSymbol &getVoid() {
-    if (!this->_void_symbol) {
-      this->_void_symbol = &this->allocateValue<rq::VoidSymbol>();
+    if (!this->_void_symbol_ptr) {
+      this->_void_symbol_ptr = &this->allocateValue<rq::VoidSymbol>();
     }
-    return rq::dereferencePtr(this->_void_symbol);
+    return rq::dereferencePtr(this->_void_symbol_ptr);
   }
 
   inline rq::NullSymbol &getNull() {
-    if (!this->_null_symbol) {
-      this->_null_symbol = &this->allocateValue<rq::NullSymbol>();
+    if (!this->_null_symbol_ptr) {
+      this->_null_symbol_ptr = &this->allocateValue<rq::NullSymbol>();
     }
-    return rq::dereferencePtr(this->_null_symbol);
+    return rq::dereferencePtr(this->_null_symbol_ptr);
   }
 
   inline rq::NoReturnSymbol &getNoReturn() {
-    if (!this->_no_return_symbol) {
-      this->_no_return_symbol = &this->allocateValue<rq::NoReturnSymbol>();
+    if (!this->_no_return_symbol_ptr) {
+      this->_no_return_symbol_ptr = &this->allocateValue<rq::NoReturnSymbol>();
     }
-    return rq::dereferencePtr(this->_no_return_symbol);
+    return rq::dereferencePtr(this->_no_return_symbol_ptr);
   }
 
   inline rq::VariadicArgumentsSymbol &getVariadicArguments() {
-    if (!this->_variadic_arguments_symbol) {
-      this->_variadic_arguments_symbol =
+    if (!this->_variadic_arguments_symbol_ptr) {
+      this->_variadic_arguments_symbol_ptr =
           &this->allocateValue<rq::VariadicArgumentsSymbol>();
     }
-    return rq::dereferencePtr(this->_variadic_arguments_symbol);
+    return rq::dereferencePtr(this->_variadic_arguments_symbol_ptr);
   }
 
   inline rq::BooleanSymbol &getBoolean() {
-    if (!this->_boolean_symbol) {
-      this->_boolean_symbol = &this->allocateValue<rq::BooleanSymbol>();
+    if (!this->_boolean_symbol_ptr) {
+      this->_boolean_symbol_ptr = &this->allocateValue<rq::BooleanSymbol>();
     }
-    return rq::dereferencePtr(this->_boolean_symbol);
+    return rq::dereferencePtr(this->_boolean_symbol_ptr);
   }
 
   inline rq::GenericFloatSymbol &getGenericFloat() {
-    if (!this->_generic_float_symbol) {
-      this->_generic_float_symbol = &this->allocateValue<rq::GenericFloatSymbol>();
+    if (!this->_generic_float_symbol_ptr) {
+      this->_generic_float_symbol_ptr = &this->allocateValue<rq::GenericFloatSymbol>();
     }
-    return rq::dereferencePtr(this->_generic_float_symbol);
+    return rq::dereferencePtr(this->_generic_float_symbol_ptr);
   }
 
   inline rq::GenericBinarySymbol &getGenericBinary() {
-    if (!this->_generic_binary_symbol) {
-      this->_generic_binary_symbol = &this->allocateValue<rq::GenericBinarySymbol>();
+    if (!this->_generic_binary_symbol_ptr) {
+      this->_generic_binary_symbol_ptr = &this->allocateValue<rq::GenericBinarySymbol>();
     }
-    return rq::dereferencePtr(this->_generic_binary_symbol);
+    return rq::dereferencePtr(this->_generic_binary_symbol_ptr);
   }
 
   inline rq::GenericBfloatSymbol &getGenericBfloat() {
-    if (!this->_generic_bfloat_symbol) {
-      this->_generic_bfloat_symbol = &this->allocateValue<rq::GenericBfloatSymbol>();
+    if (!this->_generic_bfloat_symbol_ptr) {
+      this->_generic_bfloat_symbol_ptr = &this->allocateValue<rq::GenericBfloatSymbol>();
     }
-    return rq::dereferencePtr(this->_generic_bfloat_symbol);
+    return rq::dereferencePtr(this->_generic_bfloat_symbol_ptr);
   }
 
   inline rq::GenericIntegerSymbol &getGenericInteger() {
-    if (!this->_generic_integer_symbol) {
-      this->_generic_integer_symbol = &this->allocateValue<rq::GenericIntegerSymbol>();
+    if (!this->_generic_integer_symbol_ptr) {
+      this->_generic_integer_symbol_ptr = &this->allocateValue<rq::GenericIntegerSymbol>();
     }
-    return rq::dereferencePtr(this->_generic_integer_symbol);
+    return rq::dereferencePtr(this->_generic_integer_symbol_ptr);
   }
 
   inline rq::GenericSignedSymbol &getGenericSigned() {
-    if (!this->_generic_signed_symbol) {
-      this->_generic_signed_symbol = &this->allocateValue<rq::GenericSignedSymbol>();
+    if (!this->_generic_signed_symbol_ptr) {
+      this->_generic_signed_symbol_ptr = &this->allocateValue<rq::GenericSignedSymbol>();
     }
-    return rq::dereferencePtr(this->_generic_signed_symbol);
+    return rq::dereferencePtr(this->_generic_signed_symbol_ptr);
   }
 
   inline rq::GenericUnsignedSymbol &getGenericUnsigned() {
-    if (!this->_generic_unsigned_symbol) {
-      this->_generic_unsigned_symbol = &this->allocateValue<rq::GenericUnsignedSymbol>();
+    if (!this->_generic_unsigned_symbol_ptr) {
+      this->_generic_unsigned_symbol_ptr = &this->allocateValue<rq::GenericUnsignedSymbol>();
     }
-    return rq::dereferencePtr(this->_generic_unsigned_symbol);
+    return rq::dereferencePtr(this->_generic_unsigned_symbol_ptr);
   }
 
   
 
   [[nodiscard]] inline rq::AsciiSymbol &getAscii() {
-    if (!this->_ascii_symbol) {
-      this->_ascii_symbol = &this->allocateValue<rq::AsciiSymbol>();
+    if (!this->_ascii_symbol_ptr) {
+      this->_ascii_symbol_ptr = &this->allocateValue<rq::AsciiSymbol>();
     }
-    return rq::dereferencePtr(this->_ascii_symbol);
+    return rq::dereferencePtr(this->_ascii_symbol_ptr);
   }
   [[nodiscard]] inline rq::Utf8Symbol &getUtf8() {
-    if (!this->_utf8_symbol) {
-      this->_utf8_symbol = &this->allocateValue<rq::Utf8Symbol>();
+    if (!this->_utf8_symbol_ptr) {
+      this->_utf8_symbol_ptr = &this->allocateValue<rq::Utf8Symbol>();
     }
-    return rq::dereferencePtr(this->_utf8_symbol);
+    return rq::dereferencePtr(this->_utf8_symbol_ptr);
   }
   [[nodiscard]] inline rq::ScaledBuiltinSymbol &
   _getOrInsertScaledBuiltin(rq::SymbolKind kind, unsigned scalar, unsigned uid,
