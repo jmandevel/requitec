@@ -40,6 +40,10 @@ struct Situator final {
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
                                               rq::Expression &expression);
   [[nodiscard]] bool
+  situateNullaryOrUnaryNonStatementBranches(rq::Situation situation,
+                                   rq::Expression &expression,
+                                   rq::Situation branch0_situation);
+  [[nodiscard]] bool
   situateUnaryNonStatementBranches(rq::Situation situation,
                                    rq::Expression &expression,
                                    rq::Situation branch0_situation);

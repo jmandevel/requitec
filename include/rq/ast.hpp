@@ -48,7 +48,6 @@ enum class Keyword : std::uint32_t {
   // SITUATIONAL
   S_UNSITUATED_PARENTHESIS_GROUP,
   S_UNSITUATED_EQUAL_OPERATOR,
-  S_UNSITUATED_COLON_OPERATOR,
   S_UNSITUATED_ASCRIBE_SYMBOL,
   S_UNSITUATED_ASCRIBE_TYPE,
 
@@ -68,13 +67,10 @@ enum class Keyword : std::uint32_t {
   // APPLY
   S_EXTEND,
   S_EXTENSION,
-  AS,
-  S_AS_OF,
   S_BINDING,
   S_ASCRIBE_TYPE,
   S_ASCRIBE_SYMBOL,
   S_ASCRIBE_ROOT_OF_VALUE,
-  S_CAST,
   S_IDENTIFY,
 
   // ARITHMETIC
@@ -85,8 +81,25 @@ enum class Keyword : std::uint32_t {
   S_MODULUS,
   S_NEGATE,
 
+  // CASTS
+  AS,
+  S_LITERAL_AS,
+  OF,
+  S_ELEMENTS_OF,
+  CAST,
+  S_CAST_OF,
+  DOWN_CAST,
+  S_DOWN_CAST_OF,
+  FLOAT_CAST,
+  S_FLOAT_CAST_OF,
+  PLATFORM_CAST,
+  S_PLATFORM_CAST_OF,
+  STATIC_CAST,
+  S_STATIC_CAST_OF,
+  BITWISE_CAST,
+  S_BITWISE_CAST_OF,
+
   // BITWISE
-  S_BITWISE_CAST,
   S_BITWISE_OR,
   S_BITWISE_AND,
   S_BITWISE_XOR,
@@ -97,8 +110,6 @@ enum class Keyword : std::uint32_t {
   BITWISE_ROTATE_RIGHT,
 
   // MEMORY
-  SINGLETON,
-  S_SINGLETON_OF,
   CONTENT,
   S_CONTENT_OF,
   ADDRESS,
@@ -350,6 +361,7 @@ enum class Keyword : std::uint32_t {
   OUTSIDE,
   STATIC,
   CAPTURE,
+  S_CAPTURE_OF,
   EAGER,
   MAY_PARENT,
   PARENT,
@@ -410,8 +422,10 @@ enum class Keyword : std::uint32_t {
   S_SYMBOL_OF,
   HAS_MEMBER,
   S_HAS_MEMBER_OF,
-  HAS_ATTRIBUTE,
-  S_HAS_ATTRIBUTE_OF,
+  HAS,
+  S_HAS_OF,
+  GET,
+  S_GET_OF,
   SIGNATURE,
   S_SIGNATURE_OF,
   LAYOUT,
@@ -461,8 +475,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_unsituated_parenthesis_group";
   case K::S_UNSITUATED_EQUAL_OPERATOR:
     return "_unsituated_equal_operator";
-  case K::S_UNSITUATED_COLON_OPERATOR:
-    return "_unsituated_colon_operator";
   case K::S_UNSITUATED_ASCRIBE_SYMBOL:
     return "_unsituated_ascribe_symbol";
   case K::S_UNSITUATED_ASCRIBE_TYPE:
@@ -495,10 +507,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_extend";
   case K::S_EXTENSION:
     return "_extension";
-  case K::AS:
-    return "as";
-  case K::S_AS_OF:
-    return "_as_of";
   case K::S_BINDING:
     return "_binding";
   case K::S_ASCRIBE_TYPE:
@@ -507,8 +515,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_symbol";
   case K::S_ASCRIBE_ROOT_OF_VALUE:
     return "_ascribe_root_of_value";
-  case K::S_CAST:
-    return "_cast";
   case K::S_IDENTIFY:
     return "_identify";
 
@@ -526,9 +532,41 @@ constexpr std::size_t KEYWORD_COUNT =
   case K::S_NEGATE:
     return "_negate";
 
+  // CASTS
+  case K::AS:
+    return "as";
+  case K::S_LITERAL_AS:
+    return "_literal_as";
+  case K::OF:
+    return "of";
+  case K::S_ELEMENTS_OF:
+    return "_elements_of";
+  case K::CAST:
+    return "cast";
+  case K::S_CAST_OF:
+    return "_cast_of";
+  case K::DOWN_CAST:
+    return "down_cast";
+  case K::S_DOWN_CAST_OF:
+    return "_down_cast_of";
+  case K::FLOAT_CAST:
+    return "float_cast";
+  case K::S_FLOAT_CAST_OF:
+    return "_float_cast_of";
+  case K::PLATFORM_CAST:
+    return "platform_cast";
+  case K::S_PLATFORM_CAST_OF:
+    return "_platform_cast_of";
+  case K::STATIC_CAST:
+    return "static_cast";
+  case K::S_STATIC_CAST_OF:
+    return "_static_cast_of";
+  case K::BITWISE_CAST:
+    return "bitwise_cast";
+  case K::S_BITWISE_CAST_OF:
+    return "_bitwise_cast_of";
+
   // BITWISE
-  case K::S_BITWISE_CAST:
-    return "_bitwise_cast";
   case K::S_BITWISE_OR:
     return "_bitwise_or";
   case K::S_BITWISE_AND:
@@ -547,10 +585,6 @@ constexpr std::size_t KEYWORD_COUNT =
     return "bitwise_rotate_right";
 
   // MEMORY
-  case K::SINGLETON:
-    return "singleton";
-  case K::S_SINGLETON_OF:
-    return "_singleton_of";
   case K::CONTENT:
     return "content";
   case K::S_CONTENT_OF:
@@ -995,6 +1029,8 @@ constexpr std::size_t KEYWORD_COUNT =
     return "static";
   case K::CAPTURE:
     return "capture";
+  case K::S_CAPTURE_OF:
+    return "_capture_of";
   case K::EAGER:
     return "eager";
   case K::MAY_PARENT:
@@ -1111,10 +1147,14 @@ constexpr std::size_t KEYWORD_COUNT =
     return "has_member";
   case K::S_HAS_MEMBER_OF:
     return "_has_member_of";
-  case K::HAS_ATTRIBUTE:
-    return "has_attribute";
-  case K::S_HAS_ATTRIBUTE_OF:
-    return "_has_attribute_of";
+  case K::HAS:
+    return "has";
+  case K::S_HAS_OF:
+    return "_has_of";
+  case K::GET:
+    return "get";
+  case K::S_GET_OF:
+    return "_get_of";
   case K::SIGNATURE:
     return "signature";
   case K::S_SIGNATURE_OF:
@@ -1212,8 +1252,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
            KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::S_UNSITUATED_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
-  case K::S_UNSITUATED_COLON_OPERATOR:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER | KF::BINDING;
   case K::S_UNSITUATED_ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
@@ -1247,10 +1285,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_EXTENSION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::AS:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_AS_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::S_BINDING:
     return KF::STATEMENT | KF::LVALUE | KF::PARAMETER | KF::ARGUMENT |
            KF::BINDING;
@@ -1261,8 +1295,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
   case K::S_ASCRIBE_ROOT_OF_VALUE:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
-  case K::S_CAST:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::S_IDENTIFY:
     return KF::SYMBOL_PATH | KF::RVALUE | KF::ARGUMENT;
 
@@ -1280,9 +1312,41 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::S_NEGATE:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
 
-  // BITWISE
-  case K::S_BITWISE_CAST:
+  // CASTS
+  case K::AS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_LITERAL_AS:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::OF:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_ELEMENTS_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DOWN_CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_DOWN_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::FLOAT_CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_FLOAT_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::PLATFORM_CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_PLATFORM_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::STATIC_CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_STATIC_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::BITWISE_CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_BITWISE_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+
+  // BITWISE
   case K::S_BITWISE_OR:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
   case K::S_BITWISE_AND:
@@ -1301,10 +1365,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
 
   // MEMORY
-  case K::SINGLETON:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_SINGLETON_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::CONTENT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_CONTENT_OF:
@@ -1761,7 +1821,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::STATIC:
     return KF::SYMBOL_ATTRIBUTE;
   case K::CAPTURE:
-    return KF::SYMBOL_ATTRIBUTE;
+    return KF::SYMBOL_ATTRIBUTE | KF::REFLECTION | KF::UNIVERSALIZABLE | KF::RVALUE;
+  case K::S_CAPTURE_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::EAGER:
     return KF::SYMBOL_ATTRIBUTE;
   case K::MAY_PARENT:
@@ -1884,15 +1946,19 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::HAS_MEMBER:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_HAS_MEMBER_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::HAS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::HAS_ATTRIBUTE:
+  case K::S_HAS_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::GET:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::S_HAS_ATTRIBUTE_OF:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::S_GET_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_SIGNATURE_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    return KF::RVALUE | KF::ARGUMENT;
   case K::LAYOUT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::S_LAYOUT_OF:
@@ -2126,12 +2192,24 @@ getDescription(rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
-    // APPLY
+  // CASTS
   case K::AS:
-    return K::S_AS_OF;
+    return K::S_LITERAL_AS;
+  case K::OF:
+    return K::S_ELEMENTS_OF;
+  case K::CAST:
+    return K::S_CAST_OF;
+  case K::DOWN_CAST:
+    return K::S_DOWN_CAST_OF;
+  case K::FLOAT_CAST:
+    return K::S_FLOAT_CAST_OF;
+  case K::PLATFORM_CAST:
+    return K::S_PLATFORM_CAST_OF;
+  case K::STATIC_CAST:
+    return K::S_STATIC_CAST_OF;
+  case K::BITWISE_CAST:
+    return K::S_BITWISE_CAST_OF;
   // MEMORY
-  case K::SINGLETON:
-    return K::S_SINGLETON_OF;
   case K::CONTENT:
     return K::S_CONTENT_OF;
   case K::ADDRESS:
@@ -2160,6 +2238,9 @@ getDescription(rq::Situation situation) {
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);
+  // SYMBOL ATTRIBUTES
+  case K::CAPTURE:
+    return K::S_CAPTURE_OF;
   // REFLECTIONS
   case K::BYTE_SIZE:
     return K::S_BYTE_SIZE_OF;
@@ -2183,8 +2264,10 @@ getDescription(rq::Situation situation) {
     return K::S_SYMBOL_OF;
   case K::HAS_MEMBER:
     return K::S_HAS_MEMBER_OF;
-  case K::HAS_ATTRIBUTE:
-    return K::S_HAS_ATTRIBUTE_OF;
+  case K::HAS:
+    return K::S_HAS_OF;
+  case K::GET:
+    return K::S_GET_OF;
   case K::SIGNATURE:
     return K::S_SIGNATURE_OF;
   case K::LAYOUT:

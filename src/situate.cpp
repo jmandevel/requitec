@@ -122,6 +122,7 @@ bool Situator::situateTree(rq::Situation situation,
       switch (lvalue.getKeyword()) {
       case K::S_NULL:
         expression.changeKeyword(K::S_IGNORE);
+        std::ignore = lvalue.popNext();
         this->getContext().discardExpression(expression.replaceBranch(rvalue));
         break;
       case K::S_TUPLE:
@@ -134,29 +135,6 @@ bool Situator::situateTree(rq::Situation situation,
       }
       break;
     }
-    default:
-      break;
-    }
-    break;
-  case K::S_UNSITUATED_COLON_OPERATOR:
-    if (!this->situateBinaryNonStatementBranches(situation, expression,
-                                                 S::RVALUE, S::RVALUE)) {
-      is_ok = false;
-      break;
-    }
-    switch (situation) {
-    case S::PARAMETER:
-      [[fallthrough]];
-    case S::STATEMENT:
-      [[fallthrough]];
-    case S::LVALUE:
-      expression.changeKeyword(K::S_BINDING);
-      break;
-    case S::RVALUE:
-      [[fallthrough]];
-    case S::ARGUMENT:
-      expression.changeKeyword(K::S_CAST);
-      break;
     default:
       break;
     }
@@ -198,7 +176,7 @@ bool Situator::situateTree(rq::Situation situation,
         continue;
       }
       bool has_flags = false;
-      if (attribute_situation == rq::Situation::SYMBOL_ATTRIBUTE) {
+      if (attribute_situation == S::SYMBOL_ATTRIBUTE) {
         rq::SymbolAttributeFlags flags =
             rq::getFlags(branch.getSymbolAttribute());
         if (rq::getHasAll(static_cast<rq::SymbolAttributeFlags>(found_flags),
@@ -207,7 +185,7 @@ bool Situator::situateTree(rq::Situation situation,
         }
         found_flags = static_cast<std::uint32_t>(
             static_cast<rq::SymbolAttributeFlags>(found_flags) | flags);
-      } else if (attribute_situation == rq::Situation::TYPE_ATTRIBUTE) {
+      } else if (attribute_situation == S::TYPE_ATTRIBUTE) {
         rq::TypeAttributeFlags flags = rq::getFlags(branch.getTypeAttribute());
         if (rq::getHasAll(static_cast<rq::TypeAttributeFlags>(found_flags),
                           flags)) {
@@ -266,17 +244,9 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::RVALUE, S::RVALUE);
     break;
-  case K::AS:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
-  case K::S_AS_OF:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
-    break;
   case K::S_BINDING:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::SYMBOL_PATH, S::RVALUE);
+                                                    S::LVALUE, S::RVALUE);
     break;
   case K::S_ASCRIBE_TYPE:
     is_ok = this->situateNaryDifferentFirstNonStatementBranches(
@@ -289,10 +259,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::S_ASCRIBE_ROOT_OF_VALUE:
     is_ok = this->situateNaryDifferentFirstNonStatementBranches(
         situation, expression, 2, situation, S::TYPE_ATTRIBUTE);
-    break;
-  case K::S_CAST:
-    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
-                                                    S::RVALUE, S::RVALUE);
     break;
   case K::S_IDENTIFY:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
@@ -317,11 +283,73 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::RVALUE);
     break;
 
-  // BITWISE
-  case K::S_BITWISE_CAST:
+  // CASTS
+  case K::AS:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::S_LITERAL_AS:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::RVALUE, S::RVALUE);
     break;
+  case K::OF:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::S_ELEMENTS_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::CAST:
+    is_ok = this->situateNullaryOrUnaryNonStatementBranches(
+        situation, expression, S::RVALUE);
+    break;
+  case K::S_CAST_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::DOWN_CAST:
+    is_ok = this->situateNullaryOrUnaryNonStatementBranches(
+        situation, expression, S::RVALUE);
+    break;
+  case K::S_DOWN_CAST_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::FLOAT_CAST:
+    is_ok = this->situateNullaryOrUnaryNonStatementBranches(
+        situation, expression, S::RVALUE);
+    break;
+  case K::S_FLOAT_CAST_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::PLATFORM_CAST:
+    is_ok = this->situateNullaryOrUnaryNonStatementBranches(
+        situation, expression, S::RVALUE);
+    break;
+  case K::S_PLATFORM_CAST_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::STATIC_CAST:
+    is_ok = this->situateNullaryOrUnaryNonStatementBranches(
+        situation, expression, S::RVALUE);
+    break;
+  case K::S_STATIC_CAST_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::BITWISE_CAST:
+    is_ok = this->situateNullaryOrUnaryNonStatementBranches(
+        situation, expression, S::RVALUE);
+    break;
+  case K::S_BITWISE_CAST_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+
+  // BITWISE
   case K::S_BITWISE_OR:
     [[fallthrough]];
   case K::S_BITWISE_AND:
@@ -346,13 +374,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // MEMORY
-  case K::SINGLETON:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_SINGLETON_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
   case K::CONTENT:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
@@ -856,13 +877,15 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::S_SIGNED_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
     break;
   case K::UNSIGNED:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::S_UNSIGNED_OF:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
     break;
   case K::SIGNED_FAST_BITS:
     [[fallthrough]];
@@ -875,11 +898,14 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SIGNED_EXACT_BITS:
     [[fallthrough]];
   case K::SIGNED_EXACT_BYTES:
-    [[fallthrough]];
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
   case K::SIGNED_INDEX:
     [[fallthrough]];
   case K::SIGNED_ADDRESS:
-    [[fallthrough]];
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
   case K::UNSIGNED_FAST_BITS:
     [[fallthrough]];
   case K::UNSIGNED_FAST_BYTES:
@@ -891,7 +917,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNSIGNED_EXACT_BITS:
     [[fallthrough]];
   case K::UNSIGNED_EXACT_BYTES:
-    is_ok = this->situateUnaryNonStatementBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
     break;
   case K::UNSIGNED_INDEX:
     [[fallthrough]];
@@ -1075,11 +1102,11 @@ bool Situator::situateTree(rq::Situation situation,
 
   // TABLE GRAPH
   case K::IMPORT:
+    [[fallthrough]];
+  case K::USE:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
-  case K::USE:
-    [[fallthrough]];
   case K::FACADE:
     is_ok = this->situateBinaryNonStatementBranches(situation, expression,
                                                     S::RVALUE, S::RVALUE);
@@ -1122,6 +1149,14 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::CAPTURE:
+    if (situation == S::REFLECTION || situation == S::RVALUE) {
+      is_ok = this->situateNullaryExpression(situation, expression);
+      break;
+    }
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::S_CAPTURE_OF:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
@@ -1372,12 +1407,21 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
     break;
-  case K::HAS_ATTRIBUTE:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::S_HAS_ATTRIBUTE_OF:
+  case K::HAS:
     is_ok = this->situateUnaryNonStatementBranches(situation, expression,
                                                    S::RVALUE);
+    break;
+  case K::S_HAS_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
+    break;
+  case K::GET:
+    is_ok = this->situateUnaryNonStatementBranches(situation, expression,
+                                                   S::RVALUE);
+    break;
+  case K::S_GET_OF:
+    is_ok = this->situateBinaryNonStatementBranches(situation, expression,
+                                                    S::RVALUE, S::RVALUE);
     break;
   case K::SIGNATURE:
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -1473,6 +1517,21 @@ bool Situator::situateNullaryExpression(rq::Situation situation,
   return true;
 }
 
+bool Situator::situateNullaryOrUnaryNonStatementBranches(
+    rq::Situation situation, rq::Expression &expression,
+    rq::Situation branch0_situation) {
+  if (!expression.getHasBranch()) {
+    return true;
+  }
+  rq::Expression &branch0 = expression.getBranch();
+  bool is_ok = this->situateNonStatementBranch(branch0_situation, branch0);
+  if (branch0.getHasNext()) {
+    this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
+    is_ok = false;
+  }
+  return is_ok;
+}
+
 bool Situator::situateUnaryNonStatementBranches(
     rq::Situation situation, rq::Expression &expression,
     rq::Situation branch0_situation) {
@@ -1544,7 +1603,7 @@ bool Situator::situateNaryDifferentFirstNonStatementBranches(
       is_ok = false;
     }
     branch_i++;
-    for (rq::Expression &branch : expression.getBranchSubrange()) {
+    for (rq::Expression &branch : branch0.getNextSubrange()) {
       if (!this->situateNonStatementBranch(branchn_situation, branch)) {
         is_ok = false;
       }

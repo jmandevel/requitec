@@ -696,7 +696,7 @@ getFlags(rq::TokenKind kind) {
   case T::WHAT_OPERATOR:
     return TF::ERROR;
   case T::COLON_OPERATOR:
-    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
+    return TF::OPERATOR;
   case T::DOUBLE_COLON_OPERATOR:
     return TF::OPERATOR;
   case T::PLUS_OPERATOR:

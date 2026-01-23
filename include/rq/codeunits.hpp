@@ -568,7 +568,7 @@ getFlags(char codeunit) {
   constexpr CF UNDERSCORE =
       CF::NUMERIC | CF::IDENTIFIER_FRONT | CF::IDENTIFIER_BODY;
   constexpr CF DOT = CF::NUMERIC | CF::SYMBOL;
-  constexpr CF DIGIT_SYMBOL = CF::SYMBOL | CF::EXTENDED_DIGIT;
+  constexpr CF DIGIT_SYMBOL = CF::SYMBOL | CF::EXTENDED_DIGIT | CF::NUMERIC;
   constexpr CF CONTINUE = CF::NONE | 0;
   constexpr CF TWO_START = CF::NONE | 1;
   constexpr CF THREE_START = CF::NONE | 2;
