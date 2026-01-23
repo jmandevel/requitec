@@ -1223,7 +1223,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                    S::SYMBOL_PATH);
     break;
 
-  // EXPRESSIONS
+  // NODES
   case K::QUOTE:
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
@@ -1231,7 +1231,7 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
     }
     break;
-  case K::EXPRESSION:
+  case K::NODE:
     [[fallthrough]];
   case K::EXPAND:
     is_ok = this->situateNullaryExpression(situation, expression);

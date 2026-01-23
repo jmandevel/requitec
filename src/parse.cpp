@@ -1037,7 +1037,7 @@ rq::Node &RequiteParser::parsePrecedence1() {
   return precedence_factory.getOuter();
 }
 
-// BASE EXPRESSIONS
+// BASE NODES
 rq::Node &RequiteParser::parsePrecedence0() {
   const rq::Token &token = this->getRanger().getToken();
   switch (token.getKind()) {

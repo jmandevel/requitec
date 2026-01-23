@@ -381,9 +381,9 @@ enum class Keyword : std::uint32_t {
   MAY_MOVE,
   MUTATE_WITH,
 
-  // EXPRESSIONS
+  // NODES
   QUOTE,
-  EXPRESSION,
+  NODE,
   EXPAND,
   S_EXPAND_STATEMENT,
   S_EXPAND_LVALUE,
@@ -1068,11 +1068,11 @@ constexpr std::size_t KEYWORD_COUNT =
   case K::MUTATE_WITH:
     return "mutate_with";
 
-  // EXPRESSIONS
+  // NODES
   case K::QUOTE:
     return "quote";
-  case K::EXPRESSION:
-    return "expression";
+  case K::NODE:
+    return "node";
   case K::EXPAND:
     return "expand";
   case K::S_EXPAND_STATEMENT:
@@ -1861,10 +1861,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::MUTATE_WITH:
     return KF::SYMBOL_ATTRIBUTE;
 
-  // EXPRESSIONS
+  // NODES
   case K::QUOTE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::EXPRESSION:
+  case K::NODE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXPAND:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
