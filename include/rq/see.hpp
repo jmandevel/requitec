@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/ast.hpp>
+#include <rq/entity.hpp>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -29,7 +29,7 @@ struct SymbolicExecutionEngine final {
     this->_steps_left--;
     return this->getHasStepsLeft();
   }
-  [[nodiscard]] llvm::StringRef evaluateName(rq::Node &expression);
+  [[nodiscard]] llvm::StringRef evaluateName(rq::Expression &expression);
 };
 
 } // namespace rq

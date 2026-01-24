@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/symbol.hpp>
+#include <rq/entity.hpp>
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>

@@ -55,7 +55,7 @@ struct Tabulator final {
     this->_is_ok = false;
   }
   void tabulateModule();
-  void tabulateForest(rq::Node& first, rq::SymbolTableSymbol& scope);
+  void tabulateForest(rq::Expression& first, rq::SymbolTableSymbol& scope);
 };
 
 } // namespace rq

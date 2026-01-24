@@ -1,4 +1,4 @@
-#include <rq/symbol.hpp>
+#include <rq/entity.hpp>
 #include <rq/context.hpp>
 
 namespace rq {

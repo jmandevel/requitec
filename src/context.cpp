@@ -1,11 +1,10 @@
-#include <rq/ast.hpp>
+#include <rq/entity.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
 #include <rq/json.hpp>
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
-#include <rq/symbol.hpp>
 #include <rq/tabulator.hpp>
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
@@ -64,13 +63,13 @@ bool Context::tokenizeSourceText(const rq::ModuleSymbol &module,
   return is_ok;
 }
 
-void Context::initializeKeywordMap() {
-  RQ_ASSERT(this->_keyword_map.empty(), "keyword map not empty");
-  for (std::underlying_type_t<rq::Keyword> keyword_i = 0;
-       keyword_i <= rq::KEYWORD_COUNT; keyword_i++) {
-    const rq::Keyword keyword = static_cast<rq::Keyword>(keyword_i);
+void Context::initializeKindMap() {
+  RQ_ASSERT(this->_kind_map.empty(), "keyword map not empty");
+  for (std::underlying_type_t<rq::EntityKind> keyword_i = 0;
+       keyword_i <= rq::ENTITY_COUNT; keyword_i++) {
+    const rq::EntityKind keyword = static_cast<rq::EntityKind>(keyword_i);
     std::string_view name = rq::getName(keyword);
-    this->_keyword_map.insert({name, keyword});
+    this->_kind_map.insert({name, keyword});
   }
 }
 
@@ -87,17 +86,17 @@ rq::SourceLocation Context::getSourceLocation(llvm::SMLoc llvm_location) {
   return source_location;
 }
 
-rq::Keyword Context::getKeyword(llvm::Twine name) {
+rq::EntityKind Context::getKeyword(llvm::Twine name) {
   llvm::SmallString<64> buffer;
-  llvm::StringMapIterator<rq::Keyword> it =
-      this->_keyword_map.find(name.toStringRef(buffer));
-  if (it == this->_keyword_map.end()) {
-    return rq::Keyword::I_NONE;
+  llvm::StringMapIterator<rq::EntityKind> it =
+      this->_kind_map.find(name.toStringRef(buffer));
+  if (it == this->_kind_map.end()) {
+    return rq::EntityKind::NONE;
   }
   return it->getValue();
 }
 
-rq::SourceRange Context::getSourceRange(const rq::Node &expression) {
+rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
   rq::SourceRange source_range = {};
   source_range.start = this->getSourceLocation(expression.getLlvmSourceBegin());
   source_range.end = this->getSourceLocation(expression.getLlvmSourceEnd());
@@ -163,7 +162,7 @@ bool Context::loadSourceModule() {
   return true;
 }
 
-rq::ModuleSymbol *Context::loadImportModule(rq::Node &expression,
+rq::ModuleSymbol *Context::loadImportModule(rq::Expression &expression,
                                             llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
@@ -247,7 +246,7 @@ bool Context::run() {
       }
       return true;
     }
-    this->initializeKeywordMap();
+    this->initializeKindMap();
     if (!this->parseRequite(this->getSourceModule(), tokens)) {
       return false;
     }
@@ -311,7 +310,7 @@ bool Context::run() {
 bool Context::parseRequite(rq::ModuleSymbol &module,
                            const std::vector<rq::Token> &tokens) {
   rq::RequiteParser parser(*this, tokens);
-  rq::Node *root_ptr = parser.parseExpressions();
+  rq::Expression *root_ptr = parser.parseExpressions();
   module.setExpression(root_ptr);
   return parser.getIsOk();
 }
@@ -365,12 +364,12 @@ static void emitIndent(llvm::raw_fd_ostream &fout, unsigned indent) {
 }
 
 static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
-                              const rq::Node &trunk, unsigned indent) {
+                              const rq::Expression &trunk, unsigned indent) {
   if (!rq::getNoComment()) {
     rq::emitIndent(fout, indent);
     fout << "//";
     if (trunk.getIsInternal()) {
-      fout << " " << trunk.getName();
+      fout << " " << trunk.getKindName();
     }
     if (!trunk.getHasSourceText()) {
       fout << " (no position)";
@@ -407,10 +406,10 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     }
     return;
   }
-  fout << "[" << trunk.getName();
+  fout << "[" << trunk.getKindName();
   if (trunk.getHasBranch()) {
     fout << '\n';
-    for (const rq::Node &branch : trunk.getBranchSubrange()) {
+    for (const rq::Expression &branch : trunk.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
       if (trunk.getHasStatementBranches()) {
         if (branch.getIsHeader()) {
@@ -435,14 +434,14 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "]";
 }
 
-bool Context::emitRequite(llvm::StringRef path, const rq::Node &trunk) {
+bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
     this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
-  for (const rq::Node &branch : trunk.getInclusiveNextSubrange()) {
+  for (const rq::Expression &branch : trunk.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
     if (branch.getIsHeader()) {
       fout << ",\n";
@@ -460,7 +459,7 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol);
 
 static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
-                         const rq::Node &expression) {
+                         const rq::Expression &expression) {
   if (!expression.getHasSourceText()) {
     json.emitNull("location");
   } else if (expression.getSourceTextLength() == 0) {
@@ -491,7 +490,7 @@ static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
 static void emitAttributes(rq::JsonEmitter &json,
                            const rq::detail::HasAttributesSymbol &symbol) {
   json.beginArray("attributes");
-  using SA = rq::SymbolAttribute;
+  using SA = rq::ExpressionAttribute;
   constexpr SA attributes[] = {
       SA::OPAQUE,    SA::OUTSIDE,     SA::STATIC,   SA::CAPTURE,
       SA::EAGER,     SA::MAY_PARENT,  SA::PARENT,   SA::ABSTRACT,
@@ -540,74 +539,74 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol) {
   json.beginObject();
-  json.emitString("kind", rq::getDescription(symbol.getKind()));
+  json.emitString("kind", rq::getName(symbol.getKind()));
   switch (symbol.getKind()) {
-  case rq::SymbolKind::IMPORT: {
+  case rq::EntityKind::SY_IMPORT: {
     const auto &import = llvm::cast<rq::ImportSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, import);
   } break;
-  case rq::SymbolKind::MUTATION: {
+  case rq::EntityKind::SY_MUTATION: {
     const auto &mutation = llvm::cast<rq::MutationSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, mutation);
   } break;
-  case rq::SymbolKind::DYNAMIC_VARIABLE: {
+  case rq::EntityKind::SY_DYNAMIC_VARIABLE: {
     const auto &variable = llvm::cast<rq::DynamicVariableSymbol>(symbol);
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
-  case rq::SymbolKind::TABLE: {
+  case rq::EntityKind::SY_TABLE: {
     const auto &table = llvm::cast<rq::TableSymbol>(symbol);
     json.emitString("name", table.getName());
   } break;
-  case rq::SymbolKind::CLASS: {
+  case rq::EntityKind::SY_CLASS: {
     const auto &class_ = llvm::cast<rq::ClassSymbol>(symbol);
     json.emitString("name", class_.getName());
     rq::emitModuleMemberSymbol(context, json, class_);
   } break;
-  case rq::SymbolKind::ENUMERATION: {
+  case rq::EntityKind::SY_ENUMERATION: {
     const auto &enumeration = llvm::cast<rq::EnumerationSymbol>(symbol);
     json.emitString("name", enumeration.getName());
     rq::emitModuleMemberSymbol(context, json, enumeration);
   } break;
-  case rq::SymbolKind::ENTRY: {
+  case rq::EntityKind::SY_ENTRY: {
     const auto &entry = llvm::cast<rq::EntrySymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, entry);
   } break;
-  case rq::SymbolKind::FUNCTION: {
+  case rq::EntityKind::SY_FUNCTION: {
     const auto &function = llvm::cast<rq::FunctionSymbol>(symbol);
     json.emitString("name", function.getName());
     rq::emitModuleMemberSymbol(context, json, function);
   } break;
-  case rq::SymbolKind::METHOD: {
+  case rq::EntityKind::SY_METHOD: {
     const auto &method = llvm::cast<rq::MethodSymbol>(symbol);
     json.emitString("name", method.getName());
     rq::emitModuleMemberSymbol(context, json, method);
   } break;
-  case rq::SymbolKind::EXTENSION_FUNCTION: {
+  case rq::EntityKind::SY_EXTENSION_FUNCTION: {
     const auto &extension_function =
         llvm::cast<rq::ExtensionFunctionSymbol>(symbol);
     json.emitString("name", extension_function.getName());
     rq::emitModuleMemberSymbol(context, json, extension_function);
   } break;
-  case rq::SymbolKind::EXTENSION_METHOD: {
+  case rq::EntityKind::SY_EXTENSION_METHOD: {
     const auto &extension_method =
         llvm::cast<rq::ExtensionMethodSymbol>(symbol);
     json.emitString("name", extension_method.getName());
     rq::emitModuleMemberSymbol(context, json, extension_method);
   } break;
-  case rq::SymbolKind::CONSTRUCTOR: {
+  case rq::EntityKind::SY_CONSTRUCTOR: {
     const auto &constructor = llvm::cast<rq::ConstructorSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, constructor);
   } break;
-  case rq::SymbolKind::DESTRUCTOR: {
+  case rq::EntityKind::SY_DESTRUCTOR: {
     const auto &destructor = llvm::cast<rq::DestructorSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, destructor);
   } break;
-  case rq::SymbolKind::RANGER: {
+  case rq::EntityKind::SY_RANGER: {
     const auto &ranger = llvm::cast<rq::RangerSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, ranger);
   } break;
-  case rq::SymbolKind::TOP: {
+  case rq::EntityKind::SY_TOP: {
     const auto &top = llvm::cast<rq::TopSymbol>(symbol);
     rq::emitSymbolTable(context, json, top);
   } break;
@@ -716,7 +715,7 @@ void Context::logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
       llvm::Twine("\n\treason:") + ec.message());
 }
 
-void Context::logErrorImportFileNotFound(const rq::Node &expression,
+void Context::logErrorImportFileNotFound(const rq::Expression &expression,
                                          llvm::StringRef import_string) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("error: could not locate import file \"") +
@@ -725,7 +724,7 @@ void Context::logErrorImportFileNotFound(const rq::Node &expression,
 }
 
 void Context::logErrorFailedToCanonicializeImportPath(
-    const rq::Node &expression, const std::error_code &ec) {
+    const rq::Expression &expression, const std::error_code &ec) {
   this->logMessage(
       expression.getLlvmSourceBegin(), rq::LogType::NOTE,
       llvm::Twine("error: failed to canonicalize import file path\n") +
@@ -734,7 +733,7 @@ void Context::logErrorFailedToCanonicializeImportPath(
 }
 
 void Context::logErrorFailedToLoadImportFileBuffer(
-    const rq::Node &expression, const std::error_code &ec) {
+    const rq::Expression &expression, const std::error_code &ec) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("error: failed to load import file buffer\n") +
                        llvm::Twine("\treason:") + ec.message(),
@@ -794,7 +793,7 @@ void Context::logErrorNotKeyword(const rq::Token &token) {
 }
 
 void Context::logErrorInternalUseOnlyKeyword(const rq::Token &token,
-                                             rq::Keyword keyword) {
+                                             rq::EntityKind keyword) {
   this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getName(keyword)) +
                        " is for internal use only",
@@ -834,7 +833,7 @@ void Context::logErrorUnmatchedLeftToken(const rq::Token &token) {
 
 void Context::logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                            const rq::Token &front_token,
-                                           const rq::Node &expression) {
+                                           const rq::Expression &expression) {
   this->logMessage(
       trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
       "trailer token does not match token from start of expression",
@@ -853,26 +852,26 @@ void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
 }
 
 void Context::logErrorMustHaveParameterMark(rq::Situation situation,
-                                            const rq::Node &expression) {
+                                            const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getName() + " must have parameter mark",
+                       expression.getKindName() + " must have parameter mark",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorPositionalEndIsFirst(const rq::Node &mark) {
+void Context::logErrorPositionalEndIsFirst(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(mark.getName()) + " is first",
+                   llvm::Twine(mark.getKindName()) + " is first",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNamedBeginIsLast(const rq::Node &mark) {
+void Context::logErrorNamedBeginIsLast(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(mark.getName()) + " is last",
+                   llvm::Twine(mark.getKindName()) + " is last",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedCommaSeparator(const rq::Node &expression) {
+void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected comma separator after expression",
                    {expression.getLlvmSourceRange()}, {});
@@ -886,124 +885,124 @@ void Context::logErrorExpectedSeparatorOrRightBracket(const rq::Token &token) {
 }
 
 void Context::logErrorExpectedSemicolonSeparator(
-    const rq::Node &expression) {
+    const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected semicolon separator after statement",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpressionShouldNeverOccur(
-    const rq::Node &expression) {
+    const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(expression.getName()) +
+                   llvm::Twine(expression.getKindName()) +
                        " expression should never occur.",
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateParameterMark(const rq::Node &mark) {
+void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("duplicate ") + mark.getName(),
+                   llvm::Twine("duplicate ") + mark.getKindName(),
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateAttribute(const rq::Node &attribute) {
+void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("duplicate ") + attribute.getName(),
+                   llvm::Twine("duplicate ") + attribute.getKindName(),
                    {attribute.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNamedBeginAfterPositionalEnd(
-    const rq::Node &named_begin) {
+    const rq::Expression &named_begin) {
   this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "named begin after positional end",
                    {named_begin.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotExactBranchCount(rq::Situation situation,
-                                          const rq::Node &expression,
+                                          const rq::Expression &expression,
                                           unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getName() + " must have exactly " +
+                       expression.getKindName() + " must have exactly " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                            const rq::Node &expression,
+                                            const rq::Expression &expression,
                                             unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getName() + " must have at least " +
+                       expression.getKindName() + " must have at least " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorTooManyBranchCount(rq::Situation situation,
-                                         const rq::Node &expression,
+                                         const rq::Expression &expression,
                                          unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getName() + " must not have more than " +
+                       expression.getKindName() + " must not have more than " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorInvalidBranchSituation(rq::Situation situation,
-                                             const rq::Node &branch) {
+                                             const rq::Expression &branch) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(branch.getName()) + " can not be " +
+                   llvm::Twine(branch.getKindName()) + " can not be " +
                        rq::getDescription(situation),
                    {branch.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedHeaderExpression(
-    const rq::Node &expresison) {
+    const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not header",
+                   expresison.getKindName() + " is not header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedHeaderExpression(
-    const rq::Node &expresison) {
+    const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is header",
+                   expresison.getKindName() + " is header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedChainLinkExpression(
-    const rq::Node &expresison) {
+    const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not chain-link",
+                   expresison.getKindName() + " is not chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedChainLinkExpression(
-    const rq::Node &expresison) {
+    const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is chain-link",
+                   expresison.getKindName() + " is chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
-rq::Node &Context::acquireExpression() {
+rq::Expression &Context::acquireExpression() {
   if (this->_unused_expression_ptrs.empty()) {
-    rq::Node &new_expression = this->allocateValue<rq::Node>();
+    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
   }
-  rq::Node &unused_expression =
+  rq::Expression &unused_expression =
       rq::dereferencePtr(this->_unused_expression_ptrs.back());
   this->_unused_expression_ptrs.pop_back();
   unused_expression.clear();
   return unused_expression;
 }
 
-rq::Node &Context::copyExpression(rq::Node &expression) {
-  rq::Node &new_expression = rq::dereferencePtr(new rq::Node());
+rq::Expression &Context::copyExpression(rq::Expression &expression) {
+  rq::Expression &new_expression = this->acquireExpression();
   if (expression.getHasBranch()) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));
   }
   new_expression._next_ptr_flags = expression._next_ptr_flags;
-  new_expression._keyword = expression._keyword;
+  new_expression._kind = expression._kind;
   new_expression._source_ptr_flags = expression._source_ptr_flags;
   new_expression._source_text_length = expression._source_text_length;
   return new_expression;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/symbol.hpp>
+#include <rq/entity.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -29,10 +29,7 @@
 namespace rq {
 
 struct Token;
-struct Node;
 struct ModuleSymbol;
-enum class Keyword : std::uint32_t;
-enum class Situation : std::uint_fast8_t;
 enum class TokenKind : std::uint_fast8_t;
 
 enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
@@ -68,7 +65,7 @@ struct Context final {
   std::string _executable_path;
   llvm::SourceMgr _llvm_source_mgr;
   llvm::TargetMachine *_llvm_target_machine_ptr{nullptr};
-  llvm::StringMap<rq::Keyword> _keyword_map;
+  llvm::StringMap<rq::EntityKind> _kind_map;
   llvm::StringMap<rq::ModuleSymbol *> _module_map;
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
@@ -77,7 +74,7 @@ struct Context final {
   rq::ModuleSymbol *_source_module_ptr = nullptr;
   llvm::BumpPtrAllocator _llvm_arena{};
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
-  std::vector<rq::Node *> _unused_expression_ptrs{};
+  std::vector<rq::Expression *> _unused_expression_ptrs{};
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
   rq::InferenceSymbol *_inference_symbol{nullptr};
   rq::VoidSymbol *_void_symbol_ptr{nullptr};
@@ -166,18 +163,18 @@ struct Context final {
   [[nodiscard]] bool validateSourceText(const rq::ModuleSymbol &module);
   [[nodiscard]] bool tokenizeSourceText(const rq::ModuleSymbol &module,
                                         std::vector<rq::Token> &tokens);
-  void initializeKeywordMap();
-  [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
+  void initializeKindMap();
+  [[nodiscard]] rq::EntityKind getKeyword(llvm::Twine name);
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
-  getSourceRange(const rq::Node &expression);
+  getSourceRange(const rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE std::error_code
   canonicalizePath(llvm::SmallVectorImpl<char> &path);
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
   loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
   [[nodiscard]] rq::ModuleSymbol *
-  loadImportModule(rq::Node &expression, llvm::StringRef import_string);
+  loadImportModule(rq::Expression &expression, llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseRequite(rq::ModuleSymbol &module,
@@ -187,7 +184,7 @@ struct Context final {
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
-                                 const rq::Node &trunk);
+                                 const rq::Expression &trunk);
   [[nodiscard]] bool emitSymbol(llvm::StringRef path, const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
@@ -218,11 +215,11 @@ struct Context final {
                                         const std::error_code &ec);
   void logErrorFailedToLoadSourceFileBuffer(llvm::StringRef path,
                                             const std::error_code &ec);
-  void logErrorImportFileNotFound(const rq::Node &expression,
+  void logErrorImportFileNotFound(const rq::Expression &expression,
                                   llvm::StringRef import_string);
-  void logErrorFailedToCanonicializeImportPath(const rq::Node &expression,
+  void logErrorFailedToCanonicializeImportPath(const rq::Expression &expression,
                                                const std::error_code &ec);
-  void logErrorFailedToLoadImportFileBuffer(const rq::Node &expression,
+  void logErrorFailedToLoadImportFileBuffer(const rq::Expression &expression,
                                             const std::error_code &ec);
   void logErrorFailedToFindLlvmTarget(llvm::StringRef target_triple,
                                       llvm::StringRef error);
@@ -236,7 +233,7 @@ struct Context final {
   void logErrorExpectedIdentifierLiteral(const rq::Token &token);
   void logErrorNotKeyword(const rq::Token &token);
   void logErrorInternalUseOnlyKeyword(const rq::Token &token,
-                                      rq::Keyword keyword);
+                                      rq::EntityKind keyword);
   void logErrorUnmatchedRightToken(const rq::Token &left_token,
                                    const rq::Token &right_token);
   void logErrorSoloRightToken(const rq::Token &token);
@@ -244,34 +241,34 @@ struct Context final {
   void logErrorUnmatchedLeftToken(const rq::Token &token);
   void logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
                                     const rq::Token &front_token,
-                                    const rq::Node &expression);
+                                    const rq::Expression &expression);
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustHaveParameterMark(rq::Situation situation,
-                                     const rq::Node &expression);
-  void logErrorPositionalEndIsFirst(const rq::Node &mark);
-  void logErrorNamedBeginIsLast(const rq::Node &mark);
-  void logErrorExpectedCommaSeparator(const rq::Node &expression);
+                                     const rq::Expression &expression);
+  void logErrorPositionalEndIsFirst(const rq::Expression &mark);
+  void logErrorNamedBeginIsLast(const rq::Expression &mark);
+  void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
-  void logErrorExpectedSemicolonSeparator(const rq::Node &expression);
-  void logErrorExpressionShouldNeverOccur(const rq::Node &expression);
-  void logErrorDuplicateParameterMark(const rq::Node &mark);
-  void logErrorDuplicateAttribute(const rq::Node &attribute);
-  void logErrorNamedBeginAfterPositionalEnd(const rq::Node &named_begin);
+  void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
+  void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
+  void logErrorDuplicateParameterMark(const rq::Expression &mark);
+  void logErrorDuplicateAttribute(const rq::Expression &attribute);
+  void logErrorNamedBeginAfterPositionalEnd(const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
-                                   const rq::Node &expression,
+                                   const rq::Expression &expression,
                                    unsigned count);
   void logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                     const rq::Node &expression,
+                                     const rq::Expression &expression,
                                      unsigned count);
   void logErrorTooManyBranchCount(rq::Situation situation,
-                                  const rq::Node &expression,
+                                  const rq::Expression &expression,
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
-                                      const rq::Node &branch);
-  void logErrorExpectedHeaderExpression(const rq::Node &expresison);
-  void logErrorUnexpectedHeaderExpression(const rq::Node &expresison);
-  void logErrorExpectedChainLinkExpression(const rq::Node &expresison);
-  void logErrorUnexpectedChainLinkExpression(const rq::Node &expresison);
+                                      const rq::Expression &branch);
+  void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
   template <typename TypeParam, typename... ArgNParam>
   inline TypeParam &allocateValue(ArgNParam &&...arg_n) {
     TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
@@ -282,13 +279,13 @@ struct Context final {
   inline llvm::StringRef saveString(llvm::Twine twine) {
     return this->_llvm_string_saver.save(twine);
   }
-  [[nodiscard]] rq::Node &acquireExpression();
-  inline void discardExpression(rq::Node &expression) {
+  [[nodiscard]] rq::Expression &acquireExpression();
+  inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
     this->_unused_expression_ptrs.emplace_back(&expression);
   }
-  [[nodiscard]] rq::Node &copyExpression(rq::Node &expression);
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
 
   inline rq::InferenceSymbol &getInference() {
     if (!this->_inference_symbol) {
@@ -390,7 +387,7 @@ struct Context final {
     return rq::dereferencePtr(this->_utf8_symbol_ptr);
   }
   [[nodiscard]] inline rq::ScaledBuiltinSymbol &
-  _getOrInsertScaledBuiltin(rq::SymbolKind kind, unsigned scalar, unsigned uid,
+  _getOrInsertScaledBuiltin(rq::EntityKind kind, unsigned scalar, unsigned uid,
                             rq::ScaledBuiltinFlags flags) {
     llvm::FoldingSetNodeID id;
     rq::profileScaledIntegerSymbol(id, kind, scalar, uid, flags);
@@ -405,7 +402,7 @@ struct Context final {
     return new_type;
   }
   [[nodiscard]] inline rq::UnarySubtypeSymbol &
-  _getOrInsertUnarySubtypeSymbol(rq::SymbolKind kind, rq::Symbol &subtype) {
+  _getOrInsertUnarySubtypeSymbol(rq::EntityKind kind, rq::Symbol &subtype) {
     llvm::FoldingSetNodeID id;
     rq::profileUnarySubtypeSymbol(id, kind, subtype);
     void *insert_pos = nullptr;
@@ -421,32 +418,32 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &
   getRange(rq::TypeSymbol &root) {
     return llvm::cast<rq::RangeSymbol>(
-        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::RANGE, root));
+        this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_RANGE, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &
   getReference(rq::TypeSymbol &root) {
     return llvm::cast<rq::ReferenceSymbol>(
-        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::REFERENCE, root));
+        this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_REFERENCE, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &
   getPointer(rq::TypeSymbol &root) {
     return llvm::cast<rq::PointerSymbol>(
-        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::POINTER, root));
+        this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_POINTER, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FatPointerSymbol &
   getFatPointer(rq::TypeSymbol &root) {
     return llvm::cast<rq::FatPointerSymbol>(
-        this->_getOrInsertUnarySubtypeSymbol(rq::SymbolKind::FAT_POINTER,
+        this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_FAT_POINTER,
                                              root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArraySymbol &
   getInferecedCountArray(rq::TypeSymbol &root) {
     return llvm::cast<rq::InferencedCountArraySymbol>(
         this->_getOrInsertUnarySubtypeSymbol(
-            rq::SymbolKind::INFERENCED_COUNT_ARRAY, root));
+            rq::EntityKind::SY_INFERENCED_COUNT_ARRAY, root));
   }
   [[nodiscard]] inline rq::CountedSubtypeSymbol &
-  _getOrInsertCountedSubtypeSymbol(rq::SymbolKind kind, rq::TypeSymbol &root,
+  _getOrInsertCountedSubtypeSymbol(rq::EntityKind kind, rq::TypeSymbol &root,
                                    unsigned count) {
     llvm::FoldingSetNodeID id;
     rq::profileCountedSubtypeSymbol(id, kind, root, count);
@@ -464,11 +461,11 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &getArray(rq::TypeSymbol &root,
                                                            unsigned count) {
     return llvm::cast<rq::ArraySymbol>(this->_getOrInsertCountedSubtypeSymbol(
-        rq::SymbolKind::ARRAY, root, count));
+        rq::EntityKind::SY_ARRAY, root, count));
   }
   [[nodiscard]] inline rq::ArithmeticSequenceSymbol &
   _getOrInsertArithmeticSequenceSymbol(
-      rq::SymbolKind kind, rq::TypeSymbol &root,
+      rq::EntityKind kind, rq::TypeSymbol &root,
       rq::ArithmeticSequenceCondition condition,
       rq::ArithmeticSequenceStep step) {
     llvm::FoldingSetNodeID id;
@@ -490,7 +487,7 @@ struct Context final {
                         rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::ArithmeticIntervalSymbol>(
         this->_getOrInsertArithmeticSequenceSymbol(
-            rq::SymbolKind::ARITHMETIC_INTERVAL, root, condition,
+            rq::EntityKind::SY_ARITHMETIC_INTERVAL, root, condition,
             rq::ArithmeticSequenceStep::NONE));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
@@ -499,7 +496,7 @@ struct Context final {
                                  rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(
         this->_getOrInsertArithmeticSequenceSymbol(
-            rq::SymbolKind::FINITE_ARITHMETIC_PROGRESSION, root, condition,
+            rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION, root, condition,
             step));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
@@ -507,7 +504,7 @@ struct Context final {
                                    rq::ArithmeticSequenceStep step) {
     return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(
         this->_getOrInsertArithmeticSequenceSymbol(
-            rq::SymbolKind::INFINITE_ARITHMETIC_PROGRESSION, root,
+            rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION, root,
             rq::ArithmeticSequenceCondition::NONE, step));
   }
 };
