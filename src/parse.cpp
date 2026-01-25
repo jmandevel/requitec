@@ -1164,7 +1164,7 @@ rq::EntityKind RequiteParser::parseKeyword() {
     this->setNotOk();
     return rq::EntityKind::KW_ERROR;
   }
-  if (keyword == rq::EntityKind::NONE) {
+  if (!rq::getIsKeyword(keyword)) {
     this->getContext().logErrorNotKeyword(token);
     this->setNotOk();
     return rq::EntityKind::KW_ERROR;
