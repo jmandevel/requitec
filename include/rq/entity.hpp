@@ -582,7 +582,7 @@ enum class EntityKind : std::uint16_t {
 };
 
 static constexpr std::size_t ENTITY_COUNT =
-    static_cast<std::size_t>(rq::EntityKind::LAST);
+    static_cast<std::size_t>(rq::EntityKind::LAST) - 1;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::EntityKind kind) {
   using namespace rq;
@@ -592,6 +592,9 @@ static constexpr std::size_t ENTITY_COUNT =
     return "none";
 
   // =====KEYWORDS=====
+
+  case E::KW_NONE:
+    return "none";
 
   // LITERALS
   case E::KW_INTEGER_LITERAL:

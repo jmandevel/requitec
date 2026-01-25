@@ -1,6 +1,7 @@
-#include <rq/entity.hpp>
+#include <rq/build.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
+#include <rq/entity.hpp>
 #include <rq/json.hpp>
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
@@ -280,12 +281,9 @@ bool Context::run() {
     }
     return true;
   }
-  // if (!this->implementAll()) {
-  //   return false;
-  // }
-  // if (!this->buildIr()) {
-  //   return false;
-  // }
+  if (!this->buildLlvmIr()) {
+    return false;
+  }
   if (rq::getEmitMode() == rq::EMIT_IR) {
     if (!this->emitLlvmIr(rq::getOutputFilePath())) {
       return false;
@@ -325,6 +323,12 @@ bool Context::tabulateModule(rq::ModuleSymbol &module) {
   rq::Tabulator tabulator(*this, module);
   tabulator.tabulateModule();
   return tabulator.getIsOk();
+}
+
+bool Context::buildLlvmIr() {
+  rq::Builder builder(*this);
+  builder.buildLlvmIr();
+  return builder.getIsOk();
 }
 
 bool Context::emitTokens(llvm::StringRef path,
