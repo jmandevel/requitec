@@ -573,8 +573,13 @@ enum class EntityKind : std::uint16_t {
 
   // =====OPCODES=====
 
-  // Instructions are executed by the see (Symbolic Execution Engine) during
-  // static exeuction. Each instruction is identified by its opcode.
+  // Instructions are built in stage 6 and contain baked instructions, including
+  // evaluations from see (Symbolic Evolution Engine). In stage 7, the
+  // insturctions are then used to build LLVM IR.
+
+  // this is the initial keyword set for expressions. it must be overwritten
+  // later!
+  OP_NONE,
 
   // TODO
 
@@ -591,7 +596,7 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::NONE:
     return "none";
 
-  // =====KEYWORDS=====
+    // =====KEYWORDS=====
 
   case E::KW_NONE:
     return "none";
@@ -1522,6 +1527,11 @@ static constexpr std::size_t ENTITY_COUNT =
     return "ct_string";
   case E::CT_ARRAY:
     return "ct_array";
+
+    // =====OPCODES=====
+
+  case E::OP_NONE:
+    return "op_none";
 
   default:
     break;
@@ -2622,6 +2632,10 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::CONSTANT;
   case E::CT_ARRAY:
     return EF::CONSTANT;
+
+  // INSTRUCTION
+  case E::OP_NONE:
+    return EF::OPCODE;
 
   case E::LAST:
     break;
@@ -8719,6 +8733,24 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
     rq::profileArrayConstant(id, this->_elements);
   }
+};
+
+struct Instruction : public rq::Entity {
+  using Self = Instruction;
+
+  rq::Expression *_source_ptr{nullptr};
+  rq::Entity *_a_ptr{nullptr};
+  rq::Entity *_b_ptr{nullptr};
+  rq::Entity *_c_ptr{nullptr};
+  rq::Instruction *_next_ptr{nullptr};
+
+  Instruction() : rq::Entity(rq::EntityKind::OP_NONE) {}
+  Instruction(const Self &) = delete;
+  ~Instruction() override {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  // TODO
 };
 
 } // namespace rq
