@@ -4,6 +4,8 @@
 #include <rq/codeunits.hpp>
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/APInt.h>
 #include <llvm/ADT/FoldingSet.h>
 #include <llvm/ADT/PointerIntPair.h>
 #include <llvm/ADT/PointerUnion.h>
@@ -1621,25 +1623,29 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 
     // LITERALS
   case E::KW_INTEGER_LITERAL:
-    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE |
+           EF::KW_ARGUMENT;
   case E::KW_FLOAT_LITERAL:
-    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE |
+           EF::KW_ARGUMENT;
   case E::KW_STRING_LITERAL:
-    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE |
+           EF::KW_ARGUMENT;
   case E::KW_LEFT_INTERPOLATION_LITERAL:
-    return EF::KEYWORD | EF::KW_UNQUOTED_RIGHT | EF::KW_LITERAL | EF::KW_INTERNAL |
-           EF::KW_RVALUE | EF::KW_ARGUMENT;
-  case E::KW_MIDDLE_INTERPOLATION_LITERAL:
-    return EF::KEYWORD | EF::KW_UNQUOTED_LEFT | EF::KW_UNQUOTED_RIGHT | EF::KW_LITERAL |
+    return EF::KEYWORD | EF::KW_UNQUOTED_RIGHT | EF::KW_LITERAL |
            EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
+  case E::KW_MIDDLE_INTERPOLATION_LITERAL:
+    return EF::KEYWORD | EF::KW_UNQUOTED_LEFT | EF::KW_UNQUOTED_RIGHT |
+           EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
   case E::KW_RIGHT_INTERPOLATION_LITERAL:
-    return EF::KEYWORD | EF::KW_UNQUOTED_LEFT | EF::KW_LITERAL | EF::KW_INTERNAL |
-           EF::KW_RVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_UNQUOTED_LEFT | EF::KW_LITERAL |
+           EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
   case E::KW_CODEUNIT_LITERAL:
-    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE |
+           EF::KW_ARGUMENT;
   case E::KW_IDENTIFIER_LITERAL:
-    return EF::KEYWORD | EF::KW_STATEMENT | EF::KW_LITERAL | EF::KW_INTERNAL | EF::KW_RVALUE |
-           EF::KW_LVALUE | EF::KW_REFLECTION | EF::KW_ARGUMENT |
+    return EF::KEYWORD | EF::KW_STATEMENT | EF::KW_LITERAL | EF::KW_INTERNAL |
+           EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_REFLECTION | EF::KW_ARGUMENT |
            EF::KW_PARAMETER | EF::KW_SYMBOL_PATH;
 
   // ERRORS
@@ -1648,8 +1654,9 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 
   // SITUATIONAL
   case E::KW_UNSITUATED_PARENTHESIS_GROUP:
-    return EF::KEYWORD | EF::KW_CONVERGING | EF::KW_RVALUE | EF::KW_ARGUMENT | EF::KW_LVALUE |
-           EF::KW_SYMBOL_PATH | EF::KW_ARITHMETIC_SEQUENCE_STEP |
+    return EF::KEYWORD | EF::KW_CONVERGING | EF::KW_RVALUE | EF::KW_ARGUMENT |
+           EF::KW_LVALUE | EF::KW_SYMBOL_PATH |
+           EF::KW_ARITHMETIC_SEQUENCE_STEP |
            EF::KW_ARITHMETIC_SEQUENCE_CONDITION;
   case E::KW_UNSITUATED_EQUAL_OPERATOR:
     return EF::KEYWORD | EF::KW_STATEMENT | EF::KW_ARGUMENT | EF::KW_PARAMETER;
@@ -1841,7 +1848,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 
   // PROCEDURES
   case E::KW_CALL:
-    return EF::KEYWORD | EF::KW_STATEMENT | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_STATEMENT | EF::KW_RVALUE | EF::KW_LVALUE |
+           EF::KW_ARGUMENT;
   case E::KW_NAMED_ARGUMENT:
     return EF::KEYWORD | EF::KW_ARGUMENT;
   case E::KW_INDEX_INTO:
@@ -1863,7 +1871,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::KW_MOVE_VALUE:
     return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT;
   case E::KW_ENTRY:
-    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT | EF::KW_RVALUE;
+    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT |
+           EF::KW_RVALUE;
   case E::KW_FUNCTION:
     return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT;
   case E::KW_METHOD:
@@ -1873,13 +1882,16 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::KW_EXTENSION_METHOD:
     return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT;
   case E::KW_CONSTRUCTOR:
-    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT | EF::KW_RVALUE;
+    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT |
+           EF::KW_RVALUE;
   case E::KW_LAYOUT_CONSTRUCTOR:
     return EF::KEYWORD | EF::KW_STATEMENT | EF::KW_RVALUE;
   case E::KW_DESTRUCTOR:
-    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT | EF::KW_RVALUE;
+    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT |
+           EF::KW_RVALUE;
   case E::KW_RANGER:
-    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT | EF::KW_RVALUE;
+    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT |
+           EF::KW_RVALUE;
 
   // CONTROL FLOW
   case E::KW_RETURN:
@@ -2061,7 +2073,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::KW_WHILE:
     return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT;
   case E::KW_SCOPE:
-    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT | EF::KW_RVALUE;
+    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT |
+           EF::KW_RVALUE;
   case E::KW_INLINE_SCOPE:
     return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_RVALUE;
   case E::KW_BLOCK:
@@ -2201,7 +2214,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::KW_FACADE:
     return EF::KEYWORD | EF::KW_STATEMENT;
   case E::KW_TABLE:
-    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT | EF::KW_RVALUE;
+    return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::KW_STATEMENT |
+           EF::KW_RVALUE;
   case E::KW_MODULE_TRUNK:
     return EF::KEYWORD | EF::KW_STATEMENT_BRANCHES | EF::NONE; // TRUNK
 
@@ -2298,17 +2312,17 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
            EF::KW_SYMBOL_PATH | EF::KW_ARITHMETIC_SEQUENCE_STEP |
            EF::KW_ARITHMETIC_SEQUENCE_CONDITION;
   case E::KW_MEMBER_OF:
-    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT | EF::KW_PARAMETER |
-           EF::KW_SYMBOL_PATH | EF::KW_STATEMENT;
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT |
+           EF::KW_PARAMETER | EF::KW_SYMBOL_PATH | EF::KW_STATEMENT;
   case E::KW_MEMBER_OF_TOP:
-    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT | EF::KW_PARAMETER |
-           EF::KW_SYMBOL_PATH | EF::KW_STATEMENT;
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT |
+           EF::KW_PARAMETER | EF::KW_SYMBOL_PATH | EF::KW_STATEMENT;
   case E::KW_ASCEND_FRAME:
-    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT | EF::KW_PARAMETER |
-           EF::KW_SYMBOL_PATH;
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT |
+           EF::KW_PARAMETER | EF::KW_SYMBOL_PATH;
   case E::KW_ASCEND_FRAME_OF:
-    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT | EF::KW_PARAMETER |
-           EF::KW_SYMBOL_PATH;
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_LVALUE | EF::KW_ARGUMENT |
+           EF::KW_PARAMETER | EF::KW_SYMBOL_PATH;
   case E::KW_BYTE_SIZE:
     return EF::KEYWORD | EF::KW_REFLECTION | EF::KW_UNIVERSALIZABLE;
   case E::KW_BYTE_SIZE_OF:
@@ -2654,7 +2668,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 
 #define RQ_ASSERT_OPCODE(kind) RQ_ASSERT(rq::getIsOpcode((kind)), "not opcode")
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterMarkKeyword(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsParameterMarkKeyword(rq::EntityKind kind) {
   RQ_ASSERT_KEYWORD(kind);
   return kind == rq::EntityKind::KW_NAMED_PARAMETERS_BEGIN ||
          kind == rq::EntityKind::KW_POSITIONAL_PARAMETERS_END;
@@ -2666,7 +2681,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::EntityFlags::KW_LITERAL);
 }
 
-[[nodiscard]] inline rq::EntityKind getSituatedAscribeKeyword(rq::EntityKind kind) {
+[[nodiscard]] inline rq::EntityKind
+getSituatedAscribeKeyword(rq::EntityKind kind) {
   RQ_ASSERT_KEYWORD(kind);
   switch (kind) {
   case rq::EntityKind::KW_UNSITUATED_ASCRIBE_STATEMENT:
@@ -2679,43 +2695,50 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltinSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsSimpleBuiltinSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_SIMPLE_BUILTIN);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltinSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsScaledBuiltinSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_SCALED_BUILTIN);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtypeSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsUnarySubtypeSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_UNARY_SUBTYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtypeSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsCountedSubtypeSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_COUNTED_SUBTYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtypeSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsCompositeSubtypeSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_COMPOSITE_SUBTYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsArithmeticSequenceSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_ARITHMETIC_SEQUENCE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsSymbolTableSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_SYMBOL_TABLE);
@@ -2739,7 +2762,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::EntityFlags::SY_PARTIAL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternativeSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasTemplateAlternativeSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_HAS_TEMPLATE_ALTERNATIVE);
@@ -2769,7 +2793,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::EntityFlags::SY_SUBTYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChangingSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformChangingSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_PLATFORM_CHANGING);
@@ -5464,7 +5489,8 @@ struct SimpleBuiltinSymbol : public rq::Symbol {
   using Self = rq::SimpleBuiltinSymbol;
 
   SimpleBuiltinSymbol(rq::EntityKind kind) : rq::Symbol(kind) {
-    RQ_ASSERT(rq::getIsSimpleBuiltinSymbol(kind), "kind not builtin simple symbol");
+    RQ_ASSERT(rq::getIsSimpleBuiltinSymbol(kind),
+              "kind not builtin simple symbol");
   }
 
   SimpleBuiltinSymbol(const Self &) = delete;
@@ -5572,7 +5598,8 @@ struct ScaledBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   ScaledBuiltinSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
                       rq::ScaledBuiltinFlags flags)
       : rq::Symbol(kind), _scalar(scalar), _uid(uid), _flags(flags) {
-    RQ_ASSERT(rq::getIsScaledBuiltinSymbol(kind), "kind not scaled builtin symbol");
+    RQ_ASSERT(rq::getIsScaledBuiltinSymbol(kind),
+              "kind not scaled builtin symbol");
     RQ_ASSERT(scalar < rq::MAX_SCALED_BUILTIN_SCALAR, "scalar too large");
     RQ_ASSERT(uid < rq::MAX_SCALED_BUILTIN_UID, "uid too large");
   }
@@ -5682,7 +5709,8 @@ struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 
   UnarySubtypeSymbol(rq::EntityKind kind, rq::Symbol &root)
       : rq::Symbol(kind), _root_ptr(&root) {
-    RQ_ASSERT(rq::getIsUnarySubtypeSymbol(kind), "kind not unary subtype symbol");
+    RQ_ASSERT(rq::getIsUnarySubtypeSymbol(kind),
+              "kind not unary subtype symbol");
     RQ_ASSERT(root.getIsType(), "not type");
   }
 
@@ -8564,6 +8592,130 @@ struct FacadeSymbol final : public rq::Symbol,
   virtual ~FacadeSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+};
+
+void RQ_ALWAYS_INLINE profileIntegerConstant(llvm::FoldingSetNodeID &id,
+                                             const llvm::APInt &value) {
+  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_INTEGER));
+  llvm::SmallString<32> buf;
+  value.toString(buf, 10, false);
+  id.AddString(llvm::StringRef(buf));
+}
+
+void RQ_ALWAYS_INLINE profileFloatConstant(llvm::FoldingSetNodeID &id,
+                                           const llvm::APFloat &value) {
+  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_FLOAT));
+  llvm::APInt bits = value.bitcastToAPInt();
+  llvm::SmallString<32> buf;
+  bits.toString(buf, 10, false);
+  id.AddString(llvm::StringRef(buf));
+}
+
+void RQ_ALWAYS_INLINE profileStringConstant(llvm::FoldingSetNodeID &id,
+                                            llvm::StringRef value) {
+  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_STRING));
+  id.AddString(value);
+}
+
+void RQ_ALWAYS_INLINE profileArrayConstant(
+    llvm::FoldingSetNodeID &id, const rq::BumpPtrList<rq::Entity *> &elements) {
+  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_ARRAY));
+  for (rq::Entity *e : elements) {
+    id.AddPointer(e);
+  }
+}
+
+struct Constant : public rq::Entity {
+  using Self = rq::Constant;
+
+  Constant(rq::EntityKind kind) : rq::Entity(kind) { RQ_ASSERT_CONSTANT(kind); }
+  Constant(const Self &) = delete;
+  Constant(Self &&) = delete;
+  ~Constant() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct IntegerConstant final : public rq::Constant,
+                               public llvm::FoldingSetNode {
+  using Self = rq::IntegerConstant;
+
+  llvm::APInt _value;
+
+  IntegerConstant(const llvm::APInt &value)
+      : rq::Constant(rq::EntityKind::CT_INTEGER), _value(value) {}
+  IntegerConstant(const Self &) = delete;
+  IntegerConstant(Self &&) = delete;
+  virtual ~IntegerConstant() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getValue() const {
+    return this->_value;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
+    rq::profileIntegerConstant(id, this->_value);
+  }
+};
+
+struct FloatConstant final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::FloatConstant;
+
+  llvm::APFloat _value;
+
+  FloatConstant(const llvm::APFloat &value)
+      : rq::Constant(rq::EntityKind::CT_FLOAT), _value(value) {}
+  FloatConstant(const Self &) = delete;
+  FloatConstant(Self &&) = delete;
+  virtual ~FloatConstant() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getValue() const {
+    return this->_value;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
+    rq::profileFloatConstant(id, this->_value);
+  }
+};
+
+struct StringConstant final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::StringConstant;
+
+  llvm::StringRef _value;
+
+  StringConstant(llvm::StringRef value)
+      : rq::Constant(rq::EntityKind::CT_STRING), _value(value) {}
+  StringConstant(const Self &) = delete;
+  StringConstant(Self &&) = delete;
+  virtual ~StringConstant() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getValue() const {
+    return this->_value;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
+    rq::profileStringConstant(id, this->_value);
+  }
+};
+
+struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::ArrayConstant;
+
+  rq::BumpPtrList<rq::Entity *> _elements;
+
+  ArrayConstant(rq::BumpPtrList<rq::Entity *> elements)
+      : rq::Constant(rq::EntityKind::CT_ARRAY), _elements(elements) {}
+  ArrayConstant(const Self &) = delete;
+  ArrayConstant(Self &&) = delete;
+  virtual ~ArrayConstant() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Entity *>
+  getElements() const {
+    return this->_elements;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
+    rq::profileArrayConstant(id, this->_elements);
+  }
 };
 
 } // namespace rq

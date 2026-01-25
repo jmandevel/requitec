@@ -106,6 +106,10 @@ struct Context final {
   llvm::FoldingSet<rq::SignatureSymbol> _signature_symbols{};
   llvm::FoldingSet<rq::ExtensionSymbol> _extension_symbols{};
   llvm::FoldingSet<rq::ArithmeticSequenceSymbol> _arithmetic_sequence_symbols{};
+  llvm::FoldingSet<rq::IntegerConstant> _integer_constants{};
+  llvm::FoldingSet<rq::FloatConstant> _float_constants{};
+  llvm::FoldingSet<rq::StringConstant> _string_constants{};
+  llvm::FoldingSet<rq::ArrayConstant> _array_constants{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -332,47 +336,51 @@ struct Context final {
 
   inline rq::GenericFloatSymbol &getGenericFloat() {
     if (!this->_generic_float_symbol_ptr) {
-      this->_generic_float_symbol_ptr = &this->allocateValue<rq::GenericFloatSymbol>();
+      this->_generic_float_symbol_ptr =
+          &this->allocateValue<rq::GenericFloatSymbol>();
     }
     return rq::dereferencePtr(this->_generic_float_symbol_ptr);
   }
 
   inline rq::GenericBinarySymbol &getGenericBinary() {
     if (!this->_generic_binary_symbol_ptr) {
-      this->_generic_binary_symbol_ptr = &this->allocateValue<rq::GenericBinarySymbol>();
+      this->_generic_binary_symbol_ptr =
+          &this->allocateValue<rq::GenericBinarySymbol>();
     }
     return rq::dereferencePtr(this->_generic_binary_symbol_ptr);
   }
 
   inline rq::GenericBfloatSymbol &getGenericBfloat() {
     if (!this->_generic_bfloat_symbol_ptr) {
-      this->_generic_bfloat_symbol_ptr = &this->allocateValue<rq::GenericBfloatSymbol>();
+      this->_generic_bfloat_symbol_ptr =
+          &this->allocateValue<rq::GenericBfloatSymbol>();
     }
     return rq::dereferencePtr(this->_generic_bfloat_symbol_ptr);
   }
 
   inline rq::GenericIntegerSymbol &getGenericInteger() {
     if (!this->_generic_integer_symbol_ptr) {
-      this->_generic_integer_symbol_ptr = &this->allocateValue<rq::GenericIntegerSymbol>();
+      this->_generic_integer_symbol_ptr =
+          &this->allocateValue<rq::GenericIntegerSymbol>();
     }
     return rq::dereferencePtr(this->_generic_integer_symbol_ptr);
   }
 
   inline rq::GenericSignedSymbol &getGenericSigned() {
     if (!this->_generic_signed_symbol_ptr) {
-      this->_generic_signed_symbol_ptr = &this->allocateValue<rq::GenericSignedSymbol>();
+      this->_generic_signed_symbol_ptr =
+          &this->allocateValue<rq::GenericSignedSymbol>();
     }
     return rq::dereferencePtr(this->_generic_signed_symbol_ptr);
   }
 
   inline rq::GenericUnsignedSymbol &getGenericUnsigned() {
     if (!this->_generic_unsigned_symbol_ptr) {
-      this->_generic_unsigned_symbol_ptr = &this->allocateValue<rq::GenericUnsignedSymbol>();
+      this->_generic_unsigned_symbol_ptr =
+          &this->allocateValue<rq::GenericUnsignedSymbol>();
     }
     return rq::dereferencePtr(this->_generic_unsigned_symbol_ptr);
   }
-
-  
 
   [[nodiscard]] inline rq::AsciiSymbol &getAscii() {
     if (!this->_ascii_symbol_ptr) {
@@ -422,8 +430,8 @@ struct Context final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &
   getReference(rq::TypeSymbol &root) {
-    return llvm::cast<rq::ReferenceSymbol>(
-        this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_REFERENCE, root));
+    return llvm::cast<rq::ReferenceSymbol>(this->_getOrInsertUnarySubtypeSymbol(
+        rq::EntityKind::SY_REFERENCE, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &
   getPointer(rq::TypeSymbol &root) {
@@ -506,6 +514,75 @@ struct Context final {
         this->_getOrInsertArithmeticSequenceSymbol(
             rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION, root,
             rq::ArithmeticSequenceCondition::NONE, step));
+  }
+  [[nodiscard]] inline rq::IntegerConstant &
+  _getOrInsertIntegerConstant(const llvm::APInt &value) {
+    llvm::FoldingSetNodeID id;
+    rq::profileIntegerConstant(id, value);
+    void *insert_pos = nullptr;
+    if (rq::IntegerConstant *existing =
+            this->_integer_constants.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::IntegerConstant &c = this->allocateValue<rq::IntegerConstant>(value);
+    this->_integer_constants.InsertNode(&c, insert_pos);
+    return c;
+  }
+  [[nodiscard]] inline rq::FloatConstant &
+  _getOrInsertFloatConstant(const llvm::APFloat &value) {
+    llvm::FoldingSetNodeID id;
+    rq::profileFloatConstant(id, value);
+    void *insert_pos = nullptr;
+    if (rq::FloatConstant *existing =
+            this->_float_constants.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::FloatConstant &c = this->allocateValue<rq::FloatConstant>(value);
+    this->_float_constants.InsertNode(&c, insert_pos);
+    return c;
+  }
+  [[nodiscard]] inline rq::StringConstant &
+  _getOrInsertStringConstant(llvm::StringRef value) {
+    llvm::StringRef saved = this->saveString(value);
+    llvm::FoldingSetNodeID id;
+    rq::profileStringConstant(id, saved);
+    void *insert_pos = nullptr;
+    if (rq::StringConstant *existing =
+            this->_string_constants.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::StringConstant &c = this->allocateValue<rq::StringConstant>(saved);
+    this->_string_constants.InsertNode(&c, insert_pos);
+    return c;
+  }
+  [[nodiscard]] inline rq::ArrayConstant &
+  _getOrInsertArrayConstant(const rq::BumpPtrList<rq::Entity *> &elements) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArrayConstant(id, elements);
+    void *insert_pos = nullptr;
+    if (rq::ArrayConstant *existing =
+            this->_array_constants.FindNodeOrInsertPos(id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::ArrayConstant &c = this->allocateValue<rq::ArrayConstant>(elements);
+    this->_array_constants.InsertNode(&c, insert_pos);
+    return c;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &
+  getIntegerConstant(const llvm::APInt &value) {
+    return this->_getOrInsertIntegerConstant(value);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstant &
+  getFloatConstant(const llvm::APFloat &value) {
+    return this->_getOrInsertFloatConstant(value);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstant &
+  getStringConstant(llvm::StringRef value) {
+    return this->_getOrInsertStringConstant(value);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &
+  getArrayConstant(const rq::BumpPtrList<rq::Entity *> &elements) {
+    return this->_getOrInsertArrayConstant(elements);
   }
 };
 
