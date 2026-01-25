@@ -281,6 +281,15 @@ bool Context::run() {
     }
     return true;
   }
+  if (!this->buildRequiteIr()) {
+    return false;
+  }
+  //if (rq::getEmitMode() == rq::EMIT_RQIR) {
+  //  if (!this->emitRequiteIr(rq::getOutputFilePath())) {
+  //    return false;
+  //  }
+  //  return true;
+  //}
   if (!this->buildLlvmIr()) {
     return false;
   }
@@ -325,8 +334,14 @@ bool Context::tabulateModule(rq::ModuleSymbol &module) {
   return tabulator.getIsOk();
 }
 
+bool Context::buildRequiteIr() {
+  rq::RequiteIrBuilder builder(*this);
+  builder.buildRequiteIr();
+  return builder.getIsOk();
+}
+
 bool Context::buildLlvmIr() {
-  rq::Builder builder(*this);
+  rq::LlvmIrBuilder builder(*this);
   builder.buildLlvmIr();
   return builder.getIsOk();
 }

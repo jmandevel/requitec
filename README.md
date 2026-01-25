@@ -23,7 +23,7 @@ Requite is a statically typed systems programming langauge with a homoiconic syn
 Requite is a programming language that is designed to fill the same nitche as C++. However, it has a number of design goals that make it uniquely suited for systems programming. Not all of these goals are fully implemented yet.
 
 1. Focus on Readability
-    * Low multiplicity. 
+    * Low multiplicity.
     * A lot of meaningfully named keywords, and none of them are reserved.
     * Interpolated strings.
     * Extension methods to allow for function chaining over nesting.
@@ -48,14 +48,15 @@ Requite is a programming language that is designed to fill the same nitche as C+
 
 The requitec compiler is an LLVM front-end application written in C++. All source code for the front-end is contained within this repository. While language specific functionality is handled within this project, all back-end functionality related to generating machine code for specific target machines is handled by LLVM.
 
-The requitec front-end compiles source files in 6 stages.
+The requitec front-end compiles source files in 7 stages.
 
 1. Validation - In the validation stage, the raw source file text is checked for Unicode errors and unsupported characters.
 2. Tokenization - In the tokenization stage, raw source file text is seperated into a list of tokens that correlate to different lexemes.
 3. Parsing - In the parsing stage, the list of tokens emitted by the tokenizer are parsed into an Abstract-Syntax Tree (AST) structure that represents Requite code in a format that is efficient for the compiler to manipulate.
 4. Situation - In the situation stage, the compiler performs a pre-order traversal in order to do error checking and modification of the AST. This stage is important because it greatly simplifies later stages.
 5. Tabulation - In the tabulation stage, the compiler traverses the outermost scopes of Requite source files and builds symbol tables of global symbols. Symbols are lazily evaluated, and only the kind and name of each symbol is recorded at this stage unless more work is necessary to fully build out all tables.
-6. Building - In the building stage, the symbol tables and AST data are used to build LLVM Intermediate Representation (IR), a special language that can be input into LLVM in order to generate assembly and object files.
+6. RQIR Building - In this stage, compile time code is executed and Requite Intermediate Representation (RQIR) code is built for each function in the main source file. Symbol tables within function frames are also built at this time.
+7. IR Building - In the building stage, the symbol tables and RIR are used to build LLVM Intermediate Representation (IR), a special language that can be input into LLVM in order to generate assembly and object files.
 
 ## How to Use
 
@@ -77,12 +78,12 @@ The requitec compiler can be controlled from the command line. It is easy to set
 
 The `--emit` option supports the following modes:
 
-- `tokens`    : Output CSV token data
-- `parsed`    : Output intermediate Requite source code after parsing
-- `situated`  : Output intermediate Requite source code after situating
-- `symbols`   : Output a markup language file listing user symbols
-- `ir`        : Output an LLVM IR source file
-- `assembly`  : Output an assembly source file
-- `object`    : Output an object file (default)
+* `tokens`    : Output CSV token data
+* `parsed`    : Output intermediate Requite source code after parsing
+* `situated`  : Output intermediate Requite source code after situating
+* `symbols`   : Output a markup language file listing user symbols
+* `ir`        : Output an LLVM IR source file
+* `assembly`  : Output an assembly source file
+* `object`    : Output an object file (default)
 
 ---

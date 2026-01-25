@@ -185,6 +185,7 @@ struct Context final {
                                   const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateModule(rq::ModuleSymbol &module);
   [[nodiscard]] bool tabulateModule(rq::ModuleSymbol &module);
+  [[nodiscard]] bool buildRequiteIr();
   [[nodiscard]] bool buildLlvmIr();
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
