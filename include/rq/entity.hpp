@@ -462,6 +462,8 @@ enum class EntityKind : std::uint16_t {
 
   // SIMPLE BUILTIN
   SY_INFERENCE,
+  SY_EXPRESSION,
+  SY_ENTITY_KIND,
   SY_GENERIC_TYPE,
   SY_GENERIC_SYMBOL,
   SY_VOID,
@@ -1335,6 +1337,10 @@ static constexpr std::size_t ENTITY_COUNT =
   // SIMPLE BUILTIN
   case E::SY_INFERENCE:
     return "sy_inference";
+  case E::SY_EXPRESSION:
+    return "sy_expression";
+  case E::SY_ENTITY_KIND:
+    return "sy_entity_kind";
   case E::SY_GENERIC_TYPE:
     return "sy_generic_type";
   case E::SY_GENERIC_SYMBOL:
@@ -2412,6 +2418,10 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   // SIMPLE BUILTIN SYMBOL
   case E::SY_INFERENCE:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_EXPRESSION:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_ENTITY_KIND:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_GENERIC_TYPE:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_GENERIC_SYMBOL:
@@ -2983,6 +2993,12 @@ struct Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInference() const {
     return this->_kind == rq::EntityKind::SY_INFERENCE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionSymbol() const {
+    return this->_kind == rq::EntityKind::SY_EXPRESSION;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntityKindSymbol() const {
+    return this->_kind == rq::EntityKind::SY_ENTITY_KIND;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericType() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_TYPE;
@@ -5386,6 +5402,8 @@ struct TypeSymbol;
 // SIMPLE BUILTIN
 struct SimpleBuiltinSymbol;
 struct InferenceSymbol;
+struct ExpressionSymbol;
+struct EntityKindSymbol;
 struct VoidSymbol;
 struct NullSymbol;
 struct NoReturnSymbol;
@@ -7197,6 +7215,28 @@ struct InferenceSymbol : public rq::SimpleBuiltinSymbol {
   InferenceSymbol(const Self &) = delete;
   InferenceSymbol(Self &&) = delete;
   virtual ~InferenceSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct ExpressionSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::ExpressionSymbol;
+
+  ExpressionSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_EXPRESSION) {}
+  ExpressionSymbol(const Self &) = delete;
+  ExpressionSymbol(Self &&) = delete;
+  virtual ~ExpressionSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct EntityKindSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::EntityKindSymbol;
+
+  EntityKindSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_ENTITY_KIND) {}
+  EntityKindSymbol(const Self &) = delete;
+  EntityKindSymbol(Self &&) = delete;
+  virtual ~EntityKindSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
