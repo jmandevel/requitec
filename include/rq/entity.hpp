@@ -400,6 +400,7 @@ enum class EntityKind : std::uint16_t {
   // MACROS
   KW_QUOTE,
   KW_EXPRESSION,
+  KW_ENTITY_KIND,
   KW_EXPAND,
   KW_EXPAND_STATEMENT,
   KW_EXPAND_LVALUE,
@@ -1233,6 +1234,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "quote";
   case E::KW_EXPRESSION:
     return "expression";
+  case E::KW_ENTITY_KIND:
+    return "entity_kind";
   case E::KW_EXPAND:
     return "expand";
   case E::KW_EXPAND_STATEMENT:
@@ -2310,7 +2313,9 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::KW_QUOTE:
     return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT;
   case E::KW_EXPRESSION:
-    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT;
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT | EF::KW_PARAMETER;
+  case E::KW_ENTITY_KIND:
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT | EF::KW_PARAMETER;
   case E::KW_EXPAND:
     return EF::KEYWORD | EF::KW_REFLECTION | EF::KW_UNIVERSALIZABLE;
   case E::KW_EXPAND_STATEMENT:
