@@ -295,49 +295,49 @@ struct Context final {
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
 
-  inline rq::InferenceSymbol &getInference() {
+  inline rq::InferenceSymbol &acquireInferenceSymbol() {
     if (!this->_inference_symbol) {
       this->_inference_symbol = &this->allocateValue<rq::InferenceSymbol>();
     }
     return rq::dereferencePtr(this->_inference_symbol);
   }
 
-  inline rq::ExpressionSymbol &getExpression() {
+  inline rq::ExpressionSymbol &acquireExpressionSymbol() {
     if (!this->_expression_symbol) {
       this->_expression_symbol = &this->allocateValue<rq::ExpressionSymbol>();
     }
     return rq::dereferencePtr(this->_expression_symbol);
   }
 
-  inline rq::EntityKindSymbol &getEntityKind() {
+  inline rq::EntityKindSymbol &acquireEntityKindSymbol() {
     if (!this->_entity_kind_symbol) {
       this->_entity_kind_symbol = &this->allocateValue<rq::EntityKindSymbol>();
     }
     return rq::dereferencePtr(this->_entity_kind_symbol);
   }
 
-  inline rq::VoidSymbol &getVoid() {
+  inline rq::VoidSymbol &acquireVoidSymbol() {
     if (!this->_void_symbol_ptr) {
       this->_void_symbol_ptr = &this->allocateValue<rq::VoidSymbol>();
     }
     return rq::dereferencePtr(this->_void_symbol_ptr);
   }
 
-  inline rq::NullSymbol &getNull() {
+  inline rq::NullSymbol &acquireNullSymbol() {
     if (!this->_null_symbol_ptr) {
       this->_null_symbol_ptr = &this->allocateValue<rq::NullSymbol>();
     }
     return rq::dereferencePtr(this->_null_symbol_ptr);
   }
 
-  inline rq::NoReturnSymbol &getNoReturn() {
+  inline rq::NoReturnSymbol &acquireNoReturnSymbol() {
     if (!this->_no_return_symbol_ptr) {
       this->_no_return_symbol_ptr = &this->allocateValue<rq::NoReturnSymbol>();
     }
     return rq::dereferencePtr(this->_no_return_symbol_ptr);
   }
 
-  inline rq::VariadicArgumentsSymbol &getVariadicArguments() {
+  inline rq::VariadicArgumentsSymbol &acquireVariadicArgumentsSymbol() {
     if (!this->_variadic_arguments_symbol_ptr) {
       this->_variadic_arguments_symbol_ptr =
           &this->allocateValue<rq::VariadicArgumentsSymbol>();
@@ -345,14 +345,14 @@ struct Context final {
     return rq::dereferencePtr(this->_variadic_arguments_symbol_ptr);
   }
 
-  inline rq::BooleanSymbol &getBoolean() {
+  inline rq::BooleanSymbol &acquireBooleanSymbol() {
     if (!this->_boolean_symbol_ptr) {
       this->_boolean_symbol_ptr = &this->allocateValue<rq::BooleanSymbol>();
     }
     return rq::dereferencePtr(this->_boolean_symbol_ptr);
   }
 
-  inline rq::GenericFloatSymbol &getGenericFloat() {
+  inline rq::GenericFloatSymbol &acquireGenericFloatSymbol() {
     if (!this->_generic_float_symbol_ptr) {
       this->_generic_float_symbol_ptr =
           &this->allocateValue<rq::GenericFloatSymbol>();
@@ -360,7 +360,7 @@ struct Context final {
     return rq::dereferencePtr(this->_generic_float_symbol_ptr);
   }
 
-  inline rq::GenericBinarySymbol &getGenericBinary() {
+  inline rq::GenericBinarySymbol &acquireGenericBinarySymbol() {
     if (!this->_generic_binary_symbol_ptr) {
       this->_generic_binary_symbol_ptr =
           &this->allocateValue<rq::GenericBinarySymbol>();
@@ -368,7 +368,7 @@ struct Context final {
     return rq::dereferencePtr(this->_generic_binary_symbol_ptr);
   }
 
-  inline rq::GenericBfloatSymbol &getGenericBfloat() {
+  inline rq::GenericBfloatSymbol &acquireGenericBfloatSymbol() {
     if (!this->_generic_bfloat_symbol_ptr) {
       this->_generic_bfloat_symbol_ptr =
           &this->allocateValue<rq::GenericBfloatSymbol>();
@@ -376,7 +376,7 @@ struct Context final {
     return rq::dereferencePtr(this->_generic_bfloat_symbol_ptr);
   }
 
-  inline rq::GenericIntegerSymbol &getGenericInteger() {
+  inline rq::GenericIntegerSymbol &acquireGenericIntegerSymbol() {
     if (!this->_generic_integer_symbol_ptr) {
       this->_generic_integer_symbol_ptr =
           &this->allocateValue<rq::GenericIntegerSymbol>();
@@ -384,7 +384,7 @@ struct Context final {
     return rq::dereferencePtr(this->_generic_integer_symbol_ptr);
   }
 
-  inline rq::GenericSignedSymbol &getGenericSigned() {
+  inline rq::GenericSignedSymbol &acquireGenericSignedSymbol() {
     if (!this->_generic_signed_symbol_ptr) {
       this->_generic_signed_symbol_ptr =
           &this->allocateValue<rq::GenericSignedSymbol>();
@@ -392,7 +392,7 @@ struct Context final {
     return rq::dereferencePtr(this->_generic_signed_symbol_ptr);
   }
 
-  inline rq::GenericUnsignedSymbol &getGenericUnsigned() {
+  inline rq::GenericUnsignedSymbol &acquireGenericUnsignedSymbol() {
     if (!this->_generic_unsigned_symbol_ptr) {
       this->_generic_unsigned_symbol_ptr =
           &this->allocateValue<rq::GenericUnsignedSymbol>();
@@ -400,13 +400,13 @@ struct Context final {
     return rq::dereferencePtr(this->_generic_unsigned_symbol_ptr);
   }
 
-  [[nodiscard]] inline rq::AsciiSymbol &getAscii() {
+  [[nodiscard]] inline rq::AsciiSymbol &acquireAsciiSymbol() {
     if (!this->_ascii_symbol_ptr) {
       this->_ascii_symbol_ptr = &this->allocateValue<rq::AsciiSymbol>();
     }
     return rq::dereferencePtr(this->_ascii_symbol_ptr);
   }
-  [[nodiscard]] inline rq::Utf8Symbol &getUtf8() {
+  [[nodiscard]] inline rq::Utf8Symbol &acquireUtf8Symbol() {
     if (!this->_utf8_symbol_ptr) {
       this->_utf8_symbol_ptr = &this->allocateValue<rq::Utf8Symbol>();
     }
@@ -427,6 +427,16 @@ struct Context final {
     this->_scaled_builtin_symbols.InsertNode(&new_type, insert_pos);
     return new_type;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedSymbol &
+  acquireScaledSignedSymbol(unsigned scalar, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::ScaledSignedSymbol>(this->_getOrInsertScaledBuiltin(
+        rq::EntityKind::SY_SCALED_SIGNED, scalar, 0, flags));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedSymbol &
+  acquireScaledUnsignedSymbol(unsigned scalar, rq::ScaledBuiltinFlags flags) {
+    return llvm::cast<rq::ScaledUnsignedSymbol>(this->_getOrInsertScaledBuiltin(
+        rq::EntityKind::SY_SCALED_UNSIGNED, scalar, 0, flags));
+  }
   [[nodiscard]] inline rq::UnarySubtypeSymbol &
   _getOrInsertUnarySubtypeSymbol(rq::EntityKind kind, rq::Symbol &subtype) {
     llvm::FoldingSetNodeID id;
@@ -442,28 +452,28 @@ struct Context final {
     return new_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &
-  getRange(rq::TypeSymbol &root) {
+  acquireRangeSymbol(rq::TypeSymbol &root) {
     return llvm::cast<rq::RangeSymbol>(
         this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_RANGE, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &
-  getReference(rq::TypeSymbol &root) {
+  acquireReferenceSymbol(rq::TypeSymbol &root) {
     return llvm::cast<rq::ReferenceSymbol>(this->_getOrInsertUnarySubtypeSymbol(
         rq::EntityKind::SY_REFERENCE, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &
-  getPointer(rq::TypeSymbol &root) {
+  acquirePointerSymbol(rq::TypeSymbol &root) {
     return llvm::cast<rq::PointerSymbol>(
         this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_POINTER, root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FatPointerSymbol &
-  getFatPointer(rq::TypeSymbol &root) {
+  acquireFatPointerSymbol(rq::TypeSymbol &root) {
     return llvm::cast<rq::FatPointerSymbol>(
         this->_getOrInsertUnarySubtypeSymbol(rq::EntityKind::SY_FAT_POINTER,
                                              root));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArraySymbol &
-  getInferecedCountArray(rq::TypeSymbol &root) {
+  acquireInferencedCountArraySymbol(rq::TypeSymbol &root) {
     return llvm::cast<rq::InferencedCountArraySymbol>(
         this->_getOrInsertUnarySubtypeSymbol(
             rq::EntityKind::SY_INFERENCED_COUNT_ARRAY, root));
@@ -484,8 +494,8 @@ struct Context final {
     this->_counted_subtype_symbols.InsertNode(&new_type, insert_pos);
     return new_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &getArray(rq::TypeSymbol &root,
-                                                           unsigned count) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &
+  acquireArraySymbol(rq::TypeSymbol &root, unsigned count) {
     return llvm::cast<rq::ArraySymbol>(this->_getOrInsertCountedSubtypeSymbol(
         rq::EntityKind::SY_ARRAY, root, count));
   }
@@ -509,32 +519,32 @@ struct Context final {
     return new_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalSymbol &
-  getArithmeticInterval(rq::TypeSymbol &root,
-                        rq::ArithmeticSequenceCondition condition) {
+  acquireArithmeticIntervalSymbol(rq::TypeSymbol &root,
+                                  rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::ArithmeticIntervalSymbol>(
         this->_getOrInsertArithmeticSequenceSymbol(
             rq::EntityKind::SY_ARITHMETIC_INTERVAL, root, condition,
             rq::ArithmeticSequenceStep::NONE));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
-  getFiniteArithmeticProgression(rq::TypeSymbol &root,
-                                 rq::ArithmeticSequenceStep step,
-                                 rq::ArithmeticSequenceCondition condition) {
+  acquireFiniteArithmeticProgressionSymbol(
+      rq::TypeSymbol &root, rq::ArithmeticSequenceStep step,
+      rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(
         this->_getOrInsertArithmeticSequenceSymbol(
             rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION, root, condition,
             step));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
-  getInfiniteArithmeticProgression(rq::TypeSymbol &root,
-                                   rq::ArithmeticSequenceStep step) {
-    return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticProgressionSymbol &
+  acquireInfiniteArithmeticProgressionSymbol(rq::TypeSymbol &root,
+                                             rq::ArithmeticSequenceStep step) {
+    return llvm::cast<rq::InfiniteArithmeticProgressionSymbol>(
         this->_getOrInsertArithmeticSequenceSymbol(
             rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION, root,
             rq::ArithmeticSequenceCondition::NONE, step));
   }
-  [[nodiscard]] inline rq::IntegerConstant &
-  _getOrInsertIntegerConstant(const llvm::APInt &value) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &
+  acquireIntegerContant(const llvm::APInt &value) {
     llvm::FoldingSetNodeID id;
     rq::profileIntegerConstant(id, value);
     void *insert_pos = nullptr;
@@ -546,8 +556,8 @@ struct Context final {
     this->_integer_constants.InsertNode(&c, insert_pos);
     return c;
   }
-  [[nodiscard]] inline rq::FloatConstant &
-  _getOrInsertFloatConstant(const llvm::APFloat &value) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstant &
+  acquireFloatConstant(const llvm::APFloat &value) {
     llvm::FoldingSetNodeID id;
     rq::profileFloatConstant(id, value);
     void *insert_pos = nullptr;
@@ -559,8 +569,8 @@ struct Context final {
     this->_float_constants.InsertNode(&c, insert_pos);
     return c;
   }
-  [[nodiscard]] inline rq::StringConstant &
-  _getOrInsertStringConstant(llvm::StringRef value) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstant &
+  acquireStringConstant(llvm::StringRef value) {
     llvm::StringRef saved = this->saveString(value);
     llvm::FoldingSetNodeID id;
     rq::profileStringConstant(id, saved);
@@ -573,8 +583,8 @@ struct Context final {
     this->_string_constants.InsertNode(&c, insert_pos);
     return c;
   }
-  [[nodiscard]] inline rq::ArrayConstant &
-  _getOrInsertArrayConstant(const rq::BumpPtrList<rq::Entity *> &elements) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &
+  acquireArrayConstant(const rq::BumpPtrList<rq::Entity *> &elements) {
     llvm::FoldingSetNodeID id;
     rq::profileArrayConstant(id, elements);
     void *insert_pos = nullptr;
@@ -585,22 +595,6 @@ struct Context final {
     rq::ArrayConstant &c = this->allocateValue<rq::ArrayConstant>(elements);
     this->_array_constants.InsertNode(&c, insert_pos);
     return c;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &
-  getIntegerConstant(const llvm::APInt &value) {
-    return this->_getOrInsertIntegerConstant(value);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstant &
-  getFloatConstant(const llvm::APFloat &value) {
-    return this->_getOrInsertFloatConstant(value);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstant &
-  getStringConstant(llvm::StringRef value) {
-    return this->_getOrInsertStringConstant(value);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &
-  getArrayConstant(const rq::BumpPtrList<rq::Entity *> &elements) {
-    return this->_getOrInsertArrayConstant(elements);
   }
 };
 

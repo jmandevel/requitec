@@ -2990,13 +2990,13 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
     return rq::getIsOpcode(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinition() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinitionSymbol() const {
     return this->_kind == rq::EntityKind::SY_TYPE_DEFINITION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltinSymbol() const {
     return rq::getIsSimpleBuiltinSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInference() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferenceSymbol() const {
     return this->_kind == rq::EntityKind::SY_INFERENCE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionSymbol() const {
@@ -3005,311 +3005,319 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntityKindSymbol() const {
     return this->_kind == rq::EntityKind::SY_ENTITY_KIND;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericType() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericTypeSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_TYPE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbolSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_SYMBOL;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVoid() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVoidSymbol() const {
     return this->_kind == rq::EntityKind::SY_VOID;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNull() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullSymbol() const {
     return this->_kind == rq::EntityKind::SY_NULL;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoReturn() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoReturnSymbol() const {
     return this->_kind == rq::EntityKind::SY_NO_RETURN;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariadicArguments() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariadicArgumentsSymbol() const {
     return this->_kind == rq::EntityKind::SY_VARIADIC_ARGUMENTS;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBoolean() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBooleanSymbol() const {
     return this->_kind == rq::EntityKind::SY_BOOLEAN;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloat() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloatSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_FLOAT;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHalf() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHalfSymbol() const {
     return this->_kind == rq::EntityKind::SY_HALF;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSingle() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSingleSymbol() const {
     return this->_kind == rq::EntityKind::SY_SINGLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDouble() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDoubleSymbol() const {
     return this->_kind == rq::EntityKind::SY_DOUBLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQuadruple() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQuadrupleSymbol() const {
     return this->_kind == rq::EntityKind::SY_QUADRUPLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBinary() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBinarySymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_BINARY;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBfloat() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBfloatSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_BFLOAT;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16Symbol() const {
     return this->_kind == rq::EntityKind::SY_BINARY16;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32Symbol() const {
     return this->_kind == rq::EntityKind::SY_BINARY32;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64Symbol() const {
     return this->_kind == rq::EntityKind::SY_BINARY64;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128Symbol() const {
     return this->_kind == rq::EntityKind::SY_BINARY128;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16Symbol() const {
     return this->_kind == rq::EntityKind::SY_BFLOAT16;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericInteger() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericIntegerSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_INTEGER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSigned() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSignedSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_SIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericUnsigned() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericUnsignedSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_UNSIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericCodeunit() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericCodeunitSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_CODEUNIT;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAscii() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAsciiSymbol() const {
     return this->_kind == rq::EntityKind::SY_ASCII;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8Symbol() const {
     return this->_kind == rq::EntityKind::SY_UTF8;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltinSymbol() const {
     return rq::getIsScaledBuiltinSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledSigned() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledSignedSymbol() const {
     return this->_kind == rq::EntityKind::SY_SCALED_SIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledUnsigned() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledUnsignedSymbol() const {
     return this->_kind == rq::EntityKind::SY_SCALED_UNSIGNED;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtypeSymbol() const {
     return rq::getIsUnarySubtypeSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRange() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangeSymbol() const {
     return this->_kind == rq::EntityKind::SY_RANGE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReference() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReferenceSymbol() const {
     return this->_kind == rq::EntityKind::SY_REFERENCE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPointer() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPointerSymbol() const {
     return this->_kind == rq::EntityKind::SY_POINTER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFatPointer() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFatPointerSymbol() const {
     return this->_kind == rq::EntityKind::SY_FAT_POINTER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferencedCountArray() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferencedCountArraySymbol() const {
     return this->_kind == rq::EntityKind::SY_INFERENCED_COUNT_ARRAY;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtypeSymbol() const {
     return rq::getIsCountedSubtypeSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArray() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArraySymbol() const {
     return this->_kind == rq::EntityKind::SY_ARRAY;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtypeSymbol() const {
     return rq::getIsCompositeSubtypeSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayout() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutSymbol() const {
     return this->_kind == rq::EntityKind::SY_LAYOUT;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignature() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureSymbol() const {
     return this->_kind == rq::EntityKind::SY_SIGNATURE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceSymbol() const {
     return rq::getIsArithmeticSequenceSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticInterval() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticIntervalSymbol() const {
     return this->_kind == rq::EntityKind::SY_ARITHMETIC_INTERVAL;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFiniteArithmeticProgression() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsFiniteArithmeticProgressionSymbol() const {
     return this->_kind == rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsInfiniteArithmeticProgression() const {
+  getIsInfiniteArithmeticProgressionSymbol() const {
     return this->_kind == rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModule() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleSymbol() const {
     return this->_kind == rq::EntityKind::SY_MODULE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImport() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImportSymbol() const {
     return this->_kind == rq::EntityKind::SY_IMPORT;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacade() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacadeSymbol() const {
     return this->_kind == rq::EntityKind::SY_FACADE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutation() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutationSymbol() const {
     return this->_kind == rq::EntityKind::SY_MUTATION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtension() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionSymbol() const {
     return this->_kind == rq::EntityKind::SY_EXTENSION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariableSymbol() const {
     return this->_kind == rq::EntityKind::SY_DYNAMIC_VARIABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariableSymbol() const {
     return this->_kind == rq::EntityKind::SY_STATIC_VARIABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumerator() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeratorSymbol() const {
     return this->_kind == rq::EntityKind::SY_ENUMERATOR;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProperty() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPropertySymbol() const {
     return this->_kind == rq::EntityKind::SY_PROPERTY;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameter() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameterSymbol() const {
     return this->_kind == rq::EntityKind::SY_CLASS_PARAMETER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameter() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameterSymbol() const {
     return this->_kind == rq::EntityKind::SY_LAYOUT_PARAMETER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameter() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameterSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_PARAMETER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameter() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameterSymbol() const {
     return this->_kind == rq::EntityKind::SY_SIGNATURE_PARAMETER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabel() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabelSymbol() const {
     return this->_kind == rq::EntityKind::SY_LABEL;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableSymbol() const {
     return rq::getIsSymbolTableSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTop() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopSymbol() const {
     return this->_kind == rq::EntityKind::SY_TOP;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableSymbol() const {
     return this->_kind == rq::EntityKind::SY_TABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClass() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassSymbol() const {
     return this->_kind == rq::EntityKind::SY_CLASS;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeration() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumerationSymbol() const {
     return this->_kind == rq::EntityKind::SY_ENUMERATION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureSymbol() const {
     return rq::getIsProcedureSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntry() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntrySymbol() const {
     return this->_kind == rq::EntityKind::SY_ENTRY;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunction() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionSymbol() const {
     return this->_kind == rq::EntityKind::SY_FUNCTION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMethod() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionFunction() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionFunctionSymbol() const {
     return this->_kind == rq::EntityKind::SY_EXTENSION_FUNCTION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionMethod() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_EXTENSION_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstructor() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstructorSymbol() const {
     return this->_kind == rq::EntityKind::SY_CONSTRUCTOR;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDestructor() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDestructorSymbol() const {
     return this->_kind == rq::EntityKind::SY_DESTRUCTOR;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangerSymbol() const {
     return this->_kind == rq::EntityKind::SY_RANGER;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateSymbol() const {
     return rq::getIsTemplateSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateClass() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateClassSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_CLASS;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateEnumeration() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateEnumerationSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_ENUMERATION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateDynamicVariable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsTemplateDynamicVariableSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateStaticVariable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsTemplateStaticVariableSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateFunction() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateFunctionSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_FUNCTION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateMethod() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateExtensionFunction() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsTemplateExtensionFunctionSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateExtensionMethod() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsTemplateExtensionMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateConstructor() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateConstructorSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_CONSTRUCTOR;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol() const {
     return rq::getIsPartialSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialClass() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialClassSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_CLASS;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialEnumeration() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialEnumerationSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_ENUMERATION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialDynamicVariable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsPartialDynamicVariableSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialStaticVariable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialStaticVariableSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialFunction() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialFunctionSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_FUNCTION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialMethod() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialExtensionFunction() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsPartialExtensionFunctionSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialExtensionMethod() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsPartialExtensionMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialConstructor() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialConstructorSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_CONSTRUCTOR;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternativeSymbol() const {
     return rq::getHasTemplateAlternativeSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol() const {
     return rq::getIsTypeSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol() const {
     return rq::getIsGenericSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol() const {
     return rq::getIsConcreteSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol() const {
     return rq::getIsSubtypeSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChangingSymbol() const {
     return rq::getIsPlatformChangingSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerSymbol() const {
     return rq::getIsIntegerSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatSymbol() const {
     return rq::getIsFloatSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitSymbol() const {
     return rq::getIsCodeunitSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedSymbol() const {
     return rq::getIsSignedSymbol(this->_kind);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedSymbol() const {
     return rq::getIsUnsignedSymbol(this->_kind);
   }
 };
@@ -5402,7 +5410,7 @@ rq::ConstExpressionIterator ConstExpressionIterator::operator++(int) {
 }
 
 // ROOT WITH TYPE ATTRIBUTES
-struct TypeSymbol;
+struct TypeDefinitionSymbol;
 
 // SIMPLE BUILTIN
 struct SimpleBuiltinSymbol;
@@ -5758,7 +5766,7 @@ struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
       : rq::Symbol(kind), _root_ptr(&root) {
     RQ_ASSERT(rq::getIsUnarySubtypeSymbol(kind),
               "kind not unary subtype symbol");
-    RQ_ASSERT(root.getIsType(), "not type");
+    RQ_ASSERT(root.getIsTypeSymbol(), "not type");
   }
 
   UnarySubtypeSymbol(const Self &) = delete;
@@ -5796,7 +5804,7 @@ struct CountedSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   CountedSubtypeSymbol(rq::EntityKind kind, rq::Symbol &root, unsigned count)
       : rq::Symbol(kind), _root_ptr(&root), _count(count) {
     RQ_ASSERT(rq::getIsCountedSubtypeSymbol(kind), "not counted subtype");
-    RQ_ASSERT(root.getIsType(), "not type");
+    RQ_ASSERT(root.getIsTypeSymbol(), "not type");
   }
 
   CountedSubtypeSymbol(const Self &) = delete;
@@ -5843,7 +5851,7 @@ struct ArithmeticSequenceSymbol : public rq::Symbol,
                            rq::ArithmeticSequenceCondition condition,
                            rq::ArithmeticSequenceStep step)
       : rq::Symbol(kind), _root_ptr(&root), _condition(condition), _step(step) {
-    RQ_ASSERT(root.getIsType(), "not type");
+    RQ_ASSERT(root.getIsTypeSymbol(), "not type");
     RQ_ASSERT(rq::getIsArithmeticSequenceSymbol(kind),
               "kind not arithmetic sequence symbol");
   }
@@ -6076,29 +6084,29 @@ struct MaybeHasNameSymbol {
     return this->_name;
   }
 };
-struct HasTypeSymbol {
-  using Self = rq::detail::HasTypeSymbol;
+struct HasBindingTypeSymbol {
+  using Self = rq::detail::HasBindingTypeSymbol;
 
-  rq::TypeSymbol *_type_ptr{nullptr};
+  rq::TypeDefinitionSymbol *_binding_type_ptr{nullptr};
 
-  HasTypeSymbol() {}
+  HasBindingTypeSymbol() {}
 
-  HasTypeSymbol(const Self &) = delete;
-  HasTypeSymbol(Self &&) = delete;
-  virtual ~HasTypeSymbol() {}
+  HasBindingTypeSymbol(const Self &) = delete;
+  HasBindingTypeSymbol(Self &&) = delete;
+  virtual ~HasBindingTypeSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
-    return this->_type_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBindingType() const {
+    return this->_binding_type_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeSymbol &getType() const {
-    return rq::dereferencePtr(this->_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeDefinitionSymbol &getBindingType() const {
+    return rq::dereferencePtr(this->_binding_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeSymbol &getType() {
-    return rq::dereferencePtr(this->_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeDefinitionSymbol &getBindingType() {
+    return rq::dereferencePtr(this->_binding_type_ptr);
   }
-  RQ_ALWAYS_INLINE void setType(rq::TypeSymbol &type) {
-    rq::assignSingleValue(this->_type_ptr, &type);
+  RQ_ALWAYS_INLINE void setBindingType(rq::TypeDefinitionSymbol &type) {
+    rq::assignSingleValue(this->_binding_type_ptr, &type);
   }
 };
 struct HasImportModuleSymbol {
@@ -6244,435 +6252,460 @@ struct PartialSymbol : public rq::Symbol {
 namespace llvm {
 
 // ROOT WITH TYPE ATTRIBUTES
-template <> struct isa_impl<rq::TypeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsType(); }
+template <> struct isa_impl<rq::TypeDefinitionSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) { return val.getIsTypeDefinitionSymbol(); }
 };
 
 // SIMPLE BUILTIN
 template <> struct isa_impl<rq::SimpleBuiltinSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSimpleBuiltin();
+    return val.getIsSimpleBuiltinSymbol();
   }
 };
 
 template <> struct isa_impl<rq::InferenceSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsInference();
+    return val.getIsInferenceSymbol();
   }
 };
 
 template <> struct isa_impl<rq::InferenceSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsInference();
+    return val.getIsInferenceSymbol();
+  }
+};
+
+
+template <> struct isa_impl<rq::ExpressionSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsExpression();
+  }
+};
+
+template <> struct isa_impl<rq::ExpressionSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsExpression();
+  }
+};
+
+template <> struct isa_impl<rq::EntityKindSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val) {
+    return val.getIsEntityKindSymbol();
+  }
+};
+
+template <> struct isa_impl<rq::EntityKindSymbol, rq::SimpleBuiltinSymbol> {
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
+    return val.getIsEntityKindSymbol();
   }
 };
 
 template <> struct isa_impl<rq::VoidSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsVoid(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsVoidSymbol(); }
 };
 
 template <> struct isa_impl<rq::VoidSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsVoid();
+    return val.getIsVoidSymbol();
   }
 };
 
 template <> struct isa_impl<rq::NullSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsNull(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsNullSymbol(); }
 };
 
 template <> struct isa_impl<rq::NullSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsNull();
+    return val.getIsNullSymbol();
   }
 };
 
 template <> struct isa_impl<rq::NoReturnSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsNoReturn(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsNoReturnSymbol(); }
 };
 
 template <> struct isa_impl<rq::NoReturnSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsNoReturn();
+    return val.getIsNoReturnSymbol();
   }
 };
 
 template <> struct isa_impl<rq::VariadicArgumentsSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsVariadicArguments();
+    return val.getIsVariadicArgumentsSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::VariadicArgumentsSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsVariadicArguments();
+    return val.getIsVariadicArgumentsSymbol();
   }
 };
 
 template <> struct isa_impl<rq::BooleanSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBoolean(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBooleanSymbol(); }
 };
 
 template <> struct isa_impl<rq::BooleanSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBoolean();
+    return val.getIsBooleanSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericFloatSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericFloat();
+    return val.getIsGenericFloatSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericFloatSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericFloat();
+    return val.getIsGenericFloatSymbol();
   }
 };
 
 template <> struct isa_impl<rq::HalfSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsHalf(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsHalfSymbol(); }
 };
 
 template <> struct isa_impl<rq::HalfSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsHalf();
+    return val.getIsHalfSymbol();
   }
 };
 
 template <> struct isa_impl<rq::SingleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsSingle(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsSingleSymbol(); }
 };
 
 template <> struct isa_impl<rq::SingleSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsSingle();
+    return val.getIsSingleSymbol();
   }
 };
 
 template <> struct isa_impl<rq::DoubleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsDouble(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsDoubleSymbol(); }
 };
 
 template <> struct isa_impl<rq::DoubleSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsDouble();
+    return val.getIsDoubleSymbol();
   }
 };
 
 template <> struct isa_impl<rq::QuadrupleSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsQuadruple();
+    return val.getIsQuadrupleSymbol();
   }
 };
 
 template <> struct isa_impl<rq::QuadrupleSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsQuadruple();
+    return val.getIsQuadrupleSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericBinarySymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericBinary();
+    return val.getIsGenericBinarySymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericBinarySymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericBinary();
+    return val.getIsGenericBinarySymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericBfloatSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericBfloat();
+    return val.getIsGenericBfloatSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericBfloatSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericBfloat();
+    return val.getIsGenericBfloatSymbol();
   }
 };
 
 template <> struct isa_impl<rq::Binary16Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary16(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary16Symbol(); }
 };
 
 template <> struct isa_impl<rq::Binary16Symbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary16();
+    return val.getIsBinary16Symbol();
   }
 };
 
 template <> struct isa_impl<rq::Binary32Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary32(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary32Symbol(); }
 };
 
 template <> struct isa_impl<rq::Binary32Symbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary32();
+    return val.getIsBinary32Symbol();
   }
 };
 
 template <> struct isa_impl<rq::Binary64Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary64(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBinary64Symbol(); }
 };
 
 template <> struct isa_impl<rq::Binary64Symbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary64();
+    return val.getIsBinary64Symbol();
   }
 };
 
 template <> struct isa_impl<rq::Binary128Symbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBinary128();
+    return val.getIsBinary128Symbol();
   }
 };
 
 template <> struct isa_impl<rq::Binary128Symbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary128();
+    return val.getIsBinary128Symbol();
   }
 };
 
 template <> struct isa_impl<rq::Bfloat16Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsBfloat16(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsBfloat16Symbol(); }
 };
 
 template <> struct isa_impl<rq::Bfloat16Symbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBfloat16();
+    return val.getIsBfloat16Symbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericIntegerSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericInteger();
+    return val.getIsGenericIntegerSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericIntegerSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericInteger();
+    return val.getIsGenericIntegerSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericSignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericSigned();
+    return val.getIsGenericSignedSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericSignedSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericSigned();
+    return val.getIsGenericSignedSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericUnsignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericUnsigned();
+    return val.getIsGenericUnsignedSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::GenericUnsignedSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericUnsigned();
+    return val.getIsGenericUnsignedSymbol();
   }
 };
 
 template <> struct isa_impl<rq::GenericCodeunitSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericCodeunit();
+    return val.getIsGenericCodeunitSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::GenericCodeunitSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericCodeunit();
+    return val.getIsGenericCodeunitSymbol();
   }
 };
 
 template <> struct isa_impl<rq::AsciiSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsAscii(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsAsciiSymbol(); }
 };
 
 template <> struct isa_impl<rq::AsciiSymbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsAscii();
+    return val.getIsAsciiSymbol();
   }
 };
 
 template <> struct isa_impl<rq::Utf8Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsUtf8(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsUtf8Symbol(); }
 };
 
 template <> struct isa_impl<rq::Utf8Symbol, rq::SimpleBuiltinSymbol> {
   static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsUtf8();
+    return val.getIsUtf8Symbol();
   }
 };
 
 // SCALED BUILTIN
 template <> struct isa_impl<rq::ScaledBuiltinSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledBuiltin();
+    return val.getIsScaledBuiltinSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ScaledSignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledSigned();
+    return val.getIsScaledSignedSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ScaledSignedSymbol, rq::ScaledBuiltinSymbol> {
   static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsScaledSigned();
+    return val.getIsScaledSignedSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ScaledUnsignedSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledUnsigned();
+    return val.getIsScaledUnsignedSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ScaledUnsignedSymbol, rq::ScaledBuiltinSymbol> {
   static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsScaledUnsigned();
+    return val.getIsScaledUnsignedSymbol();
   }
 };
 
 // UNARY SUBTYPE
 template <> struct isa_impl<rq::UnarySubtypeSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsUnarySubtype();
+    return val.getIsUnarySubtypeSymbol();
   }
 };
 
 template <> struct isa_impl<rq::RangeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsRange(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsRangeSymbol(); }
 };
 
 template <> struct isa_impl<rq::RangeSymbol, rq::UnarySubtypeSymbol> {
   static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsRange();
+    return val.getIsRangeSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ReferenceSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsReference();
+    return val.getIsReferenceSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ReferenceSymbol, rq::UnarySubtypeSymbol> {
   static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsReference();
+    return val.getIsReferenceSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PointerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPointer(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsPointerSymbol(); }
 };
 
 template <> struct isa_impl<rq::PointerSymbol, rq::UnarySubtypeSymbol> {
   static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsPointer();
+    return val.getIsPointerSymbol();
   }
 };
 
 template <> struct isa_impl<rq::FatPointerSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsFatPointer();
+    return val.getIsFatPointerSymbol();
   }
 };
 
 template <> struct isa_impl<rq::FatPointerSymbol, rq::UnarySubtypeSymbol> {
   static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsFatPointer();
+    return val.getIsFatPointerSymbol();
   }
 };
 
 template <> struct isa_impl<rq::InferencedCountArraySymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsInferencedCountArray();
+    return val.getIsInferencedCountArraySymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::InferencedCountArraySymbol, rq::UnarySubtypeSymbol> {
   static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsInferencedCountArray();
+    return val.getIsInferencedCountArraySymbol();
   }
 };
 
 // COUNTED SUBTYPE
 template <> struct isa_impl<rq::CountedSubtypeSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsCountedSubtype();
+    return val.getIsCountedSubtypeSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ArraySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsArray(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsArraySymbol(); }
 };
 
 template <> struct isa_impl<rq::ArraySymbol, rq::CountedSubtypeSymbol> {
   static inline bool doit(const rq::CountedSubtypeSymbol &val) {
-    return val.getIsArray();
+    return val.getIsArraySymbol();
   }
 };
 
 // COMPOSITE SUBTYPE
 template <> struct isa_impl<rq::LayoutSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsLayout(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsLayoutSymbol(); }
 };
 
 template <> struct isa_impl<rq::SignatureSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSignature();
+    return val.getIsSignatureSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ExtensionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExtension();
+    return val.getIsExtensionSymbol();
   }
 };
 
 // ARITHMETIC SEQUENCE
 template <> struct isa_impl<rq::ArithmeticSequenceSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsArithmeticSequence();
+    return val.getIsArithmeticSequenceSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ArithmeticIntervalSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsArithmeticInterval();
+    return val.getIsArithmeticIntervalSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::ArithmeticIntervalSymbol, rq::ArithmeticSequenceSymbol> {
   static inline bool doit(const rq::ArithmeticSequenceSymbol &val) {
-    return val.getIsArithmeticInterval();
+    return val.getIsArithmeticIntervalSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::InfiniteArithmeticProgressionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsInfiniteArithmeticProgression();
+    return val.getIsInfiniteArithmeticProgressionSymbol();
   }
 };
 
@@ -6680,13 +6713,13 @@ template <>
 struct isa_impl<rq::InfiniteArithmeticProgressionSymbol,
                 rq::ArithmeticSequenceSymbol> {
   static inline bool doit(const rq::ArithmeticSequenceSymbol &val) {
-    return val.getIsInfiniteArithmeticProgression();
+    return val.getIsInfiniteArithmeticProgressionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::FiniteArithmeticProgressionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsFiniteArithmeticProgression();
+    return val.getIsFiniteArithmeticProgressionSymbol();
   }
 };
 
@@ -6694,453 +6727,453 @@ template <>
 struct isa_impl<rq::FiniteArithmeticProgressionSymbol,
                 rq::ArithmeticSequenceSymbol> {
   static inline bool doit(const rq::ArithmeticSequenceSymbol &val) {
-    return val.getIsFiniteArithmeticProgression();
+    return val.getIsFiniteArithmeticProgressionSymbol();
   }
 };
 
 // MISC
 template <> struct isa_impl<rq::ModuleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsModule(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsModuleSymbol(); }
 };
 
 template <> struct isa_impl<rq::ImportSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsImport(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsImportSymbol(); }
 };
 
 template <> struct isa_impl<rq::FacadeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsFacade(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsFacadeSymbol(); }
 };
 
 template <> struct isa_impl<rq::MutationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsMutation(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsMutationSymbol(); }
 };
 
 // BINDING
 template <> struct isa_impl<rq::DynamicVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsDynamicVariable();
+    return val.getIsDynamicVariableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::StaticVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsStaticVariable();
+    return val.getIsStaticVariableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::EnumeratorSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEnumerator();
+    return val.getIsEnumeratorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PropertySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsProperty(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsPropertySymbol(); }
 };
 
 template <> struct isa_impl<rq::TemplateParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateParameter();
+    return val.getIsTemplateParameterSymbol();
   }
 };
 
 template <> struct isa_impl<rq::SignatureParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSignatureParameter();
+    return val.getIsSignatureParameterSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ClassParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsClassParameter();
+    return val.getIsClassParameterSymbol();
   }
 };
 
 template <> struct isa_impl<rq::LayoutParameterSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsLayoutParameter();
+    return val.getIsLayoutParameterSymbol();
   }
 };
 
 template <> struct isa_impl<rq::LabelSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsLabel(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsLabelSymbol(); }
 };
 
 // SYMBOL TABLES
 template <> struct isa_impl<rq::SymbolTableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSymbolTable();
+    return val.getIsSymbolTableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TopSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTop(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsTopSymbol(); }
 };
 
 template <> struct isa_impl<rq::TopSymbol, rq::SymbolTableSymbol> {
   static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsTop();
+    return val.getIsTopSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTable(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsTableSymbol(); }
 };
 
 template <> struct isa_impl<rq::TableSymbol, rq::SymbolTableSymbol> {
   static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsTable();
+    return val.getIsTableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ClassSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsClass(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsClassSymbol(); }
 };
 
 template <> struct isa_impl<rq::ClassSymbol, rq::SymbolTableSymbol> {
   static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsClass();
+    return val.getIsClassSymbol();
   }
 };
 
 template <> struct isa_impl<rq::EnumerationSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEnumeration();
+    return val.getIsEnumerationSymbol();
   }
 };
 
 template <> struct isa_impl<rq::EnumerationSymbol, rq::SymbolTableSymbol> {
   static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsEnumeration();
+    return val.getIsEnumerationSymbol();
   }
 };
 
 // PROCEDURES
 template <> struct isa_impl<rq::ProcedureSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsProcedure();
+    return val.getIsProcedureSymbol();
   }
 };
 
 template <> struct isa_impl<rq::EntrySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsEntry(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsEntrySymbol(); }
 };
 
 template <> struct isa_impl<rq::EntrySymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsEntry();
+    return val.getIsEntrySymbol();
   }
 };
 
 template <> struct isa_impl<rq::FunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsFunction(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsFunctionSymbol(); }
 };
 
 template <> struct isa_impl<rq::FunctionSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsFunction();
+    return val.getIsFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::MethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsMethod(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsMethodSymbol(); }
 };
 
 template <> struct isa_impl<rq::MethodSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsMethod();
+    return val.getIsMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ExtensionFunctionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExtensionFunction();
+    return val.getIsExtensionFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ExtensionFunctionSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsExtensionFunction();
+    return val.getIsExtensionFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ExtensionMethodSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExtensionMethod();
+    return val.getIsExtensionMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ExtensionMethodSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsExtensionMethod();
+    return val.getIsExtensionMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ConstructorSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsConstructor();
+    return val.getIsConstructorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::ConstructorSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsConstructor();
+    return val.getIsConstructorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::DestructorSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsDestructor();
+    return val.getIsDestructorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::DestructorSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsDestructor();
+    return val.getIsDestructorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::RangerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsRanger(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsRangerSymbol(); }
 };
 
 template <> struct isa_impl<rq::RangerSymbol, rq::ProcedureSymbol> {
   static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsRanger();
+    return val.getIsRangerSymbol();
   }
 };
 
 // TEMPLATE
 template <> struct isa_impl<rq::TemplateSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplate(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsTemplateSymbol(); }
 };
 
 template <> struct isa_impl<rq::TemplateClassSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateClass();
+    return val.getIsTemplateClassSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateClassSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateClass();
+    return val.getIsTemplateClassSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateEnumerationSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateEnumeration();
+    return val.getIsTemplateEnumerationSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateEnumerationSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateEnumeration();
+    return val.getIsTemplateEnumerationSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateDynamicVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateDynamicVariable();
+    return val.getIsTemplateDynamicVariableSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::TemplateDynamicVariableSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateDynamicVariable();
+    return val.getIsTemplateDynamicVariableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateStaticVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateStaticVariable();
+    return val.getIsTemplateStaticVariableSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::TemplateStaticVariableSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateStaticVariable();
+    return val.getIsTemplateStaticVariableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateFunctionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateFunction();
+    return val.getIsTemplateFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateFunctionSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateFunction();
+    return val.getIsTemplateFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateMethodSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateMethod();
+    return val.getIsTemplateMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateMethodSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateMethod();
+    return val.getIsTemplateMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateExtensionFunctionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateExtensionFunction();
+    return val.getIsTemplateExtensionFunctionSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::TemplateExtensionFunctionSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateExtensionFunction();
+    return val.getIsTemplateExtensionFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateExtensionMethodSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateExtensionMethod();
+    return val.getIsTemplateExtensionMethodSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::TemplateExtensionMethodSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateExtensionMethod();
+    return val.getIsTemplateExtensionMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateConstructorSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateConstructor();
+    return val.getIsTemplateConstructorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::TemplateConstructorSymbol, rq::TemplateSymbol> {
   static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateConstructor();
+    return val.getIsTemplateConstructorSymbol();
   }
 };
 
 // PARTIAL SPECIALIZATION
 template <> struct isa_impl<rq::PartialSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) { return val.getIsPartial(); }
+  static inline bool doit(const rq::Symbol &val) { return val.getIsPartialSymbol(); }
 };
 
 template <> struct isa_impl<rq::PartialClassSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialClass();
+    return val.getIsPartialClassSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialClassSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialClass();
+    return val.getIsPartialClassSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialEnumeration();
+    return val.getIsPartialEnumerationSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialEnumeration();
+    return val.getIsPartialEnumerationSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialDynamicVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialDynamicVariable();
+    return val.getIsPartialDynamicVariableSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::PartialDynamicVariableSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialDynamicVariable();
+    return val.getIsPartialDynamicVariableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialStaticVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialStaticVariable();
+    return val.getIsPartialStaticVariableSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::PartialStaticVariableSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialStaticVariable();
+    return val.getIsPartialStaticVariableSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialFunctionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialFunction();
+    return val.getIsPartialFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialFunctionSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialFunction();
+    return val.getIsPartialFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialMethodSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialMethod();
+    return val.getIsPartialMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialMethodSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialMethod();
+    return val.getIsPartialMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialExtensionFunction();
+    return val.getIsPartialExtensionFunctionSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialExtensionFunction();
+    return val.getIsPartialExtensionFunctionSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialExtensionMethodSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialExtensionMethod();
+    return val.getIsPartialExtensionMethodSymbol();
   }
 };
 
 template <>
 struct isa_impl<rq::PartialExtensionMethodSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialExtensionMethod();
+    return val.getIsPartialExtensionMethodSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialConstructorSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialConstructor();
+    return val.getIsPartialConstructorSymbol();
   }
 };
 
 template <> struct isa_impl<rq::PartialConstructorSymbol, rq::PartialSymbol> {
   static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialConstructor();
+    return val.getIsPartialConstructorSymbol();
   }
 };
 
@@ -7238,7 +7271,8 @@ struct ExpressionSymbol : public rq::SimpleBuiltinSymbol {
 struct EntityKindSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::EntityKindSymbol;
 
-  EntityKindSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_ENTITY_KIND) {}
+  EntityKindSymbol()
+      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_ENTITY_KIND) {}
   EntityKindSymbol(const Self &) = delete;
   EntityKindSymbol(Self &&) = delete;
   virtual ~EntityKindSymbol() {}
@@ -7801,7 +7835,7 @@ struct DynamicVariableSymbol : public rq::Symbol,
                                public rq::detail::SymbolTableMemberSymbol,
                                public rq::detail::HasAttributesSymbol,
                                public rq::detail::HasNameSymbol,
-                               public rq::detail::HasTypeSymbol {
+                               public rq::detail::HasBindingTypeSymbol {
   using Self = rq::DynamicVariableSymbol;
 
   DynamicVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
@@ -7826,7 +7860,7 @@ struct StaticVariableSymbol : public rq::Symbol,
                               public rq::detail::SymbolTableMemberSymbol,
                               public rq::detail::HasAttributesSymbol,
                               public rq::detail::HasNameSymbol,
-                              public rq::detail::HasTypeSymbol {
+                              public rq::detail::HasBindingTypeSymbol {
   using Self = rq::StaticVariableSymbol;
 
   StaticVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
@@ -7851,7 +7885,7 @@ struct EnumeratorSymbol : public rq::Symbol,
                           public rq::detail::SymbolTableMemberSymbol,
                           public rq::detail::HasAttributesSymbol,
                           public rq::detail::HasNameSymbol,
-                          public rq::detail::HasTypeSymbol {
+                          public rq::detail::HasBindingTypeSymbol {
   using Self = rq::EnumeratorSymbol;
 
   rq::EnumerationSymbol *_enumeration_ptr;
@@ -7878,7 +7912,7 @@ struct PropertySymbol : public rq::Symbol,
                         public rq::detail::SymbolTableMemberSymbol,
                         public rq::detail::HasAttributesSymbol,
                         public rq::detail::MaybeHasNameSymbol,
-                        public rq::detail::HasTypeSymbol {
+                        public rq::detail::HasBindingTypeSymbol {
   using Self = rq::PropertySymbol;
 
   PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
@@ -7912,7 +7946,7 @@ struct SignatureParameterSymbol : public rq::Symbol,
                                   public rq::detail::SymbolTableMemberSymbol,
                                   public rq::detail::HasAttributesSymbol,
                                   public rq::detail::MaybeHasNameSymbol,
-                                  public rq::detail::HasTypeSymbol {
+                                  public rq::detail::HasBindingTypeSymbol {
   using Self = rq::SignatureParameterSymbol;
 
   rq::SignatureSymbol *_signature_ptr;
@@ -7948,7 +7982,7 @@ struct TemplateParameterSymbol : public rq::Symbol,
                                  public rq::detail::SymbolTableMemberSymbol,
                                  public rq::detail::HasAttributesSymbol,
                                  public rq::detail::MaybeHasNameSymbol,
-                                 public rq::detail::HasTypeSymbol {
+                                 public rq::detail::HasBindingTypeSymbol {
   using Self = rq::TemplateParameterSymbol;
 
   rq::TemplateSymbol *_template_ptr;
@@ -7983,7 +8017,7 @@ struct ClassParameterSymbol : public rq::Symbol,
                               public rq::detail::ModuleMemberSymbol,
                               public rq::detail::SymbolTableMemberSymbol,
                               public rq::detail::HasAttributesSymbol,
-                              public rq::detail::HasTypeSymbol {
+                              public rq::detail::HasBindingTypeSymbol {
   using Self = rq::ClassParameterSymbol;
 
   ClassParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
@@ -8007,7 +8041,7 @@ struct LayoutParameterSymbol : public rq::Symbol,
                                public rq::detail::SymbolTableMemberSymbol,
                                public rq::detail::HasAttributesSymbol,
                                public rq::detail::MaybeHasNameSymbol,
-                               public rq::detail::HasTypeSymbol {
+                               public rq::detail::HasBindingTypeSymbol {
   using Self = rq::LayoutParameterSymbol;
 
   LayoutParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
