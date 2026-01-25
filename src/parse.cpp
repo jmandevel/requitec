@@ -614,6 +614,10 @@ rq::Expression &RequiteParser::parsePrecedence3() {
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::EntityKind::KW_IDENTIFY);
       continue;
+    case rq::TokenKind::WHAT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseUnary(token, rq::EntityKind::KW_ENTIFY);
+      continue;
     case rq::TokenKind::DOUBLE_DOT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::EntityKind::KW_ASCEND_FRAME);

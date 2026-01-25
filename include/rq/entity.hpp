@@ -84,7 +84,10 @@ enum class EntityKind : std::uint16_t {
   KW_ASCRIBE_TYPE,
   KW_ASCRIBE_STATEMENT,
   KW_ASCRIBE_ROOT_OF_VALUE,
+  // turn a string into an identifier
   KW_IDENTIFY,
+  // turn an identifier into an entity kind
+  KW_ENTIFY,
 
   // ARITHMETIC
   KW_ADD,
@@ -670,6 +673,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "_ascribe_root_of_value";
   case E::KW_IDENTIFY:
     return "_identify";
+  case E::KW_ENTIFY:
+    return "_entify";
 
   // ARITHMETIC
   case E::KW_ADD:
@@ -1720,6 +1725,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT | EF::KW_ASCRIPTION;
   case E::KW_IDENTIFY:
     return EF::KEYWORD | EF::KW_SYMBOL_PATH | EF::KW_RVALUE | EF::KW_ARGUMENT;
+  case E::KW_ENTIFY:
+    return EF::KEYWORD | EF::KW_RVALUE | EF::KW_ARGUMENT;
 
   // ARITHMETIC
   case E::KW_ADD:

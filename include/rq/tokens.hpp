@@ -20,7 +20,7 @@ enum class TokenKind : std::uint_fast8_t {
   LESS_EQUAL_OPERATOR,                    // <=
   BANG_EQUAL_OPERATOR,                    // !=
   BANG_OPERATOR,                          // !
-  WHAT_OPERATOR,                          // ? // unused
+  WHAT_OPERATOR,                          // ?
   COLON_OPERATOR,                         // :
   DOUBLE_COLON_OPERATOR,                  // ::
   PLUS_OPERATOR,                          // +
