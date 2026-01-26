@@ -6229,7 +6229,8 @@ struct ProcedureSymbol : public rq::SymbolTableSymbol,
                   rq::ModuleSymbol &module,
                   rq::SymbolTableSymbol &containing_table,
                   rq::ExpressionAttributeFlags attributes)
-      : rq::SymbolTableSymbol(kind, containing_table), rq::detail::HasLocationSymbol(expression),
+      : rq::SymbolTableSymbol(kind, containing_table),
+        rq::detail::HasLocationSymbol(expression),
         rq::detail::ModuleMemberSymbol(module),
         rq::detail::HasAttributesSymbol(attributes), _signature_ptr(nullptr) {}
 
@@ -7926,11 +7927,16 @@ struct TopSymbol : rq::SymbolTableSymbol {
   Self &operator=(Self &&) = delete;
 };
 
-struct ScopeSymbol : rq::SymbolTableSymbol {
+struct ScopeSymbol : public rq::SymbolTableSymbol,
+                     public rq::detail::HasLocationSymbol,
+                     public rq::detail::ModuleMemberSymbol {
   using Self = rq::ScopeSymbol;
 
-  ScopeSymbol(rq::SymbolTableSymbol &containing_table)
-      : rq::SymbolTableSymbol(rq::EntityKind::SY_SCOPE, containing_table) {}
+  ScopeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+              rq::SymbolTableSymbol &containing_table)
+      : rq::SymbolTableSymbol(rq::EntityKind::SY_SCOPE, containing_table),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::ModuleMemberSymbol(module) {}
   ScopeSymbol(const Self &) = delete;
   ScopeSymbol(Self &&) = delete;
   ~ScopeSymbol() override {}
