@@ -7,11 +7,11 @@ namespace rq {
 void Tabulator::tabulateModule() {
   RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
   this->setIsStarted();
-  rq::Expression &root = this->getModule().getExpression();
-  if (!root.getHasBranch()) {
+  rq::Expression &trunk = this->getModule().getExpression();
+  if (!trunk.getHasBranch()) {
     return;
   }
-  this->tabulateForest(root.getBranch(), this->getContext().getTopScope());
+  this->tabulateForest(trunk.getBranch(), this->getContext().getTopScope());
 }
 
 void Tabulator::tabulateEntry(rq::EntrySymbol& entry) {
