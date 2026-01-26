@@ -1027,9 +1027,9 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::KW_WHILE:
     return "while";
   case E::KW_SCOPE:
-    return "containing_table";
+    return "scope";
   case E::KW_INLINE_SCOPE:
-    return "inline_containing_table";
+    return "inline_scope";
   case E::KW_BLOCK:
     return "block";
   case E::KW_INLINE_BLOCK:
@@ -1469,7 +1469,7 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::SY_TOP:
     return "sy_top";
   case E::SY_SCOPE:
-    return "sy_containing_table";
+    return "sy_scope";
   case E::SY_TABLE:
     return "sy_table";
   case E::SY_CLASS:
@@ -5944,25 +5944,25 @@ struct ModuleMemberSymbol {
 struct SymbolTableMemberSymbol {
   using Self = rq::detail::SymbolTableMemberSymbol;
 
-  rq::SymbolTableSymbol *_containing_table_ptr;
+  rq::SymbolTableSymbol *_containing_symbol_table_ptr;
 
-  SymbolTableMemberSymbol() : _containing_table_ptr(nullptr) {}
+  SymbolTableMemberSymbol() : _containing_symbol_table_ptr(nullptr) {}
   SymbolTableMemberSymbol(rq::SymbolTableSymbol &containing_table)
-      : _containing_table_ptr(&containing_table) {}
+      : _containing_symbol_table_ptr(&containing_table) {}
 
   SymbolTableMemberSymbol(const Self &) = delete;
   SymbolTableMemberSymbol(Self &&) = delete;
   virtual ~SymbolTableMemberSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScope() {
-    return this->_containing_table_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() {
+    return this->_containing_symbol_table_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &getScope() const {
-    return rq::dereferencePtr(this->_containing_table_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &getContainingSymbolTable() const {
+    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &getScope() {
-    return rq::dereferencePtr(this->_containing_table_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &getContainingSymbolTable() {
+    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
   }
 };
 struct HasAttributesSymbol {

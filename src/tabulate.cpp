@@ -6,12 +6,25 @@ namespace rq {
 
 void Tabulator::tabulateModule() {
   RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
+  this->setIsStarted();
   rq::Expression &root = this->getModule().getExpression();
   if (!root.getHasBranch()) {
     return;
   }
   this->tabulateForest(root.getBranch(), this->getContext().getTopScope());
+}
+
+void Tabulator::tabulateEntry(rq::EntrySymbol& entry) {
+  RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
   this->setIsStarted();
+  this->setIsBuildingInstructions();
+  this->setResultKeyword(rq::EntityKind::KW_EXIT_CODE);
+  this->setHighestSymbolTable(entry);
+  rq::Expression& trunk = entry.getExpression();
+  if (!trunk.getHasBranch()) {
+    return;
+  } 
+  this->tabulateForest(trunk.getBranch(), entry);
 }
 
 void Tabulator::tabulateForest(rq::Expression &first,
