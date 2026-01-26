@@ -1,7 +1,9 @@
 #pragma once
-
 #include <rq/utility.hpp>
 #include <rq/see.hpp>
+
+#include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/DenseMap.h>
 
 #include <functional>
 
