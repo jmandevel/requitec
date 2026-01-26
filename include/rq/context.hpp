@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rq/entity.hpp>
+#include <rq/see.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -70,6 +71,7 @@ struct Context final {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
+  rq::SymbolicExecutionEngine _see{};
   rq::TopSymbol _top_scope{};
   rq::ModuleSymbol *_source_module_ptr = nullptr;
   llvm::BumpPtrAllocator _llvm_arena{};

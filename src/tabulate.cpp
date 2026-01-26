@@ -5,18 +5,20 @@
 namespace rq {
 
 void Tabulator::tabulateModule() {
-  RQ_ASSERT(this->getIsOk(), "tabulator can tabulate only once");
+  RQ_ASSERT(this->getIsDone(), "tabulator can tabulate only once");
   rq::Expression &root = this->getModule().getExpression();
   if (!root.getHasBranch()) {
     return;
   }
   this->tabulateForest(root.getBranch(), this->getContext().getTopScope());
+  this->setIsDone();
 }
 
 void Tabulator::tabulateForest(rq::Expression &first,
                                rq::SymbolTableSymbol &scope) {
   for (rq::Expression &branch : first.getInclusiveNextSubrange()) {
-    const bool ascribed = branch.getKeyword() == rq::EntityKind::KW_ASCRIBE_STATEMENT;
+    const bool ascribed =
+        branch.getKeyword() == rq::EntityKind::KW_ASCRIBE_STATEMENT;
     rq::Expression &statement = ascribed ? branch.getBranch() : branch;
     rq::ExpressionAttributeFlagsFactory flags_factory;
     std::ignore = scope;
@@ -48,7 +50,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::DynamicVariableSymbol &variable =
           this->getContext().allocateValue<rq::DynamicVariableSymbol>(
               statement, this->getModule(), scope, name,
@@ -60,7 +62,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::TableSymbol &table =
           this->getContext().allocateValue<rq::TableSymbol>(name);
       scope.tabulateNamedSymbol(this->getContext(), name, table);
@@ -70,7 +72,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::ClassSymbol &class_ =
           this->getContext().allocateValue<rq::ClassSymbol>(
               statement, this->getModule(), scope, name,
@@ -82,7 +84,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::EnumerationSymbol &enumeration =
           this->getContext().allocateValue<rq::EnumerationSymbol>(
               statement, this->getModule(), scope, name,
@@ -100,10 +102,11 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::FunctionSymbol &function =
           this->getContext().allocateValue<rq::FunctionSymbol>(
-              statement, this->getModule(), scope, name, flags_factory.getFlags());
+              statement, this->getModule(), scope, name,
+              flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, function);
     } break;
     case rq::EntityKind::KW_METHOD: {
@@ -111,10 +114,11 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::MethodSymbol &method =
           this->getContext().allocateValue<rq::MethodSymbol>(
-              statement, this->getModule(), scope, name, flags_factory.getFlags());
+              statement, this->getModule(), scope, name,
+              flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, method);
     } break;
     case rq::EntityKind::KW_EXTENSION_FUNCTION: {
@@ -122,10 +126,11 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::ExtensionFunctionSymbol &extension_function =
           this->getContext().allocateValue<rq::ExtensionFunctionSymbol>(
-              statement, this->getModule(), scope, name, flags_factory.getFlags());
+              statement, this->getModule(), scope, name,
+              flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, extension_function);
     } break;
     case rq::EntityKind::KW_EXTENSION_METHOD: {
@@ -133,10 +138,11 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->getSee().evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path);
       rq::ExtensionMethodSymbol &extension_method =
           this->getContext().allocateValue<rq::ExtensionMethodSymbol>(
-              statement, this->getModule(), scope, name, flags_factory.getFlags());
+              statement, this->getModule(), scope, name,
+              flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, extension_method);
     } break;
     case rq::EntityKind::KW_CONSTRUCTOR: {
@@ -151,7 +157,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), destructor);
     } break;
-    case rq::EntityKind::KW_RANGER:{
+    case rq::EntityKind::KW_RANGER: {
       rq::RangerSymbol &ranger =
           this->getContext().allocateValue<rq::RangerSymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
@@ -161,6 +167,16 @@ void Tabulator::tabulateForest(rq::Expression &first,
       RQ_TODO_IMPLEMENTATION();
     }
   }
+}
+
+[[nodiscard]] llvm::StringRef
+Tabulator::evaluateName(rq::Expression &expression) {
+  if (expression.getKeyword() == rq::EntityKind::KW_IDENTIFIER_LITERAL) {
+    return expression.getSourceText();
+  } else if (expression.getKeyword() == rq::EntityKind::KW_IDENTIFY) {
+    RQ_TODO_IMPLEMENTATION();
+  }
+  RQ_UNREACHABLE();
 }
 
 } // namespace rq
