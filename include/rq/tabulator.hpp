@@ -25,8 +25,8 @@ struct Tabulator final {
   llvm::DenseMap<rq::Expression *, llvm::SmallVector<rq::Symbol *>>
       _declaration_map{};
   bool _is_ok : 1 = true;
-  bool _is_done : 1 = false;
-  bool _has_dynamic_execution : 1 = false;
+  bool _is_started : 1 = false;
+  bool _is_building_instructions : 1 = false;
 
   Tabulator(rq::Context &context, rq::ModuleSymbol &module)
       : _context_ref(context), _module_ref(module) {}
@@ -55,11 +55,14 @@ struct Tabulator final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_is_done;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStarted() const {
+    return this->_is_started;
   }
-  RQ_ALWAYS_INLINE void setIsDone() {
-    this->_is_done = true;
+  RQ_ALWAYS_INLINE void setIsStarted() {
+    this->_is_started = true;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBuildingInstructions() const {
+    return this->_is_building_instructions;
   }
   void tabulateModule();
   void tabulateForest(rq::Expression &first, rq::SymbolTableSymbol &scope);

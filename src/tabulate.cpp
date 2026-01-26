@@ -5,13 +5,13 @@
 namespace rq {
 
 void Tabulator::tabulateModule() {
-  RQ_ASSERT(this->getIsDone(), "tabulator can tabulate only once");
+  RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
   rq::Expression &root = this->getModule().getExpression();
   if (!root.getHasBranch()) {
     return;
   }
   this->tabulateForest(root.getBranch(), this->getContext().getTopScope());
-  this->setIsDone();
+  this->setIsStarted();
 }
 
 void Tabulator::tabulateForest(rq::Expression &first,
