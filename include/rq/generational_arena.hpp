@@ -2,89 +2,117 @@
 
 #include <rq/utility.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <utility>
 #include <vector>
-#include <memory>
-#include <cstddef>
 
 namespace rq {
 
-template<typename T>
+template <typename T>
 concept HasRelease = requires(T &t) { t.release(); };
 
-template <typename DataParam> struct Gendex final {
-  using Data = DataParam;
-  using Self = rq::Gendex<Data>;
+using Generation = std::uint64_t;
 
-  std::uint32_t _index{0};
-  std::uint32_t _generation{0};
-
-  Gendex() = default;
-  Gendex(std::uint32_t index, std::uint32_t generation)
-      : _index(index), _generation(generation) {}
-  Gendex(const Self &) = default;
-  Gendex(Self &&) = default;
-  ~Gendex() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint32_t getIndex() const {
-    return this->_index;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint32_t getGeneration() const {
-    return this->_generation;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this->_index == rhs._index && this->_generation == rhs._generation;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this->_index != rhs._index && this->_generation != rhs._generation;
-  }
-};
+template <typename> struct Gendex;
 
 template <typename DataParam> struct Slot final {
   using Data = DataParam;
   using Gendex = rq::Gendex<Data>;
   using Self = rq::Slot<Data>;
 
-  std::uint32_t _generation{0};
+  rq::Generation _generation{0};
   Data _data{};
 
   Slot() = default;
   template <typename... ArgNParam>
-  Slot(std::uint32_t generation, ArgNParam &&...arg_n)
+  Slot(rq::Generation generation, ArgNParam &&...arg_n)
       : _generation(generation), _data(std::forward<ArgNParam>(arg_n)...) {}
   Slot(const Self &) = default;
   Slot(Self &&) = default;
   ~Slot() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint32_t getGeneration() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Generation getGeneration() const {
     return this->_generation;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Data& getData() {
+  [[nodiscard]] RQ_ALWAYS_INLINE Data &getData() { return this->_data; }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Data &getData() const {
     return this->_data;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Data& getData() const {
-    return this->_data;
-  }
-  void clear() requires rq::HasRelease<Data> {
+  void clear()
+    requires rq::HasRelease<Data>
+  {
     this->_generation = 0;
     this->_data.release();
   }
-  void clear() {
-    this->_generation = 0;
-  }
-  template<typename... ArgNParam>
+  void clear() { this->_generation = 0; }
+  template <typename... ArgNParam>
   void reset(std::uint32_t generation, ArgNParam... arg_n) {
     this->_generation = generation;
     this->_data = Data(std::forward(arg_n)...);
   }
 };
 
-static constexpr std::uint32_t MAX_GENERATION =
-    std::numeric_limits<std::uint32_t>::max();
+template <typename DataParam> struct Gendex final {
+  using Data = DataParam;
+  using Slot = rq::Slot<Data>;
+  using Self = rq::Gendex<Data>;
+
+  Slot *_slot_ptr{nullptr};
+  rq::Generation _generation{0};
+
+  Gendex() = default;
+  Gendex(Slot &slot, rq::Generation generation)
+      : _slot_ptr(&slot), _generation(generation) {}
+  Gendex(const Self &) = default;
+  Gendex(Self &&) = default;
+  ~Gendex() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Slot &getSlot() const {
+    return rq::dereferencePtr(this->_slot_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Slot &getSlot() {
+    return rq::dereferencePtr(this->_slot_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Generation getGeneration() const {
+    return this->_generation;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasData() const {
+    if (this->_slot_ptr == nullptr) {
+      return false;
+    }
+    const Slot& slot = this->getSlot();
+    if (slot.getGeneration() != this->getGeneration()) {
+      return false;
+    }
+    return true;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Data& getData() {
+    RQ_ASSERT(this->getHasData(), "no data");
+    return this->getSlot().getData();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Data& getData() const {
+    RQ_ASSERT(this->getHasData(), "no data");
+    return this->getSlot().getData();
+  }
+  RQ_ALWAYS_INLINE void clear() {
+    this->_slot_ptr = nullptr;
+    this->_generation = 0;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this->_slot_ptr == rhs._slot_ptr && this->_generation == rhs._generation;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this->_slot_ptr != rhs._slot_ptr || this->_generation != rhs._generation;
+  }
+};
+
+static constexpr rq::Generation MAX_GENERATION =
+    std::numeric_limits<rq::Generation>::max();
 
 template <typename DataParam, std::size_t SLAB_SIZE_PARAM = 4096>
 struct GenerationalArena final {
@@ -95,17 +123,16 @@ struct GenerationalArena final {
   using Self = rq::GenerationalArena<Data, SLAB_SIZE>;
 
   static_assert(SLAB_SIZE > 0, "SLAB_SIZE must be positive");
-  static_assert(SLAB_SIZE >= sizeof(Slot), "SLAB_SIZE must fit at least one slot");
+  static_assert(SLAB_SIZE >= sizeof(Slot),
+                "SLAB_SIZE must fit at least one slot");
 
   static constexpr std::size_t BYTES_PER_SLAB = SLAB_SIZE;
   static constexpr std::size_t SLOTS_PER_SLAB = BYTES_PER_SLAB / sizeof(Slot);
 
-  static constexpr std::size_t MAX_INDEX = std::numeric_limits<std::uint32_t>::max();
-
-  std::uint32_t _generation{0};
+  rq::Generation _generation{0};
   std::vector<std::unique_ptr<Slot[]>> _slabs{};
   std::size_t _next_index{0};
-  std::vector<std::size_t> _recycle_bin{};
+  std::vector<Slot *> _recycle_bin{};
 
   GenerationalArena() = default;
   GenerationalArena(const Self &) = default;
@@ -122,8 +149,8 @@ struct GenerationalArena final {
   [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getSlabCount() const {
     return this->_slabs.size();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const std::vector<std::size_t> getRecycleBin()
-      const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const std::vector<Slot *>
+  getRecycleBin() const {
     return this->_recycle_bin;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Slot &slotAt(std::size_t index) {
@@ -140,59 +167,47 @@ struct GenerationalArena final {
     const std::size_t slab = index / SLOTS_PER_SLAB;
     if (slab >= this->_slabs.size()) {
       while (this->_slabs.size() <= slab) {
-        this->_slabs.push_back(std::unique_ptr<Slot[]>(new Slot[SLOTS_PER_SLAB]));
+        this->_slabs.push_back(
+            std::unique_ptr<Slot[]>(new Slot[SLOTS_PER_SLAB]));
       }
     }
     return slab;
   }
+  [[nodiscard]] inline bool getOwnsSlot(const Slot &slot) const {
+    for (std::size_t i = 0; i < this->_slabs.size(); ++i) {
+      const Slot *base = this->_slabs[i].get();
+      const Slot *end = base + SLOTS_PER_SLAB;
+      if (&slot >= base && &slot < end) {
+        return true;
+      }
+    }
+    return false;
+  }
   template <typename... ArgNParam>
   [[nodiscard]] inline Gendex fillSlot(ArgNParam &&...arg_n) {
-    RQ_ASSERT(this->_next_index != MAX_INDEX, "too many slots");
-    const std::uint32_t generation = ++this->_generation;
-    std::size_t index;
+    const rq::Generation generation = ++this->_generation;
     if (this->_recycle_bin.empty()) {
-      index = this->_next_index++;
-      ensureSlabForIndex(index);
-      Slot &slot = slotAt(index);
+      const std::size_t index = this->_next_index++;
+      std::ignore = this->ensureSlabForIndex(index);
+      Slot &slot = this->slotAt(index);
       slot.reset(generation, std::forward<ArgNParam>(arg_n)...);
-      return Gendex(static_cast<std::uint32_t>(index), generation);
+      return Gendex(slot, generation);
     }
-    index = this->_recycle_bin.back();
+    Slot *slot_ptr = this->_recycle_bin.back();
     this->_recycle_bin.pop_back();
-    Slot &slot = slotAt(index);
+    Slot &slot = rq::dereferencePtr(slot_ptr);
     slot.reset(generation, std::forward<ArgNParam>(arg_n)...);
-    return Gendex(static_cast<std::uint32_t>(index), generation);
+    return Gendex(slot, generation);
   }
-  [[nodiscard]] inline Data *tryGetData(Gendex gendex) {
-    const std::size_t index = static_cast<std::size_t>(gendex.getIndex());
-    if (index >= this->_next_index) {
-      return nullptr;
+  void recycleSlot(Gendex &gendex) {
+    Slot &slot = gendex.getSlot();
+    RQ_ASSERT(this->getOwnsSlot(slot), "does not own slot");
+    if (gendex.getGeneration() != slot.getGeneration()) {
+      return;
     }
-    const Slot &slot = slotAt(index);
-    if (slot.getGeneration() != gendex.getGeneration()) {
-      return nullptr;
-    }
-    return const_cast<Data *>(&slot.getData());
-  }
-  [[nodiscard]] inline const Data *tryGetData(Gendex gendex) const {
-    const std::size_t index = static_cast<std::size_t>(gendex.getIndex());
-    if (index >= this->_next_index) {
-      return nullptr;
-    }
-    const Slot &slot = slotAt(index);
-    if (slot.getGeneration() != gendex.getGeneration()) {
-      return nullptr;
-    }
-    return &slot.getData();
-  }
-  void recycleSlot(Gendex gendex) {
-    const std::size_t index = static_cast<std::size_t>(gendex.getIndex());
-    RQ_ASSERT(index < this->_next_index, "index out of range");
-    Slot &slot = slotAt(index);
-    if (slot.getGeneration() == gendex.getGeneration()) {
-      slot.clear();
-      this->_recycle_bin.push_back(index);
-    }
+    slot.clear();
+    this->_recycle_bin.push_back(&slot);
+    gendex.clear();
   }
 };
 
