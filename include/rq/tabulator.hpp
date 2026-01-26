@@ -99,12 +99,14 @@ struct Tabulator final {
     return rq::dereferencePtr(this->_lowest_symbol_table_ptr);
   }
   RQ_ALWAYS_INLINE void setHighestSymbolTable(rq::SymbolTableSymbol &highest) {
+    RQ_ASSERT(highest.getIsTopOfFrameSymbol(), "highest not top of frame");
     rq::assignSingleValue(this->_highest_symbol_table_ptr, &highest);
     rq::assignSingleValue(this->_lowest_symbol_table_ptr, &highest);
   }
   RQ_ALWAYS_INLINE void setLowestSymbolTable(rq::SymbolTableSymbol &lowest) {
     RQ_ASSERT(lowest.getContainingSymbolTable() == this->getLowestSymbolTable(),
               "lowest not contained by existing lowest");
+    RQ_ASSERT(!lowest.getIsTopOfFrameSymbol(), "lowest is top of frame");
     this->_lowest_symbol_table_ptr = &lowest;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanAscendLowestSymbolTable() const {
