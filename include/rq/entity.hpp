@@ -2590,23 +2590,30 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_TABLE:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
   case E::SY_CLASS:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_ENUMERATION:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
 
   // PROCEDURE SYMBOL
   case E::SY_ENTRY:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
   case E::SY_FUNCTION:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_METHOD:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_CONSTRUCTOR:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE | EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_DESTRUCTOR:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
   case E::SY_RANGER:
@@ -4079,6 +4086,7 @@ getHasDepreciated(rq::ExpressionAttributeFlags flags) {
 }
 
 struct Expression;
+struct SymbolTableSymbol;
 
 struct ExpressionAttributeFlagsFactory final {
   using Self = rq::ExpressionAttributeFlagsFactory;
@@ -4612,6 +4620,90 @@ struct ConstExpressionIterator final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
     return this->_expression_ptr == nullptr;
+  }
+};
+
+struct SymbolTableIterator final {
+  using Self = rq::SymbolTableIterator;
+  using value_type = rq::SymbolTableSymbol;
+  using reference = rq::SymbolTableSymbol &;
+  using pointer = rq::SymbolTableSymbol *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::SymbolTableSymbol *_symbol_table_ptr = nullptr;
+
+  SymbolTableIterator() = default;
+  SymbolTableIterator(rq::SymbolTableSymbol *symbol_table_ptr)
+      : _symbol_table_ptr(symbol_table_ptr) {}
+  SymbolTableIterator(const Self &) = default;
+  SymbolTableIterator(Self &&) = default;
+  ~SymbolTableIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_symbol_table_ptr == it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_symbol_table_ptr != it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &operator*() {
+    return rq::dereferencePtr(this->_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
+  operator*() const {
+    return rq::dereferencePtr(this->_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol *operator->() {
+    return this->_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol *
+  operator->() const {
+    return this->_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_symbol_table_ptr == nullptr;
+  }
+};
+
+struct ConstSymbolTableIterator final {
+  using Self = rq::ConstSymbolTableIterator;
+  using value_type = const rq::SymbolTableSymbol;
+  using reference = const rq::SymbolTableSymbol &;
+  using pointer = const rq::SymbolTableSymbol *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::SymbolTableSymbol *_symbol_table_ptr = nullptr;
+
+  ConstSymbolTableIterator() = default;
+  ConstSymbolTableIterator(const rq::SymbolTableSymbol *symbol_table_ptr)
+      : _symbol_table_ptr(symbol_table_ptr) {}
+  ConstSymbolTableIterator(const Self &) = default;
+  ConstSymbolTableIterator(Self &&) = default;
+  ~ConstSymbolTableIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_symbol_table_ptr == it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_symbol_table_ptr != it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
+  operator*() const {
+    return rq::dereferencePtr(this->_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol *
+  operator->() const {
+    return this->_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_symbol_table_ptr == nullptr;
   }
 };
 
@@ -5965,14 +6057,24 @@ struct SymbolTableMemberSymbol {
   virtual ~SymbolTableMemberSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() const {
     return this->_containing_symbol_table_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &getContainingSymbolTable() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
+  getContainingSymbolTable() const {
     return rq::dereferencePtr(this->_containing_symbol_table_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &getContainingSymbolTable() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &
+  getContainingSymbolTable() {
     return rq::dereferencePtr(this->_containing_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol *
+  getContainingSymbolTablePtr() const {
+    return this->_containing_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol *
+  getContainingSymbolTablePtr() {
+    return this->_containing_symbol_table_ptr;
   }
 };
 struct HasAttributesSymbol {
@@ -6225,7 +6327,50 @@ struct SymbolTableSymbol : public rq::Symbol,
     return std::ranges::subrange(this->_named_values.begin(),
                                  this->_named_values.end());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getFrameSymbolTableTableRange() {
+    return std::ranges::subrange(
+        rq::SymbolTableIterator(this->getContainingSymbolTablePtr()),
+        rq::SymbolTableIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getFrameSymbolTableTableRange() const {
+    return std::ranges::subrange(
+        rq::ConstSymbolTableIterator(this->getContainingSymbolTablePtr()),
+        rq::ConstSymbolTableIterator());
+  }
 };
+
+rq::SymbolTableIterator &SymbolTableIterator::operator++() {
+  if (this->_symbol_table_ptr == nullptr) {
+    return *this;
+  }
+  rq::SymbolTableSymbol &table = rq::dereferencePtr(this->_symbol_table_ptr);
+  if (table.getIsTopOfFrameSymbol()) {
+    this->_symbol_table_ptr = nullptr;
+    return *this;
+  }
+  this->_symbol_table_ptr = table.getContainingSymbolTablePtr();
+  return *this;
+}
+
+rq::SymbolTableIterator SymbolTableIterator::operator++(int) { return ++*this; }
+
+rq::ConstSymbolTableIterator &ConstSymbolTableIterator::operator++() {
+  if (this->_symbol_table_ptr == nullptr) {
+    return *this;
+  }
+  const rq::SymbolTableSymbol &table =
+      rq::dereferencePtr(this->_symbol_table_ptr);
+  if (table.getIsTopOfFrameSymbol()) {
+    this->_symbol_table_ptr = nullptr;
+    return *this;
+  }
+  this->_symbol_table_ptr = table.getContainingSymbolTablePtr();
+  return *this;
+}
+
+rq::ConstSymbolTableIterator ConstSymbolTableIterator::operator++(int) {
+  return ++*this;
+}
 
 struct ProcedureSymbol : public rq::SymbolTableSymbol,
                          public rq::detail::HasLocationSymbol,
