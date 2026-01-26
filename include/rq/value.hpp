@@ -34,14 +34,14 @@ struct Entity;
 struct Value {
   using Self = rq::Value;
 
-  rq::ValueKind _kind{};
+  rq::ValueKind _kind{rq::ValueKind::NONE};
   llvm::AlignedCharArrayUnion<llvm::APInt, llvm::APFloat, bool, llvm::StringRef,
                               rq::Gendex<rq::Value>,
                               rq::ExactVector<rq::Gendex<rq::Value>>, rq::Entity *>
       _data{};
+  bool _is_platform_dependent : 1 {false};
 
   Value() = default;
-  explicit Value(rq::ValueKind kind) : _kind(kind) {}
   ~Value() { this->release(); }
 
   Value(const Self &rhs) : _kind(rq::ValueKind::NONE) { this->_copyFrom(rhs); }
@@ -64,6 +64,12 @@ struct Value {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getKind() const { return this->_kind; }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformDependent() const { return this->_is_platform_dependent; }
+
+  void setIsPlatformDependent() {
+    this->_is_platform_dependent = true;
+  }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
     return this->_kind == rq::ValueKind::INTEGER;
