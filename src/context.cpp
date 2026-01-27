@@ -64,13 +64,13 @@ bool Context::tokenizeSourceText(const rq::ModuleSymbol &module,
   return is_ok;
 }
 
-void Context::initializeKindMap() {
-  RQ_ASSERT(this->_kind_map.empty(), "keyword map not empty");
+void Context::initializeKeywordMap() {
+  RQ_ASSERT(this->_keyword_map.empty(), "keyword map not empty");
   for (std::underlying_type_t<rq::EntityKind> keyword_i = 0;
-       keyword_i <= rq::ENTITY_COUNT; keyword_i++) {
-    const rq::EntityKind keyword = static_cast<rq::EntityKind>(keyword_i);
+       keyword_i <= rq::KEYWORD_COUNT; keyword_i++) {
+    const rq::Keyword keyword = static_cast<rq::Keyword>(keyword_i);
     std::string_view name = rq::getName(keyword);
-    this->_kind_map.insert({name, keyword});
+    this->_keyword_map.insert({name, keyword});
   }
 }
 
@@ -87,12 +87,12 @@ rq::SourceLocation Context::getSourceLocation(llvm::SMLoc llvm_location) {
   return source_location;
 }
 
-rq::EntityKind Context::getKeyword(llvm::Twine name) {
+rq::Keyword Context::getKeyword(llvm::Twine name) {
   llvm::SmallString<64> buffer;
-  llvm::StringMapIterator<rq::EntityKind> it =
-      this->_kind_map.find(name.toStringRef(buffer));
-  if (it == this->_kind_map.end()) {
-    return rq::EntityKind::NONE;
+  llvm::StringMapIterator<rq::Keyword> it =
+      this->_keyword_map.find(name.toStringRef(buffer));
+  if (it == this->_keyword_map.end()) {
+    return rq::Keyword::NONE;
   }
   return it->getValue();
 }
@@ -247,7 +247,7 @@ bool Context::run() {
       }
       return true;
     }
-    this->initializeKindMap();
+    this->initializeKeywordMap();
     if (!this->parseRequite(this->getSourceModule(), tokens)) {
       return false;
     }
@@ -373,7 +373,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     rq::emitIndent(fout, indent);
     fout << "//";
     if (trunk.getIsInternal()) {
-      fout << " " << trunk.getKindName();
+      fout << " " << trunk.getName();
     }
     if (!trunk.getHasSourceText()) {
       fout << " (no position)";
@@ -410,7 +410,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     }
     return;
   }
-  fout << "[" << trunk.getKindName();
+  fout << "[" << trunk.getName();
   if (trunk.getHasBranch()) {
     fout << '\n';
     for (const rq::Expression &branch : trunk.getBranchSubrange()) {
@@ -797,7 +797,7 @@ void Context::logErrorNotKeyword(const rq::Token &token) {
 }
 
 void Context::logErrorInternalUseOnlyKeyword(const rq::Token &token,
-                                             rq::EntityKind keyword) {
+                                             rq::Keyword keyword) {
   this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getName(keyword)) +
                        " is for internal use only",
@@ -859,19 +859,19 @@ void Context::logErrorMustHaveParameterMark(rq::Situation situation,
                                             const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getKindName() + " must have parameter mark",
+                       expression.getName() + " must have parameter mark",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorPositionalEndIsFirst(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(mark.getKindName()) + " is first",
+                   llvm::Twine(mark.getName()) + " is first",
                    {mark.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNamedBeginIsLast(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(mark.getKindName()) + " is last",
+                   llvm::Twine(mark.getName()) + " is last",
                    {mark.getLlvmSourceRange()}, {});
 }
 
@@ -898,20 +898,20 @@ void Context::logErrorExpectedSemicolonSeparator(
 void Context::logErrorExpressionShouldNeverOccur(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(expression.getKindName()) +
+                   llvm::Twine(expression.getName()) +
                        " expression should never occur.",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("duplicate ") + mark.getKindName(),
+                   llvm::Twine("duplicate ") + mark.getName(),
                    {mark.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("duplicate ") + attribute.getKindName(),
+                   llvm::Twine("duplicate ") + attribute.getName(),
                    {attribute.getLlvmSourceRange()}, {});
 }
 
@@ -927,7 +927,7 @@ void Context::logErrorNotExactBranchCount(rq::Situation situation,
                                           unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getKindName() + " must have exactly " +
+                       expression.getName() + " must have exactly " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
@@ -937,7 +937,7 @@ void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
                                             unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getKindName() + " must have at least " +
+                       expression.getName() + " must have at least " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
@@ -947,7 +947,7 @@ void Context::logErrorTooManyBranchCount(rq::Situation situation,
                                          unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
-                       expression.getKindName() + " must not have more than " +
+                       expression.getName() + " must not have more than " +
                        llvm::Twine(count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
@@ -955,7 +955,7 @@ void Context::logErrorTooManyBranchCount(rq::Situation situation,
 void Context::logErrorInvalidBranchSituation(rq::Situation situation,
                                              const rq::Expression &branch) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine(branch.getKindName()) + " can not be " +
+                   llvm::Twine(branch.getName()) + " can not be " +
                        rq::getDescription(situation),
                    {branch.getLlvmSourceRange()}, {});
 }
@@ -963,28 +963,28 @@ void Context::logErrorInvalidBranchSituation(rq::Situation situation,
 void Context::logErrorExpectedHeaderExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getKindName() + " is not header",
+                   expresison.getName() + " is not header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedHeaderExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getKindName() + " is header",
+                   expresison.getName() + " is header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedChainLinkExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getKindName() + " is not chain-link",
+                   expresison.getName() + " is not chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorUnexpectedChainLinkExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getKindName() + " is chain-link",
+                   expresison.getName() + " is chain-link",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
@@ -1006,7 +1006,7 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));
   }
   new_expression._next_ptr_flags = expression._next_ptr_flags;
-  new_expression._kind = expression._kind;
+  new_expression._keyword = expression._keyword;
   new_expression._source_ptr_flags = expression._source_ptr_flags;
   new_expression._source_text_length = expression._source_text_length;
   return new_expression;

@@ -18,7 +18,7 @@ void Tabulator::tabulateEntry(rq::EntrySymbol &entry) {
   RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
   this->setIsStarted();
   this->setIsBuildingInstructions();
-  this->setResultKeyword(rq::EntityKind::KW_EXIT_CODE);
+  this->setResultKeyword(rq::Keyword::EXIT_CODE);
   this->setHighestSymbolTable(entry);
   rq::Expression &trunk = entry.getExpression();
   if (!trunk.getHasBranch()) {
@@ -31,7 +31,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
                                rq::SymbolTableSymbol &scope) {
   for (rq::Expression &branch : first.getInclusiveNextSubrange()) {
     const bool ascribed =
-        branch.getKeyword() == rq::EntityKind::KW_ASCRIBE_STATEMENT;
+        branch.getKeyword() == rq::Keyword::ASCRIBE_STATEMENT;
     rq::Expression &statement = ascribed ? branch.getBranch() : branch;
     rq::ExpressionAttributeFlagsFactory flags_factory;
     std::ignore = scope;
@@ -42,21 +42,21 @@ void Tabulator::tabulateForest(rq::Expression &first,
       RQ_TODO_IMPLEMENTATION();
     }
     switch (statement.getKeyword()) {
-    case rq::EntityKind::KW_IMPORT: {
+    case rq::Keyword::IMPORT: {
       rq::ImportSymbol &import =
           this->getContext().allocateValue<rq::ImportSymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), import);
     } break;
-    case rq::EntityKind::KW_MUTATION: {
+    case rq::Keyword::MUTATION: {
       rq::MutationSymbol &mutation =
           this->getContext().allocateValue<rq::MutationSymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), mutation);
     } break;
-    case rq::EntityKind::KW_ASSIGN: {
+    case rq::Keyword::ASSIGN: {
       rq::Expression &lvalue = statement.getBranch();
-      if (lvalue.getKeyword() != rq::EntityKind::KW_BINDING) {
+      if (lvalue.getKeyword() != rq::Keyword::BINDING) {
         RQ_TODO_IMPLEMENTATION();
       }
       rq::Expression &path = lvalue.getBranch();
@@ -70,7 +70,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, variable);
     } break;
-    case rq::EntityKind::KW_TABLE: {
+    case rq::Keyword::TABLE: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -80,7 +80,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
           this->getContext().allocateValue<rq::TableSymbol>(name);
       scope.tabulateNamedSymbol(this->getContext(), name, table);
     } break;
-    case rq::EntityKind::KW_CLASS: {
+    case rq::Keyword::CLASS: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -92,7 +92,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, class_);
     } break;
-    case rq::EntityKind::KW_ENUMERATION: {
+    case rq::Keyword::ENUMERATION: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -104,13 +104,13 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, enumeration);
     } break;
-    case rq::EntityKind::KW_ENTRY: {
+    case rq::Keyword::ENTRY: {
       rq::EntrySymbol &entry =
           this->getContext().allocateValue<rq::EntrySymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), entry);
     } break;
-    case rq::EntityKind::KW_FUNCTION: {
+    case rq::Keyword::FUNCTION: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -122,7 +122,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, function);
     } break;
-    case rq::EntityKind::KW_METHOD: {
+    case rq::Keyword::METHOD: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -134,7 +134,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, method);
     } break;
-    case rq::EntityKind::KW_EXTENSION_FUNCTION: {
+    case rq::Keyword::EXTENSION_FUNCTION: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -146,7 +146,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, extension_function);
     } break;
-    case rq::EntityKind::KW_EXTENSION_METHOD: {
+    case rq::Keyword::EXTENSION_METHOD: {
       rq::Expression &path = statement.getBranch();
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
@@ -158,19 +158,19 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, extension_method);
     } break;
-    case rq::EntityKind::KW_CONSTRUCTOR: {
+    case rq::Keyword::CONSTRUCTOR: {
       rq::ConstructorSymbol &constructor =
           this->getContext().allocateValue<rq::ConstructorSymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), constructor);
     } break;
-    case rq::EntityKind::KW_DESTRUCTOR: {
+    case rq::Keyword::DESTRUCTOR: {
       rq::DestructorSymbol &destructor =
           this->getContext().allocateValue<rq::DestructorSymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), destructor);
     } break;
-    case rq::EntityKind::KW_RANGER: {
+    case rq::Keyword::RANGER: {
       rq::RangerSymbol &ranger =
           this->getContext().allocateValue<rq::RangerSymbol>(
               statement, this->getModule(), scope, flags_factory.getFlags());
@@ -184,32 +184,32 @@ void Tabulator::tabulateForest(rq::Expression &first,
 
 rq::TypeDefinitionSymbol &Tabulator::resolveType(rq::Expression &expression) {
   //const bool ascribed =
-  //    expression.getKeyword() == rq::EntityKind::KW_ASCRIBE_TYPE;
+  //    expression.getKeyword() == rq::Keyword::ASCRIBE_TYPE;
   //rq::Expression &type = ascribed ? expression.getBranch() : expression;
   // rq::TypeAttributeFlagsFactory flags_factory;
-  using E = rq::EntityKind;
+  using K = rq::Keyword;
   switch (expression.getKeyword()) {
-  case E::KW_IDENTIFIER_LITERAL:
+  case K::IDENTIFIER_LITERAL:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_ARRAY:
+  case K::ARRAY:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_REFERENCE:
+  case K::REFERENCE:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_POINTER:
+  case K::POINTER:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_FAT_POINTER:
+  case K::FAT_POINTER:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_LAYOUT_TYPE:
+  case K::LAYOUT_TYPE:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_NULL_TYPE:
+  case K::NULL_TYPE:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_SIGNATURE_TYPE:
+  case K::SIGNATURE_TYPE:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_INFERENCE:
+  case K::INFERENCE:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_VOID:
+  case K::VOID:
     RQ_TODO_IMPLEMENTATION();
-  case E::KW_NO_RETURN:
+  case K::NO_RETURN:
     RQ_TODO_IMPLEMENTATION();
   // etc
   default:
@@ -219,9 +219,9 @@ rq::TypeDefinitionSymbol &Tabulator::resolveType(rq::Expression &expression) {
 }
 
 llvm::StringRef Tabulator::evaluateName(rq::Expression &expression) {
-  if (expression.getKeyword() == rq::EntityKind::KW_IDENTIFIER_LITERAL) {
+  if (expression.getKeyword() == rq::Keyword::IDENTIFIER_LITERAL) {
     return expression.getSourceText();
-  } else if (expression.getKeyword() == rq::EntityKind::KW_IDENTIFY) {
+  } else if (expression.getKeyword() == rq::Keyword::IDENTIFY) {
     RQ_TODO_IMPLEMENTATION();
   }
   RQ_UNREACHABLE();

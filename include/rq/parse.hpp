@@ -161,15 +161,15 @@ struct PrecedenceFactory final {
   [[nodiscard]] const rq::Context &getContext() const {
     return this->_context_ref.get();
   }
-  void parseUnary(const rq::Token &token, rq::EntityKind keyword);
-  void parseAscribe(const rq::Token &token, rq::EntityKind keyword);
-  void parseBinary(const rq::Token &token, rq::EntityKind keyword);
-  void parseOuterBinary(const rq::Token &token, rq::EntityKind keyword);
-  void parseNary(const rq::Token &token, rq::EntityKind keyword);
-  void parseSequenceBranch(const rq::Token &token, rq::EntityKind keyword,
+  void parseUnary(const rq::Token &token, rq::Keyword keyword);
+  void parseAscribe(const rq::Token &token, rq::Keyword keyword);
+  void parseBinary(const rq::Token &token, rq::Keyword keyword);
+  void parseOuterBinary(const rq::Token &token, rq::Keyword keyword);
+  void parseNary(const rq::Token &token, rq::Keyword keyword);
+  void parseSequenceBranch(const rq::Token &token, rq::Keyword keyword,
                            rq::Expression &rvalue);
   void appendBranch(rq::Expression &branch);
-  void appendNullaryAttribute(const rq::Token &token, rq::EntityKind keyword);
+  void appendNullaryAttribute(const rq::Token &token, rq::Keyword keyword);
   void setRecent(rq::Expression &branch);
   void setOnlyRecent(rq::Expression &branch);
   void appendRecent();
@@ -277,7 +277,7 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence0();
   [[nodiscard]] bool parseExpressionBranches(rq::Expression &expression,
                                                rq::TokenKind end);
-  [[nodiscard]] rq::EntityKind parseKeyword();
+  [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedDoubleBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
@@ -285,7 +285,7 @@ struct RequiteParser final {
   void parseTrailer(rq::Expression &expression,
                     rq::TokenRanger &keyword_ranger);
   [[nodiscard]] rq::Expression &parseAttribute();
-  [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::EntityKind keyword);
+  [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseInterpolatedString();
 };
 

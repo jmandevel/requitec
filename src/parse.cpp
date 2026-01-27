@@ -1,5 +1,5 @@
-#include <rq/entity.hpp>
 #include <rq/context.hpp>
+#include <rq/entity.hpp>
 #include <rq/parse.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
@@ -45,7 +45,7 @@ void TreeFactory::finishExpression(const rq::Token &last_token) {
 }
 
 void PrecedenceFactory::parseUnary(const rq::Token &token,
-                                   rq::EntityKind keyword) {
+                                   rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
@@ -55,7 +55,7 @@ void PrecedenceFactory::parseUnary(const rq::Token &token,
 }
 
 void PrecedenceFactory::parseAscribe(const rq::Token &token,
-                                     rq::EntityKind keyword) {
+                                     rq::Keyword keyword) {
   if (this->getHasExpression()) {
     rq::Expression &old_expression = this->getExpression();
     if (old_expression.getKeyword() != keyword) {
@@ -87,7 +87,7 @@ void PrecedenceFactory::parseAscribe(const rq::Token &token,
 }
 
 void PrecedenceFactory::parseBinary(const rq::Token &token,
-                                    rq::EntityKind keyword) {
+                                    rq::Keyword keyword) {
   rq::Expression &new_expression = this->getContext().acquireExpression();
   new_expression.setKeyword(keyword);
   new_expression.setSource(this->getRecent(), token);
@@ -98,7 +98,7 @@ void PrecedenceFactory::parseBinary(const rq::Token &token,
 }
 
 void PrecedenceFactory::parseOuterBinary(const rq::Token &token,
-                                         rq::EntityKind keyword) {
+                                         rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(this->getOuter(), token);
@@ -108,7 +108,7 @@ void PrecedenceFactory::parseOuterBinary(const rq::Token &token,
   this->_outer_ptr = &expression;
 }
 
-void PrecedenceFactory::parseNary(const rq::Token &token, rq::EntityKind keyword) {
+void PrecedenceFactory::parseNary(const rq::Token &token, rq::Keyword keyword) {
   if (this->getHasExpression()) {
     rq::Expression &existing_expression = this->getExpression();
     if (existing_expression.getKeyword() == keyword) {
@@ -130,9 +130,9 @@ void PrecedenceFactory::parseNary(const rq::Token &token, rq::EntityKind keyword
 }
 
 void PrecedenceFactory::parseSequenceBranch(const rq::Token &token,
-                                            rq::EntityKind keyword,
+                                            rq::Keyword keyword,
                                             rq::Expression &rvalue) {
-  this->parseNary(token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE);
+  this->parseNary(token, rq::Keyword::ARITHMETIC_SEQUENCE);
   rq::Expression &step = this->getContext().acquireExpression();
   step.setKeyword(keyword);
   step.setSource(token, rvalue);
@@ -158,7 +158,7 @@ void PrecedenceFactory::appendBranch(rq::Expression &branch) {
 }
 
 void PrecedenceFactory::appendNullaryAttribute(const rq::Token &token,
-                                               rq::EntityKind keyword) {
+                                               rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
@@ -223,8 +223,8 @@ rq::Expression &RequiteParser::parsePrecedence12() {
     switch (kind) {
     case rq::TokenKind::AT_SIGIL: {
       rq::Expression &attribute = this->parseAttribute();
-      precedence_factory.parseAscribe(token,
-                        rq::EntityKind::KW_UNSITUATED_ASCRIBE_STATEMENT);
+      precedence_factory.parseAscribe(
+          token, rq::Keyword::UNSITUATED_ASCRIBE_STATEMENT);
       precedence_factory.appendBranch(attribute);
       continue;
     }
@@ -250,7 +250,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     case rq::TokenKind::EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token,
-                 rq::EntityKind::KW_UNSITUATED_EQUAL_OPERATOR);
+                                     rq::Keyword::UNSITUATED_EQUAL_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence10());
       continue;
     default:
@@ -274,7 +274,7 @@ rq::Expression &RequiteParser::parsePrecedence10() {
     switch (token.getKind()) {
     case rq::TokenKind::COLON_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::EntityKind::KW_BINDING);
+      precedence_factory.parseBinary(token, rq::Keyword::BINDING);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
     default:
@@ -298,68 +298,68 @@ rq::Expression &RequiteParser::parsePrecedence9() {
     switch (token.getKind()) {
     case rq::TokenKind::DOT_PLUS_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_STEP_ADD,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_ADD,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_DASH_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_STEP_SUBTRACT,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_SUBTRACT,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_STAR_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_STEP_MULTIPLY,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_MULTIPLY,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_SLASH_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_STEP_DIVIDE,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_DIVIDE,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_PERCENT_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_STEP_MODULUS,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_MODULUS,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_LESS_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_CONDITION_LESS,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_LESS,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_CONDITION_GREATER,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_GREATER,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_LESS_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_GREATER_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_DOUBLE_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_CONDITION_EQUAL,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_EQUAL,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_BANG_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-        precedence_factory.parseSequenceBranch(
-          token, rq::EntityKind::KW_ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL,
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_NOT_EQUAL,
           this->parsePrecedence8());
       continue;
     default:
@@ -383,12 +383,12 @@ rq::Expression &RequiteParser::parsePrecedence8() {
     switch (token.getKind()) {
     case rq::TokenKind::DOWN_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_LOGICAL_AND);
+      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_AND);
       precedence_factory.setRecent(this->parsePrecedence7());
       continue;
     case rq::TokenKind::UP_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_LOGICAL_OR);
+      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_OR);
       precedence_factory.setRecent(this->parsePrecedence7());
       continue;
     default:
@@ -429,13 +429,13 @@ rq::Expression &RequiteParser::parsePrecedence7() {
         }
       }
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_GREATER);
+      precedence_factory.parseNary(token, rq::Keyword::GREATER);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     }
     case rq::TokenKind::GREATER_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_GREATER_EQUAL);
+      precedence_factory.parseNary(token, rq::Keyword::GREATER_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     case rq::TokenKind::LESS_OPERATOR: {
@@ -457,23 +457,23 @@ rq::Expression &RequiteParser::parsePrecedence7() {
         }
       }
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_LESS);
+      precedence_factory.parseNary(token, rq::Keyword::LESS);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     }
     case rq::TokenKind::LESS_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_LESS_EQUAL);
+      precedence_factory.parseNary(token, rq::Keyword::LESS_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     case rq::TokenKind::DOUBLE_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_EQUAL);
+      precedence_factory.parseNary(token, rq::Keyword::EQUAL);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     case rq::TokenKind::BANG_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_NOT_EQUAL);
+      precedence_factory.parseNary(token, rq::Keyword::NOT_EQUAL);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     default:
@@ -497,17 +497,17 @@ rq::Expression &RequiteParser::parsePrecedence6() {
     switch (token.getKind()) {
     case rq::TokenKind::STAR_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_MULTIPLY);
+      precedence_factory.parseNary(token, rq::Keyword::MULTIPLY);
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
     case rq::TokenKind::SLASH_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_DIVIDE);
+      precedence_factory.parseNary(token, rq::Keyword::DIVIDE);
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
     case rq::TokenKind::PERCENT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_MODULUS);
+      precedence_factory.parseNary(token, rq::Keyword::MODULUS);
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
     default:
@@ -531,12 +531,12 @@ rq::Expression &RequiteParser::parsePrecedence5() {
     switch (token.getKind()) {
     case rq::TokenKind::PLUS_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_ADD);
+      precedence_factory.parseNary(token, rq::Keyword::ADD);
       precedence_factory.setRecent(this->parsePrecedence4());
       continue;
     case rq::TokenKind::DASH_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_SUBTRACT);
+      precedence_factory.parseNary(token, rq::Keyword::SUBTRACT);
       precedence_factory.setRecent(this->parsePrecedence4());
       continue;
     default:
@@ -560,27 +560,27 @@ rq::Expression &RequiteParser::parsePrecedence4() {
     switch (token.getKind()) {
     case rq::TokenKind::DOUBLE_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::EntityKind::KW_BITWISE_SHIFT_LEFT);
+      precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_LEFT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::DOUBLE_LESS_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::EntityKind::KW_BITWISE_SHIFT_RIGHT);
+      precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_RIGHT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::PIPE_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_BITWISE_OR);
+      precedence_factory.parseNary(token, rq::Keyword::BITWISE_OR);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::AMPERSAND_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_BITWISE_AND);
+      precedence_factory.parseNary(token, rq::Keyword::BITWISE_AND);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::CAROT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::EntityKind::KW_BITWISE_XOR);
+      precedence_factory.parseNary(token, rq::Keyword::BITWISE_XOR);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     default:
@@ -600,27 +600,27 @@ rq::Expression &RequiteParser::parsePrecedence3() {
     switch (token.getKind()) {
     case rq::TokenKind::BANG_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::EntityKind::KW_LOGICAL_COMPLEMENT);
+      precedence_factory.parseUnary(token, rq::Keyword::LOGICAL_COMPLEMENT);
       continue;
     case rq::TokenKind::DASH_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::EntityKind::KW_NEGATE);
+      precedence_factory.parseUnary(token, rq::Keyword::NEGATE);
       continue;
     case rq::TokenKind::TILDE_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::EntityKind::KW_BITWISE_COMPLEMENT);
+      precedence_factory.parseUnary(token, rq::Keyword::BITWISE_COMPLEMENT);
       continue;
     case rq::TokenKind::BACKSLASH_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::EntityKind::KW_IDENTIFY);
+      precedence_factory.parseUnary(token, rq::Keyword::IDENTIFY);
       continue;
     case rq::TokenKind::WHAT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::EntityKind::KW_ENTIFY);
+      precedence_factory.parseUnary(token, rq::Keyword::KEWORDIFY);
       continue;
     case rq::TokenKind::DOUBLE_DOT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::EntityKind::KW_ASCEND_FRAME);
+      precedence_factory.parseUnary(token, rq::Keyword::ASCEND_FRAME);
       continue;
     default:
       precedence_factory.appendBranch(this->parsePrecedence2());
@@ -643,7 +643,7 @@ rq::Expression &RequiteParser::parsePrecedence2() {
     switch (token.getKind()) {
     case rq::TokenKind::DOUBLE_DOT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::EntityKind::KW_ASCEND_FRAME_OF);
+      precedence_factory.parseBinary(token, rq::Keyword::ASCEND_FRAME_OF);
       precedence_factory.setRecent(this->parsePrecedence1());
       continue;
     default:
@@ -667,294 +667,288 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       case rq::TokenKind::DOLLAR_SIGIL: {
         rq::Expression &attribute = this->parseAttribute();
         precedence_factory.parseAscribe(token,
-                rq::EntityKind::KW_UNSITUATED_ASCRIBE_TYPE);
+                                        rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
         precedence_factory.appendBranch(attribute);
         continue;
       }
       case rq::TokenKind::ARROW_OPERATOR: {
         rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::EntityKind::KW_INFERENCE);
+        inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::EntityKind::KW_EXTEND);
+        precedence_factory.parseNary(token, rq::Keyword::EXTEND);
         continue;
       }
       case rq::TokenKind::THICK_ARROW_OPERATOR: {
         rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::EntityKind::KW_INFERENCE);
+        inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::EntityKind::KW_EXTENSION);
+        precedence_factory.parseNary(token, rq::Keyword::EXTENSION);
         continue;
       }
       case rq::TokenKind::HASH_OPERATOR: {
         rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::EntityKind::KW_INFERENCE);
+        inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::EntityKind::KW_ARRAY);
+        precedence_factory.parseNary(token, rq::Keyword::ARRAY);
         continue;
       }
       case rq::TokenKind::DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::EntityKind::KW_MEMBER_OF_TOP);
+        precedence_factory.parseUnary(token, rq::Keyword::MEMBER_OF_TOP);
         continue;
       case rq::TokenKind::CAROT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::EntityKind::KW_FAT_POINTER);
+        precedence_factory.parseUnary(token, rq::Keyword::FAT_POINTER);
         continue;
       case rq::TokenKind::PERCENT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::EntityKind::KW_IDENTIFY);
+        precedence_factory.parseUnary(token, rq::Keyword::IDENTIFY);
         continue;
       case rq::TokenKind::AMPERSAND_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::EntityKind::KW_REFERENCE);
+        precedence_factory.parseUnary(token, rq::Keyword::REFERENCE);
         continue;
       case rq::TokenKind::STAR_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::EntityKind::KW_POINTER);
+        precedence_factory.parseUnary(token, rq::Keyword::POINTER);
         continue;
       case rq::TokenKind::DOT_LESS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token,
-                                      rq::EntityKind::KW_ARITHMETIC_INTERVAL_LESS);
+                                      rq::Keyword::ARITHMETIC_INTERVAL_LESS);
         continue;
       case rq::TokenKind::DOT_LESS_EQUAL_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-            token, rq::EntityKind::KW_ARITHMETIC_INTERVAL_LESS_EQUAL);
+            token, rq::Keyword::ARITHMETIC_INTERVAL_LESS_EQUAL);
         continue;
       case rq::TokenKind::DOT_GREATER_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(
-            token, rq::EntityKind::KW_ARITHMETIC_INTERVAL_GREATER);
+        precedence_factory.parseUnary(token,
+                                      rq::Keyword::ARITHMETIC_INTERVAL_GREATER);
         continue;
       case rq::TokenKind::DOT_GREATER_EQUAL_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-            token, rq::EntityKind::KW_ARITHMETIC_INTERVAL_GREATER_EQUAL);
+            token, rq::Keyword::ARITHMETIC_INTERVAL_GREATER_EQUAL);
         continue;
       case rq::TokenKind::DOT_DOUBLE_EQUAL_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token,
-                    rq::EntityKind::KW_ARITHMETIC_INTERVAL_EQUAL);
+                                      rq::Keyword::ARITHMETIC_INTERVAL_EQUAL);
         continue;
       case rq::TokenKind::DOT_BANG_EQUAL_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_ARITHMETIC_INTERVAL_NOT_EQUAL);
+            token, rq::Keyword::ARITHMETIC_INTERVAL_NOT_EQUAL);
         continue;
       case rq::TokenKind::DOT_LESS_PLUS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_ADD);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_ADD);
         continue;
       case rq::TokenKind::DOT_LESS_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_SUBTRACT);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_LESS_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_MULTIPLY);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_LESS_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_DIVIDE);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_DIVIDE);
         continue;
       case rq::TokenKind::DOT_LESS_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_MODULUS);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_MODULUS);
         continue;
       case rq::TokenKind::DOT_GREATER_PLUS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_ADD);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_ADD);
         continue;
       case rq::TokenKind::DOT_GREATER_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
-            token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_SUBTRACT);
+        precedence_factory.parseUnary(
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_GREATER_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
-            token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_MULTIPLY);
+        precedence_factory.parseUnary(
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_GREATER_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
-            token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_DIVIDE);
+        precedence_factory.parseUnary(
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_DIVIDE);
         continue;
       case rq::TokenKind::DOT_GREATER_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
-            token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_MODULUS);
+        precedence_factory.parseUnary(
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_MODULUS);
         continue;
       case rq::TokenKind::DOT_LESS_EQUAL_PLUS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
-            token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_ADD);
+        precedence_factory.parseUnary(
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_ADD);
         continue;
       case rq::TokenKind::DOT_LESS_EQUAL_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
+        precedence_factory.parseUnary(
             token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_SUBTRACT);
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_LESS_EQUAL_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
+        precedence_factory.parseUnary(
             token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MULTIPLY);
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_LESS_EQUAL_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
+        precedence_factory.parseUnary(
             token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_DIVIDE);
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_DIVIDE);
         continue;
       case rq::TokenKind::DOT_LESS_EQUAL_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
+        precedence_factory.parseUnary(
             token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MODULUS);
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MODULUS);
         continue;
       case rq::TokenKind::DOT_GREATER_EQUAL_PLUS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
-            precedence_factory.parseUnary(
+        precedence_factory.parseUnary(
             token,
-            rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_ADD);
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_ADD);
         continue;
       case rq::TokenKind::DOT_GREATER_EQUAL_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::
-                 KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_SUBTRACT);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_GREATER_EQUAL_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::
-                 KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MULTIPLY);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_GREATER_EQUAL_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token,
-          rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_DIVIDE);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_DIVIDE);
         continue;
       case rq::TokenKind::DOT_GREATER_EQUAL_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token,
-          rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MODULUS);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MODULUS);
         continue;
       case rq::TokenKind::DOT_EQUAL_PLUS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_EQUAL_ADD);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_EQUAL_ADD);
         continue;
       case rq::TokenKind::DOT_EQUAL_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_EQUAL_SUBTRACT);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_EQUAL_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_EQUAL_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_EQUAL_MULTIPLY);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_EQUAL_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_EQUAL_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_EQUAL_DIVIDE);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_EQUAL_DIVIDE);
         continue;
       case rq::TokenKind::DOT_EQUAL_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_EQUAL_MODULUS);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_EQUAL_MODULUS);
         continue;
       case rq::TokenKind::DOT_BANG_EQUAL_PLUS_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_ADD);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_ADD);
         continue;
       case rq::TokenKind::DOT_BANG_EQUAL_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token,
-          rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_SUBTRACT);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_BANG_EQUAL_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token,
-          rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MULTIPLY);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_BANG_EQUAL_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token,
-          rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_DIVIDE);
+            token, rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_DIVIDE);
         continue;
       case rq::TokenKind::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token,
-          rq::EntityKind::KW_FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MODULUS);
+            token,
+            rq::Keyword::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MODULUS);
         continue;
       case rq::TokenKind::DOT_PLUS_DOT_OPERTATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_INFINITE_ARITHMETIC_PROGRESSION_ADD);
+            token, rq::Keyword::INFINITE_ARITHMETIC_PROGRESSION_ADD);
         continue;
       case rq::TokenKind::DOT_DASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_INFINITE_ARITHMETIC_PROGRESSION_SUBTRACT);
+            token, rq::Keyword::INFINITE_ARITHMETIC_PROGRESSION_SUBTRACT);
         continue;
       case rq::TokenKind::DOT_STAR_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_INFINITE_ARITHMETIC_PROGRESSION_MULTIPLY);
+            token, rq::Keyword::INFINITE_ARITHMETIC_PROGRESSION_MULTIPLY);
         continue;
       case rq::TokenKind::DOT_SLASH_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_INFINITE_ARITHMETIC_PROGRESSION_DIVIDE);
+            token, rq::Keyword::INFINITE_ARITHMETIC_PROGRESSION_DIVIDE);
         continue;
       case rq::TokenKind::DOT_PERCENT_DOT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(
-          token, rq::EntityKind::KW_INFINITE_ARITHMETIC_PROGRESSION_MODULUS);
+            token, rq::Keyword::INFINITE_ARITHMETIC_PROGRESSION_MODULUS);
         continue;
       case rq::TokenKind::GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
-                rq::EntityKind::KW_UNSITUATED_ASCRIBE_TYPE);
-        precedence_factory.appendNullaryAttribute(token,
-                    rq::EntityKind::KW_MUTABLE);
+                                        rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
+        precedence_factory.appendNullaryAttribute(token, rq::Keyword::MUTABLE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseAscribe(token,
-                rq::EntityKind::KW_UNSITUATED_ASCRIBE_TYPE);
-        precedence_factory.appendNullaryAttribute(token,
-                    rq::EntityKind::KW_CONSTANT);
+                                        rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
+        precedence_factory.appendNullaryAttribute(token, rq::Keyword::CONSTANT);
         continue;
       default:
         break;
@@ -965,7 +959,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       }
       if (rq::getIsInferenceTerminator(kind)) {
         rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::EntityKind::KW_INFERENCE);
+        inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
         precedence_factory.appendBranch(inference);
@@ -988,28 +982,28 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     case rq::TokenKind::HASH_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::EntityKind::KW_ARRAY);
+      precedence_factory.parseOuterBinary(post_token, rq::Keyword::ARRAY);
       continue;
     case rq::TokenKind::ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::EntityKind::KW_EXTEND);
+      precedence_factory.parseOuterBinary(post_token, rq::Keyword::EXTEND);
       continue;
     case rq::TokenKind::THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::EntityKind::KW_EXTENSION);
+      precedence_factory.parseOuterBinary(post_token, rq::Keyword::EXTENSION);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(post_token, rq::EntityKind::KW_REFLECT);
+      precedence_factory.parseNary(post_token, rq::Keyword::REFLECT);
       continue;
     case rq::TokenKind::LEFT_PARENTHESIS_GROUPING: {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       rq::Expression &callee = precedence_factory.getOuter();
       rq::Expression &call = this->getContext().acquireExpression();
-      call.setKeyword(rq::EntityKind::KW_CALL);
+      call.setKeyword(rq::Keyword::CALL);
       call.setBranch(callee);
       call.setSource(callee, post_token);
       std::ignore = this->parseExpressionBranches(
@@ -1023,7 +1017,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.appendRecent();
       rq::Expression &target = precedence_factory.getOuter();
       rq::Expression &specialization = this->getContext().acquireExpression();
-      specialization.setKeyword(rq::EntityKind::KW_SPECIALIZATION);
+      specialization.setKeyword(rq::Keyword::SPECIALIZATION);
       specialization.setBranch(target);
       specialization.setSource(target, post_token);
       std::ignore = this->parseExpressionBranches(
@@ -1054,15 +1048,15 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   case rq::TokenKind::LEFT_BRACE_GROUPING:
     return this->parseEnclosedBraceExpression();
   case rq::TokenKind::IDENTIFIER_LITERAL:
-    return this->parseLiteralOrMark(rq::EntityKind::KW_IDENTIFIER_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::IDENTIFIER_LITERAL);
   case rq::TokenKind::CODEUNIT_LITERAL:
-    return this->parseLiteralOrMark(rq::EntityKind::KW_CODEUNIT_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::CODEUNIT_LITERAL);
   case rq::TokenKind::STRING_LITERAL:
-    return this->parseLiteralOrMark(rq::EntityKind::KW_STRING_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::STRING_LITERAL);
   case rq::TokenKind::INTEGER_LITERAL:
-    return this->parseLiteralOrMark(rq::EntityKind::KW_INTEGER_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::INTEGER_LITERAL);
   case rq::TokenKind::FLOAT_LITERAL:
-    return this->parseLiteralOrMark(rq::EntityKind::KW_FLOAT_LITERAL);
+    return this->parseLiteralOrMark(rq::Keyword::FLOAT_LITERAL);
   case rq::TokenKind::LEFT_INTERPOLATION_LITERAL:
     return this->parseInterpolatedString();
   default:
@@ -1072,14 +1066,14 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   this->getContext().logErrorUnexpectedToken(token);
   this->setNotOk();
   rq::Expression &error = this->getContext().acquireExpression();
-  error.setKeyword(rq::EntityKind::KW_ERROR);
+  error.setKeyword(rq::Keyword::ERROR);
   error.setSource(token);
   return error;
 }
 
 [[nodiscard]] bool
 RequiteParser::parseExpressionBranches(rq::Expression &expression,
-                                         rq::TokenKind end) {
+                                       rq::TokenKind end) {
   RQ_ASSERT(expression.getHasExpressionBranches(),
             "expression must have non-statement branches");
   rq::TreeFactory factory;
@@ -1096,11 +1090,11 @@ RequiteParser::parseExpressionBranches(rq::Expression &expression,
       if (third_token.getKind() == end) {
         rq::Expression &first_mark = this->getContext().acquireExpression();
         first_mark.setSource(first_token);
-        first_mark.setKeyword(rq::EntityKind::KW_NAMED_PARAMETERS_BEGIN);
+        first_mark.setKeyword(rq::Keyword::NAMED_PARAMETERS_BEGIN);
         factory.appendBranch(first_mark);
         rq::Expression &second_mark = this->getContext().acquireExpression();
         second_mark.setSource(second_token);
-        second_mark.setKeyword(rq::EntityKind::KW_POSITIONAL_PARAMETERS_END);
+        second_mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
         factory.appendBranch(second_mark);
         factory.finishExpression(third_token);
         this->getRanger().incrementToken(3);
@@ -1116,7 +1110,7 @@ RequiteParser::parseExpressionBranches(rq::Expression &expression,
       parameter_mark_found = true;
       rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
-      mark.setKeyword(rq::EntityKind::KW_NAMED_PARAMETERS_BEGIN);
+      mark.setKeyword(rq::Keyword::NAMED_PARAMETERS_BEGIN);
       factory.appendBranch(mark);
     }
     rq::Expression &branch = this->parseExpression();
@@ -1134,7 +1128,7 @@ RequiteParser::parseExpressionBranches(rq::Expression &expression,
       parameter_mark_found = true;
       rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
-      mark.setKeyword(rq::EntityKind::KW_POSITIONAL_PARAMETERS_END);
+      mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
       factory.appendBranch(mark);
       const rq::Token &next_after = this->getRanger().getToken();
       if (next_after.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
@@ -1157,26 +1151,26 @@ RequiteParser::parseExpressionBranches(rq::Expression &expression,
   RQ_UNREACHABLE();
 }
 
-rq::EntityKind RequiteParser::parseKeyword() {
+rq::Keyword RequiteParser::parseKeyword() {
   const rq::Token &token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
-  rq::EntityKind keyword;
+  rq::Keyword keyword;
   if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
     keyword = this->getContext().getKeyword(token.getSourceText());
   } else {
     this->getContext().logErrorExpectedIdentifierLiteral(token);
     this->setNotOk();
-    return rq::EntityKind::KW_ERROR;
+    return rq::Keyword::ERROR;
   }
-  if (!rq::getIsKeyword(keyword)) {
+  if (keyword != rq::Keyword::NONE) {
     this->getContext().logErrorNotKeyword(token);
     this->setNotOk();
-    return rq::EntityKind::KW_ERROR;
+    return rq::Keyword::ERROR;
   }
   if (rq::getIsInternal(keyword)) {
     this->getContext().logErrorInternalUseOnlyKeyword(token, keyword);
     this->setNotOk();
-    return rq::EntityKind::KW_ERROR;
+    return rq::Keyword::ERROR;
   }
   return keyword;
 }
@@ -1186,7 +1180,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   this->getRanger().incrementToken(1);
   rq::TokenRanger keyword_ranger = this->getRanger();
   rq::Expression &expression = this->getContext().acquireExpression();
-  const rq::EntityKind keyword = this->parseKeyword();
+  const rq::Keyword keyword = this->parseKeyword();
   expression.setKeyword(keyword);
   expression.setSource(left_token);
   if (!expression.getHasStatementBranches()) {
@@ -1227,7 +1221,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
 rq::Expression &RequiteParser::parseEnclosedDoubleBracketExpression() {
   const rq::Token &first_token = this->getRanger().getToken();
   rq::Expression &brace = this->getContext().acquireExpression();
-  brace.setKeyword(rq::EntityKind::KW_INITIALIZER_LIST);
+  brace.setKeyword(rq::Keyword::INITIALIZER_LIST);
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
   std::ignore = this->parseExpressionBranches(
@@ -1238,13 +1232,13 @@ rq::Expression &RequiteParser::parseEnclosedDoubleBracketExpression() {
 rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const rq::Token &first_token = this->getRanger().getToken();
   rq::Expression &brace = this->getContext().acquireExpression();
-  brace.setKeyword(rq::EntityKind::KW_TUPLE);
+  brace.setKeyword(rq::Keyword::TUPLE);
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
-  const bool parameter_mark_found = this->parseExpressionBranches(
-      brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
+  const bool parameter_mark_found =
+      this->parseExpressionBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found) {
-    brace.changeKeyword(rq::EntityKind::KW_LAYOUT_TYPE);
+    brace.changeKeyword(rq::Keyword::LAYOUT_TYPE);
   }
   return brace;
 }
@@ -1283,7 +1277,7 @@ rq::Expression &RequiteParser::parseAttribute() {
   RQ_ASSERT(sigil_token.getIsSigil(), "not sigil");
   this->getRanger().incrementToken(1);
   const rq::Token &keyword_token = this->getRanger().getToken();
-  rq::EntityKind keyword = this->parseKeyword();
+  rq::Keyword keyword = this->parseKeyword();
   rq::Expression &attribute = this->getContext().acquireExpression();
   attribute.setSource(sigil_token, keyword_token);
   attribute.setKeyword(keyword);
@@ -1300,13 +1294,13 @@ rq::Expression &RequiteParser::parseAttribute() {
 rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const rq::Token &first_token = this->getRanger().getToken();
   rq::Expression &parenthesis = this->getContext().acquireExpression();
-  parenthesis.setKeyword(rq::EntityKind::KW_UNSITUATED_PARENTHESIS_GROUP);
+  parenthesis.setKeyword(rq::Keyword::UNSITUATED_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->getRanger().incrementToken(1);
   const bool has_parameter_marks = this->parseExpressionBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks) {
-    parenthesis.changeKeyword(rq::EntityKind::KW_SIGNATURE_TYPE);
+    parenthesis.changeKeyword(rq::Keyword::SIGNATURE_TYPE);
     rq::Expression &return_type = this->parseExpression();
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));
@@ -1315,7 +1309,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
     }
   } else if (!parenthesis.getHasBranch()) {
     rq::Expression &inference = this->getContext().acquireExpression();
-    inference.setKeyword(rq::EntityKind::KW_INFERENCE);
+    inference.setKeyword(rq::Keyword::INFERENCE);
     inference.setSource(parenthesis);
     inference.setIsInserted();
     parenthesis.setBranch(inference);
@@ -1323,7 +1317,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   return parenthesis;
 }
 
-rq::Expression &RequiteParser::parseLiteralOrMark(rq::EntityKind keyword) {
+rq::Expression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
   const rq::Token &token = this->getRanger().getToken();
   RQ_ASSERT(token.getIsLiteral() || token.getCanBeMark(),
             "token is not literal or mark");
@@ -1349,7 +1343,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
         continue;
       }
       rq::Expression &string = this->getContext().acquireExpression();
-      string.setKeyword(rq::EntityKind::KW_LEFT_INTERPOLATION_LITERAL);
+      string.setKeyword(rq::Keyword::LEFT_INTERPOLATION_LITERAL);
       string.setSource(token);
       first_ptr = &string;
       previous_ptr = &string;
@@ -1361,7 +1355,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
         continue;
       }
       rq::Expression &string = this->getContext().acquireExpression();
-      string.setKeyword(rq::EntityKind::KW_MIDDLE_INTERPOLATION_LITERAL);
+      string.setKeyword(rq::Keyword::MIDDLE_INTERPOLATION_LITERAL);
       string.setSource(token);
       if (previous_ptr != nullptr) {
         rq::dereferencePtr(previous_ptr).setNext(string);
@@ -1378,7 +1372,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
         continue;
       }
       rq::Expression &string = this->getContext().acquireExpression();
-      string.setKeyword(rq::EntityKind::KW_RIGHT_INTERPOLATION_LITERAL);
+      string.setKeyword(rq::Keyword::RIGHT_INTERPOLATION_LITERAL);
       string.setSource(token);
       if (previous_ptr != nullptr) {
         rq::dereferencePtr(previous_ptr).setNext(string);
@@ -1388,7 +1382,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       }
       previous_ptr = &string;
       rq::Expression &tuple = this->getContext().acquireExpression();
-      tuple.setKeyword(rq::EntityKind::KW_TUPLE);
+      tuple.setKeyword(rq::Keyword::TUPLE);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
       return tuple;
@@ -1409,7 +1403,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
   this->getContext().logErrorUnterminatedInterpolatedString(left_token);
   this->setNotOk();
   rq::Expression &error = this->getContext().acquireExpression();
-  error.setKeyword(rq::EntityKind::KW_ERROR);
+  error.setKeyword(rq::Keyword::ERROR);
   return error;
 }
 

@@ -66,7 +66,7 @@ struct Context final {
   std::string _executable_path;
   llvm::SourceMgr _llvm_source_mgr;
   llvm::TargetMachine *_llvm_target_machine_ptr{nullptr};
-  llvm::StringMap<rq::EntityKind> _kind_map;
+  llvm::StringMap<rq::Keyword> _keyword_map;
   llvm::StringMap<rq::ModuleSymbol *> _module_map;
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
@@ -171,8 +171,8 @@ struct Context final {
   [[nodiscard]] bool validateSourceText(const rq::ModuleSymbol &module);
   [[nodiscard]] bool tokenizeSourceText(const rq::ModuleSymbol &module,
                                         std::vector<rq::Token> &tokens);
-  void initializeKindMap();
-  [[nodiscard]] rq::EntityKind getKeyword(llvm::Twine name);
+  void initializeKeywordMap();
+  [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
   getSourceRange(const rq::Expression &expression);
@@ -242,7 +242,7 @@ struct Context final {
   void logErrorExpectedIdentifierLiteral(const rq::Token &token);
   void logErrorNotKeyword(const rq::Token &token);
   void logErrorInternalUseOnlyKeyword(const rq::Token &token,
-                                      rq::EntityKind keyword);
+                                      rq::Keyword keyword);
   void logErrorUnmatchedRightToken(const rq::Token &left_token,
                                    const rq::Token &right_token);
   void logErrorSoloRightToken(const rq::Token &token);
