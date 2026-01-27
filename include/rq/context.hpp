@@ -481,7 +481,7 @@ struct Context final {
   }
   [[nodiscard]] inline rq::CountedSubtypeSymbol &
   _getOrInsertCountedSubtypeSymbol(rq::EntityKind kind, rq::TypeSymbol &root,
-                                   rq::IntegerConstant &count) {
+                                   unsigned count) {
     llvm::FoldingSetNodeID id;
     rq::profileCountedSubtypeSymbol(id, kind, root, count);
     void *insert_pos = nullptr;
@@ -496,7 +496,7 @@ struct Context final {
     return new_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &
-  acquireArraySymbol(rq::TypeSymbol &root, rq::IntegerConstant& count) {
+  acquireArraySymbol(rq::TypeSymbol &root, unsigned count) {
     return llvm::cast<rq::ArraySymbol>(this->_getOrInsertCountedSubtypeSymbol(
         rq::EntityKind::SY_ARRAY, root, count));
   }
