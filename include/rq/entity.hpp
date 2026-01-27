@@ -579,18 +579,6 @@ enum class EntityKind : std::uint16_t {
   CT_STRING,
   CT_ARRAY,
 
-  // =====OPCODES=====
-
-  // Instructions are built in stage 6 and contain baked instructions, including
-  // evaluations from see (Symbolic Evolution Engine). In stage 7, the
-  // insturctions are then used to build LLVM IR.
-
-  // this is the initial keyword set for expressions. it must be overwritten
-  // later!
-  OP_NONE,
-
-  // TODO
-
   LAST
 };
 
@@ -1546,11 +1534,6 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::CT_ARRAY:
     return "ct_array";
 
-    // =====OPCODES=====
-
-  case E::OP_NONE:
-    return "op_none";
-
   default:
     break;
   }
@@ -1567,7 +1550,6 @@ enum class EntityFlags : std::uint32_t {
   KEYWORD = 0,  // 00
   SYMBOL = 1,   // 01
   CONSTANT = 2, // 10
-  OPCODE = 3,   // 11
   // mask for the low two bits that encode the entity category
   CATEGORY_MASK = (rq::getBit(0) | rq::getBit(1)),
 
@@ -1634,9 +1616,6 @@ enum class EntityFlags : std::uint32_t {
   SY_TOP_OF_FRAME = rq::getBit(23)
 
   // CONSTANT FLAGS
-  // TODO
-
-  // INSTRUCTION FLAGS
   // TODO
 };
 
@@ -2669,10 +2648,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::CT_ARRAY:
     return EF::CONSTANT;
 
-  // INSTRUCTION
-  case E::OP_NONE:
-    return EF::OPCODE;
-
   case E::LAST:
     break;
   }
@@ -2689,26 +2664,12 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::EntityKind kind) {
   const rq::EntityFlags flags = rq::getFlags(kind);
-  using EF = rq::EntityFlags;
-  using Underlying = std::underlying_type_t<EF>;
-  const Underlying masked = rq::getMaskValue(flags, EF::CATEGORY_MASK);
-  return masked == static_cast<Underlying>(EF::SYMBOL);
+  return rq::getHasAll(flags, rq::EntityFlags::SYMBOL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::EntityKind kind) {
   const rq::EntityFlags flags = rq::getFlags(kind);
-  using EF = rq::EntityFlags;
-  using Underlying = std::underlying_type_t<EF>;
-  const Underlying masked = rq::getMaskValue(flags, EF::CATEGORY_MASK);
-  return masked == static_cast<Underlying>(EF::CONSTANT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityKind kind) {
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  using EF = rq::EntityFlags;
-  using Underlying = std::underlying_type_t<EF>;
-  const Underlying masked = rq::getMaskValue(flags, EF::CATEGORY_MASK);
-  return masked == static_cast<Underlying>(EF::OPCODE);
+  return rq::getHasAll(flags, rq::EntityFlags::CONSTANT);
 }
 
 #define RQ_ASSERT_KEYWORD(kind)                                                \
@@ -2719,7 +2680,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 #define RQ_ASSERT_CONSTANT(kind)                                               \
   RQ_ASSERT(rq::getIsConstant((kind)), "not constant")
 
-#define RQ_ASSERT_OPCODE(kind) RQ_ASSERT(rq::getIsOpcode((kind)), "not opcode")
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsParameterMarkKeyword(rq::EntityKind kind) {
@@ -3006,9 +2966,6 @@ struct Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const {
     return rq::getIsConstant(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-    return rq::getIsOpcode(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinitionSymbol() const {
     return this->_kind == rq::EntityKind::SY_TYPE_DEFINITION;
@@ -9096,24 +9053,6 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
     rq::profileArrayConstant(id, this->_elements);
   }
-};
-
-struct Instruction : public rq::Entity {
-  using Self = Instruction;
-
-  rq::Expression *_source_ptr{nullptr};
-  rq::Entity *_a_ptr{nullptr};
-  rq::Entity *_b_ptr{nullptr};
-  rq::Entity *_c_ptr{nullptr};
-  rq::Instruction *_next_ptr{nullptr};
-
-  Instruction() : rq::Entity(rq::EntityKind::OP_NONE) {}
-  Instruction(const Self &) = delete;
-  ~Instruction() override {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-
-  // TODO
 };
 
 } // namespace rq
