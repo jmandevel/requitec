@@ -1877,9 +1877,9 @@ struct CountedSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   friend struct Context;
 
   rq::Symbol *_root_ptr;
-  unsigned _count;
+  std::size_t _count;
 
-  CountedSubtypeSymbol(rq::EntityKind kind, rq::Symbol &root, unsigned count)
+  CountedSubtypeSymbol(rq::EntityKind kind, rq::Symbol &root, std::size_t count)
       : rq::Symbol(kind), _root_ptr(&root), _count(count) {
     RQ_ASSERT(rq::getIsCountedSubtypeSymbol(kind), "not counted subtype");
     RQ_ASSERT(root.getIsTypeSymbol(), "not type");
@@ -1896,7 +1896,7 @@ struct CountedSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
     return rq::dereferencePtr(this->_root_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCount() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getCount() const {
     return this->_count;
   }
 
@@ -3878,7 +3878,7 @@ struct ArraySymbol : public rq::CountedSubtypeSymbol {
   friend struct Context;
 
 private:
-  ArraySymbol(rq::Symbol &root, unsigned count)
+  ArraySymbol(rq::Symbol &root, std::size_t count)
       : rq::CountedSubtypeSymbol(rq::EntityKind::SY_ARRAY, root, count) {}
 
   ArraySymbol(const Self &) = delete;
@@ -3886,15 +3886,6 @@ private:
   virtual ~ArraySymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot() {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCount() const {
-    return this->_count;
-  }
 };
 
 struct LayoutSymbol : public rq::Symbol, public llvm::FoldingSetNode {
