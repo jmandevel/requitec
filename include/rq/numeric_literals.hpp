@@ -29,7 +29,7 @@ inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::SymbolKind kind) {
   RQ_UNREACHABLE();
 }
 
-enum class NumericResult {
+enum class NumericResultCode {
   OK,
   ERROR_EMPTY,
   ERROR_INVALID_DIGIT,
@@ -44,9 +44,9 @@ enum class NumericResult {
 };
 
 [[nodiscard]] constexpr inline llvm::StringRef
-getDescription(rq::NumericResult result) {
+getDescription(rq::NumericResultCode result) {
   using namespace rq;
-  using NR = NumericResult;
+  using NR = NumericResultCode;
   switch (result) {
   case NR::OK:
     return "no error occured";
@@ -78,14 +78,14 @@ static constexpr unsigned MAX_BASE = 64;
 
 static constexpr unsigned MIN_UPPER_BASE = 36;
 
-[[nodiscard]] inline rq::NumericResult
+[[nodiscard]] inline rq::NumericResultCode
 cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
   bool found_decimal = false;
   for (const char c : text) {
     switch (c) {
     case '.':
       if (found_decimal) {
-        return rq::NumericResult::ERROR_MULTIPLE_DECIMAL_POINT;
+        return rq::NumericResultCode::ERROR_MULTIPLE_DECIMAL_POINT;
       }
       found_decimal = true;
       ost_clean += c;
@@ -114,19 +114,19 @@ cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
       ost_clean += c;
       break;
     default:
-      return rq::NumericResult::ERROR_INVALID_DIGIT;
+      return rq::NumericResultCode::ERROR_INVALID_DIGIT;
     }
   }
-  return rq::NumericResult::OK;
+  return rq::NumericResultCode::OK;
 }
 
 template <typename NumericParam>
-[[nodiscard]] inline rq::NumericResult getNumericValue(llvm::StringRef text,
+[[nodiscard]] inline rq::NumericResultCode getNumericValue(llvm::StringRef text,
                                                        NumericParam &ost_term) {
   using Numeric = NumericParam;
   text = text.trim();
   if (text.empty()) {
-    return rq::NumericResult::ERROR_EMPTY;
+    return rq::NumericResultCode::ERROR_EMPTY;
   }
   if constexpr (std::integral<Numeric>) {
     using Unsigned = std::make_unsigned_t<Numeric>;
@@ -146,14 +146,14 @@ template <typename NumericParam>
         max_before_multiply = unsigned_max / max_digit_multiplier;
         max_before_add = unsigned_max - max_digit_multiplier;
         if (base == 0) {
-          return rq::NumericResult::ERROR_ZERO_BASE;
+          return rq::NumericResultCode::ERROR_ZERO_BASE;
         } else if (base > rq::MAX_BASE) {
-          return rq::NumericResult::ERROR_BASE_TOO_BIG;
+          return rq::NumericResultCode::ERROR_BASE_TOO_BIG;
         }
         explicit_base = true;
         digit_found = false;
       } else if (c == '.') {
-        return rq::NumericResult::ERROR_INTEGER_WITH_DECIMAL_POINT;
+        return rq::NumericResultCode::ERROR_INTEGER_WITH_DECIMAL_POINT;
       } else if (c == '_') {
         continue;
       } else {
@@ -164,33 +164,33 @@ template <typename NumericParam>
         const Numeric digit_base_multiplier =
             rq::getDigitBaseMultiplier(lower_c);
         if (digit_base_multiplier >= base) {
-          return rq::NumericResult::ERROR_INVALID_DIGIT;
+          return rq::NumericResultCode::ERROR_INVALID_DIGIT;
         }
         if (unsigned_term > max_before_multiply) {
-          return rq::NumericResult::ERROR_TERM_TOO_BIG;
+          return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term *= base;
         if (unsigned_term > max_before_add) {
-          return rq::NumericResult::ERROR_TERM_TOO_BIG;
+          return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term += digit_base_multiplier;
         digit_found = true;
       }
     }
     if (!digit_found) {
-      return rq::NumericResult::ERROR_NO_DIGITS;
+      return rq::NumericResultCode::ERROR_NO_DIGITS;
     }
     if constexpr (std::signed_integral<Numeric>) {
       if (!explicit_base) {
         const Unsigned signed_max =
             static_cast<Unsigned>(std::numeric_limits<Numeric>::max());
         if (unsigned_term > signed_max) {
-          return rq::NumericResult::ERROR_TERM_TOO_BIG;
+          return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
       }
     }
     ost_term = std::bit_cast<Numeric>(unsigned_term);
-    return rq::NumericResult::OK;
+    return rq::NumericResultCode::OK;
   } else if constexpr (std::same_as<Numeric, llvm::APInt>) {
     const unsigned bit_depth = ost_term.getBitWidth();
     llvm::APInt max_base = llvm::APInt(bit_depth, rq::MAX_BASE);
@@ -211,14 +211,14 @@ template <typename NumericParam>
         max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
         max_before_add = unsigned_max - max_digit_multiplier;
         if (base == 0) {
-          return rq::NumericResult::ERROR_ZERO_BASE;
+          return rq::NumericResultCode::ERROR_ZERO_BASE;
         } else if (base.ugt(max_base)) {
-          return rq::NumericResult::ERROR_BASE_TOO_BIG;
+          return rq::NumericResultCode::ERROR_BASE_TOO_BIG;
         }
         explicit_base = true;
         digit_found = false;
       } else if (c == '.') {
-        return rq::NumericResult::ERROR_INTEGER_WITH_DECIMAL_POINT;
+        return rq::NumericResultCode::ERROR_INTEGER_WITH_DECIMAL_POINT;
       } else if (c == '_') {
         continue;
       } else {
@@ -229,24 +229,24 @@ template <typename NumericParam>
         const llvm::APInt digit_base_multiplier =
             llvm::APInt(bit_depth, rq::getDigitBaseMultiplier(lower_c));
         if (digit_base_multiplier.uge(base)) {
-          return rq::NumericResult::ERROR_INVALID_DIGIT;
+          return rq::NumericResultCode::ERROR_INVALID_DIGIT;
         }
         if (unsigned_term.ugt(max_before_multiply)) {
-          return rq::NumericResult::ERROR_TERM_TOO_BIG;
+          return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term *= base;
         if (unsigned_term.ugt(max_before_add)) {
-          return rq::NumericResult::ERROR_TERM_TOO_BIG;
+          return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term += digit_base_multiplier;
         digit_found = true;
       }
     }
     if (!digit_found) {
-      return rq::NumericResult::ERROR_NO_DIGITS;
+      return rq::NumericResultCode::ERROR_NO_DIGITS;
     }
     ost_term = unsigned_term;
-    return rq::NumericResult::OK;
+    return rq::NumericResultCode::OK;
   } else if constexpr (std::floating_point<Numeric>) {
     llvm::SmallString<16> clean_text;
     std::ignore = rq::cleanFloatText(text, clean_text);
@@ -257,12 +257,12 @@ template <typename NumericParam>
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::NumericResult
+[[nodiscard]] inline rq::NumericResultCode
 getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
                 rq::SymbolKind semantics) {
   llvm::SmallString<16> buffer;
-  rq::NumericResult result = rq::cleanFloatText(text, buffer);
-  if (result != rq::NumericResult::OK) {
+  rq::NumericResultCode result = rq::cleanFloatText(text, buffer);
+  if (result != rq::NumericResultCode::OK) {
     return result;
   }
   const llvm::fltSemantics &llvm_semantics =
