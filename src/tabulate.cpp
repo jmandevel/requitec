@@ -182,7 +182,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
   }
 }
 
-rq::TypeDefinitionSymbol &Tabulator::resolveType(rq::Expression &expression) {
+rq::ResolveTypeResult Tabulator::resolveType(rq::Expression &expression) {
   //const bool ascribed =
   //    expression.getKeyword() == rq::Keyword::ASCRIBE_TYPE;
   //rq::Expression &type = ascribed ? expression.getBranch() : expression;

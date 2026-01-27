@@ -14,6 +14,31 @@ struct ModuleSymbol;
 struct Expression;
 struct SymbolTableSymbol;
 
+enum class ResolveTypeResultCode {
+  OK_CONCRETE,
+  OK_GENERIC,
+  ERROR_NOT_TYPE
+};
+
+struct ResolveTypeResult final {
+  using Self = ResolveTypeResult;
+
+  rq::ResolveTypeResultCode _code;
+  rq::TypeDefinitionSymbol* _type_ptr;
+
+  ResolveTypeResult(rq::ResolveTypeResultCode code, rq::TypeDefinitionSymbol& type) 
+    : _code(code), _type_ptr(&type) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResolveTypeResultCode getCode() const {
+    return this->_code;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeDefinitionSymbol &getTypeDefinition() const {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeDefinitionSymbol &getTypeDefinition() {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
+};
+
 struct Tabulator final {
   using Self = rq::Tabulator;
 
@@ -118,7 +143,7 @@ struct Tabulator final {
   void tabulateModule();
   void tabulateEntry(rq::EntrySymbol &entry);
   void tabulateForest(rq::Expression &first, rq::SymbolTableSymbol &scope);
-  [[nodiscard]] rq::TypeDefinitionSymbol &resolveType(rq::Expression& expression);
+  [[nodiscard]] rq::ResolveTypeResult resolveType(rq::Expression& expression);
   [[nodiscard]] llvm::StringRef evaluateName(rq::Expression &expression);
 
 };
