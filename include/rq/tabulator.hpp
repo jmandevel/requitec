@@ -119,7 +119,9 @@ struct Tabulator final {
   void tabulateModule();
   void tabulateEntry(rq::EntrySymbol &entry);
   void tabulateForest(rq::Expression &first, rq::SymbolTableSymbol &scope);
+  [[nodiscard]] rq::TypeDefinitionSymbol &resolveType(rq::Expression& expression);
   [[nodiscard]] llvm::StringRef evaluateName(rq::Expression &expression);
+
 };
 
 } // namespace rq

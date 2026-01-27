@@ -14,16 +14,16 @@ void Tabulator::tabulateModule() {
   this->tabulateForest(trunk.getBranch(), this->getContext().getTopScope());
 }
 
-void Tabulator::tabulateEntry(rq::EntrySymbol& entry) {
+void Tabulator::tabulateEntry(rq::EntrySymbol &entry) {
   RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
   this->setIsStarted();
   this->setIsBuildingInstructions();
   this->setResultKeyword(rq::EntityKind::KW_EXIT_CODE);
   this->setHighestSymbolTable(entry);
-  rq::Expression& trunk = entry.getExpression();
+  rq::Expression &trunk = entry.getExpression();
   if (!trunk.getHasBranch()) {
     return;
-  } 
+  }
   this->tabulateForest(trunk.getBranch(), entry);
 }
 
@@ -182,8 +182,43 @@ void Tabulator::tabulateForest(rq::Expression &first,
   }
 }
 
-[[nodiscard]] llvm::StringRef
-Tabulator::evaluateName(rq::Expression &expression) {
+rq::TypeDefinitionSymbol &Tabulator::resolveType(rq::Expression &expression) {
+  //const bool ascribed =
+  //    expression.getKeyword() == rq::EntityKind::KW_ASCRIBE_TYPE;
+  //rq::Expression &type = ascribed ? expression.getBranch() : expression;
+  // rq::TypeAttributeFlagsFactory flags_factory;
+  using E = rq::EntityKind;
+  switch (expression.getKeyword()) {
+  case E::KW_IDENTIFIER_LITERAL:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_ARRAY:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_REFERENCE:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_POINTER:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_FAT_POINTER:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_LAYOUT_TYPE:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_NULL_TYPE:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_SIGNATURE_TYPE:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_INFERENCE:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_VOID:
+    RQ_TODO_IMPLEMENTATION();
+  case E::KW_NO_RETURN:
+    RQ_TODO_IMPLEMENTATION();
+  // etc
+  default:
+    break;
+  }
+  RQ_TODO_IMPLEMENTATION();
+}
+
+llvm::StringRef Tabulator::evaluateName(rq::Expression &expression) {
   if (expression.getKeyword() == rq::EntityKind::KW_IDENTIFIER_LITERAL) {
     return expression.getSourceText();
   } else if (expression.getKeyword() == rq::EntityKind::KW_IDENTIFY) {
