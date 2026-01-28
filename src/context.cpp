@@ -988,6 +988,12 @@ void Context::logErrorUnexpectedChainLinkExpression(
                    {expresison.getLlvmSourceRange()}, {});
 }
 
+void Context::logErrorNotDeterminateStaticValue(const rq::Expression &expression) {
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " is not determinate static value",
+                   {expresison.getLlvmSourceRange()}, {});
+}
+
 rq::Expression &Context::acquireExpression() {
   if (this->_unused_expression_ptrs.empty()) {
     rq::Expression &new_expression = this->allocateValue<rq::Expression>();

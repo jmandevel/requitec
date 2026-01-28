@@ -278,6 +278,7 @@ struct Context final {
   void logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
   void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
+  void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
   template <typename TypeParam, typename... ArgNParam>
   inline TypeParam &allocateValue(ArgNParam &&...arg_n) {
     TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
