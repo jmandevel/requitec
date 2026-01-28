@@ -43,7 +43,7 @@ enum class EntityKind : std::uint16_t {
   SY_INFERENCE,
   SY_EXPRESSION,
   SY_ENTITY_KIND,
-  SY_GENERIC_TYPE,
+  SY_TYPE_TYPE,
   SY_GENERIC_SYMBOL,
   SY_VOID,
   SY_NULL,
@@ -235,8 +235,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_expression";
   case E::SY_ENTITY_KIND:
     return "sy_entity_kind";
-  case E::SY_GENERIC_TYPE:
-    return "sy_generic_type";
+  case E::SY_TYPE_TYPE:
+    return "sy_type_type";
   case E::SY_GENERIC_SYMBOL:
     return "sy_generic_symbol";
   case E::SY_VOID:
@@ -596,8 +596,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_ENTITY_KIND:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_GENERIC_TYPE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_TYPE_TYPE:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_GENERIC_SYMBOL:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_VOID:
@@ -1235,8 +1235,8 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntityKindSymbol() const {
     return this->_kind == rq::EntityKind::SY_ENTITY_KIND;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericTypeSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_TYPE;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeTypeSymbol() const {
+    return this->_kind == rq::EntityKind::SY_TYPE_TYPE;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbolSymbol() const {
     return this->_kind == rq::EntityKind::SY_GENERIC_SYMBOL;
