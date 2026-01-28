@@ -982,10 +982,10 @@ void Context::logErrorExpectedChainLinkExpression(
 }
 
 void Context::logErrorUnexpectedChainLinkExpression(
-    const rq::Expression &expresison) {
-  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is chain-link",
-                   {expresison.getLlvmSourceRange()}, {});
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is chain-link",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotDeterminateStaticValue(const rq::Expression &expression) {
