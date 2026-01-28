@@ -5253,19 +5253,120 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
 };
 
 struct Instruction;
+struct InstructionNode;
+
+struct InstructionSlot final {
+  using Self = InstructionSlot;
+
+  llvm::PointerUnion<rq::Entity *, rq::InstructionNode *, rq::Instruction *>
+      _data{};
+
+  InstructionSlot() = default;
+  explicit InstructionSlot(rq::Entity &entity) : _data{&entity} {}
+  explicit InstructionSlot(rq::InstructionNode &node) : _data(&node) {}
+  explicit InstructionSlot(rq::Instruction &instruction)
+      : _data(&instruction) {}
+  ~InstructionSlot() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
+    return this->_data.isNull();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntity() const {
+    return llvm::isa<rq::Entity *>(this->_data);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstructionNode() const {
+    return llvm::isa<rq::InstructionNode *>(this->_data);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
+    return llvm::isa<rq::Instruction *>(this->_data);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
+    return rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
+    return rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNode &getInstructionNode() {
+    return rq::dereferencePtr(llvm::cast<rq::InstructionNode *>(this->_data));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNode &
+  getInstructionNode() const {
+    return rq::dereferencePtr(
+        llvm::cast<rq::InstructionNode *>(this->_data));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
+    return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const {
+    return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
+  }
+  inline void clear() {
+    this->_data = nullptr;
+  }
+};
 
 struct InstructionNode final {
   using Self = rq::InstructionNode;
 
-  llvm::PointerUnion<rq::Entity*, rq::InstructionNode*, rq::Instruction*> _car{};
-  llvm::PointerUnion<rq::Entity*, rq::InstructionNode*, rq::Instruction*> _cdr{};
-  
+  rq::InstructionSlot _car{};
+  rq::InstructionSlot _cdr{};
+
+  InstructionNode() = default;
+  InstructionNode(const Self &) = delete;
+  InstructionNode(Self &&) = delete;
+  ~InstructionNode() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCar() {
+    return this->_car;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCar() const {
+    return this->_car;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr() {
+    return this->_cdr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCdr() const {
+    return this->_cdr;
+  }
+  inline void clear() {
+    this->_car.clear();
+    this->_cdr.clear();
+  }
 };
 
 struct Instruction final : public rq::Entity {
   using Self = rq::Instruction;
 
-  llvm::PointerUnion<rq::Entity*, rq::InstructionNode*, rq::Instruction*> _cdr{};
+  rq::InstructionSlot _cdr;
+
+  Instruction() : rq::Entity(rq::EntityKind::OP_NONE) {}
+  Instruction(const Self &) = delete;
+  Instruction(Self &&) = delete;
+  ~Instruction() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  RQ_ALWAYS_INLINE void setOpcode(rq::EntityKind opcode) {
+    RQ_ASSERT_OPCODE(opcode);
+    RQ_ASSERT(this->getKind() == rq::EntityKind::OP_NONE, "opcode already set");
+    this->_kind = opcode;
+  }
+  RQ_ALWAYS_INLINE void changeOpcode(rq::EntityKind opcode) {
+    RQ_ASSERT_OPCODE(opcode);
+    RQ_ASSERT(this->getKind() != rq::EntityKind::OP_NONE, "opcode not already set");
+    this->_kind = opcode;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr() {
+    return this->_cdr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCdr() const {
+    return this->_cdr;
+  }
+  inline void clear() {
+    this->_kind = rq::EntityKind::OP_NONE;
+    this->_cdr.clear();
+  }
 };
 
 } // namespace rq

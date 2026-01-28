@@ -77,6 +77,8 @@ struct Context final {
   llvm::BumpPtrAllocator _llvm_arena{};
   llvm::StringSaver _llvm_string_saver{_llvm_arena};
   std::vector<rq::Expression *> _unused_expression_ptrs{};
+  std::vector<rq::Instruction *> _unused_instruction_ptrs{};
+  std::vector<rq::InstructionNode *> _unused_instruction_node_ptrs{};
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
   rq::InferenceSymbol *_inference_symbol{nullptr};
   rq::ExpressionSymbol *_expression_symbol{nullptr};
@@ -598,6 +600,26 @@ struct Context final {
     this->_array_constants.InsertNode(&c, insert_pos);
     return c;
   }
+  inline void discardInstruction(rq::Instruction &instruction);
+  inline void discardInstructionNode(rq::InstructionNode &node);
+  inline void _discardInstructionSlot(rq::InstructionSlot &slot) {
+    if (slot.getIsInstruction()) {
+      this->discardInstruction(slot.getInstruction());
+    } else if (slot.getIsInstructionNode()) {
+      this->discardInstructionNode(slot.getInstructionNode());
+    }
+  }
+  [[nodiscard]] rq::InstructionNode &acquireInstructionNode();
+  [[nodiscard]] rq::Instruction &acquireInstruction();
 };
+inline void Context::discardInstructionNode(rq::InstructionNode &node) {
+  this->_discardInstructionSlot(node.getCar());
+  this->_discardInstructionSlot(node.getCdr());
+  this->_unused_instruction_node_ptrs.emplace_back(&node);
+}
+inline void Context::discardInstruction(rq::Instruction &instruction) {
+  this->_discardInstructionSlot(instruction.getCdr());
+  this->_unused_instruction_ptrs.emplace_back(&instruction);
+}
 
 } // namespace rq

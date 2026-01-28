@@ -1018,4 +1018,28 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
   return new_expression;
 }
 
+rq::InstructionNode &Context::acquireInstructionNode() {
+  if (this->_unused_instruction_node_ptrs.empty()) {
+    rq::InstructionNode &new_node = this->allocateValue<rq::InstructionNode>();
+    return new_node;
+  }
+  rq::InstructionNode &unused_node =
+      rq::dereferencePtr(this->_unused_instruction_node_ptrs.back());
+  this->_unused_instruction_node_ptrs.pop_back();
+  unused_node.clear();
+  return unused_node;
+}
+
+rq::Instruction &Context::acquireInstruction() {
+  if (this->_unused_instruction_ptrs.empty()) {
+    rq::Instruction &new_instruction = this->allocateValue<rq::Instruction>();
+    return new_instruction;
+  }
+  rq::Instruction &unused_instruction =
+      rq::dereferencePtr(this->_unused_instruction_ptrs.back());
+  this->_unused_instruction_ptrs.pop_back();
+  unused_instruction.clear();
+  return unused_instruction;
+}
+
 } // namespace rq
