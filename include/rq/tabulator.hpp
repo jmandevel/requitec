@@ -15,6 +15,12 @@ struct ModuleSymbol;
 struct Expression;
 struct SymbolTableSymbol;
 
+struct FullDeductionResult final {};
+
+struct PartialDeductionResult final {};
+
+struct SubstitutionResult final {};
+
 enum class EvaluationResultCode {
   OK_CONCRETE,
   OK_GENERIC,
@@ -27,10 +33,10 @@ struct EvaluationResult final {
   using Self = EvaluationResult;
 
   rq::EvaluationResultCode _code;
-  rq::Entity* _entity_ptr;
+  rq::Entity *_entity_ptr;
 
-  EvaluationResult(rq::EvaluationResultCode code, rq::Entity& entity) 
-    : _code(code), _entity_ptr(&entity) {}
+  EvaluationResult(rq::EvaluationResultCode code, rq::Entity &entity)
+      : _code(code), _entity_ptr(&entity) {}
   EvaluationResult(rq::EvaluationResultCode code) : _code(code) {}
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationResultCode getCode() const {
     return this->_code;
@@ -147,16 +153,26 @@ struct Tabulator final {
     return this->getLowestSymbolTable() != this->getHighestSymbolTable();
   }
   RQ_ALWAYS_INLINE void ascendLowestSymbolTable() {
-    RQ_ASSERT(this->getCanAscendLowestSymbolTable(), "lowest is already highest");
-    this->_lowest_symbol_table_ptr = &this->getLowestSymbolTable().getContainingSymbolTable();
+    RQ_ASSERT(this->getCanAscendLowestSymbolTable(),
+              "lowest is already highest");
+    this->_lowest_symbol_table_ptr =
+        &this->getLowestSymbolTable().getContainingSymbolTable();
   }
   void tabulateModule();
   void tabulateEntry(rq::EntrySymbol &entry);
   void tabulateForest(rq::Expression &first, rq::SymbolTableSymbol &scope);
-  [[nodiscard]] rq::EvaluationResult evaluateValue(rq::Expression& expression);
-  [[nodiscard]] rq::Entity* evaluateType(rq::Expression& expression);
-  [[nodiscard]] std::optional<llvm::StringRef> evaluateName(rq::Expression &expression);
-
+  [[nodiscard]] rq::FullDeductionResult
+  deduceFullTypeOfValue(rq::Expression &expression);
+  [[nodiscard]] rq::PartialDeductionResult
+  deducePartialTypeOfValue(rq::Entity &partial_type,
+                           rq::Expression &expression);
+  [[nodiscard]] rq::SubstitutionResult
+  substituteTypeOfValue(rq::Entity &type, rq::Expression &expression);
+  [[nodiscard]] rq::EvaluationResult evaluateValue(rq::Entity &type,
+                                                   rq::Expression &expression);
+  [[nodiscard]] rq::Entity *evaluateType(rq::Expression &expression);
+  [[nodiscard]] std::optional<llvm::StringRef>
+  evaluateName(rq::Expression &expression);
 };
 
 } // namespace rq

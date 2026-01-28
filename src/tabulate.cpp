@@ -183,7 +183,30 @@ void Tabulator::tabulateForest(rq::Expression &first,
   }
 }
 
-rq::EvaluationResult Tabulator::evaluateValue(rq::Expression &expression) {
+rq::FullDeductionResult
+Tabulator::deduceFullTypeOfValue(rq::Expression &expression) {
+  std::ignore = expression;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+rq::PartialDeductionResult
+Tabulator::deducePartialTypeOfValue(rq::Entity &partial_type,
+                                    rq::Expression &expression) {
+  std::ignore = partial_type;
+  std::ignore = expression;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+rq::SubstitutionResult
+Tabulator::substituteTypeOfValue(rq::Entity &type, rq::Expression &expression) {
+  std::ignore = type;
+  std::ignore = expression;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+rq::EvaluationResult Tabulator::evaluateValue(rq::Entity &type,
+                                              rq::Expression &expression) {
+  std::ignore = type;
   std::ignore = expression;
   RQ_TODO_IMPLEMENTATION();
 }
@@ -193,20 +216,7 @@ Tabulator::evaluateName(rq::Expression &expression) {
   if (expression.getKeyword() == rq::Keyword::IDENTIFIER_LITERAL) {
     return expression.getSourceText();
   } else if (expression.getKeyword() == rq::Keyword::IDENTIFY) {
-    rq::Expression &branch = expression.getBranch();
-    rq::EvaluationResult result = this->evaluateValue(branch);
-    if (!result.getIsDeterminiteStaticValue()) {
-      this->getContext().logErrorNotDeterminateStaticValue(branch);
-      return std::nullopt;
-    }
-    rq::Entity &entity = result.getEntity();
-    if (entity.getIsStringConstant()) {
-      rq::StringConstant &string =
-          llvm::cast<rq::StringConstant>(entity);
-      return string.getValue();
-    } else if (entity.getIsStaticVariableSymbol()) {
-      RQ_TODO_IMPLEMENTATION();
-    }
+    RQ_TODO_IMPLEMENTATION();
   }
   RQ_UNREACHABLE();
 }
