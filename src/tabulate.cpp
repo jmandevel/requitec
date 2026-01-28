@@ -2,6 +2,8 @@
 #include <rq/tabulator.hpp>
 #include <rq/utility.hpp>
 
+#include <optional>
+
 namespace rq {
 
 void Tabulator::tabulateModule() {
@@ -30,8 +32,7 @@ void Tabulator::tabulateEntry(rq::EntrySymbol &entry) {
 void Tabulator::tabulateForest(rq::Expression &first,
                                rq::SymbolTableSymbol &scope) {
   for (rq::Expression &branch : first.getInclusiveNextSubrange()) {
-    const bool ascribed =
-        branch.getKeyword() == rq::Keyword::ASCRIBE_STATEMENT;
+    const bool ascribed = branch.getKeyword() == rq::Keyword::ASCRIBE_STATEMENT;
     rq::Expression &statement = ascribed ? branch.getBranch() : branch;
     rq::ExpressionAttributeFlagsFactory flags_factory;
     std::ignore = scope;
@@ -63,7 +64,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::DynamicVariableSymbol &variable =
           this->getContext().allocateValue<rq::DynamicVariableSymbol>(
               statement, this->getModule(), scope, name,
@@ -75,7 +76,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::TableSymbol &table =
           this->getContext().allocateValue<rq::TableSymbol>(name);
       scope.tabulateNamedSymbol(this->getContext(), name, table);
@@ -85,7 +86,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::ClassSymbol &class_ =
           this->getContext().allocateValue<rq::ClassSymbol>(
               statement, this->getModule(), scope, name,
@@ -97,7 +98,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::EnumerationSymbol &enumeration =
           this->getContext().allocateValue<rq::EnumerationSymbol>(
               statement, this->getModule(), scope, name,
@@ -115,7 +116,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::FunctionSymbol &function =
           this->getContext().allocateValue<rq::FunctionSymbol>(
               statement, this->getModule(), scope, name,
@@ -127,7 +128,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::MethodSymbol &method =
           this->getContext().allocateValue<rq::MethodSymbol>(
               statement, this->getModule(), scope, name,
@@ -139,7 +140,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::ExtensionFunctionSymbol &extension_function =
           this->getContext().allocateValue<rq::ExtensionFunctionSymbol>(
               statement, this->getModule(), scope, name,
@@ -151,7 +152,7 @@ void Tabulator::tabulateForest(rq::Expression &first,
       if (!path.getIsEvaluatableName()) {
         RQ_TODO_IMPLEMENTATION();
       }
-      llvm::StringRef name = this->evaluateName(path);
+      llvm::StringRef name = this->evaluateName(path).value();
       rq::ExtensionMethodSymbol &extension_method =
           this->getContext().allocateValue<rq::ExtensionMethodSymbol>(
               statement, this->getModule(), scope, name,
@@ -182,47 +183,30 @@ void Tabulator::tabulateForest(rq::Expression &first,
   }
 }
 
-rq::ResolveTypeResult Tabulator::resolveType(rq::Expression &expression) {
-  //const bool ascribed =
-  //    expression.getKeyword() == rq::Keyword::ASCRIBE_TYPE;
-  //rq::Expression &type = ascribed ? expression.getBranch() : expression;
-  // rq::TypeAttributeFlagsFactory flags_factory;
-  using K = rq::Keyword;
-  switch (expression.getKeyword()) {
-  case K::IDENTIFIER_LITERAL:
-    RQ_TODO_IMPLEMENTATION();
-  case K::ARRAY:
-    RQ_TODO_IMPLEMENTATION();
-  case K::REFERENCE:
-    RQ_TODO_IMPLEMENTATION();
-  case K::POINTER:
-    RQ_TODO_IMPLEMENTATION();
-  case K::FAT_POINTER:
-    RQ_TODO_IMPLEMENTATION();
-  case K::LAYOUT_TYPE:
-    RQ_TODO_IMPLEMENTATION();
-  case K::NULL_TYPE:
-    RQ_TODO_IMPLEMENTATION();
-  case K::SIGNATURE_TYPE:
-    RQ_TODO_IMPLEMENTATION();
-  case K::INFERENCE:
-    RQ_TODO_IMPLEMENTATION();
-  case K::VOID:
-    RQ_TODO_IMPLEMENTATION();
-  case K::NO_RETURN:
-    RQ_TODO_IMPLEMENTATION();
-  // etc
-  default:
-    break;
-  }
+rq::EvaluationResult Tabulator::evaluateValue(rq::Expression &expression) {
+  std::ignore = expression;
   RQ_TODO_IMPLEMENTATION();
 }
 
-llvm::StringRef Tabulator::evaluateName(rq::Expression &expression) {
+std::optional<llvm::StringRef>
+Tabulator::evaluateName(rq::Expression &expression) {
   if (expression.getKeyword() == rq::Keyword::IDENTIFIER_LITERAL) {
     return expression.getSourceText();
   } else if (expression.getKeyword() == rq::Keyword::IDENTIFY) {
-    RQ_TODO_IMPLEMENTATION();
+    rq::Expression &branch = expression.getBranch();
+    rq::EvaluationResult result = this->evaluateValue(branch);
+    if (!result.getIsDeterminiteStaticValue()) {
+      this->getContext().logErrorNotDeterminateStaticValue(branch);
+      return std::nullopt;
+    }
+    rq::Entity &entity = result.getEntity();
+    if (entity.getIsStringConstant()) {
+      rq::StringConstant &string =
+          llvm::cast<rq::StringConstant>(entity);
+      return string.getValue();
+    } else if (entity.getIsStaticVariableSymbol()) {
+      RQ_TODO_IMPLEMENTATION();
+    }
   }
   RQ_UNREACHABLE();
 }

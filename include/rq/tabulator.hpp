@@ -6,6 +6,7 @@
 #include <llvm/ADT/StringRef.h>
 
 #include <functional>
+#include <optional>
 
 namespace rq {
 
@@ -14,28 +15,37 @@ struct ModuleSymbol;
 struct Expression;
 struct SymbolTableSymbol;
 
-enum class ResolveTypeResultCode {
+enum class EvaluationResultCode {
   OK_CONCRETE,
   OK_GENERIC,
-  ERROR_NOT_TYPE
+  OK_DETERMINATE_STATIC_VALUE,
+  ERROR_NOT_TYPE,
+  ERROR_INVALID_COUNT
 };
 
-struct ResolveTypeResult final {
-  using Self = ResolveTypeResult;
+struct EvaluationResult final {
+  using Self = EvaluationResult;
 
-  rq::ResolveTypeResultCode _code;
-  rq::TypeDefinitionSymbol* _type_ptr;
+  rq::EvaluationResultCode _code;
+  rq::Entity* _entity_ptr;
 
-  ResolveTypeResult(rq::ResolveTypeResultCode code, rq::TypeDefinitionSymbol& type) 
-    : _code(code), _type_ptr(&type) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResolveTypeResultCode getCode() const {
+  EvaluationResult(rq::EvaluationResultCode code, rq::Entity& entity) 
+    : _code(code), _entity_ptr(&entity) {}
+  EvaluationResult(rq::EvaluationResultCode code) : _code(code) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationResultCode getCode() const {
     return this->_code;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeDefinitionSymbol &getTypeDefinition() const {
-    return rq::dereferencePtr(this->_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEntity() const {
+    return this->_entity_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeDefinitionSymbol &getTypeDefinition() {
-    return rq::dereferencePtr(this->_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
+    return rq::dereferencePtr(this->_entity_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
+    return rq::dereferencePtr(this->_entity_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDeterminiteStaticValue() const {
+    return this->_code == rq::EvaluationResultCode::OK_DETERMINATE_STATIC_VALUE;
   }
 };
 
@@ -143,8 +153,9 @@ struct Tabulator final {
   void tabulateModule();
   void tabulateEntry(rq::EntrySymbol &entry);
   void tabulateForest(rq::Expression &first, rq::SymbolTableSymbol &scope);
-  [[nodiscard]] rq::ResolveTypeResult resolveType(rq::Expression& expression);
-  [[nodiscard]] llvm::StringRef evaluateName(rq::Expression &expression);
+  [[nodiscard]] rq::EvaluationResult evaluateValue(rq::Expression& expression);
+  [[nodiscard]] rq::Entity* evaluateType(rq::Expression& expression);
+  [[nodiscard]] std::optional<llvm::StringRef> evaluateName(rq::Expression &expression);
 
 };
 

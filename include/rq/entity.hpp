@@ -1,10 +1,10 @@
 #pragma once
 
+#include <rq/ast.hpp>
 #include <rq/bump_ptr_list.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/see.hpp>
 #include <rq/utility.hpp>
-#include <rq/ast.hpp>
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
@@ -155,6 +155,59 @@ enum class EntityKind : std::uint16_t {
   CT_FLOAT,
   CT_STRING,
   CT_ARRAY,
+
+  // =====OPCODES=====
+
+  OP_NONE,
+
+  OP_LOGICAL_AND,
+  OP_LOGICAL_OR,
+  OP_LOGICAL_COMPLEMENT,
+
+  OP_GREATER,
+  OP_GREATER_EQUAL,
+  OP_LESS,
+  OP_LESS_EQUAL,
+  OP_EQUAL,
+  OP_NOT_EQUAL,
+
+  OP_ADD,
+  OP_SUBTRACT,
+  OP_MULTIPLY,
+  OP_DIVIDE,
+  OP_MODULUS,
+  OP_NEGATE,
+
+  OP_CAST,
+
+  OP_BITWISE_AND,
+  OP_BITWISE_OR,
+  OP_BITWISE_XOR,
+  OP_BITWISE_COMPLEMENT,
+  OP_BITWISE_SHIFT_LEFT,
+  OP_BITWISE_SHIFT_RIGHT,
+  OP_BITWISE_ROTATE_LEFT,
+  OP_BITWISE_ROTATE_RIGHT,
+
+  OP_CONTENT_OF,
+  OP_ADDRESS_OF,
+  OP_CALL,
+  OP_DROP,
+  OP_MOVE,
+  OP_COPY,
+
+  OP_RETURN,
+  OP_GOTO,
+  OP_CONDITION,
+
+  OP_LOOP_SEQUENCE,
+  OP_LOOP_ELEMENTS,
+  OP_LOOP_RANGER,
+
+  OP_PANIC_TRAP,
+  OP_DEBUG_TRAP,
+  OP_UNREACHABLE,
+  OP_ASSUME,
 
   LAST
 };
@@ -382,6 +435,97 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::CT_ARRAY:
     return "ct_array";
 
+  case E::OP_NONE:
+    return "op_none";
+  case E::OP_LOGICAL_AND:
+    return "op_logical_and";
+  case E::OP_LOGICAL_OR:
+    return "op_logical_or";
+  case E::OP_LOGICAL_COMPLEMENT:
+    return "op_logical_complement";
+
+  case E::OP_GREATER:
+    return "op_greater";
+  case E::OP_GREATER_EQUAL:
+    return "op_greater_equal";
+  case E::OP_LESS:
+    return "op_less";
+  case E::OP_LESS_EQUAL:
+    return "op_less_equal";
+  case E::OP_EQUAL:
+    return "op_equal";
+  case E::OP_NOT_EQUAL:
+    return "op_not_equal";
+
+  case E::OP_ADD:
+    return "op_add";
+  case E::OP_SUBTRACT:
+    return "op_subtract";
+  case E::OP_MULTIPLY:
+    return "op_multiply";
+  case E::OP_DIVIDE:
+    return "op_divide";
+  case E::OP_MODULUS:
+    return "op_modulus";
+  case E::OP_NEGATE:
+    return "op_negate";
+
+  case E::OP_CAST:
+    return "op_cast";
+
+  case E::OP_BITWISE_AND:
+    return "op_bitwise_and";
+  case E::OP_BITWISE_OR:
+    return "op_bitwise_or";
+  case E::OP_BITWISE_XOR:
+    return "op_bitwise_xor";
+  case E::OP_BITWISE_COMPLEMENT:
+    return "op_bitwise_complement";
+  case E::OP_BITWISE_SHIFT_LEFT:
+    return "op_bitwise_shift_left";
+  case E::OP_BITWISE_SHIFT_RIGHT:
+    return "op_bitwise_shift_right";
+  case E::OP_BITWISE_ROTATE_LEFT:
+    return "op_bitwise_rotate_left";
+  case E::OP_BITWISE_ROTATE_RIGHT:
+    return "op_bitwise_rotate_right";
+
+  case E::OP_CONTENT_OF:
+    return "op_content_of";
+  case E::OP_ADDRESS_OF:
+    return "op_address_of";
+  case E::OP_CALL:
+    return "op_call";
+  case E::OP_DROP:
+    return "op_drop";
+  case E::OP_MOVE:
+    return "op_move";
+  case E::OP_COPY:
+    return "op_copy";
+
+  case E::OP_RETURN:
+    return "op_return";
+  case E::OP_GOTO:
+    return "op_goto";
+  case E::OP_CONDITION:
+    return "op_condition";
+
+  case E::OP_LOOP_SEQUENCE:
+    return "op_loop_sequence";
+  case E::OP_LOOP_ELEMENTS:
+    return "op_loop_elements";
+  case E::OP_LOOP_RANGER:
+    return "op_loop_ranger";
+
+  case E::OP_PANIC_TRAP:
+    return "op_panic_trap";
+  case E::OP_DEBUG_TRAP:
+    return "op_debug_trap";
+  case E::OP_UNREACHABLE:
+    return "op_unreachable";
+  case E::OP_ASSUME:
+    return "op_assume";
+
   default:
     break;
   }
@@ -397,6 +541,7 @@ enum class EntityFlags : std::uint32_t {
   // category.
   SYMBOL = rq::getBit(0),
   CONSTANT = rq::getBit(1),
+  NOT_OPCODE_MASK = (rq::getBit(0) | rq::getBit(1)),
 
   // SYMBOL FLAGS
   // these flags are valid only when working with symbols
@@ -687,11 +832,12 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::CONSTANT;
   case E::CT_ARRAY:
     return EF::CONSTANT;
-
-  case E::LAST:
+  default:
     break;
   }
-  RQ_UNREACHABLE();
+  RQ_ASSERT(rq::getUnderlying(kind) < rq::getUnderlying(rq::EntityKind::LAST),
+            "out of range");
+  return EF::NONE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::EntityKind kind) {
@@ -704,10 +850,18 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::EntityFlags::CONSTANT);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityKind kind) {
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasNone(flags, rq::EntityFlags::NOT_OPCODE_MASK);
+}
+
 #define RQ_ASSERT_SYMBOL(kind) RQ_ASSERT(rq::getIsSymbol((kind)), "not symbol")
 
 #define RQ_ASSERT_CONSTANT(kind)                                               \
   RQ_ASSERT(rq::getIsConstant((kind)), "not constant")
+
+#define RQ_ASSERT_OPCODE(opcode)                                               \
+  RQ_ASSERT(rq::getIsOpcode(opcode), "not opcode")
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsSimpleBuiltinSymbol(rq::EntityKind kind) {
@@ -849,7 +1003,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_TOP_OF_FRAME);
 }
-
 
 [[nodiscard]] inline rq::EntityKind getTemplate(rq::EntityKind kind) {
   using namespace rq;
@@ -1063,6 +1216,9 @@ struct Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const {
     return rq::getIsConstant(this->_kind);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
+    return rq::getIsOpcode(this->_kind);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinitionSymbol() const {
     return this->_kind == rq::EntityKind::SY_TYPE_DEFINITION;
@@ -1617,6 +1773,11 @@ struct PartialMethodSymbol;
 struct PartialExtensionFunctionSymbol;
 struct PartialExtensionMethodSymbol;
 struct PartialConstructorSymbol;
+
+struct IntegerConstant;
+struct FloatConstant;
+struct StringConstant;
+struct ArrayConstant;
 
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
@@ -3408,6 +3569,30 @@ template <> struct isa_impl<rq::PartialConstructorSymbol, rq::PartialSymbol> {
   }
 };
 
+template <> struct isa_impl<rq::IntegerConstant, rq::Entity> {
+  static inline bool doit(const rq::Entity &val) {
+    return val.getIsIntegerConstant();
+  }
+};
+
+template <> struct isa_impl<rq::FloatConstant, rq::Entity> {
+  static inline bool doit(const rq::Entity &val) {
+    return val.getIsFloatConstant();
+  }
+};
+
+template <> struct isa_impl<rq::StringConstant, rq::Entity> {
+  static inline bool doit(const rq::Entity &val) {
+    return val.getIsStringConstant();
+  }
+};
+
+template <> struct isa_impl<rq::ArrayConstant, rq::Entity> {
+  static inline bool doit(const rq::Entity &val) {
+    return val.getIsArrayConstant();
+  }
+};
+
 } // namespace llvm
 namespace rq {
 
@@ -5065,6 +5250,22 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
     rq::profileArrayConstant(id, this->_elements);
   }
+};
+
+struct Instruction;
+
+struct InstructionNode final {
+  using Self = rq::InstructionNode;
+
+  llvm::PointerUnion<rq::Entity*, rq::InstructionNode*, rq::Instruction*> _car{};
+  llvm::PointerUnion<rq::Entity*, rq::InstructionNode*, rq::Instruction*> _cdr{};
+  
+};
+
+struct Instruction final : public rq::Entity {
+  using Self = rq::Instruction;
+
+  llvm::PointerUnion<rq::Entity*, rq::InstructionNode*, rq::Instruction*> _cdr{};
 };
 
 } // namespace rq
