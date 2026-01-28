@@ -1364,6 +1364,18 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialConstructorSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_CONSTRUCTOR;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerConstant() const {
+    return this->_kind == rq::EntityKind::CT_INTEGER;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatConstant() const {
+    return this->_kind == rq::EntityKind::CT_FLOAT;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringConstant() const {
+    return this->_kind == rq::EntityKind::CT_STRING;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArrayConstant() const {
+    return this->_kind == rq::EntityKind::CT_ARRAY;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternativeSymbol() const {
     return rq::getHasTemplateAlternativeSymbol(this->_kind);
   }
