@@ -15,11 +15,29 @@ struct ModuleSymbol;
 struct Expression;
 struct SymbolTableSymbol;
 
-struct FullDeductionResult final {};
+enum class FullDeductionResultCode {
 
-struct PartialDeductionResult final {};
+};
 
-struct SubstitutionResult final {};
+struct DeductionResult final {
+  using Self = rq::DeductionResult;
+};
+
+enum class DeductionWithIncompleteResult {
+
+};
+
+struct PartialDeductionResult final {
+  using Self = rq::PartialDeductionResult;
+};
+
+enum class SubstitutionResultCode {
+
+};
+
+struct SubstitutionResult final {
+  using Self = rq::SubstitutionResult;
+};
 
 enum class EvaluationResultCode {
   OK_CONCRETE,
@@ -161,10 +179,10 @@ struct Tabulator final {
   void tabulateModule();
   void tabulateEntry(rq::EntrySymbol &entry);
   void tabulateForest(rq::Expression &first, rq::SymbolTableSymbol &scope);
-  [[nodiscard]] rq::FullDeductionResult
-  deduceFullTypeOfValue(rq::Expression &expression);
-  [[nodiscard]] rq::PartialDeductionResult
-  deducePartialTypeOfValue(rq::Entity &partial_type,
+  [[nodiscard]] rq::DeductionResult
+  deduceTypeOfValue(rq::Expression &expression);
+  [[nodiscard]] rq::DeductionWithIncompleteResult
+  deduceTypeOfValueWithIncomplete(rq::Entity &incomplete_type,
                            rq::Expression &expression);
   [[nodiscard]] rq::SubstitutionResult
   substituteTypeOfValue(rq::Entity &type, rq::Expression &expression);

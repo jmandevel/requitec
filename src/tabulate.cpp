@@ -183,14 +183,14 @@ void Tabulator::tabulateForest(rq::Expression &first,
   }
 }
 
-rq::FullDeductionResult
-Tabulator::deduceFullTypeOfValue(rq::Expression &expression) {
+rq::DeductionResult
+Tabulator::deduceTypeOfValue(rq::Expression &expression) {
   std::ignore = expression;
   RQ_TODO_IMPLEMENTATION();
 }
 
-rq::PartialDeductionResult
-Tabulator::deducePartialTypeOfValue(rq::Entity &partial_type,
+rq::DeductionWithIncompleteResult
+Tabulator::deduceTypeOfValueWithIncomplete(rq::Entity &partial_type,
                                     rq::Expression &expression) {
   std::ignore = partial_type;
   std::ignore = expression;
