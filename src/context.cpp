@@ -549,10 +549,6 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
     const auto &import = llvm::cast<rq::ImportSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, import);
   } break;
-  case rq::EntityKind::SY_MUTATION: {
-    const auto &mutation = llvm::cast<rq::MutationSymbol>(symbol);
-    rq::emitModuleMemberSymbol(context, json, mutation);
-  } break;
   case rq::EntityKind::SY_DYNAMIC_VARIABLE: {
     const auto &variable = llvm::cast<rq::DynamicVariableSymbol>(symbol);
     json.emitString("name", variable.getName());

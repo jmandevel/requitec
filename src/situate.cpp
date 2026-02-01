@@ -806,10 +806,6 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::MUTATION:
-    is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::SYMBOL_PATH);
-    break;
 
   // VALUES
   case K::INITIALIZER_LIST:

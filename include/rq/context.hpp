@@ -103,6 +103,8 @@ struct Context final {
   rq::GenericIntegerSymbol *_generic_integer_symbol_ptr{nullptr};
   rq::GenericSignedSymbol *_generic_signed_symbol_ptr{nullptr};
   rq::GenericUnsignedSymbol *_generic_unsigned_symbol_ptr{nullptr};
+  rq::GenericStringSymbol *_generic_string_symbol_ptr{nullptr};
+  rq::GenericCodeunitSymbol *_generic_codeunit_symbol_ptr{nullptr};
   rq::AsciiSymbol *_ascii_symbol_ptr{nullptr};
   rq::Utf8Symbol *_utf8_symbol_ptr{nullptr};
   llvm::FoldingSet<rq::ScaledBuiltinSymbol> _scaled_builtin_symbols{};
@@ -403,7 +405,21 @@ struct Context final {
     }
     return rq::dereferencePtr(this->_generic_unsigned_symbol_ptr);
   }
-
+  [[nodiscard]] inline rq::GenericStringSymbol &acquireGenericStringSymbol() {
+    if (!this->_generic_string_symbol_ptr) {
+      this->_generic_string_symbol_ptr =
+          &this->allocateValue<rq::GenericStringSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_string_symbol_ptr);
+  }
+  [[nodiscard]] inline rq::GenericCodeunitSymbol &
+  acquireGenericCodeunitSymbol() {
+    if (!this->_generic_codeunit_symbol_ptr) {
+      this->_generic_codeunit_symbol_ptr =
+          &this->allocateValue<rq::GenericCodeunitSymbol>();
+    }
+    return rq::dereferencePtr(this->_generic_codeunit_symbol_ptr);
+  }
   [[nodiscard]] inline rq::AsciiSymbol &acquireAsciiSymbol() {
     if (!this->_ascii_symbol_ptr) {
       this->_ascii_symbol_ptr = &this->allocateValue<rq::AsciiSymbol>();

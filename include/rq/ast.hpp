@@ -181,7 +181,6 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   CLASS,
   ENUMERATION,
-  MUTATION,
 
   // VALUES
   INITIALIZER_LIST,
@@ -243,6 +242,8 @@ enum class Keyword : std::uint32_t {
   UNSIGNED_EXACT_BYTES,
   UNSIGNED_INDEX,
   UNSIGNED_ADDRESS,
+  STRING,
+  CODEUNIT,
   ASCII,
   UTF8,
 
@@ -717,8 +718,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "class";
   case K::ENUMERATION:
     return "enumeration";
-  case K::MUTATION:
-    return "mutation";
 
   // VALUES
   case K::INITIALIZER_LIST:
@@ -821,6 +820,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "unsigned_index";
   case K::UNSIGNED_ADDRESS:
     return "unsigned_address";
+  case K::STRING:
+    return "string";
+  case K::CODEUNIT:
+    return "codeunit";
   case K::ASCII:
     return "ascii";
   case K::UTF8:
@@ -1501,8 +1504,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::MUTATION:
-    return KF::STATEMENT;
 
   // VALUES
   case K::INITIALIZER_LIST:
@@ -1569,10 +1570,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ASCII:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UTF8:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SYNONYM:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SYNONYM_OF:
@@ -1612,6 +1609,14 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::UNSIGNED_INDEX:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_ADDRESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::STRING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CODEUNIT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ASCII:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UTF8:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // VARIADIC ARGUMENTS
@@ -3002,21 +3007,10 @@ enum class TypeAttributeFlags : std::uint32_t {
   ATOMIC = rq::getBit(11),
   NULL_TERMINATED = rq::getBit(10),
   MAY_DISCARD = rq::getBit(9),
-  DEBUG_TRAP_ON_PANIC = rq::getBit(8),
-  MUTATION_MASK = 0xFFFF
+  DEBUG_TRAP_ON_PANIC = rq::getBit(8)
 };
 
 template <> struct is_flags<TypeAttributeFlags> : std::true_type {};
-
-enum class MutationFlags : std::uint16_t {
-  NONE = 0,
-  INDEPENDENT_CLASS = rq::getBit(0),
-  USER_CLASS_MASK = 0xFFFE
-};
-
-template <> struct is_flags<MutationFlags> : std::true_type {};
-
-static constexpr unsigned MAX_MUTATION_COUNT = 16;
 
 [[nodiscard]] inline rq::TypeAttributeFlags
 getFlags(rq::TypeAttribute attribute) {
@@ -3094,16 +3088,7 @@ getHasAttribute(rq::TypeAttributeFlags flags, rq::TypeAttribute attribute) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasMutability(rq::TypeAttributeFlags flags) {
   return rq::getHasSome(flags, rq::TypeAttributeFlags::MUTABLE |
-                                   rq::TypeAttributeFlags::CONSTANT |
-                                   rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags
-getMutationFlags(rq::TypeAttributeFlags flags) {
-  RQ_ASSERT(rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE),
-            "not partially mutable");
-  return static_cast<rq::MutationFlags>(
-      rq::getMaskValue(flags, rq::TypeAttributeFlags::MUTATION_MASK));
+                                   rq::TypeAttributeFlags::CONSTANT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3120,17 +3105,6 @@ getIsValidMutability(rq::TypeAttributeFlags flags) {
       mutability_count++;
     }
     if (mutability_count != 1) {
-      return false;
-    }
-  }
-  return true;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsValidMutabilityClass(rq::TypeAttributeFlags flags) {
-  if (!rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE)) {
-    rq::MutationFlags classes = rq::getMutationFlags(flags);
-    if (classes != rq::MutationFlags::NONE) {
       return false;
     }
   }

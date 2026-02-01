@@ -49,12 +49,6 @@ void Tabulator::tabulateForest(rq::Expression &first,
               statement, this->getModule(), scope, flags_factory.getFlags());
       scope.tabulateUnamedSymbol(this->getContext(), import);
     } break;
-    case rq::Keyword::MUTATION: {
-      rq::MutationSymbol &mutation =
-          this->getContext().allocateValue<rq::MutationSymbol>(
-              statement, this->getModule(), scope, flags_factory.getFlags());
-      scope.tabulateUnamedSymbol(this->getContext(), mutation);
-    } break;
     case rq::Keyword::ASSIGN: {
       rq::Expression &lvalue = statement.getBranch();
       if (lvalue.getKeyword() != rq::Keyword::BINDING) {

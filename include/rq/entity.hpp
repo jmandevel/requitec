@@ -66,6 +66,7 @@ enum class EntityKind : std::uint16_t {
   SY_GENERIC_SIGNED,
   SY_GENERIC_UNSIGNED,
   SY_GENERIC_CODEUNIT,
+  SY_GENERIC_STRING,
   SY_ASCII,
   SY_UTF8,
 
@@ -96,7 +97,6 @@ enum class EntityKind : std::uint16_t {
   SY_MODULE,
   SY_IMPORT,
   SY_FACADE,
-  SY_MUTATION,
   SY_EXTENSION,
 
   // BINDING
@@ -329,8 +329,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_import";
   case E::SY_FACADE:
     return "sy_facade";
-  case E::SY_MUTATION:
-    return "sy_mutation";
   case E::SY_EXTENSION:
     return "sy_extension";
 
@@ -720,8 +718,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_IMPORT:
     return EF::SYMBOL;
   case E::SY_FACADE:
-    return EF::SYMBOL;
-  case E::SY_MUTATION:
     return EF::SYMBOL;
   case E::SY_EXTENSION:
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
@@ -1375,9 +1371,6 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacadeSymbol() const {
     return this->_kind == rq::EntityKind::SY_FACADE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMutationSymbol() const {
-    return this->_kind == rq::EntityKind::SY_MUTATION;
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionSymbol() const {
     return this->_kind == rq::EntityKind::SY_EXTENSION;
   }
@@ -1682,6 +1675,7 @@ struct Bfloat16Symbol;
 struct GenericIntegerSymbol;
 struct GenericSignedSymbol;
 struct GenericUnsignedSymbol;
+struct GenericStringSymbol;
 struct GenericCodeunitSymbol;
 struct AsciiSymbol;
 struct Utf8Symbol;
@@ -1718,7 +1712,6 @@ struct InfiniteArithmeticProgressionSymbol;
 struct ModuleSymbol;
 struct ImportSymbol;
 struct FacadeSymbol;
-struct MutationSymbol;
 
 // BINDING
 struct DynamicVariableSymbol;
@@ -2434,7 +2427,6 @@ struct SymbolTableSymbol : public rq::Symbol,
   void tabulateNamedSymbol(rq::Context &context, llvm::StringRef name,
                            rq::Symbol &symbol);
   void tabulateUnamedSymbol(rq::Context &context, rq::Symbol &symbol);
-
   [[nodiscard]] inline rq::BumpPtrList<rq::Symbol>
   getNamedList(llvm::StringRef name) {
     auto it = this->_named_values.find(name);
@@ -2466,12 +2458,12 @@ struct SymbolTableSymbol : public rq::Symbol,
     return std::ranges::subrange(this->_named_values.begin(),
                                  this->_named_values.end());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getFrameSymbolTableTableRange() {
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getAscendingFrameRange() {
     return std::ranges::subrange(
         rq::SymbolTableIterator(this->getContainingSymbolTablePtr()),
         rq::SymbolTableIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getFrameSymbolTableTableRange() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getAscendingFrameRange() const {
     return std::ranges::subrange(
         rq::ConstSymbolTableIterator(this->getContainingSymbolTablePtr()),
         rq::ConstSymbolTableIterator());
@@ -3100,12 +3092,6 @@ template <> struct isa_impl<rq::FacadeSymbol, rq::Symbol> {
   }
 };
 
-template <> struct isa_impl<rq::MutationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsMutationSymbol();
-  }
-};
-
 // BINDING
 template <> struct isa_impl<rq::DynamicVariableSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
@@ -3620,9 +3606,6 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   getHasAttribute(rq::TypeAttribute attribute) const {
     return rq::getHasAttribute(this->_flags, attribute);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutationFlags getMutationFlags() const {
-    return rq::getMutationFlags(this->_flags);
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasMutable(rq::TypeAttribute attribute) const {
     return rq::getHasMutable(attribute);
@@ -3919,6 +3902,18 @@ struct GenericUnsignedSymbol : public rq::SimpleBuiltinSymbol {
   GenericUnsignedSymbol(const Self &) = delete;
   GenericUnsignedSymbol(Self &&) = delete;
   virtual ~GenericUnsignedSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct GenericStringSymbol : public rq::SimpleBuiltinSymbol {
+  using Self = rq::GenericStringSymbol;
+
+  GenericStringSymbol()
+      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_STRING) {}
+  GenericStringSymbol(const Self &) = delete;
+  GenericStringSymbol(Self &&) = delete;
+  virtual ~GenericStringSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4497,28 +4492,6 @@ struct LayoutParameterSymbol : public rq::Symbol,
   LayoutParameterSymbol(const Self &) = delete;
   LayoutParameterSymbol(Self &&) = delete;
   virtual ~LayoutParameterSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct MutationSymbol : public rq::Symbol,
-                        public rq::detail::HasLocationSymbol,
-                        public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::SymbolTableMemberSymbol,
-                        public rq::detail::HasAttributesSymbol {
-  using Self = rq::MutationSymbol;
-
-  MutationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::SymbolTableSymbol &containing_table,
-                 rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_MUTATION),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes) {}
-  MutationSymbol(const Self &) = delete;
-  MutationSymbol(Self &&) = delete;
-  virtual ~MutationSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
