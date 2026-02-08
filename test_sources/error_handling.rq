@@ -1,20 +1,28 @@
 [code ERROR_DIVIDE_BY_ZERO];
 
 [category DivideResult,
-    [ok],
+    [ok], // ok is a builtin code that is meant to be used when no error has occured.
     ERROR_DIVIDE_BY_ZERO
 ];
 
 [entry,
     result; // type is inferred on next line.
-    dividend := divide(result.`[borrow], 10, 5);
+    dividend := divide(
+        10,
+        5,
+        =result.`[borrow] // notice no name before equal sign. this means that the argument has an inferrenced name (from the variable result)
+    );
     [if result != [ok],
         .std.print(line="something bad happened!");
     ];
 ];
 
 @template::{> Type:[float] <}
-[function divide, (> code:&`DivideResult, a:Type, b:Type <)Type,
+[function divide, (>
+    a:Type,
+    b:Type <, // the parameter mark "<" after this parameter means that all parameters after must be named and not positional.
+    code:&`?DivideResult // the question mark means "may not be initialized yet", so you cant use it as an rvalue until assigned to at least once
+     )Type,
     [if b == 0,
         code := .ERROR_DIVIDE_BY_ZERO;
         [result] := 0;
