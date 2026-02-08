@@ -39,5 +39,5 @@
 
     added := .MyClass.add(b, c);
 
-    [exit_code] := added.[borrow].getTotal();
+    [result] := added.[borrow].getTotal();
 ];

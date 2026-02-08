@@ -197,8 +197,6 @@ enum class Keyword : std::uint32_t {
   RESULT,
   // retrieve command line arguments within entry.
   COMMAND_LINE_ARGUMENTS,
-  // resulting exit code within entry.
-  EXIT_CODE,
 
   // BUILTIN TYPES
   INFERENCE,
@@ -729,8 +727,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "result";
   case K::COMMAND_LINE_ARGUMENTS:
     return "command_line_arguments";
-  case K::EXIT_CODE:
-    return "exit_code";
 
   // BUILTIN TYPES
   case K::INFERENCE:
@@ -1503,8 +1499,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::COMMAND_LINE_ARGUMENTS:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::EXIT_CODE:
-    return KF::RVALUE | KF::LVALUE;
 
   // BUILTIN TYPES
   case K::INFERENCE:

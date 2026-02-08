@@ -1,0 +1,25 @@
+[code ERROR_DIVIDE_BY_ZERO];
+
+[category DivideResult,
+    [ok],
+    ERROR_DIVIDE_BY_ZERO
+];
+
+[entry,
+    result; // type is inferred on next line.
+    dividend := divide(result.`[borrow], 10, 5);
+    [if result != [ok],
+        .std.print(line="something bad happened!");
+    ];
+];
+
+@template::{> Type:[float] <}
+[function divide, (> code:&`DivideResult, a:Type, b:Type <)Type,
+    [if b == 0,
+        code := .ERROR_DIVIDE_BY_ZERO;
+        [result] := 0;
+        [return];
+    ];
+    [result] := a / b;
+    code := [ok];
+];

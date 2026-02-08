@@ -27,5 +27,5 @@
                 [out] := grape.[float_cast];
             ];
         ];
-    [exit_code] := value;
+    [result] := value;
 ];

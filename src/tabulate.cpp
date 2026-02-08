@@ -20,7 +20,6 @@ void Tabulator::tabulateEntry(rq::EntrySymbol &entry) {
   RQ_ASSERT(!this->getIsStarted(), "tabulator can tabulate only once");
   this->setIsStarted();
   this->setIsBuildingInstructions();
-  this->setResultKeyword(rq::Keyword::EXIT_CODE);
   this->setHighestSymbolTable(entry);
   rq::Expression &trunk = entry.getExpression();
   if (!trunk.getHasBranch()) {

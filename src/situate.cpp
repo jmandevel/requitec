@@ -790,8 +790,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::COMMAND_LINE_ARGUMENTS:
     [[fallthrough]];
-  case K::EXIT_CODE:
-    [[fallthrough]];
 
   // BUILTIN TYPES
   case K::INFERENCE:

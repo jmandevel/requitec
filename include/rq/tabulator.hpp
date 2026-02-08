@@ -86,7 +86,6 @@ struct Tabulator final {
   bool _is_ok : 1 = true;
   bool _is_started : 1 = false;
   bool _is_building_instructions : 1 = false;
-  rq::Keyword _result_keyword = rq::Keyword::NONE;
 
   Tabulator(rq::Context &context, rq::ModuleSymbol &module)
       : _context_ref(context), _module_ref(module) {}
@@ -126,14 +125,6 @@ struct Tabulator final {
     RQ_ASSERT(this->_is_building_instructions == false,
               "is building instructions already set");
     this->_is_building_instructions = true;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getResultKeyword() const {
-    return this->_result_keyword;
-  }
-  RQ_ALWAYS_INLINE void setResultKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_result_keyword == rq::Keyword::NONE,
-              "result keyword already set");
-    this->_result_keyword = keyword;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSymbolTables() const {
     RQ_ASSERT((this->_highest_symbol_table_ptr == nullptr) ==
