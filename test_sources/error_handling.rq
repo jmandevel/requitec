@@ -1,7 +1,8 @@
 [code ERROR_DIVIDE_BY_ZERO];
+[code OK];
 
 [category DivideResult,
-    [ok], // ok is a builtin code that is meant to be used when no error has occured.
+    @ok OK, // ok attribute means that this result signifies that no error occured
     ERROR_DIVIDE_BY_ZERO
 ];
 
@@ -12,7 +13,7 @@
         5,
         =result.`[borrow] // notice no name before equal sign. this means that the argument has an inferrenced name (from the variable result)
     );
-    [if result != [ok],
+    [if !result.[is_ok], // a result code passed that does not have @ok, so an error occured!
         .std.print(line="something bad happened!");
     ];
 ];
@@ -29,5 +30,5 @@
         [return];
     ];
     [result] := a / b;
-    code := [ok];
+    code := .OK;
 ];
