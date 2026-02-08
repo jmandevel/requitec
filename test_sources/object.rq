@@ -9,14 +9,8 @@
     <},
 
     @public
-    [constructor];
-
-    @public
-    [layout_constructor];
-
-    @public
-    [constructor (>scalar:[signed_least_bits 32]<),
-        { x=scalar, y=scalar, z=scalar},
+    [function fromScalar, (> scalar:[signed_least_bits 32] <)MyClass,
+        [result] := MyClass(scalar, scalar, scalar);    
     ];
 
     @public
@@ -39,10 +33,11 @@
 
     a := .MyClass();
     b := .MyClass(1, 2, 3);
+    c := .MyClass.fromScalar(4);
 
     .std.print(line="a total:{a.[borrow].getTotal()}");
 
-    added := .MyClass.add(a, b);
+    added := .MyClass.add(b, c);
 
     [exit_code] := added.[borrow].getTotal();
 ];

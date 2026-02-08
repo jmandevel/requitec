@@ -10,9 +10,7 @@
         [result] := LENGTH;
     ];
 
-    [class Foo,
-        [constructor];
-    ];
+    [class Foo,];
 
     [extension_method bar, &Foo=>(><)[void],
     

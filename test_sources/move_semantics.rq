@@ -1,7 +1,7 @@
 [import "std"];
 
 @may_copy @may_move
-[class MyClass, @public [constructor];];
+[class MyClass,];
 
 [entry
   class :`= .MyClass();

@@ -153,18 +153,6 @@ void Tabulator::tabulateForest(rq::Expression &first,
               flags_factory.getFlags());
       scope.tabulateNamedSymbol(this->getContext(), name, extension_method);
     } break;
-    case rq::Keyword::CONSTRUCTOR: {
-      rq::ConstructorSymbol &constructor =
-          this->getContext().allocateValue<rq::ConstructorSymbol>(
-              statement, this->getModule(), scope, flags_factory.getFlags());
-      scope.tabulateUnamedSymbol(this->getContext(), constructor);
-    } break;
-    case rq::Keyword::DESTRUCTOR: {
-      rq::DestructorSymbol &destructor =
-          this->getContext().allocateValue<rq::DestructorSymbol>(
-              statement, this->getModule(), scope, flags_factory.getFlags());
-      scope.tabulateUnamedSymbol(this->getContext(), destructor);
-    } break;
     case rq::Keyword::RANGER: {
       rq::RangerSymbol &ranger =
           this->getContext().allocateValue<rq::RangerSymbol>(

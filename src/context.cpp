@@ -594,14 +594,6 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
     json.emitString("name", extension_method.getName());
     rq::emitModuleMemberSymbol(context, json, extension_method);
   } break;
-  case rq::EntityKind::SY_CONSTRUCTOR: {
-    const auto &constructor = llvm::cast<rq::ConstructorSymbol>(symbol);
-    rq::emitModuleMemberSymbol(context, json, constructor);
-  } break;
-  case rq::EntityKind::SY_DESTRUCTOR: {
-    const auto &destructor = llvm::cast<rq::DestructorSymbol>(symbol);
-    rq::emitModuleMemberSymbol(context, json, destructor);
-  } break;
   case rq::EntityKind::SY_RANGER: {
     const auto &ranger = llvm::cast<rq::RangerSymbol>(symbol);
     rq::emitModuleMemberSymbol(context, json, ranger);

@@ -40,9 +40,6 @@
         <},
 
         @public
-        [constructor];
-
-        @public
         [ranger [signed],
             [for [this].data, value:=[value], 
               [range_over 

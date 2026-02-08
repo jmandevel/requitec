@@ -11,8 +11,6 @@
     [method myFuncB, &=>(><),
         .std.print(line="in parent");
     ];
-    
-    [constructor];
 ];
 
 [class Child,
@@ -28,9 +26,6 @@
     [method myFuncB, &=>(><),
         .std.print(line="in child");
     ];
-
-    @public 
-    [constructor];
 ];
 
 [entry

@@ -535,8 +535,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NULL_TERMINATED:
     [[fallthrough]];
   case K::MAY_DISCARD:
-    [[fallthrough]];
-  case K::DEBUG_TRAP_ON_PANIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
@@ -673,46 +671,6 @@ bool Situator::situateTree(rq::Situation situation,
   }
   case K::EXTENSION_METHOD:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
-    break;
-  case K::CONSTRUCTOR: {
-    if (!expression.getHasBranch()) {
-      break;
-    }
-    rq::Expression *current = &expression.getBranch();
-    int header_count = 0;
-    while (current->getIsHeader() && header_count < 2) {
-      if (!this->situateHeaderBranch(S::RVALUE, *current)) {
-        is_ok = false;
-      }
-      header_count++;
-      if (!current->getHasNext()) {
-        current = nullptr;
-        break;
-      }
-      current = &current->getNext();
-    }
-    if (current != nullptr) {
-      if (current->getIsHeader()) {
-        this->getContext().logErrorUnexpectedHeaderExpression(*current);
-        is_ok = false;
-      } else {
-        if (!this->situateStatementBranch(*current)) {
-          is_ok = false;
-        }
-      }
-      for (rq::Expression &branch : current->getNextSubrange()) {
-        if (!this->situateStatementBranch(branch)) {
-          is_ok = false;
-        }
-      }
-    }
-    break;
-  }
-  case K::LAYOUT_CONSTRUCTOR:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::DESTRUCTOR:
-    is_ok = this->situateNaryStatementBranches(expression);
     break;
   case K::RANGER:
     is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
@@ -1116,16 +1074,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryStatementBranches(expression);
     break;
 
-  // ERROR HANDLING AND DEBUGGING
-  case K::PANIC_TRAP:
-    is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::RVALUE);
-    break;
+  // HINTS
   case K::DEBUG_TRAP:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-
-  // HINTS
   case K::UNREACHABLE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;

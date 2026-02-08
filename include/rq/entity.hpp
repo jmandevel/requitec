@@ -123,8 +123,6 @@ enum class EntityKind : std::uint16_t {
   SY_METHOD,
   SY_EXTENSION_FUNCTION,
   SY_EXTENSION_METHOD,
-  SY_CONSTRUCTOR,
-  SY_DESTRUCTOR,
   SY_RANGER,
 
   // TEMPLATE
@@ -136,7 +134,6 @@ enum class EntityKind : std::uint16_t {
   SY_TEMPLATE_METHOD,
   SY_TEMPLATE_EXTENSION_FUNCTION,
   SY_TEMPLATE_EXTENSION_METHOD,
-  SY_TEMPLATE_CONSTRUCTOR,
 
   // PARTIAL SPECIALIZATION
   SY_PARTIAL_CLASS,
@@ -147,7 +144,6 @@ enum class EntityKind : std::uint16_t {
   SY_PARTIAL_METHOD,
   SY_PARTIAL_EXTENSION_FUNCTION,
   SY_PARTIAL_EXTENSION_METHOD,
-  SY_PARTIAL_CONSTRUCTOR,
 
   // =====CONSTANTS=====
 
@@ -204,7 +200,6 @@ enum class EntityKind : std::uint16_t {
   OP_LOOP_ELEMENTS,
   OP_LOOP_RANGER,
 
-  OP_PANIC_TRAP,
   OP_DEBUG_TRAP,
   OP_UNREACHABLE,
   OP_ASSUME,
@@ -374,11 +369,7 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::SY_EXTENSION_FUNCTION:
     return "sy_extension_function";
   case E::SY_EXTENSION_METHOD:
-    return "sy_extension_method";
-  case E::SY_CONSTRUCTOR:
-    return "sy_constructor";
-  case E::SY_DESTRUCTOR:
-    return "sy_destructor";
+    return "sy_extension_method";;
   case E::SY_RANGER:
     return "sy_ranger";
 
@@ -399,8 +390,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_template_extension_function";
   case E::SY_TEMPLATE_EXTENSION_METHOD:
     return "sy_template_extension_method";
-  case E::SY_TEMPLATE_CONSTRUCTOR:
-    return "sy_template_constructor";
 
   // PARTIAL SPECIALIZATION
   case E::SY_PARTIAL_CLASS:
@@ -419,8 +408,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_partial_extension_function";
   case E::SY_PARTIAL_EXTENSION_METHOD:
     return "sy_partial_extension_method";
-  case E::SY_PARTIAL_CONSTRUCTOR:
-    return "sy_partial_constructor";
 
     // =====CONSTANTS=====
 
@@ -515,8 +502,6 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::OP_LOOP_RANGER:
     return "op_loop_ranger";
 
-  case E::OP_PANIC_TRAP:
-    return "op_panic_trap";
   case E::OP_DEBUG_TRAP:
     return "op_debug_trap";
   case E::OP_UNREACHABLE:
@@ -771,11 +756,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_EXTENSION_METHOD:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
            EF::SY_TOP_OF_FRAME;
-  case E::SY_CONSTRUCTOR:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-  case E::SY_DESTRUCTOR:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
   case E::SY_RANGER:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
 
@@ -796,8 +776,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_EXTENSION_METHOD:
     return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_CONSTRUCTOR:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
 
   // PARTIAL SPECIALIZATION SYMBOL
   case E::SY_PARTIAL_CLASS:
@@ -816,9 +794,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_EXTENSION_METHOD:
     return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_CONSTRUCTOR:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-
   // CONSTANT
   case E::CT_INTEGER:
     return EF::CONSTANT;
@@ -1020,8 +995,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_TEMPLATE_EXTENSION_FUNCTION;
   case E::SY_EXTENSION_METHOD:
     return E::SY_TEMPLATE_EXTENSION_METHOD;
-  case E::SY_CONSTRUCTOR:
-    return E::SY_TEMPLATE_CONSTRUCTOR;
   case E::SY_PARTIAL_CLASS:
     return E::SY_TEMPLATE_CLASS;
   case E::SY_PARTIAL_ENUMERATION:
@@ -1038,8 +1011,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_TEMPLATE_EXTENSION_FUNCTION;
   case E::SY_PARTIAL_EXTENSION_METHOD:
     return E::SY_TEMPLATE_EXTENSION_METHOD;
-  case E::SY_PARTIAL_CONSTRUCTOR:
-    return E::SY_TEMPLATE_CONSTRUCTOR;
   case E::SY_TEMPLATE_CLASS:
     return E::SY_TEMPLATE_CLASS;
   case E::SY_TEMPLATE_ENUMERATION:
@@ -1056,8 +1027,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_TEMPLATE_EXTENSION_FUNCTION;
   case E::SY_TEMPLATE_EXTENSION_METHOD:
     return E::SY_TEMPLATE_EXTENSION_METHOD;
-  case E::SY_TEMPLATE_CONSTRUCTOR:
-    return E::SY_TEMPLATE_CONSTRUCTOR;
   default:
     break;
   }
@@ -1084,8 +1053,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_PARTIAL_EXTENSION_FUNCTION;
   case E::SY_EXTENSION_METHOD:
     return E::SY_PARTIAL_EXTENSION_METHOD;
-  case E::SY_CONSTRUCTOR:
-    return E::SY_PARTIAL_CONSTRUCTOR;
   case E::SY_TEMPLATE_CLASS:
     return E::SY_PARTIAL_CLASS;
   case E::SY_TEMPLATE_ENUMERATION:
@@ -1102,8 +1069,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_PARTIAL_EXTENSION_FUNCTION;
   case E::SY_TEMPLATE_EXTENSION_METHOD:
     return E::SY_PARTIAL_EXTENSION_METHOD;
-  case E::SY_TEMPLATE_CONSTRUCTOR:
-    return E::SY_PARTIAL_CONSTRUCTOR;
   case E::SY_PARTIAL_CLASS:
     return E::SY_PARTIAL_CLASS;
   case E::SY_PARTIAL_ENUMERATION:
@@ -1120,8 +1085,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_PARTIAL_EXTENSION_FUNCTION;
   case E::SY_PARTIAL_EXTENSION_METHOD:
     return E::SY_PARTIAL_EXTENSION_METHOD;
-  case E::SY_PARTIAL_CONSTRUCTOR:
-    return E::SY_PARTIAL_CONSTRUCTOR;
   default:
     RQ_UNREACHABLE();
   }
@@ -1147,8 +1110,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_EXTENSION_FUNCTION;
   case E::SY_EXTENSION_METHOD:
     return E::SY_EXTENSION_METHOD;
-  case E::SY_CONSTRUCTOR:
-    return E::SY_CONSTRUCTOR;
   case E::SY_TEMPLATE_CLASS:
     return E::SY_CLASS;
   case E::SY_TEMPLATE_ENUMERATION:
@@ -1165,8 +1126,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_EXTENSION_FUNCTION;
   case E::SY_TEMPLATE_EXTENSION_METHOD:
     return E::SY_EXTENSION_METHOD;
-  case E::SY_TEMPLATE_CONSTRUCTOR:
-    return E::SY_CONSTRUCTOR;
   case E::SY_PARTIAL_CLASS:
     return E::SY_CLASS;
   case E::SY_PARTIAL_ENUMERATION:
@@ -1183,8 +1142,6 @@ getIsPlatformChangingSymbol(rq::EntityKind kind) {
     return E::SY_EXTENSION_FUNCTION;
   case E::SY_PARTIAL_EXTENSION_METHOD:
     return E::SY_EXTENSION_METHOD;
-  case E::SY_PARTIAL_CONSTRUCTOR:
-    return E::SY_CONSTRUCTOR;
   default:
     RQ_UNREACHABLE();
   }
@@ -1437,12 +1394,6 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_EXTENSION_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstructorSymbol() const {
-    return this->_kind == rq::EntityKind::SY_CONSTRUCTOR;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDestructorSymbol() const {
-    return this->_kind == rq::EntityKind::SY_DESTRUCTOR;
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangerSymbol() const {
     return this->_kind == rq::EntityKind::SY_RANGER;
   }
@@ -1477,9 +1428,6 @@ struct Entity {
   getIsTemplateExtensionMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateConstructorSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_CONSTRUCTOR;
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol() const {
     return rq::getIsPartialSymbol(this->_kind);
   }
@@ -1509,9 +1457,6 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getIsPartialExtensionMethodSymbol() const {
     return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialConstructorSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_CONSTRUCTOR;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerConstant() const {
     return this->_kind == rq::EntityKind::CT_INTEGER;
@@ -1739,8 +1684,6 @@ struct FunctionSymbol;
 struct MethodSymbol;
 struct ExtensionFunctionSymbol;
 struct ExtensionMethodSymbol;
-struct ConstructorSymbol;
-struct DestructorSymbol;
 struct RangerSymbol;
 
 // TEMPLATE
@@ -1753,7 +1696,6 @@ struct TemplateFunctionSymbol;
 struct TemplateMethodSymbol;
 struct TemplateExtensionFunctionSymbol;
 struct TemplateExtensionMethodSymbol;
-struct TemplateConstructorSymbol;
 
 // PARTIAL SPECIALIZATION
 struct PartialSymbol;
@@ -1765,7 +1707,6 @@ struct PartialFunctionSymbol;
 struct PartialMethodSymbol;
 struct PartialExtensionFunctionSymbol;
 struct PartialExtensionMethodSymbol;
-struct PartialConstructorSymbol;
 
 struct IntegerConstant;
 struct FloatConstant;
@@ -3281,30 +3222,6 @@ template <> struct isa_impl<rq::ExtensionMethodSymbol, rq::ProcedureSymbol> {
   }
 };
 
-template <> struct isa_impl<rq::ConstructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsConstructorSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::ConstructorSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsConstructorSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::DestructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsDestructorSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::DestructorSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsDestructorSymbol();
-  }
-};
-
 template <> struct isa_impl<rq::RangerSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
     return val.getIsRangerSymbol();
@@ -3424,18 +3341,6 @@ struct isa_impl<rq::TemplateExtensionMethodSymbol, rq::TemplateSymbol> {
   }
 };
 
-template <> struct isa_impl<rq::TemplateConstructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateConstructorSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::TemplateConstructorSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateConstructorSymbol();
-  }
-};
-
 // PARTIAL SPECIALIZATION
 template <> struct isa_impl<rq::PartialSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val) {
@@ -3543,18 +3448,6 @@ struct isa_impl<rq::PartialExtensionMethodSymbol, rq::PartialSymbol> {
   }
 };
 
-template <> struct isa_impl<rq::PartialConstructorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialConstructorSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::PartialConstructorSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialConstructorSymbol();
-  }
-};
-
 template <> struct isa_impl<rq::IntegerConstant, rq::Entity> {
   static inline bool doit(const rq::Entity &val) {
     return val.getIsIntegerConstant();
@@ -3633,10 +3526,6 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasMayDiscard(rq::TypeAttribute attribute) const {
     return rq::getHasMayDiscard(attribute);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasDebugTrapOnPanic(rq::TypeAttribute attribute) const {
-    return rq::getHasDebugTrapOnPanic(attribute);
   }
   void Profile(llvm::FoldingSetNodeID &id) const {
     id.AddInteger(static_cast<unsigned>(this->_kind));
@@ -4677,36 +4566,6 @@ struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct ConstructorSymbol : public rq::ProcedureSymbol {
-  using Self = rq::ConstructorSymbol;
-
-  ConstructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                    rq::SymbolTableSymbol &containing_table,
-                    rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_CONSTRUCTOR, expression, module,
-                            containing_table, attributes) {}
-  ConstructorSymbol(const Self &) = delete;
-  ConstructorSymbol(Self &&) = delete;
-  virtual ~ConstructorSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct DestructorSymbol : public rq::ProcedureSymbol {
-  using Self = rq::DestructorSymbol;
-
-  DestructorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                   rq::SymbolTableSymbol &containing_table,
-                   rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_DESTRUCTOR, expression, module,
-                            containing_table, attributes) {}
-  DestructorSymbol(const Self &) = delete;
-  DestructorSymbol(Self &&) = delete;
-  virtual ~DestructorSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
 struct RangerSymbol : public rq::ProcedureSymbol {
   using Self = rq::RangerSymbol;
 
@@ -4852,22 +4711,7 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol,
   virtual ~TemplateExtensionMethodSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-};
-
-struct TemplateConstructorSymbol : public rq::TemplateSymbol {
-  using Self = rq::TemplateConstructorSymbol;
-
-  TemplateConstructorSymbol(
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_CONSTRUCTOR,
-                           parameters) {}
-  TemplateConstructorSymbol(const Self &) = delete;
-  TemplateConstructorSymbol(Self &&) = delete;
-  virtual ~TemplateConstructorSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
+};\
 struct PartialClassSymbol : public rq::PartialSymbol,
                             public rq::detail::HasNameSymbol {
   using Self = rq::PartialClassSymbol;
@@ -4976,18 +4820,6 @@ struct PartialExtensionMethodSymbol : public rq::PartialSymbol,
   PartialExtensionMethodSymbol(const Self &) = delete;
   PartialExtensionMethodSymbol(Self &&) = delete;
   virtual ~PartialExtensionMethodSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct PartialConstructorSymbol : public rq::PartialSymbol {
-  using Self = rq::PartialConstructorSymbol;
-
-  PartialConstructorSymbol()
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_CONSTRUCTOR) {}
-  PartialConstructorSymbol(const Self &) = delete;
-  PartialConstructorSymbol(Self &&) = delete;
-  virtual ~PartialConstructorSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
