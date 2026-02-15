@@ -5,7 +5,7 @@
     var1 := 0;
     .std.print(line="Hello, my name is {var.[symbol].[capture].name} and I am {var.[symbol].[capture].age} years old");
 
-    [class Foo, {> @public string:^[utf8]="Hello, attribute!" <}, [constructor];];
+    [class Foo, {> @public string:^[utf8]="Hello, attribute!" <},];
 
     // NOTE: the compiler enforces that tuples can have only up to one unamed property for any given type.
     // if this rule is not followed, this results in a compiler error.
