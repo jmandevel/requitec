@@ -1049,6 +1049,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "may_copy";
   case K::MAY_MOVE:
     return "may_move";
+  case K::OK:
+    return "ok";
 
   // NODES
   case K::QUOTE:
@@ -1155,7 +1157,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_ok";
   case K::IS_OK_OF:
     return "_is_ok_of";
-  default:
+  
+  case K::LAST:
     break;
   }
   RQ_UNREACHABLE();
@@ -1940,7 +1943,16 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::LAYOUT_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  default:
+  case K::SYNONYM:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::SYNONYM_OF:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::IS_OK:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_OK_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+    
+  case K::LAST:
     break;
   }
   RQ_UNREACHABLE();
