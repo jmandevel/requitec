@@ -14,7 +14,7 @@
             .std.print(line=code.[message]);
             [if !code.[is_ok],
                 [result] := 1;
-                [return];
+                [exit];
             ];
         ];
 
@@ -22,7 +22,7 @@
         .[catch code:=[value], 
             .std.print(line=code.[message]);
             [result] := 1;
-            [return];
+            [exit];
         ];
 
     [result] := 0;
@@ -31,11 +31,11 @@
 @template::{> Type:[float] <}
 [function divide, (> a:Type, b:Type <)Type ?.DivideResult,
     [if b == 0,
-        [result] := 0;
-        [code] := .ERROR_DIVIDE_BY_ZERO;
-        [return];
+        [return] := 0;
+        [result] := .ERROR_DIVIDE_BY_ZERO;
+        [exit];
     ];
-    [result] := a / b;
-    [code] := .OK;
-    [return];
+    [return] := a / b;
+    [result] := .OK;
+    [exit];
 ];

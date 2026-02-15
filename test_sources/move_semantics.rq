@@ -12,8 +12,8 @@
   pointer_to_mutable := class.`[address];
   copy_value_at_pointer := pointer.[content];
   non_destructive_move := class.`[borrow]->extract();
-  non_destructive_move.[destroy]; // explicit destroy
   destructive_move := class.[move];
   // class was dropped
   destructive_move.[drop]; // explicit drop without destroy
+  // non_destructive_move is auto dropped here
 ];

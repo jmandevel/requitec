@@ -8,9 +8,9 @@
     ][else 
         .std.print(line="a and b are equal");
     ];
-    [result] := a + b;
+    [return] := a + b;
 ];
 
 [entry
-    .std.print(line="the result is {.myFunc(1, 2)}");
+    .std.print(line="the return value is {.myFunc(1, 2)}");
 ];
