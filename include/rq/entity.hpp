@@ -98,6 +98,9 @@ enum class EntityKind : std::uint16_t {
   SY_IMPORT,
   SY_FACADE,
   SY_EXTENSION,
+  SY_CODE,
+  SY_CATEGORY,
+  SY_CATEGORY_ALTERNATIVE,
 
   // BINDING
   SY_DYNAMIC_VARIABLE,
@@ -326,6 +329,12 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_facade";
   case E::SY_EXTENSION:
     return "sy_extension";
+  case E::SY_CODE:
+    return "sy_code";
+  case E::SY_CATEGORY:
+    return "sy_category";
+  case E::SY_CATEGORY_ALTERNATIVE:
+    return "sy_category_alternative";
 
   // BINDING
   case E::SY_DYNAMIC_VARIABLE:
@@ -369,7 +378,8 @@ static constexpr std::size_t ENTITY_COUNT =
   case E::SY_EXTENSION_FUNCTION:
     return "sy_extension_function";
   case E::SY_EXTENSION_METHOD:
-    return "sy_extension_method";;
+    return "sy_extension_method";
+    ;
   case E::SY_RANGER:
     return "sy_ranger";
 
@@ -706,6 +716,12 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL;
   case E::SY_EXTENSION:
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_CODE:
+    return EF::SYMBOL;
+  case E::SY_CATEGORY:
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_CATEGORY_ALTERNATIVE:
+    return EF::SYMBOL;
 
   // BINDING SYMBOL
   case E::SY_DYNAMIC_VARIABLE:
@@ -1625,7 +1641,7 @@ struct GenericCodeunitSymbol;
 struct AsciiSymbol;
 struct Utf8Symbol;
 
-// SCALED INTEGER
+// SCALED BUILTIN
 struct ScaledBuiltinSymbol;
 struct ScaledSignedSymbol;
 struct ScaledUnsignedSymbol;
@@ -1646,6 +1662,8 @@ struct ArraySymbol;
 struct LayoutSymbol;
 struct SignatureSymbol;
 struct ExtensionSymbol;
+struct CodeSymbol;
+struct CategorySymbol;
 
 // ARITHMETIC SEQUENCE
 struct ArithmeticSequenceSymbol;
@@ -4062,6 +4080,52 @@ private:
   }
 };
 
+struct CodeSymbol : public rq::Symbol,
+                    public rq::detail::HasLocationSymbol,
+                    public rq::detail::HasNameSymbol,
+                    public rq::detail::ModuleMemberSymbol,
+                    public rq::detail::HasAttributesSymbol,
+                    public rq::detail::SymbolTableMemberSymbol {
+  using Self = rq::CodeSymbol;
+
+  CodeSymbol(rq::Expression &expression, llvm::StringRef name, rq::ModuleSymbol &module,
+             rq::ExpressionAttributeFlags attributes, rq::SymbolTableSymbol &containing_table)
+      : rq::Symbol(rq::EntityKind::SY_CODE),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::HasNameSymbol(name),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::HasAttributesSymbol(attributes),
+        rq::detail::SymbolTableMemberSymbol(containing_table) {}
+  CodeSymbol(const Self &) = delete;
+  CodeSymbol(Self &&) = delete;
+  virtual ~CodeSymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct CategorySymbol : public rq::Symbol,
+                        public rq::detail::HasLocationSymbol,
+                        public rq::detail::HasNameSymbol,
+                        public rq::detail::ModuleMemberSymbol,
+                        public rq::detail::HasAttributesSymbol,
+                        public rq::detail::SymbolTableMemberSymbol {
+  using Self = rq::CategorySymbol;
+
+  CategorySymbol(rq::Expression &expression, llvm::StringRef name, rq::ModuleSymbol &module,
+                 rq::ExpressionAttributeFlags attributes, rq::SymbolTableSymbol &containing_table)
+      : rq::Symbol(rq::EntityKind::SY_CATEGORY),
+        rq::detail::HasLocationSymbol(expression),
+        rq::detail::HasNameSymbol(name),
+        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::HasAttributesSymbol(attributes),
+        rq::detail::SymbolTableMemberSymbol(containing_table) {}
+  CategorySymbol(const Self &) = delete;
+  CategorySymbol(Self &&) = delete;
+  virtual ~CategorySymbol() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
 struct ArithmeticIntervalSymbol : public rq::ArithmeticSequenceSymbol {
   using Self = rq::ArithmeticIntervalSymbol;
 
@@ -4711,7 +4775,7 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol,
   virtual ~TemplateExtensionMethodSymbol() {}
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-};\
+};
 struct PartialClassSymbol : public rq::PartialSymbol,
                             public rq::detail::HasNameSymbol {
   using Self = rq::PartialClassSymbol;
@@ -5097,8 +5161,7 @@ struct InstructionSlot final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNode &
   getInstructionNode() const {
-    return rq::dereferencePtr(
-        llvm::cast<rq::InstructionNode *>(this->_data));
+    return rq::dereferencePtr(llvm::cast<rq::InstructionNode *>(this->_data));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
     return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
@@ -5106,9 +5169,7 @@ struct InstructionSlot final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const {
     return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
   }
-  inline void clear() {
-    this->_data = nullptr;
-  }
+  inline void clear() { this->_data = nullptr; }
 };
 
 struct InstructionNode final {
@@ -5159,7 +5220,8 @@ struct Instruction final : public rq::Entity {
   }
   RQ_ALWAYS_INLINE void changeOpcode(rq::EntityKind opcode) {
     RQ_ASSERT_OPCODE(opcode);
-    RQ_ASSERT(this->getKind() != rq::EntityKind::OP_NONE, "opcode not already set");
+    RQ_ASSERT(this->getKind() != rq::EntityKind::OP_NONE,
+              "opcode not already set");
     this->_kind = opcode;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr() {
