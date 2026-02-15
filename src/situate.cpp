@@ -535,6 +535,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NULL_TERMINATED:
     [[fallthrough]];
   case K::MAY_DISCARD:
+    [[fallthrough]];
+  case K::INDETERMINATE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
@@ -773,8 +775,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::TRUE:
     [[fallthrough]];
   case K::FALSE:
-    [[fallthrough]];
-  case K::INDETERMINATE:
     [[fallthrough]];
   case K::VALUE:
     [[fallthrough]];

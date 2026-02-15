@@ -133,6 +133,7 @@ enum class Keyword : std::uint32_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
+  INDETERMINATE,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -182,7 +183,6 @@ enum class Keyword : std::uint32_t {
   INITIALIZER_LIST,
   TRUE,
   FALSE,
-  INDETERMINATE,
   // vignette value.
   VALUE,
   // vignette index.
@@ -510,7 +510,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::IDENTIFY:
     return "_identify";
   case K::KEWORDIFY:
-    return "_kewordify";
+    return "kewordify";
 
   // ARITHMETIC
   case K::ADD:
@@ -625,6 +625,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "null_terminated";
   case K::MAY_DISCARD:
     return "may_discard";
+  case K::INDETERMINATE:
+    return "indeterminate";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -711,8 +713,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "true";
   case K::FALSE:
     return "false";
-  case K::INDETERMINATE:
-    return "indeterminate";
   case K::VALUE:
     return "value";
   case K::INDEX:
@@ -1397,6 +1397,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::TYPE_ATTRIBUTE;
   case K::MAY_DISCARD:
     return KF::TYPE_ATTRIBUTE;
+  case K::INDETERMINATE:
+    return KF::TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -1483,8 +1485,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::FALSE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::INDETERMINATE:
-    return KF::RVALUE;
   case K::VALUE:
     return KF::RVALUE;
   case K::INDEX:
@@ -2906,7 +2906,8 @@ enum class TypeAttribute : std::uint_fast8_t {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATED,
-  MAY_DISCARD
+  MAY_DISCARD,
+  INDETERMINATE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
@@ -2929,6 +2930,8 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "null_terminated";
   case TA::MAY_DISCARD:
     return "may_discard";
+  case TA::INDETERMINATE:
+    return "indeterminate";
   }
   RQ_UNREACHABLE();
 }
@@ -2952,6 +2955,8 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::NULL_TERMINATED;
   case K::MAY_DISCARD:
     return TA::MAY_DISCARD;
+  case K::INDETERMINATE:
+    return TA::INDETERMINATE;
   default:
     break;
   }
@@ -2966,7 +2971,8 @@ enum class TypeAttributeFlags : std::uint32_t {
   VOLATILE = rq::getBit(12),
   ATOMIC = rq::getBit(11),
   NULL_TERMINATED = rq::getBit(10),
-  MAY_DISCARD = rq::getBit(9)
+  MAY_DISCARD = rq::getBit(9),
+  INDETERMINATE = rq::getBit(8)
 };
 
 template <> struct is_flags<TypeAttributeFlags> : std::true_type {};
@@ -2993,6 +2999,8 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::NULL_TERMINATED;
   case TA::MAY_DISCARD:
     return TF::MAY_DISCARD;
+  case TA::INDETERMINATE:
+    return TF::INDETERMINATE;
   }
   return TF::NONE;
 }
@@ -3030,6 +3038,11 @@ getFlags(rq::TypeAttribute attribute) {
 [[nodiscard]] inline bool getHasMayDiscard(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::MAY_DISCARD);
+}
+
+[[nodiscard]] inline bool getHasIndeterminate(rq::TypeAttribute attribute) {
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::INDETERMINATE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool

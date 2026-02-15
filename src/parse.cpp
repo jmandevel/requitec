@@ -614,10 +614,6 @@ rq::Expression &RequiteParser::parsePrecedence3() {
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::Keyword::IDENTIFY);
       continue;
-    case rq::TokenKind::WHAT_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::Keyword::KEWORDIFY);
-      continue;
     case rq::TokenKind::DOUBLE_DOT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::Keyword::ASCEND_FRAME);
@@ -943,6 +939,12 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_factory.parseAscribe(token,
                                         rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
         precedence_factory.appendNullaryAttribute(token, rq::Keyword::MUTABLE);
+        continue;
+      case rq::TokenKind::WHAT_OPERATOR:
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseAscribe(token, rq::Keyword::INDETERMINATE);
+        precedence_factory.appendNullaryAttribute(token,
+                                                  rq::Keyword::INDETERMINATE);
         continue;
       case rq::TokenKind::DOUBLE_GRAVE_OPERATOR:
         this->getRanger().incrementToken(1);
