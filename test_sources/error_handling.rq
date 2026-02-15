@@ -1,34 +1,41 @@
+@message::"divide by 0 error"
 [code ERROR_DIVIDE_BY_ZERO];
+@message::"no error"
 [code OK];
 
 [category DivideResult,
-    @ok OK, // ok attribute means that this result signifies that no error occured
+    @ok OK, // ok attribute means that catch code wont execute
     ERROR_DIVIDE_BY_ZERO
 ];
 
 [entry
-    result:; // type is inferred when its borrowed in the call. this works because there is only one possible overload the arguments.
-    dividend := divide(
-        10,
-        5,
-        =result.`[borrow] // notice no name before equal sign. this means that the argument has an inferrenced name (from the variable result)
-    );
-    [if !result.[is_ok], // a result code passed that does not have @ok, so an error occured!
-        .std.print(line="something bad happened!");
-    ];
+    log_all := divide(10, 5)
+        .[handle code:=[value], 
+            .std.print(line=code.[message]);
+            [if !code.[is_ok],
+                [result] := 1;
+                [return];
+            ];
+        ];
+
+    log_errors_only := divide(20, 10)
+        .[catch code:=[value], 
+            .std.print(line=code.[message]);
+            [result] := 1;
+            [return];
+        ];
+
+    [result] := 0;
 ];
 
 @template::{> Type:[float] <}
-[function divide, (>
-    a:Type,
-    b:Type <, // the parameter mark "<" after this parameter means that all parameters after must be named and not positional.
-    code:&`?DivideResult // the question mark means "may not be initialized yet", so you cant use it as an rvalue until assigned to at least once
-     )Type,
+[function divide, (> a:Type, b:Type <)Type ?.DivideResult,
     [if b == 0,
-        code := .ERROR_DIVIDE_BY_ZERO;
         [result] := 0;
+        [code] := .ERROR_DIVIDE_BY_ZERO;
         [return];
     ];
     [result] := a / b;
-    code := .OK;
+    [code] := .OK;
+    [return];
 ];
