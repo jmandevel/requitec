@@ -370,6 +370,8 @@ enum class Keyword : std::uint32_t {
   DEPRECIATED,
   MAY_COPY,
   MAY_MOVE,
+  AUTO_DROP,
+  DEFER,
   OK,
 
   // MACROS
@@ -1049,6 +1051,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "may_copy";
   case K::MAY_MOVE:
     return "may_move";
+  case K::AUTO_DROP:
+    return "auto_drop";
+  case K::DEFER:
+    return "defer";
   case K::OK:
     return "ok";
 
@@ -1836,6 +1842,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::MAY_MOVE:
     return KF::EXPRESSION_ATTRIBUTE;
+  case K::AUTO_DROP:
+    return KF::EXPRESSION_ATTRIBUTE;
+  case K::DEFER:
+    return KF::EXPRESSION_ATTRIBUTE;
   case K::OK:
     return KF::EXPRESSION_ATTRIBUTE;
 
@@ -2060,7 +2070,6 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::ARM_CHAINLINK);
 }
 
-
 enum class Situation : std::uint_fast8_t {
   NONE,
   TRUNK,
@@ -2115,8 +2124,7 @@ getDescription(rq::Situation situation) {
   return "error expression";
 }
 
-[[nodiscard]] inline rq::Keyword
-getExpandOfSituation(rq::Situation situation) {
+[[nodiscard]] inline rq::Keyword getExpandOfSituation(rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   using S = Situation;
@@ -2180,7 +2188,7 @@ getExpandOfSituation(rq::Situation situation) {
 }
 
 [[nodiscard]] inline rq::Keyword getUniversalized(rq::Keyword keyword,
-                                                     rq::Situation situation) {
+                                                  rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
@@ -2359,16 +2367,14 @@ getCanBeExpressionAttribute(rq::Keyword keyword) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasSome(flags,
-                        rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION |
-                            rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
+  return rq::getHasSome(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION |
+                                   rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags,
-                       rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION);
+  return rq::getHasAll(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2471,6 +2477,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   PROTECTED,
   MAY_COPY,
   MAY_MOVE,
+  AUTO_DROP,
+  DEFER,
   OK
 };
 
@@ -2527,6 +2535,10 @@ getName(rq::ExpressionAttribute attribute) {
     return "may_copy";
   case SA::MAY_MOVE:
     return "may_move";
+  case SA::AUTO_DROP:
+    return "auto_drop";
+  case SA::DEFER:
+    return "defer";
   case SA::OK:
     return "ok";
   }
@@ -2585,6 +2597,10 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::MAY_COPY;
   case K::MAY_MOVE:
     return SA::MAY_MOVE;
+  case K::AUTO_DROP:
+    return SA::AUTO_DROP;
+  case K::DEFER:
+    return SA::DEFER;
   case K::OK:
     return SA::OK;
   default:
@@ -2618,7 +2634,9 @@ enum class ExpressionAttributeFlags : std::uint32_t {
   PROTECTED = rq::getBit(11),
   MAY_COPY = rq::getBit(11),
   MAY_MOVE = rq::getBit(10),
-  OK = rq::getBit(9)
+  AUTO_DROP = rq::getBit(9),
+  DEFER = rq::getBit(8),
+  OK = rq::getBit(7)
 };
 
 template <> struct is_flags<ExpressionAttributeFlags> : std::true_type {};
@@ -2677,6 +2695,10 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::MAY_COPY;
   case SA::MAY_MOVE:
     return SF::MAY_MOVE;
+  case SA::AUTO_DROP:
+    return SF::AUTO_DROP;
+  case SA::DEFER:
+    return SF::DEFER;
   case SA::OK:
     return SF::OK;
   }
@@ -2774,6 +2796,14 @@ getHasDepreciated(rq::ExpressionAttributeFlags flags) {
 
 [[nodiscard]] inline bool getHasMayMove(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_MOVE);
+}
+
+[[nodiscard]] inline bool getHasAutoDrop(rq::ExpressionAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionAttributeFlags::AUTO_DROP);
+}
+
+[[nodiscard]] inline bool getHasDefer(rq::ExpressionAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionAttributeFlags::DEFER);
 }
 
 [[nodiscard]] inline bool getHasOk(rq::ExpressionAttributeFlags flags) {
@@ -2874,9 +2904,13 @@ struct ExpressionAttributeFlagsFactory final {
   [[nodiscard]] bool getHasMayMove() const {
     return rq::getHasMayMove(this->_flags);
   }
-  [[nodiscard]] bool getHasOk() const {
-    return rq::getHasOk(this->_flags);
+  [[nodiscard]] bool getHasAutoDrop() const {
+    return rq::getHasAutoDrop(this->_flags);
   }
+  [[nodiscard]] bool getHasDefer() const {
+    return rq::getHasDefer(this->_flags);
+  }
+  [[nodiscard]] bool getHasOk() const { return rq::getHasOk(this->_flags); }
   [[nodiscard]] const rq::Expression &getCapture() const {
     RQ_ASSERT(this->getHasCapture(), "no capture");
     return rq::dereferencePtr(this->_capture_ptr);

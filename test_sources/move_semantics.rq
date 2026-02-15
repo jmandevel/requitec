@@ -1,6 +1,6 @@
 [import "std"];
 
-@may_copy @may_move
+@may_copy @may_move @auto_drop
 [class MyClass,];
 
 [entry

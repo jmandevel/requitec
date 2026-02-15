@@ -1,6 +1,6 @@
 [import "std"];
 
-@may_parent
+@may_parent @auto_drop
 [class Parent,
     
     [method myFunc, &=>(><),
@@ -13,6 +13,7 @@
     ];
 ];
 
+@auto_drop
 [class Child,
     {> 
         @parent parent := .Parent() 

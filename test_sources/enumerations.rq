@@ -1,5 +1,6 @@
 [import "std"];
 
+@auto_drop
 [enumeration MyEnum, [unsigned_exact_bits 32],
     APPLE  :[signed_fast_bits 32]  = 0;
     ORANGE :[unsigned_fast_bits 32] = 2;
