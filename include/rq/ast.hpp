@@ -2705,112 +2705,112 @@ getFlags(rq::ExpressionAttribute attribute) {
   return SF::NONE;
 }
 
-[[nodiscard]] inline bool getHasOpaque(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OPAQUE);
 }
 
-[[nodiscard]] inline bool getHasOutside(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OUTSIDE);
 }
 
-[[nodiscard]] inline bool getHasStatic(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::STATIC);
 }
 
-[[nodiscard]] inline bool getHasCapture(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::CAPTURE);
 }
 
-[[nodiscard]] inline bool getHasEager(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::EAGER);
 }
 
-[[nodiscard]] inline bool getHasMayParent(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_PARENT);
 }
 
-[[nodiscard]] inline bool getHasParent(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PARENT);
 }
 
-[[nodiscard]] inline bool getHasAbstract(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::ABSTRACT);
 }
 
-[[nodiscard]] inline bool getHasVirtual(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::VIRTUAL);
 }
 
-[[nodiscard]] inline bool getHasOverride(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OVERRIDE);
 }
 
-[[nodiscard]] inline bool getHasPosition(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::POSITION);
 }
 
-[[nodiscard]] inline bool getHasMangle(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MANGLE);
 }
 
-[[nodiscard]] inline bool getHasPack(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PACK);
 }
 
-[[nodiscard]] inline bool getHasLabel(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::LABEL);
 }
 
-[[nodiscard]] inline bool getHasTemplate(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::TEMPLATE);
 }
 
-[[nodiscard]] inline bool getHasLikely(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::LIKELY);
 }
 
-[[nodiscard]] inline bool getHasUnlikely(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::UNLIKELY);
 }
 
-[[nodiscard]] inline bool
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasDepreciated(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::DEPRECIATED);
 }
 
-[[nodiscard]] inline bool getHasExport(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::EXPORT);
 }
 
-[[nodiscard]] inline bool getHasPublic(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PUBLIC);
 }
 
-[[nodiscard]] inline bool getHasProtected(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PROTECTED);
 }
 
-[[nodiscard]] inline bool getHasMayCopy(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_COPY);
 }
 
-[[nodiscard]] inline bool getHasMayMove(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_MOVE);
 }
 
-[[nodiscard]] inline bool getHasAutoDrop(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::AUTO_DROP);
 }
 
-[[nodiscard]] inline bool getHasDefer(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefer(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::DEFER);
 }
 
-[[nodiscard]] inline bool getHasOk(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OK);
 }
 
-[[nodiscard]] inline bool getHasAttribute(rq::ExpressionAttributeFlags flags,
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttribute(rq::ExpressionAttributeFlags flags,
                                           rq::ExpressionAttribute attribute) {
   rq::ExpressionAttributeFlags attribute_flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, attribute_flags);
@@ -3048,42 +3048,42 @@ getFlags(rq::TypeAttribute attribute) {
   return TF::NONE;
 }
 
-[[nodiscard]] inline bool getHasMutable(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE);
 }
 
-[[nodiscard]] inline bool getHasConstant(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT);
 }
 
-[[nodiscard]] inline bool getHasPartiallyMutable(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartiallyMutable(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
 }
 
-[[nodiscard]] inline bool getHasVolatile(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatile(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILE);
 }
 
-[[nodiscard]] inline bool getHasAtomic(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMIC);
 }
 
-[[nodiscard]] inline bool getHasNullTerminated(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATED);
 }
 
-[[nodiscard]] inline bool getHasMayDiscard(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::MAY_DISCARD);
 }
 
-[[nodiscard]] inline bool getHasIndeterminate(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::INDETERMINATE);
 }
@@ -3617,11 +3617,11 @@ struct Expression final {
     this->setSourceAt(source.getBeforeSourceTextPtr());
   }
   template <typename SourceParam>
-  inline void setSourceAfter(const SourceParam &source) {
+  RQ_ALWAYS_INLINE void setSourceAfter(const SourceParam &source) {
     this->setSourceAt(source.getAfterSourceTextPtr());
   }
   template <typename SourceParam>
-  inline void setSourceAtEnd(const SourceParam &source) {
+  RQ_ALWAYS_INLINE void setSourceAtEnd(const SourceParam &source) {
     this->setSourceAt(source.getEndSourceTextPtr());
   }
   // NOTE: no getBranchCount and getNextCount because bad performance!
