@@ -1164,11 +1164,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MAY_COPY:
     [[fallthrough]];
   case K::MAY_MOVE:
+    [[fallthrough]];
+  case K::OK:
     is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::MUTATE_WITH:
-    is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                 S::SYMBOL_PATH);
     break;
 
   // NODES

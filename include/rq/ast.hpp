@@ -347,7 +347,7 @@ enum class Keyword : std::uint32_t {
   UNREACHABLE,
   ASSUME,
 
-  // SYMBOL ATTRIBUTES
+  // EXPRESSION ATTRIBUTES
   OPAQUE,
   OUTSIDE,
   STATIC,
@@ -370,7 +370,7 @@ enum class Keyword : std::uint32_t {
   DEPRECIATED,
   MAY_COPY,
   MAY_MOVE,
-  MUTATE_WITH,
+  OK,
 
   // MACROS
   QUOTE,
@@ -426,6 +426,8 @@ enum class Keyword : std::uint32_t {
   // can use platform specific values for bit depth only if type is a synonym
   SYNONYM,
   SYNONYM_OF,
+  IS_OK,
+  IS_OK_OF,
 
   LAST
 };
@@ -1002,7 +1004,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::ASSUME:
     return "assume";
 
-  // SYMBOL ATTRIBUTES
+  // EXPRESSION ATTRIBUTES
   case K::OPAQUE:
     return "opaque";
   case K::OUTSIDE:
@@ -1047,8 +1049,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "may_copy";
   case K::MAY_MOVE:
     return "may_move";
-  case K::MUTATE_WITH:
-    return "mutate_with";
 
   // NODES
   case K::QUOTE:
@@ -1151,6 +1151,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "synonym";
   case K::SYNONYM_OF:
     return "_synonym_of";
+  case K::IS_OK:
+    return "is_ok";
+  case K::IS_OK_OF:
+    return "_is_ok_of";
   default:
     break;
   }
@@ -1539,10 +1543,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SYNONYM:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SYNONYM_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_OF:
@@ -1787,7 +1787,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::ASSUME:
     return KF::STATEMENT;
 
-  // SYMBOL ATTRIBUTES
+  // EXPRESSION ATTRIBUTES
   case K::OPAQUE:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::OUTSIDE:
@@ -1833,7 +1833,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::MAY_MOVE:
     return KF::EXPRESSION_ATTRIBUTE;
-  case K::MUTATE_WITH:
+  case K::OK:
     return KF::EXPRESSION_ATTRIBUTE;
 
   // NODES
@@ -2218,7 +2218,7 @@ getExpandOfSituation(rq::Situation situation) {
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);
-  // SYMBOL ATTRIBUTES
+  // EXPRESSION ATTRIBUTES
   case K::CAPTURE:
     return K::CAPTURE_OF;
   // REFLECTIONS
@@ -2254,6 +2254,8 @@ getExpandOfSituation(rq::Situation situation) {
     return K::LAYOUT_OF;
   case K::SYNONYM:
     return K::SYNONYM_OF;
+  case K::IS_OK:
+    return K::IS_OK_OF;
   default:
     break;
   }
@@ -2457,7 +2459,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   PROTECTED,
   MAY_COPY,
   MAY_MOVE,
-  MUTATE_WITH,
+  OK
 };
 
 [[nodiscard]] inline llvm::StringRef
@@ -2513,8 +2515,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "may_copy";
   case SA::MAY_MOVE:
     return "may_move";
-  case SA::MUTATE_WITH:
-    return "mutate_with";
+  case SA::OK:
+    return "ok";
   }
   RQ_UNREACHABLE();
 }
@@ -2571,8 +2573,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::MAY_COPY;
   case K::MAY_MOVE:
     return SA::MAY_MOVE;
-  case K::MUTATE_WITH:
-    return SA::MUTATE_WITH;
+  case K::OK:
+    return SA::OK;
   default:
     break;
   }
@@ -2604,7 +2606,7 @@ enum class ExpressionAttributeFlags : std::uint32_t {
   PROTECTED = rq::getBit(11),
   MAY_COPY = rq::getBit(11),
   MAY_MOVE = rq::getBit(10),
-  MUTATE_WITH = rq::getBit(9)
+  OK = rq::getBit(9)
 };
 
 template <> struct is_flags<ExpressionAttributeFlags> : std::true_type {};
@@ -2663,8 +2665,8 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::MAY_COPY;
   case SA::MAY_MOVE:
     return SF::MAY_MOVE;
-  case SA::MUTATE_WITH:
-    return SF::MUTATE_WITH;
+  case SA::OK:
+    return SF::OK;
   }
   return SF::NONE;
 }
@@ -2762,8 +2764,8 @@ getHasDepreciated(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_MOVE);
 }
 
-[[nodiscard]] inline bool getHasMutateWith(rq::ExpressionAttributeFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MUTATE_WITH);
+[[nodiscard]] inline bool getHasOk(rq::ExpressionAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OK);
 }
 
 [[nodiscard]] inline bool getHasAttribute(rq::ExpressionAttributeFlags flags,
@@ -2786,7 +2788,6 @@ struct ExpressionAttributeFlagsFactory final {
   const rq::Expression *_label_ptr{nullptr};
   const rq::Expression *_template_ptr{nullptr};
   const rq::Expression *_depreciated_ptr{nullptr};
-  const rq::Expression *_mutate_with_ptr{nullptr};
 
   ExpressionAttributeFlagsFactory() = default;
   inline void addAttribute(const rq::Expression &expression);
@@ -2861,8 +2862,8 @@ struct ExpressionAttributeFlagsFactory final {
   [[nodiscard]] bool getHasMayMove() const {
     return rq::getHasMayMove(this->_flags);
   }
-  [[nodiscard]] bool getHasMutateWith() const {
-    return rq::getHasMutateWith(this->_flags);
+  [[nodiscard]] bool getHasOk() const {
+    return rq::getHasOk(this->_flags);
   }
   [[nodiscard]] const rq::Expression &getCapture() const {
     RQ_ASSERT(this->getHasCapture(), "no capture");
@@ -2891,10 +2892,6 @@ struct ExpressionAttributeFlagsFactory final {
   [[nodiscard]] const rq::Expression &getDepreciated() const {
     RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
     return rq::dereferencePtr(this->_depreciated_ptr);
-  }
-  [[nodiscard]] const rq::Expression &getMutateWith() const {
-    RQ_ASSERT(this->getHasMutateWith(), "no mutate_with");
-    return rq::dereferencePtr(this->_mutate_with_ptr);
   }
 };
 
@@ -3876,9 +3873,6 @@ inline void ExpressionAttributeFlagsFactory::addAttribute(
     break;
   case rq::Keyword::DEPRECIATED:
     this->_depreciated_ptr = &expression;
-    break;
-  case rq::Keyword::MUTATE_WITH:
-    this->_mutate_with_ptr = &expression;
     break;
   default:
     break;

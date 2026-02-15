@@ -501,7 +501,7 @@ static void emitAttributes(rq::JsonEmitter &json,
       SA::VIRTUAL,   SA::OVERRIDE,    SA::POSITION, SA::MANGLE,
       SA::PACK,      SA::LABEL,       SA::TEMPLATE, SA::LIKELY,
       SA::UNLIKELY,  SA::DEPRECIATED, SA::EXPORT,   SA::PUBLIC,
-      SA::PROTECTED, SA::MAY_COPY,    SA::MAY_MOVE, SA::MUTATE_WITH,
+      SA::PROTECTED, SA::MAY_COPY,    SA::MAY_MOVE, SA::OK,
   };
   for (SA attribute : attributes) {
     if (symbol.getHasAttribute(attribute)) {

@@ -2253,8 +2253,8 @@ struct HasAttributesSymbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const {
     return rq::getHasMayMove(this->_attributes);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutateWith() const {
-    return rq::getHasMutateWith(this->_attributes);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
+    return rq::getHasOk(this->_attributes);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasAttribute(rq::ExpressionAttribute attribute) const {
@@ -4087,12 +4087,12 @@ struct CodeSymbol : public rq::Symbol,
                     public rq::detail::SymbolTableMemberSymbol {
   using Self = rq::CodeSymbol;
 
-  CodeSymbol(rq::Expression &expression, llvm::StringRef name, rq::ModuleSymbol &module,
-             rq::ExpressionAttributeFlags attributes, rq::SymbolTableSymbol &containing_table)
+  CodeSymbol(rq::Expression &expression, llvm::StringRef name,
+             rq::ModuleSymbol &module, rq::ExpressionAttributeFlags attributes,
+             rq::SymbolTableSymbol &containing_table)
       : rq::Symbol(rq::EntityKind::SY_CODE),
         rq::detail::HasLocationSymbol(expression),
-        rq::detail::HasNameSymbol(name),
-        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::HasNameSymbol(name), rq::detail::ModuleMemberSymbol(module),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::SymbolTableMemberSymbol(containing_table) {}
   CodeSymbol(const Self &) = delete;
@@ -4110,12 +4110,13 @@ struct CategorySymbol : public rq::Symbol,
                         public rq::detail::SymbolTableMemberSymbol {
   using Self = rq::CategorySymbol;
 
-  CategorySymbol(rq::Expression &expression, llvm::StringRef name, rq::ModuleSymbol &module,
-                 rq::ExpressionAttributeFlags attributes, rq::SymbolTableSymbol &containing_table)
+  CategorySymbol(rq::Expression &expression, llvm::StringRef name,
+                 rq::ModuleSymbol &module,
+                 rq::ExpressionAttributeFlags attributes,
+                 rq::SymbolTableSymbol &containing_table)
       : rq::Symbol(rq::EntityKind::SY_CATEGORY),
         rq::detail::HasLocationSymbol(expression),
-        rq::detail::HasNameSymbol(name),
-        rq::detail::ModuleMemberSymbol(module),
+        rq::detail::HasNameSymbol(name), rq::detail::ModuleMemberSymbol(module),
         rq::detail::HasAttributesSymbol(attributes),
         rq::detail::SymbolTableMemberSymbol(containing_table) {}
   CategorySymbol(const Self &) = delete;

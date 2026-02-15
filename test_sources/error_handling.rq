@@ -7,7 +7,7 @@
 ];
 
 [entry,
-    result; // type is inferred when its borrowed in the call. this works because there is only one possible overload the arguments.
+    result:; // type is inferred when its borrowed in the call. this works because there is only one possible overload the arguments.
     dividend := divide(
         10,
         5,
