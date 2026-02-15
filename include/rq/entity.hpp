@@ -379,7 +379,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_extension_function";
   case E::SY_EXTENSION_METHOD:
     return "sy_extension_method";
-    ;
   case E::SY_RANGER:
     return "sy_ranger";
 
