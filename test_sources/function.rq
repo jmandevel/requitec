@@ -8,7 +8,7 @@
     ][else 
         .std.print(line="a and b are equal");
     ];
-    [return] := a + b;
+    [result] := a + b;
 ];
 
 [entry

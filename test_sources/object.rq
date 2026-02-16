@@ -10,17 +10,17 @@
 
     @public
     [function fromScalar, (> scalar:[signed_least_bits 32] <)MyClass,
-        [return] := MyClass(scalar, scalar, scalar);    
+        [result] := MyClass(scalar, scalar, scalar);    
     ];
 
     @public
     [method getTotal, &=>(><)[signed_least_bits 32],
-        [return] := [this].x + [this].y + [this].z;
+        [result] := [this].x + [this].y + [this].z;
     ];
 
     @public
     [function add, (>a:MyClass, b:MyClass<)MyClass,
-        [return] :=
+        [result] :=
             MyClass(
                 a.x + b.x,
                 a.y + b.y,
@@ -39,5 +39,5 @@
 
     added := .MyClass.add(b, c);
 
-    [return] := added.[borrow].getTotal();
+    [result] := added.[borrow].getTotal();
 ];

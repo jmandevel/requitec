@@ -3,39 +3,33 @@
 @message::"no error"
 [code OK];
 
+// @no_error_result makes it so when an error occurs, there is no result returned from procedure
+// if this is the case, then control flow must jump on error or result variable must go unused/ignored
+@no_error_result 
 [category DivideResult,
-    @ok OK, // ok attribute means that catch code wont execute
+    @ok OK, // ok attribute means that this code is not an error and will pass
     ERROR_DIVIDE_BY_ZERO
 ];
 
 [entry
-    log_all := divide(10, 5)
-        .[handle code:=[value], 
-            .std.print(line=code.[message]);
-            [if !code.[is_ok],
-                [result] := 1;
-                [exit];
-            ];
-        ];
-
-    log_errors_only := divide(20, 10)
-        .[catch code:=[value], 
-            .std.print(line=code.[message]);
+    divide_result := divide(10, 5)
+        .[pass code:=[value], 
+            .std.print(line="no error occured: {code.[message]}.");
+        ].[fail code:=[value], 
+            .std.print(line="an error occured: {code.[message]}");
             [result] := 1;
-            [exit];
+            [return];
         ];
-
     [result] := 0;
 ];
 
 @template::{> Type:[float] <}
 [function divide, (> a:Type, b:Type <)Type ?.DivideResult,
     [if b == 0,
-        [return] := 0;
-        [result] := .ERROR_DIVIDE_BY_ZERO;
-        [exit];
+        [status] := .ERROR_DIVIDE_BY_ZERO;
+        [return];
     ];
-    [return] := a / b;
-    [result] := .OK;
-    [exit];
+    [result] := a / b;
+    [status] := .OK;
+    [return];
 ];
