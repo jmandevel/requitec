@@ -1,0 +1,20 @@
+
+@auto_drop @may_copy @may_move
+[object Partialable,
+    {>
+        @public @partial_mutate property_a : [signed_fast_bits 32] = 0,
+        @public property_b : [signed_fast_bits 32] = 0
+    <},
+];
+
+[entry
+    // no properties are mutable for constant values:
+    constant := Partialable();
+
+    // all properties are mutable for fully mutable values:
+    fully_mutable :`= Partialiable();
+
+    // only properties marked with @partial_mutate are mutable for partially mutable values:
+    partially_mutable : $partially_mutable = Partialable();
+
+];
