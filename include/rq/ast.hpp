@@ -1684,10 +1684,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::INLINE_BLOCK:
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
-  case K::HANDLE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::HANDLE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::PASS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::PASS_OF:
@@ -1695,6 +1691,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::FAIL:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::FAIL_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::HANDLE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::HANDLE_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   // RANGES
@@ -2286,12 +2286,12 @@ getDescription(rq::Situation situation) {
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
   // SCOPES
-  case K::HANDLE:
-    return K::HANDLE_OF;
   case K::PASS:
     return K::PASS_OF;
   case K::FAIL:
     return K::FAIL_OF;
+  case K::HANDLE:
+    return K::HANDLE_OF;
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);

@@ -988,14 +988,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryExpressionBranches(situation, expression, 0,
                                                 situation);
     break;
-  case K::HANDLE:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::STATEMENT);
-    break;
-  case K::HANDLE_OF:
-    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::STATEMENT);
-    break;
   case K::PASS:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::STATEMENT);
@@ -1009,6 +1001,14 @@ bool Situator::situateTree(rq::Situation situation,
                                                           S::STATEMENT);
     break;
   case K::FAIL_OF:
+    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
+    break;
+  case K::HANDLE:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::STATEMENT);
+    break;
+  case K::HANDLE_OF:
     is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
         situation, expression, S::RVALUE, S::STATEMENT);
     break;
