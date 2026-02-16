@@ -13,10 +13,10 @@
 
 [entry
     divide_result := divide(10, 5)
-        .[pass code:=[status], value:=[value], // if has multiple passes or fails with values of different types, will pick pass based on best matching type of value
+        .[pass code:=[code], value:=[value], // if has multiple passes or fails with values of different types, will pick pass based on best matching type of value
             .std.print(line="no error occured: {code.[message]}. The result is: {value}.");
             [out] := value;
-        ].[fail code:=[status], // this fail works for all error codes without values associated
+        ].[fail code:=[code], // this fail works for all error codes without values associated
             .std.print(line="an error occured: {code.[message]}");
             [result] := 1;
             // must set [out] or break control flow. divide_result cannot be left indeterminate!
