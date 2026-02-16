@@ -1225,7 +1225,7 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
     }
     break;
-  case K::EXPRESSION:
+  case K::NODE:
     [[fallthrough]];
   case K::EXPAND:
     is_ok = this->situateNullaryExpression(situation, expression);
