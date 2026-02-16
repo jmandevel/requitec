@@ -1125,6 +1125,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryExpressionBranches(situation, expression,
                                                  S::SYMBOL_PATH);
     break;
+  case K::PARTIAL_MUTATE:
+    [[fallthrough]];
   case K::STATIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
@@ -1447,7 +1449,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   case K::LAST:
-      RQ_UNREACHABLE();
+    RQ_UNREACHABLE();
 
     // NOTE: don't add default case so compiler will warn if cases are missing!
   }

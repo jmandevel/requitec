@@ -358,6 +358,7 @@ enum class Keyword : std::uint32_t {
   // EXPRESSION ATTRIBUTES
   OPAQUE,
   OUTSIDE,
+  PARTIAL_MUTATE,
   STATIC,
   CAPTURE,
   CAPTURE_OF,
@@ -1036,6 +1037,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "opaque";
   case K::OUTSIDE:
     return "outside";
+  case K::PARTIAL_MUTATE:
+    return "partial_mutate";
   case K::STATIC:
     return "static";
   case K::CAPTURE:
@@ -1846,6 +1849,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::OUTSIDE:
     return KF::EXPRESSION_ATTRIBUTE;
+  case K::PARTIAL_MUTATE:
+    return KF::EXPRESSION_ATTRIBUTE;
   case K::STATIC:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::CAPTURE:
@@ -2515,6 +2520,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   NONE,
   OPAQUE,
   OUTSIDE,
+  PARTIAL_MUTATE,
   STATIC,
   CAPTURE,
   EAGER,
@@ -2553,6 +2559,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "opaque";
   case SA::OUTSIDE:
     return "outside";
+  case SA::PARTIAL_MUTATE:
+    return "partial_mutate";
   case SA::STATIC:
     return "static";
   case SA::CAPTURE:
@@ -2617,6 +2625,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::OPAQUE;
   case K::OUTSIDE:
     return SA::OUTSIDE;
+  case K::PARTIAL_MUTATE:
+    return SA::PARTIAL_MUTATE;
   case K::STATIC:
     return SA::STATIC;
   case K::CAPTURE:
@@ -2677,31 +2687,32 @@ enum class ExpressionAttributeFlags : std::uint32_t {
   NONE = 0,
   OPAQUE = rq::getBit(31),
   OUTSIDE = rq::getBit(30),
-  STATIC = rq::getBit(29),
-  CAPTURE = rq::getBit(28),
-  EAGER = rq::getBit(27),
-  MAY_PARENT = rq::getBit(26),
-  PARENT = rq::getBit(25),
-  ABSTRACT = rq::getBit(24),
-  VIRTUAL = rq::getBit(23),
-  OVERRIDE = rq::getBit(22),
-  POSITION = rq::getBit(21),
-  MANGLE = rq::getBit(20),
-  PACK = rq::getBit(19),
-  LABEL = rq::getBit(18),
-  TEMPLATE = rq::getBit(17),
-  LIKELY = rq::getBit(16),
-  UNLIKELY = rq::getBit(15),
-  DEPRECIATED = rq::getBit(14),
-  EXPORT = rq::getBit(13),
-  PUBLIC = rq::getBit(12),
-  PROTECTED = rq::getBit(11),
-  MAY_COPY = rq::getBit(11),
-  MAY_MOVE = rq::getBit(10),
-  AUTO_DROP = rq::getBit(9),
-  DEFER = rq::getBit(8),
-  OK = rq::getBit(7),
-  MESSAGE = rq::getBit(6)
+  PARTIAL_MUTATE = rq::getBit(29),
+  STATIC = rq::getBit(28),
+  CAPTURE = rq::getBit(27),
+  EAGER = rq::getBit(26),
+  MAY_PARENT = rq::getBit(25),
+  PARENT = rq::getBit(24),
+  ABSTRACT = rq::getBit(23),
+  VIRTUAL = rq::getBit(22),
+  OVERRIDE = rq::getBit(21),
+  POSITION = rq::getBit(20),
+  MANGLE = rq::getBit(19),
+  PACK = rq::getBit(18),
+  LABEL = rq::getBit(17),
+  TEMPLATE = rq::getBit(16),
+  LIKELY = rq::getBit(15),
+  UNLIKELY = rq::getBit(14),
+  DEPRECIATED = rq::getBit(13),
+  EXPORT = rq::getBit(12),
+  PUBLIC = rq::getBit(11),
+  PROTECTED = rq::getBit(10),
+  MAY_COPY = rq::getBit(9),
+  MAY_MOVE = rq::getBit(8),
+  AUTO_DROP = rq::getBit(7),
+  DEFER = rq::getBit(6),
+  OK = rq::getBit(5),
+  MESSAGE = rq::getBit(4)
 };
 
 template <> struct is_flags<ExpressionAttributeFlags> : std::true_type {};
@@ -2718,6 +2729,8 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::OPAQUE;
   case SA::OUTSIDE:
     return SF::OUTSIDE;
+  case SA::PARTIAL_MUTATE:
+    return SF::PARTIAL_MUTATE;
   case SA::STATIC:
     return SF::STATIC;
   case SA::CAPTURE:
@@ -2780,6 +2793,11 @@ getHasOpaque(rq::ExpressionAttributeFlags flags) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasOutside(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OUTSIDE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPartialMutate(rq::ExpressionAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PARTIAL_MUTATE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2941,6 +2959,9 @@ struct ExpressionAttributeFlagsFactory final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const {
     return rq::getHasOutside(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartialMutate() const {
+    return rq::getHasPartialMutate(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
     return rq::getHasStatic(this->_flags);
