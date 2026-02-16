@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rq/entity.hpp>
 #include <rq/context.hpp>
+#include <rq/entity.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/Twine.h>
@@ -18,8 +18,7 @@ struct Situator final {
 
   std::reference_wrapper<rq::Context> _context_ref;
 
-  Situator(rq::Context &context)
-      : _context_ref(context) {}
+  Situator(rq::Context &context) : _context_ref(context) {}
   Situator(const Self &) = delete;
   Situator(Self &&) = delete;
   ~Situator() = default;
@@ -33,7 +32,7 @@ struct Situator final {
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
   [[nodiscard]] bool situateExpressionBranch(rq::Situation branch_situation,
-                                               rq::Expression &branch);
+                                             rq::Expression &branch);
   [[nodiscard]] bool situateHeaderBranch(rq::Situation branch_situation,
                                          rq::Expression &branch);
   [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);
@@ -41,12 +40,12 @@ struct Situator final {
                                               rq::Expression &expression);
   [[nodiscard]] bool
   situateNullaryOrUnaryExpressionBranches(rq::Situation situation,
-                                   rq::Expression &expression,
-                                   rq::Situation branch0_situation);
+                                          rq::Expression &expression,
+                                          rq::Situation branch0_situation);
   [[nodiscard]] bool
   situateUnaryExpressionBranches(rq::Situation situation,
-                                   rq::Expression &expression,
-                                   rq::Situation branch0_situation);
+                                 rq::Expression &expression,
+                                 rq::Situation branch0_situation);
   [[nodiscard]] bool situateBinaryExpressionBranches(
       rq::Situation situation, rq::Expression &expression,
       rq::Situation branch0_situation, rq::Situation branch1_situation);
@@ -77,12 +76,15 @@ struct Situator final {
                                         rq::Expression &first_parameter);
   [[nodiscard]] bool situateNaryStatementBranches(rq::Expression &expression);
   [[nodiscard]] bool
-  situateNaryHeaderFirstStatementBranches(rq::Situation situation,
+  situateFirstHeaderNaryStatementBranches(rq::Situation situation,
                                           rq::Expression &expression,
                                           rq::Situation branch0_situation);
-  [[nodiscard]] bool situateNaryHeaderFirstAndSecondStatementBranches(
+  [[nodiscard]] bool situateFirstAndSecondHeaderNaryStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       rq::Situation branch0_situation, rq::Situation branch1_situation);
+  [[nodiscard]] bool situateNaryDifferentFirstHeaderNaryStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Situation header0_situation, rq::Situation headern_situation);
   [[nodiscard]] bool situateNamedMemberProcedure(rq::Situation situation,
                                                  rq::Expression &expression);
 };

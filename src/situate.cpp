@@ -263,6 +263,8 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, 2, situation, S::TYPE_ATTRIBUTE);
     break;
   case K::IDENTIFY:
+    [[fallthrough]];
+  case K::KEYWORDIFY:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
@@ -676,7 +678,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::RANGER:
-    is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
     break;
 
@@ -761,6 +763,35 @@ bool Situator::situateTree(rq::Situation situation,
       }
     }
     for (rq::Expression &branch : branch1.getNextSubrange()) {
+      if (!this->situateStatementBranch(branch)) {
+        is_ok = false;
+      }
+    }
+    break;
+  }
+  case K::CODE:
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateUnaryExpressionBranches(situation, expression,
+                                                   S::SYMBOL_PATH);
+      break;
+    }
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::CATEGORY: {
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       1);
+      is_ok = false;
+      break;
+    }
+    rq::Expression &branch0 = expression.getBranch();
+    if (!this->situateHeaderBranch(S::SYMBOL_PATH, branch0)) {
+      is_ok = false;
+    }
+    if (!branch0.getHasNext()) {
+      break;
+    }
+    for (rq::Expression &branch : branch0.getNextSubrange()) {
       if (!this->situateStatementBranch(branch)) {
         is_ok = false;
       }
@@ -878,6 +909,10 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED_ADDRESS:
     [[fallthrough]];
+  case K::STRING:
+    [[fallthrough]];
+  case K::CODEUNIT:
+    [[fallthrough]];
   case K::ASCII:
     [[fallthrough]];
   case K::UTF8:
@@ -907,7 +942,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF:
-    is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
     break;
   case K::ELSE:
@@ -921,53 +956,26 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SWITCH:
     [[fallthrough]];
   case K::INLINE_SWITCH:
-    is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
     break;
   case K::CASE:
-    is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
     break;
   case K::WITH:
-    is_ok = this->situateNaryHeaderFirstAndSecondStatementBranches(
+    is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(
         situation, expression, S::RVALUE, S::STATEMENT);
     break;
   case K::DEFAULT:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
-  case K::FOR: {
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       1);
-      is_ok = false;
-      break;
-    }
-    rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateHeaderBranch(S::RVALUE, branch0)) {
-      is_ok = false;
-    }
-    bool found_statement = false;
-    for (rq::Expression &branch : branch0.getNextSubrange()) {
-      if (branch.getIsHeader()) {
-        if (found_statement) {
-          this->getContext().logErrorUnexpectedHeaderExpression(branch);
-          is_ok = false;
-        } else {
-          if (!this->situateHeaderBranch(S::STATEMENT, branch)) {
-            is_ok = false;
-          }
-        }
-      } else {
-        found_statement = true;
-        if (!this->situateStatementBranch(branch)) {
-          is_ok = false;
-        }
-      }
-    }
+  case K::FOR:
+    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
     break;
-  }
   case K::WHILE:
-    is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
     break;
   case K::SCOPE:
@@ -979,6 +987,30 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INLINE_BLOCK:
     is_ok = this->situateNaryExpressionBranches(situation, expression, 0,
                                                 situation);
+    break;
+  case K::HANDLE:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::STATEMENT);
+    break;
+  case K::HANDLE_OF:
+    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
+    break;
+  case K::PASS:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::STATEMENT);
+    break;
+  case K::PASS_OF:
+    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
+    break;
+  case K::FAIL:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::STATEMENT);
+    break;
+  case K::FAIL_OF:
+    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
     break;
 
   // RANGES
@@ -1066,7 +1098,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                   S::RVALUE, S::RVALUE);
     break;
   case K::TABLE:
-    is_ok = this->situateNaryHeaderFirstStatementBranches(situation, expression,
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::SYMBOL_PATH);
     break;
   case K::MODULE_TRUNK:
@@ -1165,8 +1197,24 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::MAY_MOVE:
     [[fallthrough]];
+  case K::AUTO_DROP:
+    [[fallthrough]];
+  case K::DEFER:
+    [[fallthrough]];
   case K::OK:
     is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::MESSAGE:
+    if (situation == S::REFLECTION) {
+      is_ok = this->situateNullaryExpression(situation, expression);
+      break;
+    }
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
+  case K::MESSAGE_OF:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
 
   // NODES
@@ -1328,7 +1376,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::HOLDS:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::HOLDS_ENUMERATOR:
+  case K::HOLDS_OF:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
@@ -1390,8 +1438,18 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
-  default:
-    RQ_UNREACHABLE();
+  case K::IS_OK:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::IS_OK_OF:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
+
+  case K::LAST:
+      RQ_UNREACHABLE();
+
+    // NOTE: don't add default case so compiler will warn if cases are missing!
   }
   if (!is_ok) {
     expression.setHasSituatorError();
@@ -1705,7 +1763,7 @@ bool Situator::situateNaryStatementBranches(rq::Expression &expression) {
   return is_ok;
 }
 
-bool Situator::situateNaryHeaderFirstStatementBranches(
+bool Situator::situateFirstHeaderNaryStatementBranches(
     rq::Situation situation, rq::Expression &expression,
     rq::Situation branch0_situation) {
   bool is_ok = true;
@@ -1726,7 +1784,7 @@ bool Situator::situateNaryHeaderFirstStatementBranches(
   return is_ok;
 }
 
-bool Situator::situateNaryHeaderFirstAndSecondStatementBranches(
+bool Situator::situateFirstAndSecondHeaderNaryStatementBranches(
     rq::Situation situation, rq::Expression &expression,
     rq::Situation branch0_situation, rq::Situation branch1_situation) {
   bool is_ok = true;
@@ -1751,6 +1809,40 @@ bool Situator::situateNaryHeaderFirstAndSecondStatementBranches(
   for (rq::Expression &branch : branch1.getNextSubrange()) {
     if (!this->situateStatementBranch(branch)) {
       is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Situator::situateNaryDifferentFirstHeaderNaryStatementBranches(
+    rq::Situation situation, rq::Expression &expression,
+    rq::Situation header0_situation, rq::Situation headern_situation) {
+  bool is_ok = true;
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
+    is_ok = false;
+    return is_ok;
+  }
+  rq::Expression &branch0 = expression.getBranch();
+  if (!this->situateHeaderBranch(header0_situation, branch0)) {
+    is_ok = false;
+  }
+  bool found_statement = false;
+  for (rq::Expression &branch : branch0.getNextSubrange()) {
+    if (branch.getIsHeader()) {
+      if (found_statement) {
+        this->getContext().logErrorUnexpectedHeaderExpression(branch);
+        is_ok = false;
+      } else {
+        if (!this->situateHeaderBranch(headern_situation, branch)) {
+          is_ok = false;
+        }
+      }
+    } else {
+      found_statement = true;
+      if (!this->situateStatementBranch(branch)) {
+        is_ok = false;
+      }
     }
   }
   return is_ok;

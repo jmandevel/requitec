@@ -68,7 +68,7 @@ enum class Keyword : std::uint32_t {
   // turn a string into an identifier
   IDENTIFY,
   // turn an identifier into a keyword
-  KEWORDIFY,
+  KEYWORDIFY,
 
   // ARITHMETIC
   ADD,
@@ -178,6 +178,8 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   CLASS,
   ENUMERATION,
+  CODE,
+  CATEGORY,
 
   // VALUES
   INITIALIZER_LIST,
@@ -189,7 +191,7 @@ enum class Keyword : std::uint32_t {
   INDEX,
   // vignette or reflected enumerator index.
   DISCRIMINANT,
-  // vignette value returned from a block.
+  // value returned from a block.
   OUT,
   // reference to extended value of method or extension_method.
   THIS,
@@ -265,6 +267,12 @@ enum class Keyword : std::uint32_t {
   INLINE_SCOPE,
   BLOCK,
   INLINE_BLOCK,
+  PASS,
+  PASS_OF,
+  FAIL,
+  FAIL_OF,
+  HANDLE,
+  HANDLE_OF,
 
   // RANGES
   RANGE,
@@ -373,11 +381,12 @@ enum class Keyword : std::uint32_t {
   AUTO_DROP,
   DEFER,
   OK,
+  MESSAGE,
+  MESSAGE_OF,
 
   // MACROS
   QUOTE,
   EXPRESSION,
-  ENTITY_KIND,
   EXPAND,
   EXPAND_STATEMENT,
   EXPAND_LVALUE,
@@ -409,7 +418,7 @@ enum class Keyword : std::uint32_t {
   IS,
   IS_TYPE,
   HOLDS,
-  HOLDS_ENUMERATOR,
+  HOLDS_OF,
   TYPE,
   TYPE_OF,
   SYMBOL,
@@ -513,8 +522,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_root_of_value";
   case K::IDENTIFY:
     return "_identify";
-  case K::KEWORDIFY:
-    return "kewordify";
+  case K::KEYWORDIFY:
+    return "keywordify";
 
   // ARITHMETIC
   case K::ADD:
@@ -709,6 +718,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "class";
   case K::ENUMERATION:
     return "enumeration";
+  case K::CODE:
+    return "code";
+  case K::CATEGORY:
+    return "category";
 
   // VALUES
   case K::INITIALIZER_LIST:
@@ -861,6 +874,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "block";
   case K::INLINE_BLOCK:
     return "inline_block";
+  case K::PASS:
+    return "pass";
+  case K::PASS_OF:
+    return "_pass_of";
+  case K::FAIL:
+    return "fail";
+  case K::FAIL_OF:
+    return "_fail_of";
+  case K::HANDLE:
+    return "handle";
+  case K::HANDLE_OF:
+    return "_handle_of";
 
   // RANGES
   case K::RANGE:
@@ -1057,14 +1082,16 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "defer";
   case K::OK:
     return "ok";
+  case K::MESSAGE:
+    return "message";
+  case K::MESSAGE_OF:
+    return "_message_of";
 
   // NODES
   case K::QUOTE:
     return "quote";
   case K::EXPRESSION:
     return "expression";
-  case K::ENTITY_KIND:
-    return "entity_keyword";
   case K::EXPAND:
     return "expand";
   case K::EXPAND_STATEMENT:
@@ -1125,8 +1152,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_is_type";
   case K::HOLDS:
     return "holds";
-  case K::HOLDS_ENUMERATOR:
-    return "_holds_enumerator";
+  case K::HOLDS_OF:
+    return "_holds_of";
   case K::TYPE:
     return "type";
   case K::TYPE_OF:
@@ -1163,9 +1190,11 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_ok";
   case K::IS_OK_OF:
     return "_is_ok_of";
-  
+
   case K::LAST:
     break;
+
+    // NOTE: don't add default case so compiler will warn if cases are missing!
   }
   RQ_UNREACHABLE();
 }
@@ -1294,7 +1323,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::IDENTIFY:
     return KF::SYMBOL_PATH | KF::RVALUE | KF::ARGUMENT;
-  case K::KEWORDIFY:
+  case K::KEYWORDIFY:
     return KF::RVALUE | KF::ARGUMENT;
 
   // ARITHMETIC
@@ -1490,6 +1519,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::CODE:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+  case K::CATEGORY:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // VALUES
   case K::INITIALIZER_LIST:
@@ -1651,6 +1684,18 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::INLINE_BLOCK:
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
+  case K::HANDLE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::HANDLE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::PASS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::PASS_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::FAIL:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::FAIL_OF:
+    return KF::RVALUE | KF::ARGUMENT;
 
   // RANGES
   case K::RANGE:
@@ -1848,13 +1893,16 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::OK:
     return KF::EXPRESSION_ATTRIBUTE;
+  case K::MESSAGE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::REFLECTION | KF::UNIVERSALIZABLE |
+           KF::RVALUE;
+  case K::MESSAGE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
 
   // NODES
   case K::QUOTE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXPRESSION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ENTITY_KIND:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::EXPAND:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -1922,7 +1970,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::HOLDS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::HOLDS_ENUMERATOR:
+  case K::HOLDS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
@@ -1961,9 +2009,11 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IS_OK_OF:
     return KF::RVALUE | KF::ARGUMENT;
-    
+
   case K::LAST:
     break;
+
+    // NOTE: don't add default case so compiler will warn if cases are missing!
   }
   RQ_UNREACHABLE();
 }
@@ -2235,12 +2285,21 @@ getDescription(rq::Situation situation) {
     return K::FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
+  // SCOPES
+  case K::HANDLE:
+    return K::HANDLE_OF;
+  case K::PASS:
+    return K::PASS_OF;
+  case K::FAIL:
+    return K::FAIL_OF;
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);
   // EXPRESSION ATTRIBUTES
   case K::CAPTURE:
     return K::CAPTURE_OF;
+  case K::MESSAGE:
+    return K::MESSAGE_OF;
   // REFLECTIONS
   case K::BYTE_SIZE:
     return K::BYTE_SIZE_OF;
@@ -2257,7 +2316,7 @@ getDescription(rq::Situation situation) {
   case K::IS:
     return K::IS_TYPE;
   case K::HOLDS:
-    return K::HOLDS_ENUMERATOR;
+    return K::HOLDS_OF;
   case K::TYPE:
     return K::TYPE_OF;
   case K::SYMBOL:
@@ -2479,7 +2538,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   MAY_MOVE,
   AUTO_DROP,
   DEFER,
-  OK
+  OK,
+  MESSAGE
 };
 
 [[nodiscard]] inline llvm::StringRef
@@ -2541,6 +2601,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "defer";
   case SA::OK:
     return "ok";
+  case SA::MESSAGE:
+    return "message";
   }
   RQ_UNREACHABLE();
 }
@@ -2603,6 +2665,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::DEFER;
   case K::OK:
     return SA::OK;
+  case K::MESSAGE:
+    return SA::MESSAGE;
   default:
     break;
   }
@@ -2636,7 +2700,8 @@ enum class ExpressionAttributeFlags : std::uint32_t {
   MAY_MOVE = rq::getBit(10),
   AUTO_DROP = rq::getBit(9),
   DEFER = rq::getBit(8),
-  OK = rq::getBit(7)
+  OK = rq::getBit(7),
+  MESSAGE = rq::getBit(6)
 };
 
 template <> struct is_flags<ExpressionAttributeFlags> : std::true_type {};
@@ -2701,75 +2766,94 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::DEFER;
   case SA::OK:
     return SF::OK;
+  case SA::MESSAGE:
+    return SF::MESSAGE;
   }
   return SF::NONE;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasOpaque(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OPAQUE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasOutside(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OUTSIDE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasStatic(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::STATIC);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasCapture(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::CAPTURE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasEager(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::EAGER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMayParent(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_PARENT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasParent(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PARENT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAbstract(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::ABSTRACT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasVirtual(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::VIRTUAL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasOverride(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OVERRIDE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPosition(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::POSITION);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMangle(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MANGLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPack(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PACK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasLabel(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::LABEL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasTemplate(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::TEMPLATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasLikely(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::LIKELY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasUnlikely(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::UNLIKELY);
 }
 
@@ -2778,40 +2862,54 @@ getHasDepreciated(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::DEPRECIATED);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasExport(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::EXPORT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPublic(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PUBLIC);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasProtected(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::PROTECTED);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMayCopy(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_COPY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMayMove(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MAY_MOVE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAutoDrop(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::AUTO_DROP);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefer(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasDefer(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::DEFER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk(rq::ExpressionAttributeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasOk(rq::ExpressionAttributeFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionAttributeFlags::OK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAttribute(rq::ExpressionAttributeFlags flags,
-                                          rq::ExpressionAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMessage(rq::ExpressionAttributeFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionAttributeFlags::MESSAGE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAttribute(rq::ExpressionAttributeFlags flags,
+                rq::ExpressionAttribute attribute) {
   rq::ExpressionAttributeFlags attribute_flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, attribute_flags);
 }
@@ -2830,114 +2928,126 @@ struct ExpressionAttributeFlagsFactory final {
   const rq::Expression *_label_ptr{nullptr};
   const rq::Expression *_template_ptr{nullptr};
   const rq::Expression *_depreciated_ptr{nullptr};
+  const rq::Expression *_message_ptr{nullptr};
 
   ExpressionAttributeFlagsFactory() = default;
   inline void addAttribute(const rq::Expression &expression);
   inline void addAllAttributres(const rq::Expression &ascribed);
-  [[nodiscard]] rq::ExpressionAttributeFlags getFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttributeFlags getFlags() const {
     return this->_flags;
   }
-  [[nodiscard]] bool getHasOpaque() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const {
     return rq::getHasOpaque(this->_flags);
   }
-  [[nodiscard]] bool getHasOutside() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const {
     return rq::getHasOutside(this->_flags);
   }
-  [[nodiscard]] bool getHasStatic() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
     return rq::getHasStatic(this->_flags);
   }
-  [[nodiscard]] bool getHasCapture() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const {
     return rq::getHasCapture(this->_flags);
   }
-  [[nodiscard]] bool getHasEager() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const {
     return rq::getHasEager(this->_flags);
   }
-  [[nodiscard]] bool getHasMayParent() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const {
     return rq::getHasMayParent(this->_flags);
   }
-  [[nodiscard]] bool getHasParent() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const {
     return rq::getHasParent(this->_flags);
   }
-  [[nodiscard]] bool getHasAbstract() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const {
     return rq::getHasAbstract(this->_flags);
   }
-  [[nodiscard]] bool getHasVirtual() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const {
     return rq::getHasVirtual(this->_flags);
   }
-  [[nodiscard]] bool getHasOverride() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
     return rq::getHasOverride(this->_flags);
   }
-  [[nodiscard]] bool getHasPosition() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition() const {
     return rq::getHasPosition(this->_flags);
   }
-  [[nodiscard]] bool getHasMangle() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
     return rq::getHasMangle(this->_flags);
   }
-  [[nodiscard]] bool getHasPack() const { return rq::getHasPack(this->_flags); }
-  [[nodiscard]] bool getHasLabel() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const {
+    return rq::getHasPack(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const {
     return rq::getHasLabel(this->_flags);
   }
-  [[nodiscard]] bool getHasTemplate() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const {
     return rq::getHasTemplate(this->_flags);
   }
-  [[nodiscard]] bool getHasLikely() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const {
     return rq::getHasLikely(this->_flags);
   }
-  [[nodiscard]] bool getHasUnlikely() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const {
     return rq::getHasUnlikely(this->_flags);
   }
-  [[nodiscard]] bool getHasDepreciated() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const {
     return rq::getHasDepreciated(this->_flags);
   }
-  [[nodiscard]] bool getHasExport() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const {
     return rq::getHasExport(this->_flags);
   }
-  [[nodiscard]] bool getHasPublic() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const {
     return rq::getHasPublic(this->_flags);
   }
-  [[nodiscard]] bool getHasProtected() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const {
     return rq::getHasProtected(this->_flags);
   }
   [[nodiscard]] bool getHasMayCopy() const {
     return rq::getHasMayCopy(this->_flags);
   }
-  [[nodiscard]] bool getHasMayMove() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const {
     return rq::getHasMayMove(this->_flags);
   }
-  [[nodiscard]] bool getHasAutoDrop() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop() const {
     return rq::getHasAutoDrop(this->_flags);
   }
-  [[nodiscard]] bool getHasDefer() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefer() const {
     return rq::getHasDefer(this->_flags);
   }
-  [[nodiscard]] bool getHasOk() const { return rq::getHasOk(this->_flags); }
-  [[nodiscard]] const rq::Expression &getCapture() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
+    return rq::getHasOk(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMessage() const {
+    return rq::getHasMessage(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getCapture() const {
     RQ_ASSERT(this->getHasCapture(), "no capture");
     return rq::dereferencePtr(this->_capture_ptr);
   }
-  [[nodiscard]] const rq::Expression &getOverride() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOverride() const {
     RQ_ASSERT(this->getHasOverride(), "no override");
     return rq::dereferencePtr(this->_override_ptr);
   }
-  [[nodiscard]] const rq::Expression &getPosition() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPosition() const {
     RQ_ASSERT(this->getHasPosition(), "no position");
     return rq::dereferencePtr(this->_position_ptr);
   }
-  [[nodiscard]] const rq::Expression &getMangle() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMangle() const {
     RQ_ASSERT(this->getHasMangle(), "no mangle");
     return rq::dereferencePtr(this->_mangle_ptr);
   }
-  [[nodiscard]] const rq::Expression &getLabel() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLabel() const {
     RQ_ASSERT(this->getHasLabel(), "no label");
     return rq::dereferencePtr(this->_label_ptr);
   }
-  [[nodiscard]] const rq::Expression &getTemplate() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTemplate() const {
     RQ_ASSERT(this->getHasTemplate(), "no template");
     return rq::dereferencePtr(this->_template_ptr);
   }
-  [[nodiscard]] const rq::Expression &getDepreciated() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getDepreciated() const {
     RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
     return rq::dereferencePtr(this->_depreciated_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMessage() const {
+    RQ_ASSERT(this->getHasMessage(), "no message");
+    return rq::dereferencePtr(this->_message_ptr);
   }
 };
 
@@ -3053,17 +3163,20 @@ getFlags(rq::TypeAttribute attribute) {
   return rq::getHasAll(flags, rq::TypeAttributeFlags::MUTABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasConstant(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::CONSTANT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartiallyMutable(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPartiallyMutable(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::PARTIALLY_MUTABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatile(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasVolatile(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILE);
 }
@@ -3073,17 +3186,20 @@ getFlags(rq::TypeAttribute attribute) {
   return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMIC);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNullTerminated(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATED);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasMayDiscard(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::MAY_DISCARD);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasIndeterminate(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::INDETERMINATE);
 }
@@ -3900,25 +4016,28 @@ inline void ExpressionAttributeFlagsFactory::addAttribute(
   this->_flags |= rq::getFlags(attribute);
   switch (expression.getKeyword()) {
   case rq::Keyword::CAPTURE:
-    this->_capture_ptr = &expression;
+    rq::assignSingleValue(this->_capture_ptr, &expression);
     break;
   case rq::Keyword::OVERRIDE:
-    this->_override_ptr = &expression;
+    rq::assignSingleValue(this->_override_ptr, &expression);
     break;
   case rq::Keyword::POSITION:
-    this->_position_ptr = &expression;
+    rq::assignSingleValue(this->_position_ptr, &expression);
     break;
   case rq::Keyword::MANGLE:
-    this->_mangle_ptr = &expression;
+    rq::assignSingleValue(this->_mangle_ptr, &expression);
     break;
   case rq::Keyword::LABEL:
-    this->_label_ptr = &expression;
+    rq::assignSingleValue(this->_label_ptr, &expression);
     break;
   case rq::Keyword::TEMPLATE:
-    this->_template_ptr = &expression;
+    rq::assignSingleValue(this->_template_ptr, &expression);
     break;
   case rq::Keyword::DEPRECIATED:
-    this->_depreciated_ptr = &expression;
+    rq::assignSingleValue(this->_depreciated_ptr, &expression);
+    break;
+  case rq::Keyword::MESSAGE:
+    rq::assignSingleValue(this->_message_ptr, &expression);
     break;
   default:
     break;
