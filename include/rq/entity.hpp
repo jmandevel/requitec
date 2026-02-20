@@ -96,17 +96,16 @@ enum class EntityKind : std::uint16_t {
   // MISC
   SY_MODULE,
   SY_IMPORT,
-  SY_FACADE,
   SY_EXTENSION,
   SY_CODE,
   SY_CATEGORY,
-  SY_CATEGORY_ALTERNATIVE,
+  SY_CATEGORY_DISCRIMINANT,
 
   // BINDING
   SY_DYNAMIC_VARIABLE,
   SY_STATIC_VARIABLE,
   SY_ENUMERATOR,
-  SY_PROPERTY,
+  SY_CATEGORY_ALTERNATIVE,
   SY_CLASS_PARAMETER,
   SY_LAYOUT_PARAMETER,
   SY_TEMPLATE_PARAMETER,
@@ -213,316 +212,7 @@ enum class EntityKind : std::uint16_t {
 static constexpr std::size_t ENTITY_COUNT =
     static_cast<std::size_t>(rq::EntityKind::LAST) - 1;
 
-[[nodiscard]] inline llvm::StringRef getName(rq::EntityKind kind) {
-  using namespace rq;
-  using E = EntityKind;
-  switch (kind) {
-  case E::NONE:
-    return "none";
-
-  // =====SYMBOLS=====
-
-  // TYPE DEFINITION
-  case E::SY_TYPE_DEFINITION:
-    return "sy_type_definition";
-
-  // SIMPLE BUILTIN
-  case E::SY_INFERENCE:
-    return "sy_inference";
-  case E::SY_EXPRESSION:
-    return "sy_expression";
-  case E::SY_ENTITY_KIND:
-    return "sy_entity_kind";
-  case E::SY_TYPE_TYPE:
-    return "sy_type_type";
-  case E::SY_GENERIC_SYMBOL:
-    return "sy_generic_symbol";
-  case E::SY_VOID:
-    return "sy_void";
-  case E::SY_NULL:
-    return "sy_null";
-  case E::SY_NO_RETURN:
-    return "sy_no_return";
-  case E::SY_VARIADIC_ARGUMENTS:
-    return "sy_variadic_arguments";
-  case E::SY_BOOLEAN:
-    return "sy_boolean";
-  case E::SY_GENERIC_FLOAT:
-    return "sy_generic_float";
-  case E::SY_HALF:
-    return "sy_half";
-  case E::SY_SINGLE:
-    return "sy_single";
-  case E::SY_DOUBLE:
-    return "sy_double";
-  case E::SY_QUADRUPLE:
-    return "sy_quadruple";
-  case E::SY_GENERIC_BINARY:
-    return "sy_generic_binary";
-  case E::SY_GENERIC_BFLOAT:
-    return "sy_generic_float";
-  case E::SY_BINARY16:
-    return "sy_binary16";
-  case E::SY_BINARY32:
-    return "sy_binary32";
-  case E::SY_BINARY64:
-    return "sy_binary64";
-  case E::SY_BINARY128:
-    return "sy_binary128";
-  case E::SY_BFLOAT16:
-    return "sy_bfloat16";
-  case E::SY_GENERIC_INTEGER:
-    return "sy_generic_integer";
-  case E::SY_GENERIC_SIGNED:
-    return "sy_generic_signed";
-  case E::SY_GENERIC_UNSIGNED:
-    return "sy_generic_unsigned";
-  case E::SY_GENERIC_CODEUNIT:
-    return "sy_generic_codeunit";
-  case E::SY_ASCII:
-    return "sy_ascii";
-  case E::SY_UTF8:
-    return "sy_utf8";
-
-  // SCALED BUILTIN
-  case E::SY_SCALED_SIGNED:
-    return "sy_scaled_signed";
-  case E::SY_SCALED_UNSIGNED:
-    return "sy_scaled_unsigned";
-
-  // UNARY SUBTYPE
-  case E::SY_RANGE:
-    return "sy_range";
-  case E::SY_REFERENCE:
-    return "sy_reference";
-  case E::SY_POINTER:
-    return "sy_pointer";
-  case E::SY_FAT_POINTER:
-    return "sy_fat_pointer";
-  case E::SY_INFERENCED_COUNT_ARRAY:
-    return "sy_inferenced_count_array";
-
-  // COUNTED SUBTYPE
-  case E::SY_ARRAY:
-    return "sy_array";
-
-  // COMPOSITE SUBTYPE
-  case E::SY_LAYOUT:
-    return "sy_layout";
-  case E::SY_SIGNATURE:
-    return "sy_signature";
-
-  // ARITHMETIC SEQUENCE
-  case E::SY_ARITHMETIC_INTERVAL:
-    return "sy_arithmetic_interval";
-  case E::SY_FINITE_ARITHMETIC_PROGRESSION:
-    return "sy_finite_arithmetic_progression";
-  case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
-    return "sy_infinite_arithmetic_progression";
-
-  // MISC
-  case E::SY_MODULE:
-    return "sy_module";
-  case E::SY_IMPORT:
-    return "sy_import";
-  case E::SY_FACADE:
-    return "sy_facade";
-  case E::SY_EXTENSION:
-    return "sy_extension";
-  case E::SY_CODE:
-    return "sy_code";
-  case E::SY_CATEGORY:
-    return "sy_category";
-  case E::SY_CATEGORY_ALTERNATIVE:
-    return "sy_category_alternative";
-
-  // BINDING
-  case E::SY_DYNAMIC_VARIABLE:
-    return "sy_dynamic_variable";
-  case E::SY_STATIC_VARIABLE:
-    return "sy_static_variable";
-  case E::SY_ENUMERATOR:
-    return "sy_enumerator";
-  case E::SY_PROPERTY:
-    return "sy_property";
-  case E::SY_CLASS_PARAMETER:
-    return "sy_class_parameter";
-  case E::SY_LAYOUT_PARAMETER:
-    return "sy_layout_parameter";
-  case E::SY_TEMPLATE_PARAMETER:
-    return "sy_template_parameter";
-  case E::SY_SIGNATURE_PARAMETER:
-    return "sy_signature_parameter";
-  case E::SY_LABEL:
-    return "sy_label";
-
-  // SYMBOL TABLE
-  case E::SY_TOP:
-    return "sy_top";
-  case E::SY_SCOPE:
-    return "sy_scope";
-  case E::SY_TABLE:
-    return "sy_table";
-  case E::SY_CLASS:
-    return "sy_class";
-  case E::SY_ENUMERATION:
-    return "sy_enumeration";
-
-  // PROCEDURE
-  case E::SY_ENTRY:
-    return "sy_entry";
-  case E::SY_FUNCTION:
-    return "sy_function";
-  case E::SY_METHOD:
-    return "sy_method";
-  case E::SY_EXTENSION_FUNCTION:
-    return "sy_extension_function";
-  case E::SY_EXTENSION_METHOD:
-    return "sy_extension_method";
-  case E::SY_RANGER:
-    return "sy_ranger";
-
-  // TEMPLATE
-  case E::SY_TEMPLATE_CLASS:
-    return "sy_template_class";
-  case E::SY_TEMPLATE_ENUMERATION:
-    return "sy_template_enumeration";
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
-    return "sy_template_dynamic_variable";
-  case E::SY_TEMPLATE_STATIC_VARIABLE:
-    return "sy_template_static_variable";
-  case E::SY_TEMPLATE_FUNCTION:
-    return "sy_template_function";
-  case E::SY_TEMPLATE_METHOD:
-    return "sy_template_method";
-  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return "sy_template_extension_function";
-  case E::SY_TEMPLATE_EXTENSION_METHOD:
-    return "sy_template_extension_method";
-
-  // PARTIAL SPECIALIZATION
-  case E::SY_PARTIAL_CLASS:
-    return "sy_partial_class";
-  case E::SY_PARTIAL_ENUMERATION:
-    return "sy_partial_enumeration";
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return "sy_partial_dynamic_variable";
-  case E::SY_PARTIAL_STATIC_VARIABLE:
-    return "sy_partial_static_variable";
-  case E::SY_PARTIAL_FUNCTION:
-    return "sy_partial_function";
-  case E::SY_PARTIAL_METHOD:
-    return "sy_partial_method";
-  case E::SY_PARTIAL_EXTENSION_FUNCTION:
-    return "sy_partial_extension_function";
-  case E::SY_PARTIAL_EXTENSION_METHOD:
-    return "sy_partial_extension_method";
-
-    // =====CONSTANTS=====
-
-  case E::CT_INTEGER:
-    return "ct_integer";
-  case E::CT_FLOAT:
-    return "ct_float";
-  case E::CT_STRING:
-    return "ct_string";
-  case E::CT_ARRAY:
-    return "ct_array";
-
-  case E::OP_NONE:
-    return "op_none";
-  case E::OP_LOGICAL_AND:
-    return "op_logical_and";
-  case E::OP_LOGICAL_OR:
-    return "op_logical_or";
-  case E::OP_LOGICAL_COMPLEMENT:
-    return "op_logical_complement";
-
-  case E::OP_GREATER:
-    return "op_greater";
-  case E::OP_GREATER_EQUAL:
-    return "op_greater_equal";
-  case E::OP_LESS:
-    return "op_less";
-  case E::OP_LESS_EQUAL:
-    return "op_less_equal";
-  case E::OP_EQUAL:
-    return "op_equal";
-  case E::OP_NOT_EQUAL:
-    return "op_not_equal";
-
-  case E::OP_ADD:
-    return "op_add";
-  case E::OP_SUBTRACT:
-    return "op_subtract";
-  case E::OP_MULTIPLY:
-    return "op_multiply";
-  case E::OP_DIVIDE:
-    return "op_divide";
-  case E::OP_MODULUS:
-    return "op_modulus";
-  case E::OP_NEGATE:
-    return "op_negate";
-
-  case E::OP_CAST:
-    return "op_cast";
-
-  case E::OP_BITWISE_AND:
-    return "op_bitwise_and";
-  case E::OP_BITWISE_OR:
-    return "op_bitwise_or";
-  case E::OP_BITWISE_XOR:
-    return "op_bitwise_xor";
-  case E::OP_BITWISE_COMPLEMENT:
-    return "op_bitwise_complement";
-  case E::OP_BITWISE_SHIFT_LEFT:
-    return "op_bitwise_shift_left";
-  case E::OP_BITWISE_SHIFT_RIGHT:
-    return "op_bitwise_shift_right";
-  case E::OP_BITWISE_ROTATE_LEFT:
-    return "op_bitwise_rotate_left";
-  case E::OP_BITWISE_ROTATE_RIGHT:
-    return "op_bitwise_rotate_right";
-
-  case E::OP_CONTENT_OF:
-    return "op_content_of";
-  case E::OP_ADDRESS_OF:
-    return "op_address_of";
-  case E::OP_CALL:
-    return "op_call";
-  case E::OP_DROP:
-    return "op_drop";
-  case E::OP_MOVE:
-    return "op_move";
-  case E::OP_COPY:
-    return "op_copy";
-
-  case E::OP_RETURN:
-    return "op_return";
-  case E::OP_GOTO:
-    return "op_goto";
-  case E::OP_CONDITION:
-    return "op_condition";
-
-  case E::OP_LOOP_SEQUENCE:
-    return "op_loop_sequence";
-  case E::OP_LOOP_ELEMENTS:
-    return "op_loop_elements";
-  case E::OP_LOOP_RANGER:
-    return "op_loop_ranger";
-
-  case E::OP_DEBUG_TRAP:
-    return "op_debug_trap";
-  case E::OP_UNREACHABLE:
-    return "op_unreachable";
-  case E::OP_ASSUME:
-    return "op_assume";
-
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
+[[nodiscard]] inline llvm::StringRef getName(rq::EntityKind kind);
 
 enum class EntityFlags : std::uint32_t {
   NONE = 0,
@@ -566,283 +256,13 @@ enum class EntityFlags : std::uint32_t {
   // CONSTANT FLAGS
   // TODO
 };
-
 template <> struct is_flags<EntityFlags> : std::true_type {};
-
-[[nodiscard]] inline rq::EntityFlags getFlags(rq::EntityKind kind) {
-  using namespace rq;
-  using E = EntityKind;
-  using EF = EntityFlags;
-  switch (kind) {
-  case E::NONE:
-    return EF::NONE;
-
-  // TYPE DEFINITION SYMBOL
-  case E::SY_TYPE_DEFINITION:
-    return EF::SYMBOL | EF::SY_TYPE;
-
-  // SIMPLE BUILTIN SYMBOL
-  case E::SY_INFERENCE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_EXPRESSION:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_ENTITY_KIND:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_TYPE_TYPE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
-  case E::SY_GENERIC_SYMBOL:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_VOID:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_NULL:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_NO_RETURN:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_VARIADIC_ARGUMENTS:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_BOOLEAN:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_GENERIC_FLOAT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_GENERIC;
-  case E::SY_HALF:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_SINGLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_DOUBLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_QUADRUPLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_GENERIC_BINARY:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_GENERIC;
-  case E::SY_GENERIC_BFLOAT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_GENERIC;
-  case E::SY_BINARY16:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE;
-  case E::SY_BINARY32:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE;
-  case E::SY_BINARY64:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE;
-  case E::SY_BINARY128:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE;
-  case E::SY_BFLOAT16:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
-           EF::SY_CONCRETE;
-  case E::SY_GENERIC_INTEGER:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
-           EF::SY_GENERIC;
-  case E::SY_GENERIC_SIGNED:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
-           EF::SY_GENERIC;
-  case E::SY_GENERIC_UNSIGNED:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
-           EF::SY_GENERIC;
-  case E::SY_GENERIC_CODEUNIT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
-           EF::SY_GENERIC;
-  case E::SY_ASCII:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
-           EF::SY_CONCRETE;
-  case E::SY_UTF8:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
-           EF::SY_CONCRETE;
-
-  // SCALED BUILTIN SYMBOL
-  case E::SY_SCALED_SIGNED:
-    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING | EF::SY_SIGNED;
-  case E::SY_SCALED_UNSIGNED:
-    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-
-  // UNARY SUBTYPE SYMBOL
-  case E::SY_RANGE:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
-  case E::SY_REFERENCE:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_POINTER:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_FAT_POINTER:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_INFERENCED_COUNT_ARRAY:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_GENERIC;
-
-  // COUNTED SUBTYPE SYMBOL
-  case E::SY_ARRAY:
-    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
-
-  // COMPOSITE SUBTYPE SYMBOL
-  case E::SY_LAYOUT:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
-  case E::SY_SIGNATURE:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
-
-  // ARITHMETIC SEQUENCE SYMBOL
-  case E::SY_ARITHMETIC_INTERVAL:
-    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
-  case E::SY_FINITE_ARITHMETIC_PROGRESSION:
-    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
-  case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
-    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
-
-  // MISC SYMBOL
-  case E::SY_MODULE:
-    return EF::SYMBOL;
-  case E::SY_IMPORT:
-    return EF::SYMBOL;
-  case E::SY_FACADE:
-    return EF::SYMBOL;
-  case E::SY_EXTENSION:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
-  case E::SY_CODE:
-    return EF::SYMBOL;
-  case E::SY_CATEGORY:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_CATEGORY_ALTERNATIVE:
-    return EF::SYMBOL;
-
-  // BINDING SYMBOL
-  case E::SY_DYNAMIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case E::SY_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case E::SY_ENUMERATOR:
-    return EF::SYMBOL;
-  case E::SY_PROPERTY:
-    return EF::SYMBOL;
-  case E::SY_CLASS_PARAMETER:
-    return EF::SYMBOL;
-  case E::SY_LAYOUT_PARAMETER:
-    return EF::SYMBOL;
-  case E::SY_TEMPLATE_PARAMETER:
-    return EF::SYMBOL;
-  case E::SY_SIGNATURE_PARAMETER:
-    return EF::SYMBOL;
-  case E::SY_LABEL:
-    return EF::SYMBOL;
-
-  // SYMBOL TABLE SYMBOL
-  case E::SY_TOP:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
-  case E::SY_SCOPE:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE;
-  case E::SY_TABLE:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
-  case E::SY_CLASS:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-  case E::SY_ENUMERATION:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-
-  // PROCEDURE SYMBOL
-  case E::SY_ENTRY:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
-  case E::SY_FUNCTION:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-  case E::SY_METHOD:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-  case E::SY_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-  case E::SY_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
-  case E::SY_RANGER:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
-
-  // TEMPLATE SYMBOL
-  case E::SY_TEMPLATE_CLASS:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_ENUMERATION:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_FUNCTION:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_METHOD:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-  case E::SY_TEMPLATE_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_TEMPLATE;
-
-  // PARTIAL SPECIALIZATION SYMBOL
-  case E::SY_PARTIAL_CLASS:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_ENUMERATION:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_FUNCTION:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_METHOD:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  case E::SY_PARTIAL_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_PARTIAL;
-  // CONSTANT
-  case E::CT_INTEGER:
-    return EF::CONSTANT;
-  case E::CT_FLOAT:
-    return EF::CONSTANT;
-  case E::CT_STRING:
-    return EF::CONSTANT;
-  case E::CT_ARRAY:
-    return EF::CONSTANT;
-  default:
-    break;
-  }
-  RQ_ASSERT(rq::getUnderlying(kind) < rq::getUnderlying(rq::EntityKind::LAST),
-            "out of range");
-  return EF::NONE;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::EntityKind kind) {
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SYMBOL);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::EntityKind kind) {
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::CONSTANT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityKind kind) {
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasNone(flags, rq::EntityFlags::NOT_OPCODE_MASK);
-}
+[[nodiscard]] inline rq::EntityFlags getFlags(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityKind kind);
 
 #define RQ_ASSERT_SYMBOL(kind) RQ_ASSERT(rq::getIsSymbol((kind)), "not symbol")
-
 #define RQ_ASSERT_CONSTANT(kind)                                               \
   RQ_ASSERT(rq::getIsConstant((kind)), "not constant")
 
@@ -850,677 +270,172 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   RQ_ASSERT(rq::getIsOpcode(opcode), "not opcode")
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsSimpleBuiltinSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_SIMPLE_BUILTIN);
-}
-
+getIsSimpleBuiltinSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsScaledBuiltinSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_SCALED_BUILTIN);
-}
-
+getIsScaledBuiltinSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsUnarySubtypeSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_UNARY_SUBTYPE);
-}
-
+getIsUnarySubtypeSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsCountedSubtypeSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_COUNTED_SUBTYPE);
-}
-
+getIsCountedSubtypeSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsCompositeSubtypeSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_COMPOSITE_SUBTYPE);
-}
-
+getIsCompositeSubtypeSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsArithmeticSequenceSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_ARITHMETIC_SEQUENCE);
-}
-
+getIsArithmeticSequenceSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsSymbolTableSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_SYMBOL_TABLE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_PROCEDURE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_TEMPLATE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_PARTIAL);
-}
-
+getHasTemplateAlternativeSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasTemplateAlternativeSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_HAS_TEMPLATE_ALTERNATIVE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_TYPE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_GENERIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_CONCRETE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_SUBTYPE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPlatformChangingSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_PLATFORM_CHANGING);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_INTEGER);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_FLOAT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_CODEUNIT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_SIGNED);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_UNSIGNED);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrameSymbol(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_TOP_OF_FRAME);
-}
-
-[[nodiscard]] inline rq::EntityKind getTemplate(rq::EntityKind kind) {
-  using namespace rq;
-  using E = EntityKind;
-  switch (kind) {
-  case E::SY_CLASS:
-    return E::SY_TEMPLATE_CLASS;
-  case E::SY_ENUMERATION:
-    return E::SY_TEMPLATE_ENUMERATION;
-  case E::SY_DYNAMIC_VARIABLE:
-    return E::SY_TEMPLATE_DYNAMIC_VARIABLE;
-  case E::SY_STATIC_VARIABLE:
-    return E::SY_TEMPLATE_STATIC_VARIABLE;
-  case E::SY_FUNCTION:
-    return E::SY_TEMPLATE_FUNCTION;
-  case E::SY_METHOD:
-    return E::SY_TEMPLATE_METHOD;
-  case E::SY_EXTENSION_FUNCTION:
-    return E::SY_TEMPLATE_EXTENSION_FUNCTION;
-  case E::SY_EXTENSION_METHOD:
-    return E::SY_TEMPLATE_EXTENSION_METHOD;
-  case E::SY_PARTIAL_CLASS:
-    return E::SY_TEMPLATE_CLASS;
-  case E::SY_PARTIAL_ENUMERATION:
-    return E::SY_TEMPLATE_ENUMERATION;
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return E::SY_TEMPLATE_DYNAMIC_VARIABLE;
-  case E::SY_PARTIAL_STATIC_VARIABLE:
-    return E::SY_TEMPLATE_STATIC_VARIABLE;
-  case E::SY_PARTIAL_FUNCTION:
-    return E::SY_TEMPLATE_FUNCTION;
-  case E::SY_PARTIAL_METHOD:
-    return E::SY_TEMPLATE_METHOD;
-  case E::SY_PARTIAL_EXTENSION_FUNCTION:
-    return E::SY_TEMPLATE_EXTENSION_FUNCTION;
-  case E::SY_PARTIAL_EXTENSION_METHOD:
-    return E::SY_TEMPLATE_EXTENSION_METHOD;
-  case E::SY_TEMPLATE_CLASS:
-    return E::SY_TEMPLATE_CLASS;
-  case E::SY_TEMPLATE_ENUMERATION:
-    return E::SY_TEMPLATE_ENUMERATION;
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
-    return E::SY_TEMPLATE_DYNAMIC_VARIABLE;
-  case E::SY_TEMPLATE_STATIC_VARIABLE:
-    return E::SY_TEMPLATE_STATIC_VARIABLE;
-  case E::SY_TEMPLATE_FUNCTION:
-    return E::SY_TEMPLATE_FUNCTION;
-  case E::SY_TEMPLATE_METHOD:
-    return E::SY_TEMPLATE_METHOD;
-  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return E::SY_TEMPLATE_EXTENSION_FUNCTION;
-  case E::SY_TEMPLATE_EXTENSION_METHOD:
-    return E::SY_TEMPLATE_EXTENSION_METHOD;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::EntityKind getPartial(rq::EntityKind kind) {
-  using namespace rq;
-  using E = EntityKind;
-  switch (kind) {
-  case E::SY_CLASS:
-    return E::SY_PARTIAL_CLASS;
-  case E::SY_ENUMERATION:
-    return E::SY_PARTIAL_ENUMERATION;
-  case E::SY_DYNAMIC_VARIABLE:
-    return E::SY_PARTIAL_DYNAMIC_VARIABLE;
-  case E::SY_STATIC_VARIABLE:
-    return E::SY_PARTIAL_STATIC_VARIABLE;
-  case E::SY_FUNCTION:
-    return E::SY_PARTIAL_FUNCTION;
-  case E::SY_METHOD:
-    return E::SY_PARTIAL_METHOD;
-  case E::SY_EXTENSION_FUNCTION:
-    return E::SY_PARTIAL_EXTENSION_FUNCTION;
-  case E::SY_EXTENSION_METHOD:
-    return E::SY_PARTIAL_EXTENSION_METHOD;
-  case E::SY_TEMPLATE_CLASS:
-    return E::SY_PARTIAL_CLASS;
-  case E::SY_TEMPLATE_ENUMERATION:
-    return E::SY_PARTIAL_ENUMERATION;
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
-    return E::SY_PARTIAL_DYNAMIC_VARIABLE;
-  case E::SY_TEMPLATE_STATIC_VARIABLE:
-    return E::SY_PARTIAL_STATIC_VARIABLE;
-  case E::SY_TEMPLATE_FUNCTION:
-    return E::SY_PARTIAL_FUNCTION;
-  case E::SY_TEMPLATE_METHOD:
-    return E::SY_PARTIAL_METHOD;
-  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return E::SY_PARTIAL_EXTENSION_FUNCTION;
-  case E::SY_TEMPLATE_EXTENSION_METHOD:
-    return E::SY_PARTIAL_EXTENSION_METHOD;
-  case E::SY_PARTIAL_CLASS:
-    return E::SY_PARTIAL_CLASS;
-  case E::SY_PARTIAL_ENUMERATION:
-    return E::SY_PARTIAL_ENUMERATION;
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return E::SY_PARTIAL_DYNAMIC_VARIABLE;
-  case E::SY_PARTIAL_STATIC_VARIABLE:
-    return E::SY_PARTIAL_STATIC_VARIABLE;
-  case E::SY_PARTIAL_FUNCTION:
-    return E::SY_PARTIAL_FUNCTION;
-  case E::SY_PARTIAL_METHOD:
-    return E::SY_PARTIAL_METHOD;
-  case E::SY_PARTIAL_EXTENSION_FUNCTION:
-    return E::SY_PARTIAL_EXTENSION_FUNCTION;
-  case E::SY_PARTIAL_EXTENSION_METHOD:
-    return E::SY_PARTIAL_EXTENSION_METHOD;
-  default:
-    RQ_UNREACHABLE();
-  }
-}
-
-[[nodiscard]] inline rq::EntityKind getFullSpecialization(rq::EntityKind kind) {
-  using namespace rq;
-  using E = EntityKind;
-  switch (kind) {
-  case E::SY_CLASS:
-    return E::SY_CLASS;
-  case E::SY_ENUMERATION:
-    return E::SY_ENUMERATION;
-  case E::SY_DYNAMIC_VARIABLE:
-    return E::SY_DYNAMIC_VARIABLE;
-  case E::SY_STATIC_VARIABLE:
-    return E::SY_STATIC_VARIABLE;
-  case E::SY_FUNCTION:
-    return E::SY_FUNCTION;
-  case E::SY_METHOD:
-    return E::SY_METHOD;
-  case E::SY_EXTENSION_FUNCTION:
-    return E::SY_EXTENSION_FUNCTION;
-  case E::SY_EXTENSION_METHOD:
-    return E::SY_EXTENSION_METHOD;
-  case E::SY_TEMPLATE_CLASS:
-    return E::SY_CLASS;
-  case E::SY_TEMPLATE_ENUMERATION:
-    return E::SY_ENUMERATION;
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
-    return E::SY_DYNAMIC_VARIABLE;
-  case E::SY_TEMPLATE_STATIC_VARIABLE:
-    return E::SY_STATIC_VARIABLE;
-  case E::SY_TEMPLATE_FUNCTION:
-    return E::SY_FUNCTION;
-  case E::SY_TEMPLATE_METHOD:
-    return E::SY_METHOD;
-  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return E::SY_EXTENSION_FUNCTION;
-  case E::SY_TEMPLATE_EXTENSION_METHOD:
-    return E::SY_EXTENSION_METHOD;
-  case E::SY_PARTIAL_CLASS:
-    return E::SY_CLASS;
-  case E::SY_PARTIAL_ENUMERATION:
-    return E::SY_ENUMERATION;
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return E::SY_DYNAMIC_VARIABLE;
-  case E::SY_PARTIAL_STATIC_VARIABLE:
-    return E::SY_STATIC_VARIABLE;
-  case E::SY_PARTIAL_FUNCTION:
-    return E::SY_FUNCTION;
-  case E::SY_PARTIAL_METHOD:
-    return E::SY_METHOD;
-  case E::SY_PARTIAL_EXTENSION_FUNCTION:
-    return E::SY_EXTENSION_FUNCTION;
-  case E::SY_PARTIAL_EXTENSION_METHOD:
-    return E::SY_EXTENSION_METHOD;
-  default:
-    RQ_UNREACHABLE();
-  }
-}
+getIsPlatformChangingSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrameSymbol(rq::EntityKind kind);
+[[nodiscard]] inline rq::EntityKind getTemplate(rq::EntityKind kind);
+[[nodiscard]] inline rq::EntityKind getPartial(rq::EntityKind kind);
+[[nodiscard]] inline rq::EntityKind getFullSpecialization(rq::EntityKind kind);
 
 struct Entity {
   using Self = Entity;
 
   rq::EntityKind _kind;
 
-  Entity(rq::EntityKind kind) : _kind(kind) {}
+  inline explicit Entity(rq::EntityKind kind);
   Entity(const Self &) = delete;
   Entity(Self &&) = delete;
-  virtual ~Entity() {};
+  ~Entity() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getKind() const {
-    return this->_kind;
-  }
-  [[nodiscard]] llvm::StringRef getKindName() const {
-    return rq::getName(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
-    return rq::getIsSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const {
-    return rq::getIsConstant(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-    return rq::getIsOpcode(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinitionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TYPE_DEFINITION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltinSymbol() const {
-    return rq::getIsSimpleBuiltinSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferenceSymbol() const {
-    return this->_kind == rq::EntityKind::SY_INFERENCE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_EXPRESSION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntityKindSymbol() const {
-    return this->_kind == rq::EntityKind::SY_ENTITY_KIND;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeTypeSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TYPE_TYPE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbolSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_SYMBOL;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVoidSymbol() const {
-    return this->_kind == rq::EntityKind::SY_VOID;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullSymbol() const {
-    return this->_kind == rq::EntityKind::SY_NULL;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoReturnSymbol() const {
-    return this->_kind == rq::EntityKind::SY_NO_RETURN;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariadicArgumentsSymbol() const {
-    return this->_kind == rq::EntityKind::SY_VARIADIC_ARGUMENTS;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBooleanSymbol() const {
-    return this->_kind == rq::EntityKind::SY_BOOLEAN;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloatSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_FLOAT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHalfSymbol() const {
-    return this->_kind == rq::EntityKind::SY_HALF;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSingleSymbol() const {
-    return this->_kind == rq::EntityKind::SY_SINGLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDoubleSymbol() const {
-    return this->_kind == rq::EntityKind::SY_DOUBLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQuadrupleSymbol() const {
-    return this->_kind == rq::EntityKind::SY_QUADRUPLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBinarySymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_BINARY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBfloatSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_BFLOAT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16Symbol() const {
-    return this->_kind == rq::EntityKind::SY_BINARY16;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32Symbol() const {
-    return this->_kind == rq::EntityKind::SY_BINARY32;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64Symbol() const {
-    return this->_kind == rq::EntityKind::SY_BINARY64;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128Symbol() const {
-    return this->_kind == rq::EntityKind::SY_BINARY128;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16Symbol() const {
-    return this->_kind == rq::EntityKind::SY_BFLOAT16;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericIntegerSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_INTEGER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSignedSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_SIGNED;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericUnsignedSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_UNSIGNED;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericCodeunitSymbol() const {
-    return this->_kind == rq::EntityKind::SY_GENERIC_CODEUNIT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAsciiSymbol() const {
-    return this->_kind == rq::EntityKind::SY_ASCII;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8Symbol() const {
-    return this->_kind == rq::EntityKind::SY_UTF8;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltinSymbol() const {
-    return rq::getIsScaledBuiltinSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledSignedSymbol() const {
-    return this->_kind == rq::EntityKind::SY_SCALED_SIGNED;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledUnsignedSymbol() const {
-    return this->_kind == rq::EntityKind::SY_SCALED_UNSIGNED;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtypeSymbol() const {
-    return rq::getIsUnarySubtypeSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangeSymbol() const {
-    return this->_kind == rq::EntityKind::SY_RANGE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReferenceSymbol() const {
-    return this->_kind == rq::EntityKind::SY_REFERENCE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPointerSymbol() const {
-    return this->_kind == rq::EntityKind::SY_POINTER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFatPointerSymbol() const {
-    return this->_kind == rq::EntityKind::SY_FAT_POINTER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferencedCountArraySymbol() const {
-    return this->_kind == rq::EntityKind::SY_INFERENCED_COUNT_ARRAY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtypeSymbol() const {
-    return rq::getIsCountedSubtypeSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArraySymbol() const {
-    return this->_kind == rq::EntityKind::SY_ARRAY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtypeSymbol() const {
-    return rq::getIsCompositeSubtypeSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutSymbol() const {
-    return this->_kind == rq::EntityKind::SY_LAYOUT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureSymbol() const {
-    return this->_kind == rq::EntityKind::SY_SIGNATURE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceSymbol() const {
-    return rq::getIsArithmeticSequenceSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticIntervalSymbol() const {
-    return this->_kind == rq::EntityKind::SY_ARITHMETIC_INTERVAL;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getKind() const;
+  [[nodiscard]] llvm::StringRef getKindName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeDefinitionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltinSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferenceSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeTypeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbolSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVoidSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoReturnSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariadicArgumentsSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBooleanSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloatSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHalfSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSingleSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDoubleSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQuadrupleSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBinarySymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBfloatSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16Symbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32Symbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64Symbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128Symbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16Symbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericIntegerSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSignedSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericUnsignedSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericCodeunitSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAsciiSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8Symbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltinSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledSignedSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledUnsignedSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtypeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReferenceSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPointerSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFatPointerSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferencedCountArraySymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtypeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArraySymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtypeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticIntervalSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsFiniteArithmeticProgressionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION;
-  }
+  getIsFiniteArithmeticProgressionSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsInfiniteArithmeticProgressionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleSymbol() const {
-    return this->_kind == rq::EntityKind::SY_MODULE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImportSymbol() const {
-    return this->_kind == rq::EntityKind::SY_IMPORT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFacadeSymbol() const {
-    return this->_kind == rq::EntityKind::SY_FACADE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_EXTENSION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_DYNAMIC_VARIABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_STATIC_VARIABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeratorSymbol() const {
-    return this->_kind == rq::EntityKind::SY_ENUMERATOR;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPropertySymbol() const {
-    return this->_kind == rq::EntityKind::SY_PROPERTY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameterSymbol() const {
-    return this->_kind == rq::EntityKind::SY_CLASS_PARAMETER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameterSymbol() const {
-    return this->_kind == rq::EntityKind::SY_LAYOUT_PARAMETER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameterSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_PARAMETER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameterSymbol() const {
-    return this->_kind == rq::EntityKind::SY_SIGNATURE_PARAMETER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabelSymbol() const {
-    return this->_kind == rq::EntityKind::SY_LABEL;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableSymbol() const {
-    return rq::getIsSymbolTableSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TOP;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeSymbol() const {
-    return this->_kind == rq::EntityKind::SY_SCOPE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassSymbol() const {
-    return this->_kind == rq::EntityKind::SY_CLASS;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumerationSymbol() const {
-    return this->_kind == rq::EntityKind::SY_ENUMERATION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureSymbol() const {
-    return rq::getIsProcedureSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntrySymbol() const {
-    return this->_kind == rq::EntityKind::SY_ENTRY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_FUNCTION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMethodSymbol() const {
-    return this->_kind == rq::EntityKind::SY_METHOD;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionFunctionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_EXTENSION_FUNCTION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionMethodSymbol() const {
-    return this->_kind == rq::EntityKind::SY_EXTENSION_METHOD;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangerSymbol() const {
-    return this->_kind == rq::EntityKind::SY_RANGER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateSymbol() const {
-    return rq::getIsTemplateSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateClassSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_CLASS;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateEnumerationSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_ENUMERATION;
-  }
+  getIsInfiniteArithmeticProgressionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImportSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategorySymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategoryDiscriminantSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeratorSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategoryAlternativeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameterSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameterSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameterSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameterSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabelSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumerationSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntrySymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMethodSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionFunctionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionMethodSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangerSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateClassSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateEnumerationSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateDynamicVariableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE;
-  }
+  getIsTemplateDynamicVariableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateStaticVariableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateFunctionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateMethodSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateStaticVariableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateFunctionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_FUNCTION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateMethodSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_METHOD;
-  }
+  getIsTemplateExtensionFunctionSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateExtensionFunctionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION;
-  }
+  getIsTemplateExtensionMethodSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialClassSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialEnumerationSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialDynamicVariableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialStaticVariableSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialFunctionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialMethodSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateExtensionMethodSymbol() const {
-    return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol() const {
-    return rq::getIsPartialSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialClassSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_CLASS;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialEnumerationSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_ENUMERATION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsPartialDynamicVariableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialStaticVariableSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialFunctionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_FUNCTION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialMethodSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_METHOD;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsPartialExtensionFunctionSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsPartialExtensionMethodSymbol() const {
-    return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerConstant() const {
-    return this->_kind == rq::EntityKind::CT_INTEGER;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatConstant() const {
-    return this->_kind == rq::EntityKind::CT_FLOAT;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringConstant() const {
-    return this->_kind == rq::EntityKind::CT_STRING;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArrayConstant() const {
-    return this->_kind == rq::EntityKind::CT_ARRAY;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternativeSymbol() const {
-    return rq::getHasTemplateAlternativeSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol() const {
-    return rq::getIsTypeSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol() const {
-    return rq::getIsGenericSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol() const {
-    return rq::getIsConcreteSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol() const {
-    return rq::getIsSubtypeSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChangingSymbol() const {
-    return rq::getIsPlatformChangingSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerSymbol() const {
-    return rq::getIsIntegerSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatSymbol() const {
-    return rq::getIsFloatSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitSymbol() const {
-    return rq::getIsCodeunitSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedSymbol() const {
-    return rq::getIsSignedSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedSymbol() const {
-    return rq::getIsUnsignedSymbol(this->_kind);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrameSymbol() const {
-    return rq::getIsTopOfFrameSymbol(this->_kind);
-  }
+  getIsPartialExtensionFunctionSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialExtensionMethodSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerConstant() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatConstant() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringConstant() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArrayConstant() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternativeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChangingSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrameSymbol() const;
 };
 
 struct SymbolTableIterator final {
@@ -1534,8 +449,7 @@ struct SymbolTableIterator final {
   rq::SymbolTableSymbol *_symbol_table_ptr = nullptr;
 
   SymbolTableIterator() = default;
-  SymbolTableIterator(rq::SymbolTableSymbol *symbol_table_ptr)
-      : _symbol_table_ptr(symbol_table_ptr) {}
+  inline explicit SymbolTableIterator(rq::SymbolTableSymbol *symbol_table_ptr);
   SymbolTableIterator(const Self &) = default;
   SymbolTableIterator(Self &&) = default;
   ~SymbolTableIterator() = default;
@@ -1543,29 +457,14 @@ struct SymbolTableIterator final {
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_symbol_table_ptr == it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_symbol_table_ptr != it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &operator*() {
-    return rq::dereferencePtr(this->_symbol_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
-  operator*() const {
-    return rq::dereferencePtr(this->_symbol_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol *operator->() {
-    return this->_symbol_table_ptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol *operator->();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol *
-  operator->() const {
-    return this->_symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_symbol_table_ptr == nullptr;
-  }
+  operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct ConstSymbolTableIterator final {
@@ -1579,8 +478,8 @@ struct ConstSymbolTableIterator final {
   const rq::SymbolTableSymbol *_symbol_table_ptr = nullptr;
 
   ConstSymbolTableIterator() = default;
-  ConstSymbolTableIterator(const rq::SymbolTableSymbol *symbol_table_ptr)
-      : _symbol_table_ptr(symbol_table_ptr) {}
+  inline explicit ConstSymbolTableIterator(
+      const rq::SymbolTableSymbol *symbol_table_ptr);
   ConstSymbolTableIterator(const Self &) = default;
   ConstSymbolTableIterator(Self &&) = default;
   ~ConstSymbolTableIterator() = default;
@@ -1588,23 +487,12 @@ struct ConstSymbolTableIterator final {
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_symbol_table_ptr == it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_symbol_table_ptr != it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
-  operator*() const {
-    return rq::dereferencePtr(this->_symbol_table_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &operator*() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol *
-  operator->() const {
-    return this->_symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_symbol_table_ptr == nullptr;
-  }
+  operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 // ROOT WITH TYPE ATTRIBUTES
@@ -1614,7 +502,6 @@ struct TypeDefinitionSymbol;
 struct SimpleBuiltinSymbol;
 struct InferenceSymbol;
 struct ExpressionSymbol;
-struct EntityKindSymbol;
 struct VoidSymbol;
 struct NullSymbol;
 struct NoReturnSymbol;
@@ -1660,9 +547,6 @@ struct ArraySymbol;
 // COMPOSITE SUBTYPE
 struct LayoutSymbol;
 struct SignatureSymbol;
-struct ExtensionSymbol;
-struct CodeSymbol;
-struct CategorySymbol;
 
 // ARITHMETIC SEQUENCE
 struct ArithmeticSequenceSymbol;
@@ -1673,13 +557,16 @@ struct InfiniteArithmeticProgressionSymbol;
 // MISC
 struct ModuleSymbol;
 struct ImportSymbol;
-struct FacadeSymbol;
+struct ExtensionSymbol;
+struct CodeSymbol;
+struct CategorySymbol;
+struct CategoryDiscriminantSymbol;
 
 // BINDING
 struct DynamicVariableSymbol;
 struct StaticVariableSymbol;
 struct EnumeratorSymbol;
-struct PropertySymbol;
+struct CategoryAlternativeSymbol;
 struct ClassParameterSymbol;
 struct LayoutParameterSymbol;
 struct TemplateParameterSymbol;
@@ -1725,6 +612,7 @@ struct PartialMethodSymbol;
 struct PartialExtensionFunctionSymbol;
 struct PartialExtensionMethodSymbol;
 
+// CONSTANTS
 struct IntegerConstant;
 struct FloatConstant;
 struct StringConstant;
@@ -1733,8 +621,7 @@ struct ArrayConstant;
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
 
-  Symbol(rq::EntityKind kind) : rq::Entity(kind) { RQ_ASSERT_SYMBOL(kind); }
-
+  inline explicit Symbol(rq::EntityKind kind);
   Symbol(const Self &) = delete;
   Symbol(Self &&) = delete;
   ~Symbol() = default;
@@ -1745,14 +632,10 @@ struct Symbol : public rq::Entity {
 struct SimpleBuiltinSymbol : public rq::Symbol {
   using Self = rq::SimpleBuiltinSymbol;
 
-  SimpleBuiltinSymbol(rq::EntityKind kind) : rq::Symbol(kind) {
-    RQ_ASSERT(rq::getIsSimpleBuiltinSymbol(kind),
-              "kind not builtin simple symbol");
-  }
-
+  inline explicit SimpleBuiltinSymbol(rq::EntityKind kind);
   SimpleBuiltinSymbol(const Self &) = delete;
   SimpleBuiltinSymbol(Self &&) = delete;
-  virtual ~SimpleBuiltinSymbol() {}
+  ~SimpleBuiltinSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -1778,72 +661,32 @@ enum class ScaledBuiltinFlags : std::uint8_t {
   PLATFORM_SCALAR = rq::getBit(7)
 };
 
-template <> struct is_flags<ScaledBuiltinFlags> : std::true_type {};
+template <> struct is_flags<rq::ScaledBuiltinFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasBitsScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasNone(flags, rq::ScaledBuiltinFlags::BITS_NONE_MASK);
-}
-
+getHasBitsScalar(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasBytesScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::BYTES);
-}
-
+getHasBytesScalar(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasIndexScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::INDEX);
-}
-
+getHasIndexScalar(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasAddressScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::ADDRESS);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasNone(flags, rq::ScaledBuiltinFlags::EXACT_NONE_MASK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::FASTEST);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LEAST);
-}
-
+getHasAddressScalar(rq::ScaledBuiltinFlags flags);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact(rq::ScaledBuiltinFlags flags);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest(rq::ScaledBuiltinFlags flags);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPlatformEndian(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasNone(flags,
-                        rq::ScaledBuiltinFlags::PLATFORM_ENDIAN_NONE_MASK);
-}
-
+getIsPlatformEndian(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsBigEndian(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::BIG_ENDIAN_);
-}
-
+getIsBigEndian(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsLittleEndian(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LITTLE_ENDIAN_);
-}
-
+getIsLittleEndian(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPlatformScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::PLATFORM_SCALAR);
-}
-
+getHasPlatformScalar(rq::ScaledBuiltinFlags flags);
 void RQ_ALWAYS_INLINE profileScaledIntegerSymbol(llvm::FoldingSetNodeID &id,
                                                  rq::EntityKind kind,
                                                  std::uint16_t scalar,
                                                  std::uint16_t uid,
-                                                 rq::ScaledBuiltinFlags flags) {
-  id.AddInteger(static_cast<unsigned>(kind));
-  id.AddInteger(static_cast<unsigned>(scalar));
-  id.AddInteger(static_cast<unsigned>(uid));
-  id.AddInteger(static_cast<unsigned>(flags));
-}
-
+                                                 rq::ScaledBuiltinFlags flags);
 struct ScaledBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ScaledBuiltinSymbol;
   friend struct Context;
@@ -1853,149 +696,77 @@ struct ScaledBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   rq::ScaledBuiltinFlags _flags;
 
   ScaledBuiltinSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
-                      rq::ScaledBuiltinFlags flags)
-      : rq::Symbol(kind), _scalar(scalar), _uid(uid), _flags(flags) {
-    RQ_ASSERT(rq::getIsScaledBuiltinSymbol(kind),
-              "kind not scaled builtin symbol");
-    RQ_ASSERT(scalar < rq::MAX_SCALED_BUILTIN_SCALAR, "scalar too large");
-    RQ_ASSERT(uid < rq::MAX_SCALED_BUILTIN_UID, "uid too large");
-  }
-
+                      rq::ScaledBuiltinFlags flags);
   ScaledBuiltinSymbol(const Self &) = delete;
   ScaledBuiltinSymbol(Self &&) = delete;
-  virtual ~ScaledBuiltinSymbol() {}
+  ~ScaledBuiltinSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const {
-    return this->_scalar;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getUid() const {
-    return this->_uid;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinFlags getFlags() const {
-    return this->_flags;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBytesScalar() const {
-    return rq::getHasBytesScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndexScalar() const {
-    return rq::getHasIndexScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressScalar() const {
-    return rq::getHasAddressScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact() const {
-    return rq::getIsExact(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest() const {
-    return rq::getIsFastest(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const {
-    return rq::getIsLeast(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformEndian() const {
-    return rq::getIsPlatformEndian(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBigEndian() const {
-    return rq::getIsBigEndian(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const {
-    return rq::getIsLittleEndian(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformScalar() const {
-    return rq::getHasPlatformScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const {
-    return this->_uid != 0;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileScaledIntegerSymbol(id, this->_kind, this->_scalar, this->_uid,
-                                   this->_flags);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getUid() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBytesScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndexScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformEndian() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBigEndian() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
-
 struct ScaledIntegerSymbol : public rq::ScaledBuiltinSymbol {
   using Self = rq::ScaledIntegerSymbol;
 
   ScaledIntegerSymbol(unsigned scalar, unsigned uid,
-                      rq::ScaledBuiltinFlags flags)
-      : rq::ScaledBuiltinSymbol(rq::EntityKind::SY_GENERIC_INTEGER, scalar, uid,
-                                flags) {}
-
+                      rq::ScaledBuiltinFlags flags);
   ScaledIntegerSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
-                      rq::ScaledBuiltinFlags flags)
-      : rq::ScaledBuiltinSymbol(kind, scalar, uid, flags) {}
-
+                      rq::ScaledBuiltinFlags flags);
   ScaledIntegerSymbol(const Self &) = delete;
   ScaledIntegerSymbol(Self &&) = delete;
-  virtual ~ScaledIntegerSymbol() {}
+  ~ScaledIntegerSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
-
 struct FloatSymbol : public rq::ScaledBuiltinSymbol {
   using Self = rq::FloatSymbol;
 
-  FloatSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags)
-      : rq::ScaledBuiltinSymbol(rq::EntityKind::SY_GENERIC_FLOAT, scalar, uid,
-                                flags) {}
-
+  FloatSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags);
   FloatSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
-              rq::ScaledBuiltinFlags flags)
-      : rq::ScaledBuiltinSymbol(kind, scalar, uid, flags) {}
-
+              rq::ScaledBuiltinFlags flags);
   FloatSymbol(const Self &) = delete;
   FloatSymbol(Self &&) = delete;
-  virtual ~FloatSymbol() {}
+  ~FloatSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
-
 void RQ_ALWAYS_INLINE profileUnarySubtypeSymbol(llvm::FoldingSetNodeID &id,
                                                 rq::EntityKind kind,
-                                                const rq::Symbol &root) {
-  id.AddInteger(static_cast<unsigned>(kind));
-  id.AddPointer(&root);
-}
-
+                                                const rq::Symbol &root);
 struct UnarySubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::UnarySubtypeSymbol;
   friend struct Context;
 
   rq::Symbol *_root_ptr{nullptr};
 
-  UnarySubtypeSymbol(rq::EntityKind kind, rq::Symbol &root)
-      : rq::Symbol(kind), _root_ptr(&root) {
-    RQ_ASSERT(rq::getIsUnarySubtypeSymbol(kind),
-              "kind not unary subtype symbol");
-    RQ_ASSERT(root.getIsTypeSymbol(), "not type");
-  }
-
+  inline UnarySubtypeSymbol(rq::EntityKind kind, rq::Symbol &root);
   UnarySubtypeSymbol(const Self &) = delete;
   UnarySubtypeSymbol(Self &&) = delete;
-  virtual ~UnarySubtypeSymbol() {}
+  ~UnarySubtypeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot() {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileUnarySubtypeSymbol(id, this->getKind(), this->getRoot());
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 void RQ_ALWAYS_INLINE profileCountedSubtypeSymbol(llvm::FoldingSetNodeID &id,
                                                   rq::EntityKind kind,
                                                   const rq::Symbol &root,
-                                                  unsigned count) {
-  id.AddInteger(static_cast<unsigned>(kind));
-  id.AddPointer(&root);
-  id.AddInteger(count);
-}
-
+                                                  unsigned count);
 struct CountedSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::CountedSubtypeSymbol;
   friend struct Context;
@@ -2003,43 +774,21 @@ struct CountedSubtypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   rq::Symbol *_root_ptr;
   std::size_t _count;
 
-  CountedSubtypeSymbol(rq::EntityKind kind, rq::Symbol &root, std::size_t count)
-      : rq::Symbol(kind), _root_ptr(&root), _count(count) {
-    RQ_ASSERT(rq::getIsCountedSubtypeSymbol(kind), "not counted subtype");
-    RQ_ASSERT(root.getIsTypeSymbol(), "not type");
-  }
-
+  inline CountedSubtypeSymbol(rq::EntityKind kind, rq::Symbol &root,
+                              std::size_t count);
   CountedSubtypeSymbol(const Self &) = delete;
   CountedSubtypeSymbol(Self &&) = delete;
-  virtual ~CountedSubtypeSymbol() {}
+  ~CountedSubtypeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot() {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getCount() const {
-    return this->_count;
-  }
-
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileCountedSubtypeSymbol(id, this->getKind(), this->getRoot(),
-                                    this->getCount());
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getCount() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
-
 void RQ_ALWAYS_INLINE profileArithmeticSequenceSymbol(
     llvm::FoldingSetNodeID &id, const rq::Symbol &root,
-    rq::ArithmeticSequenceCondition condition,
-    rq::ArithmeticSequenceStep step) {
-  // no need to fold kind
-  id.AddPointer(&root);
-  id.AddInteger(static_cast<unsigned>(condition));
-  id.AddInteger(static_cast<unsigned>(step));
-}
-
+    rq::ArithmeticSequenceCondition condition, rq::ArithmeticSequenceStep step);
 struct ArithmeticSequenceSymbol : public rq::Symbol,
                                   public llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequenceSymbol;
@@ -2049,309 +798,179 @@ struct ArithmeticSequenceSymbol : public rq::Symbol,
   rq::ArithmeticSequenceCondition _condition;
   rq::ArithmeticSequenceStep _step;
 
-  ArithmeticSequenceSymbol(rq::EntityKind kind, rq::Symbol &root,
-                           rq::ArithmeticSequenceCondition condition,
-                           rq::ArithmeticSequenceStep step)
-      : rq::Symbol(kind), _root_ptr(&root), _condition(condition), _step(step) {
-    RQ_ASSERT(root.getIsTypeSymbol(), "not type");
-    RQ_ASSERT(rq::getIsArithmeticSequenceSymbol(kind),
-              "kind not arithmetic sequence symbol");
-  }
-
+  inline ArithmeticSequenceSymbol(rq::EntityKind kind, rq::Symbol &root,
+                                  rq::ArithmeticSequenceCondition condition,
+                                  rq::ArithmeticSequenceStep step);
   ArithmeticSequenceSymbol(const Self &) = delete;
   ArithmeticSequenceSymbol(Self &&) = delete;
-  virtual ~ArithmeticSequenceSymbol() {}
+  ~ArithmeticSequenceSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot() {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getRoot();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
-  getCondition() const {
-    return this->_condition;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const {
-    return this->_step;
-  }
-
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileArithmeticSequenceSymbol(id, this->getRoot(),
-                                        this->getCondition(), this->getStep());
-  }
+  getCondition() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 namespace detail {
 struct HasLocationSymbol {
   using Self = rq::detail::HasLocationSymbol;
 
-  rq::Expression *_expression_ptr;
+  rq::Expression *_expression_ptr{nullptr};
 
-  HasLocationSymbol(rq::Expression &expression)
-      : _expression_ptr(&expression) {}
-
-  HasLocationSymbol() : _expression_ptr(nullptr) {}
+  inline explicit HasLocationSymbol(rq::Expression &expression);
+  HasLocationSymbol() = default;
   HasLocationSymbol(const Self &) = delete;
   HasLocationSymbol(Self &&) = delete;
-  virtual ~HasLocationSymbol() {}
+  ~HasLocationSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
-    return this->_expression_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
-    rq::assignSingleValue(this->_expression_ptr, &expression);
-  }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
-    rq::assignSingleValue(this->_expression_ptr, expression_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr);
 };
 struct ModuleMemberSymbol {
   using Self = rq::detail::ModuleMemberSymbol;
 
   rq::ModuleSymbol *_module_ptr;
 
-  ModuleMemberSymbol(rq::ModuleSymbol &module) : _module_ptr(&module) {}
-
+  inline explicit ModuleMemberSymbol(rq::ModuleSymbol &module);
   ModuleMemberSymbol(const Self &) = delete;
   ModuleMemberSymbol(Self &&) = delete;
-  virtual ~ModuleMemberSymbol() {}
+  ~ModuleMemberSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &getModule() const {
-    return rq::dereferencePtr(this->_module_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getModule() {
-    return rq::dereferencePtr(this->_module_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &getModule() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getModule();
 };
 struct SymbolTableMemberSymbol {
   using Self = rq::detail::SymbolTableMemberSymbol;
 
-  rq::SymbolTableSymbol *_containing_symbol_table_ptr;
+  rq::SymbolTableSymbol *_containing_symbol_table_ptr{nullptr};
 
-  SymbolTableMemberSymbol() : _containing_symbol_table_ptr(nullptr) {}
-  SymbolTableMemberSymbol(rq::SymbolTableSymbol &containing_table)
-      : _containing_symbol_table_ptr(&containing_table) {}
-
+  SymbolTableMemberSymbol() = default;
+  inline explicit SymbolTableMemberSymbol(
+      rq::SymbolTableSymbol &containing_table);
   SymbolTableMemberSymbol(const Self &) = delete;
   SymbolTableMemberSymbol(Self &&) = delete;
-  virtual ~SymbolTableMemberSymbol() {}
+  ~SymbolTableMemberSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() const {
-    return this->_containing_symbol_table_ptr != nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol &
-  getContainingSymbolTable() const {
-    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
-  }
+  getContainingSymbolTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &
-  getContainingSymbolTable() {
-    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
-  }
+  getContainingSymbolTable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableSymbol *
-  getContainingSymbolTablePtr() const {
-    return this->_containing_symbol_table_ptr;
-  }
+  getContainingSymbolTablePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol *
-  getContainingSymbolTablePtr() {
-    return this->_containing_symbol_table_ptr;
-  }
+  getContainingSymbolTablePtr();
 };
 struct HasAttributesSymbol {
   using Self = HasAttributesSymbol;
 
   rq::ExpressionAttributeFlags _attributes;
 
-  HasAttributesSymbol(rq::ExpressionAttributeFlags attributes)
-      : _attributes(attributes) {}
-
+  inline explicit HasAttributesSymbol(rq::ExpressionAttributeFlags attributes);
   HasAttributesSymbol(const Self &) = delete;
   HasAttributesSymbol(Self &&) = delete;
-  virtual ~HasAttributesSymbol() {}
+  ~HasAttributesSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttributeFlags
-  getExpressionAttributes() const {
-    return this->_attributes;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const {
-    return rq::getHasOpaque(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const {
-    return rq::getHasOutside(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
-    return rq::getHasStatic(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const {
-    return rq::getHasCapture(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const {
-    return rq::getHasEager(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const {
-    return rq::getHasMayParent(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const {
-    return rq::getHasParent(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const {
-    return rq::getHasAbstract(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const {
-    return rq::getHasVirtual(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
-    return rq::getHasOverride(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition() const {
-    return rq::getHasPosition(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
-    return rq::getHasMangle(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const {
-    return rq::getHasPack(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const {
-    return rq::getHasLabel(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const {
-    return rq::getHasTemplate(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const {
-    return rq::getHasLikely(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const {
-    return rq::getHasUnlikely(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const {
-    return rq::getHasDepreciated(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const {
-    return rq::getHasExport(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const {
-    return rq::getHasPublic(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const {
-    return rq::getHasProtected(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy() const {
-    return rq::getHasMayCopy(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const {
-    return rq::getHasMayMove(this->_attributes);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
-    return rq::getHasOk(this->_attributes);
-  }
+  getExpressionAttributes() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAttribute(rq::ExpressionAttribute attribute) const {
-    return rq::getHasAttribute(this->_attributes, attribute);
-  }
+  getHasAttribute(rq::ExpressionAttribute attribute) const;
 };
 struct HasNameSymbol {
   using Self = rq::detail::HasNameSymbol;
 
   llvm::StringRef _name;
 
-  HasNameSymbol(llvm::StringRef name) : _name(name) {
-    RQ_ASSERT(!name.empty(), "empty name");
-  }
-
+  HasNameSymbol(llvm::StringRef name);
   HasNameSymbol(const Self &) = delete;
   HasNameSymbol(Self &&) = delete;
-  virtual ~HasNameSymbol() {}
+  ~HasNameSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return this->_name;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
 };
 struct MaybeHasNameSymbol {
   using Self = rq::detail::MaybeHasNameSymbol;
 
   llvm::StringRef _name{};
 
-  MaybeHasNameSymbol() : _name() {}
-  MaybeHasNameSymbol(llvm::StringRef name) : _name(name) {
-    RQ_ASSERT(!name.empty(), "empty name");
-  }
-
+  MaybeHasNameSymbol() = default;
+  inline explicit MaybeHasNameSymbol(llvm::StringRef name);
   MaybeHasNameSymbol(const Self &) = delete;
   MaybeHasNameSymbol(Self &&) = delete;
-  virtual ~MaybeHasNameSymbol() {}
+  ~MaybeHasNameSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const {
-    return !this->_name.empty();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return this->_name;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
 };
 struct HasBindingTypeSymbol {
   using Self = rq::detail::HasBindingTypeSymbol;
 
   rq::TypeDefinitionSymbol *_binding_type_ptr{nullptr};
 
-  HasBindingTypeSymbol() {}
-
+  HasBindingTypeSymbol() = default;
   HasBindingTypeSymbol(const Self &) = delete;
   HasBindingTypeSymbol(Self &&) = delete;
-  virtual ~HasBindingTypeSymbol() {}
+  ~HasBindingTypeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBindingType() const {
-    return this->_binding_type_ptr != nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBindingType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeDefinitionSymbol &
-  getBindingType() const {
-    return rq::dereferencePtr(this->_binding_type_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeDefinitionSymbol &getBindingType() {
-    return rq::dereferencePtr(this->_binding_type_ptr);
-  }
-  RQ_ALWAYS_INLINE void setBindingType(rq::TypeDefinitionSymbol &type) {
-    rq::assignSingleValue(this->_binding_type_ptr, &type);
-  }
+  getBindingType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeDefinitionSymbol &getBindingType();
+  RQ_ALWAYS_INLINE void setBindingType(rq::TypeDefinitionSymbol &type);
 };
 struct HasImportModuleSymbol {
   using Self = rq::detail::HasImportModuleSymbol;
 
   rq::ModuleSymbol *_import_module_ptr{nullptr};
 
-  HasImportModuleSymbol() {}
-
+  HasImportModuleSymbol() = default;
   HasImportModuleSymbol(const Self &) = delete;
   HasImportModuleSymbol(Self &&) = delete;
-  virtual ~HasImportModuleSymbol() {}
+  ~HasImportModuleSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule() const {
-    return this->_import_module_ptr != nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImportModule() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ModuleSymbol &
-  getImportModule() const {
-    return rq::dereferencePtr(this->_import_module_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getImportModule() {
-    return rq::dereferencePtr(this->_import_module_ptr);
-  }
-  RQ_ALWAYS_INLINE void setImportModule(rq::ModuleSymbol &import_module) {
-    rq::assignSingleValue(this->_import_module_ptr, &import_module);
-  }
+  getImportModule() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getImportModule();
+  RQ_ALWAYS_INLINE void setImportModule(rq::ModuleSymbol &import_module);
 };
 } // namespace detail
 
@@ -2363,103 +982,30 @@ struct SymbolTableSymbol : public rq::Symbol,
       _named_values{};
   rq::BumpPtrList<rq::Symbol> _unamed_values{};
 
-  SymbolTableSymbol(rq::EntityKind kind)
-      : rq::Symbol(kind), rq::detail::SymbolTableMemberSymbol() {}
+  inline explicit SymbolTableSymbol(rq::EntityKind kind);
   SymbolTableSymbol(rq::EntityKind kind,
-                    rq::SymbolTableSymbol &containing_table)
-      : rq::Symbol(kind),
-        rq::detail::SymbolTableMemberSymbol(containing_table) {}
+                    rq::SymbolTableSymbol &containing_table);
   SymbolTableSymbol(const Self &) = delete;
   SymbolTableSymbol(Self &&) = delete;
-  ~SymbolTableSymbol() override {
-    // TODO call destructors of all contained terms
-  }
+  ~SymbolTableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const;
   void tabulateNamedSymbol(rq::Context &context, llvm::StringRef name,
                            rq::Symbol &symbol);
   void tabulateUnamedSymbol(rq::Context &context, rq::Symbol &symbol);
   [[nodiscard]] inline rq::BumpPtrList<rq::Symbol>
-  getNamedList(llvm::StringRef name) {
-    auto it = this->_named_values.find(name);
-    if (it != this->_named_values.end()) {
-      return it->second;
-    }
-    return rq::BumpPtrList<rq::Symbol>();
-  }
+  getNamedList(llvm::StringRef name);
   [[nodiscard]] inline rq::ConstBumpPtrList<rq::Symbol>
-  getNamedList(llvm::StringRef name) const {
-    auto it = this->_named_values.find(name);
-    if (it != this->_named_values.end()) {
-      return it->second;
-    }
-    return rq::ConstBumpPtrList<rq::Symbol>();
-  }
-
-  [[nodiscard]] inline rq::BumpPtrList<rq::Symbol> getUnnamedList() {
-    return this->_unamed_values;
-  }
-  [[nodiscard]] inline rq::ConstBumpPtrList<rq::Symbol> getUnnamedList() const {
-    return this->_unamed_values;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange() {
-    return std::ranges::subrange(this->_named_values.begin(),
-                                 this->_named_values.end());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange() const {
-    return std::ranges::subrange(this->_named_values.begin(),
-                                 this->_named_values.end());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getAscendingFrameRange() {
-    return std::ranges::subrange(
-        rq::SymbolTableIterator(this->getContainingSymbolTablePtr()),
-        rq::SymbolTableIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getAscendingFrameRange() const {
-    return std::ranges::subrange(
-        rq::ConstSymbolTableIterator(this->getContainingSymbolTablePtr()),
-        rq::ConstSymbolTableIterator());
-  }
+  getNamedList(llvm::StringRef name) const;
+  [[nodiscard]] inline rq::BumpPtrList<rq::Symbol> getUnnamedList();
+  [[nodiscard]] inline rq::ConstBumpPtrList<rq::Symbol> getUnnamedList() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange();
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getNamedListRange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getAscendingFrameRange();
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getAscendingFrameRange() const;
 };
-
-rq::SymbolTableIterator &SymbolTableIterator::operator++() {
-  if (this->_symbol_table_ptr == nullptr) {
-    return *this;
-  }
-  rq::SymbolTableSymbol &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  if (table.getIsTopOfFrameSymbol()) {
-    this->_symbol_table_ptr = nullptr;
-    return *this;
-  }
-  this->_symbol_table_ptr = table.getContainingSymbolTablePtr();
-  return *this;
-}
-
-rq::SymbolTableIterator SymbolTableIterator::operator++(int) { return ++*this; }
-
-rq::ConstSymbolTableIterator &ConstSymbolTableIterator::operator++() {
-  if (this->_symbol_table_ptr == nullptr) {
-    return *this;
-  }
-  const rq::SymbolTableSymbol &table =
-      rq::dereferencePtr(this->_symbol_table_ptr);
-  if (table.getIsTopOfFrameSymbol()) {
-    this->_symbol_table_ptr = nullptr;
-    return *this;
-  }
-  this->_symbol_table_ptr = table.getContainingSymbolTablePtr();
-  return *this;
-}
-
-rq::ConstSymbolTableIterator ConstSymbolTableIterator::operator++(int) {
-  return ++*this;
-}
 
 struct ProcedureSymbol : public rq::SymbolTableSymbol,
                          public rq::detail::HasLocationSymbol,
@@ -2469,18 +1015,13 @@ struct ProcedureSymbol : public rq::SymbolTableSymbol,
 
   rq::SignatureSymbol *_signature_ptr;
 
-  ProcedureSymbol(rq::EntityKind kind, rq::Expression &expression,
-                  rq::ModuleSymbol &module,
-                  rq::SymbolTableSymbol &containing_table,
-                  rq::ExpressionAttributeFlags attributes)
-      : rq::SymbolTableSymbol(kind, containing_table),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::HasAttributesSymbol(attributes), _signature_ptr(nullptr) {}
-
+  inline ProcedureSymbol(rq::EntityKind kind, rq::Expression &expression,
+                         rq::ModuleSymbol &module,
+                         rq::SymbolTableSymbol &containing_table,
+                         rq::ExpressionAttributeFlags attributes);
   ProcedureSymbol(const Self &) = delete;
   ProcedureSymbol(Self &&) = delete;
-  virtual ~ProcedureSymbol() {}
+  ~ProcedureSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -2490,13 +1031,12 @@ struct TemplateSymbol : public rq::Symbol {
 
   rq::BumpPtrList<rq::TemplateParameterSymbol> _template_parameters;
 
-  TemplateSymbol(rq::EntityKind kind,
-                 const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::Symbol(kind), _template_parameters(parameters) {}
-
+  inline TemplateSymbol(
+      rq::EntityKind kind,
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateSymbol(const Self &) = delete;
   TemplateSymbol(Self &&) = delete;
-  virtual ~TemplateSymbol() {}
+  ~TemplateSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -2504,11 +1044,10 @@ struct TemplateSymbol : public rq::Symbol {
 struct PartialSymbol : public rq::Symbol {
   using Self = rq::PartialSymbol;
 
-  PartialSymbol(rq::EntityKind kind) : rq::Symbol(kind) {}
-
+  inline explicit PartialSymbol(rq::EntityKind kind);
   PartialSymbol(const Self &) = delete;
   PartialSymbol(Self &&) = delete;
-  virtual ~PartialSymbol() {}
+  ~PartialSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -2518,975 +1057,661 @@ namespace llvm {
 
 // ROOT WITH TYPE ATTRIBUTES
 template <> struct isa_impl<rq::TypeDefinitionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTypeDefinitionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 // SIMPLE BUILTIN
 template <> struct isa_impl<rq::SimpleBuiltinSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSimpleBuiltinSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::InferenceSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsInferenceSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::InferenceSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsInferenceSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::ExpressionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExpressionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ExpressionSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsExpressionSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::EntityKindSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEntityKindSymbol();
-  }
-};
-
-template <> struct isa_impl<rq::EntityKindSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsEntityKindSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::VoidSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsVoidSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::VoidSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsVoidSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::NullSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsNullSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::NullSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsNullSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::NoReturnSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsNoReturnSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::NoReturnSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsNoReturnSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::VariadicArgumentsSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsVariadicArgumentsSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::VariadicArgumentsSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsVariadicArgumentsSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::BooleanSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBooleanSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::BooleanSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBooleanSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericFloatSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericFloatSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::GenericFloatSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericFloatSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::HalfSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsHalfSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::HalfSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsHalfSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::SingleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSingleSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::SingleSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsSingleSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::DoubleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsDoubleSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::DoubleSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsDoubleSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::QuadrupleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsQuadrupleSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::QuadrupleSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsQuadrupleSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericBinarySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericBinarySymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::GenericBinarySymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericBinarySymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericBfloatSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericBfloatSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::GenericBfloatSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericBfloatSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::Binary16Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBinary16Symbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::Binary16Symbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary16Symbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::Binary32Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBinary32Symbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::Binary32Symbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary32Symbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::Binary64Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBinary64Symbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::Binary64Symbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary64Symbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::Binary128Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBinary128Symbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::Binary128Symbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBinary128Symbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::Bfloat16Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsBfloat16Symbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::Bfloat16Symbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsBfloat16Symbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericIntegerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericIntegerSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::GenericIntegerSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericIntegerSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericSignedSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericSignedSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::GenericSignedSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericSignedSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericUnsignedSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericUnsignedSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::GenericUnsignedSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericUnsignedSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::GenericCodeunitSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsGenericCodeunitSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::GenericCodeunitSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsGenericCodeunitSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::AsciiSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsAsciiSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::AsciiSymbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsAsciiSymbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::Utf8Symbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsUtf8Symbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::Utf8Symbol, rq::SimpleBuiltinSymbol> {
-  static inline bool doit(const rq::SimpleBuiltinSymbol &val) {
-    return val.getIsUtf8Symbol();
-  }
+  static inline bool doit(const rq::SimpleBuiltinSymbol &val);
 };
 
 // SCALED BUILTIN
 template <> struct isa_impl<rq::ScaledBuiltinSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledBuiltinSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ScaledSignedSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledSignedSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ScaledSignedSymbol, rq::ScaledBuiltinSymbol> {
-  static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsScaledSignedSymbol();
-  }
+  static inline bool doit(const rq::ScaledBuiltinSymbol &val);
 };
 
 template <> struct isa_impl<rq::ScaledUnsignedSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScaledUnsignedSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ScaledUnsignedSymbol, rq::ScaledBuiltinSymbol> {
-  static inline bool doit(const rq::ScaledBuiltinSymbol &val) {
-    return val.getIsScaledUnsignedSymbol();
-  }
+  static inline bool doit(const rq::ScaledBuiltinSymbol &val);
 };
 
 // UNARY SUBTYPE
 template <> struct isa_impl<rq::UnarySubtypeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsUnarySubtypeSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::RangeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsRangeSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::RangeSymbol, rq::UnarySubtypeSymbol> {
-  static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsRangeSymbol();
-  }
+  static inline bool doit(const rq::UnarySubtypeSymbol &val);
 };
 
 template <> struct isa_impl<rq::ReferenceSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsReferenceSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ReferenceSymbol, rq::UnarySubtypeSymbol> {
-  static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsReferenceSymbol();
-  }
+  static inline bool doit(const rq::UnarySubtypeSymbol &val);
 };
 
 template <> struct isa_impl<rq::PointerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPointerSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::PointerSymbol, rq::UnarySubtypeSymbol> {
-  static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsPointerSymbol();
-  }
+  static inline bool doit(const rq::UnarySubtypeSymbol &val);
 };
 
 template <> struct isa_impl<rq::FatPointerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsFatPointerSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::FatPointerSymbol, rq::UnarySubtypeSymbol> {
-  static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsFatPointerSymbol();
-  }
+  static inline bool doit(const rq::UnarySubtypeSymbol &val);
 };
 
 template <> struct isa_impl<rq::InferencedCountArraySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsInferencedCountArraySymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::InferencedCountArraySymbol, rq::UnarySubtypeSymbol> {
-  static inline bool doit(const rq::UnarySubtypeSymbol &val) {
-    return val.getIsInferencedCountArraySymbol();
-  }
+  static inline bool doit(const rq::UnarySubtypeSymbol &val);
 };
 
 // COUNTED SUBTYPE
 template <> struct isa_impl<rq::CountedSubtypeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsCountedSubtypeSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ArraySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsArraySymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ArraySymbol, rq::CountedSubtypeSymbol> {
-  static inline bool doit(const rq::CountedSubtypeSymbol &val) {
-    return val.getIsArraySymbol();
-  }
+  static inline bool doit(const rq::CountedSubtypeSymbol &val);
 };
 
 // COMPOSITE SUBTYPE
 template <> struct isa_impl<rq::LayoutSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsLayoutSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::SignatureSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSignatureSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ExtensionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExtensionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 // ARITHMETIC SEQUENCE
 template <> struct isa_impl<rq::ArithmeticSequenceSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsArithmeticSequenceSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ArithmeticIntervalSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsArithmeticIntervalSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::ArithmeticIntervalSymbol, rq::ArithmeticSequenceSymbol> {
-  static inline bool doit(const rq::ArithmeticSequenceSymbol &val) {
-    return val.getIsArithmeticIntervalSymbol();
-  }
+  static inline bool doit(const rq::ArithmeticSequenceSymbol &val);
 };
 
 template <>
 struct isa_impl<rq::InfiniteArithmeticProgressionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsInfiniteArithmeticProgressionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::InfiniteArithmeticProgressionSymbol,
                 rq::ArithmeticSequenceSymbol> {
-  static inline bool doit(const rq::ArithmeticSequenceSymbol &val) {
-    return val.getIsInfiniteArithmeticProgressionSymbol();
-  }
+  static inline bool doit(const rq::ArithmeticSequenceSymbol &val);
 };
 
 template <> struct isa_impl<rq::FiniteArithmeticProgressionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsFiniteArithmeticProgressionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::FiniteArithmeticProgressionSymbol,
                 rq::ArithmeticSequenceSymbol> {
-  static inline bool doit(const rq::ArithmeticSequenceSymbol &val) {
-    return val.getIsFiniteArithmeticProgressionSymbol();
-  }
+  static inline bool doit(const rq::ArithmeticSequenceSymbol &val);
 };
 
 // MISC
 template <> struct isa_impl<rq::ModuleSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsModuleSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ImportSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsImportSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
-template <> struct isa_impl<rq::FacadeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsFacadeSymbol();
-  }
+template <> struct isa_impl<rq::CodeSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val);
+};
+
+template <> struct isa_impl<rq::CategorySymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val);
+};
+
+template <> struct isa_impl<rq::CategoryDiscriminantSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val);
 };
 
 // BINDING
 template <> struct isa_impl<rq::DynamicVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsDynamicVariableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::StaticVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsStaticVariableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::EnumeratorSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEnumeratorSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
-template <> struct isa_impl<rq::PropertySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPropertySymbol();
-  }
+template <> struct isa_impl<rq::CategoryAlternativeSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateParameterSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::SignatureParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSignatureParameterSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ClassParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsClassParameterSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::LayoutParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsLayoutParameterSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::LabelSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsLabelSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 // SYMBOL TABLES
 template <> struct isa_impl<rq::SymbolTableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsSymbolTableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TopSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTopSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TopSymbol, rq::SymbolTableSymbol> {
-  static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsTopSymbol();
-  }
+  static inline bool doit(const rq::SymbolTableSymbol &val);
 };
 
 template <> struct isa_impl<rq::ScopeSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsScopeSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ScopeSymbol, rq::SymbolTableSymbol> {
-  static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsScopeSymbol();
-  }
+  static inline bool doit(const rq::SymbolTableSymbol &val);
 };
 
 template <> struct isa_impl<rq::TableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TableSymbol, rq::SymbolTableSymbol> {
-  static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsTableSymbol();
-  }
+  static inline bool doit(const rq::SymbolTableSymbol &val);
 };
 
 template <> struct isa_impl<rq::ClassSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsClassSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ClassSymbol, rq::SymbolTableSymbol> {
-  static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsClassSymbol();
-  }
+  static inline bool doit(const rq::SymbolTableSymbol &val);
 };
 
 template <> struct isa_impl<rq::EnumerationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEnumerationSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::EnumerationSymbol, rq::SymbolTableSymbol> {
-  static inline bool doit(const rq::SymbolTableSymbol &val) {
-    return val.getIsEnumerationSymbol();
-  }
+  static inline bool doit(const rq::SymbolTableSymbol &val);
 };
 
 // PROCEDURES
 template <> struct isa_impl<rq::ProcedureSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsProcedureSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::EntrySymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsEntrySymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::EntrySymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsEntrySymbol();
-  }
+  static inline bool doit(const rq::ProcedureSymbol &val);
 };
 
 template <> struct isa_impl<rq::FunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsFunctionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::FunctionSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsFunctionSymbol();
-  }
+  static inline bool doit(const rq::ProcedureSymbol &val);
 };
 
 template <> struct isa_impl<rq::MethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsMethodSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::MethodSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsMethodSymbol();
-  }
+  static inline bool doit(const rq::ProcedureSymbol &val);
 };
 
 template <> struct isa_impl<rq::ExtensionFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExtensionFunctionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ExtensionFunctionSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsExtensionFunctionSymbol();
-  }
+  static inline bool doit(const rq::ProcedureSymbol &val);
 };
 
 template <> struct isa_impl<rq::ExtensionMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsExtensionMethodSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::ExtensionMethodSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsExtensionMethodSymbol();
-  }
+  static inline bool doit(const rq::ProcedureSymbol &val);
 };
 
 template <> struct isa_impl<rq::RangerSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsRangerSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::RangerSymbol, rq::ProcedureSymbol> {
-  static inline bool doit(const rq::ProcedureSymbol &val) {
-    return val.getIsRangerSymbol();
-  }
+  static inline bool doit(const rq::ProcedureSymbol &val);
 };
 
 // TEMPLATE
 template <> struct isa_impl<rq::TemplateSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateClassSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateClassSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateClassSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateClassSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateEnumerationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateEnumerationSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateEnumerationSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateEnumerationSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateDynamicVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateDynamicVariableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::TemplateDynamicVariableSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateDynamicVariableSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateStaticVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateStaticVariableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::TemplateStaticVariableSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateStaticVariableSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateFunctionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateFunctionSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateFunctionSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateMethodSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateMethodSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateMethodSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateExtensionFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateExtensionFunctionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::TemplateExtensionFunctionSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateExtensionFunctionSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 template <> struct isa_impl<rq::TemplateExtensionMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsTemplateExtensionMethodSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::TemplateExtensionMethodSymbol, rq::TemplateSymbol> {
-  static inline bool doit(const rq::TemplateSymbol &val) {
-    return val.getIsTemplateExtensionMethodSymbol();
-  }
+  static inline bool doit(const rq::TemplateSymbol &val);
 };
 
 // PARTIAL SPECIALIZATION
 template <> struct isa_impl<rq::PartialSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::PartialClassSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialClassSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::PartialClassSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialClassSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialEnumerationSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::PartialEnumerationSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialEnumerationSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialDynamicVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialDynamicVariableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::PartialDynamicVariableSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialDynamicVariableSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialStaticVariableSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialStaticVariableSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::PartialStaticVariableSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialStaticVariableSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialFunctionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::PartialFunctionSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialFunctionSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialMethodSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <> struct isa_impl<rq::PartialMethodSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialMethodSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialExtensionFunctionSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::PartialExtensionFunctionSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialExtensionFunctionSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::PartialExtensionMethodSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val) {
-    return val.getIsPartialExtensionMethodSymbol();
-  }
+  static inline bool doit(const rq::Symbol &val);
 };
 
 template <>
 struct isa_impl<rq::PartialExtensionMethodSymbol, rq::PartialSymbol> {
-  static inline bool doit(const rq::PartialSymbol &val) {
-    return val.getIsPartialExtensionMethodSymbol();
-  }
+  static inline bool doit(const rq::PartialSymbol &val);
 };
 
 template <> struct isa_impl<rq::IntegerConstant, rq::Entity> {
-  static inline bool doit(const rq::Entity &val) {
-    return val.getIsIntegerConstant();
-  }
+  static inline bool doit(const rq::Entity &val);
 };
 
 template <> struct isa_impl<rq::FloatConstant, rq::Entity> {
-  static inline bool doit(const rq::Entity &val) {
-    return val.getIsFloatConstant();
-  }
+  static inline bool doit(const rq::Entity &val);
 };
 
 template <> struct isa_impl<rq::StringConstant, rq::Entity> {
-  static inline bool doit(const rq::Entity &val) {
-    return val.getIsStringConstant();
-  }
+  static inline bool doit(const rq::Entity &val);
 };
 
 template <> struct isa_impl<rq::ArrayConstant, rq::Entity> {
-  static inline bool doit(const rq::Entity &val) {
-    return val.getIsArrayConstant();
-  }
+  static inline bool doit(const rq::Entity &val);
 };
 
 } // namespace llvm
@@ -3498,66 +1723,41 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   rq::Symbol *_root_ptr{nullptr};
   rq::TypeAttributeFlags _flags{};
 
-  TypeSymbol(rq::EntityKind kind, rq::Symbol &root,
-             rq::TypeAttributeFlags flags)
-      : rq::Symbol(kind), _root_ptr(&root), _flags(flags) {}
+  inline TypeSymbol(rq::EntityKind kind, rq::Symbol &root,
+                    rq::TypeAttributeFlags flags);
   TypeSymbol(const Self &) = delete;
   TypeSymbol(Self &&) = delete;
-  virtual ~TypeSymbol() {}
+  ~TypeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const {
-    return rq::dereferencePtr(this->_root_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttributeFlags getFlags() const {
-    return this->_flags;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getRoot() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttributeFlags getFlags() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAttribute(rq::TypeAttribute attribute) const {
-    return rq::getHasAttribute(this->_flags, attribute);
-  }
+  getHasAttribute(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasMutable(rq::TypeAttribute attribute) const {
-    return rq::getHasMutable(attribute);
-  }
+  getHasMutable(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasConstant(rq::TypeAttribute attribute) const {
-    return rq::getHasConstant(attribute);
-  }
+  getHasConstant(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasPartiallyMutable(rq::TypeAttribute attribute) const {
-    return rq::getHasPartiallyMutable(attribute);
-  }
+  getHasPartiallyMutable(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasVolatile(rq::TypeAttribute attribute) const {
-    return rq::getHasVolatile(attribute);
-  }
+  getHasVolatile(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAtomic(rq::TypeAttribute attribute) const {
-    return rq::getHasAtomic(attribute);
-  }
+  getHasAtomic(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasNullTerminated(rq::TypeAttribute attribute) const {
-    return rq::getHasNullTerminated(attribute);
-  }
+  getHasNullTerminated(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasMayDiscard(rq::TypeAttribute attribute) const {
-    return rq::getHasMayDiscard(attribute);
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddInteger(static_cast<unsigned>(this->_kind));
-    id.AddPointer(this->_root_ptr);
-    id.AddInteger(static_cast<unsigned>(this->_flags));
-  }
+  getHasMayDiscard(rq::TypeAttribute attribute) const;
+  void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct InferenceSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::InferenceSymbol;
 
-  InferenceSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_INFERENCE) {}
+  inline InferenceSymbol();
   InferenceSymbol(const Self &) = delete;
   InferenceSymbol(Self &&) = delete;
-  virtual ~InferenceSymbol() {}
+  ~InferenceSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3565,22 +1765,10 @@ struct InferenceSymbol : public rq::SimpleBuiltinSymbol {
 struct ExpressionSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::ExpressionSymbol;
 
-  ExpressionSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_EXPRESSION) {}
+  inline ExpressionSymbol();
   ExpressionSymbol(const Self &) = delete;
   ExpressionSymbol(Self &&) = delete;
-  virtual ~ExpressionSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct EntityKindSymbol : public rq::SimpleBuiltinSymbol {
-  using Self = rq::EntityKindSymbol;
-
-  EntityKindSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_ENTITY_KIND) {}
-  EntityKindSymbol(const Self &) = delete;
-  EntityKindSymbol(Self &&) = delete;
-  virtual ~EntityKindSymbol() {}
+  ~ExpressionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3588,10 +1776,10 @@ struct EntityKindSymbol : public rq::SimpleBuiltinSymbol {
 struct VoidSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::VoidSymbol;
 
-  VoidSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_VOID) {}
+  inline VoidSymbol();
   VoidSymbol(const Self &) = delete;
   VoidSymbol(Self &&) = delete;
-  virtual ~VoidSymbol() {}
+  ~VoidSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3599,10 +1787,10 @@ struct VoidSymbol : public rq::SimpleBuiltinSymbol {
 struct NullSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::NullSymbol;
 
-  NullSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_NULL) {}
+  inline NullSymbol();
   NullSymbol(const Self &) = delete;
   NullSymbol(Self &&) = delete;
-  virtual ~NullSymbol() {}
+  ~NullSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3610,10 +1798,10 @@ struct NullSymbol : public rq::SimpleBuiltinSymbol {
 struct NoReturnSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::NoReturnSymbol;
 
-  NoReturnSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_NO_RETURN) {}
+  inline NoReturnSymbol();
   NoReturnSymbol(const Self &) = delete;
   NoReturnSymbol(Self &&) = delete;
-  virtual ~NoReturnSymbol() {}
+  ~NoReturnSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3621,11 +1809,10 @@ struct NoReturnSymbol : public rq::SimpleBuiltinSymbol {
 struct VariadicArgumentsSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::VariadicArgumentsSymbol;
 
-  VariadicArgumentsSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_VARIADIC_ARGUMENTS) {}
+  inline VariadicArgumentsSymbol();
   VariadicArgumentsSymbol(const Self &) = delete;
   VariadicArgumentsSymbol(Self &&) = delete;
-  virtual ~VariadicArgumentsSymbol() {}
+  ~VariadicArgumentsSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3633,10 +1820,10 @@ struct VariadicArgumentsSymbol : public rq::SimpleBuiltinSymbol {
 struct BooleanSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::BooleanSymbol;
 
-  BooleanSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_BOOLEAN) {}
+  inline BooleanSymbol();
   BooleanSymbol(const Self &) = delete;
   BooleanSymbol(Self &&) = delete;
-  virtual ~BooleanSymbol() {}
+  ~BooleanSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3644,11 +1831,10 @@ struct BooleanSymbol : public rq::SimpleBuiltinSymbol {
 struct GenericFloatSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericFloatSymbol;
 
-  GenericFloatSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_FLOAT) {}
+  inline GenericFloatSymbol();
   GenericFloatSymbol(const Self &) = delete;
   GenericFloatSymbol(Self &&) = delete;
-  virtual ~GenericFloatSymbol() {}
+  ~GenericFloatSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3656,10 +1842,10 @@ struct GenericFloatSymbol : public rq::SimpleBuiltinSymbol {
 struct HalfSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::HalfSymbol;
 
-  HalfSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_HALF) {}
+  inline HalfSymbol();
   HalfSymbol(const Self &) = delete;
   HalfSymbol(Self &&) = delete;
-  virtual ~HalfSymbol() {}
+  ~HalfSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3667,10 +1853,10 @@ struct HalfSymbol : public rq::SimpleBuiltinSymbol {
 struct SingleSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::SingleSymbol;
 
-  SingleSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_SINGLE) {}
+  inline SingleSymbol();
   SingleSymbol(const Self &) = delete;
   SingleSymbol(Self &&) = delete;
-  virtual ~SingleSymbol() {}
+  ~SingleSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3678,10 +1864,10 @@ struct SingleSymbol : public rq::SimpleBuiltinSymbol {
 struct DoubleSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::DoubleSymbol;
 
-  DoubleSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_DOUBLE) {}
+  inline DoubleSymbol();
   DoubleSymbol(const Self &) = delete;
   DoubleSymbol(Self &&) = delete;
-  virtual ~DoubleSymbol() {}
+  ~DoubleSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3689,10 +1875,10 @@ struct DoubleSymbol : public rq::SimpleBuiltinSymbol {
 struct QuadrupleSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::QuadrupleSymbol;
 
-  QuadrupleSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_QUADRUPLE) {}
+  inline QuadrupleSymbol();
   QuadrupleSymbol(const Self &) = delete;
   QuadrupleSymbol(Self &&) = delete;
-  virtual ~QuadrupleSymbol() {}
+  ~QuadrupleSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3700,11 +1886,10 @@ struct QuadrupleSymbol : public rq::SimpleBuiltinSymbol {
 struct GenericBinarySymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericBinarySymbol;
 
-  GenericBinarySymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_BINARY) {}
+  inline GenericBinarySymbol();
   GenericBinarySymbol(const Self &) = delete;
   GenericBinarySymbol(Self &&) = delete;
-  virtual ~GenericBinarySymbol() {}
+  ~GenericBinarySymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3712,11 +1897,10 @@ struct GenericBinarySymbol : public rq::SimpleBuiltinSymbol {
 struct GenericBfloatSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericBfloatSymbol;
 
-  GenericBfloatSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_BFLOAT) {}
+  inline GenericBfloatSymbol();
   GenericBfloatSymbol(const Self &) = delete;
   GenericBfloatSymbol(Self &&) = delete;
-  virtual ~GenericBfloatSymbol() {}
+  ~GenericBfloatSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3724,10 +1908,10 @@ struct GenericBfloatSymbol : public rq::SimpleBuiltinSymbol {
 struct Binary16Symbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Binary16Symbol;
 
-  Binary16Symbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_BINARY16) {}
+  inline Binary16Symbol();
   Binary16Symbol(const Self &) = delete;
   Binary16Symbol(Self &&) = delete;
-  virtual ~Binary16Symbol() {}
+  ~Binary16Symbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3735,10 +1919,10 @@ struct Binary16Symbol : public rq::SimpleBuiltinSymbol {
 struct Binary32Symbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Binary32Symbol;
 
-  Binary32Symbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_BINARY32) {}
+  inline Binary32Symbol();
   Binary32Symbol(const Self &) = delete;
   Binary32Symbol(Self &&) = delete;
-  virtual ~Binary32Symbol() {}
+  ~Binary32Symbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3746,10 +1930,10 @@ struct Binary32Symbol : public rq::SimpleBuiltinSymbol {
 struct Binary64Symbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Binary64Symbol;
 
-  Binary64Symbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_BINARY64) {}
+  inline Binary64Symbol();
   Binary64Symbol(const Self &) = delete;
   Binary64Symbol(Self &&) = delete;
-  virtual ~Binary64Symbol() {}
+  ~Binary64Symbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3757,10 +1941,10 @@ struct Binary64Symbol : public rq::SimpleBuiltinSymbol {
 struct Binary128Symbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Binary128Symbol;
 
-  Binary128Symbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_BINARY128) {}
+  inline Binary128Symbol();
   Binary128Symbol(const Self &) = delete;
   Binary128Symbol(Self &&) = delete;
-  virtual ~Binary128Symbol() {}
+  ~Binary128Symbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3768,10 +1952,10 @@ struct Binary128Symbol : public rq::SimpleBuiltinSymbol {
 struct Bfloat16Symbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Bfloat16Symbol;
 
-  Bfloat16Symbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_BFLOAT16) {}
+  inline Bfloat16Symbol();
   Bfloat16Symbol(const Self &) = delete;
   Bfloat16Symbol(Self &&) = delete;
-  virtual ~Bfloat16Symbol() {}
+  ~Bfloat16Symbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3779,11 +1963,10 @@ struct Bfloat16Symbol : public rq::SimpleBuiltinSymbol {
 struct GenericIntegerSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericIntegerSymbol;
 
-  GenericIntegerSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_INTEGER) {}
+  inline GenericIntegerSymbol();
   GenericIntegerSymbol(const Self &) = delete;
   GenericIntegerSymbol(Self &&) = delete;
-  virtual ~GenericIntegerSymbol() {}
+  ~GenericIntegerSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3791,11 +1974,10 @@ struct GenericIntegerSymbol : public rq::SimpleBuiltinSymbol {
 struct GenericSignedSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericSignedSymbol;
 
-  GenericSignedSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_SIGNED) {}
+  inline GenericSignedSymbol();
   GenericSignedSymbol(const Self &) = delete;
   GenericSignedSymbol(Self &&) = delete;
-  virtual ~GenericSignedSymbol() {}
+  ~GenericSignedSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3803,11 +1985,10 @@ struct GenericSignedSymbol : public rq::SimpleBuiltinSymbol {
 struct GenericUnsignedSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericUnsignedSymbol;
 
-  GenericUnsignedSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_UNSIGNED) {}
+  inline GenericUnsignedSymbol();
   GenericUnsignedSymbol(const Self &) = delete;
   GenericUnsignedSymbol(Self &&) = delete;
-  virtual ~GenericUnsignedSymbol() {}
+  ~GenericUnsignedSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3815,11 +1996,10 @@ struct GenericUnsignedSymbol : public rq::SimpleBuiltinSymbol {
 struct GenericStringSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericStringSymbol;
 
-  GenericStringSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_STRING) {}
+  inline GenericStringSymbol();
   GenericStringSymbol(const Self &) = delete;
   GenericStringSymbol(Self &&) = delete;
-  virtual ~GenericStringSymbol() {}
+  ~GenericStringSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3827,11 +2007,10 @@ struct GenericStringSymbol : public rq::SimpleBuiltinSymbol {
 struct GenericCodeunitSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::GenericCodeunitSymbol;
 
-  GenericCodeunitSymbol()
-      : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_GENERIC_CODEUNIT) {}
+  inline GenericCodeunitSymbol();
   GenericCodeunitSymbol(const Self &) = delete;
   GenericCodeunitSymbol(Self &&) = delete;
-  virtual ~GenericCodeunitSymbol() {}
+  ~GenericCodeunitSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3839,10 +2018,10 @@ struct GenericCodeunitSymbol : public rq::SimpleBuiltinSymbol {
 struct AsciiSymbol : public rq::SimpleBuiltinSymbol {
   using Self = rq::Utf8Symbol;
 
-  AsciiSymbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_ASCII) {}
+  inline AsciiSymbol();
   AsciiSymbol(const Self &) = delete;
   AsciiSymbol(Self &&) = delete;
-  virtual ~AsciiSymbol() {}
+  ~AsciiSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3852,11 +2031,10 @@ struct Utf8Symbol : public rq::SimpleBuiltinSymbol {
   friend struct Context;
 
 private:
-  Utf8Symbol() : rq::SimpleBuiltinSymbol(rq::EntityKind::SY_UTF8) {}
-
+  inline Utf8Symbol();
   Utf8Symbol(const Self &) = delete;
   Utf8Symbol(Self &&) = delete;
-  virtual ~Utf8Symbol() {}
+  ~Utf8Symbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3866,14 +2044,11 @@ struct ScaledUnsignedSymbol : public rq::ScaledIntegerSymbol {
   friend struct Context;
 
 private:
-  ScaledUnsignedSymbol(unsigned scalar, unsigned uid,
-                       rq::ScaledBuiltinFlags flags)
-      : rq::ScaledIntegerSymbol(rq::EntityKind::SY_SCALED_UNSIGNED, scalar, uid,
-                                flags) {}
-
+  inline ScaledUnsignedSymbol(unsigned scalar, unsigned uid,
+                              rq::ScaledBuiltinFlags flags);
   ScaledUnsignedSymbol(const Self &) = delete;
   ScaledUnsignedSymbol(Self &&) = delete;
-  virtual ~ScaledUnsignedSymbol() {}
+  ~ScaledUnsignedSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3883,14 +2058,11 @@ struct ScaledSignedSymbol : public rq::ScaledIntegerSymbol {
   friend struct Context;
 
 private:
-  ScaledSignedSymbol(unsigned scalar, unsigned uid,
-                     rq::ScaledBuiltinFlags flags)
-      : rq::ScaledIntegerSymbol(rq::EntityKind::SY_SCALED_SIGNED, scalar, uid,
-                                flags) {}
-
+  inline ScaledSignedSymbol(unsigned scalar, unsigned uid,
+                            rq::ScaledBuiltinFlags flags);
   ScaledSignedSymbol(const Self &) = delete;
   ScaledSignedSymbol(Self &&) = delete;
-  virtual ~ScaledSignedSymbol() {}
+  ~ScaledSignedSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3900,12 +2072,10 @@ struct RangeSymbol : public rq::UnarySubtypeSymbol {
   friend struct Context;
 
 private:
-  RangeSymbol(rq::Symbol &root)
-      : rq::UnarySubtypeSymbol(rq::EntityKind::SY_RANGE, root) {}
-
+  inline RangeSymbol(rq::Symbol &root);
   RangeSymbol(const Self &) = delete;
   RangeSymbol(Self &&) = delete;
-  virtual ~RangeSymbol() {}
+  ~RangeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3915,12 +2085,10 @@ struct ReferenceSymbol : public rq::UnarySubtypeSymbol {
   friend struct Context;
 
 private:
-  ReferenceSymbol(rq::Symbol &root)
-      : rq::UnarySubtypeSymbol(rq::EntityKind::SY_REFERENCE, root) {}
-
+  inline ReferenceSymbol(rq::Symbol &root);
   ReferenceSymbol(const Self &) = delete;
   ReferenceSymbol(Self &&) = delete;
-  virtual ~ReferenceSymbol() {}
+  ~ReferenceSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3930,12 +2098,10 @@ struct PointerSymbol : public rq::UnarySubtypeSymbol {
   friend struct Context;
 
 private:
-  PointerSymbol(rq::Symbol &root)
-      : rq::UnarySubtypeSymbol(rq::EntityKind::SY_POINTER, root) {}
-
+  inline PointerSymbol(rq::Symbol &root);
   PointerSymbol(const Self &) = delete;
   PointerSymbol(Self &&) = delete;
-  virtual ~PointerSymbol() {}
+  ~PointerSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3945,12 +2111,10 @@ struct FatPointerSymbol : public rq::UnarySubtypeSymbol {
   friend struct Context;
 
 private:
-  FatPointerSymbol(rq::Symbol &root)
-      : rq::UnarySubtypeSymbol(rq::EntityKind::SY_FAT_POINTER, root) {}
-
+  inline FatPointerSymbol(rq::Symbol &root);
   FatPointerSymbol(const Self &) = delete;
   FatPointerSymbol(Self &&) = delete;
-  virtual ~FatPointerSymbol() {}
+  ~FatPointerSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3960,13 +2124,10 @@ struct InferencedCountArraySymbol : public rq::UnarySubtypeSymbol {
   friend struct Context;
 
 private:
-  InferencedCountArraySymbol(rq::Symbol &root)
-      : rq::UnarySubtypeSymbol(rq::EntityKind::SY_INFERENCED_COUNT_ARRAY,
-                               root) {}
-
+  inline InferencedCountArraySymbol(rq::Symbol &root);
   InferencedCountArraySymbol(const Self &) = delete;
   InferencedCountArraySymbol(Self &&) = delete;
-  virtual ~InferencedCountArraySymbol() {}
+  ~InferencedCountArraySymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3976,12 +2137,10 @@ struct ArraySymbol : public rq::CountedSubtypeSymbol {
   friend struct Context;
 
 private:
-  ArraySymbol(rq::Symbol &root, std::size_t count)
-      : rq::CountedSubtypeSymbol(rq::EntityKind::SY_ARRAY, root, count) {}
-
+  inline ArraySymbol(rq::Symbol &root, std::size_t count);
   ArraySymbol(const Self &) = delete;
   ArraySymbol(Self &&) = delete;
-  virtual ~ArraySymbol() {}
+  ~ArraySymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -3990,24 +2149,18 @@ struct LayoutSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::LayoutSymbol;
   friend struct Context;
 
-  rq::BumpPtrList<rq::Symbol> _properties;
+  rq::BumpPtrList<rq::LayoutParameterSymbol> _properties;
 
 private:
-  LayoutSymbol(rq::BumpPtrList<rq::Symbol> properties)
-      : rq::Symbol(rq::EntityKind::SY_LAYOUT), _properties(properties) {}
-
+  inline LayoutSymbol(rq::BumpPtrList<rq::LayoutParameterSymbol> properties);
   LayoutSymbol(const Self &) = delete;
   LayoutSymbol(Self &&) = delete;
-  virtual ~LayoutSymbol() {}
+  ~LayoutSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Symbol>
-  getProperties() const {
-    return this->_properties;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddInteger(static_cast<unsigned>(this->_kind));
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::LayoutParameterSymbol>
+  getProperties() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
@@ -4018,29 +2171,105 @@ struct SignatureSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   rq::BumpPtrList<rq::Symbol> _parameters;
 
 private:
-  SignatureSymbol(rq::Symbol &return_, rq::BumpPtrList<rq::Symbol> parameters)
-      : rq::Symbol(rq::EntityKind::SY_SIGNATURE), _return_ptr(&return_),
-        _parameters(parameters) {}
-
+  inline SignatureSymbol(rq::Symbol &return_,
+                         rq::BumpPtrList<rq::Symbol> parameters);
   SignatureSymbol(const Self &) = delete;
   SignatureSymbol(Self &&) = delete;
-  virtual ~SignatureSymbol() {}
+  ~SignatureSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getReturn() {
-    return rq::dereferencePtr(this->_return_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getReturn() const {
-    return rq::dereferencePtr(this->_return_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getReturn();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getReturn() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Symbol>
-  getParameters() const {
-    return this->_parameters;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddPointer(this->_return_ptr);
-    id.AddInteger(static_cast<unsigned>(this->_kind));
-  }
+  getParameters() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
+};
+
+struct ArithmeticIntervalSymbol : public rq::ArithmeticSequenceSymbol {
+  using Self = rq::ArithmeticIntervalSymbol;
+
+  inline ArithmeticIntervalSymbol(rq::Symbol &root,
+                                  rq::ArithmeticSequenceCondition condition);
+  ArithmeticIntervalSymbol(const Self &) = delete;
+  ArithmeticIntervalSymbol(Self &&) = delete;
+  ~ArithmeticIntervalSymbol() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct FiniteArithmeticProgressionSymbol : public rq::ArithmeticSequenceSymbol {
+  using Self = rq::FiniteArithmeticProgressionSymbol;
+
+  FiniteArithmeticProgressionSymbol(rq::Symbol &root,
+                                    rq::ArithmeticSequenceCondition condition,
+                                    rq::ArithmeticSequenceStep step);
+  FiniteArithmeticProgressionSymbol(const Self &) = delete;
+  FiniteArithmeticProgressionSymbol(Self &&) = delete;
+  ~FiniteArithmeticProgressionSymbol() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+struct InfiniteArithmeticProgressionSymbol
+    : public rq::ArithmeticSequenceSymbol {
+  using Self = rq::FiniteArithmeticProgressionSymbol;
+
+  inline InfiniteArithmeticProgressionSymbol(rq::Symbol &root,
+                                             rq::ArithmeticSequenceStep step);
+  InfiniteArithmeticProgressionSymbol(const Self &) = delete;
+  InfiniteArithmeticProgressionSymbol(Self &&) = delete;
+  ~InfiniteArithmeticProgressionSymbol() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
+
+static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind);
+
+struct ModuleSymbol final : public rq::Symbol,
+                            public rq::detail::HasLocationSymbol {
+  using Self = rq::ModuleSymbol;
+
+  rq::ModuleKind _module_kind;
+  llvm::MemoryBufferRef _llvm_buffer_ref;
+  llvm::StringRef _path;
+
+  inline ModuleSymbol(rq::ModuleKind kind, llvm::StringRef path,
+                      llvm::MemoryBufferRef &&buffer);
+  ModuleSymbol(const Self &) = delete;
+  ModuleSymbol(Self &&) = delete;
+  ~ModuleSymbol() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
+  RQ_ALWAYS_INLINE void changeExpression(rq::Expression &expression);
+  [[nodiscard]] rq::Expression &popExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+  replaceExpression(rq::Expression &expression);
+};
+
+struct ImportSymbol final : public rq::Symbol,
+                            public rq::detail::HasLocationSymbol,
+                            public rq::detail::ModuleMemberSymbol,
+                            public rq::detail::SymbolTableMemberSymbol,
+                            public rq::detail::HasAttributesSymbol,
+                            public rq::detail::HasImportModuleSymbol {
+  using Self = rq::ImportSymbol;
+
+  inline ImportSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                      rq::SymbolTableSymbol &containing_table,
+                      rq::ExpressionAttributeFlags attributes);
+  ImportSymbol(const Self &) = delete;
+  ImportSymbol(Self &&) = delete;
+  ~ImportSymbol() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
 };
 
 struct ExtensionSymbol : public rq::Symbol, public llvm::FoldingSetNode {
@@ -4051,32 +2280,18 @@ struct ExtensionSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   rq::TypeSymbol *_type_ptr{nullptr};
 
 private:
-  ExtensionSymbol(rq::SignatureSymbol &signature, rq::TypeSymbol &type)
-      : rq::Symbol(rq::EntityKind::SY_EXTENSION), _signature_ptr(&signature),
-        _type_ptr(&type) {}
-
+  inline ExtensionSymbol(rq::SignatureSymbol &signature, rq::TypeSymbol &type);
   ExtensionSymbol(const Self &) = delete;
   ExtensionSymbol(Self &&) = delete;
-  virtual ~ExtensionSymbol() {}
+  ~ExtensionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureSymbol &getSignature() {
-    return rq::dereferencePtr(this->_signature_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureSymbol &getSignature();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureSymbol &
-  getSignature() const {
-    return rq::dereferencePtr(this->_signature_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeSymbol &getType() {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeSymbol &getType() const {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    id.AddPointer(this->_signature_ptr);
-    id.AddPointer(this->_type_ptr);
-  }
+  getSignature() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeSymbol &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeSymbol &getType() const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct CodeSymbol : public rq::Symbol,
@@ -4087,17 +2302,13 @@ struct CodeSymbol : public rq::Symbol,
                     public rq::detail::SymbolTableMemberSymbol {
   using Self = rq::CodeSymbol;
 
-  CodeSymbol(rq::Expression &expression, llvm::StringRef name,
-             rq::ModuleSymbol &module, rq::ExpressionAttributeFlags attributes,
-             rq::SymbolTableSymbol &containing_table)
-      : rq::Symbol(rq::EntityKind::SY_CODE),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::HasNameSymbol(name), rq::detail::ModuleMemberSymbol(module),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::SymbolTableMemberSymbol(containing_table) {}
+  inline CodeSymbol(rq::Expression &expression, llvm::StringRef name,
+                    rq::ModuleSymbol &module,
+                    rq::ExpressionAttributeFlags attributes,
+                    rq::SymbolTableSymbol &containing_table);
   CodeSymbol(const Self &) = delete;
   CodeSymbol(Self &&) = delete;
-  virtual ~CodeSymbol() {}
+  ~CodeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4110,65 +2321,13 @@ struct CategorySymbol : public rq::Symbol,
                         public rq::detail::SymbolTableMemberSymbol {
   using Self = rq::CategorySymbol;
 
-  CategorySymbol(rq::Expression &expression, llvm::StringRef name,
-                 rq::ModuleSymbol &module,
-                 rq::ExpressionAttributeFlags attributes,
-                 rq::SymbolTableSymbol &containing_table)
-      : rq::Symbol(rq::EntityKind::SY_CATEGORY),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::HasNameSymbol(name), rq::detail::ModuleMemberSymbol(module),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::SymbolTableMemberSymbol(containing_table) {}
+  inline CategorySymbol(rq::Expression &expression, llvm::StringRef name,
+                        rq::ModuleSymbol &module,
+                        rq::ExpressionAttributeFlags attributes,
+                        rq::SymbolTableSymbol &containing_table);
   CategorySymbol(const Self &) = delete;
   CategorySymbol(Self &&) = delete;
-  virtual ~CategorySymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct ArithmeticIntervalSymbol : public rq::ArithmeticSequenceSymbol {
-  using Self = rq::ArithmeticIntervalSymbol;
-
-  ArithmeticIntervalSymbol(rq::Symbol &root,
-                           rq::ArithmeticSequenceCondition condition)
-      : rq::ArithmeticSequenceSymbol(rq::EntityKind::SY_ARITHMETIC_INTERVAL,
-                                     root, condition,
-                                     rq::ArithmeticSequenceStep::NONE) {}
-  ArithmeticIntervalSymbol(const Self &) = delete;
-  ArithmeticIntervalSymbol(Self &&) = delete;
-  virtual ~ArithmeticIntervalSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct FiniteArithmeticProgressionSymbol : public rq::ArithmeticSequenceSymbol {
-  using Self = rq::FiniteArithmeticProgressionSymbol;
-
-  FiniteArithmeticProgressionSymbol(rq::Symbol &root,
-                                    rq::ArithmeticSequenceCondition condition,
-                                    rq::ArithmeticSequenceStep step)
-      : rq::ArithmeticSequenceSymbol(
-            rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION, root, condition,
-            step) {}
-  FiniteArithmeticProgressionSymbol(const Self &) = delete;
-  FiniteArithmeticProgressionSymbol(Self &&) = delete;
-  virtual ~FiniteArithmeticProgressionSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct InfiniteArithmeticProgressionSymbol
-    : public rq::ArithmeticSequenceSymbol {
-  using Self = rq::FiniteArithmeticProgressionSymbol;
-
-  InfiniteArithmeticProgressionSymbol(rq::Symbol &root,
-                                      rq::ArithmeticSequenceStep step)
-      : rq::ArithmeticSequenceSymbol(
-            rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION, root,
-            rq::ArithmeticSequenceCondition::NONE, step) {}
-  InfiniteArithmeticProgressionSymbol(const Self &) = delete;
-  InfiniteArithmeticProgressionSymbol(Self &&) = delete;
-  virtual ~InfiniteArithmeticProgressionSymbol() {}
+  ~CategorySymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4176,10 +2335,10 @@ struct InfiniteArithmeticProgressionSymbol
 struct TopSymbol : rq::SymbolTableSymbol {
   using Self = rq::TopSymbol;
 
-  TopSymbol() : rq::SymbolTableSymbol(rq::EntityKind::SY_TOP) {}
+  inline TopSymbol();
   TopSymbol(const Self &) = delete;
   TopSymbol(Self &&) = delete;
-  ~TopSymbol() override {}
+  ~TopSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4190,13 +2349,10 @@ struct ScopeSymbol : public rq::SymbolTableSymbol,
   using Self = rq::ScopeSymbol;
 
   ScopeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-              rq::SymbolTableSymbol &containing_table)
-      : rq::SymbolTableSymbol(rq::EntityKind::SY_SCOPE, containing_table),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module) {}
+              rq::SymbolTableSymbol &containing_table);
   ScopeSymbol(const Self &) = delete;
   ScopeSymbol(Self &&) = delete;
-  ~ScopeSymbol() override {}
+  ~ScopeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4213,16 +2369,10 @@ struct DynamicVariableSymbol : public rq::Symbol,
   DynamicVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                         rq::SymbolTableSymbol &containing_table,
                         llvm::StringRef name,
-                        rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_DYNAMIC_VARIABLE),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::HasNameSymbol(name) {}
+                        rq::ExpressionAttributeFlags attributes);
   DynamicVariableSymbol(const Self &) = delete;
   DynamicVariableSymbol(Self &&) = delete;
-  virtual ~DynamicVariableSymbol() {}
+  ~DynamicVariableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4238,19 +2388,14 @@ struct StaticVariableSymbol : public rq::Symbol,
 
   rq::Gendex<rq::SymbolicValue> _symbolic_value{};
 
-  StaticVariableSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                       rq::SymbolTableSymbol &containing_table,
-                       llvm::StringRef name,
-                       rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_STATIC_VARIABLE),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::HasNameSymbol(name) {}
+  inline StaticVariableSymbol(rq::Expression &expression,
+                              rq::ModuleSymbol &module,
+                              rq::SymbolTableSymbol &containing_table,
+                              llvm::StringRef name,
+                              rq::ExpressionAttributeFlags attributes);
   StaticVariableSymbol(const Self &) = delete;
   StaticVariableSymbol(Self &&) = delete;
-  virtual ~StaticVariableSymbol() {}
+  ~StaticVariableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4264,57 +2409,37 @@ struct EnumeratorSymbol : public rq::Symbol,
                           public rq::detail::HasBindingTypeSymbol {
   using Self = rq::EnumeratorSymbol;
 
-  rq::EnumerationSymbol *_enumeration_ptr;
-
   EnumeratorSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                   rq::SymbolTableSymbol &containing_table,
-                   llvm::StringRef name,
-                   rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_ENUMERATOR),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::HasNameSymbol(name) {}
+                   rq::EnumerationSymbol &enumeration, llvm::StringRef name,
+                   rq::ExpressionAttributeFlags attributes);
   EnumeratorSymbol(const Self &) = delete;
   EnumeratorSymbol(Self &&) = delete;
-  virtual ~EnumeratorSymbol() {}
+  ~EnumeratorSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationSymbol &getEnumeration();
 };
 
-struct PropertySymbol : public rq::Symbol,
-                        public rq::detail::HasLocationSymbol,
-                        public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::SymbolTableMemberSymbol,
-                        public rq::detail::HasAttributesSymbol,
-                        public rq::detail::MaybeHasNameSymbol,
-                        public rq::detail::HasBindingTypeSymbol {
-  using Self = rq::PropertySymbol;
+struct CategoryAlternativeSymbol : public rq::Symbol,
+                                   public rq::detail::HasLocationSymbol,
+                                   public rq::detail::ModuleMemberSymbol,
+                                   public rq::detail::SymbolTableMemberSymbol,
+                                   public rq::detail::HasAttributesSymbol,
+                                   public rq::detail::HasBindingTypeSymbol {
+  using Self = rq::CategoryAlternativeSymbol;
 
-  PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::SymbolTableSymbol &containing_table,
-                 rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_PROPERTY),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol() {}
-  PropertySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::SymbolTableSymbol &containing_table, llvm::StringRef name,
-                 rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_PROPERTY),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol(name) {}
-  PropertySymbol(const Self &) = delete;
-  PropertySymbol(Self &&) = delete;
-  virtual ~PropertySymbol() {}
+  rq::CodeSymbol *_code_ptr;
+
+  inline CategoryAlternativeSymbol(rq::Expression &expression,
+                                   rq::ModuleSymbol &module,
+                                   rq::CategorySymbol &category,
+                                   rq::ExpressionAttributeFlags attributes);
+  CategoryAlternativeSymbol(const Self &) = delete;
+  CategoryAlternativeSymbol(Self &&) = delete;
+  ~CategoryAlternativeSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CategorySymbol &getCategory();
 };
 
 struct SignatureParameterSymbol : public rq::Symbol,
@@ -4328,28 +2453,18 @@ struct SignatureParameterSymbol : public rq::Symbol,
 
   rq::SignatureSymbol *_signature_ptr;
 
-  SignatureParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                           rq::SymbolTableSymbol &containing_table,
-                           rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_SIGNATURE_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol() {}
-  SignatureParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                           rq::SymbolTableSymbol &containing_table,
-                           llvm::StringRef name,
-                           rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_SIGNATURE_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol(name) {}
+  inline SignatureParameterSymbol(rq::Expression &expression,
+                                  rq::ModuleSymbol &module,
+                                  rq::SymbolTableSymbol &containing_table,
+                                  rq::ExpressionAttributeFlags attributes);
+  inline SignatureParameterSymbol(rq::Expression &expression,
+                                  rq::ModuleSymbol &module,
+                                  rq::SymbolTableSymbol &containing_table,
+                                  llvm::StringRef name,
+                                  rq::ExpressionAttributeFlags attributes);
   SignatureParameterSymbol(const Self &) = delete;
   SignatureParameterSymbol(Self &&) = delete;
-  virtual ~SignatureParameterSymbol() {}
+  ~SignatureParameterSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4365,28 +2480,18 @@ struct TemplateParameterSymbol : public rq::Symbol,
 
   rq::TemplateSymbol *_template_ptr;
 
-  TemplateParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                          rq::SymbolTableSymbol &containing_table,
-                          rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_TEMPLATE_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol() {}
-  TemplateParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                          rq::SymbolTableSymbol &containing_table,
-                          llvm::StringRef name,
-                          rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_TEMPLATE_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol(name) {}
+  inline TemplateParameterSymbol(rq::Expression &expression,
+                                 rq::ModuleSymbol &module,
+                                 rq::SymbolTableSymbol &containing_table,
+                                 rq::ExpressionAttributeFlags attributes);
+  inline TemplateParameterSymbol(rq::Expression &expression,
+                                 rq::ModuleSymbol &module,
+                                 rq::SymbolTableSymbol &containing_table,
+                                 llvm::StringRef name,
+                                 rq::ExpressionAttributeFlags attributes);
   TemplateParameterSymbol(const Self &) = delete;
   TemplateParameterSymbol(Self &&) = delete;
-  virtual ~TemplateParameterSymbol() {}
+  ~TemplateParameterSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4401,15 +2506,10 @@ struct ClassParameterSymbol : public rq::Symbol,
 
   ClassParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                        rq::SymbolTableSymbol &containing_table,
-                       rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_CLASS_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes) {}
+                       rq::ExpressionAttributeFlags attributes);
   ClassParameterSymbol(const Self &) = delete;
   ClassParameterSymbol(Self &&) = delete;
-  virtual ~ClassParameterSymbol() {}
+  ~ClassParameterSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4423,28 +2523,18 @@ struct LayoutParameterSymbol : public rq::Symbol,
                                public rq::detail::HasBindingTypeSymbol {
   using Self = rq::LayoutParameterSymbol;
 
-  LayoutParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                        rq::SymbolTableSymbol &containing_table,
-                        rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_LAYOUT_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol() {}
-  LayoutParameterSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                        rq::SymbolTableSymbol &containing_table,
-                        llvm::StringRef name,
-                        rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_LAYOUT_PARAMETER),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::MaybeHasNameSymbol(name) {}
+  inline LayoutParameterSymbol(rq::Expression &expression,
+                               rq::ModuleSymbol &module,
+                               rq::SymbolTableSymbol &containing_table,
+                               rq::ExpressionAttributeFlags attributes);
+  inline LayoutParameterSymbol(rq::Expression &expression,
+                               rq::ModuleSymbol &module,
+                               rq::SymbolTableSymbol &containing_table,
+                               llvm::StringRef name,
+                               rq::ExpressionAttributeFlags attributes);
   LayoutParameterSymbol(const Self &) = delete;
   LayoutParameterSymbol(Self &&) = delete;
-  virtual ~LayoutParameterSymbol() {}
+  ~LayoutParameterSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4458,40 +2548,27 @@ struct LabelSymbol : public rq::Symbol,
 
   rq::Expression *_statement_ptr;
 
-  LabelSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-              rq::SymbolTableSymbol &containing_table, llvm::StringRef name,
-              rq::Expression &statement)
-      : rq::Symbol(rq::EntityKind::SY_LABEL),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasNameSymbol(name), _statement_ptr(&statement) {}
+  inline LabelSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                     rq::SymbolTableSymbol &containing_table,
+                     llvm::StringRef name, rq::Expression &statement);
   LabelSymbol(const Self &) = delete;
   LabelSymbol(Self &&) = delete;
-  virtual ~LabelSymbol() {}
+  ~LabelSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getStatement() {
-    return rq::dereferencePtr(this->_statement_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatement() const {
-    return rq::dereferencePtr(this->_statement_ptr);
-  }
-  RQ_ALWAYS_INLINE void setStatement(rq::Expression &statement) {
-    rq::assignSingleValue(this->_statement_ptr, &statement);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getStatement();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatement() const;
+  RQ_ALWAYS_INLINE void setStatement(rq::Expression &statement);
 };
 
 struct TableSymbol : public rq::SymbolTableSymbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::TableSymbol;
 
-  TableSymbol(llvm::StringRef name)
-      : rq::SymbolTableSymbol(rq::EntityKind::SY_TABLE),
-        rq::detail::HasNameSymbol(name) {}
+  inline TableSymbol(llvm::StringRef name);
   TableSymbol(const Self &) = delete;
   TableSymbol(Self &&) = delete;
-  virtual ~TableSymbol() {}
+  ~TableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4503,19 +2580,14 @@ struct ClassSymbol : public rq::SymbolTableSymbol,
                      public rq::detail::HasNameSymbol {
   using Self = rq::ClassSymbol;
 
-  rq::BumpPtrList<rq::PropertySymbol> _class_properties;
+  rq::BumpPtrList<rq::ClassParameterSymbol> _class_parameters;
 
   ClassSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &containing_table, llvm::StringRef name,
-              rq::ExpressionAttributeFlags attributes)
-      : rq::SymbolTableSymbol(rq::EntityKind::SY_CLASS, containing_table),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::HasNameSymbol(name) {}
+              rq::ExpressionAttributeFlags attributes);
   ClassSymbol(const Self &) = delete;
   ClassSymbol(Self &&) = delete;
-  virtual ~ClassSymbol() {}
+  ~ClassSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4532,15 +2604,10 @@ struct EnumerationSymbol : public rq::SymbolTableSymbol,
   EnumerationSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                     rq::SymbolTableSymbol &containing_table,
                     llvm::StringRef name,
-                    rq::ExpressionAttributeFlags attributes)
-      : rq::SymbolTableSymbol(rq::EntityKind::SY_ENUMERATION, containing_table),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::HasAttributesSymbol(attributes),
-        rq::detail::HasNameSymbol(name) {}
+                    rq::ExpressionAttributeFlags attributes);
   EnumerationSymbol(const Self &) = delete;
   EnumerationSymbol(Self &&) = delete;
-  virtual ~EnumerationSymbol() {}
+  ~EnumerationSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4550,12 +2617,10 @@ struct EntrySymbol : public rq::ProcedureSymbol {
 
   EntrySymbol(rq::Expression &expression, rq::ModuleSymbol &module,
               rq::SymbolTableSymbol &containing_table,
-              rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_ENTRY, expression, module,
-                            containing_table, attributes) {}
+              rq::ExpressionAttributeFlags attributes);
   EntrySymbol(const Self &) = delete;
   EntrySymbol(Self &&) = delete;
-  virtual ~EntrySymbol() {}
+  ~EntrySymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4564,15 +2629,13 @@ struct FunctionSymbol : public rq::ProcedureSymbol,
                         public rq::detail::HasNameSymbol {
   using Self = rq::FunctionSymbol;
 
-  FunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-                 rq::SymbolTableSymbol &containing_table, llvm::StringRef name,
-                 rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_FUNCTION, expression, module,
-                            containing_table, attributes),
-        rq::detail::HasNameSymbol(name) {}
+  inline FunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                        rq::SymbolTableSymbol &containing_table,
+                        llvm::StringRef name,
+                        rq::ExpressionAttributeFlags attributes);
   FunctionSymbol(const Self &) = delete;
   FunctionSymbol(Self &&) = delete;
-  virtual ~FunctionSymbol() {}
+  ~FunctionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4581,15 +2644,13 @@ struct MethodSymbol : public rq::ProcedureSymbol,
                       public rq::detail::HasNameSymbol {
   using Self = rq::MethodSymbol;
 
-  MethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               rq::SymbolTableSymbol &containing_table, llvm::StringRef name,
-               rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_METHOD, expression, module,
-                            containing_table, attributes),
-        rq::detail::HasNameSymbol(name) {}
+  inline MethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
+                      rq::SymbolTableSymbol &containing_table,
+                      llvm::StringRef name,
+                      rq::ExpressionAttributeFlags attributes);
   MethodSymbol(const Self &) = delete;
   MethodSymbol(Self &&) = delete;
-  virtual ~MethodSymbol() {}
+  ~MethodSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4601,13 +2662,10 @@ struct ExtensionFunctionSymbol : public rq::ProcedureSymbol,
   ExtensionFunctionSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                           rq::SymbolTableSymbol &containing_table,
                           llvm::StringRef name,
-                          rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_EXTENSION_FUNCTION, expression,
-                            module, containing_table, attributes),
-        rq::detail::HasNameSymbol(name) {}
+                          rq::ExpressionAttributeFlags attributes);
   ExtensionFunctionSymbol(const Self &) = delete;
   ExtensionFunctionSymbol(Self &&) = delete;
-  virtual ~ExtensionFunctionSymbol() {}
+  ~ExtensionFunctionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4619,13 +2677,10 @@ struct ExtensionMethodSymbol : public rq::ProcedureSymbol,
   ExtensionMethodSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                         rq::SymbolTableSymbol &containing_table,
                         llvm::StringRef name,
-                        rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_EXTENSION_METHOD, expression,
-                            module, containing_table, attributes),
-        rq::detail::HasNameSymbol(name) {}
+                        rq::ExpressionAttributeFlags attributes);
   ExtensionMethodSymbol(const Self &) = delete;
   ExtensionMethodSymbol(Self &&) = delete;
-  virtual ~ExtensionMethodSymbol() {}
+  ~ExtensionMethodSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4635,12 +2690,10 @@ struct RangerSymbol : public rq::ProcedureSymbol {
 
   RangerSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
                rq::SymbolTableSymbol &containing_table,
-               rq::ExpressionAttributeFlags attributes)
-      : rq::ProcedureSymbol(rq::EntityKind::SY_RANGER, expression, module,
-                            containing_table, attributes) {}
+               rq::ExpressionAttributeFlags attributes);
   RangerSymbol(const Self &) = delete;
   RangerSymbol(Self &&) = delete;
-  virtual ~RangerSymbol() {}
+  ~RangerSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4651,12 +2704,10 @@ struct TemplateClassSymbol : public rq::TemplateSymbol,
 
   TemplateClassSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_CLASS, parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateClassSymbol(const Self &) = delete;
   TemplateClassSymbol(Self &&) = delete;
-  virtual ~TemplateClassSymbol() {}
+  ~TemplateClassSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4667,12 +2718,10 @@ struct TemplateEnumerationSymbol : public rq::TemplateSymbol,
 
   TemplateEnumerationSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_ENUMERATION, parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateEnumerationSymbol(const Self &) = delete;
   TemplateEnumerationSymbol(Self &&) = delete;
-  virtual ~TemplateEnumerationSymbol() {}
+  ~TemplateEnumerationSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4683,13 +2732,10 @@ struct TemplateDynamicVariableSymbol : public rq::TemplateSymbol,
 
   TemplateDynamicVariableSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE,
-                           parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateDynamicVariableSymbol(const Self &) = delete;
   TemplateDynamicVariableSymbol(Self &&) = delete;
-  virtual ~TemplateDynamicVariableSymbol() {}
+  ~TemplateDynamicVariableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4698,15 +2744,12 @@ struct TemplateStaticVariableSymbol : public rq::TemplateSymbol,
                                       public rq::detail::HasNameSymbol {
   using Self = rq::TemplateStaticVariableSymbol;
 
-  TemplateStaticVariableSymbol(
+  inline TemplateStaticVariableSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE,
-                           parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateStaticVariableSymbol(const Self &) = delete;
   TemplateStaticVariableSymbol(Self &&) = delete;
-  virtual ~TemplateStaticVariableSymbol() {}
+  ~TemplateStaticVariableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4715,14 +2758,12 @@ struct TemplateFunctionSymbol : public rq::TemplateSymbol,
                                 public rq::detail::HasNameSymbol {
   using Self = rq::TemplateFunctionSymbol;
 
-  TemplateFunctionSymbol(
+  inline TemplateFunctionSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_FUNCTION, parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateFunctionSymbol(const Self &) = delete;
   TemplateFunctionSymbol(Self &&) = delete;
-  virtual ~TemplateFunctionSymbol() {}
+  ~TemplateFunctionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4731,14 +2772,12 @@ struct TemplateMethodSymbol : public rq::TemplateSymbol,
                               public rq::detail::HasNameSymbol {
   using Self = rq::TemplateMethodSymbol;
 
-  TemplateMethodSymbol(
+  inline TemplateMethodSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_METHOD, parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateMethodSymbol(const Self &) = delete;
   TemplateMethodSymbol(Self &&) = delete;
-  virtual ~TemplateMethodSymbol() {}
+  ~TemplateMethodSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4747,15 +2786,12 @@ struct TemplateExtensionFunctionSymbol : public rq::TemplateSymbol,
                                          public rq::detail::HasNameSymbol {
   using Self = rq::TemplateExtensionFunctionSymbol;
 
-  TemplateExtensionFunctionSymbol(
+  inline TemplateExtensionFunctionSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION,
-                           parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateExtensionFunctionSymbol(const Self &) = delete;
   TemplateExtensionFunctionSymbol(Self &&) = delete;
-  virtual ~TemplateExtensionFunctionSymbol() {}
+  ~TemplateExtensionFunctionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4764,15 +2800,12 @@ struct TemplateExtensionMethodSymbol : public rq::TemplateSymbol,
                                        public rq::detail::HasNameSymbol {
   using Self = rq::TemplateExtensionMethodSymbol;
 
-  TemplateExtensionMethodSymbol(
+  inline TemplateExtensionMethodSymbol(
       llvm::StringRef name,
-      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters)
-      : rq::TemplateSymbol(rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD,
-                           parameters),
-        rq::detail::HasNameSymbol(name) {}
+      const rq::BumpPtrList<rq::TemplateParameterSymbol> &parameters);
   TemplateExtensionMethodSymbol(const Self &) = delete;
   TemplateExtensionMethodSymbol(Self &&) = delete;
-  virtual ~TemplateExtensionMethodSymbol() {}
+  ~TemplateExtensionMethodSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4780,12 +2813,10 @@ struct PartialClassSymbol : public rq::PartialSymbol,
                             public rq::detail::HasNameSymbol {
   using Self = rq::PartialClassSymbol;
 
-  PartialClassSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_CLASS),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialClassSymbol(llvm::StringRef name);
   PartialClassSymbol(const Self &) = delete;
   PartialClassSymbol(Self &&) = delete;
-  virtual ~PartialClassSymbol() {}
+  ~PartialClassSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4794,12 +2825,10 @@ struct PartialEnumerationSymbol : public rq::PartialSymbol,
                                   public rq::detail::HasNameSymbol {
   using Self = rq::PartialEnumerationSymbol;
 
-  PartialEnumerationSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_ENUMERATION),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialEnumerationSymbol(llvm::StringRef name);
   PartialEnumerationSymbol(const Self &) = delete;
   PartialEnumerationSymbol(Self &&) = delete;
-  virtual ~PartialEnumerationSymbol() {}
+  ~PartialEnumerationSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4808,12 +2837,10 @@ struct PartialDynamicVariableSymbol : public rq::PartialSymbol,
                                       public rq::detail::HasNameSymbol {
   using Self = rq::PartialDynamicVariableSymbol;
 
-  PartialDynamicVariableSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialDynamicVariableSymbol(llvm::StringRef name);
   PartialDynamicVariableSymbol(const Self &) = delete;
   PartialDynamicVariableSymbol(Self &&) = delete;
-  virtual ~PartialDynamicVariableSymbol() {}
+  ~PartialDynamicVariableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4822,12 +2849,10 @@ struct PartialStaticVariableSymbol : public rq::PartialSymbol,
                                      public rq::detail::HasNameSymbol {
   using Self = rq::PartialStaticVariableSymbol;
 
-  PartialStaticVariableSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialStaticVariableSymbol(llvm::StringRef name);
   PartialStaticVariableSymbol(const Self &) = delete;
   PartialStaticVariableSymbol(Self &&) = delete;
-  virtual ~PartialStaticVariableSymbol() {}
+  ~PartialStaticVariableSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4836,12 +2861,10 @@ struct PartialFunctionSymbol : public rq::PartialSymbol,
                                public rq::detail::HasNameSymbol {
   using Self = rq::PartialFunctionSymbol;
 
-  PartialFunctionSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_FUNCTION),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialFunctionSymbol(llvm::StringRef name);
   PartialFunctionSymbol(const Self &) = delete;
   PartialFunctionSymbol(Self &&) = delete;
-  virtual ~PartialFunctionSymbol() {}
+  ~PartialFunctionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4850,12 +2873,10 @@ struct PartialMethodSymbol : public rq::PartialSymbol,
                              public rq::detail::HasNameSymbol {
   using Self = rq::PartialMethodSymbol;
 
-  PartialMethodSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_METHOD),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialMethodSymbol(llvm::StringRef name);
   PartialMethodSymbol(const Self &) = delete;
   PartialMethodSymbol(Self &&) = delete;
-  virtual ~PartialMethodSymbol() {}
+  ~PartialMethodSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4864,12 +2885,10 @@ struct PartialExtensionFunctionSymbol : public rq::PartialSymbol,
                                         public rq::detail::HasNameSymbol {
   using Self = rq::PartialExtensionFunctionSymbol;
 
-  PartialExtensionFunctionSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialExtensionFunctionSymbol(llvm::StringRef name);
   PartialExtensionFunctionSymbol(const Self &) = delete;
   PartialExtensionFunctionSymbol(Self &&) = delete;
-  virtual ~PartialExtensionFunctionSymbol() {}
+  ~PartialExtensionFunctionSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -4878,163 +2897,28 @@ struct PartialExtensionMethodSymbol : public rq::PartialSymbol,
                                       public rq::detail::HasNameSymbol {
   using Self = rq::PartialExtensionMethodSymbol;
 
-  PartialExtensionMethodSymbol(llvm::StringRef name)
-      : rq::PartialSymbol(rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD),
-        rq::detail::HasNameSymbol(name) {}
+  inline explicit PartialExtensionMethodSymbol(llvm::StringRef name);
   PartialExtensionMethodSymbol(const Self &) = delete;
   PartialExtensionMethodSymbol(Self &&) = delete;
-  virtual ~PartialExtensionMethodSymbol() {}
+  ~PartialExtensionMethodSymbol() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
-
-enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
-
-static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
-
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
-  switch (kind) {
-  case rq::ModuleKind::NONE:
-    return "none";
-  case rq::ModuleKind::SOURCE:
-    return "source";
-  case rq::ModuleKind::IMPORT:
-    return "import";
-  }
-  RQ_UNREACHABLE();
-}
-
-struct ModuleSymbol final : public rq::Symbol,
-                            public rq::detail::HasLocationSymbol {
-  using Self = rq::ModuleSymbol;
-
-  rq::ModuleKind _module_kind;
-  llvm::MemoryBufferRef _llvm_buffer_ref;
-  llvm::StringRef _path;
-
-  ModuleSymbol(rq::ModuleKind kind, llvm::StringRef path,
-               llvm::MemoryBufferRef &&buffer)
-      : rq::Symbol(rq::EntityKind::SY_MODULE), rq::detail::HasLocationSymbol(),
-        _module_kind(kind), _llvm_buffer_ref(std::move(buffer)), _path(path) {}
-  ModuleSymbol(const Self &) = delete;
-  ModuleSymbol(Self &&) = delete;
-  ~ModuleSymbol() override {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  bool operator==(const Self &rhs) const { return this == &rhs; }
-  bool operator!=(const Self &rhs) const { return this != &rhs; }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const {
-    return this->_module_kind;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
-    return this->_path;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
-    return this->_llvm_buffer_ref.getBufferSize() != 0;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
-    return this->_llvm_buffer_ref.getBuffer();
-  }
-  RQ_ALWAYS_INLINE void changeExpression(rq::Expression &expression) {
-    RQ_ASSERT(this->_expression_ptr != nullptr, "no expression");
-    this->_expression_ptr = &expression;
-  }
-  [[nodiscard]] rq::Expression &popExpression() {
-    rq::Expression &expression = rq::dereferencePtr(this->_expression_ptr);
-    this->_expression_ptr = nullptr;
-    return expression;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceExpression(rq::Expression &expression) {
-    rq::Expression &replaced_expression = this->getExpression();
-    this->_expression_ptr = &expression;
-    return replaced_expression;
-  }
-};
-
-struct ImportSymbol final : public rq::Symbol,
-                            public rq::detail::HasLocationSymbol,
-                            public rq::detail::ModuleMemberSymbol,
-                            public rq::detail::SymbolTableMemberSymbol,
-                            public rq::detail::HasAttributesSymbol,
-                            public rq::detail::HasImportModuleSymbol {
-  using Self = rq::ImportSymbol;
-
-  ImportSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               rq::SymbolTableSymbol &containing_table,
-               rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_IMPORT),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes) {}
-  ImportSymbol(const Self &) = delete;
-  ImportSymbol(Self &&) = delete;
-  virtual ~ImportSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
-struct FacadeSymbol final : public rq::Symbol,
-                            public rq::detail::HasLocationSymbol,
-                            public rq::detail::ModuleMemberSymbol,
-                            public rq::detail::SymbolTableMemberSymbol,
-                            public rq::detail::HasAttributesSymbol {
-  using Self = rq::FacadeSymbol;
-
-  FacadeSymbol(rq::Expression &expression, rq::ModuleSymbol &module,
-               rq::SymbolTableSymbol &containing_table,
-               rq::ExpressionAttributeFlags attributes)
-      : rq::Symbol(rq::EntityKind::SY_FACADE),
-        rq::detail::HasLocationSymbol(expression),
-        rq::detail::ModuleMemberSymbol(module),
-        rq::detail::SymbolTableMemberSymbol(containing_table),
-        rq::detail::HasAttributesSymbol(attributes) {}
-  FacadeSymbol(const Self &) = delete;
-  FacadeSymbol(Self &&) = delete;
-  virtual ~FacadeSymbol() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
 void RQ_ALWAYS_INLINE profileIntegerConstant(llvm::FoldingSetNodeID &id,
-                                             const llvm::APInt &value) {
-  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_INTEGER));
-  llvm::SmallString<32> buf;
-  value.toString(buf, 10, false);
-  id.AddString(llvm::StringRef(buf));
-}
-
+                                             const llvm::APInt &value);
 void RQ_ALWAYS_INLINE profileFloatConstant(llvm::FoldingSetNodeID &id,
-                                           const llvm::APFloat &value) {
-  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_FLOAT));
-  llvm::APInt bits = value.bitcastToAPInt();
-  llvm::SmallString<32> buf;
-  bits.toString(buf, 10, false);
-  id.AddString(llvm::StringRef(buf));
-}
-
+                                           const llvm::APFloat &value);
 void RQ_ALWAYS_INLINE profileStringConstant(llvm::FoldingSetNodeID &id,
-                                            llvm::StringRef value) {
-  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_STRING));
-  id.AddString(value);
-}
-
+                                            llvm::StringRef value);
 void RQ_ALWAYS_INLINE profileArrayConstant(
-    llvm::FoldingSetNodeID &id, const rq::BumpPtrList<rq::Entity *> &elements) {
-  id.AddInteger(static_cast<unsigned>(rq::EntityKind::CT_ARRAY));
-  for (rq::Entity *e : elements) {
-    id.AddPointer(e);
-  }
-}
-
+    llvm::FoldingSetNodeID &id, const rq::BumpPtrList<rq::Entity *> &elements);
 struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
-  Constant(rq::EntityKind kind) : rq::Entity(kind) { RQ_ASSERT_CONSTANT(kind); }
+  inline explicit Constant(rq::EntityKind kind);
   Constant(const Self &) = delete;
   Constant(Self &&) = delete;
-  ~Constant() {}
+  ~Constant() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
@@ -5045,19 +2929,14 @@ struct IntegerConstant final : public rq::Constant,
 
   llvm::APInt _value;
 
-  IntegerConstant(const llvm::APInt &value)
-      : rq::Constant(rq::EntityKind::CT_INTEGER), _value(value) {}
+  inline explicit IntegerConstant(const llvm::APInt &value);
   IntegerConstant(const Self &) = delete;
   IntegerConstant(Self &&) = delete;
-  virtual ~IntegerConstant() {}
+  ~IntegerConstant() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getValue() const {
-    return this->_value;
-  }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileIntegerConstant(id, this->_value);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getValue() const;
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct FloatConstant final : public rq::Constant, public llvm::FoldingSetNode {
@@ -5065,19 +2944,14 @@ struct FloatConstant final : public rq::Constant, public llvm::FoldingSetNode {
 
   llvm::APFloat _value;
 
-  FloatConstant(const llvm::APFloat &value)
-      : rq::Constant(rq::EntityKind::CT_FLOAT), _value(value) {}
+  inline FloatConstant(const llvm::APFloat &value);
   FloatConstant(const Self &) = delete;
   FloatConstant(Self &&) = delete;
-  virtual ~FloatConstant() {}
+  ~FloatConstant() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getValue() const {
-    return this->_value;
-  }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileFloatConstant(id, this->_value);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getValue() const;
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct StringConstant final : public rq::Constant, public llvm::FoldingSetNode {
@@ -5085,19 +2959,14 @@ struct StringConstant final : public rq::Constant, public llvm::FoldingSetNode {
 
   llvm::StringRef _value;
 
-  StringConstant(llvm::StringRef value)
-      : rq::Constant(rq::EntityKind::CT_STRING), _value(value) {}
+  inline explicit StringConstant(llvm::StringRef value);
   StringConstant(const Self &) = delete;
   StringConstant(Self &&) = delete;
-  virtual ~StringConstant() {}
+  ~StringConstant() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getValue() const {
-    return this->_value;
-  }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileStringConstant(id, this->_value);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getValue() const;
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
@@ -5105,20 +2974,15 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
 
   rq::BumpPtrList<rq::Entity *> _elements;
 
-  ArrayConstant(rq::BumpPtrList<rq::Entity *> elements)
-      : rq::Constant(rq::EntityKind::CT_ARRAY), _elements(elements) {}
+  inline explicit ArrayConstant(rq::BumpPtrList<rq::Entity *> elements);
   ArrayConstant(const Self &) = delete;
   ArrayConstant(Self &&) = delete;
-  virtual ~ArrayConstant() {}
+  ~ArrayConstant() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Entity *>
-  getElements() const {
-    return this->_elements;
-  }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileArrayConstant(id, this->_elements);
-  }
+  getElements() const;
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct Instruction;
@@ -5131,45 +2995,24 @@ struct InstructionSlot final {
       _data{};
 
   InstructionSlot() = default;
-  explicit InstructionSlot(rq::Entity &entity) : _data{&entity} {}
-  explicit InstructionSlot(rq::InstructionNode &node) : _data(&node) {}
-  explicit InstructionSlot(rq::Instruction &instruction)
-      : _data(&instruction) {}
+  inline explicit InstructionSlot(rq::Entity &entity);
+  inline explicit InstructionSlot(rq::InstructionNode &node);
+  inline explicit InstructionSlot(rq::Instruction &instruction);
   ~InstructionSlot() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
-    return this->_data.isNull();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntity() const {
-    return llvm::isa<rq::Entity *>(this->_data);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstructionNode() const {
-    return llvm::isa<rq::InstructionNode *>(this->_data);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-    return llvm::isa<rq::Instruction *>(this->_data);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
-    return rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
-    return rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNode &getInstructionNode() {
-    return rq::dereferencePtr(llvm::cast<rq::InstructionNode *>(this->_data));
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntity() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstructionNode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNode &getInstructionNode();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNode &
-  getInstructionNode() const {
-    return rq::dereferencePtr(llvm::cast<rq::InstructionNode *>(this->_data));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
-    return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const {
-    return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
-  }
-  inline void clear() { this->_data = nullptr; }
+  getInstructionNode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
+  inline void clear();
 };
 
 struct InstructionNode final {
@@ -5184,22 +3027,11 @@ struct InstructionNode final {
   ~InstructionNode() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCar() {
-    return this->_car;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCar() const {
-    return this->_car;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr() {
-    return this->_cdr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCdr() const {
-    return this->_cdr;
-  }
-  inline void clear() {
-    this->_car.clear();
-    this->_cdr.clear();
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCar();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCdr() const;
+  inline void clear();
 };
 
 struct Instruction final : public rq::Entity {
@@ -5207,33 +3039,19 @@ struct Instruction final : public rq::Entity {
 
   rq::InstructionSlot _cdr;
 
-  Instruction() : rq::Entity(rq::EntityKind::OP_NONE) {}
+  inline Instruction();
   Instruction(const Self &) = delete;
   Instruction(Self &&) = delete;
   ~Instruction() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  RQ_ALWAYS_INLINE void setOpcode(rq::EntityKind opcode) {
-    RQ_ASSERT_OPCODE(opcode);
-    RQ_ASSERT(this->getKind() == rq::EntityKind::OP_NONE, "opcode already set");
-    this->_kind = opcode;
-  }
-  RQ_ALWAYS_INLINE void changeOpcode(rq::EntityKind opcode) {
-    RQ_ASSERT_OPCODE(opcode);
-    RQ_ASSERT(this->getKind() != rq::EntityKind::OP_NONE,
-              "opcode not already set");
-    this->_kind = opcode;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr() {
-    return this->_cdr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCdr() const {
-    return this->_cdr;
-  }
-  inline void clear() {
-    this->_kind = rq::EntityKind::OP_NONE;
-    this->_cdr.clear();
-  }
+  RQ_ALWAYS_INLINE void setOpcode(rq::EntityKind opcode);
+  RQ_ALWAYS_INLINE void changeOpcode(rq::EntityKind opcode);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &getCdr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionSlot &getCdr() const;
+  inline void clear();
 };
 
 } // namespace rq
+
+#include <rq/detail/entity.hpp.inl>

@@ -82,7 +82,6 @@ struct Context final {
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
   rq::InferenceSymbol *_inference_symbol{nullptr};
   rq::ExpressionSymbol *_expression_symbol{nullptr};
-  rq::EntityKindSymbol *_entity_kind_symbol{nullptr};
   rq::VoidSymbol *_void_symbol_ptr{nullptr};
   rq::NullSymbol *_null_symbol_ptr{nullptr};
   rq::NoReturnSymbol *_no_return_symbol_ptr{nullptr};
@@ -313,13 +312,6 @@ struct Context final {
       this->_expression_symbol = &this->allocateValue<rq::ExpressionSymbol>();
     }
     return rq::dereferencePtr(this->_expression_symbol);
-  }
-
-  inline rq::EntityKindSymbol &acquireEntityKindSymbol() {
-    if (!this->_entity_kind_symbol) {
-      this->_entity_kind_symbol = &this->allocateValue<rq::EntityKindSymbol>();
-    }
-    return rq::dereferencePtr(this->_entity_kind_symbol);
   }
 
   inline rq::VoidSymbol &acquireVoidSymbol() {
