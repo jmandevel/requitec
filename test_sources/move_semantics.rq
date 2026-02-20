@@ -1,7 +1,17 @@
 [import "std"];
 
 @may_copy @may_move @auto_drop
-[class MyClass,];
+[class MyClass,
+
+  @public
+  [method destroy, `->,
+    // explicit drop without destroy
+    [this].[drop];
+
+    // NOTE: .[drop] reflection only usable in member functions and methods.
+  ];
+
+];
 
 [entry
   class :`= .MyClass();
@@ -14,6 +24,6 @@
   non_destructive_move := class.`[borrow]->extract();
   destructive_move := class.[move];
   // class was dropped
-  destructive_move.[drop]; // explicit drop without destroy
+  destructive_move.[move].destroy(); // linear assign into destructor method
   // non_destructive_move is auto dropped here
 ];

@@ -1,0 +1,30 @@
+[import "std"];
+
+// notice how there is no @auto_drop attribute. 
+// this means you ahve to manually drop variables of this type when they go out of scope.
+@may_move @may_copy
+[class NoAutoDrop,
+	// this is like a destructor. it takes ownership of what you call it on and then drops it. 
+	// if this type had internal resources, they could be released here.
+	@public [method destroy, `->, [this].[drop]; ];
+];
+
+[entry
+	// create stack and defer destruction
+	// my_stack.destroy() returns a ranger over all elements so each element can be destroyed before the stack memory is freed.
+	my_stack := .std.StackList{NoAutoDrop}();
+	@defer_drop::my_stack [for my_stack.destroy(), value:=[value].[move], value.[move].destroy();];	
+	
+	// push back some elements
+	// notice how the elements are moved into the call. if it was copied, then the temporary would have to be manually dropped.
+	my_stack.pushBack(NoAutoDrop().[move]);
+	my_stack.pushBack(NoAutoDrop().[move]);
+	my_stack.pushBack(NoAutoDrop().[move]);
+	
+	// remove the last element
+	// the last element is linearly assigned out. you have to drop the element manually.
+	my_stack.popBack().[move].destroy();
+	
+	// since this is the end of the scope, all statements marked with @defer will execute in reverse order.
+	// this will drop all remaining elements from my_stack and then drop my_stack itself (as specified above).
+];

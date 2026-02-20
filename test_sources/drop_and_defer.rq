@@ -1,14 +1,15 @@
 
+@may_move
 [class NoAutoDrop,
     // notice how the method does not take the instance by reference
     // this causes it to be linearly assigned (ownership is transfered into the method)
     @public
-    [method destroy, ->()[void], 
+    [method destroy, `->, 
         [this].[drop];
     ]
 ];
 
-@auto_drop
+@auto_drop @may_move
 [class AutoDrop,];
 
 [entry
@@ -20,11 +21,12 @@
 
     // Requite has no automatic destructors like most high level languages.
     // NoAutoDrop type does not have auto_drop attribute, so you need to manually
-    // drop it with .[drop] reflection.
+    // drop it with .[drop] reflection. however, the drop reflection is only usable within member methods and functions.
+    // you can also use .[move] to give ownership away. dropping responsibility is passed on too.
     // the member method .destroy() does this for us.
     no_auto_drop := .NoAutoDrop();
 
     // defered statement will be called on scope exit (or return)
     // this will cause the destroy method to called as if its a destructor in less explicit languages like C++
-    @defer no_auto_drop.destroy(); 
+    @defer_drop::no_auto_drop no_auto_drop.[move].destroy(); 
 ];
