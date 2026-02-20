@@ -302,7 +302,7 @@ bool Context::run() {
     }
     return true;
   }
-  return true;
+  RQ_UNREACHABLE();
 }
 
 bool Context::parseRequite(rq::ModuleSymbol &module,
