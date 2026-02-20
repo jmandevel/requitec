@@ -4,7 +4,7 @@
 [class MyClass,
 
   @public
-  [method destroy, `->,
+  [method destroy, ->,
     // explicit drop without destroy
     [this].[drop];
 
