@@ -1093,10 +1093,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
-  case K::FACADE:
-    is_ok = this->situateBinaryExpressionBranches(situation, expression,
-                                                  S::RVALUE, S::RVALUE);
-    break;
   case K::TABLE:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::SYMBOL_PATH);

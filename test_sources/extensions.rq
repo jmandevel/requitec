@@ -31,16 +31,4 @@
 
     // call extension function
     foo.[borrow]->.example.bar();
-
-    // apply facades
-    [facade &5#[signed], .example.getElementCount];
-    [facade &.example.Foo, .example.bar];
-
-    // call extension function
-    {} = my_array.[type]->getElementCount();
-    // call extension method
-    {} = my_array.[borrow]->getElementCount();
-
-    // call extension function
-    foo.[borrow]->bar();
 ];
