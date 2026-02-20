@@ -13,7 +13,7 @@
 	// create stack and defer destruction
 	// my_stack.destroy() returns a ranger over all elements so each element can be destroyed before the stack memory is freed.
 	my_stack := .std.StackList{NoAutoDrop}();
-	@defer [for my_stack.destroy(), value:=[value].[move], value.[move].destroy();];	
+	@defer_drop::my_stack [for my_stack.destroy(), value:=[value].[move], value.[move].destroy();];	
 	
 	// push back some elements
 	// notice how the elements are moved into the call. if it was copied, then the temporary would have to be manually dropped.

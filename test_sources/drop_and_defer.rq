@@ -28,5 +28,5 @@
 
     // defered statement will be called on scope exit (or return)
     // this will cause the destroy method to called as if its a destructor in less explicit languages like C++
-    @defer no_auto_drop.[move].destroy(); 
+    @defer_drop::no_auto_drop no_auto_drop.[move].destroy(); 
 ];
