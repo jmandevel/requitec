@@ -4,7 +4,7 @@
     // notice how the method does not take the instance by reference
     // this causes it to be linearly assigned (ownership is transfered into the method)
     @public
-    [method destroy, ->, 
+    [method destroy, =>, 
         [this].[drop];
     ]
 ];
