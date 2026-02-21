@@ -118,8 +118,6 @@ namespace rq {
     return "sy_extension";
   case E::SY_CODE:
     return "sy_code";
-  case E::SY_CATEGORY:
-    return "sy_category";
   case E::SY_CATEGORY_DISCRIMINANT:
     return "sy_category_discriminant";
 
@@ -154,6 +152,8 @@ namespace rq {
     return "sy_class";
   case E::SY_ENUMERATION:
     return "sy_enumeration";
+  case E::SY_CATEGORY:
+    return "sy_category";
 
   // PROCEDURE
   case E::SY_ENTRY:
@@ -457,8 +457,6 @@ namespace rq {
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_CODE:
     return EF::SYMBOL;
-  case E::SY_CATEGORY:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_CATEGORY_DISCRIMINANT:
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
 
@@ -491,10 +489,13 @@ namespace rq {
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
   case E::SY_CLASS:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
+           EF::SY_TOP_OF_FRAME | EF::SY_TYPE;
   case E::SY_ENUMERATION:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME;
+           EF::SY_TOP_OF_FRAME | EF::SY_TYPE;
+  case E::SY_CATEGORY:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
+           EF::SY_TOP_OF_FRAME | EF::SY_TYPE;
 
   // PROCEDURE SYMBOL
   case E::SY_ENTRY:
@@ -875,7 +876,7 @@ Entity::Entity(rq::EntityKind kind) : _kind(kind) {}
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::operator!=(const Self &rhs) const {
   return this != &rhs;
 }
-[[nodiscard]] llvm::StringRef Entity::getKindName() const {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Entity::getKindName() const {
   return rq::getName(this->_kind);
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSymbol() const {
@@ -1047,9 +1048,6 @@ Entity::getIsInfiniteArithmeticProgressionSymbol() const {
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCodeSymbol() const {
   return this->_kind == rq::EntityKind::SY_CODE;
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCategorySymbol() const {
-  return this->_kind == rq::EntityKind::SY_CATEGORY;
-}
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Entity::getIsCategoryDiscriminantSymbol() const {
   return this->_kind == rq::EntityKind::SY_CATEGORY_DISCRIMINANT;
@@ -1101,6 +1099,9 @@ Entity::getIsSignatureParameterSymbol() const {
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsEnumerationSymbol() const {
   return this->_kind == rq::EntityKind::SY_ENUMERATION;
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCategorySymbol() const {
+  return this->_kind == rq::EntityKind::SY_CATEGORY;
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsProcedureSymbol() const {
   return rq::getIsProcedureSymbol(this->_kind);
@@ -1748,7 +1749,7 @@ HasImportModuleSymbol::setImportModule(rq::ModuleSymbol &import_module) {
 
 inline SymbolTableSymbol::SymbolTableSymbol(rq::EntityKind kind)
     : rq::Symbol(kind), rq::detail::SymbolTableMemberSymbol() {}
-SymbolTableSymbol::SymbolTableSymbol(rq::EntityKind kind,
+inline SymbolTableSymbol::SymbolTableSymbol(rq::EntityKind kind,
                                      rq::SymbolTableSymbol &containing_table)
     : rq::Symbol(kind), rq::detail::SymbolTableMemberSymbol(containing_table) {}
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2156,10 +2157,6 @@ isa_impl<rq::ImportSymbol, rq::Symbol>::doit(const rq::Symbol &val) {
 inline bool isa_impl<rq::CodeSymbol, rq::Symbol>::doit(const rq::Symbol &val) {
   return val.getIsCodeSymbol();
 }
-inline bool
-isa_impl<rq::CategorySymbol, rq::Symbol>::doit(const rq::Symbol &val) {
-  return val.getIsCategorySymbol();
-}
 inline bool isa_impl<rq::CategoryDiscriminantSymbol, rq::Symbol>::doit(
     const rq::Symbol &val) {
   return val.getIsCategoryDiscriminantSymbol();
@@ -2238,6 +2235,14 @@ isa_impl<rq::EnumerationSymbol, rq::Symbol>::doit(const rq::Symbol &val) {
 inline bool isa_impl<rq::EnumerationSymbol, rq::SymbolTableSymbol>::doit(
     const rq::SymbolTableSymbol &val) {
   return val.getIsEnumerationSymbol();
+}
+inline bool
+isa_impl<rq::CategorySymbol, rq::Symbol>::doit(const rq::Symbol &val) {
+  return val.getIsCategorySymbol();
+}
+inline bool
+isa_impl<rq::CategorySymbol, rq::SymbolTableSymbol>::doit(const rq::SymbolTableSymbol &val) {
+  return val.getIsCategorySymbol();
 }
 inline bool
 isa_impl<rq::ProcedureSymbol, rq::Symbol>::doit(const rq::Symbol &val) {
@@ -2447,6 +2452,10 @@ inline bool
 isa_impl<rq::ArrayConstant, rq::Entity>::doit(const rq::Entity &val) {
   return val.getIsArrayConstant();
 }
+inline bool
+isa_impl<rq::Instruction, rq::Entity>::doit(const rq::Entity &val) {
+  return val.getIsInstruction();
+}
 } // namespace llvm
 namespace rq {
 inline TypeSymbol::TypeSymbol(rq::EntityKind kind, rq::Symbol &root,
@@ -2491,7 +2500,7 @@ TypeSymbol::getHasNullTerminated(rq::TypeAttribute attribute) const {
 TypeSymbol::getHasMayDiscard(rq::TypeAttribute attribute) const {
   return rq::getHasMayDiscard(attribute);
 }
-void TypeSymbol::Profile(llvm::FoldingSetNodeID &id) const {
+inline void TypeSymbol::Profile(llvm::FoldingSetNodeID &id) const {
   id.AddInteger(static_cast<unsigned>(this->_kind));
   id.AddPointer(this->_root_ptr);
   id.AddInteger(static_cast<unsigned>(this->_flags));
@@ -2646,7 +2655,7 @@ ModuleSymbol::changeExpression(rq::Expression &expression) {
   RQ_ASSERT(this->_expression_ptr != nullptr, "no expression");
   this->_expression_ptr = &expression;
 }
-[[nodiscard]] rq::Expression &ModuleSymbol::popExpression() {
+[[nodiscard]] inline rq::Expression &ModuleSymbol::popExpression() {
   rq::Expression &expression = rq::dereferencePtr(this->_expression_ptr);
   this->_expression_ptr = nullptr;
   return expression;
@@ -2703,11 +2712,10 @@ inline CategorySymbol::CategorySymbol(rq::Expression &expression,
                                       rq::ModuleSymbol &module,
                                       rq::ExpressionAttributeFlags attributes,
                                       rq::SymbolTableSymbol &containing_table)
-    : rq::Symbol(rq::EntityKind::SY_CATEGORY),
+    : rq::SymbolTableSymbol(rq::EntityKind::SY_CATEGORY, containing_table),
       rq::detail::HasLocationSymbol(expression),
       rq::detail::HasNameSymbol(name), rq::detail::ModuleMemberSymbol(module),
-      rq::detail::HasAttributesSymbol(attributes),
-      rq::detail::SymbolTableMemberSymbol(containing_table) {}
+      rq::detail::HasAttributesSymbol(attributes) {}
 inline TopSymbol::TopSymbol() : rq::SymbolTableSymbol(rq::EntityKind::SY_TOP) {}
 inline ScopeSymbol::ScopeSymbol(rq::Expression &expression,
                                 rq::ModuleSymbol &module,
@@ -2758,8 +2766,7 @@ inline CategoryAlternativeSymbol::CategoryAlternativeSymbol(
     : rq::Symbol(rq::EntityKind::SY_ENUMERATOR),
       rq::detail::HasLocationSymbol(expression),
       rq::detail::ModuleMemberSymbol(module),
-      rq::detail::SymbolTableMemberSymbol(
-          llvm::cast<rq::SymbolTableSymbol>(category)),
+      rq::detail::SymbolTableMemberSymbol(category),
       rq::detail::HasAttributesSymbol(attributes) {}
 [[nodiscard]] RQ_ALWAYS_INLINE rq::CategorySymbol &
 CategoryAlternativeSymbol::getCategory() {
@@ -3072,7 +3079,8 @@ InstructionSlot::getIsInstructionNode() const {
   return llvm::isa<rq::InstructionNode *>(this->_data);
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool InstructionSlot::getIsInstruction() const {
-  return llvm::isa<rq::Instruction *>(this->_data);
+  return llvm::isa<rq::Entity *>(this->_data) &&
+         this->getEntity().getIsInstruction();
 }
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &InstructionSlot::getEntity() {
   return rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data));
@@ -3091,11 +3099,13 @@ InstructionSlot::getInstructionNode() const {
 }
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &
 InstructionSlot::getInstruction() {
-  return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
+  return llvm::cast<rq::Instruction>(
+      rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data)));
 }
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
 InstructionSlot::getInstruction() const {
-  return rq::dereferencePtr(llvm::cast<rq::Instruction *>(this->_data));
+  return llvm::cast<rq::Instruction>(
+      rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data)));
 }
 inline void InstructionSlot::clear() { this->_data = nullptr; }
 [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionSlot &InstructionNode::getCar() {

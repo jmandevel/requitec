@@ -98,7 +98,6 @@ enum class EntityKind : std::uint16_t {
   SY_IMPORT,
   SY_EXTENSION,
   SY_CODE,
-  SY_CATEGORY,
   SY_CATEGORY_DISCRIMINANT,
 
   // BINDING
@@ -118,6 +117,7 @@ enum class EntityKind : std::uint16_t {
   SY_TABLE,
   SY_CLASS,
   SY_ENUMERATION,
+  SY_CATEGORY,
 
   // PROCEDURE
   SY_ENTRY,
@@ -317,7 +317,7 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getKind() const;
-  [[nodiscard]] llvm::StringRef getKindName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getKindName() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const;
@@ -374,11 +374,11 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImportSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategorySymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategoryDiscriminantSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariableSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariableSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeratorSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategorySymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategoryAlternativeSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameterSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameterSymbol() const;
@@ -555,11 +555,11 @@ struct FiniteArithmeticProgressionSymbol;
 struct InfiniteArithmeticProgressionSymbol;
 
 // MISC
+struct LabelSymbol;
 struct ModuleSymbol;
 struct ImportSymbol;
 struct ExtensionSymbol;
 struct CodeSymbol;
-struct CategorySymbol;
 struct CategoryDiscriminantSymbol;
 
 // BINDING
@@ -579,7 +579,7 @@ struct ScopeSymbol;
 struct TableSymbol;
 struct ClassSymbol;
 struct EnumerationSymbol;
-struct LabelSymbol;
+struct CategorySymbol;
 
 // PROCEDURE
 struct ProcedureSymbol;
@@ -617,6 +617,10 @@ struct IntegerConstant;
 struct FloatConstant;
 struct StringConstant;
 struct ArrayConstant;
+
+// INSTRUCTION
+
+struct Instruction;
 
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
@@ -695,7 +699,7 @@ struct ScaledBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   std::uint16_t _uid;
   rq::ScaledBuiltinFlags _flags;
 
-  ScaledBuiltinSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
+  inline ScaledBuiltinSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
                       rq::ScaledBuiltinFlags flags);
   ScaledBuiltinSymbol(const Self &) = delete;
   ScaledBuiltinSymbol(Self &&) = delete;
@@ -721,9 +725,9 @@ struct ScaledBuiltinSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 struct ScaledIntegerSymbol : public rq::ScaledBuiltinSymbol {
   using Self = rq::ScaledIntegerSymbol;
 
-  ScaledIntegerSymbol(unsigned scalar, unsigned uid,
+  inline ScaledIntegerSymbol(unsigned scalar, unsigned uid,
                       rq::ScaledBuiltinFlags flags);
-  ScaledIntegerSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
+  inline ScaledIntegerSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
                       rq::ScaledBuiltinFlags flags);
   ScaledIntegerSymbol(const Self &) = delete;
   ScaledIntegerSymbol(Self &&) = delete;
@@ -734,8 +738,8 @@ struct ScaledIntegerSymbol : public rq::ScaledBuiltinSymbol {
 struct FloatSymbol : public rq::ScaledBuiltinSymbol {
   using Self = rq::FloatSymbol;
 
-  FloatSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags);
-  FloatSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
+  inline FloatSymbol(unsigned scalar, unsigned uid, rq::ScaledBuiltinFlags flags);
+  inline FloatSymbol(rq::EntityKind kind, unsigned scalar, unsigned uid,
               rq::ScaledBuiltinFlags flags);
   FloatSymbol(const Self &) = delete;
   FloatSymbol(Self &&) = delete;
@@ -915,7 +919,7 @@ struct HasNameSymbol {
 
   llvm::StringRef _name;
 
-  HasNameSymbol(llvm::StringRef name);
+  inline explicit HasNameSymbol(llvm::StringRef name);
   HasNameSymbol(const Self &) = delete;
   HasNameSymbol(Self &&) = delete;
   ~HasNameSymbol() = default;
@@ -983,7 +987,7 @@ struct SymbolTableSymbol : public rq::Symbol,
   rq::BumpPtrList<rq::Symbol> _unamed_values{};
 
   inline explicit SymbolTableSymbol(rq::EntityKind kind);
-  SymbolTableSymbol(rq::EntityKind kind,
+  inline SymbolTableSymbol(rq::EntityKind kind,
                     rq::SymbolTableSymbol &containing_table);
   SymbolTableSymbol(const Self &) = delete;
   SymbolTableSymbol(Self &&) = delete;
@@ -1397,6 +1401,10 @@ struct isa_impl<rq::FiniteArithmeticProgressionSymbol,
 };
 
 // MISC
+template <> struct isa_impl<rq::LabelSymbol, rq::Symbol> {
+  static inline bool doit(const rq::Symbol &val);
+};
+
 template <> struct isa_impl<rq::ModuleSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val);
 };
@@ -1411,6 +1419,10 @@ template <> struct isa_impl<rq::CodeSymbol, rq::Symbol> {
 
 template <> struct isa_impl<rq::CategorySymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val);
+};
+
+template <> struct isa_impl<rq::CategorySymbol, rq::SymbolTableSymbol> {
+  static inline bool doit(const rq::SymbolTableSymbol &val);
 };
 
 template <> struct isa_impl<rq::CategoryDiscriminantSymbol, rq::Symbol> {
@@ -1447,10 +1459,6 @@ template <> struct isa_impl<rq::ClassParameterSymbol, rq::Symbol> {
 };
 
 template <> struct isa_impl<rq::LayoutParameterSymbol, rq::Symbol> {
-  static inline bool doit(const rq::Symbol &val);
-};
-
-template <> struct isa_impl<rq::LabelSymbol, rq::Symbol> {
   static inline bool doit(const rq::Symbol &val);
 };
 
@@ -1714,6 +1722,12 @@ template <> struct isa_impl<rq::ArrayConstant, rq::Entity> {
   static inline bool doit(const rq::Entity &val);
 };
 
+// INSTRUCTION
+
+template <> struct isa_impl<rq::Instruction, rq::Entity> {
+  static inline bool doit(const rq::Entity &val);
+};
+
 } // namespace llvm
 namespace rq {
 
@@ -1748,7 +1762,7 @@ struct TypeSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   getHasNullTerminated(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasMayDiscard(rq::TypeAttribute attribute) const;
-  void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct InferenceSymbol : public rq::SimpleBuiltinSymbol {
@@ -2249,7 +2263,7 @@ struct ModuleSymbol final : public rq::Symbol,
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
   RQ_ALWAYS_INLINE void changeExpression(rq::Expression &expression);
-  [[nodiscard]] rq::Expression &popExpression();
+  [[nodiscard]] inline rq::Expression &popExpression();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceExpression(rq::Expression &expression);
 };
@@ -2313,12 +2327,11 @@ struct CodeSymbol : public rq::Symbol,
   Self &operator=(Self &&) = delete;
 };
 
-struct CategorySymbol : public rq::Symbol,
+struct CategorySymbol : public rq::SymbolTableSymbol,
                         public rq::detail::HasLocationSymbol,
                         public rq::detail::HasNameSymbol,
                         public rq::detail::ModuleMemberSymbol,
-                        public rq::detail::HasAttributesSymbol,
-                        public rq::detail::SymbolTableMemberSymbol {
+                        public rq::detail::HasAttributesSymbol {
   using Self = rq::CategorySymbol;
 
   inline CategorySymbol(rq::Expression &expression, llvm::StringRef name,
@@ -2991,7 +3004,7 @@ struct InstructionNode;
 struct InstructionSlot final {
   using Self = InstructionSlot;
 
-  llvm::PointerUnion<rq::Entity *, rq::InstructionNode *, rq::Instruction *>
+  llvm::PointerUnion<rq::Entity *, rq::InstructionNode *>
       _data{};
 
   InstructionSlot() = default;
