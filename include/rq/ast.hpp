@@ -386,7 +386,7 @@ enum class Keyword : std::uint32_t {
 
   // MACROS
   QUOTE,
-  NODE,
+  EXPRESSION,
   EXPAND,
   EXPAND_STATEMENT,
   EXPAND_LVALUE,
@@ -1087,11 +1087,11 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::MESSAGE_OF:
     return "_message_of";
 
-  // NODES
+  // EXPRESSIONS
   case K::QUOTE:
     return "quote";
-  case K::NODE:
-    return "node";
+  case K::EXPRESSION:
+    return "expression";
   case K::EXPAND:
     return "expand";
   case K::EXPAND_STATEMENT:
@@ -1899,10 +1899,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::MESSAGE_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
-  // NODES
+  // EXPRESSIONS
   case K::QUOTE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::NODE:
+  case K::EXPRESSION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::EXPAND:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
