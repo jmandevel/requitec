@@ -300,6 +300,10 @@ struct Context final {
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
 
+  inline rq::TypeSymbol &acquireTypeSymbol(rq::Symbol& node, rq::TypeAttributeFlags flags) {
+    // TODO
+  }
+
   inline rq::InferenceSymbol &acquireInferenceSymbol() {
     if (!this->_inference_symbol) {
       this->_inference_symbol = &this->allocateValue<rq::InferenceSymbol>();
@@ -554,6 +558,9 @@ struct Context final {
         this->_getOrInsertArithmeticSequenceSymbol(
             rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION, root,
             rq::ArithmeticSequenceCondition::NONE, step));
+  }
+  [[nodiscard]] inline rq::SynonymSymbol acquireSynonymSymbol(rq::TypeSymbol& underlying, rq::Expression& location) {
+
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &
   acquireIntegerContant(const llvm::APInt &value) {
