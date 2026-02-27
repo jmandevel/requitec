@@ -27,8 +27,23 @@ namespace rq {
 
 struct Context;
 
-enum class EntityKind : std::uint16_t {
-  NONE = 0,
+// NOTE: this is a massive tree of types that make use of LLVM RTTI
+// The root of this tree is "Entity", and the tree contains all symbols,
+// constant values, and symbolic instructions.
+// https://llvm.org/docs/HowToSetUpLLVMStyleRTTI.html
+
+// NOTE: everything in this tree is meant to be allocated within a
+// llvm::BumpPtrAllocator. Nothing has a destructor. Make use of rq::BumpPtrList
+// and rq::BumpPtrMap
+
+// TODO: need to make rq::BumpPtrMap red black tree type for symbol tables that use
+// llvm::BumpPtrAllocator allocated nodes
+
+// NOTE: all function implementations are in the seperate header
+// "rq/detail/entity.hpp.inl" to avoid forward declaration hell
+
+enum EntityKind : std::uint16_t {
+  ENTITY_NONE = 0,
 
   // =====SYMBOLS=====
 
@@ -207,18 +222,18 @@ enum class EntityKind : std::uint16_t {
   OP_UNREACHABLE,
   OP_ASSUME,
 
-  LAST
+  ENTITY_LAST
 };
 
 static constexpr std::size_t ENTITY_COUNT =
-    static_cast<std::size_t>(rq::EntityKind::LAST) - 1;
+    static_cast<std::size_t>(rq::EntityKind::ENTITY_LAST) - 1;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::EntityKind kind);
 
 struct Symbol;
 
-// ROOT WITH TYPE ATTRIBUTES
-struct TypeSymbol;
+// TYPE
+struct TypeDefinitionSymbol;
 
 // SIMPLE BUILTIN
 struct SimpleBuiltinSymbol;
@@ -373,7 +388,7 @@ enum class EntityFlags : std::uint32_t {
   SY_PARTIAL = rq::getBit(11),
   // SYMBOL INFO PROPERTIES - have no data associated
   SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(12),
-  SY_TYPE_NODE = rq::getBit(13),
+  SY_TYPE = rq::getBit(13),
   SY_GENERIC = rq::getBit(14),
   SY_CONCRETE = rq::getBit(15),
   SY_SUBTYPE = rq::getBit(16),
@@ -419,7 +434,7 @@ getIsArithmeticSequenceSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasTemplateAlternativeSymbol(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeNodeSymbol(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol(rq::EntityKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol(rq::EntityKind kind);
@@ -450,116 +465,9 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getKindName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltinSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferenceSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeTypeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbolSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVoidSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoReturnSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariadicArgumentsSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBooleanSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericFloatSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHalfSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSingleSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDoubleSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQuadrupleSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBinarySymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericBfloatSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary16Symbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary32Symbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary64Symbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary128Symbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloat16Symbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericIntegerSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSignedSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericUnsignedSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericCodeunitSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericStringSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAsciiSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUtf8Symbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltinSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledSignedSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledUnsignedSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtypeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReferenceSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPointerSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFatPointerSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInferencedCountArraySymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtypeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArraySymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtypeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticIntervalSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsFiniteArithmeticProgressionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsInfiniteArithmeticProgressionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonymSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModuleSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImportSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategoryDiscriminantSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStaticVariableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumeratorSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategorySymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCategoryAlternativeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassParameterSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLayoutParameterSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateParameterSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignatureParameterSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLabelSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScopeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumerationSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntrySymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMethodSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionFunctionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExtensionMethodSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRangerSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateClassSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateEnumerationSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateDynamicVariableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateStaticVariableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateFunctionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateMethodSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateExtensionFunctionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsTemplateExtensionMethodSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialClassSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialEnumerationSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialDynamicVariableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialStaticVariableSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialFunctionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialMethodSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsPartialExtensionFunctionSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialExtensionMethodSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerConstant() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatConstant() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringConstant() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArrayConstant() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternativeSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeNodeSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcreteSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtypeSymbol() const;
@@ -570,145 +478,9 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrameSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeSymbol &getTypeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceSymbol &getInferenceSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionSymbol &getExpressionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidSymbol &getVoidSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullSymbol &getNullSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnSymbol &getNoReturnSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsSymbol &
-  getVariadicArgumentsSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanSymbol &getBooleanSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericFloatSymbol &
-  getGenericFloatSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfSymbol &getHalfSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleSymbol &getSingleSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleSymbol &getDoubleSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleSymbol &getQuadrupleSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBinarySymbol &
-  getGenericBinarySymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBfloatSymbol &
-  getGenericBFloatSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Symbol &getBinary16Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Symbol &getBinary32Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Symbol &getBinary64Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Symbol &getBinary128Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Symbol &getBfloat16Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericIntegerSymbol &
-  getGenericIntegerSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericUnsignedSymbol &
-  getGenericUnsignedSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericStringSymbol &
-  getGenericStringSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericCodeunitSymbol &
-  getGenericCodeunitSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiSymbol &getAsciiSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Symbol &getUtf8Symbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinSymbol &
-  getScaledBuiltinSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedSymbol &
-  getScaledSignedSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedSymbol &
-  getScaledUnsignedSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnarySubtypeSymbol &
-  getUnarySubtypeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &getRangeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &getReferenceSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &getPointerSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FatPointerSymbol &getFatPointerSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArraySymbol &
-  getInferencedCountArraySymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CountedSubtypeSymbol &
-  getCountedSubtypeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &getArraySymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutSymbol &getLayoutSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureSymbol &getSignatureSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceSymbol &
-  getArithmeticSequenceSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &
-  getFiniteArithmeticProgressionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticProgressionSymbol &
-  getInfiniteArithmeticProgressionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SynonymSymbol &getSynonymSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LabelSymbol &getLabelSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &getModuleSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ImportSymbol &getImportSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExtensionSymbol &getExtensionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeSymbol &getCodeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CategoryDiscriminantSymbol &
-  getCategoryDiscriminantSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DynamicVariableSymbol &
-  getDynamicVariableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticVariableSymbol &
-  getStaticVariableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumeratorSymbol &getEnumeratorSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CategoryAlternativeSymbol &
-  getCategoryAlternativeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassParameterSymbol &
-  getClassParameterSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameterSymbol &
-  getLayoutParameterSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateParameterSymbol &
-  getTemplateParameterSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameterSymbol &
-  getSignatureParameterSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &getSymbolTableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TopSymbol &getTopSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeSymbol &getScopeSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TableSymbol &getTableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassSymbol &getClassSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationSymbol &getEnumerationSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CategorySymbol &getCategorySymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureSymbol &getProcedureSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntrySymbol &getEntrySymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionSymbol &getFunctionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MethodSymbol &getMethodSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExtensionFunctionSymbol &
-  getExtensionFunctionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExtensionMethodSymbol &
-  getExtensionMethodSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangerSymbol &getRangerSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateSymbol &getTemplateSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateClassSymbol &
-  getTemplateClassSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateEnumerationSymbol &
-  getTemplateEnumerationSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateDynamicVariableSymbol &
-  getTemplateDynamicVariableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateStaticVariableSymbol &
-  getTemplateStaticVariableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateFunctionSymbol &
-  getTemplateFunctionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateMethodSymbol &
-  getTemplateMethodSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateExtensionFunctionSymbol &
-  getTemplateExtensionFunctionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateExtensionMethodSymbol &
-  getTemplateExtensionMethodSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialSymbol &getPartialSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialClassSymbol &
-  getPartialClassSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialEnumerationSymbol &
-  getPartialEnumerationSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialDynamicVariableSymbol &
-  getPartialDynamicVariableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialStaticVariableSymbol &
-  getPartialStaticVariableSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialFunctionSymbol &
-  getPartialFunctionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMethodSymbol &
-  getPartialMethodSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialExtensionFunctionSymbol &
-  getPartialExtensionFunctionSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialExtensionMethodSymbol &
-  getPartialExtensionMethodSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Constant &getConstant();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &getIntegerConstant();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstant &getFloatConstant();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstant &getStringConstant();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &getArrayConstant();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
+  [[nodiscard]] inline rq::EntityKind getTemplate() const;
+  [[nodiscard]] inline rq::EntityKind getPartial() const;
+  [[nodiscard]] inline rq::EntityKind getFullSpecialization() const;
 };
 
 struct SymbolTableIterator final {
@@ -1859,7 +1631,7 @@ struct CategoryDiscriminantSymbol : public rq::Symbol {
 
   rq::CategorySymbol *_category_ptr;
 
-  inline CategoryDiscriminantSymbol(rq::CategorySymbol& category);
+  inline CategoryDiscriminantSymbol(rq::CategorySymbol &category);
   CategoryDiscriminantSymbol(const Self &) = delete;
   CategoryDiscriminantSymbol(Self &&) = delete;
   ~CategoryDiscriminantSymbol() = default;

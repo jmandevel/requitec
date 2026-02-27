@@ -6,7 +6,7 @@ namespace rq {
   using namespace rq;
   using E = EntityKind;
   switch (kind) {
-  case E::NONE:
+  case E::ENTITY_NONE:
     return "none";
 
   // =====SYMBOLS=====
@@ -318,151 +318,151 @@ namespace rq {
   using E = EntityKind;
   using EF = EntityFlags;
   switch (kind) {
-  case E::NONE:
+  case E::ENTITY_NONE:
     return EF::NONE;
 
   // TYPE DEFINITION SYMBOL
   case E::SY_TYPE_DEFINITION:
-    return EF::SYMBOL | EF::SY_TYPE_NODE;
+    return EF::SYMBOL | EF::SY_TYPE;
 
   // SIMPLE BUILTIN SYMBOL
   case E::SY_INFERENCE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_EXPRESSION:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_ENTITY_KIND:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_TYPE_TYPE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_GENERIC_SYMBOL:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_VOID:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_NULL:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_NO_RETURN:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_VARIADIC_ARGUMENTS:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_BOOLEAN:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_GENERIC_FLOAT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_GENERIC;
   case E::SY_HALF:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_SINGLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_DOUBLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_QUADRUPLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_GENERIC_BINARY:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_GENERIC;
   case E::SY_GENERIC_BFLOAT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_GENERIC;
   case E::SY_BINARY16:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE;
   case E::SY_BINARY32:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE;
   case E::SY_BINARY64:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE;
   case E::SY_BINARY128:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE;
   case E::SY_BFLOAT16:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_FLOAT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
            EF::SY_CONCRETE;
   case E::SY_GENERIC_INTEGER:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_INTEGER |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
            EF::SY_GENERIC;
   case E::SY_GENERIC_SIGNED:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_INTEGER |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
            EF::SY_GENERIC;
   case E::SY_GENERIC_UNSIGNED:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_INTEGER |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
            EF::SY_GENERIC;
   case E::SY_GENERIC_CODEUNIT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CODEUNIT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
            EF::SY_GENERIC;
   case E::SY_ASCII:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CODEUNIT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
            EF::SY_CONCRETE;
   case E::SY_UTF8:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE_NODE | EF::SY_CODEUNIT |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
            EF::SY_CONCRETE;
 
   // SCALED BUILTIN SYMBOL
   case E::SY_SCALED_SIGNED:
-    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE_NODE | EF::SY_INTEGER |
+    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING | EF::SY_SIGNED;
   case E::SY_SCALED_UNSIGNED:
-    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE_NODE | EF::SY_INTEGER |
+    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
 
   // UNARY SUBTYPE SYMBOL
   case E::SY_RANGE:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE_NODE | EF::SY_SUBTYPE |
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_CONCRETE;
   case E::SY_REFERENCE:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE_NODE | EF::SY_SUBTYPE |
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_POINTER:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE_NODE | EF::SY_SUBTYPE |
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_FAT_POINTER:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE_NODE | EF::SY_SUBTYPE |
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_INFERENCED_COUNT_ARRAY:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE_NODE | EF::SY_SUBTYPE |
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_GENERIC;
 
   // COUNTED SUBTYPE SYMBOL
   case E::SY_ARRAY:
-    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE_NODE | EF::SY_SUBTYPE |
+    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_CONCRETE;
 
   // COMPOSITE SUBTYPE SYMBOL
   case E::SY_LAYOUT:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE_NODE |
+    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE | EF::SY_PLATFORM_CHANGING;
   case E::SY_SIGNATURE:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE_NODE |
+    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
 
   // ARITHMETIC SEQUENCE SYMBOL
   case E::SY_ARITHMETIC_INTERVAL:
-    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE_NODE |
+    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_FINITE_ARITHMETIC_PROGRESSION:
-    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE_NODE |
+    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
-    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE_NODE |
+    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
 
   // MISC SYMBOL
   case E::SY_SYNONYM:
-    return EF::SYMBOL | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_MODULE:
     return EF::SYMBOL;
   case E::SY_IMPORT:
     return EF::SYMBOL;
   case E::SY_EXTENSION:
-    return EF::SYMBOL | EF::SY_TYPE_NODE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_CODE:
     return EF::SYMBOL;
   case E::SY_CATEGORY_DISCRIMINANT:
-    return EF::SYMBOL | EF::SY_TYPE_NODE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
 
   // BINDING SYMBOL
   case E::SY_DYNAMIC_VARIABLE:
@@ -493,13 +493,13 @@ namespace rq {
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
   case E::SY_CLASS:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME | EF::SY_TYPE_NODE;
+           EF::SY_TOP_OF_FRAME | EF::SY_TYPE;
   case E::SY_ENUMERATION:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME | EF::SY_TYPE_NODE;
+           EF::SY_TOP_OF_FRAME | EF::SY_TYPE;
   case E::SY_CATEGORY:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_HAS_TEMPLATE_ALTERNATIVE |
-           EF::SY_TOP_OF_FRAME | EF::SY_TYPE_NODE;
+           EF::SY_TOP_OF_FRAME | EF::SY_TYPE;
 
   // PROCEDURE SYMBOL
   case E::SY_ENTRY:
@@ -566,7 +566,8 @@ namespace rq {
   default:
     break;
   }
-  RQ_ASSERT(rq::getUnderlying(kind) < rq::getUnderlying(rq::EntityKind::LAST),
+  RQ_ASSERT(rq::getUnderlying(kind) <
+                rq::getUnderlying(rq::EntityKind::ENTITY_NONE),
             "out of range");
   return EF::NONE;
 }
@@ -645,10 +646,10 @@ getHasTemplateAlternativeSymbol(rq::EntityKind kind) {
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_HAS_TEMPLATE_ALTERNATIVE);
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeNodeSymbol(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_TYPE_NODE);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_TYPE);
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenericSymbol(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
@@ -883,372 +884,55 @@ Entity::Entity(rq::EntityKind kind) : _kind(kind) {}
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Entity::getKindName() const {
   return rq::getName(this->_kind);
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSymbol() const {
-  return rq::getIsSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsConstant() const {
-  return rq::getIsConstant(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsInstruction() const {
-  return rq::getIsOpcode(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTypeSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TYPE_DEFINITION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSimpleBuiltinSymbol() const {
-  return rq::getIsSimpleBuiltinSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsInferenceSymbol() const {
-  return this->_kind == rq::EntityKind::SY_INFERENCE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsExpressionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_EXPRESSION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTypeTypeSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TYPE_TYPE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericSymbolSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_SYMBOL;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsVoidSymbol() const {
-  return this->_kind == rq::EntityKind::SY_VOID;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsNullSymbol() const {
-  return this->_kind == rq::EntityKind::SY_NULL;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsNoReturnSymbol() const {
-  return this->_kind == rq::EntityKind::SY_NO_RETURN;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsVariadicArgumentsSymbol() const {
-  return this->_kind == rq::EntityKind::SY_VARIADIC_ARGUMENTS;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBooleanSymbol() const {
-  return this->_kind == rq::EntityKind::SY_BOOLEAN;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericFloatSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_FLOAT;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsHalfSymbol() const {
-  return this->_kind == rq::EntityKind::SY_HALF;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSingleSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SINGLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsDoubleSymbol() const {
-  return this->_kind == rq::EntityKind::SY_DOUBLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsQuadrupleSymbol() const {
-  return this->_kind == rq::EntityKind::SY_QUADRUPLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericBinarySymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_BINARY;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericBfloatSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_BFLOAT;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBinary16Symbol() const {
-  return this->_kind == rq::EntityKind::SY_BINARY16;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBinary32Symbol() const {
-  return this->_kind == rq::EntityKind::SY_BINARY32;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBinary64Symbol() const {
-  return this->_kind == rq::EntityKind::SY_BINARY64;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBinary128Symbol() const {
-  return this->_kind == rq::EntityKind::SY_BINARY128;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBfloat16Symbol() const {
-  return this->_kind == rq::EntityKind::SY_BFLOAT16;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericIntegerSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_INTEGER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericSignedSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_SIGNED;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericUnsignedSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_UNSIGNED;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericCodeunitSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_CODEUNIT;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericStringSymbol() const {
-  return this->_kind == rq::EntityKind::SY_GENERIC_STRING;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsAsciiSymbol() const {
-  return this->_kind == rq::EntityKind::SY_ASCII;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsUtf8Symbol() const {
-  return this->_kind == rq::EntityKind::SY_UTF8;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsScaledBuiltinSymbol() const {
-  return rq::getIsScaledBuiltinSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsScaledSignedSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SCALED_SIGNED;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsScaledUnsignedSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SCALED_UNSIGNED;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsUnarySubtypeSymbol() const {
-  return rq::getIsUnarySubtypeSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsRangeSymbol() const {
-  return this->_kind == rq::EntityKind::SY_RANGE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsReferenceSymbol() const {
-  return this->_kind == rq::EntityKind::SY_REFERENCE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsPointerSymbol() const {
-  return this->_kind == rq::EntityKind::SY_POINTER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsFatPointerSymbol() const {
-  return this->_kind == rq::EntityKind::SY_FAT_POINTER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsInferencedCountArraySymbol() const {
-  return this->_kind == rq::EntityKind::SY_INFERENCED_COUNT_ARRAY;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCountedSubtypeSymbol() const {
-  return rq::getIsCountedSubtypeSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsArraySymbol() const {
-  return this->_kind == rq::EntityKind::SY_ARRAY;
-}
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Entity::getIsCompositeSubtypeSymbol() const {
-  return rq::getIsCompositeSubtypeSymbol(this->_kind);
+  return rq::getIsCompositeSubtypeSymbol(this->getKind());
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsLayoutSymbol() const {
-  return this->_kind == rq::EntityKind::SY_LAYOUT;
+[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getHasTemplateAlternativeSymbol() const {
+  return rq::getHasTemplateAlternativeSymbol(this->getKind());
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSignatureSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SIGNATURE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsArithmeticSequenceSymbol() const {
-  return rq::getIsArithmeticSequenceSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsArithmeticIntervalSymbol() const {
-  return this->_kind == rq::EntityKind::SY_ARITHMETIC_INTERVAL;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsFiniteArithmeticProgressionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsInfiniteArithmeticProgressionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSynonymSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SYNONYM;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsModuleSymbol() const {
-  return this->_kind == rq::EntityKind::SY_MODULE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsImportSymbol() const {
-  return this->_kind == rq::EntityKind::SY_IMPORT;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsExtensionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_EXTENSION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCodeSymbol() const {
-  return this->_kind == rq::EntityKind::SY_CODE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsCategoryDiscriminantSymbol() const {
-  return this->_kind == rq::EntityKind::SY_CATEGORY_DISCRIMINANT;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsDynamicVariableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_DYNAMIC_VARIABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsStaticVariableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_STATIC_VARIABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsEnumeratorSymbol() const {
-  return this->_kind == rq::EntityKind::SY_ENUMERATOR;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsCategoryAlternativeSymbol() const {
-  return this->_kind == rq::EntityKind::SY_CATEGORY_ALTERNATIVE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsClassParameterSymbol() const {
-  return this->_kind == rq::EntityKind::SY_CLASS_PARAMETER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsLayoutParameterSymbol() const {
-  return this->_kind == rq::EntityKind::SY_LAYOUT_PARAMETER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateParameterSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_PARAMETER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsSignatureParameterSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SIGNATURE_PARAMETER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsLabelSymbol() const {
-  return this->_kind == rq::EntityKind::SY_LABEL;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSymbolTableSymbol() const {
-  return rq::getIsSymbolTableSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTopSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TOP;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsScopeSymbol() const {
-  return this->_kind == rq::EntityKind::SY_SCOPE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsClassSymbol() const {
-  return this->_kind == rq::EntityKind::SY_CLASS;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsEnumerationSymbol() const {
-  return this->_kind == rq::EntityKind::SY_ENUMERATION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCategorySymbol() const {
-  return this->_kind == rq::EntityKind::SY_CATEGORY;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsProcedureSymbol() const {
-  return rq::getIsProcedureSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsEntrySymbol() const {
-  return this->_kind == rq::EntityKind::SY_ENTRY;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsFunctionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_FUNCTION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsMethodSymbol() const {
-  return this->_kind == rq::EntityKind::SY_METHOD;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsExtensionFunctionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_EXTENSION_FUNCTION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsExtensionMethodSymbol() const {
-  return this->_kind == rq::EntityKind::SY_EXTENSION_METHOD;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsRangerSymbol() const {
-  return this->_kind == rq::EntityKind::SY_RANGER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTemplateSymbol() const {
-  return rq::getIsTemplateSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTemplateClassSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_CLASS;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateEnumerationSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_ENUMERATION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateDynamicVariableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateStaticVariableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateFunctionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_FUNCTION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTemplateMethodSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_METHOD;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateExtensionFunctionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsTemplateExtensionMethodSymbol() const {
-  return this->_kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsPartialSymbol() const {
-  return rq::getIsPartialSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsPartialClassSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_CLASS;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsPartialEnumerationSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_ENUMERATION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsPartialDynamicVariableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsPartialStaticVariableSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsPartialFunctionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_FUNCTION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsPartialMethodSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_METHOD;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsPartialExtensionFunctionSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getIsPartialExtensionMethodSymbol() const {
-  return this->_kind == rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsIntegerConstant() const {
-  return this->_kind == rq::EntityKind::CT_INTEGER;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsFloatConstant() const {
-  return this->_kind == rq::EntityKind::CT_FLOAT;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsStringConstant() const {
-  return this->_kind == rq::EntityKind::CT_STRING;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsArrayConstant() const {
-  return this->_kind == rq::EntityKind::CT_ARRAY;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Entity::getHasTemplateAlternativeSymbol() const {
-  return rq::getHasTemplateAlternativeSymbol(this->_kind);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTypeNodeSymbol() const {
-  return rq::getIsTypeNodeSymbol(this->_kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTypeSymbol() const {
+  return rq::getIsTypeSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsGenericSymbol() const {
-  return rq::getIsGenericSymbol(this->_kind);
+  return rq::getIsGenericSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsConcreteSymbol() const {
-  return rq::getIsConcreteSymbol(this->_kind);
+  return rq::getIsConcreteSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSubtypeSymbol() const {
-  return rq::getIsSubtypeSymbol(this->_kind);
+  return rq::getIsSubtypeSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Entity::getIsPlatformChangingSymbol() const {
-  return rq::getIsPlatformChangingSymbol(this->_kind);
+  return rq::getIsPlatformChangingSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsIntegerSymbol() const {
-  return rq::getIsIntegerSymbol(this->_kind);
+  return rq::getIsIntegerSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsFloatSymbol() const {
-  return rq::getIsFloatSymbol(this->_kind);
+  return rq::getIsFloatSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCodeunitSymbol() const {
-  return rq::getIsCodeunitSymbol(this->_kind);
+  return rq::getIsCodeunitSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSignedSymbol() const {
-  return rq::getIsSignedSymbol(this->_kind);
+  return rq::getIsSignedSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsUnsignedSymbol() const {
-  return rq::getIsUnsignedSymbol(this->_kind);
+  return rq::getIsUnsignedSymbol(this->getKind());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTopOfFrameSymbol() const {
-  return rq::getIsTopOfFrameSymbol(this->_kind);
+  return rq::getIsTopOfFrameSymbol(this->getKind());
+}
+[[nodiscard]] inline rq::EntityKind Entity::getTemplate() const {
+  return rq::getTemplate(this->getKind());
+}
+[[nodiscard]] inline rq::EntityKind Entity::getPartial() const {
+  return rq::getPartial(this->getKind());
+}
+[[nodiscard]] inline rq::EntityKind Entity::getFullSpecialization() const {
+  return rq::getFullSpecialization(this->getKind());
 }
 SymbolTableIterator::SymbolTableIterator(
     rq::SymbolTableSymbol *symbol_table_ptr)
@@ -2460,7 +2144,7 @@ InstructionSlot::getIsInstructionNode() const {
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool InstructionSlot::getIsInstruction() const {
   return llvm::isa<rq::Entity *>(this->_data) &&
-         this->getEntity().getIsInstruction();
+         llvm::isa<rq::Instruction>(this->getEntity());
 }
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &InstructionSlot::getEntity() {
   return rq::dereferencePtr(llvm::cast<rq::Entity *>(this->_data));
@@ -2528,389 +2212,5 @@ Instruction::getCdr() const {
 inline void Instruction::clear() {
   this->_kind = rq::EntityKind::OP_NONE;
   this->_cdr.clear();
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &Entity::getSymbol() {
-  RQ_ASSERT(this->getIsTypeSymbol(), "not symbol");
-  return llvm::cast<rq::Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeSymbol &Entity::getTypeSymbol() {
-  RQ_ASSERT(this->getIsTypeSymbol(), "not type symbol");
-  return llvm::cast<rq::TypeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceSymbol &Entity::getInferenceSymbol() {
-  RQ_ASSERT(this->getIsInferenceSymbol(), "not inference symbol");
-  return llvm::cast<rq::InferenceSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionSymbol &Entity::getExpressionSymbol() {
-  RQ_ASSERT(this->getIsExpressionSymbol(), "not expression symbol");
-  return llvm::cast<rq::ExpressionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::VoidSymbol &Entity::getVoidSymbol() {
-  RQ_ASSERT(this->getIsVoidSymbol(), "not void symbol");
-  return llvm::cast<rq::VoidSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::NullSymbol &Entity::getNullSymbol() {
-  RQ_ASSERT(this->getIsNullSymbol(), "not null symbol");
-  return llvm::cast<rq::NullSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnSymbol &Entity::getNoReturnSymbol() {
-  RQ_ASSERT(this->getIsNoReturnSymbol(), "not no return symbol");
-  return llvm::cast<rq::NoReturnSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsSymbol &Entity::getVariadicArgumentsSymbol() {
-  RQ_ASSERT(this->getIsVariadicArgumentsSymbol(), "not variadic arguments symbol");
-  return llvm::cast<rq::VariadicArgumentsSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanSymbol &Entity::getBooleanSymbol() {
-  RQ_ASSERT(this->getIsBooleanSymbol(), "not boolean symbol");
-  return llvm::cast<rq::BooleanSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericFloatSymbol &Entity::getGenericFloatSymbol() {
-  RQ_ASSERT(this->getIsGenericFloatSymbol(), "not generic float symbol");
-  return llvm::cast<rq::GenericFloatSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::HalfSymbol &Entity::getHalfSymbol() {
-  RQ_ASSERT(this->getIsHalfSymbol(), "not half symbol");
-  return llvm::cast<rq::HalfSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SingleSymbol &Entity::getSingleSymbol() {
-  RQ_ASSERT(this->getIsSingleSymbol(), "not single symbol");
-  return llvm::cast<rq::SingleSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleSymbol &Entity::getDoubleSymbol() {
-  RQ_ASSERT(this->getIsDoubleSymbol(), "not double symbol");
-  return llvm::cast<rq::DoubleSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleSymbol &Entity::getQuadrupleSymbol() {
-  RQ_ASSERT(this->getIsQuadrupleSymbol(), "not quadruple symbol");
-  return llvm::cast<rq::QuadrupleSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBinarySymbol &Entity::getGenericBinarySymbol() {
-  RQ_ASSERT(this->getIsGenericBinarySymbol(), "not generic binary symbol");
-  return llvm::cast<rq::GenericBinarySymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBfloatSymbol &Entity::getGenericBFloatSymbol() {
-  RQ_ASSERT(this->getIsGenericBfloatSymbol(), "not generic bfloat symbol");
-  return llvm::cast<rq::GenericBfloatSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Symbol &Entity::getBinary16Symbol() {
-  RQ_ASSERT(this->getIsBinary16Symbol(), "not binary16 symbol");
-  return llvm::cast<rq::Binary16Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Symbol &Entity::getBinary32Symbol() {
-  RQ_ASSERT(this->getIsBinary32Symbol(), "not binary32 symbol");
-  return llvm::cast<rq::Binary32Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Symbol &Entity::getBinary64Symbol() {
-  RQ_ASSERT(this->getIsBinary64Symbol(), "not binary64 symbol");
-  return llvm::cast<rq::Binary64Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Symbol &Entity::getBinary128Symbol() {
-  RQ_ASSERT(this->getIsBinary128Symbol(), "not binary128 symbol");
-  return llvm::cast<rq::Binary128Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Symbol &Entity::getBfloat16Symbol() {
-  RQ_ASSERT(this->getIsBfloat16Symbol(), "not bfloat16 symbol");
-  return llvm::cast<rq::Bfloat16Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericIntegerSymbol &Entity::getGenericIntegerSymbol() {
-  RQ_ASSERT(this->getIsGenericIntegerSymbol(), "not generic integer symbol");
-  return llvm::cast<rq::GenericIntegerSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericUnsignedSymbol &Entity::getGenericUnsignedSymbol() {
-  RQ_ASSERT(this->getIsGenericUnsignedSymbol(), "not generic unsigned symbol");
-  return llvm::cast<rq::GenericUnsignedSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericStringSymbol &Entity::getGenericStringSymbol() {
-  RQ_ASSERT(this->getIsGenericStringSymbol(), "not generic string symbol");
-  return llvm::cast<rq::GenericStringSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GenericCodeunitSymbol &Entity::getGenericCodeunitSymbol() {
-  RQ_ASSERT(this->getIsGenericCodeunitSymbol(), "not generic codeunit symbol");
-  return llvm::cast<rq::GenericCodeunitSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiSymbol &Entity::getAsciiSymbol() {
-  RQ_ASSERT(this->getIsAsciiSymbol(), "not ascii symbol");
-  return llvm::cast<rq::AsciiSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Symbol &Entity::getUtf8Symbol() {
-  RQ_ASSERT(this->getIsUtf8Symbol(), "not utf8 symbol");
-  return llvm::cast<rq::Utf8Symbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinSymbol &Entity::getScaledBuiltinSymbol() {
-  RQ_ASSERT(this->getIsScaledBuiltinSymbol(), "not scaled builtin symbol");
-  return llvm::cast<rq::ScaledBuiltinSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedSymbol &Entity::getScaledSignedSymbol() {
-  RQ_ASSERT(this->getIsScaledSignedSymbol(), "not scaled signed symbol");
-  return llvm::cast<rq::ScaledSignedSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedSymbol &Entity::getScaledUnsignedSymbol() {
-  RQ_ASSERT(this->getIsScaledUnsignedSymbol(), "not scaled unsigned symbol");
-  return llvm::cast<rq::ScaledUnsignedSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::UnarySubtypeSymbol &Entity::getUnarySubtypeSymbol() {
-  RQ_ASSERT(this->getIsUnarySubtypeSymbol(), "not unary subtype symbol");
-  return llvm::cast<rq::UnarySubtypeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::RangeSymbol &Entity::getRangeSymbol() {
-  RQ_ASSERT(this->getIsRangeSymbol(), "not range symbol");
-  return llvm::cast<rq::RangeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSymbol &Entity::getReferenceSymbol() {
-  RQ_ASSERT(this->getIsReferenceSymbol(), "not reference symbol");
-  return llvm::cast<rq::ReferenceSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSymbol &Entity::getPointerSymbol() {
-  RQ_ASSERT(this->getIsPointerSymbol(), "not pointer symbol");
-  return llvm::cast<rq::PointerSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::FatPointerSymbol &Entity::getFatPointerSymbol() {
-  RQ_ASSERT(this->getIsFatPointerSymbol(), "not fat pointer symbol");
-  return llvm::cast<rq::FatPointerSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArraySymbol &Entity::getInferencedCountArraySymbol() {
-  RQ_ASSERT(this->getIsInferencedCountArraySymbol(), "not inferenced count array symbol");
-  return llvm::cast<rq::InferencedCountArraySymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::CountedSubtypeSymbol &Entity::getCountedSubtypeSymbol() {
-  RQ_ASSERT(this->getIsCountedSubtypeSymbol(), "not counted subtype symbol");
-  return llvm::cast<rq::CountedSubtypeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ArraySymbol &Entity::getArraySymbol() {
-  RQ_ASSERT(this->getIsArraySymbol(), "not array symbol");
-  return llvm::cast<rq::ArraySymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutSymbol &Entity::getLayoutSymbol() {
-  RQ_ASSERT(this->getIsLayoutSymbol(), "not layout symbol");
-  return llvm::cast<rq::LayoutSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureSymbol &Entity::getSignatureSymbol() {
-  RQ_ASSERT(this->getIsSignatureSymbol(), "not signature symbol");
-  return llvm::cast<rq::SignatureSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceSymbol &Entity::getArithmeticSequenceSymbol() {
-  RQ_ASSERT(this->getIsArithmeticSequenceSymbol(), "not arithmetic sequence symbol");
-  return llvm::cast<rq::ArithmeticSequenceSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgressionSymbol &Entity::getFiniteArithmeticProgressionSymbol() {
-  RQ_ASSERT(this->getIsFiniteArithmeticProgressionSymbol(), "not finite arithmetic progression symbol");
-  return llvm::cast<rq::FiniteArithmeticProgressionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticProgressionSymbol &Entity::getInfiniteArithmeticProgressionSymbol() {
-  RQ_ASSERT(this->getIsInfiniteArithmeticProgressionSymbol(), "not infinite arithmetic progression symbol");
-  return llvm::cast<rq::InfiniteArithmeticProgressionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SynonymSymbol &Entity::getSynonymSymbol() {
-  RQ_ASSERT(this->getIsSynonymSymbol(), "not synonym symbol");
-  return llvm::cast<rq::SynonymSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LabelSymbol &Entity::getLabelSymbol() {
-  RQ_ASSERT(this->getIsLabelSymbol(), "not label symbol");
-  return llvm::cast<rq::LabelSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleSymbol &Entity::getModuleSymbol() {
-  RQ_ASSERT(this->getIsModuleSymbol(), "not module symbol");
-  return llvm::cast<rq::ModuleSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ImportSymbol &Entity::getImportSymbol() {
-  RQ_ASSERT(this->getIsImportSymbol(), "not import symbol");
-  return llvm::cast<rq::ImportSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExtensionSymbol &Entity::getExtensionSymbol() {
-  RQ_ASSERT(this->getIsExtensionSymbol(), "not extension symbol");
-  return llvm::cast<rq::ExtensionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::CodeSymbol &Entity::getCodeSymbol() {
-  RQ_ASSERT(this->getIsCodeSymbol(), "not code symbol");
-  return llvm::cast<rq::CodeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::CategoryDiscriminantSymbol &Entity::getCategoryDiscriminantSymbol() {
-  RQ_ASSERT(this->getIsCategoryDiscriminantSymbol(), "not category discriminant symbol");
-  return llvm::cast<rq::CategoryDiscriminantSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::DynamicVariableSymbol &Entity::getDynamicVariableSymbol() {
-  RQ_ASSERT(this->getIsDynamicVariableSymbol(), "not dynamic variable symbol");
-  return llvm::cast<rq::DynamicVariableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::StaticVariableSymbol &Entity::getStaticVariableSymbol() {
-  RQ_ASSERT(this->getIsStaticVariableSymbol(), "not static variable symbol");
-  return llvm::cast<rq::StaticVariableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumeratorSymbol &Entity::getEnumeratorSymbol() {
-  RQ_ASSERT(this->getIsEnumeratorSymbol(), "not enumerator symbol");
-  return llvm::cast<rq::EnumeratorSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::CategoryAlternativeSymbol &Entity::getCategoryAlternativeSymbol() {
-  RQ_ASSERT(this->getIsCategoryAlternativeSymbol(), "not category alternative symbol");
-  return llvm::cast<rq::CategoryAlternativeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ClassParameterSymbol &Entity::getClassParameterSymbol() {
-  RQ_ASSERT(this->getIsClassParameterSymbol(), "not class parameter symbol");
-  return llvm::cast<rq::ClassParameterSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameterSymbol &Entity::getLayoutParameterSymbol() {
-  RQ_ASSERT(this->getIsLayoutParameterSymbol(), "not layout parameter symbol");
-  return llvm::cast<rq::LayoutParameterSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateParameterSymbol &Entity::getTemplateParameterSymbol() {
-  RQ_ASSERT(this->getIsTemplateParameterSymbol(), "not template parameter symbol");
-  return llvm::cast<rq::TemplateParameterSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameterSymbol &Entity::getSignatureParameterSymbol() {
-  RQ_ASSERT(this->getIsSignatureParameterSymbol(), "not signature parameter symbol");
-  return llvm::cast<rq::SignatureParameterSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableSymbol &Entity::getSymbolTableSymbol() {
-  RQ_ASSERT(this->getIsSymbolTableSymbol(), "not symbol table symbol");
-  return llvm::cast<rq::SymbolTableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TopSymbol &Entity::getTopSymbol() {
-  RQ_ASSERT(this->getIsTopSymbol(), "not top symbol");
-  return llvm::cast<rq::TopSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeSymbol &Entity::getScopeSymbol() {
-  RQ_ASSERT(this->getIsScopeSymbol(), "not scope symbol");
-  return llvm::cast<rq::ScopeSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TableSymbol &Entity::getTableSymbol() {
-  RQ_ASSERT(this->getIsTableSymbol(), "not table symbol");
-  return llvm::cast<rq::TableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ClassSymbol &Entity::getClassSymbol() {
-  RQ_ASSERT(this->getIsClassSymbol(), "not class symbol");
-  return llvm::cast<rq::ClassSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationSymbol &Entity::getEnumerationSymbol() {
-  RQ_ASSERT(this->getIsEnumerationSymbol(), "not enumeration symbol");
-  return llvm::cast<rq::EnumerationSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::CategorySymbol &Entity::getCategorySymbol() {
-  RQ_ASSERT(this->getIsCategorySymbol(), "not category symbol");
-  return llvm::cast<rq::CategorySymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureSymbol &Entity::getProcedureSymbol() {
-  RQ_ASSERT(this->getIsProcedureSymbol(), "not procedure symbol");
-  return llvm::cast<rq::ProcedureSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EntrySymbol &Entity::getEntrySymbol() {
-  RQ_ASSERT(this->getIsEntrySymbol(), "not entry symbol");
-  return llvm::cast<rq::EntrySymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionSymbol &Entity::getFunctionSymbol() {
-  RQ_ASSERT(this->getIsFunctionSymbol(), "not function symbol");
-  return llvm::cast<rq::FunctionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::MethodSymbol &Entity::getMethodSymbol() {
-  RQ_ASSERT(this->getIsMethodSymbol(), "not method symbol");
-  return llvm::cast<rq::MethodSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExtensionFunctionSymbol &Entity::getExtensionFunctionSymbol() {
-  RQ_ASSERT(this->getIsExtensionFunctionSymbol(), "not extension function symbol");
-  return llvm::cast<rq::ExtensionFunctionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExtensionMethodSymbol &Entity::getExtensionMethodSymbol() {
-  RQ_ASSERT(this->getIsExtensionMethodSymbol(), "not extension method symbol");
-  return llvm::cast<rq::ExtensionMethodSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::RangerSymbol& Entity::getRangerSymbol() {
-  RQ_ASSERT(this->getIsRangerSymbol(), "not ranger symbol");
-  return llvm::cast<rq::RangerSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateSymbol &Entity::getTemplateSymbol() {
-  RQ_ASSERT(this->getIsTemplateSymbol(), "not template symbol");
-  return llvm::cast<rq::TemplateSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateClassSymbol &Entity::getTemplateClassSymbol() {
-  RQ_ASSERT(this->getIsTemplateClassSymbol(), "not template class symbol");
-  return llvm::cast<rq::TemplateClassSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateEnumerationSymbol &Entity::getTemplateEnumerationSymbol() {
-  RQ_ASSERT(this->getIsTemplateEnumerationSymbol(), "not template enumeration symbol");
-  return llvm::cast<rq::TemplateEnumerationSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateDynamicVariableSymbol &Entity::getTemplateDynamicVariableSymbol() {
-  RQ_ASSERT(this->getIsTemplateDynamicVariableSymbol(), "not template dynamic variable symbol");
-  return llvm::cast<rq::TemplateDynamicVariableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateStaticVariableSymbol &Entity::getTemplateStaticVariableSymbol() {
-  RQ_ASSERT(this->getIsTemplateStaticVariableSymbol(), "not template static variable symbol");
-  return llvm::cast<rq::TemplateStaticVariableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateFunctionSymbol &Entity::getTemplateFunctionSymbol() {
-  RQ_ASSERT(this->getIsTemplateFunctionSymbol(), "not template function symbol");
-  return llvm::cast<rq::TemplateFunctionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateMethodSymbol &Entity::getTemplateMethodSymbol() {
-  RQ_ASSERT(this->getIsTemplateMethodSymbol(), "not template method symbol");
-  return llvm::cast<rq::TemplateMethodSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateExtensionFunctionSymbol &Entity::getTemplateExtensionFunctionSymbol() {
-  RQ_ASSERT(this->getIsTemplateExtensionFunctionSymbol(), "not template extension function symbol");
-  return llvm::cast<rq::TemplateExtensionFunctionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateExtensionMethodSymbol &Entity::getTemplateExtensionMethodSymbol() {
-  RQ_ASSERT(this->getIsTemplateExtensionMethodSymbol(), "not template extension method symbol");
-  return llvm::cast<rq::TemplateExtensionMethodSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialSymbol &Entity::getPartialSymbol() {
-  RQ_ASSERT(this->getIsPartialSymbol(), "not partial symbol");
-  return llvm::cast<rq::PartialSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialClassSymbol &Entity::getPartialClassSymbol() {
-  RQ_ASSERT(this->getIsPartialClassSymbol(), "not partial class symbol");
-  return llvm::cast<rq::PartialClassSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialEnumerationSymbol &Entity::getPartialEnumerationSymbol() {
-  RQ_ASSERT(this->getIsPartialEnumerationSymbol(), "not partial enumeration symbol");
-  return llvm::cast<rq::PartialEnumerationSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialDynamicVariableSymbol &Entity::getPartialDynamicVariableSymbol() {
-  RQ_ASSERT(this->getIsPartialDynamicVariableSymbol(), "not partial dynamic variable symbol");
-  return llvm::cast<rq::PartialDynamicVariableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialStaticVariableSymbol &Entity::getPartialStaticVariableSymbol() {
-  RQ_ASSERT(this->getIsPartialStaticVariableSymbol(), "not partial static variable symbol");
-  return llvm::cast<rq::PartialStaticVariableSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialFunctionSymbol &Entity::getPartialFunctionSymbol() {
-  RQ_ASSERT(this->getIsPartialFunctionSymbol(), "not partial function symbol");
-  return llvm::cast<rq::PartialFunctionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMethodSymbol &Entity::getPartialMethodSymbol() {
-  RQ_ASSERT(this->getIsPartialMethodSymbol(), "not partial method symbol");
-  return llvm::cast<rq::PartialMethodSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialExtensionFunctionSymbol &Entity::getPartialExtensionFunctionSymbol() {
-  RQ_ASSERT(this->getIsPartialExtensionFunctionSymbol(), "not partial extension function symbol");
-  return llvm::cast<rq::PartialExtensionFunctionSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::PartialExtensionMethodSymbol &Entity::getPartialExtensionMethodSymbol() {
-  RQ_ASSERT(this->getIsPartialExtensionMethodSymbol(), "not partial extension method symbol");
-  return llvm::cast<rq::PartialExtensionMethodSymbol>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Constant &Entity::getConstant() {
-  RQ_ASSERT(this->getIsIntegerConstant(), "not constant");
-  return llvm::cast<rq::Constant>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &Entity::getIntegerConstant() {
-  RQ_ASSERT(this->getIsIntegerConstant(), "not integer constant");
-  return llvm::cast<rq::IntegerConstant>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstant &Entity::getFloatConstant() {
-  RQ_ASSERT(this->getIsFloatConstant(), "not float constant");
-  return llvm::cast<rq::FloatConstant>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstant &Entity::getStringConstant() {
-  RQ_ASSERT(this->getIsStringConstant(), "not strinct constant");
-  return llvm::cast<rq::StringConstant>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &Entity::getArrayConstant() {
-  RQ_ASSERT(this->getIsArrayConstant(), "not array constant");
-  return llvm::cast<rq::ArrayConstant>(*this);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &Entity::getInstruction() {
-  RQ_ASSERT(this->getIsInstruction(), "not instruction");
-  return llvm::cast<rq::Instruction>(*this);
 }
 } // namespace rq
