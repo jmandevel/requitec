@@ -134,6 +134,7 @@ enum class Keyword : std::uint32_t {
   NULL_TERMINATED,
   MAY_DISCARD,
   INDETERMINATE,
+  RANGING,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -154,19 +155,22 @@ enum class Keyword : std::uint32_t {
   INDEX_INTO,
   SIGNATURE_TYPE,
   DEFAULT_VALUE_PARAMETER,
-  DESTROY,
-  DESTROY_VALUE,
   DROP,
-  DROP_VALUE,
+  DROP_OF,
+  DROP_EACH,
+  DROP_EACH_OF,
+  EACH,
+  EACH_OF,
   MOVE,
-  MOVE_VALUE,
+  MOVE_OF,
   ENTRY,
   FUNCTION,
   METHOD,
+  RANGER,
   EXTENSION_FUNCTION,
   EXTENSION_METHOD,
-  RANGER,
-
+  EXTENSION_RANGER,
+  
   // CONTROL FLOW
   RETURN,
   BREAK,
@@ -634,6 +638,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "may_discard";
   case K::INDETERMINATE:
     return "indeterminate";
+  case K::RANGING:
+    return "ranging";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -668,30 +674,36 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_signature_type";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
-  case K::DESTROY:
-    return "destroy";
-  case K::DESTROY_VALUE:
-    return "_destroy_value";
   case K::DROP:
     return "drop";
-  case K::DROP_VALUE:
-    return "_drop_value";
+  case K::DROP_OF:
+    return "_drop_of";
+  case K::DROP_EACH:
+    return "drop_each";
+  case K::DROP_EACH_OF:
+    return "_drop_each_of";
+  case K::EACH:
+    return "each";
+  case K::EACH_OF:
+    return "_each_of";
   case K::MOVE:
     return "move";
-  case K::MOVE_VALUE:
-    return "_move_value";
+  case K::MOVE_OF:
+    return "_move_of";
   case K::ENTRY:
     return "entry";
   case K::FUNCTION:
     return "function";
   case K::METHOD:
     return "method";
+  case K::RANGER:
+    return "ranger";
   case K::EXTENSION_FUNCTION:
     return "extension_function";
   case K::EXTENSION_METHOD:
     return "extension_method";
-  case K::RANGER:
-    return "ranger";
+  case K::EXTENSION_RANGER:
+    return "extension_ranger";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1423,6 +1435,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::TYPE_ATTRIBUTE;
   case K::INDETERMINATE:
     return KF::TYPE_ATTRIBUTE;
+  case K::RANGING:
+    return KF::TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -1457,17 +1471,21 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
-  case K::DESTROY:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::DESTROY_VALUE:
-    return KF::STATEMENT;
   case K::DROP:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::DROP_VALUE:
+  case K::DROP_OF:
+    return KF::STATEMENT;
+  case K::DROP_EACH:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::DROP_EACH_OF:
+    return KF::STATEMENT;
+  case K::EACH:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::EACH_OF:
     return KF::STATEMENT;
   case K::MOVE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::MOVE_VALUE:
+  case K::MOVE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ENTRY:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
@@ -1475,12 +1493,14 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::EXTENSION_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::EXTENSION_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::RANGER:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+  case K::EXTENSION_RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -2240,17 +2260,29 @@ getDescription(rq::Situation situation) {
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
   // PROCEDURES
-  case K::DESTROY:
-    return K::DESTROY_VALUE;
   case K::DROP:
-    return K::DROP_VALUE;
+    return K::DROP_OF;
+  case K::DROP_EACH:
+    return K::DROP_EACH_OF;
+  case K::EACH:
+    return K::EACH_OF;
   case K::MOVE:
-    return K::MOVE_VALUE;
+    return K::MOVE_OF;
   // BUILTIN TYPES
   case K::SIGNED:
     return K::SIGNED_OF;
   case K::UNSIGNED:
     return K::UNSIGNED_OF;
+  case K::FAST:
+    return K::FAST_OF;
+  case K::LEAST:
+    return K::LEAST_OF;
+  case K::EXACT:
+    return K::EXACT_OF;
+  case K::INDEX_DEPTH:
+    return K::INDEX_DEPTH_OF;
+  case K::ADDRESS_DEPTH:
+    return K::ADDRESS_DEPTH_OF;
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;
@@ -3047,7 +3079,8 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
-  INDETERMINATE
+  INDETERMINATE,
+  RANGING
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
@@ -3072,6 +3105,8 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "may_discard";
   case TA::INDETERMINATE:
     return "indeterminate";
+  case TA::RANGING:
+    return "ranging";
   }
   RQ_UNREACHABLE();
 }
@@ -3097,6 +3132,8 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::MAY_DISCARD;
   case K::INDETERMINATE:
     return TA::INDETERMINATE;
+  case K::RANGING:
+    return TA::RANGING;
   default:
     break;
   }
@@ -3112,7 +3149,8 @@ enum class TypeAttributeFlags : std::uint32_t {
   ATOMIC = rq::getBit(11),
   NULL_TERMINATED = rq::getBit(10),
   MAY_DISCARD = rq::getBit(9),
-  INDETERMINATE = rq::getBit(8)
+  INDETERMINATE = rq::getBit(8),
+  RANGING = rq::getBit(7)
 };
 
 template <> struct is_flags<TypeAttributeFlags> : std::true_type {};
@@ -3141,6 +3179,8 @@ getFlags(rq::TypeAttribute attribute) {
     return TF::MAY_DISCARD;
   case TA::INDETERMINATE:
     return TF::INDETERMINATE;
+  case TA::RANGING:
+    return TF::RANGING;
   }
   return TF::NONE;
 }
@@ -3189,6 +3229,12 @@ getHasMayDiscard(rq::TypeAttribute attribute) {
 getHasIndeterminate(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::INDETERMINATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasRanging(rq::TypeAttribute attribute) {
+  rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::RANGING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool

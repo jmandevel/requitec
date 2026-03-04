@@ -25,8 +25,14 @@
     // you can also use .[move] to give ownership away. dropping responsibility is passed on too.
     // the member method .destroy() does this for us.
     no_auto_drop := .NoAutoDrop();
-
+        @defer no_auto_drop.[move].destroy(); 
     // defered statement will be called on scope exit (or return)
     // this will cause the destroy method to called as if its a destructor in less explicit languages like C++
-    @defer no_auto_drop.[move].destroy(); 
+
+    // builtin array type has a special .[drop_each] ranger
+    array := [[.NoAutoDrop(), .NoAutoDrop(), .NoAutoDrop()]];
+        @defer 
+        [for array.[drop_each], value:=[value].[borrow], 
+            value.[move].destroy();
+        ];    
 ];

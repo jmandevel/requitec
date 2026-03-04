@@ -5,17 +5,17 @@
     // all of these loops are equivalent
 
     // equal limit interval
-    [for 0.[as [integer].[signed].[fast 32]].==9, value:=[value],
+    [for (0.==9).[each], value:=[value],
         .std.print(line="value is {value}");    
     ]
 
     // less limit interval
-    [for 0.[as [integer].[signed].[fast 32]].<10, value:=[value], 
+    [for (0.<10).[each], value:=[value], 
         .std.print(line="value is {value}");    
     ];
 
     // interval
-    [for 0.[as [integer].[signed].[fast 32]].<10.+1, value:=[value], 
+    [for (0.<10.+1).[each], value:=[value], 
         .std.print(line="value is {value}");    
     ]
 
@@ -28,8 +28,8 @@
         ];
     ];
 
-    // element range
-    [for [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]].[of [integer].[signed].[fast 32]], value:=[value],     
+    // array element range
+    [for [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]].[each], value:=[value],     
         .std.print(line="value is {value}");
     ];
 
@@ -40,8 +40,8 @@
         <},
 
         @public
-        [ranger [signed],
-            [for [this].data, value:=[value], 
+        [ranger each, &=>(><)$ranging [integer].[signed].[fast 32],
+            [for [this].data.[each], value:=[value].[borrow], 
               [range_over 
                 value
               ];
@@ -49,11 +49,11 @@
         ];
     ];
     class := MyClass();
-    [for class.[borrow], value:=[value], 
+    [for class.[borrow].each(), value:=[value], 
         .std.print(line="value is {value}");
     ];
 
-    [if (0.[as [integer].[signed].[fast 32]].<10).[borrow]->getContains(5),
+    [if (0.<10)->.std.getContains(5),
         .std.print(line="5 is within interval over 0 to 10");
     ];
 ];
