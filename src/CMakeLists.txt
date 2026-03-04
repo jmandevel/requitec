@@ -7,7 +7,6 @@ target_sources(
         parse.cpp
         see.cpp
         situate.cpp
-        symbol.cpp
         tabulate.cpp
         tokenize.cpp
 )
