@@ -2,15 +2,19 @@
 
 @static @label::Loop
 [for 0.<=10, num:=[value],
-    @outside::Loop @capture::{num:=num}
-    \.std.format(text="VAR{[capture].num}") :`= index;
+    @static @capture::{num:=num}
+    varname := .std.format(text="VAR{[capture].num}");
+        @defer varname.destroy();
+    @outside::Loop
+    \varname :`= index;
 ];
 
 [entry
     @static
     [for 0.<=10, num:=[value], 
-        @static
-        varname := .std.format(text="VAR{num}");
+        @static @capture::{num:=num}
+        varname := .std.format(text="VAR{[capture].num}");
+            @defer varname.destroy();
         .std.print(line="{varname.[borrow]} is {.\varname}!");        
     ];
 ];

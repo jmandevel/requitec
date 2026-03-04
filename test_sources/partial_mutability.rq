@@ -2,8 +2,8 @@
 @auto_drop @may_copy @may_move
 [object Partialable,
     {>
-        @public @partial_mutate property_a : [signed_fast_bits 32] = 0,
-        @public property_b : [signed_fast_bits 32] = 0
+        @public @partial_mutate property_a : [integer].[signed].[fast 32] = 0,
+        @public property_b : [integer].[signed].[fast 32] = 0
     <},
 ];
 

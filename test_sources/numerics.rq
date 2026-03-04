@@ -4,47 +4,59 @@
 // NOTE: no implicit casting between types even if they share the same underlying type.
 
 [entry
-    // if no type specified and no type can be inferred, integer literals become [signed_fast_bits 32]
+    // concrete integers are written as [integer] followed by .[signed] or .[unsigned] 
+    // followed by .[least N] .[fast N] or .[exact N] where N is an integer literal representing a bit depth
+    // N cannot be anything other than a literal unless followed by .[synonym].
+    // synonym types are unique and dont allow implicit conversions.
+    // This is to maintain strong typing with explicit casts across platforms. (see casts.rq)
+    // examples:
+    // [integer].[signed].[exact 8] // a signed integer that is exactly 8 bits
+    // [integer].[unsigned].[fast 32] // an unsigned integer that is the fastest size that is at least 32 bits.
+    // [integer].[signed].[least 16] // a signed integer that is the least native platform size that is at least 16 bits.
+w
+    // if no type specified and no type can be inferred, integer literals become [integer].[signed].[fast 32]
     // this is the fastest signed integer type that is supported on the platform with at least 32 bits
-    a := 0; // [signed_fast_bits 32]
+    a := 0; // [integer].[signed].[fast 32]
 
     // type can be set explicitly by binding type to variable with colon operator
-    b: [unsigned_fast_bits 64] = 0; // [unsigned_fast_bits 64]
+    // this is smallest native supported integer size that is at least 64 bits
+    b: [integer].[unsigned].[least 64] = 0; // [integer].[unsigned].[least 64]
 
-    // can use as reflection to specify type of literal
+    // can use .[as] reflection to specify type of literal
     // if used, then the literal is treated as the specified type.
-    c := 0.[as [signed_fast_bits 32]];
+    c := 0.[as [integer].[signed].[exact 16]]; // signed integer size that is exactly 16 bits
 
-    // need to say (un)signed_fast_(bits/bytes), (un)signed_least_(bites/bytes), or (un)signed_exact_(bits/bytes)
-    // (un)signed itself is "generic" and not concrete
-    // generic types are types that encompass types in a group
-    // for integers they are 
-    //   * unsigned - all unsigned integers
-    //   * signed - all signed integers
-    //   * integer - all integers
-    // generic types can be used as template parameter contraints
-    // also they effect ADL either when specified for an argument
-    d: [unsigned 32] = 0; // compiler error! unsigned is generic. also cannot have depth.
+    // generic integer types could be missing signeness and always are missing bit depth
+    // these are used for deductive type inferencing to say that "any integer type of this criteria is allowed."
+    // examples:
+    // [integer] // generic integer type that accepts any integer
+    // [integer].[signed] // accepts any signed integer
+    // [integer].[unsigned] // accepts any unsigned integer
+    // [signed] // accepts any signed number (also could be float, which are described bellow)
 
-    // however, its ok to do it the other way around
-    // can assign generic literal type to concrete type
+    // can assign concrete type generic type
     // it is inferred to be the concrete type
-    e :[signed_exact_bits 32]= 0.[as [integer]]; // the 0 literal is a [signed_exact_bits 32]
+    d :[integer]= 0.[as [integer].[signed].[fast 16]];
+    
+    // can assign generic type type to concrete type
+    // it is inferred to be the concrete type
+    e :[integer].[signed].[exact 32]= 0.[as [integer].[signed]]; // [integer].[signed].[exact 32]
 
     // can specify a custom base for integer literals 
     // can support any base from 2 to 64, including non power of two bases
-    f: [unsigned_fast_bits 32] = 16xDeadBeef;     // bases less than 35 are not case sensitive
-    g: [unsigned_fast_bits 16] = 2x011011011;     
-    h: [unsigned_fast_bits 32] = 64x0aAbBcC?!dD;  // ? is a digit with value 62 and ! is a digit with value 63
+    f:= 16xDeadBeef;     // bases less than 35 are not case sensitive
+    g:= 2x011011011;     
+    h:[integer].[signed].[exact 1024]= 64x0aAbBcC?!dD;  // ? is a digit with value 62 and ! is a digit with value 63
 
     // can ignore underscores in literal digits
-    i: [unsigned_fast_bits 64] = 123_456_789;
+    i: [integer].[signed].[exact 512] = 123_456_789;
 
     // special types for indexing memory and addresses
-    j: [unsigned_index] = 100; // unsigned index (like std::size_t in c++)
-    k: [signed_address] = 100; // signed address (like std::ptrdiff_t in c++)
+    j: [integer].[unsigned].[index_depth] = 100; // unsigned index (like std::size_t in c++)
+    k: [integer].[signed].[address_depth] = 100; // signed address (like std::ptrdiff_t in c++)
 
-    // can write floats when adding a decimal point
+    // can write floats when adding a decimal point 
+    // the decimal point must have a decimal digit before and after
     // floats cannot have a base
     // the default float type is a single, which uses and underlying type dependent on the platform
     l := 0.0; // single
@@ -66,7 +78,7 @@
 
     // there are generic floating point types as well
     //   binary - for any binary 
-    //   bfloat - for any bfloat
+    //   bfloat - for any bfloat (the only that exists currently is bfloat16, so its always bfloat16)
     //   float  - for any float (including binary, bfloat, etc)
     u: [binary32] = 0.[as [binary]];
     v: [bfloat16] = 0.[as [bfloat]];
@@ -74,11 +86,11 @@
 
     // there are NO implicit conversions in requite
     // this is even the case when dealing with builtin numerics of different types!
-    x :[unsigned_exact_bits 32]= 0.[as [unsigned_exact_bits 64]]; // compiler error!
+    x :[integer].[unsigned].[exact 64]= 0.[as [integer].[unsigned].[exact 64]]; // compiler error!
 
-    // this is the case even if the underlying types are the same
+    // this is the case even if the underlying types are the same on the current platform
     y :[binary32]= 0.0.[as [single]]; // compiler error!
-    z :[unsigned_exact_bits 64]=0.[as [unsigned_index]]; // compiler error!
+    z :[integer].[unsigned].[exact 64]=0.[as [integer].[unsigned].[index_depth]]; // compiler error!
 
     // if you want to convert between types, you need to use casts
     // see casts.rq

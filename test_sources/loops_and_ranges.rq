@@ -5,23 +5,23 @@
     // all of these loops are equivalent
 
     // equal limit interval
-    [for 0.[as [signed_fast_bits 32]].==9, value:=[value],
+    [for 0.[as [integer].[signed].[fast 32]].==9, value:=[value],
         .std.print(line="value is {value}");    
     ]
 
     // less limit interval
-    [for 0.[as [signed_fast_bits 32]].<10, value:=[value], 
+    [for 0.[as [integer].[signed].[fast 32]].<10, value:=[value], 
         .std.print(line="value is {value}");    
     ];
 
     // interval
-    [for 0.[as [signed_fast_bits 32]].<10.+1, value:=[value], 
+    [for 0.[as [integer].[signed].[fast 32]].<10.+1, value:=[value], 
         .std.print(line="value is {value}");    
     ]
 
     [scope
         // while loop    
-        value :`= 0.[as [signed_fast_bits 32]];
+        value :`= 0.[as [integer].[signed].[fast 32]];
         [while value < 10,
             .std.print(line="value is {value}");   
             value = value + 1;
@@ -29,14 +29,14 @@
     ];
 
     // element range
-    [for [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]].[of [signed_fast_bits 32]], value:=[value],     
+    [for [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]].[of [integer].[signed].[fast 32]], value:=[value],     
         .std.print(line="value is {value}");
     ];
 
     // ranger range
     [class MyClass,
         {> 
-            @public data:10#[signed_fast_bits 32]=[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
+            @public data:10#[integer].[signed].[fast 32]=[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
         <},
 
         @public
@@ -53,7 +53,7 @@
         .std.print(line="value is {value}");
     ];
 
-    [if (0.[as [signed_fast_bits 32]].<10).[borrow]->getContains(5),
+    [if (0.[as [integer].[signed].[fast 32]].<10).[borrow]->getContains(5),
         .std.print(line="5 is within interval over 0 to 10");
     ];
 ];

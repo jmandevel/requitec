@@ -3,18 +3,18 @@
 @may_copy @may_move
 [class MyClass,
     {>
-        x : [signed_least_bits 32] = 0,
-        y : [signed_least_bits 32] = 0,
-        z : [signed_least_bits 32] = 0
+        x : [integer].[signed].[fast 32] = 0,
+        y : [integer].[signed].[fast 32] = 0,
+        z : [integer].[signed].[fast 32] = 0
     <},
 
     @public
-    [function fromScalar, (> scalar:[signed_least_bits 32] <)MyClass,
+    [function fromScalar, (> scalar:[integer].[signed].[fast 32] <)MyClass,
         [result] := MyClass(scalar, scalar, scalar);    
     ];
 
     @public
-    [method getTotal, &=>(><)[signed_least_bits 32],
+    [method getTotal, &=>(><)[integer].[signed].[fast 32],
         [result] := [this].x + [this].y + [this].z;
     ];
 
