@@ -222,22 +222,16 @@ enum class Keyword : std::uint32_t {
   SIGNED_OF,
   UNSIGNED,
   UNSIGNED_OF,
-  SIGNED_FAST_BITS,
-  SIGNED_FAST_BYTES,
-  SIGNED_LEAST_BITS,
-  SIGNED_LEAST_BYTES,
-  SIGNED_EXACT_BITS,
-  SIGNED_EXACT_BYTES,
-  SIGNED_INDEX,
-  SIGNED_ADDRESS,
-  UNSIGNED_FAST_BITS,
-  UNSIGNED_FAST_BYTES,
-  UNSIGNED_LEAST_BITS,
-  UNSIGNED_LEAST_BTYES,
-  UNSIGNED_EXACT_BITS,
-  UNSIGNED_EXACT_BYTES,
-  UNSIGNED_INDEX,
-  UNSIGNED_ADDRESS,
+  FAST,
+  FAST_OF,
+  LEAST,
+  LEAST_OF,
+  EXACT,
+  EXACT_OF,
+  INDEX_DEPTH,
+  INDEX_DEPTH_OF,
+  ADDRESS_DEPTH,
+  ADDRESS_DEPTH_OF,
   STRING,
   CODEUNIT,
   ASCII,
@@ -788,38 +782,26 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "unsigned";
   case K::UNSIGNED_OF:
     return "_unsigned_of";
-  case K::SIGNED_FAST_BITS:
-    return "signed_fast_bits";
-  case K::SIGNED_FAST_BYTES:
-    return "signed_fast_bytes";
-  case K::SIGNED_LEAST_BITS:
-    return "signed_least_bits";
-  case K::SIGNED_LEAST_BYTES:
-    return "signed_least_bytes";
-  case K::SIGNED_EXACT_BITS:
-    return "signed_exact_bits";
-  case K::SIGNED_EXACT_BYTES:
-    return "signed_exact_bytes";
-  case K::SIGNED_INDEX:
-    return "signed_index";
-  case K::SIGNED_ADDRESS:
-    return "signed_address";
-  case K::UNSIGNED_FAST_BITS:
-    return "unsigned_fast_bits";
-  case K::UNSIGNED_FAST_BYTES:
-    return "unsigned_fast_bytes";
-  case K::UNSIGNED_LEAST_BITS:
-    return "unsigned_least_bits";
-  case K::UNSIGNED_LEAST_BTYES:
-    return "unsigned_least_btyes";
-  case K::UNSIGNED_EXACT_BITS:
-    return "unsigned_exact_bits";
-  case K::UNSIGNED_EXACT_BYTES:
-    return "unsigned_exact_bytes";
-  case K::UNSIGNED_INDEX:
-    return "unsigned_index";
-  case K::UNSIGNED_ADDRESS:
-    return "unsigned_address";
+  case K::FAST:
+    return "fast";
+  case K::FAST_OF:
+    return "_fast_of";
+  case K::LEAST:
+    return "least";
+  case K::LEAST_OF:
+    return "_least_of";
+  case K::EXACT:
+    return "exact";
+  case K::EXACT_OF:
+    return "_exact_of";
+  case K::INDEX_DEPTH:
+    return "index_depth";
+  case K::INDEX_DEPTH_OF:
+    return "_index_depth_of";
+  case K::ADDRESS_DEPTH:
+    return "address_depth";
+  case K::ADDRESS_DEPTH_OF:
+    return "_address_depth_of";
   case K::STRING:
     return "string";
   case K::CODEUNIT:
@@ -1565,10 +1547,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::QUADRUPLE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINARY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BFLOAT:
@@ -1585,42 +1563,35 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SIGNED:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
+           KF::UNIVERSALIZABLE;
   case K::SIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UNSIGNED:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
+           KF::UNIVERSALIZABLE;
   case K::UNSIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_FAST_BITS:
+  case K::FAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::FAST_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_FAST_BYTES:
+  case K::LEAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::LEAST_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_LEAST_BITS:
+  case K::EXACT:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::EXACT_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_LEAST_BYTES:
+  case K::INDEX_DEPTH:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::INDEX_DEPTH_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_EXACT_BITS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_EXACT_BYTES:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_INDEX:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_ADDRESS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_FAST_BITS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_FAST_BYTES:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_LEAST_BITS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_LEAST_BTYES:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_EXACT_BITS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_EXACT_BYTES:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_INDEX:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_ADDRESS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ADDRESS_DEPTH:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::ADDRESS_DEPTH_OF:
   case K::STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CODEUNIT:

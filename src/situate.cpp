@@ -872,43 +872,44 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
-  case K::SIGNED_FAST_BITS:
-    [[fallthrough]];
-  case K::SIGNED_FAST_BYTES:
-    [[fallthrough]];
-  case K::SIGNED_LEAST_BITS:
-    [[fallthrough]];
-  case K::SIGNED_LEAST_BYTES:
-    [[fallthrough]];
-  case K::SIGNED_EXACT_BITS:
-    [[fallthrough]];
-  case K::SIGNED_EXACT_BYTES:
+  case K::FAST:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
-  case K::SIGNED_INDEX:
-    [[fallthrough]];
-  case K::SIGNED_ADDRESS:
+  case K::FAST_OF:
+    is_ok =
+        this->situateBinaryExpressionBranches(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::LEAST:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
+  case K::LEAST_OF:
+    is_ok =
+        this->situateBinaryExpressionBranches(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::EXACT:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
+  case K::EXACT_OF:
+    is_ok =
+        this->situateBinaryExpressionBranches(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::INDEX_DEPTH:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::UNSIGNED_FAST_BITS:
-    [[fallthrough]];
-  case K::UNSIGNED_FAST_BYTES:
-    [[fallthrough]];
-  case K::UNSIGNED_LEAST_BITS:
-    [[fallthrough]];
-  case K::UNSIGNED_LEAST_BTYES:
-    [[fallthrough]];
-  case K::UNSIGNED_EXACT_BITS:
-    [[fallthrough]];
-  case K::UNSIGNED_EXACT_BYTES:
+  case K::INDEX_DEPTH_OF:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
-  case K::UNSIGNED_INDEX:
-    [[fallthrough]];
-  case K::UNSIGNED_ADDRESS:
-    [[fallthrough]];
+  case K::ADDRESS_DEPTH:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::ADDRESS_DEPTH_OF:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
   case K::STRING:
     [[fallthrough]];
   case K::CODEUNIT:
