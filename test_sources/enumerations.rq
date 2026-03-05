@@ -6,7 +6,7 @@
     ORANGE :[integer].[unsigned].[fast 32] = 2;
     GRAPE  :[binary32] = 3;
 ];
-.
+
 [entry
     fruit := .MyEnum.APPLE(3);
     [match fruit,

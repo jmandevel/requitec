@@ -13,7 +13,7 @@
     // [integer].[signed].[exact 8] // a signed integer that is exactly 8 bits
     // [integer].[unsigned].[fast 32] // an unsigned integer that is the fastest size that is at least 32 bits.
     // [integer].[signed].[least 16] // a signed integer that is the least native platform size that is at least 16 bits.
-w
+
     // if no type specified and no type can be inferred, integer literals become [integer].[signed].[fast 32]
     // this is the fastest signed integer type that is supported on the platform with at least 32 bits
     a := 0; // [integer].[signed].[fast 32]
