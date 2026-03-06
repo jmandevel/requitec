@@ -36,22 +36,18 @@ struct Context;
 // llvm::BumpPtrAllocator. Nothing has a destructor. Make use of rq::BumpPtrList
 // and rq::BumpPtrMap
 
-// TODO: need to make rq::BumpPtrMap red black tree type for symbol tables that
-// use llvm::BumpPtrAllocator allocated nodes
-
-enum EntityKind : std::uint16_t {
-  ENTITY_NONE = 0,
+enum class EntityKind : std::uint16_t {
+  NONE = 0,
 
   // =====SYMBOLS=====
 
   // all symbols have unique instances. you can always test if two symbols
-  // are exactly the same (including type attriubutes, etc) by comparing their
-  // pointers.
+  // are exactly the same by comparing their pointers.
 
   // SIMPLE BUILTIN
+  SY_INFERENCE,
   SY_GENERIC_SYMBOL,
   SY_GENERIC_TYPE,
-  SY_INFERENCE,
   SY_EXPRESSION,
   SY_VOID,
   SY_NULL,
@@ -81,14 +77,15 @@ enum EntityKind : std::uint16_t {
   SY_UTF8,
 
   // SCALED BUILTIN
-  SY_SIGNED_INTEGER,
-  SY_UNSIGNED_INTEGER,
+  SY_SCALED_SIGNED_INTEGER,
+  SY_SCALED_UNSIGNED_INTEGER,
 
   // UNARY SUBTYPE
   SY_REFERENCE,
   SY_POINTER,
   SY_FAT_POINTER,
   SY_INFERENCED_COUNT_ARRAY,
+  SY_SYNONYM,
 
   // COUNTED SUBTYPE
   SY_ARRAY,
@@ -104,18 +101,18 @@ enum EntityKind : std::uint16_t {
   SY_INFINITE_ARITHMETIC_PROGRESSION,
 
   // MISC
-  SY_SYNONYM,
   SY_MODULE,
   SY_IMPORT,
   SY_CODE,
-  SY_CATEGORY_DISCRIMINANT,
+  SY_CATEGORY_DISCRIMINANT, // underlying type of category code
   SY_LABEL,
 
   // BINDING
   SY_DYNAMIC_VARIABLE,
   SY_STATIC_VARIABLE,
   SY_ENUMERATOR,
-  SY_CATEGORY_ALTERNATIVE,
+  SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
+                           // maybe a value type
   SY_CLASS_PARAMETER,
   SY_LAYOUT_PARAMETER,
   SY_TEMPLATE_PARAMETER,
@@ -145,8 +142,10 @@ enum EntityKind : std::uint16_t {
   SY_TEMPLATE_STATIC_VARIABLE,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
+  SY_TEMPLATE_RANGER,
   SY_TEMPLATE_EXTENSION_FUNCTION,
   SY_TEMPLATE_EXTENSION_METHOD,
+  SY_TEMPLATE_EXTENSION_RANGER,
 
   // PARTIAL SPECIALIZATION
   SY_PARTIAL_CLASS,
@@ -156,8 +155,10 @@ enum EntityKind : std::uint16_t {
   SY_PARTIAL_STATIC_VARIABLE,
   SY_PARTIAL_FUNCTION,
   SY_PARTIAL_METHOD,
+  SY_PARTIAL_RANGER,
   SY_PARTIAL_EXTENSION_FUNCTION,
   SY_PARTIAL_EXTENSION_METHOD,
+  SY_PARTIAL_EXTENSION_RANGER,
 
   // =====CONSTANTS=====
 
@@ -221,13 +222,298 @@ enum EntityKind : std::uint16_t {
   OP_UNREACHABLE,
   OP_ASSUME,
 
-  ENTITY_LAST
+  LAST
 };
 
 static constexpr std::size_t ENTITY_COUNT =
-    static_cast<std::size_t>(rq::EntityKind::ENTITY_LAST) - 1;
+    static_cast<std::size_t>(rq::EntityKind::LAST) - 1;
 
-[[nodiscard]] inline llvm::StringRef getName(rq::EntityKind kind);
+[[nodiscard]] inline llvm::StringRef getName(rq::EntityKind kind) {
+  using E = rq::EntityKind;
+  switch (kind) {
+  case E::NONE:
+    return "none";
+  case E::SY_INFERENCE:
+    return "sy_inference";
+  case E::SY_GENERIC_SYMBOL:
+    return "sy_generic_symbol";
+  case E::SY_GENERIC_TYPE:
+    return "sy_generic_type";
+  case E::SY_EXPRESSION:
+    return "sy_expression";
+  case E::SY_VOID:
+    return "sy_void";
+  case E::SY_NULL:
+    return "sy_null";
+  case E::SY_NO_RETURN:
+    return "sy_no_return";
+  case E::SY_VARIADIC_ARGUMENTS:
+    return "sy_variadic_arguments";
+  case E::SY_BOOLEAN:
+    return "sy_boolean";
+  case E::SY_GENERIC_SIGNED:
+    return "sy_generic_signed";
+  case E::SY_GENERIC_UNSIGNED:
+    return "sy_generic_unsigned";
+  case E::SY_GENERIC_FLOAT:
+    return "sy_generic_float";
+  case E::SY_GENERIC_BINARY:
+    return "sy_generic_binary";
+  case E::SY_GENERIC_BFLOAT:
+    return "sy_generic_bfloat";
+  case E::SY_HALF:
+    return "sy_half";
+  case E::SY_SINGLE:
+    return "sy_single";
+  case E::SY_DOUBLE:
+    return "sy_double";
+  case E::SY_QUADRUPLE:
+    return "sy_quadruple";
+  case E::SY_BINARY16:
+    return "sy_binary16";
+  case E::SY_BINARY32:
+    return "sy_binary32";
+  case E::SY_BINARY64:
+    return "sy_binary64";
+  case E::SY_BINARY128:
+    return "sy_binary128";
+  case E::SY_BFLOAT16:
+    return "sy_bfloat16";
+  case E::SY_GENERIC_INTEGER:
+    return "sy_generic_integer";
+  case E::SY_GENERIC_SIGNED_INTEGER:
+    return "sy_generic_signed_integer";
+  case E::SY_GENERIC_UNSIGNED_INTEGER:
+    return "sy_generic_unsigned_integer";
+  case E::SY_GENERIC_CODEUNIT:
+    return "sy_generic_codeunit";
+  case E::SY_GENERIC_STRING:
+    return "sy_generic_string";
+  case E::SY_ASCII:
+    return "sy_ascii";
+  case E::SY_UTF8:
+    return "sy_utf8";
+  case E::SY_SCALED_SIGNED_INTEGER:
+    return "sy_scaled_signed_integer";
+  case E::SY_SCALED_UNSIGNED_INTEGER:
+    return "sy_scaled_unsigned_integer";
+  case E::SY_REFERENCE:
+    return "sy_reference";
+  case E::SY_POINTER:
+    return "sy_pointer";
+  case E::SY_FAT_POINTER:
+    return "sy_fat_pointer";
+  case E::SY_INFERENCED_COUNT_ARRAY:
+    return "sy_inferenced_count_array";
+  case E::SY_ARRAY:
+    return "sy_array";
+  case E::SY_LAYOUT:
+    return "sy_layout";
+  case E::SY_SIGNATURE:
+    return "sy_signature";
+  case E::SY_EXTENSION:
+    return "sy_extension";
+  case E::SY_ARITHMETIC_INTERVAL:
+    return "sy_arithmetic_interval";
+  case E::SY_FINITE_ARITHMETIC_PROGRESSION:
+    return "sy_finite_arithmetic_progression";
+  case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
+    return "sy_infinite_arithmetic_progression";
+  case E::SY_SYNONYM:
+    return "sy_synonym";
+  case E::SY_MODULE:
+    return "sy_module";
+  case E::SY_IMPORT:
+    return "sy_import";
+  case E::SY_CODE:
+    return "sy_code";
+  case E::SY_CATEGORY_DISCRIMINANT:
+    return "sy_category_discriminant";
+  case E::SY_LABEL:
+    return "sy_label";
+  case E::SY_DYNAMIC_VARIABLE:
+    return "sy_dynamic_variable";
+  case E::SY_STATIC_VARIABLE:
+    return "sy_static_variable";
+  case E::SY_ENUMERATOR:
+    return "sy_enumerator";
+  case E::SY_CATEGORY_ALTERNATIVE:
+    return "sy_category_alternative";
+  case E::SY_CLASS_PARAMETER:
+    return "sy_class_parameter";
+  case E::SY_LAYOUT_PARAMETER:
+    return "sy_layout_parameter";
+  case E::SY_TEMPLATE_PARAMETER:
+    return "sy_template_parameter";
+  case E::SY_SIGNATURE_PARAMETER:
+    return "sy_signature_parameter";
+  case E::SY_TOP:
+    return "sy_top";
+  case E::SY_SCOPE:
+    return "sy_scope";
+  case E::SY_TABLE:
+    return "sy_table";
+  case E::SY_CLASS:
+    return "sy_class";
+  case E::SY_ENUMERATION:
+    return "sy_enumeration";
+  case E::SY_CATEGORY:
+    return "sy_category";
+  case E::SY_ENTRY:
+    return "sy_entry";
+  case E::SY_FUNCTION:
+    return "sy_function";
+  case E::SY_METHOD:
+    return "sy_method";
+  case E::SY_EXTENSION_FUNCTION:
+    return "sy_extension_function";
+  case E::SY_EXTENSION_METHOD:
+    return "sy_extension_method";
+  case E::SY_RANGER:
+    return "sy_ranger";
+  case E::SY_TEMPLATE_CLASS:
+    return "sy_template_class";
+  case E::SY_TEMPLATE_ENUMERATION:
+    return "sy_template_enumeration";
+  case E::SY_TEMPLATE_CATEGORY:
+    return "sy_template_category";
+  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+    return "sy_template_dynamic_variable";
+  case E::SY_TEMPLATE_STATIC_VARIABLE:
+    return "sy_template_static_variable";
+  case E::SY_TEMPLATE_FUNCTION:
+    return "sy_template_function";
+  case E::SY_TEMPLATE_METHOD:
+    return "sy_template_method";
+  case E::SY_TEMPLATE_RANGER:
+    return "sy_template_ranger";
+  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
+    return "sy_template_extension_function";
+  case E::SY_TEMPLATE_EXTENSION_METHOD:
+    return "sy_template_extension_method";
+  case E::SY_TEMPLATE_EXTENSION_RANGER:
+    return "sy_template_extension_ranger";
+  case E::SY_PARTIAL_CLASS:
+    return "sy_partial_class";
+  case E::SY_PARTIAL_ENUMERATION:
+    return "sy_partial_enumeration";
+  case E::SY_PARTIAL_CATEGORY:
+    return "sy_partial_category";
+  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
+    return "sy_partial_dynamic_variable";
+  case E::SY_PARTIAL_STATIC_VARIABLE:
+    return "sy_partial_static_variable";
+  case E::SY_PARTIAL_FUNCTION:
+    return "sy_partial_function";
+  case E::SY_PARTIAL_METHOD:
+    return "sy_partial_method";
+  case E::SY_PARTIAL_RANGER:
+    return "sy_partial_ranger";
+  case E::SY_PARTIAL_EXTENSION_FUNCTION:
+    return "sy_partial_extension_function";
+  case E::SY_PARTIAL_EXTENSION_METHOD:
+    return "sy_partial_extension_method";
+  case E::SY_PARTIAL_EXTENSION_RANGER:
+    return "sy_partial_extension_ranger";
+  case E::CT_TYPE:
+    return "ct_type";
+  case E::CT_EXPRESSION:
+    return "ct_expression";
+  case E::CT_BOOLEAN:
+    return "ct_boolean";
+  case E::CT_INTEGER:
+    return "ct_integer";
+  case E::CT_FLOAT:
+    return "ct_float";
+  case E::CT_STRING:
+    return "ct_string";
+  case E::CT_ARRAY:
+    return "ct_array";
+  case E::OP_NONE:
+    return "op_none";
+  case E::OP_LOGICAL_AND:
+    return "op_logical_and";
+  case E::OP_LOGICAL_OR:
+    return "op_logical_or";
+  case E::OP_LOGICAL_COMPLEMENT:
+    return "op_logical_complement";
+  case E::OP_GREATER:
+    return "op_greater";
+  case E::OP_GREATER_EQUAL:
+    return "op_greater_equal";
+  case E::OP_LESS:
+    return "op_less";
+  case E::OP_LESS_EQUAL:
+    return "op_less_equal";
+  case E::OP_EQUAL:
+    return "op_equal";
+  case E::OP_NOT_EQUAL:
+    return "op_not_equal";
+  case E::OP_ADD:
+    return "op_add";
+  case E::OP_SUBTRACT:
+    return "op_subtract";
+  case E::OP_MULTIPLY:
+    return "op_multiply";
+  case E::OP_DIVIDE:
+    return "op_divide";
+  case E::OP_MODULUS:
+    return "op_modulus";
+  case E::OP_NEGATE:
+    return "op_negate";
+  case E::OP_CAST:
+    return "op_cast";
+  case E::OP_BITWISE_AND:
+    return "op_bitwise_and";
+  case E::OP_BITWISE_OR:
+    return "op_bitwise_or";
+  case E::OP_BITWISE_XOR:
+    return "op_bitwise_xor";
+  case E::OP_BITWISE_COMPLEMENT:
+    return "op_bitwise_complement";
+  case E::OP_BITWISE_SHIFT_LEFT:
+    return "op_bitwise_shift_left";
+  case E::OP_BITWISE_SHIFT_RIGHT:
+    return "op_bitwise_shift_right";
+  case E::OP_BITWISE_ROTATE_LEFT:
+    return "op_bitwise_rotate_left";
+  case E::OP_BITWISE_ROTATE_RIGHT:
+    return "op_bitwise_rotate_right";
+  case E::OP_CONTENT_OF:
+    return "op_content_of";
+  case E::OP_ADDRESS_OF:
+    return "op_address_of";
+  case E::OP_CALL:
+    return "op_call";
+  case E::OP_DROP:
+    return "op_drop";
+  case E::OP_MOVE:
+    return "op_move";
+  case E::OP_COPY:
+    return "op_copy";
+  case E::OP_RETURN:
+    return "op_return";
+  case E::OP_GOTO:
+    return "op_goto";
+  case E::OP_CONDITION:
+    return "op_condition";
+  case E::OP_LOOP_SEQUENCE:
+    return "op_loop_sequence";
+  case E::OP_LOOP_ELEMENTS:
+    return "op_loop_elements";
+  case E::OP_LOOP_RANGER:
+    return "op_loop_ranger";
+  case E::OP_DEBUG_TRAP:
+    return "op_debug_trap";
+  case E::OP_UNREACHABLE:
+    return "op_unreachable";
+  case E::OP_ASSUME:
+    return "op_assume";
+  case E::LAST:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
 
 enum class EntityFlags : std::uint32_t {
   NONE = 0,
@@ -257,16 +543,17 @@ enum class EntityFlags : std::uint32_t {
   // SYMBOL INFO PROPERTIES - have no data associated
   SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(12),
   SY_TYPE = rq::getBit(13),
-  SY_GENERIC = rq::getBit(14),
-  SY_CONCRETE = rq::getBit(15),
-  SY_SUBTYPE = rq::getBit(16),
+  SY_SUBTYPE = rq::getBit(14),
+  SY_GENERIC = rq::getBit(15),
+  SY_CONCRETE = rq::getBit(16),
   SY_PLATFORM_CHANGING = rq::getBit(17),
   SY_INTEGER = rq::getBit(18),
   SY_FLOAT = rq::getBit(19),
-  SY_CODEUNIT = rq::getBit(20),
-  SY_SIGNED = rq::getBit(21),
-  SY_UNSIGNED = rq::getBit(22),
-  SY_TOP_OF_FRAME = rq::getBit(23)
+  SY_BINARY = rq::getBit(20),
+  SY_CODEUNIT = rq::getBit(21),
+  SY_SIGNED = rq::getBit(22),
+  SY_UNSIGNED = rq::getBit(23),
+  SY_TOP_OF_FRAME = rq::getBit(24)
 
   // CONSTANT FLAGS
   // TODO
@@ -275,10 +562,349 @@ enum class EntityFlags : std::uint32_t {
   // TODO
 };
 template <> struct is_flags<EntityFlags> : std::true_type {};
-[[nodiscard]] inline rq::EntityFlags getFlags(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityKind kind);
+[[nodiscard]] inline rq::EntityFlags getFlags(rq::EntityKind kind) {
+  using E = rq::EntityKind;
+  using EF = rq::EntityFlags;
+  switch (kind) {
+  case E::NONE:
+    return EF::NONE;
+  case E::SY_INFERENCE:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_GENERIC_SYMBOL:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_GENERIC_TYPE:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_EXPRESSION:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_VOID:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_NULL:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_NO_RETURN:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_VARIADIC_ARGUMENTS:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_BOOLEAN:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_GENERIC_SIGNED:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_SIGNED;
+  case E::SY_GENERIC_UNSIGNED:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_GENERIC_FLOAT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_GENERIC_BINARY:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+  case E::SY_GENERIC_BFLOAT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_HALF:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_SINGLE:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_DOUBLE:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_QUADRUPLE:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_BINARY16:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+  case E::SY_BINARY32:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+  case E::SY_BINARY64:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+  case E::SY_BINARY128:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+  case E::SY_BFLOAT16:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_GENERIC_INTEGER:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_INTEGER;
+  case E::SY_GENERIC_SIGNED_INTEGER:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_INTEGER | EF::SY_SIGNED;
+  case E::SY_GENERIC_UNSIGNED_INTEGER:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_INTEGER | EF::SY_UNSIGNED;
+  case E::SY_GENERIC_CODEUNIT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
+           EF::SY_CODEUNIT;
+  case E::SY_GENERIC_STRING:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_ASCII:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_CODEUNIT;
+  case E::SY_UTF8:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_CODEUNIT;
+  case E::SY_SCALED_SIGNED_INTEGER:
+    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_INTEGER | EF::SY_SIGNED;
+  case E::SY_SCALED_UNSIGNED_INTEGER:
+    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_INTEGER | EF::SY_UNSIGNED;
+  case E::SY_REFERENCE:
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
+           EF::SY_CONCRETE;
+  case E::SY_POINTER:
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
+           EF::SY_CONCRETE;
+  case E::SY_FAT_POINTER:
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
+           EF::SY_CONCRETE;
+  case E::SY_INFERENCED_COUNT_ARRAY:
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
+           EF::SY_GENERIC;
+  case E::SY_SYNONYM:
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
+           EF::SY_CONCRETE;
+  case E::SY_ARRAY:
+    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
+           EF::SY_CONCRETE;
+  case E::SY_LAYOUT:
+    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
+           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_SIGNATURE:
+    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
+           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_EXTENSION:
+    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
+           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_ARITHMETIC_INTERVAL:
+    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
+           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_FINITE_ARITHMETIC_PROGRESSION:
+    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
+           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
+    return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
+           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+  case E::SY_MODULE:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_IMPORT:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_CODE:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_CATEGORY_DISCRIMINANT:
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_LABEL:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_DYNAMIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_STATIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_ENUMERATOR:
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_CATEGORY_ALTERNATIVE:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_CLASS_PARAMETER:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_LAYOUT_PARAMETER:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_PARAMETER:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_SIGNATURE_PARAMETER:
+    return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_TOP:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_SCOPE:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE;
+  case E::SY_TABLE:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_CLASS:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_ENUMERATION:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_CATEGORY:
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_ENTRY:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_FUNCTION:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_METHOD:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_EXTENSION_FUNCTION:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_EXTENSION_METHOD:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_RANGER:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
+  case E::SY_TEMPLATE_CLASS:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_ENUMERATION:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_CATEGORY:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_STATIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_FUNCTION:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_METHOD:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_RANGER:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_EXTENSION_METHOD:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_EXTENSION_RANGER:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_CLASS:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_ENUMERATION:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_CATEGORY:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_STATIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_FUNCTION:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_METHOD:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_RANGER:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_EXTENSION_FUNCTION:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_EXTENSION_METHOD:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_EXTENSION_RANGER:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::CT_TYPE:
+    return EF::CONSTANT;
+  case E::CT_EXPRESSION:
+    return EF::CONSTANT;
+  case E::CT_BOOLEAN:
+    return EF::CONSTANT;
+  case E::CT_INTEGER:
+    return EF::CONSTANT;
+  case E::CT_FLOAT:
+    return EF::CONSTANT;
+  case E::CT_STRING:
+    return EF::CONSTANT;
+  case E::CT_ARRAY:
+    return EF::CONSTANT;
+  case E::OP_NONE:
+    return EF::NONE;
+  case E::OP_LOGICAL_AND:
+    return EF::NONE;
+  case E::OP_LOGICAL_OR:
+    return EF::NONE;
+  case E::OP_LOGICAL_COMPLEMENT:
+    return EF::NONE;
+  case E::OP_GREATER:
+    return EF::NONE;
+  case E::OP_GREATER_EQUAL:
+    return EF::NONE;
+  case E::OP_LESS:
+    return EF::NONE;
+  case E::OP_LESS_EQUAL:
+    return EF::NONE;
+  case E::OP_EQUAL:
+    return EF::NONE;
+  case E::OP_NOT_EQUAL:
+    return EF::NONE;
+  case E::OP_ADD:
+    return EF::NONE;
+  case E::OP_SUBTRACT:
+    return EF::NONE;
+  case E::OP_MULTIPLY:
+    return EF::NONE;
+  case E::OP_DIVIDE:
+    return EF::NONE;
+  case E::OP_MODULUS:
+    return EF::NONE;
+  case E::OP_NEGATE:
+    return EF::NONE;
+  case E::OP_CAST:
+    return EF::NONE;
+  case E::OP_BITWISE_AND:
+    return EF::NONE;
+  case E::OP_BITWISE_OR:
+    return EF::NONE;
+  case E::OP_BITWISE_XOR:
+    return EF::NONE;
+  case E::OP_BITWISE_COMPLEMENT:
+    return EF::NONE;
+  case E::OP_BITWISE_SHIFT_LEFT:
+    return EF::NONE;
+  case E::OP_BITWISE_SHIFT_RIGHT:
+    return EF::NONE;
+  case E::OP_BITWISE_ROTATE_LEFT:
+    return EF::NONE;
+  case E::OP_BITWISE_ROTATE_RIGHT:
+    return EF::NONE;
+  case E::OP_CONTENT_OF:
+    return EF::NONE;
+  case E::OP_ADDRESS_OF:
+    return EF::NONE;
+  case E::OP_CALL:
+    return EF::NONE;
+  case E::OP_DROP:
+    return EF::NONE;
+  case E::OP_MOVE:
+    return EF::NONE;
+  case E::OP_COPY:
+    return EF::NONE;
+  case E::OP_RETURN:
+    return EF::NONE;
+  case E::OP_GOTO:
+    return EF::NONE;
+  case E::OP_CONDITION:
+    return EF::NONE;
+  case E::OP_LOOP_SEQUENCE:
+    return EF::NONE;
+  case E::OP_LOOP_ELEMENTS:
+    return EF::NONE;
+  case E::OP_LOOP_RANGER:
+    return EF::NONE;
+  case E::OP_DEBUG_TRAP:
+    return EF::NONE;
+  case E::OP_UNREACHABLE:
+    return EF::NONE;
+  case E::OP_ASSUME:
+    return EF::NONE;
+  case E::LAST:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::EntityKind kind) {
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SYMBOL);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::EntityKind kind) {
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::CONSTANT);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityKind kind) {
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasNone(flags, rq::EntityFlags::NOT_OPCODE_MASK);
+}
 
 #define RQ_ASSERT_SYMBOL(kind) RQ_ASSERT(rq::getIsSymbol((kind)), "not symbol")
 #define RQ_ASSERT_CONSTANT(kind)                                               \
@@ -287,43 +913,187 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
 #define RQ_ASSERT_OPCODE(opcode)                                               \
   RQ_ASSERT(rq::getIsOpcode(opcode), "not opcode")
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype(rq::EntityKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_SIMPLE_BUILTIN);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_SCALED_BUILTIN);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_UNARY_SUBTYPE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_COUNTED_SUBTYPE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_COMPOSITE_SUBTYPE);
+}
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsArithmeticSequence(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::EntityKind kind);
+getIsArithmeticSequence(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_ARITHMETIC_SEQUENCE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_SYMBOL_TABLE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_PROCEDURE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_TEMPLATE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_PARTIAL);
+}
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasTemplateAlternative(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger(rq::EntityKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::EntityKind kind);
-[[nodiscard]] inline rq::EntityKind getTemplate(rq::EntityKind kind);
-[[nodiscard]] inline rq::EntityKind getPartial(rq::EntityKind kind);
-[[nodiscard]] inline rq::EntityKind getFullSpecialization(rq::EntityKind kind);
+getHasTemplateAlternative(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_HAS_TEMPLATE_ALTERNATIVE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_TYPE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_SUBTYPE);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_GENERIC);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_CONCRETE);
+}
+// NOTE: SCALED_SIGNED_INTEGER and SCALED_UNSIGNED_INTEGER is platform chaning
+// only if depth is not exact that is checked in member function of Entity, not
+// here.
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_PLATFORM_CHANGING);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags,
+                       rq::EntityFlags::SY_INTEGER | rq::EntityFlags::SY_FLOAT);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_INTEGER);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_FLOAT);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_BINARY);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_CODEUNIT);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_SIGNED);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_UNSIGNED);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_SIGNED |
+                                  rq::EntityFlags::SY_INTEGER);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_UNSIGNED |
+                                  rq::EntityFlags::SY_INTEGER);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_TOP_OF_FRAME);
+}
+[[nodiscard]] inline rq::EntityKind getTemplate(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  RQ_ASSERT(rq::getHasTemplateAlternative(kind), "no template alternative");
+  using E = rq::EntityKind;
+  switch (kind) {
+  case E::SY_CLASS:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_CLASS:
+    [[fallthrough]];
+  case E::SY_PARTIAL_CLASS:
+    return E::SY_TEMPLATE_CLASS;
+  case E::SY_ENUMERATION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_ENUMERATION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_ENUMERATION:
+    return E::SY_TEMPLATE_ENUMERATION;
+  case E::SY_CATEGORY:
+    return E::SY_TEMPLATE_CATEGORY;
+  case E::SY_DYNAMIC_VARIABLE:
+    return E::SY_TEMPLATE_DYNAMIC_VARIABLE;
+  case E::SY_STATIC_VARIABLE:
+    return E::SY_TEMPLATE_STATIC_VARIABLE;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+[[nodiscard]] inline rq::EntityKind getPartial(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  RQ_ASSERT(rq::getHasTemplateAlternative(kind), "no template alternative");
+}
+[[nodiscard]] inline rq::EntityKind getFull(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  RQ_ASSERT(rq::getHasTemplateAlternative(kind), "no template alternative");
+}
 
 struct Entity;
 struct Symbol;
-struct Type;
 struct SimpleBuiltin;
+struct Inference;
 struct GenericSymbol;
 struct GenericType;
-struct Inference;
 struct Void;
 struct Null;
 struct NoReturn;
@@ -351,8 +1121,8 @@ struct GenericString;
 struct Ascii;
 struct Utf8;
 struct ScaledBuiltin;
-struct SignedInteger;
-struct UnsignedInteger;
+struct ScaledSignedInteger;
+struct ScaledUnsignedInteger;
 struct UnarySubtype;
 struct Reference;
 struct Pointer;
@@ -389,12 +1159,14 @@ struct Table;
 struct Class;
 struct Enumeration;
 struct Category;
+struct Procdedure;
 struct Entry;
 struct Function;
 struct Method;
+struct Ranger;
 struct ExtensionFunction;
 struct ExtensionMethod;
-struct Ranger;
+struct ExtensionRanger;
 struct Template;
 struct TemplateClass;
 struct TemplateEnumeration;
@@ -403,8 +1175,10 @@ struct TemplateDynamicVariable;
 struct TemplateStaticVariable;
 struct TemplateFunction;
 struct TemplateMethod;
+struct TemplateRanger;
 struct TemplateExtensionFunction;
 struct TemplateExtensionMethod;
+struct TemplateExtensionRanger;
 struct Partial;
 struct PartialClass;
 struct PartialEnumeration;
@@ -413,8 +1187,10 @@ struct PartialDynamicVariable;
 struct PartialStaticVariable;
 struct PartialFunction;
 struct PartialMethod;
+struct PartialRanger;
 struct PartialExtensionFunction;
 struct PartialExtensionMethod;
+struct PartialExtensionRanger;
 struct Constant;
 struct TypeConstant;
 struct ExpressionConstant;
@@ -428,9 +1204,9 @@ struct Instruction;
 struct Entity {
   using Self = rq::Entity;
 
-  rq::EntityKind kind;
+  rq::EntityKind _kind;
 
-  explicit Entity(rq::EntityKind k) : kind(k) {}
+  explicit Entity(rq::EntityKind k) : _kind(k) {}
   Entity() = delete;
   Entity(const Entity &) = delete;
   Entity(Entity &&) = delete;
@@ -438,8 +1214,76 @@ struct Entity {
   Entity &operator=(Entity &&) = delete;
   ~Entity() = default;
 
-  bool operator==(const Entity *other) const { return this == other; }
-  bool operator!=(const Entity *other) const { return this != other; }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Entity *other) const {
+    return this == other;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Entity *other) const {
+    return this != other;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getKind() const {
+    return _kind;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const {
+    return rq::getHasTemplateAlternative(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
+    return rq::getIsType(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
+    return rq::getIsSubtype(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric() const {
+    return rq::getIsGeneric(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete() const {
+    return rq::getIsConcrete(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const {
+    if (rq::getIsScaledBuiltin(this->getKind())) {
+      // TODO
+    }
+    return rq::getIsPlatformChanging(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const {
+    return rq::getIsNumeric(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
+    return rq::getIsInteger(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
+    return rq::getIsFloat(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const {
+    return rq::getIsBinary(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const {
+    return rq::getIsCodeunit(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
+    return rq::getIsSigned(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
+    return rq::getIsUnsigned(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const {
+    return rq::getIsSignedInteger(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const {
+    return rq::getIsUnsignedInteger(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const {
+    return rq::getIsTopOfFrame(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getTemplateKind() const {
+    return rq::getTemplate(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getPartialKind() const {
+    return rq::getPartial(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getFullKind() const {
+    return rq::getFull(this->getKind());
+  }
 
   static bool classof(const Entity *entity) {
     std::ignore = entity;
@@ -453,770 +1297,818 @@ struct Symbol : public rq::Entity {
   explicit Symbol(rq::EntityKind k) : Entity(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsSymbol(entity->kind);
+    return rq::getIsSymbol(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Type : public rq::Entity {
-  using Self = rq::Type;
-
-  explicit Type(rq::EntityKind k) : Entity(k) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::getIsType(entity->kind);
-  }
-};
-
-struct SimpleBuiltin : public rq::Entity {
+struct SimpleBuiltin : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
 
-  explicit SimpleBuiltin(rq::EntityKind k) : Entity(k) {}
+  explicit SimpleBuiltin(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsSimpleBuiltin(entity->kind);
+    return rq::getIsSimpleBuiltin(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct GenericSymbol : public rq::Entity {
-  using Self = rq::GenericSymbol;
-
-  GenericSymbol() : Entity(rq::EntityKind::SY_GENERIC_SYMBOL) {}
-
-  static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_SYMBOL;
-  }
-};
-
-struct GenericType : public rq::Entity {
-  using Self = rq::GenericType;
-
-  GenericType() : Entity(rq::EntityKind::SY_GENERIC_TYPE) {}
-
-  static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_TYPE;
-  }
-};
-
-struct Inference : public rq::Entity {
+struct Inference : public rq::SimpleBuiltin {
   using Self = rq::Inference;
 
-  Inference() : Entity(rq::EntityKind::SY_INFERENCE) {}
+  Inference() : SimpleBuiltin(rq::EntityKind::SY_INFERENCE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_INFERENCE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_INFERENCE;
   }
 };
 
-struct Void : public rq::Entity {
+struct GenericSymbol : public rq::SimpleBuiltin {
+  using Self = rq::GenericSymbol;
+
+  GenericSymbol() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SYMBOL) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_SYMBOL;
+  }
+};
+
+struct GenericType : public rq::SimpleBuiltin {
+  using Self = rq::GenericType;
+
+  GenericType() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_TYPE) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_TYPE;
+  }
+};
+
+struct Void : public rq::SimpleBuiltin {
   using Self = rq::Void;
 
-  Void() : Entity(rq::EntityKind::SY_VOID) {}
+  Void() : SimpleBuiltin(rq::EntityKind::SY_VOID) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_VOID;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_VOID;
   }
 };
 
-struct Null : public rq::Entity {
+struct Null : public rq::SimpleBuiltin {
   using Self = rq::Null;
 
-  Null() : Entity(rq::EntityKind::SY_NULL) {}
+  Null() : SimpleBuiltin(rq::EntityKind::SY_NULL) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_NULL;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_NULL;
   }
 };
 
-struct NoReturn : public rq::Entity {
+struct NoReturn : public rq::SimpleBuiltin {
   using Self = rq::NoReturn;
 
-  NoReturn() : Entity(rq::EntityKind::SY_NO_RETURN) {}
+  NoReturn() : SimpleBuiltin(rq::EntityKind::SY_NO_RETURN) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_NO_RETURN;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_NO_RETURN;
   }
 };
 
-struct VariadicArguments : public rq::Entity {
+struct VariadicArguments : public rq::SimpleBuiltin {
   using Self = rq::VariadicArguments;
 
-  VariadicArguments() : Entity(rq::EntityKind::SY_VARIADIC_ARGUMENTS) {}
+  VariadicArguments() : SimpleBuiltin(rq::EntityKind::SY_VARIADIC_ARGUMENTS) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_VARIADIC_ARGUMENTS;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_VARIADIC_ARGUMENTS;
   }
 };
 
-struct Boolean : public rq::Entity {
+struct Boolean : public rq::SimpleBuiltin {
   using Self = rq::Boolean;
 
-  Boolean() : Entity(rq::EntityKind::SY_BOOLEAN) {}
+  Boolean() : SimpleBuiltin(rq::EntityKind::SY_BOOLEAN) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_BOOLEAN;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BOOLEAN;
   }
 };
 
-struct GenericSigned : public rq::Entity {
+struct GenericSigned : public rq::SimpleBuiltin {
   using Self = rq::GenericSigned;
 
-  GenericSigned() : Entity(rq::EntityKind::SY_GENERIC_SIGNED) {}
+  GenericSigned() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SIGNED) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_SIGNED;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_SIGNED;
   }
 };
 
-struct GenericUnsigned : public rq::Entity {
+struct GenericUnsigned : public rq::SimpleBuiltin {
   using Self = rq::GenericUnsigned;
 
-  GenericUnsigned() : Entity(rq::EntityKind::SY_GENERIC_UNSIGNED) {}
+  GenericUnsigned() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_UNSIGNED) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_UNSIGNED;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_UNSIGNED;
   }
 };
 
-struct GenericFloat : public rq::Entity {
+struct GenericFloat : public rq::SimpleBuiltin {
   using Self = rq::GenericFloat;
 
-  GenericFloat() : Entity(rq::EntityKind::SY_GENERIC_FLOAT) {}
+  GenericFloat() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_FLOAT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_FLOAT;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_FLOAT;
   }
 };
 
-struct GenericBinary : public rq::Entity {
+struct GenericBinary : public rq::SimpleBuiltin {
   using Self = rq::GenericBinary;
 
-  GenericBinary() : Entity(rq::EntityKind::SY_GENERIC_BINARY) {}
+  GenericBinary() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BINARY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_BINARY;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_BINARY;
   }
 };
 
-struct GenericBFloat : public rq::Entity {
+struct GenericBFloat : public rq::SimpleBuiltin {
   using Self = rq::GenericBFloat;
 
-  GenericBFloat() : Entity(rq::EntityKind::SY_GENERIC_BFLOAT) {}
+  GenericBFloat() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BFLOAT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_BFLOAT;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_BFLOAT;
   }
 };
 
-struct Half : public rq::Entity {
+struct Half : public rq::SimpleBuiltin {
   using Self = rq::Half;
 
-  Half() : Entity(rq::EntityKind::SY_HALF) {}
+  Half() : SimpleBuiltin(rq::EntityKind::SY_HALF) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_HALF;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_HALF;
   }
 };
 
-struct Single : public rq::Entity {
+struct Single : public rq::SimpleBuiltin {
   using Self = rq::Single;
 
-  Single() : Entity(rq::EntityKind::SY_SINGLE) {}
+  Single() : SimpleBuiltin(rq::EntityKind::SY_SINGLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_SINGLE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SINGLE;
   }
 };
 
-struct Double : public rq::Entity {
+struct Double : public rq::SimpleBuiltin {
   using Self = rq::Double;
 
-  Double() : Entity(rq::EntityKind::SY_DOUBLE) {}
+  Double() : SimpleBuiltin(rq::EntityKind::SY_DOUBLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_DOUBLE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_DOUBLE;
   }
 };
 
-struct Quadruple : public rq::Entity {
+struct Quadruple : public rq::SimpleBuiltin {
   using Self = rq::Quadruple;
 
-  Quadruple() : Entity(rq::EntityKind::SY_QUADRUPLE) {}
+  Quadruple() : SimpleBuiltin(rq::EntityKind::SY_QUADRUPLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_QUADRUPLE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_QUADRUPLE;
   }
 };
 
-struct Binary16 : public rq::Entity {
+struct Binary16 : public rq::SimpleBuiltin {
   using Self = rq::Binary16;
 
-  Binary16() : Entity(rq::EntityKind::SY_BINARY16) {}
+  Binary16() : SimpleBuiltin(rq::EntityKind::SY_BINARY16) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_BINARY16;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BINARY16;
   }
 };
 
-struct Binary32 : public rq::Entity {
+struct Binary32 : public rq::SimpleBuiltin {
   using Self = rq::Binary32;
 
-  Binary32() : Entity(rq::EntityKind::SY_BINARY32) {}
+  Binary32() : SimpleBuiltin(rq::EntityKind::SY_BINARY32) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_BINARY32;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BINARY32;
   }
 };
 
-struct Binary64 : public rq::Entity {
+struct Binary64 : public rq::SimpleBuiltin {
   using Self = rq::Binary64;
 
-  Binary64() : Entity(rq::EntityKind::SY_BINARY64) {}
+  Binary64() : SimpleBuiltin(rq::EntityKind::SY_BINARY64) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_BINARY64;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BINARY64;
   }
 };
 
-struct Binary128 : public rq::Entity {
+struct Binary128 : public rq::SimpleBuiltin {
   using Self = rq::Binary128;
 
-  Binary128() : Entity(rq::EntityKind::SY_BINARY128) {}
+  Binary128() : SimpleBuiltin(rq::EntityKind::SY_BINARY128) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_BINARY128;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BINARY128;
   }
 };
 
-struct BFloat16 : public rq::Entity {
+struct BFloat16 : public rq::SimpleBuiltin {
   using Self = rq::BFloat16;
 
-  BFloat16() : Entity(rq::EntityKind::SY_BFLOAT16) {}
+  BFloat16() : SimpleBuiltin(rq::EntityKind::SY_BFLOAT16) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_BFLOAT16;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BFLOAT16;
   }
 };
 
-struct GenericInteger : public rq::Entity {
+struct GenericInteger : public rq::SimpleBuiltin {
   using Self = rq::GenericInteger;
 
-  GenericInteger() : Entity(rq::EntityKind::SY_GENERIC_INTEGER) {}
+  GenericInteger() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_INTEGER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_INTEGER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_INTEGER;
   }
 };
 
-struct GenericSignedInteger : public rq::Entity {
+struct GenericSignedInteger : public rq::SimpleBuiltin {
   using Self = rq::GenericSignedInteger;
 
-  GenericSignedInteger() : Entity(rq::EntityKind::SY_GENERIC_SIGNED_INTEGER) {}
+  GenericSignedInteger()
+      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SIGNED_INTEGER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_SIGNED_INTEGER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_SIGNED_INTEGER;
   }
 };
 
-struct GenericUnsignedInteger : public rq::Entity {
+struct GenericUnsignedInteger : public rq::SimpleBuiltin {
   using Self = rq::GenericUnsignedInteger;
 
   GenericUnsignedInteger()
-      : Entity(rq::EntityKind::SY_GENERIC_UNSIGNED_INTEGER) {}
+      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_UNSIGNED_INTEGER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_UNSIGNED_INTEGER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_UNSIGNED_INTEGER;
   }
 };
 
-struct GenericCodeunit : public rq::Entity {
+struct GenericCodeunit : public rq::SimpleBuiltin {
   using Self = rq::GenericCodeunit;
 
-  GenericCodeunit() : Entity(rq::EntityKind::SY_GENERIC_CODEUNIT) {}
+  GenericCodeunit() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_CODEUNIT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_CODEUNIT;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_CODEUNIT;
   }
 };
 
-struct GenericString : public rq::Entity {
+struct GenericString : public rq::SimpleBuiltin {
   using Self = rq::GenericString;
 
-  GenericString() : Entity(rq::EntityKind::SY_GENERIC_STRING) {}
+  GenericString() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_STRING) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_GENERIC_STRING;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GENERIC_STRING;
   }
 };
 
-struct Ascii : public rq::Entity {
+struct Ascii : public rq::SimpleBuiltin {
   using Self = rq::Ascii;
 
-  Ascii() : Entity(rq::EntityKind::SY_ASCII) {}
+  Ascii() : SimpleBuiltin(rq::EntityKind::SY_ASCII) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_ASCII;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ASCII;
   }
 };
 
-struct Utf8 : public rq::Entity {
+struct Utf8 : public rq::SimpleBuiltin {
   using Self = rq::Utf8;
 
-  Utf8() : Entity(rq::EntityKind::SY_UTF8) {}
+  Utf8() : SimpleBuiltin(rq::EntityKind::SY_UTF8) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_UTF8;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_UTF8;
   }
 };
 
-struct ScaledBuiltin : public rq::Entity {
+struct ScaledBuiltin : public rq::Symbol {
   using Self = rq::ScaledBuiltin;
 
-  explicit ScaledBuiltin(rq::EntityKind k) : Entity(k) {}
+  explicit ScaledBuiltin(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsScaledBuiltin(entity->kind);
+    return rq::getIsScaledBuiltin(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct SignedInteger : public rq::Entity {
-  using Self = rq::SignedInteger;
+struct ScaledSignedInteger : public rq::ScaledBuiltin {
+  using Self = rq::ScaledSignedInteger;
 
-  SignedInteger() : Entity(rq::EntityKind::SY_SIGNED_INTEGER) {}
+  ScaledSignedInteger()
+      : ScaledBuiltin(rq::EntityKind::SY_SCALED_SIGNED_INTEGER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_SIGNED_INTEGER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_SCALED_SIGNED_INTEGER;
   }
 };
 
-struct UnsignedInteger : public rq::Entity {
-  using Self = rq::UnsignedInteger;
+struct ScaledUnsignedInteger : public rq::Entity {
+  using Self = rq::ScaledUnsignedInteger;
 
-  UnsignedInteger() : Entity(rq::EntityKind::SY_UNSIGNED_INTEGER) {}
+  ScaledUnsignedInteger()
+      : Entity(rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_UNSIGNED_INTEGER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER;
   }
 };
 
-struct UnarySubtype : public rq::Entity {
+struct UnarySubtype : public rq::Symbol {
   using Self = rq::UnarySubtype;
 
-  explicit UnarySubtype(rq::EntityKind k) : Entity(k) {}
+  explicit UnarySubtype(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsUnarySubtype(entity->kind);
+    return rq::getIsUnarySubtype(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Reference : public rq::Entity {
+struct Reference : public rq::UnarySubtype {
   using Self = rq::Reference;
 
-  Reference() : Entity(rq::EntityKind::SY_REFERENCE) {}
+  Reference() : UnarySubtype(rq::EntityKind::SY_REFERENCE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_REFERENCE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_REFERENCE;
   }
 };
 
-struct Pointer : public rq::Entity {
+struct Pointer : public rq::UnarySubtype {
   using Self = rq::Pointer;
 
-  Pointer() : Entity(rq::EntityKind::SY_POINTER) {}
+  Pointer() : UnarySubtype(rq::EntityKind::SY_POINTER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_POINTER;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_POINTER;
   }
 };
 
-struct FatPointer : public rq::Entity {
+struct FatPointer : public rq::UnarySubtype {
   using Self = rq::FatPointer;
 
-  FatPointer() : Entity(rq::EntityKind::SY_FAT_POINTER) {}
+  FatPointer() : UnarySubtype(rq::EntityKind::SY_FAT_POINTER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_FAT_POINTER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_FAT_POINTER;
   }
 };
 
-struct InferencedCountArray : public rq::Entity {
+struct InferencedCountArray : public rq::UnarySubtype {
   using Self = rq::InferencedCountArray;
 
-  InferencedCountArray() : Entity(rq::EntityKind::SY_INFERENCED_COUNT_ARRAY) {}
+  InferencedCountArray()
+      : UnarySubtype(rq::EntityKind::SY_INFERENCED_COUNT_ARRAY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_INFERENCED_COUNT_ARRAY;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_INFERENCED_COUNT_ARRAY;
   }
 };
 
-struct CountedSubtype : public rq::Entity {
+struct CountedSubtype : public rq::Symbol {
   using Self = rq::CountedSubtype;
 
-  explicit CountedSubtype(rq::EntityKind k) : Entity(k) {}
+  explicit CountedSubtype(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsCountedSubtype(entity->kind);
+    return rq::getIsCountedSubtype(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Array : public rq::Entity {
+struct Array : public rq::CountedSubtype {
   using Self = rq::Array;
 
-  Array() : Entity(rq::EntityKind::SY_ARRAY) {}
+  Array() : CountedSubtype(rq::EntityKind::SY_ARRAY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_ARRAY;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ARRAY;
   }
 };
 
-struct CompositeSubtype : public rq::Entity {
+struct CompositeSubtype : public rq::Symbol {
   using Self = rq::CompositeSubtype;
 
-  explicit CompositeSubtype(rq::EntityKind k) : Entity(k) {}
+  explicit CompositeSubtype(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsCompositeSubtype(entity->kind);
+    return rq::getIsCompositeSubtype(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Layout : public rq::Entity {
+struct Layout : public rq::CompositeSubtype {
   using Self = rq::Layout;
 
-  Layout() : Entity(rq::EntityKind::SY_LAYOUT) {}
+  Layout() : CompositeSubtype(rq::EntityKind::SY_LAYOUT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_LAYOUT;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LAYOUT;
   }
 };
 
-struct Signature : public rq::Entity {
+struct Signature : public rq::CompositeSubtype {
   using Self = rq::Signature;
 
-  Signature() : Entity(rq::EntityKind::SY_SIGNATURE) {}
+  Signature() : CompositeSubtype(rq::EntityKind::SY_SIGNATURE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_SIGNATURE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SIGNATURE;
   }
 };
 
-struct Extension : public rq::Entity {
+struct Extension : public rq::CompositeSubtype {
   using Self = rq::Extension;
 
-  Extension() : Entity(rq::EntityKind::SY_EXTENSION) {}
+  Extension() : CompositeSubtype(rq::EntityKind::SY_EXTENSION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_EXTENSION;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_EXTENSION;
   }
 };
 
-struct ArithmeticSequence : public rq::Entity {
+struct ArithmeticSequence : public rq::Symbol {
   using Self = rq::ArithmeticSequence;
 
-  explicit ArithmeticSequence(rq::EntityKind k) : Entity(k) {}
+  explicit ArithmeticSequence(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsArithmeticSequence(entity->kind);
+    return rq::getIsArithmeticSequence(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct ArithmeticInterval : public rq::Entity {
+struct ArithmeticInterval : public rq::ArithmeticSequence {
   using Self = rq::ArithmeticInterval;
 
-  ArithmeticInterval() : Entity(rq::EntityKind::SY_ARITHMETIC_INTERVAL) {}
+  ArithmeticInterval()
+      : ArithmeticSequence(rq::EntityKind::SY_ARITHMETIC_INTERVAL) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_ARITHMETIC_INTERVAL;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_ARITHMETIC_INTERVAL;
   }
 };
 
-struct FiniteArithmeticProgression : public rq::Entity {
+struct FiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::FiniteArithmeticProgression;
 
   FiniteArithmeticProgression()
-      : Entity(rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION) {}
+      : ArithmeticSequence(rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION;
   }
 };
 
-struct InfiniteArithmeticProgression : public rq::Entity {
+struct InfiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::InfiniteArithmeticProgression;
 
   InfiniteArithmeticProgression()
-      : Entity(rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION) {}
+      : ArithmeticSequence(rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION) {
+  }
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION;
   }
 };
 
-struct Synonym : public rq::Entity {
+struct Synonym : public rq::Symbol {
   using Self = rq::Synonym;
 
-  Synonym() : Entity(rq::EntityKind::SY_SYNONYM) {}
+  Synonym() : Symbol(rq::EntityKind::SY_SYNONYM) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_SYNONYM;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SYNONYM;
   }
 };
 
-struct Module : public rq::Entity {
+struct Module : public rq::Symbol {
   using Self = rq::Module;
 
-  Module() : Entity(rq::EntityKind::SY_MODULE) {}
+  Module() : Symbol(rq::EntityKind::SY_MODULE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_MODULE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_MODULE;
   }
 };
 
-struct Import : public rq::Entity {
+struct Import : public rq::Symbol {
   using Self = rq::Import;
 
-  Import() : Entity(rq::EntityKind::SY_IMPORT) {}
+  Import() : Symbol(rq::EntityKind::SY_IMPORT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_IMPORT;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_IMPORT;
   }
 };
 
-struct Code : public rq::Entity {
+struct Code : public rq::Symbol {
   using Self = rq::Code;
 
-  Code() : Entity(rq::EntityKind::SY_CODE) {}
+  Code() : Symbol(rq::EntityKind::SY_CODE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_CODE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CODE;
   }
 };
 
-struct CategoryDiscriminant : public rq::Entity {
+struct CategoryDiscriminant : public rq::Symbol {
   using Self = rq::CategoryDiscriminant;
 
-  CategoryDiscriminant() : Entity(rq::EntityKind::SY_CATEGORY_DISCRIMINANT) {}
+  CategoryDiscriminant() : Symbol(rq::EntityKind::SY_CATEGORY_DISCRIMINANT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_CATEGORY_DISCRIMINANT;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_CATEGORY_DISCRIMINANT;
   }
 };
 
-struct Label : public rq::Entity {
+struct Label : public rq::Symbol {
   using Self = rq::Label;
 
-  Label() : Entity(rq::EntityKind::SY_LABEL) {}
+  Label() : Symbol(rq::EntityKind::SY_LABEL) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_LABEL;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LABEL;
   }
 };
 
-struct DynamicVariable : public rq::Entity {
+struct DynamicVariable : public rq::Symbol {
   using Self = rq::DynamicVariable;
 
-  DynamicVariable() : Entity(rq::EntityKind::SY_DYNAMIC_VARIABLE) {}
+  DynamicVariable() : Symbol(rq::EntityKind::SY_DYNAMIC_VARIABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_DYNAMIC_VARIABLE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_DYNAMIC_VARIABLE;
   }
 };
 
-struct StaticVariable : public rq::Entity {
+struct StaticVariable : public rq::Symbol {
   using Self = rq::StaticVariable;
 
-  StaticVariable() : Entity(rq::EntityKind::SY_STATIC_VARIABLE) {}
+  StaticVariable() : Symbol(rq::EntityKind::SY_STATIC_VARIABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_STATIC_VARIABLE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_STATIC_VARIABLE;
   }
 };
 
-struct Enumerator : public rq::Entity {
+struct Enumerator : public rq::Symbol {
   using Self = rq::Enumerator;
 
-  Enumerator() : Entity(rq::EntityKind::SY_ENUMERATOR) {}
+  Enumerator() : Symbol(rq::EntityKind::SY_ENUMERATOR) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_ENUMERATOR;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_ENUMERATOR;
   }
 };
 
-struct CategoryAlternative : public rq::Entity {
+struct CategoryAlternative : public rq::Symbol {
   using Self = rq::CategoryAlternative;
 
-  CategoryAlternative() : Entity(rq::EntityKind::SY_CATEGORY_ALTERNATIVE) {}
+  CategoryAlternative() : Symbol(rq::EntityKind::SY_CATEGORY_ALTERNATIVE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_CATEGORY_ALTERNATIVE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_CATEGORY_ALTERNATIVE;
   }
 };
 
-struct ClassParameter : public rq::Entity {
+struct ClassParameter : public rq::Symbol {
   using Self = rq::ClassParameter;
 
-  ClassParameter() : Entity(rq::EntityKind::SY_CLASS_PARAMETER) {}
+  ClassParameter() : Symbol(rq::EntityKind::SY_CLASS_PARAMETER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_CLASS_PARAMETER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_CLASS_PARAMETER;
   }
 };
 
-struct LayoutParameter : public rq::Entity {
+struct LayoutParameter : public rq::Symbol {
   using Self = rq::LayoutParameter;
 
-  LayoutParameter() : Entity(rq::EntityKind::SY_LAYOUT_PARAMETER) {}
+  LayoutParameter() : Symbol(rq::EntityKind::SY_LAYOUT_PARAMETER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_LAYOUT_PARAMETER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_LAYOUT_PARAMETER;
   }
 };
 
-struct TemplateParameter : public rq::Entity {
+struct TemplateParameter : public rq::Symbol {
   using Self = rq::TemplateParameter;
 
-  TemplateParameter() : Entity(rq::EntityKind::SY_TEMPLATE_PARAMETER) {}
+  TemplateParameter() : Symbol(rq::EntityKind::SY_TEMPLATE_PARAMETER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_PARAMETER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_PARAMETER;
   }
 };
 
-struct SignatureParameter : public rq::Entity {
+struct SignatureParameter : public rq::Symbol {
   using Self = rq::SignatureParameter;
 
-  SignatureParameter() : Entity(rq::EntityKind::SY_SIGNATURE_PARAMETER) {}
+  SignatureParameter() : Symbol(rq::EntityKind::SY_SIGNATURE_PARAMETER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_SIGNATURE_PARAMETER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_SIGNATURE_PARAMETER;
   }
 };
 
-struct SymbolTable : public rq::Entity {
+struct SymbolTable : public rq::Symbol {
   using Self = rq::SymbolTable;
 
-  explicit SymbolTable(rq::EntityKind k) : Entity(k) {}
+  explicit SymbolTable(rq::EntityKind k) : Symbol(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsSymbolTable(entity->kind);
+    return rq::getIsSymbolTable(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Top : public rq::Entity {
+struct Top : public rq::SymbolTable {
   using Self = rq::Top;
 
-  Top() : Entity(rq::EntityKind::SY_TOP) {}
+  Top() : SymbolTable(rq::EntityKind::SY_TOP) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TOP;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_TOP;
   }
 };
 
-struct Scope : public rq::Entity {
+struct Scope : public rq::SymbolTable {
   using Self = rq::Scope;
 
-  Scope() : Entity(rq::EntityKind::SY_SCOPE) {}
+  Scope() : SymbolTable(rq::EntityKind::SY_SCOPE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_SCOPE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SCOPE;
   }
 };
 
-struct Table : public rq::Entity {
+struct Table : public rq::SymbolTable {
   using Self = rq::Table;
 
-  Table() : Entity(rq::EntityKind::SY_TABLE) {}
+  Table() : SymbolTable(rq::EntityKind::SY_TABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TABLE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_TABLE;
   }
 };
 
-struct Class : public rq::Entity {
+struct Class : public rq::SymbolTable {
   using Self = rq::Class;
 
-  Class() : Entity(rq::EntityKind::SY_CLASS) {}
+  Class() : SymbolTable(rq::EntityKind::SY_CLASS) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_CLASS;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CLASS;
   }
 };
 
-struct Enumeration : public rq::Entity {
+struct Enumeration : public rq::SymbolTable {
   using Self = rq::Enumeration;
 
-  Enumeration() : Entity(rq::EntityKind::SY_ENUMERATION) {}
+  Enumeration() : SymbolTable(rq::EntityKind::SY_ENUMERATION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_ENUMERATION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_ENUMERATION;
   }
 };
 
-struct Category : public rq::Entity {
+struct Category : public rq::SymbolTable {
   using Self = rq::Category;
 
-  Category() : Entity(rq::EntityKind::SY_CATEGORY) {}
+  Category() : SymbolTable(rq::EntityKind::SY_CATEGORY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_CATEGORY;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CATEGORY;
   }
 };
 
-struct Entry : public rq::Entity {
+struct Procedure : public rq::SymbolTable {
+  using Self = rq::Procedure;
+
+  explicit Procedure(rq::EntityKind k) : SymbolTable(k) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::getIsProcedure(rq::dereferencePtr(entity).getKind());
+  }
+};
+
+struct Entry : public rq::Procedure {
   using Self = rq::Entry;
 
-  Entry() : Entity(rq::EntityKind::SY_ENTRY) {}
+  Entry() : Procedure(rq::EntityKind::SY_ENTRY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_ENTRY;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ENTRY;
   }
 };
 
-struct Function : public rq::Entity {
+struct Function : public rq::Procedure {
   using Self = rq::Function;
 
-  Function() : Entity(rq::EntityKind::SY_FUNCTION) {}
+  Function() : Procedure(rq::EntityKind::SY_FUNCTION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_FUNCTION;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_FUNCTION;
   }
 };
 
-struct Method : public rq::Entity {
+struct Method : public rq::Procedure {
   using Self = rq::Method;
 
-  Method() : Entity(rq::EntityKind::SY_METHOD) {}
+  Method() : Procedure(rq::EntityKind::SY_METHOD) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_METHOD;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_METHOD;
   }
 };
 
-struct ExtensionFunction : public rq::Entity {
-  using Self = rq::ExtensionFunction;
-
-  ExtensionFunction() : Entity(rq::EntityKind::SY_EXTENSION_FUNCTION) {}
-
-  static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_EXTENSION_FUNCTION;
-  }
-};
-
-struct ExtensionMethod : public rq::Entity {
-  using Self = rq::ExtensionMethod;
-
-  ExtensionMethod() : Entity(rq::EntityKind::SY_EXTENSION_METHOD) {}
-
-  static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_EXTENSION_METHOD;
-  }
-};
-
-struct Ranger : public rq::Entity {
+struct Ranger : public rq::Procedure {
   using Self = rq::Ranger;
 
-  Ranger() : Entity(rq::EntityKind::SY_RANGER) {}
+  Ranger() : Procedure(rq::EntityKind::SY_METHOD) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_RANGER;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RANGER;
+  }
+};
+
+struct ExtensionFunction : public rq::Procedure {
+  using Self = rq::ExtensionFunction;
+
+  ExtensionFunction() : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_EXTENSION_FUNCTION;
+  }
+};
+
+struct ExtensionMethod : public rq::Procedure {
+  using Self = rq::ExtensionMethod;
+
+  ExtensionMethod() : Procedure(rq::EntityKind::SY_EXTENSION_METHOD) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_EXTENSION_METHOD;
+  }
+};
+
+struct ExtnsionRanger : public rq::Procedure {
+  using Self = rq::Ranger;
+
+  ExtnsionRanger() : Procedure(rq::EntityKind::SY_RANGER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RANGER;
   }
 };
 
@@ -1226,101 +2118,133 @@ struct Template : public rq::Entity {
   explicit Template(rq::EntityKind k) : Entity(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsTemplate(entity->kind);
+    return rq::getIsTemplate(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct TemplateClass : public rq::Entity {
+struct TemplateClass : public rq::Template {
   using Self = rq::TemplateClass;
 
-  TemplateClass() : Entity(rq::EntityKind::SY_TEMPLATE_CLASS) {}
+  TemplateClass() : Template(rq::EntityKind::SY_TEMPLATE_CLASS) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_CLASS;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_CLASS;
   }
 };
 
-struct TemplateEnumeration : public rq::Entity {
+struct TemplateEnumeration : public rq::Template {
   using Self = rq::TemplateEnumeration;
 
-  TemplateEnumeration() : Entity(rq::EntityKind::SY_TEMPLATE_ENUMERATION) {}
+  TemplateEnumeration() : Template(rq::EntityKind::SY_TEMPLATE_ENUMERATION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_ENUMERATION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_ENUMERATION;
   }
 };
 
-struct TemplateCategory : public rq::Entity {
+struct TemplateCategory : public rq::Template {
   using Self = rq::TemplateCategory;
 
-  TemplateCategory() : Entity(rq::EntityKind::SY_TEMPLATE_CATEGORY) {}
+  TemplateCategory() : Template(rq::EntityKind::SY_TEMPLATE_CATEGORY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_CATEGORY;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_CATEGORY;
   }
 };
 
-struct TemplateDynamicVariable : public rq::Entity {
+struct TemplateDynamicVariable : public rq::Template {
   using Self = rq::TemplateDynamicVariable;
 
   TemplateDynamicVariable()
-      : Entity(rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE) {}
+      : Template(rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE;
   }
 };
 
-struct TemplateStaticVariable : public rq::Entity {
+struct TemplateStaticVariable : public rq::Template {
   using Self = rq::TemplateStaticVariable;
 
   TemplateStaticVariable()
-      : Entity(rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE) {}
+      : Template(rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE;
   }
 };
 
-struct TemplateFunction : public rq::Entity {
+struct TemplateFunction : public rq::Template {
   using Self = rq::TemplateFunction;
 
-  TemplateFunction() : Entity(rq::EntityKind::SY_TEMPLATE_FUNCTION) {}
+  TemplateFunction() : Template(rq::EntityKind::SY_TEMPLATE_FUNCTION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_FUNCTION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_FUNCTION;
   }
 };
 
-struct TemplateMethod : public rq::Entity {
+struct TemplateMethod : public rq::Template {
   using Self = rq::TemplateMethod;
 
-  TemplateMethod() : Entity(rq::EntityKind::SY_TEMPLATE_METHOD) {}
+  TemplateMethod() : Template(rq::EntityKind::SY_TEMPLATE_METHOD) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_METHOD;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_METHOD;
   }
 };
 
-struct TemplateExtensionFunction : public rq::Entity {
+struct TemplateRanger : public rq::Template {
+  using Self = rq::TemplateRanger;
+
+  TemplateRanger() : Template(rq::EntityKind::SY_TEMPLATE_RANGER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_RANGER;
+  }
+};
+
+struct TemplateExtensionFunction : public rq::Template {
   using Self = rq::TemplateExtensionFunction;
 
   TemplateExtensionFunction()
-      : Entity(rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION) {}
+      : Template(rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION;
   }
 };
 
-struct TemplateExtensionMethod : public rq::Entity {
+struct TemplateExtensionMethod : public rq::Template {
   using Self = rq::TemplateExtensionMethod;
 
   TemplateExtensionMethod()
-      : Entity(rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD) {}
+      : Template(rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD;
+  }
+};
+
+struct TemplateExtensionRanger : public rq::Template {
+  using Self = rq::TemplateExtensionRanger;
+
+  TemplateExtensionRanger()
+      : Template(rq::EntityKind::SY_TEMPLATE_EXTENSION_RANGER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_EXTENSION_RANGER;
   }
 };
 
@@ -1330,101 +2254,132 @@ struct Partial : public rq::Entity {
   explicit Partial(rq::EntityKind k) : Entity(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsPartial(entity->kind);
+    return rq::getIsPartial(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct PartialClass : public rq::Entity {
+struct PartialClass : public rq::Partial {
   using Self = rq::PartialClass;
 
-  PartialClass() : Entity(rq::EntityKind::SY_PARTIAL_CLASS) {}
+  PartialClass() : Partial(rq::EntityKind::SY_PARTIAL_CLASS) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_CLASS;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_CLASS;
   }
 };
 
-struct PartialEnumeration : public rq::Entity {
+struct PartialEnumeration : public rq::Partial {
   using Self = rq::PartialEnumeration;
 
-  PartialEnumeration() : Entity(rq::EntityKind::SY_PARTIAL_ENUMERATION) {}
+  PartialEnumeration() : Partial(rq::EntityKind::SY_PARTIAL_ENUMERATION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_ENUMERATION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_ENUMERATION;
   }
 };
 
-struct PartialCategory : public rq::Entity {
+struct PartialCategory : public rq::Partial {
   using Self = rq::PartialCategory;
 
-  PartialCategory() : Entity(rq::EntityKind::SY_PARTIAL_CATEGORY) {}
+  PartialCategory() : Partial(rq::EntityKind::SY_PARTIAL_CATEGORY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_CATEGORY;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_CATEGORY;
   }
 };
 
-struct PartialDynamicVariable : public rq::Entity {
+struct PartialDynamicVariable : public rq::Partial {
   using Self = rq::PartialDynamicVariable;
 
   PartialDynamicVariable()
-      : Entity(rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE) {}
+      : Partial(rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE;
   }
 };
 
-struct PartialStaticVariable : public rq::Entity {
+struct PartialStaticVariable : public rq::Partial {
   using Self = rq::PartialStaticVariable;
 
   PartialStaticVariable()
-      : Entity(rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE) {}
+      : Partial(rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE;
   }
 };
 
-struct PartialFunction : public rq::Entity {
+struct PartialFunction : public rq::Partial {
   using Self = rq::PartialFunction;
 
-  PartialFunction() : Entity(rq::EntityKind::SY_PARTIAL_FUNCTION) {}
+  PartialFunction() : Partial(rq::EntityKind::SY_PARTIAL_FUNCTION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_FUNCTION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_FUNCTION;
   }
 };
 
-struct PartialMethod : public rq::Entity {
+struct PartialMethod : public rq::Partial {
   using Self = rq::PartialMethod;
 
-  PartialMethod() : Entity(rq::EntityKind::SY_PARTIAL_METHOD) {}
+  PartialMethod() : Partial(rq::EntityKind::SY_PARTIAL_METHOD) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_METHOD;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_METHOD;
   }
 };
 
-struct PartialExtensionFunction : public rq::Entity {
+struct PartialRanger : public rq::Partial {
+  using Self = rq::PartialRanger;
+
+  PartialRanger() : Partial(rq::EntityKind::SY_PARTIAL_METHOD) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_METHOD;
+  }
+};
+
+struct PartialExtensionFunction : public rq::Partial {
   using Self = rq::PartialExtensionFunction;
 
   PartialExtensionFunction()
-      : Entity(rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION) {}
+      : Partial(rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION;
   }
 };
 
-struct PartialExtensionMethod : public rq::Entity {
+struct PartialExtensionMethod : public rq::Partial {
   using Self = rq::PartialExtensionMethod;
 
   PartialExtensionMethod()
-      : Entity(rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD) {}
+      : Partial(rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD;
+  }
+};
+
+struct PartialExtensionRanger : public rq::Partial {
+  using Self = rq::PartialExtensionRanger;
+
+  PartialExtensionRanger() : Partial(rq::EntityKind::SY_PARTIAL_METHOD) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_METHOD;
   }
 };
 
@@ -1434,77 +2389,78 @@ struct Constant : public rq::Entity {
   explicit Constant(rq::EntityKind k) : Entity(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsConstant(entity->kind);
+    return rq::getIsConstant(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct TypeConstant : public rq::Entity {
+struct TypeConstant : public rq::Constant {
   using Self = rq::TypeConstant;
 
-  TypeConstant() : Entity(rq::EntityKind::CT_TYPE) {}
+  TypeConstant() : Constant(rq::EntityKind::CT_TYPE) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_TYPE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::CT_TYPE;
   }
 };
 
-struct ExpressionConstant : public rq::Entity {
+struct ExpressionConstant : public rq::Constant {
   using Self = rq::ExpressionConstant;
 
-  ExpressionConstant() : Entity(rq::EntityKind::CT_EXPRESSION) {}
+  ExpressionConstant() : Constant(rq::EntityKind::CT_EXPRESSION) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_EXPRESSION;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::CT_EXPRESSION;
   }
 };
 
-struct BooleanConstant : public rq::Entity {
+struct BooleanConstant : public rq::Constant {
   using Self = rq::BooleanConstant;
 
-  BooleanConstant() : Entity(rq::EntityKind::CT_BOOLEAN) {}
+  BooleanConstant() : Constant(rq::EntityKind::CT_BOOLEAN) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_BOOLEAN;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::CT_BOOLEAN;
   }
 };
 
-struct IntegerConstant : public rq::Entity {
+struct IntegerConstant : public rq::Constant {
   using Self = rq::IntegerConstant;
 
-  IntegerConstant() : Entity(rq::EntityKind::CT_INTEGER) {}
+  IntegerConstant() : Constant(rq::EntityKind::CT_INTEGER) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_INTEGER;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::CT_INTEGER;
   }
 };
 
-struct FloatConstant : public rq::Entity {
+struct FloatConstant : public rq::Constant {
   using Self = rq::FloatConstant;
 
-  FloatConstant() : Entity(rq::EntityKind::CT_FLOAT) {}
+  FloatConstant() : Constant(rq::EntityKind::CT_FLOAT) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_FLOAT;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::CT_FLOAT;
   }
 };
 
-struct StringConstant : public rq::Entity {
+struct StringConstant : public rq::Constant {
   using Self = rq::StringConstant;
 
-  StringConstant() : Entity(rq::EntityKind::CT_STRING) {}
+  StringConstant() : Constant(rq::EntityKind::CT_STRING) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_STRING;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::CT_STRING;
   }
 };
 
-struct ArrayConstant : public rq::Entity {
+struct ArrayConstant : public rq::Constant {
   using Self = rq::ArrayConstant;
 
-  ArrayConstant() : Entity(rq::EntityKind::CT_ARRAY) {}
+  ArrayConstant() : Constant(rq::EntityKind::CT_ARRAY) {}
 
   static bool classof(const Entity *entity) {
-    return entity->kind == rq::EntityKind::CT_ARRAY;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::CT_ARRAY;
   }
 };
 
@@ -1514,7 +2470,7 @@ struct Instruction : public rq::Entity {
   explicit Instruction(rq::EntityKind k) : Entity(k) {}
 
   static bool classof(const Entity *entity) {
-    return rq::getIsOpcode(entity->kind);
+    return rq::getIsOpcode(rq::dereferencePtr(entity).getKind());
   }
 };
 
