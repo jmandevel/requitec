@@ -11,7 +11,7 @@
 namespace rq {
 
 struct Context;
-struct ModuleSymbol;
+struct Module;
 
 struct Situator final {
   using Self = rq::Situator;
@@ -27,8 +27,8 @@ struct Situator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return this->_context_ref.get();
   }
-  [[nodiscard]] rq::Expression &makeModuleTrunk(rq::ModuleSymbol &module);
-  [[nodiscard]] bool situateModule(rq::ModuleSymbol &module);
+  [[nodiscard]] rq::Expression &makeModuleTrunk(rq::Module &module);
+  [[nodiscard]] bool situateModule(rq::Module &module);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
   [[nodiscard]] bool situateExpressionBranch(rq::Situation branch_situation,

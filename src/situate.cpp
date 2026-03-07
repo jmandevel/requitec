@@ -10,7 +10,7 @@
 
 namespace rq {
 
-rq::Expression &Situator::makeModuleTrunk(rq::ModuleSymbol &module) {
+rq::Expression &Situator::makeModuleTrunk(rq::Module &module) {
   rq::Expression &trunk = this->getContext().acquireExpression();
   trunk.setIsInserted();
   trunk.setSource(module);
@@ -18,7 +18,7 @@ rq::Expression &Situator::makeModuleTrunk(rq::ModuleSymbol &module) {
   return trunk;
 }
 
-bool Situator::situateModule(rq::ModuleSymbol &module) {
+bool Situator::situateModule(rq::Module &module) {
   if (!module.getHasExpression()) {
     rq::Expression &trunk = this->makeModuleTrunk(module);
     module.setExpression(trunk);
@@ -61,9 +61,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::RIGHT_INTERPOLATION_LITERAL:
     [[fallthrough]];
   case K::CODEUNIT_LITERAL:
-    RQ_ASSERT(!expression.getHasBranch(), "has branch");
-    break;
+    [[fallthrough]];
   case K::IDENTIFIER_LITERAL:
+    RQ_ASSERT(!expression.getHasBranch(), "has branch");
     break;
 
   // ERRORS

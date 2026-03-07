@@ -1,7 +1,7 @@
 #pragma once
 
-#include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/PointerIntPair.h>
+#include <llvm/ADT/StringRef.h>
 
 #include <cstdint>
 #include <format>
@@ -38,11 +38,11 @@ struct AssertException final : public std::logic_error {
 #if !defined(_NDEBUG)
 #define RQ_ASSERT(condition, reason)                                           \
   if (!(condition)) {                                                          \
-    throw rq::AssertException(#condition, reason);                            \
+    throw rq::AssertException(#condition, reason);                             \
   }
 #define RQ_ASSERT_LOCATION(condition, reason, location)                        \
   if (!(condition)) {                                                          \
-    throw rq::AssertException(#condition, reason, location);                  \
+    throw rq::AssertException(#condition, reason, location);                   \
   }
 #else
 #define RQ_ASSERT(condition, reason)
@@ -102,6 +102,23 @@ RQ_ALWAYS_INLINE void assignSingleValue(
   RQ_ASSERT_LOCATION(dest_ptr == nullptr, "single value reassignment",
                      source_location);
   dest_ptr = src_ptr;
+}
+
+template <typename TypeParam>
+RQ_ALWAYS_INLINE TypeParam &replaceValue(
+    TypeParam *&dest_ptr, TypeParam *src_ptr,
+    std::source_location source_location = std::source_location::current()) {
+  TypeParam &old = rq::dereferencePtr(dest_ptr, source_location);
+  dest_ptr = src_ptr;
+  return old;
+}
+
+template <typename TypeParam>
+RQ_ALWAYS_INLINE TypeParam *replaceValuPtr(TypeParam *&dest_ptr,
+                                           TypeParam *src_ptr) {
+  TypeParam *old_ptr = dest_ptr;
+  dest_ptr = src_ptr;
+  return old_ptr;
 }
 
 template <typename FlagsParam> struct is_flags final : std::false_type {};
@@ -181,18 +198,18 @@ operator^(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
 }
 
 template <rq::flags FlagsParam>
-RQ_ALWAYS_INLINE constexpr FlagsParam& operator|=(FlagsParam& lhs,
-                                                              FlagsParam rhs) {
-  lhs = static_cast<FlagsParam>(rq::getUnderlying(lhs) |
-                                 rq::getUnderlying(rhs));
+RQ_ALWAYS_INLINE constexpr FlagsParam &operator|=(FlagsParam &lhs,
+                                                  FlagsParam rhs) {
+  lhs =
+      static_cast<FlagsParam>(rq::getUnderlying(lhs) | rq::getUnderlying(rhs));
   return lhs;
 }
 
 template <rq::flags FlagsParam>
-RQ_ALWAYS_INLINE constexpr FlagsParam& operator&=(FlagsParam& lhs,
-                                                              FlagsParam rhs) {
-  lhs = static_cast<FlagsParam>(rq::getUnderlying(lhs) &
-                                 rq::getUnderlying(rhs));
+RQ_ALWAYS_INLINE constexpr FlagsParam &operator&=(FlagsParam &lhs,
+                                                  FlagsParam rhs) {
+  lhs =
+      static_cast<FlagsParam>(rq::getUnderlying(lhs) & rq::getUnderlying(rhs));
   return lhs;
 }
 
@@ -288,28 +305,28 @@ struct ErrorCategory final : public std::error_category {
   return std::error_code{static_cast<int>(error), rq::getErrorCategory()};
 }
 
-template<typename TypeParam, unsigned FLAG_BITS_PARAM, typename FlagsParam>
+template <typename TypeParam, unsigned FLAG_BITS_PARAM, typename FlagsParam>
 struct PtrWithFlags {
   using Type = TypeParam;
   static constexpr unsigned FLAG_BITS = FLAG_BITS_PARAM;
   using Flags = FlagsParam;
   using Self = rq::PtrWithFlags<Type, FLAG_BITS, Flags>;
 #if defined(_NDEBUG)
-  llvm::PointerIntPair<Type*, FLAG_BITS, Flags> _ptr_int_pair;
+  llvm::PointerIntPair<Type *, FLAG_BITS, Flags> _ptr_int_pair;
 #else
-  Type* _ptr{nullptr};
+  Type *_ptr{nullptr};
   Flags _flags{};
 #endif
 
   PtrWithFlags() = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE Type* const& getPtr() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE Type *const &getPtr() const {
 #if defined(_NDEBUG)
     return this->_ptr_int_pair.getPointer();
 #else
     return this->_ptr;
 #endif
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Type*& getPtr() {
+  [[nodiscard]] RQ_ALWAYS_INLINE Type *&getPtr() {
 #if defined(_NDEBUG)
     return _ptr_int_pair.getPointer();
 #else
@@ -323,7 +340,7 @@ struct PtrWithFlags {
     return this->_flags;
 #endif
   }
-  RQ_ALWAYS_INLINE void setPtr(Type* ptr) {
+  RQ_ALWAYS_INLINE void setPtr(Type *ptr) {
 #if defined(_NDEBUG)
     this->_ptr_int_pair.setPointer(ptr);
 #else

@@ -10,7 +10,7 @@
 
 namespace rq {
 
-// Nodes represent individual expressions in the AST. Each is identified by a
+// Expression represents individual expressions in the AST. Each is identified by a
 // keyword.
 
 enum class Keyword : std::uint32_t {
@@ -2543,7 +2543,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   AUTO_DROP,
   DEFER,
   OK,
-  MESSAGE
+  MESSAGE,
+  LAST
 };
 
 [[nodiscard]] inline llvm::StringRef
@@ -2609,6 +2610,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "ok";
   case SA::MESSAGE:
     return "message";
+  case SA::LAST:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -2779,6 +2782,8 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::OK;
   case SA::MESSAGE:
     return SF::MESSAGE;
+  case SA::LAST:
+    break;
   }
   return SF::NONE;
 }

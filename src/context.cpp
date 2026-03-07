@@ -11,6 +11,7 @@
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/MC/TargetRegistry.h>
@@ -26,7 +27,7 @@
 
 namespace rq {
 
-bool Context::validateSourceText(const rq::ModuleSymbol &module) {
+bool Context::validateSourceText(const rq::Module &module) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
   llvm::SMLoc extended_char_start;
@@ -57,7 +58,7 @@ bool Context::validateSourceText(const rq::ModuleSymbol &module) {
   return is_ok;
 }
 
-bool Context::tokenizeSourceText(const rq::ModuleSymbol &module,
+bool Context::tokenizeSourceText(const rq::Module &module,
                                  std::vector<rq::Token> &tokens) {
   rq::Tokenizer tokenizer(*this, module.getSourceText(), tokens);
   const bool is_ok = tokenizer.tokenizeSourceText();
@@ -155,16 +156,16 @@ bool Context::loadSourceModule() {
     return false;
   }
   llvm::StringRef final_path = this->saveString(input_path);
-  rq::ModuleSymbol &source_module = this->allocateValue<rq::ModuleSymbol>(
+  rq::Module &source_module = this->allocateValue<rq::Module>(
       rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
-  this->_module_map.insert(std::pair<llvm::StringRef, rq::ModuleSymbol *>(
+  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       input_path, &this->getSourceModule()));
   return true;
 }
 
-rq::ModuleSymbol *Context::loadImportModule(rq::Expression &expression,
-                                            llvm::StringRef import_string) {
+rq::Module *Context::loadImportModule(rq::Expression &expression,
+                                      llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
   for (const std::string &dir : rq::getImportDirectories()) {
@@ -197,9 +198,9 @@ rq::ModuleSymbol *Context::loadImportModule(rq::Expression &expression,
     return nullptr;
   }
   llvm::StringRef final_path = this->saveString(found_path);
-  rq::ModuleSymbol &import_module = this->allocateValue<rq::ModuleSymbol>(
+  rq::Module &import_module = this->allocateValue<rq::Module>(
       rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
-  this->_module_map.insert(std::pair<llvm::StringRef, rq::ModuleSymbol *>(
+  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
 }
@@ -276,7 +277,7 @@ bool Context::run() {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
-    if (!this->emitSymbol(rq::getOutputFilePath(), this->getTopScope())) {
+    if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
       return false;
     }
     return true;
@@ -305,7 +306,7 @@ bool Context::run() {
   RQ_UNREACHABLE();
 }
 
-bool Context::parseRequite(rq::ModuleSymbol &module,
+bool Context::parseRequite(rq::Module &module,
                            const std::vector<rq::Token> &tokens) {
   rq::RequiteParser parser(*this, tokens);
   rq::Expression *root_ptr = parser.parseExpressions();
@@ -313,13 +314,13 @@ bool Context::parseRequite(rq::ModuleSymbol &module,
   return parser.getIsOk();
 }
 
-bool Context::situateModule(rq::ModuleSymbol &module) {
+bool Context::situateModule(rq::Module &module) {
   rq::Situator situator(*this);
   const bool is_ok = situator.situateModule(module);
   return is_ok;
 }
 
-bool Context::tabulateModule(rq::ModuleSymbol &module) {
+bool Context::tabulateModule(rq::Module &module) {
   rq::Tabulator tabulator(*this, module);
   tabulator.tabulateModule();
   return tabulator.getIsOk();
@@ -492,18 +493,12 @@ static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
 }
 
 static void emitAttributes(rq::JsonEmitter &json,
-                           const rq::detail::HasAttributesSymbol &symbol) {
+                           const rq::InitialExpressionAttributes &symbol) {
   json.beginArray("attributes");
-  using SA = rq::ExpressionAttribute;
-  constexpr SA attributes[] = {
-      SA::OPAQUE,    SA::OUTSIDE,     SA::STATIC,   SA::CAPTURE,
-      SA::EAGER,     SA::MAY_PARENT,  SA::PARENT,   SA::ABSTRACT,
-      SA::VIRTUAL,   SA::OVERRIDE,    SA::POSITION, SA::MANGLE,
-      SA::PACK,      SA::LABEL,       SA::TEMPLATE, SA::LIKELY,
-      SA::UNLIKELY,  SA::DEPRECIATED, SA::EXPORT,   SA::PUBLIC,
-      SA::PROTECTED, SA::MAY_COPY,    SA::MAY_MOVE, SA::OK,
-  };
-  for (SA attribute : attributes) {
+  using EA = rq::ExpressionAttribute;
+  for (unsigned attribute_i = static_cast<unsigned>(EA::NONE) + 1;
+       attribute_i < static_cast<unsigned>(EA::LAST); attribute_i++) {
+    EA attribute = static_cast<EA>(attribute_i);
     if (symbol.getHasAttribute(attribute)) {
       json.emitString(rq::getName(attribute));
     }
@@ -520,7 +515,7 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 }
 
 static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
-                            const rq::SymbolTableSymbol &table) {
+                            const rq::SymbolTable &table) {
   json.beginArray("named");
   for (const auto &[name, list] : table.getNamedListRange()) {
     json.beginObject();
@@ -546,60 +541,58 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
   json.emitString("kind", rq::getName(symbol.getKind()));
   switch (symbol.getKind()) {
   case rq::EntityKind::SY_IMPORT: {
-    const auto &import = llvm::cast<rq::ImportSymbol>(symbol);
+    const auto &import = llvm::cast<rq::Import>(symbol);
     rq::emitModuleMemberSymbol(context, json, import);
   } break;
   case rq::EntityKind::SY_DYNAMIC_VARIABLE: {
-    const auto &variable = llvm::cast<rq::DynamicVariableSymbol>(symbol);
+    const auto &variable = llvm::cast<rq::DynamicVariable>(symbol);
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
   case rq::EntityKind::SY_TABLE: {
-    const auto &table = llvm::cast<rq::TableSymbol>(symbol);
+    const auto &table = llvm::cast<rq::Table>(symbol);
     json.emitString("name", table.getName());
   } break;
   case rq::EntityKind::SY_CLASS: {
-    const auto &class_ = llvm::cast<rq::ClassSymbol>(symbol);
+    const auto &class_ = llvm::cast<rq::Class>(symbol);
     json.emitString("name", class_.getName());
     rq::emitModuleMemberSymbol(context, json, class_);
   } break;
   case rq::EntityKind::SY_ENUMERATION: {
-    const auto &enumeration = llvm::cast<rq::EnumerationSymbol>(symbol);
+    const auto &enumeration = llvm::cast<rq::Enumeration>(symbol);
     json.emitString("name", enumeration.getName());
     rq::emitModuleMemberSymbol(context, json, enumeration);
   } break;
   case rq::EntityKind::SY_ENTRY: {
-    const auto &entry = llvm::cast<rq::EntrySymbol>(symbol);
+    const auto &entry = llvm::cast<rq::Entry>(symbol);
     rq::emitModuleMemberSymbol(context, json, entry);
   } break;
   case rq::EntityKind::SY_FUNCTION: {
-    const auto &function = llvm::cast<rq::FunctionSymbol>(symbol);
+    const auto &function = llvm::cast<rq::Function>(symbol);
     json.emitString("name", function.getName());
     rq::emitModuleMemberSymbol(context, json, function);
   } break;
   case rq::EntityKind::SY_METHOD: {
-    const auto &method = llvm::cast<rq::MethodSymbol>(symbol);
+    const auto &method = llvm::cast<rq::Method>(symbol);
     json.emitString("name", method.getName());
     rq::emitModuleMemberSymbol(context, json, method);
   } break;
+  case rq::EntityKind::SY_RANGER: {
+    const auto &ranger = llvm::cast<rq::Ranger>(symbol);
+    rq::emitModuleMemberSymbol(context, json, ranger);
+  } break;
   case rq::EntityKind::SY_EXTENSION_FUNCTION: {
-    const auto &extension_function =
-        llvm::cast<rq::ExtensionFunctionSymbol>(symbol);
+    const auto &extension_function = llvm::cast<rq::ExtensionFunction>(symbol);
     json.emitString("name", extension_function.getName());
     rq::emitModuleMemberSymbol(context, json, extension_function);
   } break;
   case rq::EntityKind::SY_EXTENSION_METHOD: {
-    const auto &extension_method =
-        llvm::cast<rq::ExtensionMethodSymbol>(symbol);
+    const auto &extension_method = llvm::cast<rq::ExtensionMethod>(symbol);
     json.emitString("name", extension_method.getName());
     rq::emitModuleMemberSymbol(context, json, extension_method);
   } break;
-  case rq::EntityKind::SY_RANGER: {
-    const auto &ranger = llvm::cast<rq::RangerSymbol>(symbol);
-    rq::emitModuleMemberSymbol(context, json, ranger);
-  } break;
   case rq::EntityKind::SY_TOP: {
-    const auto &top = llvm::cast<rq::TopSymbol>(symbol);
+    const auto &top = llvm::cast<rq::Top>(symbol);
     rq::emitSymbolTable(context, json, top);
   } break;
   default:
@@ -976,7 +969,8 @@ void Context::logErrorUnexpectedChainLinkExpression(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotDeterminateStaticValue(const rq::Expression &expression) {
+void Context::logErrorNotDeterminateStaticValue(
+    const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expression.getName() + " is not determinate static value",
                    {expression.getLlvmSourceRange()}, {});

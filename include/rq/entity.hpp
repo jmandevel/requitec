@@ -130,9 +130,10 @@ enum class EntityKind : std::uint16_t {
   SY_ENTRY,
   SY_FUNCTION,
   SY_METHOD,
+  SY_RANGER,
   SY_EXTENSION_FUNCTION,
   SY_EXTENSION_METHOD,
-  SY_RANGER,
+  SY_EXTENSION_RANGER,
 
   // TEMPLATE
   SY_TEMPLATE_CLASS,
@@ -365,12 +366,14 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_function";
   case E::SY_METHOD:
     return "sy_method";
+  case E::SY_RANGER:
+    return "sy_ranger";
   case E::SY_EXTENSION_FUNCTION:
     return "sy_extension_function";
   case E::SY_EXTENSION_METHOD:
     return "sy_extension_method";
-  case E::SY_RANGER:
-    return "sy_ranger";
+  case E::SY_EXTENSION_RANGER:
+    return "sy_extension_ranger";
   case E::SY_TEMPLATE_CLASS:
     return "sy_template_class";
   case E::SY_TEMPLATE_ENUMERATION:
@@ -741,13 +744,16 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_METHOD:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
+  case E::SY_RANGER:
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
+           EF::SY_TOP_OF_FRAME;
   case E::SY_EXTENSION_FUNCTION:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
   case E::SY_EXTENSION_METHOD:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
-  case E::SY_RANGER:
+  case E::SY_EXTENSION_RANGER:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
   case E::SY_TEMPLATE_CLASS:
@@ -1069,11 +1075,59 @@ getHasTemplateAlternative(rq::EntityKind kind) {
   case E::SY_PARTIAL_ENUMERATION:
     return E::SY_TEMPLATE_ENUMERATION;
   case E::SY_CATEGORY:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_CATEGORY:
+    [[fallthrough]];
+  case E::SY_PARTIAL_CATEGORY:
     return E::SY_TEMPLATE_CATEGORY;
   case E::SY_DYNAMIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
     return E::SY_TEMPLATE_DYNAMIC_VARIABLE;
   case E::SY_STATIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_STATIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_STATIC_VARIABLE:
     return E::SY_TEMPLATE_STATIC_VARIABLE;
+  case E::SY_FUNCTION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_FUNCTION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_FUNCTION:
+    return E::SY_TEMPLATE_FUNCTION;
+  case E::SY_METHOD:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_METHOD:
+    [[fallthrough]];
+  case E::SY_PARTIAL_METHOD:
+    return E::SY_TEMPLATE_METHOD;
+  case E::SY_RANGER:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_RANGER:
+    [[fallthrough]];
+  case E::SY_PARTIAL_RANGER:
+    return E::SY_TEMPLATE_RANGER;
+  case E::SY_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_FUNCTION:
+    return E::SY_TEMPLATE_EXTENSION_FUNCTION;
+  case E::SY_EXTENSION_METHOD:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_METHOD:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_METHOD:
+    return E::SY_TEMPLATE_EXTENSION_METHOD;
+  case E::SY_EXTENSION_RANGER:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_RANGER:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_RANGER:
+    return E::SY_TEMPLATE_EXTENSION_RANGER;
   default:
     break;
   }
@@ -1082,10 +1136,154 @@ getHasTemplateAlternative(rq::EntityKind kind) {
 [[nodiscard]] inline rq::EntityKind getPartial(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   RQ_ASSERT(rq::getHasTemplateAlternative(kind), "no template alternative");
+  using E = rq::EntityKind;
+  switch (kind) {
+  case E::SY_CLASS:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_CLASS:
+    [[fallthrough]];
+  case E::SY_PARTIAL_CLASS:
+    return E::SY_PARTIAL_CLASS;
+  case E::SY_ENUMERATION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_ENUMERATION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_ENUMERATION:
+    return E::SY_PARTIAL_ENUMERATION;
+  case E::SY_CATEGORY:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_CATEGORY:
+    [[fallthrough]];
+  case E::SY_PARTIAL_CATEGORY:
+    return E::SY_PARTIAL_CATEGORY;
+  case E::SY_DYNAMIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
+    return E::SY_PARTIAL_DYNAMIC_VARIABLE;
+  case E::SY_STATIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_STATIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_STATIC_VARIABLE:
+    return E::SY_PARTIAL_STATIC_VARIABLE;
+  case E::SY_FUNCTION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_FUNCTION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_FUNCTION:
+    return E::SY_PARTIAL_FUNCTION;
+  case E::SY_METHOD:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_METHOD:
+    [[fallthrough]];
+  case E::SY_PARTIAL_METHOD:
+    return E::SY_PARTIAL_METHOD;
+  case E::SY_RANGER:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_RANGER:
+    [[fallthrough]];
+  case E::SY_PARTIAL_RANGER:
+    return E::SY_PARTIAL_RANGER;
+  case E::SY_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_FUNCTION:
+    return E::SY_PARTIAL_EXTENSION_FUNCTION;
+  case E::SY_EXTENSION_METHOD:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_METHOD:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_METHOD:
+    return E::SY_PARTIAL_EXTENSION_METHOD;
+  case E::SY_EXTENSION_RANGER:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_RANGER:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_RANGER:
+    return E::SY_PARTIAL_EXTENSION_RANGER;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
 }
 [[nodiscard]] inline rq::EntityKind getFull(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   RQ_ASSERT(rq::getHasTemplateAlternative(kind), "no template alternative");
+  using E = rq::EntityKind;
+  switch (kind) {
+  case E::SY_CLASS:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_CLASS:
+    [[fallthrough]];
+  case E::SY_PARTIAL_CLASS:
+    return E::SY_CLASS;
+  case E::SY_ENUMERATION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_ENUMERATION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_ENUMERATION:
+    return E::SY_ENUMERATION;
+  case E::SY_CATEGORY:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_CATEGORY:
+    [[fallthrough]];
+  case E::SY_PARTIAL_CATEGORY:
+    return E::SY_CATEGORY;
+  case E::SY_DYNAMIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
+    return E::SY_DYNAMIC_VARIABLE;
+  case E::SY_STATIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_STATIC_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_STATIC_VARIABLE:
+    return E::SY_STATIC_VARIABLE;
+  case E::SY_FUNCTION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_FUNCTION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_FUNCTION:
+    return E::SY_FUNCTION;
+  case E::SY_METHOD:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_METHOD:
+    [[fallthrough]];
+  case E::SY_PARTIAL_METHOD:
+    return E::SY_METHOD;
+  case E::SY_RANGER:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_RANGER:
+    [[fallthrough]];
+  case E::SY_PARTIAL_RANGER:
+    return E::SY_RANGER;
+  case E::SY_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_FUNCTION:
+    return E::SY_EXTENSION_FUNCTION;
+  case E::SY_EXTENSION_METHOD:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_METHOD:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_METHOD:
+    return E::SY_EXTENSION_METHOD;
+  case E::SY_EXTENSION_RANGER:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_EXTENSION_RANGER:
+    [[fallthrough]];
+  case E::SY_PARTIAL_EXTENSION_RANGER:
+    return E::SY_EXTENSION_RANGER;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
 }
 
 struct Entity;
@@ -1201,6 +1399,159 @@ struct StringConstant;
 struct ArrayConstant;
 struct Instruction;
 
+struct InitialExpression {
+  using Self = rq::InitialExpression;
+
+  rq::Expression *_expression_ptr{nullptr};
+
+  InitialExpression() = default;
+  explicit InitialExpression(rq::Expression &expression)
+      : _expression_ptr(&expression) {}
+  InitialExpression(const Self &) = delete;
+  InitialExpression(Self &&) = delete;
+  ~InitialExpression() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+};
+struct LateExpression : public rq::InitialExpression {
+  using Self = rq::LateExpression;
+
+  LateExpression() = default;
+  explicit LateExpression(rq::Expression &expression)
+      : InitialExpression(expression) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() {
+    return this->_expression_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+    rq::assignSingleValue(this->_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
+    rq::assignSingleValue(this->_expression_ptr, expression_ptr);
+  }
+};
+struct ReplacableExpression : public rq::LateExpression {
+  using Self = rq::ReplacableExpression;
+
+  ReplacableExpression() = default;
+  explicit ReplacableExpression(rq::Expression &expression)
+      : LateExpression(expression) {}
+  RQ_ALWAYS_INLINE rq::Expression &
+  replaceExpression(rq::Expression &expression) {
+    return rq::replaceValue(this->_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE rq::Expression &
+  replaceExpression(rq::Expression *expression) {
+    return rq::replaceValue(this->_expression_ptr, expression);
+  }
+  RQ_ALWAYS_INLINE rq::Expression *
+  replaceExpressionPtr(rq::Expression &expression) {
+    return rq::replaceValuPtr(this->_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE rq::Expression *
+  replaceExpressionPtr(rq::Expression *expression) {
+    return rq::replaceValuPtr(this->_expression_ptr, expression);
+  }
+};
+struct InitialExpressionAttributes {
+  using Self = InitialExpressionAttributes;
+
+  rq::ExpressionAttributeFlags _attributes;
+
+  InitialExpressionAttributes(rq::ExpressionAttributeFlags attributes)
+      : _attributes(attributes) {}
+  InitialExpressionAttributes(const Self &) = delete;
+  InitialExpressionAttributes(Self &&) = delete;
+  virtual ~InitialExpressionAttributes() {}
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttributeFlags
+  getExpressionAttributes() const {
+    return this->_attributes;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const {
+    return rq::getHasOpaque(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const {
+    return rq::getHasOutside(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
+    return rq::getHasStatic(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const {
+    return rq::getHasCapture(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const {
+    return rq::getHasEager(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const {
+    return rq::getHasMayParent(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const {
+    return rq::getHasParent(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const {
+    return rq::getHasAbstract(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const {
+    return rq::getHasVirtual(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
+    return rq::getHasOverride(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition() const {
+    return rq::getHasPosition(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
+    return rq::getHasMangle(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const {
+    return rq::getHasPack(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const {
+    return rq::getHasLabel(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const {
+    return rq::getHasTemplate(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const {
+    return rq::getHasLikely(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const {
+    return rq::getHasUnlikely(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const {
+    return rq::getHasDepreciated(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const {
+    return rq::getHasExport(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const {
+    return rq::getHasPublic(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const {
+    return rq::getHasProtected(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy() const {
+    return rq::getHasMayCopy(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const {
+    return rq::getHasMayMove(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
+    return rq::getHasOk(this->_attributes);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getHasAttribute(rq::ExpressionAttribute attribute) const {
+    return rq::getHasAttribute(this->_attributes, attribute);
+  }
+};
+
 struct Entity {
   using Self = rq::Entity;
 
@@ -1214,11 +1565,11 @@ struct Entity {
   Entity &operator=(Entity &&) = delete;
   ~Entity() = default;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Entity *other) const {
-    return this == other;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Entity &other) const {
+    return this == &other;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Entity *other) const {
-    return this != other;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Entity &other) const {
+    return this != &other;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityKind getKind() const {
@@ -1820,11 +2171,44 @@ struct Synonym : public rq::Symbol {
   }
 };
 
-struct Module : public rq::Symbol {
+static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
+
+enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
+  using M = rq::ModuleKind;
+  switch (kind) {
+  case M::NONE:
+    return "none";
+  case M::SOURCE:
+    return "source";
+  case M::IMPORT:
+    return "import";
+  }
+  RQ_UNREACHABLE();
+}
+
+struct Module : public rq::Symbol, public rq::ReplacableExpression {
   using Self = rq::Module;
 
-  Module() : Symbol(rq::EntityKind::SY_MODULE) {}
+  rq::ModuleKind _module_kind;
+  llvm::StringRef _path;
+  llvm::MemoryBufferRef _buffer;
 
+  Module(rq::ModuleKind kind, llvm::StringRef path,
+         llvm::MemoryBufferRef &&buffer)
+      : Symbol(rq::EntityKind::SY_MODULE), _module_kind(kind), _path(path),
+        _buffer(buffer) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const {
+    return this->_module_kind;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
+    return this->_path;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
+    return this->_buffer.getBuffer();
+  }
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_MODULE;
   }
@@ -2102,13 +2486,14 @@ struct ExtensionMethod : public rq::Procedure {
   }
 };
 
-struct ExtnsionRanger : public rq::Procedure {
-  using Self = rq::Ranger;
+struct ExtensionRanger : public rq::Procedure {
+  using Self = rq::ExtensionRanger;
 
-  ExtnsionRanger() : Procedure(rq::EntityKind::SY_RANGER) {}
+  ExtensionRanger() : Procedure(rq::EntityKind::SY_EXTENSION_RANGER) {}
 
   static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RANGER;
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_EXTENSION_RANGER;
   }
 };
 

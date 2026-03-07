@@ -8,8 +8,6 @@ namespace rq {
 // A map backed by a binary search tree ordered by std::hash of the key.
 // Nodes are allocated using a llvm::BumpPtrAllocator.
 
-// TODO implement as a red-black tree
-
 template <typename KeyParam, typename ValueParam, typename HashParam = std::hash<KeyParam>>
 struct BumpPtrMapNode {
     using Key = KeyParam;

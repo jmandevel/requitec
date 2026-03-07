@@ -6,28 +6,27 @@
 
 namespace rq {
 
-void Tabulator::tabulateModule() {
+void Tabulator::tabulateModule() { RQ_TODO_IMPLEMENTATION(); }
+
+void Tabulator::tabulateEntry(rq::Entry &entry) {
+  std::ignore = entry;
   RQ_TODO_IMPLEMENTATION();
 }
 
-void Tabulator::tabulateEntry(rq::EntrySymbol &entry) {
+void Tabulator::tabulateForest(rq::Expression &first, rq::SymbolTable &table) {
+  std::ignore = first;
+  std::ignore = table;
   RQ_TODO_IMPLEMENTATION();
 }
 
-void Tabulator::tabulateForest(rq::Expression &first,
-                               rq::SymbolTableSymbol &scope) {
-  RQ_TODO_IMPLEMENTATION();
-}
-
-rq::DeductionResult
-Tabulator::deduceTypeOfValue(rq::Expression &expression) {
+rq::DeductionResult Tabulator::deduceTypeOfValue(rq::Expression &expression) {
   std::ignore = expression;
   RQ_TODO_IMPLEMENTATION();
 }
 
 rq::DeductionWithIncompleteResult
 Tabulator::deduceTypeOfValueWithIncomplete(rq::Entity &partial_type,
-                                    rq::Expression &expression) {
+                                           rq::Expression &expression) {
   std::ignore = partial_type;
   std::ignore = expression;
   RQ_TODO_IMPLEMENTATION();
