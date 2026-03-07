@@ -85,7 +85,6 @@ enum class EntityKind : std::uint16_t {
   SY_POINTER,
   SY_FAT_POINTER,
   SY_INFERENCED_COUNT_ARRAY,
-  SY_SYNONYM,
 
   // COUNTED SUBTYPE
   SY_ARRAY,
@@ -106,6 +105,7 @@ enum class EntityKind : std::uint16_t {
   SY_CODE,
   SY_CATEGORY_DISCRIMINANT, // underlying type of category code
   SY_LABEL,
+  SY_SYNONYM,
 
   // BINDING
   SY_DYNAMIC_VARIABLE,
@@ -320,8 +320,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_finite_arithmetic_progression";
   case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
     return "sy_infinite_arithmetic_progression";
-  case E::SY_SYNONYM:
-    return "sy_synonym";
   case E::SY_MODULE:
     return "sy_module";
   case E::SY_IMPORT:
@@ -332,6 +330,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_category_discriminant";
   case E::SY_LABEL:
     return "sy_label";
+  case E::SY_SYNONYM:
+    return "sy_synonym";
   case E::SY_DYNAMIC_VARIABLE:
     return "sy_dynamic_variable";
   case E::SY_STATIC_VARIABLE:
@@ -668,12 +668,9 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_INFERENCED_COUNT_ARRAY:
     return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
            EF::SY_GENERIC;
-  case E::SY_SYNONYM:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
   case E::SY_ARRAY:
-    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_COUNTED_SUBTYPE |
+           EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_LAYOUT:
     return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
@@ -702,6 +699,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_LABEL:
     return EF::SYMBOL | EF::SY_CONCRETE;
+  case E::SY_SYNONYM:
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
   case E::SY_DYNAMIC_VARIABLE:
     return EF::SYMBOL | EF::SY_CONCRETE;
   case E::SY_STATIC_VARIABLE:
@@ -1328,7 +1327,6 @@ struct FatPointer;
 struct InferencedCountArray;
 struct CountedSubtype;
 struct Array;
-struct CompositeSubtype;
 struct Layout;
 struct Signature;
 struct Extension;
@@ -1336,12 +1334,12 @@ struct ArithmeticSequence;
 struct ArithmeticInterval;
 struct FiniteArithmeticProgression;
 struct InfiniteArithmeticProgression;
-struct Synonym;
 struct Module;
 struct Import;
 struct Code;
 struct CategoryDiscriminant;
 struct Label;
+struct Synonym;
 struct DynamicVariable;
 struct StaticVariable;
 struct Enumerator;
@@ -1551,7 +1549,78 @@ struct InitialExpressionAttributes {
     return rq::getHasAttribute(this->_attributes, attribute);
   }
 };
+struct InitialModuleMember {
+  using Self = rq::InitialModuleMember;
 
+  rq::Module *_containing_module_ptr;
+
+  explicit InitialModuleMember(rq::Module &module)
+      : _containing_module_ptr(&module) {}
+  InitialModuleMember(const Self &) = delete;
+  InitialModuleMember(Self &&) = delete;
+  ~InitialModuleMember() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  const rq::Module &getContainingModule() const {
+    return rq::dereferencePtr(this->_containing_module_ptr);
+  }
+  rq::Module &getContainingModule() {
+    return rq::dereferencePtr(this->_containing_module_ptr);
+  }
+};
+struct InitialSymbolTableMember final {
+  using Self = rq::InitialSymbolTableMember;
+
+  rq::SymbolTable *_containing_symbol_table_ptr;
+
+  explicit InitialSymbolTableMember(rq::SymbolTable &symbol_table)
+      : _containing_symbol_table_ptr(&symbol_table) {}
+  InitialSymbolTableMember(const Self &) = delete;
+  InitialSymbolTableMember(Self &&) = delete;
+  ~InitialSymbolTableMember() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  const rq::SymbolTable &getContainingSymbolTable() const {
+    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
+  }
+  rq::SymbolTable &getContainingSymbolTable() {
+    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
+  }
+};
+struct InitialNamed final {
+  using Self = rq::InitialNamed;
+
+  llvm::StringRef _name;
+
+  explicit InitialNamed(llvm::StringRef name) : _name(name) {}
+  InitialNamed(const Self &) = delete;
+  InitialNamed(Self &&) = delete;
+  ~InitialNamed() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
+    return this->_name;
+  }
+};
+struct InitialMayNamed final {
+  using Self = rq::InitialNamed;
+
+  llvm::StringRef _name{};
+
+  InitialMayNamed() = default;
+  explicit InitialMayNamed(llvm::StringRef name) : _name(name) {}
+  InitialMayNamed(const Self &) = delete;
+  InitialMayNamed(Self &&) = delete;
+  ~InitialMayNamed() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const {
+    return !this->_name.empty();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
+    return this->_name;
+  }
+};
 struct Entity {
   using Self = rq::Entity;
 
@@ -1583,6 +1652,9 @@ struct Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
     return rq::getIsSubtype(this->getKind());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype() const {
+    return rq::getIsCompositeSubtype(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric() const {
     return rq::getIsGeneric(this->getKind());
@@ -1662,7 +1734,7 @@ struct SimpleBuiltin : public rq::Symbol {
   }
 };
 
-struct Inference : public rq::SimpleBuiltin {
+struct Inference final : public rq::SimpleBuiltin {
   using Self = rq::Inference;
 
   Inference() : SimpleBuiltin(rq::EntityKind::SY_INFERENCE) {}
@@ -1672,7 +1744,7 @@ struct Inference : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericSymbol : public rq::SimpleBuiltin {
+struct GenericSymbol final : public rq::SimpleBuiltin {
   using Self = rq::GenericSymbol;
 
   GenericSymbol() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SYMBOL) {}
@@ -1683,7 +1755,7 @@ struct GenericSymbol : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericType : public rq::SimpleBuiltin {
+struct GenericType final : public rq::SimpleBuiltin {
   using Self = rq::GenericType;
 
   GenericType() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_TYPE) {}
@@ -1694,7 +1766,7 @@ struct GenericType : public rq::SimpleBuiltin {
   }
 };
 
-struct Void : public rq::SimpleBuiltin {
+struct Void final : public rq::SimpleBuiltin {
   using Self = rq::Void;
 
   Void() : SimpleBuiltin(rq::EntityKind::SY_VOID) {}
@@ -1704,7 +1776,7 @@ struct Void : public rq::SimpleBuiltin {
   }
 };
 
-struct Null : public rq::SimpleBuiltin {
+struct Null final : public rq::SimpleBuiltin {
   using Self = rq::Null;
 
   Null() : SimpleBuiltin(rq::EntityKind::SY_NULL) {}
@@ -1714,7 +1786,7 @@ struct Null : public rq::SimpleBuiltin {
   }
 };
 
-struct NoReturn : public rq::SimpleBuiltin {
+struct NoReturn final : public rq::SimpleBuiltin {
   using Self = rq::NoReturn;
 
   NoReturn() : SimpleBuiltin(rq::EntityKind::SY_NO_RETURN) {}
@@ -1724,7 +1796,7 @@ struct NoReturn : public rq::SimpleBuiltin {
   }
 };
 
-struct VariadicArguments : public rq::SimpleBuiltin {
+struct VariadicArguments final : public rq::SimpleBuiltin {
   using Self = rq::VariadicArguments;
 
   VariadicArguments() : SimpleBuiltin(rq::EntityKind::SY_VARIADIC_ARGUMENTS) {}
@@ -1735,7 +1807,7 @@ struct VariadicArguments : public rq::SimpleBuiltin {
   }
 };
 
-struct Boolean : public rq::SimpleBuiltin {
+struct Boolean final : public rq::SimpleBuiltin {
   using Self = rq::Boolean;
 
   Boolean() : SimpleBuiltin(rq::EntityKind::SY_BOOLEAN) {}
@@ -1745,7 +1817,7 @@ struct Boolean : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericSigned : public rq::SimpleBuiltin {
+struct GenericSigned final : public rq::SimpleBuiltin {
   using Self = rq::GenericSigned;
 
   GenericSigned() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SIGNED) {}
@@ -1756,7 +1828,7 @@ struct GenericSigned : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericUnsigned : public rq::SimpleBuiltin {
+struct GenericUnsigned final : public rq::SimpleBuiltin {
   using Self = rq::GenericUnsigned;
 
   GenericUnsigned() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_UNSIGNED) {}
@@ -1767,7 +1839,7 @@ struct GenericUnsigned : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericFloat : public rq::SimpleBuiltin {
+struct GenericFloat final : public rq::SimpleBuiltin {
   using Self = rq::GenericFloat;
 
   GenericFloat() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_FLOAT) {}
@@ -1778,7 +1850,7 @@ struct GenericFloat : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericBinary : public rq::SimpleBuiltin {
+struct GenericBinary final : public rq::SimpleBuiltin {
   using Self = rq::GenericBinary;
 
   GenericBinary() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BINARY) {}
@@ -1789,7 +1861,7 @@ struct GenericBinary : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericBFloat : public rq::SimpleBuiltin {
+struct GenericBFloat final : public rq::SimpleBuiltin {
   using Self = rq::GenericBFloat;
 
   GenericBFloat() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BFLOAT) {}
@@ -1800,7 +1872,7 @@ struct GenericBFloat : public rq::SimpleBuiltin {
   }
 };
 
-struct Half : public rq::SimpleBuiltin {
+struct Half final : public rq::SimpleBuiltin {
   using Self = rq::Half;
 
   Half() : SimpleBuiltin(rq::EntityKind::SY_HALF) {}
@@ -1810,7 +1882,7 @@ struct Half : public rq::SimpleBuiltin {
   }
 };
 
-struct Single : public rq::SimpleBuiltin {
+struct Single final : public rq::SimpleBuiltin {
   using Self = rq::Single;
 
   Single() : SimpleBuiltin(rq::EntityKind::SY_SINGLE) {}
@@ -1820,7 +1892,7 @@ struct Single : public rq::SimpleBuiltin {
   }
 };
 
-struct Double : public rq::SimpleBuiltin {
+struct Double final : public rq::SimpleBuiltin {
   using Self = rq::Double;
 
   Double() : SimpleBuiltin(rq::EntityKind::SY_DOUBLE) {}
@@ -1830,7 +1902,7 @@ struct Double : public rq::SimpleBuiltin {
   }
 };
 
-struct Quadruple : public rq::SimpleBuiltin {
+struct Quadruple final : public rq::SimpleBuiltin {
   using Self = rq::Quadruple;
 
   Quadruple() : SimpleBuiltin(rq::EntityKind::SY_QUADRUPLE) {}
@@ -1840,7 +1912,7 @@ struct Quadruple : public rq::SimpleBuiltin {
   }
 };
 
-struct Binary16 : public rq::SimpleBuiltin {
+struct Binary16 final : public rq::SimpleBuiltin {
   using Self = rq::Binary16;
 
   Binary16() : SimpleBuiltin(rq::EntityKind::SY_BINARY16) {}
@@ -1850,7 +1922,7 @@ struct Binary16 : public rq::SimpleBuiltin {
   }
 };
 
-struct Binary32 : public rq::SimpleBuiltin {
+struct Binary32 final : public rq::SimpleBuiltin {
   using Self = rq::Binary32;
 
   Binary32() : SimpleBuiltin(rq::EntityKind::SY_BINARY32) {}
@@ -1860,7 +1932,7 @@ struct Binary32 : public rq::SimpleBuiltin {
   }
 };
 
-struct Binary64 : public rq::SimpleBuiltin {
+struct Binary64 final : public rq::SimpleBuiltin {
   using Self = rq::Binary64;
 
   Binary64() : SimpleBuiltin(rq::EntityKind::SY_BINARY64) {}
@@ -1870,7 +1942,7 @@ struct Binary64 : public rq::SimpleBuiltin {
   }
 };
 
-struct Binary128 : public rq::SimpleBuiltin {
+struct Binary128 final : public rq::SimpleBuiltin {
   using Self = rq::Binary128;
 
   Binary128() : SimpleBuiltin(rq::EntityKind::SY_BINARY128) {}
@@ -1880,7 +1952,7 @@ struct Binary128 : public rq::SimpleBuiltin {
   }
 };
 
-struct BFloat16 : public rq::SimpleBuiltin {
+struct BFloat16 final : public rq::SimpleBuiltin {
   using Self = rq::BFloat16;
 
   BFloat16() : SimpleBuiltin(rq::EntityKind::SY_BFLOAT16) {}
@@ -1890,7 +1962,7 @@ struct BFloat16 : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericInteger : public rq::SimpleBuiltin {
+struct GenericInteger final : public rq::SimpleBuiltin {
   using Self = rq::GenericInteger;
 
   GenericInteger() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_INTEGER) {}
@@ -1901,7 +1973,7 @@ struct GenericInteger : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericSignedInteger : public rq::SimpleBuiltin {
+struct GenericSignedInteger final : public rq::SimpleBuiltin {
   using Self = rq::GenericSignedInteger;
 
   GenericSignedInteger()
@@ -1913,7 +1985,7 @@ struct GenericSignedInteger : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericUnsignedInteger : public rq::SimpleBuiltin {
+struct GenericUnsignedInteger final : public rq::SimpleBuiltin {
   using Self = rq::GenericUnsignedInteger;
 
   GenericUnsignedInteger()
@@ -1925,7 +1997,7 @@ struct GenericUnsignedInteger : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericCodeunit : public rq::SimpleBuiltin {
+struct GenericCodeunit final : public rq::SimpleBuiltin {
   using Self = rq::GenericCodeunit;
 
   GenericCodeunit() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_CODEUNIT) {}
@@ -1936,7 +2008,7 @@ struct GenericCodeunit : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericString : public rq::SimpleBuiltin {
+struct GenericString final : public rq::SimpleBuiltin {
   using Self = rq::GenericString;
 
   GenericString() : SimpleBuiltin(rq::EntityKind::SY_GENERIC_STRING) {}
@@ -1947,7 +2019,7 @@ struct GenericString : public rq::SimpleBuiltin {
   }
 };
 
-struct Ascii : public rq::SimpleBuiltin {
+struct Ascii final : public rq::SimpleBuiltin {
   using Self = rq::Ascii;
 
   Ascii() : SimpleBuiltin(rq::EntityKind::SY_ASCII) {}
@@ -1957,7 +2029,7 @@ struct Ascii : public rq::SimpleBuiltin {
   }
 };
 
-struct Utf8 : public rq::SimpleBuiltin {
+struct Utf8 final : public rq::SimpleBuiltin {
   using Self = rq::Utf8;
 
   Utf8() : SimpleBuiltin(rq::EntityKind::SY_UTF8) {}
@@ -1967,21 +2039,146 @@ struct Utf8 : public rq::SimpleBuiltin {
   }
 };
 
+static constexpr unsigned MAX_SCALED_BUILTIN_SCALAR =
+    std::numeric_limits<std::uint16_t>::max();
+
+static constexpr unsigned MAX_SCALED_BUILTIN_UID =
+    std::numeric_limits<std::uint16_t>::max();
+
+enum class ScaledBuiltinFlags : std::uint8_t {
+  NONE,
+  BYTES = rq::getBit(0),
+  INDEX = rq::getBit(1),
+  ADDRESS = rq::getBit(2),
+  BITS_NONE_MASK = BYTES | INDEX | ADDRESS,
+  FASTEST = rq::getBit(3),
+  LEAST = rq::getBit(4),
+  EXACT_NONE_MASK = FASTEST | LEAST,
+  LITTLE_ENDIAN_ = rq::getBit(5),
+  BIG_ENDIAN_ = rq::getBit(6),
+  PLATFORM_ENDIAN_NONE_MASK = LITTLE_ENDIAN_ | BIG_ENDIAN_,
+  PLATFORM_SCALAR = rq::getBit(7)
+};
+
+template <> struct is_flags<rq::ScaledBuiltinFlags> : std::true_type {};
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasBitsScalar(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasNone(flags, rq::ScaledBuiltinFlags::BITS_NONE_MASK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasBytesScalar(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::BYTES);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasIndexScalar(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::INDEX);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAddressScalar(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::ADDRESS);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasNone(flags, rq::ScaledBuiltinFlags::EXACT_NONE_MASK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::FASTEST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LEAST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformEndian(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasNone(flags,
+                        rq::ScaledBuiltinFlags::PLATFORM_ENDIAN_NONE_MASK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsBigEndian(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::BIG_ENDIAN_);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsLittleEndian(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LITTLE_ENDIAN_);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPlatformScalar(rq::ScaledBuiltinFlags flags) {
+  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::PLATFORM_SCALAR);
+}
+
 struct ScaledBuiltin : public rq::Symbol {
   using Self = rq::ScaledBuiltin;
 
-  explicit ScaledBuiltin(rq::EntityKind k) : Symbol(k) {}
+  std::uint16_t _scalar;
+  std::uint16_t _uid;
+  rq::ScaledBuiltinFlags _flags;
 
+  explicit ScaledBuiltin(rq::EntityKind k, std::uint16_t scalar,
+                         std::uint16_t uid, rq::ScaledBuiltinFlags flags)
+      : Symbol(k), _scalar(scalar), _uid(uid), _flags(flags) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const {
+    return this->_scalar;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getUid() const {
+    return this->_uid;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBytesScalar() const {
+    return rq::getHasBytesScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndexScalar() const {
+    return rq::getHasIndexScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressScalar() const {
+    return rq::getHasAddressScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact() const {
+    return rq::getIsExact(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest() const {
+    return rq::getIsFastest(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const {
+    return rq::getIsLeast(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformEndian() const {
+    return rq::getIsPlatformEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBigEndian() const {
+    return rq::getIsBigEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const {
+    return rq::getIsLittleEndian(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformScalar() const {
+    return rq::getHasPlatformScalar(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const {
+    return this->_uid != 0;
+  }
   static bool classof(const Entity *entity) {
     return rq::getIsScaledBuiltin(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct ScaledSignedInteger : public rq::ScaledBuiltin {
+struct ScaledSignedInteger final : public rq::ScaledBuiltin {
   using Self = rq::ScaledSignedInteger;
 
-  ScaledSignedInteger()
-      : ScaledBuiltin(rq::EntityKind::SY_SCALED_SIGNED_INTEGER) {}
+  explicit ScaledSignedInteger(std::uint16_t scalar, std::uint16_t uid,
+                               rq::ScaledBuiltinFlags flags)
+      : ScaledBuiltin(rq::EntityKind::SY_SCALED_SIGNED_INTEGER, scalar, uid,
+                      flags) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -1989,11 +2186,13 @@ struct ScaledSignedInteger : public rq::ScaledBuiltin {
   }
 };
 
-struct ScaledUnsignedInteger : public rq::Entity {
+struct ScaledUnsignedInteger final : public rq::ScaledBuiltin {
   using Self = rq::ScaledUnsignedInteger;
 
-  ScaledUnsignedInteger()
-      : Entity(rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER) {}
+  explicit ScaledUnsignedInteger(std::uint16_t scalar, std::uint16_t uid,
+                                 rq::ScaledBuiltinFlags flags)
+      : ScaledBuiltin(rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER, scalar, uid,
+                      flags) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2004,37 +2203,49 @@ struct ScaledUnsignedInteger : public rq::Entity {
 struct UnarySubtype : public rq::Symbol {
   using Self = rq::UnarySubtype;
 
-  explicit UnarySubtype(rq::EntityKind k) : Symbol(k) {}
+  rq::TypeConstant *_descendent_ptr;
 
+  explicit UnarySubtype(rq::EntityKind k, rq::TypeConstant &descendent)
+      : Symbol(k), _descendent_ptr(&descendent) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const {
+    return rq::dereferencePtr(this->_descendent_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent() {
+    return rq::dereferencePtr(this->_descendent_ptr);
+  }
   static bool classof(const Entity *entity) {
     return rq::getIsUnarySubtype(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Reference : public rq::UnarySubtype {
+struct Reference final : public rq::UnarySubtype {
   using Self = rq::Reference;
 
-  Reference() : UnarySubtype(rq::EntityKind::SY_REFERENCE) {}
+  explicit Reference(rq::TypeConstant &descendent)
+      : UnarySubtype(rq::EntityKind::SY_REFERENCE, descendent) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_REFERENCE;
   }
 };
 
-struct Pointer : public rq::UnarySubtype {
+struct Pointer final : public rq::UnarySubtype {
   using Self = rq::Pointer;
 
-  Pointer() : UnarySubtype(rq::EntityKind::SY_POINTER) {}
+  explicit Pointer(rq::TypeConstant &descendent)
+      : UnarySubtype(rq::EntityKind::SY_POINTER, descendent) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_POINTER;
   }
 };
 
-struct FatPointer : public rq::UnarySubtype {
+struct FatPointer final : public rq::UnarySubtype {
   using Self = rq::FatPointer;
 
-  FatPointer() : UnarySubtype(rq::EntityKind::SY_FAT_POINTER) {}
+  explicit FatPointer(rq::TypeConstant &descendent)
+      : UnarySubtype(rq::EntityKind::SY_FAT_POINTER, descendent) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2042,11 +2253,11 @@ struct FatPointer : public rq::UnarySubtype {
   }
 };
 
-struct InferencedCountArray : public rq::UnarySubtype {
+struct InferencedCountArray final : public rq::UnarySubtype {
   using Self = rq::InferencedCountArray;
 
-  InferencedCountArray()
-      : UnarySubtype(rq::EntityKind::SY_INFERENCED_COUNT_ARRAY) {}
+  explicit InferencedCountArray(rq::TypeConstant &descendent)
+      : UnarySubtype(rq::EntityKind::SY_INFERENCED_COUNT_ARRAY, descendent) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2054,60 +2265,79 @@ struct InferencedCountArray : public rq::UnarySubtype {
   }
 };
 
-struct CountedSubtype : public rq::Symbol {
+struct CountedSubtype : public rq::UnarySubtype {
   using Self = rq::CountedSubtype;
 
-  explicit CountedSubtype(rq::EntityKind k) : Symbol(k) {}
+  unsigned _count;
+
+  explicit CountedSubtype(rq::EntityKind k, rq::TypeConstant &descendent,
+                          unsigned count)
+      : UnarySubtype(k, descendent), _count(count) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCount() const {
+    return this->_count;
+  }
 
   static bool classof(const Entity *entity) {
     return rq::getIsCountedSubtype(rq::dereferencePtr(entity).getKind());
   }
 };
 
-struct Array : public rq::CountedSubtype {
+struct Array final : public rq::CountedSubtype {
   using Self = rq::Array;
 
-  Array() : CountedSubtype(rq::EntityKind::SY_ARRAY) {}
+  explicit Array(rq::TypeConstant &descendent, unsigned count)
+      : CountedSubtype(rq::EntityKind::SY_ARRAY, descendent, count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ARRAY;
   }
 };
 
-struct CompositeSubtype : public rq::Symbol {
-  using Self = rq::CompositeSubtype;
-
-  explicit CompositeSubtype(rq::EntityKind k) : Symbol(k) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::getIsCompositeSubtype(rq::dereferencePtr(entity).getKind());
-  }
-};
-
-struct Layout : public rq::CompositeSubtype {
+struct Layout final : public rq::Symbol {
   using Self = rq::Layout;
 
-  Layout() : CompositeSubtype(rq::EntityKind::SY_LAYOUT) {}
+  rq::BumpPtrList<rq::LayoutParameter> _parameters;
 
+  explicit Layout(rq::BumpPtrList<rq::LayoutParameter> parameters)
+      : Symbol(rq::EntityKind::SY_LAYOUT), _parameters(parameters) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::LayoutParameter> &
+  getParameters() {
+    return this->_parameters;
+  }
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LAYOUT;
   }
 };
 
-struct Signature : public rq::CompositeSubtype {
+struct Signature final : public rq::Symbol {
   using Self = rq::Signature;
 
-  Signature() : CompositeSubtype(rq::EntityKind::SY_SIGNATURE) {}
+  rq::BumpPtrList<rq::SignatureParameter> _parameters;
+  rq::TypeConstant *_return_type;
+
+  explicit Signature(rq::BumpPtrList<rq::SignatureParameter> parameters,
+                     rq::TypeConstant &return_type)
+      : Symbol(rq::EntityKind::SY_SIGNATURE), _parameters(parameters),
+        _return_type(&return_type) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SIGNATURE;
   }
 };
 
-struct Extension : public rq::CompositeSubtype {
+struct Extension final : public rq::Symbol {
   using Self = rq::Extension;
 
-  Extension() : CompositeSubtype(rq::EntityKind::SY_EXTENSION) {}
+  rq::BumpPtrList<rq::SignatureParameter> _parameters;
+  rq::TypeConstant *_return_type;
+  rq::TypeConstant *_extended_type;
+
+  Extension(rq::BumpPtrList<rq::SignatureParameter> parameters,
+            rq::TypeConstant &return_type, rq::TypeConstant &extended_type)
+      : Symbol(rq::EntityKind::SY_EXTENSION), _parameters(parameters),
+        _return_type(&return_type), _extended_type(&extended_type) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_EXTENSION;
@@ -2117,7 +2347,29 @@ struct Extension : public rq::CompositeSubtype {
 struct ArithmeticSequence : public rq::Symbol {
   using Self = rq::ArithmeticSequence;
 
-  explicit ArithmeticSequence(rq::EntityKind k) : Symbol(k) {}
+  rq::TypeConstant *_descendent_ptr;
+  rq::ArithmeticSequenceCondition _condition;
+  rq::ArithmeticSequenceStep _step;
+
+  explicit ArithmeticSequence(rq::EntityKind k, rq::TypeConstant &descendent,
+                              rq::ArithmeticSequenceCondition condition,
+                              rq::ArithmeticSequenceStep step)
+      : Symbol(k), _descendent_ptr(&descendent), _condition(condition),
+        _step(step) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const {
+    return rq::dereferencePtr(this->_descendent_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent() {
+    return rq::dereferencePtr(this->_descendent_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
+  getCondition() const {
+    return this->_condition;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const {
+    return this->_step;
+  }
 
   static bool classof(const Entity *entity) {
     return rq::getIsArithmeticSequence(rq::dereferencePtr(entity).getKind());
@@ -2161,16 +2413,6 @@ struct InfiniteArithmeticProgression : public rq::ArithmeticSequence {
   }
 };
 
-struct Synonym : public rq::Symbol {
-  using Self = rq::Synonym;
-
-  Synonym() : Symbol(rq::EntityKind::SY_SYNONYM) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SYNONYM;
-  }
-};
-
 static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
@@ -2188,7 +2430,7 @@ enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
   RQ_UNREACHABLE();
 }
 
-struct Module : public rq::Symbol, public rq::ReplacableExpression {
+struct Module final : public rq::Symbol, public rq::ReplacableExpression {
   using Self = rq::Module;
 
   rq::ModuleKind _module_kind;
@@ -2214,7 +2456,9 @@ struct Module : public rq::Symbol, public rq::ReplacableExpression {
   }
 };
 
-struct Import : public rq::Symbol {
+struct Import final : public rq::Symbol,
+                      public rq::InitialExpression,
+                      public rq::InitialModuleMember {
   using Self = rq::Import;
 
   Import() : Symbol(rq::EntityKind::SY_IMPORT) {}
@@ -2252,6 +2496,33 @@ struct Label : public rq::Symbol {
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LABEL;
+  }
+};
+
+struct Synonym : public rq::Symbol {
+  using Self = rq::Synonym;
+
+  rq::Symbol *_original_ptr;
+
+  Synonym(rq::Symbol &original)
+      : Symbol(rq::EntityKind::SY_SYNONYM), _original_ptr(&original) {
+    RQ_ASSERT(
+        !llvm::isa<rq::ScaledBuiltin>(original),
+        "must use internal uid to differentiate synonyms of scaled builtins");
+    RQ_ASSERT(!llvm::isa<rq::Synonym>(original),
+              "must not make synonym of synonym");
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const {
+    return rq::dereferencePtr(this->_original_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal() {
+    return rq::dereferencePtr(this->_original_ptr);
+  }
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SYNONYM;
   }
 };
 
