@@ -3407,7 +3407,7 @@ struct ExpressionIterator final {
   rq::Expression *_expression_ptr = nullptr;
 
   ExpressionIterator() = default;
-  ExpressionIterator(rq::Expression *expression_ptr)
+  explicit ExpressionIterator(rq::Expression *expression_ptr)
       : _expression_ptr(expression_ptr) {}
   ExpressionIterator(const Self &) = default;
   ExpressionIterator(Self &&) = default;
@@ -3450,7 +3450,7 @@ struct ConstExpressionIterator final {
   const rq::Expression *_expression_ptr = nullptr;
 
   ConstExpressionIterator() = default;
-  ConstExpressionIterator(const rq::Expression *expression_ptr)
+  explicit ConstExpressionIterator(const rq::Expression *expression_ptr)
       : _expression_ptr(expression_ptr) {}
   ConstExpressionIterator(const Self &) = default;
   ConstExpressionIterator(Self &&) = default;

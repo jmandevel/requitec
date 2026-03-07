@@ -2,6 +2,7 @@
 
 #include <rq/ast.hpp>
 #include <rq/bump_ptr_list.hpp>
+#include <rq/bump_ptr_map.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/see.hpp>
 #include <rq/utility.hpp>
@@ -89,10 +90,16 @@ enum class EntityKind : std::uint16_t {
   // COUNTED SUBTYPE
   SY_ARRAY,
 
-  // COMPOSITE SUBTYPE
+  // PARAMETER LIST SUBTYPE
   SY_LAYOUT,
   SY_SIGNATURE,
   SY_EXTENSION,
+
+  // PARAMETER
+  SY_CLASS_PARAMETER,
+  SY_LAYOUT_PARAMETER,
+  SY_TEMPLATE_PARAMETER,
+  SY_SIGNATURE_PARAMETER,
 
   // ARITHMETIC SEQUENCE
   SY_ARITHMETIC_INTERVAL,
@@ -113,10 +120,6 @@ enum class EntityKind : std::uint16_t {
   SY_ENUMERATOR,
   SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
                            // maybe a value type
-  SY_CLASS_PARAMETER,
-  SY_LAYOUT_PARAMETER,
-  SY_TEMPLATE_PARAMETER,
-  SY_SIGNATURE_PARAMETER,
 
   // SYMBOL TABLE
   SY_TOP,
@@ -537,26 +540,27 @@ enum class EntityFlags : std::uint32_t {
   SY_SCALED_BUILTIN = rq::getBit(3),
   SY_UNARY_SUBTYPE = rq::getBit(4),
   SY_COUNTED_SUBTYPE = rq::getBit(5),
-  SY_COMPOSITE_SUBTYPE = rq::getBit(6),
-  SY_ARITHMETIC_SEQUENCE = rq::getBit(7),
-  SY_SYMBOL_TABLE = rq::getBit(8),
-  SY_PROCEDURE = rq::getBit(9),
-  SY_TEMPLATE = rq::getBit(10),
-  SY_PARTIAL = rq::getBit(11),
+  SY_PARAMETER_LIST_SUBTYPE = rq::getBit(6),
+  SY_PARAMETER = rq::getBit(7),
+  SY_ARITHMETIC_SEQUENCE = rq::getBit(8),
+  SY_SYMBOL_TABLE = rq::getBit(9),
+  SY_PROCEDURE = rq::getBit(10),
+  SY_TEMPLATE = rq::getBit(11),
+  SY_PARTIAL = rq::getBit(12),
   // SYMBOL INFO PROPERTIES - have no data associated
-  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(12),
-  SY_TYPE = rq::getBit(13),
-  SY_SUBTYPE = rq::getBit(14),
-  SY_GENERIC = rq::getBit(15),
-  SY_CONCRETE = rq::getBit(16),
-  SY_PLATFORM_CHANGING = rq::getBit(17),
-  SY_INTEGER = rq::getBit(18),
-  SY_FLOAT = rq::getBit(19),
-  SY_BINARY = rq::getBit(20),
-  SY_CODEUNIT = rq::getBit(21),
-  SY_SIGNED = rq::getBit(22),
-  SY_UNSIGNED = rq::getBit(23),
-  SY_TOP_OF_FRAME = rq::getBit(24)
+  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(13),
+  SY_TYPE = rq::getBit(14),
+  SY_SUBTYPE = rq::getBit(15),
+  SY_GENERIC = rq::getBit(16),
+  SY_CONCRETE = rq::getBit(17),
+  SY_PLATFORM_CHANGING = rq::getBit(18),
+  SY_INTEGER = rq::getBit(19),
+  SY_FLOAT = rq::getBit(20),
+  SY_BINARY = rq::getBit(21),
+  SY_CODEUNIT = rq::getBit(22),
+  SY_SIGNED = rq::getBit(23),
+  SY_UNSIGNED = rq::getBit(24),
+  SY_TOP_OF_FRAME = rq::getBit(25)
 
   // CONSTANT FLAGS
   // TODO
@@ -672,13 +676,13 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_COUNTED_SUBTYPE |
            EF::SY_TYPE | EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_LAYOUT:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
+    return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_SIGNATURE:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
+    return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_EXTENSION:
-    return EF::SYMBOL | EF::SY_COMPOSITE_SUBTYPE | EF::SY_TYPE |
+    return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE | EF::SY_CONCRETE;
   case E::SY_ARITHMETIC_INTERVAL:
     return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
@@ -938,10 +942,11 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_COUNTED_SUBTYPE);
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsParameterListSubtype(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_COMPOSITE_SUBTYPE);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_PARAMETER_LIST_SUBTYPE);
 }
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsArithmeticSequence(rq::EntityKind kind) {
@@ -1327,9 +1332,15 @@ struct FatPointer;
 struct InferencedCountArray;
 struct CountedSubtype;
 struct Array;
+struct ParameterListSubtype;
 struct Layout;
 struct Signature;
 struct Extension;
+struct Parameter;
+struct ClassParameter;
+struct LayoutParameter;
+struct TemplateParameter;
+struct SignatureParameter;
 struct ArithmeticSequence;
 struct ArithmeticInterval;
 struct FiniteArithmeticProgression;
@@ -1344,10 +1355,6 @@ struct DynamicVariable;
 struct StaticVariable;
 struct Enumerator;
 struct CategoryAlternative;
-struct ClassParameter;
-struct LayoutParameter;
-struct TemplateParameter;
-struct SignatureParameter;
 struct SymbolTable;
 struct Top;
 struct Scope;
@@ -1592,7 +1599,9 @@ struct InitialNamed final {
 
   llvm::StringRef _name;
 
-  explicit InitialNamed(llvm::StringRef name) : _name(name) {}
+  explicit InitialNamed(llvm::StringRef name) : _name(name) {
+    RQ_ASSERT(!name.empty(), "name is empty");
+  }
   InitialNamed(const Self &) = delete;
   InitialNamed(Self &&) = delete;
   ~InitialNamed() = default;
@@ -1608,7 +1617,9 @@ struct InitialMayNamed final {
   llvm::StringRef _name{};
 
   InitialMayNamed() = default;
-  explicit InitialMayNamed(llvm::StringRef name) : _name(name) {}
+  explicit InitialMayNamed(llvm::StringRef name) : _name(name) {
+    RQ_ASSERT(!name.empty(), "name is empty");
+  }
   InitialMayNamed(const Self &) = delete;
   InitialMayNamed(Self &&) = delete;
   ~InitialMayNamed() = default;
@@ -1653,8 +1664,8 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
     return rq::getIsSubtype(this->getKind());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompositeSubtype() const {
-    return rq::getIsCompositeSubtype(this->getKind());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const {
+    return rq::getIsParameterListSubtype(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric() const {
     return rq::getIsGeneric(this->getKind());
@@ -2294,53 +2305,152 @@ struct Array final : public rq::CountedSubtype {
   }
 };
 
-struct Layout final : public rq::Symbol {
+struct ParameterListSubtype : public rq::Symbol {
+  using Self = rq::ParameterListSubtype;
+
+  rq::BumpPtrMap<rq::Parameter> _named_parameters;
+  rq::BumpPtrList<rq::Parameter> _positional_parameters{};
+
+  explicit ParameterListSubtype(rq::EntityKind k,
+                                rq::BumpPtrAllocator &allocator,
+                                unsigned parameter_bucket_count)
+      : Symbol(k), _named_parameters(allocator, parameter_bucket_count) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::BumpPtrMap<rq::Parameter> &
+  getNamedParameters() const {
+    return this->_named_parameters;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrMap<rq::Parameter> &
+  getNamedParameters() {
+    return this->_named_parameters;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::BumpPtrList<rq::Parameter> &
+  getPositionalParameters() const {
+    return this->_positional_parameters;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Parameter> &
+  getPositionalParameters() {
+    return this->_positional_parameters;
+  }
+
+  static bool classof(const Entity *entity) {
+    return rq::getIsParameterListSubtype(rq::dereferencePtr(entity).getKind());
+  }
+};
+
+struct Layout final : public rq::ParameterListSubtype {
   using Self = rq::Layout;
 
-  rq::BumpPtrList<rq::LayoutParameter> _parameters;
-
-  explicit Layout(rq::BumpPtrList<rq::LayoutParameter> parameters)
-      : Symbol(rq::EntityKind::SY_LAYOUT), _parameters(parameters) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::LayoutParameter> &
-  getParameters() {
-    return this->_parameters;
-  }
+  explicit Layout(rq::BumpPtrAllocator &allocator,
+                  unsigned parameter_bucket_count)
+      : ParameterListSubtype(rq::EntityKind::SY_LAYOUT, allocator,
+                             parameter_bucket_count) {}
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LAYOUT;
   }
 };
 
-struct Signature final : public rq::Symbol {
+struct Signature final : public rq::ParameterListSubtype {
   using Self = rq::Signature;
 
-  rq::BumpPtrList<rq::SignatureParameter> _parameters;
   rq::TypeConstant *_return_type;
 
-  explicit Signature(rq::BumpPtrList<rq::SignatureParameter> parameters,
+  explicit Signature(rq::BumpPtrAllocator &allocator,
+                     unsigned parameter_bucket_count,
                      rq::TypeConstant &return_type)
-      : Symbol(rq::EntityKind::SY_SIGNATURE), _parameters(parameters),
+      : ParameterListSubtype(rq::EntityKind::SY_SIGNATURE, allocator,
+                             parameter_bucket_count),
         _return_type(&return_type) {}
-
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
+    return rq::dereferencePtr(this->_return_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType() {
+    return rq::dereferencePtr(this->_return_type);
+  }
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SIGNATURE;
   }
 };
 
-struct Extension final : public rq::Symbol {
+struct Extension final : public rq::ParameterListSubtype {
   using Self = rq::Extension;
 
-  rq::BumpPtrList<rq::SignatureParameter> _parameters;
   rq::TypeConstant *_return_type;
   rq::TypeConstant *_extended_type;
 
-  Extension(rq::BumpPtrList<rq::SignatureParameter> parameters,
-            rq::TypeConstant &return_type, rq::TypeConstant &extended_type)
-      : Symbol(rq::EntityKind::SY_EXTENSION), _parameters(parameters),
+  explicit Extension(rq::BumpPtrAllocator &allocator,
+                     unsigned parameter_bucket_count,
+                     rq::TypeConstant &return_type,
+                     rq::TypeConstant &extended_type)
+      : ParameterListSubtype(rq::EntityKind::SY_EXTENSION, allocator,
+                             parameter_bucket_count),
         _return_type(&return_type), _extended_type(&extended_type) {}
 
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
+    return rq::dereferencePtr(this->_return_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType() {
+    return rq::dereferencePtr(this->_return_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+  getExtendedType() const {
+    return rq::dereferencePtr(this->_extended_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getExtendedType() {
+    return rq::dereferencePtr(this->_extended_type);
+  }
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_EXTENSION;
+  }
+};
+
+struct Parameter : public rq::Symbol {
+  using Self = rq::Parameter;
+
+  explicit Parameter(rq::EntityKind k) : Symbol(k) {}
+};
+
+struct ClassParameter : public rq::Parameter {
+  using Self = rq::ClassParameter;
+
+  ClassParameter() : Parameter(rq::EntityKind::SY_CLASS_PARAMETER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_CLASS_PARAMETER;
+  }
+};
+
+struct LayoutParameter : public rq::Parameter {
+  using Self = rq::LayoutParameter;
+
+  LayoutParameter() : Parameter(rq::EntityKind::SY_LAYOUT_PARAMETER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_LAYOUT_PARAMETER;
+  }
+};
+
+struct TemplateParameter : public rq::Parameter {
+  using Self = rq::TemplateParameter;
+
+  TemplateParameter() : Parameter(rq::EntityKind::SY_TEMPLATE_PARAMETER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_PARAMETER;
+  }
+};
+
+struct SignatureParameter : public rq::Parameter {
+  using Self = rq::SignatureParameter;
+
+  SignatureParameter() : Parameter(rq::EntityKind::SY_SIGNATURE_PARAMETER) {}
+
+  static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_SIGNATURE_PARAMETER;
   }
 };
 
@@ -2379,8 +2489,10 @@ struct ArithmeticSequence : public rq::Symbol {
 struct ArithmeticInterval : public rq::ArithmeticSequence {
   using Self = rq::ArithmeticInterval;
 
-  ArithmeticInterval()
-      : ArithmeticSequence(rq::EntityKind::SY_ARITHMETIC_INTERVAL) {}
+  explicit ArithmeticInterval(rq::TypeConstant &descendent,
+                              rq::ArithmeticSequenceCondition condition)
+      : ArithmeticSequence(rq::EntityKind::SY_ARITHMETIC_INTERVAL, descendent,
+                           condition, rq::ArithmeticSequenceStep::NONE) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2391,8 +2503,11 @@ struct ArithmeticInterval : public rq::ArithmeticSequence {
 struct FiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::FiniteArithmeticProgression;
 
-  FiniteArithmeticProgression()
-      : ArithmeticSequence(rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION) {}
+  explicit FiniteArithmeticProgression(
+      rq::TypeConstant &descendent, rq::ArithmeticSequenceCondition condition,
+      rq::ArithmeticSequenceStep step)
+      : ArithmeticSequence(rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION,
+                           descendent, condition, step) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2403,9 +2518,11 @@ struct FiniteArithmeticProgression : public rq::ArithmeticSequence {
 struct InfiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::InfiniteArithmeticProgression;
 
-  InfiniteArithmeticProgression()
-      : ArithmeticSequence(rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION) {
-  }
+  explicit InfiniteArithmeticProgression(rq::TypeConstant &descendent,
+                                         rq::ArithmeticSequenceStep step)
+      : ArithmeticSequence(rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION,
+                           descendent, rq::ArithmeticSequenceCondition::NONE,
+                           step) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2456,9 +2573,7 @@ struct Module final : public rq::Symbol, public rq::ReplacableExpression {
   }
 };
 
-struct Import final : public rq::Symbol,
-                      public rq::InitialExpression,
-                      public rq::InitialModuleMember {
+struct Import final : public rq::Symbol {
   using Self = rq::Import;
 
   Import() : Symbol(rq::EntityKind::SY_IMPORT) {}
@@ -2570,54 +2685,15 @@ struct CategoryAlternative : public rq::Symbol {
   }
 };
 
-struct ClassParameter : public rq::Symbol {
-  using Self = rq::ClassParameter;
-
-  ClassParameter() : Symbol(rq::EntityKind::SY_CLASS_PARAMETER) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_CLASS_PARAMETER;
-  }
-};
-
-struct LayoutParameter : public rq::Symbol {
-  using Self = rq::LayoutParameter;
-
-  LayoutParameter() : Symbol(rq::EntityKind::SY_LAYOUT_PARAMETER) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_LAYOUT_PARAMETER;
-  }
-};
-
-struct TemplateParameter : public rq::Symbol {
-  using Self = rq::TemplateParameter;
-
-  TemplateParameter() : Symbol(rq::EntityKind::SY_TEMPLATE_PARAMETER) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_TEMPLATE_PARAMETER;
-  }
-};
-
-struct SignatureParameter : public rq::Symbol {
-  using Self = rq::SignatureParameter;
-
-  SignatureParameter() : Symbol(rq::EntityKind::SY_SIGNATURE_PARAMETER) {}
-
-  static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_SIGNATURE_PARAMETER;
-  }
-};
-
 struct SymbolTable : public rq::Symbol {
   using Self = rq::SymbolTable;
 
-  explicit SymbolTable(rq::EntityKind k) : Symbol(k) {}
+  rq::BumpPtrMap<rq::BumpPtrList<rq::Symbol>> _named_values;
+  rq::BumpPtrList<rq::Symbol> _unamed_values{};
+
+  explicit SymbolTable(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
+                       unsigned bucket_count)
+      : Symbol(k), _named_values(allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::getIsSymbolTable(rq::dereferencePtr(entity).getKind());
@@ -2627,7 +2703,8 @@ struct SymbolTable : public rq::Symbol {
 struct Top : public rq::SymbolTable {
   using Self = rq::Top;
 
-  Top() : SymbolTable(rq::EntityKind::SY_TOP) {}
+  Top(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : SymbolTable(rq::EntityKind::SY_TOP, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_TOP;
@@ -2637,7 +2714,8 @@ struct Top : public rq::SymbolTable {
 struct Scope : public rq::SymbolTable {
   using Self = rq::Scope;
 
-  Scope() : SymbolTable(rq::EntityKind::SY_SCOPE) {}
+  Scope(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : SymbolTable(rq::EntityKind::SY_SCOPE, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SCOPE;
@@ -2647,7 +2725,8 @@ struct Scope : public rq::SymbolTable {
 struct Table : public rq::SymbolTable {
   using Self = rq::Table;
 
-  Table() : SymbolTable(rq::EntityKind::SY_TABLE) {}
+  Table(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : SymbolTable(rq::EntityKind::SY_TABLE, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_TABLE;
@@ -2657,7 +2736,8 @@ struct Table : public rq::SymbolTable {
 struct Class : public rq::SymbolTable {
   using Self = rq::Class;
 
-  Class() : SymbolTable(rq::EntityKind::SY_CLASS) {}
+  Class(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : SymbolTable(rq::EntityKind::SY_CLASS, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CLASS;
@@ -2667,7 +2747,8 @@ struct Class : public rq::SymbolTable {
 struct Enumeration : public rq::SymbolTable {
   using Self = rq::Enumeration;
 
-  Enumeration() : SymbolTable(rq::EntityKind::SY_ENUMERATION) {}
+  Enumeration(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : SymbolTable(rq::EntityKind::SY_ENUMERATION, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2678,7 +2759,8 @@ struct Enumeration : public rq::SymbolTable {
 struct Category : public rq::SymbolTable {
   using Self = rq::Category;
 
-  Category() : SymbolTable(rq::EntityKind::SY_CATEGORY) {}
+  Category(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : SymbolTable(rq::EntityKind::SY_CATEGORY, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CATEGORY;
@@ -2688,7 +2770,9 @@ struct Category : public rq::SymbolTable {
 struct Procedure : public rq::SymbolTable {
   using Self = rq::Procedure;
 
-  explicit Procedure(rq::EntityKind k) : SymbolTable(k) {}
+  explicit Procedure(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
+                     unsigned bucket_count)
+      : SymbolTable(k, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::getIsProcedure(rq::dereferencePtr(entity).getKind());
@@ -2698,7 +2782,8 @@ struct Procedure : public rq::SymbolTable {
 struct Entry : public rq::Procedure {
   using Self = rq::Entry;
 
-  Entry() : Procedure(rq::EntityKind::SY_ENTRY) {}
+  Entry(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_ENTRY, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ENTRY;
@@ -2708,7 +2793,8 @@ struct Entry : public rq::Procedure {
 struct Function : public rq::Procedure {
   using Self = rq::Function;
 
-  Function() : Procedure(rq::EntityKind::SY_FUNCTION) {}
+  Function(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_FUNCTION, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_FUNCTION;
@@ -2718,7 +2804,8 @@ struct Function : public rq::Procedure {
 struct Method : public rq::Procedure {
   using Self = rq::Method;
 
-  Method() : Procedure(rq::EntityKind::SY_METHOD) {}
+  Method(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_METHOD, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_METHOD;
@@ -2728,7 +2815,8 @@ struct Method : public rq::Procedure {
 struct Ranger : public rq::Procedure {
   using Self = rq::Ranger;
 
-  Ranger() : Procedure(rq::EntityKind::SY_METHOD) {}
+  Ranger(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_METHOD, allocator, bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RANGER;
@@ -2738,7 +2826,9 @@ struct Ranger : public rq::Procedure {
 struct ExtensionFunction : public rq::Procedure {
   using Self = rq::ExtensionFunction;
 
-  ExtensionFunction() : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION) {}
+  ExtensionFunction(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION, allocator,
+                  bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2749,7 +2839,9 @@ struct ExtensionFunction : public rq::Procedure {
 struct ExtensionMethod : public rq::Procedure {
   using Self = rq::ExtensionMethod;
 
-  ExtensionMethod() : Procedure(rq::EntityKind::SY_EXTENSION_METHOD) {}
+  ExtensionMethod(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_EXTENSION_METHOD, allocator,
+                  bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -2760,7 +2852,9 @@ struct ExtensionMethod : public rq::Procedure {
 struct ExtensionRanger : public rq::Procedure {
   using Self = rq::ExtensionRanger;
 
-  ExtensionRanger() : Procedure(rq::EntityKind::SY_EXTENSION_RANGER) {}
+  ExtensionRanger(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
+      : Procedure(rq::EntityKind::SY_EXTENSION_RANGER, allocator,
+                  bucket_count) {}
 
   static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==

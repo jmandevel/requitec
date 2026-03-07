@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rq/bump_ptr_allocator.hpp>
 #include <rq/entity.hpp>
 #include <rq/see.hpp>
 #include <rq/utility.hpp>
@@ -60,7 +61,7 @@ struct SourceRange final {
   rq::SourceLocation end = {};
 };
 
-struct Context final {
+struct Context final : public rq::BumpPtrAllocator {
   using Self = rq::Context;
 
   std::string _executable_path;
@@ -72,15 +73,13 @@ struct Context final {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::SymbolicExecutionEngine _see{};
-  rq::Top _top{};
+  rq::Top _top;
   rq::Module *_source_module_ptr = nullptr;
-  llvm::BumpPtrAllocator _llvm_arena{};
-  llvm::StringSaver _llvm_string_saver{_llvm_arena};
   std::vector<rq::Expression *> _unused_expression_ptrs{};
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
 
   Context(std::string &&executable_path)
-      : _executable_path(std::move(executable_path)) {}
+      : _executable_path(std::move(executable_path)), _top(*this, 64) {}
   Context(const Self &) = delete;
   Context(Self &&) = delete;
   ~Context() = default;
@@ -92,11 +91,8 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Top &getTop() {
-    return this->_top;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Top &
-  getTop() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Top &getTop() { return this->_top; }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Top &getTop() const {
     return this->_top;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getExecutablePath() const {
@@ -108,8 +104,7 @@ struct Context final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getSourceModule() {
     return rq::dereferencePtr(this->_source_module_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &
-  getSourceModule() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getSourceModule() const {
     return rq::dereferencePtr(this->_source_module_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::TargetMachine &getLlvmTargetMachine() {
@@ -145,8 +140,8 @@ struct Context final {
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
   loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module *
-  loadImportModule(rq::Expression &expression, llvm::StringRef import_string);
+  [[nodiscard]] rq::Module *loadImportModule(rq::Expression &expression,
+                                             llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
   [[nodiscard]] bool parseRequite(rq::Module &module,
@@ -243,16 +238,6 @@ struct Context final {
   void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
-  template <typename TypeParam, typename... ArgNParam>
-  inline TypeParam &allocateValue(ArgNParam &&...arg_n) {
-    TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
-    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
-    return rq::dereferencePtr(ptr);
-  }
-
-  inline llvm::StringRef saveString(llvm::Twine twine) {
-    return this->_llvm_string_saver.save(twine);
-  }
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");

@@ -540,6 +540,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MAY_DISCARD:
     [[fallthrough]];
   case K::INDETERMINATE:
+    [[fallthrough]];
+  case K::RANGING:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
@@ -603,24 +605,31 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryExpressionBranches(situation, expression,
                                                   S::BINDING, S::RVALUE);
     break;
-  case K::DESTROY:
-    is_ok = this->situateNaryStatementBranches(expression);
-    break;
-  case K::DESTROY_VALUE:
-    is_ok =
-        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
-    break;
   case K::DROP:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::DROP_VALUE:
+  case K::DROP_OF:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
+  case K::DROP_EACH:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::DROP_EACH_OF:
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
+  case K::EACH:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::EACH_OF:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
   case K::MOVE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::MOVE_VALUE:
+  case K::MOVE_OF:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, situation);
     break;
@@ -631,6 +640,9 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::METHOD:
+    is_ok = this->situateNamedMemberProcedure(situation, expression);
+    break;
+  case K::RANGER:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::EXTENSION_FUNCTION: {
@@ -675,11 +687,9 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   }
   case K::EXTENSION_METHOD:
+    [[fallthrough]];
+  case K::EXTENSION_RANGER:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
-    break;
-  case K::RANGER:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::RVALUE);
     break;
 
   // CONTROL FLOW
@@ -877,24 +887,24 @@ bool Situator::situateTree(rq::Situation situation,
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
   case K::FAST_OF:
-    is_ok =
-        this->situateBinaryExpressionBranches(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateBinaryExpressionBranches(situation, expression,
+                                                  S::RVALUE, S::RVALUE);
     break;
   case K::LEAST:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
   case K::LEAST_OF:
-    is_ok =
-        this->situateBinaryExpressionBranches(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateBinaryExpressionBranches(situation, expression,
+                                                  S::RVALUE, S::RVALUE);
     break;
   case K::EXACT:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
   case K::EXACT_OF:
-    is_ok =
-        this->situateBinaryExpressionBranches(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateBinaryExpressionBranches(situation, expression,
+                                                  S::RVALUE, S::RVALUE);
     break;
   case K::INDEX_DEPTH:
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -1224,7 +1234,7 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
     }
     break;
-  case K::NODE:
+  case K::EXPRESSION:
     [[fallthrough]];
   case K::EXPAND:
     is_ok = this->situateNullaryExpression(situation, expression);
