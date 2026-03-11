@@ -20,29 +20,45 @@ Requite is a statically typed systems programming langauge with a homoiconic syn
 
 ## Language Goals
 
-Requite is a programming language that is designed to fill the same nitche as C++. However, it has a number of design goals that make it uniquely suited for systems programming. Not all of these goals are fully implemented yet.
+Requite is a programming language that is designed to fill the same niche as C++. However, it has a number of design goals that make it uniquely suited for systems programming. Not all of these goals are fully implemented yet.
 
 1. Focus on Readability
-    * Low multiplicity.
-    * A lot of meaningfully named keywords, and none of them are reserved.
-    * Interpolated strings.
-    * Extension methods to allow for function chaining over nesting.
-    * Named and positional function arguments with explicit control in function signature.
-    * Type definitions which use symbols are always read from left to right.
-    * Writability is sacrificed for the sake or readability wherever possible.
+    * Sacrificed writability
+    * Low multiplicity
+    * Lots of keywords
+    * No reserved words
+    * Interpolated strings
+    * Extension methods
+    * Named and positional function arguments
+    * Deductive type inferencing
+    * Consistent left-to-right associativity
+    * Descriptive casts
 2. Expected Behaviour
-    * No optimizations with side effects.
-    * Move semantics are explicit and consistent between values of different types.
-    * No implicit conversions.
-    * No operator overloads.
-    * Absolute symbol paths.
-3. Great Defaults
-    * Variables are constant by default, mutable only if specified.
-    * Object members are private by default.
-    * Function returns must be utilized by default.
-4. Easy Interoperability with C (and maybe C++)
-    * Able to include C (and maybe C++) headers and utilize external APIs with ease.
-    * Easily able to convert requite files into C (and maybe C++) headers and source code files.
+    * Strong type system
+    * No optimizations with side effects
+    * Consistent move semantics
+    * No implicit conversions
+    * No operator overloads
+    * Absolute symbol paths
+    * Enforced explicit resource destruction
+    * No exceptions
+3. Powerful features
+    * Easy reflection
+    * Code generation
+    * Compile-time code execution
+    * Macro-like templates
+    * Rust-like enumerations
+    * Code based error handling
+    * Range based looping
+4. Safe Defaults
+    * Constant values by default
+    * Private object members by default
+    * No-discard returns by default
+5. Easy Interoperability with C
+    * Explicit mangled names
+    * Can include and utilize C headers
+    * Can convert C into Requite
+    * Can convert Requite into C
 
 ## How it Works
 
