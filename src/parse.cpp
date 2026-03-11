@@ -1164,7 +1164,7 @@ rq::Keyword RequiteParser::parseKeyword() {
     this->setNotOk();
     return rq::Keyword::ERROR;
   }
-  if (keyword != rq::Keyword::NONE) {
+  if (keyword == rq::Keyword::NONE) {
     this->getContext().logErrorNotKeyword(token);
     this->setNotOk();
     return rq::Keyword::ERROR;
