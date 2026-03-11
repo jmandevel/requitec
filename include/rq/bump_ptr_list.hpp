@@ -11,29 +11,32 @@
 
 namespace rq {
 
-template <typename BumpPtrListItemParam> struct BumpPtrListNode;
-template <typename BumpPtrListItemParam> struct BumpPtrList;
-template <typename BumpPtrListItemParam> struct BumpPtrListIterator;
+template <typename ItemParam> struct BumpPtrListNode;
+template <typename ItemParam> struct ConstBumpPtrListNode;
+template <typename ItemParam> struct BumpPtrList;
+template <typename ItemParam> struct ConstBumpPtrList;
+template <typename ItemParam> struct BumpPtrListIterator;
+template <typename ItemParam> struct ConstBumpPtrListIterator;
 
-// a list of items and BumpPtrListNodes allocated with a llvm::BumpPtrAllocator
-template <typename BumpPtrListItemParam> struct BumpPtrList final {
-  using Item = BumpPtrListItemParam;
+template <typename ItemParam> struct BumpPtrList final {
+  using Item = ItemParam;
   using Node = rq::BumpPtrListNode<Item>;
   using Iterator = rq::BumpPtrListIterator<Item>;
+  using ConstIterator = rq::ConstBumpPtrListIterator<Item>;
   using Self = rq::BumpPtrList<Item>;
 
-  llvm::PointerUnion<Item *, rq::BumpPtrListNode<Item> *> _ptr_union{nullptr};
+  llvm::PointerUnion<Item *, Node *> _ptr_union{nullptr};
 
-  RQ_ALWAYS_INLINE BumpPtrList() = default;
-  RQ_ALWAYS_INLINE ~BumpPtrList() = default;
-  RQ_ALWAYS_INLINE BumpPtrList(const Self &) = delete;
-  RQ_ALWAYS_INLINE BumpPtrList(Self &&) = delete;
-  RQ_ALWAYS_INLINE Self &operator=(const Self &) = delete;
-  RQ_ALWAYS_INLINE Self &operator=(Self &&) = delete;
+  BumpPtrList() = default;
+  ~BumpPtrList() = default;
+  BumpPtrList(const Self &) = delete;
+  BumpPtrList(Self &&) = delete;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsItem() const {
     return llvm::isa<Item *>(this->_ptr_union);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBumpPtrListNode() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
     return llvm::isa<Node *>(this->_ptr_union);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
@@ -50,7 +53,7 @@ template <typename BumpPtrListItemParam> struct BumpPtrList final {
   [[nodiscard]] RQ_ALWAYS_INLINE Node &getNode() {
     return rq::dereferencePtr(llvm::cast<Node *>(this->_ptr_union));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Node &getBumpPtrListNode() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const Node &getNode() const {
     return rq::dereferencePtr(llvm::cast<Node *>(this->_ptr_union));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
@@ -61,10 +64,65 @@ template <typename BumpPtrListItemParam> struct BumpPtrList final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Iterator begin();
   [[nodiscard]] RQ_ALWAYS_INLINE Iterator end();
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator begin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator end() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cbegin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const;
 };
 
-template <typename BumpPtrListItemParam> struct BumpPtrListNode final {
-  using Item = BumpPtrListItemParam;
+template <typename ItemParam> struct ConstBumpPtrList final {
+  using Item = ItemParam;
+  using Node = rq::ConstBumpPtrListNode<Item>;
+  using ConstIterator = rq::ConstBumpPtrListIterator<Item>;
+  using Self = rq::ConstBumpPtrList<Item>;
+
+  llvm::PointerUnion<const Item *, const Node *> _ptr_union{nullptr};
+
+  ConstBumpPtrList() = default;
+  ~ConstBumpPtrList() = default;
+  ConstBumpPtrList(const Self &) = default;
+  ConstBumpPtrList(Self &&) = default;
+  explicit RQ_ALWAYS_INLINE ConstBumpPtrList(const rq::BumpPtrList<Item> &list)
+      : _ptr_union(
+            llvm::PointerUnion<const Item *, const Node *>::getFromOpaqueValue(
+                list._ptr_union.getOpaqueValue())) {}
+  Self &operator=(const Self &) = default;
+  RQ_ALWAYS_INLINE Self &operator=(const rq::BumpPtrList<Item> &list) {
+    this->_ptr_union = list._ptr_union;
+    return *this;
+  };
+  Self &operator=(Self &&) = default;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsItem() const {
+    return llvm::isa<const Item *>(this->_ptr_union);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
+    return llvm::isa<const Node *>(this->_ptr_union);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_ptr_union.isNull();
+  }
+  RQ_ALWAYS_INLINE void insertFront(rq::BumpPtrAllocator &allocator,
+                                    const Item &item);
+  [[nodiscard]] RQ_ALWAYS_INLINE const Item &getItem() const {
+    return rq::dereferencePtr(llvm::cast<const Item *>(this->_ptr_union));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Node &getNode() const {
+    return rq::dereferencePtr(llvm::cast<const Node *>(this->_ptr_union));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this->_ptr_union == rhs._ptr_union;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this->_ptr_union != rhs._ptr_union;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator begin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator end() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cbegin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const;
+};
+
+template <typename ItemParam> struct BumpPtrListNode final {
+  using Item = ItemParam;
   using List = rq::BumpPtrList<Item>;
   using Self = rq::BumpPtrListNode<Item>;
 
@@ -79,11 +137,27 @@ template <typename BumpPtrListItemParam> struct BumpPtrListNode final {
   Self &operator=(Self &&) = delete;
 };
 
-template <typename BumpPtrListItemParam>
+template <typename ItemParam> struct ConstBumpPtrListNode final {
+  using Item = ItemParam;
+  using List = rq::ConstBumpPtrList<Item>;
+  using Self = rq::ConstBumpPtrListNode<Item>;
+
+  const Item *item_ptr{nullptr};
+  List next{};
+
+  RQ_ALWAYS_INLINE ConstBumpPtrListNode() = default;
+  ConstBumpPtrListNode(const Self &) = delete;
+  ConstBumpPtrListNode(Self &&) = delete;
+  RQ_ALWAYS_INLINE ~ConstBumpPtrListNode() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+};
+
+template <typename ItemParam>
 RQ_ALWAYS_INLINE void
-BumpPtrList<BumpPtrListItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
-                                               BumpPtrListItemParam &item) {
-  using Item = BumpPtrListItemParam;
+BumpPtrList<ItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
+                                    ItemParam &item) {
+  using Item = ItemParam;
   using Node = rq::BumpPtrListNode<Item>;
   if (this->getIsEmpty()) {
     this->_ptr_union = &item;
@@ -91,8 +165,8 @@ BumpPtrList<BumpPtrListItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
   }
   Node &node = allocator.allocateValue<Node>();
   node.item_ptr = &item;
-  if (this->getIsBumpPtrListNode()) {
-    Node &old_node = this->getBumpPtrListNode();
+  if (this->getIsNode()) {
+    Node &old_node = this->getNode();
     node.next._ptr_union = &old_node;
     this->_ptr_union = &node;
     return;
@@ -103,26 +177,50 @@ BumpPtrList<BumpPtrListItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
   this->_ptr_union = &node;
 }
 
-template <typename BumpPtrListItemParam> struct BumpPtrListIterator final {
-  using BumpPtrListItem = BumpPtrListItemParam;
-  using Self = rq::BumpPtrListIterator<BumpPtrListItem>;
-  using value_type = BumpPtrListItem;
-  using reference = BumpPtrListItem &;
-  using pointer = BumpPtrListItem *;
+template <typename ItemParam>
+RQ_ALWAYS_INLINE void
+ConstBumpPtrList<ItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
+                                         const ItemParam &item) {
+  using Item = ItemParam;
+  using Node = rq::ConstBumpPtrListNode<Item>;
+  if (this->getIsEmpty()) {
+    this->_ptr_union = &item;
+    return;
+  }
+  Node &node = allocator.allocateValue<Node>();
+  node.item_ptr = &item;
+  if (this->getIsNode()) {
+    Node &old_node = this->getNode();
+    node.next._ptr_union = &old_node;
+    this->_ptr_union = &node;
+    return;
+  }
+  RQ_ASSERT(this->getIsItem(), "invalid state");
+  const Item &old_item = this->getItem();
+  node.item_ptr = &old_item;
+  this->_ptr_union = &node;
+}
+
+template <typename ItemParam> struct BumpPtrListIterator final {
+  using Item = ItemParam;
+  using List = rq::BumpPtrList<Item>;
+  using Node = rq::BumpPtrListNode<Item>;
+  using Self = rq::BumpPtrListIterator<Item>;
+  using value_type = Item;
+  using reference = Item &;
+  using pointer = Item *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  rq::BumpPtrList<BumpPtrListItem> _list;
+  List _list;
 
   RQ_ALWAYS_INLINE BumpPtrListIterator() = default;
-  RQ_ALWAYS_INLINE explicit BumpPtrListIterator(
-      rq::BumpPtrList<BumpPtrListItem> &list)
-      : _list(list) {}
+  RQ_ALWAYS_INLINE explicit BumpPtrListIterator(List &list) : _list(list) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (this->_list.getIsItem()) {
-      this->_list = rq::BumpPtrList<BumpPtrListItem>();
-    } else if (this->_list.getIsBumpPtrListNode()) {
-      this->_list = this->_list.getBumpPtrListNode().getNext();
+      this->_list._ptr_union = nullptr;
+    } else if (this->_list.getIsNode()) {
+      this->_list._ptr_union = this->_list.getNode().next._ptr_union;
     } else {
       RQ_UNREACHABLE();
     }
@@ -139,35 +237,35 @@ template <typename BumpPtrListItemParam> struct BumpPtrListIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
     return this->_list != it._list;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE BumpPtrListItem &operator*() {
+  [[nodiscard]] RQ_ALWAYS_INLINE Item &operator*() {
     if (this->_list.getIsItem()) {
       return this->_list.getItem();
-    } else if (this->_list.getIsBumpPtrListNode()) {
-      return this->_list.getBumpPtrListNode().getItem();
+    } else if (this->_list.getIsNode()) {
+      return this->_list.getNode().getItem();
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const BumpPtrListItem &operator*() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const Item &operator*() const {
     if (this->_list.getIsItem()) {
       return this->_list.getItem();
-    } else if (this->_list.getIsBumpPtrListNode()) {
-      return this->_list.getBumpPtrListNode().getItem();
+    } else if (this->_list.getIsNode()) {
+      return rq::dereferencePtr(this->_list.getNode().item_ptr);
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE BumpPtrListItem *operator->() {
+  [[nodiscard]] RQ_ALWAYS_INLINE Item *operator->() {
     if (this->_list.getIsItem()) {
       return &this->_list.getItem();
-    } else if (this->_list.getIsBumpPtrListNode()) {
-      return &this->_list.getBumpPtrListNode().getItem();
+    } else if (this->_list.getIsNode()) {
+      return &this->_list.getNode().item_ptr;
     }
     RQ_UNREACHABLE();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const BumpPtrListItem *operator->() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const Item *operator->() const {
     if (this->_list.getIsItem()) {
       return &this->_list.getItem();
-    } else if (this->_list.getIsBumpPtrListNode()) {
-      return &this->_list.getBumpPtrListNode().getItem();
+    } else if (this->_list.getIsNode()) {
+      return this->_list.getNode().item_ptr;
     }
     RQ_UNREACHABLE();
   }
@@ -176,16 +274,121 @@ template <typename BumpPtrListItemParam> struct BumpPtrListIterator final {
   }
 };
 
-template <typename BumpPtrListItemParam>
-inline rq::BumpPtrListIterator<BumpPtrListItemParam>
-BumpPtrList<BumpPtrListItemParam>::begin() {
-  return rq::BumpPtrListIterator<BumpPtrListItemParam>(*this);
+template <typename ItemParam> struct ConstBumpPtrListIterator final {
+  using Item = ItemParam;
+  using List = rq::ConstBumpPtrList<Item>;
+  using Node = rq::ConstBumpPtrListNode<Item>;
+  using Self = rq::ConstBumpPtrListIterator<Item>;
+  using value_type = Item;
+  using reference = const Item &;
+  using pointer = const Item *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  List _list;
+
+  RQ_ALWAYS_INLINE ConstBumpPtrListIterator() = default;
+  RQ_ALWAYS_INLINE explicit ConstBumpPtrListIterator(const List &list)
+      : _list(list) {}
+  RQ_ALWAYS_INLINE Self &operator++() {
+    if (this->_list.getIsItem()) {
+      this->_list._ptr_union = nullptr;
+    } else if (this->_list.getIsNode()) {
+      this->_list._ptr_union = this->_list.getNode().next._ptr_union;
+    } else {
+      RQ_UNREACHABLE();
+    }
+    return *this;
+  }
+  RQ_ALWAYS_INLINE Self operator++(int) {
+    Self backup = *this;
+    ++(*this);
+    return backup;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_list == it._list;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_list != it._list;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Item &operator*() const {
+    if (this->_list.getIsItem()) {
+      return this->_list.getItem();
+    } else if (this->_list.getIsNode()) {
+      return rq::dereferencePtr(this->_list.getNode().item_ptr);
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Item *operator->() const {
+    if (this->_list.getIsItem()) {
+      return &this->_list.getItem();
+    } else if (this->_list.getIsNode()) {
+      return &this->_list.getNode().getItem();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_list.getIsEmpty();
+  }
+};
+
+template <typename ItemParam>
+inline rq::BumpPtrListIterator<ItemParam> BumpPtrList<ItemParam>::begin() {
+  return rq::BumpPtrListIterator<ItemParam>(*this);
 }
 
-template <typename BumpPtrListItemParam>
-inline rq::BumpPtrListIterator<BumpPtrListItemParam>
-BumpPtrList<BumpPtrListItemParam>::end() {
-  return rq::BumpPtrListIterator<BumpPtrListItemParam>();
+template <typename ItemParam>
+inline rq::BumpPtrListIterator<ItemParam> BumpPtrList<ItemParam>::end() {
+  return rq::BumpPtrListIterator<ItemParam>();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrList<ItemParam>::begin() const {
+  return rq::ConstBumpPtrListIterator<ItemParam>(
+      rq::ConstBumpPtrList<ItemParam>(*this));
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrList<ItemParam>::end() const {
+  return rq::ConstBumpPtrListIterator<ItemParam>();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrList<ItemParam>::cbegin() const {
+  return begin();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrList<ItemParam>::cend() const {
+  return end();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+ConstBumpPtrList<ItemParam>::begin() const {
+  return rq::ConstBumpPtrListIterator<ItemParam>(*this);
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+ConstBumpPtrList<ItemParam>::end() const {
+  return rq::ConstBumpPtrListIterator<ItemParam>();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+ConstBumpPtrList<ItemParam>::cbegin() const {
+  return begin();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+ConstBumpPtrList<ItemParam>::cend() const {
+  return end();
 }
 
 } // namespace rq

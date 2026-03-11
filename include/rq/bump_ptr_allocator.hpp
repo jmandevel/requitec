@@ -2,11 +2,11 @@
 
 #include <rq/utility.hpp>
 
-#include <llvm/ADT/ArrayRef.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/StringSaver.h>
 
 #include <cstring>
+#include <span>
 
 namespace rq {
 
@@ -30,10 +30,10 @@ struct BumpPtrAllocator {
     return rq::dereferencePtr(ptr);
   }
   template <typename TypeParam, typename... ArgNParam>
-  inline llvm::ArrayRef<TypeParam> allocateZeroedArray(unsigned count) {
+  inline std::span<TypeParam> allocateZeroedArray(unsigned count) {
     TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(count);
-    std::memset(ptr, 0, sizeof(TypeParam) * count);
-    return llvm::ArrayRef<TypeParam>(ptr, count);
+    std::memset(static_cast<void*>(ptr), 0, sizeof(TypeParam) * count);
+    return std::span<TypeParam>(ptr, count);
   }
   inline llvm::StringRef saveString(llvm::Twine twine) {
     return this->_llvm_string_saver.save(twine);

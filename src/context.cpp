@@ -509,7 +509,7 @@ static void emitAttributes(rq::JsonEmitter &json,
 template <typename SymbolType>
 static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
                                    const SymbolType &symbol) {
-  json.emitString("module", symbol.getModule().getPath());
+  json.emitString("module", symbol.getContainingModule().getPath());
   rq::emitAttributes(json, symbol);
   rq::emitLocation(context, json, symbol.getExpression());
 }
@@ -517,7 +517,10 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
                             const rq::SymbolTable &table) {
   json.beginArray("named");
-  for (const auto &[name, list] : table.getNamedListRange()) {
+  for (const auto &node : table.getNamedSymbolsRange()) {
+    llvm::StringRef name = node.name;
+    rq::ConstBumpPtrList<rq::Symbol> list =
+        rq::ConstBumpPtrList<rq::Symbol>(node.list);
     json.beginObject();
     json.emitString("name", name);
     json.beginArray("symbols");
@@ -529,7 +532,7 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
   }
   json.endArray();
   json.beginArray("unnamed");
-  for (const rq::Symbol &symbol : table.getUnnamedList()) {
+  for (const rq::Symbol &symbol : table.getUnamedSymbolsList()) {
     rq::emitSymbol(context, json, symbol);
   }
   json.endArray();
@@ -977,14 +980,13 @@ void Context::logErrorNotDeterminateStaticValue(
 }
 
 rq::Expression &Context::acquireExpression() {
-  if (this->_unused_expression_ptrs.empty()) {
+  if (this->_first_unused_expression_ptr == nullptr) {
     rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
-      rq::dereferencePtr(this->_unused_expression_ptrs.back());
-  this->_unused_expression_ptrs.pop_back();
-  unused_expression.clear();
+      rq::dereferencePtr(this->_first_unused_expression_ptr);
+  this->_first_unused_expression_ptr = unused_expression._branch_ptr;
   return unused_expression;
 }
 
@@ -1001,26 +1003,27 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
 }
 
 rq::InstructionNode &Context::acquireInstructionNode() {
-  if (this->_unused_instruction_node_ptrs.empty()) {
+  if (this->_first_unused_instruction_node_ptr == nullptr) {
     rq::InstructionNode &new_node = this->allocateValue<rq::InstructionNode>();
     return new_node;
   }
   rq::InstructionNode &unused_node =
-      rq::dereferencePtr(this->_unused_instruction_node_ptrs.back());
-  this->_unused_instruction_node_ptrs.pop_back();
-  unused_node.clear();
+      rq::dereferencePtr(this->_first_unused_instruction_node_ptr);
+  this->_first_unused_instruction_node_ptr =
+      llvm::cast<rq::InstructionNode *>(unused_node._car);
   return unused_node;
 }
 
 rq::Instruction &Context::acquireInstruction() {
-  if (this->_unused_instruction_ptrs.empty()) {
+  if (this->_first_unused_instruction_ptr == nullptr) {
     rq::Instruction &new_instruction = this->allocateValue<rq::Instruction>();
     return new_instruction;
   }
   rq::Instruction &unused_instruction =
-      rq::dereferencePtr(this->_unused_instruction_ptrs.back());
-  this->_unused_instruction_ptrs.pop_back();
-  unused_instruction.clear();
+      rq::dereferencePtr(this->_first_unused_instruction_ptr);
+  this->_first_unused_instruction_ptr =
+      static_cast<rq::Instruction *>(
+          llvm::cast<rq::Entity *>(unused_instruction._cdr));
   return unused_instruction;
 }
 

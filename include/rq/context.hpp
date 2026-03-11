@@ -75,7 +75,9 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::SymbolicExecutionEngine _see{};
   rq::Top _top;
   rq::Module *_source_module_ptr = nullptr;
-  std::vector<rq::Expression *> _unused_expression_ptrs{};
+  rq::Expression *_first_unused_expression_ptr{nullptr};
+  rq::InstructionNode *_first_unused_instruction_node_ptr{nullptr};
+  rq::Instruction *_first_unused_instruction_ptr{nullptr};
   llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
 
   Context(std::string &&executable_path)
@@ -242,8 +244,25 @@ struct Context final : public rq::BumpPtrAllocator {
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
-    this->_unused_expression_ptrs.emplace_back(&expression);
+    expression.clear();
+    expression._branch_ptr = this->_first_unused_expression_ptr;
+    this->_first_unused_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  rq::InstructionNode &acquireInstructionNode();
+  inline void discardInstructionNode(rq::InstructionNode &instruction_node) {
+    RQ_ASSERT(instruction_node.getCar().isNull(), "has car");
+    RQ_ASSERT(instruction_node.getCdr().isNull(), "has cdr");
+    instruction_node.clear();
+    instruction_node._car = this->_first_unused_instruction_node_ptr;
+    this->_first_unused_instruction_node_ptr = &instruction_node;
+  }
+  rq::Instruction &acquireInstruction();
+  inline void discardInstruction(rq::Instruction &instruction) {
+    RQ_ASSERT(instruction.getCdr().isNull(), "has cdr");
+    instruction.clear();
+    instruction._cdr = this->_first_unused_instruction_ptr;
+    this->_first_unused_instruction_ptr = &instruction;
+  }
 };
 } // namespace rq
