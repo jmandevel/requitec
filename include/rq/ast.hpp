@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rq/bump_ptr_allocator.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/StringRef.h>
@@ -11,8 +12,8 @@
 
 namespace rq {
 
-// Expression represents individual expressions in the AST. Each is identified by a
-// keyword.
+// Expression represents individual expressions in the AST. Each is identified
+// by a keyword.
 
 enum class Keyword : std::uint32_t {
   // this is the initial keyword set for expressions. it must be overwritten
@@ -171,7 +172,7 @@ enum class Keyword : std::uint32_t {
   EXTENSION_FUNCTION,
   EXTENSION_METHOD,
   EXTENSION_RANGER,
-  
+
   // CONTROL FLOW
   RETURN,
   BREAK,
@@ -3237,8 +3238,7 @@ getHasIndeterminate(rq::TypeAttribute attribute) {
   return rq::getHasAll(flags, rq::TypeAttributeFlags::INDETERMINATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasRanging(rq::TypeAttribute attribute) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasRanging(rq::TypeAttribute attribute) {
   rq::TypeAttributeFlags flags = rq::getFlags(attribute);
   return rq::getHasAll(flags, rq::TypeAttributeFlags::RANGING);
 }
@@ -4039,6 +4039,8 @@ struct Expression final {
         rq::ConstExpressionIterator());
   }
 };
+
+template <> struct is_acquired<rq::Expression> final : std::true_type {};
 
 rq::ExpressionIterator &ExpressionIterator::operator++() {
   this->_expression_ptr =

@@ -246,7 +246,8 @@ struct Context final : public rq::BumpPtrAllocator {
     RQ_ASSERT(!expression.getHasNext(), "has next");
     expression.clear();
     expression._branch_ptr = this->_first_unused_expression_ptr;
-    this->_first_unused_expression_ptr = &expression;
+    expression._branch_ptr = this->acquired._first_unused_expression_ptr;
+    this->acquired._first_unused_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
   rq::InstructionNode &acquireInstructionNode();
@@ -254,15 +255,15 @@ struct Context final : public rq::BumpPtrAllocator {
     RQ_ASSERT(instruction_node.getCar().isNull(), "has car");
     RQ_ASSERT(instruction_node.getCdr().isNull(), "has cdr");
     instruction_node.clear();
-    instruction_node._car = this->_first_unused_instruction_node_ptr;
-    this->_first_unused_instruction_node_ptr = &instruction_node;
+    instruction_node._car = this->acquired._first_unused_instruction_node_ptr;
+    this->acquired._first_unused_instruction_node_ptr = &instruction_node;
   }
   rq::Instruction &acquireInstruction();
   inline void discardInstruction(rq::Instruction &instruction) {
     RQ_ASSERT(instruction.getCdr().isNull(), "has cdr");
     instruction.clear();
-    instruction._cdr = this->_first_unused_instruction_ptr;
-    this->_first_unused_instruction_ptr = &instruction;
+    instruction._cdr = this->acquired._first_unused_instruction_ptr;
+    this->acquired._first_unused_instruction_ptr = &instruction;
   }
 };
 } // namespace rq
