@@ -108,12 +108,13 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::GenericString _generic_string{};
     rq::Ascii _ascii{};
     rq::Utf8 _utf8{};
-    llvm::FoldingSet<rq::Synonym> _synonym_set{};
+    unsigned _scaled_builtin_generation{1};
     llvm::FoldingSet<rq::ScaledBuiltin> _scaled_builtin_set{};
     llvm::FoldingSet<rq::UnarySubtype> _unary_subtype_set{};
     llvm::FoldingSet<rq::CountedSubtype> _counted_subtype_set{};
     llvm::FoldingSet<rq::ArithmeticSequence> _arithmetic_sequence_set{};
     llvm::FoldingSet<rq::TypeConstant> _type_constant_set{};
+    llvm::FoldingSet<rq::ExpressionConstant> _expression_constant_set{};
     rq::BooleanConstant _true{true};
     rq::BooleanConstant _false{false};
     llvm::FoldingSet<rq::IntegerConstant> _integer_constant_set{};
@@ -290,7 +291,7 @@ struct Context final : public rq::BumpPtrAllocator {
     this->acquired._first_unused_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  rq::InstructionNode &acquireInstructionNode();
+  [[nodiscard]] rq::InstructionNode &acquireInstructionNode();
   inline void discardInstructionNode(rq::InstructionNode &instruction_node) {
     RQ_ASSERT(instruction_node.getCar().isNull(), "has car");
     RQ_ASSERT(instruction_node.getCdr().isNull(), "has cdr");
@@ -298,12 +299,374 @@ struct Context final : public rq::BumpPtrAllocator {
     instruction_node._car = this->acquired._first_unused_instruction_node_ptr;
     this->acquired._first_unused_instruction_node_ptr = &instruction_node;
   }
-  rq::Instruction &acquireInstruction();
+  [[nodiscard]] rq::Instruction &acquireInstruction();
   inline void discardInstruction(rq::Instruction &instruction) {
     RQ_ASSERT(instruction.getCdr().isNull(), "has cdr");
     instruction.clear();
     instruction._cdr = this->acquired._first_unused_instruction_ptr;
     this->acquired._first_unused_instruction_ptr = &instruction;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Inference &acquireInference() {
+    return this->acquired._inference;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericSymbol &acquireGenericSymbol() {
+    return this->acquired._generic_symbol;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericType &acquireGenericType() {
+    return this->acquired._generic_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Void &acquireVoid() {
+    return this->acquired._void;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Null &acquireNull() {
+    return this->acquired._null;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturn &acquireNoReturn() {
+    return this->acquired._no_return;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArguments &
+  acquireVariadicArguments() {
+    return this->acquired._variadic_arguments;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Boolean &acquireBoolean() {
+    return this->acquired._boolean;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericSigned &acquireGenericSigned() {
+    return this->acquired._generic_signed;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericUnsigned &acquireGenericUnsigned() {
+    return this->acquired._generic_unsigned;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericFloat &acquireGenericFloat() {
+    return this->acquired._generic_float;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBinary &acquireGenericBinary() {
+    return this->acquired._generic_binary;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBfloat &acquireGenericBfloat() {
+    return this->acquired._generic_bfloat;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Half &acquireHalf() {
+    return this->acquired._half;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Single &acquireSingle() {
+    return this->acquired._single;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Double &acquireDouble() {
+    return this->acquired._double;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Quadruple &acquireQuadruple() {
+    return this->acquired._quadruple;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16 &acquireBinary16() {
+    return this->acquired._binary16;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32 &acquireBinary32() {
+    return this->acquired._binary32;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64 &acquireBinary64() {
+    return this->acquired._binary64;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128 &acquireBinary128() {
+    return this->acquired._binary128;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16 &acquireBfloat16() {
+    return this->acquired._bfloat16;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericInteger &acquireGenericInteger() {
+    return this->acquired._generic_integer;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericSignedInteger &
+  acquireGenericSignedInteger() {
+    return this->acquired._generic_signed_integer;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericUnsignedInteger &
+  acquireGenericUnsignedInteger() {
+    return this->acquired._generic_unsigned_integer;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericCodeunit &acquireGenericCodeunit() {
+    return this->acquired._generic_codeunit;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericString &acquireGenericString() {
+    return this->acquired._generic_string;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Ascii &acquireAscii() {
+    return this->acquired._ascii;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8 &acquireUtf8() {
+    return this->acquired._utf8;
+  }
+  [[nodiscard]] inline rq::Symbol &acquireSynonym(rq::Symbol &original) {
+    if (llvm::isa<rq::ScaledBuiltin>(original)) {
+      rq::ScaledBuiltin &original_scaled =
+          llvm::cast<rq::ScaledBuiltin>(original);
+      const unsigned uid = this->acquired._scaled_builtin_generation++;
+      llvm::FoldingSetNodeID id;
+      rq::profileScaledBuiltin(id, original_scaled.getKind(),
+                               original_scaled.getScalar(), uid,
+                               original_scaled.getFlags());
+      void *insert_pos = nullptr;
+      rq::ScaledBuiltin &new_type =
+          this->allocateAcquiredValue<rq::ScaledBuiltin>(
+              original_scaled.getKind(), original_scaled.getScalar(),
+              this->acquired._scaled_builtin_generation++,
+              original_scaled.getFlags());
+      this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
+      return llvm::cast<rq::ScaledSignedInteger>(new_type);
+    }
+    return this->allocateAcquiredValue<rq::Synonym>(original);
+  }
+  [[nodiscard]] inline rq::ScaledSignedInteger &
+  acquireScaledSignedInteger(unsigned scalar, rq::ScaledBuiltinFlags flags) {
+    llvm::FoldingSetNodeID id;
+    rq::profileScaledBuiltin(id, rq::EntityKind::SY_SCALED_SIGNED_INTEGER,
+                             scalar, 0, flags);
+    void *insert_pos = nullptr;
+    if (rq::ScaledBuiltin *existing =
+            this->acquired._scaled_builtin_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return llvm::cast<rq::ScaledSignedInteger>(rq::dereferencePtr(existing));
+    }
+    rq::ScaledBuiltin &new_type =
+        this->allocateAcquiredValue<rq::ScaledBuiltin>(
+            rq::EntityKind::SY_SCALED_SIGNED_INTEGER, scalar, 0, flags);
+    this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::ScaledSignedInteger>(new_type);
+  }
+  [[nodiscard]] inline rq::ScaledUnsignedInteger &
+  acquireScaledUnsignedInteger(unsigned scalar, rq::ScaledBuiltinFlags flags) {
+    llvm::FoldingSetNodeID id;
+    rq::profileScaledBuiltin(id, rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER,
+                             scalar, 0, flags);
+    void *insert_pos = nullptr;
+    if (rq::ScaledBuiltin *existing =
+            this->acquired._scaled_builtin_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return llvm::cast<rq::ScaledUnsignedInteger>(
+          rq::dereferencePtr(existing));
+    }
+    rq::ScaledBuiltin &new_type =
+        this->allocateAcquiredValue<rq::ScaledBuiltin>(
+            rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER, scalar, 0, flags);
+    this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::ScaledUnsignedInteger>(new_type);
+  }
+  [[nodiscard]] inline rq::Reference &
+  acquireReference(rq::TypeConstant &descendent) {
+    llvm::FoldingSetNodeID id;
+    rq::profileUnarySubtype(id, rq::EntityKind::SY_REFERENCE, descendent);
+    void *insert_pos = nullptr;
+    if (rq::UnarySubtype *existing =
+            this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
+                                                                  insert_pos)) {
+      return llvm::cast<rq::Reference>(rq::dereferencePtr(existing));
+    }
+    rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
+        rq::EntityKind::SY_REFERENCE, descendent);
+    this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::Reference>(new_type);
+  }
+  [[nodiscard]] inline rq::Pointer &
+  acquirePointer(rq::TypeConstant &descendent) {
+    llvm::FoldingSetNodeID id;
+    rq::profileUnarySubtype(id, rq::EntityKind::SY_POINTER, descendent);
+    void *insert_pos = nullptr;
+    if (rq::UnarySubtype *existing =
+            this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
+                                                                  insert_pos)) {
+      return llvm::cast<rq::Pointer>(rq::dereferencePtr(existing));
+    }
+    rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
+        rq::EntityKind::SY_POINTER, descendent);
+    this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::Pointer>(new_type);
+  }
+  [[nodiscard]] inline rq::FatPointer &
+  acquireFatPointer(rq::TypeConstant &descendent) {
+    llvm::FoldingSetNodeID id;
+    rq::profileUnarySubtype(id, rq::EntityKind::SY_FAT_POINTER, descendent);
+    void *insert_pos = nullptr;
+    if (rq::UnarySubtype *existing =
+            this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
+                                                                  insert_pos)) {
+      return llvm::cast<rq::FatPointer>(rq::dereferencePtr(existing));
+    }
+    rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
+        rq::EntityKind::SY_FAT_POINTER, descendent);
+    this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::FatPointer>(new_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArray &
+  acquireInferencedCountArray(rq::TypeConstant &descendent) {
+    llvm::FoldingSetNodeID id;
+    rq::profileUnarySubtype(id, rq::EntityKind::SY_INFERENCED_COUNT_ARRAY,
+                            descendent);
+    void *insert_pos = nullptr;
+    if (rq::UnarySubtype *existing =
+            this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
+                                                                  insert_pos)) {
+      return llvm::cast<rq::InferencedCountArray>(rq::dereferencePtr(existing));
+    }
+    rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
+        rq::EntityKind::SY_INFERENCED_COUNT_ARRAY, descendent);
+    this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::InferencedCountArray>(new_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Array &
+  acquireArray(rq::TypeConstant &descendent, unsigned count) {
+    llvm::FoldingSetNodeID id;
+    rq::profileCountedSubtype(id, rq::EntityKind::SY_ARRAY, descendent, count);
+    void *insert_pos = nullptr;
+    if (rq::CountedSubtype *existing =
+            this->acquired._counted_subtype_set.FindNodeOrInsertPos(id,
+                                                                  insert_pos)) {
+      return llvm::cast<rq::Array>(rq::dereferencePtr(existing));
+    }
+    rq::CountedSubtype &new_type = this->allocateAcquiredValue<rq::CountedSubtype>(
+        rq::EntityKind::SY_ARRAY, descendent, count);
+    this->acquired._counted_subtype_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::Array>(new_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticInterval &
+  acquireArithmeticInterval(rq::TypeConstant &descendent,
+                            rq::ArithmeticSequenceCondition condition) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArithmeticSequence(id, descendent, condition,
+                                  rq::ArithmeticSequenceStep::NONE);
+    void *insert_pos = nullptr;
+    if (rq::ArithmeticSequence *existing =
+            this->acquired._arithmetic_sequence_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return llvm::cast<rq::ArithmeticInterval>(rq::dereferencePtr(existing));
+    }
+    rq::ArithmeticSequence &new_type =
+        this->allocateAcquiredValue<rq::ArithmeticSequence>(
+            rq::EntityKind::SY_ARITHMETIC_INTERVAL, descendent, condition,
+            rq::ArithmeticSequenceStep::NONE);
+    this->acquired._arithmetic_sequence_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::ArithmeticInterval>(new_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticProgression &
+  acquireInfiniteArithmeticProgression(rq::TypeConstant &descendent,
+                                       rq::ArithmeticSequenceStep step) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArithmeticSequence(id, descendent,
+                                  rq::ArithmeticSequenceCondition::NONE, step);
+    void *insert_pos = nullptr;
+    if (rq::ArithmeticSequence *existing =
+            this->acquired._arithmetic_sequence_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return llvm::cast<rq::InfiniteArithmeticProgression>(
+          rq::dereferencePtr(existing));
+    }
+    rq::ArithmeticSequence &new_type =
+        this->allocateAcquiredValue<rq::ArithmeticSequence>(
+            rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION, descendent,
+            rq::ArithmeticSequenceCondition::NONE, step);
+    this->acquired._arithmetic_sequence_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::InfiniteArithmeticProgression>(new_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgression &
+  acquireFiniteArithmeticProgression(rq::TypeConstant &descendent,
+                                     rq::ArithmeticSequenceCondition condition,
+                                     rq::ArithmeticSequenceStep step) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArithmeticSequence(id, descendent, condition, step);
+    void *insert_pos = nullptr;
+    if (rq::ArithmeticSequence *existing =
+            this->acquired._arithmetic_sequence_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return llvm::cast<rq::FiniteArithmeticProgression>(
+          rq::dereferencePtr(existing));
+    }
+    rq::ArithmeticSequence &new_type =
+        this->allocateAcquiredValue<rq::ArithmeticSequence>(
+            rq::EntityKind::SY_FINITE_ARITHMETIC_PROGRESSION, descendent,
+            condition, step);
+    this->acquired._arithmetic_sequence_set.InsertNode(&new_type, insert_pos);
+    return llvm::cast<rq::FiniteArithmeticProgression>(new_type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &
+  acquireTypeConstant(rq::Symbol &symbol, rq::TypeFlags flags) {
+    llvm::FoldingSetNodeID id;
+    rq::profileTypeConstant(id, symbol, flags);
+    void *insert_pos = nullptr;
+    if (rq::TypeConstant *existing =
+            this->acquired._type_constant_set.FindNodeOrInsertPos(id,
+                                                                  insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::TypeConstant &new_type =
+        this->allocateAcquiredValue<rq::TypeConstant>(symbol, flags);
+    this->acquired._type_constant_set.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionConstant &
+  acquireExpressionConstant(const rq::Expression &expression) {
+    llvm::FoldingSetNodeID id;
+    rq::profileExpressionConstant(id, expression);
+    void *insert_pos = nullptr;
+    if (rq::ExpressionConstant *existing =
+            this->acquired._expression_constant_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::ExpressionConstant &new_type =
+        this->allocateAcquiredValue<rq::ExpressionConstant>(expression);
+    this->acquired._expression_constant_set.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanConstant &
+  acquireBooleanConstant(bool value) {
+    if (value == true) {
+      return this->acquired._true;
+    }
+    return this->acquired._false;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstant &
+  acquireIntegerConstant(const llvm::APInt &int_) {
+    llvm::FoldingSetNodeID id;
+    rq::profileIntegerConstant(id, int_);
+    void *insert_pos = nullptr;
+    if (rq::IntegerConstant *existing =
+            this->acquired._integer_constant_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::IntegerConstant &new_type =
+        this->allocateAcquiredValue<rq::IntegerConstant>(int_);
+    this->acquired._integer_constant_set.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstant &
+  acquireFloatConstant(const llvm::APFloat &float_) {
+    llvm::FoldingSetNodeID id;
+    rq::profileFloatConstant(id, float_);
+    void *insert_pos = nullptr;
+    if (rq::FloatConstant *existing =
+            this->acquired._float_constant_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::FloatConstant &new_type =
+        this->allocateAcquiredValue<rq::FloatConstant>(float_);
+    this->acquired._float_constant_set.InsertNode(&new_type, insert_pos);
+    return new_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstant &
+  acquireStringConstant(llvm::StringRef string) {
+    llvm::FoldingSetNodeID id;
+    rq::profileStringConstant(id, string);
+    void *insert_pos = nullptr;
+    if (rq::StringConstant *existing =
+            this->acquired._string_constant_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
+      return rq::dereferencePtr(existing);
+    }
+    rq::StringConstant &new_type =
+        this->allocateAcquiredValue<rq::StringConstant>(string);
+    this->acquired._string_constant_set.InsertNode(&new_type, insert_pos);
+    return new_type;
   }
 };
 } // namespace rq

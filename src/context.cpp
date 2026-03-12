@@ -493,7 +493,7 @@ static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
 }
 
 static void emitAttributes(rq::JsonEmitter &json,
-                           const rq::InitialExpressionAttributes &symbol) {
+                           const rq::InitialExpressionFlags &symbol) {
   json.beginArray("attributes");
   using EA = rq::ExpressionAttribute;
   for (unsigned attribute_i = static_cast<unsigned>(EA::NONE) + 1;

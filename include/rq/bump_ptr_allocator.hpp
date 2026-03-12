@@ -53,7 +53,7 @@ struct BumpPtrAllocator {
   template <typename TypeParam, typename... ArgNParam>
   inline TypeParam &allocateAcquiredValue(ArgNParam &&...arg_n) {
     static_assert(rq::acquired<TypeParam>, "type must be allocated");
-    static_assert(!rq::parent_only<TypeParam>, "type can not be acquired");
+    static_assert(!rq::parent_only<TypeParam>, "type can not be parent");
     TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
     ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
     return rq::dereferencePtr(ptr);

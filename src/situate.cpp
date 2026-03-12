@@ -178,23 +178,23 @@ bool Situator::situateTree(rq::Situation situation,
       }
       bool has_flags = false;
       if (attribute_situation == S::EXPRESSION_ATTRIBUTE) {
-        rq::ExpressionAttributeFlags flags =
+        rq::ExpressionFlags flags =
             rq::getFlags(branch.getExpressionAttribute());
         if (rq::getHasAll(
-                static_cast<rq::ExpressionAttributeFlags>(found_flags),
+                static_cast<rq::ExpressionFlags>(found_flags),
                 flags)) {
           has_flags = true;
         }
         found_flags = static_cast<std::uint32_t>(
-            static_cast<rq::ExpressionAttributeFlags>(found_flags) | flags);
+            static_cast<rq::ExpressionFlags>(found_flags) | flags);
       } else if (attribute_situation == S::TYPE_ATTRIBUTE) {
-        rq::TypeAttributeFlags flags = rq::getFlags(branch.getTypeAttribute());
-        if (rq::getHasAll(static_cast<rq::TypeAttributeFlags>(found_flags),
+        rq::TypeFlags flags = rq::getFlags(branch.getTypeAttribute());
+        if (rq::getHasAll(static_cast<rq::TypeFlags>(found_flags),
                           flags)) {
           has_flags = true;
         }
         found_flags = static_cast<std::uint32_t>(
-            static_cast<rq::TypeAttributeFlags>(found_flags) | flags);
+            static_cast<rq::TypeFlags>(found_flags) | flags);
       }
       if (has_flags) {
         this->getContext().logErrorDuplicateAttribute(branch);
