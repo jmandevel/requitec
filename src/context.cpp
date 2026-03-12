@@ -156,7 +156,7 @@ bool Context::loadSourceModule() {
     return false;
   }
   llvm::StringRef final_path = this->saveString(input_path);
-  rq::Module &source_module = this->allocateValue<rq::Module>(
+  rq::Module &source_module = this->allocateAcquiredValue<rq::Module>(
       rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
@@ -198,7 +198,7 @@ rq::Module *Context::loadImportModule(rq::Expression &expression,
     return nullptr;
   }
   llvm::StringRef final_path = this->saveString(found_path);
-  rq::Module &import_module = this->allocateValue<rq::Module>(
+  rq::Module &import_module = this->allocateAcquiredValue<rq::Module>(
       rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
@@ -981,7 +981,7 @@ void Context::logErrorNotDeterminateStaticValue(
 
 rq::Expression &Context::acquireExpression() {
   if (this->_first_unused_expression_ptr == nullptr) {
-    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
+    rq::Expression &new_expression = this->allocateAcquiredValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
@@ -1004,7 +1004,7 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
 
 rq::InstructionNode &Context::acquireInstructionNode() {
   if (this->_first_unused_instruction_node_ptr == nullptr) {
-    rq::InstructionNode &new_node = this->allocateValue<rq::InstructionNode>();
+    rq::InstructionNode &new_node = this->allocateAcquiredValue<rq::InstructionNode>();
     return new_node;
   }
   rq::InstructionNode &unused_node =
@@ -1016,7 +1016,7 @@ rq::InstructionNode &Context::acquireInstructionNode() {
 
 rq::Instruction &Context::acquireInstruction() {
   if (this->_first_unused_instruction_ptr == nullptr) {
-    rq::Instruction &new_instruction = this->allocateValue<rq::Instruction>();
+    rq::Instruction &new_instruction = this->allocateAcquiredValue<rq::Instruction>();
     return new_instruction;
   }
   rq::Instruction &unused_instruction =

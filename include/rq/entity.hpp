@@ -61,7 +61,7 @@ enum class EntityKind : std::uint16_t {
   SY_GENERIC_UNSIGNED,
   SY_GENERIC_FLOAT,
   SY_GENERIC_BINARY,
-  SY_GENERIC_BFLOAT,
+  SY_GENERIC_Bfloat,
   SY_HALF,
   SY_SINGLE,
   SY_DOUBLE,
@@ -70,7 +70,7 @@ enum class EntityKind : std::uint16_t {
   SY_BINARY32,
   SY_BINARY64,
   SY_BINARY128,
-  SY_BFLOAT16,
+  SY_Bfloat16,
   SY_GENERIC_INTEGER,
   SY_GENERIC_SIGNED_INTEGER,
   SY_GENERIC_UNSIGNED_INTEGER,
@@ -267,8 +267,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_generic_float";
   case E::SY_GENERIC_BINARY:
     return "sy_generic_binary";
-  case E::SY_GENERIC_BFLOAT:
-    return "sy_generic_bfloat";
+  case E::SY_GENERIC_Bfloat:
+    return "sy_generic_Bfloat";
   case E::SY_HALF:
     return "sy_half";
   case E::SY_SINGLE:
@@ -285,8 +285,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_binary64";
   case E::SY_BINARY128:
     return "sy_binary128";
-  case E::SY_BFLOAT16:
-    return "sy_bfloat16";
+  case E::SY_Bfloat16:
+    return "sy_Bfloat16";
   case E::SY_GENERIC_INTEGER:
     return "sy_generic_integer";
   case E::SY_GENERIC_SIGNED_INTEGER:
@@ -612,7 +612,7 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_GENERIC_BINARY:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
            EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
-  case E::SY_GENERIC_BFLOAT:
+  case E::SY_GENERIC_Bfloat:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
            EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_HALF:
@@ -639,7 +639,7 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_BINARY128:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
            EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
-  case E::SY_BFLOAT16:
+  case E::SY_Bfloat16:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
            EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_GENERIC_INTEGER:
@@ -1324,7 +1324,7 @@ struct GenericSigned;
 struct GenericUnsigned;
 struct GenericFloat;
 struct GenericBinary;
-struct GenericBFloat;
+struct GenericBfloat;
 struct Half;
 struct Single;
 struct Double;
@@ -1333,7 +1333,7 @@ struct Binary16;
 struct Binary32;
 struct Binary64;
 struct Binary128;
-struct BFloat16;
+struct Bfloat16;
 struct GenericInteger;
 struct GenericSignedInteger;
 struct GenericUnsignedInteger;
@@ -1772,6 +1772,8 @@ struct Entity {
   }
 };
 
+template <> struct is_parent_only<rq::Entity> final : std::true_type {};
+
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
 
@@ -1781,6 +1783,8 @@ struct Symbol : public rq::Entity {
     return rq::getIsSymbol(rq::dereferencePtr(entity).getKind());
   }
 };
+
+template <> struct is_parent_only<rq::Symbol> final : std::true_type {};
 
 struct SimpleBuiltin : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
@@ -1792,6 +1796,8 @@ struct SimpleBuiltin : public rq::Symbol {
   }
 };
 
+template <> struct is_parent_only<rq::SimpleBuiltin> final : std::true_type {};
+
 struct Inference final : public rq::SimpleBuiltin {
   using Self = rq::Inference;
 
@@ -1801,6 +1807,8 @@ struct Inference final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_INFERENCE;
   }
 };
+
+template <> struct is_acquired<rq::Inference> final : std::true_type {};
 
 struct GenericSymbol final : public rq::SimpleBuiltin {
   using Self = rq::GenericSymbol;
@@ -1814,6 +1822,8 @@ struct GenericSymbol final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::GenericSymbol> final : std::true_type {};
+
 struct GenericType final : public rq::SimpleBuiltin {
   using Self = rq::GenericType;
 
@@ -1826,6 +1836,8 @@ struct GenericType final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::GenericType> final : std::true_type {};
+
 struct Void final : public rq::SimpleBuiltin {
   using Self = rq::Void;
 
@@ -1835,6 +1847,8 @@ struct Void final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_VOID;
   }
 };
+
+template <> struct is_acquired<rq::Void> final : std::true_type {};
 
 struct Null final : public rq::SimpleBuiltin {
   using Self = rq::Null;
@@ -1846,6 +1860,8 @@ struct Null final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::Null> final : std::true_type {};
+
 struct NoReturn final : public rq::SimpleBuiltin {
   using Self = rq::NoReturn;
 
@@ -1855,6 +1871,8 @@ struct NoReturn final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_NO_RETURN;
   }
 };
+
+template <> struct is_acquired<rq::NoReturn> final : std::true_type {};
 
 struct VariadicArguments final : public rq::SimpleBuiltin {
   using Self = rq::VariadicArguments;
@@ -1868,6 +1886,8 @@ struct VariadicArguments final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::VariadicArguments> final : std::true_type {};
+
 struct Boolean final : public rq::SimpleBuiltin {
   using Self = rq::Boolean;
 
@@ -1877,6 +1897,8 @@ struct Boolean final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BOOLEAN;
   }
 };
+
+template <> struct is_acquired<rq::Boolean> final : std::true_type {};
 
 struct GenericSigned final : public rq::SimpleBuiltin {
   using Self = rq::GenericSigned;
@@ -1890,6 +1912,8 @@ struct GenericSigned final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::GenericSigned> final : std::true_type {};
+
 struct GenericUnsigned final : public rq::SimpleBuiltin {
   using Self = rq::GenericUnsigned;
 
@@ -1901,6 +1925,8 @@ struct GenericUnsigned final : public rq::SimpleBuiltin {
            rq::EntityKind::SY_GENERIC_UNSIGNED;
   }
 };
+
+template <> struct is_acquired<rq::GenericUnsigned> final : std::true_type {};
 
 struct GenericFloat final : public rq::SimpleBuiltin {
   using Self = rq::GenericFloat;
@@ -1914,6 +1940,8 @@ struct GenericFloat final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::GenericFloat> final : std::true_type {};
+
 struct GenericBinary final : public rq::SimpleBuiltin {
   using Self = rq::GenericBinary;
 
@@ -1926,17 +1954,21 @@ struct GenericBinary final : public rq::SimpleBuiltin {
   }
 };
 
-struct GenericBFloat final : public rq::SimpleBuiltin {
-  using Self = rq::GenericBFloat;
+template <> struct is_acquired<rq::GenericBinary> final : std::true_type {};
 
-  inline explicit GenericBFloat()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BFLOAT) {}
+struct GenericBfloat final : public rq::SimpleBuiltin {
+  using Self = rq::GenericBfloat;
+
+  inline explicit GenericBfloat()
+      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_Bfloat) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_BFLOAT;
+           rq::EntityKind::SY_GENERIC_Bfloat;
   }
 };
+
+template <> struct is_acquired<rq::GenericBfloat> final : std::true_type {};
 
 struct Half final : public rq::SimpleBuiltin {
   using Self = rq::Half;
@@ -1948,6 +1980,8 @@ struct Half final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::Half> final : std::true_type {};
+
 struct Single final : public rq::SimpleBuiltin {
   using Self = rq::Single;
 
@@ -1957,6 +1991,8 @@ struct Single final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SINGLE;
   }
 };
+
+template <> struct is_acquired<rq::Single> final : std::true_type {};
 
 struct Double final : public rq::SimpleBuiltin {
   using Self = rq::Double;
@@ -1968,6 +2004,8 @@ struct Double final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::Double> final : std::true_type {};
+
 struct Quadruple final : public rq::SimpleBuiltin {
   using Self = rq::Quadruple;
 
@@ -1977,6 +2015,8 @@ struct Quadruple final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_QUADRUPLE;
   }
 };
+
+template <> struct is_acquired<rq::Quadruple> final : std::true_type {};
 
 struct Binary16 final : public rq::SimpleBuiltin {
   using Self = rq::Binary16;
@@ -1988,6 +2028,8 @@ struct Binary16 final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::Binary16> final : std::true_type {};
+
 struct Binary32 final : public rq::SimpleBuiltin {
   using Self = rq::Binary32;
 
@@ -1997,6 +2039,8 @@ struct Binary32 final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BINARY32;
   }
 };
+
+template <> struct is_acquired<rq::Binary32> final : std::true_type {};
 
 struct Binary64 final : public rq::SimpleBuiltin {
   using Self = rq::Binary64;
@@ -2008,6 +2052,8 @@ struct Binary64 final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::Binary64> final : std::true_type {};
+
 struct Binary128 final : public rq::SimpleBuiltin {
   using Self = rq::Binary128;
 
@@ -2018,15 +2064,19 @@ struct Binary128 final : public rq::SimpleBuiltin {
   }
 };
 
-struct BFloat16 final : public rq::SimpleBuiltin {
-  using Self = rq::BFloat16;
+template <> struct is_acquired<rq::Binary128> final : std::true_type {};
 
-  inline explicit BFloat16() : SimpleBuiltin(rq::EntityKind::SY_BFLOAT16) {}
+struct Bfloat16 final : public rq::SimpleBuiltin {
+  using Self = rq::Bfloat16;
+
+  inline explicit Bfloat16() : SimpleBuiltin(rq::EntityKind::SY_Bfloat16) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BFLOAT16;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_Bfloat16;
   }
 };
+
+template <> struct is_acquired<rq::Bfloat16> final : std::true_type {};
 
 struct GenericInteger final : public rq::SimpleBuiltin {
   using Self = rq::GenericInteger;
@@ -2040,6 +2090,8 @@ struct GenericInteger final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::GenericInteger> final : std::true_type {};
+
 struct GenericSignedInteger final : public rq::SimpleBuiltin {
   using Self = rq::GenericSignedInteger;
 
@@ -2051,6 +2103,9 @@ struct GenericSignedInteger final : public rq::SimpleBuiltin {
            rq::EntityKind::SY_GENERIC_SIGNED_INTEGER;
   }
 };
+
+template <>
+struct is_acquired<rq::GenericSignedInteger> final : std::true_type {};
 
 struct GenericUnsignedInteger final : public rq::SimpleBuiltin {
   using Self = rq::GenericUnsignedInteger;
@@ -2064,6 +2119,9 @@ struct GenericUnsignedInteger final : public rq::SimpleBuiltin {
   }
 };
 
+template <>
+struct is_acquired<rq::GenericUnsignedInteger> final : std::true_type {};
+
 struct GenericCodeunit final : public rq::SimpleBuiltin {
   using Self = rq::GenericCodeunit;
 
@@ -2075,6 +2133,8 @@ struct GenericCodeunit final : public rq::SimpleBuiltin {
            rq::EntityKind::SY_GENERIC_CODEUNIT;
   }
 };
+
+template <> struct is_acquired<rq::GenericCodeunit> final : std::true_type {};
 
 struct GenericString final : public rq::SimpleBuiltin {
   using Self = rq::GenericString;
@@ -2088,6 +2148,8 @@ struct GenericString final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::GenericString> final : std::true_type {};
+
 struct Ascii final : public rq::SimpleBuiltin {
   using Self = rq::Ascii;
 
@@ -2098,6 +2160,8 @@ struct Ascii final : public rq::SimpleBuiltin {
   }
 };
 
+template <> struct is_acquired<rq::Ascii> final : std::true_type {};
+
 struct Utf8 final : public rq::SimpleBuiltin {
   using Self = rq::Utf8;
 
@@ -2107,6 +2171,8 @@ struct Utf8 final : public rq::SimpleBuiltin {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_UTF8;
   }
 };
+
+template <> struct is_acquired<rq::Utf8> final : std::true_type {};
 
 static constexpr unsigned MAX_SCALED_BUILTIN_SCALAR =
     std::numeric_limits<std::uint16_t>::max();
@@ -2241,6 +2307,8 @@ struct ScaledBuiltin : public rq::Symbol {
   }
 };
 
+template <> struct is_parent_only<rq::ScaledBuiltin> final : std::true_type {};
+
 struct ScaledSignedInteger final : public rq::ScaledBuiltin {
   using Self = rq::ScaledSignedInteger;
 
@@ -2255,6 +2323,9 @@ struct ScaledSignedInteger final : public rq::ScaledBuiltin {
   }
 };
 
+template <>
+struct is_acquired<rq::ScaledSignedInteger> final : std::true_type {};
+
 struct ScaledUnsignedInteger final : public rq::ScaledBuiltin {
   using Self = rq::ScaledUnsignedInteger;
 
@@ -2268,6 +2339,9 @@ struct ScaledUnsignedInteger final : public rq::ScaledBuiltin {
            rq::EntityKind::SY_SCALED_UNSIGNED_INTEGER;
   }
 };
+
+template <>
+struct is_acquired<rq::ScaledUnsignedInteger> final : std::true_type {};
 
 struct UnarySubtype : public rq::Symbol {
   using Self = rq::UnarySubtype;
@@ -2288,6 +2362,8 @@ struct UnarySubtype : public rq::Symbol {
   }
 };
 
+template <> struct is_parent_only<rq::UnarySubtype> final : std::true_type {};
+
 struct Reference final : public rq::UnarySubtype {
   using Self = rq::Reference;
 
@@ -2299,6 +2375,8 @@ struct Reference final : public rq::UnarySubtype {
   }
 };
 
+template <> struct is_acquired<rq::Reference> final : std::true_type {};
+
 struct Pointer final : public rq::UnarySubtype {
   using Self = rq::Pointer;
 
@@ -2309,6 +2387,8 @@ struct Pointer final : public rq::UnarySubtype {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_POINTER;
   }
 };
+
+template <> struct is_acquired<rq::Pointer> final : std::true_type {};
 
 struct FatPointer final : public rq::UnarySubtype {
   using Self = rq::FatPointer;
@@ -2322,6 +2402,8 @@ struct FatPointer final : public rq::UnarySubtype {
   }
 };
 
+template <> struct is_acquired<rq::FatPointer> final : std::true_type {};
+
 struct InferencedCountArray final : public rq::UnarySubtype {
   using Self = rq::InferencedCountArray;
 
@@ -2333,6 +2415,9 @@ struct InferencedCountArray final : public rq::UnarySubtype {
            rq::EntityKind::SY_INFERENCED_COUNT_ARRAY;
   }
 };
+
+template <>
+struct is_acquired<rq::InferencedCountArray> final : std::true_type {};
 
 struct CountedSubtype : public rq::UnarySubtype {
   using Self = rq::CountedSubtype;
@@ -2352,6 +2437,8 @@ struct CountedSubtype : public rq::UnarySubtype {
   }
 };
 
+template <> struct is_parent_only<rq::CountedSubtype> final : std::true_type {};
+
 struct Array final : public rq::CountedSubtype {
   using Self = rq::Array;
 
@@ -2362,6 +2449,8 @@ struct Array final : public rq::CountedSubtype {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ARRAY;
   }
 };
+
+template <> struct is_acquired<rq::Array> final : std::true_type {};
 
 struct ParameterListSubtype : public rq::Symbol,
                               public rq::InitialExpression,
@@ -2385,12 +2474,15 @@ struct ParameterListSubtype : public rq::Symbol,
         InitialExpressionAttributes(attributes), InitialModuleMember(module),
         InitialSymbolTableMember(symbol_table),
         _named_parameter_map(
-            allocator.allocateZeroedArray<rq::Parameter>(map_bucket_count)) {}
+            allocator.allocateAcquiredZeroedArray<rq::Parameter>(map_bucket_count)) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsParameterListSubtype(rq::dereferencePtr(entity).getKind());
   }
 };
+
+template <>
+struct is_parent_only<rq::ParameterListSubtype> final : std::true_type {};
 
 struct Layout final : public rq::ParameterListSubtype {
   using Self = rq::Layout;
@@ -2407,6 +2499,8 @@ struct Layout final : public rq::ParameterListSubtype {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LAYOUT;
   }
 };
+
+template <> struct is_acquired<rq::Layout> final : std::true_type {};
 
 struct ClassLayout final : public rq::ParameterListSubtype {
   using Self = rq::ClassLayout;
@@ -2425,6 +2519,8 @@ struct ClassLayout final : public rq::ParameterListSubtype {
   }
 };
 
+template <> struct is_acquired<rq::ClassLayout> final : std::true_type {};
+
 struct TemplateLayout final : public rq::ParameterListSubtype {
   using Self = rq::TemplateLayout;
 
@@ -2440,6 +2536,8 @@ struct TemplateLayout final : public rq::ParameterListSubtype {
            rq::EntityKind::SY_TEMPLATE_LAYOUT;
   }
 };
+
+template <> struct is_acquired<rq::TemplateLayout> final : std::true_type {};
 
 struct Signature final : public rq::ParameterListSubtype {
   using Self = rq::Signature;
@@ -2466,6 +2564,8 @@ struct Signature final : public rq::ParameterListSubtype {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SIGNATURE;
   }
 };
+
+template <> struct is_acquired<rq::Signature> final : std::true_type {};
 
 struct Extension final : public rq::ParameterListSubtype {
   using Self = rq::Extension;
@@ -2502,6 +2602,9 @@ struct Extension final : public rq::ParameterListSubtype {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_EXTENSION;
   }
 };
+
+template <> struct is_acquired<rq::Extension> final : std::true_type {};
+
 struct Parameter : public rq::Symbol,
                    public rq::InitialExpression,
                    public rq::InitialExpressionAttributes,
@@ -2559,6 +2662,13 @@ struct Parameter : public rq::Symbol,
   }
 };
 
+template <> struct is_acquired<rq::Parameter> final : std::true_type {};
+
+// NOTE: rq::Parameter is not is_parent_only so it can be allocated for
+// rq::ParameterListSubtype map. as a consequence of this, no child types of
+// rq::Parameter can have properties beyond what is inherited from Parameter.
+// also, all child types must only inherit rq::Parameter and nothing else.
+
 struct ClassParameter : public rq::Parameter {
   using Self = rq::ClassParameter;
 
@@ -2591,6 +2701,8 @@ struct ClassParameter : public rq::Parameter {
   }
 };
 
+template <> struct is_acquired<rq::ClassParameter> final : std::true_type {};
+
 struct LayoutParameter : public rq::Parameter {
   using Self = rq::LayoutParameter;
 
@@ -2622,6 +2734,8 @@ struct LayoutParameter : public rq::Parameter {
            rq::EntityKind::SY_LAYOUT_PARAMETER;
   }
 };
+
+template <> struct is_acquired<rq::LayoutParameter> final : std::true_type {};
 
 struct TemplateParameter : public rq::Parameter {
   using Self = rq::TemplateParameter;
@@ -2656,6 +2770,8 @@ struct TemplateParameter : public rq::Parameter {
   }
 };
 
+template <> struct is_acquired<rq::TemplateParameter> final : std::true_type {};
+
 struct SignatureParameter : public rq::Parameter {
   using Self = rq::SignatureParameter;
 
@@ -2689,6 +2805,9 @@ struct SignatureParameter : public rq::Parameter {
   }
 };
 
+template <>
+struct is_acquired<rq::SignatureParameter> final : std::true_type {};
+
 struct ArithmeticSequence : public rq::Symbol {
   using Self = rq::ArithmeticSequence;
 
@@ -2721,6 +2840,9 @@ struct ArithmeticSequence : public rq::Symbol {
   }
 };
 
+template <>
+struct is_parent_only<rq::ArithmeticSequence> final : std::true_type {};
+
 struct ArithmeticInterval : public rq::ArithmeticSequence {
   using Self = rq::ArithmeticInterval;
   inline explicit ArithmeticInterval(rq::TypeConstant &descendent,
@@ -2733,6 +2855,9 @@ struct ArithmeticInterval : public rq::ArithmeticSequence {
            rq::EntityKind::SY_ARITHMETIC_INTERVAL;
   }
 };
+
+template <>
+struct is_acquired<rq::ArithmeticInterval> final : std::true_type {};
 
 struct FiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::FiniteArithmeticProgression;
@@ -2749,6 +2874,9 @@ struct FiniteArithmeticProgression : public rq::ArithmeticSequence {
   }
 };
 
+template <>
+struct is_acquired<rq::FiniteArithmeticProgression> final : std::true_type {};
+
 struct InfiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::InfiniteArithmeticProgression;
 
@@ -2763,6 +2891,9 @@ struct InfiniteArithmeticProgression : public rq::ArithmeticSequence {
            rq::EntityKind::SY_INFINITE_ARITHMETIC_PROGRESSION;
   }
 };
+
+template <>
+struct is_acquired<rq::InfiniteArithmeticProgression> final : std::true_type {};
 
 static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
@@ -2807,6 +2938,8 @@ struct Module final : public rq::Symbol, public rq::ReplacableExpression {
   }
 };
 
+template <> struct is_acquired<rq::Module> final : std::true_type {};
+
 struct Import final : public rq::Symbol,
                       public rq::InitialExpression,
                       public rq::InitialExpressionAttributes,
@@ -2823,6 +2956,8 @@ struct Import final : public rq::Symbol,
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_IMPORT;
   }
 };
+
+template <> struct is_acquired<rq::Import> final : std::true_type {};
 
 struct Code : public rq::Symbol,
               public rq::InitialExpression,
@@ -2844,6 +2979,8 @@ struct Code : public rq::Symbol,
   }
 };
 
+template <> struct is_acquired<rq::Code> final : std::true_type {};
+
 struct CategoryDiscriminant : public rq::Symbol {
   using Self = rq::CategoryDiscriminant;
 
@@ -2858,6 +2995,9 @@ struct CategoryDiscriminant : public rq::Symbol {
            rq::EntityKind::SY_CATEGORY_DISCRIMINANT;
   }
 };
+
+template <>
+struct is_acquired<rq::CategoryDiscriminant> final : std::true_type {};
 
 struct Label : public rq::Symbol,
                public rq::InitialExpression,
@@ -2878,6 +3018,8 @@ struct Label : public rq::Symbol,
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LABEL;
   }
 };
+
+template <> struct is_acquired<rq::Label> final : std::true_type {};
 
 struct Synonym : public rq::Symbol,
                  public rq::InitialExpression,
@@ -2912,6 +3054,8 @@ struct Synonym : public rq::Symbol,
   }
 };
 
+template <> struct is_acquired<rq::Synonym> final : std::true_type {};
+
 struct DynamicVariable : public rq::Symbol,
                          public rq::InitialExpression,
                          public rq::InitialExpressionAttributes,
@@ -2935,6 +3079,8 @@ struct DynamicVariable : public rq::Symbol,
            rq::EntityKind::SY_DYNAMIC_VARIABLE;
   }
 };
+
+template <> struct is_acquired<rq::DynamicVariable> final : std::true_type {};
 
 struct StaticVariable : public rq::Symbol,
                         public rq::InitialExpression,
@@ -2960,6 +3106,8 @@ struct StaticVariable : public rq::Symbol,
   }
 };
 
+template <> struct is_acquired<rq::StaticVariable> final : std::true_type {};
+
 struct Enumerator : public rq::Symbol,
                     public rq::InitialExpression,
                     public rq::InitialExpressionAttributes,
@@ -2980,6 +3128,8 @@ struct Enumerator : public rq::Symbol,
            rq::EntityKind::SY_ENUMERATOR;
   }
 };
+
+template <> struct is_acquired<rq::Enumerator> final : std::true_type {};
 
 struct CategoryAlternative : public rq::Symbol,
                              public rq::InitialExpression,
@@ -3002,6 +3152,9 @@ struct CategoryAlternative : public rq::Symbol,
            rq::EntityKind::SY_CATEGORY_ALTERNATIVE;
   }
 };
+
+template <>
+struct is_acquired<rq::CategoryAlternative> final : std::true_type {};
 
 struct SymbolTableNode final {
   using Self = rq::SymbolTableNode;
@@ -3190,6 +3343,8 @@ struct SymbolTable : public rq::Symbol,
   }
 };
 
+template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
+
 RQ_ALWAYS_INLINE rq::SymbolTableIterator &SymbolTableIterator::operator++() {
   this->_node_ptr = rq::dereferencePtr(this->_node_ptr).next_ptr;
   return *this;
@@ -3343,6 +3498,8 @@ struct Procedure : public rq::SymbolTable,
   }
 };
 
+template <> struct is_parent_only<rq::Procedure> final : std::true_type {};
+
 struct Entry : public rq::Procedure {
   using Self = rq::Entry;
 
@@ -3491,6 +3648,8 @@ struct Template : public rq::Symbol,
     return rq::getIsTemplate(rq::dereferencePtr(entity).getKind());
   }
 };
+
+template <> struct is_parent_only<rq::Template> final : std::true_type {};
 
 struct TemplateClass : public rq::Template {
   using Self = rq::TemplateClass;
@@ -3701,6 +3860,8 @@ struct Partial : public rq::Symbol,
     return rq::getIsPartial(rq::dereferencePtr(entity).getKind());
   }
 };
+
+template <> struct is_parent_only<rq::Partial> final : std::true_type {};
 
 struct PartialClass : public rq::Partial {
   using Self = rq::PartialClass;
@@ -3997,6 +4158,8 @@ struct InstructionNode final {
   }
 };
 
+template <> struct is_acquired<rq::InstructionNode> final : std::true_type {};
+
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
@@ -4023,5 +4186,7 @@ struct Instruction : public rq::Entity {
     return rq::getIsOpcode(rq::dereferencePtr(entity).getKind());
   }
 };
+
+template <> struct is_acquired<rq::Instruction> final : std::true_type {};
 
 } // namespace rq
