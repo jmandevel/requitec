@@ -980,13 +980,13 @@ void Context::logErrorNotDeterminateStaticValue(
 }
 
 rq::Expression &Context::acquireExpression() {
-  if (this->_first_unused_expression_ptr == nullptr) {
+  if (this->acquired._first_unused_expression_ptr == nullptr) {
     rq::Expression &new_expression = this->allocateAcquiredValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
-      rq::dereferencePtr(this->_first_unused_expression_ptr);
-  this->_first_unused_expression_ptr = unused_expression._branch_ptr;
+      rq::dereferencePtr(this->acquired._first_unused_expression_ptr);
+  this->acquired._first_unused_expression_ptr = unused_expression._branch_ptr;
   return unused_expression;
 }
 
@@ -1003,25 +1003,25 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
 }
 
 rq::InstructionNode &Context::acquireInstructionNode() {
-  if (this->_first_unused_instruction_node_ptr == nullptr) {
+  if (this->acquired._first_unused_instruction_node_ptr == nullptr) {
     rq::InstructionNode &new_node = this->allocateAcquiredValue<rq::InstructionNode>();
     return new_node;
   }
   rq::InstructionNode &unused_node =
-      rq::dereferencePtr(this->_first_unused_instruction_node_ptr);
-  this->_first_unused_instruction_node_ptr =
+      rq::dereferencePtr(this->acquired._first_unused_instruction_node_ptr);
+  this->acquired._first_unused_instruction_node_ptr =
       llvm::cast<rq::InstructionNode *>(unused_node._car);
   return unused_node;
 }
 
 rq::Instruction &Context::acquireInstruction() {
-  if (this->_first_unused_instruction_ptr == nullptr) {
+  if (this->acquired._first_unused_instruction_ptr == nullptr) {
     rq::Instruction &new_instruction = this->allocateAcquiredValue<rq::Instruction>();
     return new_instruction;
   }
   rq::Instruction &unused_instruction =
-      rq::dereferencePtr(this->_first_unused_instruction_ptr);
-  this->_first_unused_instruction_ptr =
+      rq::dereferencePtr(this->acquired._first_unused_instruction_ptr);
+  this->acquired._first_unused_instruction_ptr =
       static_cast<rq::Instruction *>(
           llvm::cast<rq::Entity *>(unused_instruction._cdr));
   return unused_instruction;

@@ -73,12 +73,53 @@ struct Context final : public rq::BumpPtrAllocator {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::SymbolicExecutionEngine _see{};
-  rq::Top _top;
   rq::Module *_source_module_ptr = nullptr;
-  rq::Expression *_first_unused_expression_ptr{nullptr};
-  rq::InstructionNode *_first_unused_instruction_node_ptr{nullptr};
-  rq::Instruction *_first_unused_instruction_ptr{nullptr};
-  llvm::FoldingSet<rq::TypeSymbol> _type_symbols{};
+  rq::Top _top;
+  struct {
+    rq::Expression *_first_unused_expression_ptr{nullptr};
+    rq::InstructionNode *_first_unused_instruction_node_ptr{nullptr};
+    rq::Instruction *_first_unused_instruction_ptr{nullptr};
+    rq::Inference _inference{};
+    rq::GenericSymbol _generic_symbol{};
+    rq::GenericType _generic_type{};
+    rq::Void _void{};
+    rq::Null _null{};
+    rq::NoReturn _no_return{};
+    rq::VariadicArguments _variadic_arguments{};
+    rq::Boolean _boolean{};
+    rq::GenericSigned _generic_signed{};
+    rq::GenericUnsigned _generic_unsigned{};
+    rq::GenericFloat _generic_float{};
+    rq::GenericBinary _generic_binary{};
+    rq::GenericBfloat _generic_bfloat{};
+    rq::Half _half{};
+    rq::Single _single{};
+    rq::Double _double{};
+    rq::Quadruple _quadruple{};
+    rq::Binary16 _binary16{};
+    rq::Binary32 _binary32{};
+    rq::Binary64 _binary64{};
+    rq::Binary128 _binary128{};
+    rq::Bfloat16 _bfloat16{};
+    rq::GenericInteger _generic_integer{};
+    rq::GenericSignedInteger _generic_signed_integer{};
+    rq::GenericUnsignedInteger _generic_unsigned_integer{};
+    rq::GenericCodeunit _generic_codeunit{};
+    rq::GenericString _generic_string{};
+    rq::Ascii _ascii{};
+    rq::Utf8 _utf8{};
+    llvm::FoldingSet<rq::Synonym> _synonym_set{};
+    llvm::FoldingSet<rq::ScaledBuiltin> _scaled_builtin_set{};
+    llvm::FoldingSet<rq::UnarySubtype> _unary_subtype_set{};
+    llvm::FoldingSet<rq::CountedSubtype> _counted_subtype_set{};
+    llvm::FoldingSet<rq::ArithmeticSequence> _arithmetic_sequence_set{};
+    llvm::FoldingSet<rq::TypeConstant> _type_constant_set{};
+    rq::BooleanConstant _true{true};
+    rq::BooleanConstant _false{false};
+    llvm::FoldingSet<rq::IntegerConstant> _integer_constant_set{};
+    llvm::FoldingSet<rq::FloatConstant> _float_constant_set{};
+    llvm::FoldingSet<rq::StringConstant> _string_constant_set{};
+  } acquired;
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)), _top(*this, 64) {}
@@ -245,7 +286,6 @@ struct Context final : public rq::BumpPtrAllocator {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
     expression.clear();
-    expression._branch_ptr = this->_first_unused_expression_ptr;
     expression._branch_ptr = this->acquired._first_unused_expression_ptr;
     this->acquired._first_unused_expression_ptr = &expression;
   }
