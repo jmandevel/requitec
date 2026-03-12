@@ -2957,6 +2957,8 @@ struct Import final : public rq::Symbol,
   }
 };
 
+template <> struct is_acquired<rq::Import> final : std::true_type {};
+
 struct Code : public rq::Symbol,
               public rq::InitialExpression,
               public rq::InitialExpressionAttributes,
@@ -2977,6 +2979,8 @@ struct Code : public rq::Symbol,
   }
 };
 
+template <> struct is_acquired<rq::Code> final : std::true_type {};
+
 struct CategoryDiscriminant : public rq::Symbol {
   using Self = rq::CategoryDiscriminant;
 
@@ -2991,6 +2995,9 @@ struct CategoryDiscriminant : public rq::Symbol {
            rq::EntityKind::SY_CATEGORY_DISCRIMINANT;
   }
 };
+
+template <>
+struct is_acquired<rq::CategoryDiscriminant> final : std::true_type {};
 
 struct Label : public rq::Symbol,
                public rq::InitialExpression,
@@ -3011,6 +3018,8 @@ struct Label : public rq::Symbol,
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LABEL;
   }
 };
+
+template <> struct is_acquired<rq::Label> final : std::true_type {};
 
 struct Synonym : public rq::Symbol,
                  public rq::InitialExpression,
