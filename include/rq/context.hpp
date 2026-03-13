@@ -413,6 +413,10 @@ struct Context final : public rq::BumpPtrAllocator {
               original_scaled.getFlags());
       this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
       return llvm::cast<rq::ScaledSignedInteger>(new_type);
+    } else if (llvm::isa<rq::Synonym>(original)) {
+      rq::Synonym &synonym = llvm::cast<rq::Synonym>(original);
+      rq::Symbol &original_original = synonym.getOriginal();
+      return this->allocateAcquiredValue<rq::Synonym>(original_original);
     }
     return this->allocateAcquiredValue<rq::Synonym>(original);
   }
@@ -518,12 +522,13 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::profileCountedSubtype(id, rq::EntityKind::SY_ARRAY, descendent, count);
     void *insert_pos = nullptr;
     if (rq::CountedSubtype *existing =
-            this->acquired._counted_subtype_set.FindNodeOrInsertPos(id,
-                                                                  insert_pos)) {
+            this->acquired._counted_subtype_set.FindNodeOrInsertPos(
+                id, insert_pos)) {
       return llvm::cast<rq::Array>(rq::dereferencePtr(existing));
     }
-    rq::CountedSubtype &new_type = this->allocateAcquiredValue<rq::CountedSubtype>(
-        rq::EntityKind::SY_ARRAY, descendent, count);
+    rq::CountedSubtype &new_type =
+        this->allocateAcquiredValue<rq::CountedSubtype>(
+            rq::EntityKind::SY_ARRAY, descendent, count);
     this->acquired._counted_subtype_set.InsertNode(&new_type, insert_pos);
     return llvm::cast<rq::Array>(new_type);
   }
