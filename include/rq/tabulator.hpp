@@ -15,64 +15,6 @@ struct Module;
 struct Expression;
 struct SymbolTable;
 
-enum class FullDeductionResultCode {
-
-};
-
-struct DeductionResult final {
-  using Self = rq::DeductionResult;
-};
-
-enum class DeductionWithIncompleteResult {
-
-};
-
-struct PartialDeductionResult final {
-  using Self = rq::PartialDeductionResult;
-};
-
-enum class SubstitutionResultCode {
-
-};
-
-struct SubstitutionResult final {
-  using Self = rq::SubstitutionResult;
-};
-
-enum class EvaluationResultCode {
-  OK_CONCRETE,
-  OK_GENERIC,
-  OK_DETERMINATE_STATIC_VALUE,
-  ERROR_NOT_TYPE,
-  ERROR_INVALID_COUNT
-};
-
-struct EvaluationResult final {
-  using Self = EvaluationResult;
-
-  rq::EvaluationResultCode _code;
-  rq::Entity *_entity_ptr;
-
-  EvaluationResult(rq::EvaluationResultCode code, rq::Entity &entity)
-      : _code(code), _entity_ptr(&entity) {}
-  EvaluationResult(rq::EvaluationResultCode code) : _code(code) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationResultCode getCode() const {
-    return this->_code;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEntity() const {
-    return this->_entity_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
-    return rq::dereferencePtr(this->_entity_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
-    return rq::dereferencePtr(this->_entity_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDeterminiteStaticValue() const {
-    return this->_code == rq::EvaluationResultCode::OK_DETERMINATE_STATIC_VALUE;
-  }
-};
-
 struct Tabulator final {
   using Self = rq::Tabulator;
 
@@ -132,8 +74,7 @@ struct Tabulator final {
               "must have both or no tables");
     return this->_highest_symbol_table_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-  getHighestSymbolTable() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHighestSymbolTable() {
     return rq::dereferencePtr(this->_highest_symbol_table_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
@@ -168,20 +109,28 @@ struct Tabulator final {
         &this->getLowestSymbolTable().getContainingSymbolTable();
   }
   void tabulateModule();
-  void tabulateEntry(rq::Entry &entry);
-  void tabulateForest(rq::Expression &first, rq::SymbolTable &table);
-  [[nodiscard]] rq::DeductionResult
-  deduceTypeOfValue(rq::Expression &expression);
-  [[nodiscard]] rq::DeductionWithIncompleteResult
-  deduceTypeOfValueWithIncomplete(rq::Entity &incomplete_type,
-                           rq::Expression &expression);
-  [[nodiscard]] rq::SubstitutionResult
-  substituteTypeOfValue(rq::Entity &type, rq::Expression &expression);
-  [[nodiscard]] rq::EvaluationResult evaluateValue(rq::Entity &type,
-                                                   rq::Expression &expression);
-  [[nodiscard]] rq::Entity *evaluateType(rq::Expression &expression);
+  void tabulateGlobalForest(const rq::Expression &first,
+                            rq::SymbolTable &table);
   [[nodiscard]] std::optional<llvm::StringRef>
-  evaluateName(rq::Expression &expression);
+  evaluateName(const rq::Expression &expression, rq::SymbolTable &table);
+  [[nodiscard]] std::optional<llvm::StringRef>
+                        evaluateUtf8Cstr(const rq::Expression &expression,
+                                         rq::SymbolTable &table);
+  [[nodiscard]] rq::SymbolTable &
+  resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
+                         const rq::Expression &unascribed,
+                         rq::SymbolTable &table);
+  [[nodiscard]] rq::Symbol *resolveSymbol(const rq::Expression &path,
+                                          rq::SymbolTable &table);
+  [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
+                                               rq::SymbolTable &table);
+  void tabulateDynamicVariable(rq::SymbolTable &table,
+                               rq::SymbolTable &containing,
+                               const rq::ExpressionFlagsFactory &factory,
+                               const rq::Expression &unascribed,
+                               const rq::Expression &name,
+                               const rq::Expression &type,
+                               const rq::Expression *value_ptr);
 };
 
 } // namespace rq

@@ -224,7 +224,7 @@ rq::Expression &RequiteParser::parsePrecedence12() {
     case rq::TokenKind::AT_SIGIL: {
       rq::Expression &attribute = this->parseAttribute();
       precedence_factory.parseAscribe(
-          token, rq::Keyword::UNSITUATED_ASCRIBE_STATEMENT);
+          token, rq::Keyword::UNSITUATED_ASCRIBE_EXPRESSION);
       precedence_factory.appendBranch(attribute);
       continue;
     }

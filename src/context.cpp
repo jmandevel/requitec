@@ -164,7 +164,7 @@ bool Context::loadSourceModule() {
   return true;
 }
 
-rq::Module *Context::loadImportModule(rq::Expression &expression,
+rq::Module *Context::loadImportModule(const rq::Expression &expression,
                                       llvm::StringRef import_string) {
   llvm::SmallString<128> found_path;
   bool file_found = false;
@@ -979,9 +979,80 @@ void Context::logErrorNotDeterminateStaticValue(
                    {expression.getLlvmSourceRange()}, {});
 }
 
+void Context::logErrorGlobalIndeterminateDynamicExpression(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() +
+                       " is not global indeterminate dynamic expression",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorInvalidExpressionAttribute(
+    const rq::Expression &unascribed, const rq::Expression &attribute) {
+  this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   attribute.getName() +
+                       " is is not a valid attribute for expression " +
+                       unascribed.getName(),
+                   {attribute.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorFailedToAscribeExpression(
+    const rq::Expression &unascribed, const rq::Expression &attribute) {
+  this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("failed to ascribe ") + attribute.getName() +
+                       " to " + unascribed.getName(),
+                   {attribute.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorNotSymbol(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is not symbol",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorNotLabel(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is not label",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorLabelSubjectNotSymbolTable(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "label does not refer to symbol table",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorNotInTop(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " must be in top",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnableToEvaluateName(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is not evaluatable name",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnableToEvaluateUtf8Cstr(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is not evaluatable utf8 cstr",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorFailedToImportModule(const rq::Expression &expression,
+                                           llvm::StringRef path) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("failed to import ") + path,
+                   {expression.getLlvmSourceRange()}, {});
+}
+
 rq::Expression &Context::acquireExpression() {
   if (this->acquired._first_unused_expression_ptr == nullptr) {
-    rq::Expression &new_expression = this->allocateAcquiredValue<rq::Expression>();
+    rq::Expression &new_expression =
+        this->allocateAcquiredValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
@@ -1004,7 +1075,8 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
 
 rq::InstructionNode &Context::acquireInstructionNode() {
   if (this->acquired._first_unused_instruction_node_ptr == nullptr) {
-    rq::InstructionNode &new_node = this->allocateAcquiredValue<rq::InstructionNode>();
+    rq::InstructionNode &new_node =
+        this->allocateAcquiredValue<rq::InstructionNode>();
     return new_node;
   }
   rq::InstructionNode &unused_node =
@@ -1016,14 +1088,14 @@ rq::InstructionNode &Context::acquireInstructionNode() {
 
 rq::Instruction &Context::acquireInstruction() {
   if (this->acquired._first_unused_instruction_ptr == nullptr) {
-    rq::Instruction &new_instruction = this->allocateAcquiredValue<rq::Instruction>();
+    rq::Instruction &new_instruction =
+        this->allocateAcquiredValue<rq::Instruction>();
     return new_instruction;
   }
   rq::Instruction &unused_instruction =
       rq::dereferencePtr(this->acquired._first_unused_instruction_ptr);
-  this->acquired._first_unused_instruction_ptr =
-      static_cast<rq::Instruction *>(
-          llvm::cast<rq::Entity *>(unused_instruction._cdr));
+  this->acquired._first_unused_instruction_ptr = static_cast<rq::Instruction *>(
+      llvm::cast<rq::Entity *>(unused_instruction._cdr));
   return unused_instruction;
 }
 

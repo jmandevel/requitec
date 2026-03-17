@@ -184,7 +184,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] llvm::ErrorOr<llvm::MemoryBufferRef>
   loadRequiteFileBuffer(llvm::StringRef path);
   [[nodiscard]] bool loadSourceModule();
-  [[nodiscard]] rq::Module *loadImportModule(rq::Expression &expression,
+  [[nodiscard]] rq::Module *loadImportModule(const rq::Expression &expression,
                                              llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
@@ -282,6 +282,19 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
+  void logErrorGlobalIndeterminateDynamicExpression(
+      const rq::Expression &expression);
+  void logErrorInvalidExpressionAttribute(const rq::Expression &unascribed,
+                                          const rq::Expression &attribute);
+  void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
+                                         const rq::Expression &attribute);
+  void logErrorNotSymbol(const rq::Expression &expression);
+  void logErrorNotLabel(const rq::Expression &expression);
+  void logErrorLabelSubjectNotSymbolTable(const rq::Expression &expression);
+  void logErrorNotInTop(const rq::Expression &expression);
+  void logErrorUnableToEvaluateName(const rq::Expression &expression);
+  void logErrorUnableToEvaluateUtf8Cstr(const rq::Expression &expression);
+    void logErrorFailedToImportModule(const rq::Expression &expression, llvm::StringRef path);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");

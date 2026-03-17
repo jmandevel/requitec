@@ -1428,17 +1428,17 @@ struct Instruction;
 struct InitialExpression {
   using Self = rq::InitialExpression;
 
-  rq::Expression *_expression_ptr{nullptr};
+  const rq::Expression *_expression_ptr{nullptr};
 
   InitialExpression() = default;
-  inline explicit InitialExpression(rq::Expression &expression)
+  inline explicit InitialExpression(const rq::Expression &expression)
       : _expression_ptr(&expression) {}
   InitialExpression(const Self &) = delete;
   InitialExpression(Self &&) = delete;
   ~InitialExpression() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
@@ -1449,15 +1449,15 @@ struct LateExpression : public rq::InitialExpression {
   using Self = rq::LateExpression;
 
   LateExpression() = default;
-  inline explicit LateExpression(rq::Expression &expression)
+  inline explicit LateExpression(const rq::Expression &expression)
       : InitialExpression(expression) {}
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() {
     return this->_expression_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void setExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression_ptr) {
+  RQ_ALWAYS_INLINE void setExpression(const rq::Expression *expression_ptr) {
     rq::assignSingleValue(this->_expression_ptr, expression_ptr);
   }
 };
@@ -1465,22 +1465,22 @@ struct ReplacableExpression : public rq::LateExpression {
   using Self = rq::ReplacableExpression;
 
   ReplacableExpression() = default;
-  inline explicit ReplacableExpression(rq::Expression &expression)
+  inline explicit ReplacableExpression(const rq::Expression &expression)
       : LateExpression(expression) {}
-  RQ_ALWAYS_INLINE rq::Expression &
-  replaceExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE const rq::Expression &
+  replaceExpression(const rq::Expression &expression) {
     return rq::replaceValue(this->_expression_ptr, &expression);
   }
-  RQ_ALWAYS_INLINE rq::Expression &
-  replaceExpression(rq::Expression *expression) {
+  RQ_ALWAYS_INLINE const rq::Expression &
+  replaceExpression(const rq::Expression *expression) {
     return rq::replaceValue(this->_expression_ptr, expression);
   }
-  RQ_ALWAYS_INLINE rq::Expression *
-  replaceExpressionPtr(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE const rq::Expression *
+  replaceExpressionPtr(const rq::Expression &expression) {
     return rq::replaceValuPtr(this->_expression_ptr, &expression);
   }
-  RQ_ALWAYS_INLINE rq::Expression *
-  replaceExpressionPtr(rq::Expression *expression) {
+  RQ_ALWAYS_INLINE const rq::Expression *
+  replaceExpressionPtr(const rq::Expression *expression) {
     return rq::replaceValuPtr(this->_expression_ptr, expression);
   }
 };
@@ -2972,9 +2972,10 @@ enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
   RQ_UNREACHABLE();
 }
 
-struct Module final : public rq::Symbol, public rq::ReplacableExpression {
+struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
+  rq::Expression *_expression_ptr{nullptr};
   rq::ModuleKind _module_kind;
   llvm::StringRef _path;
   llvm::MemoryBufferRef _buffer;
@@ -2993,6 +2994,29 @@ struct Module final : public rq::Symbol, public rq::ReplacableExpression {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     return this->_buffer.getBuffer();
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
+    return this->_expression_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+    rq::assignSingleValue(this->_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression) {
+    rq::assignSingleValue(this->_expression_ptr, expression);
+  }
+  RQ_ALWAYS_INLINE rq::Expression &
+  replaceExpression(rq::Expression &expression) {
+    return rq::replaceValue(this->_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE rq::Expression *
+  replaceExpressionPtr(rq::Expression &expression) {
+    return rq::replaceValuPtr(this->_expression_ptr, &expression);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_MODULE;
   }
@@ -3006,7 +3030,7 @@ struct Import final : public rq::Symbol,
                       public rq::InitialModuleMember {
   using Self = rq::Import;
 
-  inline explicit Import(rq::Expression &expression,
+  inline explicit Import(const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module)
       : Symbol(rq::EntityKind::SY_IMPORT), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module) {}
@@ -3016,8 +3040,6 @@ struct Import final : public rq::Symbol,
   }
 };
 
-template <> struct is_acquired<rq::Import> final : std::true_type {};
-
 struct Code : public rq::Symbol,
               public rq::InitialExpression,
               public rq::InitialExpressionFlags,
@@ -3026,7 +3048,7 @@ struct Code : public rq::Symbol,
               public rq::InitialNamed {
   using Self = rq::Code;
 
-  inline explicit Code(llvm::StringRef name, rq::Expression &expression,
+  inline explicit Code(llvm::StringRef name, const rq::Expression &expression,
                        rq::ExpressionFlags attributes, rq::Module &module,
                        rq::SymbolTable &symbol_table)
       : Symbol(rq::EntityKind::SY_CODE), InitialExpression(expression),
@@ -3037,8 +3059,6 @@ struct Code : public rq::Symbol,
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CODE;
   }
 };
-
-template <> struct is_acquired<rq::Code> final : std::true_type {};
 
 struct CategoryDiscriminant : public rq::Symbol {
   using Self = rq::CategoryDiscriminant;
@@ -3065,14 +3085,25 @@ struct Label : public rq::Symbol,
                public rq::InitialNamed {
   using Self = rq::Label;
 
-  rq::Expression *_ascription_ptr;
+  const rq::Expression *_ascription_ptr;
+  rq::Entity *_subject_ptr;
 
   inline explicit Label(llvm::StringRef name, rq::Expression &expression,
+                        const rq::Expression &ascription, rq::Entity &subject,
                         rq::Module &module, rq::SymbolTable &symbol_table)
       : Symbol(rq::EntityKind::SY_LABEL), InitialExpression(expression),
         InitialModuleMember(module), InitialSymbolTableMember(symbol_table),
-        InitialNamed(name) {}
-
+        InitialNamed(name), _ascription_ptr(&ascription),
+        _subject_ptr(&subject) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAscription() const {
+    return rq::dereferencePtr(this->_ascription_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getSubject() const {
+    return rq::dereferencePtr(this->_subject_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getSubject() {
+    return rq::dereferencePtr(this->_subject_ptr);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LABEL;
   }
@@ -3084,8 +3115,7 @@ struct Synonym : public rq::Symbol {
   rq::Symbol *_original_ptr;
 
   inline explicit Synonym(rq::Symbol &original)
-      : Symbol(rq::EntityKind::SY_SYNONYM),
-        _original_ptr(&original) {
+      : Symbol(rq::EntityKind::SY_SYNONYM), _original_ptr(&original) {
     RQ_ASSERT(
         !llvm::isa<rq::ScaledBuiltin>(original),
         "must use internal uid to differentiate synonyms of scaled builtins");
@@ -3116,8 +3146,11 @@ struct DynamicVariable : public rq::Symbol,
                          public rq::InitialNamed {
   using Self = rq::DynamicVariable;
 
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
   inline explicit DynamicVariable(llvm::StringRef name,
-                                  rq::Expression &expression,
+                                  const rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
                                   rq::SymbolTable &symbol_table)
@@ -3125,14 +3158,17 @@ struct DynamicVariable : public rq::Symbol,
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), InitialSymbolTableMember(symbol_table),
         InitialNamed(name) {}
-
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression& expression) {
+    rq::assignSingleValue(this->_type_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE void setValueExpression(const rq::Expression* expression_ptr) {
+    rq::assignSingleValue(this->_value_expression_ptr, expression_ptr);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_DYNAMIC_VARIABLE;
   }
 };
-
-template <> struct is_acquired<rq::DynamicVariable> final : std::true_type {};
 
 struct StaticVariable : public rq::Symbol,
                         public rq::InitialExpression,
@@ -3467,13 +3503,19 @@ struct Class : public rq::SymbolTable,
                public rq::InitialNamed {
   using Self = rq::Class;
 
+  const rq::Expression *_class_layout_expression_ptr{nullptr};
+  rq::ClassLayout *_class_layout_ptr{nullptr};
+
   inline explicit Class(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                        unsigned bucket_count, rq::Expression &expression,
+                        unsigned bucket_count, const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module)
       : SymbolTable(rq::EntityKind::SY_CLASS, allocator, bucket_count),
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), InitialNamed(name) {}
-
+  void setClassLayoutExpression(const rq::Expression &layout_expression) {
+    rq::assignSingleValue(this->_class_layout_expression_ptr,
+                          &layout_expression);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CLASS;
   }
@@ -3486,15 +3528,22 @@ struct Enumeration : public rq::SymbolTable,
                      public rq::InitialNamed {
   using Self = rq::Enumeration;
 
+  const rq::Expression *_underlying_type_expression_ptr{nullptr};
+
   inline explicit Enumeration(llvm::StringRef name,
                               rq::BumpPtrAllocator &allocator,
-                              unsigned bucket_count, rq::Expression &expression,
+                              unsigned bucket_count,
+                              const rq::Expression &expression,
                               rq::ExpressionFlags attributes,
                               rq::Module &module)
       : SymbolTable(rq::EntityKind::SY_ENUMERATION, allocator, bucket_count),
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), InitialNamed(name) {}
-
+  RQ_ALWAYS_INLINE void setUnderlyingTypeExpression(
+      const rq::Expression &underlying_type_expression) {
+    rq::assignSingleValue(this->_underlying_type_expression_ptr,
+                          &underlying_type_expression);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_ENUMERATION;
@@ -3508,14 +3557,21 @@ struct Category : public rq::SymbolTable,
                   public rq::InitialNamed {
   using Self = rq::Category;
 
+  const rq::Expression *_discriminant_type_expression_ptr{nullptr};
+
   inline explicit Category(llvm::StringRef name,
                            rq::BumpPtrAllocator &allocator,
-                           unsigned bucket_count, rq::Expression &expression,
+                           unsigned bucket_count,
+                           const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module)
       : SymbolTable(rq::EntityKind::SY_CATEGORY, allocator, bucket_count),
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), InitialNamed(name) {}
-
+  RQ_ALWAYS_INLINE void
+  setDiscriminantTypeExpression(const rq::Expression &type_expression) {
+    rq::assignSingleValue(this->_discriminant_type_expression_ptr,
+                          &type_expression);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CATEGORY;
   }
@@ -3528,19 +3584,27 @@ struct Procedure : public rq::SymbolTable,
                    public rq::InitialMaybeNamed {
   using Self = rq::Procedure;
 
+  rq::TypeConstant *_signature_ptr{nullptr};
+  const rq::Expression *_signature_expression_ptr{nullptr};
+
   inline explicit Procedure(rq::EntityKind k, llvm::StringRef name,
                             rq::BumpPtrAllocator &allocator,
-                            unsigned bucket_count, rq::Expression &expression,
+                            unsigned bucket_count,
+                            const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module)
       : SymbolTable(k, allocator, bucket_count), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
         InitialMaybeNamed(name) {}
   inline explicit Procedure(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
-                            unsigned bucket_count, rq::Expression &expression,
+                            unsigned bucket_count,
+                            const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module)
       : SymbolTable(k, allocator, bucket_count), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module) {}
-
+  RQ_ALWAYS_INLINE void
+  setSignatureExpression(const rq::Expression &expression) {
+    rq::assignSingleValue(this->_signature_expression_ptr, &expression);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsProcedure(rq::dereferencePtr(entity).getKind());
   }
@@ -3552,7 +3616,7 @@ struct Entry : public rq::Procedure {
   using Self = rq::Entry;
 
   inline explicit Entry(rq::BumpPtrAllocator &allocator, unsigned bucket_count,
-                        rq::Expression &expression,
+                        const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module)
       : Procedure(rq::EntityKind::SY_ENTRY, allocator, bucket_count, expression,
                   attributes, module) {}
@@ -3567,7 +3631,8 @@ struct Function : public rq::Procedure {
 
   inline explicit Function(llvm::StringRef name,
                            rq::BumpPtrAllocator &allocator,
-                           unsigned bucket_count, rq::Expression &expression,
+                           unsigned bucket_count,
+                           const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module)
       : Procedure(rq::EntityKind::SY_FUNCTION, name, allocator, bucket_count,
                   expression, attributes, module) {}
@@ -3581,7 +3646,8 @@ struct Method : public rq::Procedure {
   using Self = rq::Method;
 
   inline explicit Method(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                         unsigned bucket_count, rq::Expression &expression,
+                         unsigned bucket_count,
+                         const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module)
       : Procedure(rq::EntityKind::SY_METHOD, name, allocator, bucket_count,
                   expression, attributes, module) {}
@@ -3595,7 +3661,8 @@ struct Ranger : public rq::Procedure {
   using Self = rq::Ranger;
 
   inline explicit Ranger(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                         unsigned bucket_count, rq::Expression &expression,
+                         unsigned bucket_count,
+                         const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module)
       : Procedure(rq::EntityKind::SY_METHOD, name, allocator, bucket_count,
                   expression, attributes, module) {}
@@ -3611,7 +3678,7 @@ struct ExtensionFunction : public rq::Procedure {
   inline explicit ExtensionFunction(llvm::StringRef name,
                                     rq::BumpPtrAllocator &allocator,
                                     unsigned bucket_count,
-                                    rq::Expression &expression,
+                                    const rq::Expression &expression,
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module)
       : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION, name, allocator,
@@ -3629,7 +3696,7 @@ struct ExtensionMethod : public rq::Procedure {
   inline explicit ExtensionMethod(llvm::StringRef name,
                                   rq::BumpPtrAllocator &allocator,
                                   unsigned bucket_count,
-                                  rq::Expression &expression,
+                                  const rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module)
       : Procedure(rq::EntityKind::SY_EXTENSION_METHOD, name, allocator,
@@ -3647,7 +3714,7 @@ struct ExtensionRanger : public rq::Procedure {
   inline explicit ExtensionRanger(llvm::StringRef name,
                                   rq::BumpPtrAllocator &allocator,
                                   unsigned bucket_count,
-                                  rq::Expression &expression,
+                                  const rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module)
       : Procedure(rq::EntityKind::SY_EXTENSION_RANGER, name, allocator,

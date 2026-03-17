@@ -140,7 +140,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     break;
-  case K::UNSITUATED_ASCRIBE_STATEMENT:
+  case K::UNSITUATED_ASCRIBE_EXPRESSION:
     [[fallthrough]];
   case K::UNSITUATED_ASCRIBE_TYPE: {
     unsigned branch_i = 0;
@@ -254,7 +254,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryDifferentFirstExpressionBranches(
         situation, expression, 2, situation, S::TYPE_ATTRIBUTE);
     break;
-  case K::ASCRIBE_STATEMENT:
+  case K::ASCRIBE_EXPRESSION:
     is_ok = this->situateNaryDifferentFirstExpressionBranches(
         situation, expression, 2, situation, S::EXPRESSION_ATTRIBUTE);
     break;
