@@ -1162,7 +1162,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::OVERRIDE:
     [[fallthrough]];
-  case K::POSITION:
+  case K::LOCATION:
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
