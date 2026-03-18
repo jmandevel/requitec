@@ -599,7 +599,8 @@ Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
   if (factory.getHasOutside()) {
     const rq::Expression &outside_expression = factory.getOutside();
     const rq::Expression &path_expression = outside_expression.getBranch();
-    rq::Symbol *outside_ptr = this->resolveSymbol(path_expression, hosting_table);
+    rq::Symbol *outside_ptr =
+        this->resolveSymbol(path_expression, hosting_table);
     if (outside_ptr == nullptr) {
       this->getContext().logErrorNotSymbol(path_expression);
       this->getContext().logErrorFailedToAscribeExpression(
@@ -627,7 +628,31 @@ Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
     }
     rq::SymbolTable &subject_symbol_table =
         llvm::cast<rq::SymbolTable>(subject);
-    return subject_symbol_table;
+    rq::SymbolTable &containing_table =
+        subject_symbol_table.getContainingSymbolTable();
+    {
+      bool left_frame = false;
+      for (rq::SymbolTable &table :
+           subject_symbol_table.getInclusiveFrameRange()) {
+        if (table == containing_table) {
+          if (left_frame) {
+            this->getContext().logErrorOutsideNotInFrame(outside_expression);
+            this->getContext().logErrorFailedToAscribeExpression(
+                unascribed_expression, outside_expression);
+            this->setNotOk();
+            return hosting_table;
+          }
+          return containing_table;
+        }
+        if (table.getIsTopOfFrame()) {
+          left_frame = true;
+        }
+      }
+      this->getContext().logErrorOutsideNotAncestor(outside_expression);
+      this->getContext().logErrorFailedToAscribeExpression(
+          unascribed_expression, outside_expression);
+      this->setNotOk();
+    }
   }
   return hosting_table;
 }

@@ -296,6 +296,8 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorUnableToEvaluateName(const rq::Expression &expression);
   void logErrorUnableToEvaluateUtf8Cstr(const rq::Expression &expression);
     void logErrorFailedToImportModule(const rq::Expression &expression, llvm::StringRef path);
+    void logErrorOutsideNotInFrame(const rq::Expression& outside_expression);
+    void logErrorOutsideNotAncestor(const rq::Expression& outside_expression);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
