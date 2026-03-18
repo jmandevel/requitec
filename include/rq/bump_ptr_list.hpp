@@ -173,7 +173,7 @@ BumpPtrList<ItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
   }
   RQ_ASSERT(this->getIsItem(), "invalid state");
   Item &old_item = this->getItem();
-  node.item_ptr = &old_item;
+  node.next._ptr_union = &old_item;
   this->_ptr_union = &node;
 }
 
