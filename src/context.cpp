@@ -519,8 +519,8 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
   json.beginArray("named");
   for (const auto &node : table.getNamedSymbolsRange()) {
     llvm::StringRef name = node.name;
-    rq::ConstBumpPtrList<rq::Symbol> list =
-        rq::ConstBumpPtrList<rq::Symbol>(node.list);
+    rq::ConstBumpPtrListRef<rq::Symbol> list =
+        rq::ConstBumpPtrListRef<rq::Symbol>(node.list);
     json.beginObject();
     json.emitString("name", name);
     json.beginArray("symbols");

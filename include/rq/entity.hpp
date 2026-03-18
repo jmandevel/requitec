@@ -3413,8 +3413,8 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
       node_ptr = next_ptr;
     }
   }
-  [[nodiscard]] rq::ConstBumpPtrList<rq::Symbol>
-  getNamedListPtr(llvm::StringRef name) const {
+  [[nodiscard]] rq::ConstBumpPtrListRef<rq::Symbol>
+  getNamedListRef(llvm::StringRef name) const {
     const std::size_t hash = llvm::hash_value(name);
     const std::size_t bucket_i = hash % this->_named_symbols_map.size();
     Node *node_ptr = &this->_named_map_begin_ptr[bucket_i];
@@ -3422,12 +3422,28 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
       Node &node = rq::dereferencePtr(node_ptr);
       if (node.hash == hash) {
         if (node.name == name) {
-          return rq::ConstBumpPtrList<rq::Symbol>(node.list);
+          return rq::ConstBumpPtrListRef<rq::Symbol>(node.list);
         }
       }
       node_ptr = node.hash < hash ? node.left_ptr : node.right_ptr;
     }
-    return rq::ConstBumpPtrList<Symbol>();
+    return rq::ConstBumpPtrListRef<Symbol>();
+  }
+  [[nodiscard]] rq::BumpPtrListRef<rq::Symbol>
+  getNamedListRef(llvm::StringRef name) {
+    const std::size_t hash = llvm::hash_value(name);
+    const std::size_t bucket_i = hash % this->_named_symbols_map.size();
+    Node *node_ptr = &this->_named_map_begin_ptr[bucket_i];
+    while (node_ptr != nullptr) {
+      Node &node = rq::dereferencePtr(node_ptr);
+      if (node.hash == hash) {
+        if (node.name == name) {
+          return rq::BumpPtrListRef<rq::Symbol>(node.list);
+        }
+      }
+      node_ptr = node.hash < hash ? node.left_ptr : node.right_ptr;
+    }
+    return rq::BumpPtrListRef<Symbol>();
   }
   [[nodiscard]] inline std::ranges::subrange<
       rq::ConstNamedSymbolIterator, rq::ConstNamedSymbolIterator,
