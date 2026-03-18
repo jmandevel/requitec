@@ -1,5 +1,5 @@
 
-[table example,
+[namespace example,
     @template::{> Type:[type], LENGTH:[integer].[unsigned].[index_depth] <}
     [extension_function getElementCount, LENGTH#Type, (><)[integer].[unsigned].[index_depth],
         [result] := LENGTH;

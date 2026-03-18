@@ -129,7 +129,7 @@ enum class EntityKind : std::uint16_t {
   // SYMBOL TABLE
   SY_TOP,
   SY_SCOPE,
-  SY_TABLE,
+  SY_NAMESPACE,
   SY_CLASS,
   SY_ENUMERATION,
   SY_CATEGORY,
@@ -368,8 +368,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_top";
   case E::SY_SCOPE:
     return "sy_scope";
-  case E::SY_TABLE:
-    return "sy_table";
+  case E::SY_NAMESPACE:
+    return "sy_namespace";
   case E::SY_CLASS:
     return "sy_class";
   case E::SY_ENUMERATION:
@@ -754,7 +754,7 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
            EF::SY_TOP_OF_FRAME;
   case E::SY_SCOPE:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE;
-  case E::SY_TABLE:
+  case E::SY_NAMESPACE:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
   case E::SY_CLASS:
@@ -1422,7 +1422,7 @@ struct CategoryAlternative;
 struct SymbolTable;
 struct Top;
 struct Scope;
-struct Table;
+struct Namespace;
 struct Class;
 struct Enumeration;
 struct Category;
@@ -3565,16 +3565,16 @@ struct Scope : public rq::SymbolTable,
   }
 };
 
-struct Table : public rq::SymbolTable, rq::InitialNamed {
-  using Self = rq::Table;
+struct Namespace : public rq::SymbolTable, rq::InitialNamed {
+  using Self = rq::Namespace;
 
-  inline explicit Table(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
+  inline explicit Namespace(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
                         unsigned bucket_count)
-      : SymbolTable(rq::EntityKind::SY_TABLE, allocator, bucket_count),
+      : SymbolTable(rq::EntityKind::SY_NAMESPACE, allocator, bucket_count),
         InitialNamed(name) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_TABLE;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_NAMESPACE;
   }
 };
 

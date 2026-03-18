@@ -1104,7 +1104,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
-  case K::TABLE:
+  case K::NAMESPACE:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::SYMBOL_PATH);
     break;

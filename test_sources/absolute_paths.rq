@@ -1,8 +1,8 @@
 [import "std"];
 
-[table foo,
+[namespace foo,
 
-    [table bar,
+    [namespace bar,
         text := "Hello, world!";    
 
         [function print, (><),

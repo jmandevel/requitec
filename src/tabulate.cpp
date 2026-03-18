@@ -515,7 +515,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       this->setNotOk();
       continue;
     }
-    case K::TABLE: {
+    case K::NAMESPACE: {
       RQ_TODO_IMPLEMENTATION();
     }
     case K::DEBUG_TRAP: {

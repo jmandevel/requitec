@@ -557,9 +557,9 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
-  case rq::EntityKind::SY_TABLE: {
-    const auto &table = llvm::cast<rq::Table>(symbol);
-    json.emitString("name", table.getName());
+  case rq::EntityKind::SY_NAMESPACE: {
+    const auto &namespace_ = llvm::cast<rq::Namespace>(symbol);
+    json.emitString("name", namespace_.getName());
   } break;
   case rq::EntityKind::SY_CLASS: {
     const auto &class_ = llvm::cast<rq::Class>(symbol);

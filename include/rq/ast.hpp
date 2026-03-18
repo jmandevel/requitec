@@ -344,7 +344,7 @@ enum class Keyword : std::uint32_t {
   // TABLE GRAPH
   IMPORT,
   USE,
-  TABLE,
+  NAMESPACE,
   MODULE_TRUNK,
 
   // ERROR HANDLING AND DEBUGGING
@@ -1012,8 +1012,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "import";
   case K::USE:
     return "use";
-  case K::TABLE:
-    return "table";
+  case K::NAMESPACE:
+    return "namespace";
   case K::MODULE_TRUNK:
     return "_module_trunk";
 
@@ -1818,7 +1818,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
   case K::USE:
     return KF::STATEMENT;
-  case K::TABLE:
+  case K::NAMESPACE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::MODULE_TRUNK:
     return KF::STATEMENT_BRANCHES | KF::NONE; // TRUNK
