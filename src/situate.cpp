@@ -948,6 +948,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
     break;
+  case K::VARIADIC_LIST:
+    is_ok = this->situateNaryExpressionBranches(situation, expression, 1,
+                                                S::RVALUE);
+    break;
 
   // SCOPES
   case K::IF:

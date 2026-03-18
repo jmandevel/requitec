@@ -250,6 +250,7 @@ enum class Keyword : std::uint32_t {
   FIRST_VARIADIC_ARGUMENT_OF,
   NEXT_VARIADIC_ARGUMENT,
   NEXT_VARIADIC_ARGUMENT_OF,
+  VARIADIC_LIST,
 
   // SCOPES
   IF,
@@ -839,6 +840,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "next_variadic_argument";
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return "_next_variadic_argument_of";
+  case K::VARIADIC_LIST:
+    return "variadic_list";
 
   // SCOPES
   case K::IF:
@@ -1638,6 +1641,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::VARIADIC_LIST:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER; 
 
   // SCOPES
   case K::IF:
