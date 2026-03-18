@@ -180,17 +180,15 @@ bool Situator::situateTree(rq::Situation situation,
       if (attribute_situation == S::EXPRESSION_ATTRIBUTE) {
         rq::ExpressionFlags flags =
             rq::getFlags(branch.getExpressionAttribute());
-        if (rq::getHasAll(
-                static_cast<rq::ExpressionFlags>(found_flags),
-                flags)) {
+        if (rq::getHasAll(static_cast<rq::ExpressionFlags>(found_flags),
+                          flags)) {
           has_flags = true;
         }
         found_flags = static_cast<std::uint32_t>(
             static_cast<rq::ExpressionFlags>(found_flags) | flags);
       } else if (attribute_situation == S::TYPE_ATTRIBUTE) {
         rq::TypeFlags flags = rq::getFlags(branch.getTypeAttribute());
-        if (rq::getHasAll(static_cast<rq::TypeFlags>(found_flags),
-                          flags)) {
+        if (rq::getHasAll(static_cast<rq::TypeFlags>(found_flags), flags)) {
           has_flags = true;
         }
         found_flags = static_cast<std::uint32_t>(
@@ -923,6 +921,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::STRING:
     [[fallthrough]];
   case K::CODEUNIT:
+    [[fallthrough]];
+  case K::CHAR:
     [[fallthrough]];
   case K::ASCII:
     [[fallthrough]];

@@ -106,6 +106,7 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::GenericUnsignedInteger _generic_unsigned_integer{};
     rq::GenericCodeunit _generic_codeunit{};
     rq::GenericString _generic_string{};
+    rq::Char _char{};
     rq::Ascii _ascii{};
     rq::Utf8 _utf8{};
     unsigned _scaled_builtin_generation{1};
@@ -402,6 +403,9 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericString &acquireGenericString() {
     return this->acquired._generic_string;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Char &acquireChar() {
+    return this->acquired._char;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Ascii &acquireAscii() {
     return this->acquired._ascii;

@@ -76,6 +76,7 @@ enum class EntityKind : std::uint16_t {
   SY_GENERIC_UNSIGNED_INTEGER,
   SY_GENERIC_CODEUNIT,
   SY_GENERIC_STRING,
+  SY_CHAR,
   SY_ASCII,
   SY_UTF8,
 
@@ -300,6 +301,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_generic_codeunit";
   case E::SY_GENERIC_STRING:
     return "sy_generic_string";
+  case E::SY_CHAR:
+    return "sy_char";
   case E::SY_ASCII:
     return "sy_ascii";
   case E::SY_UTF8:
@@ -666,6 +669,9 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
            EF::SY_CODEUNIT;
   case E::SY_GENERIC_STRING:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+  case E::SY_CHAR:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+           EF::SY_CODEUNIT | EF::SY_PLATFORM_CHANGING;
   case E::SY_ASCII:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
            EF::SY_CODEUNIT;
@@ -1380,6 +1386,7 @@ struct GenericSignedInteger;
 struct GenericUnsignedInteger;
 struct GenericCodeunit;
 struct GenericString;
+struct Char;
 struct Ascii;
 struct Utf8;
 struct ScaledBuiltin;
@@ -2194,6 +2201,18 @@ struct GenericString final : public rq::SimpleBuiltin {
 };
 
 template <> struct is_acquired<rq::GenericString> final : std::true_type {};
+
+struct Char final : public rq::SimpleBuiltin {
+  using Self = rq::Char;
+
+  inline explicit Char() : SimpleBuiltin(rq::EntityKind::SY_CHAR) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CHAR;
+  }
+};
+
+template <> struct is_acquired<rq::Char> final : std::true_type {};
 
 struct Ascii final : public rq::SimpleBuiltin {
   using Self = rq::Ascii;
@@ -3216,7 +3235,8 @@ struct DynamicVariable : public rq::Symbol,
   }
 };
 
-template <> struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
+template <>
+struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
 
 struct LocalVariable : public rq::DynamicVariable {
   using Self = rq::LocalVariable;
@@ -3568,8 +3588,9 @@ struct Scope : public rq::SymbolTable,
 struct Namespace : public rq::SymbolTable, rq::InitialNamed {
   using Self = rq::Namespace;
 
-  inline explicit Namespace(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                        unsigned bucket_count)
+  inline explicit Namespace(llvm::StringRef name,
+                            rq::BumpPtrAllocator &allocator,
+                            unsigned bucket_count)
       : SymbolTable(rq::EntityKind::SY_NAMESPACE, allocator, bucket_count),
         InitialNamed(name) {}
 
@@ -3902,11 +3923,11 @@ struct TemplateLocalVariable : public rq::Template {
   using Self = rq::TemplateLocalVariable;
 
   inline explicit TemplateLocalVariable(llvm::StringRef name,
-                                          rq::Expression &expression,
-                                          rq::ExpressionFlags attributes,
-                                          rq::Module &module,
-                                          rq::SymbolTable &symbol_table,
-                                          rq::TemplateLayout &template_layout)
+                                        rq::Expression &expression,
+                                        rq::ExpressionFlags attributes,
+                                        rq::Module &module,
+                                        rq::SymbolTable &symbol_table,
+                                        rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_LOCAL_VARIABLE, name, expression,
                  attributes, module, symbol_table, template_layout) {}
 
@@ -3916,16 +3937,15 @@ struct TemplateLocalVariable : public rq::Template {
   }
 };
 
-
 struct TemplateGlobalVariable : public rq::Template {
   using Self = rq::TemplateGlobalVariable;
 
   inline explicit TemplateGlobalVariable(llvm::StringRef name,
-                                          rq::Expression &expression,
-                                          rq::ExpressionFlags attributes,
-                                          rq::Module &module,
-                                          rq::SymbolTable &symbol_table,
-                                          rq::TemplateLayout &template_layout)
+                                         rq::Expression &expression,
+                                         rq::ExpressionFlags attributes,
+                                         rq::Module &module,
+                                         rq::SymbolTable &symbol_table,
+                                         rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_GLOBAL_VARIABLE, name, expression,
                  attributes, module, symbol_table, template_layout) {}
 
@@ -4139,10 +4159,10 @@ struct PartialLocalVariable : public rq::Partial {
   using Self = rq::PartialLocalVariable;
 
   inline explicit PartialLocalVariable(llvm::StringRef name,
-                                         rq::Expression &expression,
-                                         rq::ExpressionFlags attributes,
-                                         rq::Module &module,
-                                         rq::SymbolTable &symbol_table)
+                                       rq::Expression &expression,
+                                       rq::ExpressionFlags attributes,
+                                       rq::Module &module,
+                                       rq::SymbolTable &symbol_table)
       : Partial(rq::EntityKind::SY_PARTIAL_LOCAL_VARIABLE, name, expression,
                 attributes, module, symbol_table) {}
 
@@ -4156,10 +4176,10 @@ struct PartialGlobalVariable : public rq::Partial {
   using Self = rq::PartialGlobalVariable;
 
   inline explicit PartialGlobalVariable(llvm::StringRef name,
-                                         rq::Expression &expression,
-                                         rq::ExpressionFlags attributes,
-                                         rq::Module &module,
-                                         rq::SymbolTable &symbol_table)
+                                        rq::Expression &expression,
+                                        rq::ExpressionFlags attributes,
+                                        rq::Module &module,
+                                        rq::SymbolTable &symbol_table)
       : Partial(rq::EntityKind::SY_PARTIAL_GLOBAL_VARIABLE, name, expression,
                 attributes, module, symbol_table) {}
 

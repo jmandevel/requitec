@@ -240,6 +240,7 @@ enum class Keyword : std::uint32_t {
   ADDRESS_DEPTH_OF,
   STRING,
   CODEUNIT,
+  CHAR,
   ASCII,
   UTF8,
 
@@ -820,6 +821,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "string";
   case K::CODEUNIT:
     return "codeunit";
+  case K::CHAR:
+    return "char";
   case K::ASCII:
     return "ascii";
   case K::UTF8:
@@ -1616,6 +1619,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CODEUNIT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CHAR:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCII:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
