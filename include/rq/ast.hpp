@@ -347,6 +347,7 @@ enum class Keyword : std::uint32_t {
   IMPORT,
   USE,
   NAMESPACE,
+  C,
   MODULE_TRUNK,
 
   // ERROR HANDLING AND DEBUGGING
@@ -1020,6 +1021,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "use";
   case K::NAMESPACE:
     return "namespace";
+  case K::C:
+    return "c";
   case K::MODULE_TRUNK:
     return "_module_trunk";
 
@@ -1830,6 +1833,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
   case K::NAMESPACE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+  case K::C:
+    return KF::RVALUE;
   case K::MODULE_TRUNK:
     return KF::STATEMENT_BRANCHES | KF::NONE; // TRUNK
 

@@ -1112,6 +1112,9 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::SYMBOL_PATH);
     break;
+  case K::C:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
   case K::MODULE_TRUNK:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
