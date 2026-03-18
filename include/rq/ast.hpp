@@ -367,7 +367,7 @@ enum class Keyword : std::uint32_t {
   ABSTRACT,
   VIRTUAL,
   OVERRIDE,
-  POSITION,
+  LOCATION,
   INLINE,
   MANGLE,
   PACK,
@@ -1050,8 +1050,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "virtual";
   case K::OVERRIDE:
     return "override";
-  case K::POSITION:
-    return "position";
+  case K::LOCATION:
+    return "location";
   case K::INLINE:
     return "inline";
   case K::MANGLE:
@@ -1857,7 +1857,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::OVERRIDE:
     return KF::EXPRESSION_ATTRIBUTE;
-  case K::POSITION:
+  case K::LOCATION:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::INLINE:
     return KF::EXPRESSION_ATTRIBUTE;
@@ -2528,7 +2528,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   ABSTRACT,
   VIRTUAL,
   OVERRIDE,
-  POSITION,
+  LOCATION,
   MANGLE,
   PACK,
   LABEL,
@@ -2577,8 +2577,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "virtual";
   case SA::OVERRIDE:
     return "override";
-  case SA::POSITION:
-    return "position";
+  case SA::LOCATION:
+    return "location";
   case SA::MANGLE:
     return "mangle";
   case SA::PACK:
@@ -2645,8 +2645,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::VIRTUAL;
   case K::OVERRIDE:
     return SA::OVERRIDE;
-  case K::POSITION:
-    return SA::POSITION;
+  case K::LOCATION:
+    return SA::LOCATION;
   case K::MANGLE:
     return SA::MANGLE;
   case K::PACK:
@@ -2698,7 +2698,7 @@ enum class ExpressionFlags : std::uint32_t {
   ABSTRACT = rq::getBit(23),
   VIRTUAL = rq::getBit(22),
   OVERRIDE = rq::getBit(21),
-  POSITION = rq::getBit(20),
+  LOCATION = rq::getBit(20),
   MANGLE = rq::getBit(19),
   PACK = rq::getBit(18),
   LABEL = rq::getBit(17),
@@ -2749,10 +2749,10 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::VIRTUAL;
   case SA::OVERRIDE:
     return SF::OVERRIDE;
-  case SA::POSITION:
-    return SF::POSITION;
+  case SA::LOCATION:
+    return SF::LOCATION;
   case SA::MANGLE:
-    return SF::POSITION;
+    return SF::MANGLE;
   case SA::PACK:
     return SF::PACK;
   case SA::LABEL:
@@ -2834,8 +2834,8 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::OVERRIDE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::POSITION);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::LOCATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle(rq::ExpressionFlags flags) {
@@ -2927,7 +2927,7 @@ struct ExpressionFlagsFactory final {
   const rq::Expression *_abstract_ptr{nullptr};
   const rq::Expression *_virtual_ptr{nullptr};
   const rq::Expression *_override_ptr{nullptr};
-  const rq::Expression *_position_ptr{nullptr};
+  const rq::Expression *_location_ptr{nullptr};
   const rq::Expression *_mangle_ptr{nullptr};
   const rq::Expression *_pack_ptr{nullptr};
   const rq::Expression *_label_ptr{nullptr};
@@ -2984,8 +2984,8 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
     return rq::getHasOverride(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition() const {
-    return rq::getHasPosition(this->_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const {
+    return rq::getHasLocation(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
     return rq::getHasMangle(this->_flags);
@@ -3080,9 +3080,9 @@ struct ExpressionFlagsFactory final {
     RQ_ASSERT(this->getHasOverride(), "no override");
     return rq::dereferencePtr(this->_override_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getPosition() const {
-    RQ_ASSERT(this->getHasPosition(), "no position");
-    return rq::dereferencePtr(this->_position_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getLocation() const {
+    RQ_ASSERT(this->getHasLocation(), "no location");
+    return rq::dereferencePtr(this->_location_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getMangle() const {
     RQ_ASSERT(this->getHasMangle(), "no mangle");
@@ -4147,8 +4147,8 @@ ExpressionFlagsFactory::addAttribute(const rq::Expression &expression) {
   case K::OVERRIDE:
     rq::assignSingleValue(this->_override_ptr, &expression);
     break;
-  case K::POSITION:
-    rq::assignSingleValue(this->_position_ptr, &expression);
+  case K::LOCATION:
+    rq::assignSingleValue(this->_location_ptr, &expression);
     break;
   case K::MANGLE:
     rq::assignSingleValue(this->_mangle_ptr, &expression);
