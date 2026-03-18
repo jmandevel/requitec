@@ -3193,8 +3193,8 @@ struct SymbolTableNode final {
   inline explicit SymbolTableNode() = default;
 };
 
-struct SymbolTableIterator final {
-  using Self = rq::SymbolTableIterator;
+struct NamedSymbolIterator final {
+  using Self = rq::NamedSymbolIterator;
   using value_type = rq::SymbolTableNode;
   using reference = rq::SymbolTableNode &;
   using pointer = rq::SymbolTableNode *;
@@ -3203,12 +3203,12 @@ struct SymbolTableIterator final {
 
   rq::SymbolTableNode *_node_ptr{nullptr};
 
-  SymbolTableIterator() = default;
-  explicit SymbolTableIterator(rq::SymbolTableNode *node_ptr)
+  NamedSymbolIterator() = default;
+  explicit NamedSymbolIterator(rq::SymbolTableNode *node_ptr)
       : _node_ptr(node_ptr) {}
-  SymbolTableIterator(const Self &) = default;
-  SymbolTableIterator(Self &&) = default;
-  ~SymbolTableIterator() = default;
+  NamedSymbolIterator(const Self &) = default;
+  NamedSymbolIterator(Self &&) = default;
+  ~NamedSymbolIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
@@ -3236,8 +3236,8 @@ struct SymbolTableIterator final {
   }
 };
 
-struct ConstSymbolTableIterator final {
-  using Self = rq::ConstSymbolTableIterator;
+struct ConstNamedSymbolIterator final {
+  using Self = rq::ConstNamedSymbolIterator;
   using value_type = rq::SymbolTableNode;
   using reference = const rq::SymbolTableNode &;
   using pointer = const rq::SymbolTableNode *;
@@ -3246,12 +3246,12 @@ struct ConstSymbolTableIterator final {
 
   const rq::SymbolTableNode *_node_ptr = nullptr;
 
-  ConstSymbolTableIterator() = default;
-  explicit ConstSymbolTableIterator(const rq::SymbolTableNode *node_ptr)
+  ConstNamedSymbolIterator() = default;
+  explicit ConstNamedSymbolIterator(const rq::SymbolTableNode *node_ptr)
       : _node_ptr(node_ptr) {}
-  ConstSymbolTableIterator(const Self &) = default;
-  ConstSymbolTableIterator(Self &&) = default;
-  ~ConstSymbolTableIterator() = default;
+  ConstNamedSymbolIterator(const Self &) = default;
+  ConstNamedSymbolIterator(Self &&) = default;
+  ~ConstNamedSymbolIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
@@ -3270,6 +3270,86 @@ struct ConstSymbolTableIterator final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
     return this->_node_ptr == nullptr;
+  }
+};
+
+struct SymbolTableIterator final {
+  using Self = rq::SymbolTableIterator;
+  using value_type = rq::SymbolTable;
+  using reference = rq::SymbolTable &;
+  using pointer = rq::SymbolTable *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::SymbolTable *_table_ptr{nullptr};
+
+  SymbolTableIterator() = default;
+  explicit SymbolTableIterator(rq::SymbolTable *table_ptr)
+      : _table_ptr(table_ptr) {}
+  SymbolTableIterator(const Self &) = default;
+  SymbolTableIterator(Self &&) = default;
+  ~SymbolTableIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_table_ptr == it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_table_ptr != it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*() {
+    return rq::dereferencePtr(this->_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
+    return rq::dereferencePtr(this->_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->() {
+    return this->_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
+    return this->_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_table_ptr == nullptr;
+  }
+};
+
+struct ConstSymbolTableIterator final {
+  using Self = rq::ConstSymbolTableIterator;
+  using value_type = rq::SymbolTable;
+  using reference = const rq::SymbolTable &;
+  using pointer = const rq::SymbolTable *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::SymbolTable *_table_ptr = nullptr;
+
+  ConstSymbolTableIterator() = default;
+  explicit ConstSymbolTableIterator(const rq::SymbolTable *table_ptr)
+      : _table_ptr(table_ptr) {}
+  ConstSymbolTableIterator(const Self &) = default;
+  ConstSymbolTableIterator(Self &&) = default;
+  ~ConstSymbolTableIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_table_ptr == it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_table_ptr != it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
+    return rq::dereferencePtr(this->_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
+    return this->_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_table_ptr == nullptr;
   }
 };
 
@@ -3350,23 +3430,40 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
     return rq::ConstBumpPtrList<Symbol>();
   }
   [[nodiscard]] inline std::ranges::subrange<
-      rq::ConstSymbolTableIterator, rq::ConstSymbolTableIterator,
+      rq::ConstNamedSymbolIterator, rq::ConstNamedSymbolIterator,
       std::ranges::subrange_kind::unsized>
   getNamedSymbolsRange() const {
+    return std::ranges::subrange<rq::ConstNamedSymbolIterator,
+                                 rq::ConstNamedSymbolIterator,
+                                 std::ranges::subrange_kind::unsized>(
+        rq::ConstNamedSymbolIterator(this->_named_map_begin_ptr),
+        rq::ConstNamedSymbolIterator());
+  }
+  std::ranges::subrange<rq::NamedSymbolIterator, rq::NamedSymbolIterator,
+                        std::ranges::subrange_kind::unsized>
+  getNamedSymbolsRange() {
+    return std::ranges::subrange<rq::NamedSymbolIterator,
+                                 rq::NamedSymbolIterator,
+                                 std::ranges::subrange_kind::unsized>(
+        rq::NamedSymbolIterator(this->_named_map_begin_ptr),
+        rq::NamedSymbolIterator());
+  }
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstSymbolTableIterator, rq::ConstSymbolTableIterator,
+      std::ranges::subrange_kind::unsized>
+  getInclusiveFrameRange() const {
     return std::ranges::subrange<rq::ConstSymbolTableIterator,
                                  rq::ConstSymbolTableIterator,
                                  std::ranges::subrange_kind::unsized>(
-        rq::ConstSymbolTableIterator(this->_named_map_begin_ptr),
-        rq::ConstSymbolTableIterator());
+        rq::ConstSymbolTableIterator(this), rq::ConstSymbolTableIterator());
   }
   std::ranges::subrange<rq::SymbolTableIterator, rq::SymbolTableIterator,
                         std::ranges::subrange_kind::unsized>
-  getNamedSymbolsRange() {
+  getInclusiveFrameRange() {
     return std::ranges::subrange<rq::SymbolTableIterator,
                                  rq::SymbolTableIterator,
                                  std::ranges::subrange_kind::unsized>(
-        rq::SymbolTableIterator(this->_named_map_begin_ptr),
-        rq::SymbolTableIterator());
+        rq::SymbolTableIterator(this), rq::SymbolTableIterator());
   }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsSymbolTable(rq::dereferencePtr(entity).getKind());
@@ -3375,8 +3472,33 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
 
 template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
 
-RQ_ALWAYS_INLINE rq::SymbolTableIterator &SymbolTableIterator::operator++() {
+RQ_ALWAYS_INLINE rq::NamedSymbolIterator &NamedSymbolIterator::operator++() {
   this->_node_ptr = rq::dereferencePtr(this->_node_ptr).next_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::NamedSymbolIterator NamedSymbolIterator::operator++(int) {
+  rq::NamedSymbolIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+RQ_ALWAYS_INLINE rq::ConstNamedSymbolIterator &
+ConstNamedSymbolIterator::operator++() {
+  this->_node_ptr = rq::dereferencePtr(this->_node_ptr).next_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstNamedSymbolIterator
+ConstNamedSymbolIterator::operator++(int) {
+  rq::ConstNamedSymbolIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+RQ_ALWAYS_INLINE rq::SymbolTableIterator &SymbolTableIterator::operator++() {
+  this->_table_ptr =
+      rq::dereferencePtr(this->_table_ptr)._containing_symbol_table_ptr;
   return *this;
 }
 
@@ -3388,7 +3510,8 @@ RQ_ALWAYS_INLINE rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
 
 RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator &
 ConstSymbolTableIterator::operator++() {
-  this->_node_ptr = rq::dereferencePtr(this->_node_ptr).next_ptr;
+  this->_table_ptr =
+      rq::dereferencePtr(this->_table_ptr)._containing_symbol_table_ptr;
   return *this;
 }
 
