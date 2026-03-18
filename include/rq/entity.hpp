@@ -119,7 +119,8 @@ enum class EntityKind : std::uint16_t {
   SY_SYNONYM,
 
   // BINDING
-  SY_DYNAMIC_VARIABLE,
+  SY_GLOBAL_VARIABLE,
+  SY_LOCAL_VARIABLE,
   SY_STATIC_VARIABLE,
   SY_ENUMERATOR,
   SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
@@ -146,7 +147,8 @@ enum class EntityKind : std::uint16_t {
   SY_TEMPLATE_CLASS,
   SY_TEMPLATE_ENUMERATION,
   SY_TEMPLATE_CATEGORY,
-  SY_TEMPLATE_DYNAMIC_VARIABLE,
+  SY_TEMPLATE_GLOBAL_VARIABLE,
+  SY_TEMPLATE_LOCAL_VARIABLE,
   SY_TEMPLATE_STATIC_VARIABLE,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
@@ -159,7 +161,8 @@ enum class EntityKind : std::uint16_t {
   SY_PARTIAL_CLASS,
   SY_PARTIAL_ENUMERATION,
   SY_PARTIAL_CATEGORY,
-  SY_PARTIAL_DYNAMIC_VARIABLE,
+  SY_PARTIAL_GLOBAL_VARIABLE,
+  SY_PARTIAL_LOCAL_VARIABLE,
   SY_PARTIAL_STATIC_VARIABLE,
   SY_PARTIAL_FUNCTION,
   SY_PARTIAL_METHOD,
@@ -351,8 +354,10 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_label";
   case E::SY_SYNONYM:
     return "sy_synonym";
-  case E::SY_DYNAMIC_VARIABLE:
-    return "sy_dynamic_variable";
+  case E::SY_GLOBAL_VARIABLE:
+    return "sy_global_variable";
+  case E::SY_LOCAL_VARIABLE:
+    return "sy_local_variable";
   case E::SY_STATIC_VARIABLE:
     return "sy_static_variable";
   case E::SY_ENUMERATOR:
@@ -391,8 +396,10 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_template_enumeration";
   case E::SY_TEMPLATE_CATEGORY:
     return "sy_template_category";
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
-    return "sy_template_dynamic_variable";
+  case E::SY_TEMPLATE_GLOBAL_VARIABLE:
+    return "sy_template_global_variable";
+  case E::SY_TEMPLATE_LOCAL_VARIABLE:
+    return "sy_template_local_variable";
   case E::SY_TEMPLATE_STATIC_VARIABLE:
     return "sy_template_static_variable";
   case E::SY_TEMPLATE_FUNCTION:
@@ -413,8 +420,10 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_partial_enumeration";
   case E::SY_PARTIAL_CATEGORY:
     return "sy_partial_category";
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return "sy_partial_dynamic_variable";
+  case E::SY_PARTIAL_GLOBAL_VARIABLE:
+    return "sy_partial_global_variable";
+  case E::SY_PARTIAL_LOCAL_VARIABLE:
+    return "sy_partial_local_variable";
   case E::SY_PARTIAL_STATIC_VARIABLE:
     return "sy_partial_static_variable";
   case E::SY_PARTIAL_FUNCTION:
@@ -551,24 +560,25 @@ enum class EntityFlags : std::uint32_t {
   SY_PARAMETER = rq::getBit(6),
   SY_PARAMETER_LIST_SUBTYPE = rq::getBit(7),
   SY_ARITHMETIC_SEQUENCE = rq::getBit(8),
-  SY_SYMBOL_TABLE = rq::getBit(9),
-  SY_PROCEDURE = rq::getBit(10),
-  SY_TEMPLATE = rq::getBit(11),
-  SY_PARTIAL = rq::getBit(12),
+  SY_DYNAMIC_VARIABLE = rq::getBit(9),
+  SY_SYMBOL_TABLE = rq::getBit(10),
+  SY_PROCEDURE = rq::getBit(11),
+  SY_TEMPLATE = rq::getBit(12),
+  SY_PARTIAL = rq::getBit(13),
   // SYMBOL INFO PROPERTIES - have no data associated
-  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(13),
-  SY_TYPE = rq::getBit(14),
-  SY_SUBTYPE = rq::getBit(15),
-  SY_GENERIC = rq::getBit(16),
-  SY_CONCRETE = rq::getBit(17),
-  SY_PLATFORM_CHANGING = rq::getBit(18),
-  SY_INTEGER = rq::getBit(19),
-  SY_FLOAT = rq::getBit(20),
-  SY_BINARY = rq::getBit(21),
-  SY_CODEUNIT = rq::getBit(22),
-  SY_SIGNED = rq::getBit(23),
-  SY_UNSIGNED = rq::getBit(24),
-  SY_TOP_OF_FRAME = rq::getBit(25)
+  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(14),
+  SY_TYPE = rq::getBit(15),
+  SY_SUBTYPE = rq::getBit(16),
+  SY_GENERIC = rq::getBit(17),
+  SY_CONCRETE = rq::getBit(18),
+  SY_PLATFORM_CHANGING = rq::getBit(19),
+  SY_INTEGER = rq::getBit(20),
+  SY_FLOAT = rq::getBit(21),
+  SY_BINARY = rq::getBit(22),
+  SY_CODEUNIT = rq::getBit(23),
+  SY_SIGNED = rq::getBit(24),
+  SY_UNSIGNED = rq::getBit(25),
+  SY_TOP_OF_FRAME = rq::getBit(26)
 
   // CONSTANT FLAGS
   // TODO
@@ -727,8 +737,12 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_CONCRETE;
   case E::SY_SYNONYM:
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_DYNAMIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_CONCRETE | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case E::SY_GLOBAL_VARIABLE:
+    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case E::SY_LOCAL_VARIABLE:
+    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_STATIC_VARIABLE:
     return EF::SYMBOL | EF::SY_CONCRETE | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_ENUMERATOR:
@@ -779,7 +793,9 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
   case E::SY_TEMPLATE_CATEGORY:
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+  case E::SY_TEMPLATE_GLOBAL_VARIABLE:
+    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+  case E::SY_TEMPLATE_LOCAL_VARIABLE:
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
   case E::SY_TEMPLATE_STATIC_VARIABLE:
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
@@ -801,7 +817,9 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
   case E::SY_PARTIAL_CATEGORY:
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
+  case E::SY_PARTIAL_GLOBAL_VARIABLE:
+    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+  case E::SY_PARTIAL_LOCAL_VARIABLE:
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
   case E::SY_PARTIAL_STATIC_VARIABLE:
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
@@ -973,6 +991,11 @@ getIsArithmeticSequence(rq::EntityKind kind) {
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_ARITHMETIC_SEQUENCE);
 }
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable(rq::EntityKind kind) {
+  RQ_ASSERT_SYMBOL(kind);
+  const rq::EntityFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_DYNAMIC_VARIABLE);
+}
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
@@ -1103,12 +1126,18 @@ getHasTemplateAlternative(rq::EntityKind kind) {
     [[fallthrough]];
   case E::SY_PARTIAL_CATEGORY:
     return E::SY_TEMPLATE_CATEGORY;
-  case E::SY_DYNAMIC_VARIABLE:
+  case E::SY_GLOBAL_VARIABLE:
     [[fallthrough]];
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+  case E::SY_TEMPLATE_GLOBAL_VARIABLE:
     [[fallthrough]];
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return E::SY_TEMPLATE_DYNAMIC_VARIABLE;
+  case E::SY_PARTIAL_GLOBAL_VARIABLE:
+    return E::SY_TEMPLATE_GLOBAL_VARIABLE;
+  case E::SY_LOCAL_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_LOCAL_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_LOCAL_VARIABLE:
+    return E::SY_TEMPLATE_LOCAL_VARIABLE;
   case E::SY_STATIC_VARIABLE:
     [[fallthrough]];
   case E::SY_TEMPLATE_STATIC_VARIABLE:
@@ -1179,12 +1208,18 @@ getHasTemplateAlternative(rq::EntityKind kind) {
     [[fallthrough]];
   case E::SY_PARTIAL_CATEGORY:
     return E::SY_PARTIAL_CATEGORY;
-  case E::SY_DYNAMIC_VARIABLE:
+  case E::SY_GLOBAL_VARIABLE:
     [[fallthrough]];
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+  case E::SY_TEMPLATE_GLOBAL_VARIABLE:
     [[fallthrough]];
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return E::SY_PARTIAL_DYNAMIC_VARIABLE;
+  case E::SY_PARTIAL_GLOBAL_VARIABLE:
+    return E::SY_PARTIAL_GLOBAL_VARIABLE;
+  case E::SY_LOCAL_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_LOCAL_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_LOCAL_VARIABLE:
+    return E::SY_PARTIAL_LOCAL_VARIABLE;
   case E::SY_STATIC_VARIABLE:
     [[fallthrough]];
   case E::SY_TEMPLATE_STATIC_VARIABLE:
@@ -1255,12 +1290,18 @@ getHasTemplateAlternative(rq::EntityKind kind) {
     [[fallthrough]];
   case E::SY_PARTIAL_CATEGORY:
     return E::SY_CATEGORY;
-  case E::SY_DYNAMIC_VARIABLE:
+  case E::SY_GLOBAL_VARIABLE:
     [[fallthrough]];
-  case E::SY_TEMPLATE_DYNAMIC_VARIABLE:
+  case E::SY_TEMPLATE_GLOBAL_VARIABLE:
     [[fallthrough]];
-  case E::SY_PARTIAL_DYNAMIC_VARIABLE:
-    return E::SY_DYNAMIC_VARIABLE;
+  case E::SY_PARTIAL_GLOBAL_VARIABLE:
+    return E::SY_GLOBAL_VARIABLE;
+  case E::SY_LOCAL_VARIABLE:
+    [[fallthrough]];
+  case E::SY_TEMPLATE_LOCAL_VARIABLE:
+    [[fallthrough]];
+  case E::SY_PARTIAL_LOCAL_VARIABLE:
+    return E::SY_LOCAL_VARIABLE;
   case E::SY_STATIC_VARIABLE:
     [[fallthrough]];
   case E::SY_TEMPLATE_STATIC_VARIABLE:
@@ -1373,6 +1414,8 @@ struct CategoryDiscriminant;
 struct Label;
 struct Synonym;
 struct DynamicVariable;
+struct GlobalVariable;
+struct LocalVariable;
 struct StaticVariable;
 struct Enumerator;
 struct CategoryAlternative;
@@ -1395,7 +1438,8 @@ struct Template;
 struct TemplateClass;
 struct TemplateEnumeration;
 struct TemplateCategory;
-struct TemplateDynamicVariable;
+struct TemplateGlobalVariable;
+struct TemplateLocalVariable;
 struct TemplateStaticVariable;
 struct TemplateFunction;
 struct TemplateMethod;
@@ -1407,7 +1451,8 @@ struct Partial;
 struct PartialClass;
 struct PartialEnumeration;
 struct PartialCategory;
-struct PartialDynamicVariable;
+struct PartialGlobalVariable;
+struct PartialLocalVariable;
 struct PartialStaticVariable;
 struct PartialFunction;
 struct PartialMethod;
@@ -1530,8 +1575,8 @@ struct InitialExpressionFlags {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
     return rq::getHasOverride(this->_expression_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPosition() const {
-    return rq::getHasPosition(this->_expression_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const {
+    return rq::getHasLocation(this->_expression_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
     return rq::getHasMangle(this->_expression_flags);
@@ -3149,24 +3194,59 @@ struct DynamicVariable : public rq::Symbol,
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit DynamicVariable(llvm::StringRef name,
+  inline explicit DynamicVariable(rq::EntityKind k, llvm::StringRef name,
                                   const rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
                                   rq::SymbolTable &symbol_table)
-      : Symbol(rq::EntityKind::SY_DYNAMIC_VARIABLE),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), InitialSymbolTableMember(symbol_table),
-        InitialNamed(name) {}
-  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression& expression) {
+      : Symbol(k), InitialExpression(expression),
+        InitialExpressionFlags(attributes), InitialModuleMember(module),
+        InitialSymbolTableMember(symbol_table), InitialNamed(name) {
+    RQ_ASSERT(rq::getIsDynamicVariable(k), "not dynamic variable");
+  }
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_type_expression_ptr, &expression);
   }
-  RQ_ALWAYS_INLINE void setValueExpression(const rq::Expression* expression_ptr) {
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression *expression_ptr) {
     rq::assignSingleValue(this->_value_expression_ptr, expression_ptr);
   }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::getIsDynamicVariable(rq::dereferencePtr(entity).getKind());
+  }
+};
+
+template <> struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
+
+struct LocalVariable : public rq::DynamicVariable {
+  using Self = rq::LocalVariable;
+
+  inline explicit LocalVariable(llvm::StringRef name,
+                                const rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module,
+                                rq::SymbolTable &symbol_table)
+      : DynamicVariable(rq::EntityKind::SY_LOCAL_VARIABLE, name, expression,
+                        attributes, module, symbol_table) {}
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_DYNAMIC_VARIABLE;
+           rq::EntityKind::SY_LOCAL_VARIABLE;
+  }
+};
+
+struct GlobalVariable : public rq::DynamicVariable {
+  using Self = rq::GlobalVariable;
+
+  inline explicit GlobalVariable(llvm::StringRef name,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::SymbolTable &symbol_table)
+      : DynamicVariable(rq::EntityKind::SY_GLOBAL_VARIABLE, name, expression,
+                        attributes, module, symbol_table) {}
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GLOBAL_VARIABLE;
   }
 };
 
@@ -3375,6 +3455,8 @@ struct SymbolTable : public rq::Symbol,
         node.hash = hash;
         node.name = name;
         node.list.insertFront(allocator, symbol);
+        node.next_ptr = this->_named_map_begin_ptr;
+        this->_named_map_begin_ptr = &node;
         return;
       }
       Node *&next_ptr = node.hash < hash ? node.left_ptr : node.right_ptr;
@@ -3816,21 +3898,40 @@ struct TemplateCategory : public rq::Template {
   }
 };
 
-struct TemplateDynamicVariable : public rq::Template {
-  using Self = rq::TemplateDynamicVariable;
+struct TemplateLocalVariable : public rq::Template {
+  using Self = rq::TemplateLocalVariable;
 
-  inline explicit TemplateDynamicVariable(llvm::StringRef name,
+  inline explicit TemplateLocalVariable(llvm::StringRef name,
                                           rq::Expression &expression,
                                           rq::ExpressionFlags attributes,
                                           rq::Module &module,
                                           rq::SymbolTable &symbol_table,
                                           rq::TemplateLayout &template_layout)
-      : Template(rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE, name, expression,
+      : Template(rq::EntityKind::SY_TEMPLATE_LOCAL_VARIABLE, name, expression,
                  attributes, module, symbol_table, template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_TEMPLATE_DYNAMIC_VARIABLE;
+           rq::EntityKind::SY_TEMPLATE_LOCAL_VARIABLE;
+  }
+};
+
+
+struct TemplateGlobalVariable : public rq::Template {
+  using Self = rq::TemplateGlobalVariable;
+
+  inline explicit TemplateGlobalVariable(llvm::StringRef name,
+                                          rq::Expression &expression,
+                                          rq::ExpressionFlags attributes,
+                                          rq::Module &module,
+                                          rq::SymbolTable &symbol_table,
+                                          rq::TemplateLayout &template_layout)
+      : Template(rq::EntityKind::SY_TEMPLATE_GLOBAL_VARIABLE, name, expression,
+                 attributes, module, symbol_table, template_layout) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TEMPLATE_GLOBAL_VARIABLE;
   }
 };
 
@@ -4034,20 +4135,37 @@ struct PartialCategory : public rq::Partial {
   }
 };
 
-struct PartialDynamicVariable : public rq::Partial {
-  using Self = rq::PartialDynamicVariable;
+struct PartialLocalVariable : public rq::Partial {
+  using Self = rq::PartialLocalVariable;
 
-  inline explicit PartialDynamicVariable(llvm::StringRef name,
+  inline explicit PartialLocalVariable(llvm::StringRef name,
                                          rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
                                          rq::SymbolTable &symbol_table)
-      : Partial(rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE, name, expression,
+      : Partial(rq::EntityKind::SY_PARTIAL_LOCAL_VARIABLE, name, expression,
                 attributes, module, symbol_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_PARTIAL_DYNAMIC_VARIABLE;
+           rq::EntityKind::SY_PARTIAL_LOCAL_VARIABLE;
+  }
+};
+
+struct PartialGlobalVariable : public rq::Partial {
+  using Self = rq::PartialGlobalVariable;
+
+  inline explicit PartialGlobalVariable(llvm::StringRef name,
+                                         rq::Expression &expression,
+                                         rq::ExpressionFlags attributes,
+                                         rq::Module &module,
+                                         rq::SymbolTable &symbol_table)
+      : Partial(rq::EntityKind::SY_PARTIAL_GLOBAL_VARIABLE, name, expression,
+                attributes, module, symbol_table) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_PARTIAL_GLOBAL_VARIABLE;
   }
 };
 

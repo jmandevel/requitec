@@ -124,7 +124,7 @@ struct Tabulator final {
                                           rq::SymbolTable &table);
   [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
                                                rq::SymbolTable &table);
-  void tabulateDynamicVariable(rq::SymbolTable &table,
+  void tabulateGlobalVariable(rq::SymbolTable &table,
                                rq::SymbolTable &containing,
                                const rq::ExpressionFlagsFactory &factory,
                                const rq::Expression &unascribed,

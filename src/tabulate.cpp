@@ -38,7 +38,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       }
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       const rq::Expression &type_expression = name_expression.getNext();
-      this->tabulateDynamicVariable(table, containing, factory,
+      this->tabulateGlobalVariable(table, containing, factory,
                                     unascribed_expression, name_expression,
                                     type_expression, nullptr);
       break;
@@ -59,7 +59,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       const rq::Expression &name_expression = lvalue_expression.getBranch();
       const rq::Expression &type_expression = name_expression.getNext();
       const rq::Expression &rvalue_expression = lvalue_expression.getNext();
-      this->tabulateDynamicVariable(table, containing, factory,
+      this->tabulateGlobalVariable(table, containing, factory,
                                     unascribed_expression, name_expression,
                                     type_expression, &rvalue_expression);
       break;
@@ -117,6 +117,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           this->getContext(), 16, unascribed_expression, factory.getFlags(),
           this->getModule());
       containing.getUnamedSymbolsList().insertFront(this->getContext(), entry);
+      break;
     }
     case K::FUNCTION: {
       const rq::Expression &name_expression = branch_expression.getBranch();
@@ -137,6 +138,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           function.setSignatureExpression(next_expression);
         }
       }
+      containing.addNamedSymbol(this->getContext(), name, function);
       break;
     }
     case K::METHOD: {
@@ -158,6 +160,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           method.setSignatureExpression(next_expression);
         }
       }
+      containing.addNamedSymbol(this->getContext(), name, method);
       break;
     }
     case K::RANGER: {
@@ -179,6 +182,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           ranger.setSignatureExpression(next_expression);
         }
       }
+      containing.addNamedSymbol(this->getContext(), name, ranger);
       break;
     }
     case K::EXTENSION_FUNCTION: {
@@ -201,6 +205,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           function.setSignatureExpression(next_expression);
         }
       }
+      containing.addNamedSymbol(this->getContext(), name, function);
       break;
     }
     case K::EXTENSION_METHOD: {
@@ -223,6 +228,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           method.setSignatureExpression(next_expression);
         }
       }
+      containing.addNamedSymbol(this->getContext(), name, method);
       break;
     }
     case K::EXTENSION_RANGER: {
@@ -245,6 +251,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           ranger.setSignatureExpression(next_expression);
         }
       }
+      containing.addNamedSymbol(this->getContext(), name, ranger);
       break;
     }
     case K::RETURN: {
@@ -624,7 +631,7 @@ Tabulator::evaluateType(const rq::Expression &path, rq::SymbolTable &table) {
   RQ_TODO_IMPLEMENTATION();
 }
 
-void Tabulator::tabulateDynamicVariable(
+void Tabulator::tabulateGlobalVariable(
     rq::SymbolTable &table, rq::SymbolTable &containing,
     const rq::ExpressionFlagsFactory &factory,
     const rq::Expression &unascribed_expression,
@@ -639,8 +646,8 @@ void Tabulator::tabulateDynamicVariable(
     return;
   }
   llvm::StringRef name = name_o.value();
-  rq::DynamicVariable &variable =
-      this->getContext().allocateValue<rq::DynamicVariable>(
+  rq::GlobalVariable &variable =
+      this->getContext().allocateValue<rq::GlobalVariable>(
           name, unascribed_expression, factory.getFlags(), this->getModule(),
           containing);
   variable.setTypeExpression(type_expression);
