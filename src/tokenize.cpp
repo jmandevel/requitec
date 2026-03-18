@@ -729,14 +729,7 @@ void Tokenizer::_tokenizeSourceText() {
     case 'Z':
       break;
     case '[':
-      switch (this->getRanger().getChar(1)) {
-      case '[':
-        this->tokenizeLeftGrouping(G::DOUBLE_BRACKET,
-                                   T::LEFT_DOUBLE_BRACKET_GROUPING, 2);
-        break;
-      default:
-        this->tokenizeLeftGrouping(G::BRACKET, T::LEFT_BRACKET_GROUPING, 1);
-      }
+      this->tokenizeLeftGrouping(G::BRACKET, T::LEFT_BRACKET_GROUPING, 1);
       continue;
     case '\\':
       switch (this->getRanger().getChar(1)) {
@@ -748,18 +741,6 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case ']':
-      switch (this->getRanger().getChar(1)) {
-      case ']':
-        if (!this->getHasGrouping() ||
-            this->getTopGrouping().getKind() == G::DOUBLE_BRACKET) {
-          this->tokenizeRightGrouping(G::DOUBLE_BRACKET,
-                                      T::RIGHT_DOUBLE_BRACKET_GROUPING, 2);
-          continue;
-        }
-        break;
-      default:
-        break;
-      }
       this->tokenizeRightGrouping(G::BRACKET, T::RIGHT_BRACKET_GROUPING, 1);
       continue;
     case '^':

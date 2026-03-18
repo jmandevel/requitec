@@ -733,7 +733,7 @@ static constexpr std::size_t KEYWORD_COUNT =
 
   // VALUES
   case K::INITIALIZER_LIST:
-    return "_initializer_list";
+    return "initializer_list";
   case K::TRUE:
     return "true";
   case K::FALSE:

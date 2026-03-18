@@ -1173,7 +1173,7 @@ bool Situator::situateTree(rq::Situation situation,
     switch (situation) {
     case S::EXPRESSION_ATTRIBUTE:
       is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::RVALUE);
+                                                   S::SYMBOL_PATH);
       break;
     case S::REFLECTION:
       is_ok = this->situateNullaryExpression(situation, expression);

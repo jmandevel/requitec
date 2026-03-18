@@ -1043,8 +1043,6 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   switch (token.getKind()) {
   case rq::TokenKind::LEFT_BRACKET_GROUPING:
     return this->parseEnclosedBracketExpression();
-  case rq::TokenKind::LEFT_DOUBLE_BRACKET_GROUPING:
-    return this->parseEnclosedDoubleBracketExpression();
   case rq::TokenKind::LEFT_PARENTHESIS_GROUPING:
     return this->parseEnclosedParenthesisExpression();
   case rq::TokenKind::LEFT_BRACE_GROUPING:
@@ -1218,17 +1216,6 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
     }
   }
   RQ_UNREACHABLE();
-}
-
-rq::Expression &RequiteParser::parseEnclosedDoubleBracketExpression() {
-  const rq::Token &first_token = this->getRanger().getToken();
-  rq::Expression &brace = this->getContext().acquireExpression();
-  brace.setKeyword(rq::Keyword::INITIALIZER_LIST);
-  brace.setSource(first_token);
-  this->getRanger().incrementToken(1);
-  std::ignore = this->parseExpressionBranches(
-      brace, rq::TokenKind::RIGHT_DOUBLE_BRACKET_GROUPING);
-  return brace;
 }
 
 rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
