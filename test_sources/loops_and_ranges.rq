@@ -40,7 +40,7 @@
         <},
 
         @public
-        [ranger each, &=>(><)$ranging [integer].[signed].[fast 32],
+        [ranger each, &=>$ranging(><)[integer].[signed].[fast 32],
             [for [this].data.[each], value:=[value].[borrow], 
               [range_over 
                 value
