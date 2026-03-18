@@ -110,27 +110,28 @@ struct Tabulator final {
   }
   void tabulateModule();
   void tabulateGlobalForest(const rq::Expression &first,
-                            rq::SymbolTable &table);
+                            rq::SymbolTable &hosting_table);
   [[nodiscard]] std::optional<llvm::StringRef>
-  evaluateName(const rq::Expression &expression, rq::SymbolTable &table);
+  evaluateName(const rq::Expression &expression,
+               rq::SymbolTable &hosting_table);
   [[nodiscard]] std::optional<llvm::StringRef>
-                        evaluateUtf8Cstr(const rq::Expression &expression,
-                                         rq::SymbolTable &table);
+  evaluateUtf8Cstr(const rq::Expression &expression,
+                   rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::SymbolTable &
   resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
                          const rq::Expression &unascribed,
-                         rq::SymbolTable &table);
+                         rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::Symbol *resolveSymbol(const rq::Expression &path,
-                                          rq::SymbolTable &table);
+                                          rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
-                                               rq::SymbolTable &table);
-  void tabulateGlobalVariable(rq::SymbolTable &table,
-                               rq::SymbolTable &containing,
-                               const rq::ExpressionFlagsFactory &factory,
-                               const rq::Expression &unascribed,
-                               const rq::Expression &name,
-                               const rq::Expression &type,
-                               const rq::Expression *value_ptr);
+                                               rq::SymbolTable &hosting_table);
+  void tabulateGlobalVariable(rq::SymbolTable &containing_table,
+                              rq::SymbolTable &hosting_table,
+                              const rq::ExpressionFlagsFactory &factory,
+                              const rq::Expression &unascribed,
+                              const rq::Expression &name,
+                              const rq::Expression &type,
+                              const rq::Expression *value_ptr);
 };
 
 } // namespace rq

@@ -18,7 +18,7 @@ void Tabulator::tabulateModule() {
 }
 
 void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
-                                     rq::SymbolTable &table) {
+                                     rq::SymbolTable &hosting_table) {
   using K = rq::Keyword;
   for (const rq::Expression &branch_expression :
        first_expression.getInclusiveNextSubrange()) {
@@ -28,8 +28,8 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
     if (branch_expression.getKeyword() == K::ASCRIBE_EXPRESSION) {
       factory.addAllAttributres(unascribed_expression);
     }
-    rq::SymbolTable &containing =
-        this->resolveContainingTable(factory, unascribed_expression, table);
+    rq::SymbolTable &containing_table = this->resolveContainingTable(
+        factory, unascribed_expression, hosting_table);
     switch (unascribed_expression.getKeyword()) {
     case K::BINDING: {
       if (factory.getHasStatic()) {
@@ -38,9 +38,9 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       }
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       const rq::Expression &type_expression = name_expression.getNext();
-      this->tabulateGlobalVariable(table, containing, factory,
-                                    unascribed_expression, name_expression,
-                                    type_expression, nullptr);
+      this->tabulateGlobalVariable(containing_table, hosting_table, factory,
+                                   unascribed_expression, name_expression,
+                                   type_expression, nullptr);
       break;
     }
     case K::ASSIGN: {
@@ -59,9 +59,9 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       const rq::Expression &name_expression = lvalue_expression.getBranch();
       const rq::Expression &type_expression = name_expression.getNext();
       const rq::Expression &rvalue_expression = lvalue_expression.getNext();
-      this->tabulateGlobalVariable(table, containing, factory,
-                                    unascribed_expression, name_expression,
-                                    type_expression, &rvalue_expression);
+      this->tabulateGlobalVariable(containing_table, hosting_table, factory,
+                                   unascribed_expression, name_expression,
+                                   type_expression, &rvalue_expression);
       break;
     }
     case K::STRUCTURED_BINDING: {
@@ -109,20 +109,21 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
         this->setNotOk();
         continue;
       }
-      if (!llvm::isa<rq::Top>(containing)) {
+      if (!llvm::isa<rq::Top>(containing_table)) {
         this->getContext().logErrorNotInTop(unascribed_expression);
         this->setNotOk();
       }
       rq::Entry &entry = this->getContext().allocateValue<rq::Entry>(
           this->getContext(), 16, unascribed_expression, factory.getFlags(),
-          this->getModule());
-      containing.getUnamedSymbolsList().insertFront(this->getContext(), entry);
+          this->getModule(), containing_table, hosting_table);
+      containing_table.getUnamedSymbolsList().insertFront(this->getContext(),
+                                                          entry);
       break;
     }
     case K::FUNCTION: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -131,20 +132,21 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       llvm::StringRef name = name_o.value();
       rq::Function &function = this->getContext().allocateValue<rq::Function>(
           name, this->getContext(), 16, unascribed_expression,
-          factory.getFlags(), this->getModule());
+          factory.getFlags(), this->getModule(), containing_table,
+          hosting_table);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
           function.setSignatureExpression(next_expression);
         }
       }
-      containing.addNamedSymbol(this->getContext(), name, function);
+      containing_table.addNamedSymbol(this->getContext(), name, function);
       break;
     }
     case K::METHOD: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -153,20 +155,21 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       llvm::StringRef name = name_o.value();
       rq::Method &method = this->getContext().allocateValue<rq::Method>(
           name, this->getContext(), 16, unascribed_expression,
-          factory.getFlags(), this->getModule());
+          factory.getFlags(), this->getModule(), containing_table,
+          hosting_table);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
           method.setSignatureExpression(next_expression);
         }
       }
-      containing.addNamedSymbol(this->getContext(), name, method);
+      containing_table.addNamedSymbol(this->getContext(), name, method);
       break;
     }
     case K::RANGER: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -175,20 +178,21 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       llvm::StringRef name = name_o.value();
       rq::Ranger &ranger = this->getContext().allocateValue<rq::Ranger>(
           name, this->getContext(), 16, unascribed_expression,
-          factory.getFlags(), this->getModule());
+          factory.getFlags(), this->getModule(), containing_table,
+          hosting_table);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
           ranger.setSignatureExpression(next_expression);
         }
       }
-      containing.addNamedSymbol(this->getContext(), name, ranger);
+      containing_table.addNamedSymbol(this->getContext(), name, ranger);
       break;
     }
     case K::EXTENSION_FUNCTION: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -198,20 +202,21 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       rq::ExtensionFunction &function =
           this->getContext().allocateValue<rq::ExtensionFunction>(
               name, this->getContext(), 16, unascribed_expression,
-              factory.getFlags(), this->getModule());
+              factory.getFlags(), this->getModule(), containing_table,
+              hosting_table);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
           function.setSignatureExpression(next_expression);
         }
       }
-      containing.addNamedSymbol(this->getContext(), name, function);
+      containing_table.addNamedSymbol(this->getContext(), name, function);
       break;
     }
     case K::EXTENSION_METHOD: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -221,20 +226,21 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       rq::ExtensionMethod &method =
           this->getContext().allocateValue<rq::ExtensionMethod>(
               name, this->getContext(), 16, unascribed_expression,
-              factory.getFlags(), this->getModule());
+              factory.getFlags(), this->getModule(), containing_table,
+              hosting_table);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
           method.setSignatureExpression(next_expression);
         }
       }
-      containing.addNamedSymbol(this->getContext(), name, method);
+      containing_table.addNamedSymbol(this->getContext(), name, method);
       break;
     }
     case K::EXTENSION_RANGER: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -244,14 +250,15 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       rq::ExtensionRanger &ranger =
           this->getContext().allocateValue<rq::ExtensionRanger>(
               name, this->getContext(), 16, unascribed_expression,
-              factory.getFlags(), this->getModule());
+              factory.getFlags(), this->getModule(), containing_table,
+              hosting_table);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
           ranger.setSignatureExpression(next_expression);
         }
       }
-      containing.addNamedSymbol(this->getContext(), name, ranger);
+      containing_table.addNamedSymbol(this->getContext(), name, ranger);
       break;
     }
     case K::RETURN: {
@@ -293,7 +300,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
     case K::CLASS: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -302,8 +309,9 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       llvm::StringRef name = name_o.value();
       rq::Class &class_ = this->getContext().allocateValue<rq::Class>(
           name, this->getContext(), 16, unascribed_expression,
-          factory.getFlags(), this->getModule());
-      containing.addNamedSymbol(this->getContext(), name, class_);
+          factory.getFlags(), this->getModule(), containing_table,
+          hosting_table);
+      containing_table.addNamedSymbol(this->getContext(), name, class_);
       for (const rq::Expression &member_expression :
            name_expression.getNextSubrange()) {
         if (member_expression.getIsHeader()) {
@@ -316,7 +324,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
     case K::ENUMERATION: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -326,8 +334,9 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       rq::Enumeration &enumeration =
           this->getContext().allocateValue<rq::Enumeration>(
               name, this->getContext(), 16, unascribed_expression,
-              factory.getFlags(), this->getModule());
-      containing.addNamedSymbol(this->getContext(), name, enumeration);
+              factory.getFlags(), this->getModule(), containing_table,
+              hosting_table);
+      containing_table.addNamedSymbol(this->getContext(), name, enumeration);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
@@ -339,7 +348,7 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
     case K::CODE: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -348,14 +357,14 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       llvm::StringRef name = name_o.value();
       rq::Code &code = this->getContext().allocateValue<rq::Code>(
           name, unascribed_expression, factory.getFlags(), this->getModule(),
-          table);
-      containing.addNamedSymbol(this->getContext(), name, code);
+          containing_table, hosting_table);
+      containing_table.addNamedSymbol(this->getContext(), name, code);
       break;
     }
     case K::CATEGORY: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, table);
+          this->evaluateName(name_expression, hosting_table);
       if (!name_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateName(name_expression);
         this->setNotOk();
@@ -364,8 +373,9 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       llvm::StringRef name = name_o.value();
       rq::Category &category = this->getContext().allocateValue<rq::Category>(
           name, this->getContext(), 16, unascribed_expression,
-          factory.getFlags(), this->getModule());
-      containing.addNamedSymbol(this->getContext(), name, category);
+          factory.getFlags(), this->getModule(), containing_table,
+          hosting_table);
+      containing_table.addNamedSymbol(this->getContext(), name, category);
       if (name_expression.getHasNext()) {
         const rq::Expression &next_expression = name_expression.getNext();
         if (next_expression.getIsHeader()) {
@@ -482,13 +492,17 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       }
       const rq::Expression &block_first_expression =
           unascribed_expression.getBranch();
-      this->tabulateGlobalForest(block_first_expression, table);
+      this->tabulateGlobalForest(block_first_expression, hosting_table);
     }
     case K::IMPORT: {
+      if (!llvm::isa<rq::Top>(containing_table)) {
+        this->getContext().logErrorNotInTop(unascribed_expression);
+        this->setNotOk();
+      }
       const rq::Expression &path_cstr_expression =
           unascribed_expression.getBranch();
       std::optional<llvm::StringRef> path_cstr_o =
-          this->evaluateUtf8Cstr(path_cstr_expression, table);
+          this->evaluateUtf8Cstr(path_cstr_expression, hosting_table);
       if (!path_cstr_o.has_value()) {
         this->getContext().logErrorUnableToEvaluateUtf8Cstr(
             path_cstr_expression);
@@ -507,7 +521,8 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       // rq::Module &imported = rq::dereferencePtr(imported_ptr);
       rq::Import &import = this->getContext().allocateValue<rq::Import>(
           unascribed_expression, factory.getFlags(), this->getModule());
-      table.getUnamedSymbolsList().insertFront(this->getContext(), import);
+      containing_table.getUnamedSymbolsList().insertFront(this->getContext(),
+                                                          import);
     }
     case K::USE: {
       this->getContext().logErrorGlobalIndeterminateDynamicExpression(
@@ -556,8 +571,8 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
 
 std::optional<llvm::StringRef>
 Tabulator::evaluateName(const rq::Expression &expression,
-                        rq::SymbolTable &table) {
-  std::ignore = table;
+                        rq::SymbolTable &hosting_table) {
+  std::ignore = hosting_table;
   if (expression.getKeyword() == rq::Keyword::IDENTIFIER_LITERAL) {
     return expression.getSourceText();
   } else if (expression.getKeyword() == rq::Keyword::IDENTIFY) {
@@ -568,8 +583,8 @@ Tabulator::evaluateName(const rq::Expression &expression,
 
 [[nodiscard]] std::optional<llvm::StringRef>
 Tabulator::evaluateUtf8Cstr(const rq::Expression &expression,
-                            rq::SymbolTable &table) {
-  std::ignore = table;
+                            rq::SymbolTable &hosting_table) {
+  std::ignore = hosting_table;
   if (expression.getKeyword() == rq::Keyword::STRING_LITERAL) {
     llvm::SmallString<16> cstr{};
     // TODO
@@ -580,17 +595,17 @@ Tabulator::evaluateUtf8Cstr(const rq::Expression &expression,
 [[nodiscard]] rq::SymbolTable &
 Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
                                   const rq::Expression &unascribed_expression,
-                                  rq::SymbolTable &table) {
+                                  rq::SymbolTable &hosting_table) {
   if (factory.getHasOutside()) {
     const rq::Expression &outside_expression = factory.getOutside();
     const rq::Expression &path_expression = outside_expression.getBranch();
-    rq::Symbol *outside_ptr = this->resolveSymbol(path_expression, table);
+    rq::Symbol *outside_ptr = this->resolveSymbol(path_expression, hosting_table);
     if (outside_ptr == nullptr) {
       this->getContext().logErrorNotSymbol(path_expression);
       this->getContext().logErrorFailedToAscribeExpression(
           unascribed_expression, outside_expression);
       this->setNotOk();
-      return table;
+      return hosting_table;
     }
     rq::Symbol &outside = rq::dereferencePtr(outside_ptr);
     if (!llvm::isa<rq::Label>(outside)) {
@@ -598,7 +613,7 @@ Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
       this->getContext().logErrorFailedToAscribeExpression(
           unascribed_expression, outside_expression);
       this->setNotOk();
-      return table;
+      return hosting_table;
     }
     rq::Label &label = llvm::cast<rq::Label>(outside);
     rq::Entity &subject = label.getSubject();
@@ -608,13 +623,13 @@ Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
       this->getContext().logErrorFailedToAscribeExpression(
           unascribed_expression, outside_expression);
       this->setNotOk();
-      return table;
+      return hosting_table;
     }
     rq::SymbolTable &subject_symbol_table =
         llvm::cast<rq::SymbolTable>(subject);
     return subject_symbol_table;
   }
-  return table;
+  return hosting_table;
 }
 
 [[nodiscard]] rq::Symbol *Tabulator::resolveSymbol(const rq::Expression &path,
@@ -632,14 +647,14 @@ Tabulator::evaluateType(const rq::Expression &path, rq::SymbolTable &table) {
 }
 
 void Tabulator::tabulateGlobalVariable(
-    rq::SymbolTable &table, rq::SymbolTable &containing,
+    rq::SymbolTable &hosting_table, rq::SymbolTable &containing_table,
     const rq::ExpressionFlagsFactory &factory,
     const rq::Expression &unascribed_expression,
     const rq::Expression &name_expression,
     const rq::Expression &type_expression,
     const rq::Expression *value_expression_ptr) {
   std::optional<llvm::StringRef> name_o =
-      this->evaluateName(name_expression, table);
+      this->evaluateName(name_expression, hosting_table);
   if (!name_o.has_value()) {
     this->getContext().logErrorUnableToEvaluateName(name_expression);
     this->setNotOk();
@@ -649,10 +664,37 @@ void Tabulator::tabulateGlobalVariable(
   rq::GlobalVariable &variable =
       this->getContext().allocateValue<rq::GlobalVariable>(
           name, unascribed_expression, factory.getFlags(), this->getModule(),
-          containing);
+          containing_table, hosting_table);
   variable.setTypeExpression(type_expression);
   variable.setValueExpression(value_expression_ptr);
-  containing.addNamedSymbol(this->getContext(), name, variable);
+  containing_table.addNamedSymbol(this->getContext(), name, variable);
+  // if (factory.getHasOpaque()) {
+  //   if (!factory.getHasMangle()) {
+  //     this->getContext().logErrorOpaqueNoMangle(unascribed_expression,
+  //                                               factory.getOpaque());
+  //     this->setNotOk();
+  //   }
+  // }
+  // if (factory.getHasMangle()) {
+  //   this->evaluateMangle(factory.getMangle(), name, variable, table);
+  // }
+  // if (factory.getHasPartialMutate()) {
+  //   this->getContext().logErrorInvalidExpressionAttribute(
+  //       unascribed_expression, factory.getPartialMutate());
+  //   this->setNotOk();
+  // }
+  // RQ_ASSERT(!factory.getHasStatic(), "has static");
+  // if (factory.getHasCapture()) {
+  //   this->evaluateCapture(factory.getCapture(), name, variable, table);
+  // }
+  // if (factory.getHasMayParent()) {
+  //
+  //}
+  //
+  //
+  // if (factory.getHasEager()) {
+  //  this->evaluateGlobalVariable(variable, table);
+  //}
 }
 
 } // namespace rq

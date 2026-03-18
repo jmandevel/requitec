@@ -119,14 +119,6 @@ enum class EntityKind : std::uint16_t {
   SY_LABEL,
   SY_SYNONYM,
 
-  // BINDING
-  SY_GLOBAL_VARIABLE,
-  SY_LOCAL_VARIABLE,
-  SY_STATIC_VARIABLE,
-  SY_ENUMERATOR,
-  SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
-                           // maybe a value type
-
   // SYMBOL TABLE
   SY_TOP,
   SY_SCOPE,
@@ -134,6 +126,14 @@ enum class EntityKind : std::uint16_t {
   SY_CLASS,
   SY_ENUMERATION,
   SY_CATEGORY,
+
+  // BINDING
+  SY_GLOBAL_VARIABLE,
+  SY_LOCAL_VARIABLE,
+  SY_STATIC_VARIABLE,
+  SY_ENUMERATOR,
+  SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
+                           // maybe a value type
 
   // PROCEDURE
   SY_ENTRY,
@@ -149,7 +149,6 @@ enum class EntityKind : std::uint16_t {
   SY_TEMPLATE_ENUMERATION,
   SY_TEMPLATE_CATEGORY,
   SY_TEMPLATE_GLOBAL_VARIABLE,
-  SY_TEMPLATE_LOCAL_VARIABLE,
   SY_TEMPLATE_STATIC_VARIABLE,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
@@ -163,7 +162,6 @@ enum class EntityKind : std::uint16_t {
   SY_PARTIAL_ENUMERATION,
   SY_PARTIAL_CATEGORY,
   SY_PARTIAL_GLOBAL_VARIABLE,
-  SY_PARTIAL_LOCAL_VARIABLE,
   SY_PARTIAL_STATIC_VARIABLE,
   SY_PARTIAL_FUNCTION,
   SY_PARTIAL_METHOD,
@@ -357,16 +355,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_label";
   case E::SY_SYNONYM:
     return "sy_synonym";
-  case E::SY_GLOBAL_VARIABLE:
-    return "sy_global_variable";
-  case E::SY_LOCAL_VARIABLE:
-    return "sy_local_variable";
-  case E::SY_STATIC_VARIABLE:
-    return "sy_static_variable";
-  case E::SY_ENUMERATOR:
-    return "sy_enumerator";
-  case E::SY_CATEGORY_ALTERNATIVE:
-    return "sy_category_alternative";
   case E::SY_TOP:
     return "sy_top";
   case E::SY_SCOPE:
@@ -379,6 +367,16 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_enumeration";
   case E::SY_CATEGORY:
     return "sy_category";
+  case E::SY_GLOBAL_VARIABLE:
+    return "sy_global_variable";
+  case E::SY_LOCAL_VARIABLE:
+    return "sy_local_variable";
+  case E::SY_STATIC_VARIABLE:
+    return "sy_static_variable";
+  case E::SY_ENUMERATOR:
+    return "sy_enumerator";
+  case E::SY_CATEGORY_ALTERNATIVE:
+    return "sy_category_alternative";
   case E::SY_ENTRY:
     return "sy_entry";
   case E::SY_FUNCTION:
@@ -401,8 +399,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_template_category";
   case E::SY_TEMPLATE_GLOBAL_VARIABLE:
     return "sy_template_global_variable";
-  case E::SY_TEMPLATE_LOCAL_VARIABLE:
-    return "sy_template_local_variable";
   case E::SY_TEMPLATE_STATIC_VARIABLE:
     return "sy_template_static_variable";
   case E::SY_TEMPLATE_FUNCTION:
@@ -425,8 +421,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_partial_category";
   case E::SY_PARTIAL_GLOBAL_VARIABLE:
     return "sy_partial_global_variable";
-  case E::SY_PARTIAL_LOCAL_VARIABLE:
-    return "sy_partial_local_variable";
   case E::SY_PARTIAL_STATIC_VARIABLE:
     return "sy_partial_static_variable";
   case E::SY_PARTIAL_FUNCTION:
@@ -743,18 +737,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_CONCRETE;
   case E::SY_SYNONYM:
     return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_GLOBAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE |
-           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case E::SY_LOCAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE |
-           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case E::SY_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_CONCRETE | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case E::SY_ENUMERATOR:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_CATEGORY_ALTERNATIVE:
-    return EF::SYMBOL | EF::SY_CONCRETE;
   case E::SY_TOP:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
@@ -772,6 +754,17 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_CATEGORY:
     return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case E::SY_GLOBAL_VARIABLE:
+    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case E::SY_LOCAL_VARIABLE:
+    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE;
+  case E::SY_STATIC_VARIABLE:
+    return EF::SYMBOL | EF::SY_CONCRETE | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case E::SY_ENUMERATOR:
+    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+  case E::SY_CATEGORY_ALTERNATIVE:
+    return EF::SYMBOL | EF::SY_CONCRETE;
   case E::SY_ENTRY:
     return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
            EF::SY_TOP_OF_FRAME;
@@ -801,8 +794,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
   case E::SY_TEMPLATE_GLOBAL_VARIABLE:
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
-  case E::SY_TEMPLATE_LOCAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
   case E::SY_TEMPLATE_STATIC_VARIABLE:
     return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
   case E::SY_TEMPLATE_FUNCTION:
@@ -824,8 +815,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_PARTIAL_CATEGORY:
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
   case E::SY_PARTIAL_GLOBAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
-  case E::SY_PARTIAL_LOCAL_VARIABLE:
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
   case E::SY_PARTIAL_STATIC_VARIABLE:
     return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
@@ -1138,12 +1127,6 @@ getHasTemplateAlternative(rq::EntityKind kind) {
     [[fallthrough]];
   case E::SY_PARTIAL_GLOBAL_VARIABLE:
     return E::SY_TEMPLATE_GLOBAL_VARIABLE;
-  case E::SY_LOCAL_VARIABLE:
-    [[fallthrough]];
-  case E::SY_TEMPLATE_LOCAL_VARIABLE:
-    [[fallthrough]];
-  case E::SY_PARTIAL_LOCAL_VARIABLE:
-    return E::SY_TEMPLATE_LOCAL_VARIABLE;
   case E::SY_STATIC_VARIABLE:
     [[fallthrough]];
   case E::SY_TEMPLATE_STATIC_VARIABLE:
@@ -1220,12 +1203,6 @@ getHasTemplateAlternative(rq::EntityKind kind) {
     [[fallthrough]];
   case E::SY_PARTIAL_GLOBAL_VARIABLE:
     return E::SY_PARTIAL_GLOBAL_VARIABLE;
-  case E::SY_LOCAL_VARIABLE:
-    [[fallthrough]];
-  case E::SY_TEMPLATE_LOCAL_VARIABLE:
-    [[fallthrough]];
-  case E::SY_PARTIAL_LOCAL_VARIABLE:
-    return E::SY_PARTIAL_LOCAL_VARIABLE;
   case E::SY_STATIC_VARIABLE:
     [[fallthrough]];
   case E::SY_TEMPLATE_STATIC_VARIABLE:
@@ -1302,12 +1279,6 @@ getHasTemplateAlternative(rq::EntityKind kind) {
     [[fallthrough]];
   case E::SY_PARTIAL_GLOBAL_VARIABLE:
     return E::SY_GLOBAL_VARIABLE;
-  case E::SY_LOCAL_VARIABLE:
-    [[fallthrough]];
-  case E::SY_TEMPLATE_LOCAL_VARIABLE:
-    [[fallthrough]];
-  case E::SY_PARTIAL_LOCAL_VARIABLE:
-    return E::SY_LOCAL_VARIABLE;
   case E::SY_STATIC_VARIABLE:
     [[fallthrough]];
   case E::SY_TEMPLATE_STATIC_VARIABLE:
@@ -1648,36 +1619,17 @@ struct InitialModuleMember {
     return rq::dereferencePtr(this->_containing_module_ptr);
   }
 };
-struct InitialSymbolTableMember {
-  using Self = rq::InitialSymbolTableMember;
-
-  rq::SymbolTable *_containing_symbol_table_ptr;
-
-  inline explicit InitialSymbolTableMember(rq::SymbolTable &symbol_table)
-      : _containing_symbol_table_ptr(&symbol_table) {}
-  InitialSymbolTableMember(const Self &) = delete;
-  InitialSymbolTableMember(Self &&) = delete;
-  ~InitialSymbolTableMember() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  const rq::SymbolTable &getContainingSymbolTable() const {
-    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
-  }
-  rq::SymbolTable &getContainingSymbolTable() {
-    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
-  }
-};
-struct InitialMaybeSymbolTableMember {
-  using Self = rq::InitialMaybeSymbolTableMember;
+struct SymbolTableMember {
+  using Self = rq::SymbolTableMember;
 
   rq::SymbolTable *_containing_symbol_table_ptr{nullptr};
 
-  inline explicit InitialMaybeSymbolTableMember() = default;
-  inline explicit InitialMaybeSymbolTableMember(rq::SymbolTable &symbol_table)
-      : _containing_symbol_table_ptr(&symbol_table) {}
-  InitialMaybeSymbolTableMember(const Self &) = delete;
-  InitialMaybeSymbolTableMember(Self &&) = delete;
-  ~InitialMaybeSymbolTableMember() = default;
+  inline explicit SymbolTableMember() = default;
+  inline explicit SymbolTableMember(rq::SymbolTable &containing_table)
+      : _containing_symbol_table_ptr(&containing_table) {}
+  SymbolTableMember(const Self &) = delete;
+  SymbolTableMember(Self &&) = delete;
+  ~SymbolTableMember() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() const {
@@ -1688,6 +1640,25 @@ struct InitialMaybeSymbolTableMember {
   }
   rq::SymbolTable &getContainingSymbolTable() {
     return rq::dereferencePtr(this->_containing_symbol_table_ptr);
+  }
+};
+struct SymbolTableHosted {
+  using Self = rq::SymbolTableHosted;
+
+  rq::SymbolTable *_hosting_symbol_table_ptr{nullptr};
+
+  inline explicit SymbolTableHosted(rq::SymbolTable &hosting_table)
+      : _hosting_symbol_table_ptr(&hosting_table) {}
+  SymbolTableHosted(const Self &) = delete;
+  SymbolTableHosted(Self &&) = delete;
+  ~SymbolTableHosted() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  const rq::SymbolTable &getHostingSymbolTable() const {
+    return rq::dereferencePtr(this->_hosting_symbol_table_ptr);
+  }
+  rq::SymbolTable &getHostingSymbolTable() {
+    return rq::dereferencePtr(this->_hosting_symbol_table_ptr);
   }
 };
 struct InitialNamed {
@@ -2565,7 +2536,7 @@ struct ParameterListSubtype : public rq::Symbol,
                               public rq::InitialExpression,
                               public rq::InitialExpressionFlags,
                               public rq::InitialModuleMember,
-                              public rq::InitialSymbolTableMember {
+                              public rq::SymbolTableHosted {
   using Self = rq::ParameterListSubtype;
 
   llvm::ArrayRef<rq::Parameter> _named_parameter_map{};
@@ -2578,10 +2549,10 @@ struct ParameterListSubtype : public rq::Symbol,
                                        rq::Expression &expression,
                                        rq::ExpressionFlags attributes,
                                        rq::Module &module,
-                                       rq::SymbolTable &symbol_table)
+                                       rq::SymbolTable &hosting_table)
       : Symbol(k), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table),
+        SymbolTableHosted(hosting_table),
         _named_parameter_map(
             allocator.allocateAcquiredZeroedArray<rq::Parameter>(
                 map_bucket_count)) {}
@@ -2601,10 +2572,10 @@ struct Layout final : public rq::ParameterListSubtype {
                          unsigned parameter_bucket_count,
                          rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
-                         rq::SymbolTable &symbol_table)
+                         rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
                              rq::EntityKind::SY_LAYOUT, expression, attributes,
-                             module, symbol_table) {}
+                             module, hosting_table) {}
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LAYOUT;
   }
@@ -2619,10 +2590,11 @@ struct ClassLayout final : public rq::ParameterListSubtype {
                               unsigned parameter_bucket_count,
                               rq::Expression &expression,
                               rq::ExpressionFlags attributes,
-                              rq::Module &module, rq::SymbolTable &symbol_table)
+                              rq::Module &module,
+                              rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
                              rq::EntityKind::SY_CLASS_LAYOUT, expression,
-                             attributes, module, symbol_table) {}
+                             attributes, module, hosting_table) {}
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_CLASS_LAYOUT;
@@ -2637,10 +2609,10 @@ struct TemplateLayout final : public rq::ParameterListSubtype {
   inline explicit TemplateLayout(rq::BumpPtrAllocator &allocator,
                                  unsigned parameter_bucket_count,
                                  rq::Expression &expression, rq::Module &module,
-                                 rq::SymbolTable &symbol_table)
+                                 rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
                              rq::EntityKind::SY_TEMPLATE_LAYOUT, expression, {},
-                             module, symbol_table) {}
+                             module, hosting_table) {}
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_TEMPLATE_LAYOUT;
@@ -2659,10 +2631,10 @@ struct Signature final : public rq::ParameterListSubtype {
                             rq::TypeConstant &return_type,
                             rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &symbol_table)
+                            rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
                              rq::EntityKind::SY_SIGNATURE, expression,
-                             attributes, module, symbol_table),
+                             attributes, module, hosting_table),
         _return_type(&return_type) {}
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
     return rq::dereferencePtr(this->_return_type);
@@ -2689,10 +2661,10 @@ struct Extension final : public rq::ParameterListSubtype {
                             rq::TypeConstant &extended_type,
                             rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &symbol_table)
+                            rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
                              rq::EntityKind::SY_EXTENSION, expression,
-                             attributes, module, symbol_table),
+                             attributes, module, hosting_table),
         _return_type(&return_type), _extended_type(&extended_type) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
@@ -2719,7 +2691,7 @@ struct Parameter : public rq::Symbol,
                    public rq::InitialExpression,
                    public rq::InitialExpressionFlags,
                    public rq::InitialModuleMember,
-                   public rq::InitialSymbolTableMember,
+                   public rq::SymbolTableHosted,
                    public rq::InitialMaybeNamed {
   using Self = rq::Parameter;
 
@@ -2734,18 +2706,18 @@ struct Parameter : public rq::Symbol,
                             rq::ParameterListSubtype &list,
                             rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &symbol_table)
+                            rq::SymbolTable &hosting_table)
       : Symbol(k), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialMaybeNamed(name),
+        SymbolTableHosted(hosting_table), InitialMaybeNamed(name),
         _parameter_list_subtype_ptr(&list) {}
   inline explicit Parameter(rq::EntityKind k, rq::ParameterListSubtype &list,
                             rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &symbol_table)
+                            rq::SymbolTable &hosting_table)
       : Symbol(k), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialMaybeNamed(),
+        SymbolTableHosted(hosting_table), InitialMaybeNamed(),
         _parameter_list_subtype_ptr(&list) {}
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
     return this->_type_ptr != nullptr;
@@ -2786,16 +2758,16 @@ struct ClassParameter : public rq::Parameter {
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
-                                 rq::SymbolTable &symbol_table)
+                                 rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_CLASS_PARAMETER, name, layout, expression,
-                  attributes, module, symbol_table) {}
+                  attributes, module, hosting_table) {}
   inline explicit ClassParameter(rq::ClassLayout &layout,
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
-                                 rq::SymbolTable &symbol_table)
+                                 rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_CLASS_PARAMETER, layout, expression,
-                  attributes, module, symbol_table) {}
+                  attributes, module, hosting_table) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassLayout &getClassLayout() const {
     return llvm::cast<rq::ClassLayout>(this->getParameterListSubtype());
@@ -2820,16 +2792,16 @@ struct LayoutParameter : public rq::Parameter {
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &symbol_table)
+                                  rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_LAYOUT_PARAMETER, name, layout, expression,
-                  attributes, module, symbol_table) {}
+                  attributes, module, hosting_table) {}
   inline explicit LayoutParameter(rq::Layout &layout,
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &symbol_table)
+                                  rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_LAYOUT_PARAMETER, layout, expression,
-                  attributes, module, symbol_table) {}
+                  attributes, module, hosting_table) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout &getLayout() const {
     return llvm::cast<rq::Layout>(this->getParameterListSubtype());
@@ -2855,16 +2827,16 @@ struct TemplateParameter : public rq::Parameter {
                                     rq::Expression &expression,
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module,
-                                    rq::SymbolTable &symbol_table)
+                                    rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_TEMPLATE_PARAMETER, name, template_layout,
-                  expression, attributes, module, symbol_table) {}
+                  expression, attributes, module, hosting_table) {}
   inline explicit TemplateParameter(rq::TemplateLayout &template_layout,
                                     rq::Expression &expression,
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module,
-                                    rq::SymbolTable &symbol_table)
+                                    rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_TEMPLATE_PARAMETER, template_layout,
-                  expression, attributes, module, symbol_table) {}
+                  expression, attributes, module, hosting_table) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &getTemplate() const {
     return llvm::cast<rq::Template>(this->getParameterListSubtype());
@@ -2890,16 +2862,16 @@ struct SignatureParameter : public rq::Parameter {
                                      rq::Expression &expression,
                                      rq::ExpressionFlags attributes,
                                      rq::Module &module,
-                                     rq::SymbolTable &symbol_table)
+                                     rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_SIGNATURE_PARAMETER, name, signature,
-                  expression, attributes, module, symbol_table) {}
+                  expression, attributes, module, hosting_table) {}
   inline explicit SignatureParameter(rq::Signature &signature,
                                      rq::Expression &expression,
                                      rq::ExpressionFlags attributes,
                                      rq::Module &module,
-                                     rq::SymbolTable &symbol_table)
+                                     rq::SymbolTable &hosting_table)
       : Parameter(rq::EntityKind::SY_SIGNATURE_PARAMETER, signature, expression,
-                  attributes, module, symbol_table) {}
+                  attributes, module, hosting_table) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature &getSignature() const {
     return llvm::cast<rq::Signature>(this->getParameterListSubtype());
@@ -3108,16 +3080,19 @@ struct Code : public rq::Symbol,
               public rq::InitialExpression,
               public rq::InitialExpressionFlags,
               public rq::InitialModuleMember,
-              public rq::InitialSymbolTableMember,
+              public rq::SymbolTableMember,
+              public rq::SymbolTableHosted,
               public rq::InitialNamed {
   using Self = rq::Code;
 
   inline explicit Code(llvm::StringRef name, const rq::Expression &expression,
                        rq::ExpressionFlags attributes, rq::Module &module,
-                       rq::SymbolTable &symbol_table)
+                       rq::SymbolTable &containing_table,
+                       rq::SymbolTable &hosting_table)
       : Symbol(rq::EntityKind::SY_CODE), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialNamed(name) {}
+        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
+        InitialNamed(name) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_CODE;
@@ -3145,7 +3120,7 @@ struct is_acquired<rq::CategoryDiscriminant> final : std::true_type {};
 struct Label : public rq::Symbol,
                public rq::InitialExpression,
                public rq::InitialModuleMember,
-               public rq::InitialSymbolTableMember,
+               public rq::SymbolTableMember,
                public rq::InitialNamed {
   using Self = rq::Label;
 
@@ -3154,9 +3129,9 @@ struct Label : public rq::Symbol,
 
   inline explicit Label(llvm::StringRef name, rq::Expression &expression,
                         const rq::Expression &ascription, rq::Entity &subject,
-                        rq::Module &module, rq::SymbolTable &symbol_table)
+                        rq::Module &module, rq::SymbolTable &containing_table)
       : Symbol(rq::EntityKind::SY_LABEL), InitialExpression(expression),
-        InitialModuleMember(module), InitialSymbolTableMember(symbol_table),
+        InitialModuleMember(module), SymbolTableMember(containing_table),
         InitialNamed(name), _ascription_ptr(&ascription),
         _subject_ptr(&subject) {}
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAscription() const {
@@ -3201,145 +3176,6 @@ struct Synonym : public rq::Symbol {
 };
 
 template <> struct is_acquired<rq::Synonym> final : std::true_type {};
-
-struct DynamicVariable : public rq::Symbol,
-                         public rq::InitialExpression,
-                         public rq::InitialExpressionFlags,
-                         public rq::InitialModuleMember,
-                         public rq::InitialSymbolTableMember,
-                         public rq::InitialNamed {
-  using Self = rq::DynamicVariable;
-
-  const rq::Expression *_type_expression_ptr{nullptr};
-  const rq::Expression *_value_expression_ptr{nullptr};
-
-  inline explicit DynamicVariable(rq::EntityKind k, llvm::StringRef name,
-                                  const rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::SymbolTable &symbol_table)
-      : Symbol(k), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialNamed(name) {
-    RQ_ASSERT(rq::getIsDynamicVariable(k), "not dynamic variable");
-  }
-  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression) {
-    rq::assignSingleValue(this->_type_expression_ptr, &expression);
-  }
-  RQ_ALWAYS_INLINE void
-  setValueExpression(const rq::Expression *expression_ptr) {
-    rq::assignSingleValue(this->_value_expression_ptr, expression_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsDynamicVariable(rq::dereferencePtr(entity).getKind());
-  }
-};
-
-template <>
-struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
-
-struct LocalVariable : public rq::DynamicVariable {
-  using Self = rq::LocalVariable;
-
-  inline explicit LocalVariable(llvm::StringRef name,
-                                const rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::SymbolTable &symbol_table)
-      : DynamicVariable(rq::EntityKind::SY_LOCAL_VARIABLE, name, expression,
-                        attributes, module, symbol_table) {}
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_LOCAL_VARIABLE;
-  }
-};
-
-struct GlobalVariable : public rq::DynamicVariable {
-  using Self = rq::GlobalVariable;
-
-  inline explicit GlobalVariable(llvm::StringRef name,
-                                 const rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::SymbolTable &symbol_table)
-      : DynamicVariable(rq::EntityKind::SY_GLOBAL_VARIABLE, name, expression,
-                        attributes, module, symbol_table) {}
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GLOBAL_VARIABLE;
-  }
-};
-
-struct StaticVariable : public rq::Symbol,
-                        public rq::InitialExpression,
-                        public rq::InitialExpressionFlags,
-                        public rq::InitialModuleMember,
-                        public rq::InitialSymbolTableMember,
-                        public rq::InitialNamed {
-  using Self = rq::StaticVariable;
-
-  inline explicit StaticVariable(llvm::StringRef name,
-                                 rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::SymbolTable &symbol_table)
-      : Symbol(rq::EntityKind::SY_STATIC_VARIABLE),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), InitialSymbolTableMember(symbol_table),
-        InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_STATIC_VARIABLE;
-  }
-};
-
-template <> struct is_acquired<rq::StaticVariable> final : std::true_type {};
-
-struct Enumerator : public rq::Symbol,
-                    public rq::InitialExpression,
-                    public rq::InitialExpressionFlags,
-                    public rq::InitialModuleMember,
-                    public rq::InitialSymbolTableMember,
-                    public rq::InitialNamed {
-  using Self = rq::Enumerator;
-
-  inline explicit Enumerator(llvm::StringRef name, rq::Expression &expression,
-                             rq::ExpressionFlags attributes, rq::Module &module,
-                             rq::SymbolTable &symbol_table)
-      : Symbol(rq::EntityKind::SY_ENUMERATOR), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_ENUMERATOR;
-  }
-};
-
-template <> struct is_acquired<rq::Enumerator> final : std::true_type {};
-
-struct CategoryAlternative : public rq::Symbol,
-                             public rq::InitialExpression,
-                             public rq::InitialExpressionFlags,
-                             public rq::InitialModuleMember {
-  using Self = rq::CategoryAlternative;
-
-  rq::Category *_category_ptr;
-  rq::Code *_code_ptr;
-
-  inline explicit CategoryAlternative(rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module)
-      : Symbol(rq::EntityKind::SY_CATEGORY_ALTERNATIVE),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_CATEGORY_ALTERNATIVE;
-  }
-};
 
 template <>
 struct is_acquired<rq::CategoryAlternative> final : std::true_type {};
@@ -3437,8 +3273,7 @@ struct ConstSymbolTableIterator final {
   }
 };
 
-struct SymbolTable : public rq::Symbol,
-                     public rq::InitialMaybeSymbolTableMember {
+struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   using Self = rq::SymbolTable;
   using Node = rq::SymbolTableNode;
 
@@ -3449,6 +3284,11 @@ struct SymbolTable : public rq::Symbol,
   inline explicit SymbolTable(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
                               unsigned bucket_count)
       : Symbol(k),
+        _named_symbols_map(allocator.allocateZeroedArray<Node>(bucket_count)) {}
+  inline explicit SymbolTable(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
+                              unsigned bucket_count,
+                              rq::SymbolTable &containing_table)
+      : Symbol(k), SymbolTableMember(containing_table),
         _named_symbols_map(allocator.allocateZeroedArray<Node>(bucket_count)) {}
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::BumpPtrList<rq::Symbol> &
   getUnamedSymbolsList() const {
@@ -3576,8 +3416,10 @@ struct Scope : public rq::SymbolTable,
   using Self = rq::Scope;
 
   inline explicit Scope(rq::BumpPtrAllocator &allocator, unsigned bucket_count,
-                        rq::Expression &expression, rq::Module &module)
-      : SymbolTable(rq::EntityKind::SY_SCOPE, allocator, bucket_count),
+                        rq::Expression &expression, rq::Module &module,
+                        rq::SymbolTable &containing_table)
+      : SymbolTable(rq::EntityKind::SY_SCOPE, allocator, bucket_count,
+                    containing_table),
         InitialExpression(expression), InitialModuleMember(module) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
@@ -3590,8 +3432,10 @@ struct Namespace : public rq::SymbolTable, rq::InitialNamed {
 
   inline explicit Namespace(llvm::StringRef name,
                             rq::BumpPtrAllocator &allocator,
-                            unsigned bucket_count)
-      : SymbolTable(rq::EntityKind::SY_NAMESPACE, allocator, bucket_count),
+                            unsigned bucket_count,
+                            rq::SymbolTable &containing_table)
+      : SymbolTable(rq::EntityKind::SY_NAMESPACE, allocator, bucket_count,
+                    containing_table),
         InitialNamed(name) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
@@ -3603,6 +3447,7 @@ struct Class : public rq::SymbolTable,
                public rq::InitialExpression,
                public rq::InitialExpressionFlags,
                public rq::InitialModuleMember,
+               public rq::SymbolTableHosted,
                public rq::InitialNamed {
   using Self = rq::Class;
 
@@ -3611,10 +3456,14 @@ struct Class : public rq::SymbolTable,
 
   inline explicit Class(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
                         unsigned bucket_count, const rq::Expression &expression,
-                        rq::ExpressionFlags attributes, rq::Module &module)
-      : SymbolTable(rq::EntityKind::SY_CLASS, allocator, bucket_count),
+                        rq::ExpressionFlags attributes, rq::Module &module,
+                        rq::SymbolTable &containing_table,
+                        rq::SymbolTable &hosting_table)
+      : SymbolTable(rq::EntityKind::SY_CLASS, allocator, bucket_count,
+                    containing_table),
         InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), InitialNamed(name) {}
+        InitialModuleMember(module), SymbolTableHosted(hosting_table),
+        InitialNamed(name) {}
   void setClassLayoutExpression(const rq::Expression &layout_expression) {
     rq::assignSingleValue(this->_class_layout_expression_ptr,
                           &layout_expression);
@@ -3628,20 +3477,22 @@ struct Enumeration : public rq::SymbolTable,
                      public rq::InitialExpression,
                      public rq::InitialExpressionFlags,
                      public rq::InitialModuleMember,
+                     public rq::SymbolTableHosted,
                      public rq::InitialNamed {
   using Self = rq::Enumeration;
 
   const rq::Expression *_underlying_type_expression_ptr{nullptr};
 
-  inline explicit Enumeration(llvm::StringRef name,
-                              rq::BumpPtrAllocator &allocator,
-                              unsigned bucket_count,
-                              const rq::Expression &expression,
-                              rq::ExpressionFlags attributes,
-                              rq::Module &module)
-      : SymbolTable(rq::EntityKind::SY_ENUMERATION, allocator, bucket_count),
+  inline explicit Enumeration(
+      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
+      unsigned bucket_count, const rq::Expression &expression,
+      rq::ExpressionFlags attributes, rq::Module &module,
+      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
+      : SymbolTable(rq::EntityKind::SY_ENUMERATION, allocator, bucket_count,
+                    containing_table),
         InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), InitialNamed(name) {}
+        InitialModuleMember(module), SymbolTableHosted(hosting_table),
+        InitialNamed(name) {}
   RQ_ALWAYS_INLINE void setUnderlyingTypeExpression(
       const rq::Expression &underlying_type_expression) {
     rq::assignSingleValue(this->_underlying_type_expression_ptr,
@@ -3657,6 +3508,7 @@ struct Category : public rq::SymbolTable,
                   public rq::InitialExpression,
                   public rq::InitialExpressionFlags,
                   public rq::InitialModuleMember,
+                  public rq::SymbolTableHosted,
                   public rq::InitialNamed {
   using Self = rq::Category;
 
@@ -3666,10 +3518,14 @@ struct Category : public rq::SymbolTable,
                            rq::BumpPtrAllocator &allocator,
                            unsigned bucket_count,
                            const rq::Expression &expression,
-                           rq::ExpressionFlags attributes, rq::Module &module)
-      : SymbolTable(rq::EntityKind::SY_CATEGORY, allocator, bucket_count),
+                           rq::ExpressionFlags attributes, rq::Module &module,
+                           rq::SymbolTable &containing_table,
+                           rq::SymbolTable &hosting_table)
+      : SymbolTable(rq::EntityKind::SY_CATEGORY, allocator, bucket_count,
+                    containing_table),
         InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), InitialNamed(name) {}
+        InitialModuleMember(module), SymbolTableHosted(hosting_table),
+        InitialNamed(name) {}
   RQ_ALWAYS_INLINE void
   setDiscriminantTypeExpression(const rq::Expression &type_expression) {
     rq::assignSingleValue(this->_discriminant_type_expression_ptr,
@@ -3680,10 +3536,160 @@ struct Category : public rq::SymbolTable,
   }
 };
 
+struct DynamicVariable : public rq::Symbol,
+                         public rq::InitialExpression,
+                         public rq::InitialExpressionFlags,
+                         public rq::InitialModuleMember,
+                         public rq::SymbolTableMember,
+                         public rq::InitialNamed {
+  using Self = rq::DynamicVariable;
+
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
+  inline explicit DynamicVariable(rq::EntityKind k, llvm::StringRef name,
+                                  const rq::Expression &expression,
+                                  rq::ExpressionFlags attributes,
+                                  rq::Module &module,
+                                  rq::SymbolTable &containing_table)
+      : Symbol(k), InitialExpression(expression),
+        InitialExpressionFlags(attributes), InitialModuleMember(module),
+        SymbolTableMember(containing_table), InitialNamed(name) {
+    RQ_ASSERT(rq::getIsDynamicVariable(k), "not dynamic variable");
+  }
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression) {
+    rq::assignSingleValue(this->_type_expression_ptr, &expression);
+  }
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression *expression_ptr) {
+    rq::assignSingleValue(this->_value_expression_ptr, expression_ptr);
+  }
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::getIsDynamicVariable(rq::dereferencePtr(entity).getKind());
+  }
+};
+
+template <>
+struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
+
+struct LocalVariable : public rq::DynamicVariable {
+  using Self = rq::LocalVariable;
+
+  inline explicit LocalVariable(llvm::StringRef name,
+                                const rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module,
+                                rq::SymbolTable &containing_table)
+      : DynamicVariable(rq::EntityKind::SY_LOCAL_VARIABLE, name, expression,
+                        attributes, module, containing_table) {}
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_LOCAL_VARIABLE;
+  }
+};
+
+struct GlobalVariable : public rq::DynamicVariable,
+                        public rq::SymbolTableHosted {
+  using Self = rq::GlobalVariable;
+
+  inline explicit GlobalVariable(llvm::StringRef name,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::SymbolTable &containing_table,
+                                 rq::SymbolTable &hosting_table)
+      : DynamicVariable(rq::EntityKind::SY_GLOBAL_VARIABLE, name, expression,
+                        attributes, module, containing_table),
+        SymbolTableHosted(hosting_table) {}
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_GLOBAL_VARIABLE;
+  }
+};
+
+struct StaticVariable : public rq::Symbol,
+                        public rq::InitialExpression,
+                        public rq::InitialExpressionFlags,
+                        public rq::InitialModuleMember,
+                        public rq::SymbolTableMember,
+                        public rq::SymbolTableHosted,
+                        public rq::InitialNamed {
+  using Self = rq::StaticVariable;
+
+  inline explicit StaticVariable(llvm::StringRef name,
+                                 rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::SymbolTable &containing_table,
+                                 rq::SymbolTable &hosting_table)
+      : Symbol(rq::EntityKind::SY_STATIC_VARIABLE),
+        InitialExpression(expression), InitialExpressionFlags(attributes),
+        InitialModuleMember(module), SymbolTableMember(containing_table),
+        SymbolTableHosted(hosting_table), InitialNamed(name) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_STATIC_VARIABLE;
+  }
+};
+
+template <> struct is_acquired<rq::StaticVariable> final : std::true_type {};
+
+struct Enumerator : public rq::Symbol,
+                    public rq::InitialExpression,
+                    public rq::InitialExpressionFlags,
+                    public rq::InitialModuleMember,
+                    public rq::SymbolTableMember,
+                    public rq::SymbolTableHosted,
+                    public rq::InitialNamed {
+  using Self = rq::Enumerator;
+
+  inline explicit Enumerator(llvm::StringRef name, rq::Expression &expression,
+                             rq::ExpressionFlags attributes, rq::Module &module,
+                             rq::SymbolTable &containing_table,
+                             rq::SymbolTable &hosting_table)
+      : Symbol(rq::EntityKind::SY_ENUMERATOR), InitialExpression(expression),
+        InitialExpressionFlags(attributes), InitialModuleMember(module),
+        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
+        InitialNamed(name) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_ENUMERATOR;
+  }
+};
+
+template <> struct is_acquired<rq::Enumerator> final : std::true_type {};
+
+struct CategoryAlternative : public rq::Symbol,
+                             public rq::InitialExpression,
+                             public rq::InitialExpressionFlags,
+                             public rq::InitialModuleMember,
+                             public rq::SymbolTableMember {
+  using Self = rq::CategoryAlternative;
+
+  rq::Code *_code_ptr;
+
+  inline explicit CategoryAlternative(rq::Code &code, rq::Category &category,
+                                      rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module)
+      : Symbol(rq::EntityKind::SY_CATEGORY_ALTERNATIVE),
+        InitialExpression(expression), InitialExpressionFlags(attributes),
+        InitialModuleMember(module), SymbolTableMember(category),
+        _code_ptr(&code) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_CATEGORY_ALTERNATIVE;
+  }
+};
+
 struct Procedure : public rq::SymbolTable,
                    public rq::InitialExpression,
                    public rq::InitialExpressionFlags,
                    public rq::InitialModuleMember,
+                   public rq::SymbolTableHosted,
                    public rq::InitialMaybeNamed {
   using Self = rq::Procedure;
 
@@ -3694,16 +3700,22 @@ struct Procedure : public rq::SymbolTable,
                             rq::BumpPtrAllocator &allocator,
                             unsigned bucket_count,
                             const rq::Expression &expression,
-                            rq::ExpressionFlags attributes, rq::Module &module)
-      : SymbolTable(k, allocator, bucket_count), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
+                            rq::ExpressionFlags attributes, rq::Module &module,
+                            rq::SymbolTable &containing_table,
+                            rq::SymbolTable &hosting_table)
+      : SymbolTable(k, allocator, bucket_count, containing_table),
+        InitialExpression(expression), InitialExpressionFlags(attributes),
+        InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialMaybeNamed(name) {}
   inline explicit Procedure(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
                             unsigned bucket_count,
                             const rq::Expression &expression,
-                            rq::ExpressionFlags attributes, rq::Module &module)
-      : SymbolTable(k, allocator, bucket_count), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module) {}
+                            rq::ExpressionFlags attributes, rq::Module &module,
+                            rq::SymbolTable &containing_table,
+                            rq::SymbolTable &hosting_table)
+      : SymbolTable(k, allocator, bucket_count, containing_table),
+        InitialExpression(expression), InitialExpressionFlags(attributes),
+        InitialModuleMember(module), SymbolTableHosted(hosting_table) {}
   RQ_ALWAYS_INLINE void
   setSignatureExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_signature_expression_ptr, &expression);
@@ -3720,9 +3732,11 @@ struct Entry : public rq::Procedure {
 
   inline explicit Entry(rq::BumpPtrAllocator &allocator, unsigned bucket_count,
                         const rq::Expression &expression,
-                        rq::ExpressionFlags attributes, rq::Module &module)
+                        rq::ExpressionFlags attributes, rq::Module &module,
+                        rq::SymbolTable &containing_table,
+                        rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_ENTRY, allocator, bucket_count, expression,
-                  attributes, module) {}
+                  attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ENTRY;
@@ -3736,9 +3750,12 @@ struct Function : public rq::Procedure {
                            rq::BumpPtrAllocator &allocator,
                            unsigned bucket_count,
                            const rq::Expression &expression,
-                           rq::ExpressionFlags attributes, rq::Module &module)
+                           rq::ExpressionFlags attributes, rq::Module &module,
+                           rq::SymbolTable &containing_table,
+                           rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_FUNCTION, name, allocator, bucket_count,
-                  expression, attributes, module) {}
+                  expression, attributes, module, containing_table,
+                  hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_FUNCTION;
@@ -3751,9 +3768,12 @@ struct Method : public rq::Procedure {
   inline explicit Method(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
                          unsigned bucket_count,
                          const rq::Expression &expression,
-                         rq::ExpressionFlags attributes, rq::Module &module)
+                         rq::ExpressionFlags attributes, rq::Module &module,
+                         rq::SymbolTable &containing_table,
+                         rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_METHOD, name, allocator, bucket_count,
-                  expression, attributes, module) {}
+                  expression, attributes, module, containing_table,
+                  hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_METHOD;
@@ -3766,9 +3786,12 @@ struct Ranger : public rq::Procedure {
   inline explicit Ranger(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
                          unsigned bucket_count,
                          const rq::Expression &expression,
-                         rq::ExpressionFlags attributes, rq::Module &module)
+                         rq::ExpressionFlags attributes, rq::Module &module,
+                         rq::SymbolTable &containing_table,
+                         rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_METHOD, name, allocator, bucket_count,
-                  expression, attributes, module) {}
+                  expression, attributes, module, containing_table,
+                  hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RANGER;
@@ -3778,14 +3801,14 @@ struct Ranger : public rq::Procedure {
 struct ExtensionFunction : public rq::Procedure {
   using Self = rq::ExtensionFunction;
 
-  inline explicit ExtensionFunction(llvm::StringRef name,
-                                    rq::BumpPtrAllocator &allocator,
-                                    unsigned bucket_count,
-                                    const rq::Expression &expression,
-                                    rq::ExpressionFlags attributes,
-                                    rq::Module &module)
+  inline explicit ExtensionFunction(
+      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
+      unsigned bucket_count, const rq::Expression &expression,
+      rq::ExpressionFlags attributes, rq::Module &module,
+      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION, name, allocator,
-                  bucket_count, expression, attributes, module) {}
+                  bucket_count, expression, attributes, module,
+                  containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3796,14 +3819,14 @@ struct ExtensionFunction : public rq::Procedure {
 struct ExtensionMethod : public rq::Procedure {
   using Self = rq::ExtensionMethod;
 
-  inline explicit ExtensionMethod(llvm::StringRef name,
-                                  rq::BumpPtrAllocator &allocator,
-                                  unsigned bucket_count,
-                                  const rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module)
+  inline explicit ExtensionMethod(
+      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
+      unsigned bucket_count, const rq::Expression &expression,
+      rq::ExpressionFlags attributes, rq::Module &module,
+      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_EXTENSION_METHOD, name, allocator,
-                  bucket_count, expression, attributes, module) {}
+                  bucket_count, expression, attributes, module,
+                  containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3814,14 +3837,14 @@ struct ExtensionMethod : public rq::Procedure {
 struct ExtensionRanger : public rq::Procedure {
   using Self = rq::ExtensionRanger;
 
-  inline explicit ExtensionRanger(llvm::StringRef name,
-                                  rq::BumpPtrAllocator &allocator,
-                                  unsigned bucket_count,
-                                  const rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module)
+  inline explicit ExtensionRanger(
+      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
+      unsigned bucket_count, const rq::Expression &expression,
+      rq::ExpressionFlags attributes, rq::Module &module,
+      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
       : Procedure(rq::EntityKind::SY_EXTENSION_RANGER, name, allocator,
-                  bucket_count, expression, attributes, module) {}
+                  bucket_count, expression, attributes, module,
+                  containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3833,7 +3856,8 @@ struct Template : public rq::Symbol,
                   public rq::InitialExpression,
                   public rq::InitialExpressionFlags,
                   public rq::InitialModuleMember,
-                  public rq::InitialSymbolTableMember,
+                  public rq::SymbolTableMember,
+                  public rq::SymbolTableHosted,
                   public rq::InitialNamed {
   using Self = rq::Template;
 
@@ -3842,12 +3866,13 @@ struct Template : public rq::Symbol,
   inline explicit Template(rq::EntityKind k, llvm::StringRef name,
                            rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module,
-                           rq::SymbolTable &symbol_table,
+                           rq::SymbolTable &containing_table,
+                           rq::SymbolTable &hosting_table,
                            rq::TemplateLayout &template_layout)
       : Symbol(k), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialNamed(name),
-        _template_layout_ptr(&template_layout) {}
+        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
+        InitialNamed(name), _template_layout_ptr(&template_layout) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TemplateLayout &
   getTemplateLayout() const {
@@ -3872,10 +3897,12 @@ struct TemplateClass : public rq::Template {
                                 rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
-                                rq::SymbolTable &symbol_table,
+                                rq::SymbolTable &containing_table,
+                                rq::SymbolTable &hosting_table,
                                 rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_CLASS, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3890,10 +3917,12 @@ struct TemplateEnumeration : public rq::Template {
                                       rq::Expression &expression,
                                       rq::ExpressionFlags attributes,
                                       rq::Module &module,
-                                      rq::SymbolTable &symbol_table,
+                                      rq::SymbolTable &containing_table,
+                                      rq::SymbolTable &hosting_table,
                                       rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_ENUMERATION, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3908,32 +3937,16 @@ struct TemplateCategory : public rq::Template {
                                    rq::Expression &expression,
                                    rq::ExpressionFlags attributes,
                                    rq::Module &module,
-                                   rq::SymbolTable &symbol_table,
+                                   rq::SymbolTable &containing_table,
+                                   rq::SymbolTable &hosting_table,
                                    rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_CATEGORY, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_TEMPLATE_CATEGORY;
-  }
-};
-
-struct TemplateLocalVariable : public rq::Template {
-  using Self = rq::TemplateLocalVariable;
-
-  inline explicit TemplateLocalVariable(llvm::StringRef name,
-                                        rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::SymbolTable &symbol_table,
-                                        rq::TemplateLayout &template_layout)
-      : Template(rq::EntityKind::SY_TEMPLATE_LOCAL_VARIABLE, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_TEMPLATE_LOCAL_VARIABLE;
   }
 };
 
@@ -3944,10 +3957,12 @@ struct TemplateGlobalVariable : public rq::Template {
                                          rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
-                                         rq::SymbolTable &symbol_table,
+                                         rq::SymbolTable &containing_table,
+                                         rq::SymbolTable &hosting_table,
                                          rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_GLOBAL_VARIABLE, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3962,10 +3977,12 @@ struct TemplateStaticVariable : public rq::Template {
                                          rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
-                                         rq::SymbolTable &symbol_table,
+                                         rq::SymbolTable &containing_table,
+                                         rq::SymbolTable &hosting_table,
                                          rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_STATIC_VARIABLE, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3980,10 +3997,12 @@ struct TemplateFunction : public rq::Template {
                                    rq::Expression &expression,
                                    rq::ExpressionFlags attributes,
                                    rq::Module &module,
-                                   rq::SymbolTable &symbol_table,
+                                   rq::SymbolTable &containing_table,
+                                   rq::SymbolTable &hosting_table,
                                    rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_FUNCTION, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3998,10 +4017,12 @@ struct TemplateMethod : public rq::Template {
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
-                                 rq::SymbolTable &symbol_table,
+                                 rq::SymbolTable &containing_table,
+                                 rq::SymbolTable &hosting_table,
                                  rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_METHOD, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4016,10 +4037,12 @@ struct TemplateRanger : public rq::Template {
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
-                                 rq::SymbolTable &symbol_table,
+                                 rq::SymbolTable &containing_table,
+                                 rq::SymbolTable &hosting_table,
                                  rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_RANGER, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4034,11 +4057,12 @@ struct TemplateExtensionFunction : public rq::Template {
                                             rq::Expression &expression,
                                             rq::ExpressionFlags attributes,
                                             rq::Module &module,
-                                            rq::SymbolTable &symbol_table,
+                                            rq::SymbolTable &containing_table,
+                                            rq::SymbolTable &hosting_table,
                                             rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_EXTENSION_FUNCTION, name,
-                 expression, attributes, module, symbol_table,
-                 template_layout) {}
+                 expression, attributes, module, containing_table,
+                 hosting_table, template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4053,10 +4077,12 @@ struct TemplateExtensionMethod : public rq::Template {
                                           rq::Expression &expression,
                                           rq::ExpressionFlags attributes,
                                           rq::Module &module,
-                                          rq::SymbolTable &symbol_table,
+                                          rq::SymbolTable &containing_table,
+                                          rq::SymbolTable &hosting_table,
                                           rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_EXTENSION_METHOD, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4071,10 +4097,12 @@ struct TemplateExtensionRanger : public rq::Template {
                                           rq::Expression &expression,
                                           rq::ExpressionFlags attributes,
                                           rq::Module &module,
-                                          rq::SymbolTable &symbol_table,
+                                          rq::SymbolTable &containing_table,
+                                          rq::SymbolTable &hosting_table,
                                           rq::TemplateLayout &template_layout)
       : Template(rq::EntityKind::SY_TEMPLATE_EXTENSION_RANGER, name, expression,
-                 attributes, module, symbol_table, template_layout) {}
+                 attributes, module, containing_table, hosting_table,
+                 template_layout) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4086,17 +4114,20 @@ struct Partial : public rq::Symbol,
                  public rq::InitialExpression,
                  public rq::InitialExpressionFlags,
                  public rq::InitialModuleMember,
-                 public rq::InitialSymbolTableMember,
+                 public rq::SymbolTableMember,
+                 public rq::SymbolTableHosted,
                  public rq::InitialNamed {
   using Self = rq::Partial;
 
   inline explicit Partial(rq::EntityKind k, llvm::StringRef name,
                           rq::Expression &expression,
                           rq::ExpressionFlags attributes, rq::Module &module,
-                          rq::SymbolTable &symbol_table)
+                          rq::SymbolTable &containing_table,
+                          rq::SymbolTable &hosting_table)
       : Symbol(k), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
-        InitialSymbolTableMember(symbol_table), InitialNamed(name) {}
+        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
+        InitialNamed(name) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsPartial(rq::dereferencePtr(entity).getKind());
@@ -4111,9 +4142,10 @@ struct PartialClass : public rq::Partial {
   inline explicit PartialClass(llvm::StringRef name, rq::Expression &expression,
                                rq::ExpressionFlags attributes,
                                rq::Module &module,
-                               rq::SymbolTable &symbol_table)
+                               rq::SymbolTable &containing_table,
+                               rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_CLASS, name, expression, attributes,
-                module, symbol_table) {}
+                module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4128,9 +4160,10 @@ struct PartialEnumeration : public rq::Partial {
                                      rq::Expression &expression,
                                      rq::ExpressionFlags attributes,
                                      rq::Module &module,
-                                     rq::SymbolTable &symbol_table)
+                                     rq::SymbolTable &containing_table,
+                                     rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_ENUMERATION, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4145,30 +4178,14 @@ struct PartialCategory : public rq::Partial {
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &symbol_table)
+                                  rq::SymbolTable &containing_table,
+                                  rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_CATEGORY, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_PARTIAL_CATEGORY;
-  }
-};
-
-struct PartialLocalVariable : public rq::Partial {
-  using Self = rq::PartialLocalVariable;
-
-  inline explicit PartialLocalVariable(llvm::StringRef name,
-                                       rq::Expression &expression,
-                                       rq::ExpressionFlags attributes,
-                                       rq::Module &module,
-                                       rq::SymbolTable &symbol_table)
-      : Partial(rq::EntityKind::SY_PARTIAL_LOCAL_VARIABLE, name, expression,
-                attributes, module, symbol_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_PARTIAL_LOCAL_VARIABLE;
   }
 };
 
@@ -4179,9 +4196,10 @@ struct PartialGlobalVariable : public rq::Partial {
                                         rq::Expression &expression,
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,
-                                        rq::SymbolTable &symbol_table)
+                                        rq::SymbolTable &containing_table,
+                                        rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_GLOBAL_VARIABLE, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4196,9 +4214,10 @@ struct PartialStaticVariable : public rq::Partial {
                                         rq::Expression &expression,
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,
-                                        rq::SymbolTable &symbol_table)
+                                        rq::SymbolTable &containing_table,
+                                        rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_STATIC_VARIABLE, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4213,9 +4232,10 @@ struct PartialFunction : public rq::Partial {
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &symbol_table)
+                                  rq::SymbolTable &containing_table,
+                                  rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_FUNCTION, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4230,9 +4250,10 @@ struct PartialMethod : public rq::Partial {
                                 rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
-                                rq::SymbolTable &symbol_table)
+                                rq::SymbolTable &containing_table,
+                                rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_METHOD, name, expression, attributes,
-                module, symbol_table) {}
+                module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4247,9 +4268,10 @@ struct PartialRanger : public rq::Partial {
                                 rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
-                                rq::SymbolTable &symbol_table)
+                                rq::SymbolTable &containing_table,
+                                rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_METHOD, name, expression, attributes,
-                module, symbol_table) {}
+                module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4264,9 +4286,10 @@ struct PartialExtensionFunction : public rq::Partial {
                                            rq::Expression &expression,
                                            rq::ExpressionFlags attributes,
                                            rq::Module &module,
-                                           rq::SymbolTable &symbol_table)
+                                           rq::SymbolTable &containing_table,
+                                           rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_EXTENSION_FUNCTION, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4281,9 +4304,10 @@ struct PartialExtensionMethod : public rq::Partial {
                                          rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
-                                         rq::SymbolTable &symbol_table)
+                                         rq::SymbolTable &containing_table,
+                                         rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_EXTENSION_METHOD, name, expression,
-                attributes, module, symbol_table) {}
+                attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -4298,9 +4322,10 @@ struct PartialExtensionRanger : public rq::Partial {
                                          rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
-                                         rq::SymbolTable &symbol_table)
+                                         rq::SymbolTable &containing_table,
+                                         rq::SymbolTable &hosting_table)
       : Partial(rq::EntityKind::SY_PARTIAL_METHOD, name, expression, attributes,
-                module, symbol_table) {}
+                module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
