@@ -10,7 +10,7 @@
   var1 := 2.18.[as [double]];
 
   // to explicitly declare the type of elements of an initializer list, use .[of]
-  var1 := [[0, 1, 2, 3, 4, 5]].[of [integer].[signed].[address_depth]]; // of type 6#[integer].[signed].[address_depth]
+  var1 := [initializer_list 0, 1, 2, 3, 4, 5].[of [integer].[signed].[address_depth]]; // of type 6#[integer].[signed].[address_depth]
 
   // if you want a variable to be mutable, it should be in the binding, not the cast
   // add a grave operator (`) in front of type to make it mutable

@@ -1,7 +1,7 @@
 [import "std"];
 
 [entry
-    my_array :`= [[0, 1, 2, 3, 4]].[of [integer].[signed].[least 64]];
+    my_array :`= [initializer_list 0, 1, 2, 3, 4].[of [integer].[signed].[least 64]];
     const_fat_pointer := my_array.[borrow]->.std.getSpan();
     mutable_fat_pointer := my_array.`[borrow]->.std.getSpan();
     .std.print(line="stats: size:{my_array.[type].[byte_size]} count:{my_array.[type].[element_count]} depth:{my_array.[type].[bit_depth]}!");
