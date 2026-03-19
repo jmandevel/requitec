@@ -1102,6 +1102,7 @@ bool Situator::situateTree(rq::Situation situation,
       nested_namespace.setIsInserted();
       nested_namespace.setSource(expression);
       nested_namespace.setKeyword(K::NAMESPACE);
+      nested_namespace.setBranch(branch_next);
       rq::Expression *previous_path_ptr = &branch_next;
       while (previous_path_ptr != nullptr) {
         rq::Expression &previous_path = rq::dereferencePtr(previous_path_ptr);
