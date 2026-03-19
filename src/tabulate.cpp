@@ -531,7 +531,25 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       continue;
     }
     case K::NAMESPACE: {
-      RQ_TODO_IMPLEMENTATION();
+      const rq::Expression &name_expression = branch_expression.getBranch();
+      std::optional<llvm::StringRef> name_o =
+          this->evaluateName(name_expression, hosting_table);
+      if (!name_o.has_value()) {
+        this->getContext().logErrorUnableToEvaluateName(name_expression);
+        this->setNotOk();
+        continue;
+      }
+      llvm::StringRef name = name_o.value();
+      // TODO look for existing namespace of name
+      rq::Namespace &namespace_ =
+          this->getContext().allocateValue<rq::Namespace>(
+              name, this->getContext(), 128, containing_table);
+      containing_table.addNamedSymbol(this->getContext(), name, namespace_);
+      if (name_expression.getHasNext()) {
+        const rq::Expression& first_statement = name_expression.getNext();
+        this->tabulateGlobalForest(first_statement, namespace_);
+     }
+     break;
     }
     case K::DEBUG_TRAP: {
       if (factory.getHasStatic()) {
