@@ -1133,10 +1133,41 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::NAMESPACE:
+  case K::NAMESPACE: {
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::NAME);
+                                                          S::NAMESPACE);
+    if (!is_ok) {
+      break;
+    }
+    rq::Expression &path = expression.getBranch();
+    if (path.getKeyword() == K::REFLECT) {
+      rq::Expression &branch = path.popBranch();
+      rq::Expression &body = path.popNext();
+      this->getContext().discardExpression(expression.replaceBranch(branch));
+      rq::Expression &branch_next = branch.popNext();
+      rq::Expression &nested_namespace = this->getContext().acquireExpression();
+      nested_namespace.setIsInserted();
+      nested_namespace.setSource(expression);
+      nested_namespace.setKeyword(K::NAMESPACE);
+      rq::Expression *previous_path_ptr = &branch_next;
+      while (previous_path_ptr != nullptr) {
+        rq::Expression &previous_path = rq::dereferencePtr(previous_path_ptr);
+        if (!previous_path.getHasNext()) {
+          previous_path.setNext(body);
+          break;
+        }
+        rq::Expression &path_next = branch.popNext();
+        rq::Expression &next_namespace = this->getContext().acquireExpression();
+        next_namespace.setIsInserted();
+        next_namespace.setSource(expression);
+        next_namespace.setKeyword(K::NAMESPACE);
+        next_namespace.setBranch(path_next);
+        previous_path_ptr = &path_next;
+      }
+      branch.setNext(nested_namespace);
+    }
     break;
+  }
   case K::C:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
