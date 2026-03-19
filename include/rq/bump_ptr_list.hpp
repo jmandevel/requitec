@@ -237,7 +237,7 @@ template <typename ItemParam> struct ConstBumpPtrListRef final {
 
 template <typename ItemParam> struct BumpPtrListIterator final {
   using Item = ItemParam;
-  using List = rq::BumpPtrList<Item>;
+  using Ref = rq::BumpPtrListRef<Item>;
   using Node = rq::BumpPtrListNode<Item>;
   using Self = rq::BumpPtrListIterator<Item>;
   using value_type = Item;
@@ -246,10 +246,10 @@ template <typename ItemParam> struct BumpPtrListIterator final {
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  List _list;
+  Ref _list;
 
   RQ_ALWAYS_INLINE BumpPtrListIterator() = default;
-  RQ_ALWAYS_INLINE explicit BumpPtrListIterator(List &list) : _list(list) {}
+  RQ_ALWAYS_INLINE explicit BumpPtrListIterator(Ref &list) : _list(list) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (llvm::isa<Item *>(this->_list._ptr_union)) {
       this->_list._ptr_union = nullptr;
@@ -274,7 +274,7 @@ template <typename ItemParam> struct BumpPtrListIterator final {
     return this->_list != it._list;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Item &operator*() {
-    if (llvm::isa<Item *>(this->_list.getIsItem())) {
+    if (llvm::isa<Item *>(this->_list._ptr_union)) {
       return rq::dereferencePtr(llvm::cast<Item *>(this->_list._ptr_union));
     } else if (llvm::isa<Node *>(this->_list._ptr_union)) {
       return rq::dereferencePtr(
@@ -415,6 +415,41 @@ BumpPtrList<ItemParam>::cbegin() const {
 template <typename ItemParam>
 inline rq::ConstBumpPtrListIterator<ItemParam>
 BumpPtrList<ItemParam>::cend() const {
+  return end();
+}
+
+template <typename ItemParam>
+inline rq::BumpPtrListIterator<ItemParam> BumpPtrListRef<ItemParam>::begin() {
+  return rq::BumpPtrListIterator<ItemParam>(*this);
+}
+
+template <typename ItemParam>
+inline rq::BumpPtrListIterator<ItemParam> BumpPtrListRef<ItemParam>::end() {
+  return rq::BumpPtrListIterator<ItemParam>();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrListRef<ItemParam>::begin() const {
+  return rq::ConstBumpPtrListIterator<ItemParam>(
+      rq::ConstBumpPtrListRef<ItemParam>(*this));
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrListRef<ItemParam>::end() const {
+  return rq::ConstBumpPtrListIterator<ItemParam>();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrListRef<ItemParam>::cbegin() const {
+  return begin();
+}
+
+template <typename ItemParam>
+inline rq::ConstBumpPtrListIterator<ItemParam>
+BumpPtrListRef<ItemParam>::cend() const {
   return end();
 }
 
