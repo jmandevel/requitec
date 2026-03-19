@@ -14,6 +14,14 @@ struct Context;
 struct Module;
 struct Expression;
 struct SymbolTable;
+struct Instruction;
+
+struct InstructionFactory final {
+  using Self = rq::InstructionFactory;
+
+  rq::Instruction* _instruction_ptr{nullptr};
+  rq::Instruction* _last_ptr{nullptr};
+};
 
 struct Tabulator final {
   using Self = rq::Tabulator;
@@ -111,6 +119,9 @@ struct Tabulator final {
   void tabulateModule();
   void tabulateGlobalForest(const rq::Expression &first,
                             rq::SymbolTable &hosting_table);
+  rq::Instruction *tabulateLocalForest(const rq::Expression &first,
+                                       rq::SymbolTable &hosting_table,
+                                       rq::Procedure &procedure);
   [[nodiscard]] std::optional<llvm::StringRef>
   evaluateName(const rq::Expression &expression,
                rq::SymbolTable &hosting_table);
@@ -121,10 +132,13 @@ struct Tabulator final {
   resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
                          const rq::Expression &unascribed,
                          rq::SymbolTable &hosting_table);
+  [[nodiscard]] rq::Entity *evaluateValue(const rq::Expression &expression, rq::TypeConstant& type,
+                                          rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::Symbol *resolveSymbol(const rq::Expression &path,
                                           rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
                                                rq::SymbolTable &hosting_table);
+  void evaluateProcedure(rq::Procedure &procedure);
   void tabulateGlobalVariable(rq::SymbolTable &containing_table,
                               rq::SymbolTable &hosting_table,
                               const rq::ExpressionFlagsFactory &factory,

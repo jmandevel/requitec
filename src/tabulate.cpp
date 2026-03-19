@@ -1,4 +1,5 @@
 #include <rq/context.hpp>
+#include <rq/literals.hpp>
 #include <rq/tabulator.hpp>
 #include <rq/utility.hpp>
 
@@ -15,6 +16,16 @@ void Tabulator::tabulateModule() {
   }
   const rq::Expression &first = root.getBranch();
   this->tabulateGlobalForest(first, this->getContext().getTop());
+  for (auto &symbol : this->getContext().getTop().getUnamedSymbolsListRef()) {
+    if (llvm::isa<rq::Procedure>(symbol)) {
+      rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
+      this->evaluateProcedure(procedure);
+    }
+  }
+  for (const auto &[_, list] :
+       this->getContext().getTop().getNamedListsSubrange()) {
+    std::ignore = list;
+  }
 }
 
 void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
@@ -588,6 +599,59 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
   }
 }
 
+rq::Instruction *
+Tabulator::tabulateLocalForest(const rq::Expression &first_expression,
+                               rq::SymbolTable &hosting_table,
+                               rq::Procedure &procedure) {
+  // NOTE: this is stupid
+  using K = rq::Keyword;
+  for (const rq::Expression &branch_expression :
+       first_expression.getInclusiveNextSubrange()) {
+    const rq::Expression &unascribed_expression =
+        branch_expression.getUnascribed();
+    rq::ExpressionFlagsFactory factory{};
+    if (branch_expression.getKeyword() == K::ASCRIBE_EXPRESSION) {
+      factory.addAllAttributres(unascribed_expression);
+    }
+    // rq::SymbolTable &containing_table = this->resolveContainingTable(
+    //     factory, unascribed_expression, hosting_table);
+    switch (branch_expression.getKeyword()) {
+    case K::ASSIGN: {
+      const rq::Expression &lvalue_expression = branch_expression.getBranch();
+      const rq::Expression &rvalue_expression = lvalue_expression.getNext();
+      if (lvalue_expression.getKeyword() != K::BINDING) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      const rq::Expression &target_expression = lvalue_expression.getBranch();
+      //const rq::Expression &type_expression = target_expression.getNext();
+      // rq::TypeConstant &type =
+      //     this->resolveType(type_expression, hosting_table);
+      if (target_expression.getKeyword() != K::RESULT) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+      rq::TypeConstant &type =
+          llvm::cast<rq::Signature>(procedure.getSignature().getSymbol())
+              .getReturnType();
+      rq::Entity *value_ptr =
+          this->evaluateValue(rvalue_expression, type, hosting_table);
+      if (value_ptr == nullptr) {
+        break;
+      }
+      rq::Entity &value = rq::dereferencePtr(value_ptr);
+      rq::Instruction &instruction = this->getContext().acquireInstruction();
+      instruction.setOpcode(rq::EntityKind::OP_COPY);
+      rq::Result &result = this->getContext().acquireResult();
+      instruction.setHead(result);
+      instruction.setTail(value);
+      return &instruction;
+    }
+    default:
+      RQ_TODO_IMPLEMENTATION();
+    }
+  }
+  RQ_UNREACHABLE();
+}
+
 std::optional<llvm::StringRef>
 Tabulator::evaluateName(const rq::Expression &expression,
                         rq::SymbolTable &hosting_table) {
@@ -678,6 +742,39 @@ Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
   return hosting_table;
 }
 
+[[nodiscard]] rq::Entity *
+Tabulator::evaluateValue(const rq::Expression &expression,
+                         rq::TypeConstant &type,
+                         rq::SymbolTable &hosting_table) {
+  std::ignore = hosting_table;
+  using K = rq::Keyword;
+  switch (expression.getKeyword()) {
+  case K::INTEGER_LITERAL: {
+    rq::Symbol &symbol = type.getSymbol();
+    if (!llvm::isa<rq::ScaledBuiltin>(symbol)) {
+      RQ_TODO_IMPLEMENTATION();
+    }
+    rq::ScaledBuiltin &scaled = llvm::cast<rq::ScaledBuiltin>(symbol);
+    unsigned depth = scaled.getScalar();
+    llvm::APInt ap_value{depth, {}};
+    rq::NumericResultCode code =
+        rq::getNumericValue(expression.getSourceText(), ap_value);
+    if (code != rq::NumericResultCode::OK) {
+      this->getContext().logErrorNumeric(expression, code);
+      this->setNotOk();
+      break;
+    }
+    rq::IntegerConstant &integer =
+        this->getContext().acquireIntegerConstant(ap_value);
+    return &integer;
+    break;
+  }
+  default:
+    RQ_TODO_IMPLEMENTATION();
+  }
+  RQ_UNREACHABLE();
+}
+
 [[nodiscard]] rq::Symbol *Tabulator::resolveSymbol(const rq::Expression &path,
                                                    rq::SymbolTable &table) {
   std::ignore = path;
@@ -690,6 +787,27 @@ Tabulator::evaluateType(const rq::Expression &path, rq::SymbolTable &table) {
   std::ignore = path;
   std::ignore = table;
   RQ_TODO_IMPLEMENTATION();
+}
+
+void Tabulator::evaluateProcedure(rq::Procedure &procedure) {
+  // STEP 1: resolve signature
+  if (llvm::isa<rq::Entry>(procedure)) {
+    rq::TypeConstant &signature = this->getContext().acquireEntrySignature();
+    procedure.setSignature(signature);
+  }
+
+  // STEP 2: add signature parameters to symbol table
+  if (!llvm::isa<rq::Entry>(procedure)) {
+    RQ_TODO_IMPLEMENTATION();
+  }
+
+  // STEP 3: tabulate
+  if (procedure.getHasBodyStartExpression()) {
+    const rq::Expression &body_start = procedure.getBodyStartExpression();
+    rq::Instruction *instruction_ptr =
+        this->tabulateLocalForest(body_start, procedure, procedure);
+    procedure.setInstruction(instruction_ptr);
+  }
 }
 
 void Tabulator::tabulateGlobalVariable(
