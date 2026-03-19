@@ -349,6 +349,7 @@ enum class Keyword : std::uint32_t {
   NAMESPACE,
   C,
   MODULE_TRUNK,
+  NO_NAME,
 
   // ERROR HANDLING AND DEBUGGING
   DEBUG_TRAP,
@@ -1025,6 +1026,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::MODULE_TRUNK:
     return "_module_trunk";
+  case K::NO_NAME:
+    return "no_name";
 
   // HINTS
   case K::DEBUG_TRAP:
@@ -1837,6 +1840,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE;
   case K::MODULE_TRUNK:
     return KF::STATEMENT_BRANCHES | KF::NONE; // TRUNK
+  case K::NO_NAME:
+    return KF::NAME;
 
   // HINTS
   case K::DEBUG_TRAP:
