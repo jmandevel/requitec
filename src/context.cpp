@@ -517,10 +517,7 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
                             const rq::SymbolTable &table) {
   json.beginArray("named");
-  for (const auto &node : table.getNamedSymbolsSubrange()) {
-    llvm::StringRef name = node.name;
-    rq::ConstBumpPtrListRef<rq::Symbol> list =
-        rq::ConstBumpPtrListRef<rq::Symbol>(node.list);
+  for (const auto& [name, list] : table.getNamedSymbolsSubrange()) {
     json.beginObject();
     json.emitString("name", name);
     json.beginArray("symbols");
@@ -532,7 +529,7 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
   }
   json.endArray();
   json.beginArray("unnamed");
-  for (const rq::Symbol &symbol : table.getUnamedSymbolsList()) {
+  for (const rq::Symbol &symbol : table.getUnamedSymbolsListRef()) {
     rq::emitSymbol(context, json, symbol);
   }
   json.endArray();

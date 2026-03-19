@@ -29,9 +29,9 @@ template <typename ItemParam> struct BumpPtrList final {
   BumpPtrList() = default;
   ~BumpPtrList() = default;
   BumpPtrList(const Self &) = delete;
-  BumpPtrList(Self &&) = delete;
+  BumpPtrList(Self &&) = default;
   Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
+  Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsItem() const {
     return llvm::isa<Item *>(this->_ptr_union);
   }

@@ -9,6 +9,7 @@
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/FoldingSet.h>
 #include <llvm/ADT/PointerIntPair.h>
 #include <llvm/ADT/PointerUnion.h>
@@ -3180,99 +3181,6 @@ template <> struct is_acquired<rq::Synonym> final : std::true_type {};
 template <>
 struct is_acquired<rq::CategoryAlternative> final : std::true_type {};
 
-struct SymbolTableNode final {
-  using Self = rq::SymbolTableNode;
-
-  llvm::StringRef name{};
-  rq::BumpPtrList<rq::Symbol> list{};
-  std::size_t hash{0};
-  Self *left_ptr{nullptr};
-  Self *right_ptr{nullptr};
-  Self *next_ptr{nullptr};
-
-  inline explicit SymbolTableNode() = default;
-};
-
-struct NamedSymbolIterator final {
-  using Self = rq::NamedSymbolIterator;
-  using value_type = rq::SymbolTableNode;
-  using reference = rq::SymbolTableNode &;
-  using pointer = rq::SymbolTableNode *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::SymbolTableNode *_node_ptr{nullptr};
-
-  NamedSymbolIterator() = default;
-  explicit NamedSymbolIterator(rq::SymbolTableNode *node_ptr)
-      : _node_ptr(node_ptr) {}
-  NamedSymbolIterator(const Self &) = default;
-  NamedSymbolIterator(Self &&) = default;
-  ~NamedSymbolIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_node_ptr == it._node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_node_ptr != it._node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableNode &operator*() {
-    return rq::dereferencePtr(this->_node_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableNode &operator*() const {
-    return rq::dereferencePtr(this->_node_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableNode *operator->() {
-    return this->_node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableNode *operator->() const {
-    return this->_node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_node_ptr == nullptr;
-  }
-};
-
-struct ConstNamedSymbolIterator final {
-  using Self = rq::ConstNamedSymbolIterator;
-  using value_type = rq::SymbolTableNode;
-  using reference = const rq::SymbolTableNode &;
-  using pointer = const rq::SymbolTableNode *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::SymbolTableNode *_node_ptr = nullptr;
-
-  ConstNamedSymbolIterator() = default;
-  explicit ConstNamedSymbolIterator(const rq::SymbolTableNode *node_ptr)
-      : _node_ptr(node_ptr) {}
-  ConstNamedSymbolIterator(const Self &) = default;
-  ConstNamedSymbolIterator(Self &&) = default;
-  ~ConstNamedSymbolIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_node_ptr == it._node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_node_ptr != it._node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableNode &operator*() const {
-    return rq::dereferencePtr(this->_node_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTableNode *operator->() const {
-    return this->_node_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_node_ptr == nullptr;
-  }
-};
-
 struct SymbolTableIterator final {
   using Self = rq::SymbolTableIterator;
   using value_type = rq::SymbolTable;
@@ -3353,116 +3261,152 @@ struct ConstSymbolTableIterator final {
   }
 };
 
+struct MemberSymbolTableIterator final {
+  using Self = rq::MemberSymbolTableIterator;
+  using value_type = rq::SymbolTable;
+  using reference = rq::SymbolTable &;
+  using pointer = rq::SymbolTable *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::SymbolTable *_table_ptr{nullptr};
+
+  MemberSymbolTableIterator() = default;
+  explicit MemberSymbolTableIterator(rq::SymbolTable *table_ptr)
+      : _table_ptr(table_ptr) {}
+  MemberSymbolTableIterator(const Self &) = default;
+  MemberSymbolTableIterator(Self &&) = default;
+  ~MemberSymbolTableIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_table_ptr == it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_table_ptr != it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*() {
+    return rq::dereferencePtr(this->_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
+    return rq::dereferencePtr(this->_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->() {
+    return this->_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
+    return this->_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_table_ptr == nullptr;
+  }
+};
+
+struct ConstMemberSymbolTableIterator final {
+  using Self = rq::ConstMemberSymbolTableIterator;
+  using value_type = rq::SymbolTable;
+  using reference = const rq::SymbolTable &;
+  using pointer = const rq::SymbolTable *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::SymbolTable *_table_ptr = nullptr;
+
+  ConstMemberSymbolTableIterator() = default;
+  explicit ConstMemberSymbolTableIterator(const rq::SymbolTable *table_ptr)
+      : _table_ptr(table_ptr) {}
+  ConstMemberSymbolTableIterator(const Self &) = default;
+  ConstMemberSymbolTableIterator(Self &&) = default;
+  ~ConstMemberSymbolTableIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_table_ptr == it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_table_ptr != it._table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
+    return rq::dereferencePtr(this->_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
+    return this->_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_table_ptr == nullptr;
+  }
+};
+
 struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   using Self = rq::SymbolTable;
-  using Node = rq::SymbolTableNode;
 
-  Node *_named_map_begin_ptr{nullptr};
-  std::span<Node> _named_symbols_map{};
+  rq::SymbolTable *_next_table_ptr{nullptr};
+  rq::SymbolTable *_first_member_table_ptr{nullptr};
+  llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>
+      _named_symbols_map{};
   rq::BumpPtrList<rq::Symbol> _unamed_symbols_list{};
 
-  inline explicit SymbolTable(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
-                              unsigned bucket_count)
-      : Symbol(k),
-        _named_symbols_map(allocator.allocateZeroedArray<Node>(bucket_count)) {}
-  inline explicit SymbolTable(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
-                              unsigned bucket_count,
+  inline explicit SymbolTable(rq::EntityKind k) : Symbol(k) {}
+  inline explicit SymbolTable(rq::EntityKind k,
                               rq::SymbolTable &containing_table)
-      : Symbol(k), SymbolTableMember(containing_table),
-        _named_symbols_map(allocator.allocateZeroedArray<Node>(bucket_count)) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::BumpPtrList<rq::Symbol> &
-  getUnamedSymbolsList() const {
+      : Symbol(k), SymbolTableMember(containing_table) {}
+  inline void release();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstBumpPtrListRef<rq::Symbol>
+  getUnamedSymbolsListRef() const {
     return this->_unamed_symbols_list;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrList<rq::Symbol> &
-  getUnamedSymbolsList() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
+  getUnamedSymbolsListRef() {
     return this->_unamed_symbols_list;
   }
+  inline void _addMember(rq::Symbol &symbol);
   inline void addNamedSymbol(rq::BumpPtrAllocator &allocator,
                              llvm::StringRef name, rq::Symbol &symbol) {
-    const std::size_t hash = llvm::hash_value(name);
-    const std::size_t bucket_i = hash % this->_named_symbols_map.size();
-    Node *node_ptr = &this->_named_symbols_map[bucket_i];
-    while (true) {
-      Node &node = rq::dereferencePtr(node_ptr);
-      if (node.hash == hash) {
-        if (node.name == name) {
-          node.list.insertFront(allocator, symbol);
-          return;
-        }
-      }
-      if (node.hash == 0) {
-        node.hash = hash;
-        node.name = name;
-        node.list.insertFront(allocator, symbol);
-        node.next_ptr = this->_named_map_begin_ptr;
-        this->_named_map_begin_ptr = &node;
-        return;
-      }
-      Node *&next_ptr = node.hash < hash ? node.left_ptr : node.right_ptr;
-      if (next_ptr == nullptr) {
-        Node &new_node = allocator.allocateValue<Node>();
-        node.next_ptr = this->_named_map_begin_ptr;
-        this->_named_map_begin_ptr = &node;
-        new_node.hash = hash;
-        new_node.name = name;
-        new_node.list.insertFront(allocator, symbol);
-        next_ptr = &new_node;
-        return;
-      }
-      node_ptr = next_ptr;
-    }
+    rq::BumpPtrList<rq::Symbol> &list = this->_named_symbols_map[name];
+    list.insertFront(allocator, symbol);
+    this->_addMember(symbol);
+  }
+  inline void addUnamedSymbol(rq::BumpPtrAllocator &allocator,
+                              rq::Symbol &symbol) {
+    this->_unamed_symbols_list.insertFront(allocator, symbol);
+    this->_addMember(symbol);
   }
   [[nodiscard]] rq::ConstBumpPtrListRef<rq::Symbol>
   getNamedListRef(llvm::StringRef name) const {
-    const std::size_t hash = llvm::hash_value(name);
-    const std::size_t bucket_i = hash % this->_named_symbols_map.size();
-    Node *node_ptr = &this->_named_map_begin_ptr[bucket_i];
-    while (node_ptr != nullptr) {
-      Node &node = rq::dereferencePtr(node_ptr);
-      if (node.hash == hash) {
-        if (node.name == name) {
-          return rq::ConstBumpPtrListRef<rq::Symbol>(node.list);
-        }
-      }
-      node_ptr = node.hash < hash ? node.left_ptr : node.right_ptr;
+    auto it = this->_named_symbols_map.find(name);
+    if (it == this->_named_symbols_map.end()) {
+      return rq::ConstBumpPtrListRef<rq::Symbol>();
     }
-    return rq::ConstBumpPtrListRef<Symbol>();
+    return it->getSecond();
   }
   [[nodiscard]] rq::BumpPtrListRef<rq::Symbol>
   getNamedListRef(llvm::StringRef name) {
-    const std::size_t hash = llvm::hash_value(name);
-    const std::size_t bucket_i = hash % this->_named_symbols_map.size();
-    Node *node_ptr = &this->_named_map_begin_ptr[bucket_i];
-    while (node_ptr != nullptr) {
-      Node &node = rq::dereferencePtr(node_ptr);
-      if (node.hash == hash) {
-        if (node.name == name) {
-          return rq::BumpPtrListRef<rq::Symbol>(node.list);
-        }
-      }
-      node_ptr = node.hash < hash ? node.left_ptr : node.right_ptr;
+    auto it = this->_named_symbols_map.find(name);
+    if (it == this->_named_symbols_map.end()) {
+      return rq::BumpPtrListRef<rq::Symbol>();
     }
-    return rq::BumpPtrListRef<Symbol>();
+    return it->getSecond();
   }
-  [[nodiscard]] inline std::ranges::subrange<
-      rq::ConstNamedSymbolIterator, rq::ConstNamedSymbolIterator,
+  auto getNamedSymbolsSubrange() const {
+    auto begin_it = this->_named_symbols_map.begin();
+    return std::ranges::subrange<decltype(begin_it), decltype(begin_it),
+                                 std::ranges::subrange_kind::unsized>(
+        begin_it, this->_named_symbols_map.end());
+  }
+  std::ranges::subrange<
+      llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
+      llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
       std::ranges::subrange_kind::unsized>
-  getNamedSymbolsSubrange() const {
-    return std::ranges::subrange<rq::ConstNamedSymbolIterator,
-                                 rq::ConstNamedSymbolIterator,
-                                 std::ranges::subrange_kind::unsized>(
-        rq::ConstNamedSymbolIterator(this->_named_map_begin_ptr),
-        rq::ConstNamedSymbolIterator());
-  }
-  std::ranges::subrange<rq::NamedSymbolIterator, rq::NamedSymbolIterator,
-                        std::ranges::subrange_kind::unsized>
   getNamedSymbolsSubrange() {
-    return std::ranges::subrange<rq::NamedSymbolIterator,
-                                 rq::NamedSymbolIterator,
-                                 std::ranges::subrange_kind::unsized>(
-        rq::NamedSymbolIterator(this->_named_map_begin_ptr),
-        rq::NamedSymbolIterator());
+    return std::ranges::subrange<
+        llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
+        llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
+        std::ranges::subrange_kind::unsized>(this->_named_symbols_map.begin(),
+                                             this->_named_symbols_map.end());
   }
   [[nodiscard]] inline std::ranges::subrange<
       rq::ConstSymbolTableIterator, rq::ConstSymbolTableIterator,
@@ -3481,36 +3425,32 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
                                  std::ranges::subrange_kind::unsized>(
         rq::SymbolTableIterator(this), rq::SymbolTableIterator());
   }
+  std::ranges::subrange<rq::MemberSymbolTableIterator,
+                        rq::MemberSymbolTableIterator,
+                        std::ranges::subrange_kind::unsized>
+  getMemberSymbolTableSubrange() {
+    return std::ranges::subrange<rq::MemberSymbolTableIterator,
+                                 rq::MemberSymbolTableIterator,
+                                 std::ranges::subrange_kind::unsized>(
+        rq::MemberSymbolTableIterator(this->_first_member_table_ptr),
+        rq::MemberSymbolTableIterator());
+  }
+  std::ranges::subrange<rq::ConstMemberSymbolTableIterator,
+                        rq::ConstMemberSymbolTableIterator,
+                        std::ranges::subrange_kind::unsized>
+  getMemberSymbolTableSubrange() const {
+    return std::ranges::subrange<rq::ConstMemberSymbolTableIterator,
+                                 rq::ConstMemberSymbolTableIterator,
+                                 std::ranges::subrange_kind::unsized>(
+        rq::ConstMemberSymbolTableIterator(this->_first_member_table_ptr),
+        rq::ConstMemberSymbolTableIterator());
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsSymbolTable(rq::dereferencePtr(entity).getKind());
   }
 };
 
 template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
-
-RQ_ALWAYS_INLINE rq::NamedSymbolIterator &NamedSymbolIterator::operator++() {
-  this->_node_ptr = rq::dereferencePtr(this->_node_ptr).next_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::NamedSymbolIterator NamedSymbolIterator::operator++(int) {
-  rq::NamedSymbolIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::ConstNamedSymbolIterator &
-ConstNamedSymbolIterator::operator++() {
-  this->_node_ptr = rq::dereferencePtr(this->_node_ptr).next_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::ConstNamedSymbolIterator
-ConstNamedSymbolIterator::operator++(int) {
-  rq::ConstNamedSymbolIterator temp = *this;
-  ++(*this);
-  return temp;
-}
 
 RQ_ALWAYS_INLINE rq::SymbolTableIterator &SymbolTableIterator::operator++() {
   this->_table_ptr =
@@ -3538,11 +3478,51 @@ ConstSymbolTableIterator::operator++(int) {
   return temp;
 }
 
+RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator &
+MemberSymbolTableIterator::operator++() {
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator
+MemberSymbolTableIterator::operator++(int) {
+  rq::MemberSymbolTableIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator &
+ConstMemberSymbolTableIterator::operator++() {
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator
+ConstMemberSymbolTableIterator::operator++(int) {
+  rq::ConstMemberSymbolTableIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+inline void SymbolTable::_addMember(rq::Symbol &symbol) {
+  if (llvm::isa<rq::SymbolTable>(symbol)) {
+    rq::SymbolTable &symbol_table = llvm::cast<rq::SymbolTable>(symbol);
+    symbol_table._next_table_ptr = this->_first_member_table_ptr;
+    this->_first_member_table_ptr = &symbol_table;
+  }
+}
+
+inline void SymbolTable::release() {
+  this->_named_symbols_map.clear();
+  for (rq::SymbolTable &member : this->getMemberSymbolTableSubrange()) {
+    member.release();
+  }
+}
+
 struct Top : public rq::SymbolTable {
   using Self = rq::Top;
 
-  inline explicit Top(rq::BumpPtrAllocator &allocator, unsigned bucket_count)
-      : SymbolTable(rq::EntityKind::SY_TOP, allocator, bucket_count) {}
+  inline explicit Top() : SymbolTable(rq::EntityKind::SY_TOP) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_TOP;
@@ -3554,11 +3534,9 @@ struct Scope : public rq::SymbolTable,
                rq::InitialModuleMember {
   using Self = rq::Scope;
 
-  inline explicit Scope(rq::BumpPtrAllocator &allocator, unsigned bucket_count,
-                        rq::Expression &expression, rq::Module &module,
+  inline explicit Scope(rq::Expression &expression, rq::Module &module,
                         rq::SymbolTable &containing_table)
-      : SymbolTable(rq::EntityKind::SY_SCOPE, allocator, bucket_count,
-                    containing_table),
+      : SymbolTable(rq::EntityKind::SY_SCOPE, containing_table),
         InitialExpression(expression), InitialModuleMember(module) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
@@ -3570,11 +3548,9 @@ struct Namespace : public rq::SymbolTable, rq::InitialNamed {
   using Self = rq::Namespace;
 
   inline explicit Namespace(llvm::StringRef name,
-                            rq::BumpPtrAllocator &allocator,
-                            unsigned bucket_count,
+
                             rq::SymbolTable &containing_table)
-      : SymbolTable(rq::EntityKind::SY_NAMESPACE, allocator, bucket_count,
-                    containing_table),
+      : SymbolTable(rq::EntityKind::SY_NAMESPACE, containing_table),
         InitialNamed(name) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
@@ -3593,13 +3569,11 @@ struct Class : public rq::SymbolTable,
   const rq::Expression *_class_layout_expression_ptr{nullptr};
   rq::ClassLayout *_class_layout_ptr{nullptr};
 
-  inline explicit Class(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                        unsigned bucket_count, const rq::Expression &expression,
+  inline explicit Class(llvm::StringRef name, const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
                         rq::SymbolTable &containing_table,
                         rq::SymbolTable &hosting_table)
-      : SymbolTable(rq::EntityKind::SY_CLASS, allocator, bucket_count,
-                    containing_table),
+      : SymbolTable(rq::EntityKind::SY_CLASS, containing_table),
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialNamed(name) {}
@@ -3622,13 +3596,13 @@ struct Enumeration : public rq::SymbolTable,
 
   const rq::Expression *_underlying_type_expression_ptr{nullptr};
 
-  inline explicit Enumeration(
-      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-      unsigned bucket_count, const rq::Expression &expression,
-      rq::ExpressionFlags attributes, rq::Module &module,
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
-      : SymbolTable(rq::EntityKind::SY_ENUMERATION, allocator, bucket_count,
-                    containing_table),
+  inline explicit Enumeration(llvm::StringRef name,
+                              const rq::Expression &expression,
+                              rq::ExpressionFlags attributes,
+                              rq::Module &module,
+                              rq::SymbolTable &containing_table,
+                              rq::SymbolTable &hosting_table)
+      : SymbolTable(rq::EntityKind::SY_ENUMERATION, containing_table),
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialNamed(name) {}
@@ -3654,14 +3628,12 @@ struct Category : public rq::SymbolTable,
   const rq::Expression *_discriminant_type_expression_ptr{nullptr};
 
   inline explicit Category(llvm::StringRef name,
-                           rq::BumpPtrAllocator &allocator,
-                           unsigned bucket_count,
+
                            const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module,
                            rq::SymbolTable &containing_table,
                            rq::SymbolTable &hosting_table)
-      : SymbolTable(rq::EntityKind::SY_CATEGORY, allocator, bucket_count,
-                    containing_table),
+      : SymbolTable(rq::EntityKind::SY_CATEGORY, containing_table),
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialNamed(name) {}
@@ -3836,25 +3808,21 @@ struct Procedure : public rq::SymbolTable,
   const rq::Expression *_signature_expression_ptr{nullptr};
 
   inline explicit Procedure(rq::EntityKind k, llvm::StringRef name,
-                            rq::BumpPtrAllocator &allocator,
-                            unsigned bucket_count,
+
                             const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &containing_table,
                             rq::SymbolTable &hosting_table)
-      : SymbolTable(k, allocator, bucket_count, containing_table),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableHosted(hosting_table),
-        InitialMaybeNamed(name) {}
-  inline explicit Procedure(rq::EntityKind k, rq::BumpPtrAllocator &allocator,
-                            unsigned bucket_count,
-                            const rq::Expression &expression,
+      : SymbolTable(k, containing_table), InitialExpression(expression),
+        InitialExpressionFlags(attributes), InitialModuleMember(module),
+        SymbolTableHosted(hosting_table), InitialMaybeNamed(name) {}
+  inline explicit Procedure(rq::EntityKind k, const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &containing_table,
                             rq::SymbolTable &hosting_table)
-      : SymbolTable(k, allocator, bucket_count, containing_table),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableHosted(hosting_table) {}
+      : SymbolTable(k, containing_table), InitialExpression(expression),
+        InitialExpressionFlags(attributes), InitialModuleMember(module),
+        SymbolTableHosted(hosting_table) {}
   RQ_ALWAYS_INLINE void
   setSignatureExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_signature_expression_ptr, &expression);
@@ -3869,13 +3837,12 @@ template <> struct is_parent_only<rq::Procedure> final : std::true_type {};
 struct Entry : public rq::Procedure {
   using Self = rq::Entry;
 
-  inline explicit Entry(rq::BumpPtrAllocator &allocator, unsigned bucket_count,
-                        const rq::Expression &expression,
+  inline explicit Entry(const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
                         rq::SymbolTable &containing_table,
                         rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_ENTRY, allocator, bucket_count, expression,
-                  attributes, module, containing_table, hosting_table) {}
+      : Procedure(rq::EntityKind::SY_ENTRY, expression, attributes, module,
+                  containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_ENTRY;
@@ -3886,15 +3853,12 @@ struct Function : public rq::Procedure {
   using Self = rq::Function;
 
   inline explicit Function(llvm::StringRef name,
-                           rq::BumpPtrAllocator &allocator,
-                           unsigned bucket_count,
                            const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module,
                            rq::SymbolTable &containing_table,
                            rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_FUNCTION, name, allocator, bucket_count,
-                  expression, attributes, module, containing_table,
-                  hosting_table) {}
+      : Procedure(rq::EntityKind::SY_FUNCTION, name, expression, attributes,
+                  module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_FUNCTION;
@@ -3904,15 +3868,12 @@ struct Function : public rq::Procedure {
 struct Method : public rq::Procedure {
   using Self = rq::Method;
 
-  inline explicit Method(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                         unsigned bucket_count,
-                         const rq::Expression &expression,
+  inline explicit Method(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
                          rq::SymbolTable &containing_table,
                          rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_METHOD, name, allocator, bucket_count,
-                  expression, attributes, module, containing_table,
-                  hosting_table) {}
+      : Procedure(rq::EntityKind::SY_METHOD, name, expression, attributes,
+                  module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_METHOD;
@@ -3922,15 +3883,12 @@ struct Method : public rq::Procedure {
 struct Ranger : public rq::Procedure {
   using Self = rq::Ranger;
 
-  inline explicit Ranger(llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-                         unsigned bucket_count,
-                         const rq::Expression &expression,
+  inline explicit Ranger(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
                          rq::SymbolTable &containing_table,
                          rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_METHOD, name, allocator, bucket_count,
-                  expression, attributes, module, containing_table,
-                  hosting_table) {}
+      : Procedure(rq::EntityKind::SY_METHOD, name, expression, attributes,
+                  module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RANGER;
@@ -3940,14 +3898,14 @@ struct Ranger : public rq::Procedure {
 struct ExtensionFunction : public rq::Procedure {
   using Self = rq::ExtensionFunction;
 
-  inline explicit ExtensionFunction(
-      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-      unsigned bucket_count, const rq::Expression &expression,
-      rq::ExpressionFlags attributes, rq::Module &module,
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION, name, allocator,
-                  bucket_count, expression, attributes, module,
-                  containing_table, hosting_table) {}
+  inline explicit ExtensionFunction(llvm::StringRef name,
+                                    const rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::SymbolTable &containing_table,
+                                    rq::SymbolTable &hosting_table)
+      : Procedure(rq::EntityKind::SY_EXTENSION_FUNCTION, name, expression,
+                  attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3958,14 +3916,14 @@ struct ExtensionFunction : public rq::Procedure {
 struct ExtensionMethod : public rq::Procedure {
   using Self = rq::ExtensionMethod;
 
-  inline explicit ExtensionMethod(
-      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-      unsigned bucket_count, const rq::Expression &expression,
-      rq::ExpressionFlags attributes, rq::Module &module,
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_EXTENSION_METHOD, name, allocator,
-                  bucket_count, expression, attributes, module,
-                  containing_table, hosting_table) {}
+  inline explicit ExtensionMethod(llvm::StringRef name,
+                                  const rq::Expression &expression,
+                                  rq::ExpressionFlags attributes,
+                                  rq::Module &module,
+                                  rq::SymbolTable &containing_table,
+                                  rq::SymbolTable &hosting_table)
+      : Procedure(rq::EntityKind::SY_EXTENSION_METHOD, name, expression,
+                  attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
@@ -3976,14 +3934,14 @@ struct ExtensionMethod : public rq::Procedure {
 struct ExtensionRanger : public rq::Procedure {
   using Self = rq::ExtensionRanger;
 
-  inline explicit ExtensionRanger(
-      llvm::StringRef name, rq::BumpPtrAllocator &allocator,
-      unsigned bucket_count, const rq::Expression &expression,
-      rq::ExpressionFlags attributes, rq::Module &module,
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
-      : Procedure(rq::EntityKind::SY_EXTENSION_RANGER, name, allocator,
-                  bucket_count, expression, attributes, module,
-                  containing_table, hosting_table) {}
+  inline explicit ExtensionRanger(llvm::StringRef name,
+                                  const rq::Expression &expression,
+                                  rq::ExpressionFlags attributes,
+                                  rq::Module &module,
+                                  rq::SymbolTable &containing_table,
+                                  rq::SymbolTable &hosting_table)
+      : Procedure(rq::EntityKind::SY_EXTENSION_RANGER, name, expression,
+                  attributes, module, containing_table, hosting_table) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
