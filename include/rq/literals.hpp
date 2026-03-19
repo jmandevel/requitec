@@ -10,18 +10,18 @@
 
 namespace rq {
 
-inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::SymbolKind kind) {
+inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::EntityKind kind) {
   using namespace rq;
   switch (kind) {
-  case rq::SymbolKind::BFLOAT16:
+  case rq::EntityKind::SY_BFLOAT16:
     return llvm::APFloat::BFloat();
-  case rq::SymbolKind::BINARY16:
+  case rq::EntityKind::SY_BINARY16:
     return llvm::APFloat::IEEEhalf();
-  case rq::SymbolKind::BINARY32:
+  case rq::EntityKind::SY_BINARY32:
     return llvm::APFloat::IEEEsingle();
-  case rq::SymbolKind::BINARY64:
+  case rq::EntityKind::SY_BINARY64:
     return llvm::APFloat::IEEEdouble();
-  case rq::SymbolKind::BINARY128:
+  case rq::EntityKind::SY_BINARY128:
     return llvm::APFloat::IEEEquad();
   default:
     break;
@@ -29,7 +29,7 @@ inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::SymbolKind kind) {
   RQ_UNREACHABLE();
 }
 
-enum class NumericResultCode {
+enum class NumericResultCode : unsigned {
   OK,
   ERROR_EMPTY,
   ERROR_INVALID_DIGIT,
@@ -121,8 +121,8 @@ cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
 }
 
 template <typename NumericParam>
-[[nodiscard]] inline rq::NumericResultCode getNumericValue(llvm::StringRef text,
-                                                       NumericParam &ost_term) {
+[[nodiscard]] inline rq::NumericResultCode
+getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
   using Numeric = NumericParam;
   text = text.trim();
   if (text.empty()) {
@@ -259,7 +259,7 @@ template <typename NumericParam>
 
 [[nodiscard]] inline rq::NumericResultCode
 getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
-                rq::SymbolKind semantics) {
+                rq::EntityKind semantics) {
   llvm::SmallString<16> buffer;
   rq::NumericResultCode result = rq::cleanFloatText(text, buffer);
   if (result != rq::NumericResultCode::OK) {
