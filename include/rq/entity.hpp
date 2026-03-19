@@ -48,6 +48,11 @@ enum class EntityKind : std::uint16_t {
   // all symbols have unique instances. you can always test if two symbols
   // are exactly the same by comparing their pointers.
 
+  // SPCEIAL
+  SY_RESULT,
+  SY_IN,
+  SY_OUT,
+
   // SIMPLE BUILTIN
   SY_INFERENCE,
   SY_GENERIC_SYMBOL,
@@ -71,7 +76,7 @@ enum class EntityKind : std::uint16_t {
   SY_BINARY32,
   SY_BINARY64,
   SY_BINARY128,
-  SY_Bfloat16,
+  SY_BFLOAT16,
   SY_GENERIC_INTEGER,
   SY_GENERIC_SIGNED_INTEGER,
   SY_GENERIC_UNSIGNED_INTEGER,
@@ -185,6 +190,8 @@ enum class EntityKind : std::uint16_t {
 
   OP_NONE,
 
+  OP_EXECUTE,
+
   OP_LOGICAL_AND,
   OP_LOGICAL_OR,
   OP_LOGICAL_COMPLEMENT,
@@ -244,6 +251,12 @@ static constexpr std::size_t ENTITY_COUNT =
   switch (kind) {
   case E::NONE:
     return "none";
+  case E::SY_RESULT:
+    return "sy_result";
+  case E::SY_IN:
+    return "sy_in";
+  case E::SY_OUT:
+    return "sy_out";
   case E::SY_INFERENCE:
     return "sy_inference";
   case E::SY_GENERIC_SYMBOL:
@@ -288,7 +301,7 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_binary64";
   case E::SY_BINARY128:
     return "sy_binary128";
-  case E::SY_Bfloat16:
+  case E::SY_BFLOAT16:
     return "sy_Bfloat16";
   case E::SY_GENERIC_INTEGER:
     return "sy_generic_integer";
@@ -452,6 +465,8 @@ static constexpr std::size_t ENTITY_COUNT =
     return "ct_array";
   case E::OP_NONE:
     return "op_none";
+  case E::OP_EXECUTE:
+    return "op_execute";
   case E::OP_LOGICAL_AND:
     return "op_logical_and";
   case E::OP_LOGICAL_OR:
@@ -591,6 +606,12 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   switch (kind) {
   case E::NONE:
     return EF::NONE;
+  case E::SY_RESULT:
+    return EF::SYMBOL;
+  case E::SY_IN:
+    return EF::SYMBOL;
+  case E::SY_OUT:
+    return EF::SYMBOL;
   case E::SY_INFERENCE:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
   case E::SY_GENERIC_SYMBOL:
@@ -647,7 +668,7 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_BINARY128:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
            EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
-  case E::SY_Bfloat16:
+  case E::SY_BFLOAT16:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
            EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_GENERIC_INTEGER:
@@ -846,6 +867,8 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::CT_ARRAY:
     return EF::CONSTANT;
   case E::OP_NONE:
+    return EF::NONE;
+  case E::OP_EXECUTE:
     return EF::NONE;
   case E::OP_LOGICAL_AND:
     return EF::NONE;
@@ -1330,6 +1353,9 @@ getHasTemplateAlternative(rq::EntityKind kind) {
 
 struct Entity;
 struct Symbol;
+struct Result;
+struct In;
+struct Out;
 struct SimpleBuiltin;
 struct Inference;
 struct GenericSymbol;
@@ -1810,6 +1836,42 @@ struct Symbol : public rq::Entity {
 
 template <> struct is_parent_only<rq::Symbol> final : std::true_type {};
 
+struct Result : public rq::Symbol {
+  using Self = rq::SimpleBuiltin;
+
+  inline explicit Result() : Symbol(rq::EntityKind::SY_RESULT) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_RESULT;
+  }
+};
+
+template <> struct is_acquired<rq::Result> final : std::true_type {};
+
+struct In : public rq::Symbol {
+  using Self = rq::SimpleBuiltin;
+
+  inline explicit In() : Symbol(rq::EntityKind::SY_IN) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_IN;
+  }
+};
+
+template <> struct is_acquired<rq::In> final : std::true_type {};
+
+struct Out : public rq::Symbol {
+  using Self = rq::SimpleBuiltin;
+
+  inline explicit Out() : Symbol(rq::EntityKind::SY_OUT) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_OUT;
+  }
+};
+
+template <> struct is_acquired<rq::Out> final : std::true_type {};
+
 struct SimpleBuiltin : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
 
@@ -2093,10 +2155,10 @@ template <> struct is_acquired<rq::Binary128> final : std::true_type {};
 struct Bfloat16 final : public rq::SimpleBuiltin {
   using Self = rq::Bfloat16;
 
-  inline explicit Bfloat16() : SimpleBuiltin(rq::EntityKind::SY_Bfloat16) {}
+  inline explicit Bfloat16() : SimpleBuiltin(rq::EntityKind::SY_BFLOAT16) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_Bfloat16;
+    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_BFLOAT16;
   }
 };
 
@@ -2534,7 +2596,6 @@ struct Array final : public rq::CountedSubtype {
 template <> struct is_acquired<rq::Array> final : std::true_type {};
 
 struct ParameterListSubtype : public rq::Symbol,
-                              public rq::InitialExpression,
                               public rq::InitialExpressionFlags,
                               public rq::InitialModuleMember,
                               public rq::SymbolTableHosted {
@@ -2547,13 +2608,11 @@ struct ParameterListSubtype : public rq::Symbol,
   inline explicit ParameterListSubtype(rq::BumpPtrAllocator &allocator,
                                        unsigned map_bucket_count,
                                        rq::EntityKind k,
-                                       rq::Expression &expression,
                                        rq::ExpressionFlags attributes,
                                        rq::Module &module,
                                        rq::SymbolTable &hosting_table)
-      : Symbol(k), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableHosted(hosting_table),
+      : Symbol(k), InitialExpressionFlags(attributes),
+        InitialModuleMember(module), SymbolTableHosted(hosting_table),
         _named_parameter_map(
             allocator.allocateAcquiredZeroedArray<rq::Parameter>(
                 map_bucket_count)) {}
@@ -2571,12 +2630,11 @@ struct Layout final : public rq::ParameterListSubtype {
 
   inline explicit Layout(rq::BumpPtrAllocator &allocator,
                          unsigned parameter_bucket_count,
-                         rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
                          rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::EntityKind::SY_LAYOUT, expression, attributes,
-                             module, hosting_table) {}
+                             rq::EntityKind::SY_LAYOUT, attributes, module,
+                             hosting_table) {}
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_LAYOUT;
   }
@@ -2589,13 +2647,12 @@ struct ClassLayout final : public rq::ParameterListSubtype {
 
   inline explicit ClassLayout(rq::BumpPtrAllocator &allocator,
                               unsigned parameter_bucket_count,
-                              rq::Expression &expression,
                               rq::ExpressionFlags attributes,
                               rq::Module &module,
                               rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::EntityKind::SY_CLASS_LAYOUT, expression,
-                             attributes, module, hosting_table) {}
+                             rq::EntityKind::SY_CLASS_LAYOUT, attributes,
+                             module, hosting_table) {}
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_CLASS_LAYOUT;
@@ -2609,11 +2666,11 @@ struct TemplateLayout final : public rq::ParameterListSubtype {
 
   inline explicit TemplateLayout(rq::BumpPtrAllocator &allocator,
                                  unsigned parameter_bucket_count,
-                                 rq::Expression &expression, rq::Module &module,
+                                 rq::Module &module,
                                  rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::EntityKind::SY_TEMPLATE_LAYOUT, expression, {},
-                             module, hosting_table) {}
+                             rq::EntityKind::SY_TEMPLATE_LAYOUT, {}, module,
+                             hosting_table) {}
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
            rq::EntityKind::SY_TEMPLATE_LAYOUT;
@@ -2630,12 +2687,11 @@ struct Signature final : public rq::ParameterListSubtype {
   inline explicit Signature(rq::BumpPtrAllocator &allocator,
                             unsigned parameter_bucket_count,
                             rq::TypeConstant &return_type,
-                            rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::EntityKind::SY_SIGNATURE, expression,
-                             attributes, module, hosting_table),
+                             rq::EntityKind::SY_SIGNATURE, attributes, module,
+                             hosting_table),
         _return_type(&return_type) {}
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
     return rq::dereferencePtr(this->_return_type);
@@ -2648,8 +2704,6 @@ struct Signature final : public rq::ParameterListSubtype {
   }
 };
 
-template <> struct is_acquired<rq::Signature> final : std::true_type {};
-
 struct Extension final : public rq::ParameterListSubtype {
   using Self = rq::Extension;
 
@@ -2660,12 +2714,11 @@ struct Extension final : public rq::ParameterListSubtype {
                             unsigned parameter_bucket_count,
                             rq::TypeConstant &return_type,
                             rq::TypeConstant &extended_type,
-                            rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::EntityKind::SY_EXTENSION, expression,
-                             attributes, module, hosting_table),
+                             rq::EntityKind::SY_EXTENSION, attributes, module,
+                             hosting_table),
         _return_type(&return_type), _extended_type(&extended_type) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
@@ -3391,7 +3444,7 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
     }
     return it->getSecond();
   }
-  auto getNamedSymbolsSubrange() const {
+  auto getNamedListsSubrange() const {
     auto begin_it = this->_named_symbols_map.begin();
     return std::ranges::subrange<decltype(begin_it), decltype(begin_it),
                                  std::ranges::subrange_kind::unsized>(
@@ -3401,7 +3454,7 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
       llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
       llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
       std::ranges::subrange_kind::unsized>
-  getNamedSymbolsSubrange() {
+  getNamedListsSubrange() {
     return std::ranges::subrange<
         llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
         llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
@@ -3806,6 +3859,8 @@ struct Procedure : public rq::SymbolTable,
 
   rq::TypeConstant *_signature_ptr{nullptr};
   const rq::Expression *_signature_expression_ptr{nullptr};
+  const rq::Expression *_body_start_ptr{nullptr};
+  rq::Instruction *_instruction_ptr{nullptr};
 
   inline explicit Procedure(rq::EntityKind k, llvm::StringRef name,
 
@@ -3826,6 +3881,47 @@ struct Procedure : public rq::SymbolTable,
   RQ_ALWAYS_INLINE void
   setSignatureExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_signature_expression_ptr, &expression);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const {
+    return this->_signature_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setSignature(rq::TypeConstant &signature) {
+    this->_signature_ptr = &signature;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getSignature() const {
+    return rq::dereferencePtr(this->_signature_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getSignature() {
+    return rq::dereferencePtr(this->_signature_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const {
+    return this->_instruction_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction *instruction_ptr) {
+    rq::assignSingleValue(this->_instruction_ptr, instruction_ptr);
+  }
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction) {
+    rq::assignSingleValue(this->_instruction_ptr, &instruction);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const {
+    return rq::dereferencePtr(this->_instruction_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
+    return rq::dereferencePtr(this->_instruction_ptr);
+  }
+  RQ_ALWAYS_INLINE bool getHasSignatureExpression() const {
+    return this->_signature_expression_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getSignatureExpression() const {
+    return rq::dereferencePtr(this->_signature_expression_ptr);
+  }
+  RQ_ALWAYS_INLINE bool getHasBodyStartExpression() const {
+    return this->_body_start_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getBodyStartExpression() const {
+    return rq::dereferencePtr(this->_body_start_ptr);
   }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsProcedure(rq::dereferencePtr(entity).getKind());
@@ -4648,88 +4744,74 @@ struct ArrayConstant : public rq::Constant {
 
 template <> struct is_acquired<rq::ArrayConstant> final : std::true_type {};
 
-struct InstructionNode;
-
-struct InstructionNext {
-  using Self = rq::InstructionNext;
-
-  llvm::PointerUnion<rq::Entity *, rq::InstructionNode *>
-      _ptr{nullptr};
-
-  InstructionNext() = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntity() const {
-    return llvm::isa<rq::Entity*>(this->_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
-    return llvm::isa<rq::InstructionNode*>(this->_ptr);
-  }
-  RQ_ALWAYS_INLINE void setEntity(rq::Entity& entity) {
-    this->_ptr = &entity;
-  }
-  RQ_ALWAYS_INLINE void setNode(rq::InstructionNode& node) {
-    this->_ptr = &node;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
-    return rq::dereferencePtr(llvm::cast<rq::Entity*>(this->_ptr));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
-    return rq::dereferencePtr(llvm::cast<rq::Entity*>(this->_ptr));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNode &getNode() const {
-    return rq::dereferencePtr(llvm::cast<rq::InstructionNode*>(this->_ptr));
-  }
-    [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNode &getNode() {
-    return rq::dereferencePtr(llvm::cast<rq::InstructionNode*>(this->_ptr));
-  }
-};
-
-struct InstructionNode final {
-  using Self = rq::InstructionNode;
-
-  rq::InstructionNext _head{};
-  rq::InstructionNext _tail{};
-
-  InstructionNode() = default;
-  InstructionNode(const Self &) = delete;
-  InstructionNode(Self &&) = delete;
-  ~InstructionNode() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNext &getHead() const {
-    return this->_head;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getHead() {
-    return this->_head;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNext &getTail() const {
-    return this->_tail;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getTail() {
-    return this->_tail;
-  }
-};
-
-template <> struct is_acquired<rq::InstructionNode> final : std::true_type {};
-
 struct Instruction : public rq::Entity {
-  using Self = rq::Instruction;
+  using Self = rq::Constant;
 
-  rq::InstructionNext _tail{};
+  rq::Entity *_head_ptr{nullptr};
+  rq::Entity *_tail_ptr{nullptr};
 
   inline explicit Instruction() : Entity(rq::EntityKind::OP_NONE) {}
 
-  RQ_ALWAYS_INLINE void setOpcode(rq::EntityKind kind) {
-    RQ_ASSERT(rq::getIsOpcode(kind), "not opcode");
-    RQ_ASSERT(this->_kind == rq::EntityKind::OP_NONE, "modify opcode");
-    this->_kind = kind;
+  RQ_ALWAYS_INLINE void setOpcode(rq::EntityKind opcode) {
+    RQ_ASSERT(this->getKind() == rq::EntityKind::OP_NONE, "not op_none");
+    this->_kind = opcode;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getTail() {
-    return this->_tail;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasHead() const {
+    return this->_head_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTail() const {
+    return this->_tail_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setHead(rq::Entity &head) {
+    rq::assignSingleValue(this->_head_ptr, &head);
+  }
+  RQ_ALWAYS_INLINE void setHead(rq::Entity *head_ptr) {
+    rq::assignSingleValue(this->_head_ptr, head_ptr);
+  }
+  RQ_ALWAYS_INLINE void setTail(rq::Entity &tail) {
+    rq::assignSingleValue(this->_tail_ptr, &tail);
+  }
+  RQ_ALWAYS_INLINE void setTail(rq::Entity *tail_ptr) {
+    rq::assignSingleValue(this->_tail_ptr, tail_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &replaceHead(rq::Entity &head) {
+    return rq::replaceValue(this->_head_ptr, &head);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &replaceTail(rq::Entity &tail) {
+    return rq::replaceValue(this->_tail_ptr, &tail);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getHead() const {
+    return rq::dereferencePtr(this->_head_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getHead() {
+    return rq::dereferencePtr(this->_head_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popHead() {
+    rq::Entity &head = this->getHead();
+    this->_head_ptr = nullptr;
+    return head;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popHeadPtr() {
+    rq::Entity *head_ptr = this->_head_ptr;
+    this->_head_ptr = nullptr;
+    return head_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popTail() {
+    rq::Entity &tail = this->getTail();
+    this->_tail_ptr = nullptr;
+    return tail;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popTailPtr() {
+    rq::Entity *tail_ptr = this->_tail_ptr;
+    this->_tail_ptr = nullptr;
+    return tail_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getTail() const {
+    return rq::dereferencePtr(this->_tail_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getTail() {
+    return rq::dereferencePtr(this->_tail_ptr);
   }
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {

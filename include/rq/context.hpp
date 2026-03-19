@@ -33,6 +33,7 @@ namespace rq {
 struct Token;
 struct Module;
 enum class TokenKind : std::uint_fast8_t;
+enum class NumericResultCode : unsigned;
 
 enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
   ERROR = llvm::SourceMgr::DiagKind::DK_Error,
@@ -78,7 +79,9 @@ struct Context final : public rq::BumpPtrAllocator {
   struct {
     rq::Expression *_first_unused_expression_ptr{nullptr};
     rq::Instruction *_first_unused_instruction_ptr{nullptr};
-    rq::InstructionNode *_first_unused_instruction_node_ptr{nullptr};
+    rq::Result _result{};
+    rq::In _in{};
+    rq::Out _out{};
     rq::Inference _inference{};
     rq::GenericSymbol _generic_symbol{};
     rq::GenericType _generic_type{};
@@ -299,6 +302,7 @@ struct Context final : public rq::BumpPtrAllocator {
                                     llvm::StringRef path);
   void logErrorOutsideNotInFrame(const rq::Expression &outside_expression);
   void logErrorOutsideNotAncestor(const rq::Expression &outside_expression);
+  void logErrorNumeric(const rq::Expression &expression, rq::NumericResultCode code);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
@@ -308,20 +312,33 @@ struct Context final : public rq::BumpPtrAllocator {
     this->acquired._first_unused_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] rq::InstructionNode &acquireInstructionNode();
-  void discardInstructionNext(rq::InstructionNext instruction_next);
-  inline void discardInstructionNode(rq::InstructionNode &instruction_node) {
-    this->discardInstructionNext(instruction_node.getHead());
-    this->discardInstructionNext(instruction_node.getTail());
-    instruction_node._head._ptr =
-        this->acquired._first_unused_instruction_node_ptr;
-    this->acquired._first_unused_instruction_node_ptr = &instruction_node;
-  }
   [[nodiscard]] rq::Instruction &acquireInstruction();
   inline void discardInstruction(rq::Instruction &instruction) {
-    this->discardInstructionNext(instruction.getTail());
-    instruction._tail._ptr = this->acquired._first_unused_instruction_ptr;
+    if (instruction.getHasHead()) {
+      rq::Entity& head = instruction.popHead();
+      if (llvm::isa<rq::Instruction>(head)) {
+        rq::Instruction &head_instruction = llvm::cast<rq::Instruction>(head);
+        this->discardInstruction(head_instruction);
+      }
+    }
+    if (instruction.getHasTail()) {
+      rq::Entity& tail = instruction.popTail();
+      if (llvm::isa<rq::Instruction>(tail)) {
+        rq::Instruction &tail_instruction = llvm::cast<rq::Instruction>(tail);
+        this->discardInstruction(tail_instruction);
+      }
+    }
+    instruction._head_ptr = this->acquired._first_unused_instruction_ptr;
     this->acquired._first_unused_instruction_ptr = &instruction;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Result &acquireResult() {
+    return this->acquired._result;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::In &acquireIn() {
+    return this->acquired._in;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Out &acquireOut() {
+    return this->acquired._out;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Inference &acquireInference() {
     return this->acquired._inference;
@@ -693,6 +710,7 @@ struct Context final : public rq::BumpPtrAllocator {
     this->acquired._string_constant_set.InsertNode(&new_type, insert_pos);
     return new_type;
   }
+  [[nodiscard]] rq::TypeConstant& acquireEntrySignature();
 };
 
 } // namespace rq

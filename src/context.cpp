@@ -10,6 +10,7 @@
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
+#include <rq/literals.hpp>
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallString.h>
@@ -517,7 +518,7 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
                             const rq::SymbolTable &table) {
   json.beginArray("named");
-  for (const auto &[name, list] : table.getNamedSymbolsSubrange()) {
+  for (const auto &[name, list] : table.getNamedListsSubrange()) {
     json.beginObject();
     json.emitString("name", name);
     json.beginArray("symbols");
@@ -1069,6 +1070,13 @@ void Context::logErrorOutsideNotAncestor(
       {outside_expression.getLlvmSourceRange()}, {});
 }
 
+  void Context::logErrorNumeric(const rq::Expression &expression, rq::NumericResultCode code) {
+  this->logMessage(
+      expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+      llvm::Twine("error parsing numeric literal: ") + rq::getDescription(code),
+      {expression.getLlvmSourceRange()}, {});
+  }
+
 rq::Expression &Context::acquireExpression() {
   if (this->acquired._first_unused_expression_ptr == nullptr) {
     rq::Expression &new_expression =
@@ -1093,27 +1101,6 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
   return new_expression;
 }
 
-void Context::discardInstructionNext(rq::InstructionNext instruction_next) {
-  if (instruction_next.getIsNode()) {
-    rq::InstructionNode &node = instruction_next.getNode();
-    this->discardInstructionNode(node);
-  }
-}
-
-rq::InstructionNode &Context::acquireInstructionNode() {
-  if (this->acquired._first_unused_instruction_node_ptr == nullptr) {
-    rq::InstructionNode &new_node =
-        this->allocateAcquiredValue<rq::InstructionNode>();
-    return new_node;
-  }
-  rq::InstructionNode &unused_node =
-      rq::dereferencePtr(this->acquired._first_unused_instruction_node_ptr);
-  this->acquired._first_unused_instruction_node_ptr =
-      llvm::cast<rq::InstructionNode *>(unused_node._head._ptr);
-  std::memset(&unused_node, 0, sizeof(rq::InstructionNode));
-  return unused_node;
-}
-
 rq::Instruction &Context::acquireInstruction() {
   if (this->acquired._first_unused_instruction_ptr == nullptr) {
     rq::Instruction &new_instruction =
@@ -1122,10 +1109,21 @@ rq::Instruction &Context::acquireInstruction() {
   }
   rq::Instruction &unused_instruction =
       rq::dereferencePtr(this->acquired._first_unused_instruction_ptr);
-  this->acquired._first_unused_instruction_ptr = static_cast<rq::Instruction *>(
-      llvm::cast<rq::Entity *>(unused_instruction._tail._ptr));
+  this->acquired._first_unused_instruction_ptr = llvm::cast<rq::Instruction>(unused_instruction.popHeadPtr());
   std::memset(&unused_instruction, 0, sizeof(rq::Instruction));
   return unused_instruction;
+}
+
+[[nodiscard]] rq::TypeConstant &Context::acquireEntrySignature() {
+  // TODO add parameters
+  rq::ScaledSignedInteger &return_type_integer =
+      this->acquireScaledSignedInteger(32, rq::ScaledBuiltinFlags::FASTEST);
+  rq::TypeConstant &return_type = this->acquireTypeConstant(return_type_integer, {});
+  rq::Signature &signature = this->allocateValue<rq::Signature>(
+      *this, 4, return_type, rq::ExpressionFlags{}, this->getSourceModule(),
+      this->getTop());
+  rq::TypeConstant& signature_type = this->acquireTypeConstant(signature, {});
+  return signature_type;
 }
 
 } // namespace rq
