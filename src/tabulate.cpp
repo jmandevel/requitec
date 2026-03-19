@@ -634,7 +634,7 @@ Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
     {
       bool left_frame = false;
       for (rq::SymbolTable &table :
-           subject_symbol_table.getInclusiveFrameRange()) {
+           subject_symbol_table.getInclusiveFrameSubrange()) {
         if (table == containing_table) {
           if (left_frame) {
             this->getContext().logErrorOutsideNotInFrame(outside_expression);
