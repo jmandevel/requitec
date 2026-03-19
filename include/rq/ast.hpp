@@ -2137,7 +2137,7 @@ getHasStatementBranches(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasExpressionBranches(rq::Keyword keyword) {
+getHasValueBranches(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasNone(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
 }
@@ -3771,8 +3771,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatementBranches() const {
     return rq::getHasStatementBranches(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionBranches() const {
-    return rq::getHasExpressionBranches(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasValueBranches() const {
+    return rq::getHasValueBranches(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
     return rq::getSituatedAscribeKeyword(this->getKeyword());

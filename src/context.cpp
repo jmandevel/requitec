@@ -424,7 +424,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
         } else {
           fout << ";\n";
         }
-      } else if (trunk.getHasExpressionBranches()) {
+      } else if (trunk.getHasValueBranches()) {
         if (branch.getHasNext()) {
           fout << ",\n";
         } else {

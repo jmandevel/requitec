@@ -1008,7 +1008,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       call.setKeyword(rq::Keyword::CALL);
       call.setBranch(callee);
       call.setSource(callee, post_token);
-      std::ignore = this->parseExpressionBranches(
+      std::ignore = this->parseValueBranches(
           call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
       precedence_factory.setOnlyRecent(call);
       previous_horned = true;
@@ -1022,7 +1022,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       specialization.setKeyword(rq::Keyword::SPECIALIZATION);
       specialization.setBranch(target);
       specialization.setSource(target, post_token);
-      std::ignore = this->parseExpressionBranches(
+      std::ignore = this->parseValueBranches(
           specialization, rq::TokenKind::RIGHT_BRACE_GROUPING);
       precedence_factory.setOnlyRecent(specialization);
       previous_horned = true;
@@ -1072,10 +1072,10 @@ rq::Expression &RequiteParser::parsePrecedence0() {
 }
 
 [[nodiscard]] bool
-RequiteParser::parseExpressionBranches(rq::Expression &expression,
+RequiteParser::parseValueBranches(rq::Expression &expression,
                                        rq::TokenKind end) {
-  RQ_ASSERT(expression.getHasExpressionBranches(),
-            "expression must have non-statement branches");
+  RQ_ASSERT(expression.getHasValueBranches(),
+            "expression must have value branches");
   rq::TreeFactory factory;
   factory.startTree(expression);
   const rq::Token &first_token = this->getRanger().getToken();
@@ -1184,7 +1184,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   expression.setKeyword(keyword);
   expression.setSource(left_token);
   if (!expression.getHasStatementBranches()) {
-    std::ignore = this->parseExpressionBranches(
+    std::ignore = this->parseValueBranches(
         expression, rq::TokenKind::RIGHT_BRACKET_GROUPING);
     return expression;
   }
@@ -1225,7 +1225,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
   const bool parameter_mark_found =
-      this->parseExpressionBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
+      this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found) {
     brace.changeKeyword(rq::Keyword::LAYOUT_TYPE);
   }
@@ -1286,7 +1286,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   parenthesis.setKeyword(rq::Keyword::UNSITUATED_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->getRanger().incrementToken(1);
-  const bool has_parameter_marks = this->parseExpressionBranches(
+  const bool has_parameter_marks = this->parseValueBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks) {
     parenthesis.changeKeyword(rq::Keyword::SIGNATURE_TYPE);
