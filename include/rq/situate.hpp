@@ -31,7 +31,7 @@ struct Situator final {
   [[nodiscard]] bool situateModule(rq::Module &module);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
-  [[nodiscard]] bool situateExpressionBranch(rq::Situation branch_situation,
+  [[nodiscard]] bool situateValueBranch(rq::Situation branch_situation,
                                              rq::Expression &branch);
   [[nodiscard]] bool situateHeaderBranch(rq::Situation branch_situation,
                                          rq::Expression &branch);
@@ -39,28 +39,28 @@ struct Situator final {
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
                                               rq::Expression &expression);
   [[nodiscard]] bool
-  situateNullaryOrUnaryExpressionBranches(rq::Situation situation,
+  situateNullaryOrUnaryValueBranches(rq::Situation situation,
                                           rq::Expression &expression,
                                           rq::Situation branch0_situation);
   [[nodiscard]] bool
-  situateUnaryExpressionBranches(rq::Situation situation,
+  situateUnaryValueBranches(rq::Situation situation,
                                  rq::Expression &expression,
                                  rq::Situation branch0_situation);
-  [[nodiscard]] bool situateBinaryExpressionBranches(
+  [[nodiscard]] bool situateBinaryValueBranches(
       rq::Situation situation, rq::Expression &expression,
       rq::Situation branch0_situation, rq::Situation branch1_situation);
-  [[nodiscard]] bool situateNaryExpressionBranches(
+  [[nodiscard]] bool situateNaryValueBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branchn_situation);
-  [[nodiscard]] bool situateNaryDifferentFirstExpressionBranches(
+  [[nodiscard]] bool situateNaryDifferentFirstValueBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
       rq::Situation branchn_situation);
-  [[nodiscard]] bool situateNaryDifferentLastExpressionBranches(
+  [[nodiscard]] bool situateNaryDifferentLastValueBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branchn_situation,
       rq::Situation last_situation);
-  [[nodiscard]] bool situateNaryDifferentFirstAndLastExpressionBranches(
+  [[nodiscard]] bool situateNaryDifferentFirstAndLastValueBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
       rq::Situation branchn_situation, rq::Situation last_situation);
