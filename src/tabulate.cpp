@@ -590,7 +590,8 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
 std::optional<llvm::StringRef>
 Tabulator::evaluateName(const rq::Expression &expression,
                         rq::SymbolTable &hosting_table) {
-  RQ_ASSERT(expression.getKeyword() != rq::Keyword::NO_NAME, "must not be evaluated here");
+  RQ_ASSERT(expression.getKeyword() != rq::Keyword::NO_NAME,
+            "must not be evaluated here");
   std::ignore = hosting_table;
   if (expression.getKeyword() == rq::Keyword::IDENTIFIER_LITERAL) {
     return expression.getSourceText();
