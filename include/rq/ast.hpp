@@ -2006,7 +2006,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // REFLECTIONS
   case K::REFLECT:
-    return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
+    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
            KF::ARGUMENT | KF::PARAMETER | KF::ARITHMETIC_SEQUENCE_STEP |
            KF::ARITHMETIC_SEQUENCE_CONDITION | KF::NAMESPACE;
   case K::MEMBER_OF:
