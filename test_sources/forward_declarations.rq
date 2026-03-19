@@ -1,0 +1,15 @@
+@opaque @mangle::myForwardedAdd
+[function myForwardedAdd, (> a:[single], b:[single] <)[single],];
+
+[implement_function myForwardedAdd,
+    [result] := a + b;
+];
+
+[entry
+    .std.print(
+        "the result is {
+            .myForwardedAdd(
+                1.0,
+                2.0)
+        }");
+];
