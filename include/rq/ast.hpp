@@ -1257,20 +1257,21 @@ enum class KeywordFlags : std::uint32_t {
   FINISHING_CHAINLINK = rq::getBit(9),
   IF_CHAINLINK = rq::getBit(10),
   ARM_CHAINLINK = rq::getBit(11),
+  EXPANSION = rq::getBit(12),
   // TRUNK
-  STATEMENT = rq::getBit(12),
-  RVALUE = rq::getBit(13),
-  LVALUE = rq::getBit(14),
-  REFLECTION = rq::getBit(15),
-  ARGUMENT = rq::getBit(16),
-  PARAMETER = rq::getBit(17),
-  BINDING = rq::getBit(18),
-  NAME = rq::getBit(19),
-  ASCRIPTION = rq::getBit(20),
-  TYPE_ATTRIBUTE = rq::getBit(21),
-  EXPRESSION_ATTRIBUTE = rq::getBit(22),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(23),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(24),
+  STATEMENT = rq::getBit(13),
+  RVALUE = rq::getBit(14),
+  LVALUE = rq::getBit(15),
+  REFLECTION = rq::getBit(16),
+  ARGUMENT = rq::getBit(17),
+  PARAMETER = rq::getBit(18),
+  BINDING = rq::getBit(19),
+  NAME = rq::getBit(20),
+  ASCRIPTION = rq::getBit(22),
+  TYPE_ATTRIBUTE = rq::getBit(23),
+  EXPRESSION_ATTRIBUTE = rq::getBit(24),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(26),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
@@ -1979,21 +1980,21 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::EXPAND:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::EXPAND_STATEMENT:
-    return KF::STATEMENT;
+    return KF::STATEMENT | KF::EXPANSION;
   case K::EXPAND_LVALUE:
-    return KF::LVALUE;
+    return KF::LVALUE | KF::EXPANSION;
   case K::EXPAND_RVALUE:
-    return KF::RVALUE;
+    return KF::RVALUE | KF::EXPANSION;
   case K::EXPAND_REFLECTION:
-    return KF::REFLECTION;
+    return KF::REFLECTION | KF::EXPANSION;
   case K::EXPAND_ARGUMENT:
-    return KF::ARGUMENT;
+    return KF::ARGUMENT | KF::EXPANSION;
   case K::EXPAND_PARAMETER:
-    return KF::PARAMETER;
+    return KF::PARAMETER | KF::EXPANSION;
   case K::EXPAND_NAME:
-    return KF::NAME;
+    return KF::NAME | KF::EXPANSION;
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
-    return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
+    return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION | KF::EXPANSION;
 
   // REFLECTIONS
   case K::REFLECT:
@@ -2186,6 +2187,11 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ARM_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::EXPANSION);
 }
 
 enum class Situation : std::uint_fast8_t {
@@ -3803,6 +3809,9 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
     return rq::getCanBeArmChainLink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion() const {
+    return rq::getIsExpansion(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
   getUniversalized(rq::Situation situation) const {
