@@ -1098,6 +1098,8 @@ bool Situator::situateTree(rq::Situation situation,
       rq::Expression &body = path.popNext();
       this->getContext().discardExpression(expression.replaceBranch(branch));
       rq::Expression &branch_next = branch.popNext();
+      branch.setIsHeader();
+      branch_next.setIsHeader();
       rq::Expression &nested_namespace = this->getContext().acquireExpression();
       nested_namespace.setIsInserted();
       nested_namespace.setSource(expression);
@@ -1111,6 +1113,7 @@ bool Situator::situateTree(rq::Situation situation,
           break;
         }
         rq::Expression &path_next = branch.popNext();
+        path_next.setIsHeader();
         rq::Expression &next_namespace = this->getContext().acquireExpression();
         next_namespace.setIsInserted();
         next_namespace.setSource(expression);

@@ -713,7 +713,6 @@ void Tabulator::tabulateGlobalVariable(
   variable.setTypeExpression(type_expression);
   variable.setValueExpression(value_expression_ptr);
   containing_table.addNamedSymbol(this->getContext(), name, variable);
-  // if (factory.getHasOpaque()) {
   //   if (!factory.getHasMangle()) {
   //     this->getContext().logErrorOpaqueNoMangle(unascribed_expression,
   //                                               factory.getOpaque());
