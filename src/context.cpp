@@ -560,6 +560,7 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
   case rq::EntityKind::SY_NAMESPACE: {
     const auto &namespace_ = llvm::cast<rq::Namespace>(symbol);
     json.emitString("name", namespace_.getName());
+    rq::emitSymbolTable(context, json, namespace_);
   } break;
   case rq::EntityKind::SY_CLASS: {
     const auto &class_ = llvm::cast<rq::Class>(symbol);
