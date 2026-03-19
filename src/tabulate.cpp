@@ -529,11 +529,23 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
         continue;
       }
       llvm::StringRef name = name_o.value();
-      // TODO look for existing namespace of name
-      rq::Namespace &namespace_ =
-          this->getContext().allocateValue<rq::Namespace>(name,
-                                                          containing_table);
-      containing_table.addNamedSymbol(this->getContext(), name, namespace_);
+      rq::BumpPtrListRef<rq::Symbol> name_list =
+          hosting_table.getNamedListRef(name);
+      rq::Namespace *namespace_ptr = nullptr;
+      for (rq::Symbol &symbol : name_list) {
+        if (llvm::isa<rq::Namespace>(symbol)) {
+          rq::Namespace &namespace_ = llvm::cast<rq::Namespace>(symbol);
+          rq::assignSingleValue(namespace_ptr, &namespace_);
+        }
+      }
+      if (namespace_ptr == nullptr) {
+        rq::Namespace &namespace_ =
+            this->getContext().allocateValue<rq::Namespace>(name,
+                                                            containing_table);
+        containing_table.addNamedSymbol(this->getContext(), name, namespace_);
+        namespace_ptr = &namespace_;
+      }
+      rq::Namespace &namespace_ = rq::dereferencePtr(namespace_ptr);
       if (name_expression.getHasNext()) {
         const rq::Expression &first_statement = name_expression.getNext();
         this->tabulateGlobalForest(first_statement, namespace_);
