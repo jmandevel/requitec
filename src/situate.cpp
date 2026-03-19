@@ -689,6 +689,31 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXTENSION_RANGER:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
+  case K::IMPLEMENT_FUNCTION:
+    [[fallthrough]];
+  case K::IMPLEMENT_METHOD:
+    [[fallthrough]];
+  case K::IMPLEMENT_RANGER:
+    [[fallthrough]];
+  case K::IMPLEMENT_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case K::IMPLEMENT_EXTENSION_METHOD:
+    [[fallthrough]];
+  case K::IMPLEMENT_EXTENSION_RANGER:
+    [[fallthrough]];
+  case K::SPECIALIZE_FUNCTION:
+    [[fallthrough]];
+  case K::SPECIALIZE_METHOD:
+    [[fallthrough]];
+  case K::SPECIALIZE_RANGER:
+    [[fallthrough]];
+  case K::SPECIALIZE_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case K::SPECIALIZE_EXTENSION_METHOD:
+    [[fallthrough]];
+  case K::SPECIALIZE_EXTENSION_RANGER:
+    is_ok = this->situateUnaryExpressionBranches(situation, expression, S::RVALUE);
+    break;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -779,8 +804,8 @@ bool Situator::situateTree(rq::Situation situation,
   }
   case K::CODE:
     if (situation == S::STATEMENT) {
-      is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::NAME);
+      is_ok =
+          this->situateUnaryExpressionBranches(situation, expression, S::NAME);
       break;
     }
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -1118,6 +1143,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MODULE_TRUNK:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
+  case K::NO_NAME:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
 
   // HINTS
   case K::DEBUG_TRAP:
@@ -1136,8 +1164,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::OUTSIDE:
-    is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                 S::NAME);
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::NAME);
     break;
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
@@ -1179,8 +1207,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MANGLE:
     switch (situation) {
     case S::EXPRESSION_ATTRIBUTE:
-      is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::NAME);
+      is_ok =
+          this->situateUnaryExpressionBranches(situation, expression, S::NAME);
       break;
     case S::REFLECTION:
       is_ok = this->situateNullaryExpression(situation, expression);
@@ -1193,8 +1221,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::LABEL:
-    is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                 S::NAME);
+    is_ok =
+        this->situateUnaryExpressionBranches(situation, expression, S::NAME);
     break;
   case K::TEMPLATE:
     is_ok =

@@ -172,6 +172,18 @@ enum class Keyword : std::uint32_t {
   EXTENSION_FUNCTION,
   EXTENSION_METHOD,
   EXTENSION_RANGER,
+  IMPLEMENT_FUNCTION,
+  IMPLEMENT_METHOD,
+  IMPLEMENT_RANGER,
+  IMPLEMENT_EXTENSION_FUNCTION,
+  IMPLEMENT_EXTENSION_METHOD,
+  IMPLEMENT_EXTENSION_RANGER,
+  SPECIALIZE_FUNCTION,
+  SPECIALIZE_METHOD,
+  SPECIALIZE_RANGER,
+  SPECIALIZE_EXTENSION_FUNCTION,
+  SPECIALIZE_EXTENSION_METHOD,
+  SPECIALIZE_EXTENSION_RANGER,
 
   // CONTROL FLOW
   RETURN,
@@ -710,6 +722,30 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "extension_method";
   case K::EXTENSION_RANGER:
     return "extension_ranger";
+  case K::IMPLEMENT_FUNCTION:
+    return "implement_function";
+  case K::IMPLEMENT_METHOD:
+    return "implement_method";
+  case K::IMPLEMENT_RANGER:
+    return "implement_ranger";
+  case K::IMPLEMENT_EXTENSION_FUNCTION:
+    return "implement_extension_function";
+  case K::IMPLEMENT_EXTENSION_METHOD:
+    return "implement_extension_method";
+  case K::IMPLEMENT_EXTENSION_RANGER:
+    return "implement_extension_ranger";
+  case K::SPECIALIZE_FUNCTION:
+    return "specialize_function";
+  case K::SPECIALIZE_METHOD:
+    return "sepcialize_method";
+  case K::SPECIALIZE_RANGER:
+    return "specialize_ranger";
+  case K::SPECIALIZE_EXTENSION_FUNCTION:
+    return "specialize_extension_function";
+  case K::SPECIALIZE_EXTENSION_METHOD:
+    return "specialize_extension_method";
+  case K::SPECIALIZE_EXTENSION_RANGER:
+    return "specialize_extension_ranger";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1471,7 +1507,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::IGNORE:
     return KF::STATEMENT;
   case K::SPECIALIZATION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::NAME;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // PROCEDURES
   case K::CALL:
@@ -1513,6 +1549,30 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::EXTENSION_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::EXTENSION_RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::IMPLEMENT_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::IMPLEMENT_METHOD:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::IMPLEMENT_RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+  case K::IMPLEMENT_EXTENSION_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::IMPLEMENT_EXTENSION_METHOD:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::IMPLEMENT_EXTENSION_RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::SPECIALIZE_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::SPECIALIZE_METHOD:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::SPECIALIZE_RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+  case K::SPECIALIZE_EXTENSION_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::SPECIALIZE_EXTENSION_METHOD:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::SPECIALIZE_EXTENSION_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // CONTROL FLOW
