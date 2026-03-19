@@ -4655,8 +4655,8 @@ using InstructionNext = llvm::PointerUnion<rq::Entity *, rq::InstructionNode *>;
 struct InstructionNode final {
   using Self = rq::InstructionNode;
 
-  rq::InstructionNext _car{nullptr};
-  rq::InstructionNext _cdr{nullptr};
+  rq::InstructionNext _head{nullptr};
+  rq::InstructionNext _tail{nullptr};
 
   InstructionNode() = default;
   InstructionNode(const Self &) = delete;
@@ -4665,17 +4665,17 @@ struct InstructionNode final {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getCar() {
-    return this->_car;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getHead() {
+    return this->_head;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getCdr() {
-    return this->_cdr;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getTail() {
+    return this->_tail;
   }
 
   RQ_ALWAYS_INLINE void clear() {
-    this->_car = nullptr;
-    this->_cdr = nullptr;
+    this->_head = nullptr;
+    this->_tail = nullptr;
   }
 };
 
@@ -4684,14 +4684,9 @@ template <> struct is_acquired<rq::InstructionNode> final : std::true_type {};
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
-  rq::InstructionNext _cdr;
+  rq::InstructionNext _tail;
 
   inline explicit Instruction() : Entity(rq::EntityKind::OP_NONE) {}
-
-  RQ_ALWAYS_INLINE void clear() {
-    this->_kind = rq::EntityKind::OP_NONE;
-    this->_cdr = nullptr;
-  }
 
   RQ_ALWAYS_INLINE void setOpcode(rq::EntityKind kind) {
     RQ_ASSERT(rq::getIsOpcode(kind), "not opcode");
@@ -4699,8 +4694,8 @@ struct Instruction : public rq::Entity {
     this->_kind = kind;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getCdr() {
-    return this->_cdr;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getTail() {
+    return this->_tail;
   }
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
