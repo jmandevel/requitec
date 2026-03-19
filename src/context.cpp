@@ -517,7 +517,7 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
                             const rq::SymbolTable &table) {
   json.beginArray("named");
-  for (const auto& [name, list] : table.getNamedSymbolsSubrange()) {
+  for (const auto &[name, list] : table.getNamedSymbolsSubrange()) {
     json.beginObject();
     json.emitString("name", name);
     json.beginArray("symbols");
@@ -1093,6 +1093,13 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
   return new_expression;
 }
 
+void Context::discardInstructionNext(rq::InstructionNext instruction_next) {
+  if (instruction_next.getIsNode()) {
+    rq::InstructionNode &node = instruction_next.getNode();
+    this->discardInstructionNode(node);
+  }
+}
+
 rq::InstructionNode &Context::acquireInstructionNode() {
   if (this->acquired._first_unused_instruction_node_ptr == nullptr) {
     rq::InstructionNode &new_node =
@@ -1102,7 +1109,8 @@ rq::InstructionNode &Context::acquireInstructionNode() {
   rq::InstructionNode &unused_node =
       rq::dereferencePtr(this->acquired._first_unused_instruction_node_ptr);
   this->acquired._first_unused_instruction_node_ptr =
-      llvm::cast<rq::InstructionNode *>(unused_node._car);
+      llvm::cast<rq::InstructionNode *>(unused_node._head._ptr);
+  std::memset(&unused_node, 0, sizeof(rq::InstructionNode));
   return unused_node;
 }
 
@@ -1115,7 +1123,8 @@ rq::Instruction &Context::acquireInstruction() {
   rq::Instruction &unused_instruction =
       rq::dereferencePtr(this->acquired._first_unused_instruction_ptr);
   this->acquired._first_unused_instruction_ptr = static_cast<rq::Instruction *>(
-      llvm::cast<rq::Entity *>(unused_instruction._cdr));
+      llvm::cast<rq::Entity *>(unused_instruction._tail._ptr));
+  std::memset(&unused_instruction, 0, sizeof(rq::Instruction));
   return unused_instruction;
 }
 

@@ -4650,13 +4650,44 @@ template <> struct is_acquired<rq::ArrayConstant> final : std::true_type {};
 
 struct InstructionNode;
 
-using InstructionNext = llvm::PointerUnion<rq::Entity *, rq::InstructionNode *>;
+struct InstructionNext {
+  using Self = rq::InstructionNext;
+
+  llvm::PointerUnion<rq::Entity *, rq::InstructionNode *>
+      _ptr{nullptr};
+
+  InstructionNext() = default;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEntity() const {
+    return llvm::isa<rq::Entity*>(this->_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNode() const {
+    return llvm::isa<rq::InstructionNode*>(this->_ptr);
+  }
+  RQ_ALWAYS_INLINE void setEntity(rq::Entity& entity) {
+    this->_ptr = &entity;
+  }
+  RQ_ALWAYS_INLINE void setNode(rq::InstructionNode& node) {
+    this->_ptr = &node;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
+    return rq::dereferencePtr(llvm::cast<rq::Entity*>(this->_ptr));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
+    return rq::dereferencePtr(llvm::cast<rq::Entity*>(this->_ptr));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNode &getNode() const {
+    return rq::dereferencePtr(llvm::cast<rq::InstructionNode*>(this->_ptr));
+  }
+    [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNode &getNode() {
+    return rq::dereferencePtr(llvm::cast<rq::InstructionNode*>(this->_ptr));
+  }
+};
 
 struct InstructionNode final {
   using Self = rq::InstructionNode;
 
-  rq::InstructionNext _head{nullptr};
-  rq::InstructionNext _tail{nullptr};
+  rq::InstructionNext _head{};
+  rq::InstructionNext _tail{};
 
   InstructionNode() = default;
   InstructionNode(const Self &) = delete;
@@ -4665,17 +4696,20 @@ struct InstructionNode final {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNext &getHead() const {
+    return this->_head;
+  }
+
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getHead() {
     return this->_head;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getTail() {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InstructionNext &getTail() const {
     return this->_tail;
   }
 
-  RQ_ALWAYS_INLINE void clear() {
-    this->_head = nullptr;
-    this->_tail = nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InstructionNext &getTail() {
+    return this->_tail;
   }
 };
 
@@ -4684,7 +4718,7 @@ template <> struct is_acquired<rq::InstructionNode> final : std::true_type {};
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
-  rq::InstructionNext _tail;
+  rq::InstructionNext _tail{};
 
   inline explicit Instruction() : Entity(rq::EntityKind::OP_NONE) {}
 

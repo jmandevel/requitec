@@ -78,7 +78,7 @@ struct Context final : public rq::BumpPtrAllocator {
   struct {
     rq::Expression *_first_unused_expression_ptr{nullptr};
     rq::Instruction *_first_unused_instruction_ptr{nullptr};
-    rq::InstructionNode* _first_unused_instruction_node_ptr{nullptr};
+    rq::InstructionNode *_first_unused_instruction_node_ptr{nullptr};
     rq::Inference _inference{};
     rq::GenericSymbol _generic_symbol{};
     rq::GenericType _generic_type{};
@@ -127,9 +127,7 @@ struct Context final : public rq::BumpPtrAllocator {
       : _executable_path(std::move(executable_path)) {}
   Context(const Self &) = delete;
   Context(Self &&) = delete;
-  inline ~Context() {
-    this->_top.release();
-  }
+  inline ~Context() { this->_top.release(); }
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
@@ -297,9 +295,10 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorNotInTop(const rq::Expression &expression);
   void logErrorUnableToEvaluateName(const rq::Expression &expression);
   void logErrorUnableToEvaluateUtf8Cstr(const rq::Expression &expression);
-    void logErrorFailedToImportModule(const rq::Expression &expression, llvm::StringRef path);
-    void logErrorOutsideNotInFrame(const rq::Expression& outside_expression);
-    void logErrorOutsideNotAncestor(const rq::Expression& outside_expression);
+  void logErrorFailedToImportModule(const rq::Expression &expression,
+                                    llvm::StringRef path);
+  void logErrorOutsideNotInFrame(const rq::Expression &outside_expression);
+  void logErrorOutsideNotAncestor(const rq::Expression &outside_expression);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
@@ -310,18 +309,18 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
   [[nodiscard]] rq::InstructionNode &acquireInstructionNode();
+  void discardInstructionNext(rq::InstructionNext instruction_next);
   inline void discardInstructionNode(rq::InstructionNode &instruction_node) {
-    RQ_ASSERT(instruction_node.getCar().isNull(), "has car");
-    RQ_ASSERT(instruction_node.getCdr().isNull(), "has cdr");
-    instruction_node.clear();
-    instruction_node._car = this->acquired._first_unused_instruction_node_ptr;
+    this->discardInstructionNext(instruction_node.getHead());
+    this->discardInstructionNext(instruction_node.getTail());
+    instruction_node._head._ptr =
+        this->acquired._first_unused_instruction_node_ptr;
     this->acquired._first_unused_instruction_node_ptr = &instruction_node;
   }
   [[nodiscard]] rq::Instruction &acquireInstruction();
   inline void discardInstruction(rq::Instruction &instruction) {
-    RQ_ASSERT(instruction.getCdr().isNull(), "has cdr");
-    instruction.clear();
-    instruction._cdr = this->acquired._first_unused_instruction_ptr;
+    this->discardInstructionNext(instruction.getTail());
+    instruction._tail._ptr = this->acquired._first_unused_instruction_ptr;
     this->acquired._first_unused_instruction_ptr = &instruction;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Inference &acquireInference() {
@@ -695,4 +694,5 @@ struct Context final : public rq::BumpPtrAllocator {
     return new_type;
   }
 };
+
 } // namespace rq
