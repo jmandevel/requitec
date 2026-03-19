@@ -397,7 +397,7 @@ enum class Keyword : std::uint32_t {
   EXPAND_REFLECTION,
   EXPAND_ARGUMENT,
   EXPAND_PARAMETER,
-  EXPAND_SYMBOL_PATH,
+  EXPAND_NAME,
   EXPAND_ARITHMETIC_SEQUENCE_STAGE,
 
   // REFLECTIONS
@@ -1111,8 +1111,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_expand_argument";
   case K::EXPAND_PARAMETER:
     return "_expand_parameter";
-  case K::EXPAND_SYMBOL_PATH:
-    return "_expand_symbol_path";
+  case K::EXPAND_NAME:
+    return "_expand_name";
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return "_expand_arithmetic_sequence_stage";
 
@@ -1226,14 +1226,14 @@ enum class KeywordFlags : std::uint32_t {
   ARGUMENT = rq::getBit(16),
   PARAMETER = rq::getBit(17),
   BINDING = rq::getBit(18),
-  SYMBOL_PATH = rq::getBit(19),
+  NAME = rq::getBit(19),
   ASCRIPTION = rq::getBit(20),
   TYPE_ATTRIBUTE = rq::getBit(21),
   EXPRESSION_ATTRIBUTE = rq::getBit(22),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(23),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(24),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
-                   PARAMETER | BINDING | SYMBOL_PATH | ASCRIPTION |
+                   PARAMETER | BINDING | NAME | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
@@ -1269,7 +1269,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::IDENTIFIER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
-           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH;
+           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::NAME;
 
   // ERRORS
   case K::ERROR:
@@ -1278,7 +1278,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE |
-           KF::SYMBOL_PATH | KF::ARITHMETIC_SEQUENCE_STEP |
+           KF::NAME | KF::ARITHMETIC_SEQUENCE_STEP |
            KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
@@ -1326,7 +1326,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::ASCRIBE_ROOT_OF_VALUE:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::IDENTIFY:
-    return KF::SYMBOL_PATH | KF::RVALUE | KF::ARGUMENT;
+    return KF::NAME | KF::RVALUE | KF::ARGUMENT;
   case K::KEYWORDIFY:
     return KF::RVALUE | KF::ARGUMENT;
 
@@ -1468,7 +1468,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::IGNORE:
     return KF::STATEMENT;
   case K::SPECIALIZATION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::NAME;
 
   // PROCEDURES
   case K::CALL:
@@ -1645,7 +1645,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::VARIADIC_LIST:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER; 
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES
   case K::IF:
@@ -1925,28 +1925,24 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::ARGUMENT;
   case K::EXPAND_PARAMETER:
     return KF::PARAMETER;
-  case K::EXPAND_SYMBOL_PATH:
-    return KF::SYMBOL_PATH;
+  case K::EXPAND_NAME:
+    return KF::NAME;
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
 
   // REFLECTIONS
   case K::REFLECT:
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
-           KF::ARGUMENT | KF::PARAMETER | KF::SYMBOL_PATH |
+           KF::ARGUMENT | KF::PARAMETER |
            KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::MEMBER_OF:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
-           KF::SYMBOL_PATH;
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MEMBER_OF_TOP:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
-           KF::SYMBOL_PATH;
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCEND_FRAME:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
-           KF::SYMBOL_PATH;
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCEND_FRAME_OF:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER |
-           KF::SYMBOL_PATH;
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BYTE_SIZE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::BYTE_SIZE_OF:
@@ -2137,7 +2133,7 @@ enum class Situation : std::uint_fast8_t {
   ARGUMENT,
   PARAMETER,
   BINDING,
-  SYMBOL_PATH,
+  NAME,
   ASCRIPTION,
   TYPE_ATTRIBUTE,
   EXPRESSION_ATTRIBUTE,
@@ -2167,8 +2163,8 @@ getDescription(rq::Situation situation) {
     return "parameter expression";
   case S::BINDING:
     return "binding expression";
-  case S::SYMBOL_PATH:
-    return "symbol path expression";
+  case S::NAME:
+    return "symbol name expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::TYPE_ATTRIBUTE:
@@ -2203,8 +2199,8 @@ getDescription(rq::Situation situation) {
     return K::EXPAND_PARAMETER;
   case S::BINDING:
     break;
-  case S::SYMBOL_PATH:
-    return K::EXPAND_SYMBOL_PATH;
+  case S::NAME:
+    return K::EXPAND_NAME;
   case S::ASCRIPTION:
   case S::TYPE_ATTRIBUTE:
   case S::EXPRESSION_ATTRIBUTE:
@@ -2234,8 +2230,8 @@ getDescription(rq::Situation situation) {
     return S::ARGUMENT;
   case K::EXPAND_PARAMETER:
     return S::PARAMETER;
-  case K::EXPAND_SYMBOL_PATH:
-    return S::SYMBOL_PATH;
+  case K::EXPAND_NAME:
+    return S::NAME;
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return S::ARITHMETIC_SEQUENCE_STAGE;
   default:
@@ -2421,9 +2417,9 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordFlags::BINDING);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolPath(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeName(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::SYMBOL_PATH);
+  return rq::getHasAll(flags, rq::KeywordFlags::NAME);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
@@ -2482,8 +2478,8 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeParameter(keyword);
   case rq::Situation::BINDING:
     return rq::getCanBeBinding(keyword);
-  case rq::Situation::SYMBOL_PATH:
-    return rq::getCanBeSymbolPath(keyword);
+  case rq::Situation::NAME:
+    return rq::getCanBeName(keyword);
   case rq::Situation::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case rq::Situation::TYPE_ATTRIBUTE:
@@ -2966,6 +2962,10 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const {
     return this->_flags;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getHasAtttribute(rq::ExpressionAttribute attribute) const {
+    return rq::getHasAttribute(this->getFlags(), attribute);
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const {
     return rq::getHasOpaque(this->_flags);
   }
@@ -3050,120 +3050,186 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMessage() const {
     return rq::getHasMessage(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getOpaque() const {
+  [[nodiscard]] inline const rq::Expression &
+  getExpression(rq::ExpressionAttribute attribute) const {
+    using EA = rq::ExpressionAttribute;
+    switch (attribute) {
+    case EA::OPAQUE:
+      return rq::dereferencePtr(this->_opaque_ptr);
+    case EA::OUTSIDE:
+      return rq::dereferencePtr(this->_outside_ptr);
+    case EA::PARTIAL_MUTATE:
+      return rq::dereferencePtr(this->_partial_mutate_ptr);
+    case EA::STATIC:
+      return rq::dereferencePtr(this->_static_ptr);
+    case EA::CAPTURE:
+      return rq::dereferencePtr(this->_capture_ptr);
+    case EA::EAGER:
+      return rq::dereferencePtr(this->_eager_ptr);
+    case EA::MAY_PARENT:
+      return rq::dereferencePtr(this->_may_parent_ptr);
+    case EA::PARENT:
+      return rq::dereferencePtr(this->_parent_ptr);
+    case EA::ABSTRACT:
+      return rq::dereferencePtr(this->_abstract_ptr);
+    case EA::VIRTUAL:
+      return rq::dereferencePtr(this->_virtual_ptr);
+    case EA::OVERRIDE:
+      return rq::dereferencePtr(this->_override_ptr);
+    case EA::LOCATION:
+      return rq::dereferencePtr(this->_location_ptr);
+    case EA::MANGLE:
+      return rq::dereferencePtr(this->_mangle_ptr);
+    case EA::PACK:
+      return rq::dereferencePtr(this->_pack_ptr);
+    case EA::LABEL:
+      return rq::dereferencePtr(this->_label_ptr);
+    case EA::TEMPLATE:
+      return rq::dereferencePtr(this->_template_ptr);
+    case EA::LIKELY:
+      return rq::dereferencePtr(this->_likely_ptr);
+    case EA::UNLIKELY:
+      return rq::dereferencePtr(this->_unlikely_ptr);
+    case EA::DEPRECIATED:
+      return rq::dereferencePtr(this->_depreciated_ptr);
+    case EA::EXPORT:
+      return rq::dereferencePtr(this->_export_ptr);
+    case EA::PUBLIC:
+      return rq::dereferencePtr(this->_public_ptr);
+    case EA::PROTECTED:
+      return rq::dereferencePtr(this->_protected_ptr);
+    case EA::MAY_COPY:
+      return rq::dereferencePtr(this->_may_copy_ptr);
+    case EA::MAY_MOVE:
+      return rq::dereferencePtr(this->_may_move_ptr);
+    case EA::AUTO_DROP:
+      return rq::dereferencePtr(this->_auto_drop_ptr);
+    case EA::DEFER:
+      return rq::dereferencePtr(this->_defer_ptr);
+    case EA::OK:
+      return rq::dereferencePtr(this->_ok_ptr);
+    case EA::MESSAGE:
+      return rq::dereferencePtr(this->_message_ptr);
+    case EA::NONE:
+      [[fallthrough]];
+    case EA::LAST:
+      break;
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOpaque() const {
     RQ_ASSERT(this->getHasOpaque(), "no opaque");
     return rq::dereferencePtr(this->_opaque_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getOutside() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOutside() const {
     RQ_ASSERT(this->getHasOutside(), "no outside");
     return rq::dereferencePtr(this->_outside_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression&
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getPartialMutate() const {
     RQ_ASSERT(this->getHasPartialMutate(), "no partial mutate");
     return rq::dereferencePtr(this->_partial_mutate_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getStatic() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatic() const {
     RQ_ASSERT(this->getHasStatic(), "no static");
     return rq::dereferencePtr(this->_static_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getCapture() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getCapture() const {
     RQ_ASSERT(this->getHasCapture(), "no capture");
     return rq::dereferencePtr(this->_capture_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getEager() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getEager() const {
     RQ_ASSERT(this->getHasEager(), "no eager");
     return rq::dereferencePtr(this->_eager_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getMayParent() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMayParent() const {
     RQ_ASSERT(this->getHasMayParent(), "no may parent");
     return rq::dereferencePtr(this->_may_parent_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getParent() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getParent() const {
     RQ_ASSERT(this->getHasParent(), "no parent");
     return rq::dereferencePtr(this->_parent_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getAbstract() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAbstract() const {
     RQ_ASSERT(this->getHasAbstract(), "no abstract");
     return rq::dereferencePtr(this->_abstract_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getVirtual() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getVirtual() const {
     RQ_ASSERT(this->getHasVirtual(), "no virtual");
     return rq::dereferencePtr(this->_virtual_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getOverride() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOverride() const {
     RQ_ASSERT(this->getHasOverride(), "no override");
     return rq::dereferencePtr(this->_override_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getLocation() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLocation() const {
     RQ_ASSERT(this->getHasLocation(), "no location");
     return rq::dereferencePtr(this->_location_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getMangle() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMangle() const {
     RQ_ASSERT(this->getHasMangle(), "no mangle");
     return rq::dereferencePtr(this->_mangle_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getPack() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPack() const {
     RQ_ASSERT(this->getHasPack(), "no pack");
     return rq::dereferencePtr(this->_pack_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getLabel() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLabel() const {
     RQ_ASSERT(this->getHasLabel(), "no label");
     return rq::dereferencePtr(this->_label_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getTemplate() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTemplate() const {
     RQ_ASSERT(this->getHasTemplate(), "no template");
     return rq::dereferencePtr(this->_template_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getLikely() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLikely() const {
     RQ_ASSERT(this->getHasLikely(), "no likely");
     return rq::dereferencePtr(this->_likely_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getUnlikely() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getUnlikely() const {
     RQ_ASSERT(this->getHasUnlikely(), "no unlikely");
     return rq::dereferencePtr(this->_unlikely_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getDepreciated() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getDepreciated() const {
     RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
     return rq::dereferencePtr(this->_depreciated_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getExport() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExport() const {
     RQ_ASSERT(this->getHasExport(), "no export");
     return rq::dereferencePtr(this->_export_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getPublic() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPublic() const {
     RQ_ASSERT(this->getHasPublic(), "no public");
     return rq::dereferencePtr(this->_public_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getProtected() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getProtected() const {
     RQ_ASSERT(this->getHasProtected(), "no protected");
     return rq::dereferencePtr(this->_protected_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getMayCopy() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMayCopy() const {
     RQ_ASSERT(this->getHasMayCopy(), "no may copy");
     return rq::dereferencePtr(this->_may_copy_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getMayMove() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMayMove() const {
     RQ_ASSERT(this->getHasMayMove(), "no may move");
     return rq::dereferencePtr(this->_may_move_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getAutoDrop() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAutoDrop() const {
     RQ_ASSERT(this->getHasAutoDrop(), "no auto drop");
     return rq::dereferencePtr(this->_auto_drop_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getDefer() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getDefer() const {
     RQ_ASSERT(this->getHasDefer(), "no defer");
     return rq::dereferencePtr(this->_defer_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getOk() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOk() const {
     RQ_ASSERT(this->getHasOk(), "no ok");
     return rq::dereferencePtr(this->_ok_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getMessage() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMessage() const {
     RQ_ASSERT(this->getHasMessage(), "no message");
     return rq::dereferencePtr(this->_message_ptr);
   }
-  
 };
 
 enum class TypeAttribute : std::uint_fast8_t {
@@ -3707,8 +3773,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeBinding() const {
     return rq::getCanBeBinding(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSymbolPath() const {
-    return rq::getCanBeSymbolPath(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeName() const {
+    return rq::getCanBeName(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());
@@ -4213,7 +4279,7 @@ ExpressionFlagsFactory::addAttribute(const rq::Expression &expression) {
   case K::MESSAGE:
     rq::assignSingleValue(this->_message_ptr, &expression);
     break;
-  
+
   default:
     break;
   }

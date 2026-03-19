@@ -588,7 +588,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::NAMED_ARGUMENT:
     is_ok = this->situateBinaryExpressionBranches(situation, expression,
-                                                  S::SYMBOL_PATH, S::RVALUE);
+                                                  S::NAME, S::RVALUE);
     break;
   case K::INDEX_INTO:
     is_ok = this->situateBinaryExpressionBranches(situation, expression,
@@ -651,7 +651,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateHeaderBranch(S::SYMBOL_PATH, branch0)) {
+    if (!this->situateHeaderBranch(S::NAME, branch0)) {
       is_ok = false;
     }
     if (!branch0.getHasNext()) {
@@ -723,7 +723,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateHeaderBranch(S::SYMBOL_PATH, branch0)) {
+    if (!this->situateHeaderBranch(S::NAME, branch0)) {
       is_ok = false;
     }
     bool found_rvalue_header = false;
@@ -754,7 +754,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateHeaderBranch(S::SYMBOL_PATH, branch0)) {
+    if (!this->situateHeaderBranch(S::NAME, branch0)) {
       is_ok = false;
     }
     if (!branch0.getHasNext()) {
@@ -780,7 +780,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::CODE:
     if (situation == S::STATEMENT) {
       is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::SYMBOL_PATH);
+                                                   S::NAME);
       break;
     }
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -793,7 +793,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateHeaderBranch(S::SYMBOL_PATH, branch0)) {
+    if (!this->situateHeaderBranch(S::NAME, branch0)) {
       is_ok = false;
     }
     if (!branch0.getHasNext()) {
@@ -1110,7 +1110,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::NAMESPACE:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::SYMBOL_PATH);
+                                                          S::NAME);
     break;
   case K::C:
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -1137,7 +1137,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::OUTSIDE:
     is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                 S::SYMBOL_PATH);
+                                                 S::NAME);
     break;
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
@@ -1180,7 +1180,7 @@ bool Situator::situateTree(rq::Situation situation,
     switch (situation) {
     case S::EXPRESSION_ATTRIBUTE:
       is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                   S::SYMBOL_PATH);
+                                                   S::NAME);
       break;
     case S::REFLECTION:
       is_ok = this->situateNullaryExpression(situation, expression);
@@ -1194,7 +1194,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::LABEL:
     is_ok = this->situateUnaryExpressionBranches(situation, expression,
-                                                 S::SYMBOL_PATH);
+                                                 S::NAME);
     break;
   case K::TEMPLATE:
     is_ok =
@@ -1258,7 +1258,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXPAND_PARAMETER:
     [[fallthrough]];
-  case K::EXPAND_SYMBOL_PATH:
+  case K::EXPAND_NAME:
     [[fallthrough]];
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     [[fallthrough]];
@@ -1873,7 +1873,7 @@ bool Situator::situateNamedMemberProcedure(rq::Situation situation,
     return is_ok;
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (!this->situateHeaderBranch(rq::Situation::SYMBOL_PATH, branch0)) {
+  if (!this->situateHeaderBranch(rq::Situation::NAME, branch0)) {
     is_ok = false;
   }
   if (!branch0.getHasNext()) {
