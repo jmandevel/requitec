@@ -3448,7 +3448,7 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   [[nodiscard]] inline std::ranges::subrange<
       rq::ConstNamedSymbolIterator, rq::ConstNamedSymbolIterator,
       std::ranges::subrange_kind::unsized>
-  getNamedSymbolsRange() const {
+  getNamedSymbolsSubrange() const {
     return std::ranges::subrange<rq::ConstNamedSymbolIterator,
                                  rq::ConstNamedSymbolIterator,
                                  std::ranges::subrange_kind::unsized>(
@@ -3457,7 +3457,7 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   }
   std::ranges::subrange<rq::NamedSymbolIterator, rq::NamedSymbolIterator,
                         std::ranges::subrange_kind::unsized>
-  getNamedSymbolsRange() {
+  getNamedSymbolsSubrange() {
     return std::ranges::subrange<rq::NamedSymbolIterator,
                                  rq::NamedSymbolIterator,
                                  std::ranges::subrange_kind::unsized>(
@@ -3467,7 +3467,7 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   [[nodiscard]] inline std::ranges::subrange<
       rq::ConstSymbolTableIterator, rq::ConstSymbolTableIterator,
       std::ranges::subrange_kind::unsized>
-  getInclusiveFrameRange() const {
+  getInclusiveFrameSubrange() const {
     return std::ranges::subrange<rq::ConstSymbolTableIterator,
                                  rq::ConstSymbolTableIterator,
                                  std::ranges::subrange_kind::unsized>(
@@ -3475,7 +3475,7 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   }
   std::ranges::subrange<rq::SymbolTableIterator, rq::SymbolTableIterator,
                         std::ranges::subrange_kind::unsized>
-  getInclusiveFrameRange() {
+  getInclusiveFrameSubrange() {
     return std::ranges::subrange<rq::SymbolTableIterator,
                                  rq::SymbolTableIterator,
                                  std::ranges::subrange_kind::unsized>(
