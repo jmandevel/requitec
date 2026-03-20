@@ -2050,7 +2050,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::HOLDS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
+    return KF::REFLECTION |
            KF::UNIVERSALIZABLE;
   case K::TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
