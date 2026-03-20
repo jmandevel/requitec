@@ -1,11 +1,11 @@
 
 [namespace example,
-    @template::{> Type:[type], LENGTH:[integer].[unsigned].[index_depth] <}
+    @template::{> Type:[concrete], LENGTH:[integer].[unsigned].[index_depth] <}
     [extension_function getElementCount, LENGTH#Type, (><)[integer].[unsigned].[index_depth],
         [result] := LENGTH;
     ];
 
-    @template::{> Type:[type], LENGTH:[integer].[unsigned].[index_depth] <}
+    @template::{> Type:[concrete], LENGTH:[integer].[unsigned].[index_depth] <}
     [extension_method getElementCount, &LENGTH#Type=>(><)[integer].[unsigned].[index_depth] ,
         [result] := LENGTH;
     ];
