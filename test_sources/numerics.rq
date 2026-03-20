@@ -86,7 +86,7 @@
 
     // there are NO implicit conversions in requite
     // this is even the case when dealing with builtin numerics of different types!
-    x :[integer].[unsigned].[exact 64]= 0.[as [integer].[unsigned].[exact 64]]; // compiler error!
+    x :[integer].[unsigned].[exact 64]= 0.[as [integer].[signed].[exact 64]]; // compiler error!
 
     // this is the case even if the underlying types are the same on the current platform
     y :[binary32]= 0.0.[as [single]]; // compiler error!

@@ -1,0 +1,20 @@
+
+@static
+concrete_integer_type      : [integer].[concrete] = [integer].[unsigned].[exact 32];
+
+@static
+generic_integer_type       : [integer].[generic]  = [integer].[unsigned];
+
+@static
+generic_or_concrete_integer_type   : [integer].[like] = [integer].[unsigned];
+ 
+integer_value_of_any_type  : [integer]            = 0;
+
+@template::{> Type:[integer].[concrete] }
+[function addA, (> a:Type, b:Type )Type,
+    [result] := a + b;
+];
+
+[function addB, (> a:[integer], b:[integer] )[integer],
+    [result] := a + b;
+];
