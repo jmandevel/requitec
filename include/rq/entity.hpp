@@ -3788,9 +3788,7 @@ struct Procedure : public rq::SymbolTable,
   const rq::Expression *_body_start_ptr{nullptr};
   rq::Instruction *_instruction_ptr{nullptr};
 
-  llvm::FunctionType *llvm_function_type_ptr{nullptr};
-  llvm::Function *llvm_function_ptr{nullptr};
-  llvm::BasicBlock *llvm_block_ptr{nullptr};
+  llvm::Function *_llvm_function_ptr{nullptr};
 
   inline explicit Procedure(rq::EntityKind k, llvm::StringRef name,
 
@@ -3856,6 +3854,15 @@ struct Procedure : public rq::SymbolTable,
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getBodyStartExpression() const {
     return rq::dereferencePtr(this->_body_start_ptr);
+  }
+  RQ_ALWAYS_INLINE void setLlvmFunctionPtr(llvm::Function* llvm_function_ptr) {
+    rq::assignSingleValue(this->_llvm_function_ptr, llvm_function_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Function* getLlvmFunctionPtr() const {
+    return this->_llvm_function_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Function* getLlvmFunctionPtr() {
+    return this->_llvm_function_ptr;
   }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsProcedure(rq::dereferencePtr(entity).getKind());
