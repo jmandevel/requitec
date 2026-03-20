@@ -1,97 +1,57 @@
-// NOTE: types in requite can have no implicit conversions, even from literals!
-// If you want to change from one numeric type to another you always must cast.
-
-// NOTE: no implicit casting between types even if they share the same underlying type.
-
 [entry
-    // concrete integers are written as [integer] followed by .[signed] or .[unsigned] 
-    // followed by .[least N] .[fast N] or .[exact N] where N is an integer literal representing a bit depth
-    // N cannot be anything other than a literal unless followed by .[synonym].
-    // synonym types are unique and dont allow implicit conversions.
-    // This is to maintain strong typing with explicit casts across platforms. (see casts.rq)
-    // examples:
-    // [integer].[signed].[exact 8] // a signed integer that is exactly 8 bits
-    // [integer].[unsigned].[fast 32] // an unsigned integer that is the fastest size that is at least 32 bits.
-    // [integer].[signed].[least 16] // a signed integer that is the least native platform size that is at least 16 bits.
+    // specify type in binding
+    var0 :[signed_integer 32] =0;
 
-    // if no type specified and no type can be inferred, integer literals become [integer].[signed].[fast 32]
-    // this is the fastest signed integer type that is supported on the platform with at least 32 bits
-    a := 0; // [integer].[signed].[fast 32]
+    // can also cast literal using .[as]
+    // binding type is inferred from the rvalue
+    var1 := 0.[as [signed_integer 32]];
 
-    // type can be set explicitly by binding type to variable with colon operator
-    // this is smallest native supported integer size that is at least 64 bits
-    b: [integer].[unsigned].[least 64] = 0; // [integer].[unsigned].[least 64]
+    // if no type is specified, integer literal is infered to [fast_signed_integer 32]
+    var2 := 0;
 
-    // can use .[as] reflection to specify type of literal
-    // if used, then the literal is treated as the specified type.
-    c := 0.[as [integer].[signed].[exact 16]]; // signed integer size that is exactly 16 bits
+    // for unsigned integers at least 32 bits in size:
+    // exact is [unsigned_integer 32]
+    // fastest is [fast_unsigned_integer 32]
+    // min bits with regsiter size on platform is [least_unsigned_integer 32]
+    var3 :[unsigned_integer 32] =0;
+    var4 :[fast_unsigned_integer 32] =0;
+    var5 :[least_unsigned_integer 32] =0;
 
-    // generic integer types could be missing signeness and always are missing bit depth
-    // these are used for deductive type inferencing to say that "any integer type of this criteria is allowed."
-    // examples:
-    // [integer] // generic integer type that accepts any integer
-    // [integer].[signed] // accepts any signed integer
-    // [integer].[unsigned] // accepts any unsigned integer
-    // [signed] // accepts any signed number (also could be float, which are described bellow)
+    // special sizes:
+    // [signed_address] and [unsigned_address] for memory address sized integers
+    // [signed_index] and [unsigned_index] for memyr address index sized integers
+    var6 :[signed_address] =0;
+    var7 :[unsigned_address] =0;
+    var8 :[signed_address] =0;
+    var9 :[unsigned_address] =0;
 
-    // can assign concrete type generic type
-    // it is inferred to be the concrete type
-    d :[integer]= 0.[as [integer].[signed].[fast 16]];
+    // there are platform-changing float types:
+    // [half] [single] [double] [quadruple]
+    var10 :[half] =0;
+    var11 :[single] =0;
+    var12 :[double] =0;
+    var13 :[quadruple] =0;
+
+    // you can use specific floating point formats instead:
+    // [binary16] [binary32] [binary64] [binary128] [bfloat16]
+    var14 :[binary16] =0;
+    var16 :[binary32] =0;
+    var17 :[binary64] =0;
+    var18 :[binary128] =0;
+    var19 :[bfloat16] =0;
+
+    // integers can be written with any base from 2 to 64
+    // bases above 35 are case sensitive
+    var20 :[unsigned_integer 32] =2x101;
+    var21 :[unsigned_integer 64] =16xDeadBeef;
+    var22 :[unsigned_integer 512] =16xLinux_Beats_All;
+
+    // underscores in integers are ignored
+    var23 :[unsigned_integer 128] =16xBeef_Babe;
+
+    // floats can be written with decimal
+    var24 :[single] =3.14;
     
-    // can assign generic type type to concrete type
-    // it is inferred to be the concrete type
-    e :[integer].[signed].[exact 32]= 0.[as [integer].[signed]]; // [integer].[signed].[exact 32]
-
-    // can specify a custom base for integer literals 
-    // can support any base from 2 to 64, including non power of two bases
-    f:= 16xDeadBeef;     // bases less than 35 are not case sensitive
-    g:= 2x011011011;     
-    h:[integer].[signed].[exact 1024]= 64x0aAbBcC?!dD;  // ? is a digit with value 62 and ! is a digit with value 63
-
-    // can ignore underscores in literal digits
-    i: [integer].[signed].[exact 512] = 123_456_789;
-
-    // special types for indexing memory and addresses
-    j: [integer].[unsigned].[index_depth] = 100; // unsigned index (like std::size_t in c++)
-    k: [integer].[signed].[address_depth] = 100; // signed address (like std::ptrdiff_t in c++)
-
-    // can write floats when adding a decimal point 
-    // the decimal point must have a decimal digit before and after
-    // floats cannot have a base
-    // the default float type is a single, which uses and underlying type dependent on the platform
-    l := 0.0; // single
-
-    // there are four platform floating point types
-    // these each have an "underlying" type, which is different depending on the platform you are compiling for
-    m: [half]      = 0;  // usually underlying binary16
-    m: [single]    = 0;  // usually underlying binary32
-    n: [double]    = 0;  // usually underlying binary64
-    o: [quadruple] = 0;  // usually underlying binary128
-
-    // can create float based on exact type instead of platform type
-    // if the type is not supported on the current platform, this results in a compiler error
-    p: [binary16]  = 0;  // binary32
-    q: [binary32]  = 0;  // binary32
-    r: [binary64]  = 0;  // binary64
-    s: [binary128] = 0;  // binary128
-    t: [bfloat16]  = 0;  // bfloat16
-
-    // there are generic floating point types as well
-    //   binary - for any binary 
-    //   bfloat - for any bfloat (the only that exists currently is bfloat16, so its always bfloat16)
-    //   float  - for any float (including binary, bfloat, etc)
-    u: [binary32] = 0.[as [binary]];
-    v: [bfloat16] = 0.[as [bfloat]];
-    w: [binary64] = 0.[as [float]];
-
-    // there are NO implicit conversions in requite
-    // this is even the case when dealing with builtin numerics of different types!
-    x :[integer].[unsigned].[exact 64]= 0.[as [integer].[signed].[exact 64]]; // compiler error!
-
-    // this is the case even if the underlying types are the same on the current platform
-    y :[binary32]= 0.0.[as [single]]; // compiler error!
-    z :[integer].[unsigned].[exact 64]=0.[as [integer].[unsigned].[index_depth]]; // compiler error!
-
     // if you want to convert between types, you need to use casts
     // see casts.rq
 ];

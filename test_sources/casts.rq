@@ -6,19 +6,19 @@
   // casts are always done with reflections with dot operator (.)
   
   // to explicitly declare the type of a literal, use .[as]
-  var0 := 0.[as [integer].[signed].[exact 32]];
+  var0 := 0.[as [signed_integer 32]];
   var1 := 2.18.[as [double]];
 
   // to explicitly declare the type of elements of an initializer list, use .[of]
-  var_list := [initializer_list 0, 1, 2, 3, 4, 5].[of [integer].[signed].[address_depth]]; // of type 6#[integer].[signed].[address_depth]
+  var_list := [initializer_list 0, 1, 2, 3, 4, 5].[of [signed_address]]; // of type 6#[signed_address]
 
   // if you want a variable to be mutable, it should be in the binding, not the cast
   // add a grave operator (`) in front of type to make it mutable
   // if there is an equal operator directly after, this an an "operator combination"
   // the compiler will insert an inference before the equal operator
   // so the type that is mutable is inferred from the rvalue
-  var2 :`= 1337.[as [integer].[signed].[fast 8]];
-  var3 :`= 1323.[as [integer].[signed].[fast 64]];
+  var2 :`= 1337.[as [fast_signed_integer 8]];
+  var3 :`= 1323.[as [fast_signed_integer 64]];
   var4 :`= 3.14.[as [single]];
 
   // mutable variables can be reassigned to
@@ -27,7 +27,7 @@
   // or only larger if casting from a signed to an unsigned
   // does not matter if its least, fast, or exact
   // these kinds of casts are "safe" because no loss of data occurs
-  var3 = var0.[cast [integer].[signed].[fast 64]];
+  var3 = var0.[cast [fast_signed_integer 64]];
 
   // when its obvious what you are casting too, you can infer the type
   // dont write anything as the branch of .[cast]
@@ -38,15 +38,15 @@
   // again, you can infer the type instead of writing it explicitly if this is possible
   var2 = var0.[down_cast];
 
-  // some integer types have no least size or depth, such as [integer].[unsigned].[index_depth]
+  // some integer types have no least size or depth, such as [unsigned_index]
   // to cast to and from these from other integers, you need to use .[platform_cast]
-  var6 := var2.[platform_cast [integer].[unsigned].[index_depth]];
+  var6 := var2.[platform_cast [unsigned_index]];
 
   // when casting to, from, or between floating point values, you need to use .[float_cast]
   // again, its possible to infer the type
   var2 = var4.[float_cast];
   var4 = var2.[float_cast];
-  var5 := var4.[float_cast [integer].[signed].[exact 8]];
+  var5 := var4.[float_cast [signed_integer 16]];
 
   // notice that a lot of these casts do basically the same thing. the different casts
   // exist to make requite code more readable. the compiler enforces that the correct

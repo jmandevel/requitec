@@ -1,9 +1,9 @@
 [import "std"];
 
 @auto_drop
-[enumeration MyEnum, [integer].[unsigned].[fast 32],
-    APPLE  :[integer].[signed].[fast 32]  = 0;
-    ORANGE :[integer].[unsigned].[fast 32] = 2;
+[enumeration MyEnum, [fast_unsigned_integer 32],
+    APPLE  :[fast_unsigned_integer 32]  = 0;
+    ORANGE :[fast_unsigned_integer 32] = 2;
     GRAPE  :[binary32] = 3;
 ];
 

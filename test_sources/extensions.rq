@@ -1,12 +1,12 @@
 
 [namespace example,
-    @template::{> Type:[concrete], LENGTH:[integer].[unsigned].[index_depth] <}
-    [extension_function getElementCount, LENGTH#Type, (><)[integer].[unsigned].[index_depth],
+    @template::{> Type:[type], LENGTH:[unsigned_index] <}
+    [extension_function getElementCount, LENGTH#Type, (><)[unsigned_index],
         [result] := LENGTH;
     ];
 
-    @template::{> Type:[concrete], LENGTH:[integer].[unsigned].[index_depth] <}
-    [extension_method getElementCount, &LENGTH#Type=>(><)[integer].[unsigned].[index_depth] ,
+    @template::{> Type:[type], LENGTH:[unsigned_index] <}
+    [extension_method getElementCount, &LENGTH#Type=>(><)[unsigned_index],
         [result] := LENGTH;
     ];
 
@@ -19,7 +19,7 @@
 ];
 
 [entry
-    my_array :5#[signed]= [initializer_list 0, 1, 2, 3, 4].[of [integer].[signed].[fast 32]];
+    my_array :5#[signed]= [initializer_list 0, 1, 2, 3, 4].[of [fast_signed_integer 32]];
 
     // call extension function
     {} = my_array.[type]->.example.getElementCount();

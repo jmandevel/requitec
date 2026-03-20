@@ -3,18 +3,18 @@
 @may_copy @may_move
 [class MyClass,
     {>
-        x : [integer].[signed].[fast 32] = 0,
-        y : [integer].[signed].[fast 32] = 0,
-        z : [integer].[signed].[fast 32] = 0
+        x : [fast_signed_integer 32] = 0,
+        y : [fast_signed_integer 32] = 0,
+        z : [fast_signed_integer 32] = 0
     <},
 
     @public
-    [function fromScalar, (> scalar:[integer].[signed].[fast 32] <)MyClass,
+    [function fromScalar, (> scalar:[fast_signed_integer 32] <)MyClass,
         [result] := MyClass(scalar, scalar, scalar);    
     ];
 
     @public
-    [method getTotal, &=>(><)[integer].[signed].[fast 32],
+    [method getTotal, &=>(><)[fast_signed_integer 32],
         [result] := [this].x + [this].y + [this].z;
     ];
 
