@@ -20,8 +20,8 @@
 #include <llvm/Support/SMLoc.h>
 #include <llvm/Support/StringSaver.h>
 
-#include <llvm/IR/Function.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Function.h>
 
 #include <bit>
 #include <cstddef>
@@ -58,19 +58,19 @@ enum class EntityKind : std::uint16_t {
 
   // SIMPLE BUILTIN
   SY_INFERENCE,
-  SY_GENERIC_SYMBOL,
-  SY_GENERIC_TYPE,
+  SY_SYMBOL_CONSTRAINT,
+  SY_TYPE_CONSTRAINT,
   SY_EXPRESSION,
   SY_VOID,
   SY_NULL,
   SY_NO_RETURN,
   SY_VARIADIC_ARGUMENTS,
   SY_BOOLEAN,
-  SY_GENERIC_SIGNED,
-  SY_GENERIC_UNSIGNED,
-  SY_GENERIC_FLOAT,
-  SY_GENERIC_BINARY,
-  SY_GENERIC_BFLOAT,
+  SY_SIGNED_CONSTRAINT,
+  SY_UNSIGNED_CONSTRAINT,
+  SY_FLOAT_CONSTRAINT,
+  SY_BINARY_CONSTRAINT,
+  SY_BFLOAT_CONSTRAINT,
   SY_HALF,
   SY_SINGLE,
   SY_DOUBLE,
@@ -80,11 +80,11 @@ enum class EntityKind : std::uint16_t {
   SY_BINARY64,
   SY_BINARY128,
   SY_BFLOAT16,
-  SY_GENERIC_INTEGER,
-  SY_GENERIC_SIGNED_INTEGER,
-  SY_GENERIC_UNSIGNED_INTEGER,
-  SY_GENERIC_CODEUNIT,
-  SY_GENERIC_STRING,
+  SY_INTEGER_CONSTRAINT,
+  SY_SIGNED_INTEGER_CONSTRAINT,
+  SY_UNSIGNED_INTEGER_CONSTRAINT,
+  SY_CODEUNIT_CONSTRAINT,
+  SY_STRING_CONSTRAINT,
   SY_CHAR,
   SY_ASCII,
   SY_UTF8,
@@ -262,10 +262,10 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_out";
   case E::SY_INFERENCE:
     return "sy_inference";
-  case E::SY_GENERIC_SYMBOL:
-    return "sy_generic_symbol";
-  case E::SY_GENERIC_TYPE:
-    return "sy_generic_type";
+  case E::SY_SYMBOL_CONSTRAINT:
+    return "sy_symbol_constraint";
+  case E::SY_TYPE_CONSTRAINT:
+    return "sy_type_constraint";
   case E::SY_EXPRESSION:
     return "sy_expression";
   case E::SY_VOID:
@@ -278,16 +278,16 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_variadic_arguments";
   case E::SY_BOOLEAN:
     return "sy_boolean";
-  case E::SY_GENERIC_SIGNED:
-    return "sy_generic_signed";
-  case E::SY_GENERIC_UNSIGNED:
-    return "sy_generic_unsigned";
-  case E::SY_GENERIC_FLOAT:
-    return "sy_generic_float";
-  case E::SY_GENERIC_BINARY:
-    return "sy_generic_binary";
-  case E::SY_GENERIC_BFLOAT:
-    return "sy_generic_Bfloat";
+  case E::SY_SIGNED_CONSTRAINT:
+    return "sy_signed_constraint";
+  case E::SY_UNSIGNED_CONSTRAINT:
+    return "sy_unsigned_constraint";
+  case E::SY_FLOAT_CONSTRAINT:
+    return "sy_float_constraint";
+  case E::SY_BINARY_CONSTRAINT:
+    return "sy_binary_constraint";
+  case E::SY_BFLOAT_CONSTRAINT:
+    return "sy_bfloat_constraint";
   case E::SY_HALF:
     return "sy_half";
   case E::SY_SINGLE:
@@ -306,16 +306,16 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_binary128";
   case E::SY_BFLOAT16:
     return "sy_Bfloat16";
-  case E::SY_GENERIC_INTEGER:
-    return "sy_generic_integer";
-  case E::SY_GENERIC_SIGNED_INTEGER:
-    return "sy_generic_signed_integer";
-  case E::SY_GENERIC_UNSIGNED_INTEGER:
-    return "sy_generic_unsigned_integer";
-  case E::SY_GENERIC_CODEUNIT:
-    return "sy_generic_codeunit";
-  case E::SY_GENERIC_STRING:
-    return "sy_generic_string";
+  case E::SY_INTEGER_CONSTRAINT:
+    return "sy_integer_constraint";
+  case E::SY_SIGNED_INTEGER_CONSTRAINT:
+    return "sy_signed_integer_constraint";
+  case E::SY_UNSIGNED_INTEGER_CONSTRAINT:
+    return "sy_unsigned_integer_constraint";
+  case E::SY_CODEUNIT_CONSTRAINT:
+    return "sy_codeunit_constraint";
+  case E::SY_STRING_CONSTRAINT:
+    return "sy_string_constraint";
   case E::SY_CHAR:
     return "sy_char";
   case E::SY_ASCII:
@@ -585,16 +585,15 @@ enum class EntityFlags : std::uint32_t {
   SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(14),
   SY_TYPE = rq::getBit(15),
   SY_SUBTYPE = rq::getBit(16),
-  SY_GENERIC = rq::getBit(17),
-  SY_CONCRETE = rq::getBit(18),
-  SY_PLATFORM_CHANGING = rq::getBit(19),
-  SY_INTEGER = rq::getBit(20),
-  SY_FLOAT = rq::getBit(21),
-  SY_BINARY = rq::getBit(22),
-  SY_CODEUNIT = rq::getBit(23),
-  SY_SIGNED = rq::getBit(24),
-  SY_UNSIGNED = rq::getBit(25),
-  SY_TOP_OF_FRAME = rq::getBit(26)
+  SY_CONSTRAINT = rq::getBit(17),
+  SY_PLATFORM_CHANGING = rq::getBit(18),
+  SY_INTEGER = rq::getBit(19),
+  SY_FLOAT = rq::getBit(20),
+  SY_BINARY = rq::getBit(21),
+  SY_CODEUNIT = rq::getBit(22),
+  SY_SIGNED = rq::getBit(23),
+  SY_UNSIGNED = rq::getBit(24),
+  SY_TOP_OF_FRAME = rq::getBit(25)
 
   // CONSTANT FLAGS
   // TODO
@@ -616,245 +615,235 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_OUT:
     return EF::SYMBOL;
   case E::SY_INFERENCE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_GENERIC_SYMBOL:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_GENERIC_TYPE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
+  case E::SY_SYMBOL_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONSTRAINT;
+  case E::SY_TYPE_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONSTRAINT;
   case E::SY_EXPRESSION:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_VOID:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_NULL:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_NO_RETURN:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_VARIADIC_ARGUMENTS:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
   case E::SY_BOOLEAN:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE;
-  case E::SY_GENERIC_SIGNED:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_SIGNED;
-  case E::SY_GENERIC_UNSIGNED:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
-  case E::SY_GENERIC_FLOAT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_FLOAT | EF::SY_SIGNED;
-  case E::SY_GENERIC_BINARY:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
-  case E::SY_GENERIC_BFLOAT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_FLOAT | EF::SY_SIGNED;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE;
+  case E::SY_SIGNED_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_SIGNED;
+  case E::SY_UNSIGNED_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONSTRAINT;
+  case E::SY_FLOAT_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_FLOAT | EF::SY_SIGNED;
+  case E::SY_BINARY_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+  case E::SY_BFLOAT_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_HALF:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
            EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_SINGLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
            EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_DOUBLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
            EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_QUADRUPLE:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
            EF::SY_PLATFORM_CHANGING | EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_BINARY16:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
+           EF::SY_BINARY | EF::SY_SIGNED;
   case E::SY_BINARY32:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
+           EF::SY_BINARY | EF::SY_SIGNED;
   case E::SY_BINARY64:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
+           EF::SY_BINARY | EF::SY_SIGNED;
   case E::SY_BINARY128:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
+           EF::SY_BINARY | EF::SY_SIGNED;
   case E::SY_BFLOAT16:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_FLOAT | EF::SY_SIGNED;
-  case E::SY_GENERIC_INTEGER:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_INTEGER;
-  case E::SY_GENERIC_SIGNED_INTEGER:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_INTEGER | EF::SY_SIGNED;
-  case E::SY_GENERIC_UNSIGNED_INTEGER:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_INTEGER | EF::SY_UNSIGNED;
-  case E::SY_GENERIC_CODEUNIT:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
-           EF::SY_CODEUNIT;
-  case E::SY_GENERIC_STRING:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_FLOAT |
+           EF::SY_SIGNED;
+  case E::SY_INTEGER_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_INTEGER;
+  case E::SY_SIGNED_INTEGER_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_INTEGER | EF::SY_SIGNED;
+  case E::SY_UNSIGNED_INTEGER_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_INTEGER | EF::SY_UNSIGNED;
+  case E::SY_CODEUNIT_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE |
+           EF::SY_CONSTRAINT | EF::SY_CODEUNIT;
+  case E::SY_STRING_CONSTRAINT:
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONSTRAINT;
   case E::SY_CHAR:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_CODEUNIT | EF::SY_PLATFORM_CHANGING;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT |
+           EF::SY_PLATFORM_CHANGING;
   case E::SY_ASCII:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_CODEUNIT;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT;
   case E::SY_UTF8:
-    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_CODEUNIT;
+    return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_CODEUNIT;
   case E::SY_SCALED_SIGNED_INTEGER:
-    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_INTEGER | EF::SY_SIGNED;
+    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
+           EF::SY_SIGNED;
   case E::SY_SCALED_UNSIGNED_INTEGER:
-    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_CONCRETE |
-           EF::SY_INTEGER | EF::SY_UNSIGNED;
+    return EF::SYMBOL | EF::SY_SCALED_BUILTIN | EF::SY_TYPE | EF::SY_INTEGER |
+           EF::SY_UNSIGNED;
   case E::SY_REFERENCE:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE;
   case E::SY_POINTER:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE;
   case E::SY_FAT_POINTER:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE;
   case E::SY_INFERENCED_COUNT_ARRAY:
-    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_GENERIC;
+    return EF::SYMBOL | EF::SY_UNARY_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE;
   case E::SY_ARRAY:
-    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE |
-           EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_COUNTED_SUBTYPE | EF::SY_TYPE | EF::SY_SUBTYPE;
   case E::SY_LAYOUT:
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_CLASS_LAYOUT:
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_TEMPLATE_LAYOUT:
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_SIGNATURE:
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_EXTENSION:
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_CLASS_PARAMETER:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_LAYOUT_PARAMETER:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_TEMPLATE_PARAMETER:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_SIGNATURE_PARAMETER:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_ARITHMETIC_INTERVAL:
     return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_FINITE_ARITHMETIC_PROGRESSION:
     return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_INFINITE_ARITHMETIC_PROGRESSION:
     return EF::SYMBOL | EF::SY_ARITHMETIC_SEQUENCE | EF::SY_TYPE |
-           EF::SY_SUBTYPE | EF::SY_CONCRETE;
+           EF::SY_SUBTYPE;
   case E::SY_MODULE:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_IMPORT:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_CODE:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_CATEGORY_DISCRIMINANT:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TYPE;
   case E::SY_LABEL:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_SYNONYM:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TYPE;
   case E::SY_TOP:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
   case E::SY_SCOPE:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE;
   case E::SY_NAMESPACE:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TOP_OF_FRAME;
   case E::SY_CLASS:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE |
            EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_ENUMERATION:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE |
            EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_CATEGORY:
-    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_SYMBOL_TABLE | EF::SY_TYPE |
            EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_GLOBAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE |
+    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE |
            EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_LOCAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_DYNAMIC_VARIABLE;
   case E::SY_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_CONCRETE | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_ENUMERATOR:
-    return EF::SYMBOL | EF::SY_TYPE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TYPE;
   case E::SY_CATEGORY_ALTERNATIVE:
-    return EF::SYMBOL | EF::SY_CONCRETE;
+    return EF::SYMBOL;
   case E::SY_ENTRY:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME;
   case E::SY_FUNCTION:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_METHOD:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_RANGER:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_EXTENSION_RANGER:
-    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_CONCRETE |
-           EF::SY_TOP_OF_FRAME | EF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return EF::SYMBOL | EF::SY_PROCEDURE | EF::SY_TOP_OF_FRAME |
+           EF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case E::SY_TEMPLATE_CLASS:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_ENUMERATION:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_CATEGORY:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_GLOBAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_FUNCTION:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_METHOD:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_RANGER:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_TEMPLATE_EXTENSION_RANGER:
-    return EF::SYMBOL | EF::SY_TEMPLATE | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_TEMPLATE;
   case E::SY_PARTIAL_CLASS:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_ENUMERATION:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_CATEGORY:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_GLOBAL_VARIABLE:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_STATIC_VARIABLE:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_FUNCTION:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_METHOD:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_RANGER:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_EXTENSION_FUNCTION:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_EXTENSION_METHOD:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::SY_PARTIAL_EXTENSION_RANGER:
-    return EF::SYMBOL | EF::SY_PARTIAL | EF::SY_CONCRETE;
+    return EF::SYMBOL | EF::SY_PARTIAL;
   case E::CT_TYPE:
     return EF::CONSTANT;
   case E::CT_EXPRESSION:
@@ -1054,15 +1043,10 @@ getHasTemplateAlternative(rq::EntityKind kind) {
   const rq::EntityFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::EntityFlags::SY_SUBTYPE);
 }
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric(rq::EntityKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint(rq::EntityKind kind) {
   RQ_ASSERT_SYMBOL(kind);
   const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_GENERIC);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete(rq::EntityKind kind) {
-  RQ_ASSERT_SYMBOL(kind);
-  const rq::EntityFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::EntityFlags::SY_CONCRETE);
+  return rq::getHasAll(flags, rq::EntityFlags::SY_CONSTRAINT);
 }
 // NOTE: SCALED_SIGNED_INTEGER and SCALED_UNSIGNED_INTEGER is platform changing
 // only if depth is not exact that is checked in member function of Entity, not
@@ -1361,18 +1345,18 @@ struct In;
 struct Out;
 struct SimpleBuiltin;
 struct Inference;
-struct GenericSymbol;
-struct GenericType;
+struct SymbolConstraint;
+struct TypeConstraint;
 struct Void;
 struct Null;
 struct NoReturn;
 struct VariadicArguments;
 struct Boolean;
-struct GenericSigned;
-struct GenericUnsigned;
-struct GenericFloat;
-struct GenericBinary;
-struct GenericBfloat;
+struct SignedConstraint;
+struct UnsignedConstraint;
+struct FloatConstraint;
+struct BinaryConstraint;
+struct BfloatConstraint;
 struct Half;
 struct Single;
 struct Double;
@@ -1382,11 +1366,11 @@ struct Binary32;
 struct Binary64;
 struct Binary128;
 struct Bfloat16;
-struct GenericInteger;
-struct GenericSignedInteger;
-struct GenericUnsignedInteger;
-struct GenericCodeunit;
-struct GenericString;
+struct IntegerConstraint;
+struct SignedIntegerConstraint;
+struct UnsignedIntegerConstraint;
+struct CodeunitConstraint;
+struct StringConstraint;
 struct Char;
 struct Ascii;
 struct Utf8;
@@ -1767,11 +1751,8 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const {
     return rq::getIsParameterListSubtype(this->getKind());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGeneric() const {
-    return rq::getIsGeneric(this->getKind());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConcrete() const {
-    return rq::getIsConcrete(this->getKind());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint() const {
+    return rq::getIsConstraint(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const {
     if (rq::getIsScaledBuiltin(this->getKind())) {
@@ -1899,33 +1880,33 @@ struct Inference final : public rq::SimpleBuiltin {
 
 template <> struct is_acquired<rq::Inference> final : std::true_type {};
 
-struct GenericSymbol final : public rq::SimpleBuiltin {
-  using Self = rq::GenericSymbol;
+struct SymbolConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::SymbolConstraint;
 
-  inline explicit GenericSymbol()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SYMBOL) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_SYMBOL;
-  }
-};
-
-template <> struct is_acquired<rq::GenericSymbol> final : std::true_type {};
-
-struct GenericType final : public rq::SimpleBuiltin {
-  using Self = rq::GenericType;
-
-  inline explicit GenericType()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_TYPE) {}
+  inline explicit SymbolConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_SYMBOL_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_TYPE;
+           rq::EntityKind::SY_SYMBOL_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericType> final : std::true_type {};
+template <> struct is_acquired<rq::SymbolConstraint> final : std::true_type {};
+
+struct TypeConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::TypeConstraint;
+
+  inline explicit TypeConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_TYPE_CONSTRAINT) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_TYPE_CONSTRAINT;
+  }
+};
+
+template <> struct is_acquired<rq::TypeConstraint> final : std::true_type {};
 
 struct Void final : public rq::SimpleBuiltin {
   using Self = rq::Void;
@@ -1989,75 +1970,75 @@ struct Boolean final : public rq::SimpleBuiltin {
 
 template <> struct is_acquired<rq::Boolean> final : std::true_type {};
 
-struct GenericSigned final : public rq::SimpleBuiltin {
-  using Self = rq::GenericSigned;
+struct SignedConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::SignedConstraint;
 
-  inline explicit GenericSigned()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SIGNED) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_SIGNED;
-  }
-};
-
-template <> struct is_acquired<rq::GenericSigned> final : std::true_type {};
-
-struct GenericUnsigned final : public rq::SimpleBuiltin {
-  using Self = rq::GenericUnsigned;
-
-  inline explicit GenericUnsigned()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_UNSIGNED) {}
+  inline explicit SignedConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_SIGNED_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_UNSIGNED;
+           rq::EntityKind::SY_SIGNED_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericUnsigned> final : std::true_type {};
+template <> struct is_acquired<rq::SignedConstraint> final : std::true_type {};
 
-struct GenericFloat final : public rq::SimpleBuiltin {
-  using Self = rq::GenericFloat;
+struct UnsignedConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::UnsignedConstraint;
 
-  inline explicit GenericFloat()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_FLOAT) {}
+  inline explicit UnsignedConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_UNSIGNED_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_FLOAT;
+           rq::EntityKind::SY_UNSIGNED_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericFloat> final : std::true_type {};
+template <> struct is_acquired<rq::UnsignedConstraint> final : std::true_type {};
 
-struct GenericBinary final : public rq::SimpleBuiltin {
-  using Self = rq::GenericBinary;
+struct FloatConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::FloatConstraint;
 
-  inline explicit GenericBinary()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BINARY) {}
+  inline explicit FloatConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_FLOAT_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_BINARY;
+           rq::EntityKind::SY_FLOAT_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericBinary> final : std::true_type {};
+template <> struct is_acquired<rq::FloatConstraint> final : std::true_type {};
 
-struct GenericBfloat final : public rq::SimpleBuiltin {
-  using Self = rq::GenericBfloat;
+struct BinaryConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::BinaryConstraint;
 
-  inline explicit GenericBfloat()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BFLOAT) {}
+  inline explicit BinaryConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_BINARY_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_BFLOAT;
+           rq::EntityKind::SY_BINARY_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericBfloat> final : std::true_type {};
+template <> struct is_acquired<rq::BinaryConstraint> final : std::true_type {};
+
+struct BfloatConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::BfloatConstraint;
+
+  inline explicit BfloatConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_BFLOAT_CONSTRAINT) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_BFLOAT_CONSTRAINT;
+  }
+};
+
+template <> struct is_acquired<rq::BfloatConstraint> final : std::true_type {};
 
 struct Half final : public rq::SimpleBuiltin {
   using Self = rq::Half;
@@ -2167,77 +2148,77 @@ struct Bfloat16 final : public rq::SimpleBuiltin {
 
 template <> struct is_acquired<rq::Bfloat16> final : std::true_type {};
 
-struct GenericInteger final : public rq::SimpleBuiltin {
-  using Self = rq::GenericInteger;
+struct IntegerConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::IntegerConstraint;
 
-  inline explicit GenericInteger()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_INTEGER) {}
+  inline explicit IntegerConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_INTEGER_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_INTEGER;
+           rq::EntityKind::SY_INTEGER_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericInteger> final : std::true_type {};
+template <> struct is_acquired<rq::IntegerConstraint> final : std::true_type {};
 
-struct GenericSignedInteger final : public rq::SimpleBuiltin {
-  using Self = rq::GenericSignedInteger;
+struct SignedIntegerConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::SignedIntegerConstraint;
 
-  inline explicit GenericSignedInteger()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_SIGNED_INTEGER) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_SIGNED_INTEGER;
-  }
-};
-
-template <>
-struct is_acquired<rq::GenericSignedInteger> final : std::true_type {};
-
-struct GenericUnsignedInteger final : public rq::SimpleBuiltin {
-  using Self = rq::GenericUnsignedInteger;
-
-  inline explicit GenericUnsignedInteger()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_UNSIGNED_INTEGER) {}
+  inline explicit SignedIntegerConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_SIGNED_INTEGER_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_UNSIGNED_INTEGER;
+           rq::EntityKind::SY_SIGNED_INTEGER_CONSTRAINT;
   }
 };
 
 template <>
-struct is_acquired<rq::GenericUnsignedInteger> final : std::true_type {};
+struct is_acquired<rq::SignedIntegerConstraint> final : std::true_type {};
 
-struct GenericCodeunit final : public rq::SimpleBuiltin {
-  using Self = rq::GenericCodeunit;
+struct UnsignedIntegerConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::UnsignedIntegerConstraint;
 
-  inline explicit GenericCodeunit()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_CODEUNIT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_CODEUNIT;
-  }
-};
-
-template <> struct is_acquired<rq::GenericCodeunit> final : std::true_type {};
-
-struct GenericString final : public rq::SimpleBuiltin {
-  using Self = rq::GenericString;
-
-  inline explicit GenericString()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_STRING) {}
+  inline explicit UnsignedIntegerConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_UNSIGNED_INTEGER_CONSTRAINT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_STRING;
+           rq::EntityKind::SY_UNSIGNED_INTEGER_CONSTRAINT;
   }
 };
 
-template <> struct is_acquired<rq::GenericString> final : std::true_type {};
+template <>
+struct is_acquired<rq::UnsignedIntegerConstraint> final : std::true_type {};
+
+struct CodeunitConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::CodeunitConstraint;
+
+  inline explicit CodeunitConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_CODEUNIT_CONSTRAINT) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_CODEUNIT_CONSTRAINT;
+  }
+};
+
+template <> struct is_acquired<rq::CodeunitConstraint> final : std::true_type {};
+
+struct StringConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::StringConstraint;
+
+  inline explicit StringConstraint()
+      : SimpleBuiltin(rq::EntityKind::SY_STRING_CONSTRAINT) {}
+
+  [[nodiscard]] inline static bool classof(const Entity *entity) {
+    return rq::dereferencePtr(entity).getKind() ==
+           rq::EntityKind::SY_STRING_CONSTRAINT;
+  }
+};
+
+template <> struct is_acquired<rq::StringConstraint> final : std::true_type {};
 
 struct Char final : public rq::SimpleBuiltin {
   using Self = rq::Char;
@@ -2290,9 +2271,6 @@ enum class ScaledBuiltinFlags : std::uint8_t {
   FASTEST = rq::getBit(3),
   LEAST = rq::getBit(4),
   EXACT_NONE_MASK = FASTEST | LEAST,
-  LITTLE_ENDIAN_ = rq::getBit(5),
-  BIG_ENDIAN_ = rq::getBit(6),
-  PLATFORM_ENDIAN_NONE_MASK = LITTLE_ENDIAN_ | BIG_ENDIAN_,
   PLATFORM_SCALAR = rq::getBit(7)
 };
 
@@ -2328,22 +2306,6 @@ getHasAddressScalar(rq::ScaledBuiltinFlags flags) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledBuiltinFlags flags) {
   return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LEAST);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPlatformEndian(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasNone(flags,
-                        rq::ScaledBuiltinFlags::PLATFORM_ENDIAN_NONE_MASK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsBigEndian(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::BIG_ENDIAN_);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsLittleEndian(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LITTLE_ENDIAN_);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2398,18 +2360,6 @@ struct ScaledBuiltin : public rq::Symbol, public llvm::FoldingSetNode {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const {
     return rq::getIsLeast(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformEndian() const {
-    return rq::getIsPlatformEndian(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBigEndian() const {
-    return rq::getIsBigEndian(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLittleEndian() const {
-    return rq::getIsLittleEndian(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPlatformScalar() const {
-    return rq::getHasPlatformScalar(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const {
     return this->_uid != 0;
@@ -3864,7 +3814,7 @@ struct Procedure : public rq::SymbolTable,
   const rq::Expression *_signature_expression_ptr{nullptr};
   const rq::Expression *_body_start_ptr{nullptr};
   rq::Instruction *_instruction_ptr{nullptr};
-  
+
   llvm::FunctionType *llvm_function_type_ptr{nullptr};
   llvm::Function *llvm_function_ptr{nullptr};
   llvm::BasicBlock *llvm_block_ptr{nullptr};
@@ -3926,7 +3876,8 @@ struct Procedure : public rq::SymbolTable,
   RQ_ALWAYS_INLINE bool getHasBodyStartExpression() const {
     return this->_body_start_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setBodyStartExpression(const rq::Expression& expression) {
+  RQ_ALWAYS_INLINE void
+  setBodyStartExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_body_start_ptr, &expression);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &

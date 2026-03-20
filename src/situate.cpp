@@ -862,50 +862,35 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INTEGER:
     [[fallthrough]];
   case K::SIGNED:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::SIGNED_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
+    [[fallthrough]];
   case K::UNSIGNED:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::UNSIGNED_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::FAST:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::FAST_OF:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
-                                             S::RVALUE);
-    break;
-  case K::LEAST:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::LEAST_OF:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
-                                             S::RVALUE);
-    break;
-  case K::EXACT:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::EXACT_OF:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
-                                             S::RVALUE);
-    break;
-  case K::INDEX_DEPTH:
+  case K::SIGNED_INTEGER:
+    [[fallthrough]];
+  case K::UNSIGNED_INTEGER:
+    if (expression.getHasBranch()) {
+      is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+      break;
+    }
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::INDEX_DEPTH_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::ADDRESS_DEPTH:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::ADDRESS_DEPTH_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
+  case K::FAST_SIGNED_INTEGER:
+    [[fallthrough]];
+  case K::FAST_UNSIGNED_INTEGER:
+    [[fallthrough]];
+  case K::LEAST_SIGNED_INTEGER:
+    [[fallthrough]];
+  case K::LEAST_UNSIGNED_INTEGER:
+    [[fallthrough]];
+  case K::SIGNED_INDEX:
+    [[fallthrough]];
+  case K::UNSIGNED_INDEX:
+    [[fallthrough]];
+  case K::SIGNED_ADDRESS:
+    [[fallthrough]];
+  case K::UNSIGNED_ADDRESS:
+    [[fallthrough]];
   case K::STRING:
     [[fallthrough]];
   case K::CODEUNIT:

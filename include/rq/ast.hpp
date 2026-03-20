@@ -237,19 +237,17 @@ enum class Keyword : std::uint32_t {
   BFLOAT16,
   INTEGER,
   SIGNED,
-  SIGNED_OF,
   UNSIGNED,
-  UNSIGNED_OF,
-  FAST,
-  FAST_OF,
-  LEAST,
-  LEAST_OF,
-  EXACT,
-  EXACT_OF,
-  INDEX_DEPTH,
-  INDEX_DEPTH_OF,
-  ADDRESS_DEPTH,
-  ADDRESS_DEPTH_OF,
+  SIGNED_INTEGER,
+  UNSIGNED_INTEGER,
+  FAST_SIGNED_INTEGER,
+  FAST_UNSIGNED_INTEGER,
+  LEAST_SIGNED_INTEGER,
+  LEAST_UNSIGNED_INTEGER,
+  SIGNED_INDEX,
+  UNSIGNED_INDEX,
+  SIGNED_ADDRESS,
+  UNSIGNED_ADDRESS,
   STRING,
   CODEUNIT,
   CHAR,
@@ -831,32 +829,28 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "integer";
   case K::SIGNED:
     return "signed";
-  case K::SIGNED_OF:
-    return "_signed_of";
   case K::UNSIGNED:
     return "unsigned";
-  case K::UNSIGNED_OF:
-    return "_unsigned_of";
-  case K::FAST:
-    return "fast";
-  case K::FAST_OF:
-    return "_fast_of";
-  case K::LEAST:
-    return "least";
-  case K::LEAST_OF:
-    return "_least_of";
-  case K::EXACT:
-    return "exact";
-  case K::EXACT_OF:
-    return "_exact_of";
-  case K::INDEX_DEPTH:
-    return "index_depth";
-  case K::INDEX_DEPTH_OF:
-    return "_index_depth_of";
-  case K::ADDRESS_DEPTH:
-    return "address_depth";
-  case K::ADDRESS_DEPTH_OF:
-    return "_address_depth_of";
+  case K::SIGNED_INTEGER:
+    return "signed_integer";
+  case K::UNSIGNED_INTEGER:
+    return "unsigned_integer";
+  case K::FAST_SIGNED_INTEGER:
+    return "fast_signed_integer";
+  case K::FAST_UNSIGNED_INTEGER:
+    return "fast_unsigned_integer";
+  case K::LEAST_SIGNED_INTEGER:
+    return "least_signed_integer";
+  case K::LEAST_UNSIGNED_INTEGER:
+    return "least_unsigned_integer";
+  case K::SIGNED_INDEX:
+    return "signed_index";
+  case K::UNSIGNED_INDEX:
+    return "unsigned_index";
+  case K::SIGNED_ADDRESS:
+    return "signed_address";
+  case K::UNSIGNED_ADDRESS:
+    return "unsigned_address";
   case K::STRING:
     return "string";
   case K::CODEUNIT:
@@ -1663,34 +1657,29 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SIGNED:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
-           KF::UNIVERSALIZABLE;
-  case K::SIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
-           KF::UNIVERSALIZABLE;
-  case K::UNSIGNED_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::FAST:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::FAST_OF:
+  case K::SIGNED_INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::LEAST:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LEAST_OF:
+  case K::UNSIGNED_INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::EXACT:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::EXACT_OF:
+  case K::FAST_SIGNED_INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INDEX_DEPTH:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::INDEX_DEPTH_OF:
+  case K::FAST_UNSIGNED_INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ADDRESS_DEPTH:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::ADDRESS_DEPTH_OF:
+  case K::LEAST_SIGNED_INTEGER:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LEAST_UNSIGNED_INTEGER:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SIGNED_INDEX:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UNSIGNED_INDEX:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SIGNED_ADDRESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UNSIGNED_ADDRESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CODEUNIT:
@@ -2006,9 +1995,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // REFLECTIONS
   case K::REFLECT:
-    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
-           KF::ARGUMENT | KF::PARAMETER | KF::ARITHMETIC_SEQUENCE_STEP |
-           KF::ARITHMETIC_SEQUENCE_CONDITION | KF::NAMESPACE;
+    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE |
+           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
+           KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
+           KF::NAMESPACE;
   case K::MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MEMBER_OF_TOP:
@@ -2050,8 +2040,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::HOLDS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
-    return KF::REFLECTION |
-           KF::UNIVERSALIZABLE;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SYMBOL:
@@ -2365,21 +2354,6 @@ getDescription(rq::Situation situation) {
     return K::EACH_OF;
   case K::MOVE:
     return K::MOVE_OF;
-  // BUILTIN TYPES
-  case K::SIGNED:
-    return K::SIGNED_OF;
-  case K::UNSIGNED:
-    return K::UNSIGNED_OF;
-  case K::FAST:
-    return K::FAST_OF;
-  case K::LEAST:
-    return K::LEAST_OF;
-  case K::EXACT:
-    return K::EXACT_OF;
-  case K::INDEX_DEPTH:
-    return K::INDEX_DEPTH_OF;
-  case K::ADDRESS_DEPTH:
-    return K::ADDRESS_DEPTH_OF;
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;

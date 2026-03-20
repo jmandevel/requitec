@@ -83,18 +83,18 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::In _in{};
     rq::Out _out{};
     rq::Inference _inference{};
-    rq::GenericSymbol _generic_symbol{};
-    rq::GenericType _generic_type{};
+    rq::SymbolConstraint _symbol_constraint{};
+    rq::TypeConstraint _type_constraint{};
     rq::Void _void{};
     rq::Null _null{};
     rq::NoReturn _no_return{};
     rq::VariadicArguments _variadic_arguments{};
     rq::Boolean _boolean{};
-    rq::GenericSigned _generic_signed{};
-    rq::GenericUnsigned _generic_unsigned{};
-    rq::GenericFloat _generic_float{};
-    rq::GenericBinary _generic_binary{};
-    rq::GenericBfloat _generic_bfloat{};
+    rq::SignedConstraint _signed_constraint{};
+    rq::UnsignedConstraint _unsigned_constraint{};
+    rq::FloatConstraint _float_constraint{};
+    rq::BinaryConstraint _binary_constraint{};
+    rq::BfloatConstraint _bfloat_constraint{};
     rq::Half _half{};
     rq::Single _single{};
     rq::Double _double{};
@@ -104,11 +104,11 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::Binary64 _binary64{};
     rq::Binary128 _binary128{};
     rq::Bfloat16 _bfloat16{};
-    rq::GenericInteger _generic_integer{};
-    rq::GenericSignedInteger _generic_signed_integer{};
-    rq::GenericUnsignedInteger _generic_unsigned_integer{};
-    rq::GenericCodeunit _generic_codeunit{};
-    rq::GenericString _generic_string{};
+    rq::IntegerConstraint _integer_constraint{};
+    rq::SignedIntegerConstraint _signed_integer_constraint{};
+    rq::UnsignedIntegerConstraint _unsigned_integer_constraint{};
+    rq::CodeunitConstraint _codeunit_constraint{};
+    rq::StringConstraint _string_constraint{};
     rq::Char _char{};
     rq::Ascii _ascii{};
     rq::Utf8 _utf8{};
@@ -350,11 +350,11 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Inference &acquireInference() {
     return this->acquired._inference;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericSymbol &acquireGenericSymbol() {
-    return this->acquired._generic_symbol;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstraint &acquireSymbolConstraint() {
+    return this->acquired._symbol_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericType &acquireGenericType() {
-    return this->acquired._generic_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstraint &acquireTypeConstraint() {
+    return this->acquired._type_constraint;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Void &acquireVoid() {
     return this->acquired._void;
@@ -372,20 +372,20 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Boolean &acquireBoolean() {
     return this->acquired._boolean;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericSigned &acquireGenericSigned() {
-    return this->acquired._generic_signed;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedConstraint &acquireSignedConstraint() {
+    return this->acquired._signed_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericUnsigned &acquireGenericUnsigned() {
-    return this->acquired._generic_unsigned;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedConstraint &acquireUnsignedConstraint() {
+    return this->acquired._unsigned_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericFloat &acquireGenericFloat() {
-    return this->acquired._generic_float;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConstraint &acquireFloatConstraint() {
+    return this->acquired._float_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBinary &acquireGenericBinary() {
-    return this->acquired._generic_binary;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BinaryConstraint &acquireBinaryConstraint() {
+    return this->acquired._binary_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericBfloat &acquireGenericBfloat() {
-    return this->acquired._generic_bfloat;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BfloatConstraint &acquireBfloatConstraint() {
+    return this->acquired._bfloat_constraint;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Half &acquireHalf() {
     return this->acquired._half;
@@ -414,22 +414,22 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16 &acquireBfloat16() {
     return this->acquired._bfloat16;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericInteger &acquireGenericInteger() {
-    return this->acquired._generic_integer;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerConstraint &acquireIntegerConstraint() {
+    return this->acquired._integer_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericSignedInteger &
-  acquireGenericSignedInteger() {
-    return this->acquired._generic_signed_integer;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerConstraint &
+  acquireSignedIntegerConstraint() {
+    return this->acquired._signed_integer_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericUnsignedInteger &
-  acquireGenericUnsignedInteger() {
-    return this->acquired._generic_unsigned_integer;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerConstraint &
+  acquireUnsignedIntegerConstraint() {
+    return this->acquired._unsigned_integer_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericCodeunit &acquireGenericCodeunit() {
-    return this->acquired._generic_codeunit;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitConstraint &acquireCodeunitConstraint() {
+    return this->acquired._codeunit_constraint;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GenericString &acquireGenericString() {
-    return this->acquired._generic_string;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstraint &acquireStringConstraint() {
+    return this->acquired._string_constraint;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Char &acquireChar() {
     return this->acquired._char;
