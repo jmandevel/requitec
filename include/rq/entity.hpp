@@ -70,7 +70,7 @@ enum class EntityKind : std::uint16_t {
   SY_GENERIC_UNSIGNED,
   SY_GENERIC_FLOAT,
   SY_GENERIC_BINARY,
-  SY_GENERIC_Bfloat,
+  SY_GENERIC_BFLOAT,
   SY_HALF,
   SY_SINGLE,
   SY_DOUBLE,
@@ -286,7 +286,7 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_generic_float";
   case E::SY_GENERIC_BINARY:
     return "sy_generic_binary";
-  case E::SY_GENERIC_Bfloat:
+  case E::SY_GENERIC_BFLOAT:
     return "sy_generic_Bfloat";
   case E::SY_HALF:
     return "sy_half";
@@ -644,7 +644,7 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
   case E::SY_GENERIC_BINARY:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
            EF::SY_FLOAT | EF::SY_BINARY | EF::SY_SIGNED;
-  case E::SY_GENERIC_Bfloat:
+  case E::SY_GENERIC_BFLOAT:
     return EF::SYMBOL | EF::SY_SIMPLE_BUILTIN | EF::SY_TYPE | EF::SY_GENERIC |
            EF::SY_FLOAT | EF::SY_SIGNED;
   case E::SY_HALF:
@@ -2049,11 +2049,11 @@ struct GenericBfloat final : public rq::SimpleBuiltin {
   using Self = rq::GenericBfloat;
 
   inline explicit GenericBfloat()
-      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_Bfloat) {}
+      : SimpleBuiltin(rq::EntityKind::SY_GENERIC_BFLOAT) {}
 
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() ==
-           rq::EntityKind::SY_GENERIC_Bfloat;
+           rq::EntityKind::SY_GENERIC_BFLOAT;
   }
 };
 
