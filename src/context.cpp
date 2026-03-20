@@ -3,6 +3,7 @@
 #include <rq/context.hpp>
 #include <rq/entity.hpp>
 #include <rq/json.hpp>
+#include <rq/literals.hpp>
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
@@ -10,7 +11,6 @@
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
-#include <rq/literals.hpp>
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallString.h>
@@ -1070,12 +1070,13 @@ void Context::logErrorOutsideNotAncestor(
       {outside_expression.getLlvmSourceRange()}, {});
 }
 
-  void Context::logErrorNumeric(const rq::Expression &expression, rq::NumericResultCode code) {
-  this->logMessage(
-      expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("error parsing numeric literal: ") + rq::getDescription(code),
-      {expression.getLlvmSourceRange()}, {});
-  }
+void Context::logErrorNumeric(const rq::Expression &expression,
+                              rq::NumericResultCode code) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("error parsing numeric literal: ") +
+                       rq::getDescription(code),
+                   {expression.getLlvmSourceRange()}, {});
+}
 
 rq::Expression &Context::acquireExpression() {
   if (this->acquired._first_unused_expression_ptr == nullptr) {
@@ -1109,7 +1110,8 @@ rq::Instruction &Context::acquireInstruction() {
   }
   rq::Instruction &unused_instruction =
       rq::dereferencePtr(this->acquired._first_unused_instruction_ptr);
-  this->acquired._first_unused_instruction_ptr = llvm::cast<rq::Instruction>(unused_instruction.popHeadPtr());
+  this->acquired._first_unused_instruction_ptr =
+      llvm::cast<rq::Instruction>(unused_instruction.popHeadPtr());
   std::memset(&unused_instruction, 0, sizeof(rq::Instruction));
   return unused_instruction;
 }
@@ -1118,11 +1120,12 @@ rq::Instruction &Context::acquireInstruction() {
   // TODO add parameters
   rq::ScaledSignedInteger &return_type_integer =
       this->acquireScaledSignedInteger(32, rq::ScaledBuiltinFlags::FASTEST);
-  rq::TypeConstant &return_type = this->acquireTypeConstant(return_type_integer, {});
+  rq::TypeConstant &return_type =
+      this->acquireTypeConstant(return_type_integer, {});
   rq::Signature &signature = this->allocateValue<rq::Signature>(
       *this, 4, return_type, rq::ExpressionFlags{}, this->getSourceModule(),
       this->getTop());
-  rq::TypeConstant& signature_type = this->acquireTypeConstant(signature, {});
+  rq::TypeConstant &signature_type = this->acquireTypeConstant(signature, {});
   return signature_type;
 }
 

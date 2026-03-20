@@ -2,33 +2,35 @@
 
 #include <rq/utility.hpp>
 
-#include <functional>
-
 namespace rq {
 
 struct Context;
+struct Module;
+struct Procedure;
 
 struct LlvmIrBuilder final {
   using Self = rq::LlvmIrBuilder;
 
-  std::reference_wrapper<rq::Context> _context_ref;
+  rq::Context *_context_ptr;
   bool _is_ok{true};
 
-  LlvmIrBuilder(rq::Context &context) : _context_ref(context) {}
+  LlvmIrBuilder(rq::Context &context)
+      : _context_ptr(&context){}
   LlvmIrBuilder(const Self &) = delete;
   LlvmIrBuilder(Self &&) = delete;
   ~LlvmIrBuilder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
-    return this->_context_ref.get();
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
-    return this->_context_ref.get();
+    return rq::dereferencePtr(this->_context_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
+    return rq::dereferencePtr(this->_context_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   void buildLlvmIr();
+  void buildProcedure(rq::Procedure& procedure);
 };
 
 } // namespace rq

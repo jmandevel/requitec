@@ -20,6 +20,9 @@
 #include <llvm/Support/SMLoc.h>
 #include <llvm/Support/StringSaver.h>
 
+#include <llvm/IR/Function.h>
+#include <llvm/IR/BasicBlock.h>
+
 #include <bit>
 #include <cstddef>
 #include <cstdint>
@@ -3861,6 +3864,10 @@ struct Procedure : public rq::SymbolTable,
   const rq::Expression *_signature_expression_ptr{nullptr};
   const rq::Expression *_body_start_ptr{nullptr};
   rq::Instruction *_instruction_ptr{nullptr};
+  
+  llvm::FunctionType *llvm_function_type_ptr{nullptr};
+  llvm::Function *llvm_function_ptr{nullptr};
+  llvm::BasicBlock *llvm_block_ptr{nullptr};
 
   inline explicit Procedure(rq::EntityKind k, llvm::StringRef name,
 
@@ -3918,6 +3925,9 @@ struct Procedure : public rq::SymbolTable,
   }
   RQ_ALWAYS_INLINE bool getHasBodyStartExpression() const {
     return this->_body_start_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setBodyStartExpression(const rq::Expression& expression) {
+    rq::assignSingleValue(this->_body_start_ptr, &expression);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getBodyStartExpression() const {

@@ -19,6 +19,9 @@ void Tabulator::tabulateModule() {
   for (auto &symbol : this->getContext().getTop().getUnamedSymbolsListRef()) {
     if (llvm::isa<rq::Procedure>(symbol)) {
       rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
+      if (procedure.getContainingModule() != this->getModule()) {
+        continue;
+      }
       this->evaluateProcedure(procedure);
     }
   }
@@ -128,6 +131,10 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           unascribed_expression, factory.getFlags(), this->getModule(),
           containing_table, hosting_table);
       containing_table.addUnamedSymbol(this->getContext(), entry);
+      if (unascribed_expression.getHasBranch()) {
+        const rq::Expression &body_start_expression = unascribed_expression.getBranch();
+        entry.setBodyStartExpression(body_start_expression);
+      }
       break;
     }
     case K::FUNCTION: {

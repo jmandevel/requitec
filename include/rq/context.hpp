@@ -175,6 +175,13 @@ struct Context final : public rq::BumpPtrAllocator {
   getLlvmContext() const {
     return rq::dereferenceUptr(this->_llvm_context_uptr);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::IRBuilder<> &getLlvmIrBuilder() {
+    return rq::dereferenceUptr(this->_llvm_ir_builder_uptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::IRBuilder<> &
+  getLlvmIrBuilder() const {
+    return rq::dereferenceUptr(this->_llvm_ir_builder_uptr);
+  }
   [[nodiscard]] bool validateSourceText(const rq::Module &module);
   [[nodiscard]] bool tokenizeSourceText(const rq::Module &module,
                                         std::vector<rq::Token> &tokens);
