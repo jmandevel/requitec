@@ -4486,7 +4486,7 @@ void RQ_ALWAYS_INLINE profileTypeConstant(llvm::FoldingSetNodeID &id,
   id.AddInteger(static_cast<unsigned>(attributes));
 }
 
-struct TypeConstant : public rq::Constant, public llvm::FoldingSetNode {
+struct TypeConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::TypeConstant;
 
   rq::Symbol *_symbol_ptr;

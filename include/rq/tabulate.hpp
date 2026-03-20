@@ -16,11 +16,28 @@ struct Expression;
 struct SymbolTable;
 struct Instruction;
 
-struct InstructionFactory final {
-  using Self = rq::InstructionFactory;
+struct ExecutionFactory final {
+  using Self = rq::ExecutionFactory;
 
-  rq::Instruction* _instruction_ptr{nullptr};
-  rq::Instruction* _last_ptr{nullptr};
+  rq::Instruction *_instruction_ptr{nullptr};
+  rq::Instruction *_last_exec_ptr{nullptr};
+
+  ExecutionFactory() = default;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const {
+    return this->_instruction_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
+    return rq::dereferencePtr(this->_instruction_ptr);
+  }
+  void addInstruction(rq::Context & context,
+                             rq::Instruction &instruction);
+};
+
+struct TablePosition final {
+  using Self = rq::TablePosition;
+
+
 };
 
 struct Tabulator final {

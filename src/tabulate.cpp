@@ -9,6 +9,27 @@
 
 namespace rq {
 
+void ExecutionFactory::addInstruction(rq::Context &context,
+                                      rq::Instruction &instruction) {
+  if (this->_instruction_ptr == nullptr) {
+    this->_instruction_ptr = &instruction;
+    return;
+  }
+  rq::Instruction &previous_instruction =
+      rq::dereferencePtr(this->_instruction_ptr);
+  rq::Instruction &new_exec = context.acquireInstruction();
+  new_exec.setOpcode(rq::EntityKind::OP_EXECUTE);
+  new_exec.setTail(instruction);
+  if (this->_last_exec_ptr == nullptr) {
+    new_exec.setHead(previous_instruction);
+    this->_instruction_ptr = &new_exec;
+    this->_last_exec_ptr = &new_exec;
+    return;
+  }
+  rq::Instruction &last_exec = rq::dereferencePtr(this->_last_exec_ptr);
+  new_exec.setHead(last_exec.replaceTail(new_exec));
+}
+
 void Tabulator::tabulateModule() {
   const rq::Expression &root = this->getModule().getExpression();
   if (!root.getHasBranch()) {
@@ -630,9 +651,9 @@ Tabulator::tabulateLocalForest(const rq::Expression &first_expression,
         RQ_TODO_IMPLEMENTATION();
       }
       const rq::Expression &target_expression = lvalue_expression.getBranch();
-      //const rq::Expression &type_expression = target_expression.getNext();
-      // rq::TypeConstant &type =
-      //     this->resolveType(type_expression, hosting_table);
+      // const rq::Expression &type_expression = target_expression.getNext();
+      //  rq::TypeConstant &type =
+      //      this->resolveType(type_expression, hosting_table);
       if (target_expression.getKeyword() != K::RESULT) {
         RQ_TODO_IMPLEMENTATION();
       }
