@@ -44,7 +44,7 @@
     // bases above 35 are case sensitive
     var20 :[unsigned_integer 32] =2x101;
     var21 :[unsigned_integer 64] =16xDeadBeef;
-    var22 :[unsigned_integer 512] =16xLinux_Beats_All;
+    var22 :[unsigned_integer 512] =64abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!;
 
     // underscores in integers are ignored
     var23 :[unsigned_integer 128] =16xBeef_Babe;
