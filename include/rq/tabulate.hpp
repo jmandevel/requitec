@@ -149,7 +149,8 @@ struct Tabulator final {
   resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
                          const rq::Expression &unascribed,
                          rq::SymbolTable &hosting_table);
-  [[nodiscard]] rq::Entity *evaluateValue(const rq::Expression &expression, rq::TypeConstant& type,
+  [[nodiscard]] rq::Entity *evaluateValue(const rq::Expression &expression,
+                                          rq::TypeConstant &type,
                                           rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::Symbol *resolveSymbol(const rq::Expression &path,
                                           rq::SymbolTable &hosting_table);

@@ -153,7 +153,8 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
           containing_table, hosting_table);
       containing_table.addUnamedSymbol(this->getContext(), entry);
       if (unascribed_expression.getHasBranch()) {
-        const rq::Expression &body_start_expression = unascribed_expression.getBranch();
+        const rq::Expression &body_start_expression =
+            unascribed_expression.getBranch();
         entry.setBodyStartExpression(body_start_expression);
       }
       break;
