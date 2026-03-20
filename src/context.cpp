@@ -1123,8 +1123,9 @@ rq::Instruction &Context::acquireInstruction() {
   rq::TypeConstant &return_type =
       this->acquireTypeConstant(return_type_integer, {});
   rq::Signature &signature = this->allocateValue<rq::Signature>(
-      *this, 4, return_type, rq::ExpressionFlags{}, this->getSourceModule(),
+      *this, 4, rq::ExpressionFlags{}, this->getSourceModule(),
       this->getTop());
+  signature.setReturnType(return_type);
   rq::TypeConstant &signature_type = this->acquireTypeConstant(signature, {});
   return signature_type;
 }

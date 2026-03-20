@@ -107,7 +107,6 @@ enum class EntityKind : std::uint16_t {
   SY_CLASS_LAYOUT,
   SY_TEMPLATE_LAYOUT,
   SY_SIGNATURE,
-  SY_EXTENSION,
 
   // PARAMETER
   SY_CLASS_PARAMETER,
@@ -344,8 +343,6 @@ static constexpr std::size_t ENTITY_COUNT =
     return "sy_template_layout";
   case E::SY_SIGNATURE:
     return "sy_signature";
-  case E::SY_EXTENSION:
-    return "sy_extension";
   case E::SY_CLASS_PARAMETER:
     return "sy_class_parameter";
   case E::SY_LAYOUT_PARAMETER:
@@ -720,9 +717,6 @@ template <> struct is_flags<EntityFlags> : std::true_type {};
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE;
   case E::SY_SIGNATURE:
-    return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
-           EF::SY_SUBTYPE;
-  case E::SY_EXTENSION:
     return EF::SYMBOL | EF::SY_PARAMETER_LIST_SUBTYPE | EF::SY_TYPE |
            EF::SY_SUBTYPE;
   case E::SY_CLASS_PARAMETER:
@@ -1394,7 +1388,6 @@ struct Layout;
 struct ClassLayout;
 struct TemplateLayout;
 struct Signature;
-struct Extension;
 struct ArithmeticSequence;
 struct ArithmeticInterval;
 struct FiniteArithmeticProgression;
@@ -2635,64 +2628,44 @@ template <> struct is_acquired<rq::TemplateLayout> final : std::true_type {};
 struct Signature final : public rq::ParameterListSubtype {
   using Self = rq::Signature;
 
-  rq::TypeConstant *_return_type;
+  rq::TypeConstant *_return_type_ptr{nullptr};
+  rq::TypeConstant *_extended_type_ptr{nullptr};
 
   inline explicit Signature(rq::BumpPtrAllocator &allocator,
                             unsigned parameter_bucket_count,
-                            rq::TypeConstant &return_type,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &hosting_table)
       : ParameterListSubtype(allocator, parameter_bucket_count,
                              rq::EntityKind::SY_SIGNATURE, attributes, module,
-                             hosting_table),
-        _return_type(&return_type) {}
+                             hosting_table) {}
+  RQ_ALWAYS_INLINE void setReturnType(rq::TypeConstant& type) {
+    this->_return_type_ptr = &type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasReturnType() const {
+    return this->_return_type_ptr != nullptr;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
-    return rq::dereferencePtr(this->_return_type);
+    return rq::dereferencePtr(this->_return_type_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType() {
-    return rq::dereferencePtr(this->_return_type);
+    return rq::dereferencePtr(this->_return_type_ptr);
+  }
+  RQ_ALWAYS_INLINE void setExtendedType(rq::TypeConstant& type) {
+    this->_extended_type_ptr = &type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExtendedType() const {
+    return this->_extended_type_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getExtendedType() const {
+    return rq::dereferencePtr(this->_extended_type_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getExtendedType() {
+    return rq::dereferencePtr(this->_extended_type_ptr);
   }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_SIGNATURE;
   }
 };
-
-struct Extension final : public rq::ParameterListSubtype {
-  using Self = rq::Extension;
-
-  rq::TypeConstant *_return_type;
-  rq::TypeConstant *_extended_type;
-
-  inline explicit Extension(rq::BumpPtrAllocator &allocator,
-                            unsigned parameter_bucket_count,
-                            rq::TypeConstant &return_type,
-                            rq::TypeConstant &extended_type,
-                            rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &hosting_table)
-      : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::EntityKind::SY_EXTENSION, attributes, module,
-                             hosting_table),
-        _return_type(&return_type), _extended_type(&extended_type) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
-    return rq::dereferencePtr(this->_return_type);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType() {
-    return rq::dereferencePtr(this->_return_type);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-  getExtendedType() const {
-    return rq::dereferencePtr(this->_extended_type);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getExtendedType() {
-    return rq::dereferencePtr(this->_extended_type);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getKind() == rq::EntityKind::SY_EXTENSION;
-  }
-};
-
-template <> struct is_acquired<rq::Extension> final : std::true_type {};
 
 struct Parameter : public rq::Symbol,
                    public rq::InitialExpression,
