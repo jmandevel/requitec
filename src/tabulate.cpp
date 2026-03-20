@@ -1,6 +1,6 @@
 #include <rq/context.hpp>
 #include <rq/literals.hpp>
-#include <rq/tabulator.hpp>
+#include <rq/tabulate.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/SmallString.h>

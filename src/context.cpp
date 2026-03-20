@@ -7,7 +7,7 @@
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
-#include <rq/tabulator.hpp>
+#include <rq/tabulate.hpp>
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
