@@ -3712,7 +3712,7 @@ struct Expression final {
   rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextFlags>
       _next_ptr_flags{};
   rq::Expression *_branch_ptr{nullptr};
-  rq::PtrWithFlags<const char, 1, rq::ExpressionSourceFlags>
+  rq::PtrWithFlags<const char, 2, rq::ExpressionSourceFlags>
       _source_ptr_flags{};
   unsigned _source_text_length{0};
 
