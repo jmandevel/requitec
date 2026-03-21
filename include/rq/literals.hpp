@@ -10,18 +10,18 @@
 
 namespace rq {
 
-inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::EntityKind kind) {
+inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::Opcode kind) {
   using namespace rq;
   switch (kind) {
-  case rq::EntityKind::SY_BFLOAT16:
+  case rq::Opcode::SY_BFLOAT16:
     return llvm::APFloat::BFloat();
-  case rq::EntityKind::SY_BINARY16:
+  case rq::Opcode::SY_BINARY16:
     return llvm::APFloat::IEEEhalf();
-  case rq::EntityKind::SY_BINARY32:
+  case rq::Opcode::SY_BINARY32:
     return llvm::APFloat::IEEEsingle();
-  case rq::EntityKind::SY_BINARY64:
+  case rq::Opcode::SY_BINARY64:
     return llvm::APFloat::IEEEdouble();
-  case rq::EntityKind::SY_BINARY128:
+  case rq::Opcode::SY_BINARY128:
     return llvm::APFloat::IEEEquad();
   default:
     break;
@@ -259,7 +259,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
 
 [[nodiscard]] inline rq::NumericResultCode
 getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
-                rq::EntityKind semantics) {
+                rq::Opcode semantics) {
   llvm::SmallString<16> buffer;
   rq::NumericResultCode result = rq::cleanFloatText(text, buffer);
   if (result != rq::NumericResultCode::OK) {

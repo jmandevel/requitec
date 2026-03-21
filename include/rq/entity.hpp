@@ -3020,11 +3020,11 @@ struct is_acquired<rq::InfiniteArithmeticProgression> final : std::true_type {};
 
 static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
-enum class Moduleopcode : std::uint_fast8_t { NONE, SOURCE, IMPORT };
+enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
-getName(rq::Moduleopcode opcode) {
-  using M = rq::Moduleopcode;
+getName(rq::ModuleKind opcode) {
+  using M = rq::ModuleKind;
   switch (opcode) {
   case M::NONE:
     return "none";
@@ -3040,16 +3040,16 @@ struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
   rq::Expression *_expression_ptr{nullptr};
-  rq::Moduleopcode _module_opcode;
+  rq::ModuleKind _module_opcode;
   llvm::StringRef _path;
   llvm::MemoryBufferRef _buffer;
 
-  inline explicit Module(rq::Moduleopcode opcode, llvm::StringRef path,
+  inline explicit Module(rq::ModuleKind opcode, llvm::StringRef path,
                          llvm::MemoryBufferRef &&buffer)
       : Symbol(rq::Opcode::SY_MODULE), _module_opcode(opcode), _path(path),
         _buffer(buffer) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Moduleopcode getModuleopcode() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const {
     return this->_module_opcode;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {

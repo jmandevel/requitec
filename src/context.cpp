@@ -68,7 +68,7 @@ bool Context::tokenizeSourceText(const rq::Module &module,
 
 void Context::initializeKeywordMap() {
   RQ_ASSERT(this->_keyword_map.empty(), "keyword map not empty");
-  for (std::underlying_type_t<rq::EntityKind> keyword_i = 0;
+  for (std::underlying_type_t<rq::Opcode> keyword_i = 0;
        keyword_i <= rq::KEYWORD_COUNT; keyword_i++) {
     const rq::Keyword keyword = static_cast<rq::Keyword>(keyword_i);
     std::string_view name = rq::getName(keyword);
@@ -539,66 +539,66 @@ static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol) {
   json.beginObject();
-  json.emitString("kind", rq::getName(symbol.getKind()));
-  switch (symbol.getKind()) {
-  case rq::EntityKind::SY_IMPORT: {
+  json.emitString("kind", rq::getName(symbol.getOpcode()));
+  switch (symbol.getOpcode()) {
+  case rq::Opcode::SY_IMPORT: {
     const auto &import = llvm::cast<rq::Import>(symbol);
     rq::emitModuleMemberSymbol(context, json, import);
   } break;
-  case rq::EntityKind::SY_LOCAL_VARIABLE: {
+  case rq::Opcode::SY_LOCAL_VARIABLE: {
     const auto &variable = llvm::cast<rq::LocalVariable>(symbol);
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
-  case rq::EntityKind::SY_GLOBAL_VARIABLE: {
+  case rq::Opcode::SY_GLOBAL_VARIABLE: {
     const auto &variable = llvm::cast<rq::GlobalVariable>(symbol);
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
-  case rq::EntityKind::SY_NAMESPACE: {
+  case rq::Opcode::SY_NAMESPACE: {
     const auto &namespace_ = llvm::cast<rq::Namespace>(symbol);
     json.emitString("name", namespace_.getName());
     rq::emitSymbolTable(context, json, namespace_);
   } break;
-  case rq::EntityKind::SY_CLASS: {
+  case rq::Opcode::SY_CLASS: {
     const auto &class_ = llvm::cast<rq::Class>(symbol);
     json.emitString("name", class_.getName());
     rq::emitModuleMemberSymbol(context, json, class_);
   } break;
-  case rq::EntityKind::SY_ENUMERATION: {
+  case rq::Opcode::SY_ENUMERATION: {
     const auto &enumeration = llvm::cast<rq::Enumeration>(symbol);
     json.emitString("name", enumeration.getName());
     rq::emitModuleMemberSymbol(context, json, enumeration);
   } break;
-  case rq::EntityKind::SY_ENTRY: {
+  case rq::Opcode::SY_ENTRY: {
     const auto &entry = llvm::cast<rq::Entry>(symbol);
     rq::emitModuleMemberSymbol(context, json, entry);
   } break;
-  case rq::EntityKind::SY_FUNCTION: {
+  case rq::Opcode::SY_FUNCTION: {
     const auto &function = llvm::cast<rq::Function>(symbol);
     json.emitString("name", function.getName());
     rq::emitModuleMemberSymbol(context, json, function);
   } break;
-  case rq::EntityKind::SY_METHOD: {
+  case rq::Opcode::SY_METHOD: {
     const auto &method = llvm::cast<rq::Method>(symbol);
     json.emitString("name", method.getName());
     rq::emitModuleMemberSymbol(context, json, method);
   } break;
-  case rq::EntityKind::SY_RANGER: {
+  case rq::Opcode::SY_RANGER: {
     const auto &ranger = llvm::cast<rq::Ranger>(symbol);
     rq::emitModuleMemberSymbol(context, json, ranger);
   } break;
-  case rq::EntityKind::SY_EXTENSION_FUNCTION: {
+  case rq::Opcode::SY_EXTENSION_FUNCTION: {
     const auto &extension_function = llvm::cast<rq::ExtensionFunction>(symbol);
     json.emitString("name", extension_function.getName());
     rq::emitModuleMemberSymbol(context, json, extension_function);
   } break;
-  case rq::EntityKind::SY_EXTENSION_METHOD: {
+  case rq::Opcode::SY_EXTENSION_METHOD: {
     const auto &extension_method = llvm::cast<rq::ExtensionMethod>(symbol);
     json.emitString("name", extension_method.getName());
     rq::emitModuleMemberSymbol(context, json, extension_method);
   } break;
-  case rq::EntityKind::SY_TOP: {
+  case rq::Opcode::SY_TOP: {
     const auto &top = llvm::cast<rq::Top>(symbol);
     rq::emitSymbolTable(context, json, top);
   } break;
@@ -1102,18 +1102,70 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
   return new_expression;
 }
 
-rq::Instruction &Context::acquireInstruction() {
-  if (this->acquired._first_unused_instruction_ptr == nullptr) {
-    rq::Instruction &new_instruction =
-        this->allocateAcquiredValue<rq::Instruction>();
-    return new_instruction;
+[[nodiscard]] rq::NullaryInstruction &
+Context::acquireNullaryInstruction(rq::Opcode opcode) {
+  if (this->acquired._first_unused_nullary_instruction_ptr == nullptr) {
+    rq::NullaryInstruction &new_ =
+        this->allocateAcquiredValue<rq::NullaryInstruction>(opcode);
+    return new_;
   }
-  rq::Instruction &unused_instruction =
-      rq::dereferencePtr(this->acquired._first_unused_instruction_ptr);
-  this->acquired._first_unused_instruction_ptr =
-      llvm::cast<rq::Instruction>(unused_instruction.popHeadPtr());
-  std::memset(&unused_instruction, 0, sizeof(rq::Instruction));
-  return unused_instruction;
+  rq::NullaryInstruction &unused =
+      rq::dereferencePtr(this->acquired._first_unused_nullary_instruction_ptr);
+  this->acquired._first_unused_nullary_instruction_ptr =
+      std::bit_cast<rq::NullaryInstruction *>(unused._expression_ptr);
+  std::memset(&unused, 0, sizeof(rq::NullaryInstruction));
+  return unused;
+}
+
+void Context::discardInstruction(rq::NullaryInstruction &instruction) {
+  instruction._opcode = rq::Opcode::NONE;
+  instruction._expression_ptr = std::bit_cast<rq::Expression *>(
+      this->acquired._first_unused_nullary_instruction_ptr);
+  this->acquired._first_unused_nullary_instruction_ptr = &instruction;
+}
+
+[[nodiscard]] rq::UnaryInstruction &
+Context::acquireUnaryInstruction(rq::Opcode opcode) {
+  if (this->acquired._first_unused_unary_instruction_ptr == nullptr) {
+    rq::UnaryInstruction &new_ =
+        this->allocateAcquiredValue<rq::UnaryInstruction>(opcode);
+    return new_;
+  }
+  rq::UnaryInstruction &unused =
+      rq::dereferencePtr(this->acquired._first_unused_unary_instruction_ptr);
+  this->acquired._first_unused_unary_instruction_ptr =
+      std::bit_cast<rq::UnaryInstruction *>(unused._expression_ptr);
+  std::memset(&unused, 0, sizeof(rq::UnaryInstruction));
+  return unused;
+}
+
+void Context::discardInstruction(rq::UnaryInstruction &instruction) {
+  instruction._opcode = rq::Opcode::NONE;
+  instruction._expression_ptr = std::bit_cast<rq::Expression *>(
+      this->acquired._first_unused_unary_instruction_ptr);
+  this->acquired._first_unused_unary_instruction_ptr = &instruction;
+}
+
+[[nodiscard]] rq::BinaryInstruction &
+Context::acquireBinaryInstruction(rq::Opcode opcode) {
+  if (this->acquired._first_unused_binary_instruction_ptr == nullptr) {
+    rq::BinaryInstruction &new_ =
+        this->allocateAcquiredValue<rq::BinaryInstruction>(opcode);
+    return new_;
+  }
+  rq::BinaryInstruction &unused =
+      rq::dereferencePtr(this->acquired._first_unused_binary_instruction_ptr);
+  this->acquired._first_unused_binary_instruction_ptr =
+      std::bit_cast<rq::BinaryInstruction *>(unused._expression_ptr);
+  std::memset(&unused, 0, sizeof(rq::BinaryInstruction));
+  return unused;
+}
+
+void Context::discardInstruction(rq::BinaryInstruction &instruction) {
+  instruction._opcode = rq::Opcode::NONE;
+  instruction._expression_ptr = std::bit_cast<rq::Expression *>(
+      this->acquired._first_unused_binary_instruction_ptr);
+  this->acquired._first_unused_binary_instruction_ptr = &instruction;
 }
 
 [[nodiscard]] rq::TypeConstant &Context::acquireEntrySignature() {
@@ -1123,8 +1175,7 @@ rq::Instruction &Context::acquireInstruction() {
   rq::TypeConstant &return_type =
       this->acquireTypeConstant(return_type_integer, {});
   rq::Signature &signature = this->allocateValue<rq::Signature>(
-      *this, 4, rq::ExpressionFlags{}, this->getSourceModule(),
-      this->getTop());
+      *this, 4, rq::ExpressionFlags{}, this->getSourceModule(), this->getTop());
   signature.setReturnType(return_type);
   rq::TypeConstant &signature_type = this->acquireTypeConstant(signature, {});
   return signature_type;

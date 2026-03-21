@@ -17,17 +17,17 @@ void ExecutionFactory::addInstruction(rq::Context &context,
   }
   rq::Instruction &previous_instruction =
       rq::dereferencePtr(this->_instruction_ptr);
-  rq::Instruction &new_exec = context.acquireInstruction();
-  new_exec.setOpcode(rq::EntityKind::OP_EXECUTE);
-  new_exec.setTail(instruction);
+  rq::BinaryInstruction &new_exec =
+      context.acquireBinaryInstruction(rq::Opcode::IN_EXECUTE);
+  new_exec.setAddress1(instruction);
   if (this->_last_exec_ptr == nullptr) {
-    new_exec.setHead(previous_instruction);
+    new_exec.setAddress0(previous_instruction);
     this->_instruction_ptr = &new_exec;
     this->_last_exec_ptr = &new_exec;
     return;
   }
-  rq::Instruction &last_exec = rq::dereferencePtr(this->_last_exec_ptr);
-  new_exec.setHead(last_exec.replaceTail(new_exec));
+  rq::BinaryInstruction &last_exec = rq::dereferencePtr(this->_last_exec_ptr);
+  new_exec.setAddress0(last_exec.replaceAddress1(new_exec));
 }
 
 void Tabulator::tabulateModule() {
@@ -667,11 +667,11 @@ Tabulator::tabulateLocalForest(const rq::Expression &first_expression,
         break;
       }
       rq::Entity &value = rq::dereferencePtr(value_ptr);
-      rq::Instruction &instruction = this->getContext().acquireInstruction();
-      instruction.setOpcode(rq::EntityKind::OP_COPY);
+      rq::BinaryInstruction &instruction =
+          this->getContext().acquireBinaryInstruction(rq::Opcode::IN_COPY);
       rq::Result &result = this->getContext().acquireResult();
-      instruction.setHead(result);
-      instruction.setTail(value);
+      instruction.setAddress0(result);
+      instruction.setAddress1(value);
       return &instruction;
     }
     default:
