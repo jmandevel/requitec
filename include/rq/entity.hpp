@@ -253,8 +253,6 @@ enum class Opcode : std::uint16_t {
   IN_ARG,
   // none | 0:procedure 1:arg0
   IN_CALL,
-  // value | 0:procedure 1:arg0
-  IN_CALL_INLINE,
   // none | 0:location 1:location
   IN_MOVE,
   // none | 0:location 1:value
