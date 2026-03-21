@@ -294,6 +294,30 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
       containing_table.addNamedSymbol(this->getContext(), name, ranger);
       break;
     }
+    case K::IMPLEMENT_FUNCTION:
+      RQ_TODO_IMPLEMENTATION();
+    case K::IMPLEMENT_METHOD:
+      RQ_TODO_IMPLEMENTATION();
+    case K::IMPLEMENT_RANGER:
+      RQ_TODO_IMPLEMENTATION();
+    case K::IMPLEMENT_EXTENSION_FUNCTION:
+      RQ_TODO_IMPLEMENTATION();
+    case K::IMPLEMENT_EXTENSION_METHOD: 
+      RQ_TODO_IMPLEMENTATION();
+    case K::IMPLEMENT_EXTENSION_RANGER:
+      RQ_TODO_IMPLEMENTATION();
+    case K::SPECIALIZE_FUNCTION:
+      RQ_TODO_IMPLEMENTATION();
+    case K::SPECIALIZE_METHOD:
+      RQ_TODO_IMPLEMENTATION();
+    case K::SPECIALIZE_RANGER:
+      RQ_TODO_IMPLEMENTATION();
+    case K::SPECIALIZE_EXTENSION_FUNCTION:
+      RQ_TODO_IMPLEMENTATION();
+    case K::SPECIALIZE_EXTENSION_METHOD:
+      RQ_TODO_IMPLEMENTATION();
+    case K::SPECIALIZE_EXTENSION_RANGER:
+      RQ_TODO_IMPLEMENTATION();
     case K::RETURN: {
       this->getContext().logErrorGlobalIndeterminateDynamicExpression(
           unascribed_expression);
