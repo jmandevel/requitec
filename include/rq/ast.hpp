@@ -1995,7 +1995,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // REFLECTIONS
   case K::REFLECT:
-    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE |
+    return KF::CONVERGING | KF::RVALUE | KF::LVALUE |
            KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
            KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
            KF::NAMESPACE;
