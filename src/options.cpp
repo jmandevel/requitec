@@ -20,30 +20,37 @@ static llvm::cl::opt<bool>
                llvm::cl::init(false));
 
 static llvm::cl::opt<std::string>
-    OUTPUT_FILE("o", llvm::cl::desc("Path to the output build file."),
-                llvm::cl::value_desc("<output file>"), llvm::cl::Required);
+    TOKS_FILE("toks", llvm::cl::desc("Path to the output token csv file."),
+              llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
+
+static llvm::cl::opt<std::string>
+    AST_FILE("ast", llvm::cl::desc("Path to the output ast rq file."),
+             llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
+
+static llvm::cl::opt<std::string>
+    SITAST_FILE("sitast",
+                llvm::cl::desc("Path to the output situated ast rq file."),
+                llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
+
+static llvm::cl::opt<std::string>
+    SYMB_FILE("symb", llvm::cl::desc("Path to the output symbols json file."),
+              llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
+
+static llvm::cl::opt<std::string>
+    LL_FILE("llvm", llvm::cl::desc("Path to the output llvm ll file."),
+            llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
+
+static llvm::cl::opt<std::string>
+    ASM_FILE("asm", llvm::cl::desc("Path to the output s file."),
+             llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
+
+static llvm::cl::opt<std::string>
+    OBJ_FILE("obj", llvm::cl::desc("Path to the output o file."),
+             llvm::cl::value_desc("<output file>"), llvm::cl::Optional);
 
 static llvm::cl::list<std::string>
     IMPORT_DIRECTORIES("I", llvm::cl::desc("import directories"),
                        llvm::cl::ZeroOrMore, llvm::cl::value_desc("dir"));
-
-static llvm::cl::opt<Emit> EMIT(
-    "emit", llvm::cl::desc("Choose the type of target to build."),
-    llvm::cl::values(
-        clEnumValN(EMIT_TOKENS, "tokens", "Output csv token data."),
-        clEnumValN(EMIT_PARSED, "parsed",
-                   "Output intermediate requite source code of "
-                   "the ast immediatly after parsing."),
-        clEnumValN(EMIT_SITUATED, "situated",
-                   "Output intermediate requite source code of "
-                   "the ast immediatly after situating."),
-        clEnumValN(EMIT_SYMBOLS, "symbols",
-                   "Output a markup language file listing user symbols."),
-        clEnumValN(EMIT_IR, "ir", "Output an llvm ir source file."),
-        clEnumValN(EMIT_ASSEMBLY, "assembly",
-                   "Output an assembly source file."),
-        clEnumValN(EMIT_OBJECT, "object", "Output an object file.")),
-    llvm::cl::init(EMIT_OBJECT));
 
 bool parseCommandLineOptions(int argc, const char **argv) {
   llvm::cl::ParseCommandLineOptions(argc, argv);
@@ -78,7 +85,7 @@ bool parseCommandLineOptions(int argc, const char **argv) {
       is_ok = false;
     } else {
       if (!llvm::sys::fs::is_regular_file(buffer)) {
-        llvm::errs() << "input file path is not file\n\tpath: "
+        llvm::errs() << "Input file path is not file\n\tpath: "
                      << rq::INPUT_FILE << "\n";
         is_ok = false;
       } else {
@@ -86,18 +93,76 @@ bool parseCommandLineOptions(int argc, const char **argv) {
       }
     }
   }
-  return is_ok;
+  if (!rq::getHasToksFile() && !rq::getHasAstFile() &&
+      !rq::getHasSitastFile() && !rq::getHasSymbFile() &&
+      !rq::getHasLlvmFile() && !rq::getHasAsmFile() && !rq::getHasObjFile()) {
+        llvm::errs() << "no output file specified\n";
+        is_ok = false;
+      }
+    return is_ok;
 }
 
 llvm::StringRef getInputFilePath() { return rq::INPUT_FILE.getValue(); }
 
-llvm::StringRef getOutputFilePath() { return rq::OUTPUT_FILE.getValue(); }
+bool getHasToksFile() {
+  return rq::TOKS_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getToksFilePath() {
+  return rq::TOKS_FILE.getValue();
+}
+
+bool getHasAstFile() {
+  return rq::AST_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getAstFilePath() {
+  return rq::AST_FILE.getValue();
+}
+
+bool getHasSitastFile() {
+  return rq::SITAST_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getSitastFilePath() {
+  return rq::SITAST_FILE.getValue();
+}
+
+bool getHasSymbFile() {
+  return rq::SYMB_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getSymbFilePath() {
+  return rq::SYMB_FILE.getValue();
+}
+
+bool getHasLlvmFile() {
+  return rq::LL_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getLlvmFilePath() {
+  return rq::LL_FILE.getValue();
+}
+
+bool getHasAsmFile() {
+  return rq::ASM_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getAsmFilePath() {
+  return rq::ASM_FILE.getValue();
+}
+
+bool getHasObjFile() {
+  return rq::OBJ_FILE.getNumOccurrences() == 1;
+}
+
+llvm::StringRef getObjFilePath() {
+  return rq::OBJ_FILE.getValue();
+}
 
 llvm::ArrayRef<std::string> getImportDirectories() {
   return rq::IMPORT_DIRECTORIES;
 }
-
-rq::Emit getEmitMode() { return rq::EMIT.getValue(); }
 
 bool getNoComment() { return rq::NO_COMMENT.getValue(); }
 
