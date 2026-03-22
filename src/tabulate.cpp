@@ -83,8 +83,8 @@ void Tabulator::tabulateGlobalForest(const rq::Expression &first_expression,
     if (branch_expression.getKeyword() == K::ASCRIBE_EXPRESSION) {
       factory.addAllAttributres(unascribed_expression);
     }
-    rq::SymbolTable &containing_table = this->resolveContainingTable(
-        factory, unascribed_expression, hosting_table);
+    rq::SymbolTable &containing_table = this->determineContainingTable(
+        factory, unascribed_expression, hosting_table, module);
     switch (unascribed_expression.getKeyword()) {
     case K::BINDING: {
       if (factory.getHasStatic()) {
@@ -837,14 +837,14 @@ Tabulator::evaluateUtf8Cstr(const rq::Expression &expression,
 }
 
 [[nodiscard]] rq::SymbolTable &
-Tabulator::resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
-                                  const rq::Expression &unascribed_expression,
-                                  rq::SymbolTable &hosting_table) {
+Tabulator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
+                                    const rq::Expression &unascribed_expression,
+                                    rq::SymbolTable &hosting_table, rq::Module& module) {
   if (factory.getHasOutside()) {
     const rq::Expression &outside_expression = factory.getOutside();
     const rq::Expression &path_expression = outside_expression.getBranch();
     rq::Symbol *outside_ptr =
-        this->resolveSymbol(path_expression, hosting_table);
+        this->evaluateSymbol(path_expression, hosting_table, module);
     if (outside_ptr == nullptr) {
       this->getContext().logErrorNotSymbol(path_expression);
       this->getContext().logErrorFailedToAscribeExpression(
@@ -934,17 +934,29 @@ Tabulator::evaluateValue(const rq::Expression &expression,
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] rq::Symbol *Tabulator::resolveSymbol(const rq::Expression &path,
-                                                   rq::SymbolTable &table) {
+[[nodiscard]] rq::Symbol *Tabulator::evaluateSymbol(const rq::Expression &path,
+                                                    rq::SymbolTable &table, rq::Module& module) {
   std::ignore = path;
   std::ignore = table;
+  std::ignore = module;
   RQ_TODO_IMPLEMENTATION();
 }
 
 [[nodiscard]] rq::TypeConstant *
-Tabulator::evaluateType(const rq::Expression &path, rq::SymbolTable &table) {
+Tabulator::evaluateType(const rq::Expression &path, rq::SymbolTable &table,
+                        rq::Module &module) {
   std::ignore = path;
   std::ignore = table;
+  std::ignore = module;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+[[nodiscard]] rq::TypeConstant *
+Tabulator::inferenceType(const rq::Expression &type_expression,
+                         rq::SymbolTable &hosting_table, rq::Module &module) {
+  std::ignore = type_expression;
+  std::ignore = hosting_table;
+  std::ignore = module;
   RQ_TODO_IMPLEMENTATION();
 }
 

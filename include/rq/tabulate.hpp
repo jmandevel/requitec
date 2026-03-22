@@ -35,14 +35,13 @@ struct ExecutionFactory final {
 struct Tabulator final {
   using Self = rq::Tabulator;
 
-  rq::Context* _context_ptr;
+  rq::Context *_context_ptr;
   rq::Expression *_trunk_ptr{nullptr};
   llvm::DenseMap<rq::Expression *, llvm::SmallVector<rq::Symbol *>>
       _declaration_map{};
   bool _is_ok : 1 = true;
 
-  Tabulator(rq::Context &context)
-      : _context_ptr(&context) {}
+  Tabulator(rq::Context &context) : _context_ptr(&context) {}
   Tabulator(const Self &) = delete;
   Tabulator(Self &&) = delete;
   ~Tabulator() = default;
@@ -64,7 +63,7 @@ struct Tabulator final {
   void setNotOk() { this->_is_ok = false; }
   void tabulateSourceModule();
   void tabulateGlobalForest(const rq::Expression &first,
-                            rq::SymbolTable &hosting_table, rq::Module& module);
+                            rq::SymbolTable &hosting_table, rq::Module &module);
   rq::Instruction *tabulateLocalForest(const rq::Expression &first,
                                        rq::SymbolTable &hosting_table,
                                        rq::Procedure &procedure);
@@ -75,26 +74,28 @@ struct Tabulator final {
   evaluateUtf8Cstr(const rq::Expression &expression,
                    rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::SymbolTable &
-  resolveContainingTable(const rq::ExpressionFlagsFactory &factory,
-                         const rq::Expression &unascribed,
-                         rq::SymbolTable &hosting_table);
+  determineContainingTable(const rq::ExpressionFlagsFactory &factory,
+                           const rq::Expression &unascribed,
+                           rq::SymbolTable &hosting_table, rq::Module &module);
   [[nodiscard]] rq::Entity *evaluateValue(const rq::Expression &expression,
                                           rq::TypeConstant &type,
                                           rq::SymbolTable &hosting_table);
-  [[nodiscard]] rq::Symbol *resolveSymbol(const rq::Expression &path,
-                                          rq::SymbolTable &hosting_table);
+  [[nodiscard]] rq::Symbol *evaluateSymbol(const rq::Expression &path,
+                                           rq::SymbolTable &hosting_table,
+                                           rq::Module &module);
   [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
-                                               rq::SymbolTable &hosting_table);
+                                               rq::SymbolTable &hosting_table,
+                                               rq::Module &module);
+  [[nodiscard]] rq::TypeConstant *
+  inferenceType(const rq::Expression &type_expression,
+                rq::SymbolTable &hosting_table, rq::Module &module);
   void implementProcedure(rq::Procedure &procedure);
   void implementGlobalVariable(rq::GlobalVariable &global);
-  void tabulateGlobalVariable(rq::SymbolTable &containing_table,
-                              rq::SymbolTable &hosting_table,
-                              rq::Module& module,
-                              const rq::ExpressionFlagsFactory &factory,
-                              const rq::Expression &unascribed,
-                              const rq::Expression &name,
-                              const rq::Expression &type,
-                              const rq::Expression *value_ptr);
+  void tabulateGlobalVariable(
+      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+      rq::Module &module, const rq::ExpressionFlagsFactory &factory,
+      const rq::Expression &unascribed, const rq::Expression &name,
+      const rq::Expression &type, const rq::Expression *value_ptr);
 };
 
 } // namespace rq
