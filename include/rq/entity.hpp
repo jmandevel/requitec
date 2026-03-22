@@ -3897,7 +3897,7 @@ struct Procedure : public rq::SymbolTable,
   const rq::Expression *_signature_expression_ptr{nullptr};
   const rq::Expression *_body_start_ptr{nullptr};
   rq::Instruction *_instruction_ptr{nullptr};
-
+  llvm::StringRef _mangled_name{};
   llvm::Function *_llvm_function_ptr{nullptr};
 
   inline explicit Procedure(rq::Opcode opcode, llvm::StringRef name,
@@ -3971,6 +3971,16 @@ struct Procedure : public rq::SymbolTable,
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getBodyStartExpression() const {
     return rq::dereferencePtr(this->_body_start_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangledName() const {
+    return !this->_mangled_name.empty();
+  }
+  RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef name) {
+    RQ_ASSERT(!this->getHasMangledName(), "mangled name already set");
+    this->_mangled_name = name;
+  }
+  [[nodiscard]] llvm::StringRef getMangledName() const {
+    return this->_mangled_name;
   }
   RQ_ALWAYS_INLINE void setLlvmFunctionPtr(llvm::Function *llvm_function_ptr) {
     rq::assignSingleValue(this->_llvm_function_ptr, llvm_function_ptr);
