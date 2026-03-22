@@ -249,6 +249,14 @@ enum class Opcode : std::uint16_t {
   IN_CONTENT,
   // pointer | 0:value
   IN_ADDRESS,
+  // value | 0:location
+  IN_VALUE,
+  // value | 0:location
+  IN_REF,
+  // value | 0:location 1:index
+  IN_INDEX,
+  // value | 0:value
+  IN_DATA_COUNT,
   // none | 0:value 1:next arg (or last value)
   IN_ARG,
   // none | 0:procedure 1:arg0
@@ -547,12 +555,18 @@ static constexpr std::size_t OPCODE_COUNT =
     return "in_content";
   case O::IN_ADDRESS:
     return "in_address";
+  case O::IN_VALUE:
+    return "in_value";
+  case O::IN_REF:
+    return "in_ref";
+  case O::IN_INDEX:
+    return "in_index";
+  case O::IN_DATA_COUNT:
+    return "in_data_count";
   case O::IN_ARG:
     return "in_arg";
   case O::IN_CALL:
     return "in_call";
-  case O::IN_CALL_INLINE:
-    return "in_call_inline";
   case O::IN_MOVE:
     return "in_move";
   case O::IN_COPY:
@@ -933,11 +947,17 @@ template <> struct is_flags<OpcodeFlags> : std::true_type {};
     return OF::IN_UNARY;
   case O::IN_ADDRESS:
     return OF::IN_UNARY;
+  case O::IN_VALUE:
+    return OF::IN_UNARY;
+  case O::IN_REF:
+    return OF::IN_UNARY;
+  case O::IN_INDEX:
+    return OF::IN_BINARY;
+  case O::IN_DATA_COUNT:
+    return OF::IN_UNARY;
   case O::IN_ARG:
     return OF::IN_BINARY;
   case O::IN_CALL:
-    return OF::IN_BINARY;
-  case O::IN_CALL_INLINE:
     return OF::IN_BINARY;
   case O::IN_MOVE:
     return OF::IN_BINARY;
