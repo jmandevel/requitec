@@ -3040,8 +3040,7 @@ static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
-getName(rq::ModuleKind opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind opcode) {
   using M = rq::ModuleKind;
   switch (opcode) {
   case M::NONE:
@@ -3611,6 +3610,7 @@ struct Class : public rq::SymbolTable,
                public rq::InitialNamed {
   using Self = rq::Class;
 
+  bool _is_implemented : 1 {false};
   const rq::Expression *_class_layout_expression_ptr{nullptr};
   rq::ClassLayout *_class_layout_ptr{nullptr};
 
@@ -3622,6 +3622,13 @@ struct Class : public rq::SymbolTable,
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialNamed(name) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
+    return this->_is_implemented;
+  }
+  RQ_ALWAYS_INLINE void setIsImplemented() {
+    RQ_ASSERT(!this->_is_implemented, "already implemented");
+    this->_is_implemented = true;
+  }
   void setClassLayoutExpression(const rq::Expression &layout_expression) {
     rq::assignSingleValue(this->_class_layout_expression_ptr,
                           &layout_expression);
@@ -3639,6 +3646,7 @@ struct Enumeration : public rq::SymbolTable,
                      public rq::InitialNamed {
   using Self = rq::Enumeration;
 
+  bool _is_implemented : 1 {false};
   const rq::Expression *_underlying_type_expression_ptr{nullptr};
 
   inline explicit Enumeration(llvm::StringRef name,
@@ -3651,6 +3659,13 @@ struct Enumeration : public rq::SymbolTable,
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialNamed(name) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
+    return this->_is_implemented;
+  }
+  RQ_ALWAYS_INLINE void setIsImplemented() {
+    RQ_ASSERT(!this->_is_implemented, "already implemented");
+    this->_is_implemented = true;
+  }
   RQ_ALWAYS_INLINE void setUnderlyingTypeExpression(
       const rq::Expression &underlying_type_expression) {
     rq::assignSingleValue(this->_underlying_type_expression_ptr,
@@ -3669,6 +3684,7 @@ struct Category : public rq::SymbolTable,
                   public rq::InitialNamed {
   using Self = rq::Category;
 
+  bool _is_implemented : 1 {false};
   const rq::Expression *_discriminant_type_expression_ptr{nullptr};
 
   inline explicit Category(llvm::StringRef name,
@@ -3681,6 +3697,13 @@ struct Category : public rq::SymbolTable,
         InitialExpression(expression), InitialExpressionFlags(attributes),
         InitialModuleMember(module), SymbolTableHosted(hosting_table),
         InitialNamed(name) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
+    return this->_is_implemented;
+  }
+  RQ_ALWAYS_INLINE void setIsImplemented() {
+    RQ_ASSERT(!this->_is_implemented, "already implemented");
+    this->_is_implemented = true;
+  }
   RQ_ALWAYS_INLINE void
   setDiscriminantTypeExpression(const rq::Expression &type_expression) {
     rq::assignSingleValue(this->_discriminant_type_expression_ptr,
@@ -3747,6 +3770,9 @@ struct GlobalVariable : public rq::DynamicVariable,
                         public rq::SymbolTableHosted {
   using Self = rq::GlobalVariable;
 
+  bool _is_implemented : 1 {false};
+  rq::TypeConstant *_type_ptr;
+
   inline explicit GlobalVariable(llvm::StringRef name,
                                  const rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
@@ -3756,6 +3782,25 @@ struct GlobalVariable : public rq::DynamicVariable,
       : DynamicVariable(rq::Opcode::SY_GLOBAL_VARIABLE, name, expression,
                         attributes, module, containing_table),
         SymbolTableHosted(hosting_table) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
+    return this->_is_implemented;
+  }
+  RQ_ALWAYS_INLINE void setIsImplemented() {
+    RQ_ASSERT(!this->_is_implemented, "already implemented");
+    this->_is_implemented = true;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
+    return this->_type_ptr != nullptr;
+  }
+  RQ_ALWAYS_INLINE void setType(rq::TypeConstant &type) {
+    rq::assignSingleValue(this->_type_ptr, &type);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getType() {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getOpcode() ==
            rq::Opcode::SY_GLOBAL_VARIABLE;
@@ -3847,6 +3892,7 @@ struct Procedure : public rq::SymbolTable,
                    public rq::InitialMaybeNamed {
   using Self = rq::Procedure;
 
+  bool _is_implemented : 1 {false};
   rq::TypeConstant *_signature_ptr{nullptr};
   const rq::Expression *_signature_expression_ptr{nullptr};
   const rq::Expression *_body_start_ptr{nullptr};
@@ -3870,6 +3916,13 @@ struct Procedure : public rq::SymbolTable,
       : SymbolTable(opcode, containing_table), InitialExpression(expression),
         InitialExpressionFlags(attributes), InitialModuleMember(module),
         SymbolTableHosted(hosting_table) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() {
+    return this->_is_implemented;
+  }
+  RQ_ALWAYS_INLINE void setIsImplemented() {
+    RQ_ASSERT(!this->_is_implemented, "already implemented");
+    this->_is_implemented = true;
+  }
   RQ_ALWAYS_INLINE void
   setSignatureExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_signature_expression_ptr, &expression);

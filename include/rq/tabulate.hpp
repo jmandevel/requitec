@@ -5,7 +5,6 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 
-#include <functional>
 #include <optional>
 
 namespace rq {
@@ -33,26 +32,17 @@ struct ExecutionFactory final {
   void addInstruction(rq::Context &context, rq::Instruction &instruction);
 };
 
-struct TablePosition final {
-  using Self = rq::TablePosition;
-
-  rq::SymbolTable *_frame_table_ptr{nullptr};
-  rq::SymbolTable *_hosting_table_ptr{nullptr};
-  rq::SymbolTable *_containing_table_ptr{nullptr};
-};
-
 struct Tabulator final {
   using Self = rq::Tabulator;
 
-  std::reference_wrapper<rq::Context> _context_ref;
-  std::reference_wrapper<rq::Module> _module_ref;
+  rq::Context* _context_ptr;
   rq::Expression *_trunk_ptr{nullptr};
   llvm::DenseMap<rq::Expression *, llvm::SmallVector<rq::Symbol *>>
       _declaration_map{};
   bool _is_ok : 1 = true;
 
-  Tabulator(rq::Context &context, rq::Module &module)
-      : _context_ref(context), _module_ref(module) {}
+  Tabulator(rq::Context &context)
+      : _context_ptr(&context) {}
   Tabulator(const Self &) = delete;
   Tabulator(Self &&) = delete;
   ~Tabulator() = default;
@@ -65,22 +55,16 @@ struct Tabulator final {
     return this != &rhs;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
-    return this->_context_ref.get();
+    return rq::dereferencePtr(this->_context_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
-    return this->_context_ref.get();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule() {
-    return this->_module_ref.get();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const {
-    return this->_module_ref.get();
+    return rq::dereferencePtr(this->_context_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
-  void tabulateModule();
+  void tabulateSourceModule();
   void tabulateGlobalForest(const rq::Expression &first,
-                            rq::SymbolTable &hosting_table);
+                            rq::SymbolTable &hosting_table, rq::Module& module);
   rq::Instruction *tabulateLocalForest(const rq::Expression &first,
                                        rq::SymbolTable &hosting_table,
                                        rq::Procedure &procedure);
@@ -101,9 +85,11 @@ struct Tabulator final {
                                           rq::SymbolTable &hosting_table);
   [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
                                                rq::SymbolTable &hosting_table);
-  void evaluateProcedure(rq::Procedure &procedure);
+  void implementProcedure(rq::Procedure &procedure);
+  void implementGlobalVariable(rq::GlobalVariable &global);
   void tabulateGlobalVariable(rq::SymbolTable &containing_table,
                               rq::SymbolTable &hosting_table,
+                              rq::Module& module,
                               const rq::ExpressionFlagsFactory &factory,
                               const rq::Expression &unascribed,
                               const rq::Expression &name,

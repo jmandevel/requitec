@@ -274,7 +274,7 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->tabulateModule(this->getSourceModule())) {
+  if (!this->tabulateSourceModule()) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
@@ -321,9 +321,9 @@ bool Context::situateModule(rq::Module &module) {
   return is_ok;
 }
 
-bool Context::tabulateModule(rq::Module &module) {
-  rq::Tabulator tabulator(*this, module);
-  tabulator.tabulateModule();
+bool Context::tabulateSourceModule() {
+  rq::Tabulator tabulator(*this);
+  tabulator.tabulateSourceModule();
   return tabulator.getIsOk();
 }
 
