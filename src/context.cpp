@@ -256,7 +256,7 @@ bool Context::run() {
   if (rq::getHasAstFile()) {
     if (!this->emitRequite(rq::getAstFilePath(),
                            this->getSourceModule().getExpression())) {
-        llvm::errs() << "failed to output ast file\n";
+      llvm::errs() << "failed to output ast file\n";
     }
   }
   if (!this->situateModule(this->getSourceModule())) {
@@ -265,7 +265,7 @@ bool Context::run() {
   if (rq::getHasSitastFile()) {
     if (!this->emitRequite(rq::getSitastFilePath(),
                            this->getSourceModule().getExpression())) {
-        llvm::errs() << "failed to output sitast file\n";
+      llvm::errs() << "failed to output sitast file\n";
     }
   }
   if (!this->initializeLlvm()) {
@@ -276,7 +276,7 @@ bool Context::run() {
   }
   if (rq::getHasSymbFile()) {
     if (!this->emitSymbol(rq::getSymbFilePath(), this->getTop())) {
-        llvm::errs() << "failed to output symb file\n";
+      llvm::errs() << "failed to output symb file\n";
     }
   }
   if (!this->buildLlvmIr()) {
@@ -284,17 +284,17 @@ bool Context::run() {
   }
   if (rq::getHasLlvmFile()) {
     if (!this->emitLlvmIr(rq::getLlvmFilePath())) {
-        llvm::errs() << "failed to output llvm file\n";
+      llvm::errs() << "failed to output llvm file\n";
     }
   }
   if (rq::getHasAsmFile()) {
     if (!this->emitAssembly(rq::getAsmFilePath())) {
-        llvm::errs() << "failed to output asm file\n";
+      llvm::errs() << "failed to output asm file\n";
     }
   }
   if (rq::getHasObjFile()) {
     if (!this->emitObject(rq::getObjFilePath())) {
-        llvm::errs() << "failed to output obj file\n";
+      llvm::errs() << "failed to output obj file\n";
     }
   }
   return true;
