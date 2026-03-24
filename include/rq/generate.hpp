@@ -50,16 +50,16 @@ template <rq::Opcode OPCODE_PARAM> struct InstructionFactory final {
   }
 };
 
-struct Tabulator final {
-  using Self = rq::Tabulator;
+struct Generator final {
+  using Self = rq::Generator;
 
   rq::Context *_context_ptr;
   bool _is_ok : 1 = true;
 
-  Tabulator(rq::Context &context) : _context_ptr(&context) {}
-  Tabulator(const Self &) = delete;
-  Tabulator(Self &&) = delete;
-  ~Tabulator() = default;
+  Generator(rq::Context &context) : _context_ptr(&context) {}
+  Generator(const Self &) = delete;
+  Generator(Self &&) = delete;
+  ~Generator() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
@@ -76,10 +76,10 @@ struct Tabulator final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
-  void tabulateSourceModule();
-  void tabulateGlobalForest(const rq::Expression &first,
+  void generateSourceModule();
+  void generateGlobalForest(const rq::Expression &first,
                             rq::SymbolTable &hosting_table, rq::Module &module);
-  rq::Instruction *tabulateLocalForest(const rq::Expression &first,
+  rq::Instruction *generateLocalForest(const rq::Expression &first,
                                        rq::SymbolTable &hosting_table,
                                        rq::Procedure &procedure);
   [[nodiscard]] std::optional<llvm::StringRef>
@@ -106,7 +106,7 @@ struct Tabulator final {
                 rq::SymbolTable &hosting_table, rq::Module &module);
   void implementProcedure(rq::Procedure &procedure);
   void implementGlobalVariable(rq::GlobalVariable &global);
-  void tabulateGlobalVariable(
+  void generateGlobalVariable(
       rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
       rq::Module &module, const rq::ExpressionFlagsFactory &factory,
       const rq::Expression &unascribed, const rq::Expression &name,

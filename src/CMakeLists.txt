@@ -2,12 +2,12 @@ target_sources(
     requite
     PRIVATE
         build.cpp
+        generate.cpp
         context.cpp
         options.cpp
         parse.cpp
         see.cpp
         situate.cpp
-        tabulate.cpp
         tokenize.cpp
 )
 

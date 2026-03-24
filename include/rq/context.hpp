@@ -204,7 +204,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool parseRequite(rq::Module &module,
                                   const std::vector<rq::Token> &tokens);
   [[nodiscard]] bool situateModule(rq::Module &module);
-  [[nodiscard]] bool tabulateSourceModule();
+  [[nodiscard]] bool generateSourceModule();
   [[nodiscard]] bool buildLlvmIr();
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);

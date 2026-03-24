@@ -7,7 +7,7 @@
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
-#include <rq/tabulate.hpp>
+#include <rq/generate.hpp>
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
@@ -271,7 +271,7 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->tabulateSourceModule()) {
+  if (!this->generateSourceModule()) {
     return false;
   }
   if (rq::getHasSymbFile()) {
@@ -314,10 +314,10 @@ bool Context::situateModule(rq::Module &module) {
   return is_ok;
 }
 
-bool Context::tabulateSourceModule() {
-  rq::Tabulator tabulator(*this);
-  tabulator.tabulateSourceModule();
-  return tabulator.getIsOk();
+bool Context::generateSourceModule() {
+  rq::Generator generator(*this);
+  generator.generateSourceModule();
+  return generator.getIsOk();
 }
 
 bool Context::buildLlvmIr() {
