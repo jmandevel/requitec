@@ -15,13 +15,14 @@ struct Expression;
 struct SymbolTable;
 struct Instruction;
 
-struct ExecutionFactory final {
-  using Self = rq::ExecutionFactory;
+template <rq::Opcode OPCODE_PARAM> struct InstructionFactory final {
+  static constexpr rq::Opcode OPCODE = OPCODE_PARAM;
+  using Self = rq::InstructionFactory<OPCODE>;
 
   rq::Instruction *_instruction_ptr{nullptr};
   rq::BinaryInstruction *_last_exec_ptr{nullptr};
 
-  ExecutionFactory() = default;
+  InstructionFactory() = default;
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const {
     return this->_instruction_ptr != nullptr;
@@ -29,7 +30,24 @@ struct ExecutionFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
     return rq::dereferencePtr(this->_instruction_ptr);
   }
-  void addInstruction(rq::Context &context, rq::Instruction &instruction);
+  inline void addInstruction(rq::Context &context, rq::Instruction &instruction) {
+    if (this->_instruction_ptr == nullptr) {
+      this->_instruction_ptr = &instruction;
+      return;
+    }
+    rq::Instruction &previous_instruction =
+        rq::dereferencePtr(this->_instruction_ptr);
+    rq::BinaryInstruction &new_exec = context.acquireBinaryInstruction(OPCODE);
+    new_exec.setAddress1(instruction);
+    if (this->_last_exec_ptr == nullptr) {
+      new_exec.setAddress0(previous_instruction);
+      this->_instruction_ptr = &new_exec;
+      this->_last_exec_ptr = &new_exec;
+      return;
+    }
+    rq::BinaryInstruction &last_exec = rq::dereferencePtr(this->_last_exec_ptr);
+    new_exec.setAddress0(last_exec.replaceAddress1(new_exec));
+  }
 };
 
 struct Tabulator final {

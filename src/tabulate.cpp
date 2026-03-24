@@ -9,27 +9,6 @@
 
 namespace rq {
 
-void ExecutionFactory::addInstruction(rq::Context &context,
-                                      rq::Instruction &instruction) {
-  if (this->_instruction_ptr == nullptr) {
-    this->_instruction_ptr = &instruction;
-    return;
-  }
-  rq::Instruction &previous_instruction =
-      rq::dereferencePtr(this->_instruction_ptr);
-  rq::BinaryInstruction &new_exec =
-      context.acquireBinaryInstruction(rq::Opcode::IN_EXECUTE);
-  new_exec.setAddress1(instruction);
-  if (this->_last_exec_ptr == nullptr) {
-    new_exec.setAddress0(previous_instruction);
-    this->_instruction_ptr = &new_exec;
-    this->_last_exec_ptr = &new_exec;
-    return;
-  }
-  rq::BinaryInstruction &last_exec = rq::dereferencePtr(this->_last_exec_ptr);
-  new_exec.setAddress0(last_exec.replaceAddress1(new_exec));
-}
-
 void Tabulator::tabulateSourceModule() {
   const rq::Expression &root =
       this->getContext().getSourceModule().getExpression();
