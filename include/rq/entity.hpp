@@ -3722,6 +3722,7 @@ struct DynamicVariable : public rq::Symbol,
                          public rq::InitialNamed {
   using Self = rq::DynamicVariable;
 
+  rq::TypeConstant *_type_ptr{nullptr};
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
@@ -3734,6 +3735,12 @@ struct DynamicVariable : public rq::Symbol,
         InitialExpressionFlags(attributes), InitialModuleMember(module),
         SymbolTableMember(containing_table), InitialNamed(name) {
     RQ_ASSERT(rq::getIsDynamicVariable(opcode), "not dynamic variable");
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
+    return this->_type_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const {
+    return rq::dereferencePtr(this->_type_ptr);
   }
   RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression) {
     rq::assignSingleValue(this->_type_expression_ptr, &expression);
@@ -3753,6 +3760,8 @@ struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
 struct LocalVariable : public rq::DynamicVariable {
   using Self = rq::LocalVariable;
 
+  bool _is_indeterminate : 1 {true};
+
   inline explicit LocalVariable(llvm::StringRef name,
                                 const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
@@ -3763,6 +3772,14 @@ struct LocalVariable : public rq::DynamicVariable {
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::dereferencePtr(entity).getOpcode() ==
            rq::Opcode::SY_LOCAL_VARIABLE;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const {
+    return this->_is_indeterminate;
+  }
+  RQ_ALWAYS_INLINE void setNotIndeterminate() {
+    RQ_ASSERT(this->getHasType(), "does not have type");
+    //RQ_ASSERT(this->getType().getIsComplete(), "does not have complete type");
+    this->_is_indeterminate = false;
   }
 };
 
