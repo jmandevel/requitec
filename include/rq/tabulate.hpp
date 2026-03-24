@@ -54,9 +54,6 @@ struct Tabulator final {
   using Self = rq::Tabulator;
 
   rq::Context *_context_ptr;
-  rq::Expression *_trunk_ptr{nullptr};
-  llvm::DenseMap<rq::Expression *, llvm::SmallVector<rq::Symbol *>>
-      _declaration_map{};
   bool _is_ok : 1 = true;
 
   Tabulator(rq::Context &context) : _context_ptr(&context) {}
