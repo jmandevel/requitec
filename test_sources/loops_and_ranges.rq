@@ -1,5 +1,21 @@
 [import "std"];
 
+@auto_drop @may_copy @may_change_address
+[class MyClass,
+    {> 
+        @public data:10#[fast_signed_integer 32]=[initializer_list 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    <},
+
+    @public
+    [ranger each, &=>$ranging(><)[fast_signed_integer 32],
+        [for [this].data.[each], value:=[value].[borrow], 
+            [range_over 
+            value
+            ];
+        ];
+    ];
+];
+
 [entry
 
     // all of these loops are equivalent
@@ -34,20 +50,6 @@
     ];
 
     // ranger range
-    [class MyClass,
-        {> 
-            @public data:10#[fast_signed_integer 32]=[initializer_list 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        <},
-
-        @public
-        [ranger each, &=>$ranging(><)[fast_signed_integer 32],
-            [for [this].data.[each], value:=[value].[borrow], 
-              [range_over 
-                value
-              ];
-            ];
-        ];
-    ];
     class := MyClass();
     [for class.[borrow].each(), value:=[value], 
         .std.print(line="value is {value}");

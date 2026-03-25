@@ -2,7 +2,7 @@
 
 // notice how there is no @auto_drop attribute. 
 // this means you ahve to manually drop variables of this type when they go out of scope.
-@may_move @may_copy
+@may_copy @may_change_address
 [class NoAutoDrop,
 	// this is like a destructor. it takes ownership of what you call it on and then drops it. 
 	// if this type had internal resources, they could be released here.
@@ -21,10 +21,10 @@
 	];
 	
 	// push back some elements
-	// notice how the elements are moved into the call. if it was copied, then the temporary would have to be manually dropped.
-	my_stack.pushBack(NoAutoDrop().[move]);
-	my_stack.pushBack(NoAutoDrop().[move]);
-	my_stack.pushBack(NoAutoDrop().[move]);
+	// function returns an indeterminate borrow, which you must assign to to make determinate.
+	my_stack.pushBack() = NoAutoDrop();
+	my_stack.pushBack() = NoAutoDrop();
+	my_stack.pushBack() = NoAutoDrop();
 	
 	// remove the last element
 	// the last element is linearly assigned out. you have to drop the element manually.

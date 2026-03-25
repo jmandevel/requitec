@@ -1,6 +1,6 @@
 [import "std"];
 
-@may_copy @may_move @auto_drop
+@may_copy @auto_drop @may_copy @may_change_address
 [class MyClass,
 
   @public
@@ -11,6 +11,19 @@
     // NOTE: .[drop] reflection only usable in member functions and methods.
   ];
 
+];
+
+// This class has no may_change_address attribute, so it cannnot be moved to a new memory address
+// Also it does not have auto_drop attribute, so it must be manually dropped
+@may_copy
+[class MyPinned,
+  @public
+  [method destroy, =>,
+    // explicit drop without destroy
+    [this].[drop];
+
+    // NOTE: .[drop] reflection only usable in member functions and methods.
+  ];
 ];
 
 [entry
@@ -26,4 +39,7 @@
   // class was dropped
   destructive_move.[move].destroy(); // linear assign into destructor method
   // non_destructive_move is auto dropped here
+  pinned := MyPinned();
+  // moved := pinned.[move]; // this move would be invalid because moving to a new memory location and does not have may_change_address attribute
+  moved.[move].destroy(); // this move is valid because the memory location does not change
 ];

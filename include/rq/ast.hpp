@@ -392,7 +392,7 @@ enum class Keyword : std::uint32_t {
   UNLIKELY,
   DEPRECIATED,
   MAY_COPY,
-  MAY_MOVE,
+  MAY_CHANGE_ADDRESS,
   AUTO_DROP,
   OK,
   MESSAGE,
@@ -1117,8 +1117,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "depreciated";
   case K::MAY_COPY:
     return "may_copy";
-  case K::MAY_MOVE:
-    return "may_move";
+  case K::MAY_CHANGE_ADDRESS:
+    return "may_change_address";
   case K::AUTO_DROP:
     return "auto_drop";
   case K::OK:
@@ -1957,7 +1957,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::MAY_COPY:
     return KF::EXPRESSION_ATTRIBUTE;
-  case K::MAY_MOVE:
+  case K::MAY_CHANGE_ADDRESS:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::AUTO_DROP:
     return KF::EXPRESSION_ATTRIBUTE;
@@ -2622,7 +2622,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   PUBLIC,
   PROTECTED,
   MAY_COPY,
-  MAY_MOVE,
+  MAY_CHANGE_ADDRESS,
   AUTO_DROP,
   OK,
   MESSAGE,
@@ -2682,8 +2682,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "protected";
   case SA::MAY_COPY:
     return "may_copy";
-  case SA::MAY_MOVE:
-    return "may_move";
+  case SA::MAY_CHANGE_ADDRESS:
+    return "may_change_address";
   case SA::AUTO_DROP:
     return "auto_drop";
   case SA::OK:
@@ -2748,8 +2748,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::PROTECTED;
   case K::MAY_COPY:
     return SA::MAY_COPY;
-  case K::MAY_MOVE:
-    return SA::MAY_MOVE;
+  case K::MAY_CHANGE_ADDRESS:
+    return SA::MAY_CHANGE_ADDRESS;
   case K::AUTO_DROP:
     return SA::AUTO_DROP;
   case K::OK:
@@ -2787,7 +2787,7 @@ enum class ExpressionFlags : std::uint32_t {
   PUBLIC = rq::getBit(11),
   PROTECTED = rq::getBit(10),
   MAY_COPY = rq::getBit(9),
-  MAY_MOVE = rq::getBit(8),
+  MAY_CHANGE_ADDRESS = rq::getBit(8),
   AUTO_DROP = rq::getBit(7),
   OK = rq::getBit(6),
   MESSAGE = rq::getBit(5)
@@ -2849,8 +2849,8 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::PROTECTED;
   case SA::MAY_COPY:
     return SF::MAY_COPY;
-  case SA::MAY_MOVE:
-    return SF::MAY_MOVE;
+  case SA::MAY_CHANGE_ADDRESS:
+    return SF::MAY_CHANGE_ADDRESS;
   case SA::AUTO_DROP:
     return SF::AUTO_DROP;
   case SA::OK:
@@ -2957,8 +2957,8 @@ getHasDepreciated(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::MAY_COPY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_MOVE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayChangeAddress(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_CHANGE_ADDRESS);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop(rq::ExpressionFlags flags) {
@@ -3009,7 +3009,7 @@ struct ExpressionFlagsFactory final {
   const rq::Expression *_public_ptr{nullptr};
   const rq::Expression *_protected_ptr{nullptr};
   const rq::Expression *_may_copy_ptr{nullptr};
-  const rq::Expression *_may_move_ptr{nullptr};
+  const rq::Expression *_may_change_address_ptr{nullptr};
   const rq::Expression *_auto_drop_ptr{nullptr};
   const rq::Expression *_ok_ptr{nullptr};
   const rq::Expression *_message_ptr{nullptr};
@@ -3093,8 +3093,8 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] bool getHasMayCopy() const {
     return rq::getHasMayCopy(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const {
-    return rq::getHasMayMove(this->_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayChangeAddress() const {
+    return rq::getHasMayChangeAddress(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop() const {
     return rq::getHasAutoDrop(this->_flags);
@@ -3155,8 +3155,8 @@ struct ExpressionFlagsFactory final {
       return rq::dereferencePtr(this->_protected_ptr);
     case EA::MAY_COPY:
       return rq::dereferencePtr(this->_may_copy_ptr);
-    case EA::MAY_MOVE:
-      return rq::dereferencePtr(this->_may_move_ptr);
+    case EA::MAY_CHANGE_ADDRESS:
+      return rq::dereferencePtr(this->_may_change_address_ptr);
     case EA::AUTO_DROP:
       return rq::dereferencePtr(this->_auto_drop_ptr);
     case EA::OK:
@@ -3263,9 +3263,9 @@ struct ExpressionFlagsFactory final {
     RQ_ASSERT(this->getHasMayCopy(), "no may copy");
     return rq::dereferencePtr(this->_may_copy_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMayMove() const {
-    RQ_ASSERT(this->getHasMayMove(), "no may move");
-    return rq::dereferencePtr(this->_may_move_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPiinned() const {
+    RQ_ASSERT(this->getHasMayChangeAddress(), "no may change address");
+    return rq::dereferencePtr(this->_may_change_address_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAutoDrop() const {
     RQ_ASSERT(this->getHasAutoDrop(), "no auto drop");
@@ -4319,8 +4319,8 @@ ExpressionFlagsFactory::addAttribute(const rq::Expression &expression) {
   case K::MAY_COPY:
     rq::assignSingleValue(this->_may_copy_ptr, &expression);
     break;
-  case K::MAY_MOVE:
-    rq::assignSingleValue(this->_may_move_ptr, &expression);
+  case K::MAY_CHANGE_ADDRESS:
+    rq::assignSingleValue(this->_may_change_address_ptr, &expression);
     break;
   case K::AUTO_DROP:
     rq::assignSingleValue(this->_auto_drop_ptr, &expression);

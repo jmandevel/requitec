@@ -1,5 +1,5 @@
 
-@auto_drop @may_copy @may_move
+@auto_drop @may_copy @may_change_address
 [object Partialable,
     {>
         @public @partial_mutate property_a : [fast_signed_integer 32]= 0,

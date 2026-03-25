@@ -10,7 +10,7 @@
         [result] := LENGTH;
     ];
 
-    @auto_drop
+    @auto_drop @may_copy @may_change_address
     [class Foo,];
 
     [extension_method bar, &Foo=>(><)[void],
