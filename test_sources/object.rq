@@ -1,6 +1,6 @@
 [import "std"];
 
-@auto_drop @may_copy @may_change_address
+@auto_drop @may_copy
 [class MyClass,
     {>
         x : [fast_signed_integer 32] = 0,

@@ -1,5 +1,5 @@
 
-@may_copy @may_change_address
+@may_copy
 [class NoAutoDrop,
     // notice how the method does not take the instance by reference
     // this causes it to be linearly assigned (ownership is transfered into the method)
@@ -9,7 +9,7 @@
     ]
 ];
 
-@auto_drop @may_copy @may_change_address
+@auto_drop @may_copy @stable_address
 [class AutoDrop,];
 
 [entry

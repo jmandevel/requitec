@@ -82,7 +82,6 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::UnaryInstruction *_first_unused_unary_instruction_ptr{nullptr};
     rq::BinaryInstruction *_first_unused_binary_instruction_ptr{nullptr};
     rq::Result _result{};
-    rq::In _in{};
     rq::Out _out{};
     rq::Inference _inference{};
     rq::SymbolConstraint _symbol_constraint{};
@@ -325,9 +324,6 @@ struct Context final : public rq::BumpPtrAllocator {
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Result &acquireResult() {
     return this->acquired._result;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::In &acquireIn() {
-    return this->acquired._in;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Out &acquireOut() {
     return this->acquired._out;

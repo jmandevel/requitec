@@ -1211,7 +1211,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::MAY_COPY:
     [[fallthrough]];
-  case K::MAY_CHANGE_ADDRESS:
+  case K::STABLE_ADDRESS:
     [[fallthrough]];
   case K::AUTO_DROP:
     [[fallthrough]];

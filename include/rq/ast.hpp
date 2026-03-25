@@ -118,6 +118,8 @@ enum class Keyword : std::uint32_t {
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
+  MOVE,
+  MOVE_OF,
   DESTRUCTOR,
   DESTROY,
   DESTROY_OF,
@@ -164,8 +166,6 @@ enum class Keyword : std::uint32_t {
   DROP_EACH_OF,
   EACH,
   EACH_OF,
-  MOVE,
-  MOVE_OF,
   ENTRY,
   FUNCTION,
   METHOD,
@@ -392,7 +392,7 @@ enum class Keyword : std::uint32_t {
   UNLIKELY,
   DEPRECIATED,
   MAY_COPY,
-  MAY_CHANGE_ADDRESS,
+  STABLE_ADDRESS,
   AUTO_DROP,
   OK,
   MESSAGE,
@@ -625,6 +625,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "data_address";
   case K::DATA_ADDRESS_OF:
     return "_data_address_of";
+  case K::MOVE:
+    return "move";
+  case K::MOVE_OF:
+    return "_move_of";
   case K::DESTRUCTOR:
     return "destructor";
   case K::DESTROY:
@@ -707,10 +711,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "each";
   case K::EACH_OF:
     return "_each_of";
-  case K::MOVE:
-    return "move";
-  case K::MOVE_OF:
-    return "_move_of";
   case K::ENTRY:
     return "entry";
   case K::FUNCTION:
@@ -1117,8 +1117,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "depreciated";
   case K::MAY_COPY:
     return "may_copy";
-  case K::MAY_CHANGE_ADDRESS:
-    return "may_change_address";
+  case K::STABLE_ADDRESS:
+    return "stable_address";
   case K::AUTO_DROP:
     return "auto_drop";
   case K::OK:
@@ -1455,7 +1455,11 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::DESTRUCTOR: 
+  case K::MOVE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::MOVE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::DESTRUCTOR:
     return KF::STATEMENT;
   case K::DESTROY:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -1537,10 +1541,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::EACH_OF:
     return KF::RVALUE;
-  case K::MOVE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::MOVE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::ENTRY:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::FUNCTION:
@@ -1957,7 +1957,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::MAY_COPY:
     return KF::EXPRESSION_ATTRIBUTE;
-  case K::MAY_CHANGE_ADDRESS:
+  case K::STABLE_ADDRESS:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::AUTO_DROP:
     return KF::EXPRESSION_ATTRIBUTE;
@@ -2348,6 +2348,8 @@ getDescription(rq::Situation situation) {
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
+  case K::MOVE:
+    return K::MOVE_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
   // PROCEDURES
@@ -2357,8 +2359,6 @@ getDescription(rq::Situation situation) {
     return K::DROP_EACH_OF;
   case K::EACH:
     return K::EACH_OF;
-  case K::MOVE:
-    return K::MOVE_OF;
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;
@@ -2622,7 +2622,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   PUBLIC,
   PROTECTED,
   MAY_COPY,
-  MAY_CHANGE_ADDRESS,
+  STABLE_ADDRESS,
   AUTO_DROP,
   OK,
   MESSAGE,
@@ -2682,8 +2682,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "protected";
   case SA::MAY_COPY:
     return "may_copy";
-  case SA::MAY_CHANGE_ADDRESS:
-    return "may_change_address";
+  case SA::STABLE_ADDRESS:
+    return "STABLE_ADDRESS";
   case SA::AUTO_DROP:
     return "auto_drop";
   case SA::OK:
@@ -2748,8 +2748,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::PROTECTED;
   case K::MAY_COPY:
     return SA::MAY_COPY;
-  case K::MAY_CHANGE_ADDRESS:
-    return SA::MAY_CHANGE_ADDRESS;
+  case K::STABLE_ADDRESS:
+    return SA::STABLE_ADDRESS;
   case K::AUTO_DROP:
     return SA::AUTO_DROP;
   case K::OK:
@@ -2787,7 +2787,7 @@ enum class ExpressionFlags : std::uint32_t {
   PUBLIC = rq::getBit(11),
   PROTECTED = rq::getBit(10),
   MAY_COPY = rq::getBit(9),
-  MAY_CHANGE_ADDRESS = rq::getBit(8),
+  STABLE_ADDRESS = rq::getBit(8),
   AUTO_DROP = rq::getBit(7),
   OK = rq::getBit(6),
   MESSAGE = rq::getBit(5)
@@ -2849,8 +2849,8 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::PROTECTED;
   case SA::MAY_COPY:
     return SF::MAY_COPY;
-  case SA::MAY_CHANGE_ADDRESS:
-    return SF::MAY_CHANGE_ADDRESS;
+  case SA::STABLE_ADDRESS:
+    return SF::STABLE_ADDRESS;
   case SA::AUTO_DROP:
     return SF::AUTO_DROP;
   case SA::OK:
@@ -2957,8 +2957,8 @@ getHasDepreciated(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::MAY_COPY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayChangeAddress(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_CHANGE_ADDRESS);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStableAddress(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::STABLE_ADDRESS);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop(rq::ExpressionFlags flags) {
@@ -3009,7 +3009,7 @@ struct ExpressionFlagsFactory final {
   const rq::Expression *_public_ptr{nullptr};
   const rq::Expression *_protected_ptr{nullptr};
   const rq::Expression *_may_copy_ptr{nullptr};
-  const rq::Expression *_may_change_address_ptr{nullptr};
+  const rq::Expression *_STABLE_ADDRESS_ptr{nullptr};
   const rq::Expression *_auto_drop_ptr{nullptr};
   const rq::Expression *_ok_ptr{nullptr};
   const rq::Expression *_message_ptr{nullptr};
@@ -3093,8 +3093,8 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] bool getHasMayCopy() const {
     return rq::getHasMayCopy(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayChangeAddress() const {
-    return rq::getHasMayChangeAddress(this->_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStableAddress() const {
+    return rq::getHasStableAddress(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop() const {
     return rq::getHasAutoDrop(this->_flags);
@@ -3155,8 +3155,8 @@ struct ExpressionFlagsFactory final {
       return rq::dereferencePtr(this->_protected_ptr);
     case EA::MAY_COPY:
       return rq::dereferencePtr(this->_may_copy_ptr);
-    case EA::MAY_CHANGE_ADDRESS:
-      return rq::dereferencePtr(this->_may_change_address_ptr);
+    case EA::STABLE_ADDRESS:
+      return rq::dereferencePtr(this->_STABLE_ADDRESS_ptr);
     case EA::AUTO_DROP:
       return rq::dereferencePtr(this->_auto_drop_ptr);
     case EA::OK:
@@ -3264,8 +3264,8 @@ struct ExpressionFlagsFactory final {
     return rq::dereferencePtr(this->_may_copy_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPiinned() const {
-    RQ_ASSERT(this->getHasMayChangeAddress(), "no may change address");
-    return rq::dereferencePtr(this->_may_change_address_ptr);
+    RQ_ASSERT(this->getHasStableAddress(), "no may change address");
+    return rq::dereferencePtr(this->_STABLE_ADDRESS_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAutoDrop() const {
     RQ_ASSERT(this->getHasAutoDrop(), "no auto drop");
@@ -4319,8 +4319,8 @@ ExpressionFlagsFactory::addAttribute(const rq::Expression &expression) {
   case K::MAY_COPY:
     rq::assignSingleValue(this->_may_copy_ptr, &expression);
     break;
-  case K::MAY_CHANGE_ADDRESS:
-    rq::assignSingleValue(this->_may_change_address_ptr, &expression);
+  case K::STABLE_ADDRESS:
+    rq::assignSingleValue(this->_STABLE_ADDRESS_ptr, &expression);
     break;
   case K::AUTO_DROP:
     rq::assignSingleValue(this->_auto_drop_ptr, &expression);

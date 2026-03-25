@@ -20,16 +20,16 @@ level 0: tabulated
 # move semantics vs actual
 
 int is a value of size that fits in a register
-struct is a value of a type that does not fit into a register
-after a .[move] the existing variable is invalidated (ownership is transfered)
-after a .[borrow] the existing variable still exists (ownership is not transfered)
+struct is a value of a type that does not fit into a register or has stable_address attribute
+after a .[move] the existing variable is invalidated and data has new memory address
+after a .[borrow] the existing variable still exists and address is same
 
 var := int.[move];      ->  copy int data to var
 var := struct.[move];   ->  copy struct data into var
 func(int.[move]);       ->  copy int data as arg
-func(struct.[move]);    ->  copy pointer to struct as arg
+func(struct.[move]);    ->  copy to new address then pass address as arg
 int.[move].meth();      ->  copy int data as this
-struct.[move].meth();   ->  copy pointer to struct as this
+struct.[move].meth();   ->  copy to new address then use address as this
 
 var := int.[borrow];    -> copy pointer to int to var
 var := struct.[borrow]; -> copy pointer to struct data into var

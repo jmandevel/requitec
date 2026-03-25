@@ -1,6 +1,6 @@
 [import "std"];
 
-@may_parent @auto_drop @may_copy @may_change_address
+@may_parent @auto_drop @may_copy
 [class Parent,
     
     [method myFunc, &=>(><),
@@ -13,7 +13,7 @@
     ];
 ];
 
-@auto_drop @may_copy @may_change_address
+@auto_drop @may_copy
 [class Child,
     {> 
         @parent parent := .Parent() 

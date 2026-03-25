@@ -1,6 +1,6 @@
 [import "std"];
 
-@may_copy @auto_drop @may_copy @may_change_address
+@may_copy @auto_drop @may_copy
 [class MyClass,
 
   @public
@@ -13,9 +13,9 @@
 
 ];
 
-// This class has no may_change_address attribute, so it cannnot be moved to a new memory address
+// This class has stable_address attribute, so it cannnot be moved to a new memory address
 // Also it does not have auto_drop attribute, so it must be manually dropped
-@may_copy
+@may_copy @stable_address
 [class MyPinned,
   @public
   [method destroy, =>,
@@ -40,6 +40,6 @@
   destructive_move.[move].destroy(); // linear assign into destructor method
   // non_destructive_move is auto dropped here
   pinned := MyPinned();
-  // moved := pinned.[move]; // this move would be invalid because moving to a new memory location and does not have may_change_address attribute
-  moved.[move].destroy(); // this move is valid because the memory location does not change
+  // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has stable_address attribute
+  pinned.[move].destroy(); // this move is valid because the memory location does not change
 ];
