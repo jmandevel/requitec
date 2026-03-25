@@ -10,10 +10,15 @@
 ];
 
 [entry
-	// create stack and defer destruction
+	// create stack and destructor for the stack
 	// my_stack.destroy() returns a ranger over all elements so each element can be destroyed before the stack memory is freed.
 	my_stack := .std.StackList{NoAutoDrop}();
-		@defer [for my_stack.destroy(), value:=[value].[move], value.[move].destroy();];	
+	[destructor my_stack,
+		// destructor requires that the lifetime of the target (my_stack) is ended by the end of it.
+		[for my_stack.[move].destroy(), value:=[value].[move],
+		 	value.[move].destroy();
+		];
+	];
 	
 	// push back some elements
 	// notice how the elements are moved into the call. if it was copied, then the temporary would have to be manually dropped.
@@ -25,6 +30,6 @@
 	// the last element is linearly assigned out. you have to drop the element manually.
 	my_stack.popBack().[move].destroy();
 	
-	// since this is the end of the scope, all statements marked with @defer will execute in reverse order.
-	// this will drop all remaining elements from my_stack and then drop my_stack itself (as specified above).
+	call the destructor for my_stack. you have to do this manually. if the lifetime of my_stack does not end, this results in a compiler error.
+	my_stack.[destroy];
 ];

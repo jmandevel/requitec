@@ -4,9 +4,9 @@
 [for 0.<=10, num:=[value],
     @static
     varname := .std.format(text="VAR{num}");
-        @defer varname.destroy();
     @outside::Loop
     \varname :`= index;
+    varname.[move].destroy(); // could also use a destructor. look at drop_and_destroy.rq
 ];
 
 [entry
@@ -14,7 +14,7 @@
     [for 0.<=10, num:=[value], 
         @static
         varname := .std.format(text="VAR{num}");
-            @defer varname.destroy();
-        .std.print(line="{varname.[borrow]} is {.\varname}!");        
+        .std.print(line="{varname.[borrow]} is {.\varname}!");  
+        varname.[move].destroy();      
     ];
 ];
