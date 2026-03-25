@@ -1,6 +1,6 @@
 #include <rq/context.hpp>
-#include <rq/literals.hpp>
 #include <rq/generate.hpp>
+#include <rq/literals.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/SmallString.h>
@@ -65,18 +65,6 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
     rq::SymbolTable &containing_table = this->determineContainingTable(
         factory, unascribed_expression, hosting_table, module);
     switch (unascribed_expression.getKeyword()) {
-    case K::BINDING: {
-      if (factory.getHasStatic()) {
-        RQ_TODO_IMPLEMENTATION();
-        break;
-      }
-      const rq::Expression &name_expression = unascribed_expression.getBranch();
-      const rq::Expression &type_expression = name_expression.getNext();
-      this->generateGlobalVariable(containing_table, hosting_table, module,
-                                   factory, unascribed_expression,
-                                   name_expression, type_expression, nullptr);
-      break;
-    }
     case K::ASSIGN: {
       if (factory.getHasStatic()) {
         RQ_TODO_IMPLEMENTATION();
@@ -93,11 +81,21 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
       const rq::Expression &name_expression = lvalue_expression.getBranch();
       const rq::Expression &type_expression = name_expression.getNext();
       const rq::Expression &rvalue_expression = lvalue_expression.getNext();
-      this->generateGlobalVariable(containing_table, hosting_table, module,
-                                   factory, unascribed_expression,
-                                   name_expression, type_expression,
-                                   &rvalue_expression);
-      break;
+      std::optional<llvm::StringRef> name_o =
+          this->evaluateName(name_expression, hosting_table);
+      if (!name_o.has_value()) {
+        this->getContext().logErrorUnableToEvaluateName(name_expression);
+        this->setNotOk();
+        return;
+      }
+      llvm::StringRef name = name_o.value();
+      rq::GlobalVariable &variable =
+          this->getContext().allocateValue<rq::GlobalVariable>(
+              name, unascribed_expression, factory.getFlags(), module,
+              containing_table, hosting_table);
+      variable.setTypeExpression(type_expression);
+      variable.setValueExpression(rvalue_expression);
+      containing_table.addNamedSymbol(this->getContext(), name, variable);
     }
     case K::STRUCTURED_BINDING: {
       if (factory.getHasStatic()) {
@@ -671,8 +669,6 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
     //      factory, unascribed_expression, hosting_table);
     // rq::ExecutionFactory exec{};
     switch (unascribed_expression.getKeyword()) {
-    case K::BINDING:
-
     case K::ASSIGN:
 
     case K::STRUCTURED_BINDING:
@@ -818,7 +814,8 @@ Generator::evaluateUtf8Cstr(const rq::Expression &expression,
 [[nodiscard]] rq::SymbolTable &
 Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
                                     const rq::Expression &unascribed_expression,
-                                    rq::SymbolTable &hosting_table, rq::Module& module) {
+                                    rq::SymbolTable &hosting_table,
+                                    rq::Module &module) {
   if (factory.getHasOutside()) {
     const rq::Expression &outside_expression = factory.getOutside();
     const rq::Expression &path_expression = outside_expression.getBranch();
@@ -914,7 +911,8 @@ Generator::evaluateValue(const rq::Expression &expression,
 }
 
 [[nodiscard]] rq::Symbol *Generator::evaluateSymbol(const rq::Expression &path,
-                                                    rq::SymbolTable &table, rq::Module& module) {
+                                                    rq::SymbolTable &table,
+                                                    rq::Module &module) {
   std::ignore = path;
   std::ignore = table;
   std::ignore = module;
@@ -965,30 +963,6 @@ void Generator::implementProcedure(rq::Procedure &procedure) {
 void Generator::implementGlobalVariable(rq::GlobalVariable &global) {
   std::ignore = global;
   RQ_TODO_IMPLEMENTATION();
-}
-
-void Generator::generateGlobalVariable(
-    rq::SymbolTable &hosting_table, rq::SymbolTable &containing_table,
-    rq::Module &module, const rq::ExpressionFlagsFactory &factory,
-    const rq::Expression &unascribed_expression,
-    const rq::Expression &name_expression,
-    const rq::Expression &type_expression,
-    const rq::Expression *value_expression_ptr) {
-  std::optional<llvm::StringRef> name_o =
-      this->evaluateName(name_expression, hosting_table);
-  if (!name_o.has_value()) {
-    this->getContext().logErrorUnableToEvaluateName(name_expression);
-    this->setNotOk();
-    return;
-  }
-  llvm::StringRef name = name_o.value();
-  rq::GlobalVariable &variable =
-      this->getContext().allocateValue<rq::GlobalVariable>(
-          name, unascribed_expression, factory.getFlags(), module,
-          containing_table, hosting_table);
-  variable.setTypeExpression(type_expression);
-  variable.setValueExpression(value_expression_ptr);
-  containing_table.addNamedSymbol(this->getContext(), name, variable);
 }
 
 } // namespace rq

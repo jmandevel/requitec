@@ -106,11 +106,6 @@ struct Generator final {
                 rq::SymbolTable &hosting_table, rq::Module &module);
   void implementProcedure(rq::Procedure &procedure);
   void implementGlobalVariable(rq::GlobalVariable &global);
-  void generateGlobalVariable(
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      rq::Module &module, const rq::ExpressionFlagsFactory &factory,
-      const rq::Expression &unascribed, const rq::Expression &name,
-      const rq::Expression &type, const rq::Expression *value_ptr);
 };
 
 } // namespace rq

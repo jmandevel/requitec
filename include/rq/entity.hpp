@@ -3746,8 +3746,8 @@ struct DynamicVariable : public rq::Symbol,
     rq::assignSingleValue(this->_type_expression_ptr, &expression);
   }
   RQ_ALWAYS_INLINE void
-  setValueExpression(const rq::Expression *expression_ptr) {
-    rq::assignSingleValue(this->_value_expression_ptr, expression_ptr);
+  setValueExpression(const rq::Expression &expression_ptr) {
+    rq::assignSingleValue(this->_value_expression_ptr, &expression_ptr);
   }
   [[nodiscard]] inline static bool classof(const Entity *entity) {
     return rq::getIsDynamicVariable(rq::dereferencePtr(entity).getOpcode());
