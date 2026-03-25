@@ -1355,8 +1355,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::EXTENSION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINDING:
-    return KF::STATEMENT | KF::LVALUE | KF::PARAMETER | KF::ARGUMENT |
-           KF::BINDING;
+    return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;
   case K::ASCRIBE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
@@ -1995,10 +1994,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // REFLECTIONS
   case K::REFLECT:
-    return KF::CONVERGING | KF::RVALUE | KF::LVALUE |
-           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
-           KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
-           KF::NAMESPACE;
+    return KF::CONVERGING | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
+           KF::ARGUMENT | KF::PARAMETER | KF::ARITHMETIC_SEQUENCE_STEP |
+           KF::ARITHMETIC_SEQUENCE_CONDITION | KF::NAMESPACE;
   case K::MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MEMBER_OF_TOP:
@@ -2040,7 +2038,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::HOLDS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TYPE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
+           KF::UNIVERSALIZABLE;
   case K::TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SYMBOL:
