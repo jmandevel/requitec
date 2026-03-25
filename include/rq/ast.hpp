@@ -136,6 +136,7 @@ enum class Keyword : std::uint32_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
+  MAY_IGNORE,
   INDETERMINATE,
   RANGING,
 
@@ -657,6 +658,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "null_terminated";
   case K::MAY_DISCARD:
     return "may_discard";
+  case K::MAY_IGNORE:
+    return "may_ignore";
   case K::INDETERMINATE:
     return "indeterminate";
   case K::RANGING:
@@ -1486,6 +1489,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NULL_TERMINATED:
     return KF::TYPE_ATTRIBUTE;
   case K::MAY_DISCARD:
+    return KF::TYPE_ATTRIBUTE;
+  case K::MAY_IGNORE:
     return KF::TYPE_ATTRIBUTE;
   case K::INDETERMINATE:
     return KF::TYPE_ATTRIBUTE;
@@ -3290,6 +3295,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
+  MAY_IGNORE,
   INDETERMINATE,
   RANGING
 };
@@ -3314,6 +3320,8 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "null_terminated";
   case TA::MAY_DISCARD:
     return "may_discard";
+  case TA::MAY_IGNORE:
+    return "may_ignore";
   case TA::INDETERMINATE:
     return "indeterminate";
   case TA::RANGING:
@@ -3341,6 +3349,8 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::NULL_TERMINATED;
   case K::MAY_DISCARD:
     return TA::MAY_DISCARD;
+  case K::MAY_IGNORE:
+    return TA::MAY_IGNORE;
   case K::INDETERMINATE:
     return TA::INDETERMINATE;
   case K::RANGING:
@@ -3360,8 +3370,9 @@ enum class TypeFlags : std::uint32_t {
   ATOMIC = rq::getBit(11),
   NULL_TERMINATED = rq::getBit(10),
   MAY_DISCARD = rq::getBit(9),
-  INDETERMINATE = rq::getBit(8),
-  RANGING = rq::getBit(7)
+  MAY_IGNORE = rq::getBit(8),
+  INDETERMINATE = rq::getBit(7),
+  RANGING = rq::getBit(6)
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
@@ -3387,6 +3398,8 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::NULL_TERMINATED;
   case TA::MAY_DISCARD:
     return TF::MAY_DISCARD;
+  case TA::MAY_IGNORE:
+    return TF::MAY_IGNORE;
   case TA::INDETERMINATE:
     return TF::INDETERMINATE;
   case TA::RANGING:
@@ -3422,6 +3435,10 @@ getHasPartiallyMutable(rq::TypeFlags flags) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::MAY_DISCARD);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayIgnore(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::MAY_IGNORE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate(rq::TypeFlags flags) {
