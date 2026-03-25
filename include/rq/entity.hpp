@@ -53,7 +53,6 @@ enum class Opcode : std::uint16_t {
 
   // SPCEIAL
   SY_RESULT,
-  SY_IN,
   SY_OUT,
 
   // SIMPLE BUILTIN
@@ -286,309 +285,7 @@ enum class Opcode : std::uint16_t {
 static constexpr std::size_t OPCODE_COUNT =
     static_cast<std::size_t>(rq::Opcode::LAST) - 1;
 
-[[nodiscard]] inline llvm::StringRef getName(rq::Opcode opcode) {
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::NONE:
-    return "none";
-  case O::SY_RESULT:
-    return "sy_result";
-  case O::SY_IN:
-    return "sy_in";
-  case O::SY_OUT:
-    return "sy_out";
-  case O::SY_INFERENCE:
-    return "sy_inference";
-  case O::SY_SYMBOL_CONSTRAINT:
-    return "sy_symbol_constraint";
-  case O::SY_TYPE_CONSTRAINT:
-    return "sy_type_constraint";
-  case O::SY_EXPRESSION:
-    return "sy_expression";
-  case O::SY_VOID:
-    return "sy_void";
-  case O::SY_NULL:
-    return "sy_null";
-  case O::SY_NO_RETURN:
-    return "sy_no_return";
-  case O::SY_VARIADIC_ARGUMENTS:
-    return "sy_variadic_arguments";
-  case O::SY_BOOLEAN:
-    return "sy_boolean";
-  case O::SY_SIGNED_CONSTRAINT:
-    return "sy_signed_constraint";
-  case O::SY_UNSIGNED_CONSTRAINT:
-    return "sy_unsigned_constraint";
-  case O::SY_FLOAT_CONSTRAINT:
-    return "sy_float_constraint";
-  case O::SY_BINARY_CONSTRAINT:
-    return "sy_binary_constraint";
-  case O::SY_BFLOAT_CONSTRAINT:
-    return "sy_bfloat_constraint";
-  case O::SY_HALF:
-    return "sy_half";
-  case O::SY_SINGLE:
-    return "sy_single";
-  case O::SY_DOUBLE:
-    return "sy_double";
-  case O::SY_QUADRUPLE:
-    return "sy_quadruple";
-  case O::SY_BINARY16:
-    return "sy_binary16";
-  case O::SY_BINARY32:
-    return "sy_binary32";
-  case O::SY_BINARY64:
-    return "sy_binary64";
-  case O::SY_BINARY128:
-    return "sy_binary128";
-  case O::SY_BFLOAT16:
-    return "sy_Bfloat16";
-  case O::SY_INTEGER_CONSTRAINT:
-    return "sy_integer_constraint";
-  case O::SY_SIGNED_INTEGER_CONSTRAINT:
-    return "sy_signed_integer_constraint";
-  case O::SY_UNSIGNED_INTEGER_CONSTRAINT:
-    return "sy_unsigned_integer_constraint";
-  case O::SY_CODEUNIT_CONSTRAINT:
-    return "sy_codeunit_constraint";
-  case O::SY_STRING_CONSTRAINT:
-    return "sy_string_constraint";
-  case O::SY_CHAR:
-    return "sy_char";
-  case O::SY_ASCII:
-    return "sy_ascii";
-  case O::SY_UTF8:
-    return "sy_utf8";
-  case O::SY_SCALED_SIGNED_INTEGER:
-    return "sy_scaled_signed_integer";
-  case O::SY_SCALED_UNSIGNED_INTEGER:
-    return "sy_scaled_unsigned_integer";
-  case O::SY_REFERENCE:
-    return "sy_reference";
-  case O::SY_POINTER:
-    return "sy_pointer";
-  case O::SY_FAT_POINTER:
-    return "sy_fat_pointer";
-  case O::SY_INFERENCED_COUNT_ARRAY:
-    return "sy_inferenced_count_array";
-  case O::SY_ARRAY:
-    return "sy_array";
-  case O::SY_LAYOUT:
-    return "sy_layout";
-  case O::SY_CLASS_LAYOUT:
-    return "sy_class_layout";
-  case O::SY_TEMPLATE_LAYOUT:
-    return "sy_template_layout";
-  case O::SY_SIGNATURE:
-    return "sy_signature";
-  case O::SY_CLASS_PARAMETER:
-    return "sy_class_parameter";
-  case O::SY_LAYOUT_PARAMETER:
-    return "sy_layout_parameter";
-  case O::SY_TEMPLATE_PARAMETER:
-    return "sy_template_parameter";
-  case O::SY_SIGNATURE_PARAMETER:
-    return "sy_signature_parameter";
-  case O::SY_ARITHMETIC_INTERVAL:
-    return "sy_arithmetic_interval";
-  case O::SY_FINITE_ARITHMETIC_PROGRESSION:
-    return "sy_finite_arithmetic_progression";
-  case O::SY_INFINITE_ARITHMETIC_PROGRESSION:
-    return "sy_infinite_arithmetic_progression";
-  case O::SY_MODULE:
-    return "sy_module";
-  case O::SY_IMPORT:
-    return "sy_import";
-  case O::SY_CODE:
-    return "sy_code";
-  case O::SY_CATEGORY_DISCRIMINANT:
-    return "sy_category_discriminant";
-  case O::SY_LABEL:
-    return "sy_label";
-  case O::SY_SYNONYM:
-    return "sy_synonym";
-  case O::SY_TOP:
-    return "sy_top";
-  case O::SY_SCOPE:
-    return "sy_scope";
-  case O::SY_NAMESPACE:
-    return "sy_namespace";
-  case O::SY_CLASS:
-    return "sy_class";
-  case O::SY_ENUMERATION:
-    return "sy_enumeration";
-  case O::SY_CATEGORY:
-    return "sy_category";
-  case O::SY_GLOBAL_VARIABLE:
-    return "sy_global_variable";
-  case O::SY_LOCAL_VARIABLE:
-    return "sy_local_variable";
-  case O::SY_STATIC_VARIABLE:
-    return "sy_static_variable";
-  case O::SY_ENUMERATOR:
-    return "sy_enumerator";
-  case O::SY_CATEGORY_ALTERNATIVE:
-    return "sy_category_alternative";
-  case O::SY_ENTRY:
-    return "sy_entry";
-  case O::SY_FUNCTION:
-    return "sy_function";
-  case O::SY_METHOD:
-    return "sy_method";
-  case O::SY_RANGER:
-    return "sy_ranger";
-  case O::SY_EXTENSION_FUNCTION:
-    return "sy_extension_function";
-  case O::SY_EXTENSION_METHOD:
-    return "sy_extension_method";
-  case O::SY_EXTENSION_RANGER:
-    return "sy_extension_ranger";
-  case O::SY_TEMPLATE_CLASS:
-    return "sy_template_class";
-  case O::SY_TEMPLATE_ENUMERATION:
-    return "sy_template_enumeration";
-  case O::SY_TEMPLATE_CATEGORY:
-    return "sy_template_category";
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
-    return "sy_template_global_variable";
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
-    return "sy_template_static_variable";
-  case O::SY_TEMPLATE_FUNCTION:
-    return "sy_template_function";
-  case O::SY_TEMPLATE_METHOD:
-    return "sy_template_method";
-  case O::SY_TEMPLATE_RANGER:
-    return "sy_template_ranger";
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return "sy_template_extension_function";
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    return "sy_template_extension_method";
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    return "sy_template_extension_ranger";
-  case O::SY_PARTIAL_CLASS:
-    return "sy_partial_class";
-  case O::SY_PARTIAL_ENUMERATION:
-    return "sy_partial_enumeration";
-  case O::SY_PARTIAL_CATEGORY:
-    return "sy_partial_category";
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return "sy_partial_global_variable";
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return "sy_partial_static_variable";
-  case O::SY_PARTIAL_FUNCTION:
-    return "sy_partial_function";
-  case O::SY_PARTIAL_METHOD:
-    return "sy_partial_method";
-  case O::SY_PARTIAL_RANGER:
-    return "sy_partial_ranger";
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return "sy_partial_extension_function";
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return "sy_partial_extension_method";
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return "sy_partial_extension_ranger";
-  case O::CT_TYPE:
-    return "ct_type";
-  case O::CT_EXPRESSION:
-    return "ct_expression";
-  case O::CT_BOOLEAN:
-    return "ct_boolean";
-  case O::CT_INTEGER:
-    return "ct_integer";
-  case O::CT_FLOAT:
-    return "ct_float";
-  case O::CT_STRING:
-    return "ct_string";
-  case O::CT_ARRAY:
-    return "ct_array";
-  case O::IN_EXECUTE:
-    return "in_execute";
-  case O::IN_CAST:
-    return "in_cast";
-  case O::IN_LOGICAL_AND:
-    return "in_logical_and";
-  case O::IN_LOGICAL_OR:
-    return "in_logical_or";
-  case O::IN_LOGICAL_COMPLEMENT:
-    return "in_logical_complement";
-  case O::IN_EQ:
-    return "in_eq";
-  case O::IN_NE:
-    return "in_ne";
-  case O::IN_GT:
-    return "in_gt";
-  case O::IN_GE:
-    return "in_ge";
-  case O::IN_LT:
-    return "in_lt";
-  case O::IN_LE:
-    return "in_le";
-  case O::IN_AND:
-    return "in_and";
-  case O::IN_OR:
-    return "in_or";
-  case O::IN_XOR:
-    return "in_xor";
-  case O::IN_COMPLEMENT:
-    return "in_complement";
-  case O::IN_SHIFT_LEFT:
-    return "in_shift_left";
-  case O::IN_SHIFT_RIGHT:
-    return "in_shift_right";
-  case O::IN_ROTATE_LEFT:
-    return "in_rotate_left";
-  case O::IN_ROTATE_RIGHT:
-    return "in_rotate_right";
-  case O::IN_ADD:
-    return "in_add";
-  case O::IN_SUBTRACT:
-    return "in_subtract";
-  case O::IN_MULTIPLY:
-    return "in_multiply";
-  case O::IN_DIVIDE:
-    return "in_divide";
-  case O::IN_MODULUS:
-    return "in_modulus";
-  case O::IN_NEGATE:
-    return "in_negate";
-  case O::IN_CONTENT:
-    return "in_content";
-  case O::IN_ADDRESS:
-    return "in_address";
-  case O::IN_VALUE:
-    return "in_value";
-  case O::IN_REF:
-    return "in_ref";
-  case O::IN_INDEX:
-    return "in_index";
-  case O::IN_DATA_COUNT:
-    return "in_data_count";
-  case O::IN_ARG:
-    return "in_arg";
-  case O::IN_CALL:
-    return "in_call";
-  case O::IN_MOVE:
-    return "in_move";
-  case O::IN_COPY:
-    return "in_copy";
-  case O::IN_RET:
-    return "in_ret";
-  case O::IN_COND:
-    return "in_cond";
-  case O::IN_FORK:
-    return "in_fork";
-  case O::IN_DEBUG_TRAP:
-    return "in_debug_trap";
-  case O::IN_UNREACHABLE:
-    return "in_unreachable";
-  case O::IN_ASSUME:
-    return "in_assume";
-
-  case O::LAST:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
+[[nodiscard]] inline llvm::StringRef getName(rq::Opcode opcode);
 
 enum class OpcodeFlags : std::uint32_t {
   NONE = 0,
@@ -640,358 +337,10 @@ enum class OpcodeFlags : std::uint32_t {
   IN_BINARY = rq::getBit(4),
 };
 template <> struct is_flags<OpcodeFlags> : std::true_type {};
-[[nodiscard]] inline rq::OpcodeFlags getFlags(rq::Opcode opcode) {
-  using O = rq::Opcode;
-  using OF = rq::OpcodeFlags;
-  switch (opcode) {
-  case O::NONE:
-    return OF::NONE;
-  case O::SY_RESULT:
-    return OF::SYMBOL;
-  case O::SY_IN:
-    return OF::SYMBOL;
-  case O::SY_OUT:
-    return OF::SYMBOL;
-  case O::SY_INFERENCE:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_SYMBOL_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
-  case O::SY_TYPE_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
-  case O::SY_EXPRESSION:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_VOID:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_NULL:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_NO_RETURN:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_VARIADIC_ARGUMENTS:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_BOOLEAN:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_SIGNED_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_SIGNED;
-  case O::SY_UNSIGNED_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
-  case O::SY_FLOAT_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_FLOAT | OF::SY_SIGNED;
-  case O::SY_BINARY_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_FLOAT | OF::SY_BINARY | OF::SY_SIGNED;
-  case O::SY_BFLOAT_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_FLOAT | OF::SY_SIGNED;
-  case O::SY_HALF:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_PLATFORM_CHANGING | OF::SY_FLOAT | OF::SY_SIGNED;
-  case O::SY_SINGLE:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_PLATFORM_CHANGING | OF::SY_FLOAT | OF::SY_SIGNED;
-  case O::SY_DOUBLE:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_PLATFORM_CHANGING | OF::SY_FLOAT | OF::SY_SIGNED;
-  case O::SY_QUADRUPLE:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_PLATFORM_CHANGING | OF::SY_FLOAT | OF::SY_SIGNED;
-  case O::SY_BINARY16:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_FLOAT |
-           OF::SY_BINARY | OF::SY_SIGNED;
-  case O::SY_BINARY32:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_FLOAT |
-           OF::SY_BINARY | OF::SY_SIGNED;
-  case O::SY_BINARY64:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_FLOAT |
-           OF::SY_BINARY | OF::SY_SIGNED;
-  case O::SY_BINARY128:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_FLOAT |
-           OF::SY_BINARY | OF::SY_SIGNED;
-  case O::SY_BFLOAT16:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_FLOAT |
-           OF::SY_SIGNED;
-  case O::SY_INTEGER_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_INTEGER;
-  case O::SY_SIGNED_INTEGER_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_INTEGER | OF::SY_SIGNED;
-  case O::SY_UNSIGNED_INTEGER_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_INTEGER | OF::SY_UNSIGNED;
-  case O::SY_CODEUNIT_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
-           OF::SY_CONSTRAINT | OF::SY_CODEUNIT;
-  case O::SY_STRING_CONSTRAINT:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
-  case O::SY_CHAR:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CODEUNIT |
-           OF::SY_PLATFORM_CHANGING;
-  case O::SY_ASCII:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CODEUNIT;
-  case O::SY_UTF8:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CODEUNIT;
-  case O::SY_SCALED_SIGNED_INTEGER:
-    return OF::SYMBOL | OF::SY_SCALED_BUILTIN | OF::SY_TYPE | OF::SY_INTEGER |
-           OF::SY_SIGNED;
-  case O::SY_SCALED_UNSIGNED_INTEGER:
-    return OF::SYMBOL | OF::SY_SCALED_BUILTIN | OF::SY_TYPE | OF::SY_INTEGER |
-           OF::SY_UNSIGNED;
-  case O::SY_REFERENCE:
-    return OF::SYMBOL | OF::SY_UNARY_SUBTYPE | OF::SY_TYPE | OF::SY_SUBTYPE;
-  case O::SY_POINTER:
-    return OF::SYMBOL | OF::SY_UNARY_SUBTYPE | OF::SY_TYPE | OF::SY_SUBTYPE;
-  case O::SY_FAT_POINTER:
-    return OF::SYMBOL | OF::SY_UNARY_SUBTYPE | OF::SY_TYPE | OF::SY_SUBTYPE;
-  case O::SY_INFERENCED_COUNT_ARRAY:
-    return OF::SYMBOL | OF::SY_UNARY_SUBTYPE | OF::SY_TYPE | OF::SY_SUBTYPE;
-  case O::SY_ARRAY:
-    return OF::SYMBOL | OF::SY_COUNTED_SUBTYPE | OF::SY_TYPE | OF::SY_SUBTYPE;
-  case O::SY_LAYOUT:
-    return OF::SYMBOL | OF::SY_PARAMETER_LIST_SUBTYPE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_CLASS_LAYOUT:
-    return OF::SYMBOL | OF::SY_PARAMETER_LIST_SUBTYPE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_TEMPLATE_LAYOUT:
-    return OF::SYMBOL | OF::SY_PARAMETER_LIST_SUBTYPE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_SIGNATURE:
-    return OF::SYMBOL | OF::SY_PARAMETER_LIST_SUBTYPE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_CLASS_PARAMETER:
-    return OF::SYMBOL;
-  case O::SY_LAYOUT_PARAMETER:
-    return OF::SYMBOL;
-  case O::SY_TEMPLATE_PARAMETER:
-    return OF::SYMBOL;
-  case O::SY_SIGNATURE_PARAMETER:
-    return OF::SYMBOL;
-  case O::SY_ARITHMETIC_INTERVAL:
-    return OF::SYMBOL | OF::SY_ARITHMETIC_SEQUENCE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_FINITE_ARITHMETIC_PROGRESSION:
-    return OF::SYMBOL | OF::SY_ARITHMETIC_SEQUENCE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_INFINITE_ARITHMETIC_PROGRESSION:
-    return OF::SYMBOL | OF::SY_ARITHMETIC_SEQUENCE | OF::SY_TYPE |
-           OF::SY_SUBTYPE;
-  case O::SY_MODULE:
-    return OF::SYMBOL;
-  case O::SY_IMPORT:
-    return OF::SYMBOL;
-  case O::SY_CODE:
-    return OF::SYMBOL;
-  case O::SY_CATEGORY_DISCRIMINANT:
-    return OF::SYMBOL | OF::SY_TYPE;
-  case O::SY_LABEL:
-    return OF::SYMBOL;
-  case O::SY_SYNONYM:
-    return OF::SYMBOL | OF::SY_TYPE;
-  case O::SY_TOP:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TIN_OF_FRAME;
-  case O::SY_SCOPE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE;
-  case O::SY_NAMESPACE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TIN_OF_FRAME;
-  case O::SY_CLASS:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
-           OF::SY_TIN_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_ENUMERATION:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
-           OF::SY_TIN_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_CATEGORY:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
-           OF::SY_TIN_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_GLOBAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_DYNAMIC_VARIABLE |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_LOCAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_DYNAMIC_VARIABLE;
-  case O::SY_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_ENUMERATOR:
-    return OF::SYMBOL | OF::SY_TYPE;
-  case O::SY_CATEGORY_ALTERNATIVE:
-    return OF::SYMBOL;
-  case O::SY_ENTRY:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME;
-  case O::SY_FUNCTION:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_RANGER:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_EXTENSION_FUNCTION:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_EXTENSION_RANGER:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_TEMPLATE_CLASS:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_ENUMERATION:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_CATEGORY:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_FUNCTION:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_METHOD:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_RANGER:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_PARTIAL_CLASS:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_ENUMERATION:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_CATEGORY:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_FUNCTION:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_METHOD:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_RANGER:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::CT_TYPE:
-    return OF::CONSTANT;
-  case O::CT_EXPRESSION:
-    return OF::CONSTANT;
-  case O::CT_BOOLEAN:
-    return OF::CONSTANT;
-  case O::CT_INTEGER:
-    return OF::CONSTANT;
-  case O::CT_FLOAT:
-    return OF::CONSTANT;
-  case O::CT_STRING:
-    return OF::CONSTANT;
-  case O::CT_ARRAY:
-    return OF::CONSTANT;
-  case O::IN_EXECUTE:
-    return OF::IN_BINARY;
-  case O::IN_CAST:
-    return OF::IN_BINARY;
-  case O::IN_LOGICAL_AND:
-    return OF::IN_BINARY;
-  case O::IN_LOGICAL_OR:
-    return OF::IN_BINARY;
-  case O::IN_LOGICAL_COMPLEMENT:
-    return OF::IN_UNARY;
-  case O::IN_EQ:
-    return OF::IN_BINARY;
-  case O::IN_NE:
-    return OF::IN_BINARY;
-  case O::IN_GT:
-    return OF::IN_BINARY;
-  case O::IN_GE:
-    return OF::IN_BINARY;
-  case O::IN_LT:
-    return OF::IN_BINARY;
-  case O::IN_LE:
-    return OF::IN_BINARY;
-  case O::IN_AND:
-    return OF::IN_BINARY;
-  case O::IN_OR:
-    return OF::IN_BINARY;
-  case O::IN_XOR:
-    return OF::IN_BINARY;
-  case O::IN_COMPLEMENT:
-    return OF::IN_UNARY;
-  case O::IN_SHIFT_LEFT:
-    return OF::IN_BINARY;
-  case O::IN_SHIFT_RIGHT:
-    return OF::IN_BINARY;
-  case O::IN_ROTATE_LEFT:
-    return OF::IN_BINARY;
-  case O::IN_ROTATE_RIGHT:
-    return OF::IN_BINARY;
-  case O::IN_ADD:
-    return OF::IN_BINARY;
-  case O::IN_SUBTRACT:
-    return OF::IN_BINARY;
-  case O::IN_MULTIPLY:
-    return OF::IN_BINARY;
-  case O::IN_DIVIDE:
-    return OF::IN_BINARY;
-  case O::IN_MODULUS:
-    return OF::IN_BINARY;
-  case O::IN_NEGATE:
-    return OF::IN_UNARY;
-  case O::IN_CONTENT:
-    return OF::IN_UNARY;
-  case O::IN_ADDRESS:
-    return OF::IN_UNARY;
-  case O::IN_VALUE:
-    return OF::IN_UNARY;
-  case O::IN_REF:
-    return OF::IN_UNARY;
-  case O::IN_INDEX:
-    return OF::IN_BINARY;
-  case O::IN_DATA_COUNT:
-    return OF::IN_UNARY;
-  case O::IN_ARG:
-    return OF::IN_BINARY;
-  case O::IN_CALL:
-    return OF::IN_BINARY;
-  case O::IN_MOVE:
-    return OF::IN_BINARY;
-  case O::IN_COPY:
-    return OF::IN_BINARY;
-  case O::IN_RET:
-    return OF::IN_NULLARY;
-  case O::IN_COND:
-    return OF::IN_BINARY;
-  case O::IN_FORK:
-    return OF::IN_BINARY;
-  case O::IN_DEBUG_TRAP:
-    return OF::IN_NULLARY;
-  case O::IN_UNREACHABLE:
-    return OF::IN_NULLARY;
-  case O::IN_ASSUME:
-    return OF::IN_UNARY;
-  case O::LAST:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::Opcode opcode) {
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SYMBOL);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::Opcode opcode) {
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::CONSTANT);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction(rq::Opcode opcode) {
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasNone(flags, rq::OpcodeFlags::NOT_INSTRUCTION_MASK);
-}
+[[nodiscard]] inline rq::OpcodeFlags getFlags(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction(rq::Opcode opcode);
 
 #define RQ_ASSERT_SYMBOL(opcode)                                               \
   RQ_ASSERT(rq::getIsSymbol((opcode)), "not symbol")
@@ -1001,400 +350,48 @@ template <> struct is_flags<OpcodeFlags> : std::true_type {};
 #define RQ_ASSERT_INSTRUCTION(opcode)                                          \
   RQ_ASSERT(rq::getIsInstruction(opcode), "not instruction")
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SIMPLE_BUILTIN);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SCALED_BUILTIN);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_UNARY_SUBTYPE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_COUNTED_SUBTYPE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PARAMETER);
-}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleBuiltin(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledBuiltin(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnarySubtype(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsParameterListSubtype(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PARAMETER_LIST_SUBTYPE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_ARITHMETIC_SEQUENCE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_DYNAMIC_VARIABLE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SYMBOL_TABLE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PROCEDURE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TEMPLATE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PARTIAL);
-}
+getIsParameterListSubtype(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasTemplateAlternative(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_TEMPLATE_ALTERNATIVE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TYPE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SUBTYPE);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_CONSTRAINT);
-}
+getHasTemplateAlternative(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint(rq::Opcode opcode);
 // NOTE: SCALED_SIGNED_INTEGER and SCALED_UNSIGNED_INTEGER is platform changing
 // only if depth is not exact that is checked in member function of Entity, not
 // here.
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PLATFORM_CHANGING);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags,
-                       rq::OpcodeFlags::SY_INTEGER | rq::OpcodeFlags::SY_FLOAT);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_INTEGER);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_FLOAT);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_BINARY);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_CODEUNIT);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SIGNED);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_UNSIGNED);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SIGNED |
-                                  rq::OpcodeFlags::SY_INTEGER);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_UNSIGNED |
-                                  rq::OpcodeFlags::SY_INTEGER);
-}
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TIN_OF_FRAME);
-}
-[[nodiscard]] inline rq::Opcode getTemplate(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  RQ_ASSERT(rq::getHasTemplateAlternative(opcode), "no template alternative");
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::SY_CLASS:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CLASS:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CLASS:
-    return O::SY_TEMPLATE_CLASS;
-  case O::SY_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
-    return O::SY_TEMPLATE_ENUMERATION;
-  case O::SY_CATEGORY:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CATEGORY:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
-    return O::SY_TEMPLATE_CATEGORY;
-  case O::SY_GLOBAL_VARIABLE:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return O::SY_TEMPLATE_GLOBAL_VARIABLE;
-  case O::SY_STATIC_VARIABLE:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
-    [[fallthrough]];
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return O::SY_TEMPLATE_STATIC_VARIABLE;
-  case O::SY_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
-    return O::SY_TEMPLATE_FUNCTION;
-  case O::SY_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
-    return O::SY_TEMPLATE_METHOD;
-  case O::SY_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    return O::SY_TEMPLATE_RANGER;
-  case O::SY_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return O::SY_TEMPLATE_EXTENSION_FUNCTION;
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return O::SY_TEMPLATE_EXTENSION_METHOD;
-  case O::SY_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return O::SY_TEMPLATE_EXTENSION_RANGER;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-[[nodiscard]] inline rq::Opcode getPartial(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  RQ_ASSERT(rq::getHasTemplateAlternative(opcode), "no template alternative");
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::SY_CLASS:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CLASS:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CLASS:
-    return O::SY_PARTIAL_CLASS;
-  case O::SY_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
-    return O::SY_PARTIAL_ENUMERATION;
-  case O::SY_CATEGORY:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CATEGORY:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
-    return O::SY_PARTIAL_CATEGORY;
-  case O::SY_GLOBAL_VARIABLE:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return O::SY_PARTIAL_GLOBAL_VARIABLE;
-  case O::SY_STATIC_VARIABLE:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
-    [[fallthrough]];
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return O::SY_PARTIAL_STATIC_VARIABLE;
-  case O::SY_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
-    return O::SY_PARTIAL_FUNCTION;
-  case O::SY_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
-    return O::SY_PARTIAL_METHOD;
-  case O::SY_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    return O::SY_PARTIAL_RANGER;
-  case O::SY_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return O::SY_PARTIAL_EXTENSION_FUNCTION;
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return O::SY_PARTIAL_EXTENSION_METHOD;
-  case O::SY_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return O::SY_PARTIAL_EXTENSION_RANGER;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-[[nodiscard]] inline rq::Opcode getFull(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  RQ_ASSERT(rq::getHasTemplateAlternative(opcode), "no template alternative");
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::SY_CLASS:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CLASS:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CLASS:
-    return O::SY_CLASS;
-  case O::SY_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
-    return O::SY_ENUMERATION;
-  case O::SY_CATEGORY:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CATEGORY:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
-    return O::SY_CATEGORY;
-  case O::SY_GLOBAL_VARIABLE:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return O::SY_GLOBAL_VARIABLE;
-  case O::SY_STATIC_VARIABLE:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
-    [[fallthrough]];
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return O::SY_STATIC_VARIABLE;
-  case O::SY_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
-    return O::SY_FUNCTION;
-  case O::SY_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
-    return O::SY_METHOD;
-  case O::SY_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    return O::SY_RANGER;
-  case O::SY_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return O::SY_EXTENSION_FUNCTION;
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return O::SY_EXTENSION_METHOD;
-  case O::SY_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return O::SY_EXTENSION_RANGER;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullaryInstruction(rq::Opcode opcode) {
-  RQ_ASSERT_INSTRUCTION(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::IN_NULLARY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnaryInstruction(rq::Opcode opcode) {
-  RQ_ASSERT_INSTRUCTION(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::IN_UNARY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryInstruction(rq::Opcode opcode) {
-  RQ_ASSERT_INSTRUCTION(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::IN_BINARY);
-}
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::Opcode opcode);
+[[nodiscard]] inline rq::Opcode getTemplate(rq::Opcode opcode);
+[[nodiscard]] inline rq::Opcode getPartial(rq::Opcode opcode);
+[[nodiscard]] inline rq::Opcode getFull(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullaryInstruction(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnaryInstruction(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryInstruction(rq::Opcode opcode);
 
 struct Entity;
 struct Symbol;
 struct Result;
-struct In;
 struct Out;
 struct SimpleBuiltin;
 struct Inference;
@@ -1523,170 +520,85 @@ struct InitialExpression {
   const rq::Expression *_expression_ptr{nullptr};
 
   InitialExpression() = default;
-  inline explicit InitialExpression(const rq::Expression &expression)
-      : _expression_ptr(&expression) {}
+  inline explicit InitialExpression(const rq::Expression &expression);
   InitialExpression(const Self &) = delete;
   InitialExpression(Self &&) = delete;
   ~InitialExpression() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
 };
+
 struct LateExpression : public rq::InitialExpression {
   using Self = rq::LateExpression;
 
   LateExpression() = default;
-  inline explicit LateExpression(const rq::Expression &expression)
-      : InitialExpression(expression) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() {
-    return this->_expression_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setExpression(const rq::Expression &expression) {
-    rq::assignSingleValue(this->_expression_ptr, &expression);
-  }
-  RQ_ALWAYS_INLINE void setExpression(const rq::Expression *expression_ptr) {
-    rq::assignSingleValue(this->_expression_ptr, expression_ptr);
-  }
+  inline explicit LateExpression(const rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression();
+  RQ_ALWAYS_INLINE void setExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void setExpression(const rq::Expression *expression_ptr);
 };
 struct ReplacableExpression : public rq::LateExpression {
   using Self = rq::ReplacableExpression;
 
   ReplacableExpression() = default;
-  inline explicit ReplacableExpression(const rq::Expression &expression)
-      : LateExpression(expression) {}
+  inline explicit ReplacableExpression(const rq::Expression &expression);
   RQ_ALWAYS_INLINE const rq::Expression &
-  replaceExpression(const rq::Expression &expression) {
-    return rq::replaceValue(this->_expression_ptr, &expression);
-  }
+  replaceExpression(const rq::Expression &expression);
   RQ_ALWAYS_INLINE const rq::Expression &
-  replaceExpression(const rq::Expression *expression) {
-    return rq::replaceValue(this->_expression_ptr, expression);
-  }
+  replaceExpression(const rq::Expression *expression);
   RQ_ALWAYS_INLINE const rq::Expression *
-  replaceExpressionPtr(const rq::Expression &expression) {
-    return rq::replaceValuPtr(this->_expression_ptr, &expression);
-  }
+  replaceExpressionPtr(const rq::Expression &expression);
   RQ_ALWAYS_INLINE const rq::Expression *
-  replaceExpressionPtr(const rq::Expression *expression) {
-    return rq::replaceValuPtr(this->_expression_ptr, expression);
-  }
+  replaceExpressionPtr(const rq::Expression *expression);
 };
 struct InitialExpressionFlags {
   using Self = InitialExpressionFlags;
 
   rq::ExpressionFlags _expression_flags;
 
-  InitialExpressionFlags(rq::ExpressionFlags flags)
-      : _expression_flags(flags) {}
-  InitialExpressionFlags(const Self &) = delete;
-  InitialExpressionFlags(Self &&) = delete;
-  virtual ~InitialExpressionFlags() {}
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-  getExpressionFlags() const {
-    return this->_expression_flags;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const {
-    return rq::getHasOpaque(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const {
-    return rq::getHasOutside(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
-    return rq::getHasStatic(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const {
-    return rq::getHasCapture(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const {
-    return rq::getHasEager(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const {
-    return rq::getHasMayParent(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const {
-    return rq::getHasParent(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const {
-    return rq::getHasAbstract(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const {
-    return rq::getHasVirtual(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
-    return rq::getHasOverride(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const {
-    return rq::getHasLocation(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
-    return rq::getHasMangle(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const {
-    return rq::getHasPack(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const {
-    return rq::getHasLabel(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const {
-    return rq::getHasTemplate(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const {
-    return rq::getHasLikely(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const {
-    return rq::getHasUnlikely(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const {
-    return rq::getHasDepreciated(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const {
-    return rq::getHasExport(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const {
-    return rq::getHasPublic(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const {
-    return rq::getHasProtected(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy() const {
-    return rq::getHasMayCopy(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayMove() const {
-    return rq::getHasMayMove(this->_expression_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
-    return rq::getHasOk(this->_expression_flags);
-  }
+  inline explicit InitialExpressionFlags(rq::ExpressionFlags flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStableAddress() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAttribute(rq::ExpressionAttribute attribute) const {
-    return rq::getHasAttribute(this->_expression_flags, attribute);
-  }
+  getHasAttribute(rq::ExpressionAttribute attribute) const;
 };
 struct InitialModuleMember {
   using Self = rq::InitialModuleMember;
 
   rq::Module *_containing_module_ptr;
 
-  inline explicit InitialModuleMember(rq::Module &module)
-      : _containing_module_ptr(&module) {}
+  inline explicit InitialModuleMember(rq::Module &module);
   InitialModuleMember(const Self &) = delete;
   InitialModuleMember(Self &&) = delete;
   ~InitialModuleMember() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  const rq::Module &getContainingModule() const {
-    return rq::dereferencePtr(this->_containing_module_ptr);
-  }
-  rq::Module &getContainingModule() {
-    return rq::dereferencePtr(this->_containing_module_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getContainingModule() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getContainingModule();
 };
 struct SymbolTableMember {
   using Self = rq::SymbolTableMember;
@@ -1694,58 +606,44 @@ struct SymbolTableMember {
   rq::SymbolTable *_containing_symbol_table_ptr{nullptr};
 
   inline explicit SymbolTableMember() = default;
-  inline explicit SymbolTableMember(rq::SymbolTable &containing_table)
-      : _containing_symbol_table_ptr(&containing_table) {}
+  inline explicit SymbolTableMember(rq::SymbolTable &containing_table);
   SymbolTableMember(const Self &) = delete;
   SymbolTableMember(Self &&) = delete;
   ~SymbolTableMember() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() const {
-    return this->_containing_symbol_table_ptr != nullptr;
-  }
-  const rq::SymbolTable &getContainingSymbolTable() const {
-    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
-  }
-  rq::SymbolTable &getContainingSymbolTable() {
-    return rq::dereferencePtr(this->_containing_symbol_table_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingSymbolTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingSymbolTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingSymbolTable();
 };
 struct SymbolTableHosted {
   using Self = rq::SymbolTableHosted;
 
   rq::SymbolTable *_hosting_symbol_table_ptr{nullptr};
 
-  inline explicit SymbolTableHosted(rq::SymbolTable &hosting_table)
-      : _hosting_symbol_table_ptr(&hosting_table) {}
+  inline explicit SymbolTableHosted(rq::SymbolTable &hosting_table);
   SymbolTableHosted(const Self &) = delete;
   SymbolTableHosted(Self &&) = delete;
   ~SymbolTableHosted() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  const rq::SymbolTable &getHostingSymbolTable() const {
-    return rq::dereferencePtr(this->_hosting_symbol_table_ptr);
-  }
-  rq::SymbolTable &getHostingSymbolTable() {
-    return rq::dereferencePtr(this->_hosting_symbol_table_ptr);
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getHostingSymbolTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingSymbolTable();
 };
 struct InitialNamed {
   using Self = rq::InitialNamed;
 
   llvm::StringRef _name;
 
-  inline explicit InitialNamed(llvm::StringRef name) : _name(name) {
-    RQ_ASSERT(!name.empty(), "name is empty");
-  }
+  inline InitialNamed(llvm::StringRef name);
   InitialNamed(const Self &) = delete;
   InitialNamed(Self &&) = delete;
   ~InitialNamed() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return this->_name;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
 };
 struct InitialMaybeNamed {
   using Self = rq::InitialMaybeNamed;
@@ -1753,112 +651,51 @@ struct InitialMaybeNamed {
   llvm::StringRef _name{};
 
   InitialMaybeNamed() = default;
-  inline explicit InitialMaybeNamed(llvm::StringRef name) : _name(name) {
-    RQ_ASSERT(!name.empty(), "name is empty");
-  }
+  inline explicit InitialMaybeNamed(llvm::StringRef name);
   InitialMaybeNamed(const Self &) = delete;
   InitialMaybeNamed(Self &&) = delete;
   ~InitialMaybeNamed() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const {
-    return !this->_name.empty();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return this->_name;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
 };
 struct Entity {
   using Self = rq::Entity;
 
   rq::Opcode _opcode;
 
-  inline explicit Entity(rq::Opcode opcode) : _opcode(opcode) {}
+  inline explicit Entity(rq::Opcode opcode);
   Entity() = delete;
   Entity(const Entity &) = delete;
   Entity(Entity &&) = delete;
   Entity &operator=(const Entity &) = delete;
   Entity &operator=(Entity &&) = delete;
   ~Entity() = default;
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Entity &other) const {
-    return this == &other;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Entity &other) const {
-    return this != &other;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
-    return this->_opcode;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const {
-    return rq::getHasTemplateAlternative(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
-    return rq::getIsType(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
-    return rq::getIsSubtype(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter() const {
-    return rq::getIsParameter(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const {
-    return rq::getIsParameterListSubtype(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint() const {
-    return rq::getIsConstraint(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const {
-    if (rq::getIsScaledBuiltin(this->getOpcode())) {
-      // TODO
-    }
-    return rq::getIsPlatformChanging(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const {
-    return rq::getIsNumeric(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
-    return rq::getIsInteger(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
-    return rq::getIsFloat(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const {
-    return rq::getIsBinary(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const {
-    return rq::getIsCodeunit(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
-    return rq::getIsSigned(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
-    return rq::getIsUnsigned(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const {
-    return rq::getIsSignedInteger(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const {
-    return rq::getIsUnsignedInteger(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const {
-    return rq::getIsTopOfFrame(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateopcode() const {
-    return rq::getTemplate(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialopcode() const {
-    return rq::getPartial(this->getOpcode());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullopcode() const {
-    return rq::getFull(this->getOpcode());
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    std::ignore = entity;
-    return true;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Entity &other) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Entity &other) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateKeyword() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialKeyword() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullKeyword() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::Entity> final : std::true_type {};
@@ -1866,11 +703,8 @@ template <> struct is_parent_only<rq::Entity> final : std::true_type {};
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
 
-  inline explicit Symbol(rq::Opcode opcode) : Entity(opcode) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsSymbol(rq::dereferencePtr(entity).getOpcode());
-  }
+  inline Symbol(rq::Opcode opcode);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::Symbol> final : std::true_type {};
@@ -1878,35 +712,17 @@ template <> struct is_parent_only<rq::Symbol> final : std::true_type {};
 struct Result : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
 
-  inline explicit Result() : Symbol(rq::Opcode::SY_RESULT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RESULT;
-  }
+  inline explicit Result();
+  [[nodiscard]] inline bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Result> final : std::true_type {};
 
-struct In : public rq::Symbol {
-  using Self = rq::SimpleBuiltin;
-
-  inline explicit In() : Symbol(rq::Opcode::SY_IN) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_IN;
-  }
-};
-
-template <> struct is_acquired<rq::In> final : std::true_type {};
-
 struct Out : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
 
-  inline explicit Out() : Symbol(rq::Opcode::SY_OUT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_OUT;
-  }
+  inline explicit Out();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Out> final : std::true_type {};
@@ -1914,23 +730,17 @@ template <> struct is_acquired<rq::Out> final : std::true_type {};
 struct SimpleBuiltin : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
 
-  inline explicit SimpleBuiltin(rq::Opcode opcode) : Symbol(opcode) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsSimpleBuiltin(rq::dereferencePtr(entity).getOpcode());
-  }
+  inline explicit SimpleBuiltin(rq::Opcode opcode);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-template <> struct is_acquired<rq::SimpleBuiltin> final : std::true_type {};
+template <> struct is_parent_only<rq::SimpleBuiltin> final : std::true_type {};
 
 struct Inference final : public rq::SimpleBuiltin {
   using Self = rq::Inference;
 
-  inline explicit Inference() : SimpleBuiltin(rq::Opcode::SY_INFERENCE) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_INFERENCE;
-  }
+  inline explicit Inference();
+  [[nodiscard]] inline bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Inference> final : std::true_type {};
@@ -1938,13 +748,8 @@ template <> struct is_acquired<rq::Inference> final : std::true_type {};
 struct SymbolConstraint final : public rq::SimpleBuiltin {
   using Self = rq::SymbolConstraint;
 
-  inline explicit SymbolConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_SYMBOL_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_SYMBOL_CONSTRAINT;
-  }
+  inline explicit SymbolConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::SymbolConstraint> final : std::true_type {};
@@ -1952,13 +757,8 @@ template <> struct is_acquired<rq::SymbolConstraint> final : std::true_type {};
 struct TypeConstraint final : public rq::SimpleBuiltin {
   using Self = rq::TypeConstraint;
 
-  inline explicit TypeConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_TYPE_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TYPE_CONSTRAINT;
-  }
+  inline explicit TypeConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::TypeConstraint> final : std::true_type {};
@@ -1966,11 +766,8 @@ template <> struct is_acquired<rq::TypeConstraint> final : std::true_type {};
 struct Void final : public rq::SimpleBuiltin {
   using Self = rq::Void;
 
-  inline explicit Void() : SimpleBuiltin(rq::Opcode::SY_VOID) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_VOID;
-  }
+  inline explicit Void();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Void> final : std::true_type {};
@@ -1978,11 +775,8 @@ template <> struct is_acquired<rq::Void> final : std::true_type {};
 struct Null final : public rq::SimpleBuiltin {
   using Self = rq::Null;
 
-  inline explicit Null() : SimpleBuiltin(rq::Opcode::SY_NULL) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_NULL;
-  }
+  inline explicit Null();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Null> final : std::true_type {};
@@ -1990,11 +784,8 @@ template <> struct is_acquired<rq::Null> final : std::true_type {};
 struct NoReturn final : public rq::SimpleBuiltin {
   using Self = rq::NoReturn;
 
-  inline explicit NoReturn() : SimpleBuiltin(rq::Opcode::SY_NO_RETURN) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_NO_RETURN;
-  }
+  inline explicit NoReturn();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::NoReturn> final : std::true_type {};
@@ -2002,13 +793,8 @@ template <> struct is_acquired<rq::NoReturn> final : std::true_type {};
 struct VariadicArguments final : public rq::SimpleBuiltin {
   using Self = rq::VariadicArguments;
 
-  inline explicit VariadicArguments()
-      : SimpleBuiltin(rq::Opcode::SY_VARIADIC_ARGUMENTS) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_VARIADIC_ARGUMENTS;
-  }
+  inline explicit VariadicArguments();
+  [[nodiscard]] inline bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::VariadicArguments> final : std::true_type {};
@@ -2016,11 +802,8 @@ template <> struct is_acquired<rq::VariadicArguments> final : std::true_type {};
 struct Boolean final : public rq::SimpleBuiltin {
   using Self = rq::Boolean;
 
-  inline explicit Boolean() : SimpleBuiltin(rq::Opcode::SY_BOOLEAN) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_BOOLEAN;
-  }
+  inline explicit Boolean();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Boolean> final : std::true_type {};
@@ -2028,13 +811,8 @@ template <> struct is_acquired<rq::Boolean> final : std::true_type {};
 struct SignedConstraint final : public rq::SimpleBuiltin {
   using Self = rq::SignedConstraint;
 
-  inline explicit SignedConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_SIGNED_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_SIGNED_CONSTRAINT;
-  }
+  inline explicit SignedConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::SignedConstraint> final : std::true_type {};
@@ -2042,13 +820,8 @@ template <> struct is_acquired<rq::SignedConstraint> final : std::true_type {};
 struct UnsignedConstraint final : public rq::SimpleBuiltin {
   using Self = rq::UnsignedConstraint;
 
-  inline explicit UnsignedConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_UNSIGNED_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_UNSIGNED_CONSTRAINT;
-  }
+  inline explicit UnsignedConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -2057,13 +830,8 @@ struct is_acquired<rq::UnsignedConstraint> final : std::true_type {};
 struct FloatConstraint final : public rq::SimpleBuiltin {
   using Self = rq::FloatConstraint;
 
-  inline explicit FloatConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_FLOAT_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_FLOAT_CONSTRAINT;
-  }
+  inline explicit FloatConstraint();
+  [[nodiscard]] inline bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::FloatConstraint> final : std::true_type {};
@@ -2071,13 +839,8 @@ template <> struct is_acquired<rq::FloatConstraint> final : std::true_type {};
 struct BinaryConstraint final : public rq::SimpleBuiltin {
   using Self = rq::BinaryConstraint;
 
-  inline explicit BinaryConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_BINARY_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_BINARY_CONSTRAINT;
-  }
+  inline explicit BinaryConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::BinaryConstraint> final : std::true_type {};
@@ -2085,13 +848,8 @@ template <> struct is_acquired<rq::BinaryConstraint> final : std::true_type {};
 struct BfloatConstraint final : public rq::SimpleBuiltin {
   using Self = rq::BfloatConstraint;
 
-  inline explicit BfloatConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_BFLOAT_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_BFLOAT_CONSTRAINT;
-  }
+  inline explicit BfloatConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::BfloatConstraint> final : std::true_type {};
@@ -2099,11 +857,8 @@ template <> struct is_acquired<rq::BfloatConstraint> final : std::true_type {};
 struct Half final : public rq::SimpleBuiltin {
   using Self = rq::Half;
 
-  inline explicit Half() : SimpleBuiltin(rq::Opcode::SY_HALF) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_HALF;
-  }
+  inline explicit Half();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Half> final : std::true_type {};
@@ -2111,11 +866,8 @@ template <> struct is_acquired<rq::Half> final : std::true_type {};
 struct Single final : public rq::SimpleBuiltin {
   using Self = rq::Single;
 
-  inline explicit Single() : SimpleBuiltin(rq::Opcode::SY_SINGLE) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_SINGLE;
-  }
+  inline explicit Single();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Single> final : std::true_type {};
@@ -2123,11 +875,8 @@ template <> struct is_acquired<rq::Single> final : std::true_type {};
 struct Double final : public rq::SimpleBuiltin {
   using Self = rq::Double;
 
-  inline explicit Double() : SimpleBuiltin(rq::Opcode::SY_DOUBLE) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_DOUBLE;
-  }
+  inline explicit Double();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Double> final : std::true_type {};
@@ -3496,73 +2245,6 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
 
 template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
 
-RQ_ALWAYS_INLINE rq::SymbolTableIterator &SymbolTableIterator::operator++() {
-  this->_table_ptr =
-      rq::dereferencePtr(this->_table_ptr)._containing_symbol_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
-  rq::SymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator &
-ConstSymbolTableIterator::operator++() {
-  this->_table_ptr =
-      rq::dereferencePtr(this->_table_ptr)._containing_symbol_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator
-ConstSymbolTableIterator::operator++(int) {
-  rq::ConstSymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator &
-MemberSymbolTableIterator::operator++() {
-  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator
-MemberSymbolTableIterator::operator++(int) {
-  rq::MemberSymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator &
-ConstMemberSymbolTableIterator::operator++() {
-  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator
-ConstMemberSymbolTableIterator::operator++(int) {
-  rq::ConstMemberSymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-inline void SymbolTable::_addMember(rq::Symbol &symbol) {
-  if (llvm::isa<rq::SymbolTable>(symbol)) {
-    rq::SymbolTable &symbol_table = llvm::cast<rq::SymbolTable>(symbol);
-    symbol_table._next_table_ptr = this->_first_member_table_ptr;
-    this->_first_member_table_ptr = &symbol_table;
-  }
-}
-
-inline void SymbolTable::release() {
-  this->_named_symbols_map.clear();
-  for (rq::SymbolTable &member : this->getMemberSymbolTableSubrange()) {
-    member.release();
-  }
-}
-
 struct Top : public rq::SymbolTable {
   using Self = rq::Top;
 
@@ -3778,7 +2460,8 @@ struct LocalVariable : public rq::DynamicVariable {
   }
   RQ_ALWAYS_INLINE void setNotIndeterminate() {
     RQ_ASSERT(this->getHasType(), "does not have type");
-    //RQ_ASSERT(this->getType().getIsComplete(), "does not have complete type");
+    // RQ_ASSERT(this->getType().getIsComplete(), "does not have complete
+    // type");
     this->_is_indeterminate = false;
   }
 };
@@ -4994,4 +3677,67 @@ struct BinaryInstruction : public rq::Instruction {
 
 template <> struct is_acquired<rq::BinaryInstruction> final : std::true_type {};
 
+RQ_ALWAYS_INLINE rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
+  rq::SymbolTableIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator &
+ConstSymbolTableIterator::operator++() {
+  this->_table_ptr =
+      rq::dereferencePtr(this->_table_ptr)._containing_symbol_table_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator
+ConstSymbolTableIterator::operator++(int) {
+  rq::ConstSymbolTableIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator &
+MemberSymbolTableIterator::operator++() {
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator
+MemberSymbolTableIterator::operator++(int) {
+  rq::MemberSymbolTableIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator &
+ConstMemberSymbolTableIterator::operator++() {
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator
+ConstMemberSymbolTableIterator::operator++(int) {
+  rq::ConstMemberSymbolTableIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+inline void SymbolTable::_addMember(rq::Symbol &symbol) {
+  if (llvm::isa<rq::SymbolTable>(symbol)) {
+    rq::SymbolTable &symbol_table = llvm::cast<rq::SymbolTable>(symbol);
+    symbol_table._next_table_ptr = this->_first_member_table_ptr;
+    this->_first_member_table_ptr = &symbol_table;
+  }
+}
+
+inline void SymbolTable::release() {
+  this->_named_symbols_map.clear();
+  for (rq::SymbolTable &member : this->getMemberSymbolTableSubrange()) {
+    member.release();
+  }
+}
+
 } // namespace rq
+
+#include <rq/detail/entity.hpp>

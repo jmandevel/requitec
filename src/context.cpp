@@ -243,30 +243,33 @@ bool Context::run() {
     if (!this->tokenizeSourceText(this->getSourceModule(), tokens)) {
       return false;
     }
-    if (rq::getHasToksFile()) {
-      if (!this->emitTokens(rq::getToksFilePath(), tokens)) {
-        llvm::errs() << "failed to output toks file\n";
+    if (rq::getEmitMode() == rq::EMIT_TOKENS) {
+      if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
+        return false;
       }
+      return true;
     }
     this->initializeKeywordMap();
     if (!this->parseRequite(this->getSourceModule(), tokens)) {
       return false;
     }
   }
-  if (rq::getHasAstFile()) {
-    if (!this->emitRequite(rq::getAstFilePath(),
+  if (rq::getEmitMode() == rq::EMIT_PARSED) {
+    if (!this->emitRequite(rq::getOutputFilePath(),
                            this->getSourceModule().getExpression())) {
-      llvm::errs() << "failed to output ast file\n";
+      return false;
     }
+    return true;
   }
   if (!this->situateModule(this->getSourceModule())) {
     return false;
   }
-  if (rq::getHasSitastFile()) {
-    if (!this->emitRequite(rq::getSitastFilePath(),
+  if (rq::getEmitMode() == rq::EMIT_SITUATED) {
+    if (!this->emitRequite(rq::getOutputFilePath(),
                            this->getSourceModule().getExpression())) {
-      llvm::errs() << "failed to output sitast file\n";
+        return false;
     }
+    return true;
   }
   if (!this->initializeLlvm()) {
     return false;
@@ -274,30 +277,34 @@ bool Context::run() {
   if (!this->generateSourceModule()) {
     return false;
   }
-  if (rq::getHasSymbFile()) {
-    if (!this->emitSymbol(rq::getSymbFilePath(), this->getTop())) {
-      llvm::errs() << "failed to output symb file\n";
+  if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
+    if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
+        return false;
     }
+    return true;
   }
   if (!this->buildLlvmIr()) {
     return false;
   }
-  if (rq::getHasLlvmFile()) {
-    if (!this->emitLlvmIr(rq::getLlvmFilePath())) {
-      llvm::errs() << "failed to output llvm file\n";
+  if (rq::getEmitMode() == rq::EMIT_IR) {
+    if (!this->emitLlvmIr(rq::getOutputFilePath())) {
+        return false;
     }
+    return true;
   }
-  if (rq::getHasAsmFile()) {
-    if (!this->emitAssembly(rq::getAsmFilePath())) {
-      llvm::errs() << "failed to output asm file\n";
+  if (rq::getEmitMode() == rq::EMIT_ASSEMBLY) {
+    if (!this->emitAssembly(rq::getOutputFilePath())) {
+        return false;
     }
+    return true;
   }
-  if (rq::getHasObjFile()) {
-    if (!this->emitObject(rq::getObjFilePath())) {
-      llvm::errs() << "failed to output obj file\n";
+  if (rq::getEmitMode() == rq::EMIT_OBJECT) {
+    if (!this->emitObject(rq::getOutputFilePath())) {
+        return false;
     }
+    return true;
   }
-  return true;
+  RQ_UNREACHABLE();
 }
 
 bool Context::parseRequite(rq::Module &module,
