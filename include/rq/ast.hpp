@@ -109,6 +109,7 @@ enum class Keyword : std::uint32_t {
   BITWISE_ROTATE_RIGHT,
 
   // MEMORY
+  ASSIGN,
   CONTENT,
   CONTENT_OF,
   ADDRESS,
@@ -117,9 +118,6 @@ enum class Keyword : std::uint32_t {
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
-
-  // ASSIGNMENT
-  ASSIGN,
 
   // SUBTYPE
   ARRAY,
@@ -606,6 +604,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "bitwise_rotate_right";
 
   // MEMORY
+  case K::ASSIGN:
+    return "_assign";
   case K::CONTENT:
     return "content";
   case K::CONTENT_OF:
@@ -622,10 +622,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "data_address";
   case K::DATA_ADDRESS_OF:
     return "_data_address_of";
-
-  // ASSIGNMENT
-  case K::ASSIGN:
-    return "_assign";
 
   // SUBTYPE
   case K::ARRAY:
@@ -1432,6 +1428,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
 
   // MEMORY
+  case K::ASSIGN:
+    return KF::STATEMENT;
   case K::CONTENT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::CONTENT_OF:
@@ -1448,10 +1446,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
-
-  // ASSIGNMENT
-  case K::ASSIGN:
-    return KF::STATEMENT;
 
   // SUBTYPE
   case K::ARRAY:

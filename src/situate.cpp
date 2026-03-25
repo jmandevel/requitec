@@ -365,6 +365,10 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // MEMORY
+  case K::ASSIGN:
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+                                             S::RVALUE);
+    break;
   case K::CONTENT:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
@@ -388,12 +392,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::DATA_ADDRESS_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, situation);
-    break;
-
-  // ASSIGNMENT
-  case K::ASSIGN:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
-                                             S::RVALUE);
     break;
 
   // SUBTYPE
