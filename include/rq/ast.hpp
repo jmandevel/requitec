@@ -393,7 +393,6 @@ enum class Keyword : std::uint32_t {
   MAY_COPY,
   MAY_MOVE,
   AUTO_DROP,
-  DEFER,
   OK,
   MESSAGE,
   MESSAGE_OF,
@@ -1117,8 +1116,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "may_move";
   case K::AUTO_DROP:
     return "auto_drop";
-  case K::DEFER:
-    return "defer";
   case K::OK:
     return "ok";
   case K::MESSAGE:
@@ -1955,8 +1952,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::AUTO_DROP:
     return KF::EXPRESSION_ATTRIBUTE;
-  case K::DEFER:
-    return KF::EXPRESSION_ATTRIBUTE;
   case K::OK:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::MESSAGE:
@@ -2618,7 +2613,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   MAY_COPY,
   MAY_MOVE,
   AUTO_DROP,
-  DEFER,
   OK,
   MESSAGE,
   LAST
@@ -2681,8 +2675,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "may_move";
   case SA::AUTO_DROP:
     return "auto_drop";
-  case SA::DEFER:
-    return "defer";
   case SA::OK:
     return "ok";
   case SA::MESSAGE:
@@ -2749,8 +2741,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return SA::MAY_MOVE;
   case K::AUTO_DROP:
     return SA::AUTO_DROP;
-  case K::DEFER:
-    return SA::DEFER;
   case K::OK:
     return SA::OK;
   case K::MESSAGE:
@@ -2788,9 +2778,8 @@ enum class ExpressionFlags : std::uint32_t {
   MAY_COPY = rq::getBit(9),
   MAY_MOVE = rq::getBit(8),
   AUTO_DROP = rq::getBit(7),
-  DEFER = rq::getBit(6),
-  OK = rq::getBit(5),
-  MESSAGE = rq::getBit(4)
+  OK = rq::getBit(6),
+  MESSAGE = rq::getBit(5)
 };
 
 template <> struct is_flags<ExpressionFlags> : std::true_type {};
@@ -2853,8 +2842,6 @@ getFlags(rq::ExpressionAttribute attribute) {
     return SF::MAY_MOVE;
   case SA::AUTO_DROP:
     return SF::AUTO_DROP;
-  case SA::DEFER:
-    return SF::DEFER;
   case SA::OK:
     return SF::OK;
   case SA::MESSAGE:
@@ -2967,10 +2954,6 @@ getHasDepreciated(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::AUTO_DROP);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefer(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::DEFER);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::OK);
 }
@@ -3017,7 +3000,6 @@ struct ExpressionFlagsFactory final {
   const rq::Expression *_may_copy_ptr{nullptr};
   const rq::Expression *_may_move_ptr{nullptr};
   const rq::Expression *_auto_drop_ptr{nullptr};
-  const rq::Expression *_defer_ptr{nullptr};
   const rq::Expression *_ok_ptr{nullptr};
   const rq::Expression *_message_ptr{nullptr};
 
@@ -3106,9 +3088,6 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop() const {
     return rq::getHasAutoDrop(this->_flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefer() const {
-    return rq::getHasDefer(this->_flags);
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
     return rq::getHasOk(this->_flags);
   }
@@ -3169,8 +3148,6 @@ struct ExpressionFlagsFactory final {
       return rq::dereferencePtr(this->_may_move_ptr);
     case EA::AUTO_DROP:
       return rq::dereferencePtr(this->_auto_drop_ptr);
-    case EA::DEFER:
-      return rq::dereferencePtr(this->_defer_ptr);
     case EA::OK:
       return rq::dereferencePtr(this->_ok_ptr);
     case EA::MESSAGE:
@@ -3282,10 +3259,6 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAutoDrop() const {
     RQ_ASSERT(this->getHasAutoDrop(), "no auto drop");
     return rq::dereferencePtr(this->_auto_drop_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getDefer() const {
-    RQ_ASSERT(this->getHasDefer(), "no defer");
-    return rq::dereferencePtr(this->_defer_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOk() const {
     RQ_ASSERT(this->getHasOk(), "no ok");
@@ -4340,9 +4313,6 @@ ExpressionFlagsFactory::addAttribute(const rq::Expression &expression) {
     break;
   case K::AUTO_DROP:
     rq::assignSingleValue(this->_auto_drop_ptr, &expression);
-    break;
-  case K::DEFER:
-    rq::assignSingleValue(this->_defer_ptr, &expression);
     break;
   case K::OK:
     rq::assignSingleValue(this->_ok_ptr, &expression);

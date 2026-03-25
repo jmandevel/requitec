@@ -1207,8 +1207,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::AUTO_DROP:
     [[fallthrough]];
-  case K::DEFER:
-    [[fallthrough]];
   case K::OK:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
