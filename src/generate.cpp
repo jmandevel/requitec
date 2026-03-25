@@ -97,6 +97,16 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
       variable.setValueExpression(rvalue_expression);
       containing_table.addNamedSymbol(this->getContext(), name, variable);
     }
+    case K::DESTRUCTOR:
+      this->getContext().logErrorGlobalIndeterminateDynamicExpression(
+          branch_expression);
+      this->setNotOk();
+      continue;
+    case K::DESTROY_OF:
+      this->getContext().logErrorGlobalIndeterminateDynamicExpression(
+          branch_expression);
+      this->setNotOk();
+      continue;
     case K::STRUCTURED_BINDING: {
       if (factory.getHasStatic()) {
         RQ_TODO_IMPLEMENTATION();
@@ -670,6 +680,10 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
     // rq::ExecutionFactory exec{};
     switch (unascribed_expression.getKeyword()) {
     case K::ASSIGN:
+
+    case K::DESTRUCTOR:
+
+    case K::DESTROY_OF:
 
     case K::STRUCTURED_BINDING:
 

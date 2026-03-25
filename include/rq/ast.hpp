@@ -118,6 +118,9 @@ enum class Keyword : std::uint32_t {
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
+  DESTRUCTOR,
+  DESTROY,
+  DESTROY_OF,
 
   // SUBTYPE
   ARRAY,
@@ -622,6 +625,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "data_address";
   case K::DATA_ADDRESS_OF:
     return "_data_address_of";
+  case K::DESTRUCTOR:
+    return "destructor";
+  case K::DESTROY:
+    return "destroy";
+  case K::DESTROY_OF:
+    return "_destroy_of";
 
   // SUBTYPE
   case K::ARRAY:
@@ -1446,6 +1455,12 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::DESTRUCTOR: 
+    return KF::STATEMENT;
+  case K::DESTROY:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::DESTROY_OF:
+    return KF::STATEMENT;
 
   // SUBTYPE
   case K::ARRAY:
@@ -2333,6 +2348,8 @@ getDescription(rq::Situation situation) {
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
+  case K::DESTROY:
+    return K::DESTROY_OF;
   // PROCEDURES
   case K::DROP:
     return K::DROP_OF;

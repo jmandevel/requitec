@@ -393,6 +393,16 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DATA_ADDRESS_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, situation);
     break;
+  case K::DESTRUCTOR:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::RVALUE);
+    break;
+  case K::DESTROY:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::DESTROY_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, situation);
+    break;
 
   // SUBTYPE
   case K::ARRAY:
