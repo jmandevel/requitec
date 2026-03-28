@@ -884,11 +884,8 @@ template <> struct is_acquired<rq::Double> final : std::true_type {};
 struct Quadruple final : public rq::SimpleBuiltin {
   using Self = rq::Quadruple;
 
-  inline explicit Quadruple() : SimpleBuiltin(rq::Opcode::SY_QUADRUPLE) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_QUADRUPLE;
-  }
+  inline explicit Quadruple();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Quadruple> final : std::true_type {};
@@ -896,11 +893,8 @@ template <> struct is_acquired<rq::Quadruple> final : std::true_type {};
 struct Binary16 final : public rq::SimpleBuiltin {
   using Self = rq::Binary16;
 
-  inline explicit Binary16() : SimpleBuiltin(rq::Opcode::SY_BINARY16) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_BINARY16;
-  }
+  inline explicit Binary16();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Binary16> final : std::true_type {};
@@ -908,11 +902,8 @@ template <> struct is_acquired<rq::Binary16> final : std::true_type {};
 struct Binary32 final : public rq::SimpleBuiltin {
   using Self = rq::Binary32;
 
-  inline explicit Binary32() : SimpleBuiltin(rq::Opcode::SY_BINARY32) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_BINARY32;
-  }
+  inline explicit Binary32();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Binary32> final : std::true_type {};
@@ -920,11 +911,8 @@ template <> struct is_acquired<rq::Binary32> final : std::true_type {};
 struct Binary64 final : public rq::SimpleBuiltin {
   using Self = rq::Binary64;
 
-  inline explicit Binary64() : SimpleBuiltin(rq::Opcode::SY_BINARY64) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_BINARY64;
-  }
+  inline explicit Binary64();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Binary64> final : std::true_type {};
@@ -932,11 +920,8 @@ template <> struct is_acquired<rq::Binary64> final : std::true_type {};
 struct Binary128 final : public rq::SimpleBuiltin {
   using Self = rq::Binary128;
 
-  inline explicit Binary128() : SimpleBuiltin(rq::Opcode::SY_BINARY128) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_BINARY128;
-  }
+  inline explicit Binary128();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Binary128> final : std::true_type {};
@@ -944,11 +929,8 @@ template <> struct is_acquired<rq::Binary128> final : std::true_type {};
 struct Bfloat16 final : public rq::SimpleBuiltin {
   using Self = rq::Bfloat16;
 
-  inline explicit Bfloat16() : SimpleBuiltin(rq::Opcode::SY_BFLOAT16) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_BFLOAT16;
-  }
+  inline explicit Bfloat16();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Bfloat16> final : std::true_type {};
@@ -956,13 +938,8 @@ template <> struct is_acquired<rq::Bfloat16> final : std::true_type {};
 struct IntegerConstraint final : public rq::SimpleBuiltin {
   using Self = rq::IntegerConstraint;
 
-  inline explicit IntegerConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_INTEGER_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_INTEGER_CONSTRAINT;
-  }
+  inline explicit IntegerConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::IntegerConstraint> final : std::true_type {};
@@ -970,13 +947,8 @@ template <> struct is_acquired<rq::IntegerConstraint> final : std::true_type {};
 struct SignedIntegerConstraint final : public rq::SimpleBuiltin {
   using Self = rq::SignedIntegerConstraint;
 
-  inline explicit SignedIntegerConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_SIGNED_INTEGER_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_SIGNED_INTEGER_CONSTRAINT;
-  }
+  inline explicit SignedIntegerConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -985,13 +957,8 @@ struct is_acquired<rq::SignedIntegerConstraint> final : std::true_type {};
 struct UnsignedIntegerConstraint final : public rq::SimpleBuiltin {
   using Self = rq::UnsignedIntegerConstraint;
 
-  inline explicit UnsignedIntegerConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_UNSIGNED_INTEGER_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_UNSIGNED_INTEGER_CONSTRAINT;
-  }
+  inline explicit UnsignedIntegerConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1000,13 +967,8 @@ struct is_acquired<rq::UnsignedIntegerConstraint> final : std::true_type {};
 struct CodeunitConstraint final : public rq::SimpleBuiltin {
   using Self = rq::CodeunitConstraint;
 
-  inline explicit CodeunitConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_CODEUNIT_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_CODEUNIT_CONSTRAINT;
-  }
+  inline explicit CodeunitConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1015,13 +977,8 @@ struct is_acquired<rq::CodeunitConstraint> final : std::true_type {};
 struct StringConstraint final : public rq::SimpleBuiltin {
   using Self = rq::StringConstraint;
 
-  inline explicit StringConstraint()
-      : SimpleBuiltin(rq::Opcode::SY_STRING_CONSTRAINT) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_STRING_CONSTRAINT;
-  }
+  inline explicit StringConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::StringConstraint> final : std::true_type {};
@@ -1029,11 +986,8 @@ template <> struct is_acquired<rq::StringConstraint> final : std::true_type {};
 struct Char final : public rq::SimpleBuiltin {
   using Self = rq::Char;
 
-  inline explicit Char() : SimpleBuiltin(rq::Opcode::SY_CHAR) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CHAR;
-  }
+  inline explicit Char();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Char> final : std::true_type {};
@@ -1041,11 +995,8 @@ template <> struct is_acquired<rq::Char> final : std::true_type {};
 struct Ascii final : public rq::SimpleBuiltin {
   using Self = rq::Ascii;
 
-  inline explicit Ascii() : SimpleBuiltin(rq::Opcode::SY_ASCII) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ASCII;
-  }
+  inline explicit Ascii();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Ascii> final : std::true_type {};
@@ -1053,11 +1004,8 @@ template <> struct is_acquired<rq::Ascii> final : std::true_type {};
 struct Utf8 final : public rq::SimpleBuiltin {
   using Self = rq::Utf8;
 
-  inline explicit Utf8() : SimpleBuiltin(rq::Opcode::SY_UTF8) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_UTF8;
-  }
+  inline explicit Utf8();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Utf8> final : std::true_type {};
@@ -1083,53 +1031,23 @@ enum class ScaledBuiltinFlags : std::uint8_t {
 template <> struct is_flags<rq::ScaledBuiltinFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasBitsScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasNone(flags, rq::ScaledBuiltinFlags::BITS_NONE_MASK);
-}
-
+getHasBitsScalar(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasBytesScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::BYTES);
-}
-
+getHasBytesScalar(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasIndexScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::INDEX);
-}
-
+getHasIndexScalar(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasAddressScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::ADDRESS);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasNone(flags, rq::ScaledBuiltinFlags::EXACT_NONE_MASK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::FASTEST);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::LEAST);
-}
-
+getHasAddressScalar(rq::ScaledBuiltinFlags flags);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact(rq::ScaledBuiltinFlags flags);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest(rq::ScaledBuiltinFlags flags);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast(rq::ScaledBuiltinFlags flags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPlatformScalar(rq::ScaledBuiltinFlags flags) {
-  return rq::getHasAll(flags, rq::ScaledBuiltinFlags::PLATFORM_SCALAR);
-}
-
+getHasPlatformScalar(rq::ScaledBuiltinFlags flags);
 void RQ_ALWAYS_INLINE profileScaledBuiltin(llvm::FoldingSetNodeID &id,
                                            rq::Opcode opcode,
                                            std::uint16_t scalar,
                                            std::uint16_t uid,
-                                           rq::ScaledBuiltinFlags flags) {
-  id.AddInteger(static_cast<unsigned>(opcode));
-  id.AddInteger(static_cast<unsigned>(scalar));
-  id.AddInteger(static_cast<unsigned>(uid));
-  id.AddInteger(static_cast<unsigned>(flags));
-}
-
+                                           rq::ScaledBuiltinFlags flags);
 struct ScaledBuiltin : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ScaledBuiltin;
 
@@ -1138,45 +1056,20 @@ struct ScaledBuiltin : public rq::Symbol, public llvm::FoldingSetNode {
   rq::ScaledBuiltinFlags _flags;
 
   inline explicit ScaledBuiltin(rq::Opcode opcode, std::uint16_t scalar,
-                                std::uint16_t uid, rq::ScaledBuiltinFlags flags)
-      : Symbol(opcode), _scalar(scalar), _uid(uid), _flags(flags) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const {
-    return this->_scalar;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getUid() const {
-    return this->_uid;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinFlags getFlags() const {
-    return this->_flags;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBytesScalar() const {
-    return rq::getHasBytesScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndexScalar() const {
-    return rq::getHasIndexScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressScalar() const {
-    return rq::getHasAddressScalar(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact() const {
-    return rq::getIsExact(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest() const {
-    return rq::getIsFastest(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const {
-    return rq::getIsLeast(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const {
-    return this->_uid != 0;
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsScaledBuiltin(rq::dereferencePtr(entity).getOpcode());
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileScaledBuiltin(id, this->_opcode, this->_scalar, this->_uid,
-                             this->_flags);
-  }
+                                std::uint16_t uid,
+                                rq::ScaledBuiltinFlags flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint16_t getUid() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledBuiltinFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBytesScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndexScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressScalar() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExact() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastest() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSynonym() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::ScaledBuiltin> final : std::true_type {};
@@ -1185,14 +1078,8 @@ struct ScaledSignedInteger final : public rq::ScaledBuiltin {
   using Self = rq::ScaledSignedInteger;
 
   inline explicit ScaledSignedInteger(std::uint16_t scalar, std::uint16_t uid,
-                                      rq::ScaledBuiltinFlags flags)
-      : ScaledBuiltin(rq::Opcode::SY_SCALED_SIGNED_INTEGER, scalar, uid,
-                      flags) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_SCALED_SIGNED_INTEGER;
-  }
+                                      rq::ScaledBuiltinFlags flags);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1202,14 +1089,8 @@ struct ScaledUnsignedInteger final : public rq::ScaledBuiltin {
   using Self = rq::ScaledUnsignedInteger;
 
   inline explicit ScaledUnsignedInteger(std::uint16_t scalar, std::uint16_t uid,
-                                        rq::ScaledBuiltinFlags flags)
-      : ScaledBuiltin(rq::Opcode::SY_SCALED_UNSIGNED_INTEGER, scalar, uid,
-                      flags) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_SCALED_UNSIGNED_INTEGER;
-  }
+                                        rq::ScaledBuiltinFlags flags);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1217,31 +1098,18 @@ struct is_acquired<rq::ScaledUnsignedInteger> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileUnarySubtype(llvm::FoldingSetNodeID &id,
                                           rq::Opcode opcode,
-                                          const rq::TypeConstant &descendent) {
-  id.AddInteger(static_cast<unsigned>(opcode));
-  id.AddPointer(&descendent);
-}
+                                          const rq::TypeConstant &descendent);
 
 struct UnarySubtype : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::UnarySubtype;
 
   rq::TypeConstant *_descendent_ptr;
 
-  inline explicit UnarySubtype(rq::Opcode opcode, rq::TypeConstant &descendent)
-      : Symbol(opcode), _descendent_ptr(&descendent) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const {
-    return rq::dereferencePtr(this->_descendent_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent() {
-    return rq::dereferencePtr(this->_descendent_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsUnarySubtype(rq::dereferencePtr(entity).getOpcode());
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileUnarySubtype(id, this->getOpcode(), this->getDescendent());
-  }
+  inline explicit UnarySubtype(rq::Opcode opcode, rq::TypeConstant &descendent);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::UnarySubtype> final : std::true_type {};
@@ -1249,12 +1117,8 @@ template <> struct is_acquired<rq::UnarySubtype> final : std::true_type {};
 struct Reference final : public rq::UnarySubtype {
   using Self = rq::Reference;
 
-  inline explicit Reference(rq::TypeConstant &descendent)
-      : UnarySubtype(rq::Opcode::SY_REFERENCE, descendent) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_REFERENCE;
-  }
+  inline explicit Reference(rq::TypeConstant &descendent);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Reference> final : std::true_type {};
@@ -1262,12 +1126,8 @@ template <> struct is_acquired<rq::Reference> final : std::true_type {};
 struct Pointer final : public rq::UnarySubtype {
   using Self = rq::Pointer;
 
-  inline explicit Pointer(rq::TypeConstant &descendent)
-      : UnarySubtype(rq::Opcode::SY_POINTER, descendent) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_POINTER;
-  }
+  inline explicit Pointer(rq::TypeConstant &descendent);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Pointer> final : std::true_type {};
@@ -1275,12 +1135,8 @@ template <> struct is_acquired<rq::Pointer> final : std::true_type {};
 struct FatPointer final : public rq::UnarySubtype {
   using Self = rq::FatPointer;
 
-  inline explicit FatPointer(rq::TypeConstant &descendent)
-      : UnarySubtype(rq::Opcode::SY_FAT_POINTER, descendent) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_FAT_POINTER;
-  }
+  inline explicit FatPointer(rq::TypeConstant &descendent);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::FatPointer> final : std::true_type {};
@@ -1288,13 +1144,8 @@ template <> struct is_acquired<rq::FatPointer> final : std::true_type {};
 struct InferencedCountArray final : public rq::UnarySubtype {
   using Self = rq::InferencedCountArray;
 
-  inline explicit InferencedCountArray(rq::TypeConstant &descendent)
-      : UnarySubtype(rq::Opcode::SY_INFERENCED_COUNT_ARRAY, descendent) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_INFERENCED_COUNT_ARRAY;
-  }
+  inline explicit InferencedCountArray(rq::TypeConstant &descendent);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1303,11 +1154,7 @@ struct is_acquired<rq::InferencedCountArray> final : std::true_type {};
 void RQ_ALWAYS_INLINE profileCountedSubtype(llvm::FoldingSetNodeID &id,
                                             rq::Opcode opcode,
                                             const rq::TypeConstant &descendent,
-                                            unsigned count) {
-  id.AddInteger(static_cast<unsigned>(opcode));
-  id.AddPointer(&descendent);
-  id.AddInteger(count);
-}
+                                            unsigned count);
 
 struct CountedSubtype : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::CountedSubtype;
@@ -1316,26 +1163,12 @@ struct CountedSubtype : public rq::Symbol, public llvm::FoldingSetNode {
   unsigned _count;
 
   inline explicit CountedSubtype(rq::Opcode opcode,
-                                 rq::TypeConstant &descendent, unsigned count)
-      : Symbol(opcode), _descendent_ptr(&descendent), _count(count) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const {
-    return rq::dereferencePtr(this->_descendent_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent() {
-    return rq::dereferencePtr(this->_descendent_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCount() const {
-    return this->_count;
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsCountedSubtype(rq::dereferencePtr(entity).getOpcode());
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileCountedSubtype(id, this->getOpcode(), this->getDescendent(),
-                              this->getCount());
-  }
+                                 rq::TypeConstant &descendent, unsigned count);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent();
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getCount() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::CountedSubtype> final : std::true_type {};
@@ -1343,12 +1176,8 @@ template <> struct is_acquired<rq::CountedSubtype> final : std::true_type {};
 struct Array final : public rq::CountedSubtype {
   using Self = rq::Array;
 
-  inline explicit Array(rq::TypeConstant &descendent, unsigned count)
-      : CountedSubtype(rq::Opcode::SY_ARRAY, descendent, count) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ARRAY;
-  }
+  inline explicit Array(rq::TypeConstant &descendent, unsigned count);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Array> final : std::true_type {};
@@ -1368,17 +1197,8 @@ struct ParameterListSubtype : public rq::Symbol,
                                        rq::Opcode opcode,
                                        rq::ExpressionFlags attributes,
                                        rq::Module &module,
-                                       rq::SymbolTable &hosting_table)
-      : Symbol(opcode), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableHosted(hosting_table),
-        _named_parameter_map(
-            allocator.allocateAcquiredZeroedArray<rq::Parameter>(
-                map_bucket_count)) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsParameterListSubtype(
-        rq::dereferencePtr(entity).getOpcode());
-  }
+                                       rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1390,13 +1210,8 @@ struct Layout final : public rq::ParameterListSubtype {
   inline explicit Layout(rq::BumpPtrAllocator &allocator,
                          unsigned parameter_bucket_count,
                          rq::ExpressionFlags attributes, rq::Module &module,
-                         rq::SymbolTable &hosting_table)
-      : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::Opcode::SY_LAYOUT, attributes, module,
-                             hosting_table) {}
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_LAYOUT;
-  }
+                         rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Layout> final : std::true_type {};
@@ -1408,14 +1223,8 @@ struct ClassLayout final : public rq::ParameterListSubtype {
                               unsigned parameter_bucket_count,
                               rq::ExpressionFlags attributes,
                               rq::Module &module,
-                              rq::SymbolTable &hosting_table)
-      : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::Opcode::SY_CLASS_LAYOUT, attributes, module,
-                             hosting_table) {}
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_CLASS_LAYOUT;
-  }
+                              rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::ClassLayout> final : std::true_type {};
@@ -1426,14 +1235,8 @@ struct TemplateLayout final : public rq::ParameterListSubtype {
   inline explicit TemplateLayout(rq::BumpPtrAllocator &allocator,
                                  unsigned parameter_bucket_count,
                                  rq::Module &module,
-                                 rq::SymbolTable &hosting_table)
-      : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::Opcode::SY_TEMPLATE_LAYOUT, {}, module,
-                             hosting_table) {}
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_LAYOUT;
-  }
+                                 rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::TemplateLayout> final : std::true_type {};
@@ -1447,38 +1250,17 @@ struct Signature final : public rq::ParameterListSubtype {
   inline explicit Signature(rq::BumpPtrAllocator &allocator,
                             unsigned parameter_bucket_count,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &hosting_table)
-      : ParameterListSubtype(allocator, parameter_bucket_count,
-                             rq::Opcode::SY_SIGNATURE, attributes, module,
-                             hosting_table) {}
-  RQ_ALWAYS_INLINE void setReturnType(rq::TypeConstant &type) {
-    this->_return_type_ptr = &type;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasReturnType() const {
-    return this->_return_type_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const {
-    return rq::dereferencePtr(this->_return_type_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType() {
-    return rq::dereferencePtr(this->_return_type_ptr);
-  }
-  RQ_ALWAYS_INLINE void setExtendedType(rq::TypeConstant &type) {
-    this->_extended_type_ptr = &type;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExtendedType() const {
-    return this->_extended_type_ptr != nullptr;
-  }
+                            rq::SymbolTable &hosting_table);
+  RQ_ALWAYS_INLINE void setReturnType(rq::TypeConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasReturnType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType();
+  RQ_ALWAYS_INLINE void setExtendedType(rq::TypeConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExtendedType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-  getExtendedType() const {
-    return rq::dereferencePtr(this->_extended_type_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getExtendedType() {
-    return rq::dereferencePtr(this->_extended_type_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_SIGNATURE;
-  }
+  getExtendedType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getExtendedType();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Parameter : public rq::Symbol,
@@ -1500,42 +1282,20 @@ struct Parameter : public rq::Symbol,
                             rq::ParameterListSubtype &list,
                             rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &hosting_table)
-      : Symbol(opcode), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableHosted(hosting_table), InitialMaybeNamed(name),
-        _parameter_list_subtype_ptr(&list) {}
+                            rq::SymbolTable &hosting_table);
   inline explicit Parameter(rq::Opcode opcode, rq::ParameterListSubtype &list,
                             rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
-                            rq::SymbolTable &hosting_table)
-      : Symbol(opcode), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableHosted(hosting_table), InitialMaybeNamed(),
-        _parameter_list_subtype_ptr(&list) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
-    return this->_type_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setType(rq::TypeConstant &type) {
-    rq::assignSingleValue(this->_type_ptr, &type);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getType() {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
+                            rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  RQ_ALWAYS_INLINE void setType(rq::TypeConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getType();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ParameterListSubtype &
-  getParameterListSubtype() const {
-    return rq::dereferencePtr(this->_parameter_list_subtype_ptr);
-  }
+  getParameterListSubtype() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ParameterListSubtype &
-  getParameterListSubtype() {
-    return rq::dereferencePtr(this->_parameter_list_subtype_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsParameter(rq::dereferencePtr(entity).getOpcode());
-  }
+  getParameterListSubtype();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Parameter> final : std::true_type {};
@@ -1552,29 +1312,15 @@ struct ClassParameter : public rq::Parameter {
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
-                                 rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_CLASS_PARAMETER, name, layout, expression,
-                  attributes, module, hosting_table) {}
+                                 rq::SymbolTable &hosting_table);
   inline explicit ClassParameter(rq::ClassLayout &layout,
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
-                                 rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_CLASS_PARAMETER, layout, expression,
-                  attributes, module, hosting_table) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassLayout &getClassLayout() const {
-    return llvm::cast<rq::ClassLayout>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassLayout &getClassLayout() {
-    return llvm::cast<rq::ClassLayout>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_CLASS_PARAMETER;
-  }
+                                 rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassLayout &getClassLayout() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassLayout &getClassLayout();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::ClassParameter> final : std::true_type {};
@@ -1586,29 +1332,15 @@ struct LayoutParameter : public rq::Parameter {
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_LAYOUT_PARAMETER, name, layout, expression,
-                  attributes, module, hosting_table) {}
+                                  rq::SymbolTable &hosting_table);
   inline explicit LayoutParameter(rq::Layout &layout,
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_LAYOUT_PARAMETER, layout, expression,
-                  attributes, module, hosting_table) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout &getLayout() const {
-    return llvm::cast<rq::Layout>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &getLayout() {
-    return llvm::cast<rq::Layout>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_LAYOUT_PARAMETER;
-  }
+                                  rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout &getLayout() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &getLayout();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::LayoutParameter> final : std::true_type {};
@@ -1621,29 +1353,15 @@ struct TemplateParameter : public rq::Parameter {
                                     rq::Expression &expression,
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module,
-                                    rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_TEMPLATE_PARAMETER, name, template_layout,
-                  expression, attributes, module, hosting_table) {}
+                                    rq::SymbolTable &hosting_table);
   inline explicit TemplateParameter(rq::TemplateLayout &template_layout,
                                     rq::Expression &expression,
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module,
-                                    rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_TEMPLATE_PARAMETER, template_layout,
-                  expression, attributes, module, hosting_table) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &getTemplate() const {
-    return llvm::cast<rq::Template>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template &getTemplate() {
-    return llvm::cast<rq::Template>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_PARAMETER;
-  }
+                                    rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &getTemplate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template &getTemplate();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::TemplateParameter> final : std::true_type {};
@@ -1656,29 +1374,15 @@ struct SignatureParameter : public rq::Parameter {
                                      rq::Expression &expression,
                                      rq::ExpressionFlags attributes,
                                      rq::Module &module,
-                                     rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_SIGNATURE_PARAMETER, name, signature,
-                  expression, attributes, module, hosting_table) {}
+                                     rq::SymbolTable &hosting_table);
   inline explicit SignatureParameter(rq::Signature &signature,
                                      rq::Expression &expression,
                                      rq::ExpressionFlags attributes,
                                      rq::Module &module,
-                                     rq::SymbolTable &hosting_table)
-      : Parameter(rq::Opcode::SY_SIGNATURE_PARAMETER, signature, expression,
-                  attributes, module, hosting_table) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature &getSignature() const {
-    return llvm::cast<rq::Signature>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature &getSignature() {
-    return llvm::cast<rq::Signature>(this->getParameterListSubtype());
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_SIGNATURE_PARAMETER;
-  }
+                                     rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature &getSignature() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature &getSignature();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1686,13 +1390,7 @@ struct is_acquired<rq::SignatureParameter> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileArithmeticSequence(
     llvm::FoldingSetNodeID &id, const rq::TypeConstant &descendent,
-    rq::ArithmeticSequenceCondition condition,
-    rq::ArithmeticSequenceStep step) {
-  // no need to fold opcode
-  id.AddPointer(&descendent);
-  id.AddInteger(static_cast<unsigned>(condition));
-  id.AddInteger(static_cast<unsigned>(step));
-}
+    rq::ArithmeticSequenceCondition condition, rq::ArithmeticSequenceStep step);
 
 struct ArithmeticSequence : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequence;
@@ -1704,30 +1402,14 @@ struct ArithmeticSequence : public rq::Symbol, public llvm::FoldingSetNode {
   inline explicit ArithmeticSequence(rq::Opcode opcode,
                                      rq::TypeConstant &descendent,
                                      rq::ArithmeticSequenceCondition condition,
-                                     rq::ArithmeticSequenceStep step)
-      : Symbol(opcode), _descendent_ptr(&descendent), _condition(condition),
-        _step(step) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const {
-    return rq::dereferencePtr(this->_descendent_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent() {
-    return rq::dereferencePtr(this->_descendent_ptr);
-  }
+                                     rq::ArithmeticSequenceStep step);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getDescendent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getDescendent();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
-  getCondition() const {
-    return this->_condition;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const {
-    return this->_step;
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsArithmeticSequence(rq::dereferencePtr(entity).getOpcode());
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileArithmeticSequence(id, this->getDescendent(),
-                                  this->getCondition(), this->getStep());
-  }
+  getCondition() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <>
@@ -1735,15 +1417,10 @@ struct is_acquired<rq::ArithmeticSequence> final : std::true_type {};
 
 struct ArithmeticInterval : public rq::ArithmeticSequence {
   using Self = rq::ArithmeticInterval;
-  inline explicit ArithmeticInterval(rq::TypeConstant &descendent,
-                                     rq::ArithmeticSequenceCondition condition)
-      : ArithmeticSequence(rq::Opcode::SY_ARITHMETIC_INTERVAL, descendent,
-                           condition, rq::ArithmeticSequenceStep::NONE) {}
 
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_ARITHMETIC_INTERVAL;
-  }
+  inline explicit ArithmeticInterval(rq::TypeConstant &descendent,
+                                     rq::ArithmeticSequenceCondition condition);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1754,14 +1431,8 @@ struct FiniteArithmeticProgression : public rq::ArithmeticSequence {
 
   inline explicit FiniteArithmeticProgression(
       rq::TypeConstant &descendent, rq::ArithmeticSequenceCondition condition,
-      rq::ArithmeticSequenceStep step)
-      : ArithmeticSequence(rq::Opcode::SY_FINITE_ARITHMETIC_PROGRESSION,
-                           descendent, condition, step) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_FINITE_ARITHMETIC_PROGRESSION;
-  }
+      rq::ArithmeticSequenceStep step);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1770,16 +1441,9 @@ struct is_acquired<rq::FiniteArithmeticProgression> final : std::true_type {};
 struct InfiniteArithmeticProgression : public rq::ArithmeticSequence {
   using Self = rq::InfiniteArithmeticProgression;
 
-  inline explicit InfiniteArithmeticProgression(rq::TypeConstant &descendent,
-                                                rq::ArithmeticSequenceStep step)
-      : ArithmeticSequence(rq::Opcode::SY_INFINITE_ARITHMETIC_PROGRESSION,
-                           descendent, rq::ArithmeticSequenceCondition::NONE,
-                           step) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_INFINITE_ARITHMETIC_PROGRESSION;
-  }
+  inline explicit InfiniteArithmeticProgression(
+      rq::TypeConstant &descendent, rq::ArithmeticSequenceStep step);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1789,18 +1453,7 @@ static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind opcode) {
-  using M = rq::ModuleKind;
-  switch (opcode) {
-  case M::NONE:
-    return "none";
-  case M::SOURCE:
-    return "source";
-  case M::IMPORT:
-    return "import";
-  }
-  RQ_UNREACHABLE();
-}
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind opcode);
 
 struct Module final : public rq::Symbol {
   using Self = rq::Module;
@@ -1811,45 +1464,20 @@ struct Module final : public rq::Symbol {
   llvm::MemoryBufferRef _buffer;
 
   inline explicit Module(rq::ModuleKind opcode, llvm::StringRef path,
-                         llvm::MemoryBufferRef &&buffer)
-      : Symbol(rq::Opcode::SY_MODULE), _module_opcode(opcode), _path(path),
-        _buffer(buffer) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const {
-    return this->_module_opcode;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const {
-    return this->_path;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
-    return this->_buffer.getBuffer();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
-    return this->_expression_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
-    rq::assignSingleValue(this->_expression_ptr, &expression);
-  }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression) {
-    rq::assignSingleValue(this->_expression_ptr, expression);
-  }
-  RQ_ALWAYS_INLINE rq::Expression &
-  replaceExpression(rq::Expression &expression) {
-    return rq::replaceValue(this->_expression_ptr, &expression);
-  }
-  RQ_ALWAYS_INLINE rq::Expression *
-  replaceExpressionPtr(rq::Expression &expression) {
-    return rq::replaceValuPtr(this->_expression_ptr, &expression);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_MODULE;
-  }
+                         llvm::MemoryBufferRef &&buffer);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+  replaceExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+  replaceExpressionPtr(rq::Expression &expression);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Module> final : std::true_type {};
@@ -1861,13 +1489,8 @@ struct Import final : public rq::Symbol,
   using Self = rq::Import;
 
   inline explicit Import(const rq::Expression &expression,
-                         rq::ExpressionFlags attributes, rq::Module &module)
-      : Symbol(rq::Opcode::SY_IMPORT), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_IMPORT;
-  }
+                         rq::ExpressionFlags attributes, rq::Module &module);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Code : public rq::Symbol,
@@ -1882,15 +1505,8 @@ struct Code : public rq::Symbol,
   inline explicit Code(llvm::StringRef name, const rq::Expression &expression,
                        rq::ExpressionFlags attributes, rq::Module &module,
                        rq::SymbolTable &containing_table,
-                       rq::SymbolTable &hosting_table)
-      : Symbol(rq::Opcode::SY_CODE), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CODE;
-  }
+                       rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct CategoryDiscriminant : public rq::Symbol {
@@ -1898,14 +1514,8 @@ struct CategoryDiscriminant : public rq::Symbol {
 
   rq::Category *_category_ptr;
 
-  inline explicit CategoryDiscriminant(rq::Category &category)
-      : Symbol(rq::Opcode::SY_CATEGORY_DISCRIMINANT), _category_ptr(&category) {
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_CATEGORY_DISCRIMINANT;
-  }
+  inline explicit CategoryDiscriminant(rq::Category &category);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -1923,23 +1533,11 @@ struct Label : public rq::Symbol,
 
   inline explicit Label(llvm::StringRef name, rq::Expression &expression,
                         const rq::Expression &ascription, rq::Entity &subject,
-                        rq::Module &module, rq::SymbolTable &containing_table)
-      : Symbol(rq::Opcode::SY_LABEL), InitialExpression(expression),
-        InitialModuleMember(module), SymbolTableMember(containing_table),
-        InitialNamed(name), _ascription_ptr(&ascription),
-        _subject_ptr(&subject) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAscription() const {
-    return rq::dereferencePtr(this->_ascription_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getSubject() const {
-    return rq::dereferencePtr(this->_subject_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getSubject() {
-    return rq::dereferencePtr(this->_subject_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_LABEL;
-  }
+                        rq::Module &module, rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAscription() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getSubject() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getSubject();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Synonym : public rq::Symbol {
@@ -1947,26 +1545,10 @@ struct Synonym : public rq::Symbol {
 
   rq::Symbol *_original_ptr;
 
-  inline explicit Synonym(rq::Symbol &original)
-      : Symbol(rq::Opcode::SY_SYNONYM), _original_ptr(&original) {
-    RQ_ASSERT(
-        !llvm::isa<rq::ScaledBuiltin>(original),
-        "must use internal uid to differentiate synonyms of scaled builtins");
-    RQ_ASSERT(!llvm::isa<rq::Synonym>(original),
-              "must not make synonym of synonym");
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const {
-    return rq::dereferencePtr(this->_original_ptr);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal() {
-    return rq::dereferencePtr(this->_original_ptr);
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_SYNONYM;
-  }
+  inline explicit Synonym(rq::Symbol &original);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Synonym> final : std::true_type {};
@@ -1985,36 +1567,16 @@ struct SymbolTableIterator final {
   rq::SymbolTable *_table_ptr{nullptr};
 
   SymbolTableIterator() = default;
-  explicit SymbolTableIterator(rq::SymbolTable *table_ptr)
-      : _table_ptr(table_ptr) {}
-  SymbolTableIterator(const Self &) = default;
-  SymbolTableIterator(Self &&) = default;
-  ~SymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
+  inline explicit SymbolTableIterator(rq::SymbolTable *table_ptr);
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_table_ptr == it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_table_ptr != it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*() {
-    return rq::dereferencePtr(this->_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
-    return rq::dereferencePtr(this->_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->() {
-    return this->_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
-    return this->_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_table_ptr == nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct ConstSymbolTableIterator final {
@@ -2028,30 +1590,14 @@ struct ConstSymbolTableIterator final {
   const rq::SymbolTable *_table_ptr = nullptr;
 
   ConstSymbolTableIterator() = default;
-  explicit ConstSymbolTableIterator(const rq::SymbolTable *table_ptr)
-      : _table_ptr(table_ptr) {}
-  ConstSymbolTableIterator(const Self &) = default;
-  ConstSymbolTableIterator(Self &&) = default;
-  ~ConstSymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
+  inline explicit ConstSymbolTableIterator(const rq::SymbolTable *table_ptr);
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_table_ptr == it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_table_ptr != it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
-    return rq::dereferencePtr(this->_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
-    return this->_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_table_ptr == nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct MemberSymbolTableIterator final {
@@ -2065,36 +1611,16 @@ struct MemberSymbolTableIterator final {
   rq::SymbolTable *_table_ptr{nullptr};
 
   MemberSymbolTableIterator() = default;
-  explicit MemberSymbolTableIterator(rq::SymbolTable *table_ptr)
-      : _table_ptr(table_ptr) {}
-  MemberSymbolTableIterator(const Self &) = default;
-  MemberSymbolTableIterator(Self &&) = default;
-  ~MemberSymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
+  inline MemberSymbolTableIterator(rq::SymbolTable *table_ptr);
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_table_ptr == it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_table_ptr != it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*() {
-    return rq::dereferencePtr(this->_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
-    return rq::dereferencePtr(this->_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->() {
-    return this->_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
-    return this->_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_table_ptr == nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct ConstMemberSymbolTableIterator final {
@@ -2108,30 +1634,15 @@ struct ConstMemberSymbolTableIterator final {
   const rq::SymbolTable *_table_ptr = nullptr;
 
   ConstMemberSymbolTableIterator() = default;
-  explicit ConstMemberSymbolTableIterator(const rq::SymbolTable *table_ptr)
-      : _table_ptr(table_ptr) {}
-  ConstMemberSymbolTableIterator(const Self &) = default;
-  ConstMemberSymbolTableIterator(Self &&) = default;
-  ~ConstMemberSymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
+  inline explicit ConstMemberSymbolTableIterator(
+      const rq::SymbolTable *table_ptr);
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_table_ptr == it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_table_ptr != it._table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
-    return rq::dereferencePtr(this->_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
-    return this->_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_table_ptr == nullptr;
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
@@ -2143,104 +1654,46 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
       _named_symbols_map{};
   rq::BumpPtrList<rq::Symbol> _unamed_symbols_list{};
 
-  inline explicit SymbolTable(rq::Opcode opcode) : Symbol(opcode) {}
+  inline explicit SymbolTable(rq::Opcode opcode);
   inline explicit SymbolTable(rq::Opcode opcode,
-                              rq::SymbolTable &containing_table)
-      : Symbol(opcode), SymbolTableMember(containing_table) {}
+                              rq::SymbolTable &containing_table);
   inline void release();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstBumpPtrListRef<rq::Symbol>
-  getUnamedSymbolsListRef() const {
-    return this->_unamed_symbols_list;
-  }
+  getUnamedSymbolsListRef() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
-  getUnamedSymbolsListRef() {
-    return this->_unamed_symbols_list;
-  }
+  getUnamedSymbolsListRef();
   inline void _addMember(rq::Symbol &symbol);
   inline void addNamedSymbol(rq::BumpPtrAllocator &allocator,
-                             llvm::StringRef name, rq::Symbol &symbol) {
-    rq::BumpPtrList<rq::Symbol> &list = this->_named_symbols_map[name];
-    list.insertFront(allocator, symbol);
-    this->_addMember(symbol);
-  }
+                             llvm::StringRef name, rq::Symbol &symbol);
   inline void addUnamedSymbol(rq::BumpPtrAllocator &allocator,
-                              rq::Symbol &symbol) {
-    this->_unamed_symbols_list.insertFront(allocator, symbol);
-    this->_addMember(symbol);
-  }
-  [[nodiscard]] rq::ConstBumpPtrListRef<rq::Symbol>
-  getNamedListRef(llvm::StringRef name) const {
-    auto it = this->_named_symbols_map.find(name);
-    if (it == this->_named_symbols_map.end()) {
-      return rq::ConstBumpPtrListRef<rq::Symbol>();
-    }
-    return it->getSecond();
-  }
-  [[nodiscard]] rq::BumpPtrListRef<rq::Symbol>
-  getNamedListRef(llvm::StringRef name) {
-    auto it = this->_named_symbols_map.find(name);
-    if (it == this->_named_symbols_map.end()) {
-      return rq::BumpPtrListRef<rq::Symbol>();
-    }
-    return it->getSecond();
-  }
-  auto getNamedListsSubrange() const {
-    auto begin_it = this->_named_symbols_map.begin();
-    return std::ranges::subrange<decltype(begin_it), decltype(begin_it),
-                                 std::ranges::subrange_kind::unsized>(
-        begin_it, this->_named_symbols_map.end());
-  }
-  std::ranges::subrange<
+                              rq::Symbol &symbol);
+  [[nodiscard]] inline rq::ConstBumpPtrListRef<rq::Symbol>
+  getNamedListRef(llvm::StringRef name) const;
+  [[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
+  getNamedListRef(llvm::StringRef name);
+  [[nodiscard]] inline auto getNamedListsSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
       llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
       llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
       std::ranges::subrange_kind::unsized>
-  getNamedListsSubrange() {
-    return std::ranges::subrange<
-        llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
-        llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
-        std::ranges::subrange_kind::unsized>(this->_named_symbols_map.begin(),
-                                             this->_named_symbols_map.end());
-  }
+  getNamedListsSubrange();
   [[nodiscard]] inline std::ranges::subrange<
       rq::ConstSymbolTableIterator, rq::ConstSymbolTableIterator,
       std::ranges::subrange_kind::unsized>
-  getInclusiveFrameSubrange() const {
-    return std::ranges::subrange<rq::ConstSymbolTableIterator,
-                                 rq::ConstSymbolTableIterator,
-                                 std::ranges::subrange_kind::unsized>(
-        rq::ConstSymbolTableIterator(this), rq::ConstSymbolTableIterator());
-  }
-  std::ranges::subrange<rq::SymbolTableIterator, rq::SymbolTableIterator,
-                        std::ranges::subrange_kind::unsized>
-  getInclusiveFrameSubrange() {
-    return std::ranges::subrange<rq::SymbolTableIterator,
-                                 rq::SymbolTableIterator,
-                                 std::ranges::subrange_kind::unsized>(
-        rq::SymbolTableIterator(this), rq::SymbolTableIterator());
-  }
-  std::ranges::subrange<rq::MemberSymbolTableIterator,
-                        rq::MemberSymbolTableIterator,
-                        std::ranges::subrange_kind::unsized>
-  getMemberSymbolTableSubrange() {
-    return std::ranges::subrange<rq::MemberSymbolTableIterator,
-                                 rq::MemberSymbolTableIterator,
-                                 std::ranges::subrange_kind::unsized>(
-        rq::MemberSymbolTableIterator(this->_first_member_table_ptr),
-        rq::MemberSymbolTableIterator());
-  }
-  std::ranges::subrange<rq::ConstMemberSymbolTableIterator,
-                        rq::ConstMemberSymbolTableIterator,
-                        std::ranges::subrange_kind::unsized>
-  getMemberSymbolTableSubrange() const {
-    return std::ranges::subrange<rq::ConstMemberSymbolTableIterator,
-                                 rq::ConstMemberSymbolTableIterator,
-                                 std::ranges::subrange_kind::unsized>(
-        rq::ConstMemberSymbolTableIterator(this->_first_member_table_ptr),
-        rq::ConstMemberSymbolTableIterator());
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsSymbolTable(rq::dereferencePtr(entity).getOpcode());
-  }
+  getInclusiveFrameSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::SymbolTableIterator, rq::SymbolTableIterator,
+      std::ranges::subrange_kind::unsized>
+  getInclusiveFrameSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::MemberSymbolTableIterator, rq::MemberSymbolTableIterator,
+      std::ranges::subrange_kind::unsized>
+  getMemberSymbolTableSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstMemberSymbolTableIterator, rq::ConstMemberSymbolTableIterator,
+      std::ranges::subrange_kind::unsized>
+  getMemberSymbolTableSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
@@ -2248,11 +1701,8 @@ template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
 struct Top : public rq::SymbolTable {
   using Self = rq::Top;
 
-  inline explicit Top() : SymbolTable(rq::Opcode::SY_TOP) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_TOP;
-  }
+  inline explicit Top();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Scope : public rq::SymbolTable,
@@ -2261,27 +1711,16 @@ struct Scope : public rq::SymbolTable,
   using Self = rq::Scope;
 
   inline explicit Scope(rq::Expression &expression, rq::Module &module,
-                        rq::SymbolTable &containing_table)
-      : SymbolTable(rq::Opcode::SY_SCOPE, containing_table),
-        InitialExpression(expression), InitialModuleMember(module) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_SCOPE;
-  }
+                        rq::SymbolTable &containing_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Namespace : public rq::SymbolTable, rq::InitialNamed {
   using Self = rq::Namespace;
 
   inline explicit Namespace(llvm::StringRef name,
-
-                            rq::SymbolTable &containing_table)
-      : SymbolTable(rq::Opcode::SY_NAMESPACE, containing_table),
-        InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_NAMESPACE;
-  }
+                            rq::SymbolTable &containing_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Class : public rq::SymbolTable,
@@ -2299,25 +1738,11 @@ struct Class : public rq::SymbolTable,
   inline explicit Class(llvm::StringRef name, const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
                         rq::SymbolTable &containing_table,
-                        rq::SymbolTable &hosting_table)
-      : SymbolTable(rq::Opcode::SY_CLASS, containing_table),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
-    return this->_is_implemented;
-  }
-  RQ_ALWAYS_INLINE void setIsImplemented() {
-    RQ_ASSERT(!this->_is_implemented, "already implemented");
-    this->_is_implemented = true;
-  }
-  void setClassLayoutExpression(const rq::Expression &layout_expression) {
-    rq::assignSingleValue(this->_class_layout_expression_ptr,
-                          &layout_expression);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CLASS;
-  }
+                        rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
+  inline void setClassLayoutExpression(const rq::Expression &layout_expression);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Enumeration : public rq::SymbolTable,
@@ -2336,26 +1761,12 @@ struct Enumeration : public rq::SymbolTable,
                               rq::ExpressionFlags attributes,
                               rq::Module &module,
                               rq::SymbolTable &containing_table,
-                              rq::SymbolTable &hosting_table)
-      : SymbolTable(rq::Opcode::SY_ENUMERATION, containing_table),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
-    return this->_is_implemented;
-  }
-  RQ_ALWAYS_INLINE void setIsImplemented() {
-    RQ_ASSERT(!this->_is_implemented, "already implemented");
-    this->_is_implemented = true;
-  }
-  RQ_ALWAYS_INLINE void setUnderlyingTypeExpression(
-      const rq::Expression &underlying_type_expression) {
-    rq::assignSingleValue(this->_underlying_type_expression_ptr,
-                          &underlying_type_expression);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ENUMERATION;
-  }
+                              rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
+  RQ_ALWAYS_INLINE void
+  setUnderlyingTypeExpression(const rq::Expression &underlying_type_expression);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Category : public rq::SymbolTable,
@@ -2370,30 +1781,15 @@ struct Category : public rq::SymbolTable,
   const rq::Expression *_discriminant_type_expression_ptr{nullptr};
 
   inline explicit Category(llvm::StringRef name,
-
                            const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module,
                            rq::SymbolTable &containing_table,
-                           rq::SymbolTable &hosting_table)
-      : SymbolTable(rq::Opcode::SY_CATEGORY, containing_table),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
-    return this->_is_implemented;
-  }
-  RQ_ALWAYS_INLINE void setIsImplemented() {
-    RQ_ASSERT(!this->_is_implemented, "already implemented");
-    this->_is_implemented = true;
-  }
+                           rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
   RQ_ALWAYS_INLINE void
-  setDiscriminantTypeExpression(const rq::Expression &type_expression) {
-    rq::assignSingleValue(this->_discriminant_type_expression_ptr,
-                          &type_expression);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CATEGORY;
-  }
+  setDiscriminantTypeExpression(const rq::Expression &type_expression);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct DynamicVariable : public rq::Symbol,
@@ -2412,28 +1808,13 @@ struct DynamicVariable : public rq::Symbol,
                                   const rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
-                                  rq::SymbolTable &containing_table)
-      : Symbol(opcode), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableMember(containing_table), InitialNamed(name) {
-    RQ_ASSERT(rq::getIsDynamicVariable(opcode), "not dynamic variable");
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
-    return this->_type_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
-  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression) {
-    rq::assignSingleValue(this->_type_expression_ptr, &expression);
-  }
+                                  rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
   RQ_ALWAYS_INLINE void
-  setValueExpression(const rq::Expression &expression_ptr) {
-    rq::assignSingleValue(this->_value_expression_ptr, &expression_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsDynamicVariable(rq::dereferencePtr(entity).getOpcode());
-  }
+  setValueExpression(const rq::Expression &expression_ptr);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -2448,22 +1829,10 @@ struct LocalVariable : public rq::DynamicVariable {
                                 const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
-                                rq::SymbolTable &containing_table)
-      : DynamicVariable(rq::Opcode::SY_LOCAL_VARIABLE, name, expression,
-                        attributes, module, containing_table) {}
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_LOCAL_VARIABLE;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const {
-    return this->_is_indeterminate;
-  }
-  RQ_ALWAYS_INLINE void setNotIndeterminate() {
-    RQ_ASSERT(this->getHasType(), "does not have type");
-    // RQ_ASSERT(this->getType().getIsComplete(), "does not have complete
-    // type");
-    this->_is_indeterminate = false;
-  }
+                                rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
+  RQ_ALWAYS_INLINE void setNotIndeterminate();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct GlobalVariable : public rq::DynamicVariable,
@@ -2478,33 +1847,14 @@ struct GlobalVariable : public rq::DynamicVariable,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
                                  rq::SymbolTable &containing_table,
-                                 rq::SymbolTable &hosting_table)
-      : DynamicVariable(rq::Opcode::SY_GLOBAL_VARIABLE, name, expression,
-                        attributes, module, containing_table),
-        SymbolTableHosted(hosting_table) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const {
-    return this->_is_implemented;
-  }
-  RQ_ALWAYS_INLINE void setIsImplemented() {
-    RQ_ASSERT(!this->_is_implemented, "already implemented");
-    this->_is_implemented = true;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const {
-    return this->_type_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setType(rq::TypeConstant &type) {
-    rq::assignSingleValue(this->_type_ptr, &type);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getType() {
-    return rq::dereferencePtr(this->_type_ptr);
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_GLOBAL_VARIABLE;
-  }
+                                 rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  RQ_ALWAYS_INLINE void setType(rq::TypeConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getType();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct StaticVariable : public rq::Symbol,
@@ -2521,16 +1871,8 @@ struct StaticVariable : public rq::Symbol,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
                                  rq::SymbolTable &containing_table,
-                                 rq::SymbolTable &hosting_table)
-      : Symbol(rq::Opcode::SY_STATIC_VARIABLE), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_STATIC_VARIABLE;
-  }
+                                 rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::StaticVariable> final : std::true_type {};
@@ -2547,15 +1889,8 @@ struct Enumerator : public rq::Symbol,
   inline explicit Enumerator(llvm::StringRef name, rq::Expression &expression,
                              rq::ExpressionFlags attributes, rq::Module &module,
                              rq::SymbolTable &containing_table,
-                             rq::SymbolTable &hosting_table)
-      : Symbol(rq::Opcode::SY_ENUMERATOR), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ENUMERATOR;
-  }
+                             rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Enumerator> final : std::true_type {};
@@ -2572,16 +1907,8 @@ struct CategoryAlternative : public rq::Symbol,
   inline explicit CategoryAlternative(rq::Code &code, rq::Category &category,
                                       rq::Expression &expression,
                                       rq::ExpressionFlags attributes,
-                                      rq::Module &module)
-      : Symbol(rq::Opcode::SY_CATEGORY_ALTERNATIVE),
-        InitialExpression(expression), InitialExpressionFlags(attributes),
-        InitialModuleMember(module), SymbolTableMember(category),
-        _code_ptr(&code) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_CATEGORY_ALTERNATIVE;
-  }
+                                      rq::Module &module);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Procedure : public rq::SymbolTable,
@@ -2605,96 +1932,40 @@ struct Procedure : public rq::SymbolTable,
                             const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &containing_table,
-                            rq::SymbolTable &hosting_table)
-      : SymbolTable(opcode, containing_table), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableHosted(hosting_table), InitialMaybeNamed(name) {}
+                            rq::SymbolTable &hosting_table);
   inline explicit Procedure(rq::Opcode opcode, const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::SymbolTable &containing_table,
-                            rq::SymbolTable &hosting_table)
-      : SymbolTable(opcode, containing_table), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableHosted(hosting_table) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() {
-    return this->_is_implemented;
-  }
-  RQ_ALWAYS_INLINE void setIsImplemented() {
-    RQ_ASSERT(!this->_is_implemented, "already implemented");
-    this->_is_implemented = true;
-  }
+                            rq::SymbolTable &hosting_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented();
+  RQ_ALWAYS_INLINE void setIsImplemented();
   RQ_ALWAYS_INLINE void
-  setSignatureExpression(const rq::Expression &expression) {
-    rq::assignSingleValue(this->_signature_expression_ptr, &expression);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const {
-    return this->_signature_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setSignature(rq::TypeConstant &signature) {
-    this->_signature_ptr = &signature;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getSignature() const {
-    return rq::dereferencePtr(this->_signature_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getSignature() {
-    return rq::dereferencePtr(this->_signature_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const {
-    return this->_instruction_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction *instruction_ptr) {
-    rq::assignSingleValue(this->_instruction_ptr, instruction_ptr);
-  }
-  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction) {
-    rq::assignSingleValue(this->_instruction_ptr, &instruction);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const {
-    return rq::dereferencePtr(this->_instruction_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
-    return rq::dereferencePtr(this->_instruction_ptr);
-  }
-  RQ_ALWAYS_INLINE bool getHasSignatureExpression() const {
-    return this->_signature_expression_ptr != nullptr;
-  }
+  setSignatureExpression(const rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const;
+  RQ_ALWAYS_INLINE void setSignature(rq::TypeConstant &signature);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getSignature() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getSignature();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const;
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction *instruction_ptr);
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
+  RQ_ALWAYS_INLINE bool getHasSignatureExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getSignatureExpression() const {
-    return rq::dereferencePtr(this->_signature_expression_ptr);
-  }
-  RQ_ALWAYS_INLINE bool getHasBodyStartExpression() const {
-    return this->_body_start_ptr != nullptr;
-  }
+  getSignatureExpression() const;
+  RQ_ALWAYS_INLINE bool getHasBodyStartExpression() const;
   RQ_ALWAYS_INLINE void
-  setBodyStartExpression(const rq::Expression &expression) {
-    rq::assignSingleValue(this->_body_start_ptr, &expression);
-  }
+  setBodyStartExpression(const rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getBodyStartExpression() const {
-    return rq::dereferencePtr(this->_body_start_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangledName() const {
-    return !this->_mangled_name.empty();
-  }
-  RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef name) {
-    RQ_ASSERT(!this->getHasMangledName(), "mangled name already set");
-    this->_mangled_name = name;
-  }
-  [[nodiscard]] llvm::StringRef getMangledName() const {
-    return this->_mangled_name;
-  }
-  RQ_ALWAYS_INLINE void setLlvmFunctionPtr(llvm::Function *llvm_function_ptr) {
-    rq::assignSingleValue(this->_llvm_function_ptr, llvm_function_ptr);
-  }
+  getBodyStartExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangledName() const;
+  RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
+  RQ_ALWAYS_INLINE void setLlvmFunctionPtr(llvm::Function *llvm_function_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Function *
-  getLlvmFunctionPtr() const {
-    return this->_llvm_function_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Function *getLlvmFunctionPtr() {
-    return this->_llvm_function_ptr;
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsProcedure(rq::dereferencePtr(entity).getOpcode());
-  }
+  getLlvmFunctionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Function *getLlvmFunctionPtr();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::Procedure> final : std::true_type {};
@@ -2705,13 +1976,8 @@ struct Entry : public rq::Procedure {
   inline explicit Entry(const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
                         rq::SymbolTable &containing_table,
-                        rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_ENTRY, expression, attributes, module,
-                  containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ENTRY;
-  }
+                        rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Function : public rq::Procedure {
@@ -2721,13 +1987,8 @@ struct Function : public rq::Procedure {
                            const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module,
                            rq::SymbolTable &containing_table,
-                           rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_FUNCTION, name, expression, attributes, module,
-                  containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_FUNCTION;
-  }
+                           rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Method : public rq::Procedure {
@@ -2736,13 +1997,8 @@ struct Method : public rq::Procedure {
   inline explicit Method(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
                          rq::SymbolTable &containing_table,
-                         rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_METHOD, name, expression, attributes, module,
-                  containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_METHOD;
-  }
+                         rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Ranger : public rq::Procedure {
@@ -2751,13 +2007,8 @@ struct Ranger : public rq::Procedure {
   inline explicit Ranger(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
                          rq::SymbolTable &containing_table,
-                         rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_METHOD, name, expression, attributes, module,
-                  containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RANGER;
-  }
+                         rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct ExtensionFunction : public rq::Procedure {
@@ -2768,14 +2019,8 @@ struct ExtensionFunction : public rq::Procedure {
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module,
                                     rq::SymbolTable &containing_table,
-                                    rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_EXTENSION_FUNCTION, name, expression,
-                  attributes, module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_EXTENSION_FUNCTION;
-  }
+                                    rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct ExtensionMethod : public rq::Procedure {
@@ -2786,14 +2031,8 @@ struct ExtensionMethod : public rq::Procedure {
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
                                   rq::SymbolTable &containing_table,
-                                  rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_EXTENSION_METHOD, name, expression, attributes,
-                  module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_EXTENSION_METHOD;
-  }
+                                  rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct ExtensionRanger : public rq::Procedure {
@@ -2804,14 +2043,8 @@ struct ExtensionRanger : public rq::Procedure {
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
                                   rq::SymbolTable &containing_table,
-                                  rq::SymbolTable &hosting_table)
-      : Procedure(rq::Opcode::SY_EXTENSION_RANGER, name, expression, attributes,
-                  module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_EXTENSION_RANGER;
-  }
+                                  rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Template : public rq::Symbol,
@@ -2826,28 +2059,15 @@ struct Template : public rq::Symbol,
   rq::TemplateLayout *_template_layout_ptr;
 
   inline explicit Template(rq::Opcode opcode, llvm::StringRef name,
-                           rq::Expression &expression,
+                           const rq::Expression &expression,
                            rq::ExpressionFlags attributes, rq::Module &module,
                            rq::SymbolTable &containing_table,
                            rq::SymbolTable &hosting_table,
-                           rq::TemplateLayout &template_layout)
-      : Symbol(opcode), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
-        InitialNamed(name), _template_layout_ptr(&template_layout) {}
-
+                           rq::TemplateLayout &template_layout);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TemplateLayout &
-  getTemplateLayout() const {
-    return rq::dereferencePtr(this->_template_layout_ptr);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateLayout &getTemplateLayout() {
-    return rq::dereferencePtr(this->_template_layout_ptr);
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsTemplate(rq::dereferencePtr(entity).getOpcode());
-  }
+  getTemplateLayout() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateLayout &getTemplateLayout();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::Template> final : std::true_type {};
@@ -2856,215 +2076,141 @@ struct TemplateClass : public rq::Template {
   using Self = rq::TemplateClass;
 
   inline explicit TemplateClass(llvm::StringRef name,
-                                rq::Expression &expression,
+                                const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
                                 rq::SymbolTable &containing_table,
                                 rq::SymbolTable &hosting_table,
-                                rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_CLASS, name, expression, attributes,
-                 module, containing_table, hosting_table, template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_CLASS;
-  }
+                                rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateEnumeration : public rq::Template {
   using Self = rq::TemplateEnumeration;
 
   inline explicit TemplateEnumeration(llvm::StringRef name,
-                                      rq::Expression &expression,
+                                      const rq::Expression &expression,
                                       rq::ExpressionFlags attributes,
                                       rq::Module &module,
                                       rq::SymbolTable &containing_table,
                                       rq::SymbolTable &hosting_table,
-                                      rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_ENUMERATION, name, expression,
-                 attributes, module, containing_table, hosting_table,
-                 template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_ENUMERATION;
-  }
+                                      rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateCategory : public rq::Template {
   using Self = rq::TemplateCategory;
 
   inline explicit TemplateCategory(llvm::StringRef name,
-                                   rq::Expression &expression,
+                                   const rq::Expression &expression,
                                    rq::ExpressionFlags attributes,
                                    rq::Module &module,
                                    rq::SymbolTable &containing_table,
                                    rq::SymbolTable &hosting_table,
-                                   rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_CATEGORY, name, expression, attributes,
-                 module, containing_table, hosting_table, template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_CATEGORY;
-  }
+                                   rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateGlobalVariable : public rq::Template {
   using Self = rq::TemplateGlobalVariable;
 
   inline explicit TemplateGlobalVariable(llvm::StringRef name,
-                                         rq::Expression &expression,
+                                         const rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
                                          rq::SymbolTable &containing_table,
                                          rq::SymbolTable &hosting_table,
-                                         rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_GLOBAL_VARIABLE, name, expression,
-                 attributes, module, containing_table, hosting_table,
-                 template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_GLOBAL_VARIABLE;
-  }
+                                         rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateStaticVariable : public rq::Template {
   using Self = rq::TemplateStaticVariable;
 
   inline explicit TemplateStaticVariable(llvm::StringRef name,
-                                         rq::Expression &expression,
+                                         const rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
                                          rq::SymbolTable &containing_table,
                                          rq::SymbolTable &hosting_table,
-                                         rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_STATIC_VARIABLE, name, expression,
-                 attributes, module, containing_table, hosting_table,
-                 template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_STATIC_VARIABLE;
-  }
+                                         rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateFunction : public rq::Template {
   using Self = rq::TemplateFunction;
 
   inline explicit TemplateFunction(llvm::StringRef name,
-                                   rq::Expression &expression,
+                                   const rq::Expression &expression,
                                    rq::ExpressionFlags attributes,
                                    rq::Module &module,
                                    rq::SymbolTable &containing_table,
                                    rq::SymbolTable &hosting_table,
-                                   rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_FUNCTION, name, expression, attributes,
-                 module, containing_table, hosting_table, template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_FUNCTION;
-  }
+                                   rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline bool classof(const Entity *entity);
 };
 
 struct TemplateMethod : public rq::Template {
   using Self = rq::TemplateMethod;
 
   inline explicit TemplateMethod(llvm::StringRef name,
-                                 rq::Expression &expression,
+                                 const rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
                                  rq::SymbolTable &containing_table,
                                  rq::SymbolTable &hosting_table,
-                                 rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_METHOD, name, expression, attributes,
-                 module, containing_table, hosting_table, template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_METHOD;
-  }
+                                 rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateRanger : public rq::Template {
   using Self = rq::TemplateRanger;
 
   inline explicit TemplateRanger(llvm::StringRef name,
-                                 rq::Expression &expression,
+                                 const rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
                                  rq::SymbolTable &containing_table,
                                  rq::SymbolTable &hosting_table,
-                                 rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_RANGER, name, expression, attributes,
-                 module, containing_table, hosting_table, template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_RANGER;
-  }
+                                 rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateExtensionFunction : public rq::Template {
   using Self = rq::TemplateExtensionFunction;
 
-  inline explicit TemplateExtensionFunction(llvm::StringRef name,
-                                            rq::Expression &expression,
-                                            rq::ExpressionFlags attributes,
-                                            rq::Module &module,
-                                            rq::SymbolTable &containing_table,
-                                            rq::SymbolTable &hosting_table,
-                                            rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_EXTENSION_FUNCTION, name, expression,
-                 attributes, module, containing_table, hosting_table,
-                 template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_EXTENSION_FUNCTION;
-  }
+  inline explicit TemplateExtensionFunction(
+      llvm::StringRef name, const rq::Expression &expression,
+      rq::ExpressionFlags attributes, rq::Module &module,
+      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+      rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateExtensionMethod : public rq::Template {
   using Self = rq::TemplateExtensionMethod;
 
   inline explicit TemplateExtensionMethod(llvm::StringRef name,
-                                          rq::Expression &expression,
+                                          const rq::Expression &expression,
                                           rq::ExpressionFlags attributes,
                                           rq::Module &module,
                                           rq::SymbolTable &containing_table,
                                           rq::SymbolTable &hosting_table,
-                                          rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_EXTENSION_METHOD, name, expression,
-                 attributes, module, containing_table, hosting_table,
-                 template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_EXTENSION_METHOD;
-  }
+                                          rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct TemplateExtensionRanger : public rq::Template {
   using Self = rq::TemplateExtensionRanger;
 
   inline explicit TemplateExtensionRanger(llvm::StringRef name,
-                                          rq::Expression &expression,
+                                          const rq::Expression &expression,
                                           rq::ExpressionFlags attributes,
                                           rq::Module &module,
                                           rq::SymbolTable &containing_table,
                                           rq::SymbolTable &hosting_table,
-                                          rq::TemplateLayout &template_layout)
-      : Template(rq::Opcode::SY_TEMPLATE_EXTENSION_RANGER, name, expression,
-                 attributes, module, containing_table, hosting_table,
-                 template_layout) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_TEMPLATE_EXTENSION_RANGER;
-  }
+                                          rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Partial : public rq::Symbol,
@@ -3077,18 +2223,11 @@ struct Partial : public rq::Symbol,
   using Self = rq::Partial;
 
   inline explicit Partial(rq::Opcode opcode, llvm::StringRef name,
-                          rq::Expression &expression,
+                          const rq::Expression &expression,
                           rq::ExpressionFlags attributes, rq::Module &module,
                           rq::SymbolTable &containing_table,
-                          rq::SymbolTable &hosting_table)
-      : Symbol(opcode), InitialExpression(expression),
-        InitialExpressionFlags(attributes), InitialModuleMember(module),
-        SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
-        InitialNamed(name) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsPartial(rq::dereferencePtr(entity).getOpcode());
-  }
+                          rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::Partial> final : std::true_type {};
@@ -3100,14 +2239,8 @@ struct PartialClass : public rq::Partial {
                                rq::ExpressionFlags attributes,
                                rq::Module &module,
                                rq::SymbolTable &containing_table,
-                               rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_CLASS, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_CLASS;
-  }
+                               rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialEnumeration : public rq::Partial {
@@ -3118,14 +2251,8 @@ struct PartialEnumeration : public rq::Partial {
                                      rq::ExpressionFlags attributes,
                                      rq::Module &module,
                                      rq::SymbolTable &containing_table,
-                                     rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_ENUMERATION, name, expression,
-                attributes, module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_ENUMERATION;
-  }
+                                     rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialCategory : public rq::Partial {
@@ -3136,14 +2263,8 @@ struct PartialCategory : public rq::Partial {
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
                                   rq::SymbolTable &containing_table,
-                                  rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_CATEGORY, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_CATEGORY;
-  }
+                                  rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialGlobalVariable : public rq::Partial {
@@ -3154,14 +2275,8 @@ struct PartialGlobalVariable : public rq::Partial {
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,
                                         rq::SymbolTable &containing_table,
-                                        rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_GLOBAL_VARIABLE, name, expression,
-                attributes, module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_GLOBAL_VARIABLE;
-  }
+                                        rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialStaticVariable : public rq::Partial {
@@ -3172,14 +2287,8 @@ struct PartialStaticVariable : public rq::Partial {
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,
                                         rq::SymbolTable &containing_table,
-                                        rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_STATIC_VARIABLE, name, expression,
-                attributes, module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_STATIC_VARIABLE;
-  }
+                                        rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialFunction : public rq::Partial {
@@ -3190,14 +2299,8 @@ struct PartialFunction : public rq::Partial {
                                   rq::ExpressionFlags attributes,
                                   rq::Module &module,
                                   rq::SymbolTable &containing_table,
-                                  rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_FUNCTION, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_FUNCTION;
-  }
+                                  rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialMethod : public rq::Partial {
@@ -3208,14 +2311,8 @@ struct PartialMethod : public rq::Partial {
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
                                 rq::SymbolTable &containing_table,
-                                rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_METHOD, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_METHOD;
-  }
+                                rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialRanger : public rq::Partial {
@@ -3226,14 +2323,8 @@ struct PartialRanger : public rq::Partial {
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
                                 rq::SymbolTable &containing_table,
-                                rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_METHOD, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_METHOD;
-  }
+                                rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialExtensionFunction : public rq::Partial {
@@ -3244,14 +2335,8 @@ struct PartialExtensionFunction : public rq::Partial {
                                            rq::ExpressionFlags attributes,
                                            rq::Module &module,
                                            rq::SymbolTable &containing_table,
-                                           rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_EXTENSION_FUNCTION, name, expression,
-                attributes, module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_EXTENSION_FUNCTION;
-  }
+                                           rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialExtensionMethod : public rq::Partial {
@@ -3262,52 +2347,34 @@ struct PartialExtensionMethod : public rq::Partial {
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
                                          rq::SymbolTable &containing_table,
-                                         rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_EXTENSION_METHOD, name, expression,
-                attributes, module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_EXTENSION_METHOD;
-  }
+                                         rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct PartialExtensionRanger : public rq::Partial {
   using Self = rq::PartialExtensionRanger;
 
   inline explicit PartialExtensionRanger(llvm::StringRef name,
-                                         rq::Expression &expression,
+                                         const rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
                                          rq::SymbolTable &containing_table,
-                                         rq::SymbolTable &hosting_table)
-      : Partial(rq::Opcode::SY_PARTIAL_METHOD, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() ==
-           rq::Opcode::SY_PARTIAL_METHOD;
-  }
+                                         rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
-  inline explicit Constant(rq::Opcode opcode) : Entity(opcode) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsConstant(rq::dereferencePtr(entity).getOpcode());
-  }
+  inline explicit Constant(rq::Opcode opcode);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_parent_only<rq::Constant> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileTypeConstant(llvm::FoldingSetNodeID &id,
                                           const rq::Symbol &symbol,
-                                          rq::TypeFlags attributes) {
-  id.AddPointer(&symbol);
-  id.AddInteger(static_cast<unsigned>(attributes));
-}
+                                          rq::TypeFlags attributes);
 
 struct TypeConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::TypeConstant;
@@ -3315,87 +2382,40 @@ struct TypeConstant final : public rq::Constant, public llvm::FoldingSetNode {
   rq::Symbol *_symbol_ptr;
   rq::TypeFlags _type_flags;
 
-  inline explicit TypeConstant(rq::Symbol &symbol, rq::TypeFlags flags)
-      : Constant(rq::Opcode::CT_TYPE), _symbol_ptr(&symbol),
-        _type_flags(flags) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
-    return rq::dereferencePtr(this->_symbol_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
-    return rq::dereferencePtr(this->_symbol_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getTypeFlags() const {
-    return this->_type_flags;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable() const {
-    return rq::getHasMutable(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant() const {
-    return rq::getHasConstant(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartiallyMutable() const {
-    return rq::getHasPartiallyMutable(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatile() const {
-    return rq::getHasVolatile(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic() const {
-    return rq::getHasAtomic(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated() const {
-    return rq::getHasNullTerminated(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard() const {
-    return rq::getHasMayDiscard(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate() const {
-    return rq::getHasIndeterminate(this->getTypeFlags());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRanging() const {
-    return rq::getHasRanging(this->getTypeFlags());
-  }
+  inline explicit TypeConstant(rq::Symbol &symbol, rq::TypeFlags flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getTypeFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartiallyMutable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatile() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRanging() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAttribute(rq::TypeAttribute attribute) const {
-    return rq::getHasAttribute(this->getTypeFlags(), attribute);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability() const {
-    return rq::getHasMutability(this->getTypeFlags());
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_TYPE;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileTypeConstant(id, this->getSymbol(), this->getTypeFlags());
-  }
+  getHasAttribute(rq::TypeAttribute attribute) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::TypeConstant> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileExpressionConstant(
-    llvm::FoldingSetNodeID &id, const rq::Expression &expression) {
-  id.AddPointer(&expression);
-}
+    llvm::FoldingSetNodeID &id, const rq::Expression &expression);
 
 struct ExpressionConstant : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::ExpressionConstant;
 
   const rq::Expression *_expression_ptr;
 
-  inline explicit ExpressionConstant(const rq::Expression &expression)
-      : Constant(rq::Opcode::CT_EXPRESSION), _expression_ptr(&expression) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_EXPRESSION;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileExpressionConstant(id, this->getExpression());
-  }
+  inline explicit ExpressionConstant(const rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <>
@@ -3406,91 +2426,57 @@ struct BooleanConstant : public rq::Constant {
 
   bool _value;
 
-  inline explicit BooleanConstant(bool value)
-      : Constant(rq::Opcode::CT_BOOLEAN), _value(value) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getValue() const { return this->_value; }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_BOOLEAN;
-  }
+  inline explicit BooleanConstant(bool value);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getValue() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::BooleanConstant> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileIntegerConstant(llvm::FoldingSetNodeID &id,
-                                             const llvm::APInt &int_) {
-  int_.Profile(id);
-}
+                                             const llvm::APInt &int_);
 
 struct IntegerConstant : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::IntegerConstant;
 
   llvm::APInt _ap_int;
 
-  inline explicit IntegerConstant(const llvm::APInt &int_)
-      : Constant(rq::Opcode::CT_INTEGER), _ap_int(int_) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getInt() const {
-    return this->_ap_int;
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_INTEGER;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileIntegerConstant(id, this->getInt());
-  }
+  inline explicit IntegerConstant(const llvm::APInt &int_);
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getInt() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::IntegerConstant> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileFloatConstant(llvm::FoldingSetNodeID &id,
-                                           const llvm::APFloat &float_) {
-  float_.Profile(id);
-}
+                                           const llvm::APFloat &float_);
 
 struct FloatConstant : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::FloatConstant;
 
   llvm::APFloat _ap_float;
 
-  inline explicit FloatConstant(const llvm::APFloat &float_)
-      : Constant(rq::Opcode::CT_FLOAT), _ap_float(float_) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getFloat() const {
-    return this->_ap_float;
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_FLOAT;
-  }
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileFloatConstant(id, this->getFloat());
-  }
+  inline explicit FloatConstant(const llvm::APFloat &float_);
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getFloat() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::FloatConstant> final : std::true_type {};
 
 void RQ_ALWAYS_INLINE profileStringConstant(llvm::FoldingSetNodeID &id,
-                                            llvm::StringRef string) {
-  id.AddPointer(string.data());
-  id.AddInteger(string.size());
-}
+                                            llvm::StringRef string);
 
 struct StringConstant : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::StringConstant;
 
   llvm::StringRef _string;
 
-  inline explicit StringConstant(llvm::StringRef string)
-      : Constant(rq::Opcode::CT_STRING), _string(string) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getString() const {
-    return this->_string;
-  }
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_STRING;
-  }
-
-  void Profile(llvm::FoldingSetNodeID &id) const {
-    rq::profileStringConstant(id, this->getString());
-  }
+  inline explicit StringConstant(llvm::StringRef string);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getString() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 template <> struct is_acquired<rq::StringConstant> final : std::true_type {};
@@ -3498,11 +2484,8 @@ template <> struct is_acquired<rq::StringConstant> final : std::true_type {};
 struct ArrayConstant : public rq::Constant {
   using Self = rq::ArrayConstant;
 
-  inline explicit ArrayConstant() : Constant(rq::Opcode::CT_ARRAY) {}
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_ARRAY;
-  }
+  inline explicit ArrayConstant();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::ArrayConstant> final : std::true_type {};
@@ -3512,18 +2495,10 @@ struct Instruction : public rq::Entity {
 
   const rq::Expression *_expression_ptr{nullptr};
 
-  inline explicit Instruction(rq::Opcode opcode) : Entity(opcode) {
-    RQ_ASSERT(rq::getIsInstruction(opcode), "not instruction");
-  }
-  RQ_ALWAYS_INLINE void setExpression(const rq::Expression &expression) {
-    rq::assignSingleValue(this->_expression_ptr, &expression);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
-    return this->_expression_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
+  inline explicit Instruction(rq::Opcode opcode);
+  RQ_ALWAYS_INLINE void setExpression(const rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
 };
 
 template <> struct is_parent_only<rq::Instruction> final : std::true_type {};
@@ -3531,13 +2506,8 @@ template <> struct is_parent_only<rq::Instruction> final : std::true_type {};
 struct NullaryInstruction : public rq::Instruction {
   using Self = rq::NullaryInstruction;
 
-  inline explicit NullaryInstruction(rq::Opcode opcode) : Instruction(opcode) {
-    RQ_ASSERT(rq::getIsNullaryInstruction(opcode), "not nullary instruction");
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsNullaryInstruction(rq::dereferencePtr(entity).getOpcode());
-  }
+  inline explicit NullaryInstruction(rq::Opcode opcode);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <>
@@ -3548,47 +2518,19 @@ struct UnaryInstruction : public rq::Instruction {
 
   rq::Entity *_address0_ptr{nullptr};
 
-  inline explicit UnaryInstruction(rq::Opcode opcode) : Instruction(opcode) {
-    RQ_ASSERT(rq::getIsUnaryInstruction(opcode), "not unary instruction");
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddress0() const {
-    return this->_address0_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setAddress0(rq::Entity &address0) {
-    rq::assignSingleValue(this->_address0_ptr, &address0);
-  }
-  RQ_ALWAYS_INLINE void setAddress0(rq::Entity *address0_ptr) {
-    rq::assignSingleValue(this->_address0_ptr, address0_ptr);
-  }
+  inline explicit UnaryInstruction(rq::Opcode opcode);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddress0() const;
+  RQ_ALWAYS_INLINE void setAddress0(rq::Entity &address0);
+  RQ_ALWAYS_INLINE void setAddress0(rq::Entity *address0_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-  replaceAddress0(rq::Entity &address0) {
-    return rq::replaceValue(this->_address0_ptr, &address0);
-  }
+  replaceAddress0(rq::Entity &address0);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-  replaceAddress0(rq::Entity *address0_ptr) {
-    return rq::replaceValue(this->_address0_ptr, address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const {
-    return rq::dereferencePtr(this->_address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress0() {
-    return rq::dereferencePtr(this->_address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress0() {
-    rq::Entity &address0 = this->getAddress0();
-    this->_address0_ptr = nullptr;
-    return address0;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress0Ptr() {
-    rq::Entity *address0_ptr = this->_address0_ptr;
-    this->_address0_ptr = nullptr;
-    return address0_ptr;
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsUnaryInstruction(rq::dereferencePtr(entity).getOpcode());
-  }
+  replaceAddress0(rq::Entity *address0_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress0();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress0();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress0Ptr();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::UnaryInstruction> final : std::true_type {};
@@ -3599,144 +2541,33 @@ struct BinaryInstruction : public rq::Instruction {
   rq::Entity *_address0_ptr{nullptr};
   rq::Entity *_address1_ptr{nullptr};
 
-  inline explicit BinaryInstruction(rq::Opcode opcode) : Instruction(opcode) {
-    RQ_ASSERT(rq::getIsBinaryInstruction(opcode), "not binary instruction");
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddress0() const {
-    return this->_address0_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddress1() const {
-    return this->_address1_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setAddress0(rq::Entity &address0) {
-    rq::assignSingleValue(this->_address0_ptr, &address0);
-  }
-  RQ_ALWAYS_INLINE void setAddress0(rq::Entity *address0_ptr) {
-    rq::assignSingleValue(this->_address0_ptr, address0_ptr);
-  }
-  RQ_ALWAYS_INLINE void setAddress1(rq::Entity &address1) {
-    rq::assignSingleValue(this->_address1_ptr, &address1);
-  }
-  RQ_ALWAYS_INLINE void setAddress1(rq::Entity *address1_ptr) {
-    rq::assignSingleValue(this->_address1_ptr, address1_ptr);
-  }
+  inline explicit BinaryInstruction(rq::Opcode opcode);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddress0() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddress1() const;
+  RQ_ALWAYS_INLINE void setAddress0(rq::Entity &address0);
+  RQ_ALWAYS_INLINE void setAddress0(rq::Entity *address0_ptr);
+  RQ_ALWAYS_INLINE void setAddress1(rq::Entity &address1);
+  RQ_ALWAYS_INLINE void setAddress1(rq::Entity *address1_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-  replaceAddress0(rq::Entity &address0) {
-    return rq::replaceValue(this->_address0_ptr, &address0);
-  }
+  replaceAddress0(rq::Entity &address0);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-  replaceAddress0(rq::Entity *address0_ptr) {
-    return rq::replaceValue(this->_address0_ptr, address0_ptr);
-  }
+  replaceAddress0(rq::Entity *address0_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-  replaceAddress1(rq::Entity &address1) {
-    return rq::replaceValue(this->_address1_ptr, &address1);
-  }
+  replaceAddress1(rq::Entity &address1);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-  replaceAddress1(rq::Entity *address1_ptr) {
-    return rq::replaceValue(this->_address1_ptr, address1_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const {
-    return rq::dereferencePtr(this->_address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress0() {
-    return rq::dereferencePtr(this->_address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress1() const {
-    return rq::dereferencePtr(this->_address1_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress1() {
-    return rq::dereferencePtr(this->_address1_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress0() {
-    rq::Entity &address0 = this->getAddress0();
-    this->_address0_ptr = nullptr;
-    return address0;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress0Ptr() {
-    rq::Entity *address0_ptr = this->_address0_ptr;
-    this->_address0_ptr = nullptr;
-    return address0_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress1() {
-    rq::Entity &address1 = this->getAddress1();
-    this->_address1_ptr = nullptr;
-    return address1;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress1Ptr() {
-    rq::Entity *address1_ptr = this->_address1_ptr;
-    this->_address1_ptr = nullptr;
-    return address1_ptr;
-  }
-
-  [[nodiscard]] inline static bool classof(const Entity *entity) {
-    return rq::getIsBinaryInstruction(rq::dereferencePtr(entity).getOpcode());
-  }
+  replaceAddress1(rq::Entity *address1_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress0();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress1() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress1();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress0();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress0Ptr();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress1();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress1Ptr();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::BinaryInstruction> final : std::true_type {};
-
-RQ_ALWAYS_INLINE rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
-  rq::SymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator &
-ConstSymbolTableIterator::operator++() {
-  this->_table_ptr =
-      rq::dereferencePtr(this->_table_ptr)._containing_symbol_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator
-ConstSymbolTableIterator::operator++(int) {
-  rq::ConstSymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator &
-MemberSymbolTableIterator::operator++() {
-  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::MemberSymbolTableIterator
-MemberSymbolTableIterator::operator++(int) {
-  rq::MemberSymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator &
-ConstMemberSymbolTableIterator::operator++() {
-  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
-  return *this;
-}
-
-RQ_ALWAYS_INLINE rq::ConstMemberSymbolTableIterator
-ConstMemberSymbolTableIterator::operator++(int) {
-  rq::ConstMemberSymbolTableIterator temp = *this;
-  ++(*this);
-  return temp;
-}
-
-inline void SymbolTable::_addMember(rq::Symbol &symbol) {
-  if (llvm::isa<rq::SymbolTable>(symbol)) {
-    rq::SymbolTable &symbol_table = llvm::cast<rq::SymbolTable>(symbol);
-    symbol_table._next_table_ptr = this->_first_member_table_ptr;
-    this->_first_member_table_ptr = &symbol_table;
-  }
-}
-
-inline void SymbolTable::release() {
-  this->_named_symbols_map.clear();
-  for (rq::SymbolTable &member : this->getMemberSymbolTableSubrange()) {
-    member.release();
-  }
-}
 
 } // namespace rq
 
