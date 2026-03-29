@@ -3,12 +3,12 @@
 @may_parent @auto_drop @may_copy
 [class Parent,
     
-    [method myFunc, ()::[void]=>&,
+    [method myFunc, ()[void]=>&,
         .std.print(line="in parent");
     ];
     
     @virtual
-    [method myFuncB, ()::[void]=>&,
+    [method myFuncB, ()[void]=>&,
         .std.print(line="in parent");
     ];
 ];
@@ -24,7 +24,7 @@
     
     @public
     @override::parent.myFuncB
-    [method myFuncB, ()::[void]=>&,
+    [method myFuncB, ()[void]=>&,
         .std.print(line="in child");
     ];
 ];

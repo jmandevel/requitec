@@ -6,6 +6,6 @@ integer_value  : integer_type = 0;
 
 // using type specified in template argument.
 @template::{> Type:[integer] <}
-[function addA, (> a:Type, b:Type <)::Type,
+[function addA, (> a:Type, b:Type <)Type,
     [result] := a + b;
 ];

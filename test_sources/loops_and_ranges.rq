@@ -7,7 +7,7 @@
     <},
 
     @public
-    [ranger each, $ranging ()::[fast_signed_integer 32]=>&,
+    [ranger each, $ranging ()[fast_signed_integer 32]=>&,
         [for [this].data.[each], value:=[value].[borrow], 
             [range_over 
                 value

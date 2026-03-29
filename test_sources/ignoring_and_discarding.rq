@@ -1,8 +1,8 @@
-[function nodiscard, ()::[fast_signed_integer 32],
+[function nodiscard, ()[fast_signed_integer 32],
     [result] := 0;
 ];
 
-[function maydiscard, $may_discard ()::[fast_signed_integer 32],
+[function maydiscard, $may_discard ()[fast_signed_integer 32],
     [result] := 0;
 ];
 

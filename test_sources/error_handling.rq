@@ -27,7 +27,7 @@
 ];
 
 @template::{> Type:[float] <}
-[function divide, (> a:Type, b:Type <)::.DivideResult{Type},
+[function divide, (> a:Type, b:Type <).DivideResult{Type},
     [if b == 0,
         [result] := .ERROR_DIVIDE_BY_ZERO();
         [return];

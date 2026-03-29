@@ -1,5 +1,5 @@
 @opaque @mangle::myForwardedAdd
-[function myForwardedAdd, (> a:[single], b:[single] <)::[single],];
+[function myForwardedAdd, (> a:[single], b:[single] <)[single],];
 
 [implement_function myForwardedAdd,
     [result] := a + b;
