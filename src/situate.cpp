@@ -530,7 +530,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateNaryValueBranches(situation, expression, 1, S::ARGUMENT);
     break;
-  case K::LAYOUT:
+  case K::LAYOUT_DEFINITION:
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
   case K::SPECIALIZATION:
@@ -551,7 +551,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::SIGNATURE_TYPE:
+  case K::SIGNATURE_DEFINITION:
     is_ok = this->situateNaryDifferentFirstParamterBranches(
         situation, expression, S::RVALUE);
     break;

@@ -1226,7 +1226,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const bool parameter_mark_found =
       this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found || !brace.getHasBranch()) {
-    brace.changeKeyword(rq::Keyword::LAYOUT);
+    brace.changeKeyword(rq::Keyword::LAYOUT_DEFINITION);
   }
   return brace;
 }
@@ -1288,7 +1288,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const bool has_parameter_marks = this->parseValueBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks || !parenthesis.getHasBranch()) {
-    parenthesis.changeKeyword(rq::Keyword::SIGNATURE_TYPE);
+    parenthesis.changeKeyword(rq::Keyword::SIGNATURE_DEFINITION);
     rq::Expression &return_type = this->parseExpression();
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));

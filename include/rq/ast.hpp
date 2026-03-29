@@ -147,14 +147,14 @@ enum class Keyword : std::uint32_t {
 
   // BRACES
   TUPLE,
-  LAYOUT,
+  LAYOUT_DEFINITION,
   SPECIALIZATION,
 
   // PROCEDURES
   CALL,
   NAMED_ARGUMENT,
   INDEX_INTO,
-  SIGNATURE_TYPE,
+  SIGNATURE_DEFINITION,
   DEFAULT_VALUE_PARAMETER,
   DROP,
   DROP_OF,
@@ -672,8 +672,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // BRACES
   case K::TUPLE:
     return "_tuple";
-  case K::LAYOUT:
-    return "_layout";
+  case K::LAYOUT_DEFINITION:
+    return "_layout_definition";
   case K::SPECIALIZATION:
     return "_specialization";
 
@@ -684,8 +684,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_named_argument";
   case K::INDEX_INTO:
     return "_index_into";
-  case K::SIGNATURE_TYPE:
-    return "_signature_type";
+  case K::SIGNATURE_DEFINITION:
+    return "_signature_definition";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
   case K::DROP:
@@ -1496,7 +1496,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // BRACES
   case K::TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::LAYOUT:
+  case K::LAYOUT_DEFINITION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SPECIALIZATION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1508,7 +1508,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::ARGUMENT;
   case K::INDEX_INTO:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::SIGNATURE_TYPE:
+  case K::SIGNATURE_DEFINITION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
