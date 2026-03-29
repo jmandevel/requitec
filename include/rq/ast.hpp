@@ -150,7 +150,6 @@ enum class Keyword : std::uint32_t {
   LAYOUT_TYPE,
   NULL_,
   NULL_TYPE,
-  STRUCTURED_BINDING,
   IGNORE,
   SPECIALIZATION,
 
@@ -681,8 +680,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_null";
   case K::NULL_TYPE:
     return "_null_type";
-  case K::STRUCTURED_BINDING:
-    return "_structured_binding";
   case K::IGNORE:
     return "_ignore";
   case K::SPECIALIZATION:
@@ -1504,15 +1501,13 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::TUPLE:
-    return KF::LVALUE | KF::RVALUE | KF::ARGUMENT;
+    return KF::RVALUE | KF::ARGUMENT;
   case K::LAYOUT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NULL_:
     return KF::RVALUE | KF::ARGUMENT;
   case K::NULL_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::STRUCTURED_BINDING:
-    return KF::STATEMENT;
   case K::IGNORE:
     return KF::STATEMENT;
   case K::SPECIALIZATION:
@@ -2957,7 +2952,8 @@ getHasDepreciated(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::MAY_COPY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStableAddress(rq::ExpressionFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasStableAddress(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::STABLE_ADDRESS);
 }
 

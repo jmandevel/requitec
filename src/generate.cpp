@@ -107,14 +107,6 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
           branch_expression);
       this->setNotOk();
       continue;
-    case K::STRUCTURED_BINDING: {
-      if (factory.getHasStatic()) {
-        RQ_TODO_IMPLEMENTATION();
-        break;
-      }
-      RQ_TODO_IMPLEMENTATION();
-      break;
-    }
     case K::IGNORE: {
       if (factory.getHasStatic()) {
         RQ_TODO_IMPLEMENTATION();
@@ -684,8 +676,6 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
     case K::DESTRUCTOR:
 
     case K::DESTROY_OF:
-
-    case K::STRUCTURED_BINDING:
 
     case K::IGNORE:
 

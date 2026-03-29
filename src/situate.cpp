@@ -125,10 +125,6 @@ bool Situator::situateTree(rq::Situation situation,
         std::ignore = lvalue.popNext();
         this->getContext().discardExpression(expression.replaceBranch(rvalue));
         break;
-      case K::TUPLE:
-        lvalue.changeKeyword(K::STRUCTURED_BINDING);
-        this->getContext().discardExpression(expression.mergeAndPopBranch());
-        break;
       default:
         expression.changeKeyword(K::ASSIGN);
         break;
@@ -555,10 +551,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NULL_TYPE:
     is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::STRUCTURED_BINDING:
-    is_ok = this->situateNaryDifferentLastValueBranches(
-        situation, expression, 2, S::LVALUE, S::RVALUE);
     break;
   case K::IGNORE:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
