@@ -1122,7 +1122,7 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = this->situateNullaryExpression(situation, expression);
       break;
     }
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::TUPLE);
     break;
   case K::CAPTURE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
@@ -1213,6 +1213,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXPAND_LVALUE:
     [[fallthrough]];
   case K::EXPAND_RVALUE:
+    [[fallthrough]];
+  case K::EXPAND_TUPLE:
     [[fallthrough]];
   case K::EXPAND_REFLECTION:
     [[fallthrough]];

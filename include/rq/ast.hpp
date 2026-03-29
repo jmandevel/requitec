@@ -400,6 +400,7 @@ enum class Keyword : std::uint32_t {
   EXPAND_STATEMENT,
   EXPAND_LVALUE,
   EXPAND_RVALUE,
+  EXPAND_TUPLE,
   EXPAND_REFLECTION,
   EXPAND_ARGUMENT,
   EXPAND_PARAMETER,
@@ -1126,6 +1127,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_expand_lvalue";
   case K::EXPAND_RVALUE:
     return "_expand_rvalue";
+  case K::EXPAND_TUPLE:
+    return "_expand_tuple";
   case K::EXPAND_REFLECTION:
     return "_expand_reflection";
   case K::EXPAND_ARGUMENT:
@@ -1246,18 +1249,19 @@ enum class KeywordFlags : std::uint32_t {
   STATEMENT = rq::getBit(13),
   RVALUE = rq::getBit(14),
   LVALUE = rq::getBit(15),
-  REFLECTION = rq::getBit(16),
-  ARGUMENT = rq::getBit(17),
-  PARAMETER = rq::getBit(18),
-  BINDING = rq::getBit(19),
-  NAME = rq::getBit(20),
-  NAMESPACE = rq::getBit(21),
-  ASCRIPTION = rq::getBit(22),
-  TYPE_ATTRIBUTE = rq::getBit(23),
-  EXPRESSION_ATTRIBUTE = rq::getBit(24),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(25),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(26),
-  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
+  TUPLE = rq::getBit(16),
+  REFLECTION = rq::getBit(17),
+  ARGUMENT = rq::getBit(18),
+  PARAMETER = rq::getBit(19),
+  BINDING = rq::getBit(20),
+  NAME = rq::getBit(21),
+  NAMESPACE = rq::getBit(22),
+  ASCRIPTION = rq::getBit(23),
+  TYPE_ATTRIBUTE = rq::getBit(24),
+  EXPRESSION_ATTRIBUTE = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
+  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
@@ -1489,7 +1493,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::TUPLE:
-    return KF::RVALUE | KF::ARGUMENT;
+    return KF::TUPLE;
   case K::LAYOUT_DEFINITION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SPECIALIZATION:
@@ -1957,6 +1961,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::LVALUE | KF::EXPANSION;
   case K::EXPAND_RVALUE:
     return KF::RVALUE | KF::EXPANSION;
+  case K::EXPAND_TUPLE:
+    return KF::RVALUE | KF::EXPANSION;
   case K::EXPAND_REFLECTION:
     return KF::REFLECTION | KF::EXPANSION;
   case K::EXPAND_ARGUMENT:
@@ -2174,6 +2180,7 @@ enum class Situation : std::uint_fast8_t {
   STATEMENT,
   LVALUE,
   RVALUE,
+  TUPLE,
   REFLECTION,
   ARGUMENT,
   PARAMETER,
@@ -2201,6 +2208,8 @@ getDescription(rq::Situation situation) {
     return "lvalue expression";
   case S::RVALUE:
     return "rvalue expression";
+  case S::TUPLE:
+    return "tuplo";
   case S::REFLECTION:
     return "reflection expression";
   case S::ARGUMENT:
@@ -2239,6 +2248,8 @@ getDescription(rq::Situation situation) {
     return K::EXPAND_LVALUE;
   case S::RVALUE:
     return K::EXPAND_RVALUE;
+  case S::TUPLE:
+    return K::EXPAND_TUPLE;
   case S::REFLECTION:
     return K::EXPAND_REFLECTION;
   case S::ARGUMENT:
@@ -2274,6 +2285,8 @@ getDescription(rq::Situation situation) {
     return S::LVALUE;
   case K::EXPAND_RVALUE:
     return S::RVALUE;
+  case K::EXPAND_TUPLE:
+    return S::TUPLE;
   case K::EXPAND_REFLECTION:
     return S::REFLECTION;
   case K::EXPAND_ARGUMENT:
@@ -2424,14 +2437,19 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordFlags::STATEMENT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLValue(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLvalue(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::LVALUE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRValue(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRvalue(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::RVALUE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTuple(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::TUPLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection(rq::Keyword keyword) {
@@ -2509,9 +2527,11 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   case rq::Situation::STATEMENT:
     return rq::getCanBeStatement(keyword);
   case rq::Situation::LVALUE:
-    return rq::getCanBeLValue(keyword);
+    return rq::getCanBeLvalue(keyword);
   case rq::Situation::RVALUE:
-    return rq::getCanBeRValue(keyword);
+    return rq::getCanBeRvalue(keyword);
+  case rq::Situation::TUPLE:
+    return rq::getCanBeTuple(keyword);
   case rq::Situation::REFLECTION:
     return rq::getCanBeReflection(keyword);
   case rq::Situation::ARGUMENT:
@@ -3781,11 +3801,14 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatement() const {
     return rq::getCanBeStatement(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRValue() const {
-    return rq::getCanBeRValue(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLvalue() const {
+    return rq::getCanBeLvalue(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLValue() const {
-    return rq::getCanBeLValue(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRvalue() const {
+    return rq::getCanBeRvalue(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTuple() const {
+    return rq::getCanBeTuple(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
     return rq::getCanBeReflection(this->getKeyword());
