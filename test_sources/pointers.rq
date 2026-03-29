@@ -1,0 +1,15 @@
+[entry
+    // if you know C, this should be super easy to understand.
+
+    var :`[float]= 0;
+
+    var_ptr :*`[float]= var.[address];
+
+    var_ptr.[content] = 1;
+
+    var_copy := var_ptr.[content];
+
+    var_ptr = [null];
+
+    [result] := var_copy.[float_cast];
+];
