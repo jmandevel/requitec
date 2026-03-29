@@ -1226,8 +1226,8 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   this->getRanger().incrementToken(1);
   const bool parameter_mark_found =
       this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
-  if (parameter_mark_found) {
-    brace.changeKeyword(rq::Keyword::LAYOUT_TYPE);
+  if (parameter_mark_found || !brace.getHasBranch()) {
+    brace.changeKeyword(rq::Keyword::LAYOUT);
   }
   return brace;
 }

@@ -61,7 +61,6 @@ enum class Opcode : std::uint16_t {
   SY_TYPE_CONSTRAINT,
   SY_EXPRESSION,
   SY_VOID,
-  SY_NULL,
   SY_NO_RETURN,
   SY_VARIADIC_ARGUMENTS,
   SY_BOOLEAN,
@@ -398,7 +397,6 @@ struct Inference;
 struct SymbolConstraint;
 struct TypeConstraint;
 struct Void;
-struct Null;
 struct NoReturn;
 struct VariadicArguments;
 struct Boolean;
@@ -771,15 +769,6 @@ struct Void final : public rq::SimpleBuiltin {
 };
 
 template <> struct is_acquired<rq::Void> final : std::true_type {};
-
-struct Null final : public rq::SimpleBuiltin {
-  using Self = rq::Null;
-
-  inline explicit Null();
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-template <> struct is_acquired<rq::Null> final : std::true_type {};
 
 struct NoReturn final : public rq::SimpleBuiltin {
   using Self = rq::NoReturn;

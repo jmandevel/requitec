@@ -21,8 +21,6 @@ namespace rq {
     return "sy_expression";
   case O::SY_VOID:
     return "sy_void";
-  case O::SY_NULL:
-    return "sy_null";
   case O::SY_NO_RETURN:
     return "sy_no_return";
   case O::SY_VARIADIC_ARGUMENTS:
@@ -323,8 +321,6 @@ namespace rq {
   case O::SY_EXPRESSION:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
   case O::SY_VOID:
-    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_NULL:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
   case O::SY_NO_RETURN:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
@@ -1475,12 +1471,6 @@ inline Void::Void() : SimpleBuiltin(rq::Opcode::SY_VOID) {}
 
 [[nodiscard]] inline bool Void::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_VOID;
-}
-
-inline Null::Null() : SimpleBuiltin(rq::Opcode::SY_NULL) {}
-
-[[nodiscard]] inline bool Null::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_NULL;
 }
 
 inline NoReturn::NoReturn() : SimpleBuiltin(rq::Opcode::SY_NO_RETURN) {}

@@ -119,16 +119,7 @@ bool Situator::situateTree(rq::Situation situation,
       if (!is_ok) {
         break;
       }
-      switch (lvalue.getKeyword()) {
-      case K::NULL_:
-        expression.changeKeyword(K::IGNORE);
-        std::ignore = lvalue.popNext();
-        this->getContext().discardExpression(expression.replaceBranch(rvalue));
-        break;
-      default:
-        expression.changeKeyword(K::ASSIGN);
-        break;
-      }
+      expression.changeKeyword(K::ASSIGN);
       break;
     }
     default:
@@ -536,24 +527,11 @@ bool Situator::situateTree(rq::Situation situation,
 
   // BRACES
   case K::TUPLE:
-    if (!expression.getHasBranch()) {
-      expression.changeKeyword(K::NULL_);
-      is_ok = this->situateNullaryExpression(situation, expression);
-      break;
-    }
     is_ok =
-        this->situateNaryValueBranches(situation, expression, 0, S::ARGUMENT);
+        this->situateNaryValueBranches(situation, expression, 1, S::ARGUMENT);
     break;
-  case K::LAYOUT_TYPE:
+  case K::LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
-    break;
-  case K::NULL_:
-    [[fallthrough]];
-  case K::NULL_TYPE:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::IGNORE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::SPECIALIZATION:
     is_ok = this->situateNaryDifferentFirstParamterBranches(
@@ -807,6 +785,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INITIALIZER_LIST:
     is_ok = this->situateNaryValueBranches(situation, expression, 0, S::RVALUE);
     break;
+  case K::NULL_:
+    [[fallthrough]];
   case K::TRUE:
     [[fallthrough]];
   case K::FALSE:
@@ -1334,6 +1314,12 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
+  case K::IGNORE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::IGNORE_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::BYTE_SIZE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
@@ -1418,12 +1404,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::SIGNATURE_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::LAYOUT:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::LAYOUT_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::SYNONYM:

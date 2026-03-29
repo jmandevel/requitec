@@ -147,10 +147,7 @@ enum class Keyword : std::uint32_t {
 
   // BRACES
   TUPLE,
-  LAYOUT_TYPE,
-  NULL_,
-  NULL_TYPE,
-  IGNORE,
+  LAYOUT,
   SPECIALIZATION,
 
   // PROCEDURES
@@ -201,6 +198,7 @@ enum class Keyword : std::uint32_t {
 
   // VALUES
   INITIALIZER_LIST,
+  NULL_,
   TRUE,
   FALSE,
   // vignette value.
@@ -417,6 +415,8 @@ enum class Keyword : std::uint32_t {
   MEMBER_OF_TOP,
   ASCEND_FRAME,
   ASCEND_FRAME_OF,
+  IGNORE,
+  IGNORE_OF,
   BYTE_SIZE,
   BYTE_SIZE_OF,
   BIT_DEPTH,
@@ -445,8 +445,6 @@ enum class Keyword : std::uint32_t {
   GET_OF,
   SIGNATURE,
   SIGNATURE_OF,
-  LAYOUT,
-  LAYOUT_OF,
   // make a unique clone of a type that is not implicitly convertable
   // can use platform specific values for bit depth only if type is a synonym
   SYNONYM,
@@ -674,14 +672,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // BRACES
   case K::TUPLE:
     return "_tuple";
-  case K::LAYOUT_TYPE:
-    return "_layout_type";
-  case K::NULL_:
-    return "_null";
-  case K::NULL_TYPE:
-    return "_null_type";
-  case K::IGNORE:
-    return "_ignore";
+  case K::LAYOUT:
+    return "_layout";
   case K::SPECIALIZATION:
     return "_specialization";
 
@@ -774,6 +766,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // VALUES
   case K::INITIALIZER_LIST:
     return "initializer_list";
+  case K::NULL_:
+    return "null";
   case K::TRUE:
     return "true";
   case K::FALSE:
@@ -1162,6 +1156,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascend_frame";
   case K::ASCEND_FRAME_OF:
     return "_ascend_frame_of";
+  case K::IGNORE:
+    return "ignore";
+  case K::IGNORE_OF:
+    return "_ignore_of";
   case K::BYTE_SIZE:
     return "byte_size";
   case K::BYTE_SIZE_OF:
@@ -1218,10 +1216,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "signature";
   case K::SIGNATURE_OF:
     return "_signature_of";
-  case K::LAYOUT:
-    return "layout";
-  case K::LAYOUT_OF:
-    return "_layout_of";
   case K::SYNONYM:
     return "synonym";
   case K::SYNONYM_OF:
@@ -1502,14 +1496,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // BRACES
   case K::TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::LAYOUT_TYPE:
+  case K::LAYOUT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::NULL_:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::NULL_TYPE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::IGNORE:
-    return KF::STATEMENT;
   case K::SPECIALIZATION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
@@ -1601,6 +1589,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // VALUES
   case K::INITIALIZER_LIST:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::NULL_:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TRUE:
     return KF::RVALUE | KF::ARGUMENT;
@@ -2004,6 +1994,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCEND_FRAME_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::IGNORE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IGNORE_OF:
+    return KF::STATEMENT;
   case K::BYTE_SIZE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::BYTE_SIZE_OF:
@@ -2061,10 +2055,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SIGNATURE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::LAYOUT:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LAYOUT_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SYNONYM:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::SYNONYM_OF:
@@ -2375,6 +2365,8 @@ getDescription(rq::Situation situation) {
   case K::MESSAGE:
     return K::MESSAGE_OF;
   // REFLECTIONS
+  case K::IGNORE:
+    return K::IGNORE_OF;
   case K::BYTE_SIZE:
     return K::BYTE_SIZE_OF;
   case K::BIT_DEPTH:
@@ -2403,8 +2395,6 @@ getDescription(rq::Situation situation) {
     return K::GET_OF;
   case K::SIGNATURE:
     return K::SIGNATURE_OF;
-  case K::LAYOUT:
-    return K::LAYOUT_OF;
   case K::SYNONYM:
     return K::SYNONYM_OF;
   case K::IS_OK:

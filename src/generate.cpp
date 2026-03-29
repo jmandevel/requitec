@@ -107,16 +107,6 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
           branch_expression);
       this->setNotOk();
       continue;
-    case K::IGNORE: {
-      if (factory.getHasStatic()) {
-        RQ_TODO_IMPLEMENTATION();
-        break;
-      }
-      this->getContext().logErrorGlobalIndeterminateDynamicExpression(
-          branch_expression);
-      this->setNotOk();
-      continue;
-    }
     case K::CALL: {
       if (factory.getHasStatic()) {
         RQ_TODO_IMPLEMENTATION();
@@ -676,8 +666,6 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
     case K::DESTRUCTOR:
 
     case K::DESTROY_OF:
-
-    case K::IGNORE:
 
     case K::CALL:
 
