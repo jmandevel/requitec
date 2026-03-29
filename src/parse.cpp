@@ -1071,9 +1071,8 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   return error;
 }
 
-[[nodiscard]] bool
-RequiteParser::parseValueBranches(rq::Expression &expression,
-                                       rq::TokenKind end) {
+[[nodiscard]] bool RequiteParser::parseValueBranches(rq::Expression &expression,
+                                                     rq::TokenKind end) {
   RQ_ASSERT(expression.getHasValueBranches(),
             "expression must have value branches");
   rq::TreeFactory factory;
@@ -1288,7 +1287,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   this->getRanger().incrementToken(1);
   const bool has_parameter_marks = this->parseValueBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
-  if (has_parameter_marks) {
+  if (has_parameter_marks || !parenthesis.getHasBranch()) {
     parenthesis.changeKeyword(rq::Keyword::SIGNATURE_TYPE);
     rq::Expression &return_type = this->parseExpression();
     if (parenthesis.getHasBranch()) {
@@ -1296,12 +1295,6 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
     } else {
       parenthesis.setBranch(return_type);
     }
-  } else if (!parenthesis.getHasBranch()) {
-    rq::Expression &inference = this->getContext().acquireExpression();
-    inference.setKeyword(rq::Keyword::INFERENCE);
-    inference.setSource(parenthesis);
-    inference.setIsInserted();
-    parenthesis.setBranch(inference);
   }
   return parenthesis;
 }
