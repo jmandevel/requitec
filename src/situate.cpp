@@ -527,8 +527,13 @@ bool Situator::situateTree(rq::Situation situation,
 
   // BRACES
   case K::TUPLE:
+    if (situation == S::LAYOUT && !expression.getHasBranch()) {
+      expression.changeKeyword(K::LAYOUT_DEFINITION);
+      is_ok = true;
+      break;
+    }
     is_ok =
-        this->situateNaryValueBranches(situation, expression, 1, S::ARGUMENT);
+        this->situateNaryValueBranches(situation, expression, 0, S::ARGUMENT);
     break;
   case K::LAYOUT_DEFINITION:
     is_ok = this->situateNaryParameterBranches(situation, expression);
@@ -692,15 +697,15 @@ bool Situator::situateTree(rq::Situation situation,
     if (!this->situateHeaderBranch(S::NAME, branch0)) {
       is_ok = false;
     }
-    bool found_rvalue_header = false;
+    bool found_layout_header = false;
     for (rq::Expression &branch : branch0.getNextSubrange()) {
       if (branch.getIsHeader()) {
-        if (found_rvalue_header) {
+        if (found_layout_header) {
           this->getContext().logErrorUnexpectedHeaderExpression(branch);
           is_ok = false;
         } else {
-          found_rvalue_header = true;
-          if (!this->situateHeaderBranch(S::RVALUE, branch)) {
+          found_layout_header = true;
+          if (!this->situateHeaderBranch(S::LAYOUT, branch)) {
             is_ok = false;
           }
         }
@@ -1162,7 +1167,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::NAME);
     break;
   case K::TEMPLATE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::LAYOUT);
     break;
   case K::LIKELY:
     [[fallthrough]];
@@ -1212,6 +1217,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXPAND_RVALUE:
     [[fallthrough]];
   case K::EXPAND_TUPLE:
+    [[fallthrough]];
+  case K::EXPAND_LAYOUT:
     [[fallthrough]];
   case K::EXPAND_SIGNATURE:
     [[fallthrough]];

@@ -401,6 +401,7 @@ enum class Keyword : std::uint32_t {
   EXPAND_LVALUE,
   EXPAND_RVALUE,
   EXPAND_TUPLE,
+  EXPAND_LAYOUT,
   EXPAND_SIGNATURE,
   EXPAND_REFLECTION,
   EXPAND_ARGUMENT,
@@ -1130,6 +1131,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_expand_rvalue";
   case K::EXPAND_TUPLE:
     return "_expand_tuple";
+  case K::EXPAND_LAYOUT:
+    return "_expand_layout";
   case K::EXPAND_SIGNATURE:
     return "_expand_signature";
   case K::EXPAND_REFLECTION:
@@ -1253,19 +1256,20 @@ enum class KeywordFlags : std::uint32_t {
   RVALUE = rq::getBit(14),
   LVALUE = rq::getBit(15),
   TUPLE = rq::getBit(16),
-  SIGNATURE = rq::getBit(17),
-  REFLECTION = rq::getBit(18),
-  ARGUMENT = rq::getBit(19),
-  PARAMETER = rq::getBit(20),
-  BINDING = rq::getBit(21),
-  NAME = rq::getBit(22),
-  NAMESPACE = rq::getBit(23),
-  ASCRIPTION = rq::getBit(24),
-  TYPE_ATTRIBUTE = rq::getBit(25),
-  EXPRESSION_ATTRIBUTE = rq::getBit(26),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(27),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(28),
-  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | REFLECTION | ARGUMENT |
+  LAYOUT = rq::getBit(17),
+  SIGNATURE = rq::getBit(18),
+  REFLECTION = rq::getBit(19),
+  ARGUMENT = rq::getBit(20),
+  PARAMETER = rq::getBit(21),
+  BINDING = rq::getBit(22),
+  NAME = rq::getBit(23),
+  NAMESPACE = rq::getBit(24),
+  ASCRIPTION = rq::getBit(25),
+  TYPE_ATTRIBUTE = rq::getBit(26),
+  EXPRESSION_ATTRIBUTE = rq::getBit(27),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(28),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(29),
+  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | LAYOUT | SIGNATURE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
@@ -1499,7 +1503,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::TUPLE:
     return KF::TUPLE;
   case K::LAYOUT_DEFINITION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    return KF::LAYOUT;
   case K::SPECIALIZATION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
@@ -1966,7 +1970,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::EXPAND_RVALUE:
     return KF::RVALUE | KF::EXPANSION;
   case K::EXPAND_TUPLE:
-    return KF::RVALUE | KF::EXPANSION;
+    return KF::TUPLE | KF::EXPANSION;
+  case K::EXPAND_LAYOUT:
+    return KF::LAYOUT | KF::EXPANSION;
   case K::EXPAND_SIGNATURE:
     return KF::SIGNATURE | KF::EXPANSION;
   case K::EXPAND_REFLECTION:
@@ -2187,6 +2193,7 @@ enum class Situation : std::uint_fast8_t {
   LVALUE,
   RVALUE,
   TUPLE,
+  LAYOUT,
   SIGNATURE,
   REFLECTION,
   ARGUMENT,
@@ -2217,6 +2224,8 @@ getDescription(rq::Situation situation) {
     return "rvalue expression";
   case S::TUPLE:
     return "tuplo";
+  case S::LAYOUT:
+    return "layout";
   case S::SIGNATURE:
     return "signature";
   case S::REFLECTION:
@@ -2259,6 +2268,8 @@ getDescription(rq::Situation situation) {
     return K::EXPAND_RVALUE;
   case S::TUPLE:
     return K::EXPAND_TUPLE;
+  case S::LAYOUT:
+    return K::EXPAND_LAYOUT;
   case S::SIGNATURE:
     return K::EXPAND_SIGNATURE;
   case S::REFLECTION:
@@ -2465,6 +2476,11 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordFlags::TUPLE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLayout(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::LAYOUT);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSignature(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::SIGNATURE);
@@ -2550,6 +2566,8 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeRvalue(keyword);
   case rq::Situation::TUPLE:
     return rq::getCanBeTuple(keyword);
+  case rq::Situation::LAYOUT:
+    return rq::getCanBeLayout(keyword);
   case rq::Situation::SIGNATURE:
     return rq::getCanBeSignature(keyword);
   case rq::Situation::REFLECTION:
@@ -3829,6 +3847,9 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTuple() const {
     return rq::getCanBeTuple(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeLayout() const {
+    return rq::getCanBeLayout(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSignature() const {
     return rq::getCanBeSignature(this->getKeyword());
