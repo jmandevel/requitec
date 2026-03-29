@@ -6,7 +6,7 @@
 [class NoAutoDrop,
 	// this is like a destructor. it takes ownership of what you call it on and then drops it. 
 	// if this type had internal resources, they could be released here.
-	@public [method destroy, =>, [this].[drop]; ];
+	@public [method destroy, ()::[void]=>, [this].[drop]; ];
 ];
 
 [entry

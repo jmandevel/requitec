@@ -4,7 +4,7 @@
 [class MyClass,
 
   @public
-  [method destroy, =>,
+  [method destroy, ()::[void]=>,
     // explicit drop without destroy
     [this].[drop];
 
@@ -18,7 +18,7 @@
 @may_copy @stable_address
 [class MyPinned,
   @public
-  [method destroy, =>,
+  [method destroy, ()::[void]=>,
     // explicit drop without destroy
     [this].[drop];
 

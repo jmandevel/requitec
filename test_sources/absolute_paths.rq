@@ -5,19 +5,19 @@
     [namespace bar,
         text := "Hello, world!";    
 
-        [function print, (><),
+        [function print, ()::[void],
             .std.print(line=..text);
         ];
     ];
 
 
-    [function print, (><),
+    [function print, ()::[void],
         .std.print(line=..bar.text);
     ];
 
 ];
 
-[function print, (><),
+[function print, ()::[void],
     .std.print(line=..foo.bar.text);
     .std.print(line=.foo.bar.text);
 ];

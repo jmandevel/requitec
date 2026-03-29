@@ -1,5 +1,5 @@
 @opaque @mangle::printf
-[function [no_name], (> format:*``[char], vargs:[variadic_arguments]),];
+[function [no_name], (> format:*``[char], vargs:[variadic_arguments])::[void],];
 
 [entry
     [c].printf("Hello, %s! I am %d.", [variadic_list "world", 30]);

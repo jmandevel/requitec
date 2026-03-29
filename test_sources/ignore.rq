@@ -1,0 +1,4 @@
+[function nodiscard, ()::[fast_signed_integer 32],
+    [result] := 0;
+];
+
