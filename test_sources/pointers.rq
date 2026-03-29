@@ -3,7 +3,7 @@
 
     var :`[float]= 0;
 
-    var_ptr :*`[float]= var.[address];
+    var_ptr :`*`[float]= var.[address];
 
     var_ptr.[content] = 1;
 
