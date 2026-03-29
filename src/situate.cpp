@@ -526,7 +526,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // BRACES
-  case K::TUPLE:
+  case K::INTERPOLATED_STRING:
     is_ok =
         this->situateNaryValueBranches(situation, expression, 1, S::ARGUMENT);
     break;

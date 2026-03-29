@@ -1220,14 +1220,11 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
 rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const rq::Token &first_token = this->getRanger().getToken();
   rq::Expression &brace = this->getContext().acquireExpression();
-  brace.setKeyword(rq::Keyword::TUPLE);
+  brace.setKeyword(rq::Keyword::LAYOUT_DEFINITION);
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
-  const bool parameter_mark_found =
+  std::ignore =
       this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
-  if (parameter_mark_found || !brace.getHasBranch()) {
-    brace.changeKeyword(rq::Keyword::LAYOUT_DEFINITION);
-  }
   return brace;
 }
 
@@ -1364,7 +1361,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       }
       previous_ptr = &string;
       rq::Expression &tuple = this->getContext().acquireExpression();
-      tuple.setKeyword(rq::Keyword::TUPLE);
+      tuple.setKeyword(rq::Keyword::INTERPOLATED_STRING);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
       return tuple;

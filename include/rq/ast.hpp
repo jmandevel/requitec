@@ -146,7 +146,7 @@ enum class Keyword : std::uint32_t {
   NAMED_PARAMETERS_BEGIN,
 
   // BRACES
-  TUPLE,
+  INTERPOLATED_STRING,
   LAYOUT_DEFINITION,
   SPECIALIZATION,
 
@@ -670,8 +670,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_named_parameters_begin";
 
   // BRACES
-  case K::TUPLE:
-    return "_tuple";
+  case K::INTERPOLATED_STRING:
+    return "_interpolated_string";
   case K::LAYOUT_DEFINITION:
     return "_layout_definition";
   case K::SPECIALIZATION:
@@ -1494,7 +1494,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
 
   // BRACES
-  case K::TUPLE:
+  case K::INTERPOLATED_STRING:
     return KF::RVALUE | KF::ARGUMENT;
   case K::LAYOUT_DEFINITION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
