@@ -223,7 +223,7 @@ bool Situator::situateTree(rq::Situation situation,
   // APPLY
   case K::EXTEND:
     [[fallthrough]];
-  case K::EXTENSION:
+  case K::EXTENSION_DEFINITION:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;

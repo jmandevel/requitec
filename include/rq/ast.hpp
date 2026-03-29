@@ -62,7 +62,7 @@ enum class Keyword : std::uint32_t {
 
   // APPLY
   EXTEND,
-  EXTENSION,
+  EXTENSION_DEFINITION,
   BINDING,
   ASCRIBE_TYPE,
   ASCRIBE_EXPRESSION,
@@ -522,8 +522,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // APPLY
   case K::EXTEND:
     return "_extend";
-  case K::EXTENSION:
-    return "_extension";
+  case K::EXTENSION_DEFINITION:
+    return "_extension_definition";
   case K::BINDING:
     return "_binding";
   case K::ASCRIBE_TYPE:
@@ -1345,7 +1345,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // APPLY
   case K::EXTEND:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::EXTENSION:
+  case K::EXTENSION_DEFINITION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;
