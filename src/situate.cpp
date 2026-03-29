@@ -572,12 +572,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DROP_EACH_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::EACH:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::EACH_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
   case K::MOVE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;

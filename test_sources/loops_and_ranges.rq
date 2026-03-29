@@ -8,7 +8,7 @@
 
     @public
     [ranger each, $ranging ()[fast_signed_integer 32]=>&,
-        [for [this].data.[each], value:=[value].[borrow], 
+        [for [this].data, value:=[value].[borrow], 
             [range_over 
                 value
             ];
@@ -21,17 +21,17 @@
     // all of these loops are equivalent
 
     // equal limit interval
-    [for (0.==9).[each], value:=[value],
+    [for 0.==9, value:=[value],
         .std.print(line="value is {value}");    
     ]
 
     // less limit interval
-    [for (0.<10).[each], value:=[value], 
+    [for 0.<10, value:=[value], 
         .std.print(line="value is {value}");    
     ];
 
     // interval
-    [for (0.<10.+1).[each], value:=[value], 
+    [for 0.<10.+1, value:=[value], 
         .std.print(line="value is {value}");    
     ]
 
@@ -45,7 +45,7 @@
     ];
 
     // array element range
-    [for [initializer_list 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[each], value:=[value],     
+    [for [initializer_list 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:=[value],     
         .std.print(line="value is {value}");
     ];
 

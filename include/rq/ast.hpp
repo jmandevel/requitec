@@ -160,8 +160,6 @@ enum class Keyword : std::uint32_t {
   DROP_OF,
   DROP_EACH,
   DROP_EACH_OF,
-  EACH,
-  EACH_OF,
   ENTRY,
   FUNCTION,
   METHOD,
@@ -696,10 +694,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "drop_each";
   case K::DROP_EACH_OF:
     return "_drop_each_of";
-  case K::EACH:
-    return "each";
-  case K::EACH_OF:
-    return "_each_of";
   case K::ENTRY:
     return "entry";
   case K::FUNCTION:
@@ -1520,10 +1514,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DROP_EACH_OF:
     return KF::RVALUE;
-  case K::EACH:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::EACH_OF:
-    return KF::RVALUE;
   case K::ENTRY:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::FUNCTION:
@@ -2342,8 +2332,6 @@ getDescription(rq::Situation situation) {
     return K::DROP_OF;
   case K::DROP_EACH:
     return K::DROP_EACH_OF;
-  case K::EACH:
-    return K::EACH_OF;
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;
