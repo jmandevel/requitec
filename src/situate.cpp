@@ -593,7 +593,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXTENSION_FUNCTION: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       2);
+                                                       3);
       is_ok = false;
       break;
     }
@@ -603,7 +603,7 @@ bool Situator::situateTree(rq::Situation situation,
     }
     if (!branch0.getHasNext()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       2);
+                                                       3);
       is_ok = false;
       break;
     }
@@ -611,18 +611,15 @@ bool Situator::situateTree(rq::Situation situation,
     if (!this->situateHeaderBranch(S::RVALUE, branch1)) {
       is_ok = false;
     }
-    if (!branch1.getHasNext()) {
+    if (!branch0.getHasNext()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       3);
+      is_ok = false;
       break;
     }
     rq::Expression &branch2 = branch1.getNext();
-    if (branch2.getIsHeader()) {
-      if (!this->situateHeaderBranch(S::RVALUE, branch2)) {
-        is_ok = false;
-      }
-    } else {
-      if (!this->situateStatementBranch(branch2)) {
-        is_ok = false;
-      }
+    if (!this->situateHeaderBranch(S::SIGNATURE, branch2)) {
+      is_ok = false;
     }
     for (rq::Expression &branch : branch2.getNextSubrange()) {
       if (!this->situateStatementBranch(branch)) {
@@ -659,7 +656,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SPECIALIZE_EXTENSION_METHOD:
     [[fallthrough]];
   case K::SPECIALIZE_EXTENSION_RANGER:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(situation, expression, S::RVALUE, S::SIGNATURE);
     break;
 
   // CONTROL FLOW
@@ -1215,6 +1212,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXPAND_RVALUE:
     [[fallthrough]];
   case K::EXPAND_TUPLE:
+    [[fallthrough]];
+  case K::EXPAND_SIGNATURE:
     [[fallthrough]];
   case K::EXPAND_REFLECTION:
     [[fallthrough]];
@@ -1822,7 +1821,7 @@ bool Situator::situateNamedMemberProcedure(rq::Situation situation,
                                            rq::Expression &expression) {
   bool is_ok = true;
   if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     is_ok = false;
     return is_ok;
   }
@@ -1831,17 +1830,13 @@ bool Situator::situateNamedMemberProcedure(rq::Situation situation,
     is_ok = false;
   }
   if (!branch0.getHasNext()) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
+    is_ok = false;
     return is_ok;
   }
   rq::Expression &branch1 = branch0.getNext();
-  if (branch1.getIsHeader()) {
-    if (!this->situateHeaderBranch(rq::Situation::RVALUE, branch1)) {
-      is_ok = false;
-    }
-  } else {
-    if (!this->situateStatementBranch(branch1)) {
-      is_ok = false;
-    }
+  if (!this->situateHeaderBranch(rq::Situation::SIGNATURE, branch1)) {
+    is_ok = false;
   }
   for (rq::Expression &branch : branch1.getNextSubrange()) {
     if (!this->situateStatementBranch(branch)) {
