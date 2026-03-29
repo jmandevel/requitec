@@ -3,9 +3,9 @@
 @auto_drop @may_copy
 [class MyClass,
     {>
-        x : [fast_signed_integer 32] = 0,
-        y : [fast_signed_integer 32] = 0,
-        z : [fast_signed_integer 32] = 0
+        @public x : [fast_signed_integer 32] = 0,
+        @public y : [fast_signed_integer 32] = 0,
+        @public z : [fast_signed_integer 32] = 0
     <},
 
     @public
