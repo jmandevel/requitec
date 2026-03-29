@@ -4,7 +4,7 @@
 [class Foo, {> @public string:^[utf8]="Hello, attribute!" <},];
 
 [entry
-    @capture::{ @public name:="Bob", @public age:=25 }
+    @capture::{ @public name="Bob", @public age=25 }
     var1 := 0;
     .std.print(line="Hello, my name is {var.[symbol].[capture].name} and I am {var.[symbol].[capture].age} years old");
 
