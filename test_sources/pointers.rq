@@ -1,9 +1,9 @@
 [entry
     // if you know C, this should be super easy to understand.
 
-    var :`[float]= 0;
+    var :`[single]= 0;
 
-    var_ptr :`*`[float]= var.[address];
+    var_ptr :`*`[single]= var.[address];
 
     var_ptr.[content] = 1;
 
