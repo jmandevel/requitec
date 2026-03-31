@@ -223,7 +223,7 @@ bool Situator::situateTree(rq::Situation situation,
   // APPLY
   case K::EXTEND:
     [[fallthrough]];
-  case K::EXTENSION_DEFINITION:
+  case K::INITIALIZE_RECIEVER:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
@@ -528,17 +528,17 @@ bool Situator::situateTree(rq::Situation situation,
   // BRACES
   case K::TUPLE:
     if (situation == S::LAYOUT && !expression.getHasBranch()) {
-      expression.changeKeyword(K::LAYOUT_DEFINITION);
+      expression.changeKeyword(K::INITIALIZE_LAYOUT);
       is_ok = true;
       break;
     }
     is_ok =
         this->situateNaryValueBranches(situation, expression, 0, S::ARGUMENT);
     break;
-  case K::LAYOUT_DEFINITION:
+  case K::INITIALIZE_LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
-  case K::INTERPOLATED_STRING_DEFINITION:
+  case K::INITIALIZE_INTERPOLATED_STRING:
     is_ok = this->situateNaryValueBranches(situation, expression, 1,
                                            S::STRING_INTERPOLATION);
     break;
@@ -560,7 +560,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::SIGNATURE_DEFINITION:
+  case K::INITIALIZE_SIGNATURE:
     is_ok = this->situateNaryDifferentFirstParamterBranches(
         situation, expression, S::RVALUE);
     break;
@@ -783,7 +783,7 @@ bool Situator::situateTree(rq::Situation situation,
   }
 
   // VALUES
-  case K::INITIALIZER_LIST:
+  case K::INITIALIZE_ARRAY:
     is_ok = this->situateNaryValueBranches(situation, expression, 0, S::RVALUE);
     break;
   case K::NULL_:
@@ -902,7 +902,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::VARIADIC_LIST:
+  case K::INITIALIZE_VARIADIC_ARGUMENTS:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
 

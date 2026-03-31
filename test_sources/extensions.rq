@@ -19,7 +19,7 @@
 ];
 
 [entry
-    my_array :5#[signed]= [initializer_list 0, 1, 2, 3, 4].[of [fast_signed_integer 32]];
+    my_array :5#[signed]= [initialize_array 0, 1, 2, 3, 4].[of [fast_signed_integer 32]];
 
     // call extension function
     {} = my_array.[type]->.example.getElementCount();

@@ -62,7 +62,7 @@ enum class Keyword : std::uint32_t {
 
   // APPLY
   EXTEND,
-  EXTENSION_DEFINITION,
+  INITIALIZE_RECIEVER,
   BINDING,
   ASCRIBE_TYPE,
   ASCRIBE_EXPRESSION,
@@ -147,15 +147,15 @@ enum class Keyword : std::uint32_t {
 
   // BRACES
   TUPLE,
-  LAYOUT_DEFINITION,
-  INTERPOLATED_STRING_DEFINITION,
+  INITIALIZE_LAYOUT,
+  INITIALIZE_INTERPOLATED_STRING,
   SPECIALIZATION,
 
   // PROCEDURES
   CALL,
   NAMED_ARGUMENT,
   INDEX_INTO,
-  SIGNATURE_DEFINITION,
+  INITIALIZE_SIGNATURE,
   DEFAULT_VALUE_PARAMETER,
   DROP,
   DROP_OF,
@@ -196,7 +196,7 @@ enum class Keyword : std::uint32_t {
   CATEGORY,
 
   // VALUES
-  INITIALIZER_LIST,
+  INITIALIZE_ARRAY,
   NULL_,
   TRUE,
   FALSE,
@@ -258,7 +258,7 @@ enum class Keyword : std::uint32_t {
   FIRST_VARIADIC_ARGUMENT_OF,
   NEXT_VARIADIC_ARGUMENT,
   NEXT_VARIADIC_ARGUMENT_OF,
-  VARIADIC_LIST,
+  INITIALIZE_VARIADIC_ARGUMENTS,
 
   // SCOPES
   IF,
@@ -528,8 +528,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // APPLY
   case K::EXTEND:
     return "_extend";
-  case K::EXTENSION_DEFINITION:
-    return "_extension_definition";
+  case K::INITIALIZE_RECIEVER:
+    return "_initialize_reciever";
   case K::BINDING:
     return "_binding";
   case K::ASCRIBE_TYPE:
@@ -678,10 +678,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // BRACES
   case K::TUPLE:
     return "_tuple";
-  case K::LAYOUT_DEFINITION:
-    return "_layout_definition";
-  case K::INTERPOLATED_STRING_DEFINITION:
-    return "_interpolated_string_definition";
+  case K::INITIALIZE_LAYOUT:
+    return "_initialize_layout";
+  case K::INITIALIZE_INTERPOLATED_STRING:
+    return "_initialize_interpolated_string";
   case K::SPECIALIZATION:
     return "_specialization";
 
@@ -692,8 +692,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_named_argument";
   case K::INDEX_INTO:
     return "_index_into";
-  case K::SIGNATURE_DEFINITION:
-    return "_signature_definition";
+  case K::INITIALIZE_SIGNATURE:
+    return "_initialize_signature";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
   case K::DROP:
@@ -768,8 +768,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "category";
 
   // VALUES
-  case K::INITIALIZER_LIST:
-    return "initializer_list";
+  case K::INITIALIZE_ARRAY:
+    return "initialize_array";
   case K::NULL_:
     return "null";
   case K::TRUE:
@@ -874,8 +874,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "next_variadic_argument";
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return "_next_variadic_argument_of";
-  case K::VARIADIC_LIST:
-    return "variadic_list";
+  case K::INITIALIZE_VARIADIC_ARGUMENTS:
+    return "initialize_variadic_arguments";
 
   // SCOPES
   case K::IF:
@@ -1363,7 +1363,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // APPLY
   case K::EXTEND:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::EXTENSION_DEFINITION:
+  case K::INITIALIZE_RECIEVER:
     return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;
@@ -1514,9 +1514,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // BRACES
   case K::TUPLE:
     return KF::TUPLE;
-  case K::LAYOUT_DEFINITION:
+  case K::INITIALIZE_LAYOUT:
     return KF::LAYOUT;
-  case K::INTERPOLATED_STRING_DEFINITION:
+  case K::INITIALIZE_INTERPOLATED_STRING:
     return KF::RVALUE | KF::ARGUMENT;    
   case K::SPECIALIZATION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1528,7 +1528,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::ARGUMENT;
   case K::INDEX_INTO:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::SIGNATURE_DEFINITION:
+  case K::INITIALIZE_SIGNATURE:
     return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
@@ -1604,7 +1604,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // VALUES
-  case K::INITIALIZER_LIST:
+  case K::INITIALIZE_ARRAY:
     return KF::RVALUE | KF::ARGUMENT;
   case K::NULL_:
     return KF::RVALUE | KF::ARGUMENT;
@@ -1710,7 +1710,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::VARIADIC_LIST:
+  case K::INITIALIZE_VARIADIC_ARGUMENTS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES

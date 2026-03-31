@@ -31,7 +31,7 @@
     ];
 
     // builtin array type has a special .[drop_each] ranger
-    array := [initializer_list .NoAutoDrop(), .NoAutoDrop(), .NoAutoDrop()];
+    array := [initialize_array .NoAutoDrop(), .NoAutoDrop(), .NoAutoDrop()];
     [destructor array,
         [for array.[move].[drop_each], value:=[value].[borrow], 
             value.[move].destroy();

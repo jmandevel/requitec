@@ -684,7 +684,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::EXTENSION_DEFINITION);
+        precedence_factory.parseNary(token, rq::Keyword::INITIALIZE_RECIEVER);
         continue;
       }
       case rq::TokenKind::HASH_OPERATOR: {
@@ -994,7 +994,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     case rq::TokenKind::THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::Keyword::EXTENSION_DEFINITION);
+      precedence_factory.parseOuterBinary(post_token, rq::Keyword::INITIALIZE_RECIEVER);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
@@ -1226,7 +1226,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const bool parameter_mark_found =
       this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found) {
-    brace.changeKeyword(rq::Keyword::LAYOUT_DEFINITION);
+    brace.changeKeyword(rq::Keyword::INITIALIZE_LAYOUT);
   }
   return brace;
 }
@@ -1288,7 +1288,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const bool has_parameter_marks = this->parseValueBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks || !parenthesis.getHasBranch()) {
-    parenthesis.changeKeyword(rq::Keyword::SIGNATURE_DEFINITION);
+    parenthesis.changeKeyword(rq::Keyword::INITIALIZE_SIGNATURE);
     rq::Expression &return_type = this->parseExpression();
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));
@@ -1364,7 +1364,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       }
       previous_ptr = &string;
       rq::Expression &tuple = this->getContext().acquireExpression();
-      tuple.setKeyword(rq::Keyword::INTERPOLATED_STRING_DEFINITION);
+      tuple.setKeyword(rq::Keyword::INITIALIZE_INTERPOLATED_STRING);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
       return tuple;
