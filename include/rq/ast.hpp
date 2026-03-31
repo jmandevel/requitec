@@ -148,6 +148,7 @@ enum class Keyword : std::uint32_t {
   // BRACES
   TUPLE,
   LAYOUT_DEFINITION,
+  INTERPOLATED_STRING_DEFINITION,
   SPECIALIZATION,
 
   // PROCEDURES
@@ -244,6 +245,7 @@ enum class Keyword : std::uint32_t {
   UNSIGNED_INDEX,
   SIGNED_ADDRESS,
   UNSIGNED_ADDRESS,
+  INTERPOLATED_STRING,
   STRING,
   CODEUNIT,
   CHAR,
@@ -271,6 +273,8 @@ enum class Keyword : std::uint32_t {
   DEFAULT,
   FOR,
   WHILE,
+  SPIN,
+  WEAVE,
   SCOPE,
   INLINE_SCOPE,
   BLOCK,
@@ -403,6 +407,7 @@ enum class Keyword : std::uint32_t {
   EXPAND_TUPLE,
   EXPAND_LAYOUT,
   EXPAND_SIGNATURE,
+  EXPAND_STRING_INTERPOLATION,
   EXPAND_REFLECTION,
   EXPAND_ARGUMENT,
   EXPAND_PARAMETER,
@@ -675,6 +680,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_tuple";
   case K::LAYOUT_DEFINITION:
     return "_layout_definition";
+  case K::INTERPOLATED_STRING_DEFINITION:
+    return "_interpolated_string_definition";
   case K::SPECIALIZATION:
     return "_specialization";
 
@@ -843,6 +850,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "signed_address";
   case K::UNSIGNED_ADDRESS:
     return "unsigned_address";
+  case K::INTERPOLATED_STRING:
+    return "interpolated_string";
   case K::STRING:
     return "string";
   case K::CODEUNIT:
@@ -893,6 +902,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "for";
   case K::WHILE:
     return "while";
+  case K::SPIN:
+    return "spin";
+  case K::WEAVE:
+    return "weave";
   case K::SCOPE:
     return "scope";
   case K::INLINE_SCOPE:
@@ -1135,6 +1148,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_expand_layout";
   case K::EXPAND_SIGNATURE:
     return "_expand_signature";
+  case K::EXPAND_STRING_INTERPOLATION:
+    return "_expand_string_interpolation";
   case K::EXPAND_REFLECTION:
     return "_expand_reflection";
   case K::EXPAND_ARGUMENT:
@@ -1248,28 +1263,27 @@ enum class KeywordFlags : std::uint32_t {
   STARTING_CHAINLINK = rq::getBit(7),
   CONTINUING_CHAINLINK = rq::getBit(8),
   FINISHING_CHAINLINK = rq::getBit(9),
-  IF_CHAINLINK = rq::getBit(10),
-  ARM_CHAINLINK = rq::getBit(11),
-  EXPANSION = rq::getBit(12),
+  EXPANSION = rq::getBit(10),
   // TRUNK
-  STATEMENT = rq::getBit(13),
-  RVALUE = rq::getBit(14),
-  LVALUE = rq::getBit(15),
-  TUPLE = rq::getBit(16),
-  LAYOUT = rq::getBit(17),
-  SIGNATURE = rq::getBit(18),
-  REFLECTION = rq::getBit(19),
-  ARGUMENT = rq::getBit(20),
-  PARAMETER = rq::getBit(21),
-  BINDING = rq::getBit(22),
-  NAME = rq::getBit(23),
-  NAMESPACE = rq::getBit(24),
-  ASCRIPTION = rq::getBit(25),
-  TYPE_ATTRIBUTE = rq::getBit(26),
-  EXPRESSION_ATTRIBUTE = rq::getBit(27),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(28),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(29),
-  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | LAYOUT | SIGNATURE | REFLECTION | ARGUMENT |
+  STATEMENT = rq::getBit(11),
+  RVALUE = rq::getBit(12),
+  LVALUE = rq::getBit(13),
+  TUPLE = rq::getBit(14),
+  LAYOUT = rq::getBit(15),
+  SIGNATURE = rq::getBit(16),
+  STRING_INTERPOLATION = rq::getBit(17),
+  REFLECTION = rq::getBit(18),
+  ARGUMENT = rq::getBit(19),
+  PARAMETER = rq::getBit(20),
+  BINDING = rq::getBit(21),
+  NAME = rq::getBit(22),
+  NAMESPACE = rq::getBit(23),
+  ASCRIPTION = rq::getBit(24),
+  TYPE_ATTRIBUTE = rq::getBit(25),
+  EXPRESSION_ATTRIBUTE = rq::getBit(26),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(27),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(28),
+  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | LAYOUT | SIGNATURE | STRING_INTERPOLATION | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
@@ -1294,14 +1308,12 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::STRING_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::LEFT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
-           KF::ARGUMENT;
+    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::STRING_INTERPOLATION;
   case K::MIDDLE_INTERPOLATION_LITERAL:
     return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
-           KF::RVALUE | KF::ARGUMENT;
+           KF::STRING_INTERPOLATION;
   case K::RIGHT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::RVALUE |
-           KF::ARGUMENT;
+    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::STRING_INTERPOLATION;
   case K::CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::IDENTIFIER_LITERAL:
@@ -1504,6 +1516,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::TUPLE;
   case K::LAYOUT_DEFINITION:
     return KF::LAYOUT;
+  case K::INTERPOLATED_STRING_DEFINITION:
+    return KF::RVALUE | KF::ARGUMENT;    
   case K::SPECIALIZATION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
@@ -1672,6 +1686,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_ADDRESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::INTERPOLATED_STRING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;    
   case K::STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CODEUNIT:
@@ -1699,14 +1715,12 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // SCOPES
   case K::IF:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::IF_CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
   case K::ELSE_IF:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::CONTINUING_CHAINLINK |
-           KF::FINISHING_CHAINLINK | KF::IF_CHAINLINK;
+           KF::FINISHING_CHAINLINK;
   case K::ELSE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::FINISHING_CHAINLINK |
-           KF::IF_CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::FINISHING_CHAINLINK;
   case K::MATCH:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::INLINE_MATCH:
@@ -1717,20 +1731,21 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
   case K::CASE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK |
-           KF::ARM_CHAINLINK;
+           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::WITH:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK |
-           KF::ARM_CHAINLINK;
+           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::DEFAULT:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK |
-           KF::ARM_CHAINLINK;
+           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::FOR:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::WHILE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::SPIN:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
+  case K::WEAVE:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT_BRANCHES | KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::SCOPE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::INLINE_SCOPE:
@@ -1975,6 +1990,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::LAYOUT | KF::EXPANSION;
   case K::EXPAND_SIGNATURE:
     return KF::SIGNATURE | KF::EXPANSION;
+  case K::EXPAND_STRING_INTERPOLATION:
+    return KF::STRING_INTERPOLATION | KF::EXPANSION;
   case K::EXPAND_REFLECTION:
     return KF::REFLECTION | KF::EXPANSION;
   case K::EXPAND_ARGUMENT:
@@ -2165,22 +2182,6 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::FINISHING_CHAINLINK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAllChainLink(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK |
-                                  rq::KeywordFlags::ARM_CHAINLINK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainLink(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::IF_CHAINLINK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::ARM_CHAINLINK);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::EXPANSION);
@@ -2195,6 +2196,7 @@ enum class Situation : std::uint_fast8_t {
   TUPLE,
   LAYOUT,
   SIGNATURE,
+  STRING_INTERPOLATION,
   REFLECTION,
   ARGUMENT,
   PARAMETER,
@@ -2228,6 +2230,8 @@ getDescription(rq::Situation situation) {
     return "layout";
   case S::SIGNATURE:
     return "signature";
+  case S::STRING_INTERPOLATION:
+    return "string interpolation";
   case S::REFLECTION:
     return "reflection expression";
   case S::ARGUMENT:
@@ -2272,6 +2276,8 @@ getDescription(rq::Situation situation) {
     return K::EXPAND_LAYOUT;
   case S::SIGNATURE:
     return K::EXPAND_SIGNATURE;
+  case S::STRING_INTERPOLATION:
+    return K::EXPAND_STRING_INTERPOLATION;
   case S::REFLECTION:
     return K::EXPAND_REFLECTION;
   case S::ARGUMENT:
@@ -2311,6 +2317,8 @@ getDescription(rq::Situation situation) {
     return S::TUPLE;
   case K::EXPAND_SIGNATURE:
     return S::SIGNATURE;
+  case K::EXPAND_STRING_INTERPOLATION:
+    return S::STRING_INTERPOLATION;
   case K::EXPAND_REFLECTION:
     return S::REFLECTION;
   case K::EXPAND_ARGUMENT:
@@ -2486,6 +2494,11 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordFlags::SIGNATURE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStringInterpolation(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::STRING_INTERPOLATION);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::REFLECTION);
@@ -2570,6 +2583,8 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeLayout(keyword);
   case rq::Situation::SIGNATURE:
     return rq::getCanBeSignature(keyword);
+  case rq::Situation::STRING_INTERPOLATION:
+    return rq::getCanBeStringInterpolation(keyword);
   case rq::Situation::REFLECTION:
     return rq::getCanBeReflection(keyword);
   case rq::Situation::ARGUMENT:
@@ -2615,17 +2630,6 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
     return "arm chain";
   }
   return "error chain";
-}
-
-[[nodiscard]] inline rq::ChainKind getChainKind(rq::Keyword keyword) {
-  if (!rq::getCanBeChainLink(keyword)) [[likely]] {
-    return rq::ChainKind::NONE;
-  } else if (rq::getCanBeAllChainLink(keyword)) {
-    return rq::ChainKind::UNKNOWN;
-  } else if (rq::getCanBeIfChainLink(keyword)) {
-    return rq::ChainKind::IF;
-  }
-  RQ_UNREACHABLE();
 }
 
 enum class ExpressionAttribute : std::uint_fast8_t {
@@ -3796,9 +3800,6 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Situation getAttributeSituation() const {
     return rq::getAttributeSituation(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind getChainKind() const {
-    return rq::getChainKind(this->getKeyword());
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
     return rq::getCanBeChainLink(this->getKeyword());
   }
@@ -3810,15 +3811,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
     return rq::getCanBeFinishingChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAllChainLink() const {
-    return rq::getCanBeAllChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainLink() const {
-    return rq::getCanBeIfChainLink(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArmChainLink() const {
-    return rq::getCanBeArmChainLink(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion() const {
     return rq::getIsExpansion(this->getKeyword());
@@ -3853,6 +3845,9 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSignature() const {
     return rq::getCanBeSignature(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStringInterpolation() const {
+    return rq::getCanBeStringInterpolation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
     return rq::getCanBeReflection(this->getKeyword());

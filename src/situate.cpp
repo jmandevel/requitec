@@ -538,6 +538,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::LAYOUT_DEFINITION:
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
+  case K::INTERPOLATED_STRING_DEFINITION:
+    is_ok = this->situateNaryValueBranches(situation, expression, 1,
+                                           S::STRING_INTERPOLATION);
+    break;
   case K::SPECIALIZATION:
     is_ok = this->situateNaryDifferentFirstParamterBranches(
         situation, expression, S::RVALUE);
@@ -661,7 +665,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SPECIALIZE_EXTENSION_METHOD:
     [[fallthrough]];
   case K::SPECIALIZE_EXTENSION_RANGER:
-    is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(situation, expression, S::RVALUE, S::SIGNATURE);
+    is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::SIGNATURE);
     break;
 
   // CONTROL FLOW
@@ -867,6 +872,8 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED_ADDRESS:
     [[fallthrough]];
+  case K::INTERPOLATED_STRING:
+    [[fallthrough]];
   case K::STRING:
     [[fallthrough]];
   case K::CODEUNIT:
@@ -937,6 +944,14 @@ bool Situator::situateTree(rq::Situation situation,
   case K::WHILE:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
+    break;
+  case K::SPIN:
+    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
+    break;
+  case K::WEAVE:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::STATEMENT);
     break;
   case K::SCOPE:
     [[fallthrough]];
@@ -1221,6 +1236,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXPAND_LAYOUT:
     [[fallthrough]];
   case K::EXPAND_SIGNATURE:
+    [[fallthrough]];
+  case K::EXPAND_STRING_INTERPOLATION:
     [[fallthrough]];
   case K::EXPAND_REFLECTION:
     [[fallthrough]];

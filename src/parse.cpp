@@ -1364,7 +1364,7 @@ rq::Expression &RequiteParser::parseInterpolatedString() {
       }
       previous_ptr = &string;
       rq::Expression &tuple = this->getContext().acquireExpression();
-      tuple.setKeyword(rq::Keyword::TUPLE);
+      tuple.setKeyword(rq::Keyword::INTERPOLATED_STRING_DEFINITION);
       tuple.setSource(left_token, token);
       tuple.setBranch(first_ptr);
       return tuple;
