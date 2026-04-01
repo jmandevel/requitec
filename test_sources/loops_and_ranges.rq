@@ -23,7 +23,7 @@
     // equal limit interval
     [for 0.==9, value:=[value],
         .std.print(line="value is {value}");    
-    ]
+    ];
 
     // less limit interval
     [for 0.<10, value:=[value], 
@@ -33,7 +33,7 @@
     // interval
     [for 0.<10.+1, value:=[value], 
         .std.print(line="value is {value}");    
-    ]
+    ];
 
     [scope
         // while loop    
