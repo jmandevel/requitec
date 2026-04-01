@@ -448,20 +448,20 @@ namespace rq {
   case O::SY_SYNONYM:
     return OF::SYMBOL | OF::SY_TYPE;
   case O::SY_TOP:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TIN_OF_FRAME;
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TOP_OF_FRAME;
   case O::SY_SCOPE:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE;
   case O::SY_NAMESPACE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TIN_OF_FRAME;
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TOP_OF_FRAME;
   case O::SY_CLASS:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
-           OF::SY_TIN_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+           OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_ENUMERATION:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
-           OF::SY_TIN_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+           OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_CATEGORY:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
-           OF::SY_TIN_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+           OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_GLOBAL_VARIABLE:
     return OF::SYMBOL | OF::SY_DYNAMIC_VARIABLE |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
@@ -474,24 +474,24 @@ namespace rq {
   case O::SY_CATEGORY_ALTERNATIVE:
     return OF::SYMBOL;
   case O::SY_ENTRY:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME;
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME;
   case O::SY_FUNCTION:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_RANGER:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_FUNCTION:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_RANGER:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TIN_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_TEMPLATE_CLASS:
     return OF::SYMBOL | OF::SY_TEMPLATE;
@@ -818,7 +818,7 @@ getHasTemplateAlternative(rq::Opcode opcode) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TIN_OF_FRAME);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TOP_OF_FRAME);
 }
 
 [[nodiscard]] inline rq::Opcode getTemplate(rq::Opcode opcode) {
@@ -1404,15 +1404,15 @@ Entity::operator!=(const Entity &other) const {
   return rq::getIsTopOfFrame(this->getOpcode());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getTemplateKeyword() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getTemplateOpcode() const {
   return rq::getTemplate(this->getOpcode());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getPartialKeyword() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getPartialOpcode() const {
   return rq::getPartial(this->getOpcode());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getFullKeyword() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getFullOpcode() const {
   return rq::getFull(this->getOpcode());
 }
 
@@ -2238,13 +2238,13 @@ InfiniteArithmeticProgression::classof(const Entity *entity) {
   RQ_UNREACHABLE();
 }
 
-inline Module::Module(rq::ModuleKind opcode, llvm::StringRef path,
+inline Module::Module(rq::ModuleKind kind, llvm::StringRef path,
                       llvm::MemoryBufferRef &&buffer)
-    : Symbol(rq::Opcode::SY_MODULE), _module_opcode(opcode), _path(path),
+    : Symbol(rq::Opcode::SY_MODULE), _module_kind(kind), _path(path),
       _buffer(buffer) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind Module::getModuleKind() const {
-  return this->_module_opcode;
+  return this->_module_kind;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getPath() const {
@@ -2606,6 +2606,28 @@ SymbolTable::getNamedListRef(llvm::StringRef name) {
     return rq::BumpPtrListRef<rq::Symbol>();
   }
   return it->getSecond();
+}
+
+[[nodiscard]] inline rq::ConstBumpPtrListRef<rq::Symbol>
+SymbolTable::getFrameNamedListRef(llvm::StringRef name) const {
+  for (const rq::SymbolTable &table : this->getInclusiveFrameSubrange()) {
+    rq::ConstBumpPtrListRef<rq::Symbol> list = table.getNamedListRef(name);
+    if (!list.getIsEmpty()) {
+      return list;
+    }
+  }
+  return rq::ConstBumpPtrListRef<rq::Symbol>();
+}
+
+[[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
+SymbolTable::getFrameNamedListRef(llvm::StringRef name) {
+  for (rq::SymbolTable &table : this->getInclusiveFrameSubrange()) {
+    rq::BumpPtrListRef<rq::Symbol> list = table.getNamedListRef(name);
+    if (!list.getIsEmpty()) {
+      return list;
+    }
+  }
+  return rq::BumpPtrListRef<rq::Symbol>();
 }
 
 [[nodiscard]] inline auto SymbolTable::getNamedListsSubrange() const {

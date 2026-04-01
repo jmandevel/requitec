@@ -325,7 +325,7 @@ enum class OpcodeFlags : std::uint32_t {
   SY_CODEUNIT = rq::getBit(22),
   SY_SIGNED = rq::getBit(23),
   SY_UNSIGNED = rq::getBit(24),
-  SY_TIN_OF_FRAME = rq::getBit(25),
+  SY_TOP_OF_FRAME = rq::getBit(25),
 
   // CONSTANT FLAGS
   // TODO
@@ -690,9 +690,9 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateKeyword() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialKeyword() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullKeyword() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullOpcode() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1448,11 +1448,11 @@ struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
   rq::Expression *_expression_ptr{nullptr};
-  rq::ModuleKind _module_opcode;
+  rq::ModuleKind _module_kind;
   llvm::StringRef _path;
   llvm::MemoryBufferRef _buffer;
 
-  inline explicit Module(rq::ModuleKind opcode, llvm::StringRef path,
+  inline explicit Module(rq::ModuleKind kind, llvm::StringRef path,
                          llvm::MemoryBufferRef &&buffer);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
@@ -1660,6 +1660,10 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   getNamedListRef(llvm::StringRef name) const;
   [[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
   getNamedListRef(llvm::StringRef name);
+  [[nodiscard]] inline rq::ConstBumpPtrListRef<rq::Symbol>
+  getFrameNamedListRef(llvm::StringRef name) const;
+  [[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
+  getFrameNamedListRef(llvm::StringRef name);
   [[nodiscard]] inline auto getNamedListsSubrange() const;
   [[nodiscard]] inline std::ranges::subrange<
       llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
