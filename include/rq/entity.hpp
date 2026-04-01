@@ -51,11 +51,13 @@ enum class Opcode : std::uint16_t {
   // all symbols have unique instances. you can always test if two symbols
   // are exactly the same by comparing their pointers.
 
-  // SPCEIAL
+  // SIMPLE BUILTIN
   SY_RESULT,
   SY_OUT,
-
-  // SIMPLE BUILTIN
+  SY_INTEGER_LITERAL,
+  SY_FLOAT_LITERAL,
+  SY_STRING_LITERAL,
+  SY_CODEUNIT_LITERAL,
   SY_INFERENCE,
   SY_SYMBOL_CONSTRAINT,
   SY_TYPE_CONSTRAINT,
@@ -83,6 +85,7 @@ enum class Opcode : std::uint16_t {
   SY_UNSIGNED_INTEGER_CONSTRAINT,
   SY_CODEUNIT_CONSTRAINT,
   SY_STRING_CONSTRAINT,
+  SY_INTERPOLATED_STRING_CONSTRAINT,
   SY_CHAR,
   SY_ASCII,
   SY_UTF8,
@@ -314,18 +317,19 @@ enum class OpcodeFlags : std::uint32_t {
   SY_TEMPLATE = rq::getBit(12),
   SY_PARTIAL = rq::getBit(13),
   // SYMBOL INFO PROPERTIES - have no data associated
-  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(14),
-  SY_TYPE = rq::getBit(15),
-  SY_SUBTYPE = rq::getBit(16),
-  SY_CONSTRAINT = rq::getBit(17),
-  SY_PLATFORM_CHANGING = rq::getBit(18),
-  SY_INTEGER = rq::getBit(19),
-  SY_FLOAT = rq::getBit(20),
-  SY_BINARY = rq::getBit(21),
-  SY_CODEUNIT = rq::getBit(22),
-  SY_SIGNED = rq::getBit(23),
-  SY_UNSIGNED = rq::getBit(24),
-  SY_TOP_OF_FRAME = rq::getBit(25),
+  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(15),
+  SY_TYPE = rq::getBit(16),
+  SY_SUBTYPE = rq::getBit(17),
+  SY_CONSTRAINT = rq::getBit(18),
+  SY_LITERAL = rq::getBit(2),
+  SY_PLATFORM_CHANGING = rq::getBit(19),
+  SY_INTEGER = rq::getBit(20),
+  SY_FLOAT = rq::getBit(21),
+  SY_BINARY = rq::getBit(22),
+  SY_CODEUNIT = rq::getBit(23),
+  SY_SIGNED = rq::getBit(24),
+  SY_UNSIGNED = rq::getBit(25),
+  SY_TOP_OF_FRAME = rq::getBit(26),
 
   // CONSTANT FLAGS
   // TODO
@@ -390,9 +394,13 @@ getHasTemplateAlternative(rq::Opcode opcode);
 
 struct Entity;
 struct Symbol;
+struct SimpleBuiltin;
 struct Result;
 struct Out;
-struct SimpleBuiltin;
+struct IntegerLiteral;
+struct FloatLiteral;
+struct StringLiteral;
+struct CodeunitLiteral;
 struct Inference;
 struct SymbolConstraint;
 struct TypeConstraint;
@@ -419,6 +427,7 @@ struct SignedIntegerConstraint;
 struct UnsignedIntegerConstraint;
 struct CodeunitConstraint;
 struct StringConstraint;
+struct InterpolatedStringConstraint;
 struct Char;
 struct Ascii;
 struct Utf8;
@@ -707,24 +716,6 @@ struct Symbol : public rq::Entity {
 
 template <> struct is_parent_only<rq::Symbol> final : std::true_type {};
 
-struct Result : public rq::Symbol {
-  using Self = rq::SimpleBuiltin;
-
-  inline explicit Result();
-  [[nodiscard]] inline bool classof(const Entity *entity);
-};
-
-template <> struct is_acquired<rq::Result> final : std::true_type {};
-
-struct Out : public rq::Symbol {
-  using Self = rq::SimpleBuiltin;
-
-  inline explicit Out();
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-template <> struct is_acquired<rq::Out> final : std::true_type {};
-
 struct SimpleBuiltin : public rq::Symbol {
   using Self = rq::SimpleBuiltin;
 
@@ -733,6 +724,60 @@ struct SimpleBuiltin : public rq::Symbol {
 };
 
 template <> struct is_parent_only<rq::SimpleBuiltin> final : std::true_type {};
+
+struct Result : public rq::SimpleBuiltin {
+  using Self = rq::Result;
+
+  inline explicit Result();
+  [[nodiscard]] inline bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Result> final : std::true_type {};
+
+struct Out : public rq::SimpleBuiltin {
+  using Self = rq::Out;
+
+  inline explicit Out();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Out> final : std::true_type {};
+
+struct IntegerLiteral : public rq::SimpleBuiltin {
+  using Self = rq::IntegerLiteral;
+
+  inline explicit IntegerLiteral();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::IntegerLiteral> final : std::true_type {};
+
+struct FloatLiteral : public rq::SimpleBuiltin {
+  using Self = rq::FloatLiteral;
+
+  inline explicit FloatLiteral();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::FloatLiteral> final : std::true_type {};
+
+struct StringLiteral : public rq::SimpleBuiltin {
+  using Self = rq::StringLiteral;
+
+  inline explicit StringLiteral();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::StringLiteral> final : std::true_type {};
+
+struct CodeunitLiteral : public rq::SimpleBuiltin {
+  using Self = rq::CodeunitLiteral;
+
+  inline explicit CodeunitLiteral();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::CodeunitLiteral> final : std::true_type {};
 
 struct Inference final : public rq::SimpleBuiltin {
   using Self = rq::Inference;
@@ -971,6 +1016,15 @@ struct StringConstraint final : public rq::SimpleBuiltin {
 };
 
 template <> struct is_acquired<rq::StringConstraint> final : std::true_type {};
+
+struct InterpolatedStringConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::InterpolatedStringConstraint;
+
+  inline explicit InterpolatedStringConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::InterpolatedStringConstraint> final : std::true_type {};
 
 struct Char final : public rq::SimpleBuiltin {
   using Self = rq::Char;

@@ -83,6 +83,10 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::BinaryInstruction *_first_unused_binary_instruction_ptr{nullptr};
     rq::Result _result{};
     rq::Out _out{};
+    rq::IntegerLiteral _integer_literal{};
+    rq::FloatLiteral _float_literal{};
+    rq::StringLiteral _string_literal{};
+    rq::CodeunitLiteral _codeunit_literal{};
     rq::Inference _inference{};
     rq::SymbolConstraint _symbol_constraint{};
     rq::TypeConstraint _type_constraint{};
@@ -109,6 +113,7 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::UnsignedIntegerConstraint _unsigned_integer_constraint{};
     rq::CodeunitConstraint _codeunit_constraint{};
     rq::StringConstraint _string_constraint{};
+    rq::InterpolatedStringConstraint _interpolated_string_constraint{};
     rq::Char _char{};
     rq::Ascii _ascii{};
     rq::Utf8 _utf8{};
@@ -327,6 +332,18 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Out &acquireOut() {
     return this->acquired._out;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteral &acquireIntegerLiteral() {
+    return this->acquired._integer_literal;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteral &acquireFloatLiteral() {
+    return this->acquired._float_literal;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteral &acquireStringLiteral() {
+    return this->acquired._string_literal;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteral &acquireCodeunitLiteral() {
+    return this->acquired._codeunit_literal;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Inference &acquireInference() {
     return this->acquired._inference;
   }
@@ -415,6 +432,10 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StringConstraint &
   acquireStringConstraint() {
     return this->acquired._string_constraint;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterpolatedStringConstraint &
+  acquireInterpolatedStringConstraint() {
+    return this->acquired._interpolated_string_constraint;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Char &acquireChar() {
     return this->acquired._char;
@@ -702,12 +723,15 @@ struct Context final : public rq::BumpPtrAllocator {
     this->acquired._string_constant_set.InsertNode(&new_type, insert_pos);
     return new_type;
   }
-  [[nodiscard]] rq::NullaryInstruction &acquireNullaryInstruction(rq::Opcode opcode);
-  void discardInstruction(rq::NullaryInstruction& instruction);
-  [[nodiscard]] rq::UnaryInstruction &acquireUnaryInstruction(rq::Opcode opcode);
-  void discardInstruction(rq::UnaryInstruction& instruction);
-  [[nodiscard]] rq::BinaryInstruction &acquireBinaryInstruction(rq::Opcode opcode);
-  void discardInstruction(rq::BinaryInstruction& instruction);
+  [[nodiscard]] rq::NullaryInstruction &
+  acquireNullaryInstruction(rq::Opcode opcode);
+  void discardInstruction(rq::NullaryInstruction &instruction);
+  [[nodiscard]] rq::UnaryInstruction &
+  acquireUnaryInstruction(rq::Opcode opcode);
+  void discardInstruction(rq::UnaryInstruction &instruction);
+  [[nodiscard]] rq::BinaryInstruction &
+  acquireBinaryInstruction(rq::Opcode opcode);
+  void discardInstruction(rq::BinaryInstruction &instruction);
   [[nodiscard]] rq::TypeConstant &acquireEntrySignature();
 };
 

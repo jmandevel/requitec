@@ -11,6 +11,14 @@ namespace rq {
     return "sy_result";
   case O::SY_OUT:
     return "sy_out";
+  case O::SY_INTEGER_LITERAL:
+    return "sy_integer_literal";
+  case O::SY_FLOAT_LITERAL:
+    return "sy_float_literal";
+  case O::SY_STRING_LITERAL:
+    return "sy_string_literal";
+  case O::SY_CODEUNIT_LITERAL:
+    return "sy_codeunit_literal";
   case O::SY_INFERENCE:
     return "sy_inference";
   case O::SY_SYMBOL_CONSTRAINT:
@@ -54,7 +62,7 @@ namespace rq {
   case O::SY_BINARY128:
     return "sy_binary128";
   case O::SY_BFLOAT16:
-    return "sy_Bfloat16";
+    return "sy_bfloat16";
   case O::SY_INTEGER_CONSTRAINT:
     return "sy_integer_constraint";
   case O::SY_SIGNED_INTEGER_CONSTRAINT:
@@ -65,6 +73,8 @@ namespace rq {
     return "sy_codeunit_constraint";
   case O::SY_STRING_CONSTRAINT:
     return "sy_string_constraint";
+  case O::SY_INTERPOLATED_STRING_CONSTRAINT:
+    return "sy_interpolated_string_constraint";
   case O::SY_CHAR:
     return "sy_char";
   case O::SY_ASCII:
@@ -312,6 +322,14 @@ namespace rq {
     return OF::SYMBOL;
   case O::SY_OUT:
     return OF::SYMBOL;
+  case O::SY_INTEGER_LITERAL:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_LITERAL;
+  case O::SY_FLOAT_LITERAL:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_LITERAL;
+  case O::SY_STRING_LITERAL:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_LITERAL;
+  case O::SY_CODEUNIT_LITERAL:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_LITERAL;
   case O::SY_INFERENCE:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
   case O::SY_SYMBOL_CONSTRAINT:
@@ -382,6 +400,8 @@ namespace rq {
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
            OF::SY_CONSTRAINT | OF::SY_CODEUNIT;
   case O::SY_STRING_CONSTRAINT:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
+  case O::SY_INTERPOLATED_STRING_CONSTRAINT:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
   case O::SY_CHAR:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CODEUNIT |
@@ -1427,22 +1447,53 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
   return rq::getIsSymbol(rq::dereferencePtr(entity).getOpcode());
 }
 
-inline Result::Result() : Symbol(rq::Opcode::SY_RESULT) {}
+inline SimpleBuiltin::SimpleBuiltin(rq::Opcode opcode) : Symbol(opcode) {}
+
+[[nodiscard]] inline bool SimpleBuiltin::classof(const Entity *entity) {
+  return rq::getIsSimpleBuiltin(rq::dereferencePtr(entity).getOpcode());
+}
+
+inline Result::Result() : SimpleBuiltin(rq::Opcode::SY_RESULT) {}
 
 [[nodiscard]] inline bool Result::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RESULT;
 }
 
-inline Out::Out() : Symbol(rq::Opcode::SY_OUT) {}
+inline Out::Out() : SimpleBuiltin(rq::Opcode::SY_OUT) {}
 
 [[nodiscard]] inline bool Out::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_OUT;
 }
 
-inline SimpleBuiltin::SimpleBuiltin(rq::Opcode opcode) : Symbol(opcode) {}
+inline IntegerLiteral::IntegerLiteral()
+    : SimpleBuiltin(rq::Opcode::SY_INTEGER_LITERAL) {}
 
-[[nodiscard]] inline bool SimpleBuiltin::classof(const Entity *entity) {
-  return rq::getIsSimpleBuiltin(rq::dereferencePtr(entity).getOpcode());
+[[nodiscard]] inline bool IntegerLiteral::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_INTEGER_LITERAL;
+}
+
+inline FloatLiteral::FloatLiteral()
+    : SimpleBuiltin(rq::Opcode::SY_FLOAT_LITERAL) {}
+
+[[nodiscard]] inline bool FloatLiteral::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_FLOAT_LITERAL;
+}
+
+inline StringLiteral::StringLiteral()
+    : SimpleBuiltin(rq::Opcode::SY_STRING_LITERAL) {}
+
+[[nodiscard]] inline bool StringLiteral::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_STRING_LITERAL;
+}
+
+inline CodeunitLiteral::CodeunitLiteral()
+    : SimpleBuiltin(rq::Opcode::SY_CODEUNIT_LITERAL) {}
+
+[[nodiscard]] inline bool CodeunitLiteral::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_CODEUNIT_LITERAL;
 }
 
 inline Inference::Inference() : SimpleBuiltin(rq::Opcode::SY_INFERENCE) {}
@@ -1633,6 +1684,15 @@ inline StringConstraint::StringConstraint()
 [[nodiscard]] inline bool StringConstraint::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_STRING_CONSTRAINT;
+}
+
+inline InterpolatedStringConstraint::InterpolatedStringConstraint()
+    : SimpleBuiltin(rq::Opcode::SY_INTERPOLATED_STRING_CONSTRAINT) {}
+
+[[nodiscard]] inline bool
+InterpolatedStringConstraint::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_INTERPOLATED_STRING_CONSTRAINT;
 }
 
 inline Char::Char() : SimpleBuiltin(rq::Opcode::SY_CHAR) {}
