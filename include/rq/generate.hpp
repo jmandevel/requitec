@@ -92,15 +92,6 @@ struct Generator final {
   determineContainingTable(const rq::ExpressionFlagsFactory &factory,
                            const rq::Expression &unascribed,
                            rq::SymbolTable &hosting_table, rq::Module &module);
-  [[nodiscard]] rq::Entity *evaluateValue(const rq::Expression &expression,
-                                          rq::TypeConstant &type,
-                                          rq::SymbolTable &hosting_table);
-  [[nodiscard]] rq::Symbol *evaluateSymbol(const rq::Expression &path,
-                                           rq::SymbolTable &hosting_table,
-                                           rq::Module &module);
-  [[nodiscard]] rq::TypeConstant *evaluateType(const rq::Expression &path,
-                                               rq::SymbolTable &hosting_table,
-                                               rq::Module &module);
   [[nodiscard]] rq::TypeConstant *
   inferenceType(const rq::Expression &type_expression,
                 rq::SymbolTable &hosting_table, rq::Module &module);

@@ -129,6 +129,16 @@ namespace rq {
     return "sy_label";
   case O::SY_SYNONYM:
     return "sy_synonym";
+  case O::SY_LOCAL_VARIABLE:
+    return "sy_local_variable";
+  case O::SY_ENUMERATOR:
+    return "sy_enumerator";
+  case O::SY_CATEGORY_ALTERNATIVE:
+    return "sy_category_alternative";
+  case O::SY_STATIC_VARIABLE:
+    return "sy_static_variable";
+  case O::SY_GLOBAL_VARIABLE:
+    return "sy_global_variable";
   case O::SY_TOP:
     return "sy_top";
   case O::SY_SCOPE:
@@ -138,19 +148,9 @@ namespace rq {
   case O::SY_CLASS:
     return "sy_class";
   case O::SY_ENUMERATION:
-    return "sy_enumeration";
+    return "sy_class";
   case O::SY_CATEGORY:
     return "sy_category";
-  case O::SY_GLOBAL_VARIABLE:
-    return "sy_global_variable";
-  case O::SY_LOCAL_VARIABLE:
-    return "sy_local_variable";
-  case O::SY_STATIC_VARIABLE:
-    return "sy_static_variable";
-  case O::SY_ENUMERATOR:
-    return "sy_enumerator";
-  case O::SY_CATEGORY_ALTERNATIVE:
-    return "sy_category_alternative";
   case O::SY_ENTRY:
     return "sy_entry";
   case O::SY_FUNCTION:
@@ -467,6 +467,16 @@ namespace rq {
     return OF::SYMBOL;
   case O::SY_SYNONYM:
     return OF::SYMBOL | OF::SY_TYPE;
+  case O::SY_LOCAL_VARIABLE:
+    return OF::SYMBOL;
+  case O::SY_ENUMERATOR:
+    return OF::SYMBOL | OF::SY_TYPE;
+  case O::SY_CATEGORY_ALTERNATIVE:
+    return OF::SYMBOL;
+  case O::SY_STATIC_VARIABLE:
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case O::SY_GLOBAL_VARIABLE:
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_TOP:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TOP_OF_FRAME;
   case O::SY_SCOPE:
@@ -482,17 +492,6 @@ namespace rq {
   case O::SY_CATEGORY:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TYPE |
            OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_GLOBAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_DYNAMIC_VARIABLE |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_LOCAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_DYNAMIC_VARIABLE;
-  case O::SY_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_ENUMERATOR:
-    return OF::SYMBOL | OF::SY_TYPE;
-  case O::SY_CATEGORY_ALTERNATIVE:
-    return OF::SYMBOL;
   case O::SY_ENTRY:
     return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME;
   case O::SY_FUNCTION:
@@ -715,12 +714,6 @@ getIsParameterListSubtype(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_ARITHMETIC_SEQUENCE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_DYNAMIC_VARIABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode) {
@@ -2864,47 +2857,14 @@ Category::setDiscriminantTypeExpression(const rq::Expression &type_expression) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CATEGORY;
 }
 
-inline DynamicVariable::DynamicVariable(rq::Opcode opcode, llvm::StringRef name,
-                                        const rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::SymbolTable &containing_table)
-    : Symbol(opcode), InitialExpression(expression),
-      InitialExpressionFlags(attributes), InitialModuleMember(module),
-      SymbolTableMember(containing_table), InitialNamed(name) {
-  RQ_ASSERT(rq::getIsDynamicVariable(opcode), "not dynamic variable");
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool DynamicVariable::getHasType() const {
-  return this->_type_ptr != nullptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-DynamicVariable::getType() const {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-RQ_ALWAYS_INLINE void
-DynamicVariable::setTypeExpression(const rq::Expression &expression) {
-  rq::assignSingleValue(this->_type_expression_ptr, &expression);
-}
-
-RQ_ALWAYS_INLINE void
-DynamicVariable::setValueExpression(const rq::Expression &expression_ptr) {
-  rq::assignSingleValue(this->_value_expression_ptr, &expression_ptr);
-}
-
-[[nodiscard]] inline bool DynamicVariable::classof(const Entity *entity) {
-  return rq::getIsDynamicVariable(rq::dereferencePtr(entity).getOpcode());
-}
-
 inline LocalVariable::LocalVariable(llvm::StringRef name,
                                     const rq::Expression &expression,
                                     rq::ExpressionFlags attributes,
                                     rq::Module &module,
                                     rq::SymbolTable &containing_table)
-    : DynamicVariable(rq::Opcode::SY_LOCAL_VARIABLE, name, expression,
-                      attributes, module, containing_table) {}
+    : Symbol(rq::Opcode::SY_LOCAL_VARIABLE), InitialExpression(expression),
+      InitialExpressionFlags(attributes), InitialModuleMember(module),
+      SymbolTableMember(containing_table), InitialNamed(name) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool LocalVariable::getIsIndeterminate() const {
   return this->_is_indeterminate;
@@ -2917,66 +2877,28 @@ RQ_ALWAYS_INLINE void LocalVariable::setNotIndeterminate() {
   this->_is_indeterminate = false;
 }
 
-[[nodiscard]] inline bool LocalVariable::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_LOCAL_VARIABLE;
-}
-
-inline GlobalVariable::GlobalVariable(llvm::StringRef name,
-                                      const rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::SymbolTable &containing_table,
-                                      rq::SymbolTable &hosting_table)
-    : DynamicVariable(rq::Opcode::SY_GLOBAL_VARIABLE, name, expression,
-                      attributes, module, containing_table),
-      SymbolTableHosted(hosting_table) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getIsImplemented() const {
-  return this->_is_implemented;
-}
-
-RQ_ALWAYS_INLINE void GlobalVariable::setIsImplemented() {
-  RQ_ASSERT(!this->_is_implemented, "already implemented");
-  this->_is_implemented = true;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getHasType() const {
+[[nodiscard]] RQ_ALWAYS_INLINE bool LocalVariable::getHasType() const {
   return this->_type_ptr != nullptr;
 }
 
-RQ_ALWAYS_INLINE void GlobalVariable::setType(rq::TypeConstant &type) {
-  rq::assignSingleValue(this->_type_ptr, &type);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-GlobalVariable::getType() const {
+LocalVariable::getType() const {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &GlobalVariable::getType() {
-  return rq::dereferencePtr(this->_type_ptr);
+RQ_ALWAYS_INLINE void
+LocalVariable::setTypeExpression(const rq::Expression &expression) {
+  rq::assignSingleValue(this->_type_expression_ptr, &expression);
 }
 
-[[nodiscard]] inline bool GlobalVariable::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_GLOBAL_VARIABLE;
+RQ_ALWAYS_INLINE void
+LocalVariable::setValueExpression(const rq::Expression &expression_ptr) {
+  rq::assignSingleValue(this->_value_expression_ptr, &expression_ptr);
 }
 
-inline StaticVariable::StaticVariable(llvm::StringRef name,
-                                      rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::SymbolTable &containing_table,
-                                      rq::SymbolTable &hosting_table)
-    : Symbol(rq::Opcode::SY_STATIC_VARIABLE), InitialExpression(expression),
-      InitialExpressionFlags(attributes), InitialModuleMember(module),
-      SymbolTableMember(containing_table), SymbolTableHosted(hosting_table),
-      InitialNamed(name) {}
-
-[[nodiscard]] inline bool StaticVariable::classof(const Entity *entity) {
+[[nodiscard]] inline bool LocalVariable::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_STATIC_VARIABLE;
+         rq::Opcode::SY_LOCAL_VARIABLE;
 }
 
 inline Enumerator::Enumerator(llvm::StringRef name, rq::Expression &expression,
@@ -3006,6 +2928,102 @@ inline CategoryAlternative::CategoryAlternative(rq::Code &code,
 [[nodiscard]] inline bool CategoryAlternative::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_CATEGORY_ALTERNATIVE;
+}
+
+inline StaticVariable::StaticVariable(llvm::StringRef name,
+                                      const rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::SymbolTable &containing_table)
+    : SymbolTable(rq::Opcode::SY_STATIC_VARIABLE, containing_table),
+      InitialExpression(expression), InitialExpressionFlags(attributes),
+      InitialModuleMember(module), InitialNamed(name), _is_indeterminate(true),
+      _type_ptr(nullptr), _type_expression_ptr(nullptr),
+      _value_expression_ptr(nullptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool StaticVariable::getIsIndeterminate() const {
+  return this->_is_indeterminate;
+}
+
+RQ_ALWAYS_INLINE void StaticVariable::setNotIndeterminate() {
+  this->_is_indeterminate = false;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool StaticVariable::getHasType() const {
+  return this->_type_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+StaticVariable::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+StaticVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+StaticVariable::setTypeExpression(const rq::Expression &expression) {
+  this->_type_expression_ptr = &expression;
+}
+
+RQ_ALWAYS_INLINE void
+StaticVariable::setValueExpression(const rq::Expression &expression) {
+  this->_value_expression_ptr = &expression;
+}
+
+[[nodiscard]] inline bool StaticVariable::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_STATIC_VARIABLE;
+}
+
+inline GlobalVariable::GlobalVariable(llvm::StringRef name,
+                                      const rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::SymbolTable &containing_table)
+    : SymbolTable(rq::Opcode::SY_GLOBAL_VARIABLE, containing_table),
+      InitialExpression(expression), InitialExpressionFlags(attributes),
+      InitialModuleMember(module), InitialNamed(name), _type_ptr(nullptr),
+      _type_expression_ptr(nullptr), _value_expression_ptr(nullptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getIsImplemented() const {
+  return this->_is_implemented;
+}
+
+RQ_ALWAYS_INLINE void GlobalVariable::setIsImplemented() {
+  RQ_ASSERT(!this->_is_implemented, "already implemented");
+  this->_is_implemented = true;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getHasType() const {
+  return this->_type_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+GlobalVariable::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+GlobalVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+GlobalVariable::setTypeExpression(const rq::Expression &expression) {
+  this->_type_expression_ptr = &expression;
+}
+
+RQ_ALWAYS_INLINE void
+GlobalVariable::setValueExpression(const rq::Expression &expression) {
+  this->_value_expression_ptr = &expression;
+}
+
+[[nodiscard]] inline bool GlobalVariable::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_GLOBAL_VARIABLE;
 }
 
 inline Procedure::Procedure(rq::Opcode opcode, llvm::StringRef name,

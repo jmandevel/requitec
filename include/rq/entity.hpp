@@ -127,22 +127,20 @@ enum class Opcode : std::uint16_t {
   SY_CATEGORY_DISCRIMINANT, // underlying type of category code
   SY_LABEL,
   SY_SYNONYM,
+  SY_LOCAL_VARIABLE,
+  SY_ENUMERATOR,
+  SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
+                           // maybe a value type
 
   // SYMBOL TABLE
+  SY_STATIC_VARIABLE,
+  SY_GLOBAL_VARIABLE,
   SY_TOP,
   SY_SCOPE,
   SY_NAMESPACE,
   SY_CLASS,
   SY_ENUMERATION,
   SY_CATEGORY,
-
-  // BINDING
-  SY_GLOBAL_VARIABLE,
-  SY_LOCAL_VARIABLE,
-  SY_STATIC_VARIABLE,
-  SY_ENUMERATOR,
-  SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
-                           // maybe a value type
 
   // PROCEDURE
   SY_ENTRY,
@@ -311,25 +309,24 @@ enum class OpcodeFlags : std::uint32_t {
   SY_PARAMETER = rq::getBit(6),
   SY_PARAMETER_LIST_SUBTYPE = rq::getBit(7),
   SY_ARITHMETIC_SEQUENCE = rq::getBit(8),
-  SY_DYNAMIC_VARIABLE = rq::getBit(9),
-  SY_SYMBOL_TABLE = rq::getBit(10),
-  SY_PROCEDURE = rq::getBit(11),
-  SY_TEMPLATE = rq::getBit(12),
-  SY_PARTIAL = rq::getBit(13),
+  SY_SYMBOL_TABLE = rq::getBit(9),
+  SY_PROCEDURE = rq::getBit(10),
+  SY_TEMPLATE = rq::getBit(11),
+  SY_PARTIAL = rq::getBit(12),
   // SYMBOL INFO PROPERTIES - have no data associated
-  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(15),
-  SY_TYPE = rq::getBit(16),
-  SY_SUBTYPE = rq::getBit(17),
-  SY_CONSTRAINT = rq::getBit(18),
-  SY_LITERAL = rq::getBit(2),
-  SY_PLATFORM_CHANGING = rq::getBit(19),
-  SY_INTEGER = rq::getBit(20),
-  SY_FLOAT = rq::getBit(21),
-  SY_BINARY = rq::getBit(22),
-  SY_CODEUNIT = rq::getBit(23),
-  SY_SIGNED = rq::getBit(24),
-  SY_UNSIGNED = rq::getBit(25),
-  SY_TOP_OF_FRAME = rq::getBit(26),
+  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(13),
+  SY_TYPE = rq::getBit(14),
+  SY_SUBTYPE = rq::getBit(15),
+  SY_CONSTRAINT = rq::getBit(16),
+  SY_LITERAL = rq::getBit(17),
+  SY_PLATFORM_CHANGING = rq::getBit(18),
+  SY_INTEGER = rq::getBit(19),
+  SY_FLOAT = rq::getBit(20),
+  SY_BINARY = rq::getBit(21),
+  SY_CODEUNIT = rq::getBit(22),
+  SY_SIGNED = rq::getBit(23),
+  SY_UNSIGNED = rq::getBit(24),
+  SY_TOP_OF_FRAME = rq::getBit(25),
 
   // CONSTANT FLAGS
   // TODO
@@ -361,7 +358,6 @@ template <> struct is_flags<OpcodeFlags> : std::true_type {};
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsParameterListSubtype(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamicVariable(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode);
@@ -461,13 +457,12 @@ struct Code;
 struct CategoryDiscriminant;
 struct Label;
 struct Synonym;
-struct DynamicVariable;
-struct GlobalVariable;
 struct LocalVariable;
-struct StaticVariable;
 struct Enumerator;
 struct CategoryAlternative;
 struct SymbolTable;
+struct StaticVariable;
+struct GlobalVariable;
 struct Top;
 struct Scope;
 struct Namespace;
@@ -1024,7 +1019,8 @@ struct InterpolatedStringConstraint final : public rq::SimpleBuiltin {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-template <> struct is_acquired<rq::InterpolatedStringConstraint> final : std::true_type {};
+template <>
+struct is_acquired<rq::InterpolatedStringConstraint> final : std::true_type {};
 
 struct Char final : public rq::SimpleBuiltin {
   using Self = rq::Char;
@@ -1599,6 +1595,69 @@ template <> struct is_acquired<rq::Synonym> final : std::true_type {};
 template <>
 struct is_acquired<rq::CategoryAlternative> final : std::true_type {};
 
+struct LocalVariable : public rq::Symbol,
+                       public rq::InitialExpression,
+                       public rq::InitialExpressionFlags,
+                       public rq::InitialModuleMember,
+                       public rq::SymbolTableMember,
+                       public rq::InitialNamed {
+  using Self = rq::LocalVariable;
+
+  bool _is_indeterminate : 1 {true};
+  rq::TypeConstant *_type_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
+  inline explicit LocalVariable(llvm::StringRef name,
+                                const rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module,
+                                rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
+  RQ_ALWAYS_INLINE void setNotIndeterminate();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression &expression_ptr);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct Enumerator : public rq::Symbol,
+                    public rq::InitialExpression,
+                    public rq::InitialExpressionFlags,
+                    public rq::InitialModuleMember,
+                    public rq::SymbolTableMember,
+                    public rq::SymbolTableHosted,
+                    public rq::InitialNamed {
+  using Self = rq::Enumerator;
+
+  inline explicit Enumerator(llvm::StringRef name, rq::Expression &expression,
+                             rq::ExpressionFlags attributes, rq::Module &module,
+                             rq::SymbolTable &containing_table,
+                             rq::SymbolTable &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Enumerator> final : std::true_type {};
+
+struct CategoryAlternative : public rq::Symbol,
+                             public rq::InitialExpression,
+                             public rq::InitialExpressionFlags,
+                             public rq::InitialModuleMember,
+                             public rq::SymbolTableMember {
+  using Self = rq::CategoryAlternative;
+
+  rq::Code *_code_ptr;
+
+  inline explicit CategoryAlternative(rq::Code &code, rq::Category &category,
+                                      rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
 struct SymbolTableIterator final {
   using Self = rq::SymbolTableIterator;
   using value_type = rq::SymbolTable;
@@ -1745,6 +1804,62 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
 
 template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
 
+struct StaticVariable : public rq::SymbolTable,
+                        public rq::InitialExpression,
+                        public rq::InitialExpressionFlags,
+                        public rq::InitialModuleMember,
+                        public rq::InitialNamed {
+  using Self = rq::StaticVariable;
+
+  bool _is_indeterminate : 1 {true};
+  rq::TypeConstant *_type_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
+  inline explicit StaticVariable(llvm::StringRef name,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
+  RQ_ALWAYS_INLINE void setNotIndeterminate();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression &expression_ptr);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct GlobalVariable : public rq::SymbolTable,
+                        public rq::InitialExpression,
+                        public rq::InitialExpressionFlags,
+                        public rq::InitialModuleMember,
+                        public rq::InitialNamed {
+  using Self = rq::GlobalVariable;
+
+  bool _is_implemented : 1 {false};
+  rq::TypeConstant *_type_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
+  inline explicit GlobalVariable(llvm::StringRef name,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression &expression_ptr);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
 struct Top : public rq::SymbolTable {
   using Self = rq::Top;
 
@@ -1836,125 +1951,6 @@ struct Category : public rq::SymbolTable,
   RQ_ALWAYS_INLINE void setIsImplemented();
   RQ_ALWAYS_INLINE void
   setDiscriminantTypeExpression(const rq::Expression &type_expression);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct DynamicVariable : public rq::Symbol,
-                         public rq::InitialExpression,
-                         public rq::InitialExpressionFlags,
-                         public rq::InitialModuleMember,
-                         public rq::SymbolTableMember,
-                         public rq::InitialNamed {
-  using Self = rq::DynamicVariable;
-
-  rq::TypeConstant *_type_ptr{nullptr};
-  const rq::Expression *_type_expression_ptr{nullptr};
-  const rq::Expression *_value_expression_ptr{nullptr};
-
-  inline explicit DynamicVariable(rq::Opcode opcode, llvm::StringRef name,
-                                  const rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::SymbolTable &containing_table);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
-  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
-  RQ_ALWAYS_INLINE void
-  setValueExpression(const rq::Expression &expression_ptr);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-template <>
-struct is_parent_only<rq::DynamicVariable> final : std::true_type {};
-
-struct LocalVariable : public rq::DynamicVariable {
-  using Self = rq::LocalVariable;
-
-  bool _is_indeterminate : 1 {true};
-
-  inline explicit LocalVariable(llvm::StringRef name,
-                                const rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::SymbolTable &containing_table);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
-  RQ_ALWAYS_INLINE void setNotIndeterminate();
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct GlobalVariable : public rq::DynamicVariable,
-                        public rq::SymbolTableHosted {
-  using Self = rq::GlobalVariable;
-
-  bool _is_implemented : 1 {false};
-  rq::TypeConstant *_type_ptr;
-
-  inline explicit GlobalVariable(llvm::StringRef name,
-                                 const rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::SymbolTable &containing_table,
-                                 rq::SymbolTable &hosting_table);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
-  RQ_ALWAYS_INLINE void setIsImplemented();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
-  RQ_ALWAYS_INLINE void setType(rq::TypeConstant &type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getType();
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct StaticVariable : public rq::Symbol,
-                        public rq::InitialExpression,
-                        public rq::InitialExpressionFlags,
-                        public rq::InitialModuleMember,
-                        public rq::SymbolTableMember,
-                        public rq::SymbolTableHosted,
-                        public rq::InitialNamed {
-  using Self = rq::StaticVariable;
-
-  inline explicit StaticVariable(llvm::StringRef name,
-                                 rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::SymbolTable &containing_table,
-                                 rq::SymbolTable &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-template <> struct is_acquired<rq::StaticVariable> final : std::true_type {};
-
-struct Enumerator : public rq::Symbol,
-                    public rq::InitialExpression,
-                    public rq::InitialExpressionFlags,
-                    public rq::InitialModuleMember,
-                    public rq::SymbolTableMember,
-                    public rq::SymbolTableHosted,
-                    public rq::InitialNamed {
-  using Self = rq::Enumerator;
-
-  inline explicit Enumerator(llvm::StringRef name, rq::Expression &expression,
-                             rq::ExpressionFlags attributes, rq::Module &module,
-                             rq::SymbolTable &containing_table,
-                             rq::SymbolTable &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-template <> struct is_acquired<rq::Enumerator> final : std::true_type {};
-
-struct CategoryAlternative : public rq::Symbol,
-                             public rq::InitialExpression,
-                             public rq::InitialExpressionFlags,
-                             public rq::InitialModuleMember,
-                             public rq::SymbolTableMember {
-  using Self = rq::CategoryAlternative;
-
-  rq::Code *_code_ptr;
-
-  inline explicit CategoryAlternative(rq::Code &code, rq::Category &category,
-                                      rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 

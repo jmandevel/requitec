@@ -92,7 +92,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
       rq::GlobalVariable &variable =
           this->getContext().allocateValue<rq::GlobalVariable>(
               name, unascribed_expression, factory.getFlags(), module,
-              containing_table, hosting_table);
+              containing_table);
       variable.setTypeExpression(type_expression);
       variable.setValueExpression(rvalue_expression);
       containing_table.addNamedSymbol(this->getContext(), name, variable);
@@ -808,125 +808,108 @@ Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
                                     const rq::Expression &unascribed_expression,
                                     rq::SymbolTable &hosting_table,
                                     rq::Module &module) {
-  if (factory.getHasOutside()) {
-    const rq::Expression &outside_expression = factory.getOutside();
-    const rq::Expression &path_expression = outside_expression.getBranch();
-    rq::Symbol *outside_ptr =
-        this->evaluateSymbol(path_expression, hosting_table, module);
-    if (outside_ptr == nullptr) {
-      this->getContext().logErrorNotSymbol(path_expression);
-      this->getContext().logErrorFailedToAscribeExpression(
-          unascribed_expression, outside_expression);
-      this->setNotOk();
-      return hosting_table;
-    }
-    rq::Symbol &outside = rq::dereferencePtr(outside_ptr);
-    if (!llvm::isa<rq::Label>(outside)) {
-      this->getContext().logErrorNotLabel(path_expression);
-      this->getContext().logErrorFailedToAscribeExpression(
-          unascribed_expression, outside_expression);
-      this->setNotOk();
-      return hosting_table;
-    }
-    rq::Label &label = llvm::cast<rq::Label>(outside);
-    rq::Entity &subject = label.getSubject();
-    if (!llvm::isa<rq::SymbolTable>(subject)) {
-      const rq::Expression &label_ascription = label.getAscription();
-      this->getContext().logErrorLabelSubjectNotSymbolTable(label_ascription);
-      this->getContext().logErrorFailedToAscribeExpression(
-          unascribed_expression, outside_expression);
-      this->setNotOk();
-      return hosting_table;
-    }
-    rq::SymbolTable &subject_symbol_table =
-        llvm::cast<rq::SymbolTable>(subject);
-    rq::SymbolTable &containing_table =
-        subject_symbol_table.getContainingSymbolTable();
-    {
-      bool left_frame = false;
-      for (rq::SymbolTable &table :
-           subject_symbol_table.getInclusiveFrameSubrange()) {
-        if (table == containing_table) {
-          if (left_frame) {
-            this->getContext().logErrorOutsideNotInFrame(outside_expression);
-            this->getContext().logErrorFailedToAscribeExpression(
-                unascribed_expression, outside_expression);
-            this->setNotOk();
-            return hosting_table;
-          }
-          return containing_table;
-        }
-        if (table.getIsTopOfFrame()) {
-          left_frame = true;
-        }
-      }
-      this->getContext().logErrorOutsideNotAncestor(outside_expression);
-      this->getContext().logErrorFailedToAscribeExpression(
-          unascribed_expression, outside_expression);
-      this->setNotOk();
-    }
-  }
+  std::ignore = factory;
+  std::ignore = unascribed_expression;
+  std::ignore = module;
+  // if (factory.getHasOutside()) {
+  //   const rq::Expression &outside_expression = factory.getOutside();
+  //   const rq::Expression &path_expression = outside_expression.getBranch();
+  //   rq::Symbol *outside_ptr =
+  //       this->evaluateSymbol(path_expression, hosting_table, module);
+  //   if (outside_ptr == nullptr) {
+  //     this->getContext().logErrorNotSymbol(path_expression);
+  //     this->getContext().logErrorFailedToAscribeExpression(
+  //         unascribed_expression, outside_expression);
+  //     this->setNotOk();
+  //     return hosting_table;
+  //   }
+  //   rq::Symbol &outside = rq::dereferencePtr(outside_ptr);
+  //   if (!llvm::isa<rq::Label>(outside)) {
+  //     this->getContext().logErrorNotLabel(path_expression);
+  //     this->getContext().logErrorFailedToAscribeExpression(
+  //         unascribed_expression, outside_expression);
+  //     this->setNotOk();
+  //     return hosting_table;
+  //   }
+  //   rq::Label &label = llvm::cast<rq::Label>(outside);
+  //   rq::Entity &subject = label.getSubject();
+  //   if (!llvm::isa<rq::SymbolTable>(subject)) {
+  //     const rq::Expression &label_ascription = label.getAscription();
+  //     this->getContext().logErrorLabelSubjectNotSymbolTable(label_ascription);
+  //     this->getContext().logErrorFailedToAscribeExpression(
+  //         unascribed_expression, outside_expression);
+  //     this->setNotOk();
+  //     return hosting_table;
+  //   }
+  //   rq::SymbolTable &subject_symbol_table =
+  //       llvm::cast<rq::SymbolTable>(subject);
+  //   rq::SymbolTable &containing_table =
+  //       subject_symbol_table.getContainingSymbolTable();
+  //   {
+  //     bool left_frame = false;
+  //     for (rq::SymbolTable &table :
+  //          subject_symbol_table.getInclusiveFrameSubrange()) {
+  //       if (table == containing_table) {
+  //         if (left_frame) {
+  //           this->getContext().logErrorOutsideNotInFrame(outside_expression);
+  //           this->getContext().logErrorFailedToAscribeExpression(
+  //               unascribed_expression, outside_expression);
+  //           this->setNotOk();
+  //           return hosting_table;
+  //         }
+  //         return containing_table;
+  //       }
+  //       if (table.getIsTopOfFrame()) {
+  //         left_frame = true;
+  //       }
+  //     }
+  //     this->getContext().logErrorOutsideNotAncestor(outside_expression);
+  //     this->getContext().logErrorFailedToAscribeExpression(
+  //         unascribed_expression, outside_expression);
+  //     this->setNotOk();
+  //   }
+  // }
   return hosting_table;
-}
-
-[[nodiscard]] rq::Entity *
-Generator::evaluateValue(const rq::Expression &expression,
-                         rq::TypeConstant &type,
-                         rq::SymbolTable &hosting_table) {
-  std::ignore = hosting_table;
-  using K = rq::Keyword;
-  switch (expression.getKeyword()) {
-  case K::INTEGER_LITERAL: {
-    rq::Symbol &symbol = type.getSymbol();
-    if (!llvm::isa<rq::ScaledBuiltin>(symbol)) {
-      RQ_TODO_IMPLEMENTATION();
-    }
-    rq::ScaledBuiltin &scaled = llvm::cast<rq::ScaledBuiltin>(symbol);
-    unsigned depth = scaled.getScalar();
-    llvm::APInt ap_value{depth, {}};
-    rq::NumericResultCode code =
-        rq::getNumericValue(expression.getSourceText(), ap_value);
-    if (code != rq::NumericResultCode::OK) {
-      this->getContext().logErrorNumeric(expression, code);
-      this->setNotOk();
-      break;
-    }
-    rq::IntegerConstant &integer =
-        this->getContext().acquireIntegerConstant(ap_value);
-    return &integer;
-    break;
-  }
-  default:
-    RQ_TODO_IMPLEMENTATION();
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] rq::Symbol *Generator::evaluateSymbol(const rq::Expression &path,
-                                                    rq::SymbolTable &table,
-                                                    rq::Module &module) {
-  std::ignore = path;
-  std::ignore = table;
-  std::ignore = module;
-  RQ_TODO_IMPLEMENTATION();
-}
-
-[[nodiscard]] rq::TypeConstant *
-Generator::evaluateType(const rq::Expression &path, rq::SymbolTable &table,
-                        rq::Module &module) {
-  std::ignore = path;
-  std::ignore = table;
-  std::ignore = module;
-  RQ_TODO_IMPLEMENTATION();
 }
 
 [[nodiscard]] rq::TypeConstant *
 Generator::inferenceType(const rq::Expression &type_expression,
                          rq::SymbolTable &hosting_table, rq::Module &module) {
-  std::ignore = type_expression;
-  std::ignore = hosting_table;
   std::ignore = module;
-  RQ_TODO_IMPLEMENTATION();
+  // NOTE: this switch contains anything that can be rvalue situation
+  using K = rq::Keyword;
+  switch (type_expression.getKeyword()) {
+  case K::INTEGER_LITERAL:
+    return &this->getContext().acquireTypeConstant(
+        this->getContext().acquireIntegerLiteral(), {});
+  case K::FLOAT_LITERAL:
+    return &this->getContext().acquireTypeConstant(
+        this->getContext().acquireFloatLiteral(), {});
+  case K::STRING_LITERAL:
+    return &this->getContext().acquireTypeConstant(
+        this->getContext().acquireStringLiteral(), {});
+  case K::CODEUNIT_LITERAL:
+    return &this->getContext().acquireTypeConstant(
+        this->getContext().acquireCodeunitLiteral(), {});
+  case K::IDENTIFIER_LITERAL: {
+    rq::BumpPtrListRef<rq::Symbol> list =
+        hosting_table.getFrameNamedListRef(type_expression.getSourceText());
+    if (list.getIsEmpty()) {
+      this->getContext().logErrorNotSymbol(type_expression);
+      this->setNotOk();
+      return nullptr;
+    }
+    // for (rq::Symbol& symbol : list) {
+    //
+    // }
+    RQ_TODO_IMPLEMENTATION();
+
+    // TODO remove dynamic vars & gibe global & static vars symbol tables
+  }
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
 }
 
 void Generator::implementProcedure(rq::Procedure &procedure) {
