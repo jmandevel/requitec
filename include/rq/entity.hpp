@@ -469,7 +469,7 @@ struct Namespace;
 struct Class;
 struct Enumeration;
 struct Category;
-struct Procdedure;
+struct Procedure;
 struct Entry;
 struct Function;
 struct Method;
