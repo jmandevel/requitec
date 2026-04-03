@@ -1,0 +1,29 @@
+// all function returns must be handled at least with an ignore. there is no way to mark a return as automatically ignorable in a function signature.
+
+[function nodiscard, ()[fast_signed_integer 32],
+    [result] := 0;
+];
+
+[class NoAutoDrop,
+    public
+    [method destroy, ()[void]=>,
+        [this].[drop];
+    ];
+];
+
+[function cannotIgnore, ().NoAutoDrop,
+    [result] := .NoAutoDrop();
+];
+
+[entry
+    // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
+    nodiscard().[ignore]; 
+
+    // .NoAutoDrop does not have auto_drop attribute, so you cannot ignore it.
+    // the following line would cause a compile error if it was not commented:
+    // cannnotIgnore().[ignore];
+    // instead, you need to manually drop the returned value
+    cannotIgnore().[move].destroy(); // move it into destructor method that drops it
+
+    [result] := 0;
+];
