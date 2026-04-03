@@ -1,0 +1,43 @@
+[namespace name,
+    [function func0, ()[void],
+    ];
+
+    [function func0, (int:[fast_signed_integer 32]<)[fast_signed_integer 32],
+    
+    ];
+];
+
+@global @static
+myFuncFromName := name.func0;
+
+[namespace name,
+    [function func0, (float:[single]<)[single],
+        [result] := 0;
+    ];
+];
+
+@global
+global := myFuncFromName(2.[as [single]]);
+
+@auto_drop
+[class MyClass,
+
+    [method func1, ()[void],
+    
+    ];
+
+    [function func1, ()[void],
+    
+    ];
+];
+
+@global @static
+myOtherFunc := myClass.func1;
+
+[entry
+    class := MyClass();
+    class->.myOtherFunc();
+    ,myOtherFunc();
+    MyClass->.myOtherFunc();
+    [result] := 0;
+];

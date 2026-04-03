@@ -7,8 +7,8 @@
     <},
 
     @public
-    [ranger &, [fast_signed_integer 32],
-        [for [this].data, value:=[value], 
+    [ranger each, $ranging ()[fast_signed_integer 32]=>&,
+        [for [this].data, value:=[value].[borrow], 
             [range_over 
                 value
             ];
@@ -51,7 +51,7 @@
 
     // ranger range
     class := MyClass();
-    [for class.[borrow], value:=[value], 
+    [for class.[borrow].each(), value:=[value], 
         .std.print(line="value is {value}");
     ];
 

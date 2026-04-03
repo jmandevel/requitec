@@ -3,6 +3,7 @@
 [namespace foo,
 
     [namespace bar,
+        @global @static
         text := "Hello, world!";    
 
         [function print, ()[void],
