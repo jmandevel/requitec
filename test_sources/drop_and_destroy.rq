@@ -1,15 +1,15 @@
 
-@may_copy
+may_copy
 [class NoAutoDrop,
     // notice how the method does not take the instance by reference
     // this causes it to be linearly assigned (ownership is transfered into the method)
-    @public
+    public
     [method destroy, ()[void]=>, 
         [this].[drop];
     ]
 ];
 
-@auto_drop @may_copy @stable_address
+auto_drop may_copy stable_address
 [class AutoDrop,];
 
 [entry

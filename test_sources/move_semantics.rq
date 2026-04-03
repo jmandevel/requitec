@@ -1,9 +1,9 @@
 [import "std"];
 
-@may_copy @auto_drop @may_copy
+may_copy auto_drop may_copy
 [class MyClass,
 
-  @public
+  public
   [method destroy, ()[void]=>,
     // explicit drop without destroy
     [this].[drop];
@@ -15,9 +15,9 @@
 
 // This class has stable_address attribute, so it cannnot be moved to a new memory address
 // Also it does not have auto_drop attribute, so it must be manually dropped
-@may_copy @stable_address
+may_copy stable_address
 [class MyPinned,
-  @public
+  public
   [method destroy, ()[void]=>,
     // explicit drop without destroy
     [this].[drop];

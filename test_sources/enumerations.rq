@@ -1,6 +1,6 @@
 [import "std"];
 
-@auto_drop @may_copy
+auto_drop may_copy
 [enumeration MyEnum, [fast_unsigned_integer 32],
     APPLE  :[fast_unsigned_integer 32]  = 0;
     ORANGE :[fast_unsigned_integer 32] = 2;

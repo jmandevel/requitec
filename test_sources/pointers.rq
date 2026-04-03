@@ -1,9 +1,12 @@
 [entry
     // if you know C, this should be super easy to understand.
+    // the grave mark in front of type means its mutable (opposite of const in C)
 
+    // mutable single (best floating point type close to binary32 IEEE 754 float)
     var :`[single]= 0;
 
-    var_ptr :`*`[single]= var.[address];
+    // mutable pointer to mutable single
+    var_ptr :`^`[single]= var.[address];
 
     var_ptr.[content] = 1;
 

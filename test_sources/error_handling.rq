@@ -1,14 +1,14 @@
-@message::"divide by 0 error"
+message::"divide by 0 error"
 [code ERROR_DIVIDE_BY_ZERO];
-@message::"no error"
+message::"no error"
 [code OK];
 
 // categories are similar to enumerations, but they have codes for members unstead of named enumerators.
 // in this way, the same code can be used across multiple categories.
-@template::{> Type:[float] <}
-@auto_drop @may_copy
+template::{> Type:[float] <}
+auto_drop @may_copy
 [category DivideResult,
-    @ok .OK : Type; // ok attribute means that this will pass and not fail
+    ok .OK : Type; // ok attribute means that this will pass and not fail
     .ERROR_DIVIDE_BY_ZERO; // has no value associated
 ];
 
