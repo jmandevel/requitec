@@ -32,12 +32,15 @@ global := myFuncFromName(2.[as [single]]);
 ];
 
 @global @static
-myOtherFunc := myClass.func1;
+myExtension := MyClass.func1.[as_extension];
+
+@global @static
+myOtherFunc := MyClass.func1;
 
 [entry
     class := MyClass();
-    class->.myOtherFunc();
-    ,myOtherFunc();
-    MyClass->.myOtherFunc();
+    class->.myExtension(); // call it like an extension method
+    MyClass->.myExtension(); // not callable as extension function
+    .myOtherFunc(); // call it standalone
     [result] := 0;
 ];
