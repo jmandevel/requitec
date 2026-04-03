@@ -372,6 +372,7 @@ enum class Keyword : std::uint32_t {
   OPAQUE,
   OUTSIDE,
   PARTIAL_MUTATE,
+  GLOBAL,
   STATIC,
   CAPTURE,
   CAPTURE_OF,
@@ -1082,6 +1083,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "outside";
   case K::PARTIAL_MUTATE:
     return "partial_mutate";
+  case K::GLOBAL:
+    return "global";
   case K::STATIC:
     return "static";
   case K::CAPTURE:
@@ -1926,6 +1929,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE;
   case K::PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE;
+  case K::GLOBAL:
+    return KF::EXPRESSION_ATTRIBUTE;
   case K::STATIC:
     return KF::EXPRESSION_ATTRIBUTE;
   case K::CAPTURE:
@@ -2649,6 +2654,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   OPAQUE,
   OUTSIDE,
   PARTIAL_MUTATE,
+  GLOBAL,
   STATIC,
   CAPTURE,
   EAGER,
@@ -2679,65 +2685,67 @@ enum class ExpressionAttribute : std::uint_fast8_t {
 [[nodiscard]] inline llvm::StringRef
 getName(rq::ExpressionAttribute attribute) {
   using namespace rq;
-  using SA = ExpressionAttribute;
+  using EA = ExpressionAttribute;
   switch (attribute) {
-  case SA::NONE:
+  case EA::NONE:
     return "none";
-  case SA::OPAQUE:
+  case EA::OPAQUE:
     return "opaque";
-  case SA::OUTSIDE:
+  case EA::OUTSIDE:
     return "outside";
-  case SA::PARTIAL_MUTATE:
+  case EA::PARTIAL_MUTATE:
     return "partial_mutate";
-  case SA::STATIC:
+  case EA::GLOBAL:
+    return "global";
+  case EA::STATIC:
     return "static";
-  case SA::CAPTURE:
+  case EA::CAPTURE:
     return "capture";
-  case SA::EAGER:
+  case EA::EAGER:
     return "eager";
-  case SA::MAY_PARENT:
+  case EA::MAY_PARENT:
     return "may_parent";
-  case SA::PARENT:
+  case EA::PARENT:
     return "parent";
-  case SA::ABSTRACT:
+  case EA::ABSTRACT:
     return "abstract";
-  case SA::VIRTUAL:
+  case EA::VIRTUAL:
     return "virtual";
-  case SA::OVERRIDE:
+  case EA::OVERRIDE:
     return "override";
-  case SA::LOCATION:
+  case EA::LOCATION:
     return "location";
-  case SA::MANGLE:
+  case EA::MANGLE:
     return "mangle";
-  case SA::PACK:
+  case EA::PACK:
     return "pack";
-  case SA::LABEL:
+  case EA::LABEL:
     return "label";
-  case SA::TEMPLATE:
+  case EA::TEMPLATE:
     return "template";
-  case SA::LIKELY:
+  case EA::LIKELY:
     return "likely";
-  case SA::UNLIKELY:
+  case EA::UNLIKELY:
     return "unlikely";
-  case SA::DEPRECIATED:
+  case EA::DEPRECIATED:
     return "depreciated";
-  case SA::EXPORT:
+  case EA::EXPORT:
     return "export";
-  case SA::PUBLIC:
+  case EA::PUBLIC:
     return "public";
-  case SA::PROTECTED:
+  case EA::PROTECTED:
     return "protected";
-  case SA::MAY_COPY:
+  case EA::MAY_COPY:
     return "may_copy";
-  case SA::STABLE_ADDRESS:
+  case EA::STABLE_ADDRESS:
     return "STABLE_ADDRESS";
-  case SA::AUTO_DROP:
+  case EA::AUTO_DROP:
     return "auto_drop";
-  case SA::OK:
+  case EA::OK:
     return "ok";
-  case SA::MESSAGE:
+  case EA::MESSAGE:
     return "message";
-  case SA::LAST:
+  case EA::LAST:
     break;
   }
   RQ_UNREACHABLE();
@@ -2747,66 +2755,68 @@ getName(rq::ExpressionAttribute attribute) {
 getExpressionAttribute(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using SA = ExpressionAttribute;
+  using EA = ExpressionAttribute;
   switch (keyword) {
   case K::OPAQUE:
-    return SA::OPAQUE;
+    return EA::OPAQUE;
   case K::OUTSIDE:
-    return SA::OUTSIDE;
+    return EA::OUTSIDE;
   case K::PARTIAL_MUTATE:
-    return SA::PARTIAL_MUTATE;
+    return EA::PARTIAL_MUTATE;
+  case K::GLOBAL:
+    return EA::GLOBAL;
   case K::STATIC:
-    return SA::STATIC;
+    return EA::STATIC;
   case K::CAPTURE:
-    return SA::CAPTURE;
+    return EA::CAPTURE;
   case K::EAGER:
-    return SA::EAGER;
+    return EA::EAGER;
   case K::MAY_PARENT:
-    return SA::MAY_PARENT;
+    return EA::MAY_PARENT;
   case K::PARENT:
-    return SA::PARENT;
+    return EA::PARENT;
   case K::ABSTRACT:
-    return SA::ABSTRACT;
+    return EA::ABSTRACT;
   case K::VIRTUAL:
-    return SA::VIRTUAL;
+    return EA::VIRTUAL;
   case K::OVERRIDE:
-    return SA::OVERRIDE;
+    return EA::OVERRIDE;
   case K::LOCATION:
-    return SA::LOCATION;
+    return EA::LOCATION;
   case K::MANGLE:
-    return SA::MANGLE;
+    return EA::MANGLE;
   case K::PACK:
-    return SA::PACK;
+    return EA::PACK;
   case K::LABEL:
-    return SA::LABEL;
+    return EA::LABEL;
   case K::TEMPLATE:
-    return SA::TEMPLATE;
+    return EA::TEMPLATE;
   case K::LIKELY:
-    return SA::LIKELY;
+    return EA::LIKELY;
   case K::UNLIKELY:
-    return SA::UNLIKELY;
+    return EA::UNLIKELY;
   case K::DEPRECIATED:
-    return SA::DEPRECIATED;
+    return EA::DEPRECIATED;
   case K::EXPORT:
-    return SA::EXPORT;
+    return EA::EXPORT;
   case K::PUBLIC:
-    return SA::PUBLIC;
+    return EA::PUBLIC;
   case K::PROTECTED:
-    return SA::PROTECTED;
+    return EA::PROTECTED;
   case K::MAY_COPY:
-    return SA::MAY_COPY;
+    return EA::MAY_COPY;
   case K::STABLE_ADDRESS:
-    return SA::STABLE_ADDRESS;
+    return EA::STABLE_ADDRESS;
   case K::AUTO_DROP:
-    return SA::AUTO_DROP;
+    return EA::AUTO_DROP;
   case K::OK:
-    return SA::OK;
+    return EA::OK;
   case K::MESSAGE:
-    return SA::MESSAGE;
+    return EA::MESSAGE;
   default:
     break;
   }
-  return SA::NONE;
+  return EA::NONE;
 }
 
 enum class ExpressionFlags : std::uint32_t {
@@ -2814,30 +2824,31 @@ enum class ExpressionFlags : std::uint32_t {
   OPAQUE = rq::getBit(31),
   OUTSIDE = rq::getBit(30),
   PARTIAL_MUTATE = rq::getBit(29),
-  STATIC = rq::getBit(28),
-  CAPTURE = rq::getBit(27),
-  EAGER = rq::getBit(26),
-  MAY_PARENT = rq::getBit(25),
-  PARENT = rq::getBit(24),
-  ABSTRACT = rq::getBit(23),
-  VIRTUAL = rq::getBit(22),
-  OVERRIDE = rq::getBit(21),
-  LOCATION = rq::getBit(20),
-  MANGLE = rq::getBit(19),
-  PACK = rq::getBit(18),
-  LABEL = rq::getBit(17),
-  TEMPLATE = rq::getBit(16),
-  LIKELY = rq::getBit(15),
-  UNLIKELY = rq::getBit(14),
-  DEPRECIATED = rq::getBit(13),
-  EXPORT = rq::getBit(12),
-  PUBLIC = rq::getBit(11),
-  PROTECTED = rq::getBit(10),
-  MAY_COPY = rq::getBit(9),
-  STABLE_ADDRESS = rq::getBit(8),
-  AUTO_DROP = rq::getBit(7),
-  OK = rq::getBit(6),
-  MESSAGE = rq::getBit(5)
+  GLOBAL = rq::getBit(28),
+  STATIC = rq::getBit(27),
+  CAPTURE = rq::getBit(26),
+  EAGER = rq::getBit(25),
+  MAY_PARENT = rq::getBit(24),
+  PARENT = rq::getBit(23),
+  ABSTRACT = rq::getBit(22),
+  VIRTUAL = rq::getBit(21),
+  OVERRIDE = rq::getBit(20),
+  LOCATION = rq::getBit(19),
+  MANGLE = rq::getBit(18),
+  PACK = rq::getBit(17),
+  LABEL = rq::getBit(16),
+  TEMPLATE = rq::getBit(15),
+  LIKELY = rq::getBit(14),
+  UNLIKELY = rq::getBit(13),
+  DEPRECIATED = rq::getBit(12),
+  EXPORT = rq::getBit(11),
+  PUBLIC = rq::getBit(10),
+  PROTECTED = rq::getBit(9),
+  MAY_COPY = rq::getBit(8),
+  STABLE_ADDRESS = rq::getBit(7),
+  AUTO_DROP = rq::getBit(6),
+  OK = rq::getBit(5),
+  MESSAGE = rq::getBit(4)
 };
 
 template <> struct is_flags<ExpressionFlags> : std::true_type {};
@@ -2845,69 +2856,71 @@ template <> struct is_flags<ExpressionFlags> : std::true_type {};
 [[nodiscard]] inline rq::ExpressionFlags
 getFlags(rq::ExpressionAttribute attribute) {
   using namespace rq;
-  using SA = ExpressionAttribute;
-  using SF = ExpressionFlags;
+  using EA = ExpressionAttribute;
+  using EF = ExpressionFlags;
   switch (attribute) {
-  case SA::NONE:
-    return SF::NONE;
-  case SA::OPAQUE:
-    return SF::OPAQUE;
-  case SA::OUTSIDE:
-    return SF::OUTSIDE;
-  case SA::PARTIAL_MUTATE:
-    return SF::PARTIAL_MUTATE;
-  case SA::STATIC:
-    return SF::STATIC;
-  case SA::CAPTURE:
-    return SF::CAPTURE;
-  case SA::EAGER:
-    return SF::EAGER;
-  case SA::MAY_PARENT:
-    return SF::MAY_PARENT;
-  case SA::PARENT:
-    return SF::PARENT;
-  case SA::ABSTRACT:
-    return SF::ABSTRACT;
-  case SA::VIRTUAL:
-    return SF::VIRTUAL;
-  case SA::OVERRIDE:
-    return SF::OVERRIDE;
-  case SA::LOCATION:
-    return SF::LOCATION;
-  case SA::MANGLE:
-    return SF::MANGLE;
-  case SA::PACK:
-    return SF::PACK;
-  case SA::LABEL:
-    return SF::LABEL;
-  case SA::TEMPLATE:
-    return SF::TEMPLATE;
-  case SA::LIKELY:
-    return SF::LIKELY;
-  case SA::UNLIKELY:
-    return SF::UNLIKELY;
-  case SA::DEPRECIATED:
-    return SF::DEPRECIATED;
-  case SA::EXPORT:
-    return SF::EXPORT;
-  case SA::PUBLIC:
-    return SF::PUBLIC;
-  case SA::PROTECTED:
-    return SF::PROTECTED;
-  case SA::MAY_COPY:
-    return SF::MAY_COPY;
-  case SA::STABLE_ADDRESS:
-    return SF::STABLE_ADDRESS;
-  case SA::AUTO_DROP:
-    return SF::AUTO_DROP;
-  case SA::OK:
-    return SF::OK;
-  case SA::MESSAGE:
-    return SF::MESSAGE;
-  case SA::LAST:
+  case EA::NONE:
+    return EF::NONE;
+  case EA::OPAQUE:
+    return EF::OPAQUE;
+  case EA::OUTSIDE:
+    return EF::OUTSIDE;
+  case EA::PARTIAL_MUTATE:
+    return EF::PARTIAL_MUTATE;
+  case EA::GLOBAL:
+    return EF::GLOBAL;
+  case EA::STATIC:
+    return EF::STATIC;
+  case EA::CAPTURE:
+    return EF::CAPTURE;
+  case EA::EAGER:
+    return EF::EAGER;
+  case EA::MAY_PARENT:
+    return EF::MAY_PARENT;
+  case EA::PARENT:
+    return EF::PARENT;
+  case EA::ABSTRACT:
+    return EF::ABSTRACT;
+  case EA::VIRTUAL:
+    return EF::VIRTUAL;
+  case EA::OVERRIDE:
+    return EF::OVERRIDE;
+  case EA::LOCATION:
+    return EF::LOCATION;
+  case EA::MANGLE:
+    return EF::MANGLE;
+  case EA::PACK:
+    return EF::PACK;
+  case EA::LABEL:
+    return EF::LABEL;
+  case EA::TEMPLATE:
+    return EF::TEMPLATE;
+  case EA::LIKELY:
+    return EF::LIKELY;
+  case EA::UNLIKELY:
+    return EF::UNLIKELY;
+  case EA::DEPRECIATED:
+    return EF::DEPRECIATED;
+  case EA::EXPORT:
+    return EF::EXPORT;
+  case EA::PUBLIC:
+    return EF::PUBLIC;
+  case EA::PROTECTED:
+    return EF::PROTECTED;
+  case EA::MAY_COPY:
+    return EF::MAY_COPY;
+  case EA::STABLE_ADDRESS:
+    return EF::STABLE_ADDRESS;
+  case EA::AUTO_DROP:
+    return EF::AUTO_DROP;
+  case EA::OK:
+    return EF::OK;
+  case EA::MESSAGE:
+    return EF::MESSAGE;
+  case EA::LAST:
     break;
   }
-  return SF::NONE;
+  return EF::NONE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque(rq::ExpressionFlags flags) {
@@ -2921,6 +2934,10 @@ getFlags(rq::ExpressionAttribute attribute) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasPartialMutate(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::PARTIAL_MUTATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::GLOBAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic(rq::ExpressionFlags flags) {
@@ -3037,6 +3054,7 @@ struct ExpressionFlagsFactory final {
   const rq::Expression *_opaque_ptr{nullptr};
   const rq::Expression *_outside_ptr{nullptr};
   const rq::Expression *_partial_mutate_ptr{nullptr};
+  const rq::Expression *_global_ptr{nullptr};
   const rq::Expression *_static_ptr{nullptr};
   const rq::Expression *_capture_ptr{nullptr};
   const rq::Expression *_eager_ptr{nullptr};
@@ -3080,6 +3098,9 @@ struct ExpressionFlagsFactory final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartialMutate() const {
     return rq::getHasPartialMutate(this->_flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal() const {
+    return rq::getHasGlobal(this->_flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
     return rq::getHasStatic(this->_flags);
@@ -3163,6 +3184,8 @@ struct ExpressionFlagsFactory final {
       return rq::dereferencePtr(this->_outside_ptr);
     case EA::PARTIAL_MUTATE:
       return rq::dereferencePtr(this->_partial_mutate_ptr);
+    case EA::GLOBAL:
+      return rq::dereferencePtr(this->_global_ptr);
     case EA::STATIC:
       return rq::dereferencePtr(this->_static_ptr);
     case EA::CAPTURE:
@@ -3230,6 +3253,10 @@ struct ExpressionFlagsFactory final {
   getPartialMutate() const {
     RQ_ASSERT(this->getHasPartialMutate(), "no partial mutate");
     return rq::dereferencePtr(this->_partial_mutate_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getGlobal() const {
+    RQ_ASSERT(this->getHasGlobal(), "no global");
+    return rq::dereferencePtr(this->_global_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatic() const {
     RQ_ASSERT(this->getHasStatic(), "no static");

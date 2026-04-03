@@ -1131,6 +1131,8 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
+  case K::GLOBAL:
+    [[fallthrough]];
   case K::STATIC:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
