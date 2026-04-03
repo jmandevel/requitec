@@ -878,6 +878,7 @@ Generator::inferenceType(const rq::Expression &type_expression,
   std::ignore = module;
   // NOTE: this switch contains anything that can be rvalue situation
   using K = rq::Keyword;
+  using O = rq::Opcode;
   switch (type_expression.getKeyword()) {
   case K::INTEGER_LITERAL:
     return &this->getContext().acquireTypeConstant(
@@ -892,20 +893,137 @@ Generator::inferenceType(const rq::Expression &type_expression,
     return &this->getContext().acquireTypeConstant(
         this->getContext().acquireCodeunitLiteral(), {});
   case K::IDENTIFIER_LITERAL: {
-    rq::BumpPtrListRef<rq::Symbol> list =
-        hosting_table.getFrameNamedListRef(type_expression.getSourceText());
-    if (list.getIsEmpty()) {
-      this->getContext().logErrorNotSymbol(type_expression);
-      this->setNotOk();
-      return nullptr;
+    llvm::SmallVector<rq::Symbol *> matches{};
+    for (rq::SymbolTable &table : hosting_table.getInclusiveFrameSubrange()) {
+      rq::BumpPtrListRef<rq::Symbol> list =
+          table.getNamedListRef(type_expression.getSourceText());
+      for (rq::Symbol &symbol : list) {
+        switch (symbol.getOpcode()) {
+        case O::SY_CODE: {
+          rq::Code &code = llvm::cast<rq::Code>(symbol);
+          // make sure this code is in the current module or was exported from
+          // an imported module
+          if (!code.getHasExport() && code.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_LABEL: {
+          rq::Label &label = llvm::cast<rq::Label>(symbol);
+          // labels can not be exported directly (but can be stored in a
+          // constant static variable that is itself exported).
+          if (label.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_LOCAL_VARIABLE: {
+          // if we already managed to enter a table with a local, should be able to
+          // access the local no mater what
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_STATIC_VARIABLE: {
+          // if we already managed to enter a table with a static, should be able to
+          // access the static no mater what
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_ENUMERATOR: {
+          // if we already managed to enter an enumerator table, should be able
+          // to access the enumerator no mater what
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_CATEGORY_ALTERNATIVE: {
+          // if we already managed to enter a category table, should be able to
+          // access the alternative no mater what
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_GLOBAL_VARIABLE: {
+          rq::GlobalVariable &global = llvm::cast<rq::GlobalVariable>(symbol);
+          // make sure this global is in the current module or was exported from
+          // an imported module
+          if (!global.getHasExport() &&
+              global.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_GLOBAL_STATIC_VARIABLE: {
+          rq::GlobalStaticVariable &global_static = llvm::cast<rq::GlobalStaticVariable>(symbol);
+          // make sure this global is in the current module or was exported from
+          // an imported module
+          if (!global_static.getHasExport() &&
+              global_static.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_NAMESPACE: {
+          // namespaces themselves are universally accessable (but their members
+          // are not always accessable)
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_CLASS: {
+          rq::Class &class_ = llvm::cast<rq::Class>(symbol);
+          // make sure this class is in the current module or was exported from
+          // an imported module
+          if (!class_.getHasExport() &&
+              class_.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_ENUMERATION: {
+          rq::Enumeration &enumeration = llvm::cast<rq::Enumeration>(symbol);
+          // make sure this enumeration is in the current module or was exported
+          // from an imported module
+          if (!enumeration.getHasExport() &&
+              enumeration.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_CATEGORY: {
+          rq::Category &category = llvm::cast<rq::Category>(symbol);
+          // make sure this category is in the current module or was exported
+          // from an imported module
+          if (!category.getHasExport() &&
+              category.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_FUNCTION:
+          [[fallthrough]];
+        case O::SY_METHOD:
+          [[fallthrough]];
+        case O::SY_RANGER:
+          [[fallthrough]];
+        case O::SY_EXTENSION_FUNCTION:
+          [[fallthrough]];
+        case O::SY_EXTENSION_METHOD:
+          [[fallthrough]];
+        case O::SY_EXTENSION_RANGER: {
+          rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
+          // make sure this procedure is in the current module or was exported
+          // from an imported module
+          if (!procedure.getHasExport() &&
+              procedure.getContainingModule() != module) {
+            continue;
+          }
+          matches.push_back(&symbol);
+        } break;
+        default:
+          RQ_TODO_IMPLEMENTATION();
+        }
+      }
+      if (!matches.empty()) {
+        break;
+      }
     }
-    // for (rq::Symbol& symbol : list) {
-    //
-    // }
-    RQ_TODO_IMPLEMENTATION();
-
-    // TODO remove dynamic vars & gibe global & static vars symbol tables
-  }
+    if (matches.size() > 1) {
+      RQ_TODO_IMPLEMENTATION(); // name collision
+    }
+  } break;
   default:
     break;
   }
