@@ -1437,7 +1437,13 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IS_OK_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-
+  case K::AS_EXTENSION:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::AS_EXTENSION_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  
   case K::LAST:
     RQ_UNREACHABLE();
 

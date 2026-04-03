@@ -457,6 +457,8 @@ enum class Keyword : std::uint32_t {
   SYNONYM_OF,
   IS_OK,
   IS_OK_OF,
+  AS_EXTENSION,
+  AS_EXTENSION_OF,
 
   LAST
 };
@@ -1242,6 +1244,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_ok";
   case K::IS_OK_OF:
     return "_is_ok_of";
+  case K::AS_EXTENSION:
+    return "_as_extension";
+  case K::AS_EXTENSION_OF:
+    return "_as_extension_of";
 
   case K::LAST:
     break;
@@ -2088,6 +2094,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IS_OK_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::AS_EXTENSION:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::AS_EXTENSION_OF:
+    return KF::RVALUE | KF::ARGUMENT;
 
   case K::LAST:
     break;
@@ -2432,6 +2442,8 @@ getDescription(rq::Situation situation) {
     return K::SYNONYM_OF;
   case K::IS_OK:
     return K::IS_OK_OF;
+  case K::AS_EXTENSION:
+    return K::AS_EXTENSION_OF;
   default:
     break;
   }
