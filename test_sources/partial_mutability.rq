@@ -1,9 +1,9 @@
 
-auto_drop may_copy
+@auto_drop @may_copy
 [object Partialable,
     {>
-        public @partial_mutate property_a : [fast_signed_integer 32]= 0,
-        public property_b : [fast_signed_integer 32] = 0
+        @public @partial_mutate property_a : [fast_signed_integer 32]= 0,
+        @public property_b : [fast_signed_integer 32] = 0
     <},
 ];
 

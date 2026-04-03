@@ -1,24 +1,24 @@
 [import "std"];
 
-auto_drop may_copy
+@auto_drop @may_copy
 [class MyClass,
     {>
-        public x : [fast_signed_integer 32] = 0,
-        public y : [fast_signed_integer 32] = 0,
-        public z : [fast_signed_integer 32] = 0
+        @public x : [fast_signed_integer 32] = 0,
+        @public y : [fast_signed_integer 32] = 0,
+        @public z : [fast_signed_integer 32] = 0
     <},
 
-    public
+    @public
     [function fromScalar, (> scalar:[fast_signed_integer 32] <)MyClass,
         [result] := MyClass(scalar, scalar, scalar);    
     ];
 
-    public
+    @public
     [method getTotal, ()[fast_signed_integer 32]=>&,
         [result] := [this].x + [this].y + [this].z;
     ];
 
-    public
+    @public
     [function add, (>a:MyClass, b:MyClass<)MyClass,
         [result] :=
             MyClass(

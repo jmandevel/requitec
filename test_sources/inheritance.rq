@@ -1,28 +1,29 @@
 [import "std"];
 
-may_parent auto_drop may_copy
+@may_parent @auto_drop @may_copy
 [class Parent,
     
     [method myFunc, ()[void]=>&,
         .std.print(line="in parent");
     ];
     
-    virtual
+    @virtual
     [method myFuncB, ()[void]=>&,
         .std.print(line="in parent");
     ];
 ];
 
-auto_drop may_copy
+@auto_drop @may_copy
 [class Child,
     {> 
-        parent parent := .Parent() 
+        @parent parent := .Parent() 
     <},
     
-    public
+    @public
     [use parent.myFunc];
     
-    public override::parent.myFuncB
+    @public
+    @override::parent.myFuncB
     [method myFuncB, ()[void]=>&,
         .std.print(line="in child");
     ];
