@@ -128,14 +128,15 @@ enum class Opcode : std::uint16_t {
   SY_LABEL,
   SY_SYNONYM,
   SY_LOCAL_VARIABLE,
+  SY_STATIC_VARIABLE,
   SY_ENUMERATOR,
   SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
                            // maybe a value type
 
   // SYMBOL TABLE
-  SY_STATIC_VARIABLE,
-  SY_GLOBAL_VARIABLE,
   SY_TOP,
+  SY_GLOBAL_VARIABLE,
+  SY_GLOBAL_STATIC_VARIABLE,
   SY_SCOPE,
   SY_NAMESPACE,
   SY_CLASS,
@@ -156,7 +157,7 @@ enum class Opcode : std::uint16_t {
   SY_TEMPLATE_ENUMERATION,
   SY_TEMPLATE_CATEGORY,
   SY_TEMPLATE_GLOBAL_VARIABLE,
-  SY_TEMPLATE_STATIC_VARIABLE,
+  SY_TEMPLATE_GLOBAL_STATIC_VARIABLE,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
   SY_TEMPLATE_RANGER,
@@ -169,7 +170,7 @@ enum class Opcode : std::uint16_t {
   SY_PARTIAL_ENUMERATION,
   SY_PARTIAL_CATEGORY,
   SY_PARTIAL_GLOBAL_VARIABLE,
-  SY_PARTIAL_STATIC_VARIABLE,
+  SY_PARTIAL_GLOBAL_STATIC_VARIABLE,
   SY_PARTIAL_FUNCTION,
   SY_PARTIAL_METHOD,
   SY_PARTIAL_RANGER,
@@ -458,12 +459,13 @@ struct CategoryDiscriminant;
 struct Label;
 struct Synonym;
 struct LocalVariable;
+struct StaticVariable;
 struct Enumerator;
 struct CategoryAlternative;
 struct SymbolTable;
-struct StaticVariable;
-struct GlobalVariable;
 struct Top;
+struct GlobalVariable;
+struct GlobalStaticVariable;
 struct Scope;
 struct Namespace;
 struct Class;
@@ -483,7 +485,7 @@ struct TemplateEnumeration;
 struct TemplateCategory;
 struct TemplateGlobalVariable;
 struct TemplateLocalVariable;
-struct TemplateStaticVariable;
+struct TemplateGlobalStaticVariable;
 struct TemplateFunction;
 struct TemplateMethod;
 struct TemplateRanger;
@@ -496,7 +498,7 @@ struct PartialEnumeration;
 struct PartialCategory;
 struct PartialGlobalVariable;
 struct PartialLocalVariable;
-struct PartialStaticVariable;
+struct PartialGlobalStaticVariable;
 struct PartialFunction;
 struct PartialMethod;
 struct PartialRanger;
@@ -1624,6 +1626,35 @@ struct LocalVariable : public rq::Symbol,
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
+struct StaticVariable : public rq::Symbol,
+                       public rq::InitialExpression,
+                       public rq::InitialExpressionFlags,
+                       public rq::InitialModuleMember,
+                       public rq::SymbolTableMember,
+                       public rq::InitialNamed {
+  using Self = rq::StaticVariable;
+
+  bool _is_indeterminate : 1 {true};
+  rq::TypeConstant *_type_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
+  inline explicit StaticVariable(llvm::StringRef name,
+                                const rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module,
+                                rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
+  RQ_ALWAYS_INLINE void setNotIndeterminate();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression &expression_ptr);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
 struct Enumerator : public rq::Symbol,
                     public rq::InitialExpression,
                     public rq::InitialExpressionFlags,
@@ -1800,31 +1831,10 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
 
 template <> struct is_parent_only<rq::SymbolTable> final : std::true_type {};
 
-struct StaticVariable : public rq::SymbolTable,
-                        public rq::InitialExpression,
-                        public rq::InitialExpressionFlags,
-                        public rq::InitialModuleMember,
-                        public rq::InitialNamed {
-  using Self = rq::StaticVariable;
+struct Top : public rq::SymbolTable {
+  using Self = rq::Top;
 
-  bool _is_indeterminate : 1 {true};
-  rq::TypeConstant *_type_ptr{nullptr};
-  const rq::Expression *_type_expression_ptr{nullptr};
-  const rq::Expression *_value_expression_ptr{nullptr};
-
-  inline explicit StaticVariable(llvm::StringRef name,
-                                 const rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::SymbolTable &containing_table);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
-  RQ_ALWAYS_INLINE void setNotIndeterminate();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
-  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
-  RQ_ALWAYS_INLINE void
-  setValueExpression(const rq::Expression &expression_ptr);
+  inline explicit Top();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1856,10 +1866,31 @@ struct GlobalVariable : public rq::SymbolTable,
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct Top : public rq::SymbolTable {
-  using Self = rq::Top;
+struct GlobalStaticVariable : public rq::SymbolTable,
+                        public rq::InitialExpression,
+                        public rq::InitialExpressionFlags,
+                        public rq::InitialModuleMember,
+                        public rq::InitialNamed {
+  using Self = rq::GlobalVariable;
 
-  inline explicit Top();
+  bool _is_implemented : 1 {false};
+  rq::TypeConstant *_type_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_value_expression_ptr{nullptr};
+
+  inline explicit GlobalStaticVariable(llvm::StringRef name,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::SymbolTable &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
+  RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void
+  setValueExpression(const rq::Expression &expression_ptr);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2163,10 +2194,10 @@ struct TemplateGlobalVariable : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateStaticVariable : public rq::Template {
-  using Self = rq::TemplateStaticVariable;
+struct TemplateGlobalStaticVariable : public rq::Template {
+  using Self = rq::TemplateGlobalStaticVariable;
 
-  inline explicit TemplateStaticVariable(llvm::StringRef name,
+  inline explicit TemplateGlobalStaticVariable(llvm::StringRef name,
                                          const rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
@@ -2318,10 +2349,10 @@ struct PartialGlobalVariable : public rq::Partial {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct PartialStaticVariable : public rq::Partial {
-  using Self = rq::PartialStaticVariable;
+struct PartialGlobalStaticVariable : public rq::Partial {
+  using Self = rq::PartialGlobalStaticVariable;
 
-  inline explicit PartialStaticVariable(llvm::StringRef name,
+  inline explicit PartialGlobalStaticVariable(llvm::StringRef name,
                                         rq::Expression &expression,
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,

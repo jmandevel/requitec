@@ -131,16 +131,18 @@ namespace rq {
     return "sy_synonym";
   case O::SY_LOCAL_VARIABLE:
     return "sy_local_variable";
+  case O::SY_STATIC_VARIABLE:
+    return "sy_static_variable";
   case O::SY_ENUMERATOR:
     return "sy_enumerator";
   case O::SY_CATEGORY_ALTERNATIVE:
     return "sy_category_alternative";
-  case O::SY_STATIC_VARIABLE:
-    return "sy_static_variable";
-  case O::SY_GLOBAL_VARIABLE:
-    return "sy_global_variable";
   case O::SY_TOP:
     return "sy_top";
+  case O::SY_GLOBAL_VARIABLE:
+    return "sy_global_variable";
+  case O::SY_GLOBAL_STATIC_VARIABLE:
+    return "sy_global_static_variable";
   case O::SY_SCOPE:
     return "sy_scope";
   case O::SY_NAMESPACE:
@@ -173,8 +175,8 @@ namespace rq {
     return "sy_template_category";
   case O::SY_TEMPLATE_GLOBAL_VARIABLE:
     return "sy_template_global_variable";
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
-    return "sy_template_static_variable";
+  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
+    return "sy_template_global_static_variable";
   case O::SY_TEMPLATE_FUNCTION:
     return "sy_template_function";
   case O::SY_TEMPLATE_METHOD:
@@ -195,8 +197,8 @@ namespace rq {
     return "sy_partial_category";
   case O::SY_PARTIAL_GLOBAL_VARIABLE:
     return "sy_partial_global_variable";
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return "sy_partial_static_variable";
+  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
+    return "sy_partial_global_static_variable";
   case O::SY_PARTIAL_FUNCTION:
     return "sy_partial_function";
   case O::SY_PARTIAL_METHOD:
@@ -469,16 +471,18 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TYPE;
   case O::SY_LOCAL_VARIABLE:
     return OF::SYMBOL;
+  case O::SY_STATIC_VARIABLE:
+    return OF::SYMBOL;
   case O::SY_ENUMERATOR:
     return OF::SYMBOL | OF::SY_TYPE;
   case O::SY_CATEGORY_ALTERNATIVE:
     return OF::SYMBOL;
-  case O::SY_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_GLOBAL_VARIABLE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_TOP:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_TOP_OF_FRAME;
+  case O::SY_GLOBAL_VARIABLE:
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case O::SY_GLOBAL_STATIC_VARIABLE:
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_SCOPE:
     return OF::SYMBOL | OF::SY_SYMBOL_TABLE;
   case O::SY_NAMESPACE:
@@ -520,7 +524,7 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_GLOBAL_VARIABLE:
     return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_FUNCTION:
     return OF::SYMBOL | OF::SY_TEMPLATE;
@@ -542,7 +546,7 @@ namespace rq {
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_GLOBAL_VARIABLE:
     return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_STATIC_VARIABLE:
+  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_FUNCTION:
     return OF::SYMBOL | OF::SY_PARTIAL;
@@ -865,10 +869,10 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     return O::SY_TEMPLATE_GLOBAL_VARIABLE;
   case O::SY_STATIC_VARIABLE:
     [[fallthrough]];
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
     [[fallthrough]];
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return O::SY_TEMPLATE_STATIC_VARIABLE;
+  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
+    return O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE;
   case O::SY_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_FUNCTION:
@@ -942,10 +946,10 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     return O::SY_PARTIAL_GLOBAL_VARIABLE;
   case O::SY_STATIC_VARIABLE:
     [[fallthrough]];
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
     [[fallthrough]];
-  case O::SY_PARTIAL_STATIC_VARIABLE:
-    return O::SY_PARTIAL_STATIC_VARIABLE;
+  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
+    return O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE;
   case O::SY_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_FUNCTION:
@@ -1019,9 +1023,9 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     return O::SY_GLOBAL_VARIABLE;
   case O::SY_STATIC_VARIABLE:
     [[fallthrough]];
-  case O::SY_TEMPLATE_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
     [[fallthrough]];
-  case O::SY_PARTIAL_STATIC_VARIABLE:
+  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
     return O::SY_STATIC_VARIABLE;
   case O::SY_FUNCTION:
     [[fallthrough]];
@@ -2726,8 +2730,105 @@ SymbolTable::getMemberSymbolTableSubrange() const {
 }
 
 inline Top::Top() : SymbolTable(rq::Opcode::SY_TOP) {}
+
 [[nodiscard]] inline bool Top::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_TOP;
+}
+
+inline GlobalVariable::GlobalVariable(llvm::StringRef name,
+                                      const rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::SymbolTable &containing_table)
+    : SymbolTable(rq::Opcode::SY_GLOBAL_VARIABLE, containing_table),
+      InitialExpression(expression), InitialExpressionFlags(attributes),
+      InitialModuleMember(module), InitialNamed(name), _type_ptr(nullptr),
+      _type_expression_ptr(nullptr), _value_expression_ptr(nullptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getIsImplemented() const {
+  return this->_is_implemented;
+}
+
+RQ_ALWAYS_INLINE void GlobalVariable::setIsImplemented() {
+  RQ_ASSERT(!this->_is_implemented, "already implemented");
+  this->_is_implemented = true;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getHasType() const {
+  return this->_type_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+GlobalVariable::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+GlobalVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+GlobalVariable::setTypeExpression(const rq::Expression &expression) {
+  this->_type_expression_ptr = &expression;
+}
+
+RQ_ALWAYS_INLINE void
+GlobalVariable::setValueExpression(const rq::Expression &expression) {
+  this->_value_expression_ptr = &expression;
+}
+
+[[nodiscard]] inline bool GlobalVariable::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_GLOBAL_VARIABLE;
+}
+
+inline GlobalStaticVariable::GlobalStaticVariable(
+    llvm::StringRef name, const rq::Expression &expression,
+    rq::ExpressionFlags attributes, rq::Module &module,
+    rq::SymbolTable &containing_table)
+    : SymbolTable(rq::Opcode::SY_GLOBAL_STATIC_VARIABLE, containing_table),
+      InitialExpression(expression), InitialExpressionFlags(attributes),
+      InitialModuleMember(module), InitialNamed(name), _type_ptr(nullptr),
+      _type_expression_ptr(nullptr), _value_expression_ptr(nullptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+GlobalStaticVariable::getIsImplemented() const {
+  return this->_is_implemented;
+}
+
+RQ_ALWAYS_INLINE void GlobalStaticVariable::setIsImplemented() {
+  RQ_ASSERT(!this->_is_implemented, "already implemented");
+  this->_is_implemented = true;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalStaticVariable::getHasType() const {
+  return this->_type_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+GlobalStaticVariable::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+GlobalStaticVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+GlobalStaticVariable::setTypeExpression(const rq::Expression &expression) {
+  this->_type_expression_ptr = &expression;
+}
+
+RQ_ALWAYS_INLINE void
+GlobalStaticVariable::setValueExpression(const rq::Expression &expression) {
+  this->_value_expression_ptr = &expression;
+}
+
+[[nodiscard]] inline bool GlobalStaticVariable::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_GLOBAL_STATIC_VARIABLE;
 }
 
 inline Scope::Scope(rq::Expression &expression, rq::Module &module,
@@ -2879,6 +2980,50 @@ LocalVariable::setValueExpression(const rq::Expression &expression_ptr) {
          rq::Opcode::SY_LOCAL_VARIABLE;
 }
 
+inline StaticVariable::StaticVariable(llvm::StringRef name,
+                                      const rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::SymbolTable &containing_table)
+    : Symbol(rq::Opcode::SY_STATIC_VARIABLE), InitialExpression(expression),
+      InitialExpressionFlags(attributes), InitialModuleMember(module),
+      SymbolTableMember(containing_table), InitialNamed(name) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool StaticVariable::getIsIndeterminate() const {
+  return this->_is_indeterminate;
+}
+
+RQ_ALWAYS_INLINE void StaticVariable::setNotIndeterminate() {
+  RQ_ASSERT(this->getHasType(), "does not have type");
+  // RQ_ASSERT(this->getType().getIsComplete(), "does not have complete
+  // type");
+  this->_is_indeterminate = false;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool StaticVariable::getHasType() const {
+  return this->_type_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
+StaticVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+StaticVariable::setTypeExpression(const rq::Expression &expression) {
+  rq::assignSingleValue(this->_type_expression_ptr, &expression);
+}
+
+RQ_ALWAYS_INLINE void
+StaticVariable::setValueExpression(const rq::Expression &expression_ptr) {
+  rq::assignSingleValue(this->_value_expression_ptr, &expression_ptr);
+}
+
+[[nodiscard]] inline bool StaticVariable::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_STATIC_VARIABLE;
+}
+
 inline Enumerator::Enumerator(llvm::StringRef name, rq::Expression &expression,
                               rq::ExpressionFlags attributes,
                               rq::Module &module,
@@ -2906,102 +3051,6 @@ inline CategoryAlternative::CategoryAlternative(rq::Code &code,
 [[nodiscard]] inline bool CategoryAlternative::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_CATEGORY_ALTERNATIVE;
-}
-
-inline StaticVariable::StaticVariable(llvm::StringRef name,
-                                      const rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::SymbolTable &containing_table)
-    : SymbolTable(rq::Opcode::SY_STATIC_VARIABLE, containing_table),
-      InitialExpression(expression), InitialExpressionFlags(attributes),
-      InitialModuleMember(module), InitialNamed(name), _is_indeterminate(true),
-      _type_ptr(nullptr), _type_expression_ptr(nullptr),
-      _value_expression_ptr(nullptr) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool StaticVariable::getIsIndeterminate() const {
-  return this->_is_indeterminate;
-}
-
-RQ_ALWAYS_INLINE void StaticVariable::setNotIndeterminate() {
-  this->_is_indeterminate = false;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool StaticVariable::getHasType() const {
-  return this->_type_ptr != nullptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-StaticVariable::getType() {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-StaticVariable::getType() const {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-RQ_ALWAYS_INLINE void
-StaticVariable::setTypeExpression(const rq::Expression &expression) {
-  this->_type_expression_ptr = &expression;
-}
-
-RQ_ALWAYS_INLINE void
-StaticVariable::setValueExpression(const rq::Expression &expression) {
-  this->_value_expression_ptr = &expression;
-}
-
-[[nodiscard]] inline bool StaticVariable::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_STATIC_VARIABLE;
-}
-
-inline GlobalVariable::GlobalVariable(llvm::StringRef name,
-                                      const rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::SymbolTable &containing_table)
-    : SymbolTable(rq::Opcode::SY_GLOBAL_VARIABLE, containing_table),
-      InitialExpression(expression), InitialExpressionFlags(attributes),
-      InitialModuleMember(module), InitialNamed(name), _type_ptr(nullptr),
-      _type_expression_ptr(nullptr), _value_expression_ptr(nullptr) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getIsImplemented() const {
-  return this->_is_implemented;
-}
-
-RQ_ALWAYS_INLINE void GlobalVariable::setIsImplemented() {
-  RQ_ASSERT(!this->_is_implemented, "already implemented");
-  this->_is_implemented = true;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalVariable::getHasType() const {
-  return this->_type_ptr != nullptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-GlobalVariable::getType() {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-GlobalVariable::getType() const {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-RQ_ALWAYS_INLINE void
-GlobalVariable::setTypeExpression(const rq::Expression &expression) {
-  this->_type_expression_ptr = &expression;
-}
-
-RQ_ALWAYS_INLINE void
-GlobalVariable::setValueExpression(const rq::Expression &expression) {
-  this->_value_expression_ptr = &expression;
-}
-
-[[nodiscard]] inline bool GlobalVariable::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_GLOBAL_VARIABLE;
 }
 
 inline Procedure::Procedure(rq::Opcode opcode, llvm::StringRef name,
@@ -3301,19 +3350,19 @@ TemplateGlobalVariable::classof(const Entity *entity) {
          rq::Opcode::SY_TEMPLATE_GLOBAL_VARIABLE;
 }
 
-inline TemplateStaticVariable::TemplateStaticVariable(
+inline TemplateGlobalStaticVariable::TemplateGlobalStaticVariable(
     llvm::StringRef name, const rq::Expression &expression,
     rq::ExpressionFlags attributes, rq::Module &module,
     rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
     rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_STATIC_VARIABLE, name, expression,
+    : Template(rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE, name, expression,
                attributes, module, containing_table, hosting_table,
                template_layout) {}
 
 [[nodiscard]] inline bool
-TemplateStaticVariable::classof(const Entity *entity) {
+TemplateGlobalStaticVariable::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TEMPLATE_STATIC_VARIABLE;
+         rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE;
 }
 
 inline TemplateFunction::TemplateFunction(llvm::StringRef name,
@@ -3473,16 +3522,16 @@ inline PartialGlobalVariable::PartialGlobalVariable(
          rq::Opcode::SY_PARTIAL_GLOBAL_VARIABLE;
 }
 
-inline PartialStaticVariable::PartialStaticVariable(
+inline PartialGlobalStaticVariable::PartialGlobalStaticVariable(
     llvm::StringRef name, rq::Expression &expression,
     rq::ExpressionFlags attributes, rq::Module &module,
     rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_STATIC_VARIABLE, name, expression,
+    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL_STATIC_VARIABLE, name, expression,
               attributes, module, containing_table, hosting_table) {}
 
-[[nodiscard]] inline bool PartialStaticVariable::classof(const Entity *entity) {
+[[nodiscard]] inline bool PartialGlobalStaticVariable::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_STATIC_VARIABLE;
+         rq::Opcode::SY_PARTIAL_GLOBAL_STATIC_VARIABLE;
 }
 
 inline PartialFunction::PartialFunction(llvm::StringRef name,
