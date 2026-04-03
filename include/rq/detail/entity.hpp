@@ -2661,28 +2661,6 @@ SymbolTable::getNamedListRef(llvm::StringRef name) {
   return it->getSecond();
 }
 
-[[nodiscard]] inline rq::ConstBumpPtrListRef<rq::Symbol>
-SymbolTable::getFrameNamedListRef(llvm::StringRef name) const {
-  for (const rq::SymbolTable &table : this->getInclusiveFrameSubrange()) {
-    rq::ConstBumpPtrListRef<rq::Symbol> list = table.getNamedListRef(name);
-    if (!list.getIsEmpty()) {
-      return list;
-    }
-  }
-  return rq::ConstBumpPtrListRef<rq::Symbol>();
-}
-
-[[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
-SymbolTable::getFrameNamedListRef(llvm::StringRef name) {
-  for (rq::SymbolTable &table : this->getInclusiveFrameSubrange()) {
-    rq::BumpPtrListRef<rq::Symbol> list = table.getNamedListRef(name);
-    if (!list.getIsEmpty()) {
-      return list;
-    }
-  }
-  return rq::BumpPtrListRef<rq::Symbol>();
-}
-
 [[nodiscard]] inline auto SymbolTable::getNamedListsSubrange() const {
   auto begin_it = this->_named_symbols_map.begin();
   return std::ranges::subrange<decltype(begin_it), decltype(begin_it),

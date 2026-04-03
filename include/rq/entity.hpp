@@ -1773,10 +1773,6 @@ struct SymbolTable : public rq::Symbol, public rq::SymbolTableMember {
   getNamedListRef(llvm::StringRef name) const;
   [[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
   getNamedListRef(llvm::StringRef name);
-  [[nodiscard]] inline rq::ConstBumpPtrListRef<rq::Symbol>
-  getFrameNamedListRef(llvm::StringRef name) const;
-  [[nodiscard]] inline rq::BumpPtrListRef<rq::Symbol>
-  getFrameNamedListRef(llvm::StringRef name);
   [[nodiscard]] inline auto getNamedListsSubrange() const;
   [[nodiscard]] inline std::ranges::subrange<
       llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>,
