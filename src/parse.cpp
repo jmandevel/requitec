@@ -627,7 +627,7 @@ rq::Expression &RequiteParser::parsePrecedence3() {
   return precedence_factory.getOuter();
 }
 
-// ASCEND FRAME AND ARROWS
+// ASCEND FRAME
 rq::Expression &RequiteParser::parsePrecedence2() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence1());
