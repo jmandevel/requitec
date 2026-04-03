@@ -1,9 +1,11 @@
 [entry
     // if you know C, this should be super easy to understand.
 
+    // mutable single floating point number
     var :`[single]= 0;
 
-    var_ptr :`*`[single]= var.[address];
+    // mutable pointer to mutable single float
+    var_ptr :`?`[single]= var.[address];
 
     var_ptr.[content] = 1;
 
