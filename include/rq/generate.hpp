@@ -96,7 +96,7 @@ struct Generator final {
   inferenceType(const rq::Expression &type_expression,
                 rq::SymbolTable &hosting_table, rq::Module &module);
   void implementProcedure(rq::Procedure &procedure);
-  void implementGlobalVariable(rq::GlobalVariable &global);
+  void implementGlobal(rq::Global &global);
 };
 
 } // namespace rq

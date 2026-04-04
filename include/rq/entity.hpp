@@ -127,16 +127,16 @@ enum class Opcode : std::uint16_t {
   SY_CATEGORY_DISCRIMINANT, // underlying type of category code
   SY_LABEL,
   SY_SYNONYM,
-  SY_LOCAL_VARIABLE,
-  SY_STATIC_VARIABLE,
+  SY_LOCAL,
+  SY_STATIC,
   SY_ENUMERATOR,
   SY_CATEGORY_ALTERNATIVE, // entry within a category referencing a code and
                            // maybe a value type
 
   // SYMBOL TABLE
   SY_TOP,
-  SY_GLOBAL_VARIABLE,
-  SY_GLOBAL_STATIC_VARIABLE,
+  SY_GLOBAL,
+  SY_GLOBAL_STATIC,
   SY_SCOPE,
   SY_NAMESPACE,
   SY_CLASS,
@@ -458,14 +458,14 @@ struct Code;
 struct CategoryDiscriminant;
 struct Label;
 struct Synonym;
-struct LocalVariable;
-struct StaticVariable;
+struct Local;
+struct Static;
 struct Enumerator;
 struct CategoryAlternative;
 struct SymbolTable;
 struct Top;
-struct GlobalVariable;
-struct GlobalStaticVariable;
+struct Global;
+struct GlobalStatic;
 struct Scope;
 struct Namespace;
 struct Class;
@@ -483,9 +483,8 @@ struct Template;
 struct TemplateClass;
 struct TemplateEnumeration;
 struct TemplateCategory;
-struct TemplateGlobalVariable;
-struct TemplateLocalVariable;
-struct TemplateGlobalStaticVariable;
+struct TemplateGlobal;
+struct TemplateGlobalStatic;
 struct TemplateFunction;
 struct TemplateMethod;
 struct TemplateRanger;
@@ -496,9 +495,8 @@ struct Partial;
 struct PartialClass;
 struct PartialEnumeration;
 struct PartialCategory;
-struct PartialGlobalVariable;
-struct PartialLocalVariable;
-struct PartialGlobalStaticVariable;
+struct PartialGlobal;
+struct PartialGlobalStatic;
 struct PartialFunction;
 struct PartialMethod;
 struct PartialRanger;
@@ -1597,20 +1595,20 @@ template <> struct is_acquired<rq::Synonym> final : std::true_type {};
 template <>
 struct is_acquired<rq::CategoryAlternative> final : std::true_type {};
 
-struct LocalVariable : public rq::Symbol,
+struct Local : public rq::Symbol,
                        public rq::InitialExpression,
                        public rq::InitialExpressionFlags,
                        public rq::InitialModuleMember,
                        public rq::SymbolTableMember,
                        public rq::InitialNamed {
-  using Self = rq::LocalVariable;
+  using Self = rq::Local;
 
   bool _is_indeterminate : 1 {true};
   rq::TypeConstant *_type_ptr{nullptr};
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit LocalVariable(llvm::StringRef name,
+  inline explicit Local(llvm::StringRef name,
                                 const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
@@ -1626,20 +1624,20 @@ struct LocalVariable : public rq::Symbol,
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct StaticVariable : public rq::Symbol,
+struct Static : public rq::Symbol,
                        public rq::InitialExpression,
                        public rq::InitialExpressionFlags,
                        public rq::InitialModuleMember,
                        public rq::SymbolTableMember,
                        public rq::InitialNamed {
-  using Self = rq::StaticVariable;
+  using Self = rq::Static;
 
   bool _is_indeterminate : 1 {true};
   rq::TypeConstant *_type_ptr{nullptr};
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit StaticVariable(llvm::StringRef name,
+  inline explicit Static(llvm::StringRef name,
                                 const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
                                 rq::Module &module,
@@ -1838,19 +1836,19 @@ struct Top : public rq::SymbolTable {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct GlobalVariable : public rq::SymbolTable,
+struct Global : public rq::SymbolTable,
                         public rq::InitialExpression,
                         public rq::InitialExpressionFlags,
                         public rq::InitialModuleMember,
                         public rq::InitialNamed {
-  using Self = rq::GlobalVariable;
+  using Self = rq::Global;
 
   bool _is_implemented : 1 {false};
   rq::TypeConstant *_type_ptr{nullptr};
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit GlobalVariable(llvm::StringRef name,
+  inline explicit Global(llvm::StringRef name,
                                  const rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
@@ -1866,19 +1864,19 @@ struct GlobalVariable : public rq::SymbolTable,
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct GlobalStaticVariable : public rq::SymbolTable,
+struct GlobalStatic : public rq::SymbolTable,
                         public rq::InitialExpression,
                         public rq::InitialExpressionFlags,
                         public rq::InitialModuleMember,
                         public rq::InitialNamed {
-  using Self = rq::GlobalVariable;
+  using Self = rq::Global;
 
   bool _is_implemented : 1 {false};
   rq::TypeConstant *_type_ptr{nullptr};
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit GlobalStaticVariable(llvm::StringRef name,
+  inline explicit GlobalStatic(llvm::StringRef name,
                                  const rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
                                  rq::Module &module,
@@ -2181,10 +2179,10 @@ struct TemplateCategory : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateGlobalVariable : public rq::Template {
-  using Self = rq::TemplateGlobalVariable;
+struct TemplateGlobal : public rq::Template {
+  using Self = rq::TemplateGlobal;
 
-  inline explicit TemplateGlobalVariable(llvm::StringRef name,
+  inline explicit TemplateGlobal(llvm::StringRef name,
                                          const rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
@@ -2194,10 +2192,10 @@ struct TemplateGlobalVariable : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateGlobalStaticVariable : public rq::Template {
-  using Self = rq::TemplateGlobalStaticVariable;
+struct TemplateGlobalStatic : public rq::Template {
+  using Self = rq::TemplateGlobalStatic;
 
-  inline explicit TemplateGlobalStaticVariable(llvm::StringRef name,
+  inline explicit TemplateGlobalStatic(llvm::StringRef name,
                                          const rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
@@ -2337,10 +2335,10 @@ struct PartialCategory : public rq::Partial {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct PartialGlobalVariable : public rq::Partial {
-  using Self = rq::PartialGlobalVariable;
+struct PartialGlobal : public rq::Partial {
+  using Self = rq::PartialGlobal;
 
-  inline explicit PartialGlobalVariable(llvm::StringRef name,
+  inline explicit PartialGlobal(llvm::StringRef name,
                                         rq::Expression &expression,
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,
@@ -2349,10 +2347,10 @@ struct PartialGlobalVariable : public rq::Partial {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct PartialGlobalStaticVariable : public rq::Partial {
-  using Self = rq::PartialGlobalStaticVariable;
+struct PartialGlobalStatic : public rq::Partial {
+  using Self = rq::PartialGlobalStatic;
 
-  inline explicit PartialGlobalStaticVariable(llvm::StringRef name,
+  inline explicit PartialGlobalStatic(llvm::StringRef name,
                                         rq::Expression &expression,
                                         rq::ExpressionFlags attributes,
                                         rq::Module &module,

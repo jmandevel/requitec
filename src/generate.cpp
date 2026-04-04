@@ -31,8 +31,8 @@ void Generator::generateSourceModule() {
       this->implementProcedure(procedure);
       continue;
     }
-    if (llvm::isa<rq::GlobalVariable>(symbol)) {
-      rq::GlobalVariable &global = llvm::cast<rq::GlobalVariable>(symbol);
+    if (llvm::isa<rq::Global>(symbol)) {
+      rq::Global &global = llvm::cast<rq::Global>(symbol);
       if (global.getContainingModule() !=
           this->getContext().getSourceModule()) {
         continue;
@@ -40,7 +40,7 @@ void Generator::generateSourceModule() {
       if (global.getIsImplemented()) {
         continue;
       }
-      this->implementGlobalVariable(global);
+      this->implementGlobal(global);
       continue;
     }
   }
@@ -89,8 +89,8 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
         return;
       }
       llvm::StringRef name = name_o.value();
-      rq::GlobalVariable &variable =
-          this->getContext().allocateValue<rq::GlobalVariable>(
+      rq::Global &variable =
+          this->getContext().allocateValue<rq::Global>(
               name, unascribed_expression, factory.getFlags(), module,
               containing_table);
       variable.setTypeExpression(type_expression);
@@ -894,6 +894,7 @@ Generator::inferenceType(const rq::Expression &type_expression,
         this->getContext().acquireCodeunitLiteral(), {});
   case K::IDENTIFIER_LITERAL: {
     llvm::SmallVector<rq::Symbol *> matches{};
+    bool found_procedure = false;
     for (rq::SymbolTable &table : hosting_table.getInclusiveFrameSubrange()) {
       rq::BumpPtrListRef<rq::Symbol> list =
           table.getNamedListRef(type_expression.getSourceText());
@@ -917,12 +918,12 @@ Generator::inferenceType(const rq::Expression &type_expression,
           }
           matches.push_back(&symbol);
         } break;
-        case O::SY_LOCAL_VARIABLE: {
+        case O::SY_LOCAL: {
           // if we already managed to enter a table with a local, should be able to
           // access the local no mater what
           matches.push_back(&symbol);
         } break;
-        case O::SY_STATIC_VARIABLE: {
+        case O::SY_STATIC: {
           // if we already managed to enter a table with a static, should be able to
           // access the static no mater what
           matches.push_back(&symbol);
@@ -937,8 +938,8 @@ Generator::inferenceType(const rq::Expression &type_expression,
           // access the alternative no mater what
           matches.push_back(&symbol);
         } break;
-        case O::SY_GLOBAL_VARIABLE: {
-          rq::GlobalVariable &global = llvm::cast<rq::GlobalVariable>(symbol);
+        case O::SY_GLOBAL: {
+          rq::Global &global = llvm::cast<rq::Global>(symbol);
           // make sure this global is in the current module or was exported from
           // an imported module
           if (!global.getHasExport() &&
@@ -947,8 +948,8 @@ Generator::inferenceType(const rq::Expression &type_expression,
           }
           matches.push_back(&symbol);
         } break;
-        case O::SY_GLOBAL_STATIC_VARIABLE: {
-          rq::GlobalStaticVariable &global_static = llvm::cast<rq::GlobalStaticVariable>(symbol);
+        case O::SY_GLOBAL_STATIC: {
+          rq::GlobalStatic &global_static = llvm::cast<rq::GlobalStatic>(symbol);
           // make sure this global is in the current module or was exported from
           // an imported module
           if (!global_static.getHasExport() &&
@@ -1010,6 +1011,8 @@ Generator::inferenceType(const rq::Expression &type_expression,
               procedure.getContainingModule() != module) {
             continue;
           }
+          // procedure paths are not rvalues! log about this later, flag it for now.
+          found_procedure = true;
           matches.push_back(&symbol);
         } break;
         default:
@@ -1020,9 +1023,25 @@ Generator::inferenceType(const rq::Expression &type_expression,
         break;
       }
     }
-    if (matches.size() > 1) {
-      RQ_TODO_IMPLEMENTATION(); // name collision
+    //if (matches.size() > 1) {
+    //  this->getContext().logErrorNameCollision(type_expression);
+    //  for (rq::Symbol &symbol : matches) {
+    //    this->getContext().logInfoNameCollisionDeclaration(symbol);
+    //  }
+    //  this->setNotOk();
+    //}
+    //if (found_procedure) {
+    //  this->getContext().logErrorProcedureRvalue(type_expression);
+    //  for (rq::Symbol &symbol : matches) {
+    //    this->getContext().logInfoProcedureRvalueDeclaration(symbol);
+    //  }
+    //  this->setNotOk();
+    //}
+    if (matches.size() > 1 || found_procedure) {
+      return nullptr;
     }
+    rq::Symbol& match = rq::dereferencePtr(matches.front());
+    return &this->getContext().acquireTypeConstant(match, {});
   } break;
   default:
     break;
@@ -1053,7 +1072,7 @@ void Generator::implementProcedure(rq::Procedure &procedure) {
   }
 }
 
-void Generator::implementGlobalVariable(rq::GlobalVariable &global) {
+void Generator::implementGlobal(rq::Global &global) {
   std::ignore = global;
   RQ_TODO_IMPLEMENTATION();
 }
