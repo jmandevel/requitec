@@ -51,7 +51,7 @@ void Generator::generateSourceModule() {
 }
 
 void Generator::generateGlobalForest(const rq::Expression &first_expression,
-                                     rq::SymbolTable &hosting_table,
+                                     rq::Table &hosting_table,
                                      rq::Module &module) {
   using K = rq::Keyword;
   for (const rq::Expression &branch_expression :
@@ -62,7 +62,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
     if (branch_expression.getKeyword() == K::ASCRIBE_EXPRESSION) {
       factory.addAllAttributres(unascribed_expression);
     }
-    rq::SymbolTable &containing_table = this->determineContainingTable(
+    rq::Table &containing_table = this->determineContainingTable(
         factory, unascribed_expression, hosting_table, module);
     switch (unascribed_expression.getKeyword()) {
     case K::ASSIGN: {
@@ -644,7 +644,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
 
 rq::Instruction *
 Generator::generateLocalForest(const rq::Expression &first_expression,
-                               rq::SymbolTable &hosting_table,
+                               rq::Table &hosting_table,
                                rq::Procedure &procedure) {
   std::ignore = hosting_table;
   std::ignore = procedure;
@@ -657,7 +657,7 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
     if (branch_expression.getKeyword() == K::ASCRIBE_EXPRESSION) {
       factory.addAllAttributres(unascribed_expression);
     }
-    // rq::SymbolTable &containing_table = this->resolveContainingTable(
+    // rq::Table &containing_table = this->resolveContainingTable(
     //      factory, unascribed_expression, hosting_table);
     // rq::ExecutionFactory exec{};
     switch (unascribed_expression.getKeyword()) {
@@ -780,7 +780,7 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
 
 std::optional<llvm::StringRef>
 Generator::evaluateName(const rq::Expression &expression,
-                        rq::SymbolTable &hosting_table) {
+                        rq::Table &hosting_table) {
   RQ_ASSERT(expression.getKeyword() != rq::Keyword::NO_NAME,
             "must not be evaluated here");
   std::ignore = hosting_table;
@@ -794,7 +794,7 @@ Generator::evaluateName(const rq::Expression &expression,
 
 [[nodiscard]] std::optional<llvm::StringRef>
 Generator::evaluateUtf8Cstr(const rq::Expression &expression,
-                            rq::SymbolTable &hosting_table) {
+                            rq::Table &hosting_table) {
   std::ignore = hosting_table;
   if (expression.getKeyword() == rq::Keyword::STRING_LITERAL) {
     llvm::SmallString<16> cstr{};
@@ -803,10 +803,10 @@ Generator::evaluateUtf8Cstr(const rq::Expression &expression,
   return std::nullopt;
 }
 
-[[nodiscard]] rq::SymbolTable &
+[[nodiscard]] rq::Table &
 Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
                                     const rq::Expression &unascribed_expression,
-                                    rq::SymbolTable &hosting_table,
+                                    rq::Table &hosting_table,
                                     rq::Module &module) {
   std::ignore = factory;
   std::ignore = unascribed_expression;
@@ -833,22 +833,22 @@ Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
   //   }
   //   rq::Label &label = llvm::cast<rq::Label>(outside);
   //   rq::Entity &subject = label.getSubject();
-  //   if (!llvm::isa<rq::SymbolTable>(subject)) {
+  //   if (!llvm::isa<rq::Table>(subject)) {
   //     const rq::Expression &label_ascription = label.getAscription();
-  //     this->getContext().logErrorLabelSubjectNotSymbolTable(label_ascription);
+  //     this->getContext().logErrorLabelSubjectNotTable(label_ascription);
   //     this->getContext().logErrorFailedToAscribeExpression(
   //         unascribed_expression, outside_expression);
   //     this->setNotOk();
   //     return hosting_table;
   //   }
-  //   rq::SymbolTable &subject_symbol_table =
-  //       llvm::cast<rq::SymbolTable>(subject);
-  //   rq::SymbolTable &containing_table =
-  //       subject_symbol_table.getContainingSymbolTable();
+  //   rq::Table &subject_table =
+  //       llvm::cast<rq::Table>(subject);
+  //   rq::Table &containing_table =
+  //       subject_table.getContainingTable();
   //   {
   //     bool left_frame = false;
-  //     for (rq::SymbolTable &table :
-  //          subject_symbol_table.getInclusiveFrameSubrange()) {
+  //     for (rq::Table &table :
+  //          subject_table.getInclusiveFrameSubrange()) {
   //       if (table == containing_table) {
   //         if (left_frame) {
   //           this->getContext().logErrorOutsideNotInFrame(outside_expression);
@@ -874,7 +874,7 @@ Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
 
 [[nodiscard]] rq::TypeConstant *
 Generator::inferenceType(const rq::Expression &type_expression,
-                         rq::SymbolTable &hosting_table, rq::Module &module) {
+                         rq::Table &hosting_table, rq::Module &module) {
   std::ignore = module;
   // NOTE: this switch contains anything that can be rvalue situation
   using K = rq::Keyword;
@@ -895,7 +895,7 @@ Generator::inferenceType(const rq::Expression &type_expression,
   case K::IDENTIFIER_LITERAL: {
     llvm::SmallVector<rq::Symbol *> matches{};
     bool found_procedure = false;
-    for (rq::SymbolTable &table : hosting_table.getInclusiveFrameSubrange()) {
+    for (rq::Table &table : hosting_table.getInclusiveFrameSubrange()) {
       rq::BumpPtrListRef<rq::Symbol> list =
           table.getNamedListRef(type_expression.getSourceText());
       for (rq::Symbol &symbol : list) {

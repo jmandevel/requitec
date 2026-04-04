@@ -515,8 +515,8 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
   rq::emitLocation(context, json, symbol.getExpression());
 }
 
-static void emitSymbolTable(rq::Context &context, rq::JsonEmitter &json,
-                            const rq::SymbolTable &table) {
+static void emitTable(rq::Context &context, rq::JsonEmitter &json,
+                            const rq::Table &table) {
   json.beginArray("named");
   for (const auto &[name, list] : table.getNamedListsSubrange()) {
     json.beginObject();
@@ -558,7 +558,7 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
   case rq::Opcode::SY_NAMESPACE: {
     const auto &namespace_ = llvm::cast<rq::Namespace>(symbol);
     json.emitString("name", namespace_.getName());
-    rq::emitSymbolTable(context, json, namespace_);
+    rq::emitTable(context, json, namespace_);
   } break;
   case rq::Opcode::SY_CLASS: {
     const auto &class_ = llvm::cast<rq::Class>(symbol);
@@ -600,7 +600,7 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
   } break;
   case rq::Opcode::SY_TOP: {
     const auto &top = llvm::cast<rq::Top>(symbol);
-    rq::emitSymbolTable(context, json, top);
+    rq::emitTable(context, json, top);
   } break;
   default:
     RQ_TODO_IMPLEMENTATION();
@@ -1020,7 +1020,7 @@ void Context::logErrorNotLabel(const rq::Expression &expression) {
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorLabelSubjectNotSymbolTable(
+void Context::logErrorLabelSubjectNotTable(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "label does not refer to symbol table",

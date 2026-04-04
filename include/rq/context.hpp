@@ -306,7 +306,7 @@ struct Context final : public rq::BumpPtrAllocator {
                                          const rq::Expression &attribute);
   void logErrorNotSymbol(const rq::Expression &expression);
   void logErrorNotLabel(const rq::Expression &expression);
-  void logErrorLabelSubjectNotSymbolTable(const rq::Expression &expression);
+  void logErrorLabelSubjectNotTable(const rq::Expression &expression);
   void logErrorNotInTop(const rq::Expression &expression);
   void logErrorUnableToEvaluateName(const rq::Expression &expression);
   void logErrorUnableToEvaluateUtf8Cstr(const rq::Expression &expression);

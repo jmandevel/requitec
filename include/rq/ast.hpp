@@ -3045,7 +3045,7 @@ getHasAttribute(rq::ExpressionFlags flags, rq::ExpressionAttribute attribute) {
 }
 
 struct Expression;
-struct SymbolTableSymbol;
+struct TableSymbol;
 
 struct ExpressionFlagsFactory final {
   using Self = rq::ExpressionFlagsFactory;

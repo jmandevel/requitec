@@ -12,7 +12,7 @@ namespace rq {
 struct Context;
 struct Module;
 struct Expression;
-struct SymbolTable;
+struct Table;
 struct Instruction;
 
 template <rq::Opcode OPCODE_PARAM> struct InstructionFactory final {
@@ -78,23 +78,23 @@ struct Generator final {
   void setNotOk() { this->_is_ok = false; }
   void generateSourceModule();
   void generateGlobalForest(const rq::Expression &first,
-                            rq::SymbolTable &hosting_table, rq::Module &module);
+                            rq::Table &hosting_table, rq::Module &module);
   rq::Instruction *generateLocalForest(const rq::Expression &first,
-                                       rq::SymbolTable &hosting_table,
+                                       rq::Table &hosting_table,
                                        rq::Procedure &procedure);
   [[nodiscard]] std::optional<llvm::StringRef>
   evaluateName(const rq::Expression &expression,
-               rq::SymbolTable &hosting_table);
+               rq::Table &hosting_table);
   [[nodiscard]] std::optional<llvm::StringRef>
   evaluateUtf8Cstr(const rq::Expression &expression,
-                   rq::SymbolTable &hosting_table);
-  [[nodiscard]] rq::SymbolTable &
+                   rq::Table &hosting_table);
+  [[nodiscard]] rq::Table &
   determineContainingTable(const rq::ExpressionFlagsFactory &factory,
                            const rq::Expression &unascribed,
-                           rq::SymbolTable &hosting_table, rq::Module &module);
+                           rq::Table &hosting_table, rq::Module &module);
   [[nodiscard]] rq::TypeConstant *
   inferenceType(const rq::Expression &type_expression,
-                rq::SymbolTable &hosting_table, rq::Module &module);
+                rq::Table &hosting_table, rq::Module &module);
   void implementProcedure(rq::Procedure &procedure);
   void implementGlobal(rq::Global &global);
 };
