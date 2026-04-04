@@ -89,10 +89,9 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
         return;
       }
       llvm::StringRef name = name_o.value();
-      rq::Global &variable =
-          this->getContext().allocateValue<rq::Global>(
-              name, unascribed_expression, factory.getFlags(), module,
-              containing_table);
+      rq::Global &variable = this->getContext().allocateValue<rq::Global>(
+          name, unascribed_expression, factory.getFlags(), module,
+          containing_table);
       variable.setTypeExpression(type_expression);
       variable.setValueExpression(rvalue_expression);
       containing_table.addNamedSymbol(this->getContext(), name, variable);
@@ -895,6 +894,7 @@ Generator::inferenceType(const rq::Expression &type_expression,
   case K::IDENTIFIER_LITERAL: {
     llvm::SmallVector<rq::Symbol *> matches{};
     bool found_procedure = false;
+    bool found_template = false;
     for (rq::Table &table : hosting_table.getInclusiveFrameSubrange()) {
       rq::BumpPtrListRef<rq::Symbol> list =
           table.getNamedListRef(type_expression.getSourceText());
@@ -902,8 +902,6 @@ Generator::inferenceType(const rq::Expression &type_expression,
         switch (symbol.getOpcode()) {
         case O::SY_CODE: {
           rq::Code &code = llvm::cast<rq::Code>(symbol);
-          // make sure this code is in the current module or was exported from
-          // an imported module
           if (!code.getHasExport() && code.getContainingModule() != module) {
             continue;
           }
@@ -911,37 +909,25 @@ Generator::inferenceType(const rq::Expression &type_expression,
         } break;
         case O::SY_LABEL: {
           rq::Label &label = llvm::cast<rq::Label>(symbol);
-          // labels can not be exported directly (but can be stored in a
-          // constant static variable that is itself exported).
           if (label.getContainingModule() != module) {
             continue;
           }
           matches.push_back(&symbol);
         } break;
         case O::SY_LOCAL: {
-          // if we already managed to enter a table with a local, should be able to
-          // access the local no mater what
           matches.push_back(&symbol);
         } break;
         case O::SY_STATIC: {
-          // if we already managed to enter a table with a static, should be able to
-          // access the static no mater what
           matches.push_back(&symbol);
         } break;
         case O::SY_ENUMERATOR: {
-          // if we already managed to enter an enumerator table, should be able
-          // to access the enumerator no mater what
           matches.push_back(&symbol);
         } break;
         case O::SY_CATEGORY_ALTERNATIVE: {
-          // if we already managed to enter a category table, should be able to
-          // access the alternative no mater what
           matches.push_back(&symbol);
         } break;
         case O::SY_GLOBAL: {
           rq::Global &global = llvm::cast<rq::Global>(symbol);
-          // make sure this global is in the current module or was exported from
-          // an imported module
           if (!global.getHasExport() &&
               global.getContainingModule() != module) {
             continue;
@@ -949,9 +935,8 @@ Generator::inferenceType(const rq::Expression &type_expression,
           matches.push_back(&symbol);
         } break;
         case O::SY_GLOBAL_STATIC: {
-          rq::GlobalStatic &global_static = llvm::cast<rq::GlobalStatic>(symbol);
-          // make sure this global is in the current module or was exported from
-          // an imported module
+          rq::GlobalStatic &global_static =
+              llvm::cast<rq::GlobalStatic>(symbol);
           if (!global_static.getHasExport() &&
               global_static.getContainingModule() != module) {
             continue;
@@ -959,14 +944,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
           matches.push_back(&symbol);
         } break;
         case O::SY_NAMESPACE: {
-          // namespaces themselves are universally accessable (but their members
-          // are not always accessable)
           matches.push_back(&symbol);
         } break;
         case O::SY_CLASS: {
           rq::Class &class_ = llvm::cast<rq::Class>(symbol);
-          // make sure this class is in the current module or was exported from
-          // an imported module
           if (!class_.getHasExport() &&
               class_.getContainingModule() != module) {
             continue;
@@ -975,8 +956,6 @@ Generator::inferenceType(const rq::Expression &type_expression,
         } break;
         case O::SY_ENUMERATION: {
           rq::Enumeration &enumeration = llvm::cast<rq::Enumeration>(symbol);
-          // make sure this enumeration is in the current module or was exported
-          // from an imported module
           if (!enumeration.getHasExport() &&
               enumeration.getContainingModule() != module) {
             continue;
@@ -985,8 +964,6 @@ Generator::inferenceType(const rq::Expression &type_expression,
         } break;
         case O::SY_CATEGORY: {
           rq::Category &category = llvm::cast<rq::Category>(symbol);
-          // make sure this category is in the current module or was exported
-          // from an imported module
           if (!category.getHasExport() &&
               category.getContainingModule() != module) {
             continue;
@@ -1005,42 +982,109 @@ Generator::inferenceType(const rq::Expression &type_expression,
           [[fallthrough]];
         case O::SY_EXTENSION_RANGER: {
           rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
-          // make sure this procedure is in the current module or was exported
-          // from an imported module
           if (!procedure.getHasExport() &&
               procedure.getContainingModule() != module) {
             continue;
           }
-          // procedure paths are not rvalues! log about this later, flag it for now.
           found_procedure = true;
           matches.push_back(&symbol);
         } break;
+        case O::SY_TEMPLATE_CLASS:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_ENUMERATION:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_CATEGORY:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_GLOBAL:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_GLOBAL_STATIC:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_FUNCTION:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_METHOD:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_RANGER:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_EXTENSION_FUNCTION:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_EXTENSION_METHOD:
+          [[fallthrough]];
+        case O::SY_TEMPLATE_EXTENSION_RANGER: {
+          rq::Template &template_ = llvm::cast<rq::Template>(symbol);
+          if (!template_.getHasExport() &&
+              template_.getContainingModule() != module) {
+            continue;
+          }
+          found_template = true;
+          matches.push_back(&symbol);
+        } break;
+        case O::SY_PARTIAL_CLASS:
+          [[fallthrough]];
+        case O::SY_PARTIAL_ENUMERATION:
+          [[fallthrough]];
+        case O::SY_PARTIAL_CATEGORY:
+          [[fallthrough]];
+        case O::SY_PARTIAL_GLOBAL:
+          [[fallthrough]];
+        case O::SY_PARTIAL_GLOBAL_STATIC:
+          [[fallthrough]];
+        case O::SY_PARTIAL_FUNCTION:
+          [[fallthrough]];
+        case O::SY_PARTIAL_METHOD:
+          [[fallthrough]];
+        case O::SY_PARTIAL_RANGER:
+          [[fallthrough]];
+        case O::SY_PARTIAL_EXTENSION_FUNCTION:
+          [[fallthrough]];
+        case O::SY_PARTIAL_EXTENSION_METHOD:
+          [[fallthrough]];
+        case O::SY_PARTIAL_EXTENSION_RANGER:
+          // NOTE: only need to worry about catching templates because partial
+          // specializations are only valid if associated template in the same
+          // table is accessable.
+          break;
         default:
-          RQ_TODO_IMPLEMENTATION();
+          RQ_UNREACHABLE();
         }
       }
       if (!matches.empty()) {
         break;
       }
     }
-    //if (matches.size() > 1) {
-    //  this->getContext().logErrorNameCollision(type_expression);
-    //  for (rq::Symbol &symbol : matches) {
-    //    this->getContext().logInfoNameCollisionDeclaration(symbol);
-    //  }
-    //  this->setNotOk();
-    //}
-    //if (found_procedure) {
-    //  this->getContext().logErrorProcedureRvalue(type_expression);
-    //  for (rq::Symbol &symbol : matches) {
-    //    this->getContext().logInfoProcedureRvalueDeclaration(symbol);
-    //  }
-    //  this->setNotOk();
-    //}
+    if (matches.size() > 1) {
+      this->getContext().logErrorNameCollision(type_expression);
+      this->setNotOk();
+      for (rq::Symbol *symbol_ptr : matches) {
+        rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
+        this->getContext().logInfoNameCollisionDeclaration(symbol);
+      }
+    }
+    if (found_procedure) {
+      this->getContext().logErrorProcedureRvalue(type_expression);
+      for (rq::Symbol *symbol_ptr : matches) {
+        rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
+        if (llvm::isa<rq::Procedure>(symbol)) {
+          rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
+          this->getContext().logInfoProcedureRvalueDeclaration(procedure);
+        }
+      }
+      this->setNotOk();
+    }
+    if (found_template) {
+      this->getContext().logErrorTemplateRvalue(type_expression);
+      this->setNotOk();
+      for (rq::Symbol *symbol_ptr : matches) {
+        rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
+        if (llvm::isa<rq::Template>(symbol)) {
+          rq::Template &template_ = llvm::cast<rq::Template>(symbol);
+          this->getContext().logInfoTemplateRvalueDeclaration(template_);
+        }
+      }
+    }
     if (matches.size() > 1 || found_procedure) {
       return nullptr;
     }
-    rq::Symbol& match = rq::dereferencePtr(matches.front());
+    rq::Symbol &match = rq::dereferencePtr(matches.front());
     return &this->getContext().acquireTypeConstant(match, {});
   } break;
   default:

@@ -316,6 +316,12 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorOutsideNotAncestor(const rq::Expression &outside_expression);
   void logErrorNumeric(const rq::Expression &expression,
                        rq::NumericResultCode code);
+  void logErrorNameCollision(const rq::Expression& expression);
+  void logInfoNameCollisionDeclaration(rq::Symbol& symbol);
+  void logErrorProcedureRvalue(const rq::Expression& expression);
+  void logInfoProcedureRvalueDeclaration(rq::Procedure &procedure);
+  void logErrorTemplateRvalue(const rq::Expression& expression);
+  void logInfoTemplateRvalueDeclaration(rq::Template &template_);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");

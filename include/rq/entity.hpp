@@ -40,16 +40,16 @@ struct Context;
 // https://llvm.org/docs/HowToSetUpLLVMStyleRTTI.html
 
 // NOTE: everything in this tree is meant to be allocated within a
-// llvm::BumpPtrAllocator. Nothing has a destructor. Make use of rq::BumpPtrList
-// and rq::BumpPtrMap
+// llvm::BumpPtrAllocator besides symbol table maps, which require special
+// release function called on destruction.
+
+// NOTE: all symbols and constants have unique instances. you can always test if
+// two symbols/constants are exactly the same by comparing their pointers.
 
 enum class Opcode : std::uint16_t {
   NONE = 0,
 
   // =====SYMBOLS=====
-
-  // all symbols have unique instances. you can always test if two symbols
-  // are exactly the same by comparing their pointers.
 
   // SIMPLE BUILTIN
   SY_RESULT,
@@ -156,8 +156,8 @@ enum class Opcode : std::uint16_t {
   SY_TEMPLATE_CLASS,
   SY_TEMPLATE_ENUMERATION,
   SY_TEMPLATE_CATEGORY,
-  SY_TEMPLATE_GLOBAL_VARIABLE,
-  SY_TEMPLATE_GLOBAL_STATIC_VARIABLE,
+  SY_TEMPLATE_GLOBAL,
+  SY_TEMPLATE_GLOBAL_STATIC,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
   SY_TEMPLATE_RANGER,
@@ -169,8 +169,8 @@ enum class Opcode : std::uint16_t {
   SY_PARTIAL_CLASS,
   SY_PARTIAL_ENUMERATION,
   SY_PARTIAL_CATEGORY,
-  SY_PARTIAL_GLOBAL_VARIABLE,
-  SY_PARTIAL_GLOBAL_STATIC_VARIABLE,
+  SY_PARTIAL_GLOBAL,
+  SY_PARTIAL_GLOBAL_STATIC,
   SY_PARTIAL_FUNCTION,
   SY_PARTIAL_METHOD,
   SY_PARTIAL_RANGER,
@@ -615,8 +615,7 @@ struct TableMember {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingTable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &
-  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Table &getContainingTable();
 };
 struct TableHosted {
@@ -630,8 +629,7 @@ struct TableHosted {
   ~TableHosted() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &
-  getHostingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &getHostingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Table &getHostingTable();
 };
 struct InitialNamed {
@@ -702,10 +700,43 @@ struct Entity {
 
 template <> struct is_parent_only<rq::Entity> final : std::true_type {};
 
+struct DeclarationInfo {
+  using Self = rq::DeclarationInfo;
+
+  rq::Opcode _opcode;
+  llvm::StringRef _name{};
+  const rq::Expression *_expression_ptr{nullptr};
+  rq::Table *_containing_table_ptr{nullptr};
+  rq::Module *_containing_module_ptr{nullptr};
+
+  RQ_ALWAYS_INLINE explicit DeclarationInfo(rq::Opcode opcode);
+  explicit DeclarationInfo(const Self &) = default;
+  explicit DeclarationInfo(Self &&) = default;
+  ~DeclarationInfo() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const;
+  RQ_ALWAYS_INLINE void setName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  RQ_ALWAYS_INLINE void setExpression(const rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingTable() const;
+  RQ_ALWAYS_INLINE void setContainingTable(rq::Table &table);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Table &getContainingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingModule() const;
+  RQ_ALWAYS_INLINE void setContainingModule(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getContainingModule() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getContainingModule();
+};
+
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
 
-  inline Symbol(rq::Opcode opcode);
+  inline explicit Symbol(rq::Opcode opcode);
+  [[nodiscard]] inline rq::DeclarationInfo getDeclarationInfo();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1261,8 +1292,7 @@ struct ClassLayout final : public rq::ParameterListSubtype {
   inline explicit ClassLayout(rq::BumpPtrAllocator &allocator,
                               unsigned parameter_bucket_count,
                               rq::ExpressionFlags attributes,
-                              rq::Module &module,
-                              rq::Table &hosting_table);
+                              rq::Module &module, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1273,8 +1303,7 @@ struct TemplateLayout final : public rq::ParameterListSubtype {
 
   inline explicit TemplateLayout(rq::BumpPtrAllocator &allocator,
                                  unsigned parameter_bucket_count,
-                                 rq::Module &module,
-                                 rq::Table &hosting_table);
+                                 rq::Module &module, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1350,13 +1379,11 @@ struct ClassParameter : public rq::Parameter {
   inline explicit ClassParameter(llvm::StringRef name, rq::ClassLayout &layout,
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::Table &hosting_table);
+                                 rq::Module &module, rq::Table &hosting_table);
   inline explicit ClassParameter(rq::ClassLayout &layout,
                                  rq::Expression &expression,
                                  rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::Table &hosting_table);
+                                 rq::Module &module, rq::Table &hosting_table);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassLayout &getClassLayout() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassLayout &getClassLayout();
   [[nodiscard]] inline static bool classof(const Entity *entity);
@@ -1370,13 +1397,11 @@ struct LayoutParameter : public rq::Parameter {
   inline explicit LayoutParameter(llvm::StringRef name, rq::Layout &layout,
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::Table &hosting_table);
+                                  rq::Module &module, rq::Table &hosting_table);
   inline explicit LayoutParameter(rq::Layout &layout,
                                   rq::Expression &expression,
                                   rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::Table &hosting_table);
+                                  rq::Module &module, rq::Table &hosting_table);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout &getLayout() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &getLayout();
   [[nodiscard]] inline static bool classof(const Entity *entity);
@@ -1492,7 +1517,7 @@ static constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind);
 
 struct Module final : public rq::Symbol {
   using Self = rq::Module;
@@ -1501,9 +1526,10 @@ struct Module final : public rq::Symbol {
   rq::ModuleKind _module_kind;
   llvm::StringRef _path;
   llvm::MemoryBufferRef _buffer;
+  rq::Top *_top_ptr{nullptr};
 
   inline explicit Module(rq::ModuleKind kind, llvm::StringRef path,
-                         llvm::MemoryBufferRef &&buffer);
+                         llvm::MemoryBufferRef &&buffer, rq::Top &top);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
@@ -1516,6 +1542,8 @@ struct Module final : public rq::Symbol {
   replaceExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceExpressionPtr(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Top &getTop() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Top &getTop();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1543,8 +1571,7 @@ struct Code : public rq::Symbol,
 
   inline explicit Code(llvm::StringRef name, const rq::Expression &expression,
                        rq::ExpressionFlags attributes, rq::Module &module,
-                       rq::Table &containing_table,
-                       rq::Table &hosting_table);
+                       rq::Table &containing_table, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1596,11 +1623,11 @@ template <>
 struct is_acquired<rq::CategoryAlternative> final : std::true_type {};
 
 struct Local : public rq::Symbol,
-                       public rq::InitialExpression,
-                       public rq::InitialExpressionFlags,
-                       public rq::InitialModuleMember,
-                       public rq::TableMember,
-                       public rq::InitialNamed {
+               public rq::InitialExpression,
+               public rq::InitialExpressionFlags,
+               public rq::InitialModuleMember,
+               public rq::TableMember,
+               public rq::InitialNamed {
   using Self = rq::Local;
 
   bool _is_indeterminate : 1 {true};
@@ -1608,11 +1635,9 @@ struct Local : public rq::Symbol,
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit Local(llvm::StringRef name,
-                                const rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &containing_table);
+  inline explicit Local(llvm::StringRef name, const rq::Expression &expression,
+                        rq::ExpressionFlags attributes, rq::Module &module,
+                        rq::Table &containing_table);
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
   RQ_ALWAYS_INLINE void setNotIndeterminate();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
@@ -1625,11 +1650,11 @@ struct Local : public rq::Symbol,
 };
 
 struct Static : public rq::Symbol,
-                       public rq::InitialExpression,
-                       public rq::InitialExpressionFlags,
-                       public rq::InitialModuleMember,
-                       public rq::TableMember,
-                       public rq::InitialNamed {
+                public rq::InitialExpression,
+                public rq::InitialExpressionFlags,
+                public rq::InitialModuleMember,
+                public rq::TableMember,
+                public rq::InitialNamed {
   using Self = rq::Static;
 
   bool _is_indeterminate : 1 {true};
@@ -1637,11 +1662,9 @@ struct Static : public rq::Symbol,
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit Static(llvm::StringRef name,
-                                const rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &containing_table);
+  inline explicit Static(llvm::StringRef name, const rq::Expression &expression,
+                         rq::ExpressionFlags attributes, rq::Module &module,
+                         rq::Table &containing_table);
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
   RQ_ALWAYS_INLINE void setNotIndeterminate();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
@@ -1684,6 +1707,8 @@ struct CategoryAlternative : public rq::Symbol,
                                       rq::Expression &expression,
                                       rq::ExpressionFlags attributes,
                                       rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Code &getCode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Code &getCode();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1765,8 +1790,7 @@ struct ConstMemberTableIterator final {
   const rq::Table *_table_ptr = nullptr;
 
   ConstMemberTableIterator() = default;
-  inline explicit ConstMemberTableIterator(
-      const rq::Table *table_ptr);
+  inline explicit ConstMemberTableIterator(const rq::Table *table_ptr);
   RQ_ALWAYS_INLINE Self &operator++();
   RQ_ALWAYS_INLINE Self operator++(int);
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
@@ -1786,8 +1810,7 @@ struct Table : public rq::Symbol, public rq::TableMember {
   rq::BumpPtrList<rq::Symbol> _unamed_symbols_list{};
 
   inline explicit Table(rq::Opcode opcode);
-  inline explicit Table(rq::Opcode opcode,
-                              rq::Table &containing_table);
+  inline explicit Table(rq::Opcode opcode, rq::Table &containing_table);
   inline void release();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstBumpPtrListRef<rq::Symbol>
   getUnamedSymbolsListRef() const;
@@ -1813,8 +1836,7 @@ struct Table : public rq::Symbol, public rq::TableMember {
       std::ranges::subrange_kind::unsized>
   getInclusiveFrameSubrange() const;
   [[nodiscard]] inline std::ranges::subrange<
-      rq::TableIterator, rq::TableIterator,
-      std::ranges::subrange_kind::unsized>
+      rq::TableIterator, rq::TableIterator, std::ranges::subrange_kind::unsized>
   getInclusiveFrameSubrange();
   [[nodiscard]] inline std::ranges::subrange<
       rq::MemberTableIterator, rq::MemberTableIterator,
@@ -1837,10 +1859,10 @@ struct Top : public rq::Table {
 };
 
 struct Global : public rq::Table,
-                        public rq::InitialExpression,
-                        public rq::InitialExpressionFlags,
-                        public rq::InitialModuleMember,
-                        public rq::InitialNamed {
+                public rq::InitialExpression,
+                public rq::InitialExpressionFlags,
+                public rq::InitialModuleMember,
+                public rq::InitialNamed {
   using Self = rq::Global;
 
   bool _is_implemented : 1 {false};
@@ -1848,11 +1870,9 @@ struct Global : public rq::Table,
   const rq::Expression *_type_expression_ptr{nullptr};
   const rq::Expression *_value_expression_ptr{nullptr};
 
-  inline explicit Global(llvm::StringRef name,
-                                 const rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::Table &containing_table);
+  inline explicit Global(llvm::StringRef name, const rq::Expression &expression,
+                         rq::ExpressionFlags attributes, rq::Module &module,
+                         rq::Table &containing_table);
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
   RQ_ALWAYS_INLINE void setIsImplemented();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
@@ -1865,10 +1885,10 @@ struct Global : public rq::Table,
 };
 
 struct GlobalStatic : public rq::Table,
-                        public rq::InitialExpression,
-                        public rq::InitialExpressionFlags,
-                        public rq::InitialModuleMember,
-                        public rq::InitialNamed {
+                      public rq::InitialExpression,
+                      public rq::InitialExpressionFlags,
+                      public rq::InitialModuleMember,
+                      public rq::InitialNamed {
   using Self = rq::Global;
 
   bool _is_implemented : 1 {false};
@@ -1877,10 +1897,9 @@ struct GlobalStatic : public rq::Table,
   const rq::Expression *_value_expression_ptr{nullptr};
 
   inline explicit GlobalStatic(llvm::StringRef name,
-                                 const rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::Table &containing_table);
+                               const rq::Expression &expression,
+                               rq::ExpressionFlags attributes,
+                               rq::Module &module, rq::Table &containing_table);
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
   RQ_ALWAYS_INLINE void setIsImplemented();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
@@ -1905,8 +1924,7 @@ struct Scope : public rq::Table,
 struct Namespace : public rq::Table, rq::InitialNamed {
   using Self = rq::Namespace;
 
-  inline explicit Namespace(llvm::StringRef name,
-                            rq::Table &containing_table);
+  inline explicit Namespace(llvm::StringRef name, rq::Table &containing_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1924,8 +1942,7 @@ struct Class : public rq::Table,
 
   inline explicit Class(llvm::StringRef name, const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
-                        rq::Table &containing_table,
-                        rq::Table &hosting_table);
+                        rq::Table &containing_table, rq::Table &hosting_table);
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
   RQ_ALWAYS_INLINE void setIsImplemented();
   inline void setClassLayoutExpression(const rq::Expression &layout_expression);
@@ -1946,8 +1963,7 @@ struct Enumeration : public rq::Table,
   inline explicit Enumeration(llvm::StringRef name,
                               const rq::Expression &expression,
                               rq::ExpressionFlags attributes,
-                              rq::Module &module,
-                              rq::Table &containing_table,
+                              rq::Module &module, rq::Table &containing_table,
                               rq::Table &hosting_table);
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplemented() const;
   RQ_ALWAYS_INLINE void setIsImplemented();
@@ -2043,8 +2059,7 @@ struct Entry : public rq::Procedure {
 
   inline explicit Entry(const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
-                        rq::Table &containing_table,
-                        rq::Table &hosting_table);
+                        rq::Table &containing_table, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2064,8 +2079,7 @@ struct Method : public rq::Procedure {
 
   inline explicit Method(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
-                         rq::Table &containing_table,
-                         rq::Table &hosting_table);
+                         rq::Table &containing_table, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2074,8 +2088,7 @@ struct Ranger : public rq::Procedure {
 
   inline explicit Ranger(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
-                         rq::Table &containing_table,
-                         rq::Table &hosting_table);
+                         rq::Table &containing_table, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2146,8 +2159,7 @@ struct TemplateClass : public rq::Template {
   inline explicit TemplateClass(llvm::StringRef name,
                                 const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &containing_table,
+                                rq::Module &module, rq::Table &containing_table,
                                 rq::Table &hosting_table,
                                 rq::TemplateLayout &template_layout);
   [[nodiscard]] inline static bool classof(const Entity *entity);
@@ -2183,12 +2195,12 @@ struct TemplateGlobal : public rq::Template {
   using Self = rq::TemplateGlobal;
 
   inline explicit TemplateGlobal(llvm::StringRef name,
-                                         const rq::Expression &expression,
-                                         rq::ExpressionFlags attributes,
-                                         rq::Module &module,
-                                         rq::Table &containing_table,
-                                         rq::Table &hosting_table,
-                                         rq::TemplateLayout &template_layout);
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::Table &containing_table,
+                                 rq::Table &hosting_table,
+                                 rq::TemplateLayout &template_layout);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2196,12 +2208,12 @@ struct TemplateGlobalStatic : public rq::Template {
   using Self = rq::TemplateGlobalStatic;
 
   inline explicit TemplateGlobalStatic(llvm::StringRef name,
-                                         const rq::Expression &expression,
-                                         rq::ExpressionFlags attributes,
-                                         rq::Module &module,
-                                         rq::Table &containing_table,
-                                         rq::Table &hosting_table,
-                                         rq::TemplateLayout &template_layout);
+                                       const rq::Expression &expression,
+                                       rq::ExpressionFlags attributes,
+                                       rq::Module &module,
+                                       rq::Table &containing_table,
+                                       rq::Table &hosting_table,
+                                       rq::TemplateLayout &template_layout);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2305,8 +2317,7 @@ struct PartialClass : public rq::Partial {
 
   inline explicit PartialClass(llvm::StringRef name, rq::Expression &expression,
                                rq::ExpressionFlags attributes,
-                               rq::Module &module,
-                               rq::Table &containing_table,
+                               rq::Module &module, rq::Table &containing_table,
                                rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
@@ -2339,11 +2350,10 @@ struct PartialGlobal : public rq::Partial {
   using Self = rq::PartialGlobal;
 
   inline explicit PartialGlobal(llvm::StringRef name,
-                                        rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::Table &containing_table,
-                                        rq::Table &hosting_table);
+                                rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module, rq::Table &containing_table,
+                                rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2351,11 +2361,11 @@ struct PartialGlobalStatic : public rq::Partial {
   using Self = rq::PartialGlobalStatic;
 
   inline explicit PartialGlobalStatic(llvm::StringRef name,
-                                        rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::Table &containing_table,
-                                        rq::Table &hosting_table);
+                                      rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::Table &containing_table,
+                                      rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2377,8 +2387,7 @@ struct PartialMethod : public rq::Partial {
   inline explicit PartialMethod(llvm::StringRef name,
                                 rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &containing_table,
+                                rq::Module &module, rq::Table &containing_table,
                                 rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
@@ -2389,8 +2398,7 @@ struct PartialRanger : public rq::Partial {
   inline explicit PartialRanger(llvm::StringRef name,
                                 rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &containing_table,
+                                rq::Module &module, rq::Table &containing_table,
                                 rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };

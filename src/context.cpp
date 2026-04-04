@@ -2,12 +2,12 @@
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
 #include <rq/entity.hpp>
+#include <rq/generate.hpp>
 #include <rq/json.hpp>
 #include <rq/literals.hpp>
 #include <rq/options.hpp>
 #include <rq/parse.hpp>
 #include <rq/situate.hpp>
-#include <rq/generate.hpp>
 #include <rq/tokenize.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
@@ -158,7 +158,8 @@ bool Context::loadSourceModule() {
   }
   llvm::StringRef final_path = this->saveString(input_path);
   rq::Module &source_module = this->allocateAcquiredValue<rq::Module>(
-      rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()));
+      rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()),
+      this->getTop());
   rq::assignSingleValue(this->_source_module_ptr, &source_module);
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       input_path, &this->getSourceModule()));
@@ -200,7 +201,8 @@ rq::Module *Context::loadImportModule(const rq::Expression &expression,
   }
   llvm::StringRef final_path = this->saveString(found_path);
   rq::Module &import_module = this->allocateAcquiredValue<rq::Module>(
-      rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()));
+      rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()),
+      this->getTop());
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -267,7 +269,7 @@ bool Context::run() {
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
     if (!this->emitRequite(rq::getOutputFilePath(),
                            this->getSourceModule().getExpression())) {
-        return false;
+      return false;
     }
     return true;
   }
@@ -279,7 +281,7 @@ bool Context::run() {
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
     if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
-        return false;
+      return false;
     }
     return true;
   }
@@ -288,19 +290,19 @@ bool Context::run() {
   }
   if (rq::getEmitMode() == rq::EMIT_IR) {
     if (!this->emitLlvmIr(rq::getOutputFilePath())) {
-        return false;
+      return false;
     }
     return true;
   }
   if (rq::getEmitMode() == rq::EMIT_ASSEMBLY) {
     if (!this->emitAssembly(rq::getOutputFilePath())) {
-        return false;
+      return false;
     }
     return true;
   }
   if (rq::getEmitMode() == rq::EMIT_OBJECT) {
     if (!this->emitObject(rq::getOutputFilePath())) {
-        return false;
+      return false;
     }
     return true;
   }
@@ -516,7 +518,7 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 }
 
 static void emitTable(rq::Context &context, rq::JsonEmitter &json,
-                            const rq::Table &table) {
+                      const rq::Table &table) {
   json.beginArray("named");
   for (const auto &[name, list] : table.getNamedListsSubrange()) {
     json.beginObject();
@@ -1020,8 +1022,7 @@ void Context::logErrorNotLabel(const rq::Expression &expression) {
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorLabelSubjectNotTable(
-    const rq::Expression &expression) {
+void Context::logErrorLabelSubjectNotTable(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "label does not refer to symbol table",
                    {expression.getLlvmSourceRange()}, {});
@@ -1076,6 +1077,49 @@ void Context::logErrorNumeric(const rq::Expression &expression,
                    llvm::Twine("error parsing numeric literal: ") +
                        rq::getDescription(code),
                    {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorNameCollision(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "name collision", expression.getLlvmSourceRange(), {});
+}
+
+void Context::logInfoNameCollisionDeclaration(rq::Symbol &symbol) {
+  rq::DeclarationInfo info = symbol.getDeclarationInfo();
+  this->logMessage(info.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
+                   llvm::Twine("name collision with ") +
+                       rq::getName(info.getOpcode()),
+                   info.getExpression().getLlvmSourceRange(), {});
+}
+
+void Context::logErrorProcedureRvalue(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "procedure rvalue", expression.getLlvmSourceRange(), {});
+}
+
+void Context::logInfoProcedureRvalueDeclaration(rq::Procedure &procedure) {
+  this->logMessage(
+      procedure.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
+      llvm::Twine("procedure  ") +
+          (procedure.getName().empty() ? "[no_name]" : procedure.getName()) +
+          llvm::Twine(" of kind ") + rq::getName(procedure.getOpcode()) +
+          llvm::Twine(" referenced as rvalue"),
+      procedure.getExpression().getLlvmSourceRange(), {});
+}
+
+void Context::logErrorTemplateRvalue(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "template rvalue", expression.getLlvmSourceRange(), {});
+}
+
+void Context::logInfoTemplateRvalueDeclaration(rq::Template &template_) {
+  this->logMessage(
+      template_.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
+      llvm::Twine("template  ") +
+          (template_.getName().empty() ? "[no_name]" : template_.getName()) +
+          llvm::Twine(" of kind ") + rq::getName(template_.getOpcode()) +
+          llvm::Twine(" referenced as rvalue"),
+      template_.getExpression().getLlvmSourceRange(), {});
 }
 
 rq::Expression &Context::acquireExpression() {

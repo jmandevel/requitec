@@ -173,10 +173,10 @@ namespace rq {
     return "sy_template_enumeration";
   case O::SY_TEMPLATE_CATEGORY:
     return "sy_template_category";
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
-    return "sy_template_global_variable";
-  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
-    return "sy_template_global_static_variable";
+  case O::SY_TEMPLATE_GLOBAL:
+    return "sy_template_global";
+  case O::SY_TEMPLATE_GLOBAL_STATIC:
+    return "sy_template_global_static";
   case O::SY_TEMPLATE_FUNCTION:
     return "sy_template_function";
   case O::SY_TEMPLATE_METHOD:
@@ -195,10 +195,10 @@ namespace rq {
     return "sy_partial_enumeration";
   case O::SY_PARTIAL_CATEGORY:
     return "sy_partial_category";
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return "sy_partial_global_variable";
-  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
-    return "sy_partial_global_static_variable";
+  case O::SY_PARTIAL_GLOBAL:
+    return "sy_partial_global";
+  case O::SY_PARTIAL_GLOBAL_STATIC:
+    return "sy_partial_global_static";
   case O::SY_PARTIAL_FUNCTION:
     return "sy_partial_function";
   case O::SY_PARTIAL_METHOD:
@@ -488,14 +488,14 @@ namespace rq {
   case O::SY_NAMESPACE:
     return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
   case O::SY_CLASS:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE |
-           OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
+           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_ENUMERATION:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE |
-           OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
+           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_CATEGORY:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE |
-           OF::SY_TOP_OF_FRAME | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
+           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_ENTRY:
     return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME;
   case O::SY_FUNCTION:
@@ -522,9 +522,9 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_CATEGORY:
     return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL:
     return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC:
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_FUNCTION:
     return OF::SYMBOL | OF::SY_TEMPLATE;
@@ -544,9 +544,9 @@ namespace rq {
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_CATEGORY:
     return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
+  case O::SY_PARTIAL_GLOBAL:
     return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
+  case O::SY_PARTIAL_GLOBAL_STATIC:
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_FUNCTION:
     return OF::SYMBOL | OF::SY_PARTIAL;
@@ -863,16 +863,16 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     return O::SY_TEMPLATE_CATEGORY;
   case O::SY_GLOBAL:
     [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return O::SY_TEMPLATE_GLOBAL_VARIABLE;
+  case O::SY_PARTIAL_GLOBAL:
+    return O::SY_TEMPLATE_GLOBAL;
   case O::SY_STATIC:
     [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
-    return O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE;
+  case O::SY_PARTIAL_GLOBAL_STATIC:
+    return O::SY_TEMPLATE_GLOBAL_STATIC;
   case O::SY_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_FUNCTION:
@@ -940,16 +940,16 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     return O::SY_PARTIAL_CATEGORY;
   case O::SY_GLOBAL:
     [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
-    return O::SY_PARTIAL_GLOBAL_VARIABLE;
+  case O::SY_PARTIAL_GLOBAL:
+    return O::SY_PARTIAL_GLOBAL;
   case O::SY_STATIC:
     [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
-    return O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE;
+  case O::SY_PARTIAL_GLOBAL_STATIC:
+    return O::SY_PARTIAL_GLOBAL_STATIC;
   case O::SY_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_FUNCTION:
@@ -1017,15 +1017,15 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     return O::SY_CATEGORY;
   case O::SY_GLOBAL:
     [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_VARIABLE:
+  case O::SY_PARTIAL_GLOBAL:
     return O::SY_GLOBAL;
   case O::SY_STATIC:
     [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE:
+  case O::SY_TEMPLATE_GLOBAL_STATIC:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC_VARIABLE:
+  case O::SY_PARTIAL_GLOBAL_STATIC:
     return O::SY_STATIC;
   case O::SY_FUNCTION:
     [[fallthrough]];
@@ -1283,8 +1283,7 @@ InitialModuleMember::getContainingModule() {
 inline TableMember::TableMember(rq::Table &containing_table)
     : _containing_table_ptr(&containing_table) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-TableMember::getHasContainingTable() const {
+[[nodiscard]] RQ_ALWAYS_INLINE bool TableMember::getHasContainingTable() const {
   return this->_containing_table_ptr != nullptr;
 }
 
@@ -1293,8 +1292,7 @@ TableMember::getContainingTable() const {
   return rq::dereferencePtr(this->_containing_table_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &
-TableMember::getContainingTable() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &TableMember::getContainingTable() {
   return rq::dereferencePtr(this->_containing_table_ptr);
 }
 
@@ -1307,8 +1305,7 @@ TableHosted::getHostingTable() const {
   return rq::dereferencePtr(this->_hosting_table_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &
-TableHosted::getHostingTable() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &TableHosted::getHostingTable() {
   return rq::dereferencePtr(this->_hosting_table_ptr);
 }
 
@@ -1438,7 +1435,255 @@ Entity::operator!=(const Entity &other) const {
   return true;
 }
 
+RQ_ALWAYS_INLINE DeclarationInfo::DeclarationInfo(rq::Opcode opcode)
+    : _opcode(opcode) {
+  RQ_ASSERT(rq::getIsSymbol(opcode), "not symbol");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode DeclarationInfo::getOpcode() {
+  return this->_opcode;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool DeclarationInfo::getHasName() const {
+  return !this->_name.empty();
+}
+
+RQ_ALWAYS_INLINE void DeclarationInfo::setName(llvm::StringRef name) {
+  RQ_ASSERT(!this->getHasName(), "already has name");
+  this->_name = name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+DeclarationInfo::getName() const {
+  RQ_ASSERT(this->getHasName(), "no name");
+  return this->_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool DeclarationInfo::getHasExpression() const {
+  return this->_expression_ptr != nullptr;
+}
+
+RQ_ALWAYS_INLINE void
+DeclarationInfo::setExpression(const rq::Expression &expression) {
+  rq::assignSingleValue(this->_expression_ptr, &expression);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+DeclarationInfo::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+DeclarationInfo::getHasContainingTable() const {
+  return this->_containing_table_ptr != nullptr;
+}
+
+RQ_ALWAYS_INLINE void DeclarationInfo::setContainingTable(rq::Table &table) {
+  rq::assignSingleValue(this->_containing_table_ptr, &table);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Table &
+DeclarationInfo::getContainingTable() const {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &
+DeclarationInfo::getContainingTable() {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+DeclarationInfo::getHasContainingModule() const {
+  return this->_containing_module_ptr != nullptr;
+}
+
+RQ_ALWAYS_INLINE void DeclarationInfo::setContainingModule(rq::Module &module) {
+  rq::assignSingleValue(this->_containing_module_ptr, &module);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &
+DeclarationInfo::getContainingModule() const {
+  return rq::dereferencePtr(this->_containing_module_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module &
+DeclarationInfo::getContainingModule() {
+  return rq::dereferencePtr(this->_containing_module_ptr);
+}
+
 inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
+
+[[nodiscard]] inline rq::DeclarationInfo Symbol::getDeclarationInfo() {
+  using O = rq::Opcode;
+  rq::DeclarationInfo info{this->getOpcode()};
+  switch (this->getOpcode()) {
+  case O::SY_IMPORT: {
+    rq::Import &import = llvm::cast<rq::Import>(*this);
+    info.setContainingModule(import.getContainingModule());
+    info.setContainingTable(import.getContainingModule().getTop());
+    info.setExpression(import.getExpression());
+  } break;
+  case O::SY_CODE: {
+    rq::Code &code = llvm::cast<rq::Code>(*this);
+    info.setContainingModule(code.getContainingModule());
+    info.setContainingTable(code.getContainingTable());
+    info.setName(code.getName());
+    info.setExpression(code.getExpression());
+  } break;
+  case O::SY_LABEL: {
+    rq::Label &label = llvm::cast<rq::Label>(*this);
+    info.setContainingModule(label.getContainingModule());
+    info.setContainingTable(label.getContainingTable());
+    info.setName(label.getName());
+    info.setExpression(label.getExpression());
+  } break;
+  case O::SY_LOCAL: {
+    rq::Local &local = llvm::cast<rq::Local>(*this);
+    info.setContainingModule(local.getContainingModule());
+    info.setContainingTable(local.getContainingTable());
+    info.setName(local.getName());
+    info.setExpression(local.getExpression());
+  } break;
+  case O::SY_STATIC: {
+    rq::Static &static_ = llvm::cast<rq::Static>(*this);
+    info.setContainingModule(static_.getContainingModule());
+    info.setContainingTable(static_.getContainingTable());
+    info.setName(static_.getName());
+    info.setExpression(static_.getExpression());
+  } break;
+  case O::SY_ENUMERATOR: {
+    rq::Enumerator &enumerator = llvm::cast<rq::Enumerator>(*this);
+    info.setContainingModule(enumerator.getContainingModule());
+    info.setContainingTable(enumerator.getContainingTable());
+    info.setName(enumerator.getName());
+    info.setExpression(enumerator.getExpression());
+  } break;
+  case O::SY_CATEGORY_ALTERNATIVE: {
+    rq::CategoryAlternative &alternative =
+        llvm::cast<rq::CategoryAlternative>(*this);
+    info.setContainingModule(alternative.getContainingModule());
+    info.setContainingTable(alternative.getContainingTable());
+    info.setName(alternative.getCode().getName());
+    info.setExpression(alternative.getExpression());
+  } break;
+  case O::SY_GLOBAL: {
+    rq::Global &global = llvm::cast<rq::Global>(*this);
+    info.setContainingModule(global.getContainingModule());
+    info.setContainingTable(global.getContainingTable());
+    info.setName(global.getName());
+    info.setExpression(global.getExpression());
+  } break;
+  case O::SY_GLOBAL_STATIC: {
+    rq::GlobalStatic &global_static = llvm::cast<rq::GlobalStatic>(*this);
+    info.setContainingModule(global_static.getContainingModule());
+    info.setContainingTable(global_static.getContainingTable());
+    info.setName(global_static.getName());
+    info.setExpression(global_static.getExpression());
+  } break;
+  case O::SY_NAMESPACE: {
+    rq::Namespace &namespace_ = llvm::cast<rq::Namespace>(*this);
+    info.setContainingTable(namespace_.getContainingTable());
+    info.setName(namespace_.getName());
+  } break;
+  case O::SY_CLASS: {
+    rq::Class &class_ = llvm::cast<rq::Class>(*this);
+    info.setContainingModule(class_.getContainingModule());
+    info.setContainingTable(class_.getContainingTable());
+    info.setName(class_.getName());
+    info.setExpression(class_.getExpression());
+  } break;
+  case O::SY_ENUMERATION: {
+    rq::Enumeration &enumeration = llvm::cast<rq::Enumeration>(*this);
+    info.setContainingModule(enumeration.getContainingModule());
+    info.setContainingTable(enumeration.getContainingTable());
+    info.setName(enumeration.getName());
+    info.setExpression(enumeration.getExpression());
+  } break;
+  case O::SY_CATEGORY: {
+    rq::Category &category = llvm::cast<rq::Category>(*this);
+    info.setContainingModule(category.getContainingModule());
+    info.setContainingTable(category.getContainingTable());
+    info.setName(category.getName());
+    info.setExpression(category.getExpression());
+  } break;
+  case O::SY_ENTRY:
+    [[fallthrough]];
+  case O::SY_FUNCTION:
+    [[fallthrough]];
+  case O::SY_METHOD:
+    [[fallthrough]];
+  case O::SY_RANGER:
+    [[fallthrough]];
+  case O::SY_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case O::SY_EXTENSION_METHOD:
+    [[fallthrough]];
+  case O::SY_EXTENSION_RANGER: {
+    rq::Procedure &procedure = llvm::cast<rq::Procedure>(*this);
+    info.setContainingModule(procedure.getContainingModule());
+    info.setContainingTable(procedure.getContainingTable());
+    info.setName(procedure.getName());
+    info.setExpression(procedure.getExpression());
+  } break;
+  case O::SY_TEMPLATE_CLASS:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_ENUMERATION:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_CATEGORY:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_GLOBAL:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_GLOBAL_STATIC:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_FUNCTION:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_METHOD:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_RANGER:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_EXTENSION_METHOD:
+    [[fallthrough]];
+  case O::SY_TEMPLATE_EXTENSION_RANGER: {
+    rq::Template &template_ = llvm::cast<rq::Template>(*this);
+    info.setContainingModule(template_.getContainingModule());
+    info.setContainingTable(template_.getContainingTable());
+    info.setName(template_.getName());
+    info.setExpression(template_.getExpression());
+  } break;
+  case O::SY_PARTIAL_CLASS:
+    [[fallthrough]];
+  case O::SY_PARTIAL_ENUMERATION:
+    [[fallthrough]];
+  case O::SY_PARTIAL_CATEGORY:
+    [[fallthrough]];
+  case O::SY_PARTIAL_GLOBAL:
+    [[fallthrough]];
+  case O::SY_PARTIAL_GLOBAL_STATIC:
+    [[fallthrough]];
+  case O::SY_PARTIAL_FUNCTION:
+    [[fallthrough]];
+  case O::SY_PARTIAL_METHOD:
+    [[fallthrough]];
+  case O::SY_PARTIAL_RANGER:
+    [[fallthrough]];
+  case O::SY_PARTIAL_EXTENSION_FUNCTION:
+    [[fallthrough]];
+  case O::SY_PARTIAL_EXTENSION_METHOD:
+    [[fallthrough]];
+  case O::SY_PARTIAL_EXTENSION_RANGER: {
+    rq::Partial &partial = llvm::cast<rq::Partial>(*this);
+    info.setContainingModule(partial.getContainingModule());
+    info.setContainingTable(partial.getContainingTable());
+    info.setName(partial.getName());
+    info.setExpression(partial.getExpression());
+  } break;
+  default:
+    RQ_UNREACHABLE();
+  }
+  return rq::DeclarationInfo(info);
+}
 
 [[nodiscard]] inline bool Symbol::classof(const Entity *entity) {
   return rq::getIsSymbol(rq::dereferencePtr(entity).getOpcode());
@@ -1550,8 +1795,7 @@ inline SignedConstraint::SignedConstraint()
 }
 
 RQ_ALWAYS_INLINE rq::TableIterator &TableIterator::operator++() {
-  this->_table_ptr =
-      rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
   return *this;
 }
 
@@ -1961,8 +2205,7 @@ inline Layout::Layout(rq::BumpPtrAllocator &allocator,
 inline ClassLayout::ClassLayout(rq::BumpPtrAllocator &allocator,
                                 unsigned parameter_bucket_count,
                                 rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &hosting_table)
+                                rq::Module &module, rq::Table &hosting_table)
     : ParameterListSubtype(allocator, parameter_bucket_count,
                            rq::Opcode::SY_CLASS_LAYOUT, attributes, module,
                            hosting_table) {}
@@ -2282,9 +2525,9 @@ InfiniteArithmeticProgression::classof(const Entity *entity) {
          rq::Opcode::SY_INFINITE_ARITHMETIC_PROGRESSION;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
   using M = rq::ModuleKind;
-  switch (opcode) {
+  switch (kind) {
   case M::NONE:
     return "none";
   case M::SOURCE:
@@ -2296,9 +2539,9 @@ InfiniteArithmeticProgression::classof(const Entity *entity) {
 }
 
 inline Module::Module(rq::ModuleKind kind, llvm::StringRef path,
-                      llvm::MemoryBufferRef &&buffer)
+                      llvm::MemoryBufferRef &&buffer, rq::Top &top)
     : Symbol(rq::Opcode::SY_MODULE), _module_kind(kind), _path(path),
-      _buffer(buffer) {}
+      _buffer(buffer), _top_ptr(&top) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind Module::getModuleKind() const {
   return this->_module_kind;
@@ -2343,6 +2586,14 @@ Module::replaceExpressionPtr(rq::Expression &expression) {
   return rq::replaceValuPtr(this->_expression_ptr, &expression);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Top &Module::getTop() const {
+  return rq::dereferencePtr(this->_top_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Top &Module::getTop() {
+  return rq::dereferencePtr(this->_top_ptr);
+}
+
 [[nodiscard]] inline bool Module::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_MODULE;
 }
@@ -2358,8 +2609,7 @@ inline Import::Import(const rq::Expression &expression,
 
 inline Code::Code(llvm::StringRef name, const rq::Expression &expression,
                   rq::ExpressionFlags attributes, rq::Module &module,
-                  rq::Table &containing_table,
-                  rq::Table &hosting_table)
+                  rq::Table &containing_table, rq::Table &hosting_table)
     : Symbol(rq::Opcode::SY_CODE), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
       TableMember(containing_table), TableHosted(hosting_table),
@@ -2442,8 +2692,7 @@ TableIterator::operator!=(const Self &it) const {
   return this->_table_ptr != it._table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &
-TableIterator::operator*() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &TableIterator::operator*() {
   return rq::dereferencePtr(this->_table_ptr);
 }
 
@@ -2452,8 +2701,7 @@ TableIterator::operator*() const {
   return rq::dereferencePtr(this->_table_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Table *
-TableIterator::operator->() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table *TableIterator::operator->() {
   return this->_table_ptr;
 }
 
@@ -2466,22 +2714,18 @@ TableIterator::operator->() const {
   return this->_table_ptr == nullptr;
 }
 
-RQ_ALWAYS_INLINE rq::ConstTableIterator &
-ConstTableIterator::operator++() {
-  this->_table_ptr =
-      rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
+RQ_ALWAYS_INLINE rq::ConstTableIterator &ConstTableIterator::operator++() {
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
   return *this;
 }
 
-RQ_ALWAYS_INLINE rq::ConstTableIterator
-ConstTableIterator::operator++(int) {
+RQ_ALWAYS_INLINE rq::ConstTableIterator ConstTableIterator::operator++(int) {
   rq::ConstTableIterator temp = *this;
   ++(*this);
   return temp;
 }
 
-inline ConstTableIterator::ConstTableIterator(
-    const rq::Table *table_ptr)
+inline ConstTableIterator::ConstTableIterator(const rq::Table *table_ptr)
     : _table_ptr(table_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2504,22 +2748,18 @@ ConstTableIterator::operator->() const {
   return this->_table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstTableIterator::getIsDone() const {
+[[nodiscard]] RQ_ALWAYS_INLINE bool ConstTableIterator::getIsDone() const {
   return this->_table_ptr == nullptr;
 }
 
-inline MemberTableIterator::MemberTableIterator(
-    rq::Table *table_ptr)
+inline MemberTableIterator::MemberTableIterator(rq::Table *table_ptr)
     : _table_ptr(table_ptr) {}
-RQ_ALWAYS_INLINE rq::MemberTableIterator &
-MemberTableIterator::operator++() {
+RQ_ALWAYS_INLINE rq::MemberTableIterator &MemberTableIterator::operator++() {
   this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._next_table_ptr;
   return *this;
 }
 
-RQ_ALWAYS_INLINE rq::MemberTableIterator
-MemberTableIterator::operator++(int) {
+RQ_ALWAYS_INLINE rq::MemberTableIterator MemberTableIterator::operator++(int) {
   rq::MemberTableIterator temp = *this;
   ++(*this);
   return temp;
@@ -2535,8 +2775,7 @@ MemberTableIterator::operator!=(const Self &it) const {
   return this->_table_ptr != it._table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &
-MemberTableIterator::operator*() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table &MemberTableIterator::operator*() {
   return rq::dereferencePtr(this->_table_ptr);
 }
 
@@ -2545,8 +2784,7 @@ MemberTableIterator::operator*() const {
   return rq::dereferencePtr(this->_table_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Table *
-MemberTableIterator::operator->() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Table *MemberTableIterator::operator->() {
   return this->_table_ptr;
 }
 
@@ -2555,8 +2793,7 @@ MemberTableIterator::operator->() const {
   return this->_table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-MemberTableIterator::getIsDone() const {
+[[nodiscard]] RQ_ALWAYS_INLINE bool MemberTableIterator::getIsDone() const {
   return this->_table_ptr == nullptr;
 }
 
@@ -2604,8 +2841,7 @@ ConstMemberTableIterator::getIsDone() const {
 
 inline Table::Table(rq::Opcode opcode) : Symbol(opcode) {}
 
-inline Table::Table(rq::Opcode opcode,
-                                rq::Table &containing_table)
+inline Table::Table(rq::Opcode opcode, rq::Table &containing_table)
     : Symbol(opcode), TableMember(containing_table) {}
 
 inline void Table::release() {
@@ -2634,15 +2870,14 @@ inline void Table::_addMember(rq::Symbol &symbol) {
 }
 
 inline void Table::addNamedSymbol(rq::BumpPtrAllocator &allocator,
-                                        llvm::StringRef name,
-                                        rq::Symbol &symbol) {
+                                  llvm::StringRef name, rq::Symbol &symbol) {
   rq::BumpPtrList<rq::Symbol> &list = this->_named_symbols_map[name];
   list.insertFront(allocator, symbol);
   this->_addMember(symbol);
 }
 
 inline void Table::addUnamedSymbol(rq::BumpPtrAllocator &allocator,
-                                         rq::Symbol &symbol) {
+                                   rq::Symbol &symbol) {
   this->_unamed_symbols_list.insertFront(allocator, symbol);
   this->_addMember(symbol);
 }
@@ -2688,14 +2923,12 @@ Table::getNamedListsSubrange() {
                                            rq::ConstTableIterator,
                                            std::ranges::subrange_kind::unsized>
 Table::getInclusiveFrameSubrange() const {
-  return std::ranges::subrange<rq::ConstTableIterator,
-                               rq::ConstTableIterator,
+  return std::ranges::subrange<rq::ConstTableIterator, rq::ConstTableIterator,
                                std::ranges::subrange_kind::unsized>(
       rq::ConstTableIterator(this), rq::ConstTableIterator());
 }
 
-[[nodiscard]] inline std::ranges::subrange<rq::TableIterator,
-                                           rq::TableIterator,
+[[nodiscard]] inline std::ranges::subrange<rq::TableIterator, rq::TableIterator,
                                            std::ranges::subrange_kind::unsized>
 Table::getInclusiveFrameSubrange() {
   return std::ranges::subrange<rq::TableIterator, rq::TableIterator,
@@ -2707,8 +2940,7 @@ Table::getInclusiveFrameSubrange() {
                                            rq::MemberTableIterator,
                                            std::ranges::subrange_kind::unsized>
 Table::getMemberTableSubrange() {
-  return std::ranges::subrange<rq::MemberTableIterator,
-                               rq::MemberTableIterator,
+  return std::ranges::subrange<rq::MemberTableIterator, rq::MemberTableIterator,
                                std::ranges::subrange_kind::unsized>(
       rq::MemberTableIterator(this->_first_member_table_ptr),
       rq::MemberTableIterator());
@@ -2735,11 +2967,9 @@ inline Top::Top() : Table(rq::Opcode::SY_TOP) {}
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_TOP;
 }
 
-inline Global::Global(llvm::StringRef name,
-                                      const rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::Table &containing_table)
+inline Global::Global(llvm::StringRef name, const rq::Expression &expression,
+                      rq::ExpressionFlags attributes, rq::Module &module,
+                      rq::Table &containing_table)
     : Table(rq::Opcode::SY_GLOBAL, containing_table),
       InitialExpression(expression), InitialExpressionFlags(attributes),
       InitialModuleMember(module), InitialNamed(name), _type_ptr(nullptr),
@@ -2758,13 +2988,11 @@ RQ_ALWAYS_INLINE void Global::setIsImplemented() {
   return this->_type_ptr != nullptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-Global::getType() {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &Global::getType() {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-Global::getType() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &Global::getType() const {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
@@ -2779,21 +3007,20 @@ Global::setValueExpression(const rq::Expression &expression) {
 }
 
 [[nodiscard]] inline bool Global::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_GLOBAL;
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_GLOBAL;
 }
 
-inline GlobalStatic::GlobalStatic(
-    llvm::StringRef name, const rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table)
+inline GlobalStatic::GlobalStatic(llvm::StringRef name,
+                                  const rq::Expression &expression,
+                                  rq::ExpressionFlags attributes,
+                                  rq::Module &module,
+                                  rq::Table &containing_table)
     : Table(rq::Opcode::SY_GLOBAL_STATIC, containing_table),
       InitialExpression(expression), InitialExpressionFlags(attributes),
       InitialModuleMember(module), InitialNamed(name), _type_ptr(nullptr),
       _type_expression_ptr(nullptr), _value_expression_ptr(nullptr) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-GlobalStatic::getIsImplemented() const {
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalStatic::getIsImplemented() const {
   return this->_is_implemented;
 }
 
@@ -2806,8 +3033,7 @@ RQ_ALWAYS_INLINE void GlobalStatic::setIsImplemented() {
   return this->_type_ptr != nullptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-GlobalStatic::getType() {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &GlobalStatic::getType() {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
@@ -2827,8 +3053,7 @@ GlobalStatic::setValueExpression(const rq::Expression &expression) {
 }
 
 [[nodiscard]] inline bool GlobalStatic::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_GLOBAL_STATIC;
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_GLOBAL_STATIC;
 }
 
 inline Scope::Scope(rq::Expression &expression, rq::Module &module,
@@ -2843,8 +3068,7 @@ inline Scope::Scope(rq::Expression &expression, rq::Module &module,
 inline Namespace::Namespace(llvm::StringRef name,
 
                             rq::Table &containing_table)
-    : Table(rq::Opcode::SY_NAMESPACE, containing_table),
-      InitialNamed(name) {}
+    : Table(rq::Opcode::SY_NAMESPACE, containing_table), InitialNamed(name) {}
 
 [[nodiscard]] inline bool Namespace::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_NAMESPACE;
@@ -2852,8 +3076,7 @@ inline Namespace::Namespace(llvm::StringRef name,
 
 inline Class::Class(llvm::StringRef name, const rq::Expression &expression,
                     rq::ExpressionFlags attributes, rq::Module &module,
-                    rq::Table &containing_table,
-                    rq::Table &hosting_table)
+                    rq::Table &containing_table, rq::Table &hosting_table)
     : Table(rq::Opcode::SY_CLASS, containing_table),
       InitialExpression(expression), InitialExpressionFlags(attributes),
       InitialModuleMember(module), TableHosted(hosting_table),
@@ -2880,8 +3103,7 @@ Class::setClassLayoutExpression(const rq::Expression &layout_expression) {
 inline Enumeration::Enumeration(llvm::StringRef name,
                                 const rq::Expression &expression,
                                 rq::ExpressionFlags attributes,
-                                rq::Module &module,
-                                rq::Table &containing_table,
+                                rq::Module &module, rq::Table &containing_table,
                                 rq::Table &hosting_table)
     : Table(rq::Opcode::SY_ENUMERATION, containing_table),
       InitialExpression(expression), InitialExpressionFlags(attributes),
@@ -2910,8 +3132,7 @@ RQ_ALWAYS_INLINE void Enumeration::setUnderlyingTypeExpression(
 inline Category::Category(llvm::StringRef name,
                           const rq::Expression &expression,
                           rq::ExpressionFlags attributes, rq::Module &module,
-                          rq::Table &containing_table,
-                          rq::Table &hosting_table)
+                          rq::Table &containing_table, rq::Table &hosting_table)
     : Table(rq::Opcode::SY_CATEGORY, containing_table),
       InitialExpression(expression), InitialExpressionFlags(attributes),
       InitialModuleMember(module), TableHosted(hosting_table),
@@ -2936,11 +3157,9 @@ Category::setDiscriminantTypeExpression(const rq::Expression &type_expression) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CATEGORY;
 }
 
-inline Local::Local(llvm::StringRef name,
-                                    const rq::Expression &expression,
-                                    rq::ExpressionFlags attributes,
-                                    rq::Module &module,
-                                    rq::Table &containing_table)
+inline Local::Local(llvm::StringRef name, const rq::Expression &expression,
+                    rq::ExpressionFlags attributes, rq::Module &module,
+                    rq::Table &containing_table)
     : Symbol(rq::Opcode::SY_LOCAL), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
       TableMember(containing_table), InitialNamed(name) {}
@@ -2960,8 +3179,7 @@ RQ_ALWAYS_INLINE void Local::setNotIndeterminate() {
   return this->_type_ptr != nullptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-Local::getType() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &Local::getType() const {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
@@ -2976,15 +3194,12 @@ Local::setValueExpression(const rq::Expression &expression_ptr) {
 }
 
 [[nodiscard]] inline bool Local::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_LOCAL;
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_LOCAL;
 }
 
-inline Static::Static(llvm::StringRef name,
-                                      const rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::Table &containing_table)
+inline Static::Static(llvm::StringRef name, const rq::Expression &expression,
+                      rq::ExpressionFlags attributes, rq::Module &module,
+                      rq::Table &containing_table)
     : Symbol(rq::Opcode::SY_STATIC), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
       TableMember(containing_table), InitialNamed(name) {}
@@ -3004,8 +3219,7 @@ RQ_ALWAYS_INLINE void Static::setNotIndeterminate() {
   return this->_type_ptr != nullptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &
-Static::getType() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &Static::getType() const {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
@@ -3020,14 +3234,12 @@ Static::setValueExpression(const rq::Expression &expression_ptr) {
 }
 
 [[nodiscard]] inline bool Static::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_STATIC;
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_STATIC;
 }
 
 inline Enumerator::Enumerator(llvm::StringRef name, rq::Expression &expression,
                               rq::ExpressionFlags attributes,
-                              rq::Module &module,
-                              rq::Table &containing_table,
+                              rq::Module &module, rq::Table &containing_table,
                               rq::Table &hosting_table)
     : Symbol(rq::Opcode::SY_ENUMERATOR), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
@@ -3045,8 +3257,16 @@ inline CategoryAlternative::CategoryAlternative(rq::Code &code,
                                                 rq::Module &module)
     : Symbol(rq::Opcode::SY_CATEGORY_ALTERNATIVE),
       InitialExpression(expression), InitialExpressionFlags(attributes),
-      InitialModuleMember(module), TableMember(category),
-      _code_ptr(&code) {}
+      InitialModuleMember(module), TableMember(category), _code_ptr(&code) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Code &
+CategoryAlternative::getCode() const {
+  return rq::dereferencePtr(this->_code_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Code &CategoryAlternative::getCode() {
+  return rq::dereferencePtr(this->_code_ptr);
+}
 
 [[nodiscard]] inline bool CategoryAlternative::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
@@ -3181,8 +3401,7 @@ Procedure::getLlvmFunctionPtr() const {
 
 inline Entry::Entry(const rq::Expression &expression,
                     rq::ExpressionFlags attributes, rq::Module &module,
-                    rq::Table &containing_table,
-                    rq::Table &hosting_table)
+                    rq::Table &containing_table, rq::Table &hosting_table)
     : Procedure(rq::Opcode::SY_ENTRY, expression, attributes, module,
                 containing_table, hosting_table) {}
 
@@ -3193,8 +3412,7 @@ inline Entry::Entry(const rq::Expression &expression,
 inline Function::Function(llvm::StringRef name,
                           const rq::Expression &expression,
                           rq::ExpressionFlags attributes, rq::Module &module,
-                          rq::Table &containing_table,
-                          rq::Table &hosting_table)
+                          rq::Table &containing_table, rq::Table &hosting_table)
     : Procedure(rq::Opcode::SY_FUNCTION, name, expression, attributes, module,
                 containing_table, hosting_table) {}
 
@@ -3204,8 +3422,7 @@ inline Function::Function(llvm::StringRef name,
 
 inline Method::Method(llvm::StringRef name, const rq::Expression &expression,
                       rq::ExpressionFlags attributes, rq::Module &module,
-                      rq::Table &containing_table,
-                      rq::Table &hosting_table)
+                      rq::Table &containing_table, rq::Table &hosting_table)
     : Procedure(rq::Opcode::SY_METHOD, name, expression, attributes, module,
                 containing_table, hosting_table) {}
 
@@ -3215,8 +3432,7 @@ inline Method::Method(llvm::StringRef name, const rq::Expression &expression,
 
 inline Ranger::Ranger(llvm::StringRef name, const rq::Expression &expression,
                       rq::ExpressionFlags attributes, rq::Module &module,
-                      rq::Table &containing_table,
-                      rq::Table &hosting_table)
+                      rq::Table &containing_table, rq::Table &hosting_table)
     : Procedure(rq::Opcode::SY_METHOD, name, expression, attributes, module,
                 containing_table, hosting_table) {}
 
@@ -3269,8 +3485,7 @@ inline ExtensionRanger::ExtensionRanger(llvm::StringRef name,
 inline Template::Template(rq::Opcode opcode, llvm::StringRef name,
                           const rq::Expression &expression,
                           rq::ExpressionFlags attributes, rq::Module &module,
-                          rq::Table &containing_table,
-                          rq::Table &hosting_table,
+                          rq::Table &containing_table, rq::Table &hosting_table,
                           rq::TemplateLayout &template_layout)
     : Symbol(opcode), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
@@ -3335,19 +3550,19 @@ inline TemplateCategory::TemplateCategory(llvm::StringRef name,
          rq::Opcode::SY_TEMPLATE_CATEGORY;
 }
 
-inline TemplateGlobal::TemplateGlobal(
-    llvm::StringRef name, const rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table,
-    rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_GLOBAL_VARIABLE, name, expression,
-               attributes, module, containing_table, hosting_table,
-               template_layout) {}
+inline TemplateGlobal::TemplateGlobal(llvm::StringRef name,
+                                      const rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::Table &containing_table,
+                                      rq::Table &hosting_table,
+                                      rq::TemplateLayout &template_layout)
+    : Template(rq::Opcode::SY_TEMPLATE_GLOBAL, name, expression, attributes,
+               module, containing_table, hosting_table, template_layout) {}
 
-[[nodiscard]] inline bool
-TemplateGlobal::classof(const Entity *entity) {
+[[nodiscard]] inline bool TemplateGlobal::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TEMPLATE_GLOBAL_VARIABLE;
+         rq::Opcode::SY_TEMPLATE_GLOBAL;
 }
 
 inline TemplateGlobalStatic::TemplateGlobalStatic(
@@ -3355,14 +3570,13 @@ inline TemplateGlobalStatic::TemplateGlobalStatic(
     rq::ExpressionFlags attributes, rq::Module &module,
     rq::Table &containing_table, rq::Table &hosting_table,
     rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE, name, expression,
+    : Template(rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC, name, expression,
                attributes, module, containing_table, hosting_table,
                template_layout) {}
 
-[[nodiscard]] inline bool
-TemplateGlobalStatic::classof(const Entity *entity) {
+[[nodiscard]] inline bool TemplateGlobalStatic::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC_VARIABLE;
+         rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC;
 }
 
 inline TemplateFunction::TemplateFunction(llvm::StringRef name,
@@ -3458,8 +3672,7 @@ TemplateExtensionRanger::classof(const Entity *entity) {
 inline Partial::Partial(rq::Opcode opcode, llvm::StringRef name,
                         const rq::Expression &expression,
                         rq::ExpressionFlags attributes, rq::Module &module,
-                        rq::Table &containing_table,
-                        rq::Table &hosting_table)
+                        rq::Table &containing_table, rq::Table &hosting_table)
     : Symbol(opcode), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
       TableMember(containing_table), TableHosted(hosting_table),
@@ -3510,28 +3723,32 @@ inline PartialCategory::PartialCategory(llvm::StringRef name,
          rq::Opcode::SY_PARTIAL_CATEGORY;
 }
 
-inline PartialGlobal::PartialGlobal(
-    llvm::StringRef name, rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL_VARIABLE, name, expression,
-              attributes, module, containing_table, hosting_table) {}
+inline PartialGlobal::PartialGlobal(llvm::StringRef name,
+                                    rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::Table &containing_table,
+                                    rq::Table &hosting_table)
+    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL, name, expression, attributes,
+              module, containing_table, hosting_table) {}
 
 [[nodiscard]] inline bool PartialGlobal::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_GLOBAL_VARIABLE;
+         rq::Opcode::SY_PARTIAL_GLOBAL;
 }
 
-inline PartialGlobalStatic::PartialGlobalStatic(
-    llvm::StringRef name, rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL_STATIC_VARIABLE, name, expression,
+inline PartialGlobalStatic::PartialGlobalStatic(llvm::StringRef name,
+                                                rq::Expression &expression,
+                                                rq::ExpressionFlags attributes,
+                                                rq::Module &module,
+                                                rq::Table &containing_table,
+                                                rq::Table &hosting_table)
+    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL_STATIC, name, expression,
               attributes, module, containing_table, hosting_table) {}
 
 [[nodiscard]] inline bool PartialGlobalStatic::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_GLOBAL_STATIC_VARIABLE;
+         rq::Opcode::SY_PARTIAL_GLOBAL_STATIC;
 }
 
 inline PartialFunction::PartialFunction(llvm::StringRef name,
