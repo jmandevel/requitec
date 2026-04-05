@@ -318,10 +318,8 @@ struct Context final : public rq::BumpPtrAllocator {
                        rq::NumericResultCode code);
   void logErrorNameCollision(const rq::Expression& expression);
   void logInfoNameCollisionDeclaration(rq::Symbol& symbol);
-  void logErrorProcedureRvalue(const rq::Expression& expression);
-  void logInfoProcedureRvalueDeclaration(rq::Procedure &procedure);
-  void logErrorTemplateRvalue(const rq::Expression& expression);
-  void logInfoTemplateRvalueDeclaration(rq::Template &template_);
+  void logErrorInvalidRvalueSymbol(const rq::Expression& expression, rq::Symbol& symbol);
+  void logErrorIndeterminateVariableRvalue(const rq::Expression& expression, rq::Symbol& symbol);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");

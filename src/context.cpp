@@ -1087,39 +1087,36 @@ void Context::logErrorNameCollision(const rq::Expression &expression) {
 void Context::logInfoNameCollisionDeclaration(rq::Symbol &symbol) {
   rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(info.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
-                   llvm::Twine("name collision with ") +
-                       rq::getName(info.getOpcode()),
+                   llvm::Twine("name collision with ") + info.getOpcodeName(),
                    info.getExpression().getLlvmSourceRange(), {});
 }
 
-void Context::logErrorProcedureRvalue(const rq::Expression &expression) {
+void Context::logErrorInvalidRvalueSymbol(const rq::Expression &expression,
+                                          rq::Symbol &symbol) {
+  rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "procedure rvalue", expression.getLlvmSourceRange(), {});
+                   llvm::Twine("invalid rvalue symbol of kind ") +
+                       info.getOpcodeName(),
+                   expression.getLlvmSourceRange(), {});
+  if (info.getHasExpression()) {
+    this->logMessage(info.getExpression().getLlvmSourceBegin(),
+                     rq::LogType::NOTE, "referencing symbol",
+                     expression.getLlvmSourceRange(), {});
+  }
 }
 
-void Context::logInfoProcedureRvalueDeclaration(rq::Procedure &procedure) {
-  this->logMessage(
-      procedure.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
-      llvm::Twine("procedure  ") +
-          (procedure.getName().empty() ? "[no_name]" : procedure.getName()) +
-          llvm::Twine(" of kind ") + rq::getName(procedure.getOpcode()) +
-          llvm::Twine(" referenced as rvalue"),
-      procedure.getExpression().getLlvmSourceRange(), {});
-}
-
-void Context::logErrorTemplateRvalue(const rq::Expression &expression) {
+void Context::logErrorIndeterminateVariableRvalue(
+    const rq::Expression &expression, rq::Symbol &symbol) {
+  rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "template rvalue", expression.getLlvmSourceRange(), {});
-}
-
-void Context::logInfoTemplateRvalueDeclaration(rq::Template &template_) {
-  this->logMessage(
-      template_.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
-      llvm::Twine("template  ") +
-          (template_.getName().empty() ? "[no_name]" : template_.getName()) +
-          llvm::Twine(" of kind ") + rq::getName(template_.getOpcode()) +
-          llvm::Twine(" referenced as rvalue"),
-      template_.getExpression().getLlvmSourceRange(), {});
+                   llvm::Twine("indeterminate variable rvalue of kind ") +
+                       info.getOpcodeName(),
+                   expression.getLlvmSourceRange(), {});
+  if (info.getHasExpression()) {
+    this->logMessage(info.getExpression().getLlvmSourceBegin(),
+                     rq::LogType::NOTE, "referencing variable",
+                     expression.getLlvmSourceRange(), {});
+  }
 }
 
 rq::Expression &Context::acquireExpression() {
