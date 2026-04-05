@@ -28,7 +28,9 @@ void Generator::generateSourceModule() {
       if (procedure.getIsImplemented()) {
         continue;
       }
-      this->implementProcedure(procedure);
+      if (!this->implementProcedure(procedure)) {
+        this->setNotOk();
+      }
       continue;
     }
     if (llvm::isa<rq::Global>(symbol)) {
@@ -40,7 +42,9 @@ void Generator::generateSourceModule() {
       if (global.getIsImplemented()) {
         continue;
       }
-      this->implementGlobal(global);
+      if (!this->implementGlobal(global)) {
+        this->setNotOk();
+      }
       continue;
     }
   }
