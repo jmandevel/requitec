@@ -58,7 +58,7 @@ struct AssertException final : public std::logic_error {
 
 #if !defined(_NDEBUG)
 #define RQ_TODO_IMPLEMENTATION()                                               \
-  throw rq::AssertException("RQ_NOT_IMPLEMENTED()", "not implemented yet");
+  throw rq::AssertException("RQ_TODO_IMPLEMENTATION()", "not implemented yet");
 #else
 #define RQ_NOT_IMPLEMENTED() std::unreachable()
 #endif
