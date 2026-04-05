@@ -93,7 +93,7 @@ struct Generator final {
                            const rq::Expression &unascribed,
                            rq::Table &hosting_table, rq::Module &module);
   [[nodiscard]] const rq::TypeConstant *
-  inferenceRvalueType(const rq::Expression &type_expression,
+  inferenceType(const rq::Expression &type_expression,
                 rq::Table &hosting_table, rq::Module &module);
   [[nodiscard]] bool implementProcedure(rq::Procedure &procedure);
   [[nodiscard]] bool implementGlobal(rq::Global &global);

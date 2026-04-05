@@ -816,7 +816,7 @@ Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
 }
 
 [[nodiscard]] const rq::TypeConstant *
-Generator::inferenceRvalueType(const rq::Expression &type_expression,
+Generator::inferenceType(const rq::Expression &type_expression,
                          rq::Table &hosting_table, rq::Module &module) {
   std::ignore = module;
   // NOTE: this switch contains anything that can be rvalue situation
