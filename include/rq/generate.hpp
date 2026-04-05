@@ -92,11 +92,12 @@ struct Generator final {
   determineContainingTable(const rq::ExpressionFlagsFactory &factory,
                            const rq::Expression &unascribed,
                            rq::Table &hosting_table, rq::Module &module);
-  [[nodiscard]] rq::TypeConstant *
+  [[nodiscard]] const rq::TypeConstant *
   inferenceType(const rq::Expression &type_expression,
                 rq::Table &hosting_table, rq::Module &module);
-  void implementProcedure(rq::Procedure &procedure);
-  void implementGlobal(rq::Global &global);
+  [[nodiscard]] bool implementProcedure(rq::Procedure &procedure);
+  [[nodiscard]] bool implementGlobal(rq::Global &global);
+  [[nodiscard]] bool implementGlobalStatic(rq::GlobalStatic &global_static);
 };
 
 } // namespace rq

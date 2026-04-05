@@ -871,13 +871,14 @@ Generator::determineContainingTable(const rq::ExpressionFlagsFactory &factory,
   return hosting_table;
 }
 
-[[nodiscard]] rq::TypeConstant *
+[[nodiscard]] const rq::TypeConstant *
 Generator::inferenceType(const rq::Expression &type_expression,
                          rq::Table &hosting_table, rq::Module &module) {
   std::ignore = module;
   // NOTE: this switch contains anything that can be rvalue situation
   using K = rq::Keyword;
   using O = rq::Opcode;
+  bool has_error = false;
   switch (type_expression.getKeyword()) {
   case K::INTEGER_LITERAL:
     return &this->getContext().acquireTypeConstant(
@@ -893,8 +894,6 @@ Generator::inferenceType(const rq::Expression &type_expression,
         this->getContext().acquireCodeunitLiteral(), {});
   case K::IDENTIFIER_LITERAL: {
     llvm::SmallVector<rq::Symbol *> matches{};
-    bool found_procedure = false;
-    bool found_template = false;
     for (rq::Table &table : hosting_table.getInclusiveFrameSubrange()) {
       rq::BumpPtrListRef<rq::Symbol> list =
           table.getNamedListRef(type_expression.getSourceText());
@@ -905,6 +904,9 @@ Generator::inferenceType(const rq::Expression &type_expression,
           if (!code.getHasExport() && code.getContainingModule() != module) {
             continue;
           }
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression, code);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_LABEL: {
@@ -912,6 +914,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
           if (label.getContainingModule() != module) {
             continue;
           }
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         label);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_LOCAL: {
@@ -924,6 +930,12 @@ Generator::inferenceType(const rq::Expression &type_expression,
           matches.push_back(&symbol);
         } break;
         case O::SY_CATEGORY_ALTERNATIVE: {
+          rq::CategoryAlternative &alternative =
+              llvm::cast<rq::CategoryAlternative>(symbol);
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         alternative);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_GLOBAL: {
@@ -944,6 +956,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
           matches.push_back(&symbol);
         } break;
         case O::SY_NAMESPACE: {
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         symbol);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_CLASS: {
@@ -960,6 +976,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
               enumeration.getContainingModule() != module) {
             continue;
           }
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         symbol);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_CATEGORY: {
@@ -968,6 +988,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
               category.getContainingModule() != module) {
             continue;
           }
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         symbol);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_FUNCTION:
@@ -986,7 +1010,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
               procedure.getContainingModule() != module) {
             continue;
           }
-          found_procedure = true;
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         procedure);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_TEMPLATE_CLASS:
@@ -1015,7 +1042,10 @@ Generator::inferenceType(const rq::Expression &type_expression,
               template_.getContainingModule() != module) {
             continue;
           }
-          found_template = true;
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         template_);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_PARTIAL_CLASS:
@@ -1051,6 +1081,11 @@ Generator::inferenceType(const rq::Expression &type_expression,
         break;
       }
     }
+    if (matches.empty()) {
+      this->getContext().logErrorNotSymbol(type_expression);
+      this->setNotOk();
+      return nullptr;
+    }
     if (matches.size() > 1) {
       this->getContext().logErrorNameCollision(type_expression);
       this->setNotOk();
@@ -1058,34 +1093,67 @@ Generator::inferenceType(const rq::Expression &type_expression,
         rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
         this->getContext().logInfoNameCollisionDeclaration(symbol);
       }
+      return nullptr;
     }
-    if (found_procedure) {
-      this->getContext().logErrorProcedureRvalue(type_expression);
-      for (rq::Symbol *symbol_ptr : matches) {
-        rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-        if (llvm::isa<rq::Procedure>(symbol)) {
-          rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
-          this->getContext().logInfoProcedureRvalueDeclaration(procedure);
-        }
-      }
-      this->setNotOk();
-    }
-    if (found_template) {
-      this->getContext().logErrorTemplateRvalue(type_expression);
-      this->setNotOk();
-      for (rq::Symbol *symbol_ptr : matches) {
-        rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-        if (llvm::isa<rq::Template>(symbol)) {
-          rq::Template &template_ = llvm::cast<rq::Template>(symbol);
-          this->getContext().logInfoTemplateRvalueDeclaration(template_);
-        }
-      }
-    }
-    if (matches.size() > 1 || found_procedure) {
+    if (has_error) {
       return nullptr;
     }
     rq::Symbol &match = rq::dereferencePtr(matches.front());
-    return &this->getContext().acquireTypeConstant(match, {});
+    switch (match.getOpcode()) {
+    case O::SY_LOCAL: {
+      rq::Local &local = llvm::cast<rq::Local>(match);
+      if (local.getType().getIsInferencing()) {
+        this->getContext().logErrorIndeterminateVariableRvalue(type_expression,
+                                                               local);
+        this->setNotOk();
+        return nullptr;
+      }
+      return &local.getType();
+    } break;
+    case O::SY_STATIC: {
+      rq::Static &static_ = llvm::cast<rq::Static>(match);
+      if (static_.getType().getIsInferencing()) {
+        this->getContext().logErrorIndeterminateVariableRvalue(type_expression,
+                                                               static_);
+        this->setNotOk();
+        return nullptr;
+      }
+      return &static_.getType();
+    } break;
+    case O::SY_ENUMERATOR: {
+      rq::Enumerator &enumerator = llvm::cast<rq::Enumerator>(match);
+      return &this->getContext().acquireTypeConstant(
+          enumerator.getEnumeration(), {});
+    } break;
+    case O::SY_GLOBAL: {
+      rq::Global &global = llvm::cast<rq::Global>(match);
+      if (!global.getIsImplemented()) {
+        if (!this->implementGlobal(global)) {
+          this->getContext().logErrorIndeterminateVariableRvalue(
+              type_expression, global);
+          this->setNotOk();
+          return nullptr;
+        }
+      }
+      return &global.getType();
+    } break;
+    case O::SY_GLOBAL_STATIC: {
+      rq::GlobalStatic &global_static = llvm::cast<rq::GlobalStatic>(match);
+      if (!global_static.getIsImplemented()) {
+        if (!this->implementGlobalStatic(global_static)) {
+          this->getContext().logErrorIndeterminateVariableRvalue(
+              type_expression, global_static);
+          this->setNotOk();
+          return nullptr;
+        }
+      }
+      return &global_static.getType();
+    } break;
+    case O::SY_CLASS:
+      return &this->getContext().acquireTypeConstant(match, {});
+    default:
+      RQ_UNREACHABLE();
+    }
   } break;
   default:
     break;
@@ -1093,7 +1161,7 @@ Generator::inferenceType(const rq::Expression &type_expression,
   RQ_UNREACHABLE();
 }
 
-void Generator::implementProcedure(rq::Procedure &procedure) {
+bool Generator::implementProcedure(rq::Procedure &procedure) {
   RQ_ASSERT(!procedure.getIsImplemented(), "already implemented");
 
   // STEP 1: resolve signature
@@ -1114,10 +1182,17 @@ void Generator::implementProcedure(rq::Procedure &procedure) {
         this->generateLocalForest(body_start, procedure, procedure);
     procedure.setInstruction(instruction_ptr);
   }
+
+  return true;
 }
 
-void Generator::implementGlobal(rq::Global &global) {
+bool Generator::implementGlobal(rq::Global &global) {
   std::ignore = global;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+bool Generator::implementGlobalStatic(rq::GlobalStatic &global_static) {
+  std::ignore = global_static;
   RQ_TODO_IMPLEMENTATION();
 }
 
