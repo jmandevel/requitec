@@ -672,26 +672,6 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Entity &other) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Entity &other) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateOpcode() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialOpcode() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullOpcode() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -735,6 +715,26 @@ struct Symbol : public rq::Entity {
 
   inline explicit Symbol(rq::Opcode opcode);
   [[nodiscard]] inline rq::DeclarationInfo getDeclarationInfo();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplateAlternative() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullOpcode() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2491,6 +2491,7 @@ struct TypeConstant final : public rq::Constant, public llvm::FoldingSetNode {
   getHasAttribute(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability() const;
   [[nodiscard]] inline bool getIsInferencing() const;
+  [[nodiscard]] inline bool getIsType() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };

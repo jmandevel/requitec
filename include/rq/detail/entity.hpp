@@ -1293,89 +1293,6 @@ Entity::operator!=(const Entity &other) const {
   return this->_opcode;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getHasTemplateAlternative() const {
-  return rq::getHasTemplateAlternative(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsType() const {
-  return rq::getIsType(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSubtype() const {
-  return rq::getIsSubtype(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsParameter() const {
-  return rq::getIsParameter(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsParameterListSubtype() const {
-  return rq::getIsParameterListSubtype(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsConstraint() const {
-  return rq::getIsConstraint(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsPlatformChanging() const {
-  if (rq::getIsScaledBuiltin(this->getOpcode())) {
-    // TODO
-  }
-  return rq::getIsPlatformChanging(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsNumeric() const {
-  return rq::getIsNumeric(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsInteger() const {
-  return rq::getIsInteger(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsFloat() const {
-  return rq::getIsFloat(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsBinary() const {
-  return rq::getIsBinary(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsCodeunit() const {
-  return rq::getIsCodeunit(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSigned() const {
-  return rq::getIsSigned(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsUnsigned() const {
-  return rq::getIsUnsigned(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsSignedInteger() const {
-  return rq::getIsSignedInteger(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsUnsignedInteger() const {
-  return rq::getIsUnsignedInteger(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Entity::getIsTopOfFrame() const {
-  return rq::getIsTopOfFrame(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getTemplateOpcode() const {
-  return rq::getTemplate(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getPartialOpcode() const {
-  return rq::getPartial(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Entity::getFullOpcode() const {
-  return rq::getFull(this->getOpcode());
-}
-
 [[nodiscard]] inline bool Entity::classof(const Entity *entity) {
   std::ignore = entity;
   return true;
@@ -1625,6 +1542,89 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
     RQ_UNREACHABLE();
   }
   return rq::DeclarationInfo(info);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasTemplateAlternative() const {
+  return rq::getHasTemplateAlternative(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
+  return rq::getIsType(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSubtype() const {
+  return rq::getIsSubtype(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsParameter() const {
+  return rq::getIsParameter(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsParameterListSubtype() const {
+  return rq::getIsParameterListSubtype(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsConstraint() const {
+  return rq::getIsConstraint(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPlatformChanging() const {
+  if (rq::getIsScaledBuiltin(this->getOpcode())) {
+    // TODO
+  }
+  return rq::getIsPlatformChanging(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNumeric() const {
+  return rq::getIsNumeric(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsInteger() const {
+  return rq::getIsInteger(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFloat() const {
+  return rq::getIsFloat(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsBinary() const {
+  return rq::getIsBinary(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsCodeunit() const {
+  return rq::getIsCodeunit(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSigned() const {
+  return rq::getIsSigned(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsUnsigned() const {
+  return rq::getIsUnsigned(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSignedInteger() const {
+  return rq::getIsSignedInteger(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsUnsignedInteger() const {
+  return rq::getIsUnsignedInteger(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTopOfFrame() const {
+  return rq::getIsTopOfFrame(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Symbol::getTemplateOpcode() const {
+  return rq::getTemplate(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Symbol::getPartialOpcode() const {
+  return rq::getPartial(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Symbol::getFullOpcode() const {
+  return rq::getFull(this->getOpcode());
 }
 
 [[nodiscard]] inline bool Symbol::classof(const Entity *entity) {
@@ -3118,7 +3118,8 @@ inline ReverseRanger::ReverseRanger(const rq::Expression &expression,
       InitialModuleMember(module), TableHosted(hosting_table) {}
 
 [[nodiscard]] inline bool ReverseRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_REVERSE_RANGER;
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_REVERSE_RANGER;
 }
 
 inline Local::Local(llvm::StringRef name, const rq::Expression &expression,
@@ -3813,6 +3814,11 @@ TypeConstant::getHasAttribute(rq::TypeAttribute attribute) const {
     return counted.getDescendent().getIsInferencing();
   }
   return false;
+}
+
+[[nodiscard]] inline bool TypeConstant::getIsType() const {
+  return this->getTypeFlags() == rq::TypeFlags::NONE &&
+         llvm::isa<rq::Type>(this->getSymbol());
 }
 
 [[nodiscard]] inline bool TypeConstant::classof(const Entity *entity) {
