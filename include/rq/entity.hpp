@@ -2477,6 +2477,7 @@ struct TypeConstant final : public rq::Constant, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasAttribute(rq::TypeAttribute attribute) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability() const;
+  [[nodiscard]] inline bool getIsInferencing() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };

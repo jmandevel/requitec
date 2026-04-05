@@ -3925,6 +3925,25 @@ TypeConstant::getHasAttribute(rq::TypeAttribute attribute) const {
   return rq::getHasMutability(this->getTypeFlags());
 }
 
+[[nodiscard]] inline bool TypeConstant::getIsInferencing() const {
+  const rq::Symbol &symbol = this->getSymbol();
+  if (llvm::isa<rq::Inference>(symbol)) {
+    return true;
+  }
+  if (llvm::isa<rq::InferencedCountArray>(symbol)) {
+    return true;
+  }
+  if (llvm::isa<rq::UnarySubtype>(symbol)) {
+    const rq::UnarySubtype &unary = llvm::cast<rq::UnarySubtype>(symbol);
+    return unary.getDescendent().getIsInferencing();
+  }
+  if (llvm::isa<rq::CountedSubtype>(symbol)) {
+    const rq::CountedSubtype &counted = llvm::cast<rq::CountedSubtype>(symbol);
+    return counted.getDescendent().getIsInferencing();
+  }
+  return false;
+}
+
 [[nodiscard]] inline bool TypeConstant::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_TYPE;
 }
