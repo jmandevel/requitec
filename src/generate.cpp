@@ -130,6 +130,18 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
       this->setNotOk();
       continue;
     }
+    case K::RANGER: {
+      rq::Ranger &ranger = this->getContext().allocateValue<rq::Ranger>(
+          unascribed_expression, factory.getFlags(), module,
+          containing_table, hosting_table);
+      containing_table.addUnamedSymbol(this->getContext(), ranger);
+    } break;
+    case K::REVERSE_RANGER: {
+      rq::ReverseRanger &reverse_ranger = this->getContext().allocateValue<rq::ReverseRanger>(
+          unascribed_expression, factory.getFlags(), module,
+          containing_table, hosting_table);
+      containing_table.addUnamedSymbol(this->getContext(), reverse_ranger);
+    } break;
     case K::ENTRY: {
       if (factory.getHasStatic()) {
         this->getContext().logErrorInvalidExpressionAttribute(
@@ -150,8 +162,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
             unascribed_expression.getBranch();
         entry.setBodyStartExpression(body_start_expression);
       }
-      break;
-    }
+    } break;
     case K::FUNCTION: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -172,8 +183,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
         }
       }
       containing_table.addNamedSymbol(this->getContext(), name, function);
-      break;
-    }
+    } break;
     case K::METHOD: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -194,30 +204,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
         }
       }
       containing_table.addNamedSymbol(this->getContext(), name, method);
-      break;
-    }
-    case K::RANGER: {
-      const rq::Expression &name_expression = branch_expression.getBranch();
-      std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, hosting_table);
-      if (!name_o.has_value()) {
-        this->getContext().logErrorUnableToEvaluateName(name_expression);
-        this->setNotOk();
-        continue;
-      }
-      llvm::StringRef name = name_o.value();
-      rq::Ranger &ranger = this->getContext().allocateValue<rq::Ranger>(
-          name, unascribed_expression, factory.getFlags(), module,
-          containing_table, hosting_table);
-      if (name_expression.getHasNext()) {
-        const rq::Expression &next_expression = name_expression.getNext();
-        if (next_expression.getIsHeader()) {
-          ranger.setSignatureExpression(next_expression);
-        }
-      }
-      containing_table.addNamedSymbol(this->getContext(), name, ranger);
-      break;
-    }
+    } break;
     case K::EXTENSION_FUNCTION: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -239,8 +226,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
         }
       }
       containing_table.addNamedSymbol(this->getContext(), name, function);
-      break;
-    }
+    } break;
     case K::EXTENSION_METHOD: {
       const rq::Expression &name_expression = branch_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -262,54 +248,22 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
         }
       }
       containing_table.addNamedSymbol(this->getContext(), name, method);
-      break;
-    }
-    case K::EXTENSION_RANGER: {
-      const rq::Expression &name_expression = branch_expression.getBranch();
-      std::optional<llvm::StringRef> name_o =
-          this->evaluateName(name_expression, hosting_table);
-      if (!name_o.has_value()) {
-        this->getContext().logErrorUnableToEvaluateName(name_expression);
-        this->setNotOk();
-        continue;
-      }
-      llvm::StringRef name = name_o.value();
-      rq::ExtensionRanger &ranger =
-          this->getContext().allocateValue<rq::ExtensionRanger>(
-              name, unascribed_expression, factory.getFlags(), module,
-              containing_table, hosting_table);
-      if (name_expression.getHasNext()) {
-        const rq::Expression &next_expression = name_expression.getNext();
-        if (next_expression.getIsHeader()) {
-          ranger.setSignatureExpression(next_expression);
-        }
-      }
-      containing_table.addNamedSymbol(this->getContext(), name, ranger);
-      break;
-    }
+    } break;
     case K::IMPLEMENT_FUNCTION:
       RQ_TODO_IMPLEMENTATION();
     case K::IMPLEMENT_METHOD:
-      RQ_TODO_IMPLEMENTATION();
-    case K::IMPLEMENT_RANGER:
       RQ_TODO_IMPLEMENTATION();
     case K::IMPLEMENT_EXTENSION_FUNCTION:
       RQ_TODO_IMPLEMENTATION();
     case K::IMPLEMENT_EXTENSION_METHOD:
       RQ_TODO_IMPLEMENTATION();
-    case K::IMPLEMENT_EXTENSION_RANGER:
-      RQ_TODO_IMPLEMENTATION();
     case K::SPECIALIZE_FUNCTION:
       RQ_TODO_IMPLEMENTATION();
     case K::SPECIALIZE_METHOD:
       RQ_TODO_IMPLEMENTATION();
-    case K::SPECIALIZE_RANGER:
-      RQ_TODO_IMPLEMENTATION();
     case K::SPECIALIZE_EXTENSION_FUNCTION:
       RQ_TODO_IMPLEMENTATION();
     case K::SPECIALIZE_EXTENSION_METHOD:
-      RQ_TODO_IMPLEMENTATION();
-    case K::SPECIALIZE_EXTENSION_RANGER:
       RQ_TODO_IMPLEMENTATION();
     case K::RETURN: {
       this->getContext().logErrorGlobalIndeterminateDynamicExpression(
@@ -368,8 +322,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
           break;
         }
       }
-      break;
-    }
+    } break;
     case K::ENUMERATION: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -391,8 +344,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
           enumeration.setUnderlyingTypeExpression(next_expression);
         }
       }
-      break;
-    }
+    } break;
     case K::CODE: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -407,8 +359,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
           name, unascribed_expression, factory.getFlags(), module,
           containing_table, hosting_table);
       containing_table.addNamedSymbol(this->getContext(), name, code);
-      break;
-    }
+    } break;
     case K::CATEGORY: {
       const rq::Expression &name_expression = unascribed_expression.getBranch();
       std::optional<llvm::StringRef> name_o =
@@ -429,8 +380,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
           category.setDiscriminantTypeExpression(next_expression);
         }
       }
-      break;
-    }
+    } break;
     case K::IF: {
       if (factory.getHasStatic()) {
         RQ_TODO_IMPLEMENTATION();
@@ -540,7 +490,7 @@ void Generator::generateGlobalForest(const rq::Expression &first_expression,
       const rq::Expression &block_first_expression =
           unascribed_expression.getBranch();
       this->generateGlobalForest(block_first_expression, hosting_table, module);
-    }
+    } break;
     case K::IMPORT: {
       if (!llvm::isa<rq::Top>(containing_table)) {
         this->getContext().logErrorNotInTop(unascribed_expression);
@@ -686,31 +636,21 @@ Generator::generateLocalForest(const rq::Expression &first_expression,
 
     case K::EXTENSION_METHOD:
 
-    case K::EXTENSION_RANGER:
-
     case K::IMPLEMENT_FUNCTION:
 
     case K::IMPLEMENT_METHOD:
-
-    case K::IMPLEMENT_RANGER:
 
     case K::IMPLEMENT_EXTENSION_FUNCTION:
 
     case K::IMPLEMENT_EXTENSION_METHOD:
 
-    case K::IMPLEMENT_EXTENSION_RANGER:
-
     case K::SPECIALIZE_FUNCTION:
 
     case K::SPECIALIZE_METHOD:
 
-    case K::SPECIALIZE_RANGER:
-
     case K::SPECIALIZE_EXTENSION_FUNCTION:
 
     case K::SPECIALIZE_EXTENSION_METHOD:
-
-    case K::SPECIALIZE_EXTENSION_RANGER:
 
     case K::RETURN:
 
@@ -1008,9 +948,7 @@ Generator::inferenceRvalueType(const rq::Expression &type_expression,
           [[fallthrough]];
         case O::SY_EXTENSION_FUNCTION:
           [[fallthrough]];
-        case O::SY_EXTENSION_METHOD:
-          [[fallthrough]];
-        case O::SY_EXTENSION_RANGER: {
+        case O::SY_EXTENSION_METHOD: {
           rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
           if (!procedure.getHasExport() &&
               procedure.getContainingModule() != module) {
@@ -1036,13 +974,9 @@ Generator::inferenceRvalueType(const rq::Expression &type_expression,
           [[fallthrough]];
         case O::SY_TEMPLATE_METHOD:
           [[fallthrough]];
-        case O::SY_TEMPLATE_RANGER:
-          [[fallthrough]];
         case O::SY_TEMPLATE_EXTENSION_FUNCTION:
           [[fallthrough]];
-        case O::SY_TEMPLATE_EXTENSION_METHOD:
-          [[fallthrough]];
-        case O::SY_TEMPLATE_EXTENSION_RANGER: {
+        case O::SY_TEMPLATE_EXTENSION_METHOD: {
           rq::Template &template_ = llvm::cast<rq::Template>(symbol);
           if (!template_.getHasExport() &&
               template_.getContainingModule() != module) {
@@ -1068,13 +1002,9 @@ Generator::inferenceRvalueType(const rq::Expression &type_expression,
           [[fallthrough]];
         case O::SY_PARTIAL_METHOD:
           [[fallthrough]];
-        case O::SY_PARTIAL_RANGER:
-          [[fallthrough]];
         case O::SY_PARTIAL_EXTENSION_FUNCTION:
           [[fallthrough]];
         case O::SY_PARTIAL_EXTENSION_METHOD:
-          [[fallthrough]];
-        case O::SY_PARTIAL_EXTENSION_RANGER:
           // NOTE: only need to worry about catching templates because partial
           // specializations are only valid if associated template in the same
           // table is accessable.

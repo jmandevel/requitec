@@ -513,8 +513,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MAY_DISCARD:
     [[fallthrough]];
   case K::INDETERMINATE:
-    [[fallthrough]];
-  case K::RANGING:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
@@ -587,6 +585,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MOVE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, situation);
     break;
+  case K::RANGER:
+    [[fallthrough]];
+  case K::REVERSE_RANGER:
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::RVALUE);
+    break;
   case K::ENTRY:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
@@ -594,9 +598,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::METHOD:
-    is_ok = this->situateNamedMemberProcedure(situation, expression);
-    break;
-  case K::RANGER:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::EXTENSION_FUNCTION: {
@@ -638,33 +639,23 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   }
   case K::EXTENSION_METHOD:
-    [[fallthrough]];
-  case K::EXTENSION_RANGER:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::IMPLEMENT_FUNCTION:
     [[fallthrough]];
   case K::IMPLEMENT_METHOD:
     [[fallthrough]];
-  case K::IMPLEMENT_RANGER:
-    [[fallthrough]];
   case K::IMPLEMENT_EXTENSION_FUNCTION:
     [[fallthrough]];
   case K::IMPLEMENT_EXTENSION_METHOD:
-    [[fallthrough]];
-  case K::IMPLEMENT_EXTENSION_RANGER:
     [[fallthrough]];
   case K::SPECIALIZE_FUNCTION:
     [[fallthrough]];
   case K::SPECIALIZE_METHOD:
     [[fallthrough]];
-  case K::SPECIALIZE_RANGER:
-    [[fallthrough]];
   case K::SPECIALIZE_EXTENSION_FUNCTION:
     [[fallthrough]];
   case K::SPECIALIZE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case K::SPECIALIZE_EXTENSION_RANGER:
     is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(
         situation, expression, S::RVALUE, S::SIGNATURE);
     break;
@@ -1445,7 +1436,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::AS_EXTENSION_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  
+
   case K::LAST:
     RQ_UNREACHABLE();
 

@@ -139,7 +139,6 @@ enum class Keyword : std::uint32_t {
   NULL_TERMINATED,
   MAY_DISCARD,
   INDETERMINATE,
-  RANGING,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -161,25 +160,21 @@ enum class Keyword : std::uint32_t {
   DROP_OF,
   DROP_EACH,
   DROP_EACH_OF,
+  RANGER,
+  REVERSE_RANGER,
   ENTRY,
   FUNCTION,
   METHOD,
-  RANGER,
   EXTENSION_FUNCTION,
   EXTENSION_METHOD,
-  EXTENSION_RANGER,
   IMPLEMENT_FUNCTION,
   IMPLEMENT_METHOD,
-  IMPLEMENT_RANGER,
   IMPLEMENT_EXTENSION_FUNCTION,
   IMPLEMENT_EXTENSION_METHOD,
-  IMPLEMENT_EXTENSION_RANGER,
   SPECIALIZE_FUNCTION,
   SPECIALIZE_METHOD,
-  SPECIALIZE_RANGER,
   SPECIALIZE_EXTENSION_FUNCTION,
   SPECIALIZE_EXTENSION_METHOD,
-  SPECIALIZE_EXTENSION_RANGER,
 
   // CONTROL FLOW
   RETURN,
@@ -669,8 +664,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "may_discard";
   case K::INDETERMINATE:
     return "indeterminate";
-  case K::RANGING:
-    return "ranging";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -707,44 +700,36 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "drop_each";
   case K::DROP_EACH_OF:
     return "_drop_each_of";
+  case K::RANGER:
+    return "ranger";
+  case K::REVERSE_RANGER:
+    return "reverse_ranger";
   case K::ENTRY:
     return "entry";
   case K::FUNCTION:
     return "function";
   case K::METHOD:
     return "method";
-  case K::RANGER:
-    return "ranger";
   case K::EXTENSION_FUNCTION:
     return "extension_function";
   case K::EXTENSION_METHOD:
     return "extension_method";
-  case K::EXTENSION_RANGER:
-    return "extension_ranger";
   case K::IMPLEMENT_FUNCTION:
     return "implement_function";
   case K::IMPLEMENT_METHOD:
     return "implement_method";
-  case K::IMPLEMENT_RANGER:
-    return "implement_ranger";
   case K::IMPLEMENT_EXTENSION_FUNCTION:
     return "implement_extension_function";
   case K::IMPLEMENT_EXTENSION_METHOD:
     return "implement_extension_method";
-  case K::IMPLEMENT_EXTENSION_RANGER:
-    return "implement_extension_ranger";
   case K::SPECIALIZE_FUNCTION:
     return "specialize_function";
   case K::SPECIALIZE_METHOD:
     return "sepcialize_method";
-  case K::SPECIALIZE_RANGER:
-    return "specialize_ranger";
   case K::SPECIALIZE_EXTENSION_FUNCTION:
     return "specialize_extension_function";
   case K::SPECIALIZE_EXTENSION_METHOD:
     return "specialize_extension_method";
-  case K::SPECIALIZE_EXTENSION_RANGER:
-    return "specialize_extension_ranger";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1511,8 +1496,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::TYPE_ATTRIBUTE;
   case K::INDETERMINATE:
     return KF::TYPE_ATTRIBUTE;
-  case K::RANGING:
-    return KF::TYPE_ATTRIBUTE;
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -1549,43 +1532,35 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DROP_EACH_OF:
     return KF::RVALUE;
+  case K::RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::REVERSE_RANGER:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENTRY:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::RANGER:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::EXTENSION_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::EXTENSION_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::EXTENSION_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::IMPLEMENT_RANGER:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::IMPLEMENT_EXTENSION_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_EXTENSION_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::IMPLEMENT_EXTENSION_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::SPECIALIZE_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::SPECIALIZE_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPECIALIZE_RANGER:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::SPECIALIZE_EXTENSION_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::SPECIALIZE_EXTENSION_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPECIALIZE_EXTENSION_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // CONTROL FLOW
@@ -3365,8 +3340,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NULL_TERMINATED,
   MAY_DISCARD,
-  INDETERMINATE,
-  RANGING
+  INDETERMINATE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
@@ -3391,8 +3365,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "may_discard";
   case TA::INDETERMINATE:
     return "indeterminate";
-  case TA::RANGING:
-    return "ranging";
   }
   RQ_UNREACHABLE();
 }
@@ -3418,8 +3390,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::MAY_DISCARD;
   case K::INDETERMINATE:
     return TA::INDETERMINATE;
-  case K::RANGING:
-    return TA::RANGING;
   default:
     break;
   }
@@ -3435,8 +3405,7 @@ enum class TypeFlags : std::uint32_t {
   ATOMIC = rq::getBit(11),
   NULL_TERMINATED = rq::getBit(10),
   MAY_DISCARD = rq::getBit(9),
-  INDETERMINATE = rq::getBit(8),
-  RANGING = rq::getBit(7)
+  INDETERMINATE = rq::getBit(8)
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
@@ -3464,8 +3433,6 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::MAY_DISCARD;
   case TA::INDETERMINATE:
     return TF::INDETERMINATE;
-  case TA::RANGING:
-    return TF::RANGING;
   }
   return TF::NONE;
 }
@@ -3501,10 +3468,6 @@ getHasPartiallyMutable(rq::TypeFlags flags) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::INDETERMINATE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasRanging(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::RANGING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool

@@ -150,23 +150,23 @@ namespace rq {
   case O::SY_CLASS:
     return "sy_class";
   case O::SY_ENUMERATION:
-    return "sy_class";
+    return "sy_enumeration";
   case O::SY_CATEGORY:
     return "sy_category";
+  case O::SY_RANGER:
+    return "sy_ranger";
+  case O::SY_REVERSE_RANGER:
+    return "sy_reverse_ranger";
   case O::SY_ENTRY:
     return "sy_entry";
   case O::SY_FUNCTION:
     return "sy_function";
   case O::SY_METHOD:
     return "sy_method";
-  case O::SY_RANGER:
-    return "sy_ranger";
   case O::SY_EXTENSION_FUNCTION:
     return "sy_extension_function";
   case O::SY_EXTENSION_METHOD:
     return "sy_extension_method";
-  case O::SY_EXTENSION_RANGER:
-    return "sy_extension_ranger";
   case O::SY_TEMPLATE_CLASS:
     return "sy_template_class";
   case O::SY_TEMPLATE_ENUMERATION:
@@ -181,14 +181,10 @@ namespace rq {
     return "sy_template_function";
   case O::SY_TEMPLATE_METHOD:
     return "sy_template_method";
-  case O::SY_TEMPLATE_RANGER:
-    return "sy_template_ranger";
   case O::SY_TEMPLATE_EXTENSION_FUNCTION:
     return "sy_template_extension_function";
   case O::SY_TEMPLATE_EXTENSION_METHOD:
     return "sy_template_extension_method";
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    return "sy_template_extension_ranger";
   case O::SY_PARTIAL_CLASS:
     return "sy_partial_class";
   case O::SY_PARTIAL_ENUMERATION:
@@ -203,14 +199,10 @@ namespace rq {
     return "sy_partial_function";
   case O::SY_PARTIAL_METHOD:
     return "sy_partial_method";
-  case O::SY_PARTIAL_RANGER:
-    return "sy_partial_ranger";
   case O::SY_PARTIAL_EXTENSION_FUNCTION:
     return "sy_partial_extension_function";
   case O::SY_PARTIAL_EXTENSION_METHOD:
     return "sy_partial_extension_method";
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return "sy_partial_extension_ranger";
   case O::CT_TYPE:
     return "ct_type";
   case O::CT_EXPRESSION:
@@ -496,6 +488,10 @@ namespace rq {
   case O::SY_CATEGORY:
     return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
+  case O::SY_RANGER:
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
+  case O::SY_REVERSE_RANGER:
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
   case O::SY_ENTRY:
     return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME;
   case O::SY_FUNCTION:
@@ -504,16 +500,10 @@ namespace rq {
   case O::SY_METHOD:
     return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_RANGER:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_FUNCTION:
     return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
-           OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_EXTENSION_RANGER:
     return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_TEMPLATE_CLASS:
@@ -530,13 +520,9 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_METHOD:
     return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_RANGER:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_EXTENSION_FUNCTION:
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_PARTIAL_CLASS:
     return OF::SYMBOL | OF::SY_PARTIAL;
@@ -552,13 +538,9 @@ namespace rq {
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_METHOD:
     return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_RANGER:
-    return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_EXTENSION_FUNCTION:
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::SY_PARTIAL_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_EXTENSION_RANGER:
     return OF::SYMBOL | OF::SY_PARTIAL;
   case O::CT_TYPE:
     return OF::CONSTANT;
@@ -885,12 +867,6 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     [[fallthrough]];
   case O::SY_PARTIAL_METHOD:
     return O::SY_TEMPLATE_METHOD;
-  case O::SY_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    return O::SY_TEMPLATE_RANGER;
   case O::SY_EXTENSION_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_EXTENSION_FUNCTION:
@@ -903,12 +879,6 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     [[fallthrough]];
   case O::SY_PARTIAL_EXTENSION_METHOD:
     return O::SY_TEMPLATE_EXTENSION_METHOD;
-  case O::SY_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return O::SY_TEMPLATE_EXTENSION_RANGER;
   default:
     break;
   }
@@ -962,12 +932,6 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     [[fallthrough]];
   case O::SY_PARTIAL_METHOD:
     return O::SY_PARTIAL_METHOD;
-  case O::SY_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    return O::SY_PARTIAL_RANGER;
   case O::SY_EXTENSION_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_EXTENSION_FUNCTION:
@@ -980,12 +944,6 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     [[fallthrough]];
   case O::SY_PARTIAL_EXTENSION_METHOD:
     return O::SY_PARTIAL_EXTENSION_METHOD;
-  case O::SY_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return O::SY_PARTIAL_EXTENSION_RANGER;
   default:
     break;
   }
@@ -1039,12 +997,6 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     [[fallthrough]];
   case O::SY_PARTIAL_METHOD:
     return O::SY_METHOD;
-  case O::SY_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    return O::SY_RANGER;
   case O::SY_EXTENSION_FUNCTION:
     [[fallthrough]];
   case O::SY_TEMPLATE_EXTENSION_FUNCTION:
@@ -1057,12 +1009,6 @@ getHasTemplateAlternative(rq::Opcode opcode) {
     [[fallthrough]];
   case O::SY_PARTIAL_EXTENSION_METHOD:
     return O::SY_EXTENSION_METHOD;
-  case O::SY_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER:
-    return O::SY_EXTENSION_RANGER;
   default:
     break;
   }
@@ -1620,13 +1566,9 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
     [[fallthrough]];
   case O::SY_METHOD:
     [[fallthrough]];
-  case O::SY_RANGER:
-    [[fallthrough]];
   case O::SY_EXTENSION_FUNCTION:
     [[fallthrough]];
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_EXTENSION_RANGER: {
+  case O::SY_EXTENSION_METHOD: {
     rq::Procedure &procedure = llvm::cast<rq::Procedure>(*this);
     info.setContainingModule(procedure.getContainingModule());
     info.setContainingTable(procedure.getContainingTable());
@@ -1647,13 +1589,9 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
     [[fallthrough]];
   case O::SY_TEMPLATE_METHOD:
     [[fallthrough]];
-  case O::SY_TEMPLATE_RANGER:
-    [[fallthrough]];
   case O::SY_TEMPLATE_EXTENSION_FUNCTION:
     [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_RANGER: {
+  case O::SY_TEMPLATE_EXTENSION_METHOD: {
     rq::Template &template_ = llvm::cast<rq::Template>(*this);
     info.setContainingModule(template_.getContainingModule());
     info.setContainingTable(template_.getContainingTable());
@@ -1674,13 +1612,9 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
     [[fallthrough]];
   case O::SY_PARTIAL_METHOD:
     [[fallthrough]];
-  case O::SY_PARTIAL_RANGER:
-    [[fallthrough]];
   case O::SY_PARTIAL_EXTENSION_FUNCTION:
     [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_RANGER: {
+  case O::SY_PARTIAL_EXTENSION_METHOD: {
     rq::Partial &partial = llvm::cast<rq::Partial>(*this);
     info.setContainingModule(partial.getContainingModule());
     info.setContainingTable(partial.getContainingTable());
@@ -1763,8 +1697,7 @@ inline SymbolReflection::SymbolReflection()
 inline Type::Type() : SimpleBuiltin(rq::Opcode::SY_TYPE) {}
 
 [[nodiscard]] inline bool Type::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TYPE;
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_TYPE;
 }
 
 inline Void::Void() : SimpleBuiltin(rq::Opcode::SY_VOID) {}
@@ -3164,6 +3097,30 @@ Category::setDiscriminantTypeExpression(const rq::Expression &type_expression) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CATEGORY;
 }
 
+inline Ranger::Ranger(const rq::Expression &expression,
+                      rq::ExpressionFlags attributes, rq::Module &module,
+                      rq::Table &containing_table, rq::Table &hosting_table)
+    : Table(rq::Opcode::SY_RANGER, containing_table),
+      InitialExpression(expression), InitialExpressionFlags(attributes),
+      InitialModuleMember(module), TableHosted(hosting_table) {}
+
+[[nodiscard]] inline bool Ranger::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RANGER;
+}
+
+inline ReverseRanger::ReverseRanger(const rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::Table &containing_table,
+                                    rq::Table &hosting_table)
+    : Table(rq::Opcode::SY_REVERSE_RANGER, containing_table),
+      InitialExpression(expression), InitialExpressionFlags(attributes),
+      InitialModuleMember(module), TableHosted(hosting_table) {}
+
+[[nodiscard]] inline bool ReverseRanger::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_REVERSE_RANGER;
+}
+
 inline Local::Local(llvm::StringRef name, const rq::Expression &expression,
                     rq::ExpressionFlags attributes, rq::Module &module,
                     rq::Table &containing_table)
@@ -3446,16 +3403,6 @@ inline Method::Method(llvm::StringRef name, const rq::Expression &expression,
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_METHOD;
 }
 
-inline Ranger::Ranger(llvm::StringRef name, const rq::Expression &expression,
-                      rq::ExpressionFlags attributes, rq::Module &module,
-                      rq::Table &containing_table, rq::Table &hosting_table)
-    : Procedure(rq::Opcode::SY_METHOD, name, expression, attributes, module,
-                containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool Ranger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RANGER;
-}
-
 inline ExtensionFunction::ExtensionFunction(llvm::StringRef name,
                                             const rq::Expression &expression,
                                             rq::ExpressionFlags attributes,
@@ -3482,20 +3429,6 @@ inline ExtensionMethod::ExtensionMethod(llvm::StringRef name,
 [[nodiscard]] inline bool ExtensionMethod::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_EXTENSION_METHOD;
-}
-
-inline ExtensionRanger::ExtensionRanger(llvm::StringRef name,
-                                        const rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::Table &containing_table,
-                                        rq::Table &hosting_table)
-    : Procedure(rq::Opcode::SY_EXTENSION_RANGER, name, expression, attributes,
-                module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool ExtensionRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_EXTENSION_RANGER;
 }
 
 inline Template::Template(rq::Opcode opcode, llvm::StringRef name,
@@ -3625,21 +3558,6 @@ inline TemplateMethod::TemplateMethod(llvm::StringRef name,
          rq::Opcode::SY_TEMPLATE_METHOD;
 }
 
-inline TemplateRanger::TemplateRanger(llvm::StringRef name,
-                                      const rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::Table &containing_table,
-                                      rq::Table &hosting_table,
-                                      rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_RANGER, name, expression, attributes,
-               module, containing_table, hosting_table, template_layout) {}
-
-[[nodiscard]] inline bool TemplateRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TEMPLATE_RANGER;
-}
-
 inline TemplateExtensionFunction::TemplateExtensionFunction(
     llvm::StringRef name, const rq::Expression &expression,
     rq::ExpressionFlags attributes, rq::Module &module,
@@ -3668,21 +3586,6 @@ inline TemplateExtensionMethod::TemplateExtensionMethod(
 TemplateExtensionMethod::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_TEMPLATE_EXTENSION_METHOD;
-}
-
-inline TemplateExtensionRanger::TemplateExtensionRanger(
-    llvm::StringRef name, const rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table,
-    rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_EXTENSION_RANGER, name, expression,
-               attributes, module, containing_table, hosting_table,
-               template_layout) {}
-
-[[nodiscard]] inline bool
-TemplateExtensionRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TEMPLATE_EXTENSION_RANGER;
 }
 
 inline Partial::Partial(rq::Opcode opcode, llvm::StringRef name,
@@ -3795,20 +3698,6 @@ inline PartialMethod::PartialMethod(llvm::StringRef name,
          rq::Opcode::SY_PARTIAL_METHOD;
 }
 
-inline PartialRanger::PartialRanger(llvm::StringRef name,
-                                    rq::Expression &expression,
-                                    rq::ExpressionFlags attributes,
-                                    rq::Module &module,
-                                    rq::Table &containing_table,
-                                    rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_METHOD, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_METHOD;
-}
-
 inline PartialExtensionFunction::PartialExtensionFunction(
     llvm::StringRef name, rq::Expression &expression,
     rq::ExpressionFlags attributes, rq::Module &module,
@@ -3833,19 +3722,6 @@ inline PartialExtensionMethod::PartialExtensionMethod(
 PartialExtensionMethod::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_PARTIAL_EXTENSION_METHOD;
-}
-
-inline PartialExtensionRanger::PartialExtensionRanger(
-    llvm::StringRef name, const rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_METHOD, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool
-PartialExtensionRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_METHOD;
 }
 
 inline Constant::Constant(rq::Opcode opcode) : Entity(opcode) {}
@@ -3909,10 +3785,6 @@ TypeConstant::getHasPartiallyMutable() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasIndeterminate() const {
   return rq::getHasIndeterminate(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasRanging() const {
-  return rq::getHasRanging(this->getTypeFlags());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool

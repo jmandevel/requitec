@@ -142,15 +142,15 @@ enum class Opcode : std::uint16_t {
   SY_CLASS,
   SY_ENUMERATION,
   SY_CATEGORY,
+  SY_RANGER,
+  SY_REVERSE_RANGER,
 
   // PROCEDURE
   SY_ENTRY,
   SY_FUNCTION,
   SY_METHOD,
-  SY_RANGER,
   SY_EXTENSION_FUNCTION,
   SY_EXTENSION_METHOD,
-  SY_EXTENSION_RANGER,
 
   // TEMPLATE
   SY_TEMPLATE_CLASS,
@@ -160,10 +160,8 @@ enum class Opcode : std::uint16_t {
   SY_TEMPLATE_GLOBAL_STATIC,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
-  SY_TEMPLATE_RANGER,
   SY_TEMPLATE_EXTENSION_FUNCTION,
   SY_TEMPLATE_EXTENSION_METHOD,
-  SY_TEMPLATE_EXTENSION_RANGER,
 
   // PARTIAL SPECIALIZATION
   SY_PARTIAL_CLASS,
@@ -173,10 +171,8 @@ enum class Opcode : std::uint16_t {
   SY_PARTIAL_GLOBAL_STATIC,
   SY_PARTIAL_FUNCTION,
   SY_PARTIAL_METHOD,
-  SY_PARTIAL_RANGER,
   SY_PARTIAL_EXTENSION_FUNCTION,
   SY_PARTIAL_EXTENSION_METHOD,
-  SY_PARTIAL_EXTENSION_RANGER,
 
   // =====CONSTANTS=====
 
@@ -471,11 +467,12 @@ struct Namespace;
 struct Class;
 struct Enumeration;
 struct Category;
+struct Ranger;
+struct ReverseRanger;
 struct Procedure;
 struct Entry;
 struct Function;
 struct Method;
-struct Ranger;
 struct ExtensionFunction;
 struct ExtensionMethod;
 struct ExtensionRanger;
@@ -1996,6 +1993,33 @@ struct Category : public rq::Table,
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
+struct Ranger : public rq::Table,
+                public rq::InitialExpression,
+                public rq::InitialExpressionFlags,
+                public rq::InitialModuleMember,
+                public rq::TableHosted {
+  using Self = rq::Ranger;
+
+  inline explicit Ranger(const rq::Expression &expression,
+                         rq::ExpressionFlags attributes, rq::Module &module,
+                         rq::Table &containing_table, rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct ReverseRanger : public rq::Table,
+                       public rq::InitialExpression,
+                       public rq::InitialExpressionFlags,
+                       public rq::InitialModuleMember,
+                       public rq::TableHosted {
+  using Self = rq::ReverseRanger;
+
+  inline explicit ReverseRanger(const rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module, rq::Table &containing_table,
+                                rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
 struct Procedure : public rq::Table,
                    public rq::InitialExpression,
                    public rq::InitialExpressionFlags,
@@ -2079,15 +2103,6 @@ struct Method : public rq::Procedure {
   using Self = rq::Method;
 
   inline explicit Method(llvm::StringRef name, const rq::Expression &expression,
-                         rq::ExpressionFlags attributes, rq::Module &module,
-                         rq::Table &containing_table, rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct Ranger : public rq::Procedure {
-  using Self = rq::Ranger;
-
-  inline explicit Ranger(llvm::StringRef name, const rq::Expression &expression,
                          rq::ExpressionFlags attributes, rq::Module &module,
                          rq::Table &containing_table, rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
