@@ -931,13 +931,15 @@ Generator::inferenceRvalueType(const rq::Expression &type_expression,
           matches.push_back(&symbol);
         } break;
         case O::SY_ENUMERATOR: {
+          this->getContext().logErrorInvalidRvalueSymbol(type_expression,
+                                                         symbol);
+          this->setNotOk();
+          has_error = true;
           matches.push_back(&symbol);
         } break;
         case O::SY_CATEGORY_ALTERNATIVE: {
-          rq::CategoryAlternative &alternative =
-              llvm::cast<rq::CategoryAlternative>(symbol);
           this->getContext().logErrorInvalidRvalueSymbol(type_expression,
-                                                         alternative);
+                                                         symbol);
           this->setNotOk();
           has_error = true;
           matches.push_back(&symbol);
@@ -1123,11 +1125,6 @@ Generator::inferenceRvalueType(const rq::Expression &type_expression,
         return nullptr;
       }
       return &static_.getType();
-    } break;
-    case O::SY_ENUMERATOR: {
-      rq::Enumerator &enumerator = llvm::cast<rq::Enumerator>(match);
-      return &this->getContext().acquireTypeConstant(
-          enumerator.getEnumeration(), {});
     } break;
     case O::SY_GLOBAL: {
       rq::Global &global = llvm::cast<rq::Global>(match);
