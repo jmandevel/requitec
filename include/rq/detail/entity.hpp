@@ -3254,6 +3254,15 @@ inline Enumerator::Enumerator(llvm::StringRef name, rq::Expression &expression,
       TableMember(containing_table), TableHosted(hosting_table),
       InitialNamed(name) {}
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Enumeration &
+Enumerator::getEnumeration() const {
+  return llvm::cast<rq::Enumeration>(this->getContainingTable());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Enumeration &Enumerator::getEnumeration() {
+  return llvm::cast<rq::Enumeration>(this->getContainingTable());
+}
+
 [[nodiscard]] inline bool Enumerator::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ENUMERATOR;
 }

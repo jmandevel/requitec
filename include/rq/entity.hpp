@@ -1690,6 +1690,8 @@ struct Enumerator : public rq::Symbol,
                              rq::ExpressionFlags attributes, rq::Module &module,
                              rq::Table &containing_table,
                              rq::Table &hosting_table);
+                             [[nodiscard]] RQ_ALWAYS_INLINE const rq::Enumeration& getEnumeration() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Enumeration& getEnumeration();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
