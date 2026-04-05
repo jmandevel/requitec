@@ -69,8 +69,6 @@ enum class Keyword : std::uint32_t {
   ASCRIBE_ROOT_OF_VALUE,
   // turn a string into an identifier
   IDENTIFY,
-  // turn an identifier into a keyword
-  KEYWORDIFY,
 
   // ARITHMETIC
   ADD,
@@ -82,9 +80,9 @@ enum class Keyword : std::uint32_t {
 
   // CASTS
   AS,
-  LITERAL_AS,
+  AS_OF,
   OF,
-  ELEMENTS_OF,
+  OF_OF,
   CAST,
   CAST_OF,
   DOWN_CAST,
@@ -538,8 +536,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_root_of_value";
   case K::IDENTIFY:
     return "_identify";
-  case K::KEYWORDIFY:
-    return "keywordify";
 
   // ARITHMETIC
   case K::ADD:
@@ -558,12 +554,12 @@ static constexpr std::size_t KEYWORD_COUNT =
   // CASTS
   case K::AS:
     return "as";
-  case K::LITERAL_AS:
-    return "_literal_as";
+  case K::AS_OF:
+    return "_as_of";
   case K::OF:
     return "of";
-  case K::ELEMENTS_OF:
-    return "_elements_of";
+  case K::OF_OF:
+    return "_of_of";
   case K::CAST:
     return "cast";
   case K::CAST_OF:
@@ -1370,8 +1366,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::IDENTIFY:
     return KF::NAME | KF::RVALUE | KF::ARGUMENT | KF::NAMESPACE;
-  case K::KEYWORDIFY:
-    return KF::RVALUE | KF::ARGUMENT;
 
   // ARITHMETIC
   case K::ADD:
@@ -1390,11 +1384,11 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // CASTS
   case K::AS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LITERAL_AS:
+  case K::AS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::OF:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::ELEMENTS_OF:
+  case K::OF_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2334,9 +2328,9 @@ getDescription(rq::Situation situation) {
   switch (keyword) {
   // CASTS
   case K::AS:
-    return K::LITERAL_AS;
+    return K::AS_OF;
   case K::OF:
-    return K::ELEMENTS_OF;
+    return K::OF_OF;
   case K::CAST:
     return K::CAST_OF;
   case K::DOWN_CAST:

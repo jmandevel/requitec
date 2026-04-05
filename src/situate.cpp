@@ -244,8 +244,6 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, 2, situation, S::TYPE_ATTRIBUTE);
     break;
   case K::IDENTIFY:
-    [[fallthrough]];
-  case K::KEYWORDIFY:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
@@ -269,14 +267,14 @@ bool Situator::situateTree(rq::Situation situation,
   case K::AS:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::LITERAL_AS:
+  case K::AS_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
   case K::OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::ELEMENTS_OF:
+  case K::OF_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
