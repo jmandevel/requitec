@@ -1455,8 +1455,11 @@ RQ_ALWAYS_INLINE void DeclarationInfo::setName(llvm::StringRef name) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
 DeclarationInfo::getName() const {
-  RQ_ASSERT(this->getHasName(), "no name");
-  return this->_name;
+  if (this->_name.empty()) {
+    return "[no_name]";
+  } else {
+    return this->_name;
+  }
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool DeclarationInfo::getHasExpression() const {
