@@ -1444,6 +1444,11 @@ RQ_ALWAYS_INLINE DeclarationInfo::DeclarationInfo(rq::Opcode opcode)
   return this->_opcode;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+DeclarationInfo::getOpcodeName() {
+  return rq::getName(this->_opcode);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool DeclarationInfo::getHasName() const {
   return !this->_name.empty();
 }

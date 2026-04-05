@@ -716,6 +716,7 @@ struct DeclarationInfo {
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode();
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getOpcodeName();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasName() const;
   RQ_ALWAYS_INLINE void setName(llvm::StringRef name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
