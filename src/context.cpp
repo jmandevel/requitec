@@ -1091,11 +1091,11 @@ void Context::logInfoNameCollisionDeclaration(rq::Symbol &symbol) {
                    info.getExpression().getLlvmSourceRange(), {});
 }
 
-void Context::logErrorInvalidRvalueSymbol(const rq::Expression &expression,
-                                          rq::Symbol &symbol) {
+void Context::logErrorInvalidValueSymbol(const rq::Expression &expression,
+                                         rq::Symbol &symbol) {
   rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("invalid rvalue symbol of kind ") +
+                   llvm::Twine("invalid value symbol of kind ") +
                        info.getOpcodeName(),
                    expression.getLlvmSourceRange(), {});
   if (info.getHasExpression()) {
@@ -1105,11 +1105,11 @@ void Context::logErrorInvalidRvalueSymbol(const rq::Expression &expression,
   }
 }
 
-void Context::logErrorIndeterminateVariableRvalue(
+void Context::logErrorIndeterminateVariableValue(
     const rq::Expression &expression, rq::Symbol &symbol) {
   rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("indeterminate variable rvalue of kind ") +
+                   llvm::Twine("indeterminate variable value of kind ") +
                        info.getOpcodeName(),
                    expression.getLlvmSourceRange(), {});
   if (info.getHasExpression()) {
