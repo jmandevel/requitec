@@ -21,10 +21,10 @@ namespace rq {
     return "sy_codeunit_literal";
   case O::SY_INFERENCE:
     return "sy_inference";
-  case O::SY_SYMBOL_CONSTRAINT:
-    return "sy_symbol_constraint";
-  case O::SY_TYPE_CONSTRAINT:
-    return "sy_type_constraint";
+  case O::SY_SYMBOL_REFLECTION:
+    return "sy_symbol_reflection";
+  case O::SY_TYPE:
+    return "sy_type";
   case O::SY_EXPRESSION:
     return "sy_expression";
   case O::SY_VOID:
@@ -334,9 +334,9 @@ namespace rq {
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_LITERAL;
   case O::SY_INFERENCE:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
-  case O::SY_SYMBOL_CONSTRAINT:
+  case O::SY_SYMBOL_REFLECTION:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
-  case O::SY_TYPE_CONSTRAINT:
+  case O::SY_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CONSTRAINT;
   case O::SY_EXPRESSION:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE;
@@ -1752,20 +1752,19 @@ inline Inference::Inference() : SimpleBuiltin(rq::Opcode::SY_INFERENCE) {}
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_INFERENCE;
 }
 
-inline SymbolConstraint::SymbolConstraint()
-    : SimpleBuiltin(rq::Opcode::SY_SYMBOL_CONSTRAINT) {}
+inline SymbolReflection::SymbolReflection()
+    : SimpleBuiltin(rq::Opcode::SY_SYMBOL_REFLECTION) {}
 
-[[nodiscard]] inline bool SymbolConstraint::classof(const Entity *entity) {
+[[nodiscard]] inline bool SymbolReflection::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_SYMBOL_CONSTRAINT;
+         rq::Opcode::SY_SYMBOL_REFLECTION;
 }
 
-inline TypeConstraint::TypeConstraint()
-    : SimpleBuiltin(rq::Opcode::SY_TYPE_CONSTRAINT) {}
+inline Type::Type() : SimpleBuiltin(rq::Opcode::SY_TYPE) {}
 
-[[nodiscard]] inline bool TypeConstraint::classof(const Entity *entity) {
+[[nodiscard]] inline bool Type::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_TYPE_CONSTRAINT;
+         rq::Opcode::SY_TYPE;
 }
 
 inline Void::Void() : SimpleBuiltin(rq::Opcode::SY_VOID) {}

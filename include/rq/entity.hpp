@@ -59,8 +59,8 @@ enum class Opcode : std::uint16_t {
   SY_STRING_LITERAL,
   SY_CODEUNIT_LITERAL,
   SY_INFERENCE,
-  SY_SYMBOL_CONSTRAINT,
-  SY_TYPE_CONSTRAINT,
+  SY_SYMBOL_REFLECTION,
+  SY_TYPE,
   SY_EXPRESSION,
   SY_VOID,
   SY_NO_RETURN,
@@ -399,8 +399,8 @@ struct FloatLiteral;
 struct StringLiteral;
 struct CodeunitLiteral;
 struct Inference;
-struct SymbolConstraint;
-struct TypeConstraint;
+struct SymbolReflection;
+struct Type;
 struct Void;
 struct NoReturn;
 struct VariadicArguments;
@@ -815,23 +815,23 @@ struct Inference final : public rq::SimpleBuiltin {
 
 template <> struct is_acquired<rq::Inference> final : std::true_type {};
 
-struct SymbolConstraint final : public rq::SimpleBuiltin {
-  using Self = rq::SymbolConstraint;
+struct SymbolReflection final : public rq::SimpleBuiltin {
+  using Self = rq::SymbolReflection;
 
-  inline explicit SymbolConstraint();
+  inline explicit SymbolReflection();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-template <> struct is_acquired<rq::SymbolConstraint> final : std::true_type {};
+template <> struct is_acquired<rq::SymbolReflection> final : std::true_type {};
 
-struct TypeConstraint final : public rq::SimpleBuiltin {
-  using Self = rq::TypeConstraint;
+struct Type final : public rq::SimpleBuiltin {
+  using Self = rq::Type;
 
-  inline explicit TypeConstraint();
+  inline explicit Type();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-template <> struct is_acquired<rq::TypeConstraint> final : std::true_type {};
+template <> struct is_acquired<rq::Type> final : std::true_type {};
 
 struct Void final : public rq::SimpleBuiltin {
   using Self = rq::Void;
@@ -1690,8 +1690,8 @@ struct Enumerator : public rq::Symbol,
                              rq::ExpressionFlags attributes, rq::Module &module,
                              rq::Table &containing_table,
                              rq::Table &hosting_table);
-                             [[nodiscard]] RQ_ALWAYS_INLINE const rq::Enumeration& getEnumeration() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Enumeration& getEnumeration();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Enumeration &getEnumeration() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Enumeration &getEnumeration();
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 

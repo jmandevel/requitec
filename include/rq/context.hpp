@@ -88,8 +88,8 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::StringLiteral _string_literal{};
     rq::CodeunitLiteral _codeunit_literal{};
     rq::Inference _inference{};
-    rq::SymbolConstraint _symbol_constraint{};
-    rq::TypeConstraint _type_constraint{};
+    rq::SymbolReflection _symbol_reflection{};
+    rq::Type _type{};
     rq::Void _void{};
     rq::NoReturn _no_return{};
     rq::VariadicArguments _variadic_arguments{};
@@ -351,12 +351,12 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Inference &acquireInference() {
     return this->acquired._inference;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstraint &
-  acquireSymbolConstraint() {
-    return this->acquired._symbol_constraint;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolReflection &
+  acquireSymbolReflection() {
+    return this->acquired._symbol_reflection;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstraint &acquireTypeConstraint() {
-    return this->acquired._type_constraint;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Type &acquireType() {
+    return this->acquired._type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Void &acquireVoid() {
     return this->acquired._void;
