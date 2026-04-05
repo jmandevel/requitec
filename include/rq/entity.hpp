@@ -810,7 +810,7 @@ struct Inference final : public rq::SimpleBuiltin {
   using Self = rq::Inference;
 
   inline explicit Inference();
-  [[nodiscard]] inline bool classof(const Entity *entity);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
 template <> struct is_acquired<rq::Inference> final : std::true_type {};
