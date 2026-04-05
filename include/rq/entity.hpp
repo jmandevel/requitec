@@ -1642,7 +1642,6 @@ struct Local : public rq::Symbol,
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
   RQ_ALWAYS_INLINE void setNotIndeterminate();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
   RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
   RQ_ALWAYS_INLINE void
@@ -1669,7 +1668,6 @@ struct Static : public rq::Symbol,
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndeterminate() const;
   RQ_ALWAYS_INLINE void setNotIndeterminate();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getType() const;
   RQ_ALWAYS_INLINE void setTypeExpression(const rq::Expression &expression);
   RQ_ALWAYS_INLINE void
