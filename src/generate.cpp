@@ -1148,7 +1148,7 @@ Generator::inferenceType(const rq::Expression &expression,
     // return this->evaluateType(type_expression, hosting_table, module);
   }
   case K::OF_OF: {
-
+    RQ_TODO_IMPLEMENTATION();
   }
   default:
     break;
