@@ -13,13 +13,13 @@
   var_list := [initialize_array 0, 1, 2, 3, 4, 5].[of [signed_address]]; // of type 6#[signed_address]
 
   // if you want a variable to be mutable, it should be in the binding, not the cast
-  // add a grave operator (`) in front of type to make it mutable
+  // add a mutable type attribute ($mutable) in front of type to make it mutable
   // if there is an equal operator directly after, this an an "operator combination"
   // the compiler will insert an inference before the equal operator
   // so the type that is mutable is inferred from the rvalue
-  var2 :`= 1337.[as [fast_signed_integer 8]];
-  var3 :`= 1323.[as [fast_signed_integer 64]];
-  var4 :`= 3.14.[as [single]];
+  var2 :$mutable= 1337.[as [fast_signed_integer 8]];
+  var3 :$mutable= 1323.[as [fast_signed_integer 64]];
+  var4 :$mutable= 3.14.[as [single]];
 
   // mutable variables can be reassigned to
   // to cast a variable value on copy to a new type, use .[cast]

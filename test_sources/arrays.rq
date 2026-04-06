@@ -1,11 +1,11 @@
 [import "std"];
 
 [entry
-    my_array :`= [initialize_array 0, 1, 2, 3, 4].[of [least_signed_integer 64]];
+    my_array :$mutable= [initialize_array 0, 1, 2, 3, 4].[of [least_signed_integer 64]];
     const_fat_pointer := my_array.[borrow]->.std.getSpan();
-    mutable_fat_pointer := my_array.`[borrow]->.std.getSpan();
+    mutable_fat_pointer := my_array.$mutable[borrow]->.std.getSpan();
     .std.print(line="stats: size:{my_array.[type].[byte_size]} count:{my_array.[type].[element_count]} depth:{my_array.[type].[bit_depth]}!");
-    [for my_array, index:=[index], element:=[value].`[borrow], 
+    [for my_array, index:=[index], element:=[value].$mutable[borrow], 
         element = element * index.[platform_cast element.[type]];
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 

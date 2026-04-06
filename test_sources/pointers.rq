@@ -2,10 +2,10 @@
     // if you know C, this should be super easy to understand.
 
     // mutable single floating point number
-    var :`[single]= 0;
+    var :$mutable[single]= 0;
 
     // mutable pointer to mutable single float
-    var_ptr :`?`[single]= var.[address];
+    var_ptr :$mutable*$mutable[single]= var.$mutable[address];
 
     var_ptr.[content] = 1;
 

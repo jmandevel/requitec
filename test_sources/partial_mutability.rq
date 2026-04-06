@@ -2,7 +2,7 @@
 @auto_drop @may_copy
 [object Partialable,
     {>
-        @public @partial_mutate property_a : [fast_signed_integer 32]= 0,
+        @public @partially_mutable property_a : [fast_signed_integer 32]= 0,
         @public property_b : [fast_signed_integer 32] = 0
     <},
 ];
@@ -12,7 +12,7 @@
     constant := Partialable();
 
     // all properties are mutable for fully mutable values:
-    fully_mutable :`= Partialiable();
+    fully_mutable :$mutable= Partialiable();
 
     // only properties marked with @partial_mutate are mutable for partially mutable values:
     partially_mutable : $partially_mutable = Partialable();
