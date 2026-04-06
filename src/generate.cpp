@@ -1032,9 +1032,8 @@ Generator::inferenceType(const rq::Expression &expression,
     case O::SY_LOCAL: {
       rq::Local &local = llvm::cast<rq::Local>(match);
       if (local.getType().getIsInferencing()) {
-        this->getContext()
-            .logErrorIndeterminateVariableValue(
-                expression, local);
+        this->getContext().logErrorIndeterminateVariableValue(expression,
+                                                              local);
         this->setNotOk();
         return nullptr;
       }
@@ -1043,9 +1042,8 @@ Generator::inferenceType(const rq::Expression &expression,
     case O::SY_STATIC: {
       rq::Static &static_ = llvm::cast<rq::Static>(match);
       if (static_.getType().getIsInferencing()) {
-        this->getContext()
-            .logErrorIndeterminateVariableValue(
-                expression, static_);
+        this->getContext().logErrorIndeterminateVariableValue(expression,
+                                                              static_);
         this->setNotOk();
         return nullptr;
       }
@@ -1055,9 +1053,8 @@ Generator::inferenceType(const rq::Expression &expression,
       rq::Global &global = llvm::cast<rq::Global>(match);
       if (!global.getIsImplemented()) {
         if (!this->implementGlobal(global)) {
-          this->getContext()
-              .logErrorIndeterminateVariableValue(
-                  expression, global);
+          this->getContext().logErrorIndeterminateVariableValue(expression,
+                                                                global);
           this->setNotOk();
           return nullptr;
         }
@@ -1068,9 +1065,8 @@ Generator::inferenceType(const rq::Expression &expression,
       rq::GlobalStatic &global_static = llvm::cast<rq::GlobalStatic>(match);
       if (!global_static.getIsImplemented()) {
         if (!this->implementGlobalStatic(global_static)) {
-          this->getContext()
-              .logErrorIndeterminateVariableValue(
-                  expression, global_static);
+          this->getContext().logErrorIndeterminateVariableValue(expression,
+                                                                global_static);
           this->setNotOk();
           return nullptr;
         }
