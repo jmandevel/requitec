@@ -1,37 +1,37 @@
 [import "std"];
 
-@may_parent @auto_drop @may_copy
+[may_parent][implicit_drop][may_copy]
 [class Parent,
     
-    [method myFunc, ()[void]=>&,
-        .std.print(line="in parent");
+    [method myFunc, ()[void]=>$,
+        ..std.print(line="in parent");
     ];
     
-    @virtual
-    [method myFuncB, ()[void]=>&,
-        .std.print(line="in parent");
+    [virtual]
+    [method myFuncB, ()[void]=>$,
+        ..std.print(line="in parent");
     ];
 ];
 
-@auto_drop @may_copy
+[implicit_drop][may_copy]
 [class Child,
     {> 
-        @parent parent := .Parent() 
+        [parent] parent := .Parent() 
     <},
     
-    @public
+    [public]
     [use parent.myFunc];
     
-    @public
-    @override::parent.myFuncB
-    [method myFuncB, ()[void]=>&,
-        .std.print(line="in child");
+    [public]
+    [override]::parent.myFuncB
+    [method myFuncB, ()[void]=>$,
+        ..std.print(line="in child");
     ];
 ];
 
 [entry
-    parent := .Parent();
-    child := .Child();
+    parent := ..Parent();
+    child := ..Child();
 
     parent.[borrow].myFunc();
     child.[borrow].myFunc();

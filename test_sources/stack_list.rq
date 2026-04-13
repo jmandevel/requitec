@@ -2,20 +2,20 @@
 
 // notice how there is no @auto_drop attribute. 
 // this means you  to manually drop variables of this type when they go out of scope.
-@may_copy
+[may_copy]
 [class NoAutoDrop,
 	// this is like a destructor. it takes ownership of what you call it on and then drops it. 
 	// if this type had internal resources, they could be released here.
-	@public [method destroy, ()[void]=>$mutable, [this].[drop]; ];
+	[public] [method destroy, ()[void]=>`[mutable], [this].[drop]; ];
 ];
 
 [entry
 	// create stack and destructor for the stack
 	// my_stack.destroy() returns a ranger over all elements so each element can be destroyed before the stack memory is freed.
-	my_stack :$mutable= .std.StackList{NoAutoDrop}();
+	my_stack :`[mutable]= ..std.StackList{NoAutoDrop}();
 	[destructor my_stack,
 		// destructor requires that the lifetime of the target (my_stack) is ended by the end of it.
-		[for my_stack.[move].destroy(), value:$mutable=[value].[move],
+		[for my_stack.[move].destroy(), value:`[mutable]=[value].[move],
 		 	value.[move].destroy();
 		];
 	];

@@ -372,22 +372,22 @@ static void emitIndent(llvm::raw_fd_ostream &fout, unsigned indent) {
 }
 
 static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
-                              const rq::Expression &trunk, unsigned indent) {
+                              const rq::Expression &top, unsigned indent) {
   if (!rq::getNoComment()) {
     rq::emitIndent(fout, indent);
     fout << "//";
-    if (trunk.getIsInternal()) {
-      fout << " " << trunk.getName();
+    if (top.getIsInternal()) {
+      fout << " " << top.getName();
     }
-    if (!trunk.getHasSourceText()) {
+    if (!top.getHasSourceText()) {
       fout << " (no position)";
-    } else if (trunk.getSourceTextLength() == 0) {
+    } else if (top.getSourceTextLength() == 0) {
       rq::SourceLocation location =
-          context.getSourceLocation(trunk.getLlvmSourceBegin());
+          context.getSourceLocation(top.getLlvmSourceBegin());
       fout << " " << location.file << ":" << location.line << ":"
            << location.column;
     } else {
-      rq::SourceRange range = context.getSourceRange(trunk);
+      rq::SourceRange range = context.getSourceRange(top);
       fout << " " << range.start.file << ":" << range.start.line << ":"
            << range.start.column << "-";
       if (range.start.file != range.end.file) {
@@ -395,31 +395,31 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
       }
       fout << range.end.line << ":" << range.end.column;
     }
-    if (trunk.getIsInserted()) {
+    if (top.getIsInserted()) {
       fout << " (inserted)";
     }
-    if (trunk.getHasSituatorError()) {
+    if (top.getHasSituatorError()) {
       fout << " (situator error)";
     }
     fout << "\n";
   }
   rq::emitIndent(fout, indent);
-  if (trunk.getIsLiteral()) {
-    if (trunk.getHasUnquotedLeft()) {
+  if (top.getIsLiteral()) {
+    if (top.getHasUnquotedLeft()) {
       fout << "\"";
     }
-    fout << trunk.getSourceText();
-    if (trunk.getHasUnquotedRight()) {
+    fout << top.getSourceText();
+    if (top.getHasUnquotedRight()) {
       fout << "\"";
     }
     return;
   }
-  fout << "[" << trunk.getName();
-  if (trunk.getHasBranch()) {
+  fout << "[" << top.getName();
+  if (top.getHasBranch()) {
     fout << '\n';
-    for (const rq::Expression &branch : trunk.getBranchSubrange()) {
+    for (const rq::Expression &branch : top.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
-      if (trunk.getHasStatementBranches()) {
+      if (top.getHasStatementBranches()) {
         if (branch.getIsHeader()) {
           fout << ",\n";
         } else if (branch.getIsChainLink()) {
@@ -427,7 +427,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
         } else {
           fout << ";\n";
         }
-      } else if (trunk.getHasValueBranches()) {
+      } else if (top.getHasValueBranches()) {
         if (branch.getHasNext()) {
           fout << ",\n";
         } else {
@@ -442,14 +442,14 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "]";
 }
 
-bool Context::emitRequite(llvm::StringRef path, const rq::Expression &trunk) {
+bool Context::emitRequite(llvm::StringRef path, const rq::Expression &top) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
     this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
-  for (const rq::Expression &branch : trunk.getInclusiveNextSubrange()) {
+  for (const rq::Expression &branch : top.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
     if (branch.getIsHeader()) {
       fout << ",\n";
@@ -585,10 +585,6 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
     const auto &method = llvm::cast<rq::Method>(symbol);
     json.emitString("name", method.getName());
     rq::emitModuleMemberSymbol(context, json, method);
-  } break;
-  case rq::Opcode::SY_RANGER: {
-    const auto &ranger = llvm::cast<rq::Ranger>(symbol);
-    rq::emitModuleMemberSymbol(context, json, ranger);
   } break;
   case rq::Opcode::SY_EXTENSION_FUNCTION: {
     const auto &extension_function = llvm::cast<rq::ExtensionFunction>(symbol);

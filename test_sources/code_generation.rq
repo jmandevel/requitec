@@ -1,20 +1,20 @@
 [import "std"];
 
-@static @label::Loop
+[static][label]::Loop
 [for 0.<=10, num:=[value],
-    @static
-    varname :$mutable= .std.format(text="VAR{num}");
-    @outside::Loop @global
-    \varname :$mutable= index;
+    [static]
+    varname :`[mutable]= ..std.format(text="VAR{num}");
+    [outside_scope]::Loop[global]
+    \varname :`[mutable]= index;
     varname.[move].destroy(); // could also use a destructor. look at drop_and_destroy.rq
 ];
 
 [entry
-    @static
+    [static]
     [for 0.<=10, num:=[value], 
-        @static
-        varname :$mutable= .std.format(text="VAR{num}");
-        .std.print(line="{varname.[borrow]} is {.\varname}!");  
+        [static]
+        varname :`[mutable]= ..std.format(text="VAR{num}");
+        ..std.print(line="{varname.[borrow]} is {..\varname}!");  
         varname.[move].destroy();      
     ];
 ];

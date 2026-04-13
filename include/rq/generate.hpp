@@ -79,7 +79,7 @@ struct Generator final {
   void generateSourceModule();
   void generateGlobalForest(const rq::Expression &first,
                             rq::Table &hosting_table, rq::Module &module);
-  rq::Instruction *generateLocalForest(const rq::Expression &first,
+  rq::Instruction *generateProcedureForest(const rq::Expression &first,
                                        rq::Table &hosting_table,
                                        rq::Procedure &procedure);
   [[nodiscard]] std::optional<llvm::StringRef>
@@ -89,8 +89,7 @@ struct Generator final {
   evaluateUtf8Cstr(const rq::Expression &expression,
                    rq::Table &hosting_table);
   [[nodiscard]] rq::Table &
-  determineContainingTable(const rq::ExpressionFlagsFactory &factory,
-                           const rq::Expression &unascribed,
+  determineContainingTable(const rq::Expression &unascribed,
                            rq::Table &hosting_table, rq::Module &module);
   [[nodiscard]] const rq::TypeConstant *
   inferenceType(const rq::Expression &expression,

@@ -24,6 +24,7 @@
 #include <llvm/IR/Function.h>
 
 #include <bit>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -89,6 +90,37 @@ enum class Opcode : std::uint16_t {
   SY_CHAR,
   SY_ASCII,
   SY_UTF8,
+  SY_EXPRESSION_ATTRIBUTE_CONSTRAINT,
+  SY_LABELING,
+  SY_VISIBILITY,
+  SY_SCOPING,
+  SY_AVAILABILITY,
+  SY_ACCESSIBILITY,
+  SY_PROPERTY_MUTABILITY,
+  SY_EXPORTING,
+  SY_RUNTIME,
+  SY_CAPTURING,
+  SY_EVALUATION_TIME,
+  SY_PARENTABILITY,
+  SY_PROPERTY_ASSOCIATION,
+  SY_TANGIBILITY,
+  SY_OVERRIDING,
+  SY_INLINING,
+  SY_MANGLING,
+  SY_PACKING,
+  SY_TEMPLATING,
+  SY_LIKELYHOOD,
+  SY_SUPPORT,
+  SY_COPYABILITY,
+  SY_ADDRESS_STABILITY,
+  SY_CLEANUP,
+  SY_RESULT_STATUS,
+  SY_TYPE_ATTRIBUTE_CONSTRAINT,
+  SY_MUTABILITY,
+  SY_VOLATILITY,
+  SY_DETERMINICITY,
+  SY_ATOMICITY,
+  SY_NULL_TERMINATION,
 
   // SCALED BUILTIN
   SY_SCALED_SIGNED_INTEGER,
@@ -142,8 +174,19 @@ enum class Opcode : std::uint16_t {
   SY_CLASS,
   SY_ENUMERATION,
   SY_CATEGORY,
-  SY_RANGER,
-  SY_REVERSE_RANGER,
+
+  // POLYMORPHS
+  SY_RANGER_POLYMORPH,
+  SY_PROCEDURE_POLYMORPH,
+  SY_CLASS_POLYMORPH,
+  SY_ENUMERATION_POLYMORPH,
+  SY_CATEGORY_POLYMORPH,
+  SY_GLOBAL_POLYMORPH,
+  SY_GLOBAL_STATIC_POLYMORPH,
+
+  // RANGERS
+  SY_FORWARD_RANGER,
+  SY_BACKWARD_RANGER,
 
   // PROCEDURE
   SY_ENTRY,
@@ -158,21 +201,25 @@ enum class Opcode : std::uint16_t {
   SY_TEMPLATE_CATEGORY,
   SY_TEMPLATE_GLOBAL,
   SY_TEMPLATE_GLOBAL_STATIC,
+  SY_TEMPLATE_FORWARD_RANGER,
+  SY_TEMPLATE_BACKWARD_RANGER,
   SY_TEMPLATE_FUNCTION,
   SY_TEMPLATE_METHOD,
   SY_TEMPLATE_EXTENSION_FUNCTION,
   SY_TEMPLATE_EXTENSION_METHOD,
 
-  // PARTIAL SPECIALIZATION
-  SY_PARTIAL_CLASS,
-  SY_PARTIAL_ENUMERATION,
-  SY_PARTIAL_CATEGORY,
-  SY_PARTIAL_GLOBAL,
-  SY_PARTIAL_GLOBAL_STATIC,
-  SY_PARTIAL_FUNCTION,
-  SY_PARTIAL_METHOD,
-  SY_PARTIAL_EXTENSION_FUNCTION,
-  SY_PARTIAL_EXTENSION_METHOD,
+  // SPECIALIZED
+  SY_SPECIALIZED_CLASS,
+  SY_SPECIALIZED_ENUMERATION,
+  SY_SPECIALIZED_CATEGORY,
+  SY_SPECIALIZED_GLOBAL,
+  SY_SPECIALIZED_GLOBAL_STATIC,
+  SY_SPECIALIZED_FORWARD_RANGER,
+  SY_SPECIALIZED_BACKWARD_RANGER,
+  SY_SPECIALIZED_FUNCTION,
+  SY_SPECIALIZED_METHOD,
+  SY_SPECIALIZED_EXTENSION_FUNCTION,
+  SY_SPECIALIZED_EXTENSION_METHOD,
 
   // =====CONSTANTS=====
 
@@ -183,6 +230,8 @@ enum class Opcode : std::uint16_t {
   CT_FLOAT,
   CT_STRING,
   CT_ARRAY,
+  CT_EXPRESSION_ATTRIBUTE,
+  CT_TYPE_ATTRIBUTE,
 
   // =====INSTRUCTIONS=====
 
@@ -270,7 +319,7 @@ enum class Opcode : std::uint16_t {
   IN_FORK,
 
   // none |
-  IN_DEBUG_TRAP,
+  IN_DEBUG_BREAK,
   // none |
   IN_UNREACHABLE,
   // none | 0:boolean
@@ -307,23 +356,28 @@ enum class OpcodeFlags : std::uint32_t {
   SY_PARAMETER_LIST_SUBTYPE = rq::getBit(7),
   SY_ARITHMETIC_SEQUENCE = rq::getBit(8),
   SY_TABLE = rq::getBit(9),
-  SY_PROCEDURE = rq::getBit(10),
-  SY_TEMPLATE = rq::getBit(11),
-  SY_PARTIAL = rq::getBit(12),
+  SY_POLYMORPH = rq::getBit(10),
+  SY_RANGER = rq::getBit(11),
+  SY_PROCEDURE = rq::getBit(12),
+  SY_TEMPLATE = rq::getBit(13),
+  SY_SPECIALIZED = rq::getBit(14),
   // SYMBOL INFO PROPERTIES - have no data associated
-  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(13),
-  SY_TYPE = rq::getBit(14),
-  SY_SUBTYPE = rq::getBit(15),
-  SY_CONSTRAINT = rq::getBit(16),
-  SY_LITERAL = rq::getBit(17),
-  SY_PLATFORM_CHANGING = rq::getBit(18),
-  SY_INTEGER = rq::getBit(19),
-  SY_FLOAT = rq::getBit(20),
-  SY_BINARY = rq::getBit(21),
-  SY_CODEUNIT = rq::getBit(22),
-  SY_SIGNED = rq::getBit(23),
-  SY_UNSIGNED = rq::getBit(24),
-  SY_TOP_OF_FRAME = rq::getBit(25),
+  SY_HAS_TEMPLATE_ALTERNATIVE = rq::getBit(15),
+  SY_TYPE = rq::getBit(16),
+  SY_SUBTYPE = rq::getBit(17),
+  SY_CONSTRAINT = rq::getBit(18),
+  SY_EXPRESSION_ATTRIBUTE = rq::getBit(19),
+  SY_TYPE_ATTRIBUTE = rq::getBit(20),
+  SY_LITERAL = rq::getBit(21),
+  SY_PLATFORM_CHANGING = rq::getBit(22),
+  SY_INTEGER = rq::getBit(23),
+  SY_FLOAT = rq::getBit(24),
+  SY_BINARY = rq::getBit(25),
+  SY_CODEUNIT = rq::getBit(26),
+  SY_SIGNED = rq::getBit(25),
+  SY_UNSIGNED = rq::getBit(27),
+  SY_NO_ASCENDING = rq::getBit(28),
+  SY_NO_ASCENDING_INTO_TOP = rq::getBit(29),
 
   // CONSTANT FLAGS
   // TODO
@@ -356,14 +410,23 @@ template <> struct is_flags<OpcodeFlags> : std::true_type {};
 getIsParameterListSubtype(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateRanger(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateProcedure(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecialized(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializedRanger(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsSpecializedProcedure(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasTemplateAlternative(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttribute(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute(rq::Opcode opcode);
 // NOTE: SCALED_SIGNED_INTEGER and SCALED_UNSIGNED_INTEGER is platform changing
 // only if depth is not exact that is checked in member function of Entity, not
 // here.
@@ -377,10 +440,8 @@ getHasTemplateAlternative(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::Opcode opcode);
-[[nodiscard]] inline rq::Opcode getTemplate(rq::Opcode opcode);
-[[nodiscard]] inline rq::Opcode getPartial(rq::Opcode opcode);
-[[nodiscard]] inline rq::Opcode getFull(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoAscending(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoAscendingIntoTop(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullaryInstruction(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnaryInstruction(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryInstruction(rq::Opcode opcode);
@@ -424,6 +485,36 @@ struct InterpolatedStringConstraint;
 struct Char;
 struct Ascii;
 struct Utf8;
+struct ExpressionAttributeConstraint;
+struct Labeling;
+struct Visibility;
+struct Scoping;
+struct Availability;
+struct Accessibility;
+struct PropertyMutability;
+struct Exporting;
+struct Runtime;
+struct Capturing;
+struct EvaluationTime;
+struct Parentability;
+struct PropertyAssociation;
+struct Tangibility;
+struct Overriding;
+struct Inlining;
+struct Mangling;
+struct Packing;
+struct Templating;
+struct Likelyhood;
+struct Support;
+struct Copyability;
+struct Cleanup;
+struct ResultStatus;
+struct TypeAttributeConstraint;
+struct Mutability;
+struct Volatility;
+struct Determinicity;
+struct Atomicity;
+struct NullTermination;
 struct ScaledBuiltin;
 struct ScaledSignedInteger;
 struct ScaledUnsignedInteger;
@@ -467,8 +558,17 @@ struct Namespace;
 struct Class;
 struct Enumeration;
 struct Category;
+struct Polymorph;
+struct RangerPolymorph;
+struct ProcedurePolymorph;
+struct ClassPolymorph;
+struct EnumerationPolymorph;
+struct CategoryPolymorph;
+struct GlobalPolymorph;
+struct GlobalStaticPolymorph;
 struct Ranger;
-struct ReverseRanger;
+struct ForwardRanger;
+struct BackwardRanger;
 struct Procedure;
 struct Entry;
 struct Function;
@@ -482,24 +582,28 @@ struct TemplateEnumeration;
 struct TemplateCategory;
 struct TemplateGlobal;
 struct TemplateGlobalStatic;
+struct TemplateRanger;
+struct TemplateForwardRanger;
+struct TemplateBackwardRanger;
+struct TemplateProcedure;
 struct TemplateFunction;
 struct TemplateMethod;
-struct TemplateRanger;
 struct TemplateExtensionFunction;
 struct TemplateExtensionMethod;
-struct TemplateExtensionRanger;
-struct Partial;
-struct PartialClass;
-struct PartialEnumeration;
-struct PartialCategory;
-struct PartialGlobal;
-struct PartialGlobalStatic;
-struct PartialFunction;
-struct PartialMethod;
-struct PartialRanger;
-struct PartialExtensionFunction;
-struct PartialExtensionMethod;
-struct PartialExtensionRanger;
+struct Specialized;
+struct SpecializedClass;
+struct SpecializedEnumeration;
+struct SpecializedCategory;
+struct SpecializedGlobal;
+struct SpecializedGlobalStatic;
+struct SpecializedRanger;
+struct SpecializedForwardRanger;
+struct SpecializedBackwardRanger;
+struct SpecializedProcedure;
+struct SpecializedFunction;
+struct SpecializedMethod;
+struct SpecializedExtensionFunction;
+struct SpecializedExtensionMethod;
 struct Constant;
 struct TypeConstant;
 struct ExpressionConstant;
@@ -508,6 +612,8 @@ struct IntegerConstant;
 struct FloatConstant;
 struct StringConstant;
 struct ArrayConstant;
+struct ExpressionAttributeConstant;
+struct TypeAttributeConstant;
 struct Instruction;
 struct UnaryInstruction;
 struct BinaryInstruction;
@@ -558,29 +664,56 @@ struct InitialExpressionFlags {
 
   inline explicit InitialExpressionFlags(rq::ExpressionFlags flags);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTransparent() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInsideScope() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutsideScope() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocal() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrivate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoPartialMutate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartialMutate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoExport() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDynamic() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCapture() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLazy() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoParent() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMixin() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTangible() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoInline() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInline() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImplicitMangle() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExplicitMangle() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoPack() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoTemplate() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSpecialize() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEquivocal() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupported() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExperimental() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCopy() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnstableAddress() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStableAddress() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExplicitDrop() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasImplicitDrop() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNotOk() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getHasAttribute(rq::ExpressionAttribute attribute) const;
@@ -721,6 +854,8 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterListSubtype() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstraint() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttribute() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const;
@@ -731,10 +866,8 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedInteger() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedInteger() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getTemplateOpcode() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getPartialOpcode() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getFullOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoAscending() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoAscendingIntoTop() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -1077,6 +1210,289 @@ struct Utf8 final : public rq::SimpleBuiltin {
 };
 
 template <> struct is_acquired<rq::Utf8> final : std::true_type {};
+
+struct ExpressionAttributeConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::ExpressionAttributeConstraint;
+
+  inline explicit ExpressionAttributeConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <>
+struct is_acquired<rq::ExpressionAttributeConstraint> final : std::true_type {};
+
+struct Labeling final : public rq::SimpleBuiltin {
+  using Self = rq::Labeling;
+
+  inline explicit Labeling();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Labeling> final : std::true_type {};
+
+struct Visibility final : public rq::SimpleBuiltin {
+  using Self = rq::Visibility;
+
+  inline explicit Visibility();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Visibility> final : std::true_type {};
+
+struct Scoping final : public rq::SimpleBuiltin {
+  using Self = rq::Scoping;
+
+  inline explicit Scoping();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Scoping> final : std::true_type {};
+
+struct Availability final : public rq::SimpleBuiltin {
+  using Self = rq::Availability;
+
+  inline explicit Availability();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Availability> final : std::true_type {};
+
+struct Accessibility final : public rq::SimpleBuiltin {
+  using Self = rq::Accessibility;
+
+  inline explicit Accessibility();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Accessibility> final : std::true_type {};
+
+struct PropertyMutability final : public rq::SimpleBuiltin {
+  using Self = rq::PropertyMutability;
+
+  inline explicit PropertyMutability();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <>
+struct is_acquired<rq::PropertyMutability> final : std::true_type {};
+
+struct Exporting final : public rq::SimpleBuiltin {
+  using Self = rq::Exporting;
+
+  inline explicit Exporting();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Exporting> final : std::true_type {};
+
+struct Runtime final : public rq::SimpleBuiltin {
+  using Self = rq::Runtime;
+
+  inline explicit Runtime();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Runtime> final : std::true_type {};
+
+struct Capturing final : public rq::SimpleBuiltin {
+  using Self = rq::Capturing;
+
+  inline explicit Capturing();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Capturing> final : std::true_type {};
+
+struct EvaluationTime final : public rq::SimpleBuiltin {
+  using Self = rq::EvaluationTime;
+
+  inline explicit EvaluationTime();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::EvaluationTime> final : std::true_type {};
+
+struct Parentability final : public rq::SimpleBuiltin {
+  using Self = rq::Parentability;
+
+  inline explicit Parentability();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Parentability> final : std::true_type {};
+
+struct PropertyAssociation final : public rq::SimpleBuiltin {
+  using Self = rq::PropertyAssociation;
+
+  inline explicit PropertyAssociation();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <>
+struct is_acquired<rq::PropertyAssociation> final : std::true_type {};
+
+struct Tangibility final : public rq::SimpleBuiltin {
+  using Self = rq::Tangibility;
+
+  inline explicit Tangibility();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Tangibility> final : std::true_type {};
+
+struct Overriding final : public rq::SimpleBuiltin {
+  using Self = rq::Overriding;
+
+  inline explicit Overriding();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Overriding> final : std::true_type {};
+
+struct Inlining final : public rq::SimpleBuiltin {
+  using Self = rq::Inlining;
+
+  inline explicit Inlining();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Inlining> final : std::true_type {};
+
+struct Mangling final : public rq::SimpleBuiltin {
+  using Self = rq::Mangling;
+
+  inline explicit Mangling();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Mangling> final : std::true_type {};
+
+struct Packing final : public rq::SimpleBuiltin {
+  using Self = rq::Packing;
+
+  inline explicit Packing();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Packing> final : std::true_type {};
+
+struct Templating final : public rq::SimpleBuiltin {
+  using Self = rq::Templating;
+
+  inline explicit Templating();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Templating> final : std::true_type {};
+
+struct Likelyhood final : public rq::SimpleBuiltin {
+  using Self = rq::Likelyhood;
+
+  inline explicit Likelyhood();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Likelyhood> final : std::true_type {};
+
+struct Support final : public rq::SimpleBuiltin {
+  using Self = rq::Support;
+
+  inline explicit Support();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Support> final : std::true_type {};
+
+struct Copyability final : public rq::SimpleBuiltin {
+  using Self = rq::Copyability;
+
+  inline explicit Copyability();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Copyability> final : std::true_type {};
+
+struct AddressStability final : public rq::SimpleBuiltin {
+  using Self = rq::AddressStability;
+
+  inline explicit AddressStability();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::AddressStability> final : std::true_type {};
+
+struct Cleanup final : public rq::SimpleBuiltin {
+  using Self = rq::Cleanup;
+
+  inline explicit Cleanup();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Cleanup> final : std::true_type {};
+
+struct ResultStatus final : public rq::SimpleBuiltin {
+  using Self = rq::ResultStatus;
+
+  inline explicit ResultStatus();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::ResultStatus> final : std::true_type {};
+
+struct TypeAttributeConstraint final : public rq::SimpleBuiltin {
+  using Self = rq::TypeAttributeConstraint;
+
+  inline explicit TypeAttributeConstraint();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <>
+struct is_acquired<rq::TypeAttributeConstraint> final : std::true_type {};
+
+struct Mutability final : public rq::SimpleBuiltin {
+  using Self = rq::Mutability;
+
+  inline explicit Mutability();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Mutability> final : std::true_type {};
+
+struct Volatility final : public rq::SimpleBuiltin {
+  using Self = rq::Volatility;
+
+  inline explicit Volatility();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Volatility> final : std::true_type {};
+
+struct Determinicity final : public rq::SimpleBuiltin {
+  using Self = rq::Determinicity;
+
+  inline explicit Determinicity();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Determinicity> final : std::true_type {};
+
+struct Atomicity final : public rq::SimpleBuiltin {
+  using Self = rq::Atomicity;
+
+  inline explicit Atomicity();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::Atomicity> final : std::true_type {};
+
+struct NullTermination final : public rq::SimpleBuiltin {
+  using Self = rq::NullTermination;
+
+  inline explicit NullTermination();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <> struct is_acquired<rq::NullTermination> final : std::true_type {};
 
 static constexpr unsigned MAX_SCALED_BUILTIN_SCALAR =
     std::numeric_limits<std::uint16_t>::max();
@@ -1993,30 +2409,478 @@ struct Category : public rq::Table,
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct Ranger : public rq::Table,
-                public rq::InitialExpression,
-                public rq::InitialExpressionFlags,
-                public rq::InitialModuleMember,
-                public rq::TableHosted {
-  using Self = rq::Ranger;
+struct TemplateIterator final {
+  using Self = rq::TemplateIterator;
+  using value_type = rq::Template;
+  using reference = rq::Template &;
+  using pointer = rq::Template *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
 
-  inline explicit Ranger(const rq::Expression &expression,
-                         rq::ExpressionFlags attributes, rq::Module &module,
-                         rq::Table &containing_table, rq::Table &hosting_table);
+  rq::Template *_template_ptr{nullptr};
+
+  TemplateIterator() = default;
+  inline explicit TemplateIterator(rq::Template *template_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstTemplateIterator final {
+  using Self = rq::ConstTemplateIterator;
+  using value_type = rq::Template;
+  using reference = const rq::Template &;
+  using pointer = const rq::Template *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Template *_template_ptr{nullptr};
+
+  ConstTemplateIterator() = default;
+  inline explicit ConstTemplateIterator(const rq::Template *template_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+template <typename UnderlyingParam> struct UnderlyingTemplateIterator final {
+  using Underlying = UnderlyingParam;
+  using Self = rq::UnderlyingTemplateIterator<Underlying>;
+  using value_type = Underlying;
+  using reference = Underlying &;
+  using pointer = Underlying *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  static_assert(!std::is_const_v<Underlying>);
+  static_assert(!std::is_volatile_v<Underlying>);
+
+  Underlying *_underlying_ptr{nullptr};
+
+  UnderlyingTemplateIterator() = default;
+  inline explicit UnderlyingTemplateIterator(Underlying *underlying_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE Underlying &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const Underlying &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE Underlying *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const Underlying *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+template <typename UnderlyingParam>
+struct ConstUnderlyingTemplateIterator final {
+  using Underlying = UnderlyingParam;
+  using Self = rq::ConstUnderlyingTemplateIterator<Underlying>;
+  using value_type = rq::Template;
+  using reference = const rq::Template &;
+  using pointer = const rq::Template *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  static_assert(!std::is_const_v<Underlying>);
+  static_assert(!std::is_volatile_v<Underlying>);
+
+  const Underlying *_underlying_ptr{nullptr};
+
+  ConstUnderlyingTemplateIterator() = default;
+  inline explicit ConstUnderlyingTemplateIterator(
+      const Underlying *underlying_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Underlying &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Underlying *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct Polymorph : public rq::Symbol, public rq::TableMember {
+  using Self = rq::Polymorph;
+
+  rq::Template *_first_template_ptr{nullptr};
+
+  explicit inline Polymorph(rq::Opcode opcode, rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::TemplateIterator, rq::TemplateIterator,
+      std::ranges::subrange_kind::unsized>
+  getTemplateSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstTemplateIterator, rq::ConstTemplateIterator,
+      std::ranges::subrange_kind::unsized>
+  getTemplateSubrange() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct ReverseRanger : public rq::Table,
-                       public rq::InitialExpression,
-                       public rq::InitialExpressionFlags,
-                       public rq::InitialModuleMember,
-                       public rq::TableHosted {
-  using Self = rq::ReverseRanger;
+struct RangerIterator final {
+  using Self = rq::RangerIterator;
+  using value_type = rq::Ranger;
+  using reference = rq::Ranger &;
+  using pointer = rq::Ranger *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
 
-  inline explicit ReverseRanger(const rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module, rq::Table &containing_table,
+  rq::Ranger *_ranger_ptr{nullptr};
+
+  RangerIterator() = default;
+  inline explicit RangerIterator(rq::Ranger *ranger_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Ranger &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Ranger *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstRangerIterator final {
+  using Self = rq::ConstRangerIterator;
+  using value_type = rq::Ranger;
+  using reference = const rq::Ranger &;
+  using pointer = const rq::Ranger *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Ranger *_ranger_ptr{nullptr};
+
+  ConstRangerIterator() = default;
+  inline explicit ConstRangerIterator(const rq::Ranger *ranger_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct RangerPolymorph : public rq::Polymorph {
+  using Self = rq::RangerPolymorph;
+
+  rq::Ranger *_first_ranger_ptr{nullptr};
+
+  explicit inline RangerPolymorph(rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRanger() const;
+  RQ_ALWAYS_INLINE void addRanger(rq::Ranger &ranger);
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateRanger>,
+      rq::UnderlyingTemplateIterator<rq::TemplateRanger>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateRangerSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateRanger>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateRanger>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateRangerSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::RangerIterator, rq::RangerIterator,
+      std::ranges::subrange_kind::unsized>
+  getRangerSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstRangerIterator, rq::ConstRangerIterator,
+      std::ranges::subrange_kind::unsized>
+  getRangerSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct ProcedureIterator final {
+  using Self = rq::ProcedureIterator;
+  using value_type = rq::Procedure;
+  using reference = rq::Procedure &;
+  using pointer = rq::Procedure *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::Procedure *_procedure_ptr{nullptr};
+
+  ProcedureIterator() = default;
+  inline explicit ProcedureIterator(rq::Procedure *procedure_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstProcedureIterator final {
+  using Self = rq::ConstProcedureIterator;
+  using value_type = rq::Procedure;
+  using reference = const rq::Procedure &;
+  using pointer = const rq::Procedure *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Procedure *_procedure_ptr{nullptr};
+
+  ConstProcedureIterator() = default;
+  inline explicit ConstProcedureIterator(const rq::Table *table_ptr);
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ProcedurePolymorph : public rq::Polymorph, rq::InitialNamed {
+  using Self = rq::ProcedurePolymorph;
+
+  rq::Procedure *_first_procedure_ptr{nullptr};
+
+  explicit inline ProcedurePolymorph(llvm::StringRef name,
+                                     rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProcedure() const;
+  RQ_ALWAYS_INLINE void addProcedure(rq::Procedure &procedure);
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateProcedure>,
+      rq::UnderlyingTemplateIterator<rq::TemplateProcedure>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateProcedureSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateProcedure>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateProcedure>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateProcedureSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ProcedureIterator, rq::ProcedureIterator,
+      std::ranges::subrange_kind::unsized>
+  getProcedureSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstProcedureIterator, rq::ConstProcedureIterator,
+      std::ranges::subrange_kind::unsized>
+  getProcedureSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct ClassPolymorph : public rq::Polymorph, public rq::InitialNamed {
+  using Self = rq::ClassPolymorph;
+
+  rq::BumpPtrList<rq::Class> _class_list{};
+
+  explicit inline ClassPolymorph(llvm::StringRef name,
+                                 rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasClass() const;
+  RQ_ALWAYS_INLINE void addClass(rq::BumpPtrAllocator &allocator,
+                                 rq::Class &class_);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Class &getClass() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Class &getClass();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateClass>,
+      rq::UnderlyingTemplateIterator<rq::TemplateClass>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateClassSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateClass>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateClass>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateClassSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::Class>, rq::BumpPtrListIterator<rq::Class>,
+      std::ranges::subrange_kind::unsized>
+  getClassSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::Class>,
+      rq::ConstBumpPtrListIterator<rq::Class>,
+      std::ranges::subrange_kind::unsized>
+  getClassSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct EnumerationPolymorph : public rq::Polymorph, public rq::InitialNamed {
+  using Self = rq::EnumerationPolymorph;
+
+  rq::BumpPtrList<rq::Enumeration> _enumeration_list{};
+
+  explicit inline EnumerationPolymorph(llvm::StringRef name,
+                                       rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEnumeration() const;
+  RQ_ALWAYS_INLINE void addEnumeration(rq::BumpPtrAllocator &allocator,
+                                       rq::Enumeration &enumeration);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Enumeration &getEnumeration() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Enumeration &getEnumeration();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateEnumeration>,
+      rq::UnderlyingTemplateIterator<rq::TemplateEnumeration>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateEnumerationSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateEnumeration>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateEnumeration>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateEnumerationSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::Enumeration>,
+      rq::BumpPtrListIterator<rq::Enumeration>,
+      std::ranges::subrange_kind::unsized>
+  getEnumerationSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::Enumeration>,
+      rq::ConstBumpPtrListIterator<rq::Enumeration>,
+      std::ranges::subrange_kind::unsized>
+  getEnumerationSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct CategoryPolymorph : public rq::Polymorph, public rq::InitialNamed {
+  using Self = rq::CategoryPolymorph;
+
+  rq::BumpPtrList<rq::Category> _category_list{};
+
+  explicit inline CategoryPolymorph(llvm::StringRef name,
+                                    rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCategory() const;
+  RQ_ALWAYS_INLINE void addCategory(rq::BumpPtrAllocator &allocator,
+                                    rq::Category &category);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Category &getCategory() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Category &getCategory();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateCategory>,
+      rq::UnderlyingTemplateIterator<rq::TemplateCategory>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateCategorySubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateCategory>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateCategory>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateCategorySubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::Category>,
+      rq::BumpPtrListIterator<rq::Category>,
+      std::ranges::subrange_kind::unsized>
+  getCategorySubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::Category>,
+      rq::ConstBumpPtrListIterator<rq::Category>,
+      std::ranges::subrange_kind::unsized>
+  getCategorySubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct GlobalPolymorph : public rq::Polymorph, public rq::InitialNamed {
+  using Self = rq::GlobalPolymorph;
+
+  rq::BumpPtrList<rq::Global> _global_list{};
+
+  explicit inline GlobalPolymorph(llvm::StringRef name,
+                                  rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal() const;
+  RQ_ALWAYS_INLINE void addGlobal(rq::BumpPtrAllocator &allocator,
+                                  rq::Global &global);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Global &getGlobal() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Global &getGlobal();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateGlobal>,
+      rq::UnderlyingTemplateIterator<rq::TemplateGlobal>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateGlobalSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateGlobal>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateGlobal>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateGlobalSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::Global>, rq::BumpPtrListIterator<rq::Global>,
+      std::ranges::subrange_kind::unsized>
+  getGlobalSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::Global>,
+      rq::ConstBumpPtrListIterator<rq::Global>,
+      std::ranges::subrange_kind::unsized>
+  getGlobalSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct GlobalStaticPolymorph : public rq::Polymorph, public rq::InitialNamed {
+  using Self = rq::GlobalStaticPolymorph;
+
+  rq::BumpPtrList<rq::GlobalStatic> _global_static_list{};
+
+  explicit inline GlobalStaticPolymorph(llvm::StringRef name,
+                                        rq::Table &containing_table);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal() const;
+  RQ_ALWAYS_INLINE void addGlobalStatic(rq::BumpPtrAllocator &allocator,
+                                        rq::GlobalStatic &global);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStatic &
+  getGlobalStatic() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStatic &getGlobalStatic();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::UnderlyingTemplateIterator<rq::TemplateGlobalStatic>,
+      rq::UnderlyingTemplateIterator<rq::TemplateGlobalStatic>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateGlobalStaticSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateGlobalStatic>,
+      rq::ConstUnderlyingTemplateIterator<rq::TemplateGlobalStatic>,
+      std::ranges::subrange_kind::unsized>
+  getTemplateGlobalStaticSubrange() const;
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::GlobalStatic>,
+      rq::BumpPtrListIterator<rq::GlobalStatic>,
+      std::ranges::subrange_kind::unsized>
+  getGlobalStaticSubrange();
+  [[nodiscard]] inline std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::GlobalStatic>,
+      rq::ConstBumpPtrListIterator<rq::GlobalStatic>,
+      std::ranges::subrange_kind::unsized>
+  getGlobalStaticSubrange() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct Ranger : public rq::Table,
+                public rq::InitialExpression,
+                public rq::InitialExpressionFlags,
+                public rq::InitialModuleMember {
+  using Self = rq::Ranger;
+
+  bool _is_implemented : 1 {false};
+  rq::Ranger *_next_ranger_ptr{nullptr};
+  rq::Instruction *_instruction_ptr{nullptr};
+
+  inline explicit Ranger(rq::Opcode opcode, const rq::Expression &expression,
+                         rq::ExpressionFlags flags, rq::Module &module,
+                         rq::Table &containing_table, rq::Table &hosting_table);
+  [[nodiscard]] bool getIsImplemented() const;
+  RQ_ALWAYS_INLINE void setIsImplemented();
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct ForwardRanger final : public rq::Ranger {
+  using Self = rq::ForwardRanger;
+
+  inline explicit ForwardRanger(const rq::Expression &expression,
+                                rq::ExpressionFlags flags, rq::Module &module,
+                                rq::Table &containing_table,
                                 rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct BackwardRanger final : public rq::Ranger {
+  using Self = rq::BackwardRanger;
+
+  inline explicit BackwardRanger(const rq::Expression &expression,
+                                 rq::ExpressionFlags flags, rq::Module &module,
+                                 rq::Table &containing_table,
+                                 rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2037,7 +2901,6 @@ struct Procedure : public rq::Table,
   llvm::Function *_llvm_function_ptr{nullptr};
 
   inline explicit Procedure(rq::Opcode opcode, llvm::StringRef name,
-
                             const rq::Expression &expression,
                             rq::ExpressionFlags attributes, rq::Module &module,
                             rq::Table &containing_table,
@@ -2153,6 +3016,7 @@ struct Template : public rq::Symbol,
                   public rq::InitialNamed {
   using Self = rq::Template;
 
+  rq::Template *_next_template_ptr{nullptr};
   rq::TemplateLayout *_template_layout_ptr;
 
   inline explicit Template(rq::Opcode opcode, llvm::StringRef name,
@@ -2233,7 +3097,59 @@ struct TemplateGlobalStatic : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateFunction : public rq::Template {
+struct TemplateRanger : public rq::Template {
+  using Self = rq::TemplateForwardRanger;
+
+  inline explicit TemplateRanger(rq::Opcode opcode, llvm::StringRef name,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags attributes,
+                                 rq::Module &module,
+                                 rq::Table &containing_table,
+                                 rq::Table &hosting_table,
+                                 rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct TemplateForwardRanger : public rq::TemplateRanger {
+  using Self = rq::TemplateForwardRanger;
+
+  inline explicit TemplateForwardRanger(llvm::StringRef name,
+                                        const rq::Expression &expression,
+                                        rq::ExpressionFlags attributes,
+                                        rq::Module &module,
+                                        rq::Table &containing_table,
+                                        rq::Table &hosting_table,
+                                        rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct TemplateBackwardRanger : public rq::TemplateRanger {
+  using Self = rq::TemplateBackwardRanger;
+
+  inline explicit TemplateBackwardRanger(llvm::StringRef name,
+                                         const rq::Expression &expression,
+                                         rq::ExpressionFlags attributes,
+                                         rq::Module &module,
+                                         rq::Table &containing_table,
+                                         rq::Table &hosting_table,
+                                         rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct TemplateProcedure : public rq::Template {
+  using Self = rq::TemplateProcedure;
+
+  inline explicit TemplateProcedure(rq::Opcode opcode, llvm::StringRef name,
+                                    const rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::Table &containing_table,
+                                    rq::Table &hosting_table,
+                                    rq::TemplateLayout &template_layout);
+  [[nodiscard]] inline bool classof(const Entity *entity);
+};
+
+struct TemplateFunction : public rq::TemplateProcedure {
   using Self = rq::TemplateFunction;
 
   inline explicit TemplateFunction(llvm::StringRef name,
@@ -2246,7 +3162,7 @@ struct TemplateFunction : public rq::Template {
   [[nodiscard]] inline bool classof(const Entity *entity);
 };
 
-struct TemplateMethod : public rq::Template {
+struct TemplateMethod : public rq::TemplateProcedure {
   using Self = rq::TemplateMethod;
 
   inline explicit TemplateMethod(llvm::StringRef name,
@@ -2259,20 +3175,7 @@ struct TemplateMethod : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateRanger : public rq::Template {
-  using Self = rq::TemplateRanger;
-
-  inline explicit TemplateRanger(llvm::StringRef name,
-                                 const rq::Expression &expression,
-                                 rq::ExpressionFlags attributes,
-                                 rq::Module &module,
-                                 rq::Table &containing_table,
-                                 rq::Table &hosting_table,
-                                 rq::TemplateLayout &template_layout);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct TemplateExtensionFunction : public rq::Template {
+struct TemplateExtensionFunction : public rq::TemplateProcedure {
   using Self = rq::TemplateExtensionFunction;
 
   inline explicit TemplateExtensionFunction(
@@ -2283,7 +3186,7 @@ struct TemplateExtensionFunction : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateExtensionMethod : public rq::Template {
+struct TemplateExtensionMethod : public rq::TemplateProcedure {
   using Self = rq::TemplateExtensionMethod;
 
   inline explicit TemplateExtensionMethod(llvm::StringRef name,
@@ -2296,145 +3199,41 @@ struct TemplateExtensionMethod : public rq::Template {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct TemplateExtensionRanger : public rq::Template {
-  using Self = rq::TemplateExtensionRanger;
+struct Specialized : public rq::Symbol,
+                     public rq::InitialExpression,
+                     public rq::InitialExpressionFlags,
+                     public rq::InitialModuleMember,
+                     public rq::TableMember,
+                     public rq::TableHosted,
+                     public rq::InitialNamed {
+  using Self = rq::Specialized;
 
-  inline explicit TemplateExtensionRanger(llvm::StringRef name,
-                                          const rq::Expression &expression,
-                                          rq::ExpressionFlags attributes,
-                                          rq::Module &module,
-                                          rq::Table &containing_table,
-                                          rq::Table &hosting_table,
-                                          rq::TemplateLayout &template_layout);
+  inline explicit Specialized(rq::Opcode opcode, llvm::StringRef name,
+                              const rq::Expression &expression,
+                              rq::ExpressionFlags attributes,
+                              rq::Module &module, rq::Table &containing_table,
+                              rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct Partial : public rq::Symbol,
-                 public rq::InitialExpression,
-                 public rq::InitialExpressionFlags,
-                 public rq::InitialModuleMember,
-                 public rq::TableMember,
-                 public rq::TableHosted,
-                 public rq::InitialNamed {
-  using Self = rq::Partial;
+template <> struct is_parent_only<rq::Specialized> final : std::true_type {};
 
-  inline explicit Partial(rq::Opcode opcode, llvm::StringRef name,
-                          const rq::Expression &expression,
-                          rq::ExpressionFlags attributes, rq::Module &module,
-                          rq::Table &containing_table,
-                          rq::Table &hosting_table);
+struct SpecializedClass : public rq::Specialized {
+  using Self = rq::SpecializedClass;
+
+  inline explicit SpecializedClass(llvm::StringRef name,
+                                   rq::Expression &expression,
+                                   rq::ExpressionFlags attributes,
+                                   rq::Module &module,
+                                   rq::Table &containing_table,
+                                   rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-template <> struct is_parent_only<rq::Partial> final : std::true_type {};
+struct SpecializedEnumeration : public rq::Specialized {
+  using Self = rq::SpecializedEnumeration;
 
-struct PartialClass : public rq::Partial {
-  using Self = rq::PartialClass;
-
-  inline explicit PartialClass(llvm::StringRef name, rq::Expression &expression,
-                               rq::ExpressionFlags attributes,
-                               rq::Module &module, rq::Table &containing_table,
-                               rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialEnumeration : public rq::Partial {
-  using Self = rq::PartialEnumeration;
-
-  inline explicit PartialEnumeration(llvm::StringRef name,
-                                     rq::Expression &expression,
-                                     rq::ExpressionFlags attributes,
-                                     rq::Module &module,
-                                     rq::Table &containing_table,
-                                     rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialCategory : public rq::Partial {
-  using Self = rq::PartialCategory;
-
-  inline explicit PartialCategory(llvm::StringRef name,
-                                  rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::Table &containing_table,
-                                  rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialGlobal : public rq::Partial {
-  using Self = rq::PartialGlobal;
-
-  inline explicit PartialGlobal(llvm::StringRef name,
-                                rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module, rq::Table &containing_table,
-                                rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialGlobalStatic : public rq::Partial {
-  using Self = rq::PartialGlobalStatic;
-
-  inline explicit PartialGlobalStatic(llvm::StringRef name,
-                                      rq::Expression &expression,
-                                      rq::ExpressionFlags attributes,
-                                      rq::Module &module,
-                                      rq::Table &containing_table,
-                                      rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialFunction : public rq::Partial {
-  using Self = rq::PartialFunction;
-
-  inline explicit PartialFunction(llvm::StringRef name,
-                                  rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::Table &containing_table,
-                                  rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialMethod : public rq::Partial {
-  using Self = rq::PartialMethod;
-
-  inline explicit PartialMethod(llvm::StringRef name,
-                                rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module, rq::Table &containing_table,
-                                rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialRanger : public rq::Partial {
-  using Self = rq::PartialRanger;
-
-  inline explicit PartialRanger(llvm::StringRef name,
-                                rq::Expression &expression,
-                                rq::ExpressionFlags attributes,
-                                rq::Module &module, rq::Table &containing_table,
-                                rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialExtensionFunction : public rq::Partial {
-  using Self = rq::PartialExtensionFunction;
-
-  inline explicit PartialExtensionFunction(llvm::StringRef name,
-                                           rq::Expression &expression,
-                                           rq::ExpressionFlags attributes,
-                                           rq::Module &module,
-                                           rq::Table &containing_table,
-                                           rq::Table &hosting_table);
-  [[nodiscard]] inline static bool classof(const Entity *entity);
-};
-
-struct PartialExtensionMethod : public rq::Partial {
-  using Self = rq::PartialExtensionMethod;
-
-  inline explicit PartialExtensionMethod(llvm::StringRef name,
+  inline explicit SpecializedEnumeration(llvm::StringRef name,
                                          rq::Expression &expression,
                                          rq::ExpressionFlags attributes,
                                          rq::Module &module,
@@ -2443,15 +3242,135 @@ struct PartialExtensionMethod : public rq::Partial {
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
-struct PartialExtensionRanger : public rq::Partial {
-  using Self = rq::PartialExtensionRanger;
+struct SpecializedCategory : public rq::Specialized {
+  using Self = rq::SpecializedCategory;
 
-  inline explicit PartialExtensionRanger(llvm::StringRef name,
-                                         const rq::Expression &expression,
-                                         rq::ExpressionFlags attributes,
-                                         rq::Module &module,
-                                         rq::Table &containing_table,
-                                         rq::Table &hosting_table);
+  inline explicit SpecializedCategory(llvm::StringRef name,
+                                      rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::Table &containing_table,
+                                      rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedGlobal : public rq::Specialized {
+  using Self = rq::SpecializedGlobal;
+
+  inline explicit SpecializedGlobal(llvm::StringRef name,
+                                    rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::Table &containing_table,
+                                    rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedGlobalStatic : public rq::Specialized {
+  using Self = rq::SpecializedGlobalStatic;
+
+  inline explicit SpecializedGlobalStatic(llvm::StringRef name,
+                                          rq::Expression &expression,
+                                          rq::ExpressionFlags attributes,
+                                          rq::Module &module,
+                                          rq::Table &containing_table,
+                                          rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedRanger : public rq::Specialized {
+  using Self = rq::SpecializedRanger;
+
+  inline explicit SpecializedRanger(rq::Opcode opcode, llvm::StringRef name,
+                                    rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::Table &containing_table,
+                                    rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedForwardRanger : public rq::SpecializedRanger {
+  using Self = rq::SpecializedForwardRanger;
+
+  inline explicit SpecializedForwardRanger(llvm::StringRef name,
+                                           rq::Expression &expression,
+                                           rq::ExpressionFlags attributes,
+                                           rq::Module &module,
+                                           rq::Table &containing_table,
+                                           rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedBackwardRanger : public rq::SpecializedRanger {
+  using Self = rq::SpecializedBackwardRanger;
+
+  inline explicit SpecializedBackwardRanger(llvm::StringRef name,
+                                            rq::Expression &expression,
+                                            rq::ExpressionFlags attributes,
+                                            rq::Module &module,
+                                            rq::Table &containing_table,
+                                            rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedProcedure : public rq::Specialized {
+  using Self = rq::SpecializedProcedure;
+
+  inline explicit SpecializedProcedure(rq::Opcode opcode, llvm::StringRef name,
+                                       rq::Expression &expression,
+                                       rq::ExpressionFlags attributes,
+                                       rq::Module &module,
+                                       rq::Table &containing_table,
+                                       rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedFunction : public rq::SpecializedProcedure {
+  using Self = rq::SpecializedFunction;
+
+  inline explicit SpecializedFunction(llvm::StringRef name,
+                                      rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::Table &containing_table,
+                                      rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedMethod : public rq::SpecializedProcedure {
+  using Self = rq::SpecializedMethod;
+
+  inline explicit SpecializedMethod(llvm::StringRef name,
+                                    rq::Expression &expression,
+                                    rq::ExpressionFlags attributes,
+                                    rq::Module &module,
+                                    rq::Table &containing_table,
+                                    rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedExtensionFunction : public rq::SpecializedProcedure {
+  using Self = rq::SpecializedExtensionFunction;
+
+  inline explicit SpecializedExtensionFunction(llvm::StringRef name,
+                                               rq::Expression &expression,
+                                               rq::ExpressionFlags attributes,
+                                               rq::Module &module,
+                                               rq::Table &containing_table,
+                                               rq::Table &hosting_table);
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+struct SpecializedExtensionMethod : public rq::SpecializedProcedure {
+  using Self = rq::SpecializedExtensionMethod;
+
+  inline explicit SpecializedExtensionMethod(llvm::StringRef name,
+                                             rq::Expression &expression,
+                                             rq::ExpressionFlags attributes,
+                                             rq::Module &module,
+                                             rq::Table &containing_table,
+                                             rq::Table &hosting_table);
   [[nodiscard]] inline static bool classof(const Entity *entity);
 };
 
@@ -2478,18 +3397,7 @@ struct TypeConstant final : public rq::Constant, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getTypeFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartiallyMutable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatile() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRanging() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAttribute(rq::TypeAttribute attribute) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability() const;
+  // TODO
   [[nodiscard]] inline bool getIsInferencing() const;
   [[nodiscard]] inline bool getIsType() const;
   [[nodiscard]] inline static bool classof(const Entity *entity);
@@ -2583,6 +3491,34 @@ struct ArrayConstant : public rq::Constant {
 };
 
 template <> struct is_acquired<rq::ArrayConstant> final : std::true_type {};
+
+struct ExpressionAttributeConstant : public rq::Constant {
+  using Self = rq::ExpressionAttributeConstant;
+
+  rq::ExpressionAttribute _expression_attribute;
+
+  inline explicit ExpressionAttributeConstant(
+      rq::ExpressionAttribute expression_attribute);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttribute
+  getExpressionAttribute() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <>
+struct is_acquired<rq::ExpressionAttributeConstant> final : std::true_type {};
+
+struct TypeAttributeConstant : public rq::Constant {
+  using Self = rq::TypeAttributeConstant;
+
+  rq::TypeAttribute _type_attribute;
+
+  inline explicit TypeAttributeConstant(rq::TypeAttribute type_attribute);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute getTypeAttribute() const;
+  [[nodiscard]] inline static bool classof(const Entity *entity);
+};
+
+template <>
+struct is_acquired<rq::TypeAttributeConstant> final : std::true_type {};
 
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;

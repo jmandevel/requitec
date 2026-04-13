@@ -128,7 +128,7 @@ struct TreeFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  void startTree(rq::Expression &trunk);
+  void startTree(rq::Expression &top);
   void appendBranch(rq::Expression &branch);
   void finishExpression(const rq::Token &last_token);
 };
@@ -148,21 +148,18 @@ struct PrecedenceFactory final {
   // the last branch that was appended to the expression
   rq::Expression *_last_ptr = nullptr;
 
-  PrecedenceFactory(rq::Context &context)
-      : _context_ref(context) {}
+  PrecedenceFactory(rq::Context &context) : _context_ref(context) {}
   PrecedenceFactory(const Self &) = delete;
   PrecedenceFactory(Self &&) = delete;
   ~PrecedenceFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] rq::Context &getContext() {
-    return this->_context_ref.get();
-  }
+  [[nodiscard]] rq::Context &getContext() { return this->_context_ref.get(); }
   [[nodiscard]] const rq::Context &getContext() const {
     return this->_context_ref.get();
   }
   void parseUnary(const rq::Token &token, rq::Keyword keyword);
-  void parseAscribe(const rq::Token &token, rq::Keyword keyword);
+  void parseAscribe(llvm::StringRef initial_source, rq::Keyword keyword);
   void parseBinary(const rq::Token &token, rq::Keyword keyword);
   void parseOuterBinary(const rq::Token &token, rq::Keyword keyword);
   void parseNary(const rq::Token &token, rq::Keyword keyword);
@@ -259,10 +256,13 @@ struct RequiteParser final {
     return this->_token_ranger;
   }
   [[nodiscard]] rq::Expression *parseExpressions();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseExpression() {
-    return this->parsePrecedence12();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseAscribableExpression() {
+    return this->parsePrecedence11();
   }
-  [[nodiscard]] rq::Expression &parsePrecedence12();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+  parseNonascribableExpression() {
+    return this->parsePrecedence10();
+  }
   [[nodiscard]] rq::Expression &parsePrecedence11();
   [[nodiscard]] rq::Expression &parsePrecedence10();
   [[nodiscard]] rq::Expression &parsePrecedence9();
@@ -276,14 +276,13 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
   [[nodiscard]] bool parseValueBranches(rq::Expression &expression,
-                                               rq::TokenKind end);
+                                        rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
   [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
   void parseTrailer(rq::Expression &expression,
                     rq::TokenRanger &keyword_ranger);
-  [[nodiscard]] rq::Expression &parseAttribute();
   [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
   [[nodiscard]] rq::Expression &parseInterpolatedString();
 };

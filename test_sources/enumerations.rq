@@ -1,6 +1,6 @@
 [import "std"];
 
-@auto_drop @may_copy
+[implicit_drop][may_copy]
 [enumeration MyEnum, [fast_unsigned_integer 32],
     APPLE  :[fast_unsigned_integer 32]  = 0;
     ORANGE :[fast_unsigned_integer 32] = 2;
@@ -8,11 +8,11 @@
 ];
 
 [entry
-    fruit := .MyEnum.APPLE(3);
+    fruit := ..MyEnum.APPLE(3);
     [match fruit,
-        [with APPLE, apple:=[value].`[borrow], 
+        [with APPLE, apple:=[value].`[mutable][borrow], 
             apple = apple + 1;
-        ][with ORANGE, orange:=[value].`[borrow],
+        ][with ORANGE, orange:=[value].`[mutable][borrow],
             orange = orange * 2;
         ][default
             // do nothing!

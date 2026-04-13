@@ -35,10 +35,10 @@ enum class TokenKind : std::uint_fast8_t {
   AMPERSAND_OPERATOR,                     // &
   DOWN_ARROW_OPERATOR,                    // \/
   UP_ARROW_OPERATOR,                      // /\   .
+  AT_OPERATOR,                            // @
+  DOLLAR_OPERATOR,                        // $
   EQUAL_OPERATOR,                         // =
   DOUBLE_EQUAL_OPERATOR,                  // ==
-  GRAVE_OPERATOR,                         // `
-  DOUBLE_GRAVE_OPERATOR,                  // ``
   ARROW_OPERATOR,                         // ->
   THICK_ARROW_OPERATOR,                   // =>
   CONCATENATE_OPERATOR,                   // +>
@@ -97,8 +97,7 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR,    // .!=%.
 
   // SIGILS
-  AT_SIGIL,     // @
-  DOLLAR_SIGIL, // $
+  GRAVE_SIGIL, // 1
 
   // SEPARATOR SYMBOLS
   TRAILER_SEPARATOR,   // %%
@@ -106,12 +105,12 @@ enum class TokenKind : std::uint_fast8_t {
   COMMA_SEPARATOR,     // ,
 
   // GROUPING SYMBOLS
-  LEFT_BRACKET_GROUPING,         // [
-  RIGHT_BRACKET_GROUPING,        // ]
-  LEFT_BRACE_GROUPING,           // {
-  RIGHT_BRACE_GROUPING,          // }
-  LEFT_PARENTHESIS_GROUPING,     // (
-  RIGHT_PARENTHESIS_GROUPING,    // )
+  LEFT_BRACKET_GROUPING,      // [
+  RIGHT_BRACKET_GROUPING,     // ]
+  LEFT_BRACE_GROUPING,        // {
+  RIGHT_BRACE_GROUPING,       // }
+  LEFT_PARENTHESIS_GROUPING,  // (
+  RIGHT_PARENTHESIS_GROUPING, // )
 
   // LITERAL
   IDENTIFIER_LITERAL, // var0 MyType ☺
@@ -209,14 +208,14 @@ getName(rq::TokenKind kind) {
     return "down_arrow_operator";
   case T::UP_ARROW_OPERATOR:
     return "up_arrow_operator";
+  case T::AT_OPERATOR:
+    return "at_operator";
+  case T::DOLLAR_OPERATOR:
+    return "dollar_operator";
   case T::EQUAL_OPERATOR:
     return "equal_operator";
   case T::DOUBLE_EQUAL_OPERATOR:
     return "double_equal_operator";
-  case T::GRAVE_OPERATOR:
-    return "grave_operator";
-  case T::DOUBLE_GRAVE_OPERATOR:
-    return "double_grave_operator";
   case T::ARROW_OPERATOR:
     return "arrow_operator";
   case T::THICK_ARROW_OPERATOR:
@@ -331,10 +330,8 @@ getName(rq::TokenKind kind) {
     return "dot_bang_equal_percent_dot_operator";
 
   // SIGILS
-  case T::AT_SIGIL:
-    return "at_sigil";
-  case T::DOLLAR_SIGIL:
-    return "dollar_sigil";
+  case T::GRAVE_SIGIL:
+    return "grave_sigil";
 
   // SEPARATOR SYMBOLS
   case T::TRAILER_SEPARATOR:
@@ -460,13 +457,13 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::UP_ARROW_OPERATOR:
     return TF::OPERATOR;
+  case T::AT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOLLAR_OPERATOR:
+    return TF::OPERATOR;
   case T::EQUAL_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::GRAVE_OPERATOR:
-    return TF::OPERATOR;
-  case T::DOUBLE_GRAVE_OPERATOR:
     return TF::OPERATOR;
   case T::ARROW_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
@@ -580,9 +577,7 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
     return TF::OPERATOR;
-  case T::AT_SIGIL:
-    return TF::NONE; // SIGIL
-  case T::DOLLAR_SIGIL:
+  case T::GRAVE_SIGIL:
     return TF::NONE; // SIGIL
   case T::TRAILER_SEPARATOR:
     return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
@@ -670,7 +665,7 @@ getIsOperator(rq::TokenKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenKind kind) {
-  return kind == rq::TokenKind::AT_SIGIL || kind == rq::TokenKind::DOLLAR_SIGIL;
+  return kind == rq::TokenKind::GRAVE_SIGIL;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -859,7 +854,14 @@ struct Token final {
   }
 };
 
-enum class GroupingKind { NONE, INTERPOLATION, BRACKET, DOUBLE_BRACKET, BRACE, PARENTHESIS };
+enum class GroupingKind {
+  NONE,
+  INTERPOLATION,
+  BRACKET,
+  DOUBLE_BRACKET,
+  BRACE,
+  PARENTHESIS
+};
 
 inline llvm::StringRef getDescription(rq::GroupingKind kind) {
   using namespace rq;

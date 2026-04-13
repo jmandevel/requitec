@@ -117,6 +117,21 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::Char _char{};
     rq::Ascii _ascii{};
     rq::Utf8 _utf8{};
+    rq::Visibility _visibility{};
+    rq::Scoping _scoping{};
+    rq::Availability _availability{};
+    rq::Accessibility _accessibility{};
+    rq::PropertyMutability _property_mutability{};
+    rq::Exporting _exporting{};
+    rq::Runtime _runtime{};
+    rq::Capturing _capturing{};
+    rq::EvaluationTime _evaluation_time{};
+    rq::Parentability _parentability{};
+    rq::PropertyAssociation _property_association{};
+    rq::Tangibility _tangibility{};
+    rq::Overriding _overriding{};
+    rq::Inlining _inlining{};
+    rq::Mangling _mangling{};
     unsigned _scaled_builtin_generation{1};
     llvm::FoldingSet<rq::ScaledBuiltin> _scaled_builtin_set{};
     llvm::FoldingSet<rq::UnarySubtype> _unary_subtype_set{};
@@ -126,6 +141,111 @@ struct Context final : public rq::BumpPtrAllocator {
     llvm::FoldingSet<rq::ExpressionConstant> _expression_constant_set{};
     rq::BooleanConstant _true{true};
     rq::BooleanConstant _false{false};
+    rq::ExpressionAttributeConstant _ea_none{rq::ExpressionAttribute::NONE};
+    rq::ExpressionAttributeConstant _ea_transparent{
+        rq::ExpressionAttribute::TRANSPARENT};
+    rq::ExpressionAttributeConstant _ea_opaque{rq::ExpressionAttribute::OPAQUE};
+    rq::ExpressionAttributeConstant _ea_inside_scope{
+        rq::ExpressionAttribute::INSIDE_SCOPE};
+    rq::ExpressionAttributeConstant _ea_outside_scope{
+        rq::ExpressionAttribute::OUTSIDE_SCOPE};
+    rq::ExpressionAttributeConstant _ea_local{rq::ExpressionAttribute::LOCAL};
+    rq::ExpressionAttributeConstant _ea_global{rq::ExpressionAttribute::GLOBAL};
+    rq::ExpressionAttributeConstant _ea_private{
+        rq::ExpressionAttribute::PRIVATE};
+    rq::ExpressionAttributeConstant _ea_public{rq::ExpressionAttribute::PUBLIC};
+    rq::ExpressionAttributeConstant _ea_protected{
+        rq::ExpressionAttribute::PROTECTED};
+    rq::ExpressionAttributeConstant _ea_no_partial_mutate{
+        rq::ExpressionAttribute::NO_PARTIAL_MUTATE};
+    rq::ExpressionAttributeConstant _ea_partial_mutate{
+        rq::ExpressionAttribute::PARTIAL_MUTATE};
+    rq::ExpressionAttributeConstant _ea_no_export{
+        rq::ExpressionAttribute::NO_EXPORT};
+    rq::ExpressionAttributeConstant _ea_export{rq::ExpressionAttribute::EXPORT};
+    rq::ExpressionAttributeConstant _ea_dynamic{
+        rq::ExpressionAttribute::DYNAMIC};
+    rq::ExpressionAttributeConstant _ea_static{rq::ExpressionAttribute::STATIC};
+    rq::ExpressionAttributeConstant _ea_no_capture{
+        rq::ExpressionAttribute::NO_CAPTURE};
+    rq::ExpressionAttributeConstant _ea_capture{
+        rq::ExpressionAttribute::CAPTURE};
+    rq::ExpressionAttributeConstant _ea_lazy{rq::ExpressionAttribute::LAZY};
+    rq::ExpressionAttributeConstant _ea_eager{rq::ExpressionAttribute::EAGER};
+    rq::ExpressionAttributeConstant _ea_no_parent{
+        rq::ExpressionAttribute::NO_PARENT};
+    rq::ExpressionAttributeConstant _ea_may_parent{
+        rq::ExpressionAttribute::MAY_PARENT};
+    rq::ExpressionAttributeConstant _ea_mixin{rq::ExpressionAttribute::MIXIN};
+    rq::ExpressionAttributeConstant _ea_parent{rq::ExpressionAttribute::PARENT};
+    rq::ExpressionAttributeConstant _ea_tangible{
+        rq::ExpressionAttribute::TANGIBLE};
+    rq::ExpressionAttributeConstant _ea_abstract{
+        rq::ExpressionAttribute::ABSTRACT};
+    rq::ExpressionAttributeConstant _ea_virtual{
+        rq::ExpressionAttribute::VIRTUAL};
+    rq::ExpressionAttributeConstant _ea_no_override{
+        rq::ExpressionAttribute::NO_OVERRIDE};
+    rq::ExpressionAttributeConstant _ea_override{
+        rq::ExpressionAttribute::OVERRIDE};
+    rq::ExpressionAttributeConstant _ea_no_inline{
+        rq::ExpressionAttribute::NO_INLINE};
+    rq::ExpressionAttributeConstant _ea_inline{rq::ExpressionAttribute::INLINE};
+    rq::ExpressionAttributeConstant _ea_implicit_mangle{
+        rq::ExpressionAttribute::IMPLICIT_MANGLE};
+    rq::ExpressionAttributeConstant _ea_explicit_mangle{
+        rq::ExpressionAttribute::EXPLICIT_MANGLE};
+    rq::ExpressionAttributeConstant _ea_no_pack{
+        rq::ExpressionAttribute::NO_PACK};
+    rq::ExpressionAttributeConstant _ea_pack{rq::ExpressionAttribute::PACK};
+    rq::ExpressionAttributeConstant _ea_label{rq::ExpressionAttribute::LABEL};
+    rq::ExpressionAttributeConstant _ea_no_template{
+        rq::ExpressionAttribute::NO_TEMPLATE};
+    rq::ExpressionAttributeConstant _ea_template{
+        rq::ExpressionAttribute::TEMPLATE};
+    rq::ExpressionAttributeConstant _ea_specialize{
+        rq::ExpressionAttribute::SPECIALIZE};
+    rq::ExpressionAttributeConstant _ea_equivocal{
+        rq::ExpressionAttribute::EQUIVOCAL};
+    rq::ExpressionAttributeConstant _ea_likely{rq::ExpressionAttribute::LIKELY};
+    rq::ExpressionAttributeConstant _ea_unlikely{
+        rq::ExpressionAttribute::UNLIKELY};
+    rq::ExpressionAttributeConstant _ea_supported{
+        rq::ExpressionAttribute::SUPPORTED};
+    rq::ExpressionAttributeConstant _ea_depreciated{
+        rq::ExpressionAttribute::DEPRECIATED};
+    rq::ExpressionAttributeConstant _ea_experimental{
+        rq::ExpressionAttribute::EXPERIMENTAL};
+    rq::ExpressionAttributeConstant _ea_no_copy{
+        rq::ExpressionAttribute::NO_COPY};
+    rq::ExpressionAttributeConstant _ea_may_copy{
+        rq::ExpressionAttribute::MAY_COPY};
+    rq::ExpressionAttributeConstant _ea_unstable_address{
+        rq::ExpressionAttribute::UNSTABLE_ADDRESS};
+    rq::ExpressionAttributeConstant _ea_stable_address{
+        rq::ExpressionAttribute::STABLE_ADDRESS};
+    rq::ExpressionAttributeConstant _ea_explicit_drop{
+        rq::ExpressionAttribute::EXPLICIT_DROP};
+    rq::ExpressionAttributeConstant _ea_implicit_drop{
+        rq::ExpressionAttribute::IMPLICIT_DROP};
+    rq::ExpressionAttributeConstant _ea_not_ok{rq::ExpressionAttribute::NOT_OK};
+    rq::ExpressionAttributeConstant _ea_ok{rq::ExpressionAttribute::OK};
+    rq::TypeAttributeConstant _ta_none{rq::TypeAttribute::NONE};
+    rq::TypeAttributeConstant _ta_constant{rq::TypeAttribute::CONSTANT};
+    rq::TypeAttributeConstant _ta_mutable{rq::TypeAttribute::MUTABLE};
+    rq::TypeAttributeConstant _ta_partially_mutable{
+        rq::TypeAttribute::PARTIALLY_MUTABLE};
+    rq::TypeAttributeConstant _ta_not_volatile{rq::TypeAttribute::NOT_VOLATILE};
+    rq::TypeAttributeConstant _ta_volatile{rq::TypeAttribute::VOLATILE};
+    rq::TypeAttributeConstant _ta_determinate{rq::TypeAttribute::DETERMINATE};
+    rq::TypeAttributeConstant _ta_indeterminate{
+        rq::TypeAttribute::INDETERMINATE};
+    rq::TypeAttributeConstant _ta_not_atomic{rq::TypeAttribute::NOT_ATOMIC};
+    rq::TypeAttributeConstant _ta_atomic{rq::TypeAttribute::ATOMIC};
+    rq::TypeAttributeConstant _ta_not_null_terminated{
+        rq::TypeAttribute::NOT_NULL_TERMINATED};
+    rq::TypeAttributeConstant _ta_null_terminated{
+        rq::TypeAttribute::NULL_TERMINATED};
     llvm::FoldingSet<rq::IntegerConstant> _integer_constant_set{};
     llvm::FoldingSet<rq::FloatConstant> _float_constant_set{};
     llvm::FoldingSet<rq::StringConstant> _string_constant_set{};
@@ -212,7 +332,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
-                                 const rq::Expression &trunk);
+                                 const rq::Expression &top);
   [[nodiscard]] bool emitSymbol(llvm::StringRef path, const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
@@ -316,10 +436,12 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorOutsideNotAncestor(const rq::Expression &outside_expression);
   void logErrorNumeric(const rq::Expression &expression,
                        rq::NumericResultCode code);
-  void logErrorNameCollision(const rq::Expression& expression);
-  void logInfoNameCollisionDeclaration(rq::Symbol& symbol);
-  void logErrorInvalidValueSymbol(const rq::Expression& expression, rq::Symbol& symbol);
-  void logErrorIndeterminateVariableValue(const rq::Expression& expression, rq::Symbol& symbol);
+  void logErrorNameCollision(const rq::Expression &expression);
+  void logInfoNameCollisionDeclaration(rq::Symbol &symbol);
+  void logErrorInvalidValueSymbol(const rq::Expression &expression,
+                                  rq::Symbol &symbol);
+  void logErrorIndeterminateVariableValue(const rq::Expression &expression,
+                                          rq::Symbol &symbol);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
@@ -449,6 +571,199 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8 &acquireUtf8() {
     return this->acquired._utf8;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Visibility &acquireVisibility() {
+    return this->acquired._visibility;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Scoping &acquireScoping() {
+    return this->acquired._scoping;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Availability &acquireAvailability() {
+    return this->acquired._availability;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Accessibility &acquireAccessibility() {
+    return this->acquired._accessibility;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PropertyMutability &
+  acquirePropertyMutability() {
+    return this->acquired._property_mutability;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Exporting &acquireExporting() {
+    return this->acquired._exporting;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Runtime &acquireRuntime() {
+    return this->acquired._runtime;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Capturing &acquireCapturing() {
+    return this->acquired._capturing;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationTime &acquireEvaluationTime() {
+    return this->acquired._evaluation_time;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parentability &acquireParentability() {
+    return this->acquired._parentability;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PropertyAssociation &
+  acquirePropertyAssociation() {
+    return this->acquired._property_association;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Tangibility &acquireTangibility() {
+    return this->acquired._tangibility;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Overriding &acquireOverriding() {
+    return this->acquired._overriding;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Inlining &acquireInlining() {
+    return this->acquired._inlining;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Mangling &acquireMangling() {
+    return this->acquired._mangling;
+  }
+  [[nodiscard]] inline rq::ExpressionAttributeConstant &
+  acquireExpressionAttributeConstant(rq::ExpressionAttribute attribute) {
+    using EA = rq::ExpressionAttribute;
+    switch (attribute) {
+    case EA::NONE:
+      return this->acquired._ea_none;
+    case EA::TRANSPARENT:
+      return this->acquired._ea_transparent;
+    case EA::OPAQUE:
+      return this->acquired._ea_opaque;
+    case EA::INSIDE_SCOPE:
+      return this->acquired._ea_inside_scope;
+    case EA::OUTSIDE_SCOPE:
+      return this->acquired._ea_outside_scope;
+    case EA::LOCAL:
+      return this->acquired._ea_local;
+    case EA::GLOBAL:
+      return this->acquired._ea_global;
+    case EA::PRIVATE:
+      return this->acquired._ea_private;
+    case EA::PUBLIC:
+      return this->acquired._ea_public;
+    case EA::PROTECTED:
+      return this->acquired._ea_protected;
+    case EA::NO_PARTIAL_MUTATE:
+      return this->acquired._ea_no_partial_mutate;
+    case EA::PARTIAL_MUTATE:
+      return this->acquired._ea_partial_mutate;
+    case EA::NO_EXPORT:
+      return this->acquired._ea_no_export;
+    case EA::EXPORT:
+      return this->acquired._ea_export;
+    case EA::DYNAMIC:
+      return this->acquired._ea_dynamic;
+    case EA::STATIC:
+      return this->acquired._ea_static;
+    case EA::NO_CAPTURE:
+      return this->acquired._ea_no_capture;
+    case EA::CAPTURE:
+      return this->acquired._ea_capture;
+    case EA::LAZY:
+      return this->acquired._ea_lazy;
+    case EA::EAGER:
+      return this->acquired._ea_eager;
+    case EA::NO_PARENT:
+      return this->acquired._ea_no_parent;
+    case EA::MAY_PARENT:
+      return this->acquired._ea_may_parent;
+    case EA::MIXIN:
+      return this->acquired._ea_mixin;
+    case EA::PARENT:
+      return this->acquired._ea_parent;
+    case EA::TANGIBLE:
+      return this->acquired._ea_tangible;
+    case EA::ABSTRACT:
+      return this->acquired._ea_abstract;
+    case EA::VIRTUAL:
+      return this->acquired._ea_virtual;
+    case EA::NO_OVERRIDE:
+      return this->acquired._ea_no_override;
+    case EA::OVERRIDE:
+      return this->acquired._ea_override;
+    case EA::NO_INLINE:
+      return this->acquired._ea_no_inline;
+    case EA::INLINE:
+      return this->acquired._ea_inline;
+    case EA::IMPLICIT_MANGLE:
+      return this->acquired._ea_implicit_mangle;
+    case EA::EXPLICIT_MANGLE:
+      return this->acquired._ea_explicit_mangle;
+    case EA::NO_PACK:
+      return this->acquired._ea_no_pack;
+    case EA::PACK:
+      return this->acquired._ea_pack;
+    case EA::LABEL:
+      return this->acquired._ea_label;
+    case EA::NO_TEMPLATE:
+      return this->acquired._ea_no_template;
+    case EA::TEMPLATE:
+      return this->acquired._ea_template;
+    case EA::SPECIALIZE:
+      return this->acquired._ea_specialize;
+    case EA::EQUIVOCAL:
+      return this->acquired._ea_equivocal;
+    case EA::LIKELY:
+      return this->acquired._ea_likely;
+    case EA::UNLIKELY:
+      return this->acquired._ea_unlikely;
+    case EA::SUPPORTED:
+      return this->acquired._ea_supported;
+    case EA::DEPRECIATED:
+      return this->acquired._ea_depreciated;
+    case EA::EXPERIMENTAL:
+      return this->acquired._ea_experimental;
+    case EA::NO_COPY:
+      return this->acquired._ea_no_copy;
+    case EA::MAY_COPY:
+      return this->acquired._ea_may_copy;
+    case EA::UNSTABLE_ADDRESS:
+      return this->acquired._ea_unstable_address;
+    case EA::STABLE_ADDRESS:
+      return this->acquired._ea_stable_address;
+    case EA::EXPLICIT_DROP:
+      return this->acquired._ea_explicit_drop;
+    case EA::IMPLICIT_DROP:
+      return this->acquired._ea_implicit_drop;
+    case EA::NOT_OK:
+      return this->acquired._ea_not_ok;
+    case EA::OK:
+      return this->acquired._ea_ok;
+    case EA::LAST:
+      RQ_UNREACHABLE();
+    }
+    RQ_UNREACHABLE();
+  }
+  [[nodiscard]] inline rq::TypeAttributeConstant &
+  acquireTypeAttributeConstant(rq::TypeAttribute attribute) {
+    using TA = rq::TypeAttribute;
+    switch (attribute) {
+    case TA::NONE:
+      return this->acquired._ta_none;
+    case TA::CONSTANT:
+      return this->acquired._ta_constant;
+    case TA::MUTABLE:
+      return this->acquired._ta_mutable;
+    case TA::PARTIALLY_MUTABLE:
+      return this->acquired._ta_partially_mutable;
+    case TA::NOT_VOLATILE:
+      return this->acquired._ta_not_volatile;
+    case TA::VOLATILE:
+      return this->acquired._ta_volatile;
+    case TA::DETERMINATE:
+      return this->acquired._ta_determinate;
+    case TA::INDETERMINATE:
+      return this->acquired._ta_indeterminate;
+    case TA::NOT_ATOMIC:
+      return this->acquired._ta_not_atomic;
+    case TA::ATOMIC:
+      return this->acquired._ta_atomic;
+    case TA::NOT_NULL_TERMINATED:
+      return this->acquired._ta_not_null_terminated;
+    case TA::NULL_TERMINATED:
+      return this->acquired._ta_null_terminated;
+    }
+    RQ_UNREACHABLE();
   }
   [[nodiscard]] inline rq::Symbol &acquireSynonym(rq::Symbol &original) {
     if (llvm::isa<rq::ScaledBuiltin>(original)) {

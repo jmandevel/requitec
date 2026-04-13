@@ -1,30 +1,30 @@
 [import "std"];
 
-@auto_drop @may_copy
+[implicit_drop][may_copy]
 [class MyClass,
     {> 
-        @public data:10#[fast_signed_integer 32]=[initialize_array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        [public] data:10#[fast_signed_integer 32]=[initialize_array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     <},
 
-    @template::{> mutability:[mutability] <}
-    [forward_ranger &$?mutability, &$?mutability[fast_signed_integer 32],
-        [for [this].data, value:=[value].$?mutability[borrow], 
+    [template]::{> mutability:[mutability] <}
+    [forward_ranger $`mutability, $`mutability[fast_signed_integer 32],
+        [for [this].data, value:=[value].`mutability[borrow], 
             [range_over 
-                value.$?mutability[borrow];
+                value.`mutability[borrow];
             ];
         ];
     ];
 ];
 
-@auto_drop @may_copy
+[implicit_drop][may_copy]
 [class MyReverseClass,
     {> 
-        @public data:10#[fast_signed_integer 32]=[initialize_array 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        [public] data:10#[fast_signed_integer 32]=[initialize_array 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     <},
 
-    @template::{> mutability:[mutability] <}
-    [backward_ranger &?mutability, &$?mutability[fast_signed_integer 32],
-        [for [this].data, value:=[value].$?mutability[borrow], 
+    [template]::{> mutability:[mutability] <}
+    [backward_ranger $`mutability, $`mutability[fast_signed_integer 32],
+        [for [this].data, value:=[value].`mutability[borrow], 
             [range_over 
                 value.$?mutability[borrow]
             ];
@@ -38,46 +38,46 @@
 
     // equal limit interval
     [for 0.==9, value:=[value],
-        .std.print(line="value is {value}");    
+        ..std.print(line="value is {value}");    
     ];
 
     // less limit interval
     [for 0.<10, value:=[value], 
-        .std.print(line="value is {value}");    
+        ..std.print(line="value is {value}");    
     ];
 
     // interval
     [for 0.<10.+1, value:=[value], 
-        .std.print(line="value is {value}");    
+        ..std.print(line="value is {value}");    
     ];
 
     [scope
         // while loop    
-        value :$mutable= 0.[as [fast_signed_integer 32]];
+        value : `[mutable] = 0.[as [fast_signed_integer 32]];
         [while value < 10,
-            .std.print(line="value is {value}");   
+            ..std.print(line="value is {value}");   
             value = value + 1;
         ];
     ];
 
     // array element range
     [for [initialize_array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[borrow], value:=[value],     
-        .std.print(line="value is {value}");
+        ..std.print(line="value is {value}");
     ];
 
     // forward ranger range
-    class := MyClass();
+    class := ..MyClass();
     [for class.[borrow], value:=[value], 
-        .std.print(line="value is {value}");
+        ..std.print(line="value is {value}");
     ];
 
     // backward ranger range
-    reverse_class := MyReverseClass();
+    reverse_class := ..MyReverseClass();
     [for reverse_class.[borrow].[reverse], value:=[value],
-        .std.print(line="value is {value}");
+        ..std.print(line="value is {value}");
     ];
 
-    [if (0.<10)->.std.getContains(5),
-        .std.print(line="5 is within interval over 0 to 10");
+    [if (0.<10)->..std.getContains(5),
+        .,std.print(line="5 is within interval over 0 to 10");
     ];
 ];

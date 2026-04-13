@@ -1,4 +1,4 @@
-@opaque @mangle::myForwardedAdd
+[opaque][mangle]::myForwardedAdd
 [function myForwardedAdd, (> a:[single], b:[single] <)[single],];
 
 // you have to write the signature again, and it has to be identical
@@ -7,9 +7,9 @@
 ];
 
 [entry
-    .std.print(
+    ..std.print(
         "the result is {
-            .myForwardedAdd(
+            ..myForwardedAdd(
                 1.0,
                 2.0)
         }");

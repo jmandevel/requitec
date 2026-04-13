@@ -1,24 +1,22 @@
 [import "std"];
 
+[function print, ()[void],
+    ..std.print(line=..foo.bar.text);
+];
+
 [namespace foo,
 
     [namespace bar,
-        @global @static
-        text := "Hello, world!";    
+        [global][static]
+        text:= "Hello, world!";
 
         [function print, ()[void],
-            .std.print(line=..text);
+            ..std.print(line=text);
         ];
     ];
 
 
     [function print, ()[void],
-        .std.print(line=..bar.text);
+        ..std.print(line=..foo.bar.text);
     ];
-
-];
-
-[function print, ()[void],
-    .std.print(line=..foo.bar.text);
-    .std.print(line=.foo.bar.text);
 ];

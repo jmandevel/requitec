@@ -67,6 +67,8 @@ enum class Keyword : std::uint32_t {
   ASCRIBE_TYPE,
   ASCRIBE_EXPRESSION,
   ASCRIBE_ROOT_OF_VALUE,
+  INSTANTIATE_EXPRESSION_ATTRIBUTE,
+  INSTANTIATE_TYPE_ATTRIBUTE,
   // turn a string into an identifier
   IDENTIFY,
 
@@ -116,6 +118,8 @@ enum class Keyword : std::uint32_t {
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
+  AT,
+  AT_OF,
   MOVE,
   MOVE_OF,
   DESTRUCTOR,
@@ -128,16 +132,6 @@ enum class Keyword : std::uint32_t {
   POINTER,
   FAT_POINTER,
 
-  // TYPE ATTRIBUTES
-  MUTABLE,
-  CONSTANT,
-  PARTIALLY_MUTABLE,
-  VOLATILE,
-  ATOMIC,
-  NULL_TERMINATED,
-  MAY_DISCARD,
-  INDETERMINATE,
-
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
   NAMED_PARAMETERS_BEGIN,
@@ -146,20 +140,19 @@ enum class Keyword : std::uint32_t {
   TUPLE,
   INITIALIZE_LAYOUT,
   INITIALIZE_INTERPOLATED_STRING,
-  SPECIALIZATION,
+  INSTANTIATE_TEMPLATE,
 
   // PROCEDURES
   CALL,
   NAMED_ARGUMENT,
-  INDEX_INTO,
   INITIALIZE_SIGNATURE,
   DEFAULT_VALUE_PARAMETER,
   DROP,
   DROP_OF,
   DROP_EACH,
   DROP_EACH_OF,
-  RANGER,
-  REVERSE_RANGER,
+  FORWARD_RANGER,
+  BACKWARD_RANGER,
   ENTRY,
   FUNCTION,
   METHOD,
@@ -169,10 +162,6 @@ enum class Keyword : std::uint32_t {
   IMPLEMENT_METHOD,
   IMPLEMENT_EXTENSION_FUNCTION,
   IMPLEMENT_EXTENSION_METHOD,
-  SPECIALIZE_FUNCTION,
-  SPECIALIZE_METHOD,
-  SPECIALIZE_EXTENSION_FUNCTION,
-  SPECIALIZE_EXTENSION_METHOD,
 
   // CONTROL FLOW
   RETURN,
@@ -341,55 +330,153 @@ enum class Keyword : std::uint32_t {
   INFINITE_ARITHMETIC_PROGRESSION_DIVIDE,
   INFINITE_ARITHMETIC_PROGRESSION_MODULUS,
 
-  // ACCESS MODIFIERS
-  PUBLIC,
-  PROTECTED,
-  EXPORT,
-
   // TABLE GRAPH
   IMPORT,
   USE,
   NAMESPACE,
   C,
-  MODULE_TRUNK,
+  TOP,
   NO_NAME,
 
   // ERROR HANDLING AND DEBUGGING
-  DEBUG_TRAP,
+  DEBUG_BREAK,
+  ABORT,
 
   // HINTS
   UNREACHABLE,
   ASSUME,
 
   // EXPRESSION ATTRIBUTES
+  // labeling
+  NO_LABEL, // default
+  LABEL,
+  // visibility
+  TRANSPARENT, // default
   OPAQUE,
-  OUTSIDE,
-  PARTIAL_MUTATE,
+  // scope_location
+  INSIDE_SCOPE, // default
+  OUTSIDE_SCOPE,
+  // availability
+  LOCAL, // default
   GLOBAL,
+  // accessibility
+  PRIVATE, // default
+  PUBLIC,
+  PROTECTED,
+  // property mutability
+  NO_PARTIAL_MUTATE, // default
+  PARTIAL_MUTATE,
+  // exporting
+  NO_EXPORT, // default
+  EXPORT,
+  // generation_time
+  DYNAMIC, // default
   STATIC,
+  // capturing
+  NO_CAPTURE, // default
   CAPTURE,
-  CAPTURE_OF,
+  // evaluation_time
+  LAZY, // default
   EAGER,
+  // parentability
+  NO_PARENT, // default
   MAY_PARENT,
+  // property_association
+  MIXIN, // default
   PARENT,
+  // tangibiltiy
+  TANGIBLE, // default
   ABSTRACT,
   VIRTUAL,
+  // overriding
+  NO_OVERRIDE, // default
   OVERRIDE,
-  LOCATION,
+  // inlining
+  NO_INLINE, // default
   INLINE,
-  MANGLE,
+  // mangling
+  IMPLICIT_MANGLE, // default
+  EXPLICIT_MANGLE,
+  // packing
+  NO_PACK, // default
   PACK,
-  LABEL,
+  // templating
+  NO_TEMPLATE, // default
   TEMPLATE,
+  SPECIALIZE,
+  // likelyhood
+  EQUIVOCAL, // default
   LIKELY,
   UNLIKELY,
+  // support
+  SUPPORTED, // default
   DEPRECIATED,
+  EXPERIMENTAL,
+  // copyability
+  NO_COPY, // default
   MAY_COPY,
+  // address_stability
+  UNSTABLE_ADDRESS, // default
   STABLE_ADDRESS,
-  AUTO_DROP,
+  // cleanup
+  IMPLICIT_DROP, // default
+  EXPLICIT_DROP,
+  // result_status
+  NOT_OK, // default
   OK,
-  MESSAGE,
-  MESSAGE_OF,
+
+  // TYPE ATTRIBUTES
+  // mutability
+  CONSTANT, // default
+  MUTABLE,
+  PARTIALLY_MUTABLE,
+  // volatility
+  NOT_VOLATILE, // default
+  VOLATILE,
+  // determinicity
+  DETERMINATE, // default
+  INDETERMINATE,
+  // atomicity
+  NOT_ATOMIC, // default
+  ATOMIC,
+  // null_termination
+  NOT_NULL_TERMINATED, // default
+  NULL_TERMINATED,
+
+  // EXPRESSION ATTRIBUTE TYPES
+  EXPRESSION_ATTRIBUTE, // type constraint
+  LABELING,             // no_label vs label
+  VISIBILITY,           // transparent vs opaque
+  SCOPING,              // inside_scope vs outside_scope
+  AVAILABILITY,         // local vs global
+  ACCESSIBILITY,        // private vs public vs protected
+  PROPERTY_MUTABILITY,  // no_partial_mutate vs partial_mutate
+  EXPORTING,            // no_export vs export
+  GENERATION_TIME,      // dynamic vs static
+  CAPTURING,            // no_capture vs capture
+  EVALUATION_TIME,      // lazy vs eager
+  PARENTABILITY,        // no_parent vs may_parent
+  PROPERTY_ASSOCIATION, // mixin vs parent
+  TANGIBILITY,          // tangible vs abstract vs virtual
+  OVERRIDING,           // no_override vs override
+  INLINING,             // no_inline vs inline
+  MANGLING,             // implicit_mangle vs explicit_mangle
+  PACKING,              // no_pack vs pack
+  TEMPLATING,           // no_template vs template vs specialize
+  LIKELYHOOD,           // equivocal vs likely vs unlikely
+  SUPPORT,              // supported vs depreciated vs experimental
+  COPYABILITY,          // no_copy vs may_copy
+  ADDRESS_STABILITY,    // unstable_address vs stable_address
+  CLEANUP,              // explicit_drop vs implicit_drop
+  RESULT_STATUS,        // not_ok vs ok
+
+  // TYPE ATTRIBUTE TYPES
+  TYPE_ATTRIBUTE,   // type constraint
+  MUTABILITY,       // any_mutability mutable vs constant vs partially_mutable
+  VOLATILITY,       // maybe_volatile vs volatile vs not_volatile
+  DETERMINICITY,    // determinate vs indeterminate
+  ATOMICITY,        // maybe_atomic vs atomic vs not_atomic
+  NULL_TERMINATION, // null_terminated vs not_null_terminated
 
   // MACROS
   QUOTE,
@@ -405,16 +492,18 @@ enum class Keyword : std::uint32_t {
   EXPAND_REFLECTION,
   EXPAND_ARGUMENT,
   EXPAND_PARAMETER,
+  EXPAND_BINDING,
   EXPAND_NAME,
   EXPAND_NAMESPACE,
+  EXPAND_ASCRIPTION,
+  EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION,
+  EXPAND_TYPE_ATTRIBUTE_INSTANTIATION,
   EXPAND_ARITHMETIC_SEQUENCE_STAGE,
 
   // REFLECTIONS
   REFLECT,
   MEMBER_OF,
   MEMBER_OF_TOP,
-  ASCEND_FRAME,
-  ASCEND_FRAME_OF,
   IGNORE,
   IGNORE_OF,
   BYTE_SIZE,
@@ -534,6 +623,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_expression";
   case K::ASCRIBE_ROOT_OF_VALUE:
     return "_ascribe_root_of_value";
+  case K::INSTANTIATE_EXPRESSION_ATTRIBUTE:
+    return "_instantiate_expression_attribute";
+  case K::INSTANTIATE_TYPE_ATTRIBUTE:
+    return "_instantiate_type_attribute";
   case K::IDENTIFY:
     return "_identify";
 
@@ -643,24 +736,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::FAT_POINTER:
     return "_fat_pointer";
 
-  // TYPE MODIFIER
-  case K::MUTABLE:
-    return "_mutable";
-  case K::CONSTANT:
-    return "";
-  case K::PARTIALLY_MUTABLE:
-    return "partially_mutable";
-  case K::VOLATILE:
-    return "volatile";
-  case K::ATOMIC:
-    return "atomic";
-  case K::NULL_TERMINATED:
-    return "null_terminated";
-  case K::MAY_DISCARD:
-    return "may_discard";
-  case K::INDETERMINATE:
-    return "indeterminate";
-
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
     return "_positional_parameters_end";
@@ -674,16 +749,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_initialize_layout";
   case K::INITIALIZE_INTERPOLATED_STRING:
     return "_initialize_interpolated_string";
-  case K::SPECIALIZATION:
-    return "_specialization";
+  case K::INSTANTIATE_TEMPLATE:
+    return "_instantiate_template";
 
   // PROCEDURES
   case K::CALL:
     return "_call";
   case K::NAMED_ARGUMENT:
     return "_named_argument";
-  case K::INDEX_INTO:
-    return "_index_into";
+  case K::AT:
+    return "at";
+  case K::AT_OF:
+    return "_at_of";
   case K::INITIALIZE_SIGNATURE:
     return "_initialize_signature";
   case K::DEFAULT_VALUE_PARAMETER:
@@ -696,10 +773,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "drop_each";
   case K::DROP_EACH_OF:
     return "_drop_each_of";
-  case K::RANGER:
-    return "ranger";
-  case K::REVERSE_RANGER:
-    return "reverse_ranger";
+  case K::FORWARD_RANGER:
+    return "forward_ranger";
+  case K::BACKWARD_RANGER:
+    return "backward_ranger";
   case K::ENTRY:
     return "entry";
   case K::FUNCTION:
@@ -718,14 +795,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "implement_extension_function";
   case K::IMPLEMENT_EXTENSION_METHOD:
     return "implement_extension_method";
-  case K::SPECIALIZE_FUNCTION:
-    return "specialize_function";
-  case K::SPECIALIZE_METHOD:
-    return "sepcialize_method";
-  case K::SPECIALIZE_EXTENSION_FUNCTION:
-    return "specialize_extension_function";
-  case K::SPECIALIZE_EXTENSION_METHOD:
-    return "specialize_extension_method";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1027,14 +1096,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::INFINITE_ARITHMETIC_PROGRESSION_MODULUS:
     return "_infinite_arithmetic_progression_modulus";
 
-  // ACCESS MODIFIERS
-  case K::PUBLIC:
-    return "public";
-  case K::PROTECTED:
-    return "protected";
-  case K::EXPORT:
-    return "export";
-
   // TABLE GRAPH
   case K::IMPORT:
     return "import";
@@ -1044,76 +1105,220 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "namespace";
   case K::C:
     return "c";
-  case K::MODULE_TRUNK:
-    return "_module_trunk";
+  case K::TOP:
+    return "_top";
   case K::NO_NAME:
     return "no_name";
 
+  // ERROR HANDLING AND DEBUGGING
+  case K::DEBUG_BREAK:
+    return "debug_break";
+  case K::ABORT:
+    return "abort";
+
   // HINTS
-  case K::DEBUG_TRAP:
-    return "debug_trap";
   case K::UNREACHABLE:
     return "unreachable";
   case K::ASSUME:
     return "assume";
 
   // EXPRESSION ATTRIBUTES
+  case K::NO_LABEL:
+    return "no_label";
   case K::OPAQUE:
     return "opaque";
-  case K::OUTSIDE:
-    return "outside";
-  case K::PARTIAL_MUTATE:
-    return "partial_mutate";
+  case K::TRANSPARENT:
+    return "transparent";
+  case K::OUTSIDE_SCOPE:
+    return "outside_scope";
+  case K::INSIDE_SCOPE:
+    return "inside_scope";
+  case K::LOCAL:
+    return "local";
   case K::GLOBAL:
     return "global";
+  case K::PUBLIC:
+    return "public";
+  case K::PRIVATE:
+    return "private";
+  case K::PROTECTED:
+    return "protected";
+  case K::NO_PARTIAL_MUTATE:
+    return "no_partial_mutate";
+  case K::PARTIAL_MUTATE:
+    return "partial_mutate";
+  case K::EXPORT:
+    return "export";
+  case K::NO_EXPORT:
+    return "no_export";
   case K::STATIC:
     return "static";
+  case K::DYNAMIC:
+    return "dynamic";
   case K::CAPTURE:
     return "capture";
-  case K::CAPTURE_OF:
-    return "_capture_of";
+  case K::NO_CAPTURE:
+    return "no_capture";
   case K::EAGER:
     return "eager";
+  case K::LAZY:
+    return "lazy";
   case K::MAY_PARENT:
     return "may_parent";
+  case K::NO_PARENT:
+    return "no_parent";
   case K::PARENT:
     return "parent";
+  case K::MIXIN:
+    return "mixin";
+  case K::TANGIBLE:
+    return "tangible";
   case K::ABSTRACT:
     return "abstract";
   case K::VIRTUAL:
     return "virtual";
   case K::OVERRIDE:
     return "override";
-  case K::LOCATION:
-    return "location";
+  case K::NO_OVERRIDE:
+    return "no_override";
   case K::INLINE:
     return "inline";
-  case K::MANGLE:
-    return "mangle";
+  case K::NO_INLINE:
+    return "no_inline";
+  case K::EXPLICIT_MANGLE:
+    return "explicit_mangle";
+  case K::IMPLICIT_MANGLE:
+    return "implicit_mangle";
   case K::PACK:
     return "pack";
+  case K::NO_PACK:
+    return "no_pack";
   case K::LABEL:
     return "label";
   case K::TEMPLATE:
     return "template";
+  case K::NO_TEMPLATE:
+    return "no_template";
+  case K::SPECIALIZE:
+    return "specialize";
   case K::LIKELY:
     return "likely";
   case K::UNLIKELY:
     return "unlikely";
+  case K::EQUIVOCAL:
+    return "equivocal";
+  case K::SUPPORTED:
+    return "supported";
   case K::DEPRECIATED:
     return "depreciated";
+  case K::EXPERIMENTAL:
+    return "experimental";
   case K::MAY_COPY:
     return "may_copy";
+  case K::NO_COPY:
+    return "no_copy";
   case K::STABLE_ADDRESS:
     return "stable_address";
-  case K::AUTO_DROP:
-    return "auto_drop";
+  case K::UNSTABLE_ADDRESS:
+    return "unstable_address";
+  case K::IMPLICIT_DROP:
+    return "implicit_drop";
+  case K::EXPLICIT_DROP:
+    return "explicit_drop";
   case K::OK:
     return "ok";
-  case K::MESSAGE:
-    return "message";
-  case K::MESSAGE_OF:
-    return "_message_of";
+  case K::NOT_OK:
+    return "not_ok";
+
+  // TYPE ATTRIBUTES
+  case K::CONSTANT:
+    return "constant";
+  case K::MUTABLE:
+    return "mutable";
+  case K::PARTIALLY_MUTABLE:
+    return "partially_mutable";
+  case K::NOT_VOLATILE:
+    return "not_volatile";
+  case K::VOLATILE:
+    return "volatile";
+  case K::DETERMINATE:
+    return "determinate";
+  case K::INDETERMINATE:
+    return "indeterminate";
+  case K::NOT_ATOMIC:
+    return "not_atomic";
+  case K::ATOMIC:
+    return "atomic";
+  case K::NULL_TERMINATED:
+    return "null_terminated";
+  case K::NOT_NULL_TERMINATED:
+    return "not_null_terminated";
+
+  // EXPRESSION ATTRIBUTE TYPES
+  case K::EXPRESSION_ATTRIBUTE:
+    return "expression_attribute";
+  case K::LABELING:
+    return "labeling";
+  case K::VISIBILITY:
+    return "visibility";
+  case K::SCOPING:
+    return "scoping";
+  case K::AVAILABILITY:
+    return "availability";
+  case K::ACCESSIBILITY:
+    return "accessibility";
+  case K::PROPERTY_MUTABILITY:
+    return "property_mutability";
+  case K::EXPORTING:
+    return "exporting";
+  case K::GENERATION_TIME:
+    return "generation_time";
+  case K::CAPTURING:
+    return "capturing";
+  case K::EVALUATION_TIME:
+    return "evaluation_time";
+  case K::PARENTABILITY:
+    return "parentability";
+  case K::PROPERTY_ASSOCIATION:
+    return "property_association";
+  case K::TANGIBILITY:
+    return "tangibility";
+  case K::OVERRIDING:
+    return "overrideing";
+  case K::INLINING:
+    return "inlining";
+  case K::MANGLING:
+    return "mangling";
+  case K::PACKING:
+    return "packing";
+  case K::TEMPLATING:
+    return "templating";
+  case K::LIKELYHOOD:
+    return "likelyhood";
+  case K::SUPPORT:
+    return "support";
+  case K::COPYABILITY:
+    return "copyability";
+  case K::ADDRESS_STABILITY:
+    return "address_stability";
+  case K::CLEANUP:
+    return "cleanup";
+  case K::RESULT_STATUS:
+    return "result_status";
+
+  // TYPE ATTRIBUTE TYPES
+  case K::TYPE_ATTRIBUTE:
+    return "type_attribute";
+  case K::MUTABILITY:
+    return "mutability";
+  case K::VOLATILITY:
+    return "volatility";
+  case K::DETERMINICITY:
+    return "determinicity";
+  case K::ATOMICITY:
+    return "atomicity";
+  case K::NULL_TERMINATION:
+    return "null_termination";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1142,10 +1347,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_expand_argument";
   case K::EXPAND_PARAMETER:
     return "_expand_parameter";
+  case K::EXPAND_BINDING:
+    return "_expand_binding";
   case K::EXPAND_NAME:
     return "_expand_name";
   case K::EXPAND_NAMESPACE:
     return "_expand_namespace";
+  case K::EXPAND_ASCRIPTION:
+    return "_expand_ascription";
+  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
+    return "_expand_expression_attribute_instantiation";
+  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
+    return "_expand_type_attribute_instantiation";
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return "_expand_arithmetic_sequence_stage";
 
@@ -1156,10 +1369,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_member_of";
   case K::MEMBER_OF_TOP:
     return "_member_of_top";
-  case K::ASCEND_FRAME:
-    return "_ascend_frame";
-  case K::ASCEND_FRAME_OF:
-    return "_ascend_frame_of";
   case K::IGNORE:
     return "ignore";
   case K::IGNORE_OF:
@@ -1254,7 +1463,7 @@ enum class KeywordFlags : std::uint32_t {
   CONTINUING_CHAINLINK = rq::getBit(8),
   FINISHING_CHAINLINK = rq::getBit(9),
   EXPANSION = rq::getBit(10),
-  // TRUNK
+  // TOP
   STATEMENT = rq::getBit(11),
   RVALUE = rq::getBit(12),
   LVALUE = rq::getBit(13),
@@ -1269,14 +1478,15 @@ enum class KeywordFlags : std::uint32_t {
   NAME = rq::getBit(22),
   NAMESPACE = rq::getBit(23),
   ASCRIPTION = rq::getBit(24),
-  TYPE_ATTRIBUTE = rq::getBit(25),
-  EXPRESSION_ATTRIBUTE = rq::getBit(26),
+  EXPRESSION_ATTRIBUTE = rq::getBit(25),
+  TYPE_ATTRIBUTE = rq::getBit(26),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(27),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(28),
-  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | LAYOUT | SIGNATURE | STRING_INTERPOLATION | REFLECTION | ARGUMENT |
-                   PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
-                   TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
-                   ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
+  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | LAYOUT | SIGNATURE |
+                   STRING_INTERPOLATION | REFLECTION | ARGUMENT | PARAMETER |
+                   BINDING | NAME | NAMESPACE | ASCRIPTION | TYPE_ATTRIBUTE |
+                   EXPRESSION_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
+                   ARITHMETIC_SEQUENCE_CONDITION,
 
 };
 
@@ -1296,14 +1506,17 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::FLOAT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::STRING_LITERAL:
-    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT | KF::STRING_INTERPOLATION;
+    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT |
+           KF::STRING_INTERPOLATION;
   case K::LEFT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL | KF::STRING_INTERPOLATION;
+    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
+           KF::STRING_INTERPOLATION;
   case K::MIDDLE_INTERPOLATION_LITERAL:
     return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
            KF::STRING_INTERPOLATION;
   case K::RIGHT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL | KF::STRING_INTERPOLATION;
+    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL |
+           KF::STRING_INTERPOLATION;
   case K::CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::IDENTIFIER_LITERAL:
@@ -1323,8 +1536,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSITUATED_ASCRIBE_TYPE:
-    return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
-           KF::ASCRIPTION;
+    return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER |
+           KF::REFLECTION | KF::ASCRIPTION;
   case K::UNSITUATED_ASCRIBE_EXPRESSION:
     return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
 
@@ -1358,12 +1571,16 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;
   case K::ASCRIBE_TYPE:
-    return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
-           KF::ASCRIPTION;
+    return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER |
+           KF::REFLECTION | KF::ASCRIPTION;
   case K::ASCRIBE_EXPRESSION:
     return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
   case K::ASCRIBE_ROOT_OF_VALUE:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
+  case K::INSTANTIATE_EXPRESSION_ATTRIBUTE:
+    return KF::NONE; // EXPRESSION_ATTRIBUTE_INSTANTIATION
+  case K::INSTANTIATE_TYPE_ATTRIBUTE:
+    return KF::NONE; // TYPE_ATTRIBUTE_INSTANTIATION
   case K::IDENTIFY:
     return KF::NAME | KF::RVALUE | KF::ARGUMENT | KF::NAMESPACE;
 
@@ -1452,6 +1669,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::AT:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::AT_OF:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::MOVE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::MOVE_OF:
@@ -1473,24 +1694,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::FAT_POINTER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
-  // TYPE MODIFIER
-  case K::MUTABLE:
-    return KF::TYPE_ATTRIBUTE;
-  case K::CONSTANT:
-    return KF::TYPE_ATTRIBUTE;
-  case K::PARTIALLY_MUTABLE:
-    return KF::TYPE_ATTRIBUTE;
-  case K::VOLATILE:
-    return KF::TYPE_ATTRIBUTE;
-  case K::ATOMIC:
-    return KF::TYPE_ATTRIBUTE;
-  case K::NULL_TERMINATED:
-    return KF::TYPE_ATTRIBUTE;
-  case K::MAY_DISCARD:
-    return KF::TYPE_ATTRIBUTE;
-  case K::INDETERMINATE:
-    return KF::TYPE_ATTRIBUTE;
-
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
     return KF::PARAMETER;
@@ -1503,8 +1706,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INITIALIZE_LAYOUT:
     return KF::LAYOUT;
   case K::INITIALIZE_INTERPOLATED_STRING:
-    return KF::RVALUE | KF::ARGUMENT;    
-  case K::SPECIALIZATION:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::INSTANTIATE_TEMPLATE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // PROCEDURES
@@ -1512,8 +1715,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::NAMED_ARGUMENT:
     return KF::ARGUMENT;
-  case K::INDEX_INTO:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::INITIALIZE_SIGNATURE:
     return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
@@ -1526,9 +1727,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DROP_EACH_OF:
     return KF::RVALUE;
-  case K::RANGER:
+  case K::FORWARD_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::REVERSE_RANGER:
+  case K::BACKWARD_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENTRY:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
@@ -1547,14 +1748,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::IMPLEMENT_EXTENSION_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_EXTENSION_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPECIALIZE_FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPECIALIZE_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPECIALIZE_EXTENSION_FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPECIALIZE_EXTENSION_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // CONTROL FLOW
@@ -1665,7 +1858,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::UNSIGNED_ADDRESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INTERPOLATED_STRING:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;    
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CODEUNIT:
@@ -1723,7 +1916,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::SPIN:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
   case K::WEAVE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT_BRANCHES | KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT_BRANCHES |
+           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::SCOPE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::INLINE_SCOPE:
@@ -1861,14 +2055,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INFINITE_ARITHMETIC_PROGRESSION_MODULUS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
-  // ACCESS MODIFIERS
-  case K::PUBLIC:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::PROTECTED:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::EXPORT:
-    return KF::EXPRESSION_ATTRIBUTE;
-
   // TABLE GRAPH
   case K::IMPORT:
     return KF::STATEMENT;
@@ -1878,78 +2064,220 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::C:
     return KF::RVALUE;
-  case K::MODULE_TRUNK:
-    return KF::STATEMENT_BRANCHES | KF::NONE; // TRUNK
+  case K::TOP:
+    return KF::STATEMENT_BRANCHES | KF::NONE; // TOP
   case K::NO_NAME:
     return KF::NAME;
 
-  // HINTS
-  case K::DEBUG_TRAP:
+  // ERROR HANDLING AND DEBUGGING
+  case K::DEBUG_BREAK:
     return KF::STATEMENT;
+  case K::ABORT:
+    return KF::STATEMENT;
+
+    // HINTS
   case K::UNREACHABLE:
     return KF::STATEMENT;
   case K::ASSUME:
     return KF::STATEMENT;
 
   // EXPRESSION ATTRIBUTES
+  case K::NO_LABEL:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::OPAQUE:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::OUTSIDE:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::PARTIAL_MUTATE:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::TRANSPARENT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::OUTSIDE_SCOPE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::INSIDE_SCOPE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::LOCAL:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::GLOBAL:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PUBLIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PRIVATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PROTECTED:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_PARTIAL_MUTATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PARTIAL_MUTATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EXPORT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_EXPORT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STATIC:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::DYNAMIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::CAPTURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::REFLECTION | KF::UNIVERSALIZABLE |
-           KF::RVALUE;
-  case K::CAPTURE_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_CAPTURE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EAGER:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::LAZY:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::MAY_PARENT:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_PARENT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARENT:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::MIXIN:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::TANGIBLE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ABSTRACT:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VIRTUAL:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::OVERRIDE:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::LOCATION:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_OVERRIDE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::MANGLE:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_INLINE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EXPLICIT_MANGLE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::IMPLICIT_MANGLE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_PACK:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LABEL:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::TEMPLATE:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_TEMPLATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::SPECIALIZE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LIKELY:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNLIKELY:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EQUIVOCAL:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::SUPPORTED:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::DEPRECIATED:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EXPERIMENTAL:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::MAY_COPY:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_COPY:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STABLE_ADDRESS:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::AUTO_DROP:
-    return KF::EXPRESSION_ATTRIBUTE;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::UNSTABLE_ADDRESS:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::IMPLICIT_DROP:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EXPLICIT_DROP:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::OK:
-    return KF::EXPRESSION_ATTRIBUTE;
-  case K::MESSAGE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::REFLECTION | KF::UNIVERSALIZABLE |
-           KF::RVALUE;
-  case K::MESSAGE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NOT_OK:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+
+  // TYPE ATTRIBUTES
+  case K::CONSTANT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::MUTABLE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PARTIALLY_MUTABLE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NOT_VOLATILE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::VOLATILE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::DETERMINATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::INDETERMINATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NOT_ATOMIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::ATOMIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NULL_TERMINATED:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NOT_NULL_TERMINATED:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+
+  // EXPRESSION ATTRIBUTE TYPES
+  case K::EXPRESSION_ATTRIBUTE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LABELING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::VISIBILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SCOPING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::AVAILABILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ACCESSIBILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::PROPERTY_MUTABILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::EXPORTING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::GENERATION_TIME:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CAPTURING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::EVALUATION_TIME:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::PARENTABILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::PROPERTY_ASSOCIATION:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::TANGIBILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::OVERRIDING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::INLINING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::MANGLING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::PACKING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::TEMPLATING:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LIKELYHOOD:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SUPPORT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::COPYABILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ADDRESS_STABILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CLEANUP:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::RESULT_STATUS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+
+  // TYPE ATTRIBUTE TYPES
+  case K::TYPE_ATTRIBUTE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::MUTABILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::VOLATILITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::DETERMINICITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ATOMICITY:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::NULL_TERMINATION:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1978,10 +2306,18 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::ARGUMENT | KF::EXPANSION;
   case K::EXPAND_PARAMETER:
     return KF::PARAMETER | KF::EXPANSION;
+  case K::EXPAND_BINDING:
+    return KF::BINDING | KF::EXPANSION;
   case K::EXPAND_NAME:
     return KF::NAME | KF::EXPANSION;
   case K::EXPAND_NAMESPACE:
     return KF::NAMESPACE | KF::EXPANSION;
+  case K::EXPAND_ASCRIPTION:
+    return KF::ASCRIPTION | KF::EXPANSION;
+  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
+    return KF::EXPANSION;
+  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
+    return KF::EXPANSION;
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
            KF::EXPANSION;
@@ -1994,10 +2330,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MEMBER_OF_TOP:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ASCEND_FRAME:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ASCEND_FRAME_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::IGNORE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2171,9 +2503,20 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::EXPANSION);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::TYPE_ATTRIBUTE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsExpressionAttribute(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::EXPRESSION_ATTRIBUTE);
+}
+
 enum class Situation : std::uint_fast8_t {
   NONE,
-  TRUNK,
+  TOP,
   STATEMENT,
   LVALUE,
   RVALUE,
@@ -2188,8 +2531,8 @@ enum class Situation : std::uint_fast8_t {
   NAME,
   NAMESPACE,
   ASCRIPTION,
-  TYPE_ATTRIBUTE,
-  EXPRESSION_ATTRIBUTE,
+  EXPRESSION_ATTRIBUTE_INSTANTIATION,
+  TYPE_ATTRIBUTE_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE
 };
 
@@ -2200,8 +2543,8 @@ getDescription(rq::Situation situation) {
   switch (situation) {
   case S::NONE:
     return "no expression";
-  case S::TRUNK:
-    return "trunk expression";
+  case S::TOP:
+    return "top expression";
   case S::STATEMENT:
     return "statement";
   case S::LVALUE:
@@ -2230,10 +2573,10 @@ getDescription(rq::Situation situation) {
     return "namespace expression";
   case S::ASCRIPTION:
     return "ascription expression";
-  case S::TYPE_ATTRIBUTE:
-    return "type attribute";
-  case S::EXPRESSION_ATTRIBUTE:
-    return "symbol attribute";
+  case S::EXPRESSION_ATTRIBUTE_INSTANTIATION:
+    return "expression attribute instantiation";
+  case S::TYPE_ATTRIBUTE_INSTANTIATION:
+    return "type attribute instantiation";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
   }
@@ -2246,7 +2589,8 @@ getDescription(rq::Situation situation) {
   using S = Situation;
   switch (situation) {
   case S::NONE:
-  case S::TRUNK:
+    break;
+  case S::TOP:
     break;
   case S::STATEMENT:
     return K::EXPAND_STATEMENT;
@@ -2269,15 +2613,17 @@ getDescription(rq::Situation situation) {
   case S::PARAMETER:
     return K::EXPAND_PARAMETER;
   case S::BINDING:
-    break;
+    return K::EXPAND_BINDING;
   case S::NAME:
     return K::EXPAND_NAME;
   case S::NAMESPACE:
-    return K::EXPAND_NAMESPACE;
+    return K::EXPAND_NAME;
   case S::ASCRIPTION:
-  case S::TYPE_ATTRIBUTE:
-  case S::EXPRESSION_ATTRIBUTE:
-    break;
+    return K::EXPAND_ASCRIPTION;
+  case S::EXPRESSION_ATTRIBUTE_INSTANTIATION:
+    return K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION;
+  case S::TYPE_ATTRIBUTE_INSTANTIATION:
+    return K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION;
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return K::EXPAND_ARITHMETIC_SEQUENCE_STAGE;
   }
@@ -2289,8 +2635,6 @@ getDescription(rq::Situation situation) {
   using K = Keyword;
   using S = Situation;
   switch (keyword) {
-  case K::EXPAND:
-    return S::NONE;
   case K::EXPAND_STATEMENT:
     return S::STATEMENT;
   case K::EXPAND_LVALUE:
@@ -2299,6 +2643,8 @@ getDescription(rq::Situation situation) {
     return S::RVALUE;
   case K::EXPAND_TUPLE:
     return S::TUPLE;
+  case K::EXPAND_LAYOUT:
+    return S::LAYOUT;
   case K::EXPAND_SIGNATURE:
     return S::SIGNATURE;
   case K::EXPAND_STRING_INTERPOLATION:
@@ -2309,10 +2655,18 @@ getDescription(rq::Situation situation) {
     return S::ARGUMENT;
   case K::EXPAND_PARAMETER:
     return S::PARAMETER;
+  case K::EXPAND_BINDING:
+    return S::BINDING;
   case K::EXPAND_NAME:
     return S::NAME;
   case K::EXPAND_NAMESPACE:
     return S::NAMESPACE;
+  case K::EXPAND_ASCRIPTION:
+    return S::ASCRIPTION;
+  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
+    return S::EXPRESSION_ATTRIBUTE_INSTANTIATION;
+  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
+    return S::TYPE_ATTRIBUTE_INSTANTIATION;
   case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
     return S::ARITHMETIC_SEQUENCE_STAGE;
   default:
@@ -2352,6 +2706,8 @@ getDescription(rq::Situation situation) {
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
+  case K::AT:
+    return K::AT_OF;
   case K::MOVE:
     return K::MOVE_OF;
   case K::DESTROY:
@@ -2376,11 +2732,6 @@ getDescription(rq::Situation situation) {
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);
-  // EXPRESSION ATTRIBUTES
-  case K::CAPTURE:
-    return K::CAPTURE_OF;
-  case K::MESSAGE:
-    return K::MESSAGE_OF;
   // REFLECTIONS
   case K::IGNORE:
     return K::IGNORE_OF;
@@ -2424,18 +2775,19 @@ getDescription(rq::Situation situation) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::Situation getAttributeSituation(rq::Keyword keyword) {
+[[nodiscard]] inline rq::Situation
+getAttributeInstantiationSituation(rq::Keyword keyword) {
   switch (keyword) {
   case rq::Keyword::UNSITUATED_ASCRIBE_EXPRESSION:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_EXPRESSION:
-    return rq::Situation::EXPRESSION_ATTRIBUTE;
+    return rq::Situation::EXPRESSION_ATTRIBUTE_INSTANTIATION;
   case rq::Keyword::UNSITUATED_ASCRIBE_TYPE:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_TYPE:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_ROOT_OF_VALUE:
-    return rq::Situation::TYPE_ATTRIBUTE;
+    return rq::Situation::TYPE_ATTRIBUTE_INSTANTIATION;
   default:
     break;
   }
@@ -2446,8 +2798,8 @@ getDescription(rq::Situation situation) {
   return keyword == rq::Keyword::NONE;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTrunk(rq::Keyword keyword) {
-  return keyword == rq::Keyword::MODULE_TRUNK;
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTop(rq::Keyword keyword) {
+  return keyword == rq::Keyword::TOP;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatement(rq::Keyword keyword) {
@@ -2480,7 +2832,8 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordFlags::SIGNATURE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStringInterpolation(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeStringInterpolation(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::STRING_INTERPOLATION);
 }
@@ -2520,15 +2873,14 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordFlags::ASCRIPTION);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTypeAttribute(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::TYPE_ATTRIBUTE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeExpressionAttributeInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_EXPRESSION_ATTRIBUTE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeExpressionAttribute(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::EXPRESSION_ATTRIBUTE);
+getCanBeTypeAttributeInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_TYPE_ATTRIBUTE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2555,8 +2907,8 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   switch (situation) {
   case rq::Situation::NONE:
     return rq::getIsNone(keyword);
-  case rq::Situation::TRUNK:
-    return rq::getCanBeTrunk(keyword);
+  case rq::Situation::TOP:
+    return rq::getCanBeTop(keyword);
   case rq::Situation::STATEMENT:
     return rq::getCanBeStatement(keyword);
   case rq::Situation::LVALUE:
@@ -2585,10 +2937,10 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeNamespace(keyword);
   case rq::Situation::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
-  case rq::Situation::TYPE_ATTRIBUTE:
-    return rq::getCanBeTypeAttribute(keyword);
-  case rq::Situation::EXPRESSION_ATTRIBUTE:
-    return rq::getCanBeExpressionAttribute(keyword);
+  case rq::Situation::TYPE_ATTRIBUTE_INSTANTIATION:
+    return rq::getCanBeTypeAttributeInstantiation(keyword);
+  case rq::Situation::EXPRESSION_ATTRIBUTE_INSTANTIATION:
+    return rq::getCanBeExpressionAttributeInstantiation(keyword);
   case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceStage(keyword);
   }
@@ -2620,34 +2972,58 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 
 enum class ExpressionAttribute : std::uint_fast8_t {
   NONE,
+  TRANSPARENT,
   OPAQUE,
-  OUTSIDE,
-  PARTIAL_MUTATE,
+  INSIDE_SCOPE,
+  OUTSIDE_SCOPE,
+  LOCAL,
   GLOBAL,
-  STATIC,
-  CAPTURE,
-  EAGER,
-  MAY_PARENT,
-  PARENT,
-  ABSTRACT,
-  VIRTUAL,
-  OVERRIDE,
-  LOCATION,
-  MANGLE,
-  PACK,
-  LABEL,
-  TEMPLATE,
-  LIKELY,
-  UNLIKELY,
-  DEPRECIATED,
-  EXPORT,
+  PRIVATE,
   PUBLIC,
   PROTECTED,
+  NO_PARTIAL_MUTATE,
+  PARTIAL_MUTATE,
+  NO_EXPORT,
+  EXPORT,
+  DYNAMIC,
+  STATIC,
+  NO_CAPTURE,
+  CAPTURE,
+  LAZY,
+  EAGER,
+  NO_PARENT,
+  MAY_PARENT,
+  MIXIN,
+  PARENT,
+  TANGIBLE,
+  ABSTRACT,
+  VIRTUAL,
+  NO_OVERRIDE,
+  OVERRIDE,
+  NO_INLINE,
+  INLINE,
+  IMPLICIT_MANGLE,
+  EXPLICIT_MANGLE,
+  NO_PACK,
+  PACK,
+  LABEL,
+  NO_TEMPLATE,
+  TEMPLATE,
+  SPECIALIZE,
+  EQUIVOCAL,
+  LIKELY,
+  UNLIKELY,
+  SUPPORTED,
+  DEPRECIATED,
+  EXPERIMENTAL,
+  NO_COPY,
   MAY_COPY,
+  UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  AUTO_DROP,
+  EXPLICIT_DROP,
+  IMPLICIT_DROP,
+  NOT_OK,
   OK,
-  MESSAGE,
   LAST
 };
 
@@ -2658,62 +3034,116 @@ getName(rq::ExpressionAttribute attribute) {
   switch (attribute) {
   case EA::NONE:
     return "none";
+  case EA::TRANSPARENT:
+    return "transparent";
   case EA::OPAQUE:
     return "opaque";
-  case EA::OUTSIDE:
-    return "outside";
-  case EA::PARTIAL_MUTATE:
-    return "partial_mutate";
+  case EA::INSIDE_SCOPE:
+    return "inside_scope";
+  case EA::OUTSIDE_SCOPE:
+    return "outside_scope";
   case EA::GLOBAL:
     return "global";
-  case EA::STATIC:
-    return "static";
-  case EA::CAPTURE:
-    return "capture";
-  case EA::EAGER:
-    return "eager";
-  case EA::MAY_PARENT:
-    return "may_parent";
-  case EA::PARENT:
-    return "parent";
-  case EA::ABSTRACT:
-    return "abstract";
-  case EA::VIRTUAL:
-    return "virtual";
-  case EA::OVERRIDE:
-    return "override";
-  case EA::LOCATION:
-    return "location";
-  case EA::MANGLE:
-    return "mangle";
-  case EA::PACK:
-    return "pack";
-  case EA::LABEL:
-    return "label";
-  case EA::TEMPLATE:
-    return "template";
-  case EA::LIKELY:
-    return "likely";
-  case EA::UNLIKELY:
-    return "unlikely";
-  case EA::DEPRECIATED:
-    return "depreciated";
-  case EA::EXPORT:
-    return "export";
+  case EA::LOCAL:
+    return "local";
+  case EA::PRIVATE:
+    return "private";
   case EA::PUBLIC:
     return "public";
   case EA::PROTECTED:
     return "protected";
+  case EA::NO_PARTIAL_MUTATE:
+    return "no_partial_mutate";
+  case EA::PARTIAL_MUTATE:
+    return "partial_mutate";
+  case EA::NO_EXPORT:
+    return "no_export";
+  case EA::EXPORT:
+    return "export";
+  case EA::DYNAMIC:
+    return "dynamic";
+  case EA::STATIC:
+    return "static";
+  case EA::NO_CAPTURE:
+    return "no_capture";
+  case EA::CAPTURE:
+    return "capture";
+  case EA::LAZY:
+    return "lazy";
+  case EA::EAGER:
+    return "eager";
+  case EA::NO_PARENT:
+    return "no_parent";
+  case EA::MAY_PARENT:
+    return "may_parent";
+  case EA::MIXIN:
+    return "mixin";
+  case EA::PARENT:
+    return "parent";
+
+  case EA::TANGIBLE:
+    return "tangible";
+  case EA::ABSTRACT:
+    return "abstract";
+  case EA::VIRTUAL:
+    return "virtual";
+  case EA::NO_OVERRIDE:
+    return "no_override";
+  case EA::OVERRIDE:
+    return "override";
+  case EA::NO_INLINE:
+    return "no_inline";
+  case EA::INLINE:
+    return "inline";
+  case EA::IMPLICIT_MANGLE:
+    return "implicit_mangle";
+  case EA::EXPLICIT_MANGLE:
+    return "explicit_mangle";
+  case EA::NO_PACK:
+    return "no_pack";
+  case EA::PACK:
+    return "pack";
+
+  case EA::LABEL:
+    return "label";
+  case EA::NO_TEMPLATE:
+    return "no_template";
+  case EA::TEMPLATE:
+    return "template";
+  case EA::SPECIALIZE:
+    return "specialize";
+  case EA::EQUIVOCAL:
+    return "equivocal";
+  case EA::LIKELY:
+    return "likely";
+  case EA::UNLIKELY:
+    return "unlikely";
+
+  case EA::SUPPORTED:
+    return "supported";
+  case EA::DEPRECIATED:
+    return "depreciated";
+  case EA::EXPERIMENTAL:
+    return "experimental";
+  case EA::NO_COPY:
+    return "no_copy";
   case EA::MAY_COPY:
     return "may_copy";
+  case EA::UNSTABLE_ADDRESS:
+    return "unstable_address";
+
   case EA::STABLE_ADDRESS:
-    return "STABLE_ADDRESS";
-  case EA::AUTO_DROP:
-    return "auto_drop";
+    return "stable_address";
+  case EA::EXPLICIT_DROP:
+    return "explicit_drop";
+
+  case EA::IMPLICIT_DROP:
+    return "implicit_drop";
+  case EA::NOT_OK:
+    return "not_ok";
   case EA::OK:
     return "ok";
-  case EA::MESSAGE:
-    return "message";
+
   case EA::LAST:
     break;
   }
@@ -2726,98 +3156,242 @@ getExpressionAttribute(rq::Keyword keyword) {
   using K = Keyword;
   using EA = ExpressionAttribute;
   switch (keyword) {
+  case K::NO_LABEL:
+    return EA::NONE;
   case K::OPAQUE:
     return EA::OPAQUE;
-  case K::OUTSIDE:
-    return EA::OUTSIDE;
-  case K::PARTIAL_MUTATE:
-    return EA::PARTIAL_MUTATE;
+  case K::TRANSPARENT:
+    return EA::TRANSPARENT;
+  case K::OUTSIDE_SCOPE:
+    return EA::OUTSIDE_SCOPE;
+  case K::INSIDE_SCOPE:
+    return EA::INSIDE_SCOPE;
+  case K::LOCAL:
+    return EA::LOCAL;
   case K::GLOBAL:
     return EA::GLOBAL;
+  case K::PUBLIC:
+    return EA::PUBLIC;
+  case K::PRIVATE:
+    return EA::PRIVATE;
+  case K::PROTECTED:
+    return EA::PROTECTED;
+  case K::EXPORT:
+    return EA::EXPORT;
+  case K::NO_EXPORT:
+    return EA::NO_EXPORT;
   case K::STATIC:
     return EA::STATIC;
+  case K::DYNAMIC:
+    return EA::DYNAMIC;
   case K::CAPTURE:
     return EA::CAPTURE;
+  case K::NO_CAPTURE:
+    return EA::NO_CAPTURE;
   case K::EAGER:
     return EA::EAGER;
+  case K::LAZY:
+    return EA::LAZY;
   case K::MAY_PARENT:
     return EA::MAY_PARENT;
+  case K::NO_PARENT:
+    return EA::NO_PARENT;
   case K::PARENT:
     return EA::PARENT;
+  case K::MIXIN:
+    return EA::MIXIN;
+  case K::TANGIBLE:
+    return EA::TANGIBLE;
   case K::ABSTRACT:
     return EA::ABSTRACT;
   case K::VIRTUAL:
     return EA::VIRTUAL;
   case K::OVERRIDE:
     return EA::OVERRIDE;
-  case K::LOCATION:
-    return EA::LOCATION;
-  case K::MANGLE:
-    return EA::MANGLE;
+  case K::NO_OVERRIDE:
+    return EA::NO_OVERRIDE;
+  case K::INLINE:
+    return EA::INLINE;
+  case K::NO_INLINE:
+    return EA::NO_INLINE;
+  case K::EXPLICIT_MANGLE:
+    return EA::EXPLICIT_MANGLE;
+  case K::IMPLICIT_MANGLE:
+    return EA::IMPLICIT_MANGLE;
   case K::PACK:
     return EA::PACK;
+  case K::NO_PACK:
+    return EA::NO_PACK;
   case K::LABEL:
     return EA::LABEL;
   case K::TEMPLATE:
     return EA::TEMPLATE;
+  case K::NO_TEMPLATE:
+    return EA::NO_TEMPLATE;
+  case K::SPECIALIZE:
+    return EA::SPECIALIZE;
   case K::LIKELY:
     return EA::LIKELY;
   case K::UNLIKELY:
     return EA::UNLIKELY;
+  case K::EQUIVOCAL:
+    return EA::EQUIVOCAL;
+  case K::SUPPORTED:
+    return EA::SUPPORTED;
   case K::DEPRECIATED:
     return EA::DEPRECIATED;
-  case K::EXPORT:
-    return EA::EXPORT;
-  case K::PUBLIC:
-    return EA::PUBLIC;
-  case K::PROTECTED:
-    return EA::PROTECTED;
+  case K::EXPERIMENTAL:
+    return EA::EXPERIMENTAL;
   case K::MAY_COPY:
     return EA::MAY_COPY;
+  case K::NO_COPY:
+    return EA::NO_COPY;
   case K::STABLE_ADDRESS:
     return EA::STABLE_ADDRESS;
-  case K::AUTO_DROP:
-    return EA::AUTO_DROP;
+  case K::UNSTABLE_ADDRESS:
+    return EA::UNSTABLE_ADDRESS;
+  case K::IMPLICIT_DROP:
+    return EA::IMPLICIT_DROP;
+  case K::EXPLICIT_DROP:
+    return EA::EXPLICIT_DROP;
   case K::OK:
     return EA::OK;
-  case K::MESSAGE:
-    return EA::MESSAGE;
+  case K::NOT_OK:
+    return EA::NOT_OK;
   default:
     break;
   }
   return EA::NONE;
 }
 
-enum class ExpressionFlags : std::uint32_t {
+enum class ExpressionFlags : std::uint64_t {
   NONE = 0,
-  OPAQUE = rq::getBit(31),
-  OUTSIDE = rq::getBit(30),
-  PARTIAL_MUTATE = rq::getBit(29),
-  GLOBAL = rq::getBit(28),
-  STATIC = rq::getBit(27),
-  CAPTURE = rq::getBit(26),
-  EAGER = rq::getBit(25),
-  MAY_PARENT = rq::getBit(24),
-  PARENT = rq::getBit(23),
-  ABSTRACT = rq::getBit(22),
-  VIRTUAL = rq::getBit(21),
-  OVERRIDE = rq::getBit(20),
-  LOCATION = rq::getBit(19),
-  MANGLE = rq::getBit(18),
-  PACK = rq::getBit(17),
-  LABEL = rq::getBit(16),
-  TEMPLATE = rq::getBit(15),
-  LIKELY = rq::getBit(14),
-  UNLIKELY = rq::getBit(13),
-  DEPRECIATED = rq::getBit(12),
-  EXPORT = rq::getBit(11),
-  PUBLIC = rq::getBit(10),
-  PROTECTED = rq::getBit(9),
-  MAY_COPY = rq::getBit(8),
-  STABLE_ADDRESS = rq::getBit(7),
-  AUTO_DROP = rq::getBit(6),
-  OK = rq::getBit(5),
-  MESSAGE = rq::getBit(4)
+  // labeling
+  // no_label (default)
+  LABEL = rq::getBit(0),
+
+  // visibility
+  // transparent (default)
+  OPAQUE = rq::getBit(1),
+
+  // scope_location
+  // inside_scope (default)
+  OUTSIDE_SCOPE = rq::getBit(2),
+
+  // availability
+  // local (default)
+  GLOBAL = rq::getBit(3),
+
+  // accessibility
+  // private (default)
+  PUBLIC = rq::getBit(4),
+  PROTECTED = rq::getBit(5),
+
+  // property mutability
+  // no_partial_mutate (default)
+  PARTIAL_MUTATE = rq::getBit(6),
+
+  // exporting
+  // no_export (default)
+  EXPORT = rq::getBit(7),
+
+  // generation_time
+  // dynamic (default)
+  STATIC = rq::getBit(8),
+
+  // capturing
+  // no_capture (default)
+  CAPTURE = rq::getBit(9),
+
+  // evaluation_time
+  // lazy (default)
+  EAGER = rq::getBit(10),
+
+  // parentability
+  // no_parent (default)
+  MAY_PARENT = rq::getBit(11),
+
+  // property_association
+  // mixin (default)
+  PARENT = rq::getBit(12),
+
+  // tangibility
+  // tangible (default)
+  ABSTRACT = rq::getBit(13),
+  VIRTUAL = rq::getBit(14),
+
+  // overriding
+  // no_override (default)
+  OVERRIDE = rq::getBit(15),
+
+  // inlining
+  // no_inline (default)
+  INLINE = rq::getBit(16),
+
+  // mangling
+  // implicit_mangle (default)
+  EXPLICIT_MANGLE = rq::getBit(17),
+
+  // packing
+  // no_pack (default)
+  PACK = rq::getBit(18),
+
+  // templating
+  // no_template (default)
+  TEMPLATE = rq::getBit(19),
+  SPECIALIZE = rq::getBit(20),
+
+  // likelihood
+  // equivocal (default)
+  LIKELY = rq::getBit(21),
+  UNLIKELY = rq::getBit(22),
+
+  // support
+  // supported (default)
+  DEPRECIATED = rq::getBit(23),
+  EXPERIMENTAL = rq::getBit(24),
+
+  // copyability
+  // no_copy (default)
+  MAY_COPY = rq::getBit(25),
+
+  // address_stability
+  // unstable_address (default)
+  STABLE_ADDRESS = rq::getBit(26),
+
+  // cleanup
+  // implicit_drop (default)
+  EXPLICIT_DROP = rq::getBit(27),
+
+  // result_status
+  // not_ok (default)
+  OK = rq::getBit(28),
+
+  LABELING = LABEL,                     // no_label vs label
+  VISIBILITY = OPAQUE,                  // transparent vs opaque
+  SCOPE_LOCATION = OUTSIDE_SCOPE,       // inside_scope vs outside_scope
+  AVAILABILITY = GLOBAL,                // local vs global
+  ACCESSIBILITY = PUBLIC | PROTECTED,   // private vs public vs protected
+  PROPERTY_MUTABILITY = PARTIAL_MUTATE, // no_partial_mutate vs partial_mutate
+  EXPORTING = EXPORT,                   // no_export vs export
+  GENERATION_TIME = STATIC,             // dynamic vs static
+  CAPTURING = CAPTURE,                  // no_capture vs capture
+  EVALUATION_TIME = EAGER,              // lazy vs eager
+  PARENTABILITY = MAY_PARENT,           // no_parent vs may_parent
+  PROPERTY_ASSOCIATION = PARENT,        // mixin vs parent
+  TANGIBILITY = ABSTRACT | VIRTUAL,     // tangible vs abstract vs virtual
+  OVERRIDING = OVERRIDE,                // no_override vs override
+  INLINING = INLINE,                    // no_inline vs inline
+  MANGLING = EXPLICIT_MANGLE,           // implicit_mangle vs explicit_mangle
+  PACKING = PACK,                       // no_pack vs pack
+  TEMPLATING = TEMPLATE | SPECIALIZE,   // no_template vs template vs specialize
+  LIKELYHOOD = LIKELY | UNLIKELY,       // equivocal vs likely vs unlikely
+  SUPPORT =
+      DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
+  COPYABILITY = MAY_COPY,         // no_copy vs may_copy
+  ADDRESS_STABILITY = STABLE_ADDRESS, // unstable_address vs stable_address
+  CLEANUP = EXPLICIT_DROP,            // implicit_drop vs explicit_drop
+  RESULT_STATUS = OK                  // not_ok vs ok
 };
 
 template <> struct is_flags<ExpressionFlags> : std::true_type {};
@@ -2830,152 +3404,207 @@ getFlags(rq::ExpressionAttribute attribute) {
   switch (attribute) {
   case EA::NONE:
     return EF::NONE;
-  case EA::OPAQUE:
-    return EF::OPAQUE;
-  case EA::OUTSIDE:
-    return EF::OUTSIDE;
-  case EA::PARTIAL_MUTATE:
-    return EF::PARTIAL_MUTATE;
-  case EA::GLOBAL:
-    return EF::GLOBAL;
-  case EA::STATIC:
-    return EF::STATIC;
-  case EA::CAPTURE:
-    return EF::CAPTURE;
-  case EA::EAGER:
-    return EF::EAGER;
-  case EA::MAY_PARENT:
-    return EF::MAY_PARENT;
-  case EA::PARENT:
-    return EF::PARENT;
-  case EA::ABSTRACT:
-    return EF::ABSTRACT;
-  case EA::VIRTUAL:
-    return EF::VIRTUAL;
-  case EA::OVERRIDE:
-    return EF::OVERRIDE;
-  case EA::LOCATION:
-    return EF::LOCATION;
-  case EA::MANGLE:
-    return EF::MANGLE;
-  case EA::PACK:
-    return EF::PACK;
+
+  // labeling
   case EA::LABEL:
     return EF::LABEL;
-  case EA::TEMPLATE:
-    return EF::TEMPLATE;
-  case EA::LIKELY:
-    return EF::LIKELY;
-  case EA::UNLIKELY:
-    return EF::UNLIKELY;
-  case EA::DEPRECIATED:
-    return EF::DEPRECIATED;
-  case EA::EXPORT:
-    return EF::EXPORT;
+
+  // visibility
+  case EA::TRANSPARENT:
+    return EF::NONE;
+  case EA::OPAQUE:
+    return EF::OPAQUE;
+
+  // scope_location
+  case EA::INSIDE_SCOPE:
+    return EF::NONE;
+  case EA::OUTSIDE_SCOPE:
+    return EF::OUTSIDE_SCOPE;
+
+  // availability
+  case EA::LOCAL:
+    return EF::NONE;
+  case EA::GLOBAL:
+    return EF::GLOBAL;
+
+  // accessibility
+  case EA::PRIVATE:
+    return EF::NONE;
   case EA::PUBLIC:
     return EF::PUBLIC;
   case EA::PROTECTED:
     return EF::PROTECTED;
+
+  // property mutability
+  case EA::NO_PARTIAL_MUTATE:
+    return EF::NONE;
+  case EA::PARTIAL_MUTATE:
+    return EF::PARTIAL_MUTATE;
+
+  // exporting
+  case EA::NO_EXPORT:
+    return EF::NONE;
+  case EA::EXPORT:
+    return EF::EXPORT;
+
+  // generation_time
+  case EA::DYNAMIC:
+    return EF::NONE;
+  case EA::STATIC:
+    return EF::STATIC;
+
+  // capturing
+  case EA::NO_CAPTURE:
+    return EF::NONE;
+  case EA::CAPTURE:
+    return EF::CAPTURE;
+
+  // evaluation_time
+  case EA::LAZY:
+    return EF::NONE;
+  case EA::EAGER:
+    return EF::EAGER;
+
+  // parentability
+  case EA::NO_PARENT:
+    return EF::NONE;
+  case EA::MAY_PARENT:
+    return EF::MAY_PARENT;
+
+  // property_association
+  case EA::MIXIN:
+    return EF::NONE;
+  case EA::PARENT:
+    return EF::PARENT;
+
+  // tangibility
+  case EA::TANGIBLE:
+    return EF::NONE;
+  case EA::ABSTRACT:
+    return EF::ABSTRACT;
+  case EA::VIRTUAL:
+    return EF::VIRTUAL;
+
+  // overriding
+  case EA::NO_OVERRIDE:
+    return EF::NONE;
+  case EA::OVERRIDE:
+    return EF::OVERRIDE;
+
+  // inlining
+  case EA::NO_INLINE:
+    return EF::NONE;
+  case EA::INLINE:
+    return EF::INLINE;
+
+  // mangling
+  case EA::IMPLICIT_MANGLE:
+    return EF::NONE;
+  case EA::EXPLICIT_MANGLE:
+    return EF::EXPLICIT_MANGLE;
+
+  // packing
+  case EA::NO_PACK:
+    return EF::NONE;
+  case EA::PACK:
+    return EF::PACK;
+
+  // templating
+  case EA::NO_TEMPLATE:
+    return EF::NONE;
+  case EA::TEMPLATE:
+    return EF::TEMPLATE;
+  case EA::SPECIALIZE:
+    return EF::SPECIALIZE;
+
+  // likelyhood
+  case EA::EQUIVOCAL:
+    return EF::NONE;
+  case EA::LIKELY:
+    return EF::LIKELY;
+  case EA::UNLIKELY:
+    return EF::UNLIKELY;
+
+  // support
+  case EA::SUPPORTED:
+    return EF::NONE;
+  case EA::DEPRECIATED:
+    return EF::DEPRECIATED;
+  case EA::EXPERIMENTAL:
+    return EF::EXPERIMENTAL;
+
+  // copyability
+  case EA::NO_COPY:
+    return EF::NONE;
   case EA::MAY_COPY:
     return EF::MAY_COPY;
+
+  // address_stability
+  case EA::UNSTABLE_ADDRESS:
+    return EF::NONE;
   case EA::STABLE_ADDRESS:
     return EF::STABLE_ADDRESS;
-  case EA::AUTO_DROP:
-    return EF::AUTO_DROP;
+
+  // cleanup
+  case EA::IMPLICIT_DROP:
+    return EF::NONE;
+  case EA::EXPLICIT_DROP:
+    return EF::EXPLICIT_DROP;
+
+  // result_status
+  case EA::NOT_OK:
+    return EF::NONE;
   case EA::OK:
     return EF::OK;
-  case EA::MESSAGE:
-    return EF::MESSAGE;
+
   case EA::LAST:
     break;
   }
   return EF::NONE;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::OPAQUE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::OUTSIDE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPartialMutate(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::PARTIAL_MUTATE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::GLOBAL);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::STATIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::CAPTURE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::EAGER);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_PARENT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::PARENT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::ABSTRACT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::VIRTUAL);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::OVERRIDE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::LOCATION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MANGLE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::PACK);
+// labeling
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoLabel(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::LABELING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::LABEL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::TEMPLATE);
+// visibility
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasTransparent(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::VISIBILITY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::LIKELY);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::OPAQUE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::UNLIKELY);
+// scope_location
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasInsideScope(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::SCOPE_LOCATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasDepreciated(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::DEPRECIATED);
+getHasOutsideScope(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::OUTSIDE_SCOPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::EXPORT);
+// availability
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocal(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::AVAILABILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::GLOBAL);
+}
+
+// accessibility
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrivate(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::ACCESSIBILITY);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic(rq::ExpressionFlags flags) {
@@ -2986,8 +3615,179 @@ getHasDepreciated(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::PROTECTED);
 }
 
+// property mutability
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNoPartialMutate(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::PROPERTY_MUTABILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasPartialMutate(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::PARTIAL_MUTATE);
+}
+
+// exporting
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoExport(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::EXPORTING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::EXPORT);
+}
+
+// generation_time
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDynamic(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::GENERATION_TIME);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::STATIC);
+}
+
+// capturing
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCapture(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::CAPTURING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::CAPTURE);
+}
+
+// evaluation_time
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLazy(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::EVALUATION_TIME);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::EAGER);
+}
+
+// parentability
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoParent(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::PARENTABILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_PARENT);
+}
+
+// property_association
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMixin(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::PROPERTY_ASSOCIATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::PARENT);
+}
+
+// tangibility
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTangible(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::TANGIBILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::ABSTRACT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::VIRTUAL);
+}
+
+// overriding
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNoOverride(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::OVERRIDING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::OVERRIDE);
+}
+
+// inlining
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoInline(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::INLINING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasInline(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::INLINE);
+}
+
+// mangling
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasImplicitMangle(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::MANGLING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasExplicitMangle(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::EXPLICIT_MANGLE);
+}
+
+// packing
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoPack(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::PACKING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::PACK);
+}
+
+// templating
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNoTemplate(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::TEMPLATING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::TEMPLATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasSpecialize(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::SPECIALIZE);
+}
+
+// likelyhood
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEquivocal(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::LIKELYHOOD);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::LIKELY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::UNLIKELY);
+}
+
+// support
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupported(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::SUPPORT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasDepreciated(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::DEPRECIATED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasExperimental(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::EXPERIMENTAL);
+}
+
+// copyability
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCopy(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::COPYABILITY);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::MAY_COPY);
+}
+
+// address_stability
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasUnstableAddress(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::ADDRESS_STABILITY);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2995,16 +3795,24 @@ getHasStableAddress(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::STABLE_ADDRESS);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::AUTO_DROP);
+// cleanup
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasImplicitDrop(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::CLEANUP);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasExplicitDrop(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::EXPLICIT_DROP);
+}
+
+// result_status
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNotOk(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::RESULT_STATUS);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::OK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMessage(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MESSAGE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3016,325 +3824,19 @@ getHasAttribute(rq::ExpressionFlags flags, rq::ExpressionAttribute attribute) {
 struct Expression;
 struct TableSymbol;
 
-struct ExpressionFlagsFactory final {
-  using Self = rq::ExpressionFlagsFactory;
-
-  rq::ExpressionFlags _flags{};
-  const rq::Expression *_opaque_ptr{nullptr};
-  const rq::Expression *_outside_ptr{nullptr};
-  const rq::Expression *_partial_mutate_ptr{nullptr};
-  const rq::Expression *_global_ptr{nullptr};
-  const rq::Expression *_static_ptr{nullptr};
-  const rq::Expression *_capture_ptr{nullptr};
-  const rq::Expression *_eager_ptr{nullptr};
-  const rq::Expression *_may_parent_ptr{nullptr};
-  const rq::Expression *_parent_ptr{nullptr};
-  const rq::Expression *_abstract_ptr{nullptr};
-  const rq::Expression *_virtual_ptr{nullptr};
-  const rq::Expression *_override_ptr{nullptr};
-  const rq::Expression *_location_ptr{nullptr};
-  const rq::Expression *_mangle_ptr{nullptr};
-  const rq::Expression *_pack_ptr{nullptr};
-  const rq::Expression *_label_ptr{nullptr};
-  const rq::Expression *_template_ptr{nullptr};
-  const rq::Expression *_likely_ptr{nullptr};
-  const rq::Expression *_unlikely_ptr{nullptr};
-  const rq::Expression *_depreciated_ptr{nullptr};
-  const rq::Expression *_export_ptr{nullptr};
-  const rq::Expression *_public_ptr{nullptr};
-  const rq::Expression *_protected_ptr{nullptr};
-  const rq::Expression *_may_copy_ptr{nullptr};
-  const rq::Expression *_STABLE_ADDRESS_ptr{nullptr};
-  const rq::Expression *_auto_drop_ptr{nullptr};
-  const rq::Expression *_ok_ptr{nullptr};
-  const rq::Expression *_message_ptr{nullptr};
-
-  ExpressionFlagsFactory() = default;
-  inline void addAttribute(const rq::Expression &expression);
-  inline void addAllAttributres(const rq::Expression &unascribed);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const {
-    return this->_flags;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getHasAtttribute(rq::ExpressionAttribute attribute) const {
-    return rq::getHasAttribute(this->getFlags(), attribute);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque() const {
-    return rq::getHasOpaque(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOutside() const {
-    return rq::getHasOutside(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartialMutate() const {
-    return rq::getHasPartialMutate(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal() const {
-    return rq::getHasGlobal(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic() const {
-    return rq::getHasStatic(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture() const {
-    return rq::getHasCapture(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager() const {
-    return rq::getHasEager(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent() const {
-    return rq::getHasMayParent(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent() const {
-    return rq::getHasParent(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract() const {
-    return rq::getHasAbstract(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual() const {
-    return rq::getHasVirtual(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const {
-    return rq::getHasOverride(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocation() const {
-    return rq::getHasLocation(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangle() const {
-    return rq::getHasMangle(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack() const {
-    return rq::getHasPack(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel() const {
-    return rq::getHasLabel(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const {
-    return rq::getHasTemplate(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely() const {
-    return rq::getHasLikely(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnlikely() const {
-    return rq::getHasUnlikely(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDepreciated() const {
-    return rq::getHasDepreciated(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport() const {
-    return rq::getHasExport(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic() const {
-    return rq::getHasPublic(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected() const {
-    return rq::getHasProtected(this->_flags);
-  }
-  [[nodiscard]] bool getHasMayCopy() const {
-    return rq::getHasMayCopy(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStableAddress() const {
-    return rq::getHasStableAddress(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAutoDrop() const {
-    return rq::getHasAutoDrop(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk() const {
-    return rq::getHasOk(this->_flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMessage() const {
-    return rq::getHasMessage(this->_flags);
-  }
-  [[nodiscard]] inline const rq::Expression &
-  getExpression(rq::ExpressionAttribute attribute) const {
-    using EA = rq::ExpressionAttribute;
-    switch (attribute) {
-    case EA::OPAQUE:
-      return rq::dereferencePtr(this->_opaque_ptr);
-    case EA::OUTSIDE:
-      return rq::dereferencePtr(this->_outside_ptr);
-    case EA::PARTIAL_MUTATE:
-      return rq::dereferencePtr(this->_partial_mutate_ptr);
-    case EA::GLOBAL:
-      return rq::dereferencePtr(this->_global_ptr);
-    case EA::STATIC:
-      return rq::dereferencePtr(this->_static_ptr);
-    case EA::CAPTURE:
-      return rq::dereferencePtr(this->_capture_ptr);
-    case EA::EAGER:
-      return rq::dereferencePtr(this->_eager_ptr);
-    case EA::MAY_PARENT:
-      return rq::dereferencePtr(this->_may_parent_ptr);
-    case EA::PARENT:
-      return rq::dereferencePtr(this->_parent_ptr);
-    case EA::ABSTRACT:
-      return rq::dereferencePtr(this->_abstract_ptr);
-    case EA::VIRTUAL:
-      return rq::dereferencePtr(this->_virtual_ptr);
-    case EA::OVERRIDE:
-      return rq::dereferencePtr(this->_override_ptr);
-    case EA::LOCATION:
-      return rq::dereferencePtr(this->_location_ptr);
-    case EA::MANGLE:
-      return rq::dereferencePtr(this->_mangle_ptr);
-    case EA::PACK:
-      return rq::dereferencePtr(this->_pack_ptr);
-    case EA::LABEL:
-      return rq::dereferencePtr(this->_label_ptr);
-    case EA::TEMPLATE:
-      return rq::dereferencePtr(this->_template_ptr);
-    case EA::LIKELY:
-      return rq::dereferencePtr(this->_likely_ptr);
-    case EA::UNLIKELY:
-      return rq::dereferencePtr(this->_unlikely_ptr);
-    case EA::DEPRECIATED:
-      return rq::dereferencePtr(this->_depreciated_ptr);
-    case EA::EXPORT:
-      return rq::dereferencePtr(this->_export_ptr);
-    case EA::PUBLIC:
-      return rq::dereferencePtr(this->_public_ptr);
-    case EA::PROTECTED:
-      return rq::dereferencePtr(this->_protected_ptr);
-    case EA::MAY_COPY:
-      return rq::dereferencePtr(this->_may_copy_ptr);
-    case EA::STABLE_ADDRESS:
-      return rq::dereferencePtr(this->_STABLE_ADDRESS_ptr);
-    case EA::AUTO_DROP:
-      return rq::dereferencePtr(this->_auto_drop_ptr);
-    case EA::OK:
-      return rq::dereferencePtr(this->_ok_ptr);
-    case EA::MESSAGE:
-      return rq::dereferencePtr(this->_message_ptr);
-    case EA::NONE:
-      [[fallthrough]];
-    case EA::LAST:
-      break;
-    }
-    RQ_UNREACHABLE();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOpaque() const {
-    RQ_ASSERT(this->getHasOpaque(), "no opaque");
-    return rq::dereferencePtr(this->_opaque_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOutside() const {
-    RQ_ASSERT(this->getHasOutside(), "no outside");
-    return rq::dereferencePtr(this->_outside_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPartialMutate() const {
-    RQ_ASSERT(this->getHasPartialMutate(), "no partial mutate");
-    return rq::dereferencePtr(this->_partial_mutate_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getGlobal() const {
-    RQ_ASSERT(this->getHasGlobal(), "no global");
-    return rq::dereferencePtr(this->_global_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getStatic() const {
-    RQ_ASSERT(this->getHasStatic(), "no static");
-    return rq::dereferencePtr(this->_static_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getCapture() const {
-    RQ_ASSERT(this->getHasCapture(), "no capture");
-    return rq::dereferencePtr(this->_capture_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getEager() const {
-    RQ_ASSERT(this->getHasEager(), "no eager");
-    return rq::dereferencePtr(this->_eager_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMayParent() const {
-    RQ_ASSERT(this->getHasMayParent(), "no may parent");
-    return rq::dereferencePtr(this->_may_parent_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getParent() const {
-    RQ_ASSERT(this->getHasParent(), "no parent");
-    return rq::dereferencePtr(this->_parent_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAbstract() const {
-    RQ_ASSERT(this->getHasAbstract(), "no abstract");
-    return rq::dereferencePtr(this->_abstract_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getVirtual() const {
-    RQ_ASSERT(this->getHasVirtual(), "no virtual");
-    return rq::dereferencePtr(this->_virtual_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOverride() const {
-    RQ_ASSERT(this->getHasOverride(), "no override");
-    return rq::dereferencePtr(this->_override_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLocation() const {
-    RQ_ASSERT(this->getHasLocation(), "no location");
-    return rq::dereferencePtr(this->_location_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMangle() const {
-    RQ_ASSERT(this->getHasMangle(), "no mangle");
-    return rq::dereferencePtr(this->_mangle_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPack() const {
-    RQ_ASSERT(this->getHasPack(), "no pack");
-    return rq::dereferencePtr(this->_pack_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLabel() const {
-    RQ_ASSERT(this->getHasLabel(), "no label");
-    return rq::dereferencePtr(this->_label_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTemplate() const {
-    RQ_ASSERT(this->getHasTemplate(), "no template");
-    return rq::dereferencePtr(this->_template_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLikely() const {
-    RQ_ASSERT(this->getHasLikely(), "no likely");
-    return rq::dereferencePtr(this->_likely_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getUnlikely() const {
-    RQ_ASSERT(this->getHasUnlikely(), "no unlikely");
-    return rq::dereferencePtr(this->_unlikely_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getDepreciated() const {
-    RQ_ASSERT(this->getHasDepreciated(), "no depreciated");
-    return rq::dereferencePtr(this->_depreciated_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExport() const {
-    RQ_ASSERT(this->getHasExport(), "no export");
-    return rq::dereferencePtr(this->_export_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPublic() const {
-    RQ_ASSERT(this->getHasPublic(), "no public");
-    return rq::dereferencePtr(this->_public_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getProtected() const {
-    RQ_ASSERT(this->getHasProtected(), "no protected");
-    return rq::dereferencePtr(this->_protected_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMayCopy() const {
-    RQ_ASSERT(this->getHasMayCopy(), "no may copy");
-    return rq::dereferencePtr(this->_may_copy_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getPiinned() const {
-    RQ_ASSERT(this->getHasStableAddress(), "no may change address");
-    return rq::dereferencePtr(this->_STABLE_ADDRESS_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getAutoDrop() const {
-    RQ_ASSERT(this->getHasAutoDrop(), "no auto drop");
-    return rq::dereferencePtr(this->_auto_drop_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getOk() const {
-    RQ_ASSERT(this->getHasOk(), "no ok");
-    return rq::dereferencePtr(this->_ok_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getMessage() const {
-    RQ_ASSERT(this->getHasMessage(), "no message");
-    return rq::dereferencePtr(this->_message_ptr);
-  }
-};
-
 enum class TypeAttribute : std::uint_fast8_t {
   NONE,
-  MUTABLE,
   CONSTANT,
+  MUTABLE,
   PARTIALLY_MUTABLE,
+  NOT_VOLATILE,
   VOLATILE,
+  DETERMINATE,
+  INDETERMINATE,
+  NOT_ATOMIC,
   ATOMIC,
-  NULL_TERMINATED,
-  MAY_DISCARD,
-  INDETERMINATE
+  NOT_NULL_TERMINATED,
+  NULL_TERMINATED
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
@@ -3343,22 +3845,28 @@ enum class TypeAttribute : std::uint_fast8_t {
   switch (attribute) {
   case TA::NONE:
     return "none";
-  case TA::MUTABLE:
-    return "mutable";
   case TA::CONSTANT:
     return "constant";
+  case TA::MUTABLE:
+    return "mutable";
   case TA::PARTIALLY_MUTABLE:
     return "partially_mutable";
+  case TA::NOT_VOLATILE:
+    return "not_volatile";
   case TA::VOLATILE:
     return "volatile";
-  case TA::ATOMIC:
-    return "atomic";
-  case TA::NULL_TERMINATED:
-    return "null_terminated";
-  case TA::MAY_DISCARD:
-    return "may_discard";
+  case TA::DETERMINATE:
+    return "determinate";
   case TA::INDETERMINATE:
     return "indeterminate";
+  case TA::NOT_ATOMIC:
+    return "not_atomic";
+  case TA::ATOMIC:
+    return "atomic";
+  case TA::NOT_NULL_TERMINATED:
+    return "not_null_terminated";
+  case TA::NULL_TERMINATED:
+    return "null_terminated";
   }
   RQ_UNREACHABLE();
 }
@@ -3368,22 +3876,28 @@ enum class TypeAttribute : std::uint_fast8_t {
   using K = Keyword;
   using TA = TypeAttribute;
   switch (keyword) {
-  case K::MUTABLE:
-    return TA::MUTABLE;
   case K::CONSTANT:
     return TA::CONSTANT;
+  case K::MUTABLE:
+    return TA::MUTABLE;
   case K::PARTIALLY_MUTABLE:
     return TA::PARTIALLY_MUTABLE;
+  case K::NOT_VOLATILE:
+    return TA::NOT_VOLATILE;
   case K::VOLATILE:
     return TA::VOLATILE;
-  case K::ATOMIC:
-    return TA::ATOMIC;
-  case K::NULL_TERMINATED:
-    return TA::NULL_TERMINATED;
-  case K::MAY_DISCARD:
-    return TA::MAY_DISCARD;
+  case K::DETERMINATE:
+    return TA::DETERMINATE;
   case K::INDETERMINATE:
     return TA::INDETERMINATE;
+  case K::NOT_ATOMIC:
+    return TA::NOT_ATOMIC;
+  case K::ATOMIC:
+    return TA::ATOMIC;
+  case K::NOT_NULL_TERMINATED:
+    return TA::NOT_NULL_TERMINATED;
+  case K::NULL_TERMINATED:
+    return TA::NULL_TERMINATED;
   default:
     break;
   }
@@ -3392,14 +3906,32 @@ enum class TypeAttribute : std::uint_fast8_t {
 
 enum class TypeFlags : std::uint32_t {
   NONE = 0,
-  MUTABLE = rq::getBit(15),
-  CONSTANT = rq::getBit(14),
-  PARTIALLY_MUTABLE = rq::getBit(13),
-  VOLATILE = rq::getBit(12),
-  ATOMIC = rq::getBit(11),
-  NULL_TERMINATED = rq::getBit(10),
-  MAY_DISCARD = rq::getBit(9),
-  INDETERMINATE = rq::getBit(8)
+  // mutability
+  // constant (default)
+  MUTABLE = rq::getBit(0),
+  PARTIALLY_MUTABLE = rq::getBit(1),
+
+  // volatility
+  // not_volatile (default)
+  VOLATILE = rq::getBit(2),
+
+  // determinicity
+  // determinate (default)
+  INDETERMINATE = rq::getBit(3),
+
+  // atomicity
+  // not_atomic (default)
+  ATOMIC = rq::getBit(4),
+
+  // null_termination
+  // not_null_terminated (default)
+  NULL_TERMINATED = rq::getBit(5),
+
+  MUTABILITY = MUTABLE | PARTIALLY_MUTABLE,
+  VOLATILITY = VOLATILE,
+  DETERMINICITY = INDETERMINATE,
+  ATOMICITY = ATOMIC,
+  NULL_TERMINATION = NULL_TERMINATED
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
@@ -3411,32 +3943,38 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
   switch (attribute) {
   case TA::NONE:
     return TF::NONE;
+  case TA::CONSTANT:
+    return TF::NONE;
   case TA::MUTABLE:
     return TF::MUTABLE;
-  case TA::CONSTANT:
-    return TF::CONSTANT;
   case TA::PARTIALLY_MUTABLE:
-    return TF::PARTIALLY_MUTABLE;
+    return TF::NONE;
+  case TA::NOT_VOLATILE:
+    return TF::NONE;
   case TA::VOLATILE:
     return TF::VOLATILE;
-  case TA::ATOMIC:
-    return TF::ATOMIC;
-  case TA::NULL_TERMINATED:
-    return TF::NULL_TERMINATED;
-  case TA::MAY_DISCARD:
-    return TF::MAY_DISCARD;
+  case TA::DETERMINATE:
+    return TF::NONE;
   case TA::INDETERMINATE:
     return TF::INDETERMINATE;
+  case TA::NOT_ATOMIC:
+    return TF::NONE;
+  case TA::ATOMIC:
+    return TF::ATOMIC;
+  case TA::NOT_NULL_TERMINATED:
+    return TF::NONE;
+  case TA::NULL_TERMINATED:
+    return TF::NULL_TERMINATED;
   }
   return TF::NONE;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::MUTABLE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::MUTABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::CONSTANT);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::MUTABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3448,20 +3986,33 @@ getHasPartiallyMutable(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::VOLATILE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::ATOMIC);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNotVolatile(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::VOLATILE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATED);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayDiscard(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::MAY_DISCARD);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDeterminate(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::INDETERMINATE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::INDETERMINATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNotAtomic(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::ATOMIC);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::ATOMIC);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNotNullTerminated(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::NULL_TERMINATED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminated(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATED);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3470,17 +4021,29 @@ getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability(rq::TypeFlags flags) {
-  return rq::getHasSome(flags,
-                        rq::TypeFlags::MUTABLE | rq::TypeFlags::CONSTANT);
+  return rq::getHasSome(flags, rq::TypeFlags::MUTABILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatility(rq::TypeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeFlags::VOLATILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDeterminicity(rq::TypeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeFlags::DETERMINICITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity(rq::TypeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeFlags::ATOMICITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTermination(rq::TypeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeFlags::NULL_TERMINATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
   if (rq::getHasMutability(flags)) {
     unsigned mutability_count = 0;
     if (rq::getHasAll(flags, rq::TypeFlags::MUTABLE)) {
-      mutability_count++;
-    }
-    if (rq::getHasAll(flags, rq::TypeFlags::CONSTANT)) {
       mutability_count++;
     }
     if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE)) {
@@ -3794,7 +4357,7 @@ struct Expression final {
     return rq::getSituatedAscribeKeyword(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Situation getAttributeSituation() const {
-    return rq::getAttributeSituation(this->getKeyword());
+    return rq::getAttributeInstantiationSituation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
     return rq::getCanBeChainLink(this->getKeyword());
@@ -3811,6 +4374,12 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion() const {
     return rq::getIsExpansion(this->getKeyword());
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute() const {
+    return rq::getIsTypeAttribute(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttribute() const {
+    return rq::getIsExpressionAttribute(this->getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
   getUniversalized(rq::Situation situation) const {
     return rq::getUniversalized(this->getKeyword(), situation);
@@ -3821,8 +4390,8 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
     return rq::getIsNone(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTrunk() const {
-    return rq::getCanBeTrunk(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTop() const {
+    return rq::getCanBeTop(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStatement() const {
     return rq::getCanBeStatement(this->getKeyword());
@@ -3866,11 +4435,13 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTypeAttribute() const {
-    return rq::getCanBeTypeAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getCanBeExpressionAttributeInstantiation() const {
+    return rq::getCanBeExpressionAttributeInstantiation(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeExpressionAttribute() const {
-    return rq::getCanBeExpressionAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getCanBeTypeAttributeInstantiation() const {
+    return rq::getCanBeTypeAttributeInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
     return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
@@ -4271,109 +4842,6 @@ rq::ExpressionIterator &ExpressionIterator::operator++() {
   this->_expression_ptr =
       rq::dereferencePtr(this->_expression_ptr).getNextPtr();
   return *this;
-}
-
-inline void
-ExpressionFlagsFactory::addAttribute(const rq::Expression &expression) {
-  RQ_ASSERT(expression.getCanBeExpressionAttribute(), "not symbol attribute");
-  const rq::ExpressionAttribute attribute = expression.getExpressionAttribute();
-  RQ_ASSERT(!rq::getHasAttribute(this->_flags, attribute),
-            "duplicate attribute");
-  this->_flags |= rq::getFlags(attribute);
-  using K = rq::Keyword;
-  switch (expression.getKeyword()) {
-  case K::OPAQUE:
-    rq::assignSingleValue(this->_opaque_ptr, &expression);
-    break;
-  case K::OUTSIDE:
-    rq::assignSingleValue(this->_outside_ptr, &expression);
-    break;
-  case K::PARTIAL_MUTATE:
-    rq::assignSingleValue(this->_partial_mutate_ptr, &expression);
-    break;
-  case K::STATIC:
-    rq::assignSingleValue(this->_static_ptr, &expression);
-    break;
-  case K::CAPTURE:
-    rq::assignSingleValue(this->_capture_ptr, &expression);
-    break;
-  case K::EAGER:
-    rq::assignSingleValue(this->_eager_ptr, &expression);
-    break;
-  case K::MAY_PARENT:
-    rq::assignSingleValue(this->_may_parent_ptr, &expression);
-    break;
-  case K::PARENT:
-    rq::assignSingleValue(this->_parent_ptr, &expression);
-    break;
-  case K::ABSTRACT:
-    rq::assignSingleValue(this->_abstract_ptr, &expression);
-    break;
-  case K::VIRTUAL:
-    rq::assignSingleValue(this->_virtual_ptr, &expression);
-    break;
-  case K::OVERRIDE:
-    rq::assignSingleValue(this->_override_ptr, &expression);
-    break;
-  case K::LOCATION:
-    rq::assignSingleValue(this->_location_ptr, &expression);
-    break;
-  case K::MANGLE:
-    rq::assignSingleValue(this->_mangle_ptr, &expression);
-    break;
-  case K::PACK:
-    rq::assignSingleValue(this->_pack_ptr, &expression);
-    break;
-  case K::LABEL:
-    rq::assignSingleValue(this->_label_ptr, &expression);
-    break;
-  case K::TEMPLATE:
-    rq::assignSingleValue(this->_template_ptr, &expression);
-    break;
-  case K::LIKELY:
-    rq::assignSingleValue(this->_likely_ptr, &expression);
-    break;
-  case K::UNLIKELY:
-    rq::assignSingleValue(this->_unlikely_ptr, &expression);
-    break;
-  case K::DEPRECIATED:
-    rq::assignSingleValue(this->_depreciated_ptr, &expression);
-    break;
-  case K::EXPORT:
-    rq::assignSingleValue(this->_export_ptr, &expression);
-    break;
-  case K::PUBLIC:
-    rq::assignSingleValue(this->_public_ptr, &expression);
-    break;
-  case K::PROTECTED:
-    rq::assignSingleValue(this->_protected_ptr, &expression);
-    break;
-  case K::MAY_COPY:
-    rq::assignSingleValue(this->_may_copy_ptr, &expression);
-    break;
-  case K::STABLE_ADDRESS:
-    rq::assignSingleValue(this->_STABLE_ADDRESS_ptr, &expression);
-    break;
-  case K::AUTO_DROP:
-    rq::assignSingleValue(this->_auto_drop_ptr, &expression);
-    break;
-  case K::OK:
-    rq::assignSingleValue(this->_ok_ptr, &expression);
-    break;
-  case K::MESSAGE:
-    rq::assignSingleValue(this->_message_ptr, &expression);
-    break;
-
-  default:
-    break;
-  }
-}
-
-inline void
-ExpressionFlagsFactory::addAllAttributres(const rq::Expression &unascribed) {
-  for (const rq::Expression &attribute : unascribed.getNextSubrange()) {
-    this->addAttribute(attribute);
-  }
 }
 
 rq::ExpressionIterator ExpressionIterator::operator++(int) { return ++*this; }

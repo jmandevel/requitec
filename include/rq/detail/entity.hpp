@@ -81,6 +81,68 @@ namespace rq {
     return "sy_ascii";
   case O::SY_UTF8:
     return "sy_utf8";
+  case O::SY_EXPRESSION_ATTRIBUTE_CONSTRAINT:
+    return "sy_expression_attribute_constraint";
+  case O::SY_LABELING:
+    return "sy_labeling";
+  case O::SY_VISIBILITY:
+    return "sy_visibility";
+  case O::SY_SCOPING:
+    return "sy_scoping";
+  case O::SY_AVAILABILITY:
+    return "sy_availability";
+  case O::SY_ACCESSIBILITY:
+    return "sy_accessibility";
+  case O::SY_PROPERTY_MUTABILITY:
+    return "sy_property_mutability";
+  case O::SY_EXPORTING:
+    return "sy_exporting";
+  case O::SY_RUNTIME:
+    return "sy_runtime";
+  case O::SY_CAPTURING:
+    return "sy_capturing";
+  case O::SY_EVALUATION_TIME:
+    return "sy_evaluation_time";
+  case O::SY_PARENTABILITY:
+    return "sy_parentability";
+  case O::SY_PROPERTY_ASSOCIATION:
+    return "sy_property_association";
+  case O::SY_TANGIBILITY:
+    return "sy_tangibility";
+  case O::SY_OVERRIDING:
+    return "sy_overriding";
+  case O::SY_INLINING:
+    return "sy_inlining";
+  case O::SY_MANGLING:
+    return "sy_mangling";
+  case O::SY_PACKING:
+    return "sy_packing";
+  case O::SY_TEMPLATING:
+    return "sy_templating";
+  case O::SY_LIKELYHOOD:
+    return "sy_likelyhood";
+  case O::SY_SUPPORT:
+    return "sy_support";
+  case O::SY_COPYABILITY:
+    return "sy_copyability";
+  case O::SY_ADDRESS_STABILITY:
+    return "sy_address_stability";
+  case O::SY_CLEANUP:
+    return "sy_cleanup";
+  case O::SY_RESULT_STATUS:
+    return "sy_result_status";
+  case O::SY_TYPE_ATTRIBUTE_CONSTRAINT:
+    return "sy_type_attribute_constraint";
+  case O::SY_MUTABILITY:
+    return "sy_mutability";
+  case O::SY_VOLATILITY:
+    return "sy_volatility";
+  case O::SY_DETERMINICITY:
+    return "sy_determinicity";
+  case O::SY_ATOMICITY:
+    return "sy_atomicity";
+  case O::SY_NULL_TERMINATION:
+    return "sy_null_termination";
   case O::SY_SCALED_SIGNED_INTEGER:
     return "sy_scaled_signed_integer";
   case O::SY_SCALED_UNSIGNED_INTEGER:
@@ -153,10 +215,24 @@ namespace rq {
     return "sy_enumeration";
   case O::SY_CATEGORY:
     return "sy_category";
-  case O::SY_RANGER:
-    return "sy_ranger";
-  case O::SY_REVERSE_RANGER:
-    return "sy_reverse_ranger";
+  case O::SY_RANGER_POLYMORPH:
+    return "sy_ranger_polymorph";
+  case O::SY_PROCEDURE_POLYMORPH:
+    return "sy_ranger_polymorph";
+  case O::SY_CLASS_POLYMORPH:
+    return "sy_class_polymorph";
+  case O::SY_ENUMERATION_POLYMORPH:
+    return "sy_enumeration_polymorph";
+  case O::SY_CATEGORY_POLYMORPH:
+    return "sy_category_polymorph";
+  case O::SY_GLOBAL_POLYMORPH:
+    return "sy_global_polymorph";
+  case O::SY_GLOBAL_STATIC_POLYMORPH:
+    return "sy_global_static_polymorph";
+  case O::SY_FORWARD_RANGER:
+    return "sy_forward_ranger";
+  case O::SY_BACKWARD_RANGER:
+    return "sy_backward_ranger";
   case O::SY_ENTRY:
     return "sy_entry";
   case O::SY_FUNCTION:
@@ -177,6 +253,10 @@ namespace rq {
     return "sy_template_global";
   case O::SY_TEMPLATE_GLOBAL_STATIC:
     return "sy_template_global_static";
+  case O::SY_TEMPLATE_FORWARD_RANGER:
+    return "sy_template_forward_ranger";
+  case O::SY_TEMPLATE_BACKWARD_RANGER:
+    return "sy_template_backward_ranger";
   case O::SY_TEMPLATE_FUNCTION:
     return "sy_template_function";
   case O::SY_TEMPLATE_METHOD:
@@ -185,24 +265,28 @@ namespace rq {
     return "sy_template_extension_function";
   case O::SY_TEMPLATE_EXTENSION_METHOD:
     return "sy_template_extension_method";
-  case O::SY_PARTIAL_CLASS:
-    return "sy_partial_class";
-  case O::SY_PARTIAL_ENUMERATION:
-    return "sy_partial_enumeration";
-  case O::SY_PARTIAL_CATEGORY:
-    return "sy_partial_category";
-  case O::SY_PARTIAL_GLOBAL:
-    return "sy_partial_global";
-  case O::SY_PARTIAL_GLOBAL_STATIC:
-    return "sy_partial_global_static";
-  case O::SY_PARTIAL_FUNCTION:
-    return "sy_partial_function";
-  case O::SY_PARTIAL_METHOD:
-    return "sy_partial_method";
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return "sy_partial_extension_function";
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return "sy_partial_extension_method";
+  case O::SY_SPECIALIZED_CLASS:
+    return "sy_specialized_class";
+  case O::SY_SPECIALIZED_ENUMERATION:
+    return "sy_specialized_enumeration";
+  case O::SY_SPECIALIZED_CATEGORY:
+    return "sy_specialized_category";
+  case O::SY_SPECIALIZED_GLOBAL:
+    return "sy_specialized_global";
+  case O::SY_SPECIALIZED_GLOBAL_STATIC:
+    return "sy_specialized_global_static";
+  case O::SY_SPECIALIZED_FORWARD_RANGER:
+    return "sy_specialized_forward_ranger";
+  case O::SY_SPECIALIZED_BACKWARD_RANGER:
+    return "sy_specialized_backward_ranger";
+  case O::SY_SPECIALIZED_FUNCTION:
+    return "sy_specialized_function";
+  case O::SY_SPECIALIZED_METHOD:
+    return "sy_specialized_method";
+  case O::SY_SPECIALIZED_EXTENSION_FUNCTION:
+    return "sy_specialized_extension_function";
+  case O::SY_SPECIALIZED_EXTENSION_METHOD:
+    return "sy_specialized_extension_method";
   case O::CT_TYPE:
     return "ct_type";
   case O::CT_EXPRESSION:
@@ -217,6 +301,10 @@ namespace rq {
     return "ct_string";
   case O::CT_ARRAY:
     return "ct_array";
+  case O::CT_EXPRESSION_ATTRIBUTE:
+    return "ct_expression_attribute";
+  case O::CT_TYPE_ATTRIBUTE:
+    return "ct_type_attribute";
   case O::IN_EXECUTE:
     return "in_execute";
   case O::IN_CAST:
@@ -293,8 +381,8 @@ namespace rq {
     return "in_cond";
   case O::IN_FORK:
     return "in_fork";
-  case O::IN_DEBUG_TRAP:
-    return "in_debug_trap";
+  case O::IN_DEBUG_BREAK:
+    return "in_debug_break";
   case O::IN_UNREACHABLE:
     return "in_unreachable";
   case O::IN_ASSUME:
@@ -404,6 +492,99 @@ namespace rq {
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CODEUNIT;
   case O::SY_UTF8:
     return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE | OF::SY_CODEUNIT;
+  case O::SY_EXPRESSION_ATTRIBUTE_CONSTRAINT:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE | OF::SY_CONSTRAINT;
+  case O::SY_LABELING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_VISIBILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_SCOPING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_AVAILABILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_ACCESSIBILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_PROPERTY_MUTABILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_EXPORTING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_RUNTIME:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_CAPTURING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_EVALUATION_TIME:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_PARENTABILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_PROPERTY_ASSOCIATION:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_TANGIBILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_OVERRIDING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_INLINING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_MANGLING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_PACKING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_TEMPLATING:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_LIKELYHOOD:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_SUPPORT:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_COPYABILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_ADDRESS_STABILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_CLEANUP:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_RESULT_STATUS:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_EXPRESSION_ATTRIBUTE;
+  case O::SY_TYPE_ATTRIBUTE_CONSTRAINT:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_TYPE_ATTRIBUTE | OF::SY_CONSTRAINT;
+  case O::SY_MUTABILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_TYPE_ATTRIBUTE;
+  case O::SY_VOLATILITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_TYPE_ATTRIBUTE;
+  case O::SY_DETERMINICITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_TYPE_ATTRIBUTE;
+  case O::SY_ATOMICITY:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_TYPE_ATTRIBUTE;
+  case O::SY_NULL_TERMINATION:
+    return OF::SYMBOL | OF::SY_SIMPLE_BUILTIN | OF::SY_TYPE |
+           OF::SY_TYPE_ATTRIBUTE;
   case O::SY_SCALED_SIGNED_INTEGER:
     return OF::SYMBOL | OF::SY_SCALED_BUILTIN | OF::SY_TYPE | OF::SY_INTEGER |
            OF::SY_SIGNED;
@@ -470,7 +651,7 @@ namespace rq {
   case O::SY_CATEGORY_ALTERNATIVE:
     return OF::SYMBOL;
   case O::SY_TOP:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_NO_ASCENDING;
   case O::SY_GLOBAL:
     return OF::SYMBOL | OF::SY_TABLE | OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_GLOBAL_STATIC:
@@ -478,33 +659,47 @@ namespace rq {
   case O::SY_SCOPE:
     return OF::SYMBOL | OF::SY_TABLE;
   case O::SY_NAMESPACE:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_NO_ASCENDING;
   case O::SY_CLASS:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_NO_ASCENDING |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_ENUMERATION:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_NO_ASCENDING |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_CATEGORY:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TYPE | OF::SY_NO_ASCENDING |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
-  case O::SY_RANGER:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
-  case O::SY_REVERSE_RANGER:
-    return OF::SYMBOL | OF::SY_TABLE | OF::SY_TOP_OF_FRAME;
+  case O::SY_RANGER_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_PROCEDURE_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_CLASS_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_ENUMERATION_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_CATEGORY_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_GLOBAL_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_GLOBAL_STATIC_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_FORWARD_RANGER:
+    return OF::SYMBOL | OF::SY_RANGER | OF::SY_NO_ASCENDING_INTO_TOP;
+  case O::SY_BACKWARD_RANGER:
+    return OF::SYMBOL | OF::SY_RANGER | OF::SY_NO_ASCENDING_INTO_TOP;
   case O::SY_ENTRY:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME;
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_NO_ASCENDING_INTO_TOP;
   case O::SY_FUNCTION:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_NO_ASCENDING_INTO_TOP |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_NO_ASCENDING_INTO_TOP |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_FUNCTION:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_NO_ASCENDING_INTO_TOP |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_TOP_OF_FRAME |
+    return OF::SYMBOL | OF::SY_PROCEDURE | OF::SY_NO_ASCENDING_INTO_TOP |
            OF::SY_HAS_TEMPLATE_ALTERNATIVE;
   case O::SY_TEMPLATE_CLASS:
     return OF::SYMBOL | OF::SY_TEMPLATE;
@@ -516,6 +711,10 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_GLOBAL_STATIC:
     return OF::SYMBOL | OF::SY_TEMPLATE;
+  case O::SY_TEMPLATE_FORWARD_RANGER:
+    return OF::SYMBOL | OF::SY_TEMPLATE;
+  case O::SY_TEMPLATE_BACKWARD_RANGER:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
   case O::SY_TEMPLATE_FUNCTION:
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_METHOD:
@@ -524,24 +723,28 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TEMPLATE;
   case O::SY_TEMPLATE_EXTENSION_METHOD:
     return OF::SYMBOL | OF::SY_TEMPLATE;
-  case O::SY_PARTIAL_CLASS:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_ENUMERATION:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_CATEGORY:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_GLOBAL:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_GLOBAL_STATIC:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_FUNCTION:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_METHOD:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return OF::SYMBOL | OF::SY_PARTIAL;
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_PARTIAL;
+  case O::SY_SPECIALIZED_CLASS:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_ENUMERATION:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_CATEGORY:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_GLOBAL:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_GLOBAL_STATIC:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_FORWARD_RANGER:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_BACKWARD_RANGER:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_FUNCTION:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_METHOD:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_EXTENSION_FUNCTION:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
+  case O::SY_SPECIALIZED_EXTENSION_METHOD:
+    return OF::SYMBOL | OF::SY_SPECIALIZED;
   case O::CT_TYPE:
     return OF::CONSTANT;
   case O::CT_EXPRESSION:
@@ -555,6 +758,10 @@ namespace rq {
   case O::CT_STRING:
     return OF::CONSTANT;
   case O::CT_ARRAY:
+    return OF::CONSTANT;
+  case O::CT_EXPRESSION_ATTRIBUTE:
+    return OF::CONSTANT;
+  case O::CT_TYPE_ATTRIBUTE:
     return OF::CONSTANT;
   case O::IN_EXECUTE:
     return OF::IN_BINARY;
@@ -632,7 +839,7 @@ namespace rq {
     return OF::IN_BINARY;
   case O::IN_FORK:
     return OF::IN_BINARY;
-  case O::IN_DEBUG_TRAP:
+  case O::IN_DEBUG_BREAK:
     return OF::IN_NULLARY;
   case O::IN_UNREACHABLE:
     return OF::IN_NULLARY;
@@ -708,10 +915,26 @@ getIsParameterListSubtype(rq::Opcode opcode) {
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_TABLE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_POLYMORPH);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_RANGER) &&
+         rq::getHasNone(flags, rq::OpcodeFlags::SY_TEMPLATE |
+                                   rq::OpcodeFlags::SY_SPECIALIZED);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PROCEDURE);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PROCEDURE) &&
+         rq::getHasNone(flags, rq::OpcodeFlags::SY_TEMPLATE |
+                                   rq::OpcodeFlags::SY_SPECIALIZED);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode) {
@@ -720,10 +943,38 @@ getIsParameterListSubtype(rq::Opcode opcode) {
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_TEMPLATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartial(rq::Opcode opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateRanger(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PARTIAL);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_RANGER |
+                                  rq::OpcodeFlags::SY_TEMPLATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateProcedure(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_PROCEDURE |
+                                  rq::OpcodeFlags::SY_TEMPLATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecialized(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SPECIALIZED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialRanger(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SPECIALIZED |
+                                  rq::OpcodeFlags::SY_RANGER);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPartialProcedure(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SPECIALIZED |
+                                  rq::OpcodeFlags::SY_PROCEDURE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -749,6 +1000,19 @@ getHasTemplateAlternative(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_CONSTRAINT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsExpressionAttribute(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_EXPRESSION_ATTRIBUTE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TYPE_ATTRIBUTE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformChanging(rq::Opcode opcode) {
@@ -814,205 +1078,16 @@ getHasTemplateAlternative(rq::Opcode opcode) {
                                   rq::OpcodeFlags::SY_INTEGER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTopOfFrame(rq::Opcode opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoAscending(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_TOP_OF_FRAME);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_NO_ASCENDING);
 }
 
-[[nodiscard]] inline rq::Opcode getTemplate(rq::Opcode opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNoAscendingIntoTop(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
-  RQ_ASSERT(rq::getHasTemplateAlternative(opcode), "no template alternative");
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::SY_CLASS:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CLASS:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CLASS:
-    return O::SY_TEMPLATE_CLASS;
-  case O::SY_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
-    return O::SY_TEMPLATE_ENUMERATION;
-  case O::SY_CATEGORY:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CATEGORY:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
-    return O::SY_TEMPLATE_CATEGORY;
-  case O::SY_GLOBAL:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL:
-    return O::SY_TEMPLATE_GLOBAL;
-  case O::SY_STATIC:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_STATIC:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC:
-    return O::SY_TEMPLATE_GLOBAL_STATIC;
-  case O::SY_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
-    return O::SY_TEMPLATE_FUNCTION;
-  case O::SY_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
-    return O::SY_TEMPLATE_METHOD;
-  case O::SY_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return O::SY_TEMPLATE_EXTENSION_FUNCTION;
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return O::SY_TEMPLATE_EXTENSION_METHOD;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::Opcode getPartial(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  RQ_ASSERT(rq::getHasTemplateAlternative(opcode), "no template alternative");
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::SY_CLASS:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CLASS:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CLASS:
-    return O::SY_PARTIAL_CLASS;
-  case O::SY_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
-    return O::SY_PARTIAL_ENUMERATION;
-  case O::SY_CATEGORY:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CATEGORY:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
-    return O::SY_PARTIAL_CATEGORY;
-  case O::SY_GLOBAL:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL:
-    return O::SY_PARTIAL_GLOBAL;
-  case O::SY_STATIC:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_STATIC:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC:
-    return O::SY_PARTIAL_GLOBAL_STATIC;
-  case O::SY_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
-    return O::SY_PARTIAL_FUNCTION;
-  case O::SY_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
-    return O::SY_PARTIAL_METHOD;
-  case O::SY_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return O::SY_PARTIAL_EXTENSION_FUNCTION;
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return O::SY_PARTIAL_EXTENSION_METHOD;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::Opcode getFull(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  RQ_ASSERT(rq::getHasTemplateAlternative(opcode), "no template alternative");
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::SY_CLASS:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CLASS:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CLASS:
-    return O::SY_CLASS;
-  case O::SY_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_ENUMERATION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
-    return O::SY_ENUMERATION;
-  case O::SY_CATEGORY:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_CATEGORY:
-    [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
-    return O::SY_CATEGORY;
-  case O::SY_GLOBAL:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL:
-    return O::SY_GLOBAL;
-  case O::SY_STATIC:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_GLOBAL_STATIC:
-    [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC:
-    return O::SY_STATIC;
-  case O::SY_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
-    return O::SY_FUNCTION;
-  case O::SY_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
-    return O::SY_METHOD;
-  case O::SY_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_FUNCTION:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
-    return O::SY_EXTENSION_FUNCTION;
-  case O::SY_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_TEMPLATE_EXTENSION_METHOD:
-    [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD:
-    return O::SY_EXTENSION_METHOD;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_NO_ASCENDING_INTO_TOP);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullaryInstruction(rq::Opcode opcode) {
@@ -1091,13 +1166,73 @@ InitialExpressionFlags::getExpressionFlags() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasTransparent() const {
+  return rq::getHasTransparent(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasOpaque() const {
   return rq::getHasOpaque(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-InitialExpressionFlags::getHasOutside() const {
-  return rq::getHasOutside(this->_expression_flags);
+InitialExpressionFlags::getHasInsideScope() const {
+  return rq::getHasInsideScope(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasOutsideScope() const {
+  return rq::getHasOutsideScope(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasGlobal() const {
+  return rq::getHasGlobal(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasLocal() const {
+  return rq::getHasLocal(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasPrivate() const {
+  return rq::getHasPrivate(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasPublic() const {
+  return rq::getHasPublic(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasProtected() const {
+  return rq::getHasProtected(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNoPartialMutate() const {
+  return rq::getHasNoPartialMutate(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasPartialMutate() const {
+  return rq::getHasPartialMutate(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNoExport() const {
+  return rq::getHasNoExport(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasExport() const {
+  return rq::getHasExport(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasDynamic() const {
+  return rq::getHasDynamic(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1106,13 +1241,27 @@ InitialExpressionFlags::getHasStatic() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNoCapture() const {
+  return rq::getHasNoCapture(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasCapture() const {
   return rq::getHasCapture(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool InitialExpressionFlags::getHasLazy() const {
+  return rq::getHasLazy(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasEager() const {
   return rq::getHasEager(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNoParent() const {
+  return rq::getHasNoParent(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1123,6 +1272,16 @@ InitialExpressionFlags::getHasMayParent() const {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasParent() const {
   return rq::getHasParent(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasMixin() const {
+  return rq::getHasMixin(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasTangible() const {
+  return rq::getHasTangible(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1141,13 +1300,28 @@ InitialExpressionFlags::getHasOverride() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-InitialExpressionFlags::getHasLocation() const {
-  return rq::getHasLocation(this->_expression_flags);
+InitialExpressionFlags::getHasNoInline() const {
+  return rq::getHasNoInline(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-InitialExpressionFlags::getHasMangle() const {
-  return rq::getHasMangle(this->_expression_flags);
+InitialExpressionFlags::getHasInline() const {
+  return rq::getHasInline(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasImplicitMangle() const {
+  return rq::getHasImplicitMangle(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasExplicitMangle() const {
+  return rq::getHasExplicitMangle(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNoPack() const {
+  return rq::getHasNoPack(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool InitialExpressionFlags::getHasPack() const {
@@ -1160,8 +1334,23 @@ InitialExpressionFlags::getHasLabel() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNoTemplate() const {
+  return rq::getHasNoTemplate(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasTemplate() const {
   return rq::getHasTemplate(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasSpecialize() const {
+  return rq::getHasSpecialize(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasEquivocal() const {
+  return rq::getHasEquivocal(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1175,23 +1364,23 @@ InitialExpressionFlags::getHasUnlikely() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasSupported() const {
+  return rq::getHasSupported(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasDepreciated() const {
   return rq::getHasDepreciated(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-InitialExpressionFlags::getHasExport() const {
-  return rq::getHasExport(this->_expression_flags);
+InitialExpressionFlags::getHasExperimental() const {
+  return rq::getHasExperimental(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-InitialExpressionFlags::getHasPublic() const {
-  return rq::getHasPublic(this->_expression_flags);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-InitialExpressionFlags::getHasProtected() const {
-  return rq::getHasProtected(this->_expression_flags);
+InitialExpressionFlags::getHasNoCopy() const {
+  return rq::getHasNoCopy(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1200,8 +1389,28 @@ InitialExpressionFlags::getHasMayCopy() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasUnstableAddress() const {
+  return rq::getHasUnstableAddress(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 InitialExpressionFlags::getHasStableAddress() const {
   return rq::getHasStableAddress(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasExplicitDrop() const {
+  return rq::getHasExplicitDrop(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasImplicitDrop() const {
+  return rq::getHasImplicitDrop(this->_expression_flags);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InitialExpressionFlags::getHasNotOk() const {
+  return rq::getHasNotOk(this->_expression_flags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool InitialExpressionFlags::getHasOk() const {
@@ -1515,28 +1724,28 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
     info.setName(template_.getName());
     info.setExpression(template_.getExpression());
   } break;
-  case O::SY_PARTIAL_CLASS:
+  case O::SY_SPECIALIZED_CLASS:
     [[fallthrough]];
-  case O::SY_PARTIAL_ENUMERATION:
+  case O::SY_SPECIALIZED_ENUMERATION:
     [[fallthrough]];
-  case O::SY_PARTIAL_CATEGORY:
+  case O::SY_SPECIALIZED_CATEGORY:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL:
+  case O::SY_SPECIALIZED_GLOBAL:
     [[fallthrough]];
-  case O::SY_PARTIAL_GLOBAL_STATIC:
+  case O::SY_SPECIALIZED_GLOBAL_STATIC:
     [[fallthrough]];
-  case O::SY_PARTIAL_FUNCTION:
+  case O::SY_SPECIALIZED_FUNCTION:
     [[fallthrough]];
-  case O::SY_PARTIAL_METHOD:
+  case O::SY_SPECIALIZED_METHOD:
     [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_FUNCTION:
+  case O::SY_SPECIALIZED_EXTENSION_FUNCTION:
     [[fallthrough]];
-  case O::SY_PARTIAL_EXTENSION_METHOD: {
-    rq::Partial &partial = llvm::cast<rq::Partial>(*this);
-    info.setContainingModule(partial.getContainingModule());
-    info.setContainingTable(partial.getContainingTable());
-    info.setName(partial.getName());
-    info.setExpression(partial.getExpression());
+  case O::SY_SPECIALIZED_EXTENSION_METHOD: {
+    rq::Specialized &specialized = llvm::cast<rq::Specialized>(*this);
+    info.setContainingModule(specialized.getContainingModule());
+    info.setContainingTable(specialized.getContainingTable());
+    info.setName(specialized.getName());
+    info.setExpression(specialized.getExpression());
   } break;
   default:
     RQ_UNREACHABLE();
@@ -1565,6 +1774,14 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsConstraint() const {
+  return rq::getIsConstraint(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsExpressionAttribute() const {
+  return rq::getIsExpressionAttribute(this->getOpcode());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTypeAttribute() const {
   return rq::getIsConstraint(this->getOpcode());
 }
 
@@ -1611,20 +1828,12 @@ inline Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {}
   return rq::getIsUnsignedInteger(this->getOpcode());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTopOfFrame() const {
-  return rq::getIsTopOfFrame(this->getOpcode());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNoAscending() const {
+  return rq::getIsNoAscending(this->getOpcode());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Symbol::getTemplateOpcode() const {
-  return rq::getTemplate(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Symbol::getPartialOpcode() const {
-  return rq::getPartial(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode Symbol::getFullOpcode() const {
-  return rq::getFull(this->getOpcode());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNoAscendingIntoTop() const {
+  return rq::getIsNoAscendingIntoTop(this->getOpcode());
 }
 
 [[nodiscard]] inline bool Symbol::classof(const Entity *entity) {
@@ -1732,11 +1941,6 @@ inline SignedConstraint::SignedConstraint()
 [[nodiscard]] inline bool SignedConstraint::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
          rq::Opcode::SY_SIGNED_CONSTRAINT;
-}
-
-RQ_ALWAYS_INLINE rq::TableIterator &TableIterator::operator++() {
-  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
-  return *this;
 }
 
 inline UnsignedConstraint::UnsignedConstraint()
@@ -1892,6 +2096,120 @@ inline Utf8::Utf8() : SimpleBuiltin(rq::Opcode::SY_UTF8) {}
 
 [[nodiscard]] inline bool Utf8::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_UTF8;
+}
+
+inline ExpressionAttributeConstraint::ExpressionAttributeConstraint()
+    : SimpleBuiltin(rq::Opcode::SY_EXPRESSION_ATTRIBUTE_CONSTRAINT) {}
+
+[[nodiscard]] inline bool
+ExpressionAttributeConstraint::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_EXPRESSION_ATTRIBUTE_CONSTRAINT;
+}
+
+inline Labeling::Labeling() : SimpleBuiltin(rq::Opcode::SY_LABELING) {}
+
+[[nodiscard]] inline bool Labeling::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_LABELING;
+}
+
+inline Visibility::Visibility() : SimpleBuiltin(rq::Opcode::SY_VISIBILITY) {}
+
+[[nodiscard]] inline bool Visibility::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_VISIBILITY;
+}
+
+inline Scoping::Scoping() : SimpleBuiltin(rq::Opcode::SY_SCOPING) {}
+
+[[nodiscard]] inline bool Scoping::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_SCOPING;
+}
+
+inline Availability::Availability()
+    : SimpleBuiltin(rq::Opcode::SY_AVAILABILITY) {}
+
+[[nodiscard]] inline bool Availability::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_AVAILABILITY;
+}
+
+inline Accessibility::Accessibility()
+    : SimpleBuiltin(rq::Opcode::SY_ACCESSIBILITY) {}
+
+[[nodiscard]] inline bool Accessibility::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_ACCESSIBILITY;
+}
+
+inline PropertyMutability::PropertyMutability()
+    : SimpleBuiltin(rq::Opcode::SY_PROPERTY_MUTABILITY) {}
+
+[[nodiscard]] inline bool PropertyMutability::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_PROPERTY_MUTABILITY;
+}
+
+inline Exporting::Exporting() : SimpleBuiltin(rq::Opcode::SY_EXPORTING) {}
+
+[[nodiscard]] inline bool Exporting::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_EXPORTING;
+}
+
+inline Runtime::Runtime() : SimpleBuiltin(rq::Opcode::SY_RUNTIME) {}
+
+[[nodiscard]] inline bool Runtime::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RUNTIME;
+}
+
+inline Capturing::Capturing() : SimpleBuiltin(rq::Opcode::SY_CAPTURING) {}
+
+[[nodiscard]] inline bool Capturing::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CAPTURING;
+}
+
+inline EvaluationTime::EvaluationTime()
+    : SimpleBuiltin(rq::Opcode::SY_EVALUATION_TIME) {}
+
+[[nodiscard]] inline bool EvaluationTime::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_EVALUATION_TIME;
+}
+
+inline Parentability::Parentability()
+    : SimpleBuiltin(rq::Opcode::SY_PARENTABILITY) {}
+
+[[nodiscard]] inline bool Parentability::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_PARENTABILITY;
+}
+
+inline PropertyAssociation::PropertyAssociation()
+    : SimpleBuiltin(rq::Opcode::SY_PROPERTY_ASSOCIATION) {}
+
+[[nodiscard]] inline bool PropertyAssociation::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_PROPERTY_ASSOCIATION;
+}
+
+inline Tangibility::Tangibility() : SimpleBuiltin(rq::Opcode::SY_TANGIBILITY) {}
+
+[[nodiscard]] inline bool Tangibility::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_TANGIBILITY;
+}
+
+inline Overriding::Overriding() : SimpleBuiltin(rq::Opcode::SY_OVERRIDING) {}
+
+[[nodiscard]] inline bool Overriding::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_OVERRIDING;
+}
+
+inline Inlining::Inlining() : SimpleBuiltin(rq::Opcode::SY_INLINING) {}
+
+[[nodiscard]] inline bool Inlining::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_INLINING;
+}
+
+inline Mangling::Mangling() : SimpleBuiltin(rq::Opcode::SY_MANGLING) {}
+
+[[nodiscard]] inline bool Mangling::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_MANGLING;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2616,6 +2934,11 @@ inline Synonym::Synonym(rq::Symbol &original)
 inline TableIterator::TableIterator(rq::Table *table_ptr)
     : _table_ptr(table_ptr) {}
 
+RQ_ALWAYS_INLINE rq::TableIterator &TableIterator::operator++() {
+  this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
+  return *this;
+}
+
 RQ_ALWAYS_INLINE rq::TableIterator TableIterator::operator++(int) {
   rq::TableIterator temp = *this;
   ++(*this);
@@ -2654,6 +2977,9 @@ TableIterator::operator->() const {
   return this->_table_ptr == nullptr;
 }
 
+inline ConstTableIterator::ConstTableIterator(const rq::Table *table_ptr)
+    : _table_ptr(table_ptr) {}
+
 RQ_ALWAYS_INLINE rq::ConstTableIterator &ConstTableIterator::operator++() {
   this->_table_ptr = rq::dereferencePtr(this->_table_ptr)._containing_table_ptr;
   return *this;
@@ -2664,9 +2990,6 @@ RQ_ALWAYS_INLINE rq::ConstTableIterator ConstTableIterator::operator++(int) {
   ++(*this);
   return temp;
 }
-
-inline ConstTableIterator::ConstTableIterator(const rq::Table *table_ptr)
-    : _table_ptr(table_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 ConstTableIterator::operator==(const Self &it) const {
@@ -3097,29 +3420,323 @@ Category::setDiscriminantTypeExpression(const rq::Expression &type_expression) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_CATEGORY;
 }
 
-inline Ranger::Ranger(const rq::Expression &expression,
-                      rq::ExpressionFlags attributes, rq::Module &module,
-                      rq::Table &containing_table, rq::Table &hosting_table)
-    : Table(rq::Opcode::SY_RANGER, containing_table),
-      InitialExpression(expression), InitialExpressionFlags(attributes),
-      InitialModuleMember(module), TableHosted(hosting_table) {}
+inline TemplateIterator::TemplateIterator(rq::Template *template_ptr)
+    : _template_ptr{template_ptr} {}
 
-[[nodiscard]] inline bool Ranger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_RANGER;
+RQ_ALWAYS_INLINE rq::TemplateIterator &TemplateIterator::operator++() {
+  this->_template_ptr =
+      rq::dereferencePtr(this->_template_ptr)._next_template_ptr;
+  return *this;
 }
 
-inline ReverseRanger::ReverseRanger(const rq::Expression &expression,
-                                    rq::ExpressionFlags attributes,
-                                    rq::Module &module,
-                                    rq::Table &containing_table,
-                                    rq::Table &hosting_table)
-    : Table(rq::Opcode::SY_REVERSE_RANGER, containing_table),
-      InitialExpression(expression), InitialExpressionFlags(attributes),
-      InitialModuleMember(module), TableHosted(hosting_table) {}
+RQ_ALWAYS_INLINE rq::TemplateIterator TemplateIterator::operator++(int) {
+  rq::TemplateIterator temp = *this;
+  ++(*this);
+  return temp;
+}
 
-[[nodiscard]] inline bool ReverseRanger::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_REVERSE_RANGER;
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+TemplateIterator::operator==(const Self &it) const {
+  return this->_template_ptr == it._template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+TemplateIterator::operator!=(const Self &it) const {
+  return this->_template_ptr != it._template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Template &TemplateIterator::operator*() {
+  return rq::dereferencePtr(this->_template_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &
+TemplateIterator::operator*() const {
+  return rq::dereferencePtr(this->_template_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Template *TemplateIterator::operator->() {
+  return this->_template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *
+TemplateIterator::operator->() const {
+  return this->_template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool TemplateIterator::getIsDone() const {
+  return this->_template_ptr == nullptr;
+}
+
+inline ConstTemplateIterator::ConstTemplateIterator(
+    const rq::Template *template_ptr)
+    : _template_ptr(template_ptr) {}
+
+RQ_ALWAYS_INLINE rq::ConstTemplateIterator &
+ConstTemplateIterator::operator++() {
+  this->_template_ptr =
+      rq::dereferencePtr(this->_template_ptr)._next_template_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstTemplateIterator
+ConstTemplateIterator::operator++(int) {
+  rq::ConstTemplateIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstTemplateIterator::operator==(const Self &it) const {
+  return this->_template_ptr == it._template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstTemplateIterator::operator!=(const Self &it) const {
+  return this->_template_ptr != it._template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &
+ConstTemplateIterator::operator*() const {
+  return rq::dereferencePtr(this->_template_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *
+ConstTemplateIterator::operator->() const {
+  return this->_template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool ConstTemplateIterator::getIsDone() const {
+  return this->_template_ptr == nullptr;
+}
+
+template <typename UnderlyingParam>
+inline UnderlyingTemplateIterator<UnderlyingParam>::UnderlyingTemplateIterator(
+    UnderlyingParam *underlying_ptr)
+    : _underlying_ptr(underlying_ptr) {}
+
+template <typename UnderlyingParam>
+RQ_ALWAYS_INLINE rq::UnderlyingTemplateIterator<UnderlyingParam> &
+UnderlyingTemplateIterator<UnderlyingParam>::operator++() {
+  this->_underlying_ptr = std::bit_cast<UnderlyingParam *>(
+      rq::dereferencePtr(this->_underlying_ptr)._next_template_ptr);
+  return *this;
+}
+
+template <typename UnderlyingParam>
+RQ_ALWAYS_INLINE UnderlyingTemplateIterator<UnderlyingParam>
+UnderlyingTemplateIterator<UnderlyingParam>::operator++(int) {
+  rq::UnderlyingTemplateIterator<UnderlyingParam> temp = *this;
+  ++(*this);
+  return temp;
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+UnderlyingTemplateIterator<UnderlyingParam>::operator==(const Self &it) const {
+  return this->_underlying_ptr == it._underlying_ptr;
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+UnderlyingTemplateIterator<UnderlyingParam>::operator!=(const Self &it) const {
+  return this->_underlying_ptr != it._underlying_ptr;
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE UnderlyingParam &
+UnderlyingTemplateIterator<UnderlyingParam>::operator*() {
+  return llvm::cast<UnderlyingParam>(rq::dereferencePtr(this->_underlying_ptr));
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE const UnderlyingParam &
+UnderlyingTemplateIterator<UnderlyingParam>::operator*() const {
+  return llvm::cast<UnderlyingParam>(rq::dereferencePtr(this->_underlying_ptr));
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE UnderlyingParam *
+UnderlyingTemplateIterator<UnderlyingParam>::operator->() {
+  return std::bit_cast<UnderlyingParam *>(this->_underlying_ptr);
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE const UnderlyingParam *
+UnderlyingTemplateIterator<UnderlyingParam>::operator->() const {
+  return std::bit_cast<UnderlyingParam *>(this->_underlying_ptr);
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+UnderlyingTemplateIterator<UnderlyingParam>::getIsDone() const {
+  return this->_underlying_ptr == nullptr;
+}
+
+template <typename UnderlyingParam>
+inline ConstUnderlyingTemplateIterator<UnderlyingParam>::
+    ConstUnderlyingTemplateIterator(const UnderlyingParam *underlying_ptr)
+    : _underlying_ptr(underlying_ptr) {}
+
+template <typename UnderlyingParam>
+RQ_ALWAYS_INLINE ConstUnderlyingTemplateIterator<UnderlyingParam> &
+ConstUnderlyingTemplateIterator<UnderlyingParam>::operator++() {
+  this->_underlying_ptr = rq::dereferencePtr(this->_underlying_ptr)._next_ptr;
+  return *this;
+}
+
+template <typename UnderlyingParam>
+RQ_ALWAYS_INLINE ConstUnderlyingTemplateIterator<UnderlyingParam>
+ConstUnderlyingTemplateIterator<UnderlyingParam>::operator++(int) {
+  rq::ConstUnderlyingTemplateIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstUnderlyingTemplateIterator<UnderlyingParam>::operator==(
+    const Self &it) const {
+  return this->_underlying_ptr == it._underlying_ptr;
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstUnderlyingTemplateIterator<UnderlyingParam>::operator!=(
+    const Self &it) const {
+  return this->_underlying_ptr != it._underlying_ptr;
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE const UnderlyingParam &
+ConstUnderlyingTemplateIterator<UnderlyingParam>::operator*() const {
+  return llvm::cast<UnderlyingParam>(rq::dereferencePtr(this->_underlying_ptr));
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE const UnderlyingParam *
+ConstUnderlyingTemplateIterator<UnderlyingParam>::operator->() const {
+  return llvm::cast<UnderlyingParam>(this->_underlying_ptr);
+}
+
+template <typename UnderlyingParam>
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstUnderlyingTemplateIterator<UnderlyingParam>::getIsDone() const {
+  return this->_underlying_ptr == nullptr;
+}
+
+inline Polymorph::Polymorph(rq::Opcode opcode, rq::Table &containing_table)
+    : Symbol(opcode), TableMember(containing_table) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Polymorph::getHasTemplate() const {
+  return this->_first_template_ptr != nullptr;
+}
+
+[[nodiscard]] inline std::ranges::subrange<rq::TemplateIterator,
+                                           rq::TemplateIterator,
+                                           std::ranges::subrange_kind::unsized>
+Polymorph::getTemplateSubrange() {
+  return std::ranges::subrange<rq::TemplateIterator, rq::TemplateIterator,
+                               std::ranges::subrange_kind::unsized>(
+      rq::TemplateIterator(this->_first_template_ptr), rq::TemplateIterator());
+}
+
+[[nodiscard]] inline std::ranges::subrange<rq::ConstTemplateIterator,
+                                           rq::ConstTemplateIterator,
+                                           std::ranges::subrange_kind::unsized>
+Polymorph::getTemplateSubrange() const {
+  return std::ranges::subrange<rq::ConstTemplateIterator,
+                               rq::ConstTemplateIterator,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstTemplateIterator(this->_first_template_ptr),
+      rq::ConstTemplateIterator());
+}
+
+[[nodiscard]] inline bool Polymorph::classof(const Entity *entity) {
+  return rq::getIsPolymorph(rq::dereferencePtr(entity).getOpcode());
+}
+
+inline RangerIterator::RangerIterator(rq::Ranger *ranger_ptr)
+    : _ranger_ptr{ranger_ptr} {}
+
+RQ_ALWAYS_INLINE rq::RangerIterator &RangerIterator::operator++() {
+  this->_ranger_ptr = rq::dereferencePtr(this->_ranger_ptr)._next_ranger_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::RangerIterator RangerIterator::operator++(int) {
+  rq::RangerIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+RangerIterator::operator==(const Self &it) const {
+  return this->_ranger_ptr == it._ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+RangerIterator::operator!=(const Self &it) const {
+  return this->_ranger_ptr != it._ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Ranger &RangerIterator::operator*() {
+  return rq::dereferencePtr(this->_ranger_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger &
+RangerIterator::operator*() const {
+  return rq::dereferencePtr(this->_ranger_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Ranger *RangerIterator::operator->() {
+  return this->_ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger *
+RangerIterator::operator->() const {
+  return this->_ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool RangerIterator::getIsDone() const {
+  return this->_ranger_ptr == nullptr;
+}
+
+inline ConstRangerIterator::ConstRangerIterator(const rq::Ranger *ranger_ptr)
+    : _ranger_ptr(ranger_ptr) {}
+
+RQ_ALWAYS_INLINE rq::ConstRangerIterator &ConstRangerIterator::operator++() {
+  this->_ranger_ptr = rq::dereferencePtr(this->_ranger_ptr)._next_ranger_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstRangerIterator ConstRangerIterator::operator++(int) {
+  rq::ConstRangerIterator temp = *this;
+  ++(*this);
+  return temp;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstRangerIterator::operator==(const Self &it) const {
+  return this->_ranger_ptr == it._ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstRangerIterator::operator!=(const Self &it) const {
+  return this->_ranger_ptr != it._ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger &
+ConstRangerIterator::operator*() const {
+  return rq::dereferencePtr(this->_ranger_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Ranger *
+ConstRangerIterator::operator->() const {
+  return this->_ranger_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool ConstRangerIterator::getIsDone() const {
+  return this->_ranger_ptr == nullptr;
 }
 
 inline Local::Local(llvm::StringRef name, const rq::Expression &expression,
@@ -3529,6 +4146,65 @@ inline TemplateGlobalStatic::TemplateGlobalStatic(
          rq::Opcode::SY_TEMPLATE_GLOBAL_STATIC;
 }
 
+inline TemplateRanger::TemplateRanger(rq::Opcode opcode, llvm::StringRef name,
+                                      const rq::Expression &expression,
+                                      rq::ExpressionFlags attributes,
+                                      rq::Module &module,
+                                      rq::Table &containing_table,
+                                      rq::Table &hosting_table,
+                                      rq::TemplateLayout &template_layout)
+    : Template(opcode, name, expression, attributes, module, containing_table,
+               hosting_table, template_layout) {
+  RQ_ASSERT(rq::getIsTemplateRanger(opcode), "not template ranger");
+}
+
+[[nodiscard]] inline bool TemplateRanger::classof(const Entity *entity) {
+  return rq::getIsTemplateRanger(rq::dereferencePtr(entity).getOpcode());
+}
+
+inline TemplateForwardRanger::TemplateForwardRanger(
+    llvm::StringRef name, const rq::Expression &expression,
+    rq::ExpressionFlags attributes, rq::Module &module,
+    rq::Table &containing_table, rq::Table &hosting_table,
+    rq::TemplateLayout &template_layout)
+    : TemplateRanger(rq::Opcode::SY_TEMPLATE_FORWARD_RANGER, name, expression,
+                     attributes, module, containing_table, hosting_table,
+                     template_layout) {}
+
+[[nodiscard]] inline bool TemplateForwardRanger::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_TEMPLATE_FORWARD_RANGER;
+}
+
+inline TemplateBackwardRanger::TemplateBackwardRanger(
+    llvm::StringRef name, const rq::Expression &expression,
+    rq::ExpressionFlags attributes, rq::Module &module,
+    rq::Table &containing_table, rq::Table &hosting_table,
+    rq::TemplateLayout &template_layout)
+    : TemplateRanger(rq::Opcode::SY_TEMPLATE_BACKWARD_RANGER, name, expression,
+                     attributes, module, containing_table, hosting_table,
+                     template_layout) {}
+
+[[nodiscard]] inline bool
+TemplateBackwardRanger::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::SY_TEMPLATE_BACKWARD_RANGER;
+}
+
+inline TemplateProcedure::TemplateProcedure(
+    rq::Opcode opcode, llvm::StringRef name, const rq::Expression &expression,
+    rq::ExpressionFlags attributes, rq::Module &module,
+    rq::Table &containing_table, rq::Table &hosting_table,
+    rq::TemplateLayout &template_layout)
+    : Template(opcode, name, expression, attributes, module, containing_table,
+               hosting_table, template_layout) {
+  RQ_ASSERT(rq::getIsTemplateProcedure(opcode), "not template procedure");
+}
+
+[[nodiscard]] inline bool TemplateProcedure::classof(const Entity *entity) {
+  return rq::getIsTemplateProcedure(rq::dereferencePtr(entity).getOpcode());
+}
+
 inline TemplateFunction::TemplateFunction(llvm::StringRef name,
                                           const rq::Expression &expression,
                                           rq::ExpressionFlags attributes,
@@ -3536,8 +4212,9 @@ inline TemplateFunction::TemplateFunction(llvm::StringRef name,
                                           rq::Table &containing_table,
                                           rq::Table &hosting_table,
                                           rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_FUNCTION, name, expression, attributes,
-               module, containing_table, hosting_table, template_layout) {}
+    : TemplateProcedure(rq::Opcode::SY_TEMPLATE_FUNCTION, name, expression,
+                        attributes, module, containing_table, hosting_table,
+                        template_layout) {}
 
 [[nodiscard]] inline bool TemplateFunction::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
@@ -3551,8 +4228,9 @@ inline TemplateMethod::TemplateMethod(llvm::StringRef name,
                                       rq::Table &containing_table,
                                       rq::Table &hosting_table,
                                       rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_METHOD, name, expression, attributes,
-               module, containing_table, hosting_table, template_layout) {}
+    : TemplateProcedure(rq::Opcode::SY_TEMPLATE_METHOD, name, expression,
+                        attributes, module, containing_table, hosting_table,
+                        template_layout) {}
 
 [[nodiscard]] inline bool TemplateMethod::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() ==
@@ -3564,9 +4242,9 @@ inline TemplateExtensionFunction::TemplateExtensionFunction(
     rq::ExpressionFlags attributes, rq::Module &module,
     rq::Table &containing_table, rq::Table &hosting_table,
     rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_EXTENSION_FUNCTION, name, expression,
-               attributes, module, containing_table, hosting_table,
-               template_layout) {}
+    : TemplateProcedure(rq::Opcode::SY_TEMPLATE_EXTENSION_FUNCTION, name,
+                        expression, attributes, module, containing_table,
+                        hosting_table, template_layout) {}
 
 [[nodiscard]] inline bool
 TemplateExtensionFunction::classof(const Entity *entity) {
@@ -3579,9 +4257,9 @@ inline TemplateExtensionMethod::TemplateExtensionMethod(
     rq::ExpressionFlags attributes, rq::Module &module,
     rq::Table &containing_table, rq::Table &hosting_table,
     rq::TemplateLayout &template_layout)
-    : Template(rq::Opcode::SY_TEMPLATE_EXTENSION_METHOD, name, expression,
-               attributes, module, containing_table, hosting_table,
-               template_layout) {}
+    : TemplateProcedure(rq::Opcode::SY_TEMPLATE_EXTENSION_METHOD, name,
+                        expression, attributes, module, containing_table,
+                        hosting_table, template_layout) {}
 
 [[nodiscard]] inline bool
 TemplateExtensionMethod::classof(const Entity *entity) {
@@ -3589,140 +4267,18 @@ TemplateExtensionMethod::classof(const Entity *entity) {
          rq::Opcode::SY_TEMPLATE_EXTENSION_METHOD;
 }
 
-inline Partial::Partial(rq::Opcode opcode, llvm::StringRef name,
-                        const rq::Expression &expression,
-                        rq::ExpressionFlags attributes, rq::Module &module,
-                        rq::Table &containing_table, rq::Table &hosting_table)
+inline Specialized::Specialized(rq::Opcode opcode, llvm::StringRef name,
+                                const rq::Expression &expression,
+                                rq::ExpressionFlags attributes,
+                                rq::Module &module, rq::Table &containing_table,
+                                rq::Table &hosting_table)
     : Symbol(opcode), InitialExpression(expression),
       InitialExpressionFlags(attributes), InitialModuleMember(module),
       TableMember(containing_table), TableHosted(hosting_table),
       InitialNamed(name) {}
 
-[[nodiscard]] inline bool Partial::classof(const Entity *entity) {
-  return rq::getIsPartial(rq::dereferencePtr(entity).getOpcode());
-}
-
-inline PartialClass::PartialClass(llvm::StringRef name,
-                                  rq::Expression &expression,
-                                  rq::ExpressionFlags attributes,
-                                  rq::Module &module,
-                                  rq::Table &containing_table,
-                                  rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_CLASS, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialClass::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::SY_PARTIAL_CLASS;
-}
-
-inline PartialEnumeration::PartialEnumeration(llvm::StringRef name,
-                                              rq::Expression &expression,
-                                              rq::ExpressionFlags attributes,
-                                              rq::Module &module,
-                                              rq::Table &containing_table,
-                                              rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_ENUMERATION, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialEnumeration::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_ENUMERATION;
-}
-
-inline PartialCategory::PartialCategory(llvm::StringRef name,
-                                        rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::Table &containing_table,
-                                        rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_CATEGORY, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialCategory::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_CATEGORY;
-}
-
-inline PartialGlobal::PartialGlobal(llvm::StringRef name,
-                                    rq::Expression &expression,
-                                    rq::ExpressionFlags attributes,
-                                    rq::Module &module,
-                                    rq::Table &containing_table,
-                                    rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialGlobal::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_GLOBAL;
-}
-
-inline PartialGlobalStatic::PartialGlobalStatic(llvm::StringRef name,
-                                                rq::Expression &expression,
-                                                rq::ExpressionFlags attributes,
-                                                rq::Module &module,
-                                                rq::Table &containing_table,
-                                                rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_GLOBAL_STATIC, name, expression,
-              attributes, module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialGlobalStatic::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_GLOBAL_STATIC;
-}
-
-inline PartialFunction::PartialFunction(llvm::StringRef name,
-                                        rq::Expression &expression,
-                                        rq::ExpressionFlags attributes,
-                                        rq::Module &module,
-                                        rq::Table &containing_table,
-                                        rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_FUNCTION, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialFunction::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_FUNCTION;
-}
-
-inline PartialMethod::PartialMethod(llvm::StringRef name,
-                                    rq::Expression &expression,
-                                    rq::ExpressionFlags attributes,
-                                    rq::Module &module,
-                                    rq::Table &containing_table,
-                                    rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_METHOD, name, expression, attributes,
-              module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool PartialMethod::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_METHOD;
-}
-
-inline PartialExtensionFunction::PartialExtensionFunction(
-    llvm::StringRef name, rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_EXTENSION_FUNCTION, name, expression,
-              attributes, module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool
-PartialExtensionFunction::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_EXTENSION_FUNCTION;
-}
-
-inline PartialExtensionMethod::PartialExtensionMethod(
-    llvm::StringRef name, rq::Expression &expression,
-    rq::ExpressionFlags attributes, rq::Module &module,
-    rq::Table &containing_table, rq::Table &hosting_table)
-    : Partial(rq::Opcode::SY_PARTIAL_EXTENSION_METHOD, name, expression,
-              attributes, module, containing_table, hosting_table) {}
-
-[[nodiscard]] inline bool
-PartialExtensionMethod::classof(const Entity *entity) {
-  return rq::dereferencePtr(entity).getOpcode() ==
-         rq::Opcode::SY_PARTIAL_EXTENSION_METHOD;
+[[nodiscard]] inline bool Specialized::classof(const Entity *entity) {
+  return rq::getIsSpecialized(rq::dereferencePtr(entity).getOpcode());
 }
 
 inline Constant::Constant(rq::Opcode opcode) : Entity(opcode) {}
@@ -3753,48 +4309,6 @@ TypeConstant::getSymbol() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags
 TypeConstant::getTypeFlags() const {
   return this->_type_flags;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasMutable() const {
-  return rq::getHasMutable(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasConstant() const {
-  return rq::getHasConstant(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-TypeConstant::getHasPartiallyMutable() const {
-  return rq::getHasPartiallyMutable(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasVolatile() const {
-  return rq::getHasVolatile(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasAtomic() const {
-  return rq::getHasAtomic(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasNullTerminated() const {
-  return rq::getHasNullTerminated(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasMayDiscard() const {
-  return rq::getHasMayDiscard(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasIndeterminate() const {
-  return rq::getHasIndeterminate(this->getTypeFlags());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-TypeConstant::getHasAttribute(rq::TypeAttribute attribute) const {
-  return rq::getHasAttribute(this->getTypeFlags(), attribute);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool TypeConstant::getHasMutability() const {
-  return rq::getHasMutability(this->getTypeFlags());
 }
 
 [[nodiscard]] inline bool TypeConstant::getIsInferencing() const {
@@ -3928,6 +4442,37 @@ inline ArrayConstant::ArrayConstant() : Constant(rq::Opcode::CT_ARRAY) {}
 
 [[nodiscard]] inline bool ArrayConstant::classof(const Entity *entity) {
   return rq::dereferencePtr(entity).getOpcode() == rq::Opcode::CT_ARRAY;
+}
+
+inline ExpressionAttributeConstant::ExpressionAttributeConstant(
+    rq::ExpressionAttribute expression_attribute)
+    : Constant(rq::Opcode::CT_EXPRESSION_ATTRIBUTE),
+      _expression_attribute(expression_attribute) {}
+
+[[nodiscard]] rq::ExpressionAttribute
+ExpressionAttributeConstant::getExpressionAttribute() const {
+  return this->_expression_attribute;
+}
+
+[[nodiscard]] inline bool
+ExpressionAttributeConstant::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::CT_EXPRESSION_ATTRIBUTE;
+}
+
+inline TypeAttributeConstant::TypeAttributeConstant(
+    rq::TypeAttribute type_attribute)
+    : Constant(rq::Opcode::CT_TYPE_ATTRIBUTE), _type_attribute(type_attribute) {
+}
+
+[[nodiscard]] rq::TypeAttribute
+TypeAttributeConstant::getTypeAttribute() const {
+  return this->_type_attribute;
+}
+
+[[nodiscard]] inline bool TypeAttributeConstant::classof(const Entity *entity) {
+  return rq::dereferencePtr(entity).getOpcode() ==
+         rq::Opcode::CT_TYPE_ATTRIBUTE;
 }
 
 inline Instruction::Instruction(rq::Opcode opcode) : Entity(opcode) {

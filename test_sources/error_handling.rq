@@ -1,24 +1,47 @@
-@message::"divide by 0 error"
 [code ERROR_DIVIDE_BY_ZERO];
-@message::"no error"
 [code OK];
+
+[namespace codes,
+
+[global][static][template]::{> Code:[code] <} 
+MESSAGE:^[utf8]="no message";
+
+[template]::{> Category:[category] <}
+[function getMessage, ()^[utf8]=>$Category,
+    [static][for Category.[alternatives], [static] alternative:=[value],
+        [if [this].[discriminant] == alternative.[discriminant],
+            [result] := .codes.MESSAGE{alternative.[code]};
+            [return];
+        ];
+    ];
+];
+
+%%namespace codes,];
+
+// specialization for .OK code:
+[global][static][specialize]::{}
+.codes.MESSAGE{Code=.OK}:="no error occured";
+
+// specialization for .ERROR_DIVIDE_BY_ZERO code:
+[global][static][specialize]::{}
+.codes.MESSAGE{Code=.ERROR_DIVIDE_BY_ZERO}:="error: divide by 0";
 
 // categories are similar to enumerations, but they have codes for members unstead of named enumerators.
 // in this way, the same code can be used across multiple categories.
-@template::{> Type:[float] <}
-@auto_drop @may_copy
+[template]::{> Type:[float] <}
+[implicit_drop][may_copy]
 [category DivideResult,
-    @ok .OK : Type; // ok attribute means that this will pass and not fail
+    [ok] .OK : Type; // ok attribute means that this will pass and not fail
     .ERROR_DIVIDE_BY_ZERO; // has no value associated
 ];
 
 [entry
     divide_result := divide(10, 5)
         .[pass code:=[code], value:=[value], // if has multiple passes or fails with values of different types, will pick pass based on best matching type of value
-            .std.print(line="no error occured: {code.[message]}. The result is: {value}.");
+            .std.print(line="no error occured: {code->.codes.getMessage()}. The result is: {value}.");
             [out] := value;
         ].[fail code:=[code], // this fail works for all error codes without values associated
-            .std.print(line="an error occured: {code.[message]}");
+            .std.print(line="an error occured: {code->.codes.getMessage()}");
             [result] := 1;
             // must set [out] or break control flow. divide_result cannot be left indeterminate!
             [return];
@@ -26,7 +49,7 @@
     [result] := 0;
 ];
 
-@template::{> Type:[float] <}
+[template]::{> Type:[float] <}
 [function divide, (> a:Type, b:Type <).DivideResult{Type},
     [if b == 0,
         [result] := .ERROR_DIVIDE_BY_ZERO();

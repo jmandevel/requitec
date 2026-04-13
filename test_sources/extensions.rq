@@ -1,19 +1,19 @@
 
 [namespace example,
-    @template::{> Type:[type], LENGTH:[unsigned_index] <}
+    [template]::{> Type:[type], LENGTH:[unsigned_index] <}
     [extension_function getElementCount, LENGTH#Type, ()[unsigned_index],
         [result] := LENGTH;
     ];
 
-    @template::{> Type:[type], LENGTH:[unsigned_index] <}
-    [extension_method getElementCount, ()[unsigned_index]=>&LENGTH#Type,
+    [template]::{> Type:[type], LENGTH:[unsigned_index] <}
+    [extension_method getElementCount, ()[unsigned_index]=>$LENGTH#Type,
         [result] := LENGTH;
     ];
 
-    @auto_drop @may_copy
+    [auto_drop][may_copy]
     [class Foo,];
 
-    [extension_method bar, ()[void]=>&Foo,
+    [extension_method bar, ()[void]=>$Foo,
     
     ];
 ];
@@ -22,13 +22,13 @@
     my_array :5#[signed]= [initialize_array 0, 1, 2, 3, 4].[of [fast_signed_integer 32]];
 
     // call extension function
-    my_array.[type]->.example.getElementCount().[ignore];
+    my_array.[type]->..example.getElementCount().[ignore];
     // call extension method
-    my_array.[borrow]->.example.getElementCount().[ignore];
+    my_array.[borrow]->..example.getElementCount().[ignore];
     
     // construct variable of type declared in same table as extension functions
-    foo := .example.Foo();
+    foo := ..example.Foo();
 
     // call extension function
-    foo.[borrow]->.example.bar();
+    foo.[borrow]->..example.bar();
 ];

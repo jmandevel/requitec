@@ -94,7 +94,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::HASH_OPERATOR, 1);
       continue;
     case '$':
-      this->tokenizeLengthToken(T::DOLLAR_SIGIL, 1);
+      this->tokenizeLengthToken(T::DOLLAR_OPERATOR, 1);
       continue;
     case '%':
       switch (this->getRanger().getChar(1)) {
@@ -674,7 +674,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::WHAT_OPERATOR, 1);
       continue;
     case '@':
-      this->tokenizeLengthToken(T::AT_SIGIL, 1);
+      this->tokenizeLengthToken(T::AT_OPERATOR, 1);
       continue;
     case 'A':
       break;
@@ -749,13 +749,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '_':
       break;
     case '`':
-      switch (this->getRanger().getChar(1)) {
-      case '`':
-        this->tokenizeLengthToken(T::DOUBLE_GRAVE_OPERATOR, 2);
-        break;
-      default:
-        this->tokenizeLengthToken(T::GRAVE_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(T::GRAVE_SIGIL, 1);
       continue;
     case 'a':
       break;
