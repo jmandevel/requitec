@@ -27,19 +27,19 @@
 ];
 
 [entry
-  class :`[mutable]= .MyClass();
+  class :+[mutable]= .MyClass();
   copy := class;
   reference := class.[borrow];
-  reference_to_mutable := class.`[mutable][borrow];
+  reference_to_mutable := class.+[mutable][borrow];
   pointer := class.[address];
-  pointer_to_mutable := class.`[mutable][address];
+  pointer_to_mutable := class.+[mutable][address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.`[mutable][borrow]->.std.extract();
+  non_destructive_move := class.+[mutable][borrow]->.std.extract();
   destructive_move := class.[move];
   // class was dropped
   destructive_move.[move].destroy(); // linear assign into destructor method
   // non_destructive_move is auto dropped here
-  pinned :`[mutable]= MyPinned();
+  pinned :+[mutable]= MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has stable_address attribute
   pinned.[move].destroy(); // this move is valid because the memory location does not change
 ];

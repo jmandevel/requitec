@@ -23,10 +23,10 @@
     <},
 
     [template]::{> mutability:[mutability] <}
-    [backward_ranger $`mutability, $`mutability[fast_signed_integer 32],
+    [backward_ranger $+mutability, $+mutability[fast_signed_integer 32],
         [for [this].data, value:=[value].`mutability[borrow], 
             [range_over 
-                value.$?mutability[borrow]
+                value.$+mutability[borrow]
             ];
         ];
     ];
@@ -53,7 +53,7 @@
 
     [scope
         // while loop    
-        value : `[mutable] = 0.[as [fast_signed_integer 32]];
+        value : +[mutable] = 0.[as [fast_signed_integer 32]];
         [while value < 10,
             ..std.print(line="value is {value}");   
             value = value + 1;

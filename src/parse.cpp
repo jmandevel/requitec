@@ -639,12 +639,16 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       const rq::Token &token = this->getRanger().getToken();
       const rq::TokenKind kind = token.getKind();
       switch (kind) {
-      case rq::TokenKind::GRAVE_SIGIL: {
+      case rq::TokenKind::PLUS_OPERATOR: {
         this->getRanger().incrementToken(1);
-        rq::Expression &attribute = this->parseNonascribableExpression();
+        rq::Expression &attribute = this->parseTypeAscribedExpression();
         precedence_factory.parseAscribe(token.getSourceText(),
                                         rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
-        precedence_factory.appendBranch(attribute);
+        rq::Expression &instantiation = this->getContext().acquireExpression();
+        instantiation.setSource(token, attribute);
+        instantiation.setKeyword(rq::Keyword::INSTANTIATE_TYPE_ATTRIBUTE);
+        instantiation.setBranch(attribute);
+        precedence_factory.appendBranch(instantiation);
         continue;
       }
       case rq::TokenKind::ARROW_OPERATOR: {

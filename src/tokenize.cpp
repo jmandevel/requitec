@@ -749,7 +749,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '_':
       break;
     case '`':
-      this->tokenizeLengthToken(T::GRAVE_SIGIL, 1);
+      this->tokenizeLengthToken(T::ERROR_INVALID, 1);
       continue;
     case 'a':
       break;

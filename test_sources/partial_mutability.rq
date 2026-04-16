@@ -12,9 +12,9 @@
     constant := Partialable();
 
     // all properties are mutable for fully mutable values:
-    fully_mutable : `[mutable] = Partialiable();
+    fully_mutable : +[mutable] = Partialiable();
 
-    // only properties marked with `[partial_mutate] are mutable for partially mutable values:
-    partially_mutable : `[partially_mutable] = Partialable();
+    // only properties marked with +[partial_mutate] are mutable for partially mutable values:
+    partially_mutable : +[partially_mutable] = Partialable();
 
 ];

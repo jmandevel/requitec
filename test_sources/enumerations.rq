@@ -10,9 +10,9 @@
 [entry
     fruit := ..MyEnum.APPLE(3);
     [match fruit,
-        [with APPLE, apple:=[value].`[mutable][borrow], 
+        [with APPLE, apple:=[value].+[mutable][borrow], 
             apple = apple + 1;
-        ][with ORANGE, orange:=[value].`[mutable][borrow],
+        ][with ORANGE, orange:=[value].+[mutable][borrow],
             orange = orange * 2;
         ][default
             // do nothing!

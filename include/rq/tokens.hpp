@@ -96,9 +96,6 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_BANG_EQUAL_SLASH_DOT_OPERATOR,      // .!=/.
   DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR,    // .!=%.
 
-  // SIGILS
-  GRAVE_SIGIL, // 1
-
   // SEPARATOR SYMBOLS
   TRAILER_SEPARATOR,   // %%
   SEMICOLON_SEPARATOR, // ;
@@ -328,10 +325,6 @@ getName(rq::TokenKind kind) {
     return "dot_bang_equal_slash_dot_operator";
   case T::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
     return "dot_bang_equal_percent_dot_operator";
-
-  // SIGILS
-  case T::GRAVE_SIGIL:
-    return "grave_sigil";
 
   // SEPARATOR SYMBOLS
   case T::TRAILER_SEPARATOR:
@@ -577,8 +570,6 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOT_BANG_EQUAL_PERCENT_DOT_OPERATOR:
     return TF::OPERATOR;
-  case T::GRAVE_SIGIL:
-    return TF::NONE; // SIGIL
   case T::TRAILER_SEPARATOR:
     return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
   case T::SEMICOLON_SEPARATOR:
@@ -662,10 +653,6 @@ getUnmatched(rq::TokenKind kind) {
 getIsOperator(rq::TokenKind kind) {
   const rq::TokenFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::TokenFlags::OPERATOR);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSigil(rq::TokenKind kind) {
-  return kind == rq::TokenKind::GRAVE_SIGIL;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
@@ -799,9 +786,6 @@ struct Token final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSeparator() const {
     return rq::getIsSeparator(this->getKind());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigil() const {
-    return rq::getIsSigil(this->getKind());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
     return rq::getIsLiteral(this->getKind());
