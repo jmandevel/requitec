@@ -1124,6 +1124,7 @@ rq::Expression &Context::acquireExpression() {
   rq::Expression &unused_expression =
       rq::dereferencePtr(this->acquired._first_unused_expression_ptr);
   this->acquired._first_unused_expression_ptr = unused_expression._branch_ptr;
+  unused_expression._branch_ptr = nullptr;
   return unused_expression;
 }
 
