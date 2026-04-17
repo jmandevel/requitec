@@ -14,7 +14,7 @@
 
 [entry
     // this will print the following line to the terminal:
-    // snippet: "..printMe()" line: 16 column: 4
+    // snippet: "..printMe()" line: 18 column: 4
     ..printMe();
 ];
 
