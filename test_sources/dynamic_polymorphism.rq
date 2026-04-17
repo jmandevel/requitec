@@ -1,22 +1,33 @@
 [import "std"];
 
-[abstract]
-[class Abstract,
+[interface InterfaceA,
+    [abstract]
+    [global] NUMBER :[fast_signed_integer 64];
+
     [abstract]
     [method myFuncB, ()[void]=>$,];
+];
+
+[interface InterfaceB,
+    [abstract]
+    [method funnyFunction, ()[void]=>$,];
 ];
 
 [may_parent][implicit_drop][may_copy]
 [class Parent,
     {>
-        [parent] abstract :..Abstract
+        [public][parent] interface_a :..InterfaceA
+        [public][parent] interface_b :..InterfaceB
     <},
+
+    [override]::{interface_a.NUMBER}
+    [global] NUMBER :[fast_signed_integer]=0;
     
     [method myFunc, ()[void]=>$,
         ..std.print(line="in parent");
     ];
     
-    [virtual][override]::abstract.myFuncB
+    [virtual][override]::{interface_a.myFuncB, interface_b.funnyFunction}
     [method myFuncB, ()[void]=>$,
         ..std.print(line="in parent");
     ];
@@ -38,6 +49,10 @@
     ];
 ];
 
+[function funnyCaller, (>interface:&InterfaceB<)[void],
+    interface.[borrow].funnyFunction();
+];
+
 [entry
     parent := ..Parent();
     child := ..Child();
@@ -46,4 +61,9 @@
     child.[borrow].myFunc();
     parent.[borrow].myFuncB();
     child.[borrow].myFuncB();
+
+    ..funnyCaller(parent.interface_b.[borrow]);
+    ..funnyCaller(child.interface_b.[borrow]);
+
+    parent.interface_b.[borrow].funnyFunction();
 ];

@@ -1,7 +1,6 @@
 remaining design tasks:
-dynamic polymorphism:
-* composition
-* inheritance
+dynamic polymorphism
+type punning
 rtti
 * do it like llvm but less work
 static reflection
@@ -11,4 +10,3 @@ reflection operations on symbols
     * source location
     * snippet
     * attributes
-callsite
