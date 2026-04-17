@@ -1,0 +1,15 @@
+[import "std"];
+
+[entry
+    // the command line arguments are in a fat pointer to fat pointer to char.
+    // [command_line_arguments] is only usable within [entry].
+    args :@@[char]= [command_line_arguments];
+
+    [for [command_line_arguments], arg:=[value], arg_i:=[index],
+        ..std.print(line=
+                "arg_" +> arg_i + " is \"" +> arg +> "\""
+            );
+    ];
+
+    [result] := 0;
+];
