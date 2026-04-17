@@ -222,7 +222,6 @@ enum class Keyword : std::uint32_t {
   UNSIGNED_INDEX,
   SIGNED_ADDRESS,
   UNSIGNED_ADDRESS,
-  INTERPOLATED_STRING,
   STRING,
   CODEUNIT,
   CHAR,
@@ -895,8 +894,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "signed_address";
   case K::UNSIGNED_ADDRESS:
     return "unsigned_address";
-  case K::INTERPOLATED_STRING:
-    return "interpolated_string";
   case K::STRING:
     return "string";
   case K::CODEUNIT:
@@ -1841,8 +1838,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::SIGNED_ADDRESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_ADDRESS:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INTERPOLATED_STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::STRING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;

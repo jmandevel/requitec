@@ -1,6 +1,6 @@
 [import "std"];
 
-[template]::{> InterpolatedString:[interpolated_string] <}
+[template]::{> InterpolatedString:[type] <}
 [function interpolatedFunc, (> string:InterpolatedString <)[void],
     [spin string, substr:=[value],
         ..std.print(line="found substr: " +> substr);

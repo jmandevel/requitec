@@ -714,8 +714,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED_ADDRESS:
     [[fallthrough]];
-  case K::INTERPOLATED_STRING:
-    [[fallthrough]];
   case K::STRING:
     [[fallthrough]];
   case K::CODEUNIT:
