@@ -224,7 +224,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
       return precedence_factory.getOuter();
     }
     const rq::Token &after_token = this->getRanger().getToken();
-    if (after_token.getIsExpressionEnd() || expression.getCanBeChainLink()) {
+    if (after_token.getIsInferenceTerminator() || expression.getCanBeChainLink()) {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
     }
