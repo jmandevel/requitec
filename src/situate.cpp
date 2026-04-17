@@ -1000,7 +1000,7 @@ bool Situator::situateTree(rq::Situation situation,
     rq::Expression &path = expression.getBranch();
     if (path.getKeyword() == K::REFLECT) {
       rq::Expression &branch = path.popBranch();
-      rq::Expression &body = path.popNext();
+      rq::Expression *body_ptr = path.popNextPtr();
       this->getContext().discardExpression(expression.replaceBranch(branch));
       rq::Expression &branch_next = branch.popNext();
       branch.setIsHeader();
@@ -1014,7 +1014,7 @@ bool Situator::situateTree(rq::Situation situation,
       while (previous_path_ptr != nullptr) {
         rq::Expression &previous_path = rq::dereferencePtr(previous_path_ptr);
         if (!previous_path.getHasNext()) {
-          previous_path.setNext(body);
+          previous_path.setNext(body_ptr);
           break;
         }
         rq::Expression &path_next = branch.popNext();
