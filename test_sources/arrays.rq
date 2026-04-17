@@ -9,7 +9,7 @@
         " count:" +> my_array.[type].[element_count] +>
         " depth:" +> my_array.[type].[bit_depth] +>
         "!");
-    [for my_array, index:=[index], element:=[value].\[var][borrow], 
+    [for my_array, index:=[index], element:=[value], 
         element = element * index.[platform_cast element.[type]];
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 
