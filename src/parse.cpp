@@ -617,10 +617,6 @@ rq::Expression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::Keyword::BITWISE_COMPLEMENT);
       continue;
-    case rq::TokenKind::BACKSLASH_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::Keyword::IDENTIFY);
-      continue;
     default:
       precedence_factory.appendBranch(this->parsePrecedence1(is_type_ascribed));
       break;
@@ -639,7 +635,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       const rq::Token &token = this->getRanger().getToken();
       const rq::TokenKind kind = token.getKind();
       switch (kind) {
-      case rq::TokenKind::PLUS_OPERATOR: {
+      case rq::TokenKind::BACKSLASH_OPERATOR: {
         this->getRanger().incrementToken(1);
         rq::Expression &attribute = this->parseTypeAscribedExpression();
         precedence_factory.parseAscribe(token.getSourceText(),
@@ -688,10 +684,6 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       case rq::TokenKind::AT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token, rq::Keyword::FAT_POINTER);
-        continue;
-      case rq::TokenKind::PERCENT_OPERATOR:
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::IDENTIFY);
         continue;
       case rq::TokenKind::DOLLAR_OPERATOR:
         this->getRanger().incrementToken(1);
