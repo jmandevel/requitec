@@ -1,13 +1,22 @@
 [import "std"];
 
+[abstract]
+[class Abstract,
+    [abstract]
+    [method myFuncB, ()[void]=>$,];
+];
+
 [may_parent][implicit_drop][may_copy]
 [class Parent,
+    {>
+        [parent] abstract :..Abstract
+    <},
     
     [method myFunc, ()[void]=>$,
         ..std.print(line="in parent");
     ];
     
-    [virtual]
+    [virtual][override]::abstract.myFuncB
     [method myFuncB, ()[void]=>$,
         ..std.print(line="in parent");
     ];
