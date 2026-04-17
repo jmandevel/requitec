@@ -1,6 +1,6 @@
 
 [implicit_drop][may_copy]
-[object Partialable,
+[class Partialable,
     {>
         [public][partial_mutate] property_a : [fast_signed_integer 32]= 0,
         [public] property_b : [fast_signed_integer 32] = 0
@@ -14,7 +14,7 @@
     // all properties are var for fully var values:
     fully_var : +[var] = Partialiable();
 
-    // only properties marked with +[partial_mutate] are var for partially var values:
+    // only properties marked with [partial_mutate] are var for partially var values:
     partially_var : +[partially_var] = Partialable();
 
 ];

@@ -60,6 +60,10 @@ struct Situator final {
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branchn_situation,
       rq::Situation last_situation);
+  [[nodiscard]] bool situateUnsituatedAscribeExpression(
+      rq::Situation situation, rq::Expression &expression,
+      unsigned minimum_branch_count, rq::Situation branchn_situation,
+      rq::Situation last_situation);
   [[nodiscard]] bool situateNaryDifferentFirstAndLastValueBranches(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,

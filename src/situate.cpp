@@ -127,10 +127,14 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   case K::UNSITUATED_ASCRIBE_EXPRESSION:
-    [[fallthrough]];
-  case K::UNSITUATED_ASCRIBE_TYPE: {
-    RQ_TODO_IMPLEMENTATION();
-  } break;
+    is_ok = this->situateUnsituatedAscribeExpression(
+        situation, expression, 2, S::EXPRESSION_ATTRIBUTE_INSTANTIATION,
+        situation);
+    break;
+  case K::UNSITUATED_ASCRIBE_TYPE:
+    is_ok = this->situateUnsituatedAscribeExpression(
+        situation, expression, 2, S::TYPE_ATTRIBUTE_INSTANTIATION, situation);
+    break;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -1677,6 +1681,43 @@ bool Situator::situateNaryDifferentLastValueBranches(
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                      minimum_branch_count);
     is_ok = false;
+  }
+  return is_ok;
+}
+
+[[nodiscard]] bool Situator::situateUnsituatedAscribeExpression(
+    rq::Situation situation, rq::Expression &expression,
+    unsigned minimum_branch_count, rq::Situation branchn_situation,
+    rq::Situation last_situation) {
+  bool is_ok = true;
+  unsigned branch_i = 0;
+  rq::Expression *last_ptr = nullptr;
+  rq::Expression *previous_last_ptr = nullptr;
+  for (rq::Expression &branch : expression.getBranchSubrange()) {
+    if (!branch.getHasNext()) {
+      if (!this->situateValueBranch(last_situation, branch)) {
+        is_ok = false;
+      }
+      if (is_ok) {
+        previous_last_ptr = last_ptr;
+        last_ptr = &branch;
+      }
+      break;
+    }
+    last_ptr = &branch;
+    if (!this->situateValueBranch(branchn_situation, branch)) {
+      is_ok = false;
+    }
+  }
+  if (branch_i < minimum_branch_count) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                     minimum_branch_count);
+    is_ok = false;
+  }
+  if (is_ok && previous_last_ptr != nullptr) {
+    rq::Expression &previous_last = rq::dereferencePtr(previous_last_ptr);
+    rq::Expression &last = previous_last.popBranch();
+    last.setNext(expression.replaceBranch(last));
   }
   return is_ok;
 }
