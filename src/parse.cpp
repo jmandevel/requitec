@@ -214,7 +214,7 @@ rq::Expression *RequiteParser::parseExpressions() {
   return factory.getExpressionPtr();
 }
 
-// SYMBOL ATTRIBUTES
+// EXPRESSION ATTRIBUTES
 rq::Expression &RequiteParser::parsePrecedence11() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
