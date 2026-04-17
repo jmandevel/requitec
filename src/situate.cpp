@@ -212,8 +212,12 @@ bool Situator::situateTree(rq::Situation situation,
     }
   } break;
   case K::INSTANTIATE_TYPE_ATTRIBUTE:
-    [[fallthrough]];
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::IDENTIFY:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::IDENTIFY_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
@@ -410,8 +414,8 @@ bool Situator::situateTree(rq::Situation situation,
                                            S::STRING_INTERPOLATION);
     break;
   case K::INSTANTIATE_TEMPLATE:
-    is_ok = this->situateNaryDifferentFirstParamterBranches(
-        situation, expression, S::RVALUE);
+    is_ok = this->situateNaryDifferentFirstValueBranches(
+        situation, expression, 1, S::RVALUE, S::ARGUMENT);
     break;
 
   // PROCEDURES
@@ -529,7 +533,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::GOTO:
     [[fallthrough]];
   case K::RANGE_OVER:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE, S::RVALUE);
     break;
 
   // DECLARED TYPES
@@ -705,7 +709,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::LEAST_SIGNED_INTEGER:
     [[fallthrough]];
   case K::LEAST_UNSIGNED_INTEGER:
-    [[fallthrough]];
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::SIGNED_INDEX:
     [[fallthrough]];
   case K::UNSIGNED_INDEX:
@@ -1444,17 +1449,17 @@ bool Situator::situateTree(rq::Situation situation,
   case K::HAS_MEMBER_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::HAS:
+  case K::HAS_CAPTURE:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::HAS_OF:
+  case K::HAS_CAPTURE_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::GET:
+  case K::GET_CAPTURE:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::GET_OF:
+  case K::GET_CAPTURE_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
@@ -1480,6 +1485,12 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::AS_EXTENSION_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::REVERSE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::REVERSE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
@@ -1667,6 +1678,7 @@ bool Situator::situateNaryDifferentLastValueBranches(
   bool is_ok = true;
   unsigned branch_i = 0;
   for (rq::Expression &branch : expression.getBranchSubrange()) {
+    branch_i++;
     if (!branch.getHasNext()) {
       if (!this->situateValueBranch(last_situation, branch)) {
         is_ok = false;
@@ -1694,6 +1706,7 @@ bool Situator::situateNaryDifferentLastValueBranches(
   rq::Expression *last_ptr = nullptr;
   rq::Expression *previous_last_ptr = nullptr;
   for (rq::Expression &branch : expression.getBranchSubrange()) {
+    branch_i++;
     if (!branch.getHasNext()) {
       if (!this->situateValueBranch(last_situation, branch)) {
         is_ok = false;
@@ -1716,7 +1729,7 @@ bool Situator::situateNaryDifferentLastValueBranches(
   }
   if (is_ok && previous_last_ptr != nullptr) {
     rq::Expression &previous_last = rq::dereferencePtr(previous_last_ptr);
-    rq::Expression &last = previous_last.popBranch();
+    rq::Expression &last = previous_last.popNext();
     last.setNext(expression.replaceBranch(last));
   }
   return is_ok;
@@ -1764,7 +1777,7 @@ bool Situator::situateNaryDifferentFirstParamterBranches(
     return false;
   }
   if (!branch0.getHasNext()) {
-    return false;
+    return true;
   }
   return this->situateNaryFromFirstParameterBranches(situation, expression,
                                                      branch0.getNext());
