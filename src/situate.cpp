@@ -122,12 +122,13 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::UNSITUATED_ASCRIBE_EXPRESSION:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, S::EXPRESSION_ATTRIBUTE_INSTANTIATION,
-        situation);
+        situation, expression, 2, K::ASCRIBE_EXPRESSION,
+        S::EXPRESSION_ATTRIBUTE_INSTANTIATION, situation);
     break;
   case K::UNSITUATED_ASCRIBE_TYPE:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, S::TYPE_ATTRIBUTE_INSTANTIATION, situation);
+        situation, expression, 2, K::ASCRIBE_TYPE,
+        S::TYPE_ATTRIBUTE_INSTANTIATION, situation);
     break;
 
   // LOGICAL
@@ -404,8 +405,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
   case K::INITIALIZE_INTERPOLATED_STRING:
-    is_ok = this->situateNaryValueBranches(situation, expression, 1,
-                                           S::RVALUE);
+    is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
   case K::INSTANTIATE_TEMPLATE:
     is_ok = this->situateNaryDifferentFirstValueBranches(
@@ -527,7 +527,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::GOTO:
     [[fallthrough]];
   case K::RANGE_OVER:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
+                                             S::RVALUE);
     break;
 
   // DECLARED TYPES
@@ -1691,8 +1692,8 @@ bool Situator::situateNaryDifferentLastValueBranches(
 
 [[nodiscard]] bool Situator::situateUnsituatedAscribeExpression(
     rq::Situation situation, rq::Expression &expression,
-    unsigned minimum_branch_count, rq::Situation branchn_situation,
-    rq::Situation last_situation) {
+    unsigned minimum_branch_count, rq::Keyword situated_keyword,
+    rq::Situation branchn_situation, rq::Situation last_situation) {
   bool is_ok = true;
   unsigned branch_i = 0;
   rq::Expression *last_ptr = nullptr;
@@ -1706,6 +1707,7 @@ bool Situator::situateNaryDifferentLastValueBranches(
       if (is_ok) {
         previous_last_ptr = last_ptr;
         last_ptr = &branch;
+        expression.changeKeyword(situated_keyword);
       }
       break;
     }
