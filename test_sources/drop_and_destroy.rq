@@ -4,7 +4,7 @@
     // notice how the method does not take the instance by reference
     // this causes it to be linearly assigned (ownership is transfered into the method)
     [public]
-    [method destroy, ()[void]=>+[var], 
+    [method destroy, ()[void]=>\[var], 
         [this].[drop];
     ]
 ];
@@ -15,7 +15,7 @@
 [entry
     // classes marked as "implicit_drop" are dropped automatically when goes out of scope
     // however, nothing can be done on object drop time (like freeing memory etc)
-    auto : +[var] = ,.AutoDrop();
+    auto : \[var] = ..AutoDrop();
 
     // if you want to enable RAII pattern, you need to force manual drops:
 
@@ -24,14 +24,14 @@
     // drop it with .[drop] reflection. however, the drop reflection is only usable within member methods and functions.
     // you can also use .[move] to give ownership away. dropping responsibility is passed on too.
     // the member method .destroy() does this for us.
-    no_auto_drop : +[var] = ..NoAutoDrop();
+    no_auto_drop : \[var] = ..NoAutoDrop();
     // destructor is called when variable is destroyed with .[destroy]. destroy resources here.
     [destructor no_auto_drop,
         no_auto_drop.[move].destroy();
     ];
 
     // builtin array type has a special .[drop_each] ranger
-    array := [initialize_array .NoAutoDrop(), .NoAutoDrop(), .NoAutoDrop()];
+    array := [initialize_array ..NoAutoDrop(), ..NoAutoDrop(), ..NoAutoDrop()];
     [destructor array,
         [for array.[move].[drop_each], value:=[value].[borrow], 
             value.[move].destroy();

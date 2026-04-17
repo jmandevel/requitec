@@ -10,7 +10,7 @@
         [result] := LENGTH;
     ];
 
-    [auto_drop][may_copy]
+    [implicit_drop][may_copy]
     [class Foo,];
 
     [extension_method bar, ()[void]=>$Foo,

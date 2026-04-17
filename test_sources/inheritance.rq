@@ -16,7 +16,7 @@
 [implicit_drop][may_copy]
 [class Child,
     {> 
-        [parent] parent := .Parent() 
+        [parent] parent := ..Parent() 
     <},
     
     [public]

@@ -12,5 +12,5 @@
 ];
 
 [entry
-    ..std.print(line="the return value is {.myFunc(1, 2)}");
+    ..std.print(line="the return value is {..myFunc(1, 2)}");
 ];

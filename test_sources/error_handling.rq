@@ -4,11 +4,11 @@
 [namespace codes,
 
 [global][static][template]::{> Code:[code] <} 
-MESSAGE:^[utf8]="no message";
+MESSAGE:@[utf8]="no message";
 
 [template]::{> Category:[category] <}
 [function getMessage, ()@[utf8]=>$Category,
-    [static][for Category.[alternatives], [static] alternative:=[value],
+    [static][for Category.[alternative_range], [static] alternative:=[value],
         [if [this].[discriminant] == alternative.[discriminant],
             [result] := .codes.MESSAGE{alternative.[code]};
             [return];

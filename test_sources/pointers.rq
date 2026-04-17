@@ -2,10 +2,10 @@
     // if you know C, this should be super easy to understand.
 
     // var single floating point number
-    var :+[var][single]= 0;
+    var :\[var][single]= 0;
 
     // var pointer to var single float (? is pointer)
-    var_ptr :+[var]?+[var][single]= var.+[var][address];
+    var_ptr :\[var]?\[var][single]= var.\[var][address];
 
     var_ptr.[content] = 1;
 

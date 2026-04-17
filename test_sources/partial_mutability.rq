@@ -1,4 +1,3 @@
-
 [implicit_drop][may_copy]
 [class Partialable,
     {>
@@ -9,12 +8,12 @@
 
 [entry
     // no properties are var for constant values:
-    constant := Partialable();
+    constant := ..Partialable();
 
     // all properties are var for fully var values:
-    fully_var : +[var] = Partialiable();
+    fully_var : \[var] = ..Partialiable();
 
     // only properties marked with [partial_mutate] are var for partially var values:
-    partially_var : +[partially_var] = Partialable();
+    partially_var : \[partially_var] = ..Partialable();
 
 ];
