@@ -210,8 +210,8 @@ struct Tokenizer final {
   void tokenizeRightGrouping(rq::GroupingKind grouping_kind,
                              rq::TokenKind token_kind, unsigned length);
   void checkFinalGroupings();
-  template <bool CAN_HAVE_INTERPOLATION_PARAM, char END_QUOTE_PARAM,
-            rq::TokenKind KIND_PARAM, rq::TokenKind ERROR_UNTERMINATED_PARAM>
+  template <char END_QUOTE_PARAM, rq::TokenKind KIND_PARAM,
+            rq::TokenKind ERROR_UNTERMINATED_PARAM>
   void tokenizeQuotedLiteral() {
     this->getRanger().startSubToken();
     this->getRanger().incrementChar(1);
@@ -308,15 +308,6 @@ struct Tokenizer final {
         this->getTokens().push_back(
             this->getRanger().getSubToken(ERROR_UNTERMINATED_PARAM));
         return;
-      case '{':
-        if constexpr (CAN_HAVE_INTERPOLATION_PARAM) {
-          this->getTokens().push_back(this->getRanger().getSubToken(
-              rq::TokenKind::LEFT_INTERPOLATION_LITERAL));
-          this->tokenizeLengthToken(rq::TokenKind::LEFT_BRACE_GROUPING, 1);
-          this->pushGrouping(rq::GroupingKind::INTERPOLATION);
-          return;
-        }
-        [[fallthrough]];
       default:
         this->getRanger().incrementChar(1);
         break;

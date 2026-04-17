@@ -287,7 +287,6 @@ struct RequiteParser final {
   void parseTrailer(rq::Expression &expression,
                     rq::TokenRanger &keyword_ranger);
   [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
-  [[nodiscard]] rq::Expression &parseInterpolatedString();
 };
 
 } // namespace rq

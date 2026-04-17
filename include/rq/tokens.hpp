@@ -116,12 +116,6 @@ enum class TokenKind : std::uint_fast8_t {
   INTEGER_LITERAL,    // 12345 16xDEADBEEF 2x1010_0110
   FLOAT_LITERAL,      // 3.14 9000.00000000001 10_020.434
 
-  // "My_name_is_{name}._I_am_{age}_years_old."
-
-  LEFT_INTERPOLATION_LITERAL,   // "My_name_is_
-  MIDDLE_INTERPOLATION_LITERAL, // ._I_am_
-  RIGHT_INTERPOLATION_LITERAL,  // _years_old."
-
   // ERROR
   ERROR_INVALID,
   ERROR_UNTERMINATED_STRING_LITERAL,
@@ -359,12 +353,6 @@ getName(rq::TokenKind kind) {
     return "integer_literal";
   case T::FLOAT_LITERAL:
     return "float_literal";
-  case T::LEFT_INTERPOLATION_LITERAL:
-    return "left_interpolation_literal";
-  case T::MIDDLE_INTERPOLATION_LITERAL:
-    return "middle_interpolation_literal";
-  case T::RIGHT_INTERPOLATION_LITERAL:
-    return "right_interpolation_literal";
 
   // ERROR
   case T::ERROR_INVALID:
@@ -597,12 +585,6 @@ getFlags(rq::TokenKind kind) {
   case T::INTEGER_LITERAL:
     return TF::LITERAL;
   case T::FLOAT_LITERAL:
-    return TF::LITERAL;
-  case T::LEFT_INTERPOLATION_LITERAL:
-    return TF::LITERAL;
-  case T::MIDDLE_INTERPOLATION_LITERAL:
-    return TF::LITERAL;
-  case T::RIGHT_INTERPOLATION_LITERAL:
     return TF::LITERAL;
   case T::ERROR_INVALID:
     return TF::ERROR;
@@ -840,7 +822,6 @@ struct Token final {
 
 enum class GroupingKind {
   NONE,
-  INTERPOLATION,
   BRACKET,
   DOUBLE_BRACKET,
   BRACE,
@@ -853,8 +834,6 @@ inline llvm::StringRef getDescription(rq::GroupingKind kind) {
   switch (kind) {
   case G::NONE:
     return "none";
-  case G::INTERPOLATION:
-    return "interpolation";
   case G::BRACKET:
     return "bracket";
   case G::DOUBLE_BRACKET:

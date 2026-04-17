@@ -224,7 +224,8 @@ rq::Expression &RequiteParser::parsePrecedence11() {
       return precedence_factory.getOuter();
     }
     const rq::Token &after_token = this->getRanger().getToken();
-    if (after_token.getIsInferenceTerminator() || expression.getCanBeChainLink()) {
+    if (after_token.getIsInferenceTerminator() ||
+        expression.getCanBeChainLink()) {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
     }
@@ -545,6 +546,12 @@ rq::Expression &RequiteParser::parsePrecedence4() {
     case rq::TokenKind::DASH_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::SUBTRACT);
+      precedence_factory.setRecent(this->parsePrecedence3());
+      continue;
+    case rq::TokenKind::CONCATENATE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token,
+                                   rq::Keyword::INITIALIZE_INTERPOLATED_STRING);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     default:
@@ -1032,8 +1039,6 @@ rq::Expression &RequiteParser::parsePrecedence0() {
     return this->parseLiteralOrMark(rq::Keyword::INTEGER_LITERAL);
   case rq::TokenKind::FLOAT_LITERAL:
     return this->parseLiteralOrMark(rq::Keyword::FLOAT_LITERAL);
-  case rq::TokenKind::LEFT_INTERPOLATION_LITERAL:
-    return this->parseInterpolatedString();
   default:
     break;
   }
@@ -1201,7 +1206,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const bool parameter_mark_found =
       this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found) {
-    brace.changeKeyword(rq::Keyword::INITIALIZE_LAYOUT);
+    brace.changeKeyword(rq::Keyword::INSTANTIATE_LAYOUT);
   }
   return brace;
 }
@@ -1244,7 +1249,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const bool has_parameter_marks = this->parseValueBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks || !parenthesis.getHasBranch()) {
-    parenthesis.changeKeyword(rq::Keyword::INITIALIZE_SIGNATURE);
+    parenthesis.changeKeyword(rq::Keyword::INSTANTIATE_SIGNATURE);
     rq::Expression &return_type = this->parseAscribableExpression();
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));
@@ -1264,85 +1269,6 @@ rq::Expression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
   identifier.setSource(token);
   this->getRanger().incrementToken(1);
   return identifier;
-}
-
-rq::Expression &RequiteParser::parseInterpolatedString() {
-  const rq::Token &left_token = this->getRanger().getToken();
-  rq::Expression *first_ptr = nullptr;
-  rq::Expression *previous_ptr = nullptr;
-  while (!this->getRanger().getIsDone()) {
-    const rq::Token &token = this->getRanger().getToken();
-    switch (token.getKind()) {
-    case rq::TokenKind::LEFT_INTERPOLATION_LITERAL: {
-      RQ_ASSERT(first_ptr == nullptr && previous_ptr == nullptr,
-                "left interpolated string literal must be first");
-      this->getRanger().incrementToken(1);
-      if (token.getSourceTextLength() == 0) {
-        continue;
-      }
-      rq::Expression &string = this->getContext().acquireExpression();
-      string.setKeyword(rq::Keyword::LEFT_INTERPOLATION_LITERAL);
-      string.setSource(token);
-      first_ptr = &string;
-      previous_ptr = &string;
-      continue;
-    }
-    case rq::TokenKind::MIDDLE_INTERPOLATION_LITERAL: {
-      this->getRanger().incrementToken(1);
-      if (token.getSourceTextLength() == 0) {
-        continue;
-      }
-      rq::Expression &string = this->getContext().acquireExpression();
-      string.setKeyword(rq::Keyword::MIDDLE_INTERPOLATION_LITERAL);
-      string.setSource(token);
-      if (previous_ptr != nullptr) {
-        rq::dereferencePtr(previous_ptr).setNext(string);
-      }
-      if (first_ptr == nullptr) {
-        first_ptr = &string;
-      }
-      previous_ptr = &string;
-      continue;
-    }
-    case rq::TokenKind::RIGHT_INTERPOLATION_LITERAL: {
-      this->getRanger().incrementToken(1);
-      if (token.getSourceTextLength() == 0) {
-        continue;
-      }
-      rq::Expression &string = this->getContext().acquireExpression();
-      string.setKeyword(rq::Keyword::RIGHT_INTERPOLATION_LITERAL);
-      string.setSource(token);
-      if (previous_ptr != nullptr) {
-        rq::dereferencePtr(previous_ptr).setNext(string);
-      }
-      if (first_ptr == nullptr) {
-        first_ptr = &string;
-      }
-      previous_ptr = &string;
-      rq::Expression &tuple = this->getContext().acquireExpression();
-      tuple.setKeyword(rq::Keyword::INITIALIZE_INTERPOLATED_STRING);
-      tuple.setSource(left_token, token);
-      tuple.setBranch(first_ptr);
-      return tuple;
-    }
-    case rq::TokenKind::LEFT_BRACE_GROUPING: {
-      rq::Expression &interpolation = this->parseEnclosedBraceExpression();
-      rq::dereferencePtr(previous_ptr).setNext(interpolation);
-      if (first_ptr == nullptr) {
-        first_ptr = &interpolation;
-      }
-      previous_ptr = &interpolation;
-      continue;
-    }
-    default:
-      break;
-    }
-  }
-  this->getContext().logErrorUnterminatedInterpolatedString(left_token);
-  this->setNotOk();
-  rq::Expression &error = this->getContext().acquireExpression();
-  error.setKeyword(rq::Keyword::ERROR);
-  return error;
 }
 
 } // namespace rq

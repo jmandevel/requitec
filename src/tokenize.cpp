@@ -87,7 +87,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::BANG_OPERATOR, 1);
       continue;
     case '\"':
-      this->tokenizeQuotedLiteral<true, '\"', T::STRING_LITERAL,
+      this->tokenizeQuotedLiteral<'\"', T::STRING_LITERAL,
                                   T::ERROR_UNTERMINATED_STRING_LITERAL>();
       continue;
     case '#':
@@ -109,7 +109,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
       continue;
     case '\'':
-      this->tokenizeQuotedLiteral<false, '\'', T::CODEUNIT_LITERAL,
+      this->tokenizeQuotedLiteral<'\'', T::CODEUNIT_LITERAL,
                                   T::ERROR_UNTERMINATED_CODEUNIT_LITERAL>();
       continue;
     case '(':
@@ -815,61 +815,6 @@ void Tokenizer::_tokenizeSourceText() {
       } else if (this->getTopGrouping().getKind() == G::BRACE) {
         this->tokenizeLengthToken(T::RIGHT_BRACE_GROUPING, 1);
         this->popGrouping();
-      } else if (this->getTopGrouping().getKind() == G::INTERPOLATION) {
-        this->tokenizeRightGrouping(G::INTERPOLATION, T::RIGHT_BRACE_GROUPING,
-                                    1);
-        this->getRanger().startSubToken();
-        while (true) {
-          const char sub_c0 = this->getRanger().getChar(0);
-          if (sub_c0 == '\\') {
-            switch (this->getRanger().getChar(1)) {
-            case '\n':
-              this->getRanger().incrementChar(2);
-              break;
-            case '\r':
-              switch (this->getRanger().getChar(1)) {
-              case '\n':
-                this->getRanger().incrementChar(3);
-                break;
-              default:
-                this->getRanger().incrementChar(2);
-              }
-              break;
-            default:
-              this->getRanger().incrementChar(2);
-            }
-          } else if (sub_c0 == '{') {
-            this->getTokens().push_back(
-                this->getRanger().getSubToken(T::MIDDLE_INTERPOLATION_LITERAL));
-            this->tokenizeLeftGrouping(G::INTERPOLATION, T::LEFT_BRACE_GROUPING,
-                                       1);
-            break;
-          } else if (sub_c0 == '\n') {
-            this->getRanger().incrementChar(1);
-          } else if (sub_c0 == '\r') {
-            switch (this->getRanger().getChar(1)) {
-            case '\n':
-              this->getRanger().incrementChar(2);
-              break;
-            default:
-              this->getRanger().incrementChar(1);
-            }
-          } else if (sub_c0 == '\"') {
-            this->getRanger().incrementChar(1);
-            this->getTokens().push_back(
-                this->getRanger().getSubToken(T::RIGHT_INTERPOLATION_LITERAL));
-            break;
-          } else if (sub_c0 == '\0') {
-            this->getTokens().push_back(this->getRanger().getSubToken(
-                T::ERROR_UNTERMINATED_STRING_LITERAL));
-            this->getContext().logErrorUnterminatedStringLiteral(
-                this->getTokens().back());
-            this->setNotOk();
-            break;
-          } else {
-            this->getRanger().incrementChar(1);
-          }
-        }
       } else {
         this->tokenizeUnmatchedLengthToken(T::RIGHT_BRACE_GROUPING, 1);
       }

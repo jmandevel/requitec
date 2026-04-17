@@ -27,12 +27,6 @@ enum class Keyword : std::uint32_t {
   FLOAT_LITERAL,
   // a literal that represents a string of text characters.
   STRING_LITERAL,
-  // left string interpolation (string literal with no end quote mark).
-  LEFT_INTERPOLATION_LITERAL,
-  // middle string interpolation (string literal with no quote marks).
-  MIDDLE_INTERPOLATION_LITERAL,
-  // right string interpolation (string literal with start quote mark).
-  RIGHT_INTERPOLATION_LITERAL,
   // a literal that represents a single text character.
   CODEUNIT_LITERAL,
   // a literal that is used to refeer to user defined symbols.
@@ -139,14 +133,14 @@ enum class Keyword : std::uint32_t {
 
   // BRACES
   TUPLE,
-  INITIALIZE_LAYOUT,
+  INSTANTIATE_LAYOUT,
   INITIALIZE_INTERPOLATED_STRING,
   INSTANTIATE_TEMPLATE,
 
   // PROCEDURES
   CALL,
   NAMED_ARGUMENT,
-  INITIALIZE_SIGNATURE,
+  INSTANTIATE_SIGNATURE,
   DEFAULT_VALUE_PARAMETER,
   DROP,
   DROP_OF,
@@ -489,7 +483,6 @@ enum class Keyword : std::uint32_t {
   EXPAND_TUPLE,
   EXPAND_LAYOUT,
   EXPAND_SIGNATURE,
-  EXPAND_STRING_INTERPOLATION,
   EXPAND_REFLECTION,
   EXPAND_ARGUMENT,
   EXPAND_PARAMETER,
@@ -566,12 +559,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "__float_literal";
   case K::STRING_LITERAL:
     return "__string_literal";
-  case K::LEFT_INTERPOLATION_LITERAL:
-    return "__left_interpolation_literal";
-  case K::MIDDLE_INTERPOLATION_LITERAL:
-    return "__middle_interpolation_literal";
-  case K::RIGHT_INTERPOLATION_LITERAL:
-    return "__right_interpolation_literal";
   case K::CODEUNIT_LITERAL:
     return "__codeunit_literal";
   case K::IDENTIFIER_LITERAL:
@@ -750,8 +737,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // BRACES
   case K::TUPLE:
     return "_tuple";
-  case K::INITIALIZE_LAYOUT:
-    return "_initialize_layout";
+  case K::INSTANTIATE_LAYOUT:
+    return "_instantiate_layout";
   case K::INITIALIZE_INTERPOLATED_STRING:
     return "_initialize_interpolated_string";
   case K::INSTANTIATE_TEMPLATE:
@@ -766,8 +753,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "at";
   case K::AT_OF:
     return "_at_of";
-  case K::INITIALIZE_SIGNATURE:
-    return "_initialize_signature";
+  case K::INSTANTIATE_SIGNATURE:
+    return "_instantiate_signature";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
   case K::DROP:
@@ -1344,8 +1331,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_expand_layout";
   case K::EXPAND_SIGNATURE:
     return "_expand_signature";
-  case K::EXPAND_STRING_INTERPOLATION:
-    return "_expand_string_interpolation";
   case K::EXPAND_REFLECTION:
     return "_expand_reflection";
   case K::EXPAND_ARGUMENT:
@@ -1479,21 +1464,20 @@ enum class KeywordFlags : std::uint32_t {
   TUPLE = rq::getBit(14),
   LAYOUT = rq::getBit(15),
   SIGNATURE = rq::getBit(16),
-  STRING_INTERPOLATION = rq::getBit(17),
-  REFLECTION = rq::getBit(18),
-  ARGUMENT = rq::getBit(19),
-  PARAMETER = rq::getBit(20),
-  BINDING = rq::getBit(21),
-  NAME = rq::getBit(22),
-  NAMESPACE = rq::getBit(23),
-  ASCRIPTION = rq::getBit(24),
-  EXPRESSION_ATTRIBUTE = rq::getBit(25),
-  TYPE_ATTRIBUTE = rq::getBit(26),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(27),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(28),
+  REFLECTION = rq::getBit(17),
+  ARGUMENT = rq::getBit(18),
+  PARAMETER = rq::getBit(19),
+  BINDING = rq::getBit(20),
+  NAME = rq::getBit(21),
+  NAMESPACE = rq::getBit(22),
+  ASCRIPTION = rq::getBit(23),
+  EXPRESSION_ATTRIBUTE = rq::getBit(24),
+  TYPE_ATTRIBUTE = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | TUPLE | LAYOUT | SIGNATURE |
-                   STRING_INTERPOLATION | REFLECTION | ARGUMENT | PARAMETER |
-                   BINDING | NAME | NAMESPACE | ASCRIPTION | TYPE_ATTRIBUTE |
+                   REFLECTION | ARGUMENT | PARAMETER | BINDING | NAME |
+                   NAMESPACE | ASCRIPTION | TYPE_ATTRIBUTE |
                    EXPRESSION_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
                    ARITHMETIC_SEQUENCE_CONDITION,
 
@@ -1515,17 +1499,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::FLOAT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::STRING_LITERAL:
-    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT |
-           KF::STRING_INTERPOLATION;
-  case K::LEFT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
-           KF::STRING_INTERPOLATION;
-  case K::MIDDLE_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::UNQUOTED_RIGHT | KF::LITERAL | KF::INTERNAL |
-           KF::STRING_INTERPOLATION;
-  case K::RIGHT_INTERPOLATION_LITERAL:
-    return KF::UNQUOTED_LEFT | KF::LITERAL | KF::INTERNAL |
-           KF::STRING_INTERPOLATION;
+    return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::CODEUNIT_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::IDENTIFIER_LITERAL:
@@ -1713,8 +1687,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::TUPLE:
-    return KF::TUPLE | KF::STRING_INTERPOLATION;
-  case K::INITIALIZE_LAYOUT:
+    return KF::TUPLE;
+  case K::INSTANTIATE_LAYOUT:
     return KF::LAYOUT;
   case K::INITIALIZE_INTERPOLATED_STRING:
     return KF::RVALUE | KF::ARGUMENT;
@@ -1726,7 +1700,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::NAMED_ARGUMENT:
     return KF::ARGUMENT;
-  case K::INITIALIZE_SIGNATURE:
+  case K::INSTANTIATE_SIGNATURE:
     return KF::SIGNATURE | KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
@@ -1927,8 +1901,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::SPIN:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
   case K::WEAVE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::CONTINUING_CHAINLINK |
+           KF::FINISHING_CHAINLINK;
   case K::SCOPE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::INLINE_SCOPE:
@@ -2309,8 +2283,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::LAYOUT | KF::EXPANSION;
   case K::EXPAND_SIGNATURE:
     return KF::SIGNATURE | KF::EXPANSION;
-  case K::EXPAND_STRING_INTERPOLATION:
-    return KF::STRING_INTERPOLATION | KF::EXPANSION;
   case K::EXPAND_REFLECTION:
     return KF::REFLECTION | KF::EXPANSION;
   case K::EXPAND_ARGUMENT:
@@ -2335,9 +2307,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // REFLECTIONS
   case K::REFLECT:
-    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
-           KF::ARGUMENT | KF::PARAMETER | KF::ARITHMETIC_SEQUENCE_STEP |
-           KF::ARITHMETIC_SEQUENCE_CONDITION | KF::NAMESPACE;
+    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE |
+           KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
+           KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
+           KF::NAMESPACE;
   case K::MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MEMBER_OF_TOP:
@@ -2538,7 +2511,6 @@ enum class Situation : std::uint_fast8_t {
   TUPLE,
   LAYOUT,
   SIGNATURE,
-  STRING_INTERPOLATION,
   REFLECTION,
   ARGUMENT,
   PARAMETER,
@@ -2572,8 +2544,6 @@ getDescription(rq::Situation situation) {
     return "layout";
   case S::SIGNATURE:
     return "signature";
-  case S::STRING_INTERPOLATION:
-    return "string interpolation";
   case S::REFLECTION:
     return "reflection expression";
   case S::ARGUMENT:
@@ -2619,8 +2589,6 @@ getDescription(rq::Situation situation) {
     return K::EXPAND_LAYOUT;
   case S::SIGNATURE:
     return K::EXPAND_SIGNATURE;
-  case S::STRING_INTERPOLATION:
-    return K::EXPAND_STRING_INTERPOLATION;
   case S::REFLECTION:
     return K::EXPAND_REFLECTION;
   case S::ARGUMENT:
@@ -2662,8 +2630,6 @@ getDescription(rq::Situation situation) {
     return S::LAYOUT;
   case K::EXPAND_SIGNATURE:
     return S::SIGNATURE;
-  case K::EXPAND_STRING_INTERPOLATION:
-    return S::STRING_INTERPOLATION;
   case K::EXPAND_REFLECTION:
     return S::REFLECTION;
   case K::EXPAND_ARGUMENT:
@@ -2852,12 +2818,6 @@ getAttributeInstantiationSituation(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::SIGNATURE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeStringInterpolation(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::STRING_INTERPOLATION);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::REFLECTION);
@@ -2941,8 +2901,6 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeLayout(keyword);
   case rq::Situation::SIGNATURE:
     return rq::getCanBeSignature(keyword);
-  case rq::Situation::STRING_INTERPOLATION:
-    return rq::getCanBeStringInterpolation(keyword);
   case rq::Situation::REFLECTION:
     return rq::getCanBeReflection(keyword);
   case rq::Situation::ARGUMENT:
@@ -3997,8 +3955,7 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
   return rq::getHasAll(flags, rq::TypeFlags::VAR);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPartiallyVar(rq::TypeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPartiallyVar(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_VAR);
 }
 
@@ -4430,9 +4387,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSignature() const {
     return rq::getCanBeSignature(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStringInterpolation() const {
-    return rq::getCanBeStringInterpolation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
     return rq::getCanBeReflection(this->getKeyword());

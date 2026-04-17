@@ -3,16 +3,23 @@
 [template]::{> InterpolatedString:[interpolated_string] <}
 [function interpolatedFunc, (> string:InterpolatedString <)[void],
     [spin string, substr:=[value],
-        ..std.print(line="found substr: {substr}");
+        ..std.print(line="found substr: " +> substr);
     ][weave int:[integer]=[value],
-        ..std.print(line="found int: {int}");    
+        ..std.print(line="found int: " +> int);    
     ][weave float:[float]=[value],
-        ..std.print(line="found float: {float}");
+        ..std.print(line="found float: +> float);
     ][weave any:=[value],
-        ..std.print(line="found something else: {any.[borrow]}");
+        ..std.print(line="found something else: " +> any.[borrow]);
     ];
 ];
 
 [entry
-    ..interpolatedFunc("this has a float {3.14.[as [single]]} an int {0.[as[fast_signed_integer 32]]} and a boolean {[true]}.");
+    ..interpolatedFunc(
+        "this has a float " +>
+        3.14.[as [single]] +>
+        " an int " +>
+        0.[as[fast_signed_integer 32]] +>
+        " and a boolean " +>
+        [true] +>
+        ".");
 ];

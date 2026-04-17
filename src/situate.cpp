@@ -54,12 +54,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::STRING_LITERAL:
     [[fallthrough]];
-  case K::LEFT_INTERPOLATION_LITERAL:
-    [[fallthrough]];
-  case K::MIDDLE_INTERPOLATION_LITERAL:
-    [[fallthrough]];
-  case K::RIGHT_INTERPOLATION_LITERAL:
-    [[fallthrough]];
   case K::CODEUNIT_LITERAL:
     [[fallthrough]];
   case K::IDENTIFIER_LITERAL:
@@ -399,19 +393,19 @@ bool Situator::situateTree(rq::Situation situation,
   // BRACES
   case K::TUPLE:
     if (situation == S::LAYOUT && !expression.getHasBranch()) {
-      expression.changeKeyword(K::INITIALIZE_LAYOUT);
+      expression.changeKeyword(K::INSTANTIATE_LAYOUT);
       is_ok = true;
       break;
     }
     is_ok =
         this->situateNaryValueBranches(situation, expression, 0, S::ARGUMENT);
     break;
-  case K::INITIALIZE_LAYOUT:
+  case K::INSTANTIATE_LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
   case K::INITIALIZE_INTERPOLATED_STRING:
     is_ok = this->situateNaryValueBranches(situation, expression, 1,
-                                           S::STRING_INTERPOLATION);
+                                           S::RVALUE);
     break;
   case K::INSTANTIATE_TEMPLATE:
     is_ok = this->situateNaryDifferentFirstValueBranches(
@@ -427,7 +421,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::NAME,
                                              S::RVALUE);
     break;
-  case K::INITIALIZE_SIGNATURE:
+  case K::INSTANTIATE_SIGNATURE:
     is_ok = this->situateNaryDifferentFirstParamterBranches(
         situation, expression, S::RVALUE);
     break;
@@ -1278,8 +1272,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXPAND_LAYOUT:
     [[fallthrough]];
   case K::EXPAND_SIGNATURE:
-    [[fallthrough]];
-  case K::EXPAND_STRING_INTERPOLATION:
     [[fallthrough]];
   case K::EXPAND_REFLECTION:
     [[fallthrough]];

@@ -38,10 +38,17 @@ MESSAGE:@[utf8]="no message";
 [entry
     divide_result := divide(10, 5)
         .[pass code:=[code], value:=[value], // if has multiple passes or fails with values of different types, will pick pass based on best matching type of value
-            .std.print(line="no error occured: {code->.codes.getMessage()}. The result is: {value}.");
+            .std.print(line=
+                "no error occured: " +>
+                code->.codes.getMessage() +>
+                ". The result is: " +>
+                value +>
+                ".");
             [out] := value;
         ].[fail code:=[code], // this fail works for all error codes without values associated
-            .std.print(line="an error occured: {code->.codes.getMessage()}");
+            .std.print(line=
+                "an error occured: " +>
+                code->.codes.getMessage());
             [result] := 1;
             // must set [out] or break control flow. divide_result cannot be left indeterminate!
             [return];
