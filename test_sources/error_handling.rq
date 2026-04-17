@@ -7,7 +7,7 @@
 MESSAGE:^[utf8]="no message";
 
 [template]::{> Category:[category] <}
-[function getMessage, ()^[utf8]=>$Category,
+[function getMessage, ()@[utf8]=>$Category,
     [static][for Category.[alternatives], [static] alternative:=[value],
         [if [this].[discriminant] == alternative.[discriminant],
             [result] := .codes.MESSAGE{alternative.[code]};

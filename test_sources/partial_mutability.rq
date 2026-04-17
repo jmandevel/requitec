@@ -8,13 +8,13 @@
 ];
 
 [entry
-    // no properties are mutable for constant values:
+    // no properties are var for constant values:
     constant := Partialable();
 
-    // all properties are mutable for fully mutable values:
-    fully_mutable : +[mutable] = Partialiable();
+    // all properties are var for fully var values:
+    fully_var : +[var] = Partialiable();
 
-    // only properties marked with +[partial_mutate] are mutable for partially mutable values:
-    partially_mutable : +[partially_mutable] = Partialable();
+    // only properties marked with +[partial_mutate] are var for partially var values:
+    partially_var : +[partially_var] = Partialable();
 
 ];

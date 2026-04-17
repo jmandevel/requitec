@@ -428,8 +428,8 @@ enum class Keyword : std::uint32_t {
   // TYPE ATTRIBUTES
   // mutability
   CONSTANT, // default
-  MUTABLE,
-  PARTIALLY_MUTABLE,
+  VAR,
+  PARTIALLY_VAR,
   // volatility
   NOT_VOLATILE, // default
   VOLATILE,
@@ -472,7 +472,7 @@ enum class Keyword : std::uint32_t {
 
   // TYPE ATTRIBUTE TYPES
   TYPE_ATTRIBUTE,   // type constraint
-  MUTABILITY,       // any_mutability mutable vs constant vs partially_mutable
+  MUTABILITY,       // any_mutability var vs constant vs partially_var
   VOLATILITY,       // maybe_volatile vs volatile vs not_volatile
   DETERMINICITY,    // determinate vs indeterminate
   ATOMICITY,        // maybe_atomic vs atomic vs not_atomic
@@ -1233,10 +1233,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // TYPE ATTRIBUTES
   case K::CONSTANT:
     return "constant";
-  case K::MUTABLE:
-    return "mutable";
-  case K::PARTIALLY_MUTABLE:
-    return "partially_mutable";
+  case K::VAR:
+    return "var";
+  case K::PARTIALLY_VAR:
+    return "partially_var";
   case K::NOT_VOLATILE:
     return "not_volatile";
   case K::VOLATILE:
@@ -2192,9 +2192,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // TYPE ATTRIBUTES
   case K::CONSTANT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::MUTABLE:
+  case K::VAR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PARTIALLY_MUTABLE:
+  case K::PARTIALLY_VAR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NOT_VOLATILE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -3827,8 +3827,8 @@ struct TableSymbol;
 enum class TypeAttribute : std::uint_fast8_t {
   NONE,
   CONSTANT,
-  MUTABLE,
-  PARTIALLY_MUTABLE,
+  VAR,
+  PARTIALLY_VAR,
   NOT_VOLATILE,
   VOLATILE,
   DETERMINATE,
@@ -3847,10 +3847,10 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "none";
   case TA::CONSTANT:
     return "constant";
-  case TA::MUTABLE:
-    return "mutable";
-  case TA::PARTIALLY_MUTABLE:
-    return "partially_mutable";
+  case TA::VAR:
+    return "var";
+  case TA::PARTIALLY_VAR:
+    return "partially_var";
   case TA::NOT_VOLATILE:
     return "not_volatile";
   case TA::VOLATILE:
@@ -3878,10 +3878,10 @@ enum class TypeAttribute : std::uint_fast8_t {
   switch (keyword) {
   case K::CONSTANT:
     return TA::CONSTANT;
-  case K::MUTABLE:
-    return TA::MUTABLE;
-  case K::PARTIALLY_MUTABLE:
-    return TA::PARTIALLY_MUTABLE;
+  case K::VAR:
+    return TA::VAR;
+  case K::PARTIALLY_VAR:
+    return TA::PARTIALLY_VAR;
   case K::NOT_VOLATILE:
     return TA::NOT_VOLATILE;
   case K::VOLATILE:
@@ -3908,8 +3908,8 @@ enum class TypeFlags : std::uint32_t {
   NONE = 0,
   // mutability
   // constant (default)
-  MUTABLE = rq::getBit(0),
-  PARTIALLY_MUTABLE = rq::getBit(1),
+  VAR = rq::getBit(0),
+  PARTIALLY_VAR = rq::getBit(1),
 
   // volatility
   // not_volatile (default)
@@ -3927,7 +3927,7 @@ enum class TypeFlags : std::uint32_t {
   // not_null_terminated (default)
   NULL_TERMINATED = rq::getBit(5),
 
-  MUTABILITY = MUTABLE | PARTIALLY_MUTABLE,
+  MUTABILITY = VAR | PARTIALLY_VAR,
   VOLATILITY = VOLATILE,
   DETERMINICITY = INDETERMINATE,
   ATOMICITY = ATOMIC,
@@ -3945,9 +3945,9 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::NONE;
   case TA::CONSTANT:
     return TF::NONE;
-  case TA::MUTABLE:
-    return TF::MUTABLE;
-  case TA::PARTIALLY_MUTABLE:
+  case TA::VAR:
+    return TF::VAR;
+  case TA::PARTIALLY_VAR:
     return TF::NONE;
   case TA::NOT_VOLATILE:
     return TF::NONE;
@@ -3970,16 +3970,16 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::MUTABLE);
+  return rq::getHasNone(flags, rq::TypeFlags::VAR);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutable(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::MUTABLE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVar(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::VAR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasPartiallyMutable(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE);
+getHasPartiallyVar(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_VAR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatile(rq::TypeFlags flags) {
@@ -4043,10 +4043,10 @@ getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
   if (rq::getHasMutability(flags)) {
     unsigned mutability_count = 0;
-    if (rq::getHasAll(flags, rq::TypeFlags::MUTABLE)) {
+    if (rq::getHasAll(flags, rq::TypeFlags::VAR)) {
       mutability_count++;
     }
-    if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_MUTABLE)) {
+    if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_VAR)) {
       mutability_count++;
     }
     if (mutability_count != 1) {

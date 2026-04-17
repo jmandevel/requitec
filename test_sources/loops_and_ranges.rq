@@ -53,7 +53,7 @@
 
     [scope
         // while loop    
-        value : +[mutable] = 0.[as [fast_signed_integer 32]];
+        value : +[var] = 0.[as [fast_signed_integer 32]];
         [while value < 10,
             ..std.print(line="value is {value}");   
             value = value + 1;

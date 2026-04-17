@@ -232,9 +232,9 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::ExpressionAttributeConstant _ea_ok{rq::ExpressionAttribute::OK};
     rq::TypeAttributeConstant _ta_none{rq::TypeAttribute::NONE};
     rq::TypeAttributeConstant _ta_constant{rq::TypeAttribute::CONSTANT};
-    rq::TypeAttributeConstant _ta_mutable{rq::TypeAttribute::MUTABLE};
-    rq::TypeAttributeConstant _ta_partially_mutable{
-        rq::TypeAttribute::PARTIALLY_MUTABLE};
+    rq::TypeAttributeConstant _ta_var{rq::TypeAttribute::VAR};
+    rq::TypeAttributeConstant _ta_partially_var{
+        rq::TypeAttribute::PARTIALLY_VAR};
     rq::TypeAttributeConstant _ta_not_volatile{rq::TypeAttribute::NOT_VOLATILE};
     rq::TypeAttributeConstant _ta_volatile{rq::TypeAttribute::VOLATILE};
     rq::TypeAttributeConstant _ta_determinate{rq::TypeAttribute::DETERMINATE};
@@ -742,10 +742,10 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ta_none;
     case TA::CONSTANT:
       return this->acquired._ta_constant;
-    case TA::MUTABLE:
-      return this->acquired._ta_mutable;
-    case TA::PARTIALLY_MUTABLE:
-      return this->acquired._ta_partially_mutable;
+    case TA::VAR:
+      return this->acquired._ta_var;
+    case TA::PARTIALLY_VAR:
+      return this->acquired._ta_partially_var;
     case TA::NOT_VOLATILE:
       return this->acquired._ta_not_volatile;
     case TA::VOLATILE:
