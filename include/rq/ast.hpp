@@ -191,6 +191,8 @@ enum class Keyword : std::uint32_t {
   RESULT,
   // retrieve command line arguments within entry.
   COMMAND_LINE_ARGUMENTS,
+  // get information about location of function call
+  CALLSITE,
 
   // BUILTIN TYPES
   INFERENCE,
@@ -505,6 +507,8 @@ enum class Keyword : std::uint32_t {
   BIT_DEPTH_OF,
   ELEMENT_COUNT,
   ELEMENT_COUNT_OF,
+  SNIPPET,
+  SNIPPET_OF,
   NAME,
   NAME_OF,
   LINE,
@@ -834,6 +838,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "result";
   case K::COMMAND_LINE_ARGUMENTS:
     return "command_line_arguments";
+  case K::CALLSITE:
+    return "callsite";
 
   // BUILTIN TYPES
   case K::INFERENCE:
@@ -1372,6 +1378,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "element_count";
   case K::ELEMENT_COUNT_OF:
     return "_element_count_of";
+  case K::SNIPPET:
+    return "snippet";
+  case K::SNIPPET_OF:
+    return "_snippet_of";
   case K::NAME:
     return "name";
   case K::NAME_OF:
@@ -1779,6 +1789,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::COMMAND_LINE_ARGUMENTS:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::CALLSITE:
+    return KF::RVALUE;
 
   // BUILTIN TYPES
   case K::INFERENCE:
@@ -2326,6 +2338,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::ELEMENT_COUNT_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::SNIPPET:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::SNIPPET_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::NAME:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NAME_OF:
@@ -2720,6 +2736,8 @@ getDescription(rq::Situation situation) {
     return K::BIT_DEPTH_OF;
   case K::ELEMENT_COUNT:
     return K::ELEMENT_COUNT_OF;
+  case K::SNIPPET:
+    return K::SNIPPET_OF;
   case K::NAME:
     return K::NAME_OF;
   case K::LINE:

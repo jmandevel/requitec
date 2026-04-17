@@ -647,6 +647,8 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::COMMAND_LINE_ARGUMENTS:
     [[fallthrough]];
+  case K::CALLSITE:
+    [[fallthrough]];
 
   // BUILTIN TYPES
   case K::INFERENCE:
@@ -1390,6 +1392,12 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::ELEMENT_COUNT_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::SNIPPET:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::SNIPPET_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::NAME:

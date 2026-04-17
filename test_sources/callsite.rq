@@ -1,0 +1,21 @@
+[import "std"];
+
+[function printMe, 
+    (>
+        snippet:=[callsite].[snippet],
+        line:=[callsite].[line],
+        column:=[callsite].[column]
+    )[void],
+    ..std.print(line=
+        "snippet: \"" +> snippet +> "\"" +>
+        " line: " +> line +>
+        " column: " +> column);
+];
+
+[entry
+    // this will print the following line to the terminal:
+    // snippet: "..printMe()" line: 16 column: 4
+    ..printMe();
+];
+
+// [callsite] is only usable for default parameter/enumerator/property values
