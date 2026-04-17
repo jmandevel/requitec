@@ -984,7 +984,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IMPORT:
     [[fallthrough]];
   case K::USE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
+                                             S::RVALUE);
     break;
   case K::NAMESPACE: {
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,

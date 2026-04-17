@@ -20,7 +20,7 @@
     <},
     
     [public]
-    [use parent.myFunc];
+    [use myFunc, parent.myFunc];
     
     [public]
     [override]::parent.myFuncB
