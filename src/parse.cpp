@@ -232,7 +232,8 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     instantiation.setSource(expression);
     instantiation.setKeyword(rq::Keyword::INSTANTIATE_EXPRESSION_ATTRIBUTE);
     instantiation.setBranch(expression);
-    if (after_token.getKind() == rq::TokenKind::COLON_OPERATOR) {
+    if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
+      this->getRanger().incrementToken(1);
       rq::Expression &value = this->parseNonascribableExpression();
       expression.setNext(value);
       instantiation.extendSourceOver(value);
