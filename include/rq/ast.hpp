@@ -71,6 +71,7 @@ enum class Keyword : std::uint32_t {
   INSTANTIATE_TYPE_ATTRIBUTE,
   // turn a string into an identifier
   IDENTIFY,
+  IDENTIFY_OF,
 
   // ARITHMETIC
   ADD,
@@ -528,10 +529,10 @@ enum class Keyword : std::uint32_t {
   SYMBOL_OF,
   HAS_MEMBER,
   HAS_MEMBER_OF,
-  HAS,
-  HAS_OF,
-  GET,
-  GET_OF,
+  HAS_CAPTURE,
+  HAS_CAPTURE_OF,
+  GET_CAPTURE,
+  GET_CAPTURE_OF,
   SIGNATURE,
   SIGNATURE_OF,
   // make a unique clone of a type that is not implicitly convertable
@@ -542,6 +543,8 @@ enum class Keyword : std::uint32_t {
   IS_OK_OF,
   AS_EXTENSION,
   AS_EXTENSION_OF,
+  REVERSE,
+  REVERSE_OF,
 
   LAST
 };
@@ -628,7 +631,9 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::INSTANTIATE_TYPE_ATTRIBUTE:
     return "_instantiate_type_attribute";
   case K::IDENTIFY:
-    return "_identify";
+    return "identify";
+  case K::IDENTIFY_OF:
+    return "_identify_of";
 
   // ARITHMETIC
   case K::ADD:
@@ -1417,14 +1422,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "has_member";
   case K::HAS_MEMBER_OF:
     return "_has_member_of";
-  case K::HAS:
-    return "has";
-  case K::HAS_OF:
-    return "_has_of";
-  case K::GET:
-    return "get";
-  case K::GET_OF:
-    return "_get_of";
+  case K::HAS_CAPTURE:
+    return "has_capture";
+  case K::HAS_CAPTURE_OF:
+    return "_has_capture_of";
+  case K::GET_CAPTURE:
+    return "get_capture";
+  case K::GET_CAPTURE_OF:
+    return "_get_capture_of";
   case K::SIGNATURE:
     return "signature";
   case K::SIGNATURE_OF:
@@ -1441,6 +1446,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_as_extension";
   case K::AS_EXTENSION_OF:
     return "_as_extension_of";
+  case K::REVERSE:
+    return "reverse";
+  case K::REVERSE_OF:
+    return "_reverse_of";
 
   case K::LAST:
     break;
@@ -1582,7 +1591,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INSTANTIATE_TYPE_ATTRIBUTE:
     return KF::NONE; // TYPE_ATTRIBUTE_INSTANTIATION
   case K::IDENTIFY:
-    return KF::NAME | KF::RVALUE | KF::ARGUMENT | KF::NAMESPACE;
+    return KF::REFLECTION | KF::ASCRIPTION;
+  case K::IDENTIFY_OF:
+    return KF::NAME | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::NAMESPACE;
 
   // ARITHMETIC
   case K::ADD:
@@ -1678,7 +1689,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::MOVE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::DESTRUCTOR:
-    return KF::STATEMENT;
+    return KF::STATEMENT | KF::STATEMENT_BRANCHES;
   case K::DESTROY:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DESTROY_OF:
@@ -1702,7 +1713,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // BRACES
   case K::TUPLE:
-    return KF::TUPLE;
+    return KF::TUPLE | KF::STRING_INTERPOLATION;
   case K::INITIALIZE_LAYOUT:
     return KF::LAYOUT;
   case K::INITIALIZE_INTERPOLATED_STRING:
@@ -1916,7 +1927,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::SPIN:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
   case K::WEAVE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT_BRANCHES |
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT |
            KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::SCOPE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
@@ -2324,7 +2335,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // REFLECTIONS
   case K::REFLECT:
-    return KF::CONVERGING | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
+    return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::REFLECTION |
            KF::ARGUMENT | KF::PARAMETER | KF::ARITHMETIC_SEQUENCE_STEP |
            KF::ARITHMETIC_SEQUENCE_CONDITION | KF::NAMESPACE;
   case K::MEMBER_OF:
@@ -2380,13 +2391,13 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::HAS_MEMBER_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::HAS:
+  case K::HAS_CAPTURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::HAS_OF:
+  case K::HAS_CAPTURE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::GET:
+  case K::GET_CAPTURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::GET_OF:
+  case K::GET_CAPTURE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::SIGNATURE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2404,6 +2415,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::AS_EXTENSION_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::REVERSE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::REVERSE_OF:
+    return KF::RVALUE;
 
   case K::LAST:
     break;
@@ -2680,6 +2695,9 @@ getDescription(rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
+  // APPLY
+  case K::IDENTIFY:
+    return K::IDENTIFY_OF;
   // CASTS
   case K::AS:
     return K::AS_OF;
@@ -2757,10 +2775,10 @@ getDescription(rq::Situation situation) {
     return K::SYMBOL_OF;
   case K::HAS_MEMBER:
     return K::HAS_MEMBER_OF;
-  case K::HAS:
-    return K::HAS_OF;
-  case K::GET:
-    return K::GET_OF;
+  case K::HAS_CAPTURE:
+    return K::HAS_CAPTURE_OF;
+  case K::GET_CAPTURE:
+    return K::GET_CAPTURE_OF;
   case K::SIGNATURE:
     return K::SIGNATURE_OF;
   case K::SYNONYM:
@@ -2769,6 +2787,8 @@ getDescription(rq::Situation situation) {
     return K::IS_OK_OF;
   case K::AS_EXTENSION:
     return K::AS_EXTENSION_OF;
+  case K::REVERSE:
+    return K::REVERSE_OF;
   default:
     break;
   }
@@ -2948,7 +2968,7 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName(rq::Keyword keyword) {
-  return keyword == rq::Keyword::IDENTIFY ||
+  return keyword == rq::Keyword::IDENTIFY_OF ||
          keyword == rq::Keyword::IDENTIFIER_LITERAL;
 }
 
