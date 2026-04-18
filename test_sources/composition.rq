@@ -1,7 +1,9 @@
 [import "std"];
 
 [interface Speak,
-    [method speak, ()[void]=>$,];
+    [method speak, ()[void]=>$,
+        ..std.print(line="I don't speak.");
+    ];
 ];
 
 [implicit_drop]
@@ -12,7 +14,7 @@
 
 [implicit_drop]
 [class Rat,
-    [function sqeak, ()[void]=>$,
+    [method sqeak, ()[void]=>$,
         ..std.print(line="Squeak!");  
     ];
 ];
@@ -34,7 +36,9 @@
 ];
 
 [interface Greet,
-    [method greet, ()[void]=$,];
+    [method greet, ()[void]=$,
+        ..std.print(line="I don't greet.");
+    ];
 ];
 
 [implement_interface ..Dog, ..Greet,
@@ -48,12 +52,12 @@
 ];
 
 [implement_interface ..Rat, ..Greet,
-    [use_method greet, ..Rat.speak, ()[void]=>%];
+    [use_method greet, ..Rat.speak, ()[void]=>$];
 ];
 
-[function speakAndGreet, (> animal:$[virtual_table ..Speak, ..Greet] <)[void],
-    animal.[borrow]->..Speak.speak();
-    animal.[borrow]->..Greet.greet();
+[function speakAndGreet, (> animal:$[composition ..Speak, ..Greet] <)[void],
+    animal.[compose ..Speak].speak();
+    animal.[compose ..Greet].greet();
 ];
 
 [entry
@@ -61,12 +65,12 @@
     cat := ..Cat();
     rat := ..Rat();
 
-    dog.[borrow]->..Speak.speak();
-    dog.[borrow]->..Greet.greet();
-    cat.[borrow]->..Speak.speek();
-    cat.[borrow]->..Greet.greet();
+    dog.[compose ..Speak].speak();
+    dog.[compose ..Greet].greet();
+    cat.[compose ..Speak].speek();
+    cat.[compose ..Greet].greet();
 
-    ..speakAndGreet(animal=dog.[borrow_virtual_table ..Speak, ..Greet]);
-    ..speakAndGreet(animal=cat.[borrow_virtual_table ..Speak, ..Greet]);
-    ..speakAndGreet(animal=rat.[borrow_virtual_table ..Speak, ..Greet]);
+    ..speakAndGreet(animal=dog.[compose ..Speak, ..Greet]);
+    ..speakAndGreet(animal=cat.[compose ..Speak, ..Greet]);
+    ..speakAndGreet(animal=rat.[compose ..Speak, ..Greet]);
 ];
