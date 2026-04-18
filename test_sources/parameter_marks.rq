@@ -1,0 +1,31 @@
+// parameter marks are ways of declaring rules for how functions can be called
+
+// > mark before a parameter means that parameter and every parameter after may be named
+// < mark after a parameter means that parameter and every parameter before may be positional
+// | mark before a parameter means that parameter and every parameter after may not be set (and will use default value)
+
+// when parameters must be named and never positional, you can overload function by parameter name alone (types can be the same)
+
+[import "std"];
+
+[function allPositional, (arg0:[binary32], arg1:[binary32] <)[void],];
+
+[function allNamed, (> arg0:[binary32], arg1:[binary32])[void],];
+
+[function allNamed, (> a:[binary32], b:[binary32])[void],];
+
+[function nonSettable (| a:=0, b:=1 )[void],];
+
+// a must be positional
+// b can be either named or positional
+// c must be named
+// d can not be set and will use default value (3)
+[function mix, (a:=0,> b:=1 <, c:=2, | d:=3)[void],];
+
+// parameter marks work the same way for template layouts and class layouts
+[template]::{a:=0, > b:=1 <, c:=2, | d:=3}
+[class MyTemplateClass,];
+
+[class MyClass,
+    {a:=0, > b:=1 <, c:=2, | d:=3},
+];
