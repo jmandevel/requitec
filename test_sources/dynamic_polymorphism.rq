@@ -1,7 +1,7 @@
 [import "std"];
 
 [interface Speak,
-    [method speak, ()[void]=>&,];
+    [method speak, ()[void]=>$,];
 ];
 
 [implicit_drop]
@@ -11,20 +11,47 @@
 [class Cat,];
 
 [implement_interface ..Dog, ..Speak,
-    [method speak, ()[void]=>&,
+    [method speak, ()[void]=>$,
         ..std.print(line="Woof!");
     ];
 ];
 
 [implement_interface ..Cat, ..Speak,
-    [method speak, ()[void]=>&,
+    [method speak, ()[void]=>$,
         ..std.print(line="Meow!");
     ];
+];
+
+[interface Greet,
+    [method greet, ()[void]=$,];
+];
+
+[implement_interface ..Dog, ..Greet,
+    [method greet, ()[void]=>$,
+        ..std.print(line="*wags tail*");
+    ];
+];
+
+[implement_interface ..Cat, ..Greet,
+    [method greet, ()[void]=>$,
+        ..std.print(line="purrrrr");
+    ];
+];
+
+[function speakAndGreet, (> animal:$[vtable ..Speak, ..Greet] <)[void],
+    animal.[borrow]->..Speak.speak();
+    animal.[borrow]->..Greet.greet();
 ];
 
 [entry
     dog := ..Dog();
     cat := ..Cat();
-    dog->..Speak.speak();
-    cat->..Speak.speak();
+
+    dog.[borrow]->..Speak.speak();
+    dog.[borrow]->..Greet.greet();
+    cat.[borrow]->..Speak.speek();
+    cat.[borrow]->..Greet.greet();
+
+    ..speakAndGreet(animal=dog.[borrow_vtable ..Speak, ..Greet]);
+    ..speakAndGreet(animal=cat.[borrow_vtable ..Speak, ..Greet]);
 ];
