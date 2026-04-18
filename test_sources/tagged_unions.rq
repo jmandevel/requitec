@@ -1,13 +1,13 @@
 [import "std"];
 
 [tagged_union Shape,
-    ..Quadralateral.[derives
-        ..Rectangle.[derives
+    ..Quadralateral.[underlie
+        ..Rectangle.[underlie
             ..Square
         ],
         ..Rhombus    
     ],
-    ..Eclipse.[derives
+    ..Eclipse.[underlie
         ..Circle
     ]
 ];  
