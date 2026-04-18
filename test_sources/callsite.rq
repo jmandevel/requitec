@@ -1,7 +1,7 @@
 [import "std"];
 
 [function printMe, 
-    (>
+    (|
         snippet:=[callsite].[snippet],
         line:=[callsite].[line],
         column:=[callsite].[column]
