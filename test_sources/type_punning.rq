@@ -17,11 +17,11 @@
 [entry
     bar := ..Bar(7, 3);
 
-    foo_ref := bar.[pun_down ..Foo].[borrow];
+    foo_ref := bar.[pun_up ..Foo].[borrow];
 
-    int := bar.[pun_down [fast_signed_integer 32]];
+    int := bar.[pun_up [fast_signed_integer 32]];
 
-    bar_ref := foo_ref.[pun_up ..Bar].[borrow];
+    bar_ref := foo_ref.[pun_down ..Bar].[borrow];
 
     ..std.print(line=int);
 
