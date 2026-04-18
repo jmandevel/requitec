@@ -82,4 +82,6 @@
     [if (0.<10)->..std.getContains(5),
         ..std.print(line="5 is within interval over 0 to 10");
     ];
+
+    [result] := 0;
 ];

@@ -73,4 +73,6 @@
     ..speakAndGreet(animal=dog.[compose ..Speak, ..Greet]);
     ..speakAndGreet(animal=cat.[compose ..Speak, ..Greet]);
     ..speakAndGreet(animal=rat.[compose ..Speak, ..Greet]);
+
+    [result] := 0;
 ];

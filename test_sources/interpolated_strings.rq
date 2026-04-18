@@ -22,4 +22,6 @@
         " and a boolean " +>
         [true] +>
         ".");
+
+    [result] := 0;
 ];

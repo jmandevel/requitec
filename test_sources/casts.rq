@@ -69,4 +69,6 @@
   
   // .[static_cast] allows you to cast between types that you do not know what they are
   // because of static polymorphism. static casts only work on static polymorphic types!
+
+  [result] := 0;
 ];

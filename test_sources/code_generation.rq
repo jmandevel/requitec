@@ -17,4 +17,6 @@
         ..std.print(line=varname.[borrow] +> " is " +> ..varname.[identify] +> "!");  
         varname.[move].destroy();      
     ];
+
+    [result] := 0;
 ];

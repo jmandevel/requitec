@@ -16,6 +16,8 @@
     // this will print the following line to the terminal:
     // snippet: "..printMe()" line: 18 column: 4
     ..printMe();
+
+    [result] := 0;
 ];
 
 // [callsite] is only usable for default parameter/enumerator/property values

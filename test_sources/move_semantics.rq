@@ -42,4 +42,6 @@
   pinned :\[var]= ..MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has stable_address attribute
   pinned.[move].destroy(); // this move is valid because the memory location does not change
+
+  [result] := 0;
 ];

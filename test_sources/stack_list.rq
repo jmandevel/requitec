@@ -32,4 +32,6 @@
 	
 	// call the destructor for my_stack. you have to do this manually. if the lifetime of my_stack does not end, this results in a compiler error.
 	my_stack.[destroy];
+
+	[result] := 0;
 ];

@@ -31,4 +31,6 @@
 
     // call extension function
     foo.[borrow]->..example.bar();
+
+    [result] := 0;
 ];

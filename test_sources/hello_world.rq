@@ -2,4 +2,6 @@
 
 [entry
     ..std.print(line="Hello, world!");
+
+    [result] := 0;
 ];

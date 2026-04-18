@@ -3,4 +3,6 @@
 
 [entry
     [c].printf("Hello, %s! I am %d.", [initialize_variadic_arguments "world", 30]);
+
+    [result] := 0;
 ];

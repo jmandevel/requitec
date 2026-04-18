@@ -16,4 +16,6 @@
         ..std.print(line="element " +> index +> " is " +> element +> "!");
     ];
     ..std.print(line="it starts with " +> my_array.[borrow]->..std.at(0) +> "!");
+
+    [result] := 0;
 ];

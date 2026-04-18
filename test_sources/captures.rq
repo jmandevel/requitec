@@ -21,5 +21,7 @@
     [static]
     [if var0.[symbol].[has_capture Foo],
         ..std.print(line=var0.[symbol].[get_capture Foo].string);    
-    ]
+    ];
+
+    [result] := 0;
 ];
