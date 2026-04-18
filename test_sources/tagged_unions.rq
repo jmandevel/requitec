@@ -1,0 +1,78 @@
+[import "std"];
+
+[tagged_union Shape,
+    ..Quadralateral.[derives
+        ..Rectangle.[derives
+            ..Square
+        ],
+        ..Rhombus    
+    ],
+    ..Eclipse.[derives
+        ..Circle
+    ]
+];  
+
+[implicit_drop][may_parent]
+[class Quadralateral,
+    {| 
+        [public][tag][inherit] shape
+    },
+];
+
+[implicit_drop][may_parent]
+[class Rectangle,
+    {>
+        [public] x := 0, 
+        [public] y:= 0,
+        | [public][tag][inherit] quad := ..Quadralateral()
+    },
+];
+
+[implicit_drop][may_parent]
+[class Square,
+    {|
+        [public][tag][inherit] rect := ..Rectangle()
+    },
+];
+
+[implicit_drop][may_parent]
+[class Rhombus,
+    {|
+        [public][tag][inherit] quad := ..Quadralateral()
+    },
+];
+
+[implicit_drop][may_parent]
+[class Eclipse,
+    {|
+        [public][tag][inherit] shape := ..Shape.[tag]
+    },
+];
+
+[implicit_drop][may_parent]
+[class Circle,
+    {|
+        [public][tag][inherit] circle := ..Circle()
+    },
+];
+
+[function shapeKind, (shape:&..Shape<)[void],
+    [if shape.[is_tag ..Eclise],
+        ..std.print(line="its an eclipse");
+    ][else_if shape.[is_tag ..Rectangle],
+        rect = shape.[tag_up ..Rectangle].[borrow];
+        ..std.print(line="rect (" +> rect.x +> ", " +> rect.y +> ")");
+    ][else
+        ..std.print(line="unknown shape");
+    ];
+];
+
+[entry
+    circle := ..Circle();
+    square := ..Square();
+
+    ..shapeKind(circle.[tag_down ..Shape]);
+    ..shapeKind(square.[tag_down ..Shape]);
+
+    [result] := 0;
+];
