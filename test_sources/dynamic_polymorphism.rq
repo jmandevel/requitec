@@ -1,69 +1,30 @@
 [import "std"];
 
-[interface InterfaceA,
-    [abstract]
-    [global] NUMBER :[fast_signed_integer 64];
-
-    [abstract]
-    [method myFuncB, ()[void]=>$,];
+[interface Speak,
+    [method speak, ()[void]=>&,];
 ];
 
-[interface InterfaceB,
-    [abstract]
-    [method funnyFunction, ()[void]=>$,];
-];
+[implicit_drop]
+[class Dog,];
 
-[may_parent][implicit_drop][may_copy]
-[class Parent,
-    {>
-        [public][parent] interface_a :..InterfaceA
-        [public][parent] interface_b :..InterfaceB
-    <},
+[implicit_drop]
+[class Cat,];
 
-    [override]::{interface_a.NUMBER}
-    [global] NUMBER :[fast_signed_integer]=0;
-    
-    [method myFunc, ()[void]=>$,
-        ..std.print(line="in parent");
-    ];
-    
-    [virtual][override]::{interface_a.myFuncB, interface_b.funnyFunction}
-    [method myFuncB, ()[void]=>$,
-        ..std.print(line="in parent");
+[implement_interface ..Dog, ..Speak,
+    [method speak, ()[void]=>&,
+        ..std.print(line="Woof!");
     ];
 ];
 
-[implicit_drop][may_copy]
-[class Child,
-    {> 
-        [parent] parent := ..Parent() 
-    <},
-    
-    [public]
-    [use myFunc, parent.myFunc];
-    
-    [public]
-    [override]::parent.myFuncB
-    [method myFuncB, ()[void]=>$,
-        ..std.print(line="in child");
+[implement_interface ..Cat, ..Speak,
+    [method speak, ()[void]=>&,
+        ..std.print(line="Meow!");
     ];
-];
-
-[function funnyCaller, (>interface:&InterfaceB<)[void],
-    interface.[borrow].funnyFunction();
 ];
 
 [entry
-    parent := ..Parent();
-    child := ..Child();
-
-    parent.[borrow].myFunc();
-    child.[borrow].myFunc();
-    parent.[borrow].myFuncB();
-    child.[borrow].myFuncB();
-
-    ..funnyCaller(parent.interface_b.[borrow]);
-    ..funnyCaller(child.interface_b.[borrow]);
-
-    parent.interface_b.[borrow].funnyFunction();
+    dog := ..Dog();
+    cat := ..Cat();
+    dog->..Speak.speak();
+    cat->..Speak.speak();
 ];
