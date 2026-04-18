@@ -20,4 +20,4 @@
     [result] := 0;
 ];
 
-// [callsite] is only usable for default parameter/enumerator/property values
+// [callsite] is only usable for default parameter/property values
