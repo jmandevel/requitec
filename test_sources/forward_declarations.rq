@@ -2,7 +2,7 @@
 [function myForwardedAdd, (> a:[single], b:[single] <)[single],];
 
 // you have to write the signature again, and it has to be identical
-[implement_function myForwardedAdd, (> a:[single], b:[single] <)[single],
+[implement_function ..myForwardedAdd, (> a:[single], b:[single] <)[single],
     [result] := a + b;
 ];
 
