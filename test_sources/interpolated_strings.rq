@@ -2,14 +2,16 @@
 
 [template]::{> InterpolatedString:[type] <}
 [function interpolatedFunc, (> string:InterpolatedString <)[void],
-    [spin string, substr:=[value],
-        ..std.print(line="found substr: " +> substr);
-    ][weave int:[integer]=[value],
-        ..std.print(line="found int: " +> int);    
-    ][weave float:[float]=[value],
-        ..std.print(line="found float: +> float);
-    ][weave any:=[value],
-        ..std.print(line="found something else: " +> any.[borrow]);
+    [spin string,
+        [weave str:[string]=[value],
+            ..std.print(line="found string: " +> substr);
+        ][weave int:[integer]=[value],
+            ..std.print(line="found integer: " +> int);    
+        ][weave float:[float]=[value],
+            ..std.print(line="found float: +> float);
+        ][weave any:=[value],
+            ..std.print(line="found something else: " +> any.[borrow]);
+        ];
     ];
 ];
 

@@ -770,8 +770,8 @@ bool Situator::situateTree(rq::Situation situation,
                                                           S::RVALUE);
     break;
   case K::SPIN:
-    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::STATEMENT);
+    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
+                                                          S::RVALUE);
     break;
   case K::WEAVE:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
