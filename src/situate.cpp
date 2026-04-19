@@ -406,7 +406,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INSTANTIATE_LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
     break;
-  case K::INITIALIZE_INTERPOLATED_STRING:
+  case K::INITIALIZE_CONCATENATED_LIST:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
   case K::INSTANTIATE_TEMPLATE:

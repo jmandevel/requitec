@@ -17,13 +17,10 @@
 
 [entry
     ..interpolatedFunc(
-        "this has a float " +>
+        "hello" +>
         3.14.[as [single]] +>
-        " an int " +>
         0.[as[fast_signed_integer 32]] +>
-        " and a boolean " +>
-        [true] +>
-        ".");
+        [true]);
 
     [result] := 0;
 ];
