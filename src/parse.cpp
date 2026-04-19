@@ -1073,6 +1073,13 @@ rq::Expression &RequiteParser::parsePrecedence0() {
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::NAMED_PARAMETERS_BEGIN);
       factory.appendBranch(mark);
+    } else if (next_token.getKind() == rq::TokenKind::PIPE_OPERATOR) {
+      this->getRanger().incrementToken(1);
+      parameter_mark_found = true;
+      rq::Expression &mark = this->getContext().acquireExpression();
+      mark.setSource(next_token);
+      mark.setKeyword(rq::Keyword::UNSETTABLE_PARAMETERS_BEGIN);
+      factory.appendBranch(mark);
     }
     rq::Expression &branch = this->parseAscribableExpression();
     factory.appendBranch(branch);
