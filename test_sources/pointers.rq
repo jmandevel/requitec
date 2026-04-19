@@ -1,6 +1,4 @@
 [entry
-    // if you know C, this should be super easy to understand.
-
     // var single floating point number
     var :\[var][single]= 0;
 

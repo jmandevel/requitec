@@ -14,7 +14,7 @@
 
 [implicit_drop]
 [class Rat,
-    [method sqeak, ()[void]=>$,
+    [method squeak, ()[void]=>$,
         ..std.print(line="Squeak!");  
     ];
 ];
@@ -52,7 +52,7 @@
 ];
 
 [implement_interface ..Rat, ..Greet,
-    [use_method greet, ..Rat.speak, ()[void]=>$];
+    [use_method greet, ..Rat.squeak, ()[void]=>$];
 ];
 
 [function speakAndGreet, (> animal:$[composition ..Speak, ..Greet] <)[void],
@@ -67,7 +67,7 @@
 
     dog.[compose ..Speak].speak();
     dog.[compose ..Greet].greet();
-    cat.[compose ..Speak].speek();
+    cat.[compose ..Speak].speak();
     cat.[compose ..Greet].greet();
 
     ..speakAndGreet(animal=dog.[compose ..Speak, ..Greet]);

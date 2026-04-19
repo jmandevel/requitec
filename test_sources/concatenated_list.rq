@@ -1,13 +1,13 @@
 [import "std"];
 
-[template]::{> List:[type] <}
+[template]::{> List:[type_constraint] <}
 [function printList, (> list:List <)[void],
     [spin list,
-        [weave str:[string]=[value],
+        [weave str:[string_constraint]=[value],
             ..std.print(line="found string: " +> substr);
-        ][weave int:[integer]=[value],
+        ][weave int:[integer_constraint]=[value],
             ..std.print(line="found integer: " +> int);    
-        ][weave float:[float]=[value],
+        ][weave float:[float_constraint]=[value],
             ..std.print(line="found float: +> float);
         ][weave any:=[value],
             ..std.print(line="found something else: " +> any.[borrow]);
