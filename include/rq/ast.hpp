@@ -204,21 +204,15 @@ enum class Keyword : std::uint32_t {
   VOID,
   NO_RETURN,
   BOOLEAN,
-  FLOAT,
   HALF,
   SINGLE,
   DOUBLE,
   QUADRUPLE,
-  BINARY,
-  BFLOAT,
   BINARY16,
   BINARY32,
   BINARY64,
   BINARY128,
   BFLOAT16,
-  INTEGER,
-  SIGNED,
-  UNSIGNED,
   SIGNED_INTEGER,
   UNSIGNED_INTEGER,
   FAST_SIGNED_INTEGER,
@@ -229,8 +223,6 @@ enum class Keyword : std::uint32_t {
   UNSIGNED_INDEX,
   SIGNED_ADDRESS,
   UNSIGNED_ADDRESS,
-  STRING,
-  CODEUNIT,
   CHAR,
   ASCII,
   UTF8,
@@ -242,6 +234,23 @@ enum class Keyword : std::uint32_t {
   NEXT_VARIADIC_ARGUMENT,
   NEXT_VARIADIC_ARGUMENT_OF,
   INITIALIZE_VARIADIC_ARGUMENTS,
+
+  // CONSTRAINTS
+  TYPE_CONSTRAINT,
+  RANGE_CONSTRAINT,
+  NUMERIC_CONSTRAINT,
+  SIGNED_CONSTRAINT,
+  UNSIGNED_CONSTRAINT,
+  INTEGER_CONSTRAINT,
+  SIGNED_INTEGER_CONSTRAINT,
+  UNSIGNED_INTEGER_CONSTRAINT,
+  FLOAT_CONSTRAINT,
+  BINARY_CONSTRAINT,
+  BFLOAT_CONSTRAINT,
+  STRING_CONSTRAINT,
+  CODEUNIT_CONSTRAINT,
+  EXPRESSION_ATTRIBUTE_CONSTRAINT,
+  TYPE_ATTRIBUTE_CONSTRAINT,
 
   // SCOPES
   IF,
@@ -422,25 +431,25 @@ enum class Keyword : std::uint32_t {
   NULL_TERMINATED,
 
   // EXPRESSION ATTRIBUTE TYPES
-  LABELING,             // no_label vs label
-  VISIBILITY,           // transparent vs opaque
-  SCOPING,              // inside_scope vs outside_scope
-  AVAILABILITY,         // local vs global
-  ACCESSIBILITY,        // private vs public vs protected
-  PROPERTY_MUTABILITY,  // no_partial_mutate vs partial_mutate
-  EXPORTING,            // no_export vs export
-  GENERATION_TIME,      // dynamic vs static
-  CAPTURING,            // no_capture vs capture
-  EVALUATION_TIME,      // lazy vs eager
-  INLINING,             // no_inline vs inline
-  MANGLING,             // implicit_mangle vs explicit_mangle
-  PACKING,              // no_pack vs pack
-  TEMPLATING,           // no_template vs template vs specialize
-  LIKELYHOOD,           // equivocal vs likely vs unlikely
-  SUPPORT,              // supported vs depreciated vs experimental
-  COPYABILITY,          // no_copy vs may_copy
-  ADDRESS_STABILITY,    // unstable_address vs stable_address
-  CLEANUP,              // explicit_drop vs implicit_drop
+  LABELING,            // no_label vs label
+  VISIBILITY,          // transparent vs opaque
+  SCOPING,             // inside_scope vs outside_scope
+  AVAILABILITY,        // local vs global
+  ACCESSIBILITY,       // private vs public vs protected
+  PROPERTY_MUTABILITY, // no_partial_mutate vs partial_mutate
+  EXPORTING,           // no_export vs export
+  GENERATION_TIME,     // dynamic vs static
+  CAPTURING,           // no_capture vs capture
+  EVALUATION_TIME,     // lazy vs eager
+  INLINING,            // no_inline vs inline
+  MANGLING,            // implicit_mangle vs explicit_mangle
+  PACKING,             // no_pack vs pack
+  TEMPLATING,          // no_template vs template vs specialize
+  LIKELYHOOD,          // equivocal vs likely vs unlikely
+  SUPPORT,             // supported vs depreciated vs experimental
+  COPYABILITY,         // no_copy vs may_copy
+  ADDRESS_STABILITY,   // unstable_address vs stable_address
+  CLEANUP,             // explicit_drop vs implicit_drop
 
   // TYPE ATTRIBUTE TYPES
   MUTABILITY,       // any_mutability var vs constant vs partially_var
@@ -835,8 +844,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_return";
   case K::BOOLEAN:
     return "boolean";
-  case K::FLOAT:
-    return "float";
   case K::HALF:
     return "half";
   case K::SINGLE:
@@ -845,10 +852,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "double";
   case K::QUADRUPLE:
     return "quadruple";
-  case K::BINARY:
-    return "binary";
-  case K::BFLOAT:
-    return "bfloat";
   case K::BINARY16:
     return "binary16";
   case K::BINARY32:
@@ -859,12 +862,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "binary128";
   case K::BFLOAT16:
     return "bfloat16";
-  case K::INTEGER:
-    return "integer";
-  case K::SIGNED:
-    return "signed";
-  case K::UNSIGNED:
-    return "unsigned";
   case K::SIGNED_INTEGER:
     return "signed_integer";
   case K::UNSIGNED_INTEGER:
@@ -885,10 +882,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "signed_address";
   case K::UNSIGNED_ADDRESS:
     return "unsigned_address";
-  case K::STRING:
-    return "string";
-  case K::CODEUNIT:
-    return "codeunit";
   case K::CHAR:
     return "char";
   case K::ASCII:
@@ -909,6 +902,36 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_next_variadic_argument_of";
   case K::INITIALIZE_VARIADIC_ARGUMENTS:
     return "initialize_variadic_arguments";
+
+  // CONSTRAINTS
+  case K::TYPE_CONSTRAINT:
+    return "type_constraint";
+  case K::NUMERIC_CONSTRAINT:
+    return "numeric_constraint";
+  case K::SIGNED_CONSTRAINT:
+    return "signed_constraint";
+  case K::UNSIGNED_CONSTRAINT:
+    return "unsigned_constraint";
+  case K::INTEGER_CONSTRAINT:
+    return "integer_constraint";
+  case K::SIGNED_INTEGER_CONSTRAINT:
+    return "signed_integer_constraint";
+  case K::UNSIGNED_INTEGER_CONSTRAINT:
+    return "unsigned_integer_constraint";
+  case K::FLOAT_CONSTRAINT:
+    return "float_constraint";
+  case K::BINARY_CONSTRAINT:
+    return "binary_constraint";
+  case K::BFLOAT_CONSTRAINT:
+    return "bfloat_constraint";
+  case K::STRING_CONSTRAINT:
+    return "string_constraint";
+  case K::CODEUNIT_CONSTRAINT:
+    return "codeunit_constraint";
+  case K::EXPRESSION_ATTRIBUTE_CONSTRAINT:
+    return "expression_attribute_constraint";
+  case K::TYPE_ATTRIBUTE_CONSTRAINT:
+    return "type_attribute_constraint";
 
   // SCOPES
   case K::IF:
@@ -1746,8 +1769,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BOOLEAN:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::FLOAT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::HALF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SINGLE:
@@ -1755,10 +1776,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::DOUBLE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::QUADRUPLE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BINARY:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BFLOAT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINARY16:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1769,12 +1786,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::BINARY128:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BFLOAT16:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INTEGER:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SIGNED_INTEGER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1796,10 +1807,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_ADDRESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::STRING:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CODEUNIT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CHAR:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCII:
@@ -1819,6 +1826,36 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::INITIALIZE_VARIADIC_ARGUMENTS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+
+  // CONSTRAINTS
+  case K::TYPE_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::NUMERIC_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SIGNED_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UNSIGNED_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::INTEGER_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::SIGNED_INTEGER_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::UNSIGNED_INTEGER_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::FLOAT_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::BINARY_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::BFLOAT_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::STRING_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CODEUNIT_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::EXPRESSION_ATTRIBUTE_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::TYPE_ATTRIBUTE_CONSTRAINT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES
