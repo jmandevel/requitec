@@ -7,9 +7,9 @@
     // var pointer to var single float (? is pointer)
     var_ptr :\[var]?\[var][single]= var.\[var][address];
 
-    var_ptr.[content] = 1;
+    var_ptr.[unsafe_content] = 1;
 
-    var_copy := var_ptr.[content];
+    var_copy := var_ptr.[unsafe_content];
 
     var_ptr = [null];
 
