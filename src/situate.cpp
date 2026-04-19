@@ -388,6 +388,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::POSITIONAL_PARAMETERS_END:
     [[fallthrough]];
   case K::NAMED_PARAMETERS_BEGIN:
+    [[fallthrough]];
+  case K::UNSETTABLE_PARAMETERS_BEGIN:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
@@ -784,30 +786,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INLINE_BLOCK:
     is_ok = this->situateNaryValueBranches(situation, expression, 0, situation);
     break;
-  case K::PASS:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::STATEMENT);
-    break;
-  case K::PASS_OF:
-    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::STATEMENT);
-    break;
-  case K::FAIL:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::STATEMENT);
-    break;
-  case K::FAIL_OF:
-    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::STATEMENT);
-    break;
-  case K::HANDLE:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::STATEMENT);
-    break;
-  case K::HANDLE_OF:
-    is_ok = this->situateNaryDifferentFirstHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::STATEMENT);
-    break;
 
   // RANGES
   case K::RANGE:
@@ -1071,24 +1049,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EAGER:
     [[fallthrough]];
-  case K::NO_PARENT:
-    [[fallthrough]];
-  case K::MAY_PARENT:
-    [[fallthrough]];
-  case K::MIXIN:
-    [[fallthrough]];
-  case K::PARENT:
-    [[fallthrough]];
-  case K::TANGIBLE:
-    [[fallthrough]];
-  case K::ABSTRACT:
-    [[fallthrough]];
-  case K::VIRTUAL:
-    [[fallthrough]];
-  case K::NO_OVERRIDE:
-    [[fallthrough]];
-  case K::OVERRIDE:
-    [[fallthrough]];
   case K::NO_INLINE:
     [[fallthrough]];
   case K::INLINE:
@@ -1130,10 +1090,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IMPLICIT_DROP:
     [[fallthrough]];
   case K::EXPLICIT_DROP:
-    [[fallthrough]];
-  case K::NOT_OK:
-    [[fallthrough]];
-  case K::OK:
     [[fallthrough]];
 
   // TYPE ATTRIBUTES
@@ -1183,14 +1139,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EVALUATION_TIME:
     [[fallthrough]];
-  case K::PARENTABILITY:
-    [[fallthrough]];
-  case K::PROPERTY_ASSOCIATION:
-    [[fallthrough]];
-  case K::TANGIBILITY:
-    [[fallthrough]];
-  case K::OVERRIDING:
-    [[fallthrough]];
   case K::INLINING:
     [[fallthrough]];
   case K::MANGLING:
@@ -1208,8 +1156,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ADDRESS_STABILITY:
     [[fallthrough]];
   case K::CLEANUP:
-    [[fallthrough]];
-  case K::RESULT_STATUS:
     [[fallthrough]];
 
   // TYPE ATTRIBUTE TYPES
