@@ -1062,24 +1062,6 @@ rq::Expression &RequiteParser::parsePrecedence0() {
     this->getRanger().incrementToken(1);
     factory.finishExpression(first_token);
     return false;
-  } else if (first_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
-    const rq::Token &second_token = this->getRanger().getToken(1);
-    if (second_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
-      const rq::Token &third_token = this->getRanger().getToken(2);
-      if (third_token.getKind() == end) {
-        rq::Expression &first_mark = this->getContext().acquireExpression();
-        first_mark.setSource(first_token);
-        first_mark.setKeyword(rq::Keyword::NAMED_PARAMETERS_BEGIN);
-        factory.appendBranch(first_mark);
-        rq::Expression &second_mark = this->getContext().acquireExpression();
-        second_mark.setSource(second_token);
-        second_mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
-        factory.appendBranch(second_mark);
-        factory.finishExpression(third_token);
-        this->getRanger().incrementToken(3);
-        return true;
-      }
-    }
   }
   bool parameter_mark_found = false;
   while (true) {
