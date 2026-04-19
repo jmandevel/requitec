@@ -1,8 +1,8 @@
 [import "std"];
 
-[template]::{> InterpolatedString:[type] <}
-[function interpolatedFunc, (> string:InterpolatedString <)[void],
-    [spin string,
+[template]::{> List:[type] <}
+[function printList, (> list:List <)[void],
+    [spin list,
         [weave str:[string]=[value],
             ..std.print(line="found string: " +> substr);
         ][weave int:[integer]=[value],
@@ -16,7 +16,7 @@
 ];
 
 [entry
-    ..interpolatedFunc(
+    ..printList(
         "hello" +>
         3.14.[as [single]] +>
         0.[as[fast_signed_integer 32]] +>
