@@ -105,18 +105,20 @@ enum class Keyword : std::uint32_t {
 
   // MEMORY
   ASSIGN,
-  CONTENT,
-  CONTENT_OF,
+  UNSAFE_CONTENT,
+  UNSAFE_CONTENT_OF,
   ADDRESS,
   ADDRESS_OF,
   BORROW,
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
-  AT,
-  AT_OF,
+  UNSAFE_AT,
+  UNSAFE_AT_OF,
   MOVE,
   MOVE_OF,
+  COMPOSE,
+  COMPOSE_OF,
   DESTRUCTOR,
   DESTROY,
   DESTROY_OF,
@@ -130,6 +132,7 @@ enum class Keyword : std::uint32_t {
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
   NAMED_PARAMETERS_BEGIN,
+  UNSETTABLE_PARAMETERS_BEGIN,
 
   // BRACES
   TUPLE,
@@ -157,6 +160,8 @@ enum class Keyword : std::uint32_t {
   IMPLEMENT_METHOD,
   IMPLEMENT_EXTENSION_FUNCTION,
   IMPLEMENT_EXTENSION_METHOD,
+  USE_FUNCTION,
+  USE_METHOD,
 
   // CONTROL FLOW
   RETURN,
@@ -169,8 +174,8 @@ enum class Keyword : std::uint32_t {
   // DECLARED TYPES
   CLASS,
   ENUMERATION,
-  CODE,
-  CATEGORY,
+  INTERFACE,
+  IMPLEMENT_INTERFACE,
 
   // VALUES
   INITIALIZE_ARRAY,
@@ -257,12 +262,6 @@ enum class Keyword : std::uint32_t {
   INLINE_SCOPE,
   BLOCK,
   INLINE_BLOCK,
-  PASS,
-  PASS_OF,
-  FAIL,
-  FAIL_OF,
-  HANDLE,
-  HANDLE_OF,
 
   // RANGES
   RANGE,
@@ -328,7 +327,6 @@ enum class Keyword : std::uint32_t {
 
   // TABLE GRAPH
   IMPORT,
-  USE,
   NAMESPACE,
   C,
   TOP,
@@ -374,19 +372,6 @@ enum class Keyword : std::uint32_t {
   // evaluation_time
   LAZY, // default
   EAGER,
-  // parentability
-  NO_PARENT, // default
-  MAY_PARENT,
-  // property_association
-  MIXIN, // default
-  PARENT,
-  // tangibiltiy
-  TANGIBLE, // default
-  ABSTRACT,
-  VIRTUAL,
-  // overriding
-  NO_OVERRIDE, // default
-  OVERRIDE,
   // inlining
   NO_INLINE, // default
   INLINE,
@@ -417,9 +402,6 @@ enum class Keyword : std::uint32_t {
   // cleanup
   IMPLICIT_DROP, // default
   EXPLICIT_DROP,
-  // result_status
-  NOT_OK, // default
-  OK,
 
   // TYPE ATTRIBUTES
   // mutability
@@ -451,10 +433,6 @@ enum class Keyword : std::uint32_t {
   GENERATION_TIME,      // dynamic vs static
   CAPTURING,            // no_capture vs capture
   EVALUATION_TIME,      // lazy vs eager
-  PARENTABILITY,        // no_parent vs may_parent
-  PROPERTY_ASSOCIATION, // mixin vs parent
-  TANGIBILITY,          // tangible vs abstract vs virtual
-  OVERRIDING,           // no_override vs override
   INLINING,             // no_inline vs inline
   MANGLING,             // implicit_mangle vs explicit_mangle
   PACKING,              // no_pack vs pack
@@ -464,7 +442,6 @@ enum class Keyword : std::uint32_t {
   COPYABILITY,          // no_copy vs may_copy
   ADDRESS_STABILITY,    // unstable_address vs stable_address
   CLEANUP,              // explicit_drop vs implicit_drop
-  RESULT_STATUS,        // not_ok vs ok
 
   // TYPE ATTRIBUTE TYPES
   TYPE_ATTRIBUTE,   // type constraint
@@ -694,10 +671,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::ASSIGN:
     return "_assign";
-  case K::CONTENT:
-    return "content";
-  case K::CONTENT_OF:
-    return "_content_of";
+  case K::UNSAFE_CONTENT:
+    return "unsafe_content";
+  case K::UNSAFE_CONTENT_OF:
+    return "_unsafe_content_of";
   case K::ADDRESS:
     return "address";
   case K::ADDRESS_OF:
@@ -710,10 +687,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "data_address";
   case K::DATA_ADDRESS_OF:
     return "_data_address_of";
+  case K::UNSAFE_AT:
+    return "unsafe_at";
+  case K::UNSAFE_AT_OF:
+    return "_unsafe_at_of";
   case K::MOVE:
     return "move";
   case K::MOVE_OF:
     return "_move_of";
+  case K::COMPOSE:
+    return "compose";
+  case K::COMPOSE_OF:
+    return "_compose_of";
   case K::DESTRUCTOR:
     return "destructor";
   case K::DESTROY:
@@ -736,6 +721,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_positional_parameters_end";
   case K::NAMED_PARAMETERS_BEGIN:
     return "_named_parameters_begin";
+  case K::UNSETTABLE_PARAMETERS_BEGIN:
+    return "_unsettable_parameters_begin";
 
   // BRACES
   case K::TUPLE:
@@ -752,10 +739,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_call";
   case K::NAMED_ARGUMENT:
     return "_named_argument";
-  case K::AT:
-    return "at";
-  case K::AT_OF:
-    return "_at_of";
   case K::INSTANTIATE_SIGNATURE:
     return "_instantiate_signature";
   case K::DEFAULT_VALUE_PARAMETER:
@@ -790,6 +773,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "implement_extension_function";
   case K::IMPLEMENT_EXTENSION_METHOD:
     return "implement_extension_method";
+  case K::USE_FUNCTION:
+    return "use_function";
+  case K::USE_METHOD:
+    return "use_method";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -810,10 +797,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "class";
   case K::ENUMERATION:
     return "enumeration";
-  case K::CODE:
-    return "code";
-  case K::CATEGORY:
-    return "category";
+  case K::INTERFACE:
+    return "interface";
+  case K::IMPLEMENT_INTERFACE:
+    return "implement_interface";
 
   // VALUES
   case K::INITIALIZE_ARRAY:
@@ -962,18 +949,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "block";
   case K::INLINE_BLOCK:
     return "inline_block";
-  case K::PASS:
-    return "pass";
-  case K::PASS_OF:
-    return "_pass_of";
-  case K::FAIL:
-    return "fail";
-  case K::FAIL_OF:
-    return "_fail_of";
-  case K::HANDLE:
-    return "handle";
-  case K::HANDLE_OF:
-    return "_handle_of";
 
   // RANGES
   case K::RANGE:
@@ -1094,8 +1069,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   // TABLE GRAPH
   case K::IMPORT:
     return "import";
-  case K::USE:
-    return "use";
   case K::NAMESPACE:
     return "namespace";
   case K::C:
@@ -1158,24 +1131,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "eager";
   case K::LAZY:
     return "lazy";
-  case K::MAY_PARENT:
-    return "may_parent";
-  case K::NO_PARENT:
-    return "no_parent";
-  case K::PARENT:
-    return "parent";
-  case K::MIXIN:
-    return "mixin";
-  case K::TANGIBLE:
-    return "tangible";
-  case K::ABSTRACT:
-    return "abstract";
-  case K::VIRTUAL:
-    return "virtual";
-  case K::OVERRIDE:
-    return "override";
-  case K::NO_OVERRIDE:
-    return "no_override";
   case K::INLINE:
     return "inline";
   case K::NO_INLINE:
@@ -1220,10 +1175,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "implicit_drop";
   case K::EXPLICIT_DROP:
     return "explicit_drop";
-  case K::OK:
-    return "ok";
-  case K::NOT_OK:
-    return "not_ok";
 
   // TYPE ATTRIBUTES
   case K::CONSTANT:
@@ -1272,14 +1223,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "capturing";
   case K::EVALUATION_TIME:
     return "evaluation_time";
-  case K::PARENTABILITY:
-    return "parentability";
-  case K::PROPERTY_ASSOCIATION:
-    return "property_association";
-  case K::TANGIBILITY:
-    return "tangibility";
-  case K::OVERRIDING:
-    return "overrideing";
   case K::INLINING:
     return "inlining";
   case K::MANGLING:
@@ -1298,8 +1241,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "address_stability";
   case K::CLEANUP:
     return "cleanup";
-  case K::RESULT_STATUS:
-    return "result_status";
 
   // TYPE ATTRIBUTE TYPES
   case K::TYPE_ATTRIBUTE:
@@ -1645,9 +1586,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // MEMORY
   case K::ASSIGN:
     return KF::STATEMENT;
-  case K::CONTENT:
+  case K::UNSAFE_CONTENT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::CONTENT_OF:
+  case K::UNSAFE_CONTENT_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::ADDRESS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -1661,13 +1602,17 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::AT:
+  case K::UNSAFE_AT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::AT_OF:
+  case K::UNSAFE_AT_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::MOVE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::MOVE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::COMPOSE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::COMPOSE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::DESTRUCTOR:
     return KF::STATEMENT | KF::STATEMENT_BRANCHES;
@@ -1690,6 +1635,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::POSITIONAL_PARAMETERS_END:
     return KF::PARAMETER;
   case K::NAMED_PARAMETERS_BEGIN:
+    return KF::PARAMETER;
+  case K::UNSETTABLE_PARAMETERS_BEGIN:
     return KF::PARAMETER;
 
   // BRACES
@@ -1741,6 +1688,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_EXTENSION_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::USE_FUNCTION:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::USE_METHOD:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1761,9 +1712,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::ENUMERATION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::CODE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
-  case K::CATEGORY:
+  case K::INTERFACE:
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::IMPLEMENT_INTERFACE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
 
   // VALUES
@@ -1918,18 +1869,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::INLINE_BLOCK:
     return KF::STATEMENT_BRANCHES | KF::RVALUE;
-  case K::PASS:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::PASS_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::FAIL:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::FAIL_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::HANDLE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::HANDLE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
 
   // RANGES
   case K::RANGE:
@@ -2050,8 +1989,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // TABLE GRAPH
   case K::IMPORT:
     return KF::STATEMENT;
-  case K::USE:
-    return KF::STATEMENT;
   case K::NAMESPACE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
   case K::C:
@@ -2114,24 +2051,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LAZY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::MAY_PARENT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_PARENT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PARENT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::MIXIN:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::TANGIBLE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::ABSTRACT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::VIRTUAL:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::OVERRIDE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_OVERRIDE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_INLINE:
@@ -2175,10 +2094,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::IMPLICIT_DROP:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPLICIT_DROP:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::OK:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NOT_OK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
@@ -2228,14 +2143,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::EVALUATION_TIME:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PARENTABILITY:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PROPERTY_ASSOCIATION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::TANGIBILITY:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::OVERRIDING:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INLINING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MANGLING:
@@ -2253,8 +2160,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::ADDRESS_STABILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CLEANUP:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::RESULT_STATUS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
@@ -2415,7 +2320,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsParameterMarkKeyword(rq::Keyword keyword) {
   return keyword == rq::Keyword::NAMED_PARAMETERS_BEGIN ||
-         keyword == rq::Keyword::POSITIONAL_PARAMETERS_END;
+         keyword == rq::Keyword::POSITIONAL_PARAMETERS_END ||
+         keyword == rq::Keyword::UNSETTABLE_PARAMETERS_BEGIN;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralKeyword(rq::Keyword keyword) {
@@ -2693,18 +2599,20 @@ getDescription(rq::Situation situation) {
   case K::BITWISE_CAST:
     return K::BITWISE_CAST_OF;
   // MEMORY
-  case K::CONTENT:
-    return K::CONTENT_OF;
+  case K::UNSAFE_CONTENT:
+    return K::UNSAFE_CONTENT_OF;
   case K::ADDRESS:
     return K::ADDRESS_OF;
   case K::BORROW:
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
-  case K::AT:
-    return K::AT_OF;
+  case K::UNSAFE_AT:
+    return K::UNSAFE_AT_OF;
   case K::MOVE:
     return K::MOVE_OF;
+  case K::COMPOSE:
+    return K::COMPOSE_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
   // PROCEDURES
@@ -2717,13 +2625,6 @@ getDescription(rq::Situation situation) {
     return K::FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
-  // SCOPES
-  case K::PASS:
-    return K::PASS_OF;
-  case K::FAIL:
-    return K::FAIL_OF;
-  case K::HANDLE:
-    return K::HANDLE_OF;
   // EXPANSIONS
   case K::EXPAND:
     return rq::getExpandOfSituation(situation);
@@ -2982,15 +2883,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   CAPTURE,
   LAZY,
   EAGER,
-  NO_PARENT,
-  MAY_PARENT,
-  MIXIN,
-  PARENT,
-  TANGIBLE,
-  ABSTRACT,
-  VIRTUAL,
-  NO_OVERRIDE,
-  OVERRIDE,
   NO_INLINE,
   INLINE,
   IMPLICIT_MANGLE,
@@ -3013,8 +2905,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   STABLE_ADDRESS,
   EXPLICIT_DROP,
   IMPLICIT_DROP,
-  NOT_OK,
-  OK,
   LAST
 };
 
@@ -3063,25 +2953,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "lazy";
   case EA::EAGER:
     return "eager";
-  case EA::NO_PARENT:
-    return "no_parent";
-  case EA::MAY_PARENT:
-    return "may_parent";
-  case EA::MIXIN:
-    return "mixin";
-  case EA::PARENT:
-    return "parent";
-
-  case EA::TANGIBLE:
-    return "tangible";
-  case EA::ABSTRACT:
-    return "abstract";
-  case EA::VIRTUAL:
-    return "virtual";
-  case EA::NO_OVERRIDE:
-    return "no_override";
-  case EA::OVERRIDE:
-    return "override";
   case EA::NO_INLINE:
     return "no_inline";
   case EA::INLINE:
@@ -3130,10 +3001,6 @@ getName(rq::ExpressionAttribute attribute) {
 
   case EA::IMPLICIT_DROP:
     return "implicit_drop";
-  case EA::NOT_OK:
-    return "not_ok";
-  case EA::OK:
-    return "ok";
 
   case EA::LAST:
     break;
@@ -3183,24 +3050,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::EAGER;
   case K::LAZY:
     return EA::LAZY;
-  case K::MAY_PARENT:
-    return EA::MAY_PARENT;
-  case K::NO_PARENT:
-    return EA::NO_PARENT;
-  case K::PARENT:
-    return EA::PARENT;
-  case K::MIXIN:
-    return EA::MIXIN;
-  case K::TANGIBLE:
-    return EA::TANGIBLE;
-  case K::ABSTRACT:
-    return EA::ABSTRACT;
-  case K::VIRTUAL:
-    return EA::VIRTUAL;
-  case K::OVERRIDE:
-    return EA::OVERRIDE;
-  case K::NO_OVERRIDE:
-    return EA::NO_OVERRIDE;
   case K::INLINE:
     return EA::INLINE;
   case K::NO_INLINE:
@@ -3245,10 +3094,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::IMPLICIT_DROP;
   case K::EXPLICIT_DROP:
     return EA::EXPLICIT_DROP;
-  case K::OK:
-    return EA::OK;
-  case K::NOT_OK:
-    return EA::NOT_OK;
   default:
     break;
   }
@@ -3298,65 +3143,44 @@ enum class ExpressionFlags : std::uint64_t {
   // lazy (default)
   EAGER = rq::getBit(10),
 
-  // parentability
-  // no_parent (default)
-  MAY_PARENT = rq::getBit(11),
-
-  // property_association
-  // mixin (default)
-  PARENT = rq::getBit(12),
-
-  // tangibility
-  // tangible (default)
-  ABSTRACT = rq::getBit(13),
-  VIRTUAL = rq::getBit(14),
-
-  // overriding
-  // no_override (default)
-  OVERRIDE = rq::getBit(15),
-
   // inlining
   // no_inline (default)
-  INLINE = rq::getBit(16),
+  INLINE = rq::getBit(11),
 
   // mangling
   // implicit_mangle (default)
-  EXPLICIT_MANGLE = rq::getBit(17),
+  EXPLICIT_MANGLE = rq::getBit(12),
 
   // packing
   // no_pack (default)
-  PACK = rq::getBit(18),
+  PACK = rq::getBit(13),
 
   // templating
   // no_template (default)
-  TEMPLATE = rq::getBit(19),
-  SPECIALIZE = rq::getBit(20),
+  TEMPLATE = rq::getBit(14),
+  SPECIALIZE = rq::getBit(15),
 
   // likelihood
   // equivocal (default)
-  LIKELY = rq::getBit(21),
-  UNLIKELY = rq::getBit(22),
+  LIKELY = rq::getBit(16),
+  UNLIKELY = rq::getBit(17),
 
   // support
   // supported (default)
-  DEPRECIATED = rq::getBit(23),
-  EXPERIMENTAL = rq::getBit(24),
+  DEPRECIATED = rq::getBit(18),
+  EXPERIMENTAL = rq::getBit(19),
 
   // copyability
   // no_copy (default)
-  MAY_COPY = rq::getBit(25),
+  MAY_COPY = rq::getBit(20),
 
   // address_stability
   // unstable_address (default)
-  STABLE_ADDRESS = rq::getBit(26),
+  STABLE_ADDRESS = rq::getBit(21),
 
   // cleanup
   // implicit_drop (default)
-  EXPLICIT_DROP = rq::getBit(27),
-
-  // result_status
-  // not_ok (default)
-  OK = rq::getBit(28),
+  EXPLICIT_DROP = rq::getBit(22),
 
   LABELING = LABEL,                     // no_label vs label
   VISIBILITY = OPAQUE,                  // transparent vs opaque
@@ -3368,10 +3192,6 @@ enum class ExpressionFlags : std::uint64_t {
   GENERATION_TIME = STATIC,             // dynamic vs static
   CAPTURING = CAPTURE,                  // no_capture vs capture
   EVALUATION_TIME = EAGER,              // lazy vs eager
-  PARENTABILITY = MAY_PARENT,           // no_parent vs may_parent
-  PROPERTY_ASSOCIATION = PARENT,        // mixin vs parent
-  TANGIBILITY = ABSTRACT | VIRTUAL,     // tangible vs abstract vs virtual
-  OVERRIDING = OVERRIDE,                // no_override vs override
   INLINING = INLINE,                    // no_inline vs inline
   MANGLING = EXPLICIT_MANGLE,           // implicit_mangle vs explicit_mangle
   PACKING = PACK,                       // no_pack vs pack
@@ -3381,8 +3201,7 @@ enum class ExpressionFlags : std::uint64_t {
       DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
   COPYABILITY = MAY_COPY,         // no_copy vs may_copy
   ADDRESS_STABILITY = STABLE_ADDRESS, // unstable_address vs stable_address
-  CLEANUP = EXPLICIT_DROP,            // implicit_drop vs explicit_drop
-  RESULT_STATUS = OK                  // not_ok vs ok
+  CLEANUP = EXPLICIT_DROP             // implicit_drop vs explicit_drop
 };
 
 template <> struct is_flags<ExpressionFlags> : std::true_type {};
@@ -3456,32 +3275,6 @@ getFlags(rq::ExpressionAttribute attribute) {
   case EA::EAGER:
     return EF::EAGER;
 
-  // parentability
-  case EA::NO_PARENT:
-    return EF::NONE;
-  case EA::MAY_PARENT:
-    return EF::MAY_PARENT;
-
-  // property_association
-  case EA::MIXIN:
-    return EF::NONE;
-  case EA::PARENT:
-    return EF::PARENT;
-
-  // tangibility
-  case EA::TANGIBLE:
-    return EF::NONE;
-  case EA::ABSTRACT:
-    return EF::ABSTRACT;
-  case EA::VIRTUAL:
-    return EF::VIRTUAL;
-
-  // overriding
-  case EA::NO_OVERRIDE:
-    return EF::NONE;
-  case EA::OVERRIDE:
-    return EF::OVERRIDE;
-
   // inlining
   case EA::NO_INLINE:
     return EF::NONE;
@@ -3541,12 +3334,6 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::EXPLICIT_DROP:
     return EF::EXPLICIT_DROP;
-
-  // result_status
-  case EA::NOT_OK:
-    return EF::NONE;
-  case EA::OK:
-    return EF::OK;
 
   case EA::LAST:
     break;
@@ -3653,47 +3440,6 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::EAGER);
 }
 
-// parentability
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoParent(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::PARENTABILITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayParent(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_PARENT);
-}
-
-// property_association
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMixin(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::PROPERTY_ASSOCIATION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasParent(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::PARENT);
-}
-
-// tangibility
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTangible(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::TANGIBILITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAbstract(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::ABSTRACT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVirtual(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::VIRTUAL);
-}
-
-// overriding
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasNoOverride(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::OVERRIDING);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::OVERRIDE);
-}
-
 // inlining
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoInline(rq::ExpressionFlags flags) {
   return rq::getHasNone(flags, rq::ExpressionFlags::INLINING);
@@ -3795,15 +3541,6 @@ getHasImplicitDrop(rq::ExpressionFlags flags) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasExplicitDrop(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::EXPLICIT_DROP);
-}
-
-// result_status
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNotOk(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::RESULT_STATUS);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasOk(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::OK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
