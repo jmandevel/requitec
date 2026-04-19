@@ -429,7 +429,7 @@ getFlags(rq::TokenKind kind) {
   case T::CAROT_OPERATOR:
     return TF::OPERATOR;
   case T::PIPE_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::MARK;
   case T::TILDE_OPERATOR:
     return TF::OPERATOR;
   case T::AMPERSAND_OPERATOR:
