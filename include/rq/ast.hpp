@@ -422,7 +422,6 @@ enum class Keyword : std::uint32_t {
   NULL_TERMINATED,
 
   // EXPRESSION ATTRIBUTE TYPES
-  EXPRESSION_ATTRIBUTE, // type constraint
   LABELING,             // no_label vs label
   VISIBILITY,           // transparent vs opaque
   SCOPING,              // inside_scope vs outside_scope
@@ -444,7 +443,6 @@ enum class Keyword : std::uint32_t {
   CLEANUP,              // explicit_drop vs implicit_drop
 
   // TYPE ATTRIBUTE TYPES
-  TYPE_ATTRIBUTE,   // type constraint
   MUTABILITY,       // any_mutability var vs constant vs partially_var
   VOLATILITY,       // maybe_volatile vs volatile vs not_volatile
   DETERMINICITY,    // determinate vs indeterminate
@@ -1201,8 +1199,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "not_null_terminated";
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::EXPRESSION_ATTRIBUTE:
-    return "expression_attribute";
   case K::LABELING:
     return "labeling";
   case K::VISIBILITY:
@@ -2119,8 +2115,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::EXPRESSION_ATTRIBUTE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::LABELING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VISIBILITY:
@@ -2161,8 +2155,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
-  case K::TYPE_ATTRIBUTE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MUTABILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VOLATILITY:
