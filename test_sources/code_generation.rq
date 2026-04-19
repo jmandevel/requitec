@@ -11,7 +11,7 @@
 
 [entry
     [static]
-    [for 0.<=10, num:=[value], 
+    [for 0.<=10, num:=[value],
         [static]
         varname :\[var]= ..std.format(text="VAR" +> num);
         ..std.print(line=varname.[borrow] +> " is " +> ..varname.[identify] +> "!");  
