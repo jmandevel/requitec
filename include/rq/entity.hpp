@@ -430,8 +430,682 @@ struct Entity;
     struct NullaryInstruction;
     struct UnaryInstruction;
     struct BinaryInstruction;
-
-struct ParameterList;
 // clang-format on
+
+struct ParameterList final {
+
+};
+
+struct Entity {
+
+};
+
+struct Symbol : public rq::Entity {
+
+};
+
+struct SimpleSymbol : public rq::Symbol {
+
+};
+
+struct Literal : public rq::SimpleSymbol {
+
+};
+
+struct IntegerLiteral final : public rq::Literal {
+
+};
+
+struct FloatLiteral final : public rq::Literal {
+
+};
+
+struct StringLiteral final : public rq::Literal {
+
+};
+
+struct CodeunitLiteral final : public rq::Literal {
+
+};
+
+struct Contextual : public rq::SimpleSymbol {
+
+};
+
+struct ContextualName : public rq::Contextual {
+
+};
+
+struct NoName final : public rq::ContextualName {
+
+};
+
+struct ContextualValue : public rq::Contextual {
+
+};
+
+struct OutValue final : public rq::ContextualValue {
+
+};
+
+struct ThisValue final : public rq::ContextualValue {
+
+};
+
+struct ResultValue final : public rq::ContextualValue {
+
+};
+
+struct ValueValue final : public rq::ContextualValue {
+
+};
+
+struct IndexValue final : public rq::ContextualValue {
+
+};
+
+struct DiscriminantValue final : public rq::ContextualValue {
+
+};
+
+struct CommandLineArgumentsValue final : public rq::ContextualValue {
+
+};
+
+struct CallsiteValue final : public rq::ContextualValue {
+
+};
+
+struct ContextualType : public rq::Contextual {
+
+};
+
+struct InferenceType final : public rq::ContextualType {
+
+};
+
+struct VoidType final : public rq::ContextualType {
+
+};
+
+struct NoReturnType final : public rq::ContextualType {
+
+};
+
+struct FundamentalConstraint : public rq::SimpleSymbol {
+
+};
+
+struct TypeConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct RangeConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct NumericConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct SignedConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct UnsignedConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct IntegerConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct SignedIntegerConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct UnsignedIntegerConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct FloatConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct BinaryConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct BfloatConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct StringConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct CodeunitConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct ExpressionAttributeConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct TypeAttributeConstraint final : public rq::FundamentalConstraint {
+
+};
+
+struct ExpressionAttributeType : public rq::SimpleSymbol {
+
+};
+
+struct LabelingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct VisibilityType final : public rq::ExpressionAttributeType {
+
+};
+
+struct ScopingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct AvailabilityType final : public rq::ExpressionAttributeType {
+
+};
+
+struct PropertyMutabilityType final : public rq::ExpressionAttributeType {
+
+};
+
+struct ExportingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct GenerationTimeType final : public rq::ExpressionAttributeType {
+
+};
+
+struct CapturingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct EvaluationTimeType final : public rq::ExpressionAttributeType {
+
+};
+
+struct InliningType final : public rq::ExpressionAttributeType {
+
+};
+
+struct ManglingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct PackingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct TemplatingType final : public rq::ExpressionAttributeType {
+
+};
+
+struct LikelyhoodType final : public rq::ExpressionAttributeType {
+
+};
+
+struct SupportType final : public rq::ExpressionAttributeType {
+
+};
+
+struct CopyabilityType final : public rq::ExpressionAttributeType {
+
+};
+
+struct AddressStabilityType final : public rq::ExpressionAttributeType {
+
+};
+
+struct CleanupType final : public rq::ExpressionAttributeType {
+
+};
+
+struct TypeAttributeType : public rq::SimpleSymbol {
+
+};
+
+struct MutabilityType final : public rq::TypeAttributeType {
+
+};
+
+struct VolatilityType final : public rq::TypeAttributeType {
+
+};
+
+struct DeterminicityType final : public rq::TypeAttributeType {
+
+};
+
+struct AtomicityType final : public rq::TypeAttributeType {
+
+};
+
+struct NullTerminationType final : public rq::TypeAttributeType {
+
+};
+
+struct PreconditionType final : public rq::TypeAttributeType {
+
+};
+
+struct PostconditionType final : public rq::TypeAttributeType {
+
+};
+
+struct ReflectiveType : public rq::SimpleSymbol {
+
+};
+
+struct SymbolType final : public rq::ReflectiveType {
+
+};
+
+struct ExpressionType final : public rq::ReflectiveType {
+
+};
+
+struct UnscaledPrimitiveType : public rq::SimpleSymbol {
+
+};
+
+struct BooleanType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct HalfType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct SingleType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct DoubleType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct QuadrupleType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct Binary16Type final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct Binary32Type final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct Binary64Type final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct Binary128Type final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct Bfloat16Type final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct AsciiType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct Utf8Type final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct SignedIndexType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct UnsignedIndexType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct SignedAddressType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct UnsignedAddressType final : public rq::UnscaledPrimitiveType {
+
+};
+
+struct VariadicArgumentType final : public rq::SimpleSymbol {
+
+};
+
+struct ScaledIntegerType : public rq::Symbol {
+
+};
+
+struct ScaledSignedIntegerType final : public rq::ScaledIntegerType {
+
+};
+
+struct ScaledUnsignedIntegerType final : public rq::ScaledIntegerType {
+
+};
+
+struct UncountedSubtype : public rq::SimpleSymbol {
+
+};
+
+struct ReferenceSubtype final : public rq::UncountedSubtype {
+
+};
+
+struct PointerSubtype final : public rq::UncountedSubtype {
+
+};
+
+struct FatPointerSubtype final : public rq::UncountedSubtype {
+
+};
+
+struct InferenceCountArraySubtype final : public rq::UncountedSubtype {
+
+};
+
+struct Array final : public rq::SimpleSymbol {
+
+};
+
+struct Module final : public rq::SimpleSymbol {
+
+};
+
+struct Import final : public rq::SimpleSymbol {
+
+};
+
+struct ConcatenatedString final : public rq::SimpleSymbol {
+
+};
+
+struct ArithmeticSequence : public rq::SimpleSymbol {
+
+};
+
+struct ArithmeticInterval final : public rq::ArithmeticSequence {
+
+};
+
+struct InfiniteArithmeticSequence final : public rq::ArithmeticSequence {
+
+};
+
+struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
+
+};
+
+struct LocalDeclaration : public rq::Symbol {
+
+};
+
+struct Label final : public rq::LocalDeclaration {
+
+};
+
+struct LocalVariable : public rq::LocalDeclaration {
+
+};
+
+struct LocalDynamicVariable final : public rq::LocalVariable {
+
+};
+
+struct LocalStaticVariable final : public rq::LocalVariable {
+
+};
+
+struct Parameter : public rq::LocalVariable {
+
+};
+
+struct SignatureParameter final : public rq::Parameter {
+
+};
+
+struct ClassParameter final : public rq::Parameter {
+
+};
+
+struct TemplateParameter final : public rq::Parameter {
+
+};
+
+struct Signature final : public rq::SimpleSymbol {
+
+};
+
+struct Composition final : public rq::SimpleSymbol {
+
+};
+
+struct Synonym final : public rq::SimpleSymbol {
+
+};
+
+struct Polymorph : public rq::SimpleSymbol {
+
+};
+
+struct RangerPolymorph final : public rq::Polymorph {
+
+};
+
+struct ProcedurePolymorph final : public rq::Polymorph {
+
+};
+
+struct ClassPolymorph final : public rq::Polymorph {
+
+};
+
+struct EnumeratorPolymorph final : public rq::Polymorph {
+
+};
+
+struct InterfacePolymorph final : public rq::Polymorph {
+
+};
+
+struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
+
+};
+
+struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
+
+};
+
+struct SymbolTable : public rq::Symbol {
+
+};
+
+struct Top final : public rq::SymbolTable {
+
+};
+
+struct Scope final : public rq::SymbolTable {
+
+};
+
+struct GlobalDeclaration : public rq::SymbolTable {
+
+};
+
+struct Namespace final : public rq::GlobalDeclaration {
+
+};
+
+struct Class final : public rq::GlobalDeclaration {
+
+};
+
+struct Enumeration final : public rq::GlobalDeclaration {
+
+};
+
+struct Interface final : public rq::GlobalDeclaration {
+
+};
+
+struct GlobalVariable : public rq::GlobalDeclaration {
+
+};
+
+struct GlobalDynamicVariable final : public rq::GlobalVariable {
+
+};
+
+struct GlobalStaticVariable final : public rq::GlobalVariable {
+
+};
+
+struct Ranger : public rq::GlobalDeclaration {
+
+};
+
+struct ForwardRanger final : public rq::Ranger {
+
+};
+
+struct BackwardRanger final : public rq::Ranger {
+
+};
+
+struct Procedure : public rq::GlobalDeclaration {
+
+};
+
+struct Entry final : public rq::Procedure {
+
+};
+
+struct Function final : public rq::Procedure {
+
+};
+
+struct Method final : public rq::Procedure {
+
+};
+
+struct ExtensionFunction final : public rq::Procedure {
+
+};
+
+struct ExtensionMethod final : public rq::Procedure {
+
+};
+
+struct Template : public rq::SymbolTable {
+
+};
+
+struct ClassTemplate final : public rq::Template {
+
+};
+
+struct EnumerationTemplate final : public rq::Template {
+
+};
+
+struct InterfaceTemplate final : public rq::Template {
+
+};
+
+struct GlobalDynamicVariableTemplate final : public rq::Template {
+
+};
+
+struct GlobalStaticVariableTemplate final : public rq::Template {
+
+};
+
+struct ForwardRangerTemplate final : public rq::Template {
+
+};
+
+struct BackwardRangerTemplate final : public rq::Template {
+
+};
+
+struct FunctionTemplate final : public rq::Template {
+
+};
+
+struct MethodTemplate final : public rq::Template {
+
+};
+
+struct ExtensionFunctionTemplate final : public rq::Template {
+
+};
+
+struct ExtensionMethodTemplate final : public rq::Template {
+
+};
+
+struct Specialization : public rq::SymbolTable {
+
+};
+
+struct ClassSpecialization final : public rq::Specialization {
+
+};
+
+struct EnumerationSpecialization final : public rq::Specialization {
+
+};
+
+struct InterfaceSpecialization final : public rq::Specialization {
+
+};
+
+struct GlobalDynamicVariableSpecialization final : public rq::Specialization {
+
+};
+
+struct GlobalStaticVariableSpecialization final : public rq::Specialization {
+
+};
+
+struct ForwardRangerSpecialization final : public rq::Specialization {
+
+};
+
+struct BackwardRangerSpecialization final : public rq::Specialization {
+
+};
+
+struct FunctionSpecialization final : public rq::Specialization {
+
+};
+
+struct MethodSpecialization final : public rq::Specialization {
+
+};
+
+struct ExtensionFunctionSpecialization final : public rq::Specialization {
+
+};
+
+struct ExtensionMethodSpecialization final : public rq::Specialization {
+
+};
 
 } // namespace rq
