@@ -13,6 +13,9 @@ enum class Opcode {
   SY_STRING_LITERAL,
   SY_CODEUNIT_LITERAL,
 
+  // CONTEXTUAL NAME
+  SY_NO_NAME,
+
   // CONTEXTUAL VALUE
   SY_OUT,
   SY_THIS,
@@ -22,7 +25,6 @@ enum class Opcode {
   SY_DISCRIMINANT,
   SY_COMMAND_LINE_ARGUMENTS,
   SY_CALLSITE,
-  SY_NO_NAME,
 
   // CONTEXTUAL TYPE
   SY_INFERENCE,
@@ -257,6 +259,8 @@ struct Entity;
         struct StringLiteral;
         struct CodeunitLiteral;
       struct Contextual;
+        struct ContextualName;
+          struct NoName;
         struct ContextualValue;
           struct OutValue;
           struct ThisValue;
