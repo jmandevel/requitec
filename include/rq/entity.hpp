@@ -432,680 +432,672 @@ struct Entity;
     struct BinaryInstruction;
 // clang-format on
 
-struct ParameterList final {
+struct ParameterList final {};
 
-};
+struct Entity {};
 
-struct Entity {
+struct Symbol : public rq::Entity {};
 
-};
-
-struct Symbol : public rq::Entity {
-
-};
-
-struct SimpleSymbol : public rq::Symbol {
-
-};
+struct SimpleSymbol : public rq::Symbol {};
 
 struct Literal : public rq::SimpleSymbol {
-
+  using Self = rq::Literal;
 };
 
 struct IntegerLiteral final : public rq::Literal {
-
+  using Self = rq::IntegerLiteral;
 };
 
 struct FloatLiteral final : public rq::Literal {
-
+  using Self = rq::FloatLiteral;
 };
 
 struct StringLiteral final : public rq::Literal {
-
+  using Self = rq::StringLiteral;
 };
 
 struct CodeunitLiteral final : public rq::Literal {
-
+  using Self = rq::CodeunitLiteral;
 };
 
 struct Contextual : public rq::SimpleSymbol {
-
+  using Self = rq::Contextual;
 };
 
 struct ContextualName : public rq::Contextual {
-
+  using Self = rq::ContextualName;
 };
 
 struct NoName final : public rq::ContextualName {
-
+  using Self = rq::NoName;
 };
 
 struct ContextualValue : public rq::Contextual {
-
+  using Self = rq::ContextualValue;
 };
 
 struct OutValue final : public rq::ContextualValue {
-
+  using Self = rq::OutValue;
 };
 
 struct ThisValue final : public rq::ContextualValue {
-
+  using Self = rq::ThisValue;
 };
 
 struct ResultValue final : public rq::ContextualValue {
-
+  using Self = rq::ResultValue;
 };
 
 struct ValueValue final : public rq::ContextualValue {
-
+  using Self = rq::ValueValue;
 };
 
 struct IndexValue final : public rq::ContextualValue {
-
+  using Self = rq::IndexValue;
 };
 
 struct DiscriminantValue final : public rq::ContextualValue {
-
+  using Self = rq::DiscriminantValue;
 };
 
 struct CommandLineArgumentsValue final : public rq::ContextualValue {
-
+  using Self = rq::CommandLineArgumentsValue;
 };
 
 struct CallsiteValue final : public rq::ContextualValue {
-
+  using Self = rq::CallsiteValue;
 };
 
 struct ContextualType : public rq::Contextual {
-
+  using Self = rq::ContextualType;
 };
 
 struct InferenceType final : public rq::ContextualType {
-
+  using Self = rq::InferenceType;
 };
 
 struct VoidType final : public rq::ContextualType {
-
+  using Self = rq::VoidType;
 };
 
 struct NoReturnType final : public rq::ContextualType {
-
+  using Self = rq::NoReturnType;
 };
 
 struct FundamentalConstraint : public rq::SimpleSymbol {
-
+  using Self = rq::FundamentalConstraint;
 };
 
 struct TypeConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::TypeConstraint;
 };
 
 struct RangeConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::RangeConstraint;
 };
 
 struct NumericConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::NumericConstraint;
 };
 
 struct SignedConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::SignedConstraint;
 };
 
 struct UnsignedConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::UnsignedConstraint;
 };
 
 struct IntegerConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::IntegerConstraint;
 };
 
 struct SignedIntegerConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::SignedIntegerConstraint;
 };
 
 struct UnsignedIntegerConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::UnsignedIntegerConstraint;
 };
 
 struct FloatConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::FloatConstraint;
 };
 
 struct BinaryConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::BinaryConstraint;
 };
 
 struct BfloatConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::BfloatConstraint;
 };
 
 struct StringConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::StringConstraint;
 };
 
 struct CodeunitConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::CodeunitConstraint;
 };
 
 struct ExpressionAttributeConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::ExpressionAttributeConstraint;
 };
 
 struct TypeAttributeConstraint final : public rq::FundamentalConstraint {
-
+  using Self = rq::TypeAttributeConstraint;
 };
 
 struct ExpressionAttributeType : public rq::SimpleSymbol {
-
+  using Self = rq::ExpressionAttributeType;
 };
 
 struct LabelingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::LabelingType;
 };
 
 struct VisibilityType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::VisibilityType;
 };
 
 struct ScopingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::ScopingType;
 };
 
 struct AvailabilityType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::AvailabilityType;
 };
 
 struct PropertyMutabilityType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::PropertyMutabilityType;
 };
 
 struct ExportingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::ExportingType;
 };
 
 struct GenerationTimeType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::GenerationTimeType;
 };
 
 struct CapturingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::CapturingType;
 };
 
 struct EvaluationTimeType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::EvaluationTimeType;
 };
 
 struct InliningType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::InliningType;
 };
 
 struct ManglingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::ManglingType;
 };
 
 struct PackingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::PackingType;
 };
 
 struct TemplatingType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::TemplatingType;
 };
 
 struct LikelyhoodType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::LikelyhoodType;
 };
 
 struct SupportType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::SupportType;
 };
 
 struct CopyabilityType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::CopyabilityType;
 };
 
 struct AddressStabilityType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::AddressStabilityType;
 };
 
 struct CleanupType final : public rq::ExpressionAttributeType {
-
+  using Self = rq::CleanupType;
 };
 
 struct TypeAttributeType : public rq::SimpleSymbol {
-
+  using Self = rq::TypeAttributeType;
 };
 
 struct MutabilityType final : public rq::TypeAttributeType {
-
+  using Self = rq::MutabilityType;
 };
 
 struct VolatilityType final : public rq::TypeAttributeType {
-
+  using Self = rq::VolatilityType;
 };
 
 struct DeterminicityType final : public rq::TypeAttributeType {
-
+  using Self = rq::DeterminicityType;
 };
 
 struct AtomicityType final : public rq::TypeAttributeType {
-
+  using Self = rq::AtomicityType;
 };
 
 struct NullTerminationType final : public rq::TypeAttributeType {
-
+  using Self = rq::NullTerminationType;
 };
 
 struct PreconditionType final : public rq::TypeAttributeType {
-
+  using Self = rq::PreconditionType;
 };
 
 struct PostconditionType final : public rq::TypeAttributeType {
-
+  using Self = rq::PostconditionType;
 };
 
 struct ReflectiveType : public rq::SimpleSymbol {
-
+  using Self = rq::ReflectiveType;
 };
 
 struct SymbolType final : public rq::ReflectiveType {
-
+  using Self = rq::SymbolType;
 };
 
 struct ExpressionType final : public rq::ReflectiveType {
-
+  using Self = rq::ExpressionType;
 };
 
 struct UnscaledPrimitiveType : public rq::SimpleSymbol {
-
+  using Self = rq::UnscaledPrimitiveType;
 };
 
 struct BooleanType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::BooleanType;
 };
 
 struct HalfType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::HalfType;
 };
 
 struct SingleType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::SingleType;
 };
 
 struct DoubleType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::DoubleType;
 };
 
 struct QuadrupleType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::QuadrupleType;
 };
 
 struct Binary16Type final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::Binary16Type;
 };
 
 struct Binary32Type final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::Binary32Type;
 };
 
 struct Binary64Type final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::Binary64Type;
 };
 
 struct Binary128Type final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::Binary128Type;
 };
 
 struct Bfloat16Type final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::Bfloat16Type;
 };
 
 struct AsciiType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::AsciiType;
 };
 
 struct Utf8Type final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::Utf8Type;
 };
 
 struct SignedIndexType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::SignedIndexType;
 };
 
 struct UnsignedIndexType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::UnsignedIndexType;
 };
 
 struct SignedAddressType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::SignedAddressType;
 };
 
 struct UnsignedAddressType final : public rq::UnscaledPrimitiveType {
-
+  using Self = rq::UnsignedAddressType;
 };
 
 struct VariadicArgumentType final : public rq::SimpleSymbol {
-
+  using Self = rq::VariadicArgumentType;
 };
 
 struct ScaledIntegerType : public rq::Symbol {
-
+  using Self = rq::ScaledIntegerType;
 };
 
 struct ScaledSignedIntegerType final : public rq::ScaledIntegerType {
-
+  using Self = rq::ScaledSignedIntegerType;
 };
 
 struct ScaledUnsignedIntegerType final : public rq::ScaledIntegerType {
-
+  using Self = rq::ScaledUnsignedIntegerType;
 };
 
 struct UncountedSubtype : public rq::SimpleSymbol {
-
+  using Self = rq::UncountedSubtype;
 };
 
 struct ReferenceSubtype final : public rq::UncountedSubtype {
-
+  using Self = rq::ReferenceSubtype;
 };
 
 struct PointerSubtype final : public rq::UncountedSubtype {
-
+  using Self = rq::PointerSubtype;
 };
 
 struct FatPointerSubtype final : public rq::UncountedSubtype {
-
+  using Self = rq::FatPointerSubtype;
 };
 
 struct InferenceCountArraySubtype final : public rq::UncountedSubtype {
-
+  using Self = rq::InferenceCountArraySubtype;
 };
 
 struct Array final : public rq::SimpleSymbol {
-
+  using Self = rq::Array;
 };
 
 struct Module final : public rq::SimpleSymbol {
-
+  using Self = rq::Module;
 };
 
 struct Import final : public rq::SimpleSymbol {
-
+  using Self = rq::Import;
 };
 
 struct ConcatenatedString final : public rq::SimpleSymbol {
-
+  using Self = rq::ConcatenatedString;
 };
 
 struct ArithmeticSequence : public rq::SimpleSymbol {
-
+  using Self = rq::ArithmeticSequence;
 };
 
 struct ArithmeticInterval final : public rq::ArithmeticSequence {
-
+  using Self = rq::ArithmeticInterval;
 };
 
 struct InfiniteArithmeticSequence final : public rq::ArithmeticSequence {
-
+  using Self = rq::InfiniteArithmeticSequence;
 };
 
 struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
-
+  using Self = rq::FiniteArithmeticSequence;
 };
 
 struct LocalDeclaration : public rq::Symbol {
-
+  using Self = rq::LocalDeclaration;
 };
 
 struct Label final : public rq::LocalDeclaration {
-
+  using Self = rq::Label;
 };
 
 struct LocalVariable : public rq::LocalDeclaration {
-
+  using Self = rq::LocalVariable;
 };
 
 struct LocalDynamicVariable final : public rq::LocalVariable {
-
+  using Self = rq::LocalDynamicVariable;
 };
 
 struct LocalStaticVariable final : public rq::LocalVariable {
-
+  using Self = rq::LocalStaticVariable;
 };
 
 struct Parameter : public rq::LocalVariable {
-
+  using Self = rq::Parameter;
 };
 
 struct SignatureParameter final : public rq::Parameter {
-
+  using Self = rq::SignatureParameter;
 };
 
 struct ClassParameter final : public rq::Parameter {
-
+  using Self = rq::ClassParameter;
 };
 
 struct TemplateParameter final : public rq::Parameter {
-
+  using Self = rq::TemplateParameter;
 };
 
 struct Signature final : public rq::SimpleSymbol {
-
+  using Self = rq::Signature;
 };
 
 struct Composition final : public rq::SimpleSymbol {
-
+  using Self = rq::Composition;
 };
 
 struct Synonym final : public rq::SimpleSymbol {
-
+  using Self = rq::Synonym;
 };
 
 struct Polymorph : public rq::SimpleSymbol {
-
+  using Self = rq::Polymorph;
 };
 
 struct RangerPolymorph final : public rq::Polymorph {
-
+  using Self = rq::RangerPolymorph;
 };
 
 struct ProcedurePolymorph final : public rq::Polymorph {
-
+  using Self = rq::ProcedurePolymorph;
 };
 
 struct ClassPolymorph final : public rq::Polymorph {
-
+  using Self = rq::ClassPolymorph;
 };
 
 struct EnumeratorPolymorph final : public rq::Polymorph {
-
+  using Self = rq::EnumeratorPolymorph;
 };
 
 struct InterfacePolymorph final : public rq::Polymorph {
-
+  using Self = rq::InterfacePolymorph;
 };
 
 struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
-
+  using Self = rq::GlobalDynamicVariablePolymorph;
 };
 
 struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
-
+  using Self = rq::GlobalStaticVariablePolymorph;
 };
 
 struct SymbolTable : public rq::Symbol {
-
+  using Self = rq::SymbolTable;
 };
 
 struct Top final : public rq::SymbolTable {
-
+  using Self = rq::Top;
 };
 
 struct Scope final : public rq::SymbolTable {
-
+  using Self = rq::Scope;
 };
 
 struct GlobalDeclaration : public rq::SymbolTable {
-
+  using Self = rq::GlobalDeclaration;
 };
 
 struct Namespace final : public rq::GlobalDeclaration {
-
+  using Self = rq::Namespace;
 };
 
 struct Class final : public rq::GlobalDeclaration {
-
+  using Self = rq::Class;
 };
 
 struct Enumeration final : public rq::GlobalDeclaration {
-
+  using Self = rq::Enumeration;
 };
 
 struct Interface final : public rq::GlobalDeclaration {
-
+  using Self = rq::Interface;
 };
 
 struct GlobalVariable : public rq::GlobalDeclaration {
-
+  using Self = rq::GlobalVariable;
 };
 
 struct GlobalDynamicVariable final : public rq::GlobalVariable {
-
+  using Self = rq::GlobalDynamicVariable;
 };
 
 struct GlobalStaticVariable final : public rq::GlobalVariable {
-
+  using Self = rq::GlobalStaticVariable;
 };
 
 struct Ranger : public rq::GlobalDeclaration {
-
+  using Self = rq::Ranger;
 };
 
 struct ForwardRanger final : public rq::Ranger {
-
+  using Self = rq::ForwardRanger;
 };
 
 struct BackwardRanger final : public rq::Ranger {
-
+  using Self = rq::BackwardRanger;
 };
 
 struct Procedure : public rq::GlobalDeclaration {
-
+  using Self = rq::Procedure;
 };
 
 struct Entry final : public rq::Procedure {
-
+  using Self = rq::Entry;
 };
 
 struct Function final : public rq::Procedure {
-
+  using Self = rq::Function;
 };
 
 struct Method final : public rq::Procedure {
-
+  using Self = rq::Method;
 };
 
 struct ExtensionFunction final : public rq::Procedure {
-
+  using Self = rq::ExtensionFunction;
 };
 
 struct ExtensionMethod final : public rq::Procedure {
-
+  using Self = rq::ExtensionMethod;
 };
 
 struct Template : public rq::SymbolTable {
-
+  using Self = rq::Template;
 };
 
 struct ClassTemplate final : public rq::Template {
-
+  using Self = rq::ClassTemplate;
 };
 
 struct EnumerationTemplate final : public rq::Template {
-
+  using Self = rq::EnumerationTemplate;
 };
 
 struct InterfaceTemplate final : public rq::Template {
-
+  using Self = rq::InterfaceTemplate;
 };
 
 struct GlobalDynamicVariableTemplate final : public rq::Template {
-
+  using Self = rq::GlobalDynamicVariableTemplate;
 };
 
 struct GlobalStaticVariableTemplate final : public rq::Template {
-
+  using Self = rq::GlobalStaticVariableTemplate;
 };
 
 struct ForwardRangerTemplate final : public rq::Template {
-
+  using Self = rq::ForwardRangerTemplate;
 };
 
 struct BackwardRangerTemplate final : public rq::Template {
-
+  using Self = rq::BackwardRangerTemplate;
 };
 
 struct FunctionTemplate final : public rq::Template {
-
+  using Self = rq::FunctionTemplate;
 };
 
 struct MethodTemplate final : public rq::Template {
-
+  using Self = rq::MethodTemplate;
 };
 
 struct ExtensionFunctionTemplate final : public rq::Template {
-
+  using Self = rq::ExtensionFunctionTemplate;
 };
 
 struct ExtensionMethodTemplate final : public rq::Template {
-
+  using Self = rq::ExtensionMethodTemplate;
 };
 
 struct Specialization : public rq::SymbolTable {
-
+  using Self = rq::Specialization;
 };
 
 struct ClassSpecialization final : public rq::Specialization {
-
+  using Self = rq::ClassSpecialization;
 };
 
 struct EnumerationSpecialization final : public rq::Specialization {
-
+  using Self = rq::EnumerationSpecialization;
 };
 
 struct InterfaceSpecialization final : public rq::Specialization {
-
+  using Self = rq::InterfaceSpecialization;
 };
 
 struct GlobalDynamicVariableSpecialization final : public rq::Specialization {
-
+  using Self = rq::GlobalDynamicVariableSpecialization;
 };
 
 struct GlobalStaticVariableSpecialization final : public rq::Specialization {
-
+  using Self = rq::GlobalStaticVariableSpecialization;
 };
 
 struct ForwardRangerSpecialization final : public rq::Specialization {
-
+  using Self = rq::ForwardRangerSpecialization;
 };
 
 struct BackwardRangerSpecialization final : public rq::Specialization {
-
+  using Self = rq::BackwardRangerSpecialization;
 };
 
 struct FunctionSpecialization final : public rq::Specialization {
-
+  using Self = rq::FunctionSpecialization;
 };
 
 struct MethodSpecialization final : public rq::Specialization {
-
+  using Self = rq::MethodSpecialization;
 };
 
 struct ExtensionFunctionSpecialization final : public rq::Specialization {
-
+  using Self = rq::ExtensionFunctionSpecialization;
 };
 
 struct ExtensionMethodSpecialization final : public rq::Specialization {
-
+  using Self = rq::ExtensionMethodSpecialization;
 };
 
 } // namespace rq
