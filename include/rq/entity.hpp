@@ -1100,4 +1100,52 @@ struct ExtensionMethodSpecialization final : public rq::Specialization {
   using Self = rq::ExtensionMethodSpecialization;
 };
 
+struct Constant : public rq::Entity {
+  using Self = rq::Constant;
+};
+
+struct IntegerConstant final : public rq::Constant {
+  using Self = rq::IntegerConstant;
+};
+
+struct FloatConstant final : public rq::Constant {
+  using Self = rq::FloatConstant;
+};
+
+struct ExpressionConstant final : public rq::Constant {
+  using Self = rq::ExpressionConstant;
+};
+
+struct TypeConstant final : public rq::Constant {
+  using Self = rq::TypeConstant;
+};
+
+struct BooleanConstant final : public rq::Constant {
+  using Self = rq::BooleanConstant;
+};
+
+struct StringConstant final : public rq::Constant {
+  using Self = rq::StringConstant;
+};
+
+struct ArrayConstant final : public rq::Constant {
+  using Self = rq::ArrayConstant;
+};
+
+struct Instruction : public rq::Entity {
+  using Self = rq::Instruction;
+};
+
+struct NullaryInstruction final : public rq::Instruction {
+  using Self = rq::NullaryInstruction;
+};
+
+struct UnaryInstruction final : public rq::Instruction {
+  using Self = rq::UnaryInstruction;
+};
+
+struct BinaryInstruction final : public rq::Instruction {
+  using Self = rq::BinaryInstruction;
+};
+
 } // namespace rq
