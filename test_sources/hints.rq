@@ -1,0 +1,19 @@
+[entry
+    // tell debugger to break here.
+    [debug_break];
+
+    a := 4;
+
+    [if a == 3,
+        // mark this line as never reachable. (gives error in debug builds)
+        [unreachable];
+    ];
+
+    // verify that something is true or abort (in debug builds only)
+    [assert a==4];
+
+    // more powerful than an assert, this allows optimizer to assume something is always true
+    [assume 2+2==a];
+    
+    [result] := 0;
+];

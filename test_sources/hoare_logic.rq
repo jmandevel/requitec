@@ -10,5 +10,7 @@
 ];
 
 [entry
-    [result] := ..divideSquare(6, 2);
+    a := ..divideSquare(6, 2);
+    
+    [result] := 0;
 ];
