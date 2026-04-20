@@ -441,25 +441,27 @@ struct ParameterList final {
 struct Entity {
   using Self = rq::Entity;
 
-  explicit RQ_ALWAYS_INLINE Entity();
+  rq::Opcode _opcode;
+
+  explicit RQ_ALWAYS_INLINE Entity(rq::Opcode opcode);
 };
 
 struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
 
-  explicit RQ_ALWAYS_INLINE Symbol();
+  explicit RQ_ALWAYS_INLINE Symbol(rq::Opcode opcode);
 };
 
 struct SimpleSymbol : public rq::Symbol {
   using Self = rq::SimpleSymbol;
 
-  explicit RQ_ALWAYS_INLINE SimpleSymbol();
+  explicit RQ_ALWAYS_INLINE SimpleSymbol(rq::Opcode opcode);
 };
 
 struct Literal : public rq::SimpleSymbol {
   using Self = rq::Literal;
 
-  explicit RQ_ALWAYS_INLINE Literal();
+  explicit RQ_ALWAYS_INLINE Literal(rq::Opcode opcode);
 };
 
 struct IntegerLiteral final : public rq::Literal {
@@ -489,13 +491,13 @@ struct CodeunitLiteral final : public rq::Literal {
 struct Contextual : public rq::SimpleSymbol {
   using Self = rq::Contextual;
 
-  explicit RQ_ALWAYS_INLINE Contextual();
+  explicit RQ_ALWAYS_INLINE Contextual(rq::Opcode opcode);
 };
 
 struct ContextualName : public rq::Contextual {
   using Self = rq::ContextualName;
 
-  explicit RQ_ALWAYS_INLINE ContextualName();
+  explicit RQ_ALWAYS_INLINE ContextualName(rq::Opcode opcode);
 };
 
 struct NoName final : public rq::ContextualName {
@@ -507,7 +509,7 @@ struct NoName final : public rq::ContextualName {
 struct ContextualValue : public rq::Contextual {
   using Self = rq::ContextualValue;
 
-  explicit RQ_ALWAYS_INLINE ContextualValue();
+  explicit RQ_ALWAYS_INLINE ContextualValue(rq::Opcode opcode);
 };
 
 struct OutValue final : public rq::ContextualValue {
@@ -561,7 +563,7 @@ struct CallsiteValue final : public rq::ContextualValue {
 struct ContextualType : public rq::Contextual {
   using Self = rq::ContextualType;
 
-  explicit RQ_ALWAYS_INLINE ContextualType();
+  explicit RQ_ALWAYS_INLINE ContextualType(rq::Opcode opcode);
 };
 
 struct InferenceType final : public rq::ContextualType {
@@ -585,7 +587,7 @@ struct NoReturnType final : public rq::ContextualType {
 struct FundamentalConstraint : public rq::SimpleSymbol {
   using Self = rq::FundamentalConstraint;
 
-  explicit RQ_ALWAYS_INLINE FundamentalConstraint();
+  explicit RQ_ALWAYS_INLINE FundamentalConstraint(rq::Opcode opcode);
 };
 
 struct TypeConstraint final : public rq::FundamentalConstraint {
@@ -681,7 +683,7 @@ struct TypeAttributeConstraint final : public rq::FundamentalConstraint {
 struct ExpressionAttributeType : public rq::SimpleSymbol {
   using Self = rq::ExpressionAttributeType;
 
-  explicit RQ_ALWAYS_INLINE ExpressionAttributeType();
+  explicit RQ_ALWAYS_INLINE ExpressionAttributeType(rq::Opcode opcode);
 };
 
 struct LabelingType final : public rq::ExpressionAttributeType {
@@ -795,7 +797,7 @@ struct CleanupType final : public rq::ExpressionAttributeType {
 struct TypeAttributeType : public rq::SimpleSymbol {
   using Self = rq::TypeAttributeType;
 
-  explicit RQ_ALWAYS_INLINE TypeAttributeType();
+  explicit RQ_ALWAYS_INLINE TypeAttributeType(rq::Opcode opcode);
 };
 
 struct MutabilityType final : public rq::TypeAttributeType {
@@ -843,7 +845,7 @@ struct PostconditionType final : public rq::TypeAttributeType {
 struct ReflectiveType : public rq::SimpleSymbol {
   using Self = rq::ReflectiveType;
 
-  explicit RQ_ALWAYS_INLINE ReflectiveType();
+  explicit RQ_ALWAYS_INLINE ReflectiveType(rq::Opcode opcode);
 };
 
 struct SymbolType final : public rq::ReflectiveType {
@@ -861,7 +863,7 @@ struct ExpressionType final : public rq::ReflectiveType {
 struct UnscaledPrimitiveType : public rq::SimpleSymbol {
   using Self = rq::UnscaledPrimitiveType;
 
-  explicit RQ_ALWAYS_INLINE UnscaledPrimitiveType();
+  explicit RQ_ALWAYS_INLINE UnscaledPrimitiveType(rq::Opcode opcode);
 };
 
 struct BooleanType final : public rq::UnscaledPrimitiveType {
@@ -969,7 +971,7 @@ struct VariadicArgumentType final : public rq::SimpleSymbol {
 struct ScaledIntegerType : public rq::Symbol {
   using Self = rq::ScaledIntegerType;
 
-  explicit RQ_ALWAYS_INLINE ScaledIntegerType();
+  explicit RQ_ALWAYS_INLINE ScaledIntegerType(rq::Opcode opcode);
 };
 
 struct ScaledSignedIntegerType final : public rq::ScaledIntegerType {
@@ -987,7 +989,7 @@ struct ScaledUnsignedIntegerType final : public rq::ScaledIntegerType {
 struct UncountedSubtype : public rq::SimpleSymbol {
   using Self = rq::UncountedSubtype;
 
-  explicit RQ_ALWAYS_INLINE UncountedSubtype();
+  explicit RQ_ALWAYS_INLINE UncountedSubtype(rq::Opcode opcode);
 };
 
 struct ReferenceSubtype final : public rq::UncountedSubtype {
@@ -1041,7 +1043,7 @@ struct ConcatenatedString final : public rq::SimpleSymbol {
 struct ArithmeticSequence : public rq::SimpleSymbol {
   using Self = rq::ArithmeticSequence;
 
-  explicit RQ_ALWAYS_INLINE ArithmeticSequence();
+  explicit RQ_ALWAYS_INLINE ArithmeticSequence(rq::Opcode opcode);
 };
 
 struct ArithmeticInterval final : public rq::ArithmeticSequence {
@@ -1065,7 +1067,7 @@ struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
 struct LocalDeclaration : public rq::Symbol {
   using Self = rq::LocalDeclaration;
 
-  explicit RQ_ALWAYS_INLINE LocalDeclaration();
+  explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::Opcode opcode);
 };
 
 struct Label final : public rq::LocalDeclaration {
@@ -1077,7 +1079,7 @@ struct Label final : public rq::LocalDeclaration {
 struct LocalVariable : public rq::LocalDeclaration {
   using Self = rq::LocalVariable;
 
-  explicit RQ_ALWAYS_INLINE LocalVariable();
+  explicit RQ_ALWAYS_INLINE LocalVariable(rq::Opcode opcode);
 };
 
 struct LocalDynamicVariable final : public rq::LocalVariable {
@@ -1095,7 +1097,7 @@ struct LocalStaticVariable final : public rq::LocalVariable {
 struct Parameter : public rq::LocalVariable {
   using Self = rq::Parameter;
 
-  explicit RQ_ALWAYS_INLINE Parameter();
+  explicit RQ_ALWAYS_INLINE Parameter(rq::Opcode opcode);
 };
 
 struct SignatureParameter final : public rq::Parameter {
@@ -1137,7 +1139,7 @@ struct Synonym final : public rq::SimpleSymbol {
 struct Polymorph : public rq::SimpleSymbol {
   using Self = rq::Polymorph;
 
-  explicit RQ_ALWAYS_INLINE Polymorph();
+  explicit RQ_ALWAYS_INLINE Polymorph(rq::Opcode opcode);
 };
 
 struct RangerPolymorph final : public rq::Polymorph {
@@ -1185,7 +1187,7 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
 struct SymbolTable : public rq::Symbol {
   using Self = rq::SymbolTable;
 
-  explicit RQ_ALWAYS_INLINE SymbolTable();
+  explicit RQ_ALWAYS_INLINE SymbolTable(rq::Opcode opcode);
 };
 
 struct Top final : public rq::SymbolTable {
@@ -1203,7 +1205,7 @@ struct Scope final : public rq::SymbolTable {
 struct GlobalDeclaration : public rq::SymbolTable {
   using Self = rq::GlobalDeclaration;
 
-  explicit RQ_ALWAYS_INLINE GlobalDeclaration();
+  explicit RQ_ALWAYS_INLINE GlobalDeclaration(rq::Opcode opcode);
 };
 
 struct Namespace final : public rq::GlobalDeclaration {
@@ -1233,7 +1235,7 @@ struct Interface final : public rq::GlobalDeclaration {
 struct GlobalVariable : public rq::GlobalDeclaration {
   using Self = rq::GlobalVariable;
 
-  explicit RQ_ALWAYS_INLINE GlobalVariable();
+  explicit RQ_ALWAYS_INLINE GlobalVariable(rq::Opcode opcode);
 };
 
 struct GlobalDynamicVariable final : public rq::GlobalVariable {
@@ -1251,7 +1253,7 @@ struct GlobalStaticVariable final : public rq::GlobalVariable {
 struct Ranger : public rq::GlobalDeclaration {
   using Self = rq::Ranger;
 
-  explicit RQ_ALWAYS_INLINE Ranger();
+  explicit RQ_ALWAYS_INLINE Ranger(rq::Opcode opcode);
 };
 
 struct ForwardRanger final : public rq::Ranger {
@@ -1269,7 +1271,7 @@ struct BackwardRanger final : public rq::Ranger {
 struct Procedure : public rq::GlobalDeclaration {
   using Self = rq::Procedure;
 
-  explicit RQ_ALWAYS_INLINE Procedure();
+  explicit RQ_ALWAYS_INLINE Procedure(rq::Opcode opcode);
 };
 
 struct Entry final : public rq::Procedure {
@@ -1305,7 +1307,7 @@ struct ExtensionMethod final : public rq::Procedure {
 struct Template : public rq::SymbolTable {
   using Self = rq::Template;
 
-  explicit RQ_ALWAYS_INLINE Template();
+  explicit RQ_ALWAYS_INLINE Template(rq::Opcode opcode);
 };
 
 struct ClassTemplate final : public rq::Template {
@@ -1377,7 +1379,7 @@ struct ExtensionMethodTemplate final : public rq::Template {
 struct Specialization : public rq::SymbolTable {
   using Self = rq::Specialization;
 
-  explicit RQ_ALWAYS_INLINE Specialization();
+  explicit RQ_ALWAYS_INLINE Specialization(rq::Opcode opcode);
 };
 
 struct ClassSpecialization final : public rq::Specialization {
@@ -1449,7 +1451,7 @@ struct ExtensionMethodSpecialization final : public rq::Specialization {
 struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
-  explicit RQ_ALWAYS_INLINE Constant();
+  explicit RQ_ALWAYS_INLINE Constant(rq::Opcode opcode);
 };
 
 struct IntegerConstant final : public rq::Constant {
@@ -1497,7 +1499,7 @@ struct ArrayConstant final : public rq::Constant {
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
-  explicit RQ_ALWAYS_INLINE Instruction();
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode);
 };
 
 struct NullaryInstruction final : public rq::Instruction {
