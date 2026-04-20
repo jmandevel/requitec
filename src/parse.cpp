@@ -551,7 +551,7 @@ rq::Expression &RequiteParser::parsePrecedence4() {
     case rq::TokenKind::CONCATENATE_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token,
-                                   rq::Keyword::INITIALIZE_CONCATENATED_LIST);
+                                   rq::Keyword::INITIALIZE_CONCATENATED_STRING);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     default:

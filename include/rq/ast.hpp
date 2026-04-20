@@ -137,7 +137,7 @@ enum class Keyword : std::uint32_t {
   // BRACES
   TUPLE,
   INSTANTIATE_LAYOUT,
-  INITIALIZE_CONCATENATED_LIST,
+  INITIALIZE_CONCATENATED_STRING,
   INSTANTIATE_TEMPLATE,
 
   // PROCEDURES
@@ -743,8 +743,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_tuple";
   case K::INSTANTIATE_LAYOUT:
     return "_instantiate_layout";
-  case K::INITIALIZE_CONCATENATED_LIST:
-    return "_initialize_concatenated_list";
+  case K::INITIALIZE_CONCATENATED_STRING:
+    return "_initialize_concatenated_string";
   case K::INSTANTIATE_TEMPLATE:
     return "_instantiate_template";
 
@@ -1680,7 +1680,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::TUPLE;
   case K::INSTANTIATE_LAYOUT:
     return KF::LAYOUT;
-  case K::INITIALIZE_CONCATENATED_LIST:
+  case K::INITIALIZE_CONCATENATED_STRING:
     return KF::RVALUE | KF::ARGUMENT;
   case K::INSTANTIATE_TEMPLATE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;

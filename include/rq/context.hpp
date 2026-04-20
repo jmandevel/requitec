@@ -1,7 +1,6 @@
 #pragma once
 
 #include <rq/bump_ptr_allocator.hpp>
-#include <rq/entity.hpp>
 #include <rq/see.hpp>
 #include <rq/utility.hpp>
 
@@ -78,177 +77,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::Top _top{};
   struct {
     rq::Expression *_first_unused_expression_ptr{nullptr};
-    rq::NullaryInstruction *_first_unused_nullary_instruction_ptr{nullptr};
-    rq::UnaryInstruction *_first_unused_unary_instruction_ptr{nullptr};
-    rq::BinaryInstruction *_first_unused_binary_instruction_ptr{nullptr};
-    rq::Result _result{};
-    rq::Out _out{};
-    rq::IntegerLiteral _integer_literal{};
-    rq::FloatLiteral _float_literal{};
-    rq::StringLiteral _string_literal{};
-    rq::CodeunitLiteral _codeunit_literal{};
-    rq::Inference _inference{};
-    rq::SymbolReflection _symbol_reflection{};
-    rq::Type _type{};
-    rq::Void _void{};
-    rq::NoReturn _no_return{};
-    rq::VariadicArguments _variadic_arguments{};
-    rq::Boolean _boolean{};
-    rq::SignedConstraint _signed_constraint{};
-    rq::UnsignedConstraint _unsigned_constraint{};
-    rq::FloatConstraint _float_constraint{};
-    rq::BinaryConstraint _binary_constraint{};
-    rq::BfloatConstraint _bfloat_constraint{};
-    rq::Half _half{};
-    rq::Single _single{};
-    rq::Double _double{};
-    rq::Quadruple _quadruple{};
-    rq::Binary16 _binary16{};
-    rq::Binary32 _binary32{};
-    rq::Binary64 _binary64{};
-    rq::Binary128 _binary128{};
-    rq::Bfloat16 _bfloat16{};
-    rq::IntegerConstraint _integer_constraint{};
-    rq::SignedIntegerConstraint _signed_integer_constraint{};
-    rq::UnsignedIntegerConstraint _unsigned_integer_constraint{};
-    rq::CodeunitConstraint _codeunit_constraint{};
-    rq::StringConstraint _string_constraint{};
-    rq::InterpolatedStringConstraint _interpolated_string_constraint{};
-    rq::Char _char{};
-    rq::Ascii _ascii{};
-    rq::Utf8 _utf8{};
-    rq::Visibility _visibility{};
-    rq::Scoping _scoping{};
-    rq::Availability _availability{};
-    rq::Accessibility _accessibility{};
-    rq::PropertyMutability _property_mutability{};
-    rq::Exporting _exporting{};
-    rq::Runtime _runtime{};
-    rq::Capturing _capturing{};
-    rq::EvaluationTime _evaluation_time{};
-    rq::Parentability _parentability{};
-    rq::PropertyAssociation _property_association{};
-    rq::Tangibility _tangibility{};
-    rq::Overriding _overriding{};
-    rq::Inlining _inlining{};
-    rq::Mangling _mangling{};
-    unsigned _scaled_builtin_generation{1};
-    llvm::FoldingSet<rq::ScaledBuiltin> _scaled_builtin_set{};
-    llvm::FoldingSet<rq::UnarySubtype> _unary_subtype_set{};
-    llvm::FoldingSet<rq::CountedSubtype> _counted_subtype_set{};
-    llvm::FoldingSet<rq::ArithmeticSequence> _arithmetic_sequence_set{};
-    llvm::FoldingSet<rq::TypeConstant> _type_constant_set{};
-    llvm::FoldingSet<rq::ExpressionConstant> _expression_constant_set{};
-    rq::BooleanConstant _true{true};
-    rq::BooleanConstant _false{false};
-    rq::ExpressionAttributeConstant _ea_none{rq::ExpressionAttribute::NONE};
-    rq::ExpressionAttributeConstant _ea_transparent{
-        rq::ExpressionAttribute::TRANSPARENT};
-    rq::ExpressionAttributeConstant _ea_opaque{rq::ExpressionAttribute::OPAQUE};
-    rq::ExpressionAttributeConstant _ea_inside_scope{
-        rq::ExpressionAttribute::INSIDE_SCOPE};
-    rq::ExpressionAttributeConstant _ea_outside_scope{
-        rq::ExpressionAttribute::OUTSIDE_SCOPE};
-    rq::ExpressionAttributeConstant _ea_local{rq::ExpressionAttribute::LOCAL};
-    rq::ExpressionAttributeConstant _ea_global{rq::ExpressionAttribute::GLOBAL};
-    rq::ExpressionAttributeConstant _ea_private{
-        rq::ExpressionAttribute::PRIVATE};
-    rq::ExpressionAttributeConstant _ea_public{rq::ExpressionAttribute::PUBLIC};
-    rq::ExpressionAttributeConstant _ea_protected{
-        rq::ExpressionAttribute::PROTECTED};
-    rq::ExpressionAttributeConstant _ea_no_partial_mutate{
-        rq::ExpressionAttribute::NO_PARTIAL_MUTATE};
-    rq::ExpressionAttributeConstant _ea_partial_mutate{
-        rq::ExpressionAttribute::PARTIAL_MUTATE};
-    rq::ExpressionAttributeConstant _ea_no_export{
-        rq::ExpressionAttribute::NO_EXPORT};
-    rq::ExpressionAttributeConstant _ea_export{rq::ExpressionAttribute::EXPORT};
-    rq::ExpressionAttributeConstant _ea_dynamic{
-        rq::ExpressionAttribute::DYNAMIC};
-    rq::ExpressionAttributeConstant _ea_static{rq::ExpressionAttribute::STATIC};
-    rq::ExpressionAttributeConstant _ea_no_capture{
-        rq::ExpressionAttribute::NO_CAPTURE};
-    rq::ExpressionAttributeConstant _ea_capture{
-        rq::ExpressionAttribute::CAPTURE};
-    rq::ExpressionAttributeConstant _ea_lazy{rq::ExpressionAttribute::LAZY};
-    rq::ExpressionAttributeConstant _ea_eager{rq::ExpressionAttribute::EAGER};
-    rq::ExpressionAttributeConstant _ea_no_parent{
-        rq::ExpressionAttribute::NO_PARENT};
-    rq::ExpressionAttributeConstant _ea_may_parent{
-        rq::ExpressionAttribute::MAY_PARENT};
-    rq::ExpressionAttributeConstant _ea_mixin{rq::ExpressionAttribute::MIXIN};
-    rq::ExpressionAttributeConstant _ea_parent{rq::ExpressionAttribute::PARENT};
-    rq::ExpressionAttributeConstant _ea_tangible{
-        rq::ExpressionAttribute::TANGIBLE};
-    rq::ExpressionAttributeConstant _ea_abstract{
-        rq::ExpressionAttribute::ABSTRACT};
-    rq::ExpressionAttributeConstant _ea_virtual{
-        rq::ExpressionAttribute::VIRTUAL};
-    rq::ExpressionAttributeConstant _ea_no_override{
-        rq::ExpressionAttribute::NO_OVERRIDE};
-    rq::ExpressionAttributeConstant _ea_override{
-        rq::ExpressionAttribute::OVERRIDE};
-    rq::ExpressionAttributeConstant _ea_no_inline{
-        rq::ExpressionAttribute::NO_INLINE};
-    rq::ExpressionAttributeConstant _ea_inline{rq::ExpressionAttribute::INLINE};
-    rq::ExpressionAttributeConstant _ea_implicit_mangle{
-        rq::ExpressionAttribute::IMPLICIT_MANGLE};
-    rq::ExpressionAttributeConstant _ea_explicit_mangle{
-        rq::ExpressionAttribute::EXPLICIT_MANGLE};
-    rq::ExpressionAttributeConstant _ea_no_pack{
-        rq::ExpressionAttribute::NO_PACK};
-    rq::ExpressionAttributeConstant _ea_pack{rq::ExpressionAttribute::PACK};
-    rq::ExpressionAttributeConstant _ea_label{rq::ExpressionAttribute::LABEL};
-    rq::ExpressionAttributeConstant _ea_no_template{
-        rq::ExpressionAttribute::NO_TEMPLATE};
-    rq::ExpressionAttributeConstant _ea_template{
-        rq::ExpressionAttribute::TEMPLATE};
-    rq::ExpressionAttributeConstant _ea_specialize{
-        rq::ExpressionAttribute::SPECIALIZE};
-    rq::ExpressionAttributeConstant _ea_equivocal{
-        rq::ExpressionAttribute::EQUIVOCAL};
-    rq::ExpressionAttributeConstant _ea_likely{rq::ExpressionAttribute::LIKELY};
-    rq::ExpressionAttributeConstant _ea_unlikely{
-        rq::ExpressionAttribute::UNLIKELY};
-    rq::ExpressionAttributeConstant _ea_supported{
-        rq::ExpressionAttribute::SUPPORTED};
-    rq::ExpressionAttributeConstant _ea_depreciated{
-        rq::ExpressionAttribute::DEPRECIATED};
-    rq::ExpressionAttributeConstant _ea_experimental{
-        rq::ExpressionAttribute::EXPERIMENTAL};
-    rq::ExpressionAttributeConstant _ea_no_copy{
-        rq::ExpressionAttribute::NO_COPY};
-    rq::ExpressionAttributeConstant _ea_may_copy{
-        rq::ExpressionAttribute::MAY_COPY};
-    rq::ExpressionAttributeConstant _ea_unstable_address{
-        rq::ExpressionAttribute::UNSTABLE_ADDRESS};
-    rq::ExpressionAttributeConstant _ea_stable_address{
-        rq::ExpressionAttribute::STABLE_ADDRESS};
-    rq::ExpressionAttributeConstant _ea_explicit_drop{
-        rq::ExpressionAttribute::EXPLICIT_DROP};
-    rq::ExpressionAttributeConstant _ea_implicit_drop{
-        rq::ExpressionAttribute::IMPLICIT_DROP};
-    rq::ExpressionAttributeConstant _ea_not_ok{rq::ExpressionAttribute::NOT_OK};
-    rq::ExpressionAttributeConstant _ea_ok{rq::ExpressionAttribute::OK};
-    rq::TypeAttributeConstant _ta_none{rq::TypeAttribute::NONE};
-    rq::TypeAttributeConstant _ta_constant{rq::TypeAttribute::CONSTANT};
-    rq::TypeAttributeConstant _ta_var{rq::TypeAttribute::VAR};
-    rq::TypeAttributeConstant _ta_partially_var{
-        rq::TypeAttribute::PARTIALLY_VAR};
-    rq::TypeAttributeConstant _ta_not_volatile{rq::TypeAttribute::NOT_VOLATILE};
-    rq::TypeAttributeConstant _ta_volatile{rq::TypeAttribute::VOLATILE};
-    rq::TypeAttributeConstant _ta_determinate{rq::TypeAttribute::DETERMINATE};
-    rq::TypeAttributeConstant _ta_indeterminate{
-        rq::TypeAttribute::INDETERMINATE};
-    rq::TypeAttributeConstant _ta_not_atomic{rq::TypeAttribute::NOT_ATOMIC};
-    rq::TypeAttributeConstant _ta_atomic{rq::TypeAttribute::ATOMIC};
-    rq::TypeAttributeConstant _ta_not_null_terminated{
-        rq::TypeAttribute::NOT_NULL_TERMINATED};
-    rq::TypeAttributeConstant _ta_null_terminated{
-        rq::TypeAttribute::NULL_TERMINATED};
-    llvm::FoldingSet<rq::IntegerConstant> _integer_constant_set{};
-    llvm::FoldingSet<rq::FloatConstant> _float_constant_set{};
-    llvm::FoldingSet<rq::StringConstant> _string_constant_set{};
+   
   } acquired;
 
   Context(std::string &&executable_path)
@@ -561,7 +390,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InterpolatedStringConstraint &
   acquireInterpolatedStringConstraint() {
-    return this->acquired._interpolated_string_constraint;
+    return this->acquired._concatenated_string_constraint;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Char &acquireChar() {
     return this->acquired._char;
@@ -746,22 +575,22 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ta_var;
     case TA::PARTIALLY_VAR:
       return this->acquired._ta_partially_var;
-    case TA::NOT_VOLATILE:
-      return this->acquired._ta_not_volatile;
+    case TA::NO_VOLATILE:
+      return this->acquired._ta_no_volatile;
     case TA::VOLATILE:
       return this->acquired._ta_volatile;
     case TA::DETERMINATE:
       return this->acquired._ta_determinate;
     case TA::INDETERMINATE:
       return this->acquired._ta_indeterminate;
-    case TA::NOT_ATOMIC:
-      return this->acquired._ta_not_atomic;
+    case TA::NO_ATOMIC:
+      return this->acquired._ta_no_atomic;
     case TA::ATOMIC:
       return this->acquired._ta_atomic;
-    case TA::NOT_NULL_TERMINATED:
-      return this->acquired._ta_not_null_terminated;
-    case TA::NULL_TERMINATED:
-      return this->acquired._ta_null_terminated;
+    case TA::NO_NULL_TERMINATE:
+      return this->acquired._ta_no_null_terminate;
+    case TA::NULL_TERMINATE:
+      return this->acquired._ta_null_terminate;
     }
     RQ_UNREACHABLE();
   }
