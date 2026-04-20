@@ -1,0 +1,14 @@
+[template]::{| Type:[type_constraint] }
+[function divideSquare, 
+    \[precondition]::{b != 0}
+    \[postcondition]::{[result] >= 0}
+    ( a:Type, b:Type <)Type,
+    
+    divide_result := a / b;
+    square := divide_result * divide_result;
+    [result] := square;
+];
+
+[entry
+    [result] := ..divideSquare(6, 2);
+];
