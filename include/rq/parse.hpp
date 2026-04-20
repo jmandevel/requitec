@@ -22,8 +22,10 @@ struct TokenRanger final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone(unsigned offset) const {
     return this->_it + offset >= this->_end;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getToken() const {
-    RQ_ASSERT(this->_it < this->_end, "parser is done");
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Token getToken() const {
+    if (this->_it < this->_end) {
+      return rq::Token();
+    }
     return *this->_it;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &

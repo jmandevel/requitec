@@ -991,14 +991,15 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
-  // ERROR HANDLING AND DEBUGGING
+  // HINTS
   case K::DEBUG_BREAK:
     [[fallthrough]];
   case K::ABORT:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-
-  // HINTS
+  case K::ASSERT:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::UNREACHABLE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
@@ -1099,7 +1100,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PARTIALLY_VAR:
     [[fallthrough]];
-  case K::NOT_VOLATILE:
+  case K::NO_VOLATILE:
     [[fallthrough]];
   case K::VOLATILE:
     [[fallthrough]];
@@ -1107,13 +1108,21 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INDETERMINATE:
     [[fallthrough]];
-  case K::NOT_ATOMIC:
+  case K::NO_ATOMIC:
     [[fallthrough]];
   case K::ATOMIC:
     [[fallthrough]];
-  case K::NOT_NULL_TERMINATED:
+  case K::NO_NULL_TERMINATE:
     [[fallthrough]];
-  case K::NULL_TERMINATED:
+  case K::NULL_TERMINATE:
+    [[fallthrough]];
+  case K::NO_ASSERT_BEFORE:
+    [[fallthrough]];
+  case K::ASSERT_BEFORE:
+    [[fallthrough]];
+  case K::NO_ASSERT_AFTER:
+    [[fallthrough]];
+  case K::ASSERT_AFTER:
     [[fallthrough]];
 
   // EXPRESSION ATTRIBUTE TYPES
@@ -1170,6 +1179,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ATOMICITY:
     [[fallthrough]];
   case K::NULL_TERMINATION:
+    [[fallthrough]];
+  case K::PRECONDITION:
+    [[fallthrough]];
+  case K::POSTCONDITION:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 

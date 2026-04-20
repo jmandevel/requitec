@@ -721,11 +721,11 @@ getIsExpressionEnd(rq::TokenKind kind) {
 struct Token final {
   using Self = rq::Token;
 
-  rq::TokenKind _kind;
-  const char *_lexume_ptr;
-  unsigned _lexume_length;
+  rq::TokenKind _kind{rq::TokenKind::NONE};
+  const char *_lexume_ptr{nullptr};
+  unsigned _lexume_length{0};
 
-  Token() = delete;
+  Token() = default;
   Token(rq::TokenKind kind, const char *lexume_ptr, unsigned lexume_length)
       : _kind(kind), _lexume_ptr(lexume_ptr), _lexume_length(lexume_length) {}
   Token(const Self &) = default;
