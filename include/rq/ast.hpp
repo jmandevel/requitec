@@ -429,11 +429,11 @@ enum class Keyword : std::uint32_t {
   NO_NULL_TERMINATE, // default
   NULL_TERMINATE,
   // precondition
-  NO_ASSERT_BEFORE,
-  ASSERT_BEFORE,
+  NO_REQUIRE,
+  REQUIRE,
   // postcondition
-  NO_ASSERT_AFTER,
-  ASSERT_AFTER,
+  NO_ENSURE,
+  ENSURE,
 
   // EXPRESSION ATTRIBUTE TYPES
   LABELING,            // no_label vs label
@@ -462,8 +462,8 @@ enum class Keyword : std::uint32_t {
   DETERMINICITY,    // determinate vs indeterminate
   ATOMICITY,        // no_atomic vs atomic
   NULL_TERMINATION, // no_null_terminate vs null_terminate
-  PRECONDITION,     // no_assert_before vs assert_before
-  POSTCONDITION,    // no_assert_after vs assert_after
+  PRECONDITION,     // no_require vs require
+  POSTCONDITION,    // no_ensure vs ensure
 
   // MACROS
   QUOTE,
@@ -1227,14 +1227,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
-  case K::NO_ASSERT_BEFORE:
-    return "no_assert_before";
-  case K::ASSERT_BEFORE:
-    return "assert_before";
-  case K::NO_ASSERT_AFTER:
-    return "no_assert_after";
-  case K::ASSERT_AFTER:
-    return "assert_after";
+  case K::NO_REQUIRE:
+    return "no_require";
+  case K::REQUIRE:
+    return "require";
+  case K::NO_ENSURE:
+    return "no_ensure";
+  case K::ENSURE:
+    return "ensure";
 
   // EXPRESSION ATTRIBUTE TYPES
   case K::LABELING:
@@ -2169,13 +2169,13 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_NULL_TERMINATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_ASSERT_BEFORE:
+  case K::NO_REQUIRE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::ASSERT_BEFORE:
+  case K::REQUIRE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_ASSERT_AFTER:
+  case K::NO_ENSURE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::ASSERT_AFTER:
+  case K::ENSURE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
@@ -3623,10 +3623,10 @@ enum class TypeAttribute : std::uint_fast8_t {
   ATOMIC,
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  NO_ASSERT_BEFORE,
-  ASSERT_BEFORE,
-  NO_ASSERT_AFTER,
-  ASSERT_AFTER
+  NO_REQUIRE,
+  REQUIRE,
+  NO_ENSURE,
+  ENSURE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
@@ -3657,14 +3657,14 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "no_null_terminate";
   case TA::NULL_TERMINATE:
     return "null_terminate";
-  case TA::NO_ASSERT_BEFORE:
-    return "no_assert_before";
-  case TA::ASSERT_BEFORE:
-    return "assert_before";
-  case TA::NO_ASSERT_AFTER:
-    return "no_assert_after";
-  case TA::ASSERT_AFTER:
-    return "assert_after";
+  case TA::NO_REQUIRE:
+    return "no_require";
+  case TA::REQUIRE:
+    return "require";
+  case TA::NO_ENSURE:
+    return "no_ensure";
+  case TA::ENSURE:
+    return "ensure";
   }
   RQ_UNREACHABLE();
 }
@@ -3696,14 +3696,14 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
     return TA::NULL_TERMINATE;
-  case K::NO_ASSERT_BEFORE:
-    return TA::NO_ASSERT_BEFORE;
-  case K::ASSERT_BEFORE:
-    return TA::ASSERT_BEFORE;
-  case K::NO_ASSERT_AFTER:
-    return TA::NO_ASSERT_AFTER;
-  case K::ASSERT_AFTER:
-    return TA::ASSERT_AFTER;
+  case K::NO_REQUIRE:
+    return TA::NO_REQUIRE;
+  case K::REQUIRE:
+    return TA::REQUIRE;
+  case K::NO_ENSURE:
+    return TA::NO_ENSURE;
+  case K::ENSURE:
+    return TA::ENSURE;
   default:
     break;
   }
@@ -3734,20 +3734,20 @@ enum class TypeFlags : std::uint8_t {
   NULL_TERMINATE = rq::getBit(5),
 
   // precondition
-  // no_assert_before (default)
-  ASSERT_BEFORE = rq::getBit(6),
+  // no_require (default)
+  REQUIRE = rq::getBit(6),
 
   // postcondition
-  // no_assert_after (default)
-  ASSERT_AFTER = rq::getBit(7)
+  // no_ensure (default)
+  ENSURE = rq::getBit(7)
 
       MUTABILITY = VAR | PARTIALLY_VAR,
   VOLATILITY = VOLATILE,
   DETERMINICITY = INDETERMINATE,
   ATOMICITY = ATOMIC,
   NULL_TERMINATION = NULL_TERMINATE,
-  PRECONDITION = ASSERT_BEFORE,
-  POSTCONDITION = ASSERT_AFTER
+  PRECONDITION = REQUIRE,
+  POSTCONDITION = ENSURE
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
@@ -3781,14 +3781,14 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::NONE;
   case TA::NULL_TERMINATE:
     return TF::NULL_TERMINATE;
-  case TA::NO_ASSERT_BEFORE:
+  case TA::NO_REQUIRE:
     return TF::NONE;
-  case TA::ASSERT_BEFORE:
-    return TF::ASSERT_BEFORE;
-  case TA::NO_ASSERT_AFTER:
+  case TA::REQUIRE:
+    return TF::REQUIRE;
+  case TA::NO_ENSURE:
     return TF::NONE;
-  case TA::ASSERT_AFTER:
-    return TF::ASSERT_AFTER;
+  case TA::ENSURE:
+    return TF::ENSURE;
   }
   RQ_UNREACHABLE();
 }
@@ -3842,7 +3842,7 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAssertBefore(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::ASSERT_BEFORE);
+  return rq::getHasAll(flags, rq::TypeFlags::REQUIRE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoAssertAfter(rq::TypeFlags flags) {
@@ -3850,7 +3850,7 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAssertAfter(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::ASSERT_AFTER);
+  return rq::getHasAll(flags, rq::TypeFlags::ENSURE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool

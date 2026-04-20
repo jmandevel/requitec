@@ -1116,13 +1116,13 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NULL_TERMINATE:
     [[fallthrough]];
-  case K::NO_ASSERT_BEFORE:
+  case K::NO_REQUIRE:
     [[fallthrough]];
-  case K::ASSERT_BEFORE:
+  case K::REQUIRE:
     [[fallthrough]];
-  case K::NO_ASSERT_AFTER:
+  case K::NO_ENSURE:
     [[fallthrough]];
-  case K::ASSERT_AFTER:
+  case K::ENSURE:
     [[fallthrough]];
 
   // EXPRESSION ATTRIBUTE TYPES
