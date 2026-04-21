@@ -641,8 +641,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::BOOLEAN:
     [[fallthrough]];
-  case K::FLOAT:
-    [[fallthrough]];
   case K::HALF:
     [[fallthrough]];
   case K::SINGLE:
@@ -650,10 +648,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DOUBLE:
     [[fallthrough]];
   case K::QUADRUPLE:
-    [[fallthrough]];
-  case K::BINARY:
-    [[fallthrough]];
-  case K::BFLOAT:
     [[fallthrough]];
   case K::BINARY16:
     [[fallthrough]];
@@ -664,12 +658,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::BINARY128:
     [[fallthrough]];
   case K::BFLOAT16:
-    [[fallthrough]];
-  case K::INTEGER:
-    [[fallthrough]];
-  case K::SIGNED:
-    [[fallthrough]];
-  case K::UNSIGNED:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::SIGNED_INTEGER:
@@ -698,10 +686,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED_ADDRESS:
     [[fallthrough]];
-  case K::STRING:
-    [[fallthrough]];
-  case K::CODEUNIT:
-    [[fallthrough]];
   case K::CHAR:
     [[fallthrough]];
   case K::ASCII:
@@ -729,6 +713,38 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INITIALIZE_VARIADIC_ARGUMENTS:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
+
+  // CONSTRAINTS
+  case K::TYPE_CONSTRAINT:
+    [[fallthrough]];
+  case K::RANGE_CONSTRAINT:
+    [[fallthrough]];
+  case K::NUMERIC_CONSTRAINT:
+    [[fallthrough]];
+  case K::SIGNED_CONSTRAINT:
+    [[fallthrough]];
+  case K::UNSIGNED_CONSTRAINT:
+    [[fallthrough]];
+  case K::INTEGER_CONSTRAINT:
+    [[fallthrough]];
+  case K::SIGNED_INTEGER_CONSTRAINT:
+    [[fallthrough]];
+  case K::UNSIGNED_INTEGER_CONSTRAINT:
+    [[fallthrough]];
+  case K::FLOAT_CONSTRAINT:
+    [[fallthrough]];
+  case K::BINARY_CONSTRAINT:
+    [[fallthrough]];
+  case K::BFLOAT_CONSTRAINT:
+    [[fallthrough]];
+  case K::STRING_CONSTRAINT:
+    [[fallthrough]];
+  case K::CODEUNIT_CONSTRAINT:
+    [[fallthrough]];
+  case K::EXPRESSION_ATTRIBUTE_CONSTRAINT:
+    [[fallthrough]];
+  case K::TYPE_ATTRIBUTE_CONSTRAINT:
+    [[fallthrough]];
 
   // SCOPES
   case K::IF:
@@ -1092,6 +1108,10 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXPLICIT_DROP:
     [[fallthrough]];
+  case K::NO_VARIADIC:
+    [[fallthrough]];
+  case K::VARIADIC:
+    [[fallthrough]];
 
   // TYPE ATTRIBUTES
   case K::CONSTANT:
@@ -1126,8 +1146,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::EXPRESSION_ATTRIBUTE:
-    [[fallthrough]];
   case K::LABELING:
     [[fallthrough]];
   case K::VISIBILITY:
@@ -1166,10 +1184,10 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::CLEANUP:
     [[fallthrough]];
+  case K::VARIADICNESS:
+    [[fallthrough]];
 
   // TYPE ATTRIBUTE TYPES
-  case K::TYPE_ATTRIBUTE:
-    [[fallthrough]];
   case K::MUTABILITY:
     [[fallthrough]];
   case K::VOLATILITY:
