@@ -73,6 +73,7 @@ enum class Opcode {
   SY_COPYABILITY,
   SY_ADDRESS_STABILITY,
   SY_CLEANUP,
+  SY_VARIADICNESS,
 
   // TYPE ATTRIBUTES
   SY_MUTABILITY,
@@ -315,6 +316,7 @@ struct Entity;
         struct CopyabilityType;
         struct AddressStabilityType;
         struct CleanupType;
+        struct VariadicnessType;
       struct TypeAttributeType;
         struct MutabilityType;
         struct VolatilityType;
@@ -914,6 +916,14 @@ struct CleanupType final : public rq::ExpressionAttributeType {
   using Self = rq::CleanupType;
 
   explicit RQ_ALWAYS_INLINE CleanupType();
+
+  [[nodiscard]] static bool classof(const rq::Entity* entity);
+};
+
+struct VariadicnessType final : public rq::ExpressionAttributeType {
+  using Self = rq::VariadicnessType;
+
+  explicit RQ_ALWAYS_INLINE VariadicnessType();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
