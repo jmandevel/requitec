@@ -39,7 +39,7 @@
   var2 = var0.[lossy_integer_cast];
 
   // some integer types have a byte size that changes depending on the platform you are compiling for, such as [unsigned_index]
-  // this is not used for fast and least integers...
+  // this is not used for fast and least integers, and these use [integer_cast] or [lossy_integer_cast] based on their least/fast size.
   // to cast to and from these from other integers, you need to use .[lossy_platform_cast]
   var6 := var2.[lossy_platform_cast [unsigned_index]];
 
