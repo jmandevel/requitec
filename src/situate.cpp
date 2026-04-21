@@ -1104,9 +1104,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::VOLATILE:
     [[fallthrough]];
-  case K::DETERMINATE:
+  case K::ALREADY_INITIALIZED:
     [[fallthrough]];
-  case K::INDETERMINATE:
+  case K::MUST_INITIALIZE:
     [[fallthrough]];
   case K::NO_ATOMIC:
     [[fallthrough]];
@@ -1174,7 +1174,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::VOLATILITY:
     [[fallthrough]];
-  case K::DETERMINICITY:
+  case K::INITIALIZATION_REQUIREMENT:
     [[fallthrough]];
   case K::ATOMICITY:
     [[fallthrough]];

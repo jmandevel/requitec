@@ -21,7 +21,7 @@
 	];
 	
 	// push back some elements
-	// function returns an indeterminate borrow, which you must assign to to make determinate.
+	// function returns an must_initialize borrow, which you must assign to to make already_initialized.
 	my_stack.pushBack() = NoAutoDrop();
 	my_stack.pushBack() = NoAutoDrop();
 	my_stack.pushBack() = NoAutoDrop();

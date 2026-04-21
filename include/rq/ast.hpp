@@ -419,9 +419,9 @@ enum class Keyword : std::uint32_t {
   // volatility
   NO_VOLATILE, // default
   VOLATILE,
-  // determinicity
-  DETERMINATE, // default
-  INDETERMINATE,
+  // initialization_requirement
+  ALREADY_INITIALIZED, // default
+  MUST_INITIALIZE,
   // atomicity
   NO_ATOMIC, // default
   ATOMIC,
@@ -457,13 +457,13 @@ enum class Keyword : std::uint32_t {
   CLEANUP,             // explicit_drop vs implicit_drop
 
   // TYPE ATTRIBUTE TYPES
-  MUTABILITY,       // any_mutability var vs constant vs partially_var
-  VOLATILITY,       // maybe_volatile vs volatile vs no_volatile
-  DETERMINICITY,    // determinate vs indeterminate
-  ATOMICITY,        // no_atomic vs atomic
-  NULL_TERMINATION, // no_null_terminate vs null_terminate
-  PRECONDITION,     // no_require vs require
-  POSTCONDITION,    // no_ensure vs ensure
+  MUTABILITY,                 // any_mutability var vs constant vs partially_var
+  VOLATILITY,                 // maybe_volatile vs volatile vs no_volatile
+  INITIALIZATION_REQUIREMENT, // already_initialized vs must_initialize
+  ATOMICITY,                  // no_atomic vs atomic
+  NULL_TERMINATION,           // no_null_terminate vs null_terminate
+  PRECONDITION,               // no_require vs require
+  POSTCONDITION,              // no_ensure vs ensure
 
   // MACROS
   QUOTE,
@@ -1215,10 +1215,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_volatile";
   case K::VOLATILE:
     return "volatile";
-  case K::DETERMINATE:
-    return "determinate";
-  case K::INDETERMINATE:
-    return "indeterminate";
+  case K::ALREADY_INITIALIZED:
+    return "already_initialized";
+  case K::MUST_INITIALIZE:
+    return "must_initialize";
   case K::NO_ATOMIC:
     return "no_atomic";
   case K::ATOMIC:
@@ -1281,8 +1281,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "mutability";
   case K::VOLATILITY:
     return "volatility";
-  case K::DETERMINICITY:
-    return "determinicity";
+  case K::INITIALIZATION_REQUIREMENT:
+    return "initialization_requirement";
   case K::ATOMICITY:
     return "atomicity";
   case K::NULL_TERMINATION:
@@ -2157,9 +2157,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VOLATILE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::DETERMINATE:
+  case K::ALREADY_INITIALIZED:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::INDETERMINATE:
+  case K::MUST_INITIALIZE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ATOMIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2223,7 +2223,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VOLATILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::DETERMINICITY:
+  case K::INITIALIZATION_REQUIREMENT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ATOMICITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -3617,8 +3617,8 @@ enum class TypeAttribute : std::uint_fast8_t {
   PARTIALLY_VAR,
   NO_VOLATILE,
   VOLATILE,
-  DETERMINATE,
-  INDETERMINATE,
+  ALREADY_INITIALIZED,
+  MUST_INITIALIZE,
   NO_ATOMIC,
   ATOMIC,
   NO_NULL_TERMINATE,
@@ -3645,10 +3645,10 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "no_volatile";
   case TA::VOLATILE:
     return "volatile";
-  case TA::DETERMINATE:
-    return "determinate";
-  case TA::INDETERMINATE:
-    return "indeterminate";
+  case TA::ALREADY_INITIALIZED:
+    return "already_initialized";
+  case TA::MUST_INITIALIZE:
+    return "must_initialize";
   case TA::NO_ATOMIC:
     return "no_atomic";
   case TA::ATOMIC:
@@ -3684,10 +3684,10 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::NO_VOLATILE;
   case K::VOLATILE:
     return TA::VOLATILE;
-  case K::DETERMINATE:
-    return TA::DETERMINATE;
-  case K::INDETERMINATE:
-    return TA::INDETERMINATE;
+  case K::ALREADY_INITIALIZED:
+    return TA::ALREADY_INITIALIZED;
+  case K::MUST_INITIALIZE:
+    return TA::MUST_INITIALIZE;
   case K::NO_ATOMIC:
     return TA::NO_ATOMIC;
   case K::ATOMIC:
@@ -3721,9 +3721,9 @@ enum class TypeFlags : std::uint8_t {
   // no_volatile (default)
   VOLATILE = rq::getBit(2),
 
-  // determinicity
-  // determinate (default)
-  INDETERMINATE = rq::getBit(3),
+  // initialization_requirement
+  // already_initialized (default)
+  MUST_INITIALIZE = rq::getBit(3),
 
   // atomicity
   // no_atomic (default)
@@ -3743,7 +3743,7 @@ enum class TypeFlags : std::uint8_t {
 
       MUTABILITY = VAR | PARTIALLY_VAR,
   VOLATILITY = VOLATILE,
-  DETERMINICITY = INDETERMINATE,
+  INITIALIZATION_REQUIREMENT = MUST_INITIALIZE,
   ATOMICITY = ATOMIC,
   NULL_TERMINATION = NULL_TERMINATE,
   PRECONDITION = REQUIRE,
@@ -3769,10 +3769,10 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::NONE;
   case TA::VOLATILE:
     return TF::VOLATILE;
-  case TA::DETERMINATE:
+  case TA::ALREADY_INITIALIZED:
     return TF::NONE;
-  case TA::INDETERMINATE:
-    return TF::INDETERMINATE;
+  case TA::MUST_INITIALIZE:
+    return TF::MUST_INITIALIZE;
   case TA::NO_ATOMIC:
     return TF::NONE;
   case TA::ATOMIC:
@@ -3813,12 +3813,13 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
   return rq::getHasNone(flags, rq::TypeFlags::VOLATILE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDeterminate(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::INDETERMINATE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAlready_Initialized(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::MUST_INITIALIZE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasIndeterminate(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::INDETERMINATE);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMust_initialize(rq::TypeFlags flags) {
+  return rq::getHasAll(flags, rq::TypeFlags::MUST_INITIALIZE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoAtomic(rq::TypeFlags flags) {
@@ -3866,8 +3867,9 @@ getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
   return rq::getHasSome(flags, rq::TypeFlags::VOLATILITY);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasDeterminicity(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::DETERMINICITY);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasInitialization_Requirement(rq::TypeFlags flags) {
+  return rq::getHasSome(flags, rq::TypeFlags::INITIALIZATION_REQUIREMENT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity(rq::TypeFlags flags) {

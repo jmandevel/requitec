@@ -1,6 +1,12 @@
 #pragma once
 
 #include <rq/utility.hpp>
+#include <rq/ast.hpp>
+
+#include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/APInt.h>
+#include <llvm/ADT/APFloat.h>
 
 namespace rq {
 
@@ -71,7 +77,7 @@ enum class Opcode {
   // TYPE ATTRIBUTES
   SY_MUTABILITY,
   SY_VOLATILITY,
-  SY_DETERMINICITY,
+  SY_INITIALIZATION_REQUIREMENT,
   SY_ATOMICITY,
   SY_NULL_TERMINATION,
   SY_PRECONDITION,
@@ -228,7 +234,7 @@ enum class OpcodeFlags {
 
   SYMBOL = rq::getBit(0),
   CONSTANT = rq::getBit(1),
-  // INSTRUCTION - ~(SYMBOL | CONSTANT)
+  // INSTRUCTION - not SYMBOL orB CONSTANT
 
   // SYMBOL FLAGS
 
@@ -312,7 +318,7 @@ struct Entity;
       struct TypeAttributeType;
         struct MutabilityType;
         struct VolatilityType;
-        struct DeterminicityType;
+        struct Initialization_RequirementType;
         struct AtomicityType;
         struct NullTerminationType;
         struct PreconditionType;
@@ -936,10 +942,10 @@ struct VolatilityType final : public rq::TypeAttributeType {
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct DeterminicityType final : public rq::TypeAttributeType {
-  using Self = rq::DeterminicityType;
+struct Initialization_RequirementType final : public rq::TypeAttributeType {
+  using Self = rq::Initialization_RequirementType;
 
-  explicit RQ_ALWAYS_INLINE DeterminicityType();
+  explicit RQ_ALWAYS_INLINE Initialization_RequirementType();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
@@ -1142,6 +1148,14 @@ struct VariadicArgumentType final : public rq::SimpleSymbol {
   explicit RQ_ALWAYS_INLINE VariadicArgumentType();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
+};
+
+enum class ScaledIntegerFlags : std::uint32_t {
+  NONE = 0,
+
+  // EXACT = no fast or least
+  FAST = rq::getBit(0),
+  LEAST = rq::getBit(1)
 };
 
 struct ScaledIntegerType : public rq::Symbol {
@@ -1795,54 +1809,78 @@ struct Constant : public rq::Entity {
 struct IntegerConstant final : public rq::Constant {
   using Self = rq::IntegerConstant;
 
-  explicit RQ_ALWAYS_INLINE IntegerConstant();
+  const llvm::APInt _data;
+
+  explicit RQ_ALWAYS_INLINE IntegerConstant(const llvm::APInt &data);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct FloatConstant final : public rq::Constant {
   using Self = rq::FloatConstant;
 
-  explicit RQ_ALWAYS_INLINE FloatConstant();
+  const llvm::APFloat _data;
+
+  explicit RQ_ALWAYS_INLINE FloatConstant(const llvm::APFloat &data);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct ExpressionConstant final : public rq::Constant {
   using Self = rq::ExpressionConstant;
 
-  explicit RQ_ALWAYS_INLINE ExpressionConstant();
+  const rq::Expression *_expression_ptr;
+
+  explicit RQ_ALWAYS_INLINE ExpressionConstant(const rq::Expression& data);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct TypeConstant final : public rq::Constant {
   using Self = rq::TypeConstant;
 
-  explicit RQ_ALWAYS_INLINE TypeConstant();
+  rq::Symbol* _symbol_ptr;
+  rq::TypeFlags _type_flags;
+
+  explicit RQ_ALWAYS_INLINE TypeConstant(rq::Symbol& symbol, rq::TypeFlags flags);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct BooleanConstant final : public rq::Constant {
   using Self = rq::BooleanConstant;
 
-  explicit RQ_ALWAYS_INLINE BooleanConstant();
+  bool _data;
+
+  explicit RQ_ALWAYS_INLINE BooleanConstant(bool data);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct StringConstant final : public rq::Constant {
   using Self = rq::StringConstant;
 
-  explicit RQ_ALWAYS_INLINE StringConstant();
+  llvm::StringRef _data;
+
+  explicit RQ_ALWAYS_INLINE StringConstant(llvm::StringRef data);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct ArrayConstant final : public rq::Constant {
   using Self = rq::ArrayConstant;
 
-  explicit RQ_ALWAYS_INLINE ArrayConstant();
+  llvm::ArrayRef<rq::Constant> _data;
+
+  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
+
+  const rq::Expression* _expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode);
 
@@ -1852,21 +1890,29 @@ struct Instruction : public rq::Entity {
 struct NullaryInstruction final : public rq::Instruction {
   using Self = rq::NullaryInstruction;
 
-  explicit RQ_ALWAYS_INLINE NullaryInstruction();
+  explicit RQ_ALWAYS_INLINE NullaryInstruction(rq::Opcode opcode);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct UnaryInstruction final : public rq::Instruction {
   using Self = rq::UnaryInstruction;
 
-  explicit RQ_ALWAYS_INLINE UnaryInstruction();
+  rq::Entity* _address0_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE UnaryInstruction(rq::Opcode opcode);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
 struct BinaryInstruction final : public rq::Instruction {
   using Self = rq::BinaryInstruction;
 
-  explicit RQ_ALWAYS_INLINE BinaryInstruction();
+  rq::Entity* _address0_ptr{nullptr};
+  rq::Entity* _address1_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE BinaryInstruction(rq::Opcode opcode);
+
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
