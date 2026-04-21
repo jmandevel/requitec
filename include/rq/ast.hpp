@@ -410,6 +410,9 @@ enum class Keyword : std::uint32_t {
   // cleanup
   IMPLICIT_DROP, // default
   EXPLICIT_DROP,
+  // varaidic
+  NO_VARIADIC, // default
+  VARIADIC,
 
   // TYPE ATTRIBUTES
   // mutability
@@ -455,6 +458,7 @@ enum class Keyword : std::uint32_t {
   COPYABILITY,         // no_copy vs may_copy
   ADDRESS_STABILITY,   // unstable_address vs stable_address
   CLEANUP,             // explicit_drop vs implicit_drop
+  VARIADICNESS,        // no_variadic vs variadic
 
   // TYPE ATTRIBUTE TYPES
   MUTABILITY,                 // any_mutability var vs constant vs partially_var
@@ -913,6 +917,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // CONSTRAINTS
   case K::TYPE_CONSTRAINT:
     return "type_constraint";
+  case K::RANGE_CONSTRAINT:
+    return "range_constraint";
   case K::NUMERIC_CONSTRAINT:
     return "numeric_constraint";
   case K::SIGNED_CONSTRAINT:
@@ -1203,6 +1209,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "implicit_drop";
   case K::EXPLICIT_DROP:
     return "explicit_drop";
+  case K::NO_VARIADIC:
+    return "no_variadic";
+  case K::VARIADIC:
+    return "variadic";
 
   // TYPE ATTRIBUTES
   case K::CONSTANT:
@@ -1275,6 +1285,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "address_stability";
   case K::CLEANUP:
     return "cleanup";
+  case K::VARIADICNESS:
+    return "variadicness";
 
   // TYPE ATTRIBUTE TYPES
   case K::MUTABILITY:
@@ -1850,6 +1862,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // CONSTRAINTS
   case K::TYPE_CONSTRAINT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::RANGE_CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NUMERIC_CONSTRAINT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SIGNED_CONSTRAINT:
@@ -2145,6 +2159,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPLICIT_DROP:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_VARIADIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::VARIADIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
   case K::CONSTANT:
@@ -2216,6 +2234,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::ADDRESS_STABILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CLEANUP:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::VARIADICNESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
@@ -2963,6 +2983,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   STABLE_ADDRESS,
   EXPLICIT_DROP,
   IMPLICIT_DROP,
+  NO_VARIADIC,
+  VARIADIC,
   LAST
 };
 
@@ -3023,7 +3045,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_pack";
   case EA::PACK:
     return "pack";
-
   case EA::LABEL:
     return "label";
   case EA::NO_TEMPLATE:
@@ -3038,7 +3059,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "likely";
   case EA::UNLIKELY:
     return "unlikely";
-
   case EA::SUPPORTED:
     return "supported";
   case EA::DEPRECIATED:
@@ -3051,15 +3071,16 @@ getName(rq::ExpressionAttribute attribute) {
     return "may_copy";
   case EA::UNSTABLE_ADDRESS:
     return "unstable_address";
-
   case EA::STABLE_ADDRESS:
     return "stable_address";
   case EA::EXPLICIT_DROP:
     return "explicit_drop";
-
   case EA::IMPLICIT_DROP:
     return "implicit_drop";
-
+  case EA::NO_VARIADIC:
+    return "no_variadic";
+  case EA::VARIADIC:
+    return "variadic";
   case EA::LAST:
     break;
   }
@@ -3148,10 +3169,14 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::STABLE_ADDRESS;
   case K::UNSTABLE_ADDRESS:
     return EA::UNSTABLE_ADDRESS;
-  case K::IMPLICIT_DROP:
-    return EA::IMPLICIT_DROP;
   case K::EXPLICIT_DROP:
     return EA::EXPLICIT_DROP;
+  case K::IMPLICIT_DROP:
+    return EA::IMPLICIT_DROP;
+  case K::NO_VARIADIC:
+    return EA::NO_VARIADIC;
+  case K::VARIADIC:
+    return EA::VARIADIC;
   default:
     break;
   }
@@ -3240,6 +3265,10 @@ enum class ExpressionFlags : std::uint64_t {
   // implicit_drop (default)
   EXPLICIT_DROP = rq::getBit(22),
 
+  // variadicness
+  // no_variadic (default)
+  VARIADIC = rq::getBit(23),
+
   LABELING = LABEL,                     // no_label vs label
   VISIBILITY = OPAQUE,                  // transparent vs opaque
   SCOPE_LOCATION = OUTSIDE_SCOPE,       // inside_scope vs outside_scope
@@ -3259,7 +3288,8 @@ enum class ExpressionFlags : std::uint64_t {
       DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
   COPYABILITY = MAY_COPY,         // no_copy vs may_copy
   ADDRESS_STABILITY = STABLE_ADDRESS, // unstable_address vs stable_address
-  CLEANUP = EXPLICIT_DROP             // implicit_drop vs explicit_drop
+  CLEANUP = EXPLICIT_DROP,            // implicit_drop vs explicit_drop
+  VARIADICNESS = VARIADIC             // no_variadic vs variadic
 };
 
 template <> struct is_flags<ExpressionFlags> : std::true_type {};
@@ -3392,6 +3422,12 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::EXPLICIT_DROP:
     return EF::EXPLICIT_DROP;
+
+  // variadicness
+  case EA::NO_VARIADIC:
+    return EF::NONE;
+  case EA::VARIADIC:
+    return EF::VARIADIC;
 
   case EA::LAST:
     break;
@@ -3601,6 +3637,16 @@ getHasExplicitDrop(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::EXPLICIT_DROP);
 }
 
+// variadicness
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNoVariadic(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::VARIADICNESS);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadic(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::VARIADIC);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasAttribute(rq::ExpressionFlags flags, rq::ExpressionAttribute attribute) {
   rq::ExpressionFlags attribute_flags = rq::getFlags(attribute);
@@ -3739,9 +3785,9 @@ enum class TypeFlags : std::uint8_t {
 
   // postcondition
   // no_ensure (default)
-  ENSURE = rq::getBit(7)
+  ENSURE = rq::getBit(7),
 
-      MUTABILITY = VAR | PARTIALLY_VAR,
+  MUTABILITY = VAR | PARTIALLY_VAR,
   VOLATILITY = VOLATILE,
   INITIALIZATION_REQUIREMENT = MUST_INITIALIZE,
   ATOMICITY = ATOMIC,
