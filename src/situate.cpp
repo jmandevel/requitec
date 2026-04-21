@@ -247,43 +247,43 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::CAST:
+  case K::INTEGER_CAST:
     is_ok = this->situateNullaryOrUnaryValueBranches(situation, expression,
                                                      S::RVALUE);
     break;
-  case K::CAST_OF:
+  case K::INTEGER_CAST_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::DOWN_CAST:
+  case K::LOSSY_INTEGER_CAST:
     is_ok = this->situateNullaryOrUnaryValueBranches(situation, expression,
                                                      S::RVALUE);
     break;
-  case K::DOWN_CAST_OF:
+  case K::LOSSY_INTEGER_CAST_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::FLOAT_CAST:
+  case K::LOSSY_FLOAT_CAST:
     is_ok = this->situateNullaryOrUnaryValueBranches(situation, expression,
                                                      S::RVALUE);
     break;
-  case K::FLOAT_CAST_OF:
+  case K::LOSSY_FLOAT_CAST_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::PLATFORM_CAST:
+  case K::LOSSY_PLATFORM_CAST:
     is_ok = this->situateNullaryOrUnaryValueBranches(situation, expression,
                                                      S::RVALUE);
     break;
-  case K::PLATFORM_CAST_OF:
+  case K::LOSSY_PLATFORM_CAST_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::STATIC_CAST:
+  case K::LOSSY_STATIC_CAST:
     is_ok = this->situateNullaryOrUnaryValueBranches(situation, expression,
                                                      S::RVALUE);
     break;
-  case K::STATIC_CAST_OF:
+  case K::LOSSY_STATIC_CAST_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;

@@ -20,7 +20,7 @@ void Generator::generateSourceModule() {
                              this->getContext().getSourceModule());
   for (auto &symbol : this->getContext().getTop().getUnamedSymbolsListRef()) {
     if (llvm::isa<rq::Procedure>(symbol)) {
-      rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
+      rq::Procedure &procedure = llvm::integer_cast<rq::Procedure>(symbol);
       if (procedure.getContainingModule() !=
           this->getContext().getSourceModule()) {
         continue;
@@ -34,7 +34,7 @@ void Generator::generateSourceModule() {
       continue;
     }
     if (llvm::isa<rq::Global>(symbol)) {
-      rq::Global &global = llvm::cast<rq::Global>(symbol);
+      rq::Global &global = llvm::integer_cast<rq::Global>(symbol);
       if (global.getContainingModule() !=
           this->getContext().getSourceModule()) {
         continue;

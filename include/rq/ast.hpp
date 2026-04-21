@@ -80,16 +80,16 @@ enum class Keyword : std::uint32_t {
   AS_OF,
   OF,
   OF_OF,
-  CAST,
-  CAST_OF,
-  DOWN_CAST,
-  DOWN_CAST_OF,
-  FLOAT_CAST,
-  FLOAT_CAST_OF,
-  PLATFORM_CAST,
-  PLATFORM_CAST_OF,
-  STATIC_CAST,
-  STATIC_CAST_OF,
+  INTEGER_CAST,
+  INTEGER_CAST_OF,
+  LOSSY_INTEGER_CAST,
+  LOSSY_INTEGER_CAST_OF,
+  LOSSY_FLOAT_CAST,
+  LOSSY_FLOAT_CAST_OF,
+  LOSSY_PLATFORM_CAST,
+  LOSSY_PLATFORM_CAST_OF,
+  LOSSY_STATIC_CAST,
+  LOSSY_STATIC_CAST_OF,
   BITWISE_CAST,
   BITWISE_CAST_OF,
 
@@ -643,26 +643,26 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "of";
   case K::OF_OF:
     return "_of_of";
-  case K::CAST:
-    return "cast";
-  case K::CAST_OF:
+  case K::INTEGER_CAST:
+    return "integer_cast";
+  case K::INTEGER_CAST_OF:
     return "_cast_of";
-  case K::DOWN_CAST:
-    return "down_cast";
-  case K::DOWN_CAST_OF:
-    return "_down_cast_of";
-  case K::FLOAT_CAST:
-    return "float_cast";
-  case K::FLOAT_CAST_OF:
-    return "_float_cast_of";
-  case K::PLATFORM_CAST:
-    return "platform_cast";
-  case K::PLATFORM_CAST_OF:
-    return "_platform_cast_of";
-  case K::STATIC_CAST:
-    return "static_cast";
-  case K::STATIC_CAST_OF:
-    return "_static_cast_of";
+  case K::LOSSY_INTEGER_CAST:
+    return "lossy_integer_cast";
+  case K::LOSSY_INTEGER_CAST_OF:
+    return "_lossy_integer_cast_of";
+  case K::LOSSY_FLOAT_CAST:
+    return "lossy_float_cast";
+  case K::LOSSY_FLOAT_CAST_OF:
+    return "_lossy_float_cast_of";
+  case K::LOSSY_PLATFORM_CAST:
+    return "lossy_platform_cast";
+  case K::LOSSY_PLATFORM_CAST_OF:
+    return "_lossy_platform_cast_of";
+  case K::LOSSY_STATIC_CAST:
+    return "lossy_static_cast";
+  case K::LOSSY_STATIC_CAST_OF:
+    return "_lossy_static_cast_of";
   case K::BITWISE_CAST:
     return "bitwise_cast";
   case K::BITWISE_CAST_OF:
@@ -1588,25 +1588,25 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::OF_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::CAST:
+  case K::INTEGER_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::CAST_OF:
+  case K::INTEGER_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::DOWN_CAST:
+  case K::LOSSY_INTEGER_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::DOWN_CAST_OF:
+  case K::LOSSY_INTEGER_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::FLOAT_CAST:
+  case K::LOSSY_FLOAT_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::FLOAT_CAST_OF:
+  case K::LOSSY_FLOAT_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::PLATFORM_CAST:
+  case K::LOSSY_PLATFORM_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::PLATFORM_CAST_OF:
+  case K::LOSSY_PLATFORM_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::STATIC_CAST:
+  case K::LOSSY_STATIC_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::STATIC_CAST_OF:
+  case K::LOSSY_STATIC_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BITWISE_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2664,16 +2664,16 @@ getDescription(rq::Situation situation) {
     return K::AS_OF;
   case K::OF:
     return K::OF_OF;
-  case K::CAST:
-    return K::CAST_OF;
-  case K::DOWN_CAST:
-    return K::DOWN_CAST_OF;
-  case K::FLOAT_CAST:
-    return K::FLOAT_CAST_OF;
-  case K::PLATFORM_CAST:
-    return K::PLATFORM_CAST_OF;
-  case K::STATIC_CAST:
-    return K::STATIC_CAST_OF;
+  case K::INTEGER_CAST:
+    return K::INTEGER_CAST_OF;
+  case K::LOSSY_INTEGER_CAST:
+    return K::LOSSY_INTEGER_CAST_OF;
+  case K::LOSSY_FLOAT_CAST:
+    return K::LOSSY_FLOAT_CAST_OF;
+  case K::LOSSY_PLATFORM_CAST:
+    return K::LOSSY_PLATFORM_CAST_OF;
+  case K::LOSSY_STATIC_CAST:
+    return K::LOSSY_STATIC_CAST_OF;
   case K::BITWISE_CAST:
     return K::BITWISE_CAST_OF;
   // MEMORY

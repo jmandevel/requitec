@@ -10,7 +10,7 @@
         " depth:" +> my_array.[type].[bit_depth] +>
         "!");
     [for my_array, index:=[index], element:=[value], 
-        element = element * index.[platform_cast element.[type]];
+        element = element * index.[lossy_platform_cast element.[type]];
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 
         ..std.print(line="element " +> index +> " is " +> element +> "!");
