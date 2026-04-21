@@ -544,60 +544,60 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
   json.emitString("kind", rq::getName(symbol.getOpcode()));
   switch (symbol.getOpcode()) {
   case rq::Opcode::SY_IMPORT: {
-    const auto &import = llvm::cast<rq::Import>(symbol);
+    const auto &import = llvm::integer_cast<rq::Import>(symbol);
     rq::emitModuleMemberSymbol(context, json, import);
   } break;
   case rq::Opcode::SY_LOCAL: {
-    const auto &variable = llvm::cast<rq::Local>(symbol);
+    const auto &variable = llvm::integer_cast<rq::Local>(symbol);
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
   case rq::Opcode::SY_GLOBAL: {
-    const auto &variable = llvm::cast<rq::Global>(symbol);
+    const auto &variable = llvm::integer_cast<rq::Global>(symbol);
     json.emitString("name", variable.getName());
     rq::emitModuleMemberSymbol(context, json, variable);
   } break;
   case rq::Opcode::SY_NAMESPACE: {
-    const auto &namespace_ = llvm::cast<rq::Namespace>(symbol);
+    const auto &namespace_ = llvm::integer_cast<rq::Namespace>(symbol);
     json.emitString("name", namespace_.getName());
     rq::emitTable(context, json, namespace_);
   } break;
   case rq::Opcode::SY_CLASS: {
-    const auto &class_ = llvm::cast<rq::Class>(symbol);
+    const auto &class_ = llvm::integer_cast<rq::Class>(symbol);
     json.emitString("name", class_.getName());
     rq::emitModuleMemberSymbol(context, json, class_);
   } break;
   case rq::Opcode::SY_ENUMERATION: {
-    const auto &enumeration = llvm::cast<rq::Enumeration>(symbol);
+    const auto &enumeration = llvm::integer_cast<rq::Enumeration>(symbol);
     json.emitString("name", enumeration.getName());
     rq::emitModuleMemberSymbol(context, json, enumeration);
   } break;
   case rq::Opcode::SY_ENTRY: {
-    const auto &entry = llvm::cast<rq::Entry>(symbol);
+    const auto &entry = llvm::integer_cast<rq::Entry>(symbol);
     rq::emitModuleMemberSymbol(context, json, entry);
   } break;
   case rq::Opcode::SY_FUNCTION: {
-    const auto &function = llvm::cast<rq::Function>(symbol);
+    const auto &function = llvm::integer_cast<rq::Function>(symbol);
     json.emitString("name", function.getName());
     rq::emitModuleMemberSymbol(context, json, function);
   } break;
   case rq::Opcode::SY_METHOD: {
-    const auto &method = llvm::cast<rq::Method>(symbol);
+    const auto &method = llvm::integer_cast<rq::Method>(symbol);
     json.emitString("name", method.getName());
     rq::emitModuleMemberSymbol(context, json, method);
   } break;
   case rq::Opcode::SY_EXTENSION_FUNCTION: {
-    const auto &extension_function = llvm::cast<rq::ExtensionFunction>(symbol);
+    const auto &extension_function = llvm::integer_cast<rq::ExtensionFunction>(symbol);
     json.emitString("name", extension_function.getName());
     rq::emitModuleMemberSymbol(context, json, extension_function);
   } break;
   case rq::Opcode::SY_EXTENSION_METHOD: {
-    const auto &extension_method = llvm::cast<rq::ExtensionMethod>(symbol);
+    const auto &extension_method = llvm::integer_cast<rq::ExtensionMethod>(symbol);
     json.emitString("name", extension_method.getName());
     rq::emitModuleMemberSymbol(context, json, extension_method);
   } break;
   case rq::Opcode::SY_TOP: {
-    const auto &top = llvm::cast<rq::Top>(symbol);
+    const auto &top = llvm::integer_cast<rq::Top>(symbol);
     rq::emitTable(context, json, top);
   } break;
   default:

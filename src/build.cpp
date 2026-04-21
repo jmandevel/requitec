@@ -8,7 +8,7 @@ void LlvmIrBuilder::buildLlvmIr() {
   for (rq::Symbol &symbol :
        this->getContext().getTop().getUnamedSymbolsListRef()) {
     if (llvm::isa<rq::Procedure>(symbol)) {
-      rq::Procedure &procedure = llvm::cast<rq::Procedure>(symbol);
+      rq::Procedure &procedure = llvm::integer_cast<rq::Procedure>(symbol);
       if (procedure.getContainingModule() !=
           this->getContext().getSourceModule()) {
         continue;
@@ -33,10 +33,10 @@ void LlvmIrBuilder::buildProcedure(rq::Procedure &procedure) {
     this->getContext().getLlvmIrBuilder().SetInsertPoint(llvm_block_ptr);
     rq::Instruction &instruction = procedure.getInstruction();
     rq::BinaryInstruction &binary_instruction =
-        llvm::cast<rq::BinaryInstruction>(instruction);
+        llvm::integer_cast<rq::BinaryInstruction>(instruction);
     this->getContext().getLlvmIrBuilder().CreateRet(llvm::ConstantInt::get(
         this->getContext().getLlvmIrBuilder().getInt32Ty(),
-        llvm::cast<rq::IntegerConstant>(binary_instruction.getAddress1())
+        llvm::integer_cast<rq::IntegerConstant>(binary_instruction.getAddress1())
             .getInt()));
     procedure.setLlvmFunctionPtr(llvm_function_ptr);
   }

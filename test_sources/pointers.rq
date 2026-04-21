@@ -11,5 +11,5 @@
 
     var_ptr = [null];
 
-    [result] := var_copy.[float_cast];
+    [result] := var_copy.[lossy_float_cast];
 ];
