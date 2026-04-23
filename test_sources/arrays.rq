@@ -15,7 +15,7 @@
     [for my_array.[borrow], index:=[index], element:=[value], 
         ..std.print(line="element " +> index +> " is " +> element +> "!");
     ];
-    ..std.print(line="it starts with " +> my_array.[unsafe_at 0] +> "!");
+    ..std.print(line="it starts with " +> my_array.[at 0] +> "!");
 
     [result] := 0;
 ];

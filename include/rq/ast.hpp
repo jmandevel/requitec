@@ -80,16 +80,8 @@ enum class Keyword : std::uint32_t {
   AS_OF,
   OF,
   OF_OF,
-  INTEGER_CAST,
-  INTEGER_CAST_OF,
-  LOSSY_INTEGER_CAST,
-  LOSSY_INTEGER_CAST_OF,
-  LOSSY_FLOAT_CAST,
-  LOSSY_FLOAT_CAST_OF,
-  LOSSY_PLATFORM_CAST,
-  LOSSY_PLATFORM_CAST_OF,
-  LOSSY_STATIC_CAST,
-  LOSSY_STATIC_CAST_OF,
+  CAST,
+  CAST_OF,
   BITWISE_CAST,
   BITWISE_CAST_OF,
 
@@ -105,16 +97,16 @@ enum class Keyword : std::uint32_t {
 
   // MEMORY
   ASSIGN,
-  UNSAFE_CONTENT,
-  UNSAFE_CONTENT_OF,
+  CONTENT,
+  CONTENT_OF,
   ADDRESS,
   ADDRESS_OF,
   BORROW,
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
-  UNSAFE_AT,
-  UNSAFE_AT_OF,
+  AT,
+  AT_OF,
   MOVE,
   MOVE_OF,
   COMPOSE,
@@ -643,26 +635,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "of";
   case K::OF_OF:
     return "_of_of";
-  case K::INTEGER_CAST:
-    return "integer_cast";
-  case K::INTEGER_CAST_OF:
+  case K::CAST:
+    return "cast";
+  case K::CAST_OF:
     return "_cast_of";
-  case K::LOSSY_INTEGER_CAST:
-    return "lossy_integer_cast";
-  case K::LOSSY_INTEGER_CAST_OF:
-    return "_lossy_integer_cast_of";
-  case K::LOSSY_FLOAT_CAST:
-    return "lossy_float_cast";
-  case K::LOSSY_FLOAT_CAST_OF:
-    return "_lossy_float_cast_of";
-  case K::LOSSY_PLATFORM_CAST:
-    return "lossy_platform_cast";
-  case K::LOSSY_PLATFORM_CAST_OF:
-    return "_lossy_platform_cast_of";
-  case K::LOSSY_STATIC_CAST:
-    return "lossy_static_cast";
-  case K::LOSSY_STATIC_CAST_OF:
-    return "_lossy_static_cast_of";
   case K::BITWISE_CAST:
     return "bitwise_cast";
   case K::BITWISE_CAST_OF:
@@ -689,10 +665,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::ASSIGN:
     return "_assign";
-  case K::UNSAFE_CONTENT:
-    return "unsafe_content";
-  case K::UNSAFE_CONTENT_OF:
-    return "_unsafe_content_of";
+  case K::CONTENT:
+    return "content";
+  case K::CONTENT_OF:
+    return "_content_of";
   case K::ADDRESS:
     return "address";
   case K::ADDRESS_OF:
@@ -705,10 +681,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "data_address";
   case K::DATA_ADDRESS_OF:
     return "_data_address_of";
-  case K::UNSAFE_AT:
-    return "unsafe_at";
-  case K::UNSAFE_AT_OF:
-    return "_unsafe_at_of";
+  case K::AT:
+    return "at";
+  case K::AT_OF:
+    return "_at_of";
   case K::MOVE:
     return "move";
   case K::MOVE_OF:
@@ -1588,25 +1564,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::OF_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::INTEGER_CAST:
+  case K::CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::INTEGER_CAST_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::LOSSY_INTEGER_CAST:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LOSSY_INTEGER_CAST_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::LOSSY_FLOAT_CAST:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LOSSY_FLOAT_CAST_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::LOSSY_PLATFORM_CAST:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LOSSY_PLATFORM_CAST_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::LOSSY_STATIC_CAST:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::LOSSY_STATIC_CAST_OF:
+  case K::CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BITWISE_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -1634,9 +1594,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // MEMORY
   case K::ASSIGN:
     return KF::STATEMENT;
-  case K::UNSAFE_CONTENT:
+  case K::CONTENT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::UNSAFE_CONTENT_OF:
+  case K::CONTENT_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::ADDRESS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -1650,9 +1610,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::UNSAFE_AT:
+  case K::AT:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::UNSAFE_AT_OF:
+  case K::AT_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::MOVE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2664,29 +2624,21 @@ getDescription(rq::Situation situation) {
     return K::AS_OF;
   case K::OF:
     return K::OF_OF;
-  case K::INTEGER_CAST:
-    return K::INTEGER_CAST_OF;
-  case K::LOSSY_INTEGER_CAST:
-    return K::LOSSY_INTEGER_CAST_OF;
-  case K::LOSSY_FLOAT_CAST:
-    return K::LOSSY_FLOAT_CAST_OF;
-  case K::LOSSY_PLATFORM_CAST:
-    return K::LOSSY_PLATFORM_CAST_OF;
-  case K::LOSSY_STATIC_CAST:
-    return K::LOSSY_STATIC_CAST_OF;
+  case K::CAST:
+    return K::CAST_OF;
   case K::BITWISE_CAST:
     return K::BITWISE_CAST_OF;
   // MEMORY
-  case K::UNSAFE_CONTENT:
-    return K::UNSAFE_CONTENT_OF;
+  case K::CONTENT:
+    return K::CONTENT_OF;
   case K::ADDRESS:
     return K::ADDRESS_OF;
   case K::BORROW:
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
-  case K::UNSAFE_AT:
-    return K::UNSAFE_AT_OF;
+  case K::AT:
+    return K::AT_OF;
   case K::MOVE:
     return K::MOVE_OF;
   case K::COMPOSE:

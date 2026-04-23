@@ -6,7 +6,7 @@
     // binding type is inferred from the rvalue
     var1 := 0.[as [signed_integer 32]];
 
-    // if no type is specified, integer literal is infered to [fast_signed_integer 32]
+    // if no type is specified, integer literal is infered to [signed_integer]. size is dependent on platform.
     var2 := 0;
 
     // for unsigned integers at least 32 bits in size:
@@ -50,7 +50,8 @@
     var23 :[unsigned_integer 128] =16xBeef_Babe;
 
     // floats can be written with decimal
-    var24 :[single] =3.14;
+    var24 :=3.14; // type is [single], which depends on platform
+
     
     // if you want to convert between types, you need to use casts
     // see casts.rq

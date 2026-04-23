@@ -1,74 +1,8 @@
-// requite has lots of casts
-// to see how numerics work, look at numerics.rq
-
 [entry
 
-  // casts are always done with reflections with dot operator (.)
-  
-  // to explicitly declare the type of a literal, use .[as]
-  var0 := 0.[as [signed_integer 32]];
-  var1 := 2.18.[as [double]];
+  float := 3.14;
 
-  // to explicitly declare the type of elements of an initializer list, use .[of]
-  var_list := [initialize_array 0, 1, 2, 3, 4, 5].[of [signed_address]]; // of type 6#[signed_address]
+  int := float.[cast [signed_integer]];
 
-  // if you want a variable to be var, it should be in the binding, not the cast
-  // add a var type attribute (\[var]) in front of type to make it var
-  // if there is an equal operator directly after, this an an "operator combination"
-  // the compiler will insert an inference before the equal operator
-  // so the type that is var is inferred from the rvalue
-  var2 :\[var]= 1337.[as [fast_signed_integer 8]];
-  var3 :\[var]= 1323.[as [fast_signed_integer 64]];
-  var4 :\[var]= 3.14.[as [single]];
-
-  // var variables can be reassigned to
-  // to cast a variable value on copy to a new type, use .[integer_cast]
-  // this is only possible casting an integer to same size or larger
-  // or only larger if casting from a signed to an unsigned
-  // does not matter if its least, fast, or exact
-  // these kinds of casts are "safe" because no loss of data occurs
-  var3 = var0.[integer_cast [fast_signed_integer 64]];
-
-  // when its obvious what you are casting too, you can infer the type
-  // dont write anything as the branch of .[integer_cast]
-  var3 = var0.[integer_cast];
-
-  // when casting integers where there could be a loss of data,
-  // you have to use a .[lossy_integer_cast] instead
-  // again, you can infer the type instead of writing it explicitly if this is possible
-  var2 = var0.[lossy_integer_cast];
-
-  // some integer types have a byte size that changes depending on the platform you are compiling for, such as [unsigned_index]
-  // to cast to and from these from other integers, you need to use .[lossy_platform_cast]
-  var6 := var2.[lossy_platform_cast [unsigned_index]];
-
-  // when casting to, from, or between floating point values, you need to use .[lossy_float_cast]
-  // again, its possible to infer the type
-  var2 = var4.[lossy_float_cast];
-  var4 = var2.[lossy_float_cast];
-  var5 := var4.[lossy_float_cast [signed_integer 16]];
-
-  // notice that a lot of these casts do basically the same thing. the different casts
-  // exist to make requite code more readable. the compiler enforces that the correct
-  // casts are used in each situation. if the wrong type of cast is used, this results
-  // in a compiler error.
-  
-  // there are no implicit conversions in requite. you always need to cast
-  // even if types have the same underlying type
-  // for example, if a [single] is [binary32] underlying, you still need to .[lossy_float_cast]
-  // to assign them to each other. 
-  // this way, requite code is annotated correctly for cross platform projects!
-
-  // there are other kinds of casts:
-  
-  // .[bitwise_cast] allows you to treat the bits of one value as if its a differnt type
-  // you can even .[borrow] from a .[bitwise_cast] to reuse the bits of the existing value.
-  // in other words, type puning!
-  // .[bitwise_cast] cares that the types you cast between are the same size.
-  // you can use it with any type, not just numerics.
-  
-  // .[lossy_static_cast] allows you to cast between types that you do not know what they are
-  // because of static polymorphism. static casts only work on static polymorphic types!
-
-  [result] := 0;
+  [result] := int;
 ];
