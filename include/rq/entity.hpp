@@ -343,6 +343,8 @@ struct Entity;
         struct Bfloat16Type;
         struct AsciiType;
         struct Utf8Type;
+        struct SignedIntegerType;
+        struct UnsignedIntegerType;
         struct SignedIndexType;
         struct UnsignedIndexType;
         struct SignedAddressType;
@@ -1118,6 +1120,22 @@ struct Utf8Type final : public rq::UnscaledPrimitiveType {
   using Self = rq::Utf8Type;
 
   explicit RQ_ALWAYS_INLINE Utf8Type();
+
+  [[nodiscard]] static bool classof(const rq::Entity* entity);
+};
+
+struct SignedIntegerType final : public rq::UnscaledPrimitiveType {
+  using Self = rq::SignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE SignedIntegerType();
+
+  [[nodiscard]] static bool classof(const rq::Entity* entity);
+};
+
+struct UnsignedIntegerType final : public rq::UnscaledPrimitiveType {
+  using Self = rq::UnsignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE UnsignedIntegerType();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
