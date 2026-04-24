@@ -67,27 +67,54 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // SITUATIONAL
-  case K::UNSITUATED_PARENTHESIS_GROUP:
-    is_ok = this->situateUnaryValueBranches(situation, expression, situation);
-    if (is_ok) {
+  case K::UNSITUATED_PARENTHESIS_GROUP: {
+    if (!expression.getHasBranch()) {
+      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                       1);
+      is_ok = false;
+      break;
+    }
+    rq::Expression &first = expression.getBranch();
+    if (!this->situateValueBranch(S::RVALUE, first)) {
+      is_ok = false;
+      break;
+    }
+    {
+      bool found_error = false;
+      for (rq::Expression &next : first.getNextSubrange()) {
+        if (!this->situateValueBranch(S::RVALUE, first)) {
+          found_error = true;
+          break;
+        }
+      }
+      if (found_error) {
+        is_ok = false;
+        break;
+      }
+    }
+    if (first.getHasNext()) {
+      expression.changeKeyword(K::FORK);
+    } else {
       this->getContext().discardExpression(expression.mergeAndPopBranch());
     }
-    break;
+  } break;
   case K::UNSITUATED_EQUAL_OPERATOR:
     switch (situation) {
     case S::ARGUMENT: {
-      is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
-                                               S::RVALUE);
-      if (is_ok) {
-        expression.changeKeyword(K::NAMED_ARGUMENT);
+      if (!this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+                                            S::RVALUE)) {
+        is_ok = false;
+        break;
       }
+      expression.changeKeyword(K::NAMED_ARGUMENT);
     } break;
     case S::PARAMETER: {
-      is_ok = this->situateBinaryValueBranches(situation, expression,
-                                               S::BINDING, S::RVALUE);
-      if (is_ok) {
-        expression.changeKeyword(K::DEFAULT_VALUE_PARAMETER);
+      if (this->situateBinaryValueBranches(situation, expression, S::BINDING,
+                                           S::RVALUE)) {
+        is_ok = false;
+        break;
       }
+      expression.changeKeyword(K::DEFAULT_VALUE_PARAMETER);
     } break;
     case S::STATEMENT: {
       if (!expression.getHasBranch()) {
@@ -1371,17 +1398,17 @@ bool Situator::situateTree(rq::Situation situation,
   case K::HAS_MEMBER_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::HAS_CAPTURE:
+  case K::HAS:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::HAS_CAPTURE_OF:
+  case K::HAS_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::GET_CAPTURE:
+  case K::GET:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::GET_CAPTURE_OF:
+  case K::GET_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;

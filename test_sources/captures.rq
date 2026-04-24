@@ -3,25 +3,27 @@
 [implicit_drop][may_copy]
 [class Foo, {> [public] string:@[utf8]="Hello, attribute!" <},];
 
-[entry
-    [capture]::{ [public] name="Bob", [public] age=25 }
-    var1 := 0;
-    ..std.print(line=
-        "Hello, my name is " +> 
-        var.[symbol].name +> 
-        " and I am " +> 
-        var.[symbol].age +> 
-        " years old");
+// NOTE: the compiler enforces that tuples can have only up to one unamed property for any given type.
+// if this rule is not followed, this results in a compiler error.
+[global][capture]::{ [public] Foo() }
+var0 := 1;
 
-    // NOTE: the compiler enforces that tuples can have only up to one unamed property for any given type.
-    // if this rule is not followed, this results in a compiler error.
-    [capture]::{ [public] Foo() }
-    var0 := 1;
+[capture]::{ [public] name="Bob", [public] age=25 }
+var1 := 0;
+
+[entry
 
     [static]
-    [if var0.[symbol].[has_capture Foo],
-        ..std.print(line=var0.[symbol].[get_capture Foo].string);    
+    [if ..var0.[symbol].[capture].[has Foo],
+        ..std.print(line=..var0.[symbol].[capture].[get Foo].string);    
     ];
+
+    ..std.print(line=
+        "Hello, my name is " +> 
+        ..var1.[symbol].name +> 
+        " and I am " +> 
+        ..var1.[symbol].age +> 
+        " years old");
 
     [result] := 0;
 ];

@@ -38,9 +38,7 @@
         ];
     ];
 
-    // need to manually call .[destroy] to call destructors
-    no_auto_drop.[destroy];
-    array.[destroy];
-
     [result] := 0;
+
+    // destructors are called here
 ];
