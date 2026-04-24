@@ -2,7 +2,9 @@
 
 #include <rq/utility.hpp>
 #include <rq/ast.hpp>
+#include <rq/bump_ptr_list.hpp>
 
+#include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/APInt.h>
@@ -143,14 +145,11 @@ enum class Opcode {
   SY_LOCAL_STATIC_VARIABLE,
 
   // PARAMETERS => local variable
-  SY_SIGNATURE_PARAMETER,
-  SY_CLASS_PARAMETER,
-  SY_TEMPLATE_PARAMETER,
+  SY_STATIC_PARAMETER,
+  SY_DYNAMIC_PARAMETER,
 
-  // SIGNATURES
+  // PARAMETER LISTS
   SY_SIGNATURE,
-
-  // LAYOUTS
   SY_LAYOUT,
 
   // LABELS
@@ -377,8 +376,9 @@ struct Entity;
         struct Parameter;
           struct StaticParameter;
           struct DynamicParameter;
-    struct Signature;
-    struct Layout;
+    struct ParameterList;
+      struct Signature;
+      struct Layout;
     struct Composition;
     struct Synonym;
     struct Polymorph;
@@ -446,12 +446,6 @@ struct Entity;
     struct UnaryInstruction;
     struct BinaryInstruction;
 // clang-format on
-
-struct ParameterList final {
-  using Self = rq::ParameterList;
-
-  explicit RQ_ALWAYS_INLINE ParameterList();
-};
 
 struct Entity {
   using Self = rq::Entity;
@@ -1359,8 +1353,25 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
+enum class ParameterFlags : std::uint8_t {
+  NONE = 0,
+
+  POSITIONAL = rq::getBit(0),
+  NAMED = rq::getBit(1),
+  // UNSETABLE - not POSITIONAL and NAMED
+};
+
+template<>
+struct is_flags<rq::ParameterFlags> final : std::true_type {};
+
 struct Parameter : public rq::LocalVariable {
   using Self = rq::Parameter;
+
+  rq::Parameter* _next_parameter_ptr{nullptr};
+  rq::ParameterFlags _flags{};
+  llvm::StringRef _name{};
+  rq::TypeConstant* _type_ptr{nullptr};
+  rq::Expression* _default_value_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Parameter(rq::Opcode opcode);
 
@@ -1383,15 +1394,73 @@ struct DynamicParameter final : public rq::Parameter {
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct Signature final : public rq::SimpleSymbol {
-  using Self = rq::Signature;
 
-  explicit RQ_ALWAYS_INLINE Signature();
+enum class ParameterListFactoryState {
+  POSITIONAL,
+  POSITIONAL_AND_NAMED,
+  NAMED,
+  UNSETTABLE
+};
+
+struct ParameterListFactory final {
+  using Self = ParameterListFactory;
+
+  rq::ParameterListFactoryState _state{rq::ParameterListFactoryState::POSITIONAL};
+  unsigned _parameter_count{0};
+  unsigned _positional_pass_parameter_count{0};
+  unsigned _named_pass_parameter_count{0};
+  unsigned _unsettble_parameter_count{0};
+  rq::Parameter* _first_parameter_ptr{nullptr};
+  rq::Parameter* _last_parameter_ptr{nullptr};
+
+  ParameterListFactory() = default;
+  
+  inline void markNamedBegin();
+  inline void markPositionalEnd();
+  inline void markUnsettableBegin();
+  inline void addParameter(rq::Parameter& parameter);
+};
+
+struct ParameterList : public rq::Symbol {
+  using Self = rq::ParameterList;
+
+  unsigned _parameter_count{0};
+  unsigned _positional_pass_parameter_coun{0};
+  unsigned _named_pass_parameter_count{0};
+  unsigned _unsettble_parameter_count{0};
+  llvm::DenseMap<llvm::StringRef, rq::Parameter*> _named_parameter_map{};
+  rq::Parameter* _first_parameter_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE ParameterList(rq::Opcode opcode);
+
+  RQ_ALWAYS_INLINE void release();
+
+  inline void setParameters(rq::ParameterListFactory &factory);
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalPassParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getNamedPassParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getUnsettableParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *getNamedParameter(llvm::StringRef name);
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct Layout final : public rq::SimpleSymbol {
+struct Signature final : public rq::ParameterList {
+  using Self = rq::Signature;
+
+  rq::TypeConstant *_return_type{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Signature();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasReturnType() const;
+  RQ_ALWAYS_INLINE void setReturnType(rq::TypeConstant& return_type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType();
+
+  [[nodiscard]] static bool classof(const rq::Entity* entity);
+};
+
+struct Layout final : public rq::ParameterList {
   using Self = rq::Layout;
 
   explicit RQ_ALWAYS_INLINE Layout();
@@ -1402,7 +1471,9 @@ struct Layout final : public rq::SimpleSymbol {
 struct Composition final : public rq::SimpleSymbol {
   using Self = rq::Composition;
 
-  explicit RQ_ALWAYS_INLINE Composition();
+  rq::BumpPtrList<rq::Interface> _interface_list{};
+
+  explicit RQ_ALWAYS_INLINE Composition(llvm::ArrayRef<rq::Interface*> interface_ptrs);
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
@@ -1410,7 +1481,12 @@ struct Composition final : public rq::SimpleSymbol {
 struct Synonym final : public rq::SimpleSymbol {
   using Self = rq::Synonym;
 
-  explicit RQ_ALWAYS_INLINE Synonym();
+  rq::Symbol* _original_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Synonym(rq::Symbol& original);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol& getOriginal() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol& getOriginal();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
@@ -1482,7 +1558,12 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
 struct SymbolTable : public rq::Symbol {
   using Self = rq::SymbolTable;
 
+  llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> _named_member_map{};
+  rq::BumpPtrList<rq::Symbol> _unamed_member_list{};
+
   explicit RQ_ALWAYS_INLINE SymbolTable(rq::Opcode opcode);
+
+  RQ_ALWAYS_INLINE void release();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
@@ -1950,3 +2031,5 @@ struct BinaryInstruction final : public rq::Instruction {
 };
 
 } // namespace rq
+
+#include <rq/detail/entity.hpp>
