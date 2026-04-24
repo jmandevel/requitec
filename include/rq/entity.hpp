@@ -150,6 +150,9 @@ enum class Opcode {
   // SIGNATURES
   SY_SIGNATURE,
 
+  // LAYOUTS
+  SY_LAYOUT,
+
   // LABELS
   SY_LABEL,
 
@@ -372,10 +375,10 @@ struct Entity;
         struct LocalDynamicVariable;
         struct LocalStaticVariable;
         struct Parameter;
-          struct SignatureParameter;
-          struct ClassParameter;
-          struct TemplateParameter;
+          struct StaticParameter;
+          struct DynamicParameter;
     struct Signature;
+    struct Layout;
     struct Composition;
     struct Synonym;
     struct Polymorph;
@@ -1364,26 +1367,18 @@ struct Parameter : public rq::LocalVariable {
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct SignatureParameter final : public rq::Parameter {
-  using Self = rq::SignatureParameter;
+struct StaticParameter final : public rq::Parameter {
+  using Self = rq::StaticParameter;
 
-  explicit RQ_ALWAYS_INLINE SignatureParameter();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct ClassParameter final : public rq::Parameter {
-  using Self = rq::ClassParameter;
-
-  explicit RQ_ALWAYS_INLINE ClassParameter();
+  explicit RQ_ALWAYS_INLINE StaticParameter();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct TemplateParameter final : public rq::Parameter {
-  using Self = rq::TemplateParameter;
+struct DynamicParameter final : public rq::Parameter {
+  using Self = rq::DynamicParameter;
 
-  explicit RQ_ALWAYS_INLINE TemplateParameter();
+  explicit RQ_ALWAYS_INLINE DynamicParameter();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
@@ -1392,6 +1387,14 @@ struct Signature final : public rq::SimpleSymbol {
   using Self = rq::Signature;
 
   explicit RQ_ALWAYS_INLINE Signature();
+
+  [[nodiscard]] static bool classof(const rq::Entity* entity);
+};
+
+struct Layout final : public rq::SimpleSymbol {
+  using Self = rq::Layout;
+
+  explicit RQ_ALWAYS_INLINE Layout();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
