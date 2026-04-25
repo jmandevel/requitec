@@ -597,7 +597,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] inline rq::Symbol &acquireSynonym(rq::Symbol &original) {
     if (llvm::isa<rq::ScaledBuiltin>(original)) {
       rq::ScaledBuiltin &original_scaled =
-          llvm::integer_cast<rq::ScaledBuiltin>(original);
+          llvm::cast<rq::ScaledBuiltin>(original);
       const unsigned uid = this->acquired._scaled_builtin_generation++;
       llvm::FoldingSetNodeID id;
       rq::profileScaledBuiltin(id, original_scaled.getOpcode(),
@@ -610,9 +610,9 @@ struct Context final : public rq::BumpPtrAllocator {
               this->acquired._scaled_builtin_generation++,
               original_scaled.getFlags());
       this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
-      return llvm::integer_cast<rq::ScaledSignedInteger>(new_type);
+      return llvm::cast<rq::ScaledSignedInteger>(new_type);
     } else if (llvm::isa<rq::Synonym>(original)) {
-      rq::Synonym &synonym = llvm::integer_cast<rq::Synonym>(original);
+      rq::Synonym &synonym = llvm::cast<rq::Synonym>(original);
       rq::Symbol &original_original = synonym.getOriginal();
       return this->allocateAcquiredValue<rq::Synonym>(original_original);
     }
@@ -627,13 +627,13 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::ScaledBuiltin *existing =
             this->acquired._scaled_builtin_set.FindNodeOrInsertPos(
                 id, insert_pos)) {
-      return llvm::integer_cast<rq::ScaledSignedInteger>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::ScaledSignedInteger>(rq::dereferencePtr(existing));
     }
     rq::ScaledBuiltin &new_type =
         this->allocateAcquiredValue<rq::ScaledBuiltin>(
             rq::Opcode::SY_SCALED_SIGNED_INTEGER, scalar, 0, flags);
     this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::ScaledSignedInteger>(new_type);
+    return llvm::cast<rq::ScaledSignedInteger>(new_type);
   }
   [[nodiscard]] inline rq::ScaledUnsignedInteger &
   acquireScaledUnsignedInteger(unsigned scalar, rq::ScaledBuiltinFlags flags) {
@@ -644,14 +644,14 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::ScaledBuiltin *existing =
             this->acquired._scaled_builtin_set.FindNodeOrInsertPos(
                 id, insert_pos)) {
-      return llvm::integer_cast<rq::ScaledUnsignedInteger>(
+      return llvm::cast<rq::ScaledUnsignedInteger>(
           rq::dereferencePtr(existing));
     }
     rq::ScaledBuiltin &new_type =
         this->allocateAcquiredValue<rq::ScaledBuiltin>(
             rq::Opcode::SY_SCALED_UNSIGNED_INTEGER, scalar, 0, flags);
     this->acquired._scaled_builtin_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::ScaledUnsignedInteger>(new_type);
+    return llvm::cast<rq::ScaledUnsignedInteger>(new_type);
   }
   [[nodiscard]] inline rq::Reference &
   acquireReference(rq::TypeConstant &descendent) {
@@ -661,12 +661,12 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::UnarySubtype *existing =
             this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
                                                                   insert_pos)) {
-      return llvm::integer_cast<rq::Reference>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::Reference>(rq::dereferencePtr(existing));
     }
     rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
         rq::Opcode::SY_REFERENCE, descendent);
     this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::Reference>(new_type);
+    return llvm::cast<rq::Reference>(new_type);
   }
   [[nodiscard]] inline rq::Pointer &
   acquirePointer(rq::TypeConstant &descendent) {
@@ -676,12 +676,12 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::UnarySubtype *existing =
             this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
                                                                   insert_pos)) {
-      return llvm::integer_cast<rq::Pointer>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::Pointer>(rq::dereferencePtr(existing));
     }
     rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
         rq::Opcode::SY_POINTER, descendent);
     this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::Pointer>(new_type);
+    return llvm::cast<rq::Pointer>(new_type);
   }
   [[nodiscard]] inline rq::FatPointer &
   acquireFatPointer(rq::TypeConstant &descendent) {
@@ -691,12 +691,12 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::UnarySubtype *existing =
             this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
                                                                   insert_pos)) {
-      return llvm::integer_cast<rq::FatPointer>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::FatPointer>(rq::dereferencePtr(existing));
     }
     rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
         rq::Opcode::SY_FAT_POINTER, descendent);
     this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::FatPointer>(new_type);
+    return llvm::cast<rq::FatPointer>(new_type);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferencedCountArray &
   acquireInferencedCountArray(rq::TypeConstant &descendent) {
@@ -707,12 +707,12 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::UnarySubtype *existing =
             this->acquired._unary_subtype_set.FindNodeOrInsertPos(id,
                                                                   insert_pos)) {
-      return llvm::integer_cast<rq::InferencedCountArray>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::InferencedCountArray>(rq::dereferencePtr(existing));
     }
     rq::UnarySubtype &new_type = this->allocateAcquiredValue<rq::UnarySubtype>(
         rq::Opcode::SY_INFERENCED_COUNT_ARRAY, descendent);
     this->acquired._unary_subtype_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::InferencedCountArray>(new_type);
+    return llvm::cast<rq::InferencedCountArray>(new_type);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Array &
   acquireArray(rq::TypeConstant &descendent, unsigned count) {
@@ -722,13 +722,13 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::CountedSubtype *existing =
             this->acquired._counted_subtype_set.FindNodeOrInsertPos(
                 id, insert_pos)) {
-      return llvm::integer_cast<rq::Array>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::Array>(rq::dereferencePtr(existing));
     }
     rq::CountedSubtype &new_type =
         this->allocateAcquiredValue<rq::CountedSubtype>(rq::Opcode::SY_ARRAY,
                                                         descendent, count);
     this->acquired._counted_subtype_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::Array>(new_type);
+    return llvm::cast<rq::Array>(new_type);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticInterval &
   acquireArithmeticInterval(rq::TypeConstant &descendent,
@@ -740,14 +740,14 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::ArithmeticSequence *existing =
             this->acquired._arithmetic_sequence_set.FindNodeOrInsertPos(
                 id, insert_pos)) {
-      return llvm::integer_cast<rq::ArithmeticInterval>(rq::dereferencePtr(existing));
+      return llvm::cast<rq::ArithmeticInterval>(rq::dereferencePtr(existing));
     }
     rq::ArithmeticSequence &new_type =
         this->allocateAcquiredValue<rq::ArithmeticSequence>(
             rq::Opcode::SY_ARITHMETIC_INTERVAL, descendent, condition,
             rq::ArithmeticSequenceStep::NONE);
     this->acquired._arithmetic_sequence_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::ArithmeticInterval>(new_type);
+    return llvm::cast<rq::ArithmeticInterval>(new_type);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticProgression &
   acquireInfiniteArithmeticProgression(rq::TypeConstant &descendent,
@@ -759,7 +759,7 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::ArithmeticSequence *existing =
             this->acquired._arithmetic_sequence_set.FindNodeOrInsertPos(
                 id, insert_pos)) {
-      return llvm::integer_cast<rq::InfiniteArithmeticProgression>(
+      return llvm::cast<rq::InfiniteArithmeticProgression>(
           rq::dereferencePtr(existing));
     }
     rq::ArithmeticSequence &new_type =
@@ -767,7 +767,7 @@ struct Context final : public rq::BumpPtrAllocator {
             rq::Opcode::SY_INFINITE_ARITHMETIC_PROGRESSION, descendent,
             rq::ArithmeticSequenceCondition::NONE, step);
     this->acquired._arithmetic_sequence_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::InfiniteArithmeticProgression>(new_type);
+    return llvm::cast<rq::InfiniteArithmeticProgression>(new_type);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticProgression &
   acquireFiniteArithmeticProgression(rq::TypeConstant &descendent,
@@ -779,7 +779,7 @@ struct Context final : public rq::BumpPtrAllocator {
     if (rq::ArithmeticSequence *existing =
             this->acquired._arithmetic_sequence_set.FindNodeOrInsertPos(
                 id, insert_pos)) {
-      return llvm::integer_cast<rq::FiniteArithmeticProgression>(
+      return llvm::cast<rq::FiniteArithmeticProgression>(
           rq::dereferencePtr(existing));
     }
     rq::ArithmeticSequence &new_type =
@@ -787,7 +787,7 @@ struct Context final : public rq::BumpPtrAllocator {
             rq::Opcode::SY_FINITE_ARITHMETIC_PROGRESSION, descendent, condition,
             step);
     this->acquired._arithmetic_sequence_set.InsertNode(&new_type, insert_pos);
-    return llvm::integer_cast<rq::FiniteArithmeticProgression>(new_type);
+    return llvm::cast<rq::FiniteArithmeticProgression>(new_type);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &
   acquireTypeConstant(rq::Symbol &symbol, rq::TypeFlags flags) {
