@@ -39,23 +39,6 @@ enum class Opcode {
   SY_VOID,
   SY_NO_RETURN,
 
-  // FUNDAMENTAL CONSTRAINTS
-  SY_TYPE_CONSTRAINT,
-  SY_RANGE_CONSTRAINT,
-  SY_NUMERIC_CONSTRAINT,
-  SY_SIGNED_CONSTRAINT,
-  SY_UNSIGNED_CONSTRAINT,
-  SY_INTEGER_CONSTRAINT,
-  SY_SIGNED_INTEGER_CONSTRAINT,
-  SY_UNSIGNED_INTEGER_CONSTRAINT,
-  SY_FLOAT_CONSTRAINT,
-  SY_BINARY_CONSTRAINT,
-  SY_BFLOAT_CONSTRAINT,
-  SY_STRING_CONSTRAINT,
-  SY_CODEUNIT_CONSTRAINT,
-  SY_EXPRESSION_ATTRIBUTE_CONSTRAINT,
-  SY_TYPE_ATTRIBUTE_CONSTRAINT,
-
   // EXPRESSION ATTRIBUTES
   SY_LABELING,
   SY_VISIBILITY,
@@ -208,23 +191,10 @@ enum class Opcode {
   SY_EXTENSION_FUNCTION_TEMPLATE,
   SY_EXTENSION_METHOD_TEMPLATE,
 
-  // SPECIALIZATIONS
-  SY_CLASS_SPECIALIZATION,
-  SY_ENUMERATION_SPECIALIZATION,
-  SY_INTERFACE_SPECIALIZATION,
-  SY_GLOBAL_DYNAMIC_VARIABLE_SPECIALIZATION,
-  SY_GLOBAL_STATIC_VARIABLE_SPECIALIZATION,
-  SY_FORWARD_RANGER_SPECIALIZATION,
-  SY_BACKWARD_RANGER_SPECIALIZATION,
-  SY_FUNCTION_SPECIALIZATION,
-  SY_METHOD_SPECIALIZATION,
-  SY_EXTENSION_FUNCTION_SPECIALIZATION,
-  SY_EXTENSION_METHOD_SPECIALIZATION,
-
   CT_INTEGER,
   CT_FLOAT,
   CT_EXPRESSION,
-  CT_TYPE,
+  CT_SYMBOL,
   CT_BOOLEAN,
   CT_STRING,
   CT_ARRAY
@@ -285,22 +255,6 @@ struct Entity;
           struct InferenceType;
           struct VoidType;
           struct NoReturnType;
-      struct FundamentalConstraint;
-        struct TypeConstraint;
-        struct RangeConstraint;
-        struct NumericConstraint;
-        struct SignedConstraint;
-        struct UnsignedConstraint;
-        struct IntegerConstraint;
-        struct SignedIntegerConstraint;
-        struct UnsignedIntegerConstraint;
-        struct FloatConstraint;
-        struct BinaryConstraint;
-        struct BfloatConstraint;
-        struct StringConstraint;
-        struct CodeunitConstraint;
-        struct ExpressionAttributeConstraint;
-        struct TypeAttributeConstraint;
       struct ExpressionAttributeType;
         struct LabelingType;
         struct VisibilityType;
@@ -420,24 +374,12 @@ struct Entity;
           struct FunctionTemplate;
           struct MethodTemplate;
           struct ExtensionFunctionTemplate;
-          struct ExttensionMethodTemplate;
-        struct Specialization;
-          struct ClassSpecialization;
-          struct EnumerationSpecialization;
-          struct InterfaceSpecialization;
-          struct GlobalDynamicVariableSpecialization;
-          struct GlobalStaticVariableSpecialization;
-          struct ForwardRangerSpecialization;
-          struct BackwardRangerSpecialization;
-          struct FunctionSpecialization;
-          struct MethodSpecialization;
-          struct ExtensionFunctionSpecialization;
-          struct ExtensionMethodSpecialization;
+          struct ExtensionMethodTemplate;
   struct Constant;
     struct IntegerConstant;
     struct FloatConstant;
     struct ExpressionConstant;
-    struct TypeConstant;
+    struct SymbolConstant;
     struct BooleanConstant;
     struct StringConstant;
     struct ArrayConstant;
@@ -1370,7 +1312,7 @@ struct Parameter : public rq::LocalVariable {
   rq::Parameter* _next_parameter_ptr{nullptr};
   rq::ParameterFlags _flags{};
   llvm::StringRef _name{};
-  rq::TypeConstant* _type_ptr{nullptr};
+  rq::SymbolConstant* _type_ptr{nullptr};
   rq::Expression* _default_value_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Parameter(rq::Opcode opcode);
@@ -1448,14 +1390,14 @@ struct ParameterList : public rq::Symbol {
 struct Signature final : public rq::ParameterList {
   using Self = rq::Signature;
 
-  rq::TypeConstant *_return_type{nullptr};
+  rq::SymbolConstant *_return_type{nullptr};
 
   explicit RQ_ALWAYS_INLINE Signature();
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasReturnType() const;
-  RQ_ALWAYS_INLINE void setReturnType(rq::TypeConstant& return_type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeConstant &getReturnType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConstant &getReturnType();
+  RQ_ALWAYS_INLINE void setReturnType(rq::SymbolConstant& return_type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getReturnType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getReturnType();
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
@@ -1816,102 +1758,6 @@ struct ExtensionMethodTemplate final : public rq::Template {
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct Specialization : public rq::SymbolTable {
-  using Self = rq::Specialization;
-
-  explicit RQ_ALWAYS_INLINE Specialization(rq::Opcode opcode);
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct ClassSpecialization final : public rq::Specialization {
-  using Self = rq::ClassSpecialization;
-
-  explicit RQ_ALWAYS_INLINE ClassSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct EnumerationSpecialization final : public rq::Specialization {
-  using Self = rq::EnumerationSpecialization;
-
-  explicit RQ_ALWAYS_INLINE EnumerationSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct InterfaceSpecialization final : public rq::Specialization {
-  using Self = rq::InterfaceSpecialization;
-
-  explicit RQ_ALWAYS_INLINE InterfaceSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct GlobalDynamicVariableSpecialization final : public rq::Specialization {
-  using Self = rq::GlobalDynamicVariableSpecialization;
-
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct GlobalStaticVariableSpecialization final : public rq::Specialization {
-  using Self = rq::GlobalStaticVariableSpecialization;
-
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct ForwardRangerSpecialization final : public rq::Specialization {
-  using Self = rq::ForwardRangerSpecialization;
-
-  explicit RQ_ALWAYS_INLINE ForwardRangerSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct BackwardRangerSpecialization final : public rq::Specialization {
-  using Self = rq::BackwardRangerSpecialization;
-
-  explicit RQ_ALWAYS_INLINE BackwardRangerSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct FunctionSpecialization final : public rq::Specialization {
-  using Self = rq::FunctionSpecialization;
-
-  explicit RQ_ALWAYS_INLINE FunctionSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct MethodSpecialization final : public rq::Specialization {
-  using Self = rq::MethodSpecialization;
-
-  explicit RQ_ALWAYS_INLINE MethodSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct ExtensionFunctionSpecialization final : public rq::Specialization {
-  using Self = rq::ExtensionFunctionSpecialization;
-
-  explicit RQ_ALWAYS_INLINE ExtensionFunctionSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
-struct ExtensionMethodSpecialization final : public rq::Specialization {
-  using Self = rq::ExtensionMethodSpecialization;
-
-  explicit RQ_ALWAYS_INLINE ExtensionMethodSpecialization();
-
-  [[nodiscard]] static bool classof(const rq::Entity* entity);
-};
-
 struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
@@ -1950,13 +1796,13 @@ struct ExpressionConstant final : public rq::Constant {
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };
 
-struct TypeConstant final : public rq::Constant {
-  using Self = rq::TypeConstant;
+struct SymbolConstant final : public rq::Constant {
+  using Self = rq::SymbolConstant;
 
   rq::Symbol* _symbol_ptr;
   rq::TypeFlags _type_flags;
 
-  explicit RQ_ALWAYS_INLINE TypeConstant(rq::Symbol& symbol, rq::TypeFlags flags);
+  explicit RQ_ALWAYS_INLINE SymbolConstant(rq::Symbol& symbol, rq::TypeFlags flags);
 
   [[nodiscard]] static bool classof(const rq::Entity* entity);
 };

@@ -228,23 +228,6 @@ enum class Keyword : std::uint32_t {
   NEXT_VARIADIC_ARGUMENT_OF,
   INITIALIZE_VARIADIC_ARGUMENTS,
 
-  // CONSTRAINTS
-  TYPE_CONSTRAINT,
-  RANGE_CONSTRAINT,
-  NUMERIC_CONSTRAINT,
-  SIGNED_CONSTRAINT,
-  UNSIGNED_CONSTRAINT,
-  INTEGER_CONSTRAINT,
-  SIGNED_INTEGER_CONSTRAINT,
-  UNSIGNED_INTEGER_CONSTRAINT,
-  FLOAT_CONSTRAINT,
-  BINARY_CONSTRAINT,
-  BFLOAT_CONSTRAINT,
-  STRING_CONSTRAINT,
-  CODEUNIT_CONSTRAINT,
-  EXPRESSION_ATTRIBUTE_CONSTRAINT,
-  TYPE_ATTRIBUTE_CONSTRAINT,
-
   // SCOPES
   IF,
   ELSE_IF,
@@ -385,7 +368,6 @@ enum class Keyword : std::uint32_t {
   // templating
   NO_TEMPLATE, // default
   TEMPLATE,
-  SPECIALIZE,
   // likelyhood
   EQUIVOCAL, // default
   LIKELY,
@@ -406,6 +388,12 @@ enum class Keyword : std::uint32_t {
   // varaidic
   NO_VARIADIC, // default
   VARIADIC,
+  // constraint
+  NO_CONSTRAIN, // default
+  CONSTRAIN,
+  // weighting
+  DEFAULT_WEIGHT, // default
+  WEIGHT,
 
   // TYPE ATTRIBUTES
   // mutability
@@ -445,13 +433,15 @@ enum class Keyword : std::uint32_t {
   INLINING,            // no_inline vs inline
   MANGLING,            // implicit_mangle vs explicit_mangle
   PACKING,             // no_pack vs pack
-  TEMPLATING,          // no_template vs template vs specialize
+  TEMPLATING,          // no_template vs template
   LIKELYHOOD,          // equivocal vs likely vs unlikely
   SUPPORT,             // supported vs depreciated vs experimental
   COPYABILITY,         // no_copy vs may_copy
   ADDRESS_STABILITY,   // unstable_address vs stable_address
   CLEANUP,             // explicit_drop vs implicit_drop
   VARIADICNESS,        // no_variadic vs variadic
+  CONSTRAINT,          // no_constrain vs constrain
+  WEIGHTING,           // default_weight vs weight
 
   // TYPE ATTRIBUTE TYPES
   MUTABILITY,                 // any_mutability var vs constant vs partially_var
@@ -501,7 +491,7 @@ enum class Keyword : std::uint32_t {
   COLUMN,
   COLUMN_OF,
   IS,
-  IS_TYPE,
+  IS_OF,
   HOLDS,
   HOLDS_OF,
   TYPE,
@@ -528,6 +518,36 @@ enum class Keyword : std::uint32_t {
   AS_EXTENSION_OF,
   REVERSE,
   REVERSE_OF,
+  IS_TYPE,
+  IS_TYPE_OF,
+  IS_RANGE,
+  IS_RANGE_OF,
+  IS_NUMERIC,
+  IS_NUMERIC_OF,
+  IS_SIGNED,
+  IS_SIGNED_OF,
+  IS_UNSIGNED,
+  IS_UNSIGNED_OF,
+  IS_INTEGER,
+  IS_INTEGER_OF,
+  IS_SIGNED_INTEGER,
+  IS_SIGNED_INTEGER_OF,
+  IS_UNSIGNED_INTEGER,
+  IS_UNSIGNED_INTEGER_OF,
+  IS_FLOAT,
+  IS_FLOAT_OF,
+  IS_BINARY,
+  IS_BINARY_OF,
+  IS_BFLOAT,
+  IS_BFLOAT_OF,
+  IS_STRING,
+  IS_STRING_OF,
+  IS_CODEUNIT,
+  IS_CODEUNIT_OF,
+  IS_EXPRESSION_ATTRIBUTE,
+  IS_EXPRESSION_ATTRIBUTE_OF,
+  IS_TYPE_ATTRIBUTE,
+  IS_TYPE_ATTRIBUTE_OF,
 
   LAST
 };
@@ -892,38 +912,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::INITIALIZE_VARIADIC_ARGUMENTS:
     return "initialize_variadic_arguments";
 
-  // CONSTRAINTS
-  case K::TYPE_CONSTRAINT:
-    return "type_constraint";
-  case K::RANGE_CONSTRAINT:
-    return "range_constraint";
-  case K::NUMERIC_CONSTRAINT:
-    return "numeric_constraint";
-  case K::SIGNED_CONSTRAINT:
-    return "signed_constraint";
-  case K::UNSIGNED_CONSTRAINT:
-    return "unsigned_constraint";
-  case K::INTEGER_CONSTRAINT:
-    return "integer_constraint";
-  case K::SIGNED_INTEGER_CONSTRAINT:
-    return "signed_integer_constraint";
-  case K::UNSIGNED_INTEGER_CONSTRAINT:
-    return "unsigned_integer_constraint";
-  case K::FLOAT_CONSTRAINT:
-    return "float_constraint";
-  case K::BINARY_CONSTRAINT:
-    return "binary_constraint";
-  case K::BFLOAT_CONSTRAINT:
-    return "bfloat_constraint";
-  case K::STRING_CONSTRAINT:
-    return "string_constraint";
-  case K::CODEUNIT_CONSTRAINT:
-    return "codeunit_constraint";
-  case K::EXPRESSION_ATTRIBUTE_CONSTRAINT:
-    return "expression_attribute_constraint";
-  case K::TYPE_ATTRIBUTE_CONSTRAINT:
-    return "type_attribute_constraint";
-
   // SCOPES
   case K::IF:
     return "if";
@@ -1161,8 +1149,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "template";
   case K::NO_TEMPLATE:
     return "no_template";
-  case K::SPECIALIZE:
-    return "specialize";
   case K::LIKELY:
     return "likely";
   case K::UNLIKELY:
@@ -1191,6 +1177,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_variadic";
   case K::VARIADIC:
     return "variadic";
+  case K::NO_CONSTRAIN:
+    return "no_constrain";
+  case K::CONSTRAIN:
+    return "constrain";
+  case K::DEFAULT_WEIGHT:
+    return "default_weight";
+  case K::WEIGHT:
+    return "weight";
 
   // TYPE ATTRIBUTES
   case K::CONSTANT:
@@ -1265,6 +1259,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "cleanup";
   case K::VARIADICNESS:
     return "variadicness";
+  case K::CONSTRAINT:
+    return "constraint";
+  case K::WEIGHTING:
+    return "weighting";
 
   // TYPE ATTRIBUTE TYPES
   case K::MUTABILITY:
@@ -1357,8 +1355,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_column_of";
   case K::IS:
     return "is";
-  case K::IS_TYPE:
-    return "_is_type";
+  case K::IS_OF:
+    return "_is_of";
   case K::HOLDS:
     return "holds";
   case K::HOLDS_OF:
@@ -1407,6 +1405,66 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "reverse";
   case K::REVERSE_OF:
     return "_reverse_of";
+  case K::IS_TYPE:
+    return "is_type";
+  case K::IS_TYPE_OF:
+    return "_is_type_of";
+  case K::IS_RANGE:
+    return "is_range";
+  case K::IS_RANGE_OF:
+    return "_is_range_of";
+  case K::IS_NUMERIC:
+    return "is_numeric";
+  case K::IS_NUMERIC_OF:
+    return "_is_numeric_of";
+  case K::IS_SIGNED:
+    return "is_signed";
+  case K::IS_SIGNED_OF:
+    return "_is_signed_of";
+  case K::IS_UNSIGNED:
+    return "is_unsigned";
+  case K::IS_UNSIGNED_OF:
+    return "_is_unsigned_of";
+  case K::IS_INTEGER:
+    return "is_integer";
+  case K::IS_INTEGER_OF:
+    return "_is_integer_of";
+  case K::IS_SIGNED_INTEGER:
+    return "is_signed_integer";
+  case K::IS_SIGNED_INTEGER_OF:
+    return "_is_signed_integer_of";
+  case K::IS_UNSIGNED_INTEGER:
+    return "is_unsigned_integer";
+  case K::IS_UNSIGNED_INTEGER_OF:
+    return "_is_unsigned_integer_of";
+  case K::IS_FLOAT:
+    return "is_float";
+  case K::IS_FLOAT_OF:
+    return "_is_float_of";
+  case K::IS_BINARY:
+    return "is_binary";
+  case K::IS_BINARY_OF:
+    return "_is_binary_of";
+  case K::IS_BFLOAT:
+    return "is_bfloat";
+  case K::IS_BFLOAT_OF:
+    return "_is_bfloat_of";
+  case K::IS_STRING:
+    return "is_string";
+  case K::IS_STRING_OF:
+    return "_is_string_of";
+  case K::IS_CODEUNIT:
+    return "is_codeunit";
+  case K::IS_CODEUNIT_OF:
+    return "_is_codeunit_of";
+  case K::IS_EXPRESSION_ATTRIBUTE:
+    return "is_expression_attribute";
+  case K::IS_EXPRESSION_ATTRIBUTE_OF:
+    return "_is_expression_attribute_of";
+  case K::IS_TYPE_ATTRIBUTE:
+    return "is_type_attribute";
+  case K::IS_TYPE_ATTRIBUTE_OF:
+    return "_is_type_attribute_of";
 
   case K::LAST:
     break;
@@ -1461,7 +1519,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NONE:
     return KF::NONE;
 
-    // LITERALS
+  // LITERALS
   case K::INTEGER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::ARGUMENT;
   case K::FLOAT_LITERAL:
@@ -1817,38 +1875,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INITIALIZE_VARIADIC_ARGUMENTS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
-  // CONSTRAINTS
-  case K::TYPE_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::RANGE_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::NUMERIC_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INTEGER_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SIGNED_INTEGER_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSIGNED_INTEGER_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::FLOAT_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BINARY_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BFLOAT_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::STRING_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CODEUNIT_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::EXPRESSION_ATTRIBUTE_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::TYPE_ATTRIBUTE_CONSTRAINT:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-
   // SCOPES
   case K::IF:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
@@ -2093,8 +2119,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
            KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NO_TEMPLATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::SPECIALIZE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LIKELY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNLIKELY:
@@ -2122,6 +2146,14 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NO_VARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VARIADIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_CONSTRAIN:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::CONSTRAIN:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::DEFAULT_WEIGHT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::WEIGHT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
@@ -2196,6 +2228,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::CLEANUP:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VARIADICNESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CONSTRAINT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::WEIGHTING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
@@ -2293,7 +2329,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::IS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_TYPE:
+  case K::IS_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::HOLDS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2343,7 +2379,67 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::REVERSE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::REVERSE_OF:
-    return KF::RVALUE;
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_TYPE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_TYPE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_RANGE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_RANGE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_NUMERIC:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_NUMERIC_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_SIGNED:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_SIGNED_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_UNSIGNED:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_UNSIGNED_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_INTEGER:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_INTEGER_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_SIGNED_INTEGER:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_SIGNED_INTEGER_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_UNSIGNED_INTEGER:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_UNSIGNED_INTEGER_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_FLOAT:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_FLOAT_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_BINARY:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_BINARY_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_BFLOAT:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_BFLOAT_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_STRING:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_STRING_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_CODEUNIT:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_CODEUNIT_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_EXPRESSION_ATTRIBUTE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_EXPRESSION_ATTRIBUTE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_TYPE_ATTRIBUTE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_TYPE_ATTRIBUTE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
 
   case K::LAST:
     break;
@@ -2882,7 +2978,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   LABEL,
   NO_TEMPLATE,
   TEMPLATE,
-  SPECIALIZE,
   EQUIVOCAL,
   LIKELY,
   UNLIKELY,
@@ -2897,6 +2992,10 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   IMPLICIT_DROP,
   NO_VARIADIC,
   VARIADIC,
+  NO_CONSTRAIN,
+  CONSTRAIN,
+  DEFAULT_WEIGHT,
+  WEIGHT,
   LAST
 };
 
@@ -2963,8 +3062,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_template";
   case EA::TEMPLATE:
     return "template";
-  case EA::SPECIALIZE:
-    return "specialize";
   case EA::EQUIVOCAL:
     return "equivocal";
   case EA::LIKELY:
@@ -2993,6 +3090,14 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_variadic";
   case EA::VARIADIC:
     return "variadic";
+  case EA::NO_CONSTRAIN:
+    return "no_constrain";
+  case EA::CONSTRAIN:
+    return "constrain";
+  case EA::DEFAULT_WEIGHT:
+    return "default_weight";
+  case EA::WEIGHT:
+    return "weight";
   case EA::LAST:
     break;
   }
@@ -3059,8 +3164,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::TEMPLATE;
   case K::NO_TEMPLATE:
     return EA::NO_TEMPLATE;
-  case K::SPECIALIZE:
-    return EA::SPECIALIZE;
   case K::LIKELY:
     return EA::LIKELY;
   case K::UNLIKELY:
@@ -3089,6 +3192,10 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::NO_VARIADIC;
   case K::VARIADIC:
     return EA::VARIADIC;
+  case K::DEFAULT_WEIGHT:
+    return EA::DEFAULT_WEIGHT;
+  case K::WEIGHT:
+    return EA::WEIGHT;
   default:
     break;
   }
@@ -3153,33 +3260,40 @@ enum class ExpressionFlags : std::uint64_t {
   // templating
   // no_template (default)
   TEMPLATE = rq::getBit(14),
-  SPECIALIZE = rq::getBit(15),
 
   // likelihood
   // equivocal (default)
-  LIKELY = rq::getBit(16),
-  UNLIKELY = rq::getBit(17),
+  LIKELY = rq::getBit(15),
+  UNLIKELY = rq::getBit(16),
 
   // support
   // supported (default)
-  DEPRECIATED = rq::getBit(18),
-  EXPERIMENTAL = rq::getBit(19),
+  DEPRECIATED = rq::getBit(17),
+  EXPERIMENTAL = rq::getBit(18),
 
   // copyability
   // no_copy (default)
-  MAY_COPY = rq::getBit(20),
+  MAY_COPY = rq::getBit(19),
 
   // address_stability
   // unstable_address (default)
-  STABLE_ADDRESS = rq::getBit(21),
+  STABLE_ADDRESS = rq::getBit(20),
 
   // cleanup
   // implicit_drop (default)
-  EXPLICIT_DROP = rq::getBit(22),
+  EXPLICIT_DROP = rq::getBit(21),
 
   // variadicness
   // no_variadic (default)
-  VARIADIC = rq::getBit(23),
+  VARIADIC = rq::getBit(22),
+
+  // constraint
+  // NO_CONSTRAIN (default)
+  CONSTRAIN = rq::getBit(23),
+
+  // weighting
+  //  DEFAULT_WEIGHT (default)
+  WEIGHT = rq::getBit(24),
 
   LABELING = LABEL,                     // no_label vs label
   VISIBILITY = OPAQUE,                  // transparent vs opaque
@@ -3194,14 +3308,16 @@ enum class ExpressionFlags : std::uint64_t {
   INLINING = INLINE,                    // no_inline vs inline
   MANGLING = EXPLICIT_MANGLE,           // implicit_mangle vs explicit_mangle
   PACKING = PACK,                       // no_pack vs pack
-  TEMPLATING = TEMPLATE | SPECIALIZE,   // no_template vs template vs specialize
+  TEMPLATING = TEMPLATE,                // no_template vs template
   LIKELYHOOD = LIKELY | UNLIKELY,       // equivocal vs likely vs unlikely
   SUPPORT =
       DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
   COPYABILITY = MAY_COPY,         // no_copy vs may_copy
   ADDRESS_STABILITY = STABLE_ADDRESS, // unstable_address vs stable_address
   CLEANUP = EXPLICIT_DROP,            // implicit_drop vs explicit_drop
-  VARIADICNESS = VARIADIC             // no_variadic vs variadic
+  VARIADICNESS = VARIADIC,            // no_variadic vs variadic
+  CONSTRAINT = CONSTRAIN,             // no_constrain vs constrain
+  WEIGHTING = WEIGHT                  // default_weight vs weight
 };
 
 template <> struct is_flags<ExpressionFlags> : std::true_type {};
@@ -3298,8 +3414,6 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::TEMPLATE:
     return EF::TEMPLATE;
-  case EA::SPECIALIZE:
-    return EF::SPECIALIZE;
 
   // likelyhood
   case EA::EQUIVOCAL:
@@ -3340,6 +3454,18 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::VARIADIC:
     return EF::VARIADIC;
+
+  // constraint
+  case EA::NO_CONSTRAIN:
+    return EF::NONE;
+  case EA::CONSTRAIN:
+    return EF::CONSTRAIN;
+
+  // weighting
+  case EA::DEFAULT_WEIGHT:
+    return EF::NONE;
+  case EA::WEIGHT:
+    return EF::WEIGHT;
 
   case EA::LAST:
     break;
@@ -3485,11 +3611,6 @@ getHasNoTemplate(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::TEMPLATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasSpecialize(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::SPECIALIZE);
-}
-
 // likelyhood
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEquivocal(rq::ExpressionFlags flags) {
   return rq::getHasNone(flags, rq::ExpressionFlags::LIKELYHOOD);
@@ -3557,6 +3678,26 @@ getHasNoVariadic(rq::ExpressionFlags flags) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadic(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::VARIADIC);
+}
+
+// constraint
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasNoConstrain(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::CONSTRAINT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstrain(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::CONSTRAIN);
+}
+
+// weighting
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasDefaultWeight(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::WEIGHTING);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeight(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::WEIGHT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
