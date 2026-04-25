@@ -1,0 +1,28 @@
+[import "std"];
+
+[template]::{> Type:[symbol] <}
+[constrain]::(Type.[is_float])
+[weight]::1
+[function printType, ( var:Type <)[void],
+    ..std.print(line="Its a float");
+];
+
+[template]::{> Type:[symbol] <}
+[constrain]::(Type.[is_integer])
+[weight]::1
+[function printType, ( var:Type <)[void],
+    ..std.print(line="Its an integer");
+];
+
+[template]::{> Type:[symbol] <}
+[function printType, ( var:Type <)[void],
+    ..std.print(line="Its something");
+];
+
+[entry
+    ..printType{[signed_integer 32]}();
+    ..printType{[single]}();
+    ..printType{[boolean]}();
+
+    [result] := 0;
+];

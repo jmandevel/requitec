@@ -1,6 +1,6 @@
 [import "std"];
 
-[template]::{> List:[type_constraint] <}
+[template]::{> List:[symbol] <}
 [function printList, (> list:List <)[void],
     [spin list,
         [weave str:[string_constraint]=[value],
