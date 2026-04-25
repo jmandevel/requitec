@@ -79,6 +79,15 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
       break;
     }
+    if (!first.getHasNext()) {
+      this->getContext().discardExpression(expression.mergeAndPopBranch());
+      break;
+    }
+    if (situation != S::RVALUE) {
+      this->getContext().logErrorTooManyBranchCount(situation, expression, 1);
+      is_ok = false;
+      break;
+    }
     {
       bool found_error = false;
       for (rq::Expression &next : first.getNextSubrange()) {
@@ -92,11 +101,7 @@ bool Situator::situateTree(rq::Situation situation,
         break;
       }
     }
-    if (first.getHasNext()) {
-      expression.changeKeyword(K::FORK);
-    } else {
-      this->getContext().discardExpression(expression.mergeAndPopBranch());
-    }
+    expression.changeKeyword(K::FORK);
   } break;
   case K::UNSITUATED_EQUAL_OPERATOR:
     switch (situation) {
