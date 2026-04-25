@@ -15,6 +15,7 @@
 ];
 
 [template]::{> Type:[symbol] <}
+[constrain]::(Type.[is_type])
 [function printType, ( var:Type <)[void],
     ..std.print(line="Its something");
 ];
