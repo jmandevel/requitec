@@ -121,9 +121,6 @@ enum class Opcode {
   // CONCATENATED STRING
   SY_CONCATENATED_STRING,
 
-  // ENUMERATORS
-  SY_ENUMERATOR,
-
   // ARITHMETIC SEQUENCES
   SY_ARITHMETIC_INTERVAL,
   SY_INFINITE_ARITHMETIC_SEQUENCE,
@@ -154,7 +151,7 @@ enum class Opcode {
   SY_RANGER_POLYMORPH,
   SY_PROCEDURE_POLYMORPH,
   SY_CLASS_POLYMORPH,
-  SY_Enumeration_Polymorph,
+  SY_ENUMERATION_POLYMORPH,
   SY_INTERFACE_POLYMORPH,
   SY_GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
@@ -167,6 +164,7 @@ enum class Opcode {
   SY_NAMESPACE,
   SY_CLASS,
   SY_ENUMERATION,
+  SY_ENUMERATOR,
   SY_INTERFACE,
 
   // GLOBAL VARIABLE => global declaration => symbol table
@@ -210,14 +208,52 @@ enum class Opcode {
 
 [[nodiscard]] inline llvm::StringRef getName(rq::Opcode opcode);
 
-enum class OpcodeFlags {
+enum class OpcodeFlags : std::uint64_t {
   NONE = 0,
 
   SYMBOL = rq::getBit(0),
   CONSTANT = rq::getBit(1),
   // INSTRUCTION - not SYMBOL orB CONSTANT
 
-  // SYMBOL FLAGS
+  // ==SYMBOL FLAGS==
+  // SYMBOL PARENTS
+  SY_SIMPLE_SYMBOL = rq::getBit(2),
+  SY_LITERAL = rq::getBit(3),
+  SY_CONTEXTUAL = rq::getBit(4),
+  SY_CONTEXTUAL_NAME = rq::getBit(5),
+  SY_CONTEXTUAL_VALUE = rq::getBit(6),
+  SY_CONTEXTUAL_TYPE = rq::getBit(7),
+  SY_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(8),
+  SY_TYPE_ATTRIBUTE_TYPE = rq::getBit(9),
+  SY_REFLECTIVE_TYPE = rq::getBit(10),
+  SY_UNSCALED_PRIMITIVE_TYPE = rq::getBit(11),
+  SY_SCALED_INTEGER_TYPE = rq::getBit(12),
+  SY_UNCOUNTED_SUBTYPE = rq::getBit(13),
+  SY_ARITHMETIC_SEQUENCE = rq::getBit(14),
+  SY_LOCAL_DECLARATION = rq::getBit(15),
+  SY_LOCAL_VARIABLE = rq::getBit(16),
+  SY_PARAMETER = rq::getBit(18),
+  SY_PARAMETER_LIST = rq::getBit(19),
+  SY_POLYMORPH = rq::getBit(20),
+  SY_SYMBOL_TABLE = rq::getBit(21),
+  SY_GLOBAL_DECLARATION = rq::getBit(22),
+  SY_GLOBAL_VARIABLE = rq::getBit(23),
+  SY_RANGER = rq::getBit(24),
+  SY_PROCEDURE = rq::getBit(25),
+  SY_TEMPLATE = rq::getBit(26),
+
+  // SYMBOL DETAILS
+  SY_IS_TYPE = rq::getBit(27),
+  SY_IS_SIGNED_TYPE = rq::getBit(28),
+  SY_IS_UNSIGNED_TYPE = rq::getBit(29),
+  SY_IS_INTEGER_TYPE = rq::getBit(30),
+  SY_IS_FLOAT_TYPE = rq::getBit(31),
+  SY_IS_BINARY_TYPE = rq::getBit(32),
+  SY_IS_BFLOAT_TYPE = rq::getBit(33),
+  SY_IS_STRING_TYPE = rq::getBit(34),
+  SY_IS_CODEUNIT_TYPE = rq::getBit(35),
+  SY_IS_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(36),
+  SY_IS_TYPE_ATTRIBUTE_TYPE = rq::getBit(37),
 
   // CONSTANT FLAGS
 
@@ -235,6 +271,21 @@ enum class OpcodeFlags {
   RQ_ASSERT(rq::getIsConstant(opcode), "not constant");
 #define RQ_ASSERT_INSTRUCTION(opcode)                                          \
   RQ_ASSERT(rq::getIsInstruction(opcode), "not instruction");
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode);
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsExpressionAttributeType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType(rq::Opcode opcode);
 
 // clang-format off
 struct Entity;
@@ -324,7 +375,6 @@ struct Entity;
     struct Module;
     struct Import;
     struct ConcatenatedString;
-    struct Enumerator;
     struct ArithmeticSequence;
       struct ArithmeticInterval;
       struct InfiniteArithmeticSequence;
@@ -397,8 +447,6 @@ struct Entity;
     struct BinaryInstruction;
 // clang-format on
 
-// https://github.com/jmandevel/requitec/blob/85257262744fe46a161855c41439bda8d2503e1f/include/rq/entity.hpp
-
 struct Entity {
   using Self = rq::Entity;
 
@@ -410,6 +458,7 @@ struct Entity {
   ~Entity() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -418,6 +467,18 @@ struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
 
   explicit RQ_ALWAYS_INLINE Symbol(rq::Opcode opcode);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttributeType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -594,134 +655,6 @@ struct NoReturnType final : public rq::ContextualType {
   using Self = rq::NoReturnType;
 
   explicit RQ_ALWAYS_INLINE NoReturnType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct FundamentalConstraint : public rq::SimpleSymbol {
-  using Self = rq::FundamentalConstraint;
-
-  explicit RQ_ALWAYS_INLINE FundamentalConstraint(rq::Opcode opcode);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct TypeConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::TypeConstraint;
-
-  explicit RQ_ALWAYS_INLINE TypeConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct RangeConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::RangeConstraint;
-
-  explicit RQ_ALWAYS_INLINE RangeConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct NumericConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::NumericConstraint;
-
-  explicit RQ_ALWAYS_INLINE NumericConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct SignedConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::SignedConstraint;
-
-  explicit RQ_ALWAYS_INLINE SignedConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct UnsignedConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::UnsignedConstraint;
-
-  explicit RQ_ALWAYS_INLINE UnsignedConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct IntegerConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::IntegerConstraint;
-
-  explicit RQ_ALWAYS_INLINE IntegerConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct SignedIntegerConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::SignedIntegerConstraint;
-
-  explicit RQ_ALWAYS_INLINE SignedIntegerConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct UnsignedIntegerConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::UnsignedIntegerConstraint;
-
-  explicit RQ_ALWAYS_INLINE UnsignedIntegerConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct FloatConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::FloatConstraint;
-
-  explicit RQ_ALWAYS_INLINE FloatConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct BinaryConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::BinaryConstraint;
-
-  explicit RQ_ALWAYS_INLINE BinaryConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct BfloatConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::BfloatConstraint;
-
-  explicit RQ_ALWAYS_INLINE BfloatConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct StringConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::StringConstraint;
-
-  explicit RQ_ALWAYS_INLINE StringConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct CodeunitConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::CodeunitConstraint;
-
-  explicit RQ_ALWAYS_INLINE CodeunitConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct ExpressionAttributeConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::ExpressionAttributeConstraint;
-
-  explicit RQ_ALWAYS_INLINE ExpressionAttributeConstraint();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct TypeAttributeConstraint final : public rq::FundamentalConstraint {
-  using Self = rq::TypeAttributeConstraint;
-
-  explicit RQ_ALWAYS_INLINE TypeAttributeConstraint();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1230,6 +1163,7 @@ struct Array final : public rq::Symbol {
 
   explicit RQ_ALWAYS_INLINE Array(rq::SymbolConstant &child,
                                   const rq::IntegerConstant &count);
+
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getCount() const;
@@ -1237,32 +1171,34 @@ struct Array final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-enum class ModuleKind : std::uint8_t { NONE, SOURCE, IMPORT };
+enum class ModuleKind : std::uint8_t { SOURCE, IMPORT };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind);
+
+struct ModuleFactory final {
+  using Self = rq::ModuleFactory;
+
+  rq::ModuleKind _module_kind;
+  rq::Expression *_snippet_ptr;
+  llvm::StringRef path;
+  llvm::MemoryBufferRef buffer;
+};
 
 struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
-  rq::ModuleKind module_kind{rq::ModuleKind::NONE};
-  rq::Expression *expression_ptr{nullptr};
-  llvm::StringRef path{};
-  llvm::MemoryBufferRef buffer{};
+  rq::ModuleKind _module_kind;
+  const rq::Expression *_snippet_ptr;
+  llvm::StringRef path;
+  llvm::MemoryBufferRef buffer;
 
-  explicit RQ_ALWAYS_INLINE Module();
-  void RQ_ALWAYS_INLINE setModuleKind(rq::ModuleKind kind);
+  explicit RQ_ALWAYS_INLINE Module(rq::ModuleFactory &factory);
+
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression *expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceExpressionPtr(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &getBuffer() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1270,10 +1206,15 @@ struct Module final : public rq::Symbol {
 struct Import final : public rq::Symbol {
   using Self = rq::Import;
 
-  rq::ExpressionFlags _expression_flags{};
-  rq::Module *_imported_ptr{nullptr};
+  rq::ExpressionFlags _expression_flags;
+  rq::Module *_imported_ptr;
 
-  explicit RQ_ALWAYS_INLINE Import();
+  explicit RQ_ALWAYS_INLINE Import(rq::ExpressionFlags flags,
+                                   rq::Module &imported);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1281,7 +1222,13 @@ struct Import final : public rq::Symbol {
 struct ConcatenatedString final : public rq::Symbol {
   using Self = rq::ConcatenatedString;
 
-  explicit RQ_ALWAYS_INLINE ConcatenatedString();
+  llvm::ArrayRef<rq::SymbolConstant *> _children_ptrs;
+
+  explicit RQ_ALWAYS_INLINE
+  ConcatenatedString(llvm::ArrayRef<rq::SymbolConstant *> children_ptrs);
+
+  [[nodiscard]] llvm::ArrayRef<const rq::SymbolConstant *> getChildren() const;
+  [[nodiscard]] llvm::ArrayRef<rq::SymbolConstant *> getChildren();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1297,6 +1244,7 @@ struct ArithmeticSequence : public rq::Symbol {
   ArithmeticSequence(rq::Opcode opcode, rq::SymbolConstant &child,
                      rq::ArithmeticSequenceCondition condition,
                      rq::ArithmeticSequenceStep step);
+
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
@@ -1340,10 +1288,20 @@ struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
 struct LocalDeclaration : public rq::Symbol {
   using Self = rq::LocalDeclaration;
 
-  llvm::StringRef _name{};
-  rq::SymbolTable *_containing_table_ptr{nullptr};
+  llvm::StringRef _name;
+  const rq::Expression *_name_snippet_ptr;
+  rq::SymbolTable *_containing_table_ptr;
 
-  explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::Opcode opcode,
+                                             llvm::StringRef name,
+                                             const rq::Expression &name_snippet,
+                                             rq::SymbolTable &containing_table);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getNameSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1351,10 +1309,22 @@ struct LocalDeclaration : public rq::Symbol {
 struct Label final : public rq::LocalDeclaration {
   using Self = rq::Label;
 
-  rq::SymbolConstant *_target_ptr{nullptr};
-  rq::Instruction *_instruction_ptr{nullptr};
+  rq::Symbol *_target_symbol_ptr{nullptr};
+  rq::Instruction *_target_instruction_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Label();
+  explicit RQ_ALWAYS_INLINE Label(llvm::StringRef name,
+                                  const rq::Expression &name_snippet,
+                                  rq::SymbolTable &containing_table);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTargetSymbol() const;
+  RQ_ALWAYS_INLINE void setTargetSymbol(rq::Symbol &symbol);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getTargetSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getTargetSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTargetInstruction() const;
+  RQ_ALWAYS_INLINE void setTargetInstruction(rq::Instruction &target);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
+  getTargetInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getTargetInstruction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1365,7 +1335,18 @@ struct LocalVariable : public rq::LocalDeclaration {
   rq::ExpressionFlags _expression_flags{};
   rq::SymbolConstant *_type_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE LocalVariable(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE LocalVariable(rq::Opcode opcode,
+                                          llvm::StringRef name,
+                                          const rq::Expression &name_snippet,
+                                          rq::SymbolTable &containing_table,
+                                          rq::ExpressionFlags flags);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
+  RQ_ALWAYS_INLINE void setType(rq::SymbolConstant &type);
+  RQ_ALWAYS_INLINE void replaceType(rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1373,7 +1354,10 @@ struct LocalVariable : public rq::LocalDeclaration {
 struct LocalDynamicVariable final : public rq::LocalVariable {
   using Self = rq::LocalDynamicVariable;
 
-  explicit RQ_ALWAYS_INLINE LocalDynamicVariable();
+  explicit RQ_ALWAYS_INLINE
+  LocalDynamicVariable(llvm::StringRef name, const rq::Expression &name_snippet,
+                       rq::SymbolTable &containing_table,
+                       rq::ExpressionFlags flags);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1383,7 +1367,13 @@ struct LocalStaticVariable final : public rq::LocalVariable {
 
   rq::SymbolicValue _value{};
 
-  explicit RQ_ALWAYS_INLINE LocalStaticVariable();
+  explicit RQ_ALWAYS_INLINE
+  LocalStaticVariable(llvm::StringRef name, const rq::Expression &name_snippet,
+                      rq::SymbolTable &containing_table,
+                      rq::ExpressionFlags flags);
+
+  [[nodiscard]] const rq::SymbolicValue &getValue() const;
+  [[nodiscard]] rq::SymbolicValue &getValue();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1402,15 +1392,23 @@ struct Parameter : public rq::LocalVariable {
   using Self = rq::Parameter;
 
   rq::Parameter *_next_parameter_ptr{nullptr};
-  llvm::hash_code _name_hash{};
-  rq::Parameter *_avl_tree_left_ptr{nullptr};
-  rq::Parameter *_avl_tree_right_ptr{nullptr};
   rq::ParameterFlags _parameter_flags{};
-  llvm::StringRef _name{};
-  rq::SymbolConstant *_type_ptr{nullptr};
-  rq::Expression *_default_value_snippet_ptr{nullptr};
+  const rq::Expression *_type_snippet_ptr{nullptr};
+  const rq::Expression *_default_value_snippet_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Parameter(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE Parameter(
+      rq::Opcode opcode, llvm::StringRef name,
+      const rq::Expression &name_snippet, rq::SymbolTable &containing_table,
+      rq::ExpressionFlags expression_flags, rq::ParameterFlags parameter_flags,
+      const rq::Expression &type_snippet,
+      const rq::Expression &default_value_snippet);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsettable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTypeSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getDefaultValueSnippet() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1440,7 +1438,6 @@ struct ParameterListFactory final {
   unsigned _named_pass_parameter_count{0};
   unsigned _unsettble_parameter_count{0};
   rq::Parameter *_first_parameter_ptr{nullptr};
-  rq::Parameter *_last_parameter_ptr{nullptr};
 
   ParameterListFactory() = default;
 
@@ -1453,6 +1450,7 @@ struct ParameterListFactory final {
 struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
+  const rq::Expression *_snippet_ptr{nullptr};
   unsigned _parameter_count{0};
   unsigned _positional_pass_parameter_count{0};
   unsigned _named_pass_parameter_count{0};
@@ -1460,10 +1458,10 @@ struct ParameterList : public rq::Symbol {
   rq::Parameter *_first_parameter_ptr{nullptr};
   llvm::ArrayRef<rq::Parameter *> _named_parameter_hash_table{};
 
-  explicit RQ_ALWAYS_INLINE ParameterList(rq::Opcode opcode);
+  explicit inline ParameterList(rq::Opcode opcode,
+                                rq::BumpPtrAllocator &allocator,
+                                rq::ParameterListFactory &factory);
 
-  inline void setParameters(rq::BumpPtrAllocator &allocator,
-                            rq::ParameterListFactory &factory);
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned
   getPositionalPassParameterCount() const;
@@ -1475,22 +1473,27 @@ struct ParameterList : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct Enumerator {
-  using Self = rq::Enumerator;
-};
-
 struct Signature final : public rq::ParameterList {
   using Self = rq::Signature;
 
-  rq::SymbolConstant *_return_type{nullptr};
+  rq::SymbolConstant *_return_type_ptr{nullptr};
+  rq::SymbolConstant *_reciever_type_ptr{nullptr};
+  const rq::Expression *_precondition_snippet_ptr{nullptr};
+  const rq::Expression *_postcondition_snippet_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Signature();
+  explicit RQ_ALWAYS_INLINE
+  Signature(rq::BumpPtrAllocator &allocator, rq::ParameterListFactory &factory,
+            rq::SymbolConstant &return_type, rq::SymbolConstant &reciever_type,
+            const rq::Expression &precondition_snippet,
+            const rq::Expression &postcondition_snippet);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasReturnType() const;
-  RQ_ALWAYS_INLINE void setReturnType(rq::SymbolConstant &return_type);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getReturnType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getReturnType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getPreconditionSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getPostconditionSnippet() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1651,8 +1654,9 @@ struct GlobalDeclaration : public rq::SymbolTable {
 
   llvm::StringRef _name{};
   llvm::StringRef _mangled_name{};
-  rq::SymbolTable* _hosting_table_ptr{};
-  const rq::Expression* _snippet_ptr{nullptr};
+  rq::SymbolTable *_hosting_table_ptr{nullptr};
+  const rq::Expression *_snippet_ptr{nullptr};
+  const rq::Expression *_name_snippet_ptr{nullptr};
   rq::ExpressionFlags _flags{};
 
   explicit RQ_ALWAYS_INLINE GlobalDeclaration(rq::Opcode opcode);
@@ -1681,7 +1685,22 @@ struct Class final : public rq::GlobalDeclaration {
 struct Enumeration final : public rq::GlobalDeclaration {
   using Self = rq::Enumeration;
 
+  const rq::Expression *_underlying_snippet_ptr{nullptr};
+  rq::SymbolConstant *_underlying_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE Enumeration();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Enumerator final : public rq::GlobalDeclaration {
+  using Self = rq::Enumerator;
+
+  const rq::Expression *_type_snippet_ptr{nullptr};
+  const rq::Expression *_default_value_snippet_ptr{nullptr};
+  rq::SymbolConstant *_type_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Enumerator();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1696,6 +1715,8 @@ struct Interface final : public rq::GlobalDeclaration {
 
 struct GlobalVariable : public rq::GlobalDeclaration {
   using Self = rq::GlobalVariable;
+
+  rq::SymbolConstant *_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE GlobalVariable(rq::Opcode opcode);
 
@@ -1713,6 +1734,8 @@ struct GlobalDynamicVariable final : public rq::GlobalVariable {
 struct GlobalStaticVariable final : public rq::GlobalVariable {
   using Self = rq::GlobalStaticVariable;
 
+  rq::Constant *_value_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE GlobalStaticVariable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
@@ -1720,6 +1743,10 @@ struct GlobalStaticVariable final : public rq::GlobalVariable {
 
 struct Ranger : public rq::GlobalDeclaration {
   using Self = rq::Ranger;
+
+  rq::Instruction *_instruction_ptr{nullptr};
+  rq::SymbolConstant *_reciever_ptr{nullptr};
+  rq::SymbolConstant *_element_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Ranger(rq::Opcode opcode);
 
@@ -1746,6 +1773,7 @@ struct Procedure : public rq::GlobalDeclaration {
   using Self = rq::Procedure;
 
   rq::Signature *_signature_ptr{nullptr};
+  rq::Instruction *_instruction_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Procedure(rq::Opcode opcode);
 
@@ -1779,6 +1807,8 @@ struct Method final : public rq::Procedure {
 struct ExtensionFunction final : public rq::Procedure {
   using Self = rq::ExtensionFunction;
 
+  rq::SymbolConstant *_extended_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE ExtensionFunction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
@@ -1796,7 +1826,7 @@ struct Template : public rq::SymbolTable {
   using Self = rq::Template;
 
   rq::Layout *_template_layout{nullptr};
-  const rq::Expression *_constrain_ptr{nullptr};
+  const rq::Expression *_constraint_snippet_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Template(rq::Opcode opcode);
 
@@ -1948,9 +1978,11 @@ struct SymbolConstant final : public rq::Constant {
 struct BooleanConstant final : public rq::Constant {
   using Self = rq::BooleanConstant;
 
-  bool _data;
+  bool _is_platform_specific : 1;
+  bool _data : 1;
 
-  explicit RQ_ALWAYS_INLINE BooleanConstant(bool data);
+  explicit RQ_ALWAYS_INLINE BooleanConstant(bool data,
+                                            bool is_platform_specific);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1958,9 +1990,11 @@ struct BooleanConstant final : public rq::Constant {
 struct StringConstant final : public rq::Constant {
   using Self = rq::StringConstant;
 
+  bool _is_platform_specific : 1;
   llvm::StringRef _data;
 
-  explicit RQ_ALWAYS_INLINE StringConstant(llvm::StringRef data);
+  explicit RQ_ALWAYS_INLINE StringConstant(llvm::StringRef data,
+                                           bool is_platform_specific);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1968,9 +2002,11 @@ struct StringConstant final : public rq::Constant {
 struct ArrayConstant final : public rq::Constant {
   using Self = rq::ArrayConstant;
 
+  bool _is_platform_specific : 1;
   llvm::ArrayRef<rq::Constant> _data;
 
-  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data);
+  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data,
+                                          bool is_platform_specific);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
