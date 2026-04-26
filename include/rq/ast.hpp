@@ -520,34 +520,28 @@ enum class Keyword : std::uint32_t {
   REVERSE_OF,
   IS_TYPE,
   IS_TYPE_OF,
-  IS_RANGE,
-  IS_RANGE_OF,
-  IS_NUMERIC,
-  IS_NUMERIC_OF,
-  IS_SIGNED,
-  IS_SIGNED_OF,
-  IS_UNSIGNED,
-  IS_UNSIGNED_OF,
-  IS_INTEGER,
-  IS_INTEGER_OF,
-  IS_SIGNED_INTEGER,
-  IS_SIGNED_INTEGER_OF,
-  IS_UNSIGNED_INTEGER,
-  IS_UNSIGNED_INTEGER_OF,
-  IS_FLOAT,
-  IS_FLOAT_OF,
-  IS_BINARY,
-  IS_BINARY_OF,
-  IS_BFLOAT,
-  IS_BFLOAT_OF,
-  IS_STRING,
-  IS_STRING_OF,
-  IS_CODEUNIT,
-  IS_CODEUNIT_OF,
-  IS_EXPRESSION_ATTRIBUTE,
-  IS_EXPRESSION_ATTRIBUTE_OF,
-  IS_TYPE_ATTRIBUTE,
-  IS_TYPE_ATTRIBUTE_OF,
+  IS_RANGE_TYPE,
+  IS_RANGE_TYPE_OF,
+  IS_SIGNED_TYPE,
+  IS_SIGNED_TYPE_OF,
+  IS_UNSIGNED_TYPE,
+  IS_UNSIGNED_TYPE_OF,
+  IS_INTEGER_TYPE,
+  IS_INTEGER_TYPE_OF,
+  IS_FLOAT_TYPE,
+  IS_FLOAT_TYPE_OF,
+  IS_BINARY_TYPE,
+  IS_BINARY_TYPE_OF,
+  IS_BFLOAT_TYPE,
+  IS_BFLOAT_TYPE_OF,
+  IS_STRING_TYPE,
+  IS_STRING_TYPE_OF,
+  IS_CODEUNIT_TYPE,
+  IS_CODEUNIT_TYPE_OF,
+  IS_EXPRESSION_ATTRIBUTE_TYPE,
+  IS_EXPRESSION_ATTRIBUTE_TYPE_OF,
+  IS_TYPE_ATTRIBUTE_TYPE,
+  IS_TYPE_ATTRIBUTE_TYPE_OF,
 
   LAST
 };
@@ -1409,62 +1403,50 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_type";
   case K::IS_TYPE_OF:
     return "_is_type_of";
-  case K::IS_RANGE:
-    return "is_range";
-  case K::IS_RANGE_OF:
-    return "_is_range_of";
-  case K::IS_NUMERIC:
-    return "is_numeric";
-  case K::IS_NUMERIC_OF:
-    return "_is_numeric_of";
-  case K::IS_SIGNED:
-    return "is_signed";
-  case K::IS_SIGNED_OF:
-    return "_is_signed_of";
-  case K::IS_UNSIGNED:
-    return "is_unsigned";
-  case K::IS_UNSIGNED_OF:
-    return "_is_unsigned_of";
-  case K::IS_INTEGER:
-    return "is_integer";
-  case K::IS_INTEGER_OF:
-    return "_is_integer_of";
-  case K::IS_SIGNED_INTEGER:
-    return "is_signed_integer";
-  case K::IS_SIGNED_INTEGER_OF:
-    return "_is_signed_integer_of";
-  case K::IS_UNSIGNED_INTEGER:
-    return "is_unsigned_integer";
-  case K::IS_UNSIGNED_INTEGER_OF:
-    return "_is_unsigned_integer_of";
-  case K::IS_FLOAT:
-    return "is_float";
-  case K::IS_FLOAT_OF:
-    return "_is_float_of";
-  case K::IS_BINARY:
-    return "is_binary";
-  case K::IS_BINARY_OF:
-    return "_is_binary_of";
-  case K::IS_BFLOAT:
-    return "is_bfloat";
-  case K::IS_BFLOAT_OF:
-    return "_is_bfloat_of";
-  case K::IS_STRING:
-    return "is_string";
-  case K::IS_STRING_OF:
-    return "_is_string_of";
-  case K::IS_CODEUNIT:
-    return "is_codeunit";
-  case K::IS_CODEUNIT_OF:
-    return "_is_codeunit_of";
-  case K::IS_EXPRESSION_ATTRIBUTE:
-    return "is_expression_attribute";
-  case K::IS_EXPRESSION_ATTRIBUTE_OF:
-    return "_is_expression_attribute_of";
-  case K::IS_TYPE_ATTRIBUTE:
-    return "is_type_attribute";
-  case K::IS_TYPE_ATTRIBUTE_OF:
-    return "_is_type_attribute_of";
+  case K::IS_RANGE_TYPE:
+    return "is_range_type";
+  case K::IS_RANGE_TYPE_OF:
+    return "_is_range_type_of";
+  case K::IS_SIGNED_TYPE:
+    return "is_signed_type";
+  case K::IS_SIGNED_TYPE_OF:
+    return "_is_signed_type_of";
+  case K::IS_UNSIGNED_TYPE:
+    return "is_unsigned_type";
+  case K::IS_UNSIGNED_TYPE_OF:
+    return "_is_unsigned_type_of";
+  case K::IS_INTEGER_TYPE:
+    return "is_integer_type";
+  case K::IS_INTEGER_TYPE_OF:
+    return "_is_integer_type_of";
+  case K::IS_FLOAT_TYPE:
+    return "is_float_type";
+  case K::IS_FLOAT_TYPE_OF:
+    return "_is_float_type_of";
+  case K::IS_BINARY_TYPE:
+    return "is_binary_type";
+  case K::IS_BINARY_TYPE_OF:
+    return "_is_binary_type_of";
+  case K::IS_BFLOAT_TYPE:
+    return "is_bfloat_type";
+  case K::IS_BFLOAT_TYPE_OF:
+    return "_is_bfloat_type_of";
+  case K::IS_STRING_TYPE:
+    return "is_string_teyp";
+  case K::IS_STRING_TYPE_OF:
+    return "_is_string_type_of";
+  case K::IS_CODEUNIT_TYPE:
+    return "is_codeunit_type";
+  case K::IS_CODEUNIT_TYPE_OF:
+    return "_is_codeunit_type_of";
+  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
+    return "is_expression_attribute_type";
+  case K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF:
+    return "_is_expression_attribute_type_of";
+  case K::IS_TYPE_ATTRIBUTE_TYPE:
+    return "is_type_attribute_type";
+  case K::IS_TYPE_ATTRIBUTE_TYPE_OF:
+    return "_is_type_attribute_type_of";
 
   case K::LAST:
     break;
@@ -2384,61 +2366,49 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IS_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_RANGE:
+  case K::IS_RANGE_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_RANGE_OF:
+  case K::IS_RANGE_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_NUMERIC:
+  case K::IS_SIGNED_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_NUMERIC_OF:
+  case K::IS_SIGNED_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_SIGNED:
+  case K::IS_UNSIGNED_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_SIGNED_OF:
+  case K::IS_UNSIGNED_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_UNSIGNED:
+  case K::IS_INTEGER_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_UNSIGNED_OF:
+  case K::IS_INTEGER_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_INTEGER:
+  case K::IS_FLOAT_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_INTEGER_OF:
+  case K::IS_FLOAT_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_SIGNED_INTEGER:
+  case K::IS_BINARY_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_SIGNED_INTEGER_OF:
+  case K::IS_BINARY_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_UNSIGNED_INTEGER:
+  case K::IS_BFLOAT_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_UNSIGNED_INTEGER_OF:
+  case K::IS_BFLOAT_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_FLOAT:
+  case K::IS_STRING_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_FLOAT_OF:
+  case K::IS_STRING_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_BINARY:
+  case K::IS_CODEUNIT_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_BINARY_OF:
+  case K::IS_CODEUNIT_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_BFLOAT:
+  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_BFLOAT_OF:
+  case K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_STRING:
+  case K::IS_TYPE_ATTRIBUTE_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_STRING_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_CODEUNIT:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_CODEUNIT_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_EXPRESSION_ATTRIBUTE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_EXPRESSION_ATTRIBUTE_OF:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_TYPE_ATTRIBUTE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_TYPE_ATTRIBUTE_OF:
+  case K::IS_TYPE_ATTRIBUTE_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   case K::LAST:
@@ -2776,6 +2746,30 @@ getDescription(rq::Situation situation) {
     return K::AS_EXTENSION_OF;
   case K::REVERSE:
     return K::REVERSE_OF;
+  case K::IS_TYPE:
+    return K::IS_TYPE_OF;
+  case K::IS_RANGE_TYPE:
+    return K::IS_RANGE_TYPE_OF;
+  case K::IS_SIGNED_TYPE:
+    return K::IS_SIGNED_TYPE_OF;
+  case K::IS_UNSIGNED_TYPE:
+    return K::IS_UNSIGNED_TYPE_OF;
+  case K::IS_INTEGER_TYPE:
+    return K::IS_INTEGER_TYPE_OF;
+  case K::IS_FLOAT_TYPE:
+    return K::IS_FLOAT_TYPE_OF;
+  case K::IS_BINARY_TYPE:
+    return K::IS_BINARY_TYPE_OF;
+  case K::IS_BFLOAT_TYPE:
+    return K::IS_BFLOAT_TYPE_OF;
+  case K::IS_STRING_TYPE:
+    return K::IS_STRING_TYPE_OF;
+  case K::IS_CODEUNIT_TYPE:
+    return K::IS_CODEUNIT_TYPE_OF;
+  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
+    return K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF;
+  case K::IS_TYPE_ATTRIBUTE_TYPE:
+    return K::IS_TYPE_ATTRIBUTE_TYPE_OF;
   default:
     break;
   }
