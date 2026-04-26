@@ -234,41 +234,42 @@ bool Context::initializeLlvm() {
 }
 
 bool Context::run() {
-  if (!this->loadSourceModule()) {
-    return false;
-  }
-  if (!this->validateSourceText(this->getSourceModule())) {
-    return false;
-  }
   {
-    std::vector<rq::Token> tokens = {};
-    if (!this->tokenizeSourceText(this->getSourceModule(), tokens)) {
+    rq::ModuleFactory factory = this->loadSourceModule();
+    if (!this->validateSourceText(factory)) {
       return false;
     }
-    if (rq::getEmitMode() == rq::EMIT_TOKENS) {
-      if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
+    {
+      std::vector<rq::Token> tokens = {};
+      if (!this->tokenizeSourceText(factory, tokens)) {
+        return false;
+      }
+      if (rq::getEmitMode() == rq::EMIT_TOKENS) {
+        if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
+          return false;
+        }
+        return true;
+      }
+      this->initializeKeywordMap();
+      if (!this->parseRequite(this->getSourceModule(), tokens)) {
+        return false;
+      }
+    }
+    if (rq::getEmitMode() == rq::EMIT_PARSED) {
+      if (!this->emitRequite(rq::getOutputFilePath(),
+                            this->getSourceModule().getSnippet())) {
         return false;
       }
       return true;
     }
-    this->initializeKeywordMap();
-    if (!this->parseRequite(this->getSourceModule(), tokens)) {
+    if (!this->situateModule(factory)) {
       return false;
     }
-  }
-  if (rq::getEmitMode() == rq::EMIT_PARSED) {
-    if (!this->emitRequite(rq::getOutputFilePath(),
-                           this->getSourceModule().getExpression())) {
-      return false;
-    }
-    return true;
-  }
-  if (!this->situateModule(this->getSourceModule())) {
-    return false;
+    this->acquireSourceModule(factory);
   }
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
     if (!this->emitRequite(rq::getOutputFilePath(),
-                           this->getSourceModule().getExpression())) {
+                           this->getSourceModule().getSnippet())) {
       return false;
     }
     return true;
@@ -313,7 +314,7 @@ bool Context::parseRequite(rq::Module &module,
                            const std::vector<rq::Token> &tokens) {
   rq::RequiteParser parser(*this, tokens);
   rq::Expression *root_ptr = parser.parseExpressions();
-  module.setExpression(root_ptr);
+  module.getSnippet(root_ptr);
   return parser.getIsOk();
 }
 
