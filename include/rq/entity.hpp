@@ -9,6 +9,7 @@
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/DenseMap.h>
+#include <llvm/ADT/Hashing.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/MemoryBufferRef.h>
 
@@ -395,6 +396,8 @@ struct Entity;
     struct UnaryInstruction;
     struct BinaryInstruction;
 // clang-format on
+
+// https://github.com/jmandevel/requitec/blob/85257262744fe46a161855c41439bda8d2503e1f/include/rq/entity.hpp
 
 struct Entity {
   using Self = rq::Entity;
@@ -1399,10 +1402,13 @@ struct Parameter : public rq::LocalVariable {
   using Self = rq::Parameter;
 
   rq::Parameter *_next_parameter_ptr{nullptr};
+  llvm::hash_code _name_hash{};
+  rq::Parameter *_avl_tree_left_ptr{nullptr};
+  rq::Parameter *_avl_tree_right_ptr{nullptr};
   rq::ParameterFlags _parameter_flags{};
   llvm::StringRef _name{};
   rq::SymbolConstant *_type_ptr{nullptr};
-  rq::Expression *_default_value_expression_ptr{nullptr};
+  rq::Expression *_default_value_snippet_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Parameter(rq::Opcode opcode);
 
@@ -1448,17 +1454,16 @@ struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
   unsigned _parameter_count{0};
-  unsigned _positional_pass_parameter_coun{0};
+  unsigned _positional_pass_parameter_count{0};
   unsigned _named_pass_parameter_count{0};
   unsigned _unsettble_parameter_count{0};
-  llvm::DenseMap<llvm::StringRef, rq::Parameter *> _named_parameter_map{};
   rq::Parameter *_first_parameter_ptr{nullptr};
+  llvm::ArrayRef<rq::Parameter *> _named_parameter_hash_table{};
 
   explicit RQ_ALWAYS_INLINE ParameterList(rq::Opcode opcode);
 
-  RQ_ALWAYS_INLINE void release();
-
-  inline void setParameters(rq::ParameterListFactory &factory);
+  inline void setParameters(rq::BumpPtrAllocator &allocator,
+                            rq::ParameterListFactory &factory);
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned
   getPositionalPassParameterCount() const;
@@ -1472,7 +1477,6 @@ struct ParameterList : public rq::Symbol {
 
 struct Enumerator {
   using Self = rq::Enumerator;
-  
 };
 
 struct Signature final : public rq::ParameterList {
@@ -1617,6 +1621,7 @@ struct SymbolTable : public rq::Symbol {
   llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>
       _named_member_map{};
   rq::BumpPtrList<rq::Symbol> _unamed_member_list{};
+  rq::SymbolTable *_containing_table_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE SymbolTable(rq::Opcode opcode);
 
@@ -1644,6 +1649,12 @@ struct Scope final : public rq::SymbolTable {
 struct GlobalDeclaration : public rq::SymbolTable {
   using Self = rq::GlobalDeclaration;
 
+  llvm::StringRef _name{};
+  llvm::StringRef _mangled_name{};
+  rq::SymbolTable* _hosting_table_ptr{};
+  const rq::Expression* _snippet_ptr{nullptr};
+  rq::ExpressionFlags _flags{};
+
   explicit RQ_ALWAYS_INLINE GlobalDeclaration(rq::Opcode opcode);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
@@ -1659,6 +1670,8 @@ struct Namespace final : public rq::GlobalDeclaration {
 
 struct Class final : public rq::GlobalDeclaration {
   using Self = rq::Class;
+
+  rq::Layout *_class_layout_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Class();
 
@@ -1732,6 +1745,8 @@ struct BackwardRanger final : public rq::Ranger {
 struct Procedure : public rq::GlobalDeclaration {
   using Self = rq::Procedure;
 
+  rq::Signature *_signature_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE Procedure(rq::Opcode opcode);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
@@ -1779,6 +1794,9 @@ struct ExtensionMethod final : public rq::Procedure {
 
 struct Template : public rq::SymbolTable {
   using Self = rq::Template;
+
+  rq::Layout *_template_layout{nullptr};
+  const rq::Expression *_constrain_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Template(rq::Opcode opcode);
 
@@ -1908,7 +1926,7 @@ struct FloatConstant final : public rq::Constant {
 struct ExpressionConstant final : public rq::Constant {
   using Self = rq::ExpressionConstant;
 
-  const rq::Expression *_expression_ptr;
+  const rq::Expression *_snippet_ptr;
 
   explicit RQ_ALWAYS_INLINE ExpressionConstant(const rq::Expression &data);
 
@@ -1960,7 +1978,7 @@ struct ArrayConstant final : public rq::Constant {
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
-  const rq::Expression *_expression_ptr{nullptr};
+  const rq::Expression *_snippet_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode);
 
