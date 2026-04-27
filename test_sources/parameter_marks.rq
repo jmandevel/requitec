@@ -4,7 +4,7 @@
 // < mark after a parameter means that parameter and every parameter before may be positional
 // | mark before a parameter means that parameter and every parameter after may not be set (and will use default value)
 
-// > must come before < if both exist. If | exists, it must be last.
+// > must come before < if both exist. If | exists, it must be after all other parameter marks that exist.
 
 // when parameters must be named and never positional, you can overload function by parameter name alone (types can be the same)
 
