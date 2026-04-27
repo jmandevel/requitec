@@ -1180,8 +1180,20 @@ struct ModuleFactory final {
 
   rq::ModuleKind _module_kind;
   rq::Expression *_snippet_ptr;
-  llvm::StringRef path;
-  llvm::MemoryBufferRef buffer;
+  llvm::StringRef _path;
+  llvm::MemoryBufferRef _buffer;
+
+  explicit RQ_ALWAYS_INLINE ModuleFactory(rq::ModuleKind kind);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSnippet() const;
+  void setSnippet(rq::Expression& snippet);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression& getSnippet();
+  RQ_ALWAYS_INLINE void setPath(llvm::StringRef path);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
+  RQ_ALWAYS_INLINE void setBuffer(llvm::MemoryBufferRef&& buffer);
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &getBuffer() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::MemoryBufferRef &getBuffer();
 };
 
 struct Module final : public rq::Symbol {
@@ -1438,12 +1450,13 @@ struct ParameterListFactory final {
   unsigned _named_pass_parameter_count{0};
   unsigned _unsettble_parameter_count{0};
   rq::Parameter *_first_parameter_ptr{nullptr};
+  rq::Parameter *_last_parameter_ptr{nullptr};
 
   ParameterListFactory() = default;
 
-  inline void markNamedBegin();
-  inline void markPositionalEnd();
-  inline void markUnsettableBegin();
+  [[nodiscard]] inline bool markNamedBegin();
+  [[nodiscard]] inline bool markPositionalEnd();
+  [[nodiscard]] inline bool markUnsettableBegin();
   inline void addParameter(rq::Parameter &parameter);
 };
 
@@ -1745,10 +1758,17 @@ struct Ranger : public rq::GlobalDeclaration {
   using Self = rq::Ranger;
 
   rq::Instruction *_instruction_ptr{nullptr};
+  const rq::Expression* _reciever_snippet_ptr
   rq::SymbolConstant *_reciever_ptr{nullptr};
+  const rq::Expression* _element_snippet_ptr;
   rq::SymbolConstant *_element_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Ranger(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE Ranger(rq::Opcode opcode, const rq::Expression& reciever_snippet, const rq::Expression& element_snippet);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const;
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1776,6 +1796,15 @@ struct Procedure : public rq::GlobalDeclaration {
   rq::Instruction *_instruction_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Procedure(rq::Opcode opcode);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const;
+  RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature &getSignature() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature &getSignature();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const;
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1829,6 +1858,15 @@ struct Template : public rq::SymbolTable {
   const rq::Expression *_constraint_snippet_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Template(rq::Opcode opcode);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLayout() const;
+  RQ_ALWAYS_INLINE void setLayout(rq::Layout& layout);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout& getLayout() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout& getLayout();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraintSnippet() const;
+  RQ_ALWAYS_INLINE void setConstraintSnippet(const rq::Expression& snippet);
+  [[nodiscard]] const rq::Expression& getConstraintSnippet() const;
+  [[nodiscard]] rq::Expression& getConstraintSnippet();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
