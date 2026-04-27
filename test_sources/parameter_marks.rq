@@ -4,6 +4,8 @@
 // < mark after a parameter means that parameter and every parameter before may be positional
 // | mark before a parameter means that parameter and every parameter after may not be set (and will use default value)
 
+// > must come before < if both exist. If | exists, it must be last.
+
 // when parameters must be named and never positional, you can overload function by parameter name alone (types can be the same)
 
 [import "std"];
@@ -12,7 +14,7 @@
 
 [function allNamed, (> arg0:[binary32], arg1:[binary32])[void],];
 
-[function allNamed, (> a:[binary32], b:[binary32])[void],];
+[function namedOrPositional, (> arg0:[binary32], arg1:[binary32]<)[void],];
 
 [function nonSettable (| a:=0, b:=1 )[void],];
 
