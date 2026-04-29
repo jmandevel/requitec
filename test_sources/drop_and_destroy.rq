@@ -1,45 +1,42 @@
+[import "std"];
 
-[may_copy]
-[class NoAutoDrop,
-    // notice how the method does not take the instance by reference
-    // this causes it to be linearly assigned (ownership is transfered into the method)
-    [public]
-    [method destroy, ()[void]=>\[var], 
+[class WithoutDestructor,];
+
+[class WithDestructor,
+    [destroy
+        ..std.print(line="In destructor!");
         [this].[drop];
-    ]
+    ];
 ];
 
-[implicit_drop][may_copy][stable_address]
-[class AutoDrop,];
 
 [entry
-    // classes marked as "implicit_drop" are dropped automatically when goes out of scope
-    // however, nothing can be done on object drop time (like freeing memory etc)
-    auto : \[var] = ..AutoDrop();
+    a := ..WithoutDestructor();
+    b := ..WithoutDestructor();
+    c := ..WithDestructor();
+    d := ..WithDestructor();
 
-    // if you want to enable RAII pattern, you need to force manual drops:
+    // after drop or destroy, variable is invalidated (can no longer be used)
+    a.[drop]; 
 
-    // Requite has no automatic destructors like most high level languages.
-    // NoAutoDrop type does not have auto_drop attribute, so you need to manually
-    // drop it with .[drop] reflection. however, the drop reflection is only usable within member methods and functions.
-    // you can also use .[move] to give ownership away. dropping responsibility is passed on too.
-    // the member method .destroy() does this for us.
-    no_auto_drop : \[var] = ..NoAutoDrop();
-    // destructor is called when variable is destroyed with .[destroy]. destroy resources here.
-    [destructor no_auto_drop,
-        no_auto_drop.[move].destroy();
-    ];
+    // since b's type has no destructor, behaviour is same as b.[drop]
+    b.[destroy];
 
-    
-    array := [initialize_array ..NoAutoDrop(), ..NoAutoDrop(), ..NoAutoDrop()];
-    [destructor array,
-        array
-            .[drop_each
-                [placement].[move].destroy();
-            ];
-    ];
+    // even though c's type has a destructor, its not called
+    c.[drop];
+
+    // d's destructor is called
+    d.[destroy];
+
+    without := ..WithoutDestructor();
+    with := ..WithDestructor();
+
+    // if type has no destructor, can do a shallow copy (copies byte for byte)
+    copy := without; 
+
+    // this results in a compile error if uncommented because cannot shallow copy types with destructors 
+    // other_copy := with;
 
     [result] := 0;
-
-    // destructors are called here
 ];
+

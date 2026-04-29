@@ -6,13 +6,10 @@
     ];
 ];
 
-[implicit_drop]
 [class Dog,];
 
-[implicit_drop]
 [class Cat,];
 
-[implicit_drop]
 [class Rat,
     [method squeak, ()[void]=>$,
         ..std.print(line="Squeak!");  

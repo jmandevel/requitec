@@ -1,45 +1,19 @@
 [import "std"];
 
-// notice how there is no @implicit_drop attribute. 
-// this means you  to manually drop variables of this type when they go out of scope.
-[may_copy]
-[class NoAutoDrop,
-	// this is like a destructor. it takes ownership of what you call it on and then drops it. 
-	// if this type had internal resources, they could be released here.
-	[public] [method destroy, ()[void]=>\[var], [this].[drop]; ];
+[class MyClass,
+	{> [public] var:[signed_integer] },
 ];
 
 [entry
 	// create stack and destructor for the stack
-	// my_stack.destroy() returns a ranger over all elements so each element can be destroyed before the stack memory is freed.
-	my_stack :\[var]= ..std.StackList{..NoAutoDrop}();
-	[destructor my_stack,
-		my_stack.[move].destroy()
-			.[erase_each
-				[placement].[move].destroy();
-			];
-	];
+	my_stack :\[var]= ..std.StackList{..MyClass}();
 	
 	// push back one element
-	my_stack.pushBack()
-		.[emplace 
-			[placement] := ..NoAutoDrop();
-		].[ignore];
+	// emplace will call the function in the future with the given arguments forwarded
+	my_stack.pushBack(..MyClass(var=42).[emplace]);
 
 	// remove the last element
-	my_stack.popBack()
-		.[erase 
-			[placement].[move].destroy();
-		];
-
-	my_int_stack := ..std.StackList{[signed_integer]}();
-	[destroy my_int_stack,
-		my_int_stack.[move].destroy().[erase_each];
-	];
-	my_int_stack.pushBackMultiple(5)
-		.[emplace_each index:=[index],
-			[placement] := index;
-		].[ignore];
-
+	my_stack.popBack();
+	
 	[result] := 0;
 ];

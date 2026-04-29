@@ -1,11 +1,11 @@
 
 [global][static]
-integer_type   : [integer]    = [unsigned_integer 32];
+integer_type   : [type]    = [unsigned_integer 32];
  
 integer_value  : integer_type = 0;
 
-// using type specified in template argument.
-[template]::{> Type:[integer] <}
+[template]::{> Type:[type] <}
+[constrain]::(Type.[is_integer_type])
 [function addA, (> a:Type, b:Type <)Type,
     [result] := a + b;
 ];

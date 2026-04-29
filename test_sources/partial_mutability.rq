@@ -1,4 +1,3 @@
-[implicit_drop][may_copy]
 [class Partialable,
     {>
         [public][partial_mutate] property_a : [fast_signed_integer 32]= 0,

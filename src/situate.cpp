@@ -360,15 +360,29 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MOVE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, situation);
     break;
-  case K::DESTRUCTOR:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::RVALUE);
-    break;
   case K::DESTROY:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::DESTROY_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, situation);
+    break;
+  case K::DROP:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::DROP_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::INPLACE_DESTROY:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::INPLACE_DESTROY_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::INPLACE_INITIALIZE:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::INPLACE_INITIALIZE_OF:
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE, S::RVALUE);
     break;
 
   // SUBTYPE
@@ -432,23 +446,14 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::BINDING,
                                              S::RVALUE);
     break;
-  case K::DROP:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::DROP_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::DROP_EACH:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::DROP_EACH_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
   case K::FORWARD_RANGER:
     [[fallthrough]];
   case K::BACKWARD_RANGER:
     is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(
         situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::DESTRUCTOR:
+    is_ok = this->situateNaryStatementBranches(expression);
     break;
   case K::ENTRY:
     is_ok = this->situateNaryStatementBranches(expression);
@@ -1062,17 +1067,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXPERIMENTAL:
     [[fallthrough]];
-  case K::NO_COPY:
-    [[fallthrough]];
-  case K::MAY_COPY:
-    [[fallthrough]];
   case K::UNSTABLE_ADDRESS:
     [[fallthrough]];
   case K::STABLE_ADDRESS:
-    [[fallthrough]];
-  case K::IMPLICIT_DROP:
-    [[fallthrough]];
-  case K::EXPLICIT_DROP:
     [[fallthrough]];
   case K::NO_VARIADIC:
     [[fallthrough]];
@@ -1140,11 +1137,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::SUPPORT:
     [[fallthrough]];
-  case K::COPYABILITY:
-    [[fallthrough]];
   case K::ADDRESS_STABILITY:
-    [[fallthrough]];
-  case K::CLEANUP:
     [[fallthrough]];
   case K::VARIADICNESS:
     [[fallthrough]];

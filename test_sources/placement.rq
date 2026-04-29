@@ -11,30 +11,24 @@
 
 [template]::{Type:[symbol]<}
 [constrain]::(Type.[is_type])
-[may_move]
 [class UniquePtr,
     { [private] ptr:?\[var]Type <},
 
-    [public][inline] // function with \[initialize_inplace] signature must be inline
+    [public][inline]
+    [template]::{Placement:[symbol]<}
+    [constrain]::Placement.[is_placement_type Type]
     [function create, 
-        \[initialize_inplace]::$\[var]Type,
-        ()\[var]UniquePtr{Type},
+        (placement:Placement<)\[var]UniquePtr{Type},
+
         ptr := [c].malloc(Type.[byte_size]).[cast ?\[var]Type];
         [result] := UniquePtr{Type}(
                 ptr=ptr
             );   
-        [placement_initialize
-            ptr.[content]
-        ];
+        [this].ptr.[inplace_initialize placement.[invoke]];
     ];
 
-    [public][inline] // function with \[drop_inplace] signature must be inline
-    [method destroy, 
-        \[drop_inplace]::$\[var]Type,
-        ()[void]=>,
-        [placement_drop
-            ptr.[content]
-        ];
+    [destructor         
+        [this].ptr.[content].[inplace_destroy];
         [c].free([this].ptr);
         [this].[drop];
     ];
@@ -42,25 +36,17 @@
 ];
 
 [stable_address]
-[class NoAutoDrop,
+[class MyClass,
     { val:[single] <}
-    [public]
-    [method destroy(), ()[void]=>,
+
+    [destructor
         [this].[drop];
     ];
 ];
 
 [entry
-    uptr := 
-        ..UniquePtr{..NoAutoDrop}.create()
-            .[emplace 
-                [placement] := ..NoAutoDrop(3.14);
-            ];
-    [destructor uptr,
-        uptr.[move].destroy()
-            .[erase
-                [placement].[move].destroy();
-            ];
-    ];
+    uptr := ..UniquePtr{..NoAutoDrop}.create(
+            ..MyClass(3.14).[emplace]
+        );
     [result] := 0;
 ];

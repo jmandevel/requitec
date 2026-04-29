@@ -1,7 +1,8 @@
 [import "std"];
 
-[implicit_drop][may_copy]
-[class Foo, {> [public] string:@[utf8]="Hello, attribute!" <},];
+[class Foo, 
+    {> [public] string:@[utf8]="Hello, attribute!" <},
+];
 
 // NOTE: the compiler enforces that tuples can have only up to one unamed property for any given type.
 // if this rule is not followed, this results in a compiler error.

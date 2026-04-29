@@ -110,13 +110,21 @@ enum class Keyword : std::uint32_t {
   AT_OF,
   MOVE,
   MOVE_OF,
+  CALL,
   EMPLACE,
   EMPLACE_OF,
+  INVOKE,
+  INVOKE_OF,
   COMPOSE,
   COMPOSE_OF,
-  DESTRUCTOR,
   DESTROY,
   DESTROY_OF,
+  DROP,
+  DROP_OF,
+  INPLACE_DESTROY,
+  INPLACE_DESTROY_OF,
+  INPLACE_INITIALIZE,
+  INPLACE_INITIALIZE_OF,
 
   // SUBTYPE
   ARRAY,
@@ -136,16 +144,13 @@ enum class Keyword : std::uint32_t {
   INSTANTIATE_TEMPLATE,
 
   // PROCEDURES
-  CALL,
   NAMED_ARGUMENT,
   INSTANTIATE_SIGNATURE,
+  PLACEMENT,
   DEFAULT_VALUE_PARAMETER,
-  DROP,
-  DROP_OF,
-  DROP_EACH,
-  DROP_EACH_OF,
   FORWARD_RANGER,
   BACKWARD_RANGER,
+  DESTRUCTOR,
   ENTRY,
   FUNCTION,
   METHOD,
@@ -378,15 +383,9 @@ enum class Keyword : std::uint32_t {
   SUPPORTED, // default
   DEPRECIATED,
   EXPERIMENTAL,
-  // copyability
-  NO_COPY, // default
-  MAY_COPY,
   // address_stability
   UNSTABLE_ADDRESS, // default
   STABLE_ADDRESS,
-  // cleanup
-  IMPLICIT_DROP, // default
-  EXPLICIT_DROP,
   // varaidicness
   NO_VARIADIC, // default
   VARIADIC,
@@ -435,9 +434,7 @@ enum class Keyword : std::uint32_t {
   TEMPLATING,          // no_template vs template
   LIKELYHOOD,          // equivocal vs likely vs unlikely
   SUPPORT,             // supported vs depreciated vs experimental
-  COPYABILITY,         // no_copy vs may_copy
   ADDRESS_STABILITY,   // unstable_address vs stable_address
-  CLEANUP,             // explicit_drop vs implicit_drop
   VARIADICNESS,        // no_variadic vs variadic
   CONSTRAINT,          // no_constrain vs constrain
   WEIGHTING,           // default_weight vs weight
@@ -520,6 +517,8 @@ enum class Keyword : std::uint32_t {
   IS_TYPE_OF,
   IS_RANGE_TYPE,
   IS_RANGE_TYPE_OF,
+  IS_PLACEMENT_TYPE,
+  IS_PLACEMENT_TYPE_OF,
   IS_SIGNED_TYPE,
   IS_SIGNED_TYPE_OF,
   IS_UNSIGNED_TYPE,
@@ -703,16 +702,36 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "move";
   case K::MOVE_OF:
     return "_move_of";
+  case K::CALL:
+    return "_call";
+  case K::EMPLACE:
+    return "emplace";
+  case K::EMPLACE_OF:
+    return "_emplace_of";
+  case K::INVOKE:
+    return "invoke";
+  case K::INVOKE_OF:
+    return "_invoke_of";
   case K::COMPOSE:
     return "compose";
   case K::COMPOSE_OF:
     return "_compose_of";
-  case K::DESTRUCTOR:
-    return "destructor";
   case K::DESTROY:
     return "destroy";
   case K::DESTROY_OF:
     return "_destroy_of";
+  case K::DROP:
+    return "drop";
+  case K::DROP_OF:
+    return "_drop_of";
+  case K::INPLACE_DESTROY:
+    return "inplace_destroy";
+  case K::INPLACE_DESTROY_OF:
+    return "_inplace_destroy_of";
+  case K::INPLACE_INITIALIZE:
+    return "inplace_initialize";
+  case K::INPLACE_INITIALIZE_OF:
+    return "_inplace_initialize_of";
 
   // SUBTYPE
   case K::ARRAY:
@@ -743,26 +762,20 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_template";
 
   // PROCEDURES
-  case K::CALL:
-    return "_call";
   case K::NAMED_ARGUMENT:
     return "_named_argument";
   case K::INSTANTIATE_SIGNATURE:
     return "_instantiate_signature";
+  case K::PLACEMENT:
+    return "placement";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
-  case K::DROP:
-    return "drop";
-  case K::DROP_OF:
-    return "_drop_of";
-  case K::DROP_EACH:
-    return "drop_each";
-  case K::DROP_EACH_OF:
-    return "_drop_each_of";
   case K::FORWARD_RANGER:
     return "forward_ranger";
   case K::BACKWARD_RANGER:
     return "backward_ranger";
+  case K::DESTRUCTOR:
+    return "destructor";
   case K::ENTRY:
     return "entry";
   case K::FUNCTION:
@@ -1153,18 +1166,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "depreciated";
   case K::EXPERIMENTAL:
     return "experimental";
-  case K::MAY_COPY:
-    return "may_copy";
-  case K::NO_COPY:
-    return "no_copy";
   case K::STABLE_ADDRESS:
     return "stable_address";
   case K::UNSTABLE_ADDRESS:
     return "unstable_address";
-  case K::IMPLICIT_DROP:
-    return "implicit_drop";
-  case K::EXPLICIT_DROP:
-    return "explicit_drop";
   case K::NO_VARIADIC:
     return "no_variadic";
   case K::VARIADIC:
@@ -1239,12 +1244,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "likelyhood";
   case K::SUPPORT:
     return "support";
-  case K::COPYABILITY:
-    return "copyability";
   case K::ADDRESS_STABILITY:
     return "address_stability";
-  case K::CLEANUP:
-    return "cleanup";
   case K::VARIADICNESS:
     return "variadicness";
   case K::CONSTRAINT:
@@ -1399,6 +1400,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_range_type";
   case K::IS_RANGE_TYPE_OF:
     return "_is_range_type_of";
+  case K::IS_PLACEMENT_TYPE:
+    return "is_placement_type";
+  case K::IS_PLACEMENT_TYPE_OF:
+    return "_is_placement_type_of";
   case K::IS_SIGNED_TYPE:
     return "is_signed_type";
   case K::IS_SIGNED_TYPE_OF:
@@ -1648,15 +1653,35 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::MOVE_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::CALL:
+    return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
+  case K::EMPLACE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::EMPLACE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::INVOKE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::INVOKE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::COMPOSE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::COMPOSE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::DESTRUCTOR:
-    return KF::STATEMENT | KF::STATEMENT_BRANCHES;
   case K::DESTROY:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DESTROY_OF:
+    return KF::STATEMENT;
+  case K::DROP:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::DROP_OF:
+    return KF::STATEMENT;
+  case K::INPLACE_DESTROY:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::INPLACE_DESTROY_OF:
+    return KF::STATEMENT;
+  case K::INPLACE_INITIALIZE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::INPLACE_INITIALIZE_OF:
     return KF::STATEMENT;
 
   // SUBTYPE
@@ -1688,26 +1713,20 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // PROCEDURES
-  case K::CALL:
-    return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::NAMED_ARGUMENT:
     return KF::ARGUMENT;
   case K::INSTANTIATE_SIGNATURE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::PLACEMENT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
-  case K::DROP:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::DROP_OF:
-    return KF::STATEMENT;
-  case K::DROP_EACH:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::DROP_EACH_OF:
-    return KF::RVALUE;
   case K::FORWARD_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::BACKWARD_RANGER:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+  case K::DESTRUCTOR:
+    return KF::STATEMENT | KF::STATEMENT_BRANCHES;
   case K::ENTRY:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::FUNCTION:
@@ -2105,17 +2124,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPERIMENTAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::MAY_COPY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_COPY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STABLE_ADDRESS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNSTABLE_ADDRESS:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::IMPLICIT_DROP:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EXPLICIT_DROP:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_VARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2191,11 +2202,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::SUPPORT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::COPYABILITY:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ADDRESS_STABILITY:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CLEANUP:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VARIADICNESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2355,6 +2362,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::IS_RANGE_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IS_RANGE_TYPE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::IS_PLACEMENT_TYPE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::IS_PLACEMENT_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::IS_SIGNED_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -2674,11 +2685,12 @@ getDescription(rq::Situation situation) {
     return K::COMPOSE_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
-  // PROCEDURES
   case K::DROP:
     return K::DROP_OF;
-  case K::DROP_EACH:
-    return K::DROP_EACH_OF;
+  case K::INPLACE_DESTROY:
+    return K::INPLACE_DESTROY_OF;
+  case K::INPLACE_INITIALIZE:
+    return K::INPLACE_INITIALIZE_OF;
   // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;
@@ -2736,6 +2748,8 @@ getDescription(rq::Situation situation) {
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:
     return K::IS_RANGE_TYPE_OF;
+  case K::IS_PLACEMENT_TYPE:
+    return K::IS_PLACEMENT_TYPE_OF;
   case K::IS_SIGNED_TYPE:
     return K::IS_SIGNED_TYPE_OF;
   case K::IS_UNSIGNED_TYPE:
@@ -2964,12 +2978,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  NO_COPY,
-  MAY_COPY,
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  EXPLICIT_DROP,
-  IMPLICIT_DROP,
   NO_VARIADIC,
   VARIADIC,
   NO_CONSTRAIN,
@@ -3054,18 +3064,10 @@ getName(rq::ExpressionAttribute attribute) {
     return "depreciated";
   case EA::EXPERIMENTAL:
     return "experimental";
-  case EA::NO_COPY:
-    return "no_copy";
-  case EA::MAY_COPY:
-    return "may_copy";
   case EA::UNSTABLE_ADDRESS:
     return "unstable_address";
   case EA::STABLE_ADDRESS:
     return "stable_address";
-  case EA::EXPLICIT_DROP:
-    return "explicit_drop";
-  case EA::IMPLICIT_DROP:
-    return "implicit_drop";
   case EA::NO_VARIADIC:
     return "no_variadic";
   case EA::VARIADIC:
@@ -3156,18 +3158,10 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::DEPRECIATED;
   case K::EXPERIMENTAL:
     return EA::EXPERIMENTAL;
-  case K::MAY_COPY:
-    return EA::MAY_COPY;
-  case K::NO_COPY:
-    return EA::NO_COPY;
   case K::STABLE_ADDRESS:
     return EA::STABLE_ADDRESS;
   case K::UNSTABLE_ADDRESS:
     return EA::UNSTABLE_ADDRESS;
-  case K::EXPLICIT_DROP:
-    return EA::EXPLICIT_DROP;
-  case K::IMPLICIT_DROP:
-    return EA::IMPLICIT_DROP;
   case K::NO_VARIADIC:
     return EA::NO_VARIADIC;
   case K::VARIADIC:
@@ -3251,29 +3245,21 @@ enum class ExpressionFlags : std::uint64_t {
   DEPRECIATED = rq::getBit(17),
   EXPERIMENTAL = rq::getBit(18),
 
-  // copyability
-  // no_copy (default)
-  MAY_COPY = rq::getBit(19),
-
   // address_stability
   // unstable_address (default)
-  STABLE_ADDRESS = rq::getBit(20),
-
-  // cleanup
-  // implicit_drop (default)
-  EXPLICIT_DROP = rq::getBit(21),
+  STABLE_ADDRESS = rq::getBit(19),
 
   // variadicness
   // no_variadic (default)
-  VARIADIC = rq::getBit(22),
+  VARIADIC = rq::getBit(20),
 
   // constraint
   // NO_CONSTRAIN (default)
-  CONSTRAIN = rq::getBit(23),
+  CONSTRAIN = rq::getBit(21),
 
   // weighting
   //  DEFAULT_WEIGHT (default)
-  WEIGHT = rq::getBit(24),
+  WEIGHT = rq::getBit(22),
 
   NO_LABEL_NONE_MASK = LABEL,             // no_label vs label
   TRANSPARENT_NONE_MASK = OPAQUE,         // transparent vs opaque
@@ -3294,10 +3280,8 @@ enum class ExpressionFlags : std::uint64_t {
   EQUIVOCAL_NONE_MASK = LIKELY | UNLIKELY, // equivocal vs likely vs unlikely
   SUPPORTED_NONE_MASK =
       DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
-  NO_COPY_NONE_MASK = MAY_COPY,   // no_copy vs may_copy
   UNSTABLE_ADDRESS_NONE_MASK =
       STABLE_ADDRESS,                      // unstable_address vs stable_address
-  IMPLICIT_DROP_NONE_MASK = EXPLICIT_DROP, // implicit_drop vs explicit_drop
   NO_VARIADIC_NONE_MASK = VARIADIC,        // no_variadic vs variadic
   NO_CONSTRAIN_NONE_MASK = CONSTRAIN,      // no_constrain vs constrain
   DEFAULT_WEIGHT_NONE_MASK = WEIGHT        // default_weight vs weight
@@ -3414,23 +3398,11 @@ getFlags(rq::ExpressionAttribute attribute) {
   case EA::EXPERIMENTAL:
     return EF::EXPERIMENTAL;
 
-  // copyability
-  case EA::NO_COPY:
-    return EF::NONE;
-  case EA::MAY_COPY:
-    return EF::MAY_COPY;
-
   // address_stability
   case EA::UNSTABLE_ADDRESS:
     return EF::NONE;
   case EA::STABLE_ADDRESS:
     return EF::STABLE_ADDRESS;
-
-  // cleanup
-  case EA::IMPLICIT_DROP:
-    return EF::NONE;
-  case EA::EXPLICIT_DROP:
-    return EF::EXPLICIT_DROP;
 
   // variadicness
   case EA::NO_VARIADIC:
@@ -3622,15 +3594,6 @@ getHasExperimental(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::EXPERIMENTAL);
 }
 
-// copyability
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCopy(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::NO_COPY_NONE_MASK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::MAY_COPY);
-}
-
 // address_stability
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasUnstableAddress(rq::ExpressionFlags flags) {
@@ -3640,17 +3603,6 @@ getHasUnstableAddress(rq::ExpressionFlags flags) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasStableAddress(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::STABLE_ADDRESS);
-}
-
-// cleanup
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasImplicitDrop(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::IMPLICIT_DROP_NONE_MASK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasExplicitDrop(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::EXPLICIT_DROP);
 }
 
 // variadicness
@@ -3707,9 +3659,7 @@ enum class ExpressionAttributeKind {
   TEMPLATING,
   LIKELYHOOD,
   SUPPORT,
-  COPYABILITY,
   ADDRESS_STABILITY,
-  CLEANUP,
   VARIADICNESS,
   CONSTRAINT,
   WEIGHTING
@@ -3720,6 +3670,8 @@ enum class ExpressionAttributeKind {
   switch (kind) {
     case EAK::NONE:
       return "none";
+    case EAK::LABELING:
+      return "labeling";
     case EAK::VISIBILITY:
       return "visibility";
     case EAK::SCOPING:
@@ -3750,12 +3702,8 @@ enum class ExpressionAttributeKind {
       return "likelyhood";
     case EAK::SUPPORT:
       return "support";
-    case EAK::COPYABILITY:
-      return "copyability";
     case EAK::ADDRESS_STABILITY:
       return "address_stability";
-    case EAK::CLEANUP:
-      return "cleanup";
     case EAK::VARIADICNESS:
       return "variadicness";
     case EAK::CONSTRAINT:
@@ -4161,7 +4109,6 @@ getTypeAttributeKind(rq::TypeAttribute attribute) {
 
 [[nodiscard]] inline bool getIsTypeAttributeKind(rq::TypeAttribute attribute,
                                                  rq::TypeAttributeKind kind) {
-  using TA = rq::TypeAttribute;
   using TAK = rq::TypeAttributeKind;
   switch (kind) {
   case TAK::NONE:

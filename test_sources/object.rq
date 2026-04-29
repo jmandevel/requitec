@@ -1,6 +1,5 @@
 [import "std"];
 
-[implicit_drop][may_copy]
 [class MyClass,
     {>
         [public] x : [fast_signed_integer 32] = 0,

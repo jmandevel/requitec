@@ -1,30 +1,10 @@
 [import "std"];
 
-[may_copy][implicit_drop]
-[class MyClass,
-
-  [public]
-  [method destroy, ()[void]=>\[var],
-    // explicit drop without destroy
-    [this].[drop];
-
-    // NOTE: .[drop] reflection only usable in member functions and methods.
-  ];
-
-];
+[class MyClass,];
 
 // This class has stable_address attribute, so it cannnot be moved to a new memory address
-// Also it does not have auto_drop attribute, so it must be manually dropped
-[may_copy][stable_address]
-[class MyPinned,
-  [public]
-  [method destroy, ()[void]=>\[var],
-    // explicit drop without destroy
-    [this].[drop];
-
-    // NOTE: .[drop] reflection only usable in member functions and methods.
-  ];
-];
+[stable_address]
+[class MyPinned,];
 
 [entry
   class :\[var]= ..MyClass();
@@ -36,12 +16,9 @@
   copy_value_at_pointer := pointer.[content];
   non_destructive_move := class.\[var][borrow]->..std.extract();
   destructive_move := class.[move];
-  // class was dropped
-  destructive_move.[move].destroy(); // linear assign into destructor method
-  // non_destructive_move is auto dropped here
+  // class was dropped because it was moved out of
   pinned :\[var]= ..MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has stable_address attribute
-  pinned.[move].destroy(); // this move is valid because the memory location does not change
 
   [result] := 0;
 ];

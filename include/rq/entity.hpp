@@ -60,9 +60,7 @@ enum class Opcode {
   SY_TEMPLATING,
   SY_LIKELYHOOD,
   SY_SUPPORT,
-  SY_COPYABILITY,
   SY_ADDRESS_STABILITY,
-  SY_CLEANUP,
   SY_VARIADICNESS,
 
   // TYPE ATTRIBUTES
@@ -139,7 +137,8 @@ enum class Opcode {
   SY_SIGNATURE,
   SY_LAYOUT,
 
-  // LABELS
+  // PLACEMENTS
+  SY_PLACEMENT,
 
   // COMPOSITIONS
   SY_COMPOSITION,
@@ -174,6 +173,9 @@ enum class Opcode {
   // RANGERS => global declaration => symbol table
   SY_FORWARD_RANGER,
   SY_BACKWARD_RANGER,
+
+  // DESTRUCTOR => global declaration
+  SY_DESTRUCTOR,
 
   // PROCEDURES => global declaration => symbol table
   SY_ENTRY,
@@ -272,9 +274,7 @@ enum class OpcodeFlags : std::uint64_t {
   // SY_HAS_TEMPLATING, all(GLOBAL_DECLARATION) && none(NAMESPACE | TEMPLATE)
   // SY_HAS_LIKELYHOOD, SCOPE
   // SY_HAS_SUPPORT, GLOBAL_DECLARATION
-  // SY_HAS_COPYABILITY, CLASS
   // SY_HAS_ADDRESS_STABILITY, CLASS
-  // SY_HAS_CLEANUP, CLASS
   // SY_HAS_VARIADICNESS, PARAMETERS
   // SY_HAS_CONTRAINT, TEMPLATES
   // SY_HAS_WEIGHTING, TEMPLATES
@@ -329,9 +329,7 @@ getIsExpressionAttributeType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplating(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikelyhood(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupport(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCopyability(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressStability(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCleanup(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadicness(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraint(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeighting(rq::Opcode opcode);
@@ -384,9 +382,7 @@ struct Entity;
         struct TemplatingType;
         struct LikelyhoodType;
         struct SupportType;
-        struct CopyabilityType;
         struct AddressStabilityType;
-        struct CleanupType;
         struct VariadicnessType;
       struct TypeAttributeType;
         struct VariabilityType;
@@ -445,6 +441,7 @@ struct Entity;
     struct ParameterList;
       struct Signature;
       struct Layout;
+    struct Placement;
     struct Composition;
     struct Synonym;
     struct Polymorph;
@@ -470,6 +467,7 @@ struct Entity;
         struct Ranger;
           struct ForwardRanger;
           struct BackwardRanger;
+        struct Destructor;
         struct Procedure;
           struct Entry;
           struct Function;
@@ -550,9 +548,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplating() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikelyhood() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupport() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCopyability() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressStability() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCleanup() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadicness() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraint() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeighting() const;
@@ -871,14 +867,6 @@ struct SupportType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct CopyabilityType final : public rq::ExpressionAttributeType {
-  using Self = rq::CopyabilityType;
-
-  explicit RQ_ALWAYS_INLINE CopyabilityType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
 struct AddressStabilityType final : public rq::ExpressionAttributeType {
   using Self = rq::AddressStabilityType;
 
@@ -887,13 +875,6 @@ struct AddressStabilityType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct CleanupType final : public rq::ExpressionAttributeType {
-  using Self = rq::CleanupType;
-
-  explicit RQ_ALWAYS_INLINE CleanupType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
 
 struct VariadicnessType final : public rq::ExpressionAttributeType {
   using Self = rq::VariadicnessType;
@@ -1660,7 +1641,21 @@ struct Layout final : public rq::ParameterList {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct Composition final : public rq::SimpleSymbol {
+struct Placement final : public rq::Symbol {
+  using Self = rq::Placement;
+
+  rq::Procedure *_procedure_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  Placement(rq::Procedure& procedure);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure& getProcedure() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure& getProcedure();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+
+struct Composition final : public rq::Symbol {
   using Self = rq::Composition;
 
   rq::BumpPtrList<rq::Interface> _interface_list{};
@@ -2102,6 +2097,21 @@ struct BackwardRanger final : public rq::Ranger {
   using Self = rq::BackwardRanger;
 
   explicit RQ_ALWAYS_INLINE BackwardRanger();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Destructor final : public rq::GlobalDeclaration {
+  using Self = rq::Destructor;
+
+  rq::Instruction *_instruction_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Destructor();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const;
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };

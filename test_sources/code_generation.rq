@@ -6,7 +6,6 @@
     varname :\[var]= ..std.format(text="VAR" +> num);
     [outside_scope]::Loop[global]
     varname.[identify] :\[var]= index;
-    varname.[move].destroy(); // could also use a destructor. look at drop_and_destroy.rq
 ];
 
 [entry
@@ -15,7 +14,6 @@
         [static]
         varname :\[var]= ..std.format(text="VAR" +> num);
         ..std.print(line=varname.[borrow] +> " is " +> ..varname.[identify] +> "!");  
-        varname.[move].destroy();      
     ];
 
     [result] := 0;
