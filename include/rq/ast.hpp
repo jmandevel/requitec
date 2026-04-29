@@ -347,7 +347,6 @@ enum class Keyword : std::uint32_t {
   // accessibility
   PRIVATE, // default
   PUBLIC,
-  PROTECTED,
   // property mutability
   NO_PARTIAL_MUTATE, // default
   PARTIAL_MUTATE,
@@ -422,7 +421,7 @@ enum class Keyword : std::uint32_t {
   VISIBILITY,          // transparent vs opaque
   SCOPING,             // inside_scope vs outside_scope
   AVAILABILITY,        // local vs global
-  ACCESSIBILITY,       // private vs public vs protected
+  ACCESSIBILITY,       // private vs public
   PROPERTY_MUTABILITY, // no_partial_mutate vs partial_mutate
   EXPORTING,           // no_export vs export
   GENERATION_TIME,     // dynamic vs static
@@ -441,7 +440,7 @@ enum class Keyword : std::uint32_t {
 
   // TYPE ATTRIBUTE TYPES
   VARIABILITY,      // no_var vs var vs prtially_var
-  VOLATILITY,       // no_volatile vs volatile 
+  VOLATILITY,       // no_volatile vs volatile
   ATOMICITY,        // no_atomic vs atomic
   NULL_TERMINATION, // no_null_terminate vs null_terminate
   PRECONDITION,     // no_require vs require
@@ -1114,8 +1113,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "public";
   case K::PRIVATE:
     return "private";
-  case K::PROTECTED:
-    return "protected";
   case K::NO_PARTIAL_MUTATE:
     return "no_partial_mutate";
   case K::PARTIAL_MUTATE:
@@ -2070,8 +2067,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PRIVATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PROTECTED:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARTIAL_MUTATE:
@@ -2952,7 +2947,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   GLOBAL,
   PRIVATE,
   PUBLIC,
-  PROTECTED,
   NO_PARTIAL_MUTATE,
   PARTIAL_MUTATE,
   NO_EXPORT,
@@ -3012,8 +3006,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "private";
   case EA::PUBLIC:
     return "public";
-  case EA::PROTECTED:
-    return "protected";
   case EA::NO_PARTIAL_MUTATE:
     return "no_partial_mutate";
   case EA::PARTIAL_MUTATE:
@@ -3110,8 +3102,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::PUBLIC;
   case K::PRIVATE:
     return EA::PRIVATE;
-  case K::PROTECTED:
-    return EA::PROTECTED;
   case K::EXPORT:
     return EA::EXPORT;
   case K::NO_EXPORT:
@@ -3197,75 +3187,74 @@ enum class ExpressionFlags : std::uint64_t {
   // accessibility
   // private (default)
   PUBLIC = rq::getBit(4),
-  PROTECTED = rq::getBit(5),
 
   // property mutability
   // no_partial_mutate (default)
-  PARTIAL_MUTATE = rq::getBit(6),
+  PARTIAL_MUTATE = rq::getBit(5),
 
   // exporting
   // no_export (default)
-  EXPORT = rq::getBit(7),
+  EXPORT = rq::getBit(6),
 
   // generation_time
   // dynamic (default)
-  STATIC = rq::getBit(8),
+  STATIC = rq::getBit(7),
 
   // capturing
   // no_capture (default)
-  CAPTURE = rq::getBit(9),
+  CAPTURE = rq::getBit(8),
 
   // evaluation_time
   // lazy (default)
-  EAGER = rq::getBit(10),
+  EAGER = rq::getBit(9),
 
   // inlining
   // no_inline (default)
-  INLINE = rq::getBit(11),
+  INLINE = rq::getBit(10),
 
   // mangling
   // implicit_mangle (default)
-  EXPLICIT_MANGLE = rq::getBit(12),
+  EXPLICIT_MANGLE = rq::getBit(11),
 
   // packing
   // no_pack (default)
-  PACK = rq::getBit(13),
+  PACK = rq::getBit(12),
 
   // templating
   // no_template (default)
-  TEMPLATE = rq::getBit(14),
+  TEMPLATE = rq::getBit(13),
 
   // likelihood
   // equivocal (default)
-  LIKELY = rq::getBit(15),
-  UNLIKELY = rq::getBit(16),
+  LIKELY = rq::getBit(14),
+  UNLIKELY = rq::getBit(15),
 
   // support
   // supported (default)
-  DEPRECIATED = rq::getBit(17),
-  EXPERIMENTAL = rq::getBit(18),
+  DEPRECIATED = rq::getBit(16),
+  EXPERIMENTAL = rq::getBit(17),
 
   // address_stability
   // unstable_address (default)
-  STABLE_ADDRESS = rq::getBit(19),
+  STABLE_ADDRESS = rq::getBit(18),
 
   // variadicness
   // no_variadic (default)
-  VARIADIC = rq::getBit(20),
+  VARIADIC = rq::getBit(19),
 
   // constraint
   // NO_CONSTRAIN (default)
-  CONSTRAIN = rq::getBit(21),
+  CONSTRAIN = rq::getBit(20),
 
   // weighting
   //  DEFAULT_WEIGHT (default)
-  WEIGHT = rq::getBit(22),
+  WEIGHT = rq::getBit(21),
 
   NO_LABEL_NONE_MASK = LABEL,             // no_label vs label
   TRANSPARENT_NONE_MASK = OPAQUE,         // transparent vs opaque
   INSIDE_SCOPE_NONE_MASK = OUTSIDE_SCOPE, // inside_scope vs outside_scope
   LOCAL_NONE_MASK = GLOBAL,               // local vs global
-  PRIVATE_NONE_MASK = PUBLIC | PROTECTED, // private vs public vs protected
+  PRIVATE_NONE_MASK = PUBLIC,             // private vs public
   NO_PARTIAL_MUTATE_NONE_MASK =
       PARTIAL_MUTATE,             // no_partial_mutate vs partial_mutate
   NO_EXPORT_NONE_MASK = EXPORT,   // no_export vs export
@@ -3281,10 +3270,10 @@ enum class ExpressionFlags : std::uint64_t {
   SUPPORTED_NONE_MASK =
       DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
   UNSTABLE_ADDRESS_NONE_MASK =
-      STABLE_ADDRESS,                      // unstable_address vs stable_address
-  NO_VARIADIC_NONE_MASK = VARIADIC,        // no_variadic vs variadic
-  NO_CONSTRAIN_NONE_MASK = CONSTRAIN,      // no_constrain vs constrain
-  DEFAULT_WEIGHT_NONE_MASK = WEIGHT        // default_weight vs weight
+      STABLE_ADDRESS,                 // unstable_address vs stable_address
+  NO_VARIADIC_NONE_MASK = VARIADIC,   // no_variadic vs variadic
+  NO_CONSTRAIN_NONE_MASK = CONSTRAIN, // no_constrain vs constrain
+  DEFAULT_WEIGHT_NONE_MASK = WEIGHT   // default_weight vs weight
 };
 
 template <> struct is_flags<rq::ExpressionFlags> : std::true_type {};
@@ -3325,8 +3314,6 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::PUBLIC:
     return EF::PUBLIC;
-  case EA::PROTECTED:
-    return EF::PROTECTED;
 
   // property mutability
   case EA::NO_PARTIAL_MUTATE:
@@ -3476,14 +3463,11 @@ getHasOutsideScope(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::PUBLIC);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasProtected(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::PROTECTED);
-}
-
 // property mutability
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasNoPartialMutate(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::NO_PARTIAL_MUTATE_NONE_MASK);
+  return rq::getHasNone(flags,
+                        rq::ExpressionFlags::NO_PARTIAL_MUTATE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3641,7 +3625,7 @@ getHasAttribute(rq::ExpressionFlags flags, rq::ExpressionAttribute attribute) {
   return rq::getHasAll(flags, attribute_flags);
 }
 
-enum class ExpressionAttributeKind { 
+enum class ExpressionAttributeKind {
   NONE,
   LABELING,
   VISIBILITY,
@@ -3668,48 +3652,143 @@ enum class ExpressionAttributeKind {
 [[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
   using EAK = rq::ExpressionAttributeKind;
   switch (kind) {
-    case EAK::NONE:
-      return "none";
-    case EAK::LABELING:
-      return "labeling";
-    case EAK::VISIBILITY:
-      return "visibility";
-    case EAK::SCOPING:
-      return "scoping";
-    case EAK::AVAILABILITY:
-      return "availability";
-    case EAK::ACCESSIBILITY:
-      return "accessibility";
-    case EAK::PROPERTY_MUTABILITY:
-      return "property_mutability";
-    case EAK::EXPORTING:
-      return "exporting";
-    case EAK::GENERATION_TIME:
-      return "generation_time";
-    case EAK::CAPTURING:
-      return "capturing";
-    case EAK::EVALUATION_TIME:
-      return "evaluation_time";
-    case EAK::INLINING:
-      return "inlinling";
-    case EAK::MANGLING:
-      return "mangling";
-    case EAK::PACKING:
-      return "packing";
-    case EAK::TEMPLATING:
-      return "templating";
-    case EAK::LIKELYHOOD:
-      return "likelyhood";
-    case EAK::SUPPORT:
-      return "support";
-    case EAK::ADDRESS_STABILITY:
-      return "address_stability";
-    case EAK::VARIADICNESS:
-      return "variadicness";
-    case EAK::CONSTRAINT:
-      return "constraint";
-    case EAK::WEIGHTING:
-      return "weighting";
+  case EAK::NONE:
+    return "none";
+  case EAK::LABELING:
+    return "labeling";
+  case EAK::VISIBILITY:
+    return "visibility";
+  case EAK::SCOPING:
+    return "scoping";
+  case EAK::AVAILABILITY:
+    return "availability";
+  case EAK::ACCESSIBILITY:
+    return "accessibility";
+  case EAK::PROPERTY_MUTABILITY:
+    return "property_mutability";
+  case EAK::EXPORTING:
+    return "exporting";
+  case EAK::GENERATION_TIME:
+    return "generation_time";
+  case EAK::CAPTURING:
+    return "capturing";
+  case EAK::EVALUATION_TIME:
+    return "evaluation_time";
+  case EAK::INLINING:
+    return "inlinling";
+  case EAK::MANGLING:
+    return "mangling";
+  case EAK::PACKING:
+    return "packing";
+  case EAK::TEMPLATING:
+    return "templating";
+  case EAK::LIKELYHOOD:
+    return "likelyhood";
+  case EAK::SUPPORT:
+    return "support";
+  case EAK::ADDRESS_STABILITY:
+    return "address_stability";
+  case EAK::VARIADICNESS:
+    return "variadicness";
+  case EAK::CONSTRAINT:
+    return "constraint";
+  case EAK::WEIGHTING:
+    return "weighting";
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::ExpressionAttributeKind
+getKind(rq::ExpressionAttribute attribute) {
+  using EA = rq::ExpressionAttribute;
+  using EAK = rq::ExpressionAttributeKind;
+  switch (attribute) {
+  case EA::NONE:
+    return EAK::NONE;
+  case EA::TRANSPARENT:
+    [[fallthrough]];
+  case EA::OPAQUE:
+    return EAK::VISIBILITY;
+  case EA::INSIDE_SCOPE:
+    [[fallthrough]];
+  case EA::OUTSIDE_SCOPE:
+    return EAK::SCOPING;
+  case EA::LOCAL:
+    [[fallthrough]];
+  case EA::GLOBAL:
+    return EAK::AVAILABILITY;
+  case EA::PRIVATE:
+    [[fallthrough]];
+  case EA::PUBLIC:
+    return EAK::ACCESSIBILITY;
+  case EA::NO_PARTIAL_MUTATE:
+    return EAK::PROPERTY_MUTABILITY;
+  case EA::PARTIAL_MUTATE:
+    return EAK::PROPERTY_MUTABILITY;
+  case EA::NO_EXPORT:
+    [[fallthrough]];
+  case EA::EXPORT:
+    return EAK::EXPORTING;
+  case EA::DYNAMIC:
+    [[fallthrough]];
+  case EA::STATIC:
+    return EAK::GENERATION_TIME;
+  case EA::NO_CAPTURE:
+    [[fallthrough]];
+  case EA::CAPTURE:
+    return EAK::CAPTURING;
+  case EA::LAZY:
+    [[fallthrough]];
+  case EA::EAGER:
+    return EAK::EVALUATION_TIME;
+  case EA::NO_INLINE:
+    [[fallthrough]];
+  case EA::INLINE:
+    return EAK::INLINING;
+  case EA::IMPLICIT_MANGLE:
+    [[fallthrough]];
+  case EA::EXPLICIT_MANGLE:
+    return EAK::MANGLING;
+  case EA::NO_PACK:
+    [[fallthrough]];
+  case EA::PACK:
+    return EAK::PACKING;
+  case EA::LABEL:
+    return EAK::LABELING;
+  case EA::NO_TEMPLATE:
+    [[fallthrough]];
+  case EA::TEMPLATE:
+    return EAK::TEMPLATING;
+  case EA::EQUIVOCAL:
+    [[fallthrough]];
+  case EA::LIKELY:
+    [[fallthrough]];
+  case EA::UNLIKELY:
+    return EAK::LIKELYHOOD;
+  case EA::SUPPORTED:
+    [[fallthrough]];
+  case EA::DEPRECIATED:
+    [[fallthrough]];
+  case EA::EXPERIMENTAL:
+    return EAK::SUPPORT;
+  case EA::UNSTABLE_ADDRESS:
+    [[fallthrough]];
+  case EA::STABLE_ADDRESS:
+    return EAK::ADDRESS_STABILITY;
+  case EA::NO_VARIADIC:
+    [[fallthrough]];
+  case EA::VARIADIC:
+    return EAK::VARIADICNESS;
+  case EA::NO_CONSTRAIN:
+    [[fallthrough]];
+  case EA::CONSTRAIN:
+    return EAK::CONSTRAINT;
+  case EA::DEFAULT_WEIGHT:
+    [[fallthrough]];
+  case EA::WEIGHT:
+    return EAK::WEIGHTING;
+  case EA::LAST:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -3953,92 +4032,6 @@ getHaswValidVariability(rq::TypeFlags flags) {
   return true;
 }
 
-enum class TypeAttributeFlags : std::uint_fast8_t {
-  NONE = 0,
-
-  VARIABILITY = rq::getBit(0),
-  VOLATILITY = rq::getBit(1),
-  ATOMICITY = rq::getBit(2),
-  NULL_TERMINATION = rq::getBit(3),
-  PRECONDITION = rq::getBit(4),
-  POSTCONDITION = rq::getBit(5)
-};
-
-template <> struct is_flags<TypeAttributeFlags> : std::true_type {};
-
-[[nodiscard]] inline rq::TypeAttributeFlags
-getFlags(rq::TypeAttribute attribute) {
-  using TA = rq::TypeAttribute;
-  using TAF = rq::TypeAttributeFlags;
-  switch (attribute) {
-  case TA::NONE:
-    return TAF::NONE;
-  case TA::NO_VAR:
-    return TAF::VARIABILITY;
-  case TA::VAR:
-    return TAF::VARIABILITY;
-  case TA::PARTIALLY_VAR:
-    return TAF::VARIABILITY;
-  case TA::NO_VOLATILE:
-    return TAF::VOLATILITY;
-  case TA::VOLATILE:
-    return TAF::VOLATILITY;
-  case TA::NO_ATOMIC:
-    return TAF::ATOMICITY;
-  case TA::ATOMIC:
-    return TAF::ATOMICITY;
-  case TA::NO_NULL_TERMINATE:
-    return TAF::NULL_TERMINATION;
-  case TA::NULL_TERMINATE:
-    return TAF::NULL_TERMINATION;
-  case TA::NO_REQUIRE:
-    return TAF::PRECONDITION;
-  case TA::REQUIRE:
-    return TAF::PRECONDITION;
-  case TA::NO_ENSURE:
-    return TAF::POSTCONDITION;
-  case TA::ENSURE:
-    return TAF::POSTCONDITION;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsVariability(rq::TypeAttribute attribute) {
-  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::VARIABILITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsVolatility(rq::TypeAttribute attribute) {
-  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsAtomicity(rq::TypeAttribute attribute) {
-  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMICITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsNullTermination(rq::TypeAttribute attribute) {
-  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPrecondition(rq::TypeAttribute attribute) {
-  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::PRECONDITION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPostcondition(rq::TypeAttribute attribute) {
-  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
-  return rq::getHasAll(flags, rq::TypeAttributeFlags::POSTCONDITION);
-}
-
 enum class TypeAttributeKind {
   NONE,
   VARIABILITY,
@@ -4071,7 +4064,7 @@ enum class TypeAttributeKind {
 }
 
 [[nodiscard]] inline rq::TypeAttributeKind
-getTypeAttributeKind(rq::TypeAttribute attribute) {
+getKind(rq::TypeAttribute attribute) {
   using TA = rq::TypeAttribute;
   using TAK = rq::TypeAttributeKind;
   switch (attribute) {
@@ -4103,28 +4096,6 @@ getTypeAttributeKind(rq::TypeAttribute attribute) {
     [[fallthrough]];
   case TA::ENSURE:
     return TAK::POSTCONDITION;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline bool getIsTypeAttributeKind(rq::TypeAttribute attribute,
-                                                 rq::TypeAttributeKind kind) {
-  using TAK = rq::TypeAttributeKind;
-  switch (kind) {
-  case TAK::NONE:
-    return false;
-  case TAK::VARIABILITY:
-    return rq::getIsVariability(attribute);
-  case TAK::VOLATILITY:
-    return rq::getIsVolatility(attribute);
-  case TAK::ATOMICITY:
-    return rq::getIsAtomicity(attribute);
-  case TAK::NULL_TERMINATION:
-    return rq::getIsNullTermination(attribute);
-  case TAK::PRECONDITION:
-    return rq::getIsPrecondition(attribute);
-  case TAK::POSTCONDITION:
-    return rq::getIsPostcondition(attribute);
   }
   RQ_UNREACHABLE();
 }
