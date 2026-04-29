@@ -389,13 +389,13 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NAMED_PARAMETERS_BEGIN:
     [[fallthrough]];
-  case K::UNSETTABLE_PARAMETERS_BEGIN:
+  case K::LOCKED_PARAMETERS_BEGIN:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
   // BRACES
-  case K::TUPLE:
-    if (situation == S::LAYOUT && !expression.getHasBranch()) {
+  case K::INSTANTIATE_TUPLE:
+    if (situation == S::RVALUE && !expression.getHasBranch()) {
       expression.changeKeyword(K::INSTANTIATE_LAYOUT);
       is_ok = true;
       break;
@@ -487,7 +487,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch2 = branch1.getNext();
-    if (!this->situateHeaderBranch(S::SIGNATURE, branch2)) {
+    if (!this->situateHeaderBranch(S::RVALUE, branch2)) {
       is_ok = false;
     }
     for (rq::Expression &branch : branch2.getNextSubrange()) {
@@ -508,7 +508,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::IMPLEMENT_EXTENSION_METHOD:
     is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::SIGNATURE);
+        situation, expression, S::RVALUE, S::RVALUE);
     break;
 
   // CONTROL FLOW
@@ -553,7 +553,7 @@ bool Situator::situateTree(rq::Situation situation,
           is_ok = false;
         } else {
           found_layout_header = true;
-          if (!this->situateHeaderBranch(S::LAYOUT, branch)) {
+          if (!this->situateHeaderBranch(S::RVALUE, branch)) {
             is_ok = false;
           }
         }
@@ -713,38 +713,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INITIALIZE_VARIADIC_ARGUMENTS:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
-
-  // CONSTRAINTS
-  case K::TYPE_CONSTRAINT:
-    [[fallthrough]];
-  case K::RANGE_CONSTRAINT:
-    [[fallthrough]];
-  case K::NUMERIC_CONSTRAINT:
-    [[fallthrough]];
-  case K::SIGNED_CONSTRAINT:
-    [[fallthrough]];
-  case K::UNSIGNED_CONSTRAINT:
-    [[fallthrough]];
-  case K::INTEGER_CONSTRAINT:
-    [[fallthrough]];
-  case K::SIGNED_INTEGER_CONSTRAINT:
-    [[fallthrough]];
-  case K::UNSIGNED_INTEGER_CONSTRAINT:
-    [[fallthrough]];
-  case K::FLOAT_CONSTRAINT:
-    [[fallthrough]];
-  case K::BINARY_CONSTRAINT:
-    [[fallthrough]];
-  case K::BFLOAT_CONSTRAINT:
-    [[fallthrough]];
-  case K::STRING_CONSTRAINT:
-    [[fallthrough]];
-  case K::CODEUNIT_CONSTRAINT:
-    [[fallthrough]];
-  case K::EXPRESSION_ATTRIBUTE_CONSTRAINT:
-    [[fallthrough]];
-  case K::TYPE_ATTRIBUTE_CONSTRAINT:
-    [[fallthrough]];
 
   // SCOPES
   case K::IF:
@@ -1082,8 +1050,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::TEMPLATE:
     [[fallthrough]];
-  case K::SPECIALIZE:
-    [[fallthrough]];
   case K::EQUIVOCAL:
     [[fallthrough]];
   case K::LIKELY:
@@ -1114,7 +1080,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
 
   // TYPE ATTRIBUTES
-  case K::CONSTANT:
+  case K::NO_VAR:
     [[fallthrough]];
   case K::VAR:
     [[fallthrough]];
@@ -1123,10 +1089,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NO_VOLATILE:
     [[fallthrough]];
   case K::VOLATILE:
-    [[fallthrough]];
-  case K::ALREADY_INITIALIZED:
-    [[fallthrough]];
-  case K::MUST_INITIALIZE:
     [[fallthrough]];
   case K::NO_ATOMIC:
     [[fallthrough]];
@@ -1188,11 +1150,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
 
   // TYPE ATTRIBUTE TYPES
-  case K::MUTABILITY:
+  case K::VARIABILITY:
     [[fallthrough]];
   case K::VOLATILITY:
-    [[fallthrough]];
-  case K::INITIALIZATION_REQUIREMENT:
     [[fallthrough]];
   case K::ATOMICITY:
     [[fallthrough]];
@@ -1222,12 +1182,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EXPAND_LVALUE:
     [[fallthrough]];
   case K::EXPAND_RVALUE:
-    [[fallthrough]];
-  case K::EXPAND_TUPLE:
-    [[fallthrough]];
-  case K::EXPAND_LAYOUT:
-    [[fallthrough]];
-  case K::EXPAND_SIGNATURE:
     [[fallthrough]];
   case K::EXPAND_REFLECTION:
     [[fallthrough]];
@@ -1909,7 +1863,7 @@ bool Situator::situateNamedMemberProcedure(rq::Situation situation,
     return is_ok;
   }
   rq::Expression &branch1 = branch0.getNext();
-  if (!this->situateHeaderBranch(rq::Situation::SIGNATURE, branch1)) {
+  if (!this->situateHeaderBranch(rq::Situation::RVALUE, branch1)) {
     is_ok = false;
   }
   for (rq::Expression &branch : branch1.getNextSubrange()) {

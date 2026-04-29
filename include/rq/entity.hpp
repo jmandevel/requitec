@@ -13,6 +13,8 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/MemoryBufferRef.h>
 
+#include <ranges>
+
 namespace rq {
 
 enum class Opcode {
@@ -64,9 +66,8 @@ enum class Opcode {
   SY_VARIADICNESS,
 
   // TYPE ATTRIBUTES
-  SY_MUTABILITY,
+  SY_VARIABILITY,
   SY_VOLATILITY,
-  SY_INITIALIZATION_REQUIREMENT,
   SY_ATOMICITY,
   SY_NULL_TERMINATION,
   SY_PRECONDITION,
@@ -139,7 +140,6 @@ enum class Opcode {
   SY_LAYOUT,
 
   // LABELS
-  SY_LABEL,
 
   // COMPOSITIONS
   SY_COMPOSITION,
@@ -216,7 +216,7 @@ enum class OpcodeFlags : std::uint64_t {
   // INSTRUCTION - not SYMBOL orB CONSTANT
 
   // ==SYMBOL FLAGS==
-  // SYMBOL PARENTS
+  // SYMBOL CLASSIFICATION
   SY_SIMPLE_SYMBOL = rq::getBit(2),
   SY_LITERAL = rq::getBit(3),
   SY_CONTEXTUAL = rq::getBit(4),
@@ -255,10 +255,37 @@ enum class OpcodeFlags : std::uint64_t {
   SY_IS_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(36),
   SY_IS_TYPE_ATTRIBUTE_TYPE = rq::getBit(37),
 
-  // CONSTANT FLAGS
+  // EXPRESSION ATTRIBUTES
+  // SY_HAS_LABELING, LOCAL_DECLARATION | GLOBAL_DECLARATION
+  SY_HAS_VISIBILITY = rq::getBit(40),
+  SY_HAS_SCOPE_LOCATION = rq::getBit(41),
+  // SY_HAS_AVAILABILITY, LOCAL_DECLARATION | GLOBAL_DECLARATION
+  SY_HAS_ACCESSIBILITY = rq::getBit(42),
+  // SY_HAS_PROPERTY_MUTABILITY, PARAMETERS
+  // SY_HAS_EXPORTING, GLOBAL_DECLARATION
+  SY_HAS_GENERATION_TIME = rq::getBit(43),
+  // SY_HAS_CAPTURING, GLOBAL_DECLARATION
+  // SY_HAS_EVALUATION_TIME, GLOBAL_DECLARATION
+  // SY_HAS_INLINING, PROCEDURES
+  // SY_HAS_MANGLING, PROCEDURES
+  // SY_HAS_PACKING, CLASS
+  // SY_HAS_TEMPLATING, all(GLOBAL_DECLARATION) && none(NAMESPACE | TEMPLATE)
+  // SY_HAS_LIKELYHOOD, SCOPE
+  // SY_HAS_SUPPORT, GLOBAL_DECLARATION
+  // SY_HAS_COPYABILITY, CLASS
+  // SY_HAS_ADDRESS_STABILITY, CLASS
+  // SY_HAS_CLEANUP, CLASS
+  // SY_HAS_VARIADICNESS, PARAMETERS
+  // SY_HAS_CONTRAINT, TEMPLATES
+  // SY_HAS_WEIGHTING, TEMPLATES
 
-  // INSTRUCTION FLAGS
-
+  // TYPE ATTRIBUTES
+  SY_HAS_VARIABILITY = rq::getBit(44),
+  SY_HAS_VOLATILITY = rq::getBit(45),
+  SY_HAS_ATOMICITY = rq::getBit(46),
+  SY_HAS_NULL_TERMINATE = rq::getBit(47)
+  // SY_HAS_PRECONDITION, SIGNATURE
+  // SY_HAS_POSTCONDITION, SIGNATURE
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::Opcode opcode);
@@ -286,6 +313,35 @@ enum class OpcodeFlags : std::uint64_t {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsExpressionAttributeType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType(rq::Opcode opcode);
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabeling(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPropertyMutability(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEvaluationTime(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangling(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPacking(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplating(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikelyhood(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupport(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCopyability(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressStability(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCleanup(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadicness(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraint(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeighting(rq::Opcode opcode);
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariability(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatility(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminate(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrecondition(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostcondition(rq::Opcode opcode);
 
 // clang-format off
 struct Entity;
@@ -333,9 +389,8 @@ struct Entity;
         struct CleanupType;
         struct VariadicnessType;
       struct TypeAttributeType;
-        struct MutabilityType;
+        struct VariabilityType;
         struct VolatilityType;
-        struct Initialization_RequirementType;
         struct AtomicityType;
         struct NullTerminationType;
         struct PreconditionType;
@@ -371,7 +426,7 @@ struct Entity;
       struct PointerSubtype;
       struct FatPointerSubtype;
       struct InferenceCountArraySubtype;
-    struct Array;
+    struct ArraySubtype;
     struct Module;
     struct Import;
     struct ConcatenatedString;
@@ -479,6 +534,35 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttributeType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType() const;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabeling() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPropertyMutability() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEvaluationTime() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangling() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPacking() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplating() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikelyhood() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupport() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCopyability() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressStability() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCleanup() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadicness() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraint() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeighting() const;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariability() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatility() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminate() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrecondition() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostcondition() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -827,10 +911,10 @@ struct TypeAttributeType : public rq::SimpleSymbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct MutabilityType final : public rq::TypeAttributeType {
-  using Self = rq::MutabilityType;
+struct VariabilityType final : public rq::TypeAttributeType {
+  using Self = rq::VariabilityType;
 
-  explicit RQ_ALWAYS_INLINE MutabilityType();
+  explicit RQ_ALWAYS_INLINE VariabilityType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -839,14 +923,6 @@ struct VolatilityType final : public rq::TypeAttributeType {
   using Self = rq::VolatilityType;
 
   explicit RQ_ALWAYS_INLINE VolatilityType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct Initialization_RequirementType final : public rq::TypeAttributeType {
-  using Self = rq::Initialization_RequirementType;
-
-  explicit RQ_ALWAYS_INLINE Initialization_RequirementType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1155,14 +1231,14 @@ struct InferenceCountArraySubtype final : public rq::UncountedSubtype {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct Array final : public rq::Symbol {
-  using Self = rq::Array;
+struct ArraySubtype final : public rq::Symbol {
+  using Self = rq::ArraySubtype;
 
   rq::SymbolConstant *_child_ptr;
   const rq::IntegerConstant *_count_ptr;
 
-  explicit RQ_ALWAYS_INLINE Array(rq::SymbolConstant &child,
-                                  const rq::IntegerConstant &count);
+  explicit RQ_ALWAYS_INLINE ArraySubtype(rq::SymbolConstant &child,
+                                         const rq::IntegerConstant &count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
@@ -1179,19 +1255,19 @@ struct ModuleFactory final {
   using Self = rq::ModuleFactory;
 
   rq::ModuleKind _module_kind;
-  rq::Expression *_snippet_ptr;
+  rq::Expression *_expression_ptr;
   llvm::StringRef _path;
   llvm::MemoryBufferRef _buffer;
 
   explicit RQ_ALWAYS_INLINE ModuleFactory(rq::ModuleKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSnippet() const;
-  void setSnippet(rq::Expression& snippet);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getSnippet() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression& getSnippet();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  void setExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
   RQ_ALWAYS_INLINE void setPath(llvm::StringRef path);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
-  RQ_ALWAYS_INLINE void setBuffer(llvm::MemoryBufferRef&& buffer);
+  RQ_ALWAYS_INLINE void setBuffer(llvm::MemoryBufferRef &&buffer);
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &getBuffer() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::MemoryBufferRef &getBuffer();
 };
@@ -1200,7 +1276,7 @@ struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
   rq::ModuleKind _module_kind;
-  const rq::Expression *_snippet_ptr;
+  const rq::Expression *_expression_ptr;
   llvm::StringRef path;
   llvm::MemoryBufferRef buffer;
 
@@ -1209,7 +1285,7 @@ struct Module final : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &getBuffer() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
@@ -1219,12 +1295,14 @@ struct Import final : public rq::Symbol {
   using Self = rq::Import;
 
   rq::ExpressionFlags _expression_flags;
+  const rq::Expression *_expression_ptr;
   rq::Module *_imported_ptr;
 
   explicit RQ_ALWAYS_INLINE Import(rq::ExpressionFlags flags,
+                                   const rq::Expression &expression,
                                    rq::Module &imported);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
 
@@ -1301,16 +1379,16 @@ struct LocalDeclaration : public rq::Symbol {
   using Self = rq::LocalDeclaration;
 
   llvm::StringRef _name;
-  const rq::Expression *_name_snippet_ptr;
+  const rq::Expression *_name_expression_ptr;
   rq::SymbolTable *_containing_table_ptr;
 
   explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::Opcode opcode,
                                              llvm::StringRef name,
-                                             const rq::Expression &name_snippet,
+                                             const rq::Expression &name_expression,
                                              rq::SymbolTable &containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getNameSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getNameExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
   getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
@@ -1325,7 +1403,7 @@ struct Label final : public rq::LocalDeclaration {
   rq::Instruction *_target_instruction_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Label(llvm::StringRef name,
-                                  const rq::Expression &name_snippet,
+                                  const rq::Expression &name_expression,
                                   rq::SymbolTable &containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTargetSymbol() const;
@@ -1349,11 +1427,11 @@ struct LocalVariable : public rq::LocalDeclaration {
 
   explicit RQ_ALWAYS_INLINE LocalVariable(rq::Opcode opcode,
                                           llvm::StringRef name,
-                                          const rq::Expression &name_snippet,
+                                          const rq::Expression &name_expression,
                                           rq::SymbolTable &containing_table,
                                           rq::ExpressionFlags flags);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasType() const;
   RQ_ALWAYS_INLINE void setType(rq::SymbolConstant &type);
   RQ_ALWAYS_INLINE void replaceType(rq::SymbolConstant &type);
@@ -1367,7 +1445,7 @@ struct LocalDynamicVariable final : public rq::LocalVariable {
   using Self = rq::LocalDynamicVariable;
 
   explicit RQ_ALWAYS_INLINE
-  LocalDynamicVariable(llvm::StringRef name, const rq::Expression &name_snippet,
+  LocalDynamicVariable(llvm::StringRef name, const rq::Expression &name_expression,
                        rq::SymbolTable &containing_table,
                        rq::ExpressionFlags flags);
 
@@ -1380,7 +1458,7 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   rq::SymbolicValue _value{};
 
   explicit RQ_ALWAYS_INLINE
-  LocalStaticVariable(llvm::StringRef name, const rq::Expression &name_snippet,
+  LocalStaticVariable(llvm::StringRef name, const rq::Expression &name_expression,
                       rq::SymbolTable &containing_table,
                       rq::ExpressionFlags flags);
 
@@ -1405,22 +1483,22 @@ struct Parameter : public rq::LocalVariable {
 
   rq::Parameter *_next_parameter_ptr{nullptr};
   rq::ParameterFlags _parameter_flags{};
-  const rq::Expression *_type_snippet_ptr{nullptr};
-  const rq::Expression *_default_value_snippet_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_default_value_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Parameter(
       rq::Opcode opcode, llvm::StringRef name,
-      const rq::Expression &name_snippet, rq::SymbolTable &containing_table,
+      const rq::Expression &name_expression, rq::SymbolTable &containing_table,
       rq::ExpressionFlags expression_flags, rq::ParameterFlags parameter_flags,
-      const rq::Expression &type_snippet,
-      const rq::Expression &default_value_snippet);
+      const rq::Expression &type_expression,
+      const rq::Expression &default_value_expression);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsettable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTypeSnippet() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTypeExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getDefaultValueSnippet() const;
+  getDefaultValueExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1456,14 +1534,68 @@ struct ParameterListFactory final {
 
   [[nodiscard]] inline bool markNamedBegin();
   [[nodiscard]] inline bool markPositionalEnd();
-  [[nodiscard]] inline bool markUnsettableBegin();
+  [[nodiscard]] inline bool markLockedBegin();
   inline void addParameter(rq::Parameter &parameter);
+};
+
+struct ParameterIterator final {
+  using Self = rq::ParameterIterator;
+  using value_type = rq::Parameter;
+  using reference = rq::Parameter &;
+  using pointer = rq::Parameter *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::Parameter *_parameter_ptr{nullptr};
+
+  ParameterIterator() = default;
+  explicit ParameterIterator(rq::Parameter *parameter_ptr);
+  ParameterIterator(const Self &) = default;
+  ParameterIterator(Self &&) = default;
+  ~ParameterIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstParameterIterator final {
+  using Self = rq::ConstParameterIterator;
+  using value_type = const rq::Parameter;
+  using reference = const rq::Parameter &;
+  using pointer = rq::Parameter *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Parameter *_parameter_ptr{nullptr};
+
+  ConstParameterIterator() = default;
+  explicit ConstParameterIterator(const rq::Parameter *parameter_ptr);
+  ConstParameterIterator(const Self &) = default;
+  ConstParameterIterator(Self &&) = default;
+  ~ConstParameterIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
-  const rq::Expression *_snippet_ptr{nullptr};
+  const rq::Expression *_expression_ptr{nullptr};
   unsigned _parameter_count{0};
   unsigned _positional_pass_parameter_count{0};
   unsigned _named_pass_parameter_count{0};
@@ -1479,9 +1611,18 @@ struct ParameterList : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned
   getPositionalPassParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getNamedPassParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getUnsettableParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLockedParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *
   getNamedParameter(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator, rq::ParameterIterator,
+                            std::ranges::subrange_kind::unsized>
+      getParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator,
+                            rq::ConstParameterIterator,
+                            std::ranges::subrange_kind::unsized>
+      getParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1491,22 +1632,22 @@ struct Signature final : public rq::ParameterList {
 
   rq::SymbolConstant *_return_type_ptr{nullptr};
   rq::SymbolConstant *_reciever_type_ptr{nullptr};
-  const rq::Expression *_precondition_snippet_ptr{nullptr};
-  const rq::Expression *_postcondition_snippet_ptr{nullptr};
+  const rq::Expression *_precondition_expression_ptr{nullptr};
+  const rq::Expression *_postcondition_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
   Signature(rq::BumpPtrAllocator &allocator, rq::ParameterListFactory &factory,
             rq::SymbolConstant &return_type, rq::SymbolConstant &reciever_type,
-            const rq::Expression &precondition_snippet,
-            const rq::Expression &postcondition_snippet);
+            const rq::Expression &precondition_expression,
+            const rq::Expression &postcondition_expression);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getReturnType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getReturnType();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPreconditionSnippet() const;
+  getPreconditionExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPostconditionSnippet() const;
+  getPostconditionExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1543,20 +1684,155 @@ struct Synonym final : public rq::SimpleSymbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct TemplateWeightGroup final {
-  using Self = rq::TemplateWeightGroup;
+struct TemplateIterator final {
+  using Self = rq::TemplateIterator;
+  using value_type = rq::Template;
+  using reference = rq::Template &;
+  using pointer = rq::Template *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
 
-  rq::TemplateWeightGroup *_next_lower_ptr{nullptr};
+  rq::Template *_template_ptr{nullptr};
+
+  TemplateIterator() = default;
+  explicit TemplateIterator(rq::Template *template_ptr);
+  TemplateIterator(const Self &) = default;
+  TemplateIterator(Self &&) = default;
+  ~TemplateIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstTemplateIterator final {
+  using Self = rq::ConstTemplateIterator;
+  using value_type = const rq::Template;
+  using reference = const rq::Template &;
+  using pointer = rq::Template *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Template *_template_ptr{nullptr};
+
+  ConstTemplateIterator() = default;
+  explicit ConstTemplateIterator(const rq::Template *template_ptr);
+  ConstTemplateIterator(const Self &) = default;
+  ConstTemplateIterator(Self &&) = default;
+  ~ConstTemplateIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct Weight final {
+  using Self = rq::Weight;
+
+  rq::Weight *_next_lower_ptr{nullptr};
   const rq::IntegerConstant *_weight{nullptr};
   rq::Template *_first_template{nullptr};
+
+  explicit Weight() = default;
+  Weight(const Self &) = delete;
+  Weight(Self &&) = delete;
+  ~Weight() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getWeight() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::TemplateIterator, rq::TemplateIterator,
+                            std::ranges::subrange_kind::unsized>
+      getTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstTemplateIterator,
+                            rq::ConstTemplateIterator,
+                            std::ranges::subrange_kind::unsized>
+      getTemplateSubrange() const;
+};
+
+struct WeightIterator final {
+  using Self = rq::WeightIterator;
+  using value_type = rq::Weight;
+  using reference = rq::Weight &;
+  using pointer = rq::Weight *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::Template *_template_ptr{nullptr};
+
+  WeightIterator() = default;
+  explicit WeightIterator(rq::Template *template_ptr);
+  WeightIterator(const Self &) = default;
+  WeightIterator(Self &&) = default;
+  ~WeightIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Weight &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Weight *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstWeightIterator final {
+  using Self = rq::ConstWeightIterator;
+  using value_type = const rq::Weight;
+  using reference = const rq::Weight &;
+  using pointer = rq::Weight *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Template *_template_ptr{nullptr};
+
+  ConstWeightIterator() = default;
+  explicit ConstWeightIterator(const rq::Template *template_ptr);
+  ConstWeightIterator(const Self &) = default;
+  ConstWeightIterator(Self &&) = default;
+  ~ConstWeightIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct Polymorph : public rq::Symbol {
   using Self = rq::Polymorph;
 
-  rq::TemplateWeightGroup *_highest_weight_group_ptr{nullptr};
+  rq::Weight *_highest_weight_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Polymorph(rq::Opcode opcode);
+  void _addTemplate(rq::Template &template_);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::WeightIterator, rq::WeightIterator,
+                            std::ranges::subrange_kind::unsized>
+      getWeightSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstWeightIterator, rq::ConstWeightIterator,
+                            std::ranges::subrange_kind::unsized>
+      getWeightSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1637,11 +1913,32 @@ struct SymbolTable : public rq::Symbol {
   llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>>
       _named_member_map{};
   rq::BumpPtrList<rq::Symbol> _unamed_member_list{};
-  rq::SymbolTable *_containing_table_ptr{nullptr};
+  rq::SymbolTable *_containing_table_ptr;
 
-  explicit RQ_ALWAYS_INLINE SymbolTable(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE SymbolTable(rq::Opcode opcode,
+                                        rq::SymbolTable *containing_table_ptr);
 
   RQ_ALWAYS_INLINE void release();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
+  inline void addNamedMember(llvm::StringRef name, rq::Symbol &symbol);
+  RQ_ALWAYS_INLINE void addUnamedMember(rq::BumpPtrAllocator &allocator,
+                                        rq::Symbol &symbol);
+  [[nodiscard]] RQ_ALWAYS_INLINE const
+      llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> &
+      getNamedMemberMap() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Symbol>,
+                            rq::ConstBumpPtrListIterator<rq::Symbol>,
+                            std::ranges::subrange_kind::unsized>
+      getUnamedSymbolsRange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::BumpPtrListIterator<rq::Symbol>,
+                            rq::BumpPtrListIterator<rq::Symbol>,
+                            std::ranges::subrange_kind::unsized>
+      getUnamedSymbolsRange();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1659,20 +1956,38 @@ struct Scope final : public rq::SymbolTable {
 
   explicit RQ_ALWAYS_INLINE Scope();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity,
+                                           rq::SymbolTable &containing_table);
 };
 
 struct GlobalDeclaration : public rq::SymbolTable {
   using Self = rq::GlobalDeclaration;
 
-  llvm::StringRef _name{};
+  llvm::StringRef _name;
   llvm::StringRef _mangled_name{};
-  rq::SymbolTable *_hosting_table_ptr{nullptr};
-  const rq::Expression *_snippet_ptr{nullptr};
-  const rq::Expression *_name_snippet_ptr{nullptr};
-  rq::ExpressionFlags _flags{};
+  rq::SymbolTable *_hosting_table_ptr;
+  const rq::Expression *_expression_ptr;
+  const rq::Expression *_name_expression_ptr;
+  rq::ExpressionFlags _flags;
 
-  explicit RQ_ALWAYS_INLINE GlobalDeclaration(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE
+  GlobalDeclaration(rq::Opcode opcode, rq::SymbolTable &containing_table,
+                    llvm::StringRef name, rq::SymbolTable &hosting_table,
+                    const rq::Expression *expression_ptr,
+                    const rq::Expression *name_expression_ptr,
+                    rq::ExpressionFlags flags);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangledName() const;
+  RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef mangled_name);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHostingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNameExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getNameExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1698,7 +2013,7 @@ struct Class final : public rq::GlobalDeclaration {
 struct Enumeration final : public rq::GlobalDeclaration {
   using Self = rq::Enumeration;
 
-  const rq::Expression *_underlying_snippet_ptr{nullptr};
+  const rq::Expression *_underlying_expression_ptr{nullptr};
   rq::SymbolConstant *_underlying_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Enumeration();
@@ -1709,8 +2024,8 @@ struct Enumeration final : public rq::GlobalDeclaration {
 struct Enumerator final : public rq::GlobalDeclaration {
   using Self = rq::Enumerator;
 
-  const rq::Expression *_type_snippet_ptr{nullptr};
-  const rq::Expression *_default_value_snippet_ptr{nullptr};
+  const rq::Expression *_type_expression_ptr{nullptr};
+  const rq::Expression *_default_value_expression_ptr{nullptr};
   rq::SymbolConstant *_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Enumerator();
@@ -1758,12 +2073,14 @@ struct Ranger : public rq::GlobalDeclaration {
   using Self = rq::Ranger;
 
   rq::Instruction *_instruction_ptr{nullptr};
-  const rq::Expression* _reciever_snippet_ptr
-  rq::SymbolConstant *_reciever_ptr{nullptr};
-  const rq::Expression* _element_snippet_ptr;
+  const rq::Expression *_reciever_expression_ptr;
+  rq::SymbolConstant *_reciever_ptr;
+  const rq::Expression *_element_expression_ptr;
   rq::SymbolConstant *_element_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Ranger(rq::Opcode opcode, const rq::Expression& reciever_snippet, const rq::Expression& element_snippet);
+  explicit RQ_ALWAYS_INLINE Ranger(rq::Opcode opcode,
+                                   const rq::Expression &reciever_expression,
+                                   const rq::Expression &element_expression);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const;
   RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
@@ -1854,19 +2171,20 @@ struct ExtensionMethod final : public rq::Procedure {
 struct Template : public rq::SymbolTable {
   using Self = rq::Template;
 
+  rq::Template* _next_template_ptr{nullptr};
   rq::Layout *_template_layout{nullptr};
-  const rq::Expression *_constraint_snippet_ptr{nullptr};
+  const rq::Expression *_constraint_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Template(rq::Opcode opcode);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLayout() const;
-  RQ_ALWAYS_INLINE void setLayout(rq::Layout& layout);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout& getLayout() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout& getLayout();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraintSnippet() const;
-  RQ_ALWAYS_INLINE void setConstraintSnippet(const rq::Expression& snippet);
-  [[nodiscard]] const rq::Expression& getConstraintSnippet() const;
-  [[nodiscard]] rq::Expression& getConstraintSnippet();
+  RQ_ALWAYS_INLINE void setLayout(rq::Layout &layout);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout &getLayout() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &getLayout();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraintExpression() const;
+  RQ_ALWAYS_INLINE void setConstraintExpression(const rq::Expression &expression);
+  [[nodiscard]] const rq::Expression &getConstraintExpression() const;
+  [[nodiscard]] rq::Expression &getConstraintExpression();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1994,7 +2312,7 @@ struct FloatConstant final : public rq::Constant {
 struct ExpressionConstant final : public rq::Constant {
   using Self = rq::ExpressionConstant;
 
-  const rq::Expression *_snippet_ptr;
+  const rq::Expression *_expression_ptr;
 
   explicit RQ_ALWAYS_INLINE ExpressionConstant(const rq::Expression &data);
 
@@ -2052,7 +2370,7 @@ struct ArrayConstant final : public rq::Constant {
 struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
-  const rq::Expression *_snippet_ptr{nullptr};
+  const rq::Expression *_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode);
 

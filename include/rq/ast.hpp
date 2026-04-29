@@ -125,7 +125,7 @@ enum class Keyword : std::uint32_t {
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
   NAMED_PARAMETERS_BEGIN,
-  UNSETTABLE_PARAMETERS_BEGIN,
+  LOCKED_PARAMETERS_BEGIN,
 
   // BRACES
   INSTANTIATE_TUPLE,
@@ -385,7 +385,7 @@ enum class Keyword : std::uint32_t {
   // cleanup
   IMPLICIT_DROP, // default
   EXPLICIT_DROP,
-  // varaidic
+  // varaidicness
   NO_VARIADIC, // default
   VARIADIC,
   // constraint
@@ -396,22 +396,22 @@ enum class Keyword : std::uint32_t {
   WEIGHT,
 
   // TYPE ATTRIBUTES
-  // mutability
-  CONSTANT, // default
+  // variability
+  NO_VAR, // default
   VAR,
   PARTIALLY_VAR,
   // volatility
   NO_VOLATILE, // default
   VOLATILE,
-  // initialization_requirement
-  ALREADY_INITIALIZED, // default
-  MUST_INITIALIZE,
   // atomicity
   NO_ATOMIC, // default
   ATOMIC,
   // null_termination
   NO_NULL_TERMINATE, // default
   NULL_TERMINATE,
+  // placement
+  NO_PENDING, // default
+  PENDING,
   // precondition
   NO_REQUIRE,
   REQUIRE,
@@ -444,13 +444,13 @@ enum class Keyword : std::uint32_t {
   WEIGHTING,           // default_weight vs weight
 
   // TYPE ATTRIBUTE TYPES
-  MUTABILITY,                 // any_mutability var vs constant vs partially_var
-  VOLATILITY,                 // maybe_volatile vs volatile vs no_volatile
-  INITIALIZATION_REQUIREMENT, // already_initialized vs must_initialize
-  ATOMICITY,                  // no_atomic vs atomic
-  NULL_TERMINATION,           // no_null_terminate vs null_terminate
-  PRECONDITION,               // no_require vs require
-  POSTCONDITION,              // no_ensure vs ensure
+  VARIABILITY,      // no_var vs var vs prtially_var
+  VOLATILITY,       // no_volatile vs volatile 
+  ATOMICITY,        // no_atomic vs atomic
+  NULL_TERMINATION, // no_null_terminate vs null_terminate
+  PLACEMENT,        // no_emplace vs emplace
+  PRECONDITION,     // no_require vs require
+  POSTCONDITION,    // no_ensure vs ensure
 
   // MACROS
   QUOTE,
@@ -731,8 +731,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_positional_parameters_end";
   case K::NAMED_PARAMETERS_BEGIN:
     return "_named_parameters_begin";
-  case K::UNSETTABLE_PARAMETERS_BEGIN:
-    return "_unsettable_parameters_begin";
+  case K::LOCKED_PARAMETERS_BEGIN:
+    return "_locked_parameters_begin";
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
@@ -1181,8 +1181,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weight";
 
   // TYPE ATTRIBUTES
-  case K::CONSTANT:
-    return "constant";
+  case K::NO_VAR:
+    return "no_var";
   case K::VAR:
     return "var";
   case K::PARTIALLY_VAR:
@@ -1191,10 +1191,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_volatile";
   case K::VOLATILE:
     return "volatile";
-  case K::ALREADY_INITIALIZED:
-    return "already_initialized";
-  case K::MUST_INITIALIZE:
-    return "must_initialize";
   case K::NO_ATOMIC:
     return "no_atomic";
   case K::ATOMIC:
@@ -1259,12 +1255,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weighting";
 
   // TYPE ATTRIBUTE TYPES
-  case K::MUTABILITY:
-    return "mutability";
+  case K::VARIABILITY:
+    return "variability";
   case K::VOLATILITY:
     return "volatility";
-  case K::INITIALIZATION_REQUIREMENT:
-    return "initialization_requirement";
   case K::ATOMICITY:
     return "atomicity";
   case K::NULL_TERMINATION:
@@ -1682,7 +1676,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
   case K::NAMED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
-  case K::UNSETTABLE_PARAMETERS_BEGIN:
+  case K::LOCKED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
 
   // BRACES
@@ -2139,7 +2133,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
-  case K::CONSTANT:
+  case K::NO_VAR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VAR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2148,10 +2142,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NO_VOLATILE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VOLATILE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::ALREADY_INITIALIZED:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::MUST_INITIALIZE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ATOMIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2217,11 +2207,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
-  case K::MUTABILITY:
+  case K::VARIABILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VOLATILITY:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INITIALIZATION_REQUIREMENT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ATOMICITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2423,7 +2411,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 getIsParameterMarkKeyword(rq::Keyword keyword) {
   return keyword == rq::Keyword::NAMED_PARAMETERS_BEGIN ||
          keyword == rq::Keyword::POSITIONAL_PARAMETERS_END ||
-         keyword == rq::Keyword::UNSETTABLE_PARAMETERS_BEGIN;
+         keyword == rq::Keyword::LOCKED_PARAMETERS_BEGIN;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralKeyword(rq::Keyword keyword) {
@@ -3289,32 +3277,35 @@ enum class ExpressionFlags : std::uint64_t {
   //  DEFAULT_WEIGHT (default)
   WEIGHT = rq::getBit(24),
 
-  LABELING = LABEL,                     // no_label vs label
-  VISIBILITY = OPAQUE,                  // transparent vs opaque
-  SCOPE_LOCATION = OUTSIDE_SCOPE,       // inside_scope vs outside_scope
-  AVAILABILITY = GLOBAL,                // local vs global
-  ACCESSIBILITY = PUBLIC | PROTECTED,   // private vs public vs protected
-  PROPERTY_MUTABILITY = PARTIAL_MUTATE, // no_partial_mutate vs partial_mutate
-  EXPORTING = EXPORT,                   // no_export vs export
-  GENERATION_TIME = STATIC,             // dynamic vs static
-  CAPTURING = CAPTURE,                  // no_capture vs capture
-  EVALUATION_TIME = EAGER,              // lazy vs eager
-  INLINING = INLINE,                    // no_inline vs inline
-  MANGLING = EXPLICIT_MANGLE,           // implicit_mangle vs explicit_mangle
-  PACKING = PACK,                       // no_pack vs pack
-  TEMPLATING = TEMPLATE,                // no_template vs template
-  LIKELYHOOD = LIKELY | UNLIKELY,       // equivocal vs likely vs unlikely
-  SUPPORT =
+  NO_LABEL_NONE_MASK = LABEL,             // no_label vs label
+  TRANSPARENT_NONE_MASK = OPAQUE,         // transparent vs opaque
+  INSIDE_SCOPE_NONE_MASK = OUTSIDE_SCOPE, // inside_scope vs outside_scope
+  LOCAL_NONE_MASK = GLOBAL,               // local vs global
+  PRIVATE_NONE_MASK = PUBLIC | PROTECTED, // private vs public vs protected
+  NO_PARTIAL_MUTATE_NONE_MASK =
+      PARTIAL_MUTATE,             // no_partial_mutate vs partial_mutate
+  NO_EXPORT_NONE_MASK = EXPORT,   // no_export vs export
+  DYNAMIC_NONE_MASK = STATIC,     // dynamic vs static
+  NO_CAPTURE_NONE_MASK = CAPTURE, // no_capture vs capture
+  LAZY_NONE_MASK = EAGER,         // lazy vs eager
+  NO_INLINE_NONE_MASK = INLINE,   // no_inline vs inline
+  IMPLICIT_MANGLE_NONE_MASK =
+      EXPLICIT_MANGLE,                     // implicit_mangle vs explicit_mangle
+  NO_PACK_NONE_MASK = PACK,                // no_pack vs pack
+  NO_TEMPLATE_NONE_MASK = TEMPLATE,        // no_template vs template
+  EQUIVOCAL_NONE_MASK = LIKELY | UNLIKELY, // equivocal vs likely vs unlikely
+  SUPPORTED_NONE_MASK =
       DEPRECIATED | EXPERIMENTAL, // supported vs depreciated vs experimental
-  COPYABILITY = MAY_COPY,         // no_copy vs may_copy
-  ADDRESS_STABILITY = STABLE_ADDRESS, // unstable_address vs stable_address
-  CLEANUP = EXPLICIT_DROP,            // implicit_drop vs explicit_drop
-  VARIADICNESS = VARIADIC,            // no_variadic vs variadic
-  CONSTRAINT = CONSTRAIN,             // no_constrain vs constrain
-  WEIGHTING = WEIGHT                  // default_weight vs weight
+  NO_COPY_NONE_MASK = MAY_COPY,   // no_copy vs may_copy
+  UNSTABLE_ADDRESS_NONE_MASK =
+      STABLE_ADDRESS,                      // unstable_address vs stable_address
+  IMPLICIT_DROP_NONE_MASK = EXPLICIT_DROP, // implicit_drop vs explicit_drop
+  NO_VARIADIC_NONE_MASK = VARIADIC,        // no_variadic vs variadic
+  NO_CONSTRAIN_NONE_MASK = CONSTRAIN,      // no_constrain vs constrain
+  DEFAULT_WEIGHT_NONE_MASK = WEIGHT        // default_weight vs weight
 };
 
-template <> struct is_flags<ExpressionFlags> : std::true_type {};
+template <> struct is_flags<rq::ExpressionFlags> : std::true_type {};
 
 [[nodiscard]] inline rq::ExpressionFlags
 getFlags(rq::ExpressionAttribute attribute) {
@@ -3469,7 +3460,7 @@ getFlags(rq::ExpressionAttribute attribute) {
 
 // labeling
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoLabel(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::LABELING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_LABEL_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel(rq::ExpressionFlags flags) {
@@ -3479,7 +3470,7 @@ getFlags(rq::ExpressionAttribute attribute) {
 // visibility
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasTransparent(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::VISIBILITY);
+  return rq::getHasNone(flags, rq::ExpressionFlags::TRANSPARENT_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOpaque(rq::ExpressionFlags flags) {
@@ -3489,7 +3480,7 @@ getHasTransparent(rq::ExpressionFlags flags) {
 // scope_location
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasInsideScope(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::SCOPE_LOCATION);
+  return rq::getHasNone(flags, rq::ExpressionFlags::INSIDE_SCOPE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3499,7 +3490,7 @@ getHasOutsideScope(rq::ExpressionFlags flags) {
 
 // availability
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLocal(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::AVAILABILITY);
+  return rq::getHasNone(flags, rq::ExpressionFlags::LOCAL_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobal(rq::ExpressionFlags flags) {
@@ -3508,7 +3499,7 @@ getHasOutsideScope(rq::ExpressionFlags flags) {
 
 // accessibility
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrivate(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::ACCESSIBILITY);
+  return rq::getHasNone(flags, rq::ExpressionFlags::PRIVATE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPublic(rq::ExpressionFlags flags) {
@@ -3522,7 +3513,7 @@ getHasOutsideScope(rq::ExpressionFlags flags) {
 // property mutability
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasNoPartialMutate(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::PROPERTY_MUTABILITY);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_PARTIAL_MUTATE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3532,7 +3523,7 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
 
 // exporting
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoExport(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::EXPORTING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_EXPORT_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExport(rq::ExpressionFlags flags) {
@@ -3541,7 +3532,7 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
 
 // generation_time
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDynamic(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::GENERATION_TIME);
+  return rq::getHasNone(flags, rq::ExpressionFlags::DYNAMIC_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatic(rq::ExpressionFlags flags) {
@@ -3550,7 +3541,7 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
 
 // capturing
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCapture(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::CAPTURING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_CAPTURE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapture(rq::ExpressionFlags flags) {
@@ -3559,7 +3550,7 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
 
 // evaluation_time
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLazy(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::EVALUATION_TIME);
+  return rq::getHasNone(flags, rq::ExpressionFlags::LAZY_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager(rq::ExpressionFlags flags) {
@@ -3568,7 +3559,7 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
 
 // inlining
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoInline(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::INLINING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_INLINE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInline(rq::ExpressionFlags flags) {
@@ -3578,7 +3569,7 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
 // mangling
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasImplicitMangle(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::MANGLING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::IMPLICIT_MANGLE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3588,7 +3579,7 @@ getHasExplicitMangle(rq::ExpressionFlags flags) {
 
 // packing
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoPack(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::PACKING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_PACK_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPack(rq::ExpressionFlags flags) {
@@ -3598,7 +3589,7 @@ getHasExplicitMangle(rq::ExpressionFlags flags) {
 // templating
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasNoTemplate(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::TEMPLATING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_TEMPLATE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate(rq::ExpressionFlags flags) {
@@ -3607,7 +3598,7 @@ getHasNoTemplate(rq::ExpressionFlags flags) {
 
 // likelyhood
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEquivocal(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::LIKELYHOOD);
+  return rq::getHasNone(flags, rq::ExpressionFlags::EQUIVOCAL_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikely(rq::ExpressionFlags flags) {
@@ -3620,7 +3611,7 @@ getHasNoTemplate(rq::ExpressionFlags flags) {
 
 // support
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupported(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::SUPPORT);
+  return rq::getHasNone(flags, rq::ExpressionFlags::SUPPORTED_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3635,7 +3626,7 @@ getHasExperimental(rq::ExpressionFlags flags) {
 
 // copyability
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoCopy(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::COPYABILITY);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_COPY_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMayCopy(rq::ExpressionFlags flags) {
@@ -3645,7 +3636,7 @@ getHasExperimental(rq::ExpressionFlags flags) {
 // address_stability
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasUnstableAddress(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::ADDRESS_STABILITY);
+  return rq::getHasNone(flags, rq::ExpressionFlags::UNSTABLE_ADDRESS_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3656,7 +3647,7 @@ getHasStableAddress(rq::ExpressionFlags flags) {
 // cleanup
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasImplicitDrop(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::CLEANUP);
+  return rq::getHasNone(flags, rq::ExpressionFlags::IMPLICIT_DROP_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3667,7 +3658,7 @@ getHasExplicitDrop(rq::ExpressionFlags flags) {
 // variadicness
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasNoVariadic(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::VARIADICNESS);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_VARIADIC_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadic(rq::ExpressionFlags flags) {
@@ -3677,7 +3668,7 @@ getHasNoVariadic(rq::ExpressionFlags flags) {
 // constraint
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasNoConstrain(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::CONSTRAINT);
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_CONSTRAIN_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstrain(rq::ExpressionFlags flags) {
@@ -3687,7 +3678,7 @@ getHasNoConstrain(rq::ExpressionFlags flags) {
 // weighting
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasDefaultWeight(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::WEIGHTING);
+  return rq::getHasNone(flags, rq::ExpressionFlags::DEFAULT_WEIGHT_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeight(rq::ExpressionFlags flags) {
@@ -3700,18 +3691,93 @@ getHasAttribute(rq::ExpressionFlags flags, rq::ExpressionAttribute attribute) {
   return rq::getHasAll(flags, attribute_flags);
 }
 
+enum class ExpressionAttributeKind { 
+  NONE,
+  LABELING,
+  VISIBILITY,
+  SCOPING,
+  AVAILABILITY,
+  ACCESSIBILITY,
+  PROPERTY_MUTABILITY,
+  EXPORTING,
+  GENERATION_TIME,
+  CAPTURING,
+  EVALUATION_TIME,
+  INLINING,
+  MANGLING,
+  PACKING,
+  TEMPLATING,
+  LIKELYHOOD,
+  SUPPORT,
+  COPYABILITY,
+  ADDRESS_STABILITY,
+  CLEANUP,
+  VARIADICNESS,
+  CONSTRAINT,
+  WEIGHTING
+};
+
+[[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
+  using EAK = rq::ExpressionAttributeKind;
+  switch (kind) {
+    case EAK::NONE:
+      return "none";
+    case EAK::VISIBILITY:
+      return "visibility";
+    case EAK::SCOPING:
+      return "scoping";
+    case EAK::AVAILABILITY:
+      return "availability";
+    case EAK::ACCESSIBILITY:
+      return "accessibility";
+    case EAK::PROPERTY_MUTABILITY:
+      return "property_mutability";
+    case EAK::EXPORTING:
+      return "exporting";
+    case EAK::GENERATION_TIME:
+      return "generation_time";
+    case EAK::CAPTURING:
+      return "capturing";
+    case EAK::EVALUATION_TIME:
+      return "evaluation_time";
+    case EAK::INLINING:
+      return "inlinling";
+    case EAK::MANGLING:
+      return "mangling";
+    case EAK::PACKING:
+      return "packing";
+    case EAK::TEMPLATING:
+      return "templating";
+    case EAK::LIKELYHOOD:
+      return "likelyhood";
+    case EAK::SUPPORT:
+      return "support";
+    case EAK::COPYABILITY:
+      return "copyability";
+    case EAK::ADDRESS_STABILITY:
+      return "address_stability";
+    case EAK::CLEANUP:
+      return "cleanup";
+    case EAK::VARIADICNESS:
+      return "variadicness";
+    case EAK::CONSTRAINT:
+      return "constraint";
+    case EAK::WEIGHTING:
+      return "weighting";
+  }
+  RQ_UNREACHABLE();
+}
+
 struct Expression;
 struct TableSymbol;
 
 enum class TypeAttribute : std::uint_fast8_t {
   NONE,
-  CONSTANT,
+  NO_VAR,
   VAR,
   PARTIALLY_VAR,
   NO_VOLATILE,
   VOLATILE,
-  ALREADY_INITIALIZED,
-  MUST_INITIALIZE,
   NO_ATOMIC,
   ATOMIC,
   NO_NULL_TERMINATE,
@@ -3728,8 +3794,8 @@ enum class TypeAttribute : std::uint_fast8_t {
   switch (attribute) {
   case TA::NONE:
     return "none";
-  case TA::CONSTANT:
-    return "constant";
+  case TA::NO_VAR:
+    return "no_var";
   case TA::VAR:
     return "var";
   case TA::PARTIALLY_VAR:
@@ -3738,10 +3804,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "no_volatile";
   case TA::VOLATILE:
     return "volatile";
-  case TA::ALREADY_INITIALIZED:
-    return "already_initialized";
-  case TA::MUST_INITIALIZE:
-    return "must_initialize";
   case TA::NO_ATOMIC:
     return "no_atomic";
   case TA::ATOMIC:
@@ -3767,8 +3829,8 @@ enum class TypeAttribute : std::uint_fast8_t {
   using K = Keyword;
   using TA = TypeAttribute;
   switch (keyword) {
-  case K::CONSTANT:
-    return TA::CONSTANT;
+  case K::NO_VAR:
+    return TA::NO_VAR;
   case K::VAR:
     return TA::VAR;
   case K::PARTIALLY_VAR:
@@ -3777,10 +3839,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::NO_VOLATILE;
   case K::VOLATILE:
     return TA::VOLATILE;
-  case K::ALREADY_INITIALIZED:
-    return TA::ALREADY_INITIALIZED;
-  case K::MUST_INITIALIZE:
-    return TA::MUST_INITIALIZE;
   case K::NO_ATOMIC:
     return TA::NO_ATOMIC;
   case K::ATOMIC:
@@ -3803,10 +3861,10 @@ enum class TypeAttribute : std::uint_fast8_t {
   return TA::NONE;
 }
 
-enum class TypeFlags : std::uint8_t {
+enum class TypeFlags : std::uint_fast8_t {
   NONE = 0,
-  // mutability
-  // constant (default)
+  // variability
+  // no_var (default)
   VAR = rq::getBit(0),
   PARTIALLY_VAR = rq::getBit(1),
 
@@ -3814,45 +3872,40 @@ enum class TypeFlags : std::uint8_t {
   // no_volatile (default)
   VOLATILE = rq::getBit(2),
 
-  // initialization_requirement
-  // already_initialized (default)
-  MUST_INITIALIZE = rq::getBit(3),
-
   // atomicity
   // no_atomic (default)
-  ATOMIC = rq::getBit(4),
+  ATOMIC = rq::getBit(3),
 
   // null_termination
   // no_null_terminate (default)
-  NULL_TERMINATE = rq::getBit(5),
+  NULL_TERMINATE = rq::getBit(4),
 
   // precondition
   // no_require (default)
-  REQUIRE = rq::getBit(6),
+  REQUIRE = rq::getBit(5),
 
   // postcondition
   // no_ensure (default)
-  ENSURE = rq::getBit(7),
+  ENSURE = rq::getBit(6),
 
-  MUTABILITY = VAR | PARTIALLY_VAR,
-  VOLATILITY = VOLATILE,
-  INITIALIZATION_REQUIREMENT = MUST_INITIALIZE,
-  ATOMICITY = ATOMIC,
-  NULL_TERMINATION = NULL_TERMINATE,
-  PRECONDITION = REQUIRE,
-  POSTCONDITION = ENSURE
+  NO_VAR_NONE_MASK = VAR | PARTIALLY_VAR,
+  NO_VOLATILE_NONE_MASK = VOLATILE,
+  NO_ATOMIC_NONE_MASK = ATOMIC,
+  NO_NULL_TERMINATE_NONE_MASK = NULL_TERMINATE,
+  NO_REQUIRE_NONE_MASK = REQUIRE,
+  NO_ENSURE_NONE_MASK = ENSURE
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
 
-[[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
+[[nodiscard]] inline rq::TypeFlags getTypeFlags(rq::TypeAttribute attribute) {
   using namespace rq;
   using TA = TypeAttribute;
   using TF = TypeFlags;
   switch (attribute) {
   case TA::NONE:
     return TF::NONE;
-  case TA::CONSTANT:
+  case TA::NO_VAR:
     return TF::NONE;
   case TA::VAR:
     return TF::VAR;
@@ -3862,10 +3915,6 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::NONE;
   case TA::VOLATILE:
     return TF::VOLATILE;
-  case TA::ALREADY_INITIALIZED:
-    return TF::NONE;
-  case TA::MUST_INITIALIZE:
-    return TF::MUST_INITIALIZE;
   case TA::NO_ATOMIC:
     return TF::NONE;
   case TA::ATOMIC:
@@ -3886,8 +3935,8 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstant(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::VAR);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoVar(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::NO_VAR_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVar(rq::TypeFlags flags) {
@@ -3903,20 +3952,11 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoVolatile(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::VOLATILE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasAlready_Initialized(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::MUST_INITIALIZE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMust_initialize(rq::TypeFlags flags) {
-  return rq::getHasAll(flags, rq::TypeFlags::MUST_INITIALIZE);
+  return rq::getHasNone(flags, rq::TypeFlags::NO_VOLATILE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoAtomic(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::ATOMIC);
+  return rq::getHasNone(flags, rq::TypeFlags::NO_ATOMIC_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomic(rq::TypeFlags flags) {
@@ -3924,69 +3964,224 @@ getHasAlready_Initialized(rq::TypeFlags flags) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoNullTerminate(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::NULL_TERMINATE);
+  return rq::getHasNone(flags, rq::TypeFlags::NO_NULL_TERMINATE_NONE_MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminate(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::NULL_TERMINATE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoAssertBefore(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::PRECONDITION);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoRequire(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::NO_REQUIRE_NONE_MASK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAssertBefore(rq::TypeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasRequire(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::REQUIRE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoAssertAfter(rq::TypeFlags flags) {
-  return rq::getHasNone(flags, rq::TypeFlags::POSTCONDITION);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoEnsure(rq::TypeFlags flags) {
+  return rq::getHasNone(flags, rq::TypeFlags::NO_ENSURE_NONE_MASK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAssertAfter(rq::TypeFlags flags) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEnsure(rq::TypeFlags flags) {
   return rq::getHasAll(flags, rq::TypeFlags::ENSURE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasAttribute(rq::TypeFlags flags, rq::TypeAttribute attribute) {
-  return rq::getHasAll(flags, rq::getFlags(attribute));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMutability(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::MUTABILITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatility(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::VOLATILITY);
+  return rq::getHasAll(flags, rq::getTypeFlags(attribute));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasInitialization_Requirement(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::INITIALIZATION_REQUIREMENT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::ATOMICITY);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTermination(rq::TypeFlags flags) {
-  return rq::getHasSome(flags, rq::TypeFlags::NULL_TERMINATION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsValidMutability(rq::TypeFlags flags) {
-  if (rq::getHasMutability(flags)) {
-    unsigned mutability_count = 0;
-    if (rq::getHasAll(flags, rq::TypeFlags::VAR)) {
-      mutability_count++;
-    }
-    if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_VAR)) {
-      mutability_count++;
-    }
-    if (mutability_count != 1) {
-      return false;
-    }
+getHaswValidVariability(rq::TypeFlags flags) {
+  unsigned variability_count = 0;
+  if (rq::getHasAll(flags, rq::TypeFlags::VAR)) {
+    variability_count++;
+  }
+  if (rq::getHasAll(flags, rq::TypeFlags::PARTIALLY_VAR)) {
+    variability_count++;
+  }
+  if (variability_count != 1) {
+    return false;
   }
   return true;
+}
+
+enum class TypeAttributeFlags : std::uint_fast8_t {
+  NONE = 0,
+
+  VARIABILITY = rq::getBit(0),
+  VOLATILITY = rq::getBit(1),
+  ATOMICITY = rq::getBit(2),
+  NULL_TERMINATION = rq::getBit(3),
+  PRECONDITION = rq::getBit(4),
+  POSTCONDITION = rq::getBit(5)
+};
+
+template <> struct is_flags<TypeAttributeFlags> : std::true_type {};
+
+[[nodiscard]] inline rq::TypeAttributeFlags
+getFlags(rq::TypeAttribute attribute) {
+  using TA = rq::TypeAttribute;
+  using TAF = rq::TypeAttributeFlags;
+  switch (attribute) {
+  case TA::NONE:
+    return TAF::NONE;
+  case TA::NO_VAR:
+    return TAF::VARIABILITY;
+  case TA::VAR:
+    return TAF::VARIABILITY;
+  case TA::PARTIALLY_VAR:
+    return TAF::VARIABILITY;
+  case TA::NO_VOLATILE:
+    return TAF::VOLATILITY;
+  case TA::VOLATILE:
+    return TAF::VOLATILITY;
+  case TA::NO_ATOMIC:
+    return TAF::ATOMICITY;
+  case TA::ATOMIC:
+    return TAF::ATOMICITY;
+  case TA::NO_NULL_TERMINATE:
+    return TAF::NULL_TERMINATION;
+  case TA::NULL_TERMINATE:
+    return TAF::NULL_TERMINATION;
+  case TA::NO_REQUIRE:
+    return TAF::PRECONDITION;
+  case TA::REQUIRE:
+    return TAF::PRECONDITION;
+  case TA::NO_ENSURE:
+    return TAF::POSTCONDITION;
+  case TA::ENSURE:
+    return TAF::POSTCONDITION;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsVariability(rq::TypeAttribute attribute) {
+  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::VARIABILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsVolatility(rq::TypeAttribute attribute) {
+  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::VOLATILITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsAtomicity(rq::TypeAttribute attribute) {
+  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::ATOMICITY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsNullTermination(rq::TypeAttribute attribute) {
+  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::NULL_TERMINATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPrecondition(rq::TypeAttribute attribute) {
+  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::PRECONDITION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPostcondition(rq::TypeAttribute attribute) {
+  const rq::TypeAttributeFlags flags = rq::getFlags(attribute);
+  return rq::getHasAll(flags, rq::TypeAttributeFlags::POSTCONDITION);
+}
+
+enum class TypeAttributeKind {
+  NONE,
+  VARIABILITY,
+  VOLATILITY,
+  ATOMICITY,
+  NULL_TERMINATION,
+  PRECONDITION,
+  POSTCONDITION
+};
+
+[[nodiscard]] inline llvm::StringRef getName(rq::TypeAttributeKind kind) {
+  using TAK = rq::TypeAttributeKind;
+  switch (kind) {
+  case TAK::NONE:
+    return "none";
+  case TAK::VARIABILITY:
+    return "variability";
+  case TAK::VOLATILITY:
+    return "volatility";
+  case TAK::ATOMICITY:
+    return "atomicity";
+  case TAK::NULL_TERMINATION:
+    return "null_termination";
+  case TAK::PRECONDITION:
+    return "precondition";
+  case TAK::POSTCONDITION:
+    return "postcondition";
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::TypeAttributeKind
+getTypeAttributeKind(rq::TypeAttribute attribute) {
+  using TA = rq::TypeAttribute;
+  using TAK = rq::TypeAttributeKind;
+  switch (attribute) {
+  case TA::NONE:
+    return TAK::NONE;
+  case TA::NO_VAR:
+    [[fallthrough]];
+  case TA::VAR:
+    [[fallthrough]];
+  case TA::PARTIALLY_VAR:
+    return TAK::VARIABILITY;
+  case TA::NO_VOLATILE:
+    [[fallthrough]];
+  case TA::VOLATILE:
+    return TAK::VOLATILITY;
+  case TA::NO_ATOMIC:
+    [[fallthrough]];
+  case TA::ATOMIC:
+    return TAK::ATOMICITY;
+  case TA::NO_NULL_TERMINATE:
+    [[fallthrough]];
+  case TA::NULL_TERMINATE:
+    return TAK::NULL_TERMINATION;
+  case TA::NO_REQUIRE:
+    [[fallthrough]];
+  case TA::REQUIRE:
+    return TAK::PRECONDITION;
+  case TA::NO_ENSURE:
+    [[fallthrough]];
+  case TA::ENSURE:
+    return TAK::POSTCONDITION;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline bool getIsTypeAttributeKind(rq::TypeAttribute attribute,
+                                                 rq::TypeAttributeKind kind) {
+  using TA = rq::TypeAttribute;
+  using TAK = rq::TypeAttributeKind;
+  switch (kind) {
+  case TAK::NONE:
+    return false;
+  case TAK::VARIABILITY:
+    return rq::getIsVariability(attribute);
+  case TAK::VOLATILITY:
+    return rq::getIsVolatility(attribute);
+  case TAK::ATOMICITY:
+    return rq::getIsAtomicity(attribute);
+  case TAK::NULL_TERMINATION:
+    return rq::getIsNullTermination(attribute);
+  case TAK::PRECONDITION:
+    return rq::getIsPrecondition(attribute);
+  case TAK::POSTCONDITION:
+    return rq::getIsPostcondition(attribute);
+  }
+  RQ_UNREACHABLE();
 }
 
 enum class ArithmeticSequenceStep : std::uint_fast8_t {

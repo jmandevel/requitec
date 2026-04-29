@@ -1085,7 +1085,7 @@ rq::Expression &RequiteParser::parsePrecedence0() {
       parameter_mark_found = true;
       rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
-      mark.setKeyword(rq::Keyword::UNSETTABLE_PARAMETERS_BEGIN);
+      mark.setKeyword(rq::Keyword::LOCKED_PARAMETERS_BEGIN);
       factory.appendBranch(mark);
     }
     rq::Expression &branch = this->parseAscribableExpression();

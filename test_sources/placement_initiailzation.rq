@@ -1,0 +1,20 @@
+
+
+[opaque][explicit_mangle]::malloc
+[function 
+    [no_name], // has no name so must use mangled name from c table
+    (size:[unsigned_address]<)?\[pending]\[var][void], // the return type has [pending] attribute, so user is expected to emplace initial value
+];
+
+[opaque][explicit_mangle]::free
+[function [no_name], (ptr:?\var[void]<)[void],];
+
+[entry
+    ptr := 
+        [c].malloc([single].[byte_size]).
+        [cast ?\[pending]\[var][single]].
+        [emplace_content 0.0].
+        \[var][address];
+    [c].free(ptr);
+    [result] := 0;
+];

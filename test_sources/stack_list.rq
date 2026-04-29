@@ -15,16 +15,15 @@
 	my_stack :\[var]= ..std.StackList{..NoAutoDrop}();
 	[destructor my_stack,
 		// destructor requires that the lifetime of the target (my_stack) is ended by the end of it.
-		[for my_stack.[move].popEach(), value:\[var]=[value].[move],
+		[for my_stack.[move].popEachAndDestroy(), value:\[var]=[value].[move],
 		 	value.[move].destroy();
 		];
 	];
 	
 	// push back some elements
-	// function returns an must_initialize borrow, which you must assign to initialize the value.
-	my_stack.pushBack() = NoAutoDrop();
-	my_stack.pushBack() = NoAutoDrop();
-	my_stack.pushBack() = NoAutoDrop();
+	my_stack.pushBack().[emplace ..NoAutoDrop()].[ignore];
+	my_stack.pushBack().[emplace ..NoAutoDrop()].[ignore];
+	my_stack.pushBack().[emplace ..NoAutoDrop()].[ignore];
 
 	// remove the last element
 	// the last element is linearly assigned out. you have to drop the element manually.
