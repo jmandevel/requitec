@@ -1,0 +1,66 @@
+
+
+[opaque][explicit_mangle]::malloc
+[function 
+    [no_name], // has no name so must use mangled name from c table
+    (size:[unsigned_address]<)?\[var][void],
+];
+
+[opaque][explicit_mangle]::free
+[function [no_name], (ptr:?\var[void]<)[void],];
+
+[template]::{Type:[symbol]<}
+[constrain]::(Type.[is_type])
+[may_move]
+[class UniquePtr,
+    { [private] ptr:?\[var]Type <},
+
+    [public][inline] // function with \[initialize_inplace] signature must be inline
+    [function create, 
+        \[initialize_inplace]::$\[var]Type,
+        ()\[var]UniquePtr{Type},
+        ptr := [c].malloc(Type.[byte_size]).[cast ?\[var]Type];
+        [result] := UniquePtr{Type}(
+                ptr=ptr
+            );   
+        [placement_initialize
+            ptr.[content]
+        ];
+    ];
+
+    [public][inline] // function with \[drop_inplace] signature must be inline
+    [method destroy, 
+        \[drop_inplace]::$\[var]Type,
+        ()[void]=>,
+        [placement_drop
+            ptr.[content]
+        ];
+        [c].free([this].ptr);
+        [this].[drop];
+    ];
+
+];
+
+[stable_address]
+[class NoAutoDrop,
+    { val:[single] <}
+    [public]
+    [method destroy(), ()[void]=>,
+        [this].[drop];
+    ];
+];
+
+[entry
+    uptr := 
+        ..UniquePtr{..NoAutoDrop}.create()
+            .[emplace 
+                [placement] := ..NoAutoDrop(3.14);
+            ];
+    [destructor uptr,
+        uptr.[move].destroy()
+            .[erase
+                [placement].[move].destroy();
+            ];
+    ];
+    [result] := 0;
+];

@@ -30,12 +30,13 @@
         no_auto_drop.[move].destroy();
     ];
 
-    // builtin array type has a special .[drop_each] ranger
+    
     array := [initialize_array ..NoAutoDrop(), ..NoAutoDrop(), ..NoAutoDrop()];
     [destructor array,
-        [for array.[move].[drop_each], value:=[value].[borrow], 
-            value.[move].destroy();
-        ];
+        array
+            .[drop_each
+                [placement].[move].destroy();
+            ];
     ];
 
     [result] := 0;

@@ -110,6 +110,8 @@ enum class Keyword : std::uint32_t {
   AT_OF,
   MOVE,
   MOVE_OF,
+  EMPLACE,
+  EMPLACE_OF,
   COMPOSE,
   COMPOSE_OF,
   DESTRUCTOR,
@@ -409,9 +411,6 @@ enum class Keyword : std::uint32_t {
   // null_termination
   NO_NULL_TERMINATE, // default
   NULL_TERMINATE,
-  // placement
-  NO_PENDING, // default
-  PENDING,
   // precondition
   NO_REQUIRE,
   REQUIRE,
@@ -448,7 +447,6 @@ enum class Keyword : std::uint32_t {
   VOLATILITY,       // no_volatile vs volatile 
   ATOMICITY,        // no_atomic vs atomic
   NULL_TERMINATION, // no_null_terminate vs null_terminate
-  PLACEMENT,        // no_emplace vs emplace
   PRECONDITION,     // no_require vs require
   POSTCONDITION,    // no_ensure vs ensure
 
