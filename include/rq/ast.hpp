@@ -110,6 +110,8 @@ enum class Keyword : std::uint32_t {
   AT_OF,
   MOVE,
   MOVE_OF,
+  TAKE,
+  TAKE_OF,
   CALL,
   EMPLACE,
   EMPLACE_OF,
@@ -701,6 +703,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "move";
   case K::MOVE_OF:
     return "_move_of";
+  case K::TAKE:
+    return "take";
+  case K::TAKE_OF:
+    return "_take_of";
   case K::CALL:
     return "_call";
   case K::EMPLACE:
@@ -1649,6 +1655,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::MOVE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::MOVE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::TAKE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::TAKE_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::CALL:
     return KF::STATEMENT | KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
@@ -2676,6 +2686,8 @@ getDescription(rq::Situation situation) {
     return K::AT_OF;
   case K::MOVE:
     return K::MOVE_OF;
+  case K::TAKE:
+    return K::TAKE_OF;
   case K::COMPOSE:
     return K::COMPOSE_OF;
   case K::DESTROY:

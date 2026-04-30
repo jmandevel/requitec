@@ -203,7 +203,9 @@ enum class Opcode {
   CT_SYMBOL,
   CT_BOOLEAN,
   CT_STRING,
-  CT_ARRAY
+  CT_ARRAY,
+  CT_EXPRESSION_ATTRIBUTE,
+  CT_TYPE_ATTRIBUTE,
 
   // TODO instructions
 };
@@ -215,14 +217,14 @@ enum class OpcodeFlags : std::uint64_t {
 
   SYMBOL = rq::getBit(0),
   CONSTANT = rq::getBit(1),
-  // INSTRUCTION - not SYMBOL orB CONSTANT
+  INSTRUCTION_NONE_MASK = SYMBOL | CONSTANT,
 
   // ==SYMBOL FLAGS==
   // SYMBOL CLASSIFICATION
   SY_SIMPLE_SYMBOL = rq::getBit(2),
   SY_LITERAL = rq::getBit(3),
   SY_CONTEXTUAL = rq::getBit(4),
-  SY_CONTEXTUAL_NAME = rq::getBit(5),
+  //SY_CONTEXTUAL_NAME
   SY_CONTEXTUAL_VALUE = rq::getBit(6),
   SY_CONTEXTUAL_TYPE = rq::getBit(7),
   SY_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(8),
@@ -288,6 +290,10 @@ enum class OpcodeFlags : std::uint64_t {
   // SY_HAS_POSTCONDITION, SIGNATURE
 };
 
+template<> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode);
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction(rq::Opcode opcode);
@@ -298,8 +304,6 @@ enum class OpcodeFlags : std::uint64_t {
   RQ_ASSERT(rq::getIsConstant(opcode), "not constant");
 #define RQ_ASSERT_INSTRUCTION(opcode)                                          \
   RQ_ASSERT(rq::getIsInstruction(opcode), "not instruction");
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::Opcode opcode);
@@ -494,6 +498,8 @@ struct Entity;
     struct BooleanConstant;
     struct StringConstant;
     struct ArrayConstant;
+    struct ExpressionAttributeConstant;
+    struct TypeAttributeConstant;
   struct Instruction;
     struct NullaryInstruction;
     struct UnaryInstruction;
@@ -874,7 +880,6 @@ struct AddressStabilityType final : public rq::ExpressionAttributeType {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
-
 
 struct VariadicnessType final : public rq::ExpressionAttributeType {
   using Self = rq::VariadicnessType;
@@ -1363,13 +1368,14 @@ struct LocalDeclaration : public rq::Symbol {
   const rq::Expression *_name_expression_ptr;
   rq::SymbolTable *_containing_table_ptr;
 
-  explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::Opcode opcode,
-                                             llvm::StringRef name,
-                                             const rq::Expression &name_expression,
-                                             rq::SymbolTable &containing_table);
+  explicit RQ_ALWAYS_INLINE
+  LocalDeclaration(rq::Opcode opcode, llvm::StringRef name,
+                   const rq::Expression &name_expression,
+                   rq::SymbolTable &containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getNameExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getNameExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
   getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
@@ -1425,10 +1431,9 @@ struct LocalVariable : public rq::LocalDeclaration {
 struct LocalDynamicVariable final : public rq::LocalVariable {
   using Self = rq::LocalDynamicVariable;
 
-  explicit RQ_ALWAYS_INLINE
-  LocalDynamicVariable(llvm::StringRef name, const rq::Expression &name_expression,
-                       rq::SymbolTable &containing_table,
-                       rq::ExpressionFlags flags);
+  explicit RQ_ALWAYS_INLINE LocalDynamicVariable(
+      llvm::StringRef name, const rq::Expression &name_expression,
+      rq::SymbolTable &containing_table, rq::ExpressionFlags flags);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1438,10 +1443,9 @@ struct LocalStaticVariable final : public rq::LocalVariable {
 
   rq::SymbolicValue _value{};
 
-  explicit RQ_ALWAYS_INLINE
-  LocalStaticVariable(llvm::StringRef name, const rq::Expression &name_expression,
-                      rq::SymbolTable &containing_table,
-                      rq::ExpressionFlags flags);
+  explicit RQ_ALWAYS_INLINE LocalStaticVariable(
+      llvm::StringRef name, const rq::Expression &name_expression,
+      rq::SymbolTable &containing_table, rq::ExpressionFlags flags);
 
   [[nodiscard]] const rq::SymbolicValue &getValue() const;
   [[nodiscard]] rq::SymbolicValue &getValue();
@@ -1477,7 +1481,8 @@ struct Parameter : public rq::LocalVariable {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamed() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getTypeExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getTypeExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getDefaultValueExpression() const;
 
@@ -1646,14 +1651,12 @@ struct Placement final : public rq::Symbol {
 
   rq::Procedure *_procedure_ptr;
 
-  explicit RQ_ALWAYS_INLINE
-  Placement(rq::Procedure& procedure);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure& getProcedure() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure& getProcedure();
+  explicit RQ_ALWAYS_INLINE Placement(rq::Procedure &procedure);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &getProcedure() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &getProcedure();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
-
 
 struct Composition final : public rq::Symbol {
   using Self = rq::Composition;
@@ -2181,7 +2184,7 @@ struct ExtensionMethod final : public rq::Procedure {
 struct Template : public rq::SymbolTable {
   using Self = rq::Template;
 
-  rq::Template* _next_template_ptr{nullptr};
+  rq::Template *_next_template_ptr{nullptr};
   rq::Layout *_template_layout{nullptr};
   const rq::Expression *_constraint_expression_ptr{nullptr};
 
@@ -2192,7 +2195,8 @@ struct Template : public rq::SymbolTable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout &getLayout() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &getLayout();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraintExpression() const;
-  RQ_ALWAYS_INLINE void setConstraintExpression(const rq::Expression &expression);
+  RQ_ALWAYS_INLINE void
+  setConstraintExpression(const rq::Expression &expression);
   [[nodiscard]] const rq::Expression &getConstraintExpression() const;
   [[nodiscard]] rq::Expression &getConstraintExpression();
 
@@ -2304,6 +2308,9 @@ struct IntegerConstant final : public rq::Constant {
   explicit RQ_ALWAYS_INLINE IntegerConstant(const llvm::APInt &data,
                                             bool is_platform_specific);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt &getData() const;
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
@@ -2316,6 +2323,9 @@ struct FloatConstant final : public rq::Constant {
   explicit RQ_ALWAYS_INLINE FloatConstant(const llvm::APFloat &data,
                                           bool is_platform_specific);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APFloat &getData() const;
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
@@ -2325,6 +2335,9 @@ struct ExpressionConstant final : public rq::Constant {
   const rq::Expression *_expression_ptr;
 
   explicit RQ_ALWAYS_INLINE ExpressionConstant(const rq::Expression &data);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getData() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2338,6 +2351,10 @@ struct SymbolConstant final : public rq::Constant {
   explicit RQ_ALWAYS_INLINE SymbolConstant(rq::Symbol &symbol,
                                            rq::TypeFlags flags);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const;
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
@@ -2349,6 +2366,9 @@ struct BooleanConstant final : public rq::Constant {
 
   explicit RQ_ALWAYS_INLINE BooleanConstant(bool data,
                                             bool is_platform_specific);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getData() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2362,17 +2382,45 @@ struct StringConstant final : public rq::Constant {
   explicit RQ_ALWAYS_INLINE StringConstant(llvm::StringRef data,
                                            bool is_platform_specific);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getData() const;
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
 struct ArrayConstant final : public rq::Constant {
   using Self = rq::ArrayConstant;
 
-  bool _is_platform_specific : 1;
   llvm::ArrayRef<rq::Constant> _data;
 
   explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data,
                                           bool is_platform_specific);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant> getData() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct ExpressionAttributeConstant final : public rq::Constant {
+  using Self = rq::ExpressionAttributeConstant;
+
+  rq::ExpressionAttribute _attribute;
+
+  explicit RQ_ALWAYS_INLINE ArrayConstant(rq::ExpressionAttribute attribute);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttribute getAttribute() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct TypeAttributeConstant final : public rq::Constant {
+  using Self = rq::TypeAttributeConstant;
+
+  rq::TypeAttribute _attribute;
+
+  explicit RQ_ALWAYS_INLINE ArrayConstant(rq::TypeAttribute attribute);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute getAttribute() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2382,7 +2430,10 @@ struct Instruction : public rq::Entity {
 
   const rq::Expression *_expression_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode,
+                                        const rq::Expression *expression_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression getExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2390,7 +2441,8 @@ struct Instruction : public rq::Entity {
 struct NullaryInstruction final : public rq::Instruction {
   using Self = rq::NullaryInstruction;
 
-  explicit RQ_ALWAYS_INLINE NullaryInstruction(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE
+  NullaryInstruction(rq::Opcode opcode, const rq::Expression *expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2398,9 +2450,14 @@ struct NullaryInstruction final : public rq::Instruction {
 struct UnaryInstruction final : public rq::Instruction {
   using Self = rq::UnaryInstruction;
 
-  rq::Entity *_address0_ptr{nullptr};
+  rq::Entity *_address0_ptr;
 
-  explicit RQ_ALWAYS_INLINE UnaryInstruction(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE
+  UnaryInstruction(rq::Opcode opcode, const rq::Expression *expression_ptr,
+                   rq::Entity &address0);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress0();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2408,10 +2465,17 @@ struct UnaryInstruction final : public rq::Instruction {
 struct BinaryInstruction final : public rq::Instruction {
   using Self = rq::BinaryInstruction;
 
-  rq::Entity *_address0_ptr{nullptr};
-  rq::Entity *_address1_ptr{nullptr};
+  rq::Entity *_address0_ptr;
+  rq::Entity *_address1_ptr;
 
-  explicit RQ_ALWAYS_INLINE BinaryInstruction(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE BinaryInstruction(rq::Opcode opcode,
+                                              rq::Entity &address0,
+                                              rq::Entity &address1);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress0();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress1() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getAddress1();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
