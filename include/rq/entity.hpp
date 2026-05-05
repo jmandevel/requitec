@@ -45,7 +45,7 @@ enum class Opcode {
   SY_NO_RETURN,
 
   // EXPRESSION ATTRIBUTES
-  SY_LABELING,
+  SY_ANCHORING,
   SY_VISIBILITY,
   SY_SCOPING,
   SY_AVAILABILITY,
@@ -125,7 +125,11 @@ enum class Opcode {
   SY_INFINITE_ARITHMETIC_SEQUENCE,
   SY_FINITE_ARITHMETIC_SEQUENCE,
 
-  // LOCAL VARIABLES
+  // LOCAL DECLARATIONS
+  SY_LABEL,
+  SY_ANCHOR,
+
+  // LOCAL VARIABLES => local declaration
   SY_LOCAL_DYNAMIC_VARIABLE,
   SY_LOCAL_STATIC_VARIABLE,
 
@@ -157,7 +161,24 @@ enum class Opcode {
 
   // SYMBOL TABLES
   SY_TOP,
+
+  // LOCAL TABLES => symbol table
+  SY_IF,
+  SY_ELSE_IF,
+  SY_ELSE,
+  SY_MATCH,
+  SY_INLINE_MATCH,
+  SY_SWITCH,
+  SY_INLINE_SWITCH,
+  SY_CASE,
+  SY_WITH,
+  SY_DEFAULT,
+  SY_FOR,
+  SY_WHILE,
+  SY_SPIN,
+  SY_WEAVE,
   SY_SCOPE,
+  SY_INLINE_SCOPE,
 
   // GLOBAL DECLARATION => symbol table
   SY_NAMESPACE,
@@ -224,7 +245,7 @@ enum class OpcodeFlags : std::uint64_t {
   SY_SIMPLE_SYMBOL = rq::getBit(2),
   SY_LITERAL = rq::getBit(3),
   SY_CONTEXTUAL = rq::getBit(4),
-  //SY_CONTEXTUAL_NAME
+  // SY_CONTEXTUAL_NAME
   SY_CONTEXTUAL_VALUE = rq::getBit(6),
   SY_CONTEXTUAL_TYPE = rq::getBit(7),
   SY_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(8),
@@ -260,7 +281,7 @@ enum class OpcodeFlags : std::uint64_t {
   SY_IS_TYPE_ATTRIBUTE_TYPE = rq::getBit(37),
 
   // EXPRESSION ATTRIBUTES
-  // SY_HAS_LABELING, LOCAL_DECLARATION | GLOBAL_DECLARATION
+  // SY_HAS_ANCHORING, LOCAL_DECLARATION | GLOBAL_DECLARATION
   SY_HAS_VISIBILITY = rq::getBit(40),
   SY_HAS_SCOPE_LOCATION = rq::getBit(41),
   // SY_HAS_AVAILABILITY, LOCAL_DECLARATION | GLOBAL_DECLARATION
@@ -290,7 +311,7 @@ enum class OpcodeFlags : std::uint64_t {
   // SY_HAS_POSTCONDITION, SIGNATURE
 };
 
-template<> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
+template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode);
 
@@ -318,7 +339,7 @@ template<> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
 getIsExpressionAttributeType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType(rq::Opcode opcode);
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabeling(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability(rq::Opcode opcode);
@@ -371,7 +392,7 @@ struct Entity;
           struct VoidType;
           struct NoReturnType;
       struct ExpressionAttributeType;
-        struct LabelingType;
+        struct AnchoringType;
         struct VisibilityType;
         struct ScopingType;
         struct AvailabilityType;
@@ -436,6 +457,7 @@ struct Entity;
       struct FiniteArithmeticSequence;
     struct LocalDeclaration;
       struct Label;
+      struct Anchor;
       struct LocalVariable;
         struct LocalDynamicVariable;
         struct LocalStaticVariable;
@@ -458,7 +480,23 @@ struct Entity;
       struct GlobalStaticVariablePolymorph;
     struct SymbolTable;
       struct Top;
-      struct Scope;
+      struct LocalTable;
+        struct IfTable;
+        struct ElseIfTable;
+        struct ElseTable;
+        struct MatchTable;
+        struct InlineMatchTable;
+        struct SwitchTable;
+        struct InlineSwitchTable;
+        struct CaseTable;
+        struct WithTable;
+        struct DefaultTable;
+        struct ForTable;
+        struct WhileTable;
+        struct SpinTable;
+        struct WeaveTable;
+        struct ScopeTable;
+        struct InlineScopeTable;
       struct GlobalDeclaration;
         struct Namespace;
         struct Class;
@@ -539,7 +577,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttributeType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType() const;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabeling() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability() const;
@@ -753,10 +791,10 @@ struct ExpressionAttributeType : public rq::SimpleSymbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct LabelingType final : public rq::ExpressionAttributeType {
-  using Self = rq::LabelingType;
+struct AnchoringType final : public rq::ExpressionAttributeType {
+  using Self = rq::AnchoringType;
 
-  explicit RQ_ALWAYS_INLINE LabelingType();
+  explicit RQ_ALWAYS_INLINE AnchoringType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1386,22 +1424,32 @@ struct LocalDeclaration : public rq::Symbol {
 struct Label final : public rq::LocalDeclaration {
   using Self = rq::Label;
 
-  rq::Symbol *_target_symbol_ptr{nullptr};
   rq::Instruction *_target_instruction_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Label(llvm::StringRef name,
                                   const rq::Expression &name_expression,
-                                  rq::SymbolTable &containing_table);
+                                  rq::SymbolTable &containing_table,
+                                  rq::Instruction &instruction);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTargetSymbol() const;
-  RQ_ALWAYS_INLINE void setTargetSymbol(rq::Symbol &symbol);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getTargetSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getTargetSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTargetInstruction() const;
-  RQ_ALWAYS_INLINE void setTargetInstruction(rq::Instruction &target);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
   getTargetInstruction() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getTargetInstruction();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Anchor final : public rq::LocalDeclaration {
+  using Self = rq::Anchor;
+
+  rq::LocalTable *_local_table_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Anchor(llvm::StringRef name,
+                                   const rq::Expression &name_expression,
+                                   rq::SymbolTable &containing_table,
+                                   rq::LocalTable &local_table);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LocalTable &getLocalTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalTable &getLocalTable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1949,13 +1997,113 @@ struct Top final : public rq::SymbolTable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct Scope final : public rq::SymbolTable {
-  using Self = rq::Scope;
+struct LocalTable : public rq::SymbolTable {
+  using Self = rq::LocalTable;
 
-  explicit RQ_ALWAYS_INLINE Scope();
+  rq::Expression *_expression_ptr;
+  rq::ExpressionFlags _flags;
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity,
-                                           rq::SymbolTable &containing_table);
+  explicit RQ_ALWAYS_INLINE LocalTable(rq::Opcode opcode, rq::Expression& expression, rq::ExpressionFlags flags);
+
+ [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct IfTable final : public rq::LocalTable {
+  using Self = rq::IfTable;
+
+  explicit RQ_ALWAYS_INLINE IfTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct ElseIfTable final : public rq::LocalTable {
+  using Self = rq::ElseIfTable;
+
+  explicit RQ_ALWAYS_INLINE ElseIfTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct ElseTable final : public rq::LocalTable {
+  using Self = rq::ElseTable;
+
+  explicit RQ_ALWAYS_INLINE ElseTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct MatchTable final : public rq::LocalTable {
+  using Self = rq::MatchTable;
+
+  explicit RQ_ALWAYS_INLINE MatchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct InlineMatchTable final : public rq::LocalTable {
+  using Self = rq::InlineMatchTable;
+
+  explicit RQ_ALWAYS_INLINE InlineMatchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct SwitchTable final : public rq::LocalTable {
+  using Self = rq::SwitchTable;
+
+  explicit RQ_ALWAYS_INLINE SwitchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct InlineSwitchTable final : public rq::LocalTable {
+  using Self = rq::InlineSwitchTable;
+
+  explicit RQ_ALWAYS_INLINE InlineSwitchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct CaseTable final : public rq::LocalTable {
+  using Self = rq::CaseTable;
+
+  explicit RQ_ALWAYS_INLINE CaseTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct WithTable final : public rq::LocalTable {
+  using Self = rq::WithTable;
+
+  explicit RQ_ALWAYS_INLINE WithTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct DefaultTable final : public rq::LocalTable {
+  using Self = rq::DefaultTable;
+
+  explicit RQ_ALWAYS_INLINE DefaultTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct ForTable final : public rq::LocalTable {
+  using Self = rq::ForTable;
+
+  explicit RQ_ALWAYS_INLINE ForTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct WhileTable final : public rq::LocalTable {
+  using Self = rq::WhileTable;
+
+  explicit RQ_ALWAYS_INLINE WhileTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct SpinTable final : public rq::LocalTable {
+  using Self = rq::SpinTable;
+
+  explicit RQ_ALWAYS_INLINE SpinTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct WeaveTable final : public rq::LocalTable {
+  using Self = rq::WeaveTable;
+
+  explicit RQ_ALWAYS_INLINE WeaveTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct ScopeTable final : public rq::LocalTable {
+  using Self = rq::ScopeTable;
+
+  explicit RQ_ALWAYS_INLINE ScopeTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+};
+
+struct InlineScopeTable final : public rq::LocalTable {
+  using Self = rq::InlineScopeTable;
+
+  explicit RQ_ALWAYS_INLINE InlineScopeTable(rq::Expression& expression, rq::SymbolTable &containing_table);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
 struct GlobalDeclaration : public rq::SymbolTable {
