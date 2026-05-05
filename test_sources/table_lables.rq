@@ -1,0 +1,35 @@
+[import "std"];
+
+[entry
+    [result] :\[var]=0;
+
+    [table_label]::MyWhile
+    [while [true],
+        [result] += 1;
+        [if [result] == 10,
+            [break MyWhile];
+        ];
+    ];
+
+    [table_label]::MyWhile
+    [while [true],
+        [result] += 1;
+        [if [result] == 12,
+            [result] += 2;
+            [continue MyWhile];
+        ][else_if [result] == 20,
+            [break MyWhile];
+        ];
+    ];
+
+    [switch [result],
+    
+        [case 21,
+            
+        ][case 20,
+            [fallthrough];
+        ][default
+            [result] = 0;
+        ];    
+    ];
+];
