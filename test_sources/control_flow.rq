@@ -3,7 +3,7 @@
 [entry
     [result] :\[var]=0;
 
-    [table_label]::MyWhile
+    [anchor]::MyWhile
     [while [true],
         [result] += 1;
         [if [result] == 10,
@@ -11,7 +11,7 @@
         ];
     ];
 
-    [table_label]::MyWhile
+    [anchor]::MyWhile
     [while [true],
         [result] += 1;
         [if [result] == 12,

@@ -1,7 +1,7 @@
 [import "std"];
 
 [entry
-  [goto_label Restart];
+  [label Restart];
   ..std.print(line="Hello!");
   [goto Restart];
   [result] := 0;

@@ -324,6 +324,7 @@ enum class Keyword : std::uint32_t {
   NAMESPACE,
   C,
   TOP,
+  LABEL,
   NO_NAME,
 
   // HINTS
@@ -334,9 +335,9 @@ enum class Keyword : std::uint32_t {
   ASSUME,
 
   // EXPRESSION ATTRIBUTES
-  // labeling
-  NO_LABEL, // default
-  LABEL,
+  // anchoring
+  NO_ANCHOR, // default
+  ANCHOR,
   // visibility
   TRANSPARENT, // default
   OPAQUE,
@@ -419,7 +420,7 @@ enum class Keyword : std::uint32_t {
   ENSURE,
 
   // EXPRESSION ATTRIBUTE TYPES
-  LABELING,            // no_label vs label
+  ANCHORING,            // no_anchor vs anchor
   VISIBILITY,          // transparent vs opaque
   SCOPING,             // inside_scope vs outside_scope
   AVAILABILITY,        // local vs global
@@ -1085,6 +1086,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::TOP:
     return "_top";
+  case K::LABEL:
+    return "label";
   case K::NO_NAME:
     return "no_name";
 
@@ -1101,8 +1104,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "assume";
 
   // EXPRESSION ATTRIBUTES
-  case K::NO_LABEL:
+  case K::NO_ANCHOR:
     return "no_label";
+  case K::ANCHOR:
+    return "anchor";
   case K::OPAQUE:
     return "opaque";
   case K::TRANSPARENT:
@@ -1151,8 +1156,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "pack";
   case K::NO_PACK:
     return "no_pack";
-  case K::LABEL:
-    return "label";
   case K::TEMPLATE:
     return "template";
   case K::NO_TEMPLATE:
@@ -1215,8 +1218,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "ensure";
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::LABELING:
-    return "labeling";
+  case K::ANCHORING:
+    return "anchoring";
   case K::VISIBILITY:
     return "visibility";
   case K::SCOPING:
@@ -2043,6 +2046,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE;
   case K::TOP:
     return KF::STATEMENT_BRANCHES | KF::NONE; // TOP
+  case K::LABEL:
+    return KF::STATEMENT;
   case K::NO_NAME:
     return KF::NAME;
 
@@ -2059,7 +2064,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // EXPRESSION ATTRIBUTES
-  case K::NO_LABEL:
+  case K::NO_ANCHOR:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::ANCHOR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::OPAQUE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2109,8 +2116,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::PACK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_PACK:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::LABEL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::TEMPLATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT |
@@ -2175,7 +2180,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::LABELING:
+  case K::ANCHORING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VISIBILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2975,7 +2980,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   EXPLICIT_MANGLE,
   NO_PACK,
   PACK,
-  LABEL,
+  NO_ANCHOR,
+  ANCHOR,
   NO_TEMPLATE,
   TEMPLATE,
   EQUIVOCAL,
@@ -3050,8 +3056,10 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_pack";
   case EA::PACK:
     return "pack";
-  case EA::LABEL:
-    return "label";
+  case EA::NO_ANCHOR:
+    return "no_anchor";
+  case EA::ANCHOR:
+    return "anchor";
   case EA::NO_TEMPLATE:
     return "no_template";
   case EA::TEMPLATE:
@@ -3096,8 +3104,10 @@ getExpressionAttribute(rq::Keyword keyword) {
   using K = Keyword;
   using EA = ExpressionAttribute;
   switch (keyword) {
-  case K::NO_LABEL:
+  case K::NO_ANCHOR:
     return EA::NONE;
+  case K::ANCHOR:
+    return EA::ANCHOR;
   case K::OPAQUE:
     return EA::OPAQUE;
   case K::TRANSPARENT:
@@ -3142,8 +3152,10 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::PACK;
   case K::NO_PACK:
     return EA::NO_PACK;
-  case K::LABEL:
-    return EA::LABEL;
+  case K::NO_ANCHOR:
+    return EA::NO_ANCHOR;
+  case K::ANCHOR:
+    return EA::ANCHOR;
   case K::TEMPLATE:
     return EA::TEMPLATE;
   case K::NO_TEMPLATE:
@@ -3180,9 +3192,9 @@ getExpressionAttribute(rq::Keyword keyword) {
 
 enum class ExpressionFlags : std::uint64_t {
   NONE = 0,
-  // labeling
-  // no_label (default)
-  LABEL = rq::getBit(0),
+  // anchoring
+  // no_anchor (default)
+  ANCHOR = rq::getBit(0),
 
   // visibility
   // transparent (default)
@@ -3262,7 +3274,7 @@ enum class ExpressionFlags : std::uint64_t {
   //  DEFAULT_WEIGHT (default)
   WEIGHT = rq::getBit(21),
 
-  NO_LABEL_NONE_MASK = LABEL,             // no_label vs label
+  NO_ANCHOR_NONE_MASK = ANCHOR,             // no_anchor vs anchor
   TRANSPARENT_NONE_MASK = OPAQUE,         // transparent vs opaque
   INSIDE_SCOPE_NONE_MASK = OUTSIDE_SCOPE, // inside_scope vs outside_scope
   LOCAL_NONE_MASK = GLOBAL,               // local vs global
@@ -3299,9 +3311,9 @@ getFlags(rq::ExpressionAttribute attribute) {
   case EA::NONE:
     return EF::NONE;
 
-  // labeling
-  case EA::LABEL:
-    return EF::LABEL;
+  // table_labling
+  case EA::ANCHOR:
+    return EF::ANCHOR;
 
   // visibility
   case EA::TRANSPARENT:
@@ -3427,13 +3439,13 @@ getFlags(rq::ExpressionAttribute attribute) {
   return EF::NONE;
 }
 
-// labeling
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoLabel(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::NO_LABEL_NONE_MASK);
+// anchoring
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoAnchor(rq::ExpressionFlags flags) {
+  return rq::getHasNone(flags, rq::ExpressionFlags::NO_ANCHOR_NONE_MASK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLabel(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::LABEL);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchor(rq::ExpressionFlags flags) {
+  return rq::getHasAll(flags, rq::ExpressionFlags::ANCHOR);
 }
 
 // visibility
@@ -3639,7 +3651,7 @@ getHasAttribute(rq::ExpressionFlags flags, rq::ExpressionAttribute attribute) {
 
 enum class ExpressionAttributeKind {
   NONE,
-  LABELING,
+  ANCHORING,
   VISIBILITY,
   SCOPING,
   AVAILABILITY,
@@ -3666,8 +3678,8 @@ enum class ExpressionAttributeKind {
   switch (kind) {
   case EAK::NONE:
     return "none";
-  case EAK::LABELING:
-    return "labeling";
+  case EAK::ANCHORING:
+    return "anchoring";
   case EAK::VISIBILITY:
     return "visibility";
   case EAK::SCOPING:
@@ -3765,8 +3777,10 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::PACK:
     return EAK::PACKING;
-  case EA::LABEL:
-    return EAK::LABELING;
+  case EA::NO_ANCHOR: 
+    return EAK::ANCHORING;
+  case EA::ANCHOR:
+    return EAK::ANCHORING;
   case EA::NO_TEMPLATE:
     [[fallthrough]];
   case EA::TEMPLATE:
