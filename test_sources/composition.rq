@@ -1,7 +1,7 @@
 [import "std"];
 
 [interface Speak,
-    [method speak, ()[void]=>$,
+    [method speak, ()[void]=>,
         ..std.print(line="I don't speak.");
     ];
 ];
@@ -11,19 +11,19 @@
 [class Cat,];
 
 [class Rat,
-    [method squeak, ()[void]=>$,
+    [method squeak, ()[void]=>,
         ..std.print(line="Squeak!");  
     ];
 ];
 
 [implement_interface ..Dog, ..Speak,
-    [method speak, ()[void]=>$,
+    [method speak, ()[void]=>,
         ..std.print(line="Woof!");
     ];
 ];
 
 [implement_interface ..Cat, ..Speak,
-    [method speak, ()[void]=>$,
+    [method speak, ()[void]=>,
         ..std.print(line="Meow!");
     ];
 ];
@@ -33,28 +33,23 @@
 ];
 
 [interface Greet,
-    [method greet, ()[void]=$,
+    [method greet, ()[void]=>,
         ..std.print(line="I don't greet.");
     ];
 ];
 
 [implement_interface ..Dog, ..Greet,
-    [method greet, ()[void]=>$,
+    [method greet, ()[void]=>,
         ..std.print(line="*wags tail*");
     ];
 ];
 
 [implement_interface ..Rat, ..Speak,
-    [use_method speak, ..rat.squeak, ()[void]=>$];
+    [use_method speak, ..rat.squeak, ()[void]=>];
 ];
 
 [implement_interface ..Rat, ..Greet,
-    [use_method greet, ..Rat.squeak, ()[void]=>$];
-];
-
-[function speakAndGreet, (> animal:$[composition ..Speak, ..Greet] <)[void],
-    animal.[compose ..Speak].speak();
-    animal.[compose ..Greet].greet();
+    [use_method greet, ..Rat.squeak, ()[void]=>];
 ];
 
 [entry
@@ -72,4 +67,9 @@
     ..speakAndGreet(animal=rat.[compose ..Speak, ..Greet]);
 
     [result] := 0;
+];
+
+[function speakAndGreet, (> animal:$[composition ..Speak, ..Greet] <)[void],
+    animal.[compose ..Speak].speak();
+    animal.[compose ..Greet].greet();
 ];
