@@ -420,7 +420,7 @@ enum class Keyword : std::uint32_t {
   ENSURE,
 
   // EXPRESSION ATTRIBUTE TYPES
-  ANCHORING,            // no_anchor vs anchor
+  ANCHORING,           // no_anchor vs anchor
   VISIBILITY,          // transparent vs opaque
   SCOPING,             // inside_scope vs outside_scope
   AVAILABILITY,        // local vs global
@@ -3274,7 +3274,7 @@ enum class ExpressionFlags : std::uint64_t {
   //  DEFAULT_WEIGHT (default)
   WEIGHT = rq::getBit(21),
 
-  NO_ANCHOR_NONE_MASK = ANCHOR,             // no_anchor vs anchor
+  NO_ANCHOR_NONE_MASK = ANCHOR,           // no_anchor vs anchor
   TRANSPARENT_NONE_MASK = OPAQUE,         // transparent vs opaque
   INSIDE_SCOPE_NONE_MASK = OUTSIDE_SCOPE, // inside_scope vs outside_scope
   LOCAL_NONE_MASK = GLOBAL,               // local vs global
@@ -3777,7 +3777,7 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::PACK:
     return EAK::PACKING;
-  case EA::NO_ANCHOR: 
+  case EA::NO_ANCHOR:
     return EAK::ANCHORING;
   case EA::ANCHOR:
     return EAK::ANCHORING;
