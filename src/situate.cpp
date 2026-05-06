@@ -837,97 +837,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
-  // ARITHMETIC INTERVAL
-  case K::ARITHMETIC_INTERVAL_LESS:
-    [[fallthrough]];
-  case K::ARITHMETIC_INTERVAL_LESS_EQUAL:
-    [[fallthrough]];
-  case K::ARITHMETIC_INTERVAL_GREATER:
-    [[fallthrough]];
-  case K::ARITHMETIC_INTERVAL_GREATER_EQUAL:
-    [[fallthrough]];
-  case K::ARITHMETIC_INTERVAL_EQUAL:
-    [[fallthrough]];
-  case K::ARITHMETIC_INTERVAL_NOT_EQUAL:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-
-  // FINITE ARITHMETIC PROGRESSION TYPES
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_ADD:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_SUBTRACT:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_MULTIPLY:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_DIVIDE:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_MODULUS:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_ADD:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_SUBTRACT:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MULTIPLY:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_DIVIDE:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_LESS_EQUAL_MODULUS:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_ADD:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_SUBTRACT:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_MULTIPLY:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_DIVIDE:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_MODULUS:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_ADD:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_SUBTRACT:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MULTIPLY:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_DIVIDE:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_GREATER_EQUAL_MODULUS:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_EQUAL_ADD:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_EQUAL_SUBTRACT:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_EQUAL_MULTIPLY:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_EQUAL_DIVIDE:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_EQUAL_MODULUS:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_ADD:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_SUBTRACT:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MULTIPLY:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_DIVIDE:
-    [[fallthrough]];
-  case K::FINITE_ARITHMETIC_PROGRESSION_NOT_EQUAL_MODULUS:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-
-  // INFINITE ARITHMETIC PROGRESSION TYPES
-  case K::INFINITE_ARITHMETIC_PROGRESSION_ADD:
-    [[fallthrough]];
-  case K::INFINITE_ARITHMETIC_PROGRESSION_SUBTRACT:
-    [[fallthrough]];
-  case K::INFINITE_ARITHMETIC_PROGRESSION_MULTIPLY:
-    [[fallthrough]];
-  case K::INFINITE_ARITHMETIC_PROGRESSION_DIVIDE:
-    [[fallthrough]];
-  case K::INFINITE_ARITHMETIC_PROGRESSION_MODULUS:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-
   // TABLE GRAPH
   case K::IMPORT:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
@@ -998,9 +907,9 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // EXPRESSION ATTRIBUTES
-  case K::NO_LABEL:
+  case K::NO_ANCHOR:
     [[fallthrough]];
-  case K::LABEL:
+  case K::ANCHOR:
     [[fallthrough]];
   case K::TRANSPARENT:
     [[fallthrough]];
@@ -1018,8 +927,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
-  case K::PROTECTED:
-    [[fallthrough]];
   case K::NO_PARTIAL_MUTATE:
     [[fallthrough]];
   case K::PARTIAL_MUTATE:
@@ -1035,10 +942,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NO_CAPTURE:
     [[fallthrough]];
   case K::CAPTURE:
-    [[fallthrough]];
-  case K::LAZY:
-    [[fallthrough]];
-  case K::EAGER:
     [[fallthrough]];
   case K::NO_INLINE:
     [[fallthrough]];
@@ -1106,7 +1009,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::LABELING:
+  case K::ANCHORING:
     [[fallthrough]];
   case K::VISIBILITY:
     [[fallthrough]];

@@ -119,8 +119,11 @@ enum class Opcode {
   // IMPORTS
   SY_IMPORT,
 
-  // CONCATENATED STRING
-  SY_CONCATENATED_STRING_TYPE,
+  // TUPLE TYPE
+  SY_TUPLE_TYPE,
+
+  // JUXTAPOSITIONAL LIST
+  SY_JUXTAPOSITIONAL_LIST_TYPE,
 
   // ARITHMETIC SEQUENCES
   SY_ARITHMETIC_INTERVAL,
@@ -203,7 +206,6 @@ enum class Opcode {
   // PROCEDURES => global declaration => symbol table
   SY_ENTRY,
   SY_FUNCTION,
-  SY_MEMBER_FUNCTION,
   SY_METHOD,
   SY_EXTENSION_FUNCTION,
   SY_EXTENSION_METHOD,
@@ -217,7 +219,6 @@ enum class Opcode {
   SY_FORWARD_RANGER_TEMPLATE,
   SY_BACKWARD_RANGER_TEMPLATE,
   SY_FUNCTION_TEMPLATE,
-  SY_MEMBER_FUNCTION_TEMPLATE,
   SY_METHOD_TEMPLATE,
   SY_EXTENSION_FUNCTION_TEMPLATE,
   SY_EXTENSION_METHOD_TEMPLATE,
@@ -482,7 +483,8 @@ struct Entity;
         struct InferenceCountArraySubtype;
     struct Module;
     struct Import;
-    struct ConcatenatedString;
+    struct TupleType;
+    struct JuxtapositionalListType;
     struct ArithmeticSequence;
       struct ArithmeticInterval;
       struct InfiniteArithmeticSequence;
@@ -493,6 +495,7 @@ struct Entity;
       struct LocalVariable;
         struct LocalDynamicVariable;
         struct LocalStaticVariable;
+        struct Element;
         struct Parameter;
           struct StaticParameter;
           struct DynamicParameter;
@@ -545,7 +548,6 @@ struct Entity;
         struct Procedure;
           struct Entry;
           struct Function;
-          struct MemberFunction;
           struct Method;
           struct ExtensionFunction;
           struct ExtensionMethod;
@@ -558,7 +560,6 @@ struct Entity;
           struct ForwardRangerTemplate;
           struct BackwardRangerTemplate;
           struct FunctionTemplate;
-          struct MemberFunctionTemplate;
           struct MethodTemplate;
           struct ExtensionFunctionTemplate;
           struct ExtensionMethodTemplate;
@@ -1387,13 +1388,108 @@ struct Import final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct ConcatenatedString final : public rq::Symbol {
-  using Self = rq::ConcatenatedString;
+struct TupleTypeFactory final {
+  using Self = TupleTypeFactory;
+
+  unsigned _element_count{0};
+  unsigned _named_element_count{0};
+  rq::Element *_first_element_ptr{nullptr};
+  rq::Element *_last_element_ptr{nullptr};
+
+  TupleTypeFactory() = default;
+
+  inline void addElement(rq::Element &element);
+};
+
+struct ElementIterator final {
+  using Self = rq::ElementIterator;
+  using value_type = rq::Element;
+  using reference = rq::Element &;
+  using pointer = rq::Element *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::Element *_element_ptr{nullptr};
+
+  ElementIterator() = default;
+  explicit ElementIterator(rq::Element *element_ptr);
+  ElementIterator(const Self &) = default;
+  ElementIterator(Self &&) = default;
+  ~ElementIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Element &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Element *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct ConstElementIterator final {
+  using Self = rq::ConstElementIterator;
+  using value_type = const rq::Element;
+  using reference = const rq::Element &;
+  using pointer = rq::Element *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Element *_element_ptr{nullptr};
+
+  ConstElementIterator() = default;
+  explicit ConstElementIterator(const rq::Element *element_ptr);
+  ConstElementIterator(const Self &) = default;
+  ConstElementIterator(Self &&) = default;
+  ~ConstElementIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+};
+
+struct TupleType final : public rq::Symbol {
+  using Self = rq::TupleType;
+
+  unsigned _element_count;
+  unsigned _named_element_count;
+  rq::Element *_first_element_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  TupleType(rq::TupleTypeFactory &factory);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getElementCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getNamedElementCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getUnamedElementCount() const;
+  [[nodiscard]] inline rq::Element* getElementOfType(const rq::SymbolConstant& type);
+  [[nodiscard]] inline rq::Element* getElementOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ElementIterator, rq::ElementIterator,
+                            std::ranges::subrange_kind::unsized>
+      getElementSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstElementIterator,
+                            rq::ConstElementIterator,
+                            std::ranges::subrange_kind::unsized>
+      getElementSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct JuxtapositionalListType final : public rq::Symbol {
+  using Self = rq::JuxtapositionalListType;
 
   llvm::ArrayRef<rq::SymbolConstant *> _children_ptrs;
 
   explicit RQ_ALWAYS_INLINE
-  ConcatenatedString(llvm::ArrayRef<rq::SymbolConstant *> children_ptrs);
+  JuxtapositionalListType(llvm::ArrayRef<rq::SymbolConstant *> children_ptrs);
 
   [[nodiscard]] llvm::ArrayRef<const rq::SymbolConstant *> getChildren() const;
   [[nodiscard]] llvm::ArrayRef<rq::SymbolConstant *> getChildren();
@@ -1683,17 +1779,16 @@ struct ConstParameterIterator final {
 struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
-  const rq::Expression *_expression_ptr{nullptr};
-  unsigned _parameter_count{0};
-  unsigned _positional_pass_parameter_count{0};
-  unsigned _named_pass_parameter_count{0};
-  unsigned _unsettble_parameter_count{0};
-  rq::Parameter *_first_parameter_ptr{nullptr};
-  llvm::ArrayRef<rq::Parameter *> _named_parameter_hash_table{};
+  const rq::Expression *_expression_ptr;
+  unsigned _parameter_count;
+  unsigned _positional_pass_parameter_count;
+  unsigned _named_pass_parameter_count;
+  unsigned _unsettble_parameter_count;
+  rq::Parameter *_first_parameter_ptr;
 
   explicit inline ParameterList(rq::Opcode opcode,
-                                rq::BumpPtrAllocator &allocator,
-                                rq::ParameterListFactory &factory);
+                                rq::ParameterListFactory &factory,
+                                const rq::Expression &expression);
 
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned
@@ -1701,7 +1796,7 @@ struct ParameterList : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getNamedPassParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLockedParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *
-  getNamedParameter(llvm::StringRef name);
+  getParameterOfName(llvm::StringRef name);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator, rq::ParameterIterator,
                             std::ranges::subrange_kind::unsized>
