@@ -382,7 +382,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::INPLACE_INITIALIZE_OF:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
+                                             S::RVALUE);
     break;
 
   // SUBTYPE
@@ -763,8 +764,8 @@ bool Situator::situateTree(rq::Situation situation,
                                                           S::RVALUE);
     break;
   case K::WEAVE:
-    is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
-                                                          S::STATEMENT);
+    is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::STATEMENT);
     break;
   case K::SCOPE:
     [[fallthrough]];
