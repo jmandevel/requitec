@@ -75,12 +75,21 @@ enum class Opcode {
   SY_SYMBOL,
   SY_EXPRESSION,
 
-  // UNSCALED PRIMITIVE
+  // PLATFORM PRIMITIVE
   SY_BOOLEAN,
   SY_HALF,
   SY_SINGLE,
   SY_DOUBLE,
   SY_QUADRUPLE,
+  SY_SIGNED_INTEGER,
+  SY_UNSIGNED_INTEGER,
+  SY_SIGNED_INDEX,
+  SY_UNSIGNED_INDEX,
+  SY_SIGNED_ADDRESS,
+  SY_UNSIGNED_ADDRESS,
+  SY_CHAR,
+
+  // STANDARD PRIMITIVE
   SY_BINARY16,
   SY_BINARY32,
   SY_BINARY64,
@@ -88,28 +97,22 @@ enum class Opcode {
   SY_BFLOAT16,
   SY_ASCII,
   SY_UTF8,
-  SY_SIGNED_INTEGER,
-  SY_UNSIGNED_INTEGER,
-  SY_SIGNED_INDEX,
-  SY_UNSIGNED_INDEX,
-  SY_SIGNED_ADDRESS,
-  SY_UNSIGNED_ADDRESS,
 
   // VARIADIC ARGUMENTS
   SY_VARIADIC_ARGUMENTS,
 
-  // SCALED INTEGERS
+  // SCALED PRIMITIVES
   SY_SCALED_SIGNED_INTEGER,
   SY_SCALED_UNSIGNED_INTEGER,
 
-  // UNCOUNTED SUBTYPES
+  // SUBTYPES
+  SY_ARRAY,
+
+  // UNCOUNTED SUBTYPES => SUBTYPES
   SY_REFERENCE,
   SY_POINTER,
   SY_FAT_POINTER,
   SY_INFERENCE_COUNT_ARRAY,
-
-  // ARRAY
-  SY_ARRAY,
 
   // MODULES
   SY_MODULE,
@@ -251,62 +254,64 @@ enum class OpcodeFlags : std::uint64_t {
   SY_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(8),
   SY_TYPE_ATTRIBUTE_TYPE = rq::getBit(9),
   SY_REFLECTIVE_TYPE = rq::getBit(10),
-  SY_UNSCALED_PRIMITIVE_TYPE = rq::getBit(11),
-  SY_SCALED_INTEGER_TYPE = rq::getBit(12),
-  SY_UNCOUNTED_SUBTYPE = rq::getBit(13),
-  SY_ARITHMETIC_SEQUENCE = rq::getBit(14),
-  SY_LOCAL_DECLARATION = rq::getBit(15),
-  SY_LOCAL_VARIABLE = rq::getBit(16),
+  SY_PLATFORM_PRIMITIVE_TYPE = rq::getBit(11),
+  SY_STANDARD_PRIMITIVE_TYPE = rq::getBit(12),
+  SY_SCALED_PRIMITIVE_TYPE = rq::getBit(13),
+  SY_SUBTYPE = rq::getBit(14),
+  SY_UNCOUNTED_SUBTYPE = rq::getBit(14),
+  SY_ARITHMETIC_SEQUENCE = rq::getBit(15),
+  SY_LOCAL_DECLARATION = rq::getBit(16),
+  SY_LOCAL_VARIABLE = rq::getBit(17),
   SY_PARAMETER = rq::getBit(18),
   SY_PARAMETER_LIST = rq::getBit(19),
   SY_POLYMORPH = rq::getBit(20),
   SY_SYMBOL_TABLE = rq::getBit(21),
-  SY_GLOBAL_DECLARATION = rq::getBit(22),
-  SY_GLOBAL_VARIABLE = rq::getBit(23),
-  SY_RANGER = rq::getBit(24),
-  SY_PROCEDURE = rq::getBit(25),
-  SY_TEMPLATE = rq::getBit(26),
+  SY_LOCAL_TABLE = rq::getBit(22),
+  SY_GLOBAL_DECLARATION = rq::getBit(23),
+  SY_GLOBAL_VARIABLE = rq::getBit(24),
+  SY_RANGER = rq::getBit(25),
+  SY_PROCEDURE = rq::getBit(26),
+  SY_TEMPLATE = rq::getBit(27),
 
   // SYMBOL DETAILS
-  SY_IS_TYPE = rq::getBit(27),
-  SY_IS_SIGNED_TYPE = rq::getBit(28),
-  SY_IS_UNSIGNED_TYPE = rq::getBit(29),
-  SY_IS_INTEGER_TYPE = rq::getBit(30),
-  SY_IS_FLOAT_TYPE = rq::getBit(31),
-  SY_IS_BINARY_TYPE = rq::getBit(32),
-  SY_IS_BFLOAT_TYPE = rq::getBit(33),
-  SY_IS_STRING_TYPE = rq::getBit(34),
-  SY_IS_CODEUNIT_TYPE = rq::getBit(35),
-  SY_IS_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(36),
-  SY_IS_TYPE_ATTRIBUTE_TYPE = rq::getBit(37),
+  SY_IS_TYPE = rq::getBit(28),
+  SY_IS_SIGNED_TYPE = rq::getBit(29),
+  SY_IS_UNSIGNED_TYPE = rq::getBit(30),
+  SY_IS_INTEGER_TYPE = rq::getBit(31),
+  SY_IS_FLOAT_TYPE = rq::getBit(32),
+  SY_IS_BINARY_TYPE = rq::getBit(33),
+  SY_IS_BFLOAT_TYPE = rq::getBit(34),
+  SY_IS_STRING_TYPE = rq::getBit(35),
+  SY_IS_CODEUNIT_TYPE = rq::getBit(36),
 
   // EXPRESSION ATTRIBUTES
+  SY_ASCRIBED_GLOBAL = rq::getBit(37), // used for multiple other flags (see bellow)
   // SY_HAS_ANCHORING, LOCAL_DECLARATION | GLOBAL_DECLARATION
-  SY_HAS_VISIBILITY = rq::getBit(40),
-  SY_HAS_SCOPE_LOCATION = rq::getBit(41),
+  SY_HAS_VISIBILITY = rq::getBit(37),
+  SY_HAS_SCOPE_LOCATION = rq::getBit(38),
   // SY_HAS_AVAILABILITY, LOCAL_DECLARATION | GLOBAL_DECLARATION
-  SY_HAS_ACCESSIBILITY = rq::getBit(42),
-  // SY_HAS_PROPERTY_MUTABILITY, PARAMETERS
-  // SY_HAS_EXPORTING, GLOBAL_DECLARATION
-  SY_HAS_GENERATION_TIME = rq::getBit(43),
-  // SY_HAS_CAPTURING, GLOBAL_DECLARATION
-  // SY_HAS_EVALUATION_TIME, GLOBAL_DECLARATION
+  SY_HAS_ACCESSIBILITY = rq::getBit(39),
+  // SY_HAS_PROPERTY_MUTABILITY, DYNAMIC PARAMETER
+  // SY_HAS_EXPORTING, SY_ASCRIBED_GLOBAL
+  //SY_HAS_GENERATION_TIME, SY_ASCRIBED_GLOBAL
+  // SY_HAS_CAPTURING, SY_ASCRIBED_GLOBAL
+  // SY_HAS_EVALUATION_TIME, SY_ASCRIBED_GLOBAL | LOCAL_VARIABLE | LOCAL_TABLE
   // SY_HAS_INLINING, PROCEDURES
   // SY_HAS_MANGLING, PROCEDURES
   // SY_HAS_PACKING, CLASS
-  // SY_HAS_TEMPLATING, all(GLOBAL_DECLARATION) && none(NAMESPACE | TEMPLATE)
-  // SY_HAS_LIKELYHOOD, SCOPE
-  // SY_HAS_SUPPORT, GLOBAL_DECLARATION
+  // SY_HAS_TEMPLATING, SY_ASCRIBED_GLOBAL
+  SY_HAS_LIKELYHOOD = rq::getBit(41),
+  // SY_HAS_SUPPORT, SY_ASCRIBED_GLOBAL
   // SY_HAS_ADDRESS_STABILITY, CLASS
   // SY_HAS_VARIADICNESS, PARAMETERS
   // SY_HAS_CONTRAINT, TEMPLATES
   // SY_HAS_WEIGHTING, TEMPLATES
 
   // TYPE ATTRIBUTES
-  SY_HAS_VARIABILITY = rq::getBit(44),
-  SY_HAS_VOLATILITY = rq::getBit(45),
-  SY_HAS_ATOMICITY = rq::getBit(46),
-  SY_HAS_NULL_TERMINATE = rq::getBit(47)
+  SY_HAS_VARIABILITY = rq::getBit(42),
+  SY_HAS_VOLATILITY = rq::getBit(43),
+  SY_HAS_ATOMICITY = rq::getBit(44),
+  SY_HAS_NULL_TERMINATE = rq::getBit(45)
   // SY_HAS_PRECONDITION, SIGNATURE
   // SY_HAS_POSTCONDITION, SIGNATURE
 };
@@ -335,9 +340,6 @@ template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsExpressionAttributeType(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType(rq::Opcode opcode);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility(rq::Opcode opcode);
@@ -419,8 +421,16 @@ struct Entity;
       struct ReflectiveType;
         struct SymbolType;
         struct ExpressionType;
-      struct UnscaledPrimitiveType;
+      struct PlatformPrimitiveType;
         struct BooleanType;
+        struct SignedIntegerType;
+        struct UnsignedIntegerType;
+        struct SignedIndexType;
+        struct UnsignedIndexType;
+        struct SignedAddressType;
+        struct UnsignedAddressType;
+        struct CharType;
+      struct StandardPrimitiveType;
         struct HalfType;
         struct SingleType;
         struct DoubleType;
@@ -432,22 +442,17 @@ struct Entity;
         struct Bfloat16Type;
         struct AsciiType;
         struct Utf8Type;
-        struct SignedIntegerType;
-        struct UnsignedIntegerType;
-        struct SignedIndexType;
-        struct UnsignedIndexType;
-        struct SignedAddressType;
-        struct UnsignedAddressType;
       struct VariadicArgumentType;
-    struct ScaledIntegerType;
+    struct ScaledPrimitiveType;
       struct ScaledSignedIntegerType;
       struct ScaledUnsignedIntegerType;
-    struct UncountedSubtype;
-      struct ReferenceSubtype;
-      struct PointerSubtype;
-      struct FatPointerSubtype;
-      struct InferenceCountArraySubtype;
-    struct ArraySubtype;
+    struct Subtype;
+      struct ArraySubtype;
+      struct UncountedSubtype;
+        struct ReferenceSubtype;
+        struct PointerSubtype;
+        struct FatPointerSubtype;
+        struct InferenceCountArraySubtype;
     struct Module;
     struct Import;
     struct ConcatenatedString;
@@ -556,6 +561,7 @@ struct Entity {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getOpcodeFlags() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -574,8 +580,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttributeType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType() const;
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility() const;
@@ -1007,15 +1011,15 @@ struct ExpressionType final : public rq::ReflectiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct UnscaledPrimitiveType : public rq::SimpleSymbol {
-  using Self = rq::UnscaledPrimitiveType;
+struct PlatformPrimitiveType : public rq::SimpleSymbol {
+  using Self = rq::PlatformPrimitiveType;
 
-  explicit RQ_ALWAYS_INLINE UnscaledPrimitiveType(rq::Opcode opcode);
+  explicit RQ_ALWAYS_INLINE PlatformPrimitiveType(rq::Opcode opcode);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct BooleanType final : public rq::UnscaledPrimitiveType {
+struct BooleanType final : public rq::PlatformPrimitiveType {
   using Self = rq::BooleanType;
 
   explicit RQ_ALWAYS_INLINE BooleanType();
@@ -1023,7 +1027,7 @@ struct BooleanType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct HalfType final : public rq::UnscaledPrimitiveType {
+struct HalfType final : public rq::PlatformPrimitiveType {
   using Self = rq::HalfType;
 
   explicit RQ_ALWAYS_INLINE HalfType();
@@ -1031,7 +1035,7 @@ struct HalfType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct SingleType final : public rq::UnscaledPrimitiveType {
+struct SingleType final : public rq::PlatformPrimitiveType {
   using Self = rq::SingleType;
 
   explicit RQ_ALWAYS_INLINE SingleType();
@@ -1039,7 +1043,7 @@ struct SingleType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct DoubleType final : public rq::UnscaledPrimitiveType {
+struct DoubleType final : public rq::PlatformPrimitiveType {
   using Self = rq::DoubleType;
 
   explicit RQ_ALWAYS_INLINE DoubleType();
@@ -1047,7 +1051,7 @@ struct DoubleType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct QuadrupleType final : public rq::UnscaledPrimitiveType {
+struct QuadrupleType final : public rq::PlatformPrimitiveType {
   using Self = rq::QuadrupleType;
 
   explicit RQ_ALWAYS_INLINE QuadrupleType();
@@ -1055,63 +1059,7 @@ struct QuadrupleType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct Binary16Type final : public rq::UnscaledPrimitiveType {
-  using Self = rq::Binary16Type;
-
-  explicit RQ_ALWAYS_INLINE Binary16Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct Binary32Type final : public rq::UnscaledPrimitiveType {
-  using Self = rq::Binary32Type;
-
-  explicit RQ_ALWAYS_INLINE Binary32Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct Binary64Type final : public rq::UnscaledPrimitiveType {
-  using Self = rq::Binary64Type;
-
-  explicit RQ_ALWAYS_INLINE Binary64Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct Binary128Type final : public rq::UnscaledPrimitiveType {
-  using Self = rq::Binary128Type;
-
-  explicit RQ_ALWAYS_INLINE Binary128Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct Bfloat16Type final : public rq::UnscaledPrimitiveType {
-  using Self = rq::Bfloat16Type;
-
-  explicit RQ_ALWAYS_INLINE Bfloat16Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct AsciiType final : public rq::UnscaledPrimitiveType {
-  using Self = rq::AsciiType;
-
-  explicit RQ_ALWAYS_INLINE AsciiType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct Utf8Type final : public rq::UnscaledPrimitiveType {
-  using Self = rq::Utf8Type;
-
-  explicit RQ_ALWAYS_INLINE Utf8Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct SignedIntegerType final : public rq::UnscaledPrimitiveType {
+struct SignedIntegerType final : public rq::PlatformPrimitiveType {
   using Self = rq::SignedIntegerType;
 
   explicit RQ_ALWAYS_INLINE SignedIntegerType();
@@ -1119,7 +1067,7 @@ struct SignedIntegerType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct UnsignedIntegerType final : public rq::UnscaledPrimitiveType {
+struct UnsignedIntegerType final : public rq::PlatformPrimitiveType {
   using Self = rq::UnsignedIntegerType;
 
   explicit RQ_ALWAYS_INLINE UnsignedIntegerType();
@@ -1127,7 +1075,7 @@ struct UnsignedIntegerType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct SignedIndexType final : public rq::UnscaledPrimitiveType {
+struct SignedIndexType final : public rq::PlatformPrimitiveType {
   using Self = rq::SignedIndexType;
 
   explicit RQ_ALWAYS_INLINE SignedIndexType();
@@ -1135,7 +1083,7 @@ struct SignedIndexType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct UnsignedIndexType final : public rq::UnscaledPrimitiveType {
+struct UnsignedIndexType final : public rq::PlatformPrimitiveType {
   using Self = rq::UnsignedIndexType;
 
   explicit RQ_ALWAYS_INLINE UnsignedIndexType();
@@ -1143,7 +1091,7 @@ struct UnsignedIndexType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct SignedAddressType final : public rq::UnscaledPrimitiveType {
+struct SignedAddressType final : public rq::PlatformPrimitiveType {
   using Self = rq::SignedAddressType;
 
   explicit RQ_ALWAYS_INLINE SignedAddressType();
@@ -1151,10 +1099,82 @@ struct SignedAddressType final : public rq::UnscaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct UnsignedAddressType final : public rq::UnscaledPrimitiveType {
+struct UnsignedAddressType final : public rq::PlatformPrimitiveType {
   using Self = rq::UnsignedAddressType;
 
   explicit RQ_ALWAYS_INLINE UnsignedAddressType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct CharType final : rq::PlatformPrimitiveType {
+  using Self = rq::CharType;
+
+  explicit RQ_ALWAYS_INLINE CharType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct StandardPrimitiveType : rq::SimpleSymbol {
+  using Self = rq::StandardPrimitiveType;
+
+  explicit RQ_ALWAYS_INLINE StandardPrimitiveType(rq::Opcode opcode);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Binary16Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary16Type;
+
+  explicit RQ_ALWAYS_INLINE Binary16Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Binary32Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary32Type;
+
+  explicit RQ_ALWAYS_INLINE Binary32Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Binary64Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary64Type;
+
+  explicit RQ_ALWAYS_INLINE Binary64Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Binary128Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary128Type;
+
+  explicit RQ_ALWAYS_INLINE Binary128Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Bfloat16Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Bfloat16Type;
+
+  explicit RQ_ALWAYS_INLINE Bfloat16Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct AsciiType final : public rq::StandardPrimitiveType {
+  using Self = rq::AsciiType;
+
+  explicit RQ_ALWAYS_INLINE AsciiType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct Utf8Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Utf8Type;
+
+  explicit RQ_ALWAYS_INLINE Utf8Type();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1169,17 +1189,17 @@ struct VariadicArgumentType final : public rq::SimpleSymbol {
 
 enum class ScaledIntegerKind { EXACT, FAST, LEAST };
 
-struct ScaledIntegerType : public rq::Symbol {
-  using Self = rq::ScaledIntegerType;
+struct ScaledPrimitiveType : public rq::Symbol {
+  using Self = rq::ScaledPrimitiveType;
 
   rq::ScaledIntegerKind _kind;
   const rq::IntegerConstant *_scalar_ptr;
   std::uint64_t _synonym_id;
 
-  explicit RQ_ALWAYS_INLINE ScaledIntegerType(rq::Opcode opcode,
-                                              rq::ScaledIntegerKind kind,
-                                              const rq::IntegerConstant &scalar,
-                                              std::uint64_t synonym_id);
+  explicit RQ_ALWAYS_INLINE
+  ScaledPrimitiveType(rq::Opcode opcode, rq::ScaledIntegerKind kind,
+                      const rq::IntegerConstant &scalar,
+                      std::uint64_t synonym_id);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledIntegerKind getKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getScalar() const;
   [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getSynonymId() const;
@@ -1187,7 +1207,7 @@ struct ScaledIntegerType : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct ScaledSignedIntegerType final : public rq::ScaledIntegerType {
+struct ScaledSignedIntegerType final : public rq::ScaledPrimitiveType {
   using Self = rq::ScaledSignedIntegerType;
 
   explicit RQ_ALWAYS_INLINE
@@ -1198,7 +1218,7 @@ struct ScaledSignedIntegerType final : public rq::ScaledIntegerType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct ScaledUnsignedIntegerType final : public rq::ScaledIntegerType {
+struct ScaledUnsignedIntegerType final : public rq::ScaledPrimitiveType {
   using Self = rq::ScaledUnsignedIntegerType;
 
   explicit RQ_ALWAYS_INLINE
@@ -1209,15 +1229,37 @@ struct ScaledUnsignedIntegerType final : public rq::ScaledIntegerType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct UncountedSubtype : public rq::SimpleSymbol {
-  using Self = rq::UncountedSubtype;
+struct Subtype : public rq::SimpleSymbol {
+  using Self = rq::Subtype;
 
   rq::SymbolConstant *_child_ptr;
 
-  explicit RQ_ALWAYS_INLINE UncountedSubtype(rq::Opcode opcode,
-                                             rq::SymbolConstant &child);
+  explicit RQ_ALWAYS_INLINE Subtype(rq::Opcode opcode,
+                                    rq::SymbolConstant &child);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct ArraySubtype final : public rq::Subtype {
+  using Self = rq::ArraySubtype;
+
+  const rq::IntegerConstant *_count_ptr;
+
+  explicit RQ_ALWAYS_INLINE ArraySubtype(rq::SymbolConstant &child,
+                                         const rq::IntegerConstant &count);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getCount() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct UncountedSubtype : public rq::Subtype {
+  using Self = rq::UncountedSubtype;
+
+  explicit RQ_ALWAYS_INLINE UncountedSubtype(rq::Opcode opcode,
+                                             rq::SymbolConstant &child);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -1251,22 +1293,6 @@ struct InferenceCountArraySubtype final : public rq::UncountedSubtype {
 
   explicit RQ_ALWAYS_INLINE
   InferenceCountArraySubtype(rq::SymbolConstant &child);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
-};
-
-struct ArraySubtype final : public rq::Symbol {
-  using Self = rq::ArraySubtype;
-
-  rq::SymbolConstant *_child_ptr;
-  const rq::IntegerConstant *_count_ptr;
-
-  explicit RQ_ALWAYS_INLINE ArraySubtype(rq::SymbolConstant &child,
-                                         const rq::IntegerConstant &count);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getCount() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2003,105 +2029,123 @@ struct LocalTable : public rq::SymbolTable {
   rq::Expression *_expression_ptr;
   rq::ExpressionFlags _flags;
 
-  explicit RQ_ALWAYS_INLINE LocalTable(rq::Opcode opcode, rq::Expression& expression, rq::ExpressionFlags flags);
+  explicit RQ_ALWAYS_INLINE LocalTable(rq::Opcode opcode,
+                                       rq::Expression &expression,
+                                       rq::ExpressionFlags flags);
 
- [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
 struct IfTable final : public rq::LocalTable {
   using Self = rq::IfTable;
 
-  explicit RQ_ALWAYS_INLINE IfTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE IfTable(rq::Expression &expression,
+                                    rq::ExpressionFlags flags)
 };
 
 struct ElseIfTable final : public rq::LocalTable {
   using Self = rq::ElseIfTable;
 
-  explicit RQ_ALWAYS_INLINE ElseIfTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE ElseIfTable(rq::Expression &expression,
+                                        rq::ExpressionFlags flags)
 };
 
 struct ElseTable final : public rq::LocalTable {
   using Self = rq::ElseTable;
 
-  explicit RQ_ALWAYS_INLINE ElseTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE ElseTable(rq::Expression &expression,
+                                      rq::ExpressionFlags flags)
 };
 
 struct MatchTable final : public rq::LocalTable {
   using Self = rq::MatchTable;
 
-  explicit RQ_ALWAYS_INLINE MatchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE MatchTable(rq::Expression &expression,
+                                       rq::ExpressionFlags flags)
 };
 
 struct InlineMatchTable final : public rq::LocalTable {
   using Self = rq::InlineMatchTable;
 
-  explicit RQ_ALWAYS_INLINE InlineMatchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE InlineMatchTable(rq::Expression &expression,
+                                             rq::ExpressionFlags flags)
 };
 
 struct SwitchTable final : public rq::LocalTable {
   using Self = rq::SwitchTable;
 
-  explicit RQ_ALWAYS_INLINE SwitchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE SwitchTable(rq::Expression &expression,
+                                        rq::ExpressionFlags flags)
 };
 
 struct InlineSwitchTable final : public rq::LocalTable {
   using Self = rq::InlineSwitchTable;
 
-  explicit RQ_ALWAYS_INLINE InlineSwitchTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE InlineSwitchTable(rq::Expression &expression,
+                                              rq::ExpressionFlags flags)
 };
 
 struct CaseTable final : public rq::LocalTable {
   using Self = rq::CaseTable;
 
-  explicit RQ_ALWAYS_INLINE CaseTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE CaseTable(rq::Expression &expression,
+                                      rq::ExpressionFlags flags)
 };
 
 struct WithTable final : public rq::LocalTable {
   using Self = rq::WithTable;
 
-  explicit RQ_ALWAYS_INLINE WithTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE WithTable(rq::Expression &expression,
+                                      rq::ExpressionFlags flags)
 };
 
 struct DefaultTable final : public rq::LocalTable {
   using Self = rq::DefaultTable;
 
-  explicit RQ_ALWAYS_INLINE DefaultTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE DefaultTable(rq::Expression &expression,
+                                         rq::ExpressionFlags flags)
 };
 
 struct ForTable final : public rq::LocalTable {
   using Self = rq::ForTable;
 
-  explicit RQ_ALWAYS_INLINE ForTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE ForTable(rq::Expression &expression,
+                                     rq::ExpressionFlags flags)
 };
 
 struct WhileTable final : public rq::LocalTable {
   using Self = rq::WhileTable;
 
-  explicit RQ_ALWAYS_INLINE WhileTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE WhileTable(rq::Expression &expression,
+                                       rq::ExpressionFlags flags)
 };
 
 struct SpinTable final : public rq::LocalTable {
   using Self = rq::SpinTable;
 
-  explicit RQ_ALWAYS_INLINE SpinTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE SpinTable(rq::Expression &expression,
+                                      rq::ExpressionFlags flags)
 };
 
 struct WeaveTable final : public rq::LocalTable {
   using Self = rq::WeaveTable;
 
-  explicit RQ_ALWAYS_INLINE WeaveTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE WeaveTable(rq::Expression &expression,
+                                       rq::ExpressionFlags flags)
 };
 
 struct ScopeTable final : public rq::LocalTable {
   using Self = rq::ScopeTable;
 
-  explicit RQ_ALWAYS_INLINE ScopeTable(rq::Expression& expression, rq::ExpressionFlags flags)  
+  explicit RQ_ALWAYS_INLINE ScopeTable(rq::Expression &expression,
+                                       rq::ExpressionFlags flags)
 };
 
 struct InlineScopeTable final : public rq::LocalTable {
   using Self = rq::InlineScopeTable;
 
-  explicit RQ_ALWAYS_INLINE InlineScopeTable(rq::Expression& expression, rq::SymbolTable &containing_table);
+  explicit RQ_ALWAYS_INLINE InlineScopeTable(rq::Expression &expression,
+                                             rq::SymbolTable &containing_table);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
