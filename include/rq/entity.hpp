@@ -21,10 +21,10 @@ enum class Opcode {
   NONE,
 
   // LITERALS
-  SY_INTEGER_LITERAL,
-  SY_FLOAT_LITERAL,
-  SY_STRING_LITERAL,
-  SY_CODEUNIT_LITERAL,
+  SY_INTEGER_LITERAL_TYPE,
+  SY_FLOAT_LITERAL_TYPE,
+  SY_STRING_LITERAL_TYPE,
+  SY_CODEUNIT_LITERAL_TYPE,
 
   // CONTEXTUAL NAME
   SY_NO_NAME,
@@ -40,79 +40,79 @@ enum class Opcode {
   SY_CALLSITE,
 
   // CONTEXTUAL TYPE
-  SY_INFERENCE,
-  SY_VOID,
-  SY_NO_RETURN,
+  SY_INFERENCE_TYPE,
+  SY_VOID_TYPE,
+  SY_NO_RETURN_TYPE,
 
   // EXPRESSION ATTRIBUTES
-  SY_ANCHORING,
-  SY_VISIBILITY,
-  SY_SCOPING,
-  SY_AVAILABILITY,
-  SY_PROPERTY_MUTABILITY,
-  SY_EXPORTING,
-  SY_GENERATION_TIME,
-  SY_CAPTURING,
-  SY_EVALUATION_TIME,
-  SY_INLINING,
-  SY_MANGLING,
-  SY_PACKING,
-  SY_TEMPLATING,
-  SY_LIKELYHOOD,
-  SY_SUPPORT,
-  SY_ADDRESS_STABILITY,
-  SY_VARIADICNESS,
+  SY_ANCHORING_TYPE,
+  SY_VISIBILITY_TYPE,
+  SY_SCOPING_TYPE,
+  SY_AVAILABILITY_TYPE,
+  SY_PROPERTY_MUTABILITY_TYPE,
+  SY_EXPORTING_TYPE,
+  SY_GENERATION_TIME_TYPE,
+  SY_CAPTURING_TYPE,
+  SY_EVALUATION_TIME_TYPE,
+  SY_INLINING_TYPE,
+  SY_MANGLING_TYPE,
+  SY_PACKING_TYPE,
+  SY_TEMPLATING_TYPE,
+  SY_LIKELYHOOD_TYPE,
+  SY_SUPPORT_TYPE,
+  SY_ADDRESS_STABILITY_TYPE,
+  SY_VARIADICNESS_TYPE,
 
   // TYPE ATTRIBUTES
-  SY_VARIABILITY,
-  SY_VOLATILITY,
-  SY_ATOMICITY,
-  SY_NULL_TERMINATION,
-  SY_PRECONDITION,
-  SY_POSTCONDITION,
+  SY_VARIABILITY_TYPE,
+  SY_VOLATILITY_TYPE,
+  SY_ATOMICITY_TYPE,
+  SY_NULL_TERMINATION_TYPE,
+  SY_PRECONDITION_TYPE,
+  SY_POSTCONDITION_TYPE,
 
   // REFLECTIVE
-  SY_SYMBOL,
-  SY_EXPRESSION,
+  SY_SYMBOL_TYPE,
+  SY_EXPRESSION_TYPE,
 
   // PLATFORM PRIMITIVE
-  SY_BOOLEAN,
-  SY_HALF,
-  SY_SINGLE,
-  SY_DOUBLE,
-  SY_QUADRUPLE,
-  SY_SIGNED_INTEGER,
-  SY_UNSIGNED_INTEGER,
-  SY_SIGNED_INDEX,
-  SY_UNSIGNED_INDEX,
-  SY_SIGNED_ADDRESS,
-  SY_UNSIGNED_ADDRESS,
-  SY_CHAR,
+  SY_BOOLEAN_TYPE,
+  SY_HALF_TYPE,
+  SY_SINGLE_TYPE,
+  SY_DOUBLE_TYPE,
+  SY_QUADRUPLE_TYPE,
+  SY_SIGNED_INTEGER_TYPE,
+  SY_UNSIGNED_INTEGER_TYPE,
+  SY_SIGNED_INDEX_TYPE,
+  SY_UNSIGNED_INDEX_TYPE,
+  SY_SIGNED_ADDRESS_TYPE,
+  SY_UNSIGNED_ADDRESS_TYPE,
+  SY_CHAR_TYPE,
 
   // STANDARD PRIMITIVE
-  SY_BINARY16,
-  SY_BINARY32,
-  SY_BINARY64,
-  SY_BINARY128,
-  SY_BFLOAT16,
-  SY_ASCII,
-  SY_UTF8,
+  SY_BINARY16_TYPE,
+  SY_BINARY32_TYPE,
+  SY_BINARY64_TYPE,
+  SY_BINARY128_TYPE,
+  SY_BFLOAT16_TYPE,
+  SY_ASCII_TYPE,
+  SY_UTF8_TYPE,
 
   // VARIADIC ARGUMENTS
-  SY_VARIADIC_ARGUMENTS,
+  SY_VARIADIC_ARGUMENTS_TYPE,
 
   // SCALED PRIMITIVES
-  SY_SCALED_SIGNED_INTEGER,
-  SY_SCALED_UNSIGNED_INTEGER,
+  SY_SCALED_SIGNED_INTEGER_TYPE,
+  SY_SCALED_UNSIGNED_INTEGER_TYPE,
 
   // SUBTYPES
-  SY_ARRAY,
+  SY_ARRAY_SUBTYPE,
 
   // UNCOUNTED SUBTYPES => SUBTYPES
-  SY_REFERENCE,
-  SY_POINTER,
-  SY_FAT_POINTER,
-  SY_INFERENCE_COUNT_ARRAY,
+  SY_REFERENCE_SUBTYPE,
+  SY_POINTER_SUBTYPE,
+  SY_FAT_POINTER_SUBTYPE,
+  SY_INFERENCE_TYPE_COUNT_ARRAY_SUBTYPE,
 
   // MODULES
   SY_MODULE,
@@ -121,7 +121,7 @@ enum class Opcode {
   SY_IMPORT,
 
   // CONCATENATED STRING
-  SY_CONCATENATED_STRING,
+  SY_CONCATENATED_STRING_TYPE,
 
   // ARITHMETIC SEQUENCES
   SY_ARITHMETIC_INTERVAL,
@@ -204,6 +204,7 @@ enum class Opcode {
   // PROCEDURES => global declaration => symbol table
   SY_ENTRY,
   SY_FUNCTION,
+  SY_MEMBER_FUNCTION,
   SY_METHOD,
   SY_EXTENSION_FUNCTION,
   SY_EXTENSION_METHOD,
@@ -217,6 +218,7 @@ enum class Opcode {
   SY_FORWARD_RANGER_TEMPLATE,
   SY_BACKWARD_RANGER_TEMPLATE,
   SY_FUNCTION_TEMPLATE,
+  SY_MEMBER_FUNCTION_TEMPLATE,
   SY_METHOD_TEMPLATE,
   SY_EXTENSION_FUNCTION_TEMPLATE,
   SY_EXTENSION_METHOD_TEMPLATE,
@@ -251,7 +253,7 @@ enum class OpcodeFlags : std::uint64_t {
   // SY_CONTEXTUAL_NAME
   SY_CONTEXTUAL_VALUE = rq::getBit(6),
   SY_CONTEXTUAL_TYPE = rq::getBit(7),
-  SY_EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(8),
+  SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE = rq::getBit(8),
   SY_TYPE_ATTRIBUTE_TYPE = rq::getBit(9),
   SY_REFLECTIVE_TYPE = rq::getBit(10),
   SY_PLATFORM_PRIMITIVE_TYPE = rq::getBit(11),
@@ -265,7 +267,7 @@ enum class OpcodeFlags : std::uint64_t {
   SY_PARAMETER = rq::getBit(18),
   SY_PARAMETER_LIST = rq::getBit(19),
   SY_POLYMORPH = rq::getBit(20),
-  SY_SYMBOL_TABLE = rq::getBit(21),
+  SY_SYMBOL_TYPE_TABLE = rq::getBit(21),
   SY_LOCAL_TABLE = rq::getBit(22),
   SY_GLOBAL_DECLARATION = rq::getBit(23),
   SY_GLOBAL_VARIABLE = rq::getBit(24),
@@ -281,37 +283,36 @@ enum class OpcodeFlags : std::uint64_t {
   SY_IS_FLOAT_TYPE = rq::getBit(32),
   SY_IS_BINARY_TYPE = rq::getBit(33),
   SY_IS_BFLOAT_TYPE = rq::getBit(34),
-  SY_IS_STRING_TYPE = rq::getBit(35),
-  SY_IS_CODEUNIT_TYPE = rq::getBit(36),
+  SY_IS_CODEUNIT_TYPE = rq::getBit(35),
 
   // EXPRESSION ATTRIBUTES
-  SY_ASCRIBED_GLOBAL = rq::getBit(37), // used for multiple other flags (see bellow)
-  // SY_HAS_ANCHORING, LOCAL_DECLARATION | GLOBAL_DECLARATION
+  // SY_HAS_ANCHORING, LOCAL_TABLE
   SY_HAS_VISIBILITY = rq::getBit(37),
   SY_HAS_SCOPE_LOCATION = rq::getBit(38),
-  // SY_HAS_AVAILABILITY, LOCAL_DECLARATION | GLOBAL_DECLARATION
+  // SY_HAS_AVAILABILITY = SY_GLOBAL_VARIABLE | SY_LOCAL_DECLARATION
   SY_HAS_ACCESSIBILITY = rq::getBit(39),
   // SY_HAS_PROPERTY_MUTABILITY, DYNAMIC PARAMETER
-  // SY_HAS_EXPORTING, SY_ASCRIBED_GLOBAL
-  //SY_HAS_GENERATION_TIME, SY_ASCRIBED_GLOBAL
-  // SY_HAS_CAPTURING, SY_ASCRIBED_GLOBAL
-  // SY_HAS_EVALUATION_TIME, SY_ASCRIBED_GLOBAL | LOCAL_VARIABLE | LOCAL_TABLE
+  SY_HAS_EXPORTING = rq::getBit(40),
+  // SY_HAS_GENERATION_TIME, SY_GLOBAL_VARIABLE | SY_LOCAL_VARIABLE |
+  // SY_LOCAL_TABLE
+  SY_HAS_CAPTURING = rq::getBit(41),
+  SY_HAS_EVALUATION_TIME = rq::getBit(41),
   // SY_HAS_INLINING, PROCEDURES
-  // SY_HAS_MANGLING, PROCEDURES
+  SY_HAS_MANGLING = rq::getBit(42),
   // SY_HAS_PACKING, CLASS
-  // SY_HAS_TEMPLATING, SY_ASCRIBED_GLOBAL
-  SY_HAS_LIKELYHOOD = rq::getBit(41),
-  // SY_HAS_SUPPORT, SY_ASCRIBED_GLOBAL
+  SY_HAS_TEMPLATING = rq::getBit(42),
+  SY_HAS_LIKELYHOOD = rq::getBit(42),
+  SY_HAS_SUPPORT = rq::getBit(42),
   // SY_HAS_ADDRESS_STABILITY, CLASS
-  // SY_HAS_VARIADICNESS, PARAMETERS
+  // SY_HAS_VARIADICNESS, DYNAMIC_PARAMETER
   // SY_HAS_CONTRAINT, TEMPLATES
   // SY_HAS_WEIGHTING, TEMPLATES
 
   // TYPE ATTRIBUTES
-  SY_HAS_VARIABILITY = rq::getBit(42),
-  SY_HAS_VOLATILITY = rq::getBit(43),
-  SY_HAS_ATOMICITY = rq::getBit(44),
-  SY_HAS_NULL_TERMINATE = rq::getBit(45)
+  SY_HAS_VARIABILITY = rq::getBit(43),
+  SY_HAS_VOLATILITY = rq::getBit(44),
+  SY_HAS_ATOMICITY = rq::getBit(45),
+  SY_HAS_NULL_TERMINATE = rq::getBit(46)
   // SY_HAS_PRECONDITION, SIGNATURE
   // SY_HAS_POSTCONDITION, SIGNATURE
 };
@@ -331,6 +332,36 @@ template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
 #define RQ_ASSERT_INSTRUCTION(opcode)                                          \
   RQ_ASSERT(rq::getIsInstruction(opcode), "not instruction");
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualName(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsExpressionAttributeType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformPrimitiveType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsStandardPrimitiveType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledPrimitive(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUncountedSubtype(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclaration(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode);
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType(rq::Opcode opcode);
@@ -338,7 +369,6 @@ template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::Opcode opcode);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring(rq::Opcode opcode);
@@ -518,6 +548,7 @@ struct Entity;
         struct Procedure;
           struct Entry;
           struct Function;
+          struct MemberFunction;
           struct Method;
           struct ExtensionFunction;
           struct ExtensionMethod;
@@ -530,6 +561,7 @@ struct Entity;
           struct ForwardRangerTemplate;
           struct BackwardRangerTemplate;
           struct FunctionTemplate;
+          struct MemberFunctionTemplate;
           struct MethodTemplate;
           struct ExtensionFunctionTemplate;
           struct ExtensionMethodTemplate;
@@ -2347,6 +2379,14 @@ struct Function final : public rq::Procedure {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
+struct MemberFunction final : public rq::Procedure {
+  using Self = rq::MemberFunction;
+
+  explicit RQ_ALWAYS_INLINE MemberFunction();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
 struct Method final : public rq::Procedure {
   using Self = rq::Method;
 
@@ -2455,6 +2495,14 @@ struct FunctionTemplate final : public rq::Template {
   using Self = rq::FunctionTemplate;
 
   explicit RQ_ALWAYS_INLINE FunctionTemplate();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity);
+};
+
+struct MemberFunctionTemplate final : public rq::Template {
+  using Self = rq::MemberFunctionTemplate;
+
+  explicit RQ_ALWAYS_INLINE MemberFunctionTemplate();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };

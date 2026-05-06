@@ -13,15 +13,15 @@ namespace rq {
 inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::Opcode kind) {
   using namespace rq;
   switch (kind) {
-  case rq::Opcode::SY_BFLOAT16:
+  case rq::Opcode::SY_BFLOAT16_TYPE:
     return llvm::APFloat::BFloat();
-  case rq::Opcode::SY_BINARY16:
+  case rq::Opcode::SY_BINARY16_TYPE:
     return llvm::APFloat::IEEEhalf();
-  case rq::Opcode::SY_BINARY32:
+  case rq::Opcode::SY_BINARY32_TYPE:
     return llvm::APFloat::IEEEsingle();
-  case rq::Opcode::SY_BINARY64:
+  case rq::Opcode::SY_BINARY64_TYPE:
     return llvm::APFloat::IEEEdouble();
-  case rq::Opcode::SY_BINARY128:
+  case rq::Opcode::SY_BINARY128_TYPE:
     return llvm::APFloat::IEEEquad();
   default:
     break;
