@@ -257,7 +257,7 @@ bool Context::run() {
     }
     if (rq::getEmitMode() == rq::EMIT_PARSED) {
       if (!this->emitRequite(rq::getOutputFilePath(),
-                            this->getSourceModule().getSnippet())) {
+                             this->getSourceModule().getSnippet())) {
         return false;
       }
       return true;
@@ -1112,6 +1112,21 @@ void Context::logErrorIndeterminateVariableValue(
   if (info.getHasExpression()) {
     this->logMessage(info.getExpression().getLlvmSourceBegin(),
                      rq::LogType::NOTE, "referencing variable",
+                     expression.getLlvmSourceRange(), {});
+  }
+}
+
+void Context::logErrorUninstantiatedMemberEagarlyEvaluatedRvalue(
+    const rq::Expression &expression, rq::Symbol &symbol) {
+  rq::DeclarationInfo info = symbol.getDeclarationInfo();
+  this->logMessage(
+      expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+      llvm::Twine("uninstatiated member in eagarly evalaluated rvalue") +
+          info.getOpcodeName(),
+      expression.getLlvmSourceRange(), {});
+  if (info.getHasExpression()) {
+    this->logMessage(info.getExpression().getLlvmSourceBegin(),
+                     rq::LogType::NOTE, "referencing symbol",
                      expression.getLlvmSourceRange(), {});
   }
 }
