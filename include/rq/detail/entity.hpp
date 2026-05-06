@@ -245,8 +245,12 @@ namespace rq {
   case O::SY_IMPORT:
     return OF::SYMBOL | OF::SY_HAS_EXPORTING;
 
-  // CONCATENATED STRING
-  case O::SY_CONCATENATED_STRING_TYPE:
+  // TUPLE TYPE
+  case O::SY_TUPLE_TYPE:
+    return OF::SYMBOL | OF::SY_IS_TYPE;
+
+  // JUXTAPOSITIONAL LIST
+  case O::SY_JUXTAPOSITIONAL_LIST_TYPE:
     return OF::SYMBOL | OF::SY_IS_TYPE;
 
   // ARITHMETIC SEQUENCES
@@ -266,18 +270,18 @@ namespace rq {
   // LOCAL VARIABLES
   case O::SY_LOCAL_DYNAMIC_VARIABLE:
     return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
-           OF::SY_HAS_AVAILABILITY;
+           OF::SY_HAS_SCOPE_LOCATION;
   case O::SY_LOCAL_STATIC_VARIABLE:
     return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
-           OF::SY_HAS_AVAILABILITY;
+           OF::SY_HAS_SCOPE_LOCATION;
 
   // PARAMETERS => local variable
   case O::SY_STATIC_PARAMETER:
     return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
-           OF::SY_PARAMETER;
+           OF::SY_PARAMETER | OF::SY_HAS_ACCESSIBILITY_IF_MEMBER;
   case O::SY_DYNAMIC_PARAMETER:
     return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
-           OF::SY_PARAMETER;
+           OF::SY_PARAMETER | OF::SY_HAS_ACCESSIBILITY_IF_MEMBER;
 
   // PARAMETER LISTS
   case O::SY_SIGNATURE:
@@ -359,67 +363,92 @@ namespace rq {
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE;
   case O::SY_CLASS:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_IS_TYPE | OF::SY_ASCRIBED_GLOBAL | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_IS_TYPE | OF::SY_HAS_VISIBILITY | OF::SY_HAS_SCOPE_LOCATION |
+           OF::SY_HAS_ACCESSIBILITY_IF_MEMBER |
+           OF::SY_HAS_EXPORTING_IF_NOT_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_LIKELYHOOD |
+           OF::SY_HAS_SUPPORT;
   case O::SY_ENUMERATION:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_IS_TYPE | OF::SY_ASCRIBED_GLOBAL | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_IS_TYPE | OF::SY_HAS_VISIBILITY | OF::SY_HAS_SCOPE_LOCATION |
+           OF::SY_HAS_EXPORTING_IF_NOT_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_ENUMERATOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING | OF::SY_HAS_SUPPORT;
   case O::SY_INTERFACE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_ASCRIBED_GLOBAL | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_HAS_VISIBILITY | OF::SY_HAS_SCOPE_LOCATION |
+           OF::SY_HAS_EXPORTING_IF_NOT_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
 
   // GLOBAL VARIABLE => global declaration => symbol table
   case O::SY_GLOBAL_DYNAMIC_VARIABLE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
            OF::SY_GLOBAL_VARIABLE | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_ACCESSIBILITY_IF_MEMBER |
+           OF::SY_HAS_EXPORTING_IF_NOT_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING | OF::SY_HAS_SUPPORT;
   case O::SY_GLOBAL_STATIC_VARIABLE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_GLOBAL_VARIABLE | OF::SY_HAS_EXPORTING;
+           OF::SY_GLOBAL_VARIABLE | OF::SY_HAS_SCOPE_LOCATION |
+           OF::SY_HAS_ACCESSIBILITY_IF_MEMBER |
+           OF::SY_HAS_EXPORTING_IF_NOT_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
 
   // RANGERS => global declaration => symbol table
   case O::SY_FORWARD_RANGER:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_RANGER;
+           OF::SY_RANGER | OF::SY_HAS_SCOPE_LOCATION |
+           OF::SY_HAS_ACCESSIBILITY_IF_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_BACKWARD_RANGER:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_RANGER;
+           OF::SY_RANGER | OF::SY_HAS_SCOPE_LOCATION |
+           OF::SY_HAS_ACCESSIBILITY_IF_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
 
   // DESTRUCTOR =>  global declaration => symbol table
   case O::SY_DESTRUCTOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_CAPTURING;
 
   // PROCEDURES => global declaration => symbol table
   case O::SY_ENTRY:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE;
+           OF::SY_PROCEDURE | OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING;
   case O::SY_FUNCTION:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_ASCRIBED_GLOBAL | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
-  case O::SY_MEMBER_FUNCTION:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_HAS_VISIBILITY | OF::SY_HAS_EXPORTING;
+           OF::SY_PROCEDURE | OF::SY_HAS_VISIBILITY |
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_ACCESSIBILITY_IF_MEMBER |
+           OF::SY_HAS_EXPORTING_IF_NOT_MEMBER | OF::SY_HAS_CAPTURING |
+           OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_METHOD:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_HAS_VISIBILITY | OF::SY_HAS_EXPORTING;
+           OF::SY_PROCEDURE | OF::SY_HAS_VISIBILITY |
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_ACCESSIBILITY_IF_MEMBER |
+           OF::SY_HAS_CAPTURING | OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING |
+           OF::SY_HAS_SUPPORT;
   case O::SY_EXTENSION_FUNCTION:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_ASCRIBED_GLOBAL | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_PROCEDURE | OF::SY_HAS_VISIBILITY |
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_EXPORTING_IF_NOT_MEMBER |
+           OF::SY_HAS_CAPTURING | OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING |
+           OF::SY_HAS_SUPPORT;
   case O::SY_EXTENSION_METHOD:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_ASCRIBED_GLOBAL | OF::SY_HAS_VISIBILITY |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_PROCEDURE | OF::SY_HAS_VISIBILITY |
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_EXPORTING_IF_NOT_MEMBER |
+           OF::SY_HAS_CAPTURING | OF::SY_HAS_MANGLING | OF::SY_HAS_TEMPLATING |
+           OF::SY_HAS_SUPPORT;
 
   // TEMPLATES
   case O::SY_CLASS_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING;
+           OF::SY_HAS_SCOPE_LOCATION | OF::SY_HAS_EXPORTING_IF_NOT_MEMBER |
+           OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_ENUMERATION_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
            OF::SY_HAS_EXPORTING;
@@ -441,17 +470,18 @@ namespace rq {
   case O::SY_FUNCTION_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
            OF::SY_HAS_EXPORTING;
-  case O::SY_MEMBER_FUNCTION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING  | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_METHOD_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING |
+           OF::SY_HAS_SUPPORT;
   case O::SY_EXTENSION_FUNCTION_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING |
+           OF::SY_HAS_SUPPORT;
   case O::SY_EXTENSION_METHOD_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING |
+           OF::SY_HAS_SUPPORT;
 
   case O::CT_INTEGER:
     return OF::CONSTANT;
@@ -689,6 +719,13 @@ getIsStandardPrimitiveType(rq::Opcode opcode) {
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_SCOPE_LOCATION);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasAccessibilityIfMember(rq::Opcode opcode) {
+  RQ_ASSERT_SYMBOL(opcode);
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_ACCESSIBILITY_IF_MEMBER);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
@@ -702,10 +739,11 @@ getHasPropertyMutability(rq::Opcode opcode) {
   return opcode == rq::Opcode::SY_DYNAMIC_PARAMETER;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting(rq::Opcode opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasExportingIfNotMember(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_EXPORTING);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_EXPORTING_IF_NOT_MEMBER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime(rq::Opcode opcode) {
@@ -873,6 +911,11 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {
   return rq::getHasVisibility(this->getOpcode());
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Symbol::getHasAccessibilityIfMember() const {
+  return rq::getHasAccessibilityIfMember(this->getOpcode());
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasScopeLocation() const {
   return rq::getHasScopeLocation(this->getOpcode());
 }
@@ -885,8 +928,8 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {
   return rq::getHasPropertyMutability(this->getOpcode());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasExporting() const {
-  return rq::getHasExporting(this->getOpcode());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasExportingIfNotMember() const {
+  return rq::getHasExportingIfNotMember(this->getOpcode());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasGenerationTime() const {

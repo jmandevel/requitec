@@ -161,7 +161,6 @@ enum class Opcode {
   SY_CLASS_POLYMORPH,
   SY_ENUMERATION_POLYMORPH,
   SY_INTERFACE_POLYMORPH,
-  SY_GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
 
   // SYMBOL TABLES
@@ -214,7 +213,6 @@ enum class Opcode {
   SY_CLASS_TEMPLATE,
   SY_ENUMERATION_TEMPLATE,
   SY_INTERFACE_TEMPLATE,
-  SY_GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
   SY_GLOBAL_STATIC_VARIABLE_TEMPLATE,
   SY_FORWARD_RANGER_TEMPLATE,
   SY_BACKWARD_RANGER_TEMPLATE,
@@ -289,10 +287,10 @@ enum class OpcodeFlags : std::uint64_t {
   // SY_HAS_ANCHORING, LOCAL_TABLE
   SY_HAS_VISIBILITY = rq::getBit(37),
   SY_HAS_SCOPE_LOCATION = rq::getBit(38),
-  // SY_HAS_AVAILABILITY = SY_GLOBAL_VARIABLE | SY_LOCAL_DECLARATION
-  SY_HAS_ACCESSIBILITY = rq::getBit(39),
+  // SY_HAS_AVAILABILITY = SY_GLOBAL_VARIABLE | SY_LOCAL_VARIABLE
+  SY_HAS_ACCESSIBILITY_IF_MEMBER = rq::getBit(39),
   // SY_HAS_PROPERTY_MUTABILITY, DYNAMIC PARAMETER
-  SY_HAS_EXPORTING = rq::getBit(40),
+  SY_HAS_EXPORTING_IF_NOT_MEMBER = rq::getBit(40),
   // SY_HAS_GENERATION_TIME, SY_GLOBAL_VARIABLE | SY_LOCAL_VARIABLE |
   // SY_LOCAL_TABLE
   SY_HAS_CAPTURING = rq::getBit(41),
@@ -372,10 +370,11 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAccessibilityIfMember(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPropertyMutability(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExportingIfNotMember(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining(rq::Opcode opcode);
@@ -400,11 +399,11 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 struct Entity;
   struct Symbol;
     struct SimpleSymbol;
-      struct Literal;
-        struct IntegerLiteral;
-        struct FloatLiteral;
-        struct StringLiteral;
-        struct CodeunitLiteral;
+      struct LiteralType;
+        struct IntegerLiteralType;
+        struct FloatLiteralType;
+        struct StringLiteralType;
+        struct CodeunitLiteralType;
       struct Contextual;
         struct ContextualName;
           struct NoName;
@@ -485,10 +484,10 @@ struct Entity;
     struct Import;
     struct TupleType;
     struct JuxtapositionalListType;
-    struct ArithmeticSequence;
-      struct ArithmeticInterval;
-      struct InfiniteArithmeticSequence;
-      struct FiniteArithmeticSequence;
+    struct ArithmeticSequenceType;
+      struct ArithmeticIntervalType;
+      struct InfiniteArithmeticSequenceType;
+      struct FiniteArithmeticSequenceType;
     struct LocalDeclaration;
       struct Label;
       struct Anchor;
@@ -511,7 +510,6 @@ struct Entity;
       struct ClassPolymorph;
       struct EnumerationPolymorph;
       struct InterfacePolymorph;
-      struct GlobalDynamicVariablePolymorph;
       struct GlobalStaticVariablePolymorph;
     struct SymbolTable;
       struct Top;
@@ -534,8 +532,8 @@ struct Entity;
         struct InlineScopeTable;
       struct GlobalDeclaration;
         struct Namespace;
-        struct Class;
-        struct Enumeration;
+        struct ClassType;
+        struct EnumerationType;
         struct Enumerator;
         struct Interface;
         struct GlobalVariable;
@@ -555,7 +553,6 @@ struct Entity;
           struct ClassTemplate;
           struct EnumerationTemplate;
           struct InterfaceTemplate;
-          struct GlobalDynamicVariableTemplate;
           struct GlobalStaticVariableTemplate;
           struct ForwardRangerTemplate;
           struct BackwardRangerTemplate;
@@ -613,10 +610,11 @@ struct Symbol : public rq::Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAccessibilityIfMember() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPropertyMutability() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExportingIfNotMember() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining() const;

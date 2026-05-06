@@ -981,10 +981,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "local";
   case K::GLOBAL:
     return "global";
-  case K::PUBLIC:
-    return "public";
   case K::PRIVATE:
     return "private";
+  case K::PUBLIC:
+    return "public";
   case K::NO_PARTIAL_MUTATE:
     return "no_partial_mutate";
   case K::PARTIAL_MUTATE:
@@ -1847,9 +1847,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::GLOBAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PUBLIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PRIVATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PUBLIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2875,10 +2875,10 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::LOCAL;
   case K::GLOBAL:
     return EA::GLOBAL;
-  case K::PUBLIC:
-    return EA::PUBLIC;
   case K::PRIVATE:
     return EA::PRIVATE;
+  case K::PUBLIC:
+    return EA::PUBLIC;
   case K::EXPORT:
     return EA::EXPORT;
   case K::NO_EXPORT:
