@@ -271,8 +271,6 @@ struct Context final : public rq::BumpPtrAllocator {
                                   rq::Symbol &symbol);
   void logErrorIndeterminateVariableValue(const rq::Expression &expression,
                                           rq::Symbol &symbol);
-  void logErrorUninstantiatedMemberEagarlyEvaluatedRvalue(
-      const rq::Expression &expression, rq::Symbol &symbol);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");

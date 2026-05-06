@@ -1124,8 +1124,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::CAPTURING:
     [[fallthrough]];
-  case K::EVALUATION_TIME:
-    [[fallthrough]];
   case K::INLINING:
     [[fallthrough]];
   case K::MANGLING:

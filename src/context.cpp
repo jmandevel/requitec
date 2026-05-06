@@ -1116,21 +1116,6 @@ void Context::logErrorIndeterminateVariableValue(
   }
 }
 
-void Context::logErrorUninstantiatedMemberEagarlyEvaluatedRvalue(
-    const rq::Expression &expression, rq::Symbol &symbol) {
-  rq::DeclarationInfo info = symbol.getDeclarationInfo();
-  this->logMessage(
-      expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("uninstatiated member in eagarly evalaluated rvalue") +
-          info.getOpcodeName(),
-      expression.getLlvmSourceRange(), {});
-  if (info.getHasExpression()) {
-    this->logMessage(info.getExpression().getLlvmSourceBegin(),
-                     rq::LogType::NOTE, "referencing symbol",
-                     expression.getLlvmSourceRange(), {});
-  }
-}
-
 rq::Expression &Context::acquireExpression() {
   if (this->acquired._first_unused_expression_ptr == nullptr) {
     rq::Expression &new_expression =

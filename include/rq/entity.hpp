@@ -53,7 +53,6 @@ enum class Opcode {
   SY_EXPORTING_TYPE,
   SY_GENERATION_TIME_TYPE,
   SY_CAPTURING_TYPE,
-  SY_EVALUATION_TIME_TYPE,
   SY_INLINING_TYPE,
   SY_MANGLING_TYPE,
   SY_PACKING_TYPE,
@@ -296,7 +295,6 @@ enum class OpcodeFlags : std::uint64_t {
   // SY_HAS_GENERATION_TIME, SY_GLOBAL_VARIABLE | SY_LOCAL_VARIABLE |
   // SY_LOCAL_TABLE
   SY_HAS_CAPTURING = rq::getBit(41),
-  SY_HAS_EVALUATION_TIME = rq::getBit(41),
   // SY_HAS_INLINING, PROCEDURES
   SY_HAS_MANGLING = rq::getBit(42),
   // SY_HAS_PACKING, CLASS
@@ -379,7 +377,6 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEvaluationTime(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangling(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPacking(rq::Opcode opcode);
@@ -621,7 +618,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExporting() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEvaluationTime() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangling() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPacking() const;

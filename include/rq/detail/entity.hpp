@@ -88,9 +88,6 @@ namespace rq {
   case O::SY_CAPTURING_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_EVALUATION_TIME_TYPE:
-    return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
-           OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_INLINING_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
@@ -445,16 +442,16 @@ namespace rq {
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
            OF::SY_HAS_EXPORTING;
   case O::SY_MEMBER_FUNCTION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_EVALUATION_TIME | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING  | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_METHOD_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_EVALUATION_TIME | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_EXTENSION_FUNCTION_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_EVALUATION_TIME | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
   case O::SY_EXTENSION_METHOD_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_EVALUATION_TIME | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
+           OF::SY_HAS_EXPORTING | OF::SY_HAS_CAPTURING | OF::SY_HAS_TEMPLATING | OF::SY_HAS_SUPPORT;
 
   case O::CT_INTEGER:
     return OF::CONSTANT;
@@ -725,12 +722,6 @@ getHasPropertyMutability(rq::Opcode opcode) {
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_ASCRIBED_GLOBAL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEvaluationTime(rq::Opcode opcode) {
-  RQ_ASSERT_SYMBOL(opcode);
-  const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasSome(flags, rq::OpcodeFlags::SY_HAS_EVALUATION_TIME);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
@@ -904,10 +895,6 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::Opcode opcode) : Entity(opcode) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasCapturing() const {
   return rq::getHasCapturing(this->getOpcode());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasEvaluationTime() const {
-  return rq::getHasEvaluationTime(this->getOpcode());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasInlining() const {

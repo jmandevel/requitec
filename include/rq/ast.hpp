@@ -362,9 +362,6 @@ enum class Keyword : std::uint32_t {
   // capturing
   NO_CAPTURE, // default
   CAPTURE,
-  // evaluation_time
-  LAZY, // default
-  EAGER,
   // inlining
   NO_INLINE, // default
   INLINE,
@@ -429,7 +426,6 @@ enum class Keyword : std::uint32_t {
   EXPORTING,           // no_export vs export
   GENERATION_TIME,     // dynamic vs static
   CAPTURING,           // no_capture vs capture
-  EVALUATION_TIME,     // lazy vs eager
   INLINING,            // no_inline vs inline
   MANGLING,            // implicit_mangle vs explicit_mangle
   PACKING,             // no_pack vs pack
@@ -1140,10 +1136,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "capture";
   case K::NO_CAPTURE:
     return "no_capture";
-  case K::EAGER:
-    return "eager";
-  case K::LAZY:
-    return "lazy";
   case K::INLINE:
     return "inline";
   case K::NO_INLINE:
@@ -1236,8 +1228,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "generation_time";
   case K::CAPTURING:
     return "capturing";
-  case K::EVALUATION_TIME:
-    return "evaluation_time";
   case K::INLINING:
     return "inlining";
   case K::MANGLING:
@@ -2101,10 +2091,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
            KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NO_CAPTURE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EAGER:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::LAZY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_INLINE:
@@ -2197,8 +2183,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::GENERATION_TIME:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CAPTURING:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::EVALUATION_TIME:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INLINING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2972,8 +2956,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   STATIC,
   NO_CAPTURE,
   CAPTURE,
-  LAZY,
-  EAGER,
   NO_INLINE,
   INLINE,
   IMPLICIT_MANGLE,
@@ -3040,10 +3022,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_capture";
   case EA::CAPTURE:
     return "capture";
-  case EA::LAZY:
-    return "lazy";
-  case EA::EAGER:
-    return "eager";
   case EA::NO_INLINE:
     return "no_inline";
   case EA::INLINE:
@@ -3136,10 +3114,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::CAPTURE;
   case K::NO_CAPTURE:
     return EA::NO_CAPTURE;
-  case K::EAGER:
-    return EA::EAGER;
-  case K::LAZY:
-    return EA::LAZY;
   case K::INLINE:
     return EA::INLINE;
   case K::NO_INLINE:
@@ -3228,51 +3202,47 @@ enum class ExpressionFlags : std::uint64_t {
   // no_capture (default)
   CAPTURE = rq::getBit(8),
 
-  // evaluation_time
-  // lazy (default)
-  EAGER = rq::getBit(9),
-
   // inlining
   // no_inline (default)
-  INLINE = rq::getBit(10),
+  INLINE = rq::getBit(9),
 
   // mangling
   // implicit_mangle (default)
-  EXPLICIT_MANGLE = rq::getBit(11),
+  EXPLICIT_MANGLE = rq::getBit(10),
 
   // packing
   // no_pack (default)
-  PACK = rq::getBit(12),
+  PACK = rq::getBit(11),
 
   // templating
   // no_template (default)
-  TEMPLATE = rq::getBit(13),
+  TEMPLATE = rq::getBit(12),
 
   // likelihood
   // equivocal (default)
-  LIKELY = rq::getBit(14),
-  UNLIKELY = rq::getBit(15),
+  LIKELY = rq::getBit(13),
+  UNLIKELY = rq::getBit(14),
 
   // support
   // supported (default)
-  DEPRECIATED = rq::getBit(16),
-  EXPERIMENTAL = rq::getBit(17),
+  DEPRECIATED = rq::getBit(15),
+  EXPERIMENTAL = rq::getBit(16),
 
   // address_stability
   // unstable_address (default)
-  STABLE_ADDRESS = rq::getBit(18),
+  STABLE_ADDRESS = rq::getBit(17),
 
   // variadicness
   // no_variadic (default)
-  VARIADIC = rq::getBit(19),
+  VARIADIC = rq::getBit(18),
 
   // constraint
   // NO_CONSTRAIN (default)
-  CONSTRAIN = rq::getBit(20),
+  CONSTRAIN = rq::getBit(19),
 
   // weighting
   //  DEFAULT_WEIGHT (default)
-  WEIGHT = rq::getBit(21),
+  WEIGHT = rq::getBit(20),
 
   NO_ANCHOR_NONE_MASK = ANCHOR,           // no_anchor vs anchor
   TRANSPARENT_NONE_MASK = OPAQUE,         // transparent vs opaque
@@ -3284,7 +3254,6 @@ enum class ExpressionFlags : std::uint64_t {
   NO_EXPORT_NONE_MASK = EXPORT,   // no_export vs export
   DYNAMIC_NONE_MASK = STATIC,     // dynamic vs static
   NO_CAPTURE_NONE_MASK = CAPTURE, // no_capture vs capture
-  LAZY_NONE_MASK = EAGER,         // lazy vs eager
   NO_INLINE_NONE_MASK = INLINE,   // no_inline vs inline
   IMPLICIT_MANGLE_NONE_MASK =
       EXPLICIT_MANGLE,                     // implicit_mangle vs explicit_mangle
@@ -3362,12 +3331,6 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::CAPTURE:
     return EF::CAPTURE;
-
-  // evaluation_time
-  case EA::LAZY:
-    return EF::NONE;
-  case EA::EAGER:
-    return EF::EAGER;
 
   // inlining
   case EA::NO_INLINE:
@@ -3526,15 +3489,6 @@ getHasPartialMutate(rq::ExpressionFlags flags) {
   return rq::getHasAll(flags, rq::ExpressionFlags::CAPTURE);
 }
 
-// evaluation_time
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLazy(rq::ExpressionFlags flags) {
-  return rq::getHasNone(flags, rq::ExpressionFlags::LAZY_NONE_MASK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasEager(rq::ExpressionFlags flags) {
-  return rq::getHasAll(flags, rq::ExpressionFlags::EAGER);
-}
-
 // inlining
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoInline(rq::ExpressionFlags flags) {
   return rq::getHasNone(flags, rq::ExpressionFlags::NO_INLINE_NONE_MASK);
@@ -3660,7 +3614,6 @@ enum class ExpressionAttributeKind {
   EXPORTING,
   GENERATION_TIME,
   CAPTURING,
-  EVALUATION_TIME,
   INLINING,
   MANGLING,
   PACKING,
@@ -3696,8 +3649,6 @@ enum class ExpressionAttributeKind {
     return "generation_time";
   case EAK::CAPTURING:
     return "capturing";
-  case EAK::EVALUATION_TIME:
-    return "evaluation_time";
   case EAK::INLINING:
     return "inlinling";
   case EAK::MANGLING:
@@ -3761,10 +3712,6 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::CAPTURE:
     return EAK::CAPTURING;
-  case EA::LAZY:
-    [[fallthrough]];
-  case EA::EAGER:
-    return EAK::EVALUATION_TIME;
   case EA::NO_INLINE:
     [[fallthrough]];
   case EA::INLINE:
