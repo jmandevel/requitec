@@ -289,15 +289,19 @@ enum class Keyword : std::uint32_t {
 
   // EXPRESSION ATTRIBUTES
   // anchoring
+  NO_ANCHORING,
   NO_ANCHOR,
   ANCHOR,
   // visibility
+  NO_VISIBILITY,
   TRANSPARENT,
   OPAQUE,
   // scoping
-  HERE, 
+  NO_SCOPING,
+  HERE,
   OUTSIDE,
   // availability
+  NO_AVAILABILITY,
   LOCAL,
   GLOBAL,
   // accessibility
@@ -306,15 +310,16 @@ enum class Keyword : std::uint32_t {
   EXPORT,
   PRIVATE,
   PUBLIC,
-  // partial mutability
+  // partial_mutability
+  NO_PARTIAL_MUTABILITY,
   NO_PARTIAL_MUTATE,
   PARTIAL_MUTATE,
-  // evaluation
-  LAZY,
-  EAGER,
+  // runtime
+  NO_RUNTIME,
   DYNAMIC,
   STATIC,
   // capturing
+  NO_CAPTURING,
   NO_CAPTURE,
   CAPTURE,
   // linkage
@@ -330,6 +335,7 @@ enum class Keyword : std::uint32_t {
   PAD,
   PACK,
   // templating
+  NO_TEMPLATING,
   NO_TEMPLATE,
   TEMPLATE,
   // likelyhood
@@ -337,7 +343,7 @@ enum class Keyword : std::uint32_t {
   EQUIVOCAL,
   LIKELY,
   UNLIKELY,
-  // support
+  // support status
   NO_SUPPORT_STATUS,
   SUPPORTED,
   DEPRECIATED,
@@ -346,14 +352,17 @@ enum class Keyword : std::uint32_t {
   NO_ADDRESSING,
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // varaidicness
-  NO_VARIADIC,
+  // variadicness
+  NO_VARIADICNESS,
+  UNVARIADIC,
   VARIADIC,
   // constraint
-  NO_CONSTRAIN,
+  NO_CONSTRAINT,
+  UNSCONSTRAIN,
   CONSTRAIN,
   // weighting
-  NO_WEIGHT,
+  NO_WEIGHTING,
+  DEFAULT_WEIGHT,
   WEIGHT,
 
   // TYPE ATTRIBUTES
@@ -378,28 +387,30 @@ enum class Keyword : std::uint32_t {
   ENSURE,
 
   // EXPRESSION ATTRIBUTE TYPES
-  ANCHORING,           // no_anchor vs anchor
-  VISIBILITY,          // transparent vs opaque
-  SCOPING,             // here vs outside
-  AVAILABILITY,        // local vs global
-  ACCESSIBILITY,       // private vs public
-  PARTIAL_MUTABILITY,  // no_partial_mutate vs partial_mutate
-  EXPORTING,           // no_export vs export
-  EVALUATION,          // lazy vs eager vs dynamic vs static
-  CAPTURING,           // no_capture vs capture
-  LINKAGE,             // no_linkage vs linked vs inline
-  MANGLING,            // implicit_mangle vs explicit_mangle
-  MEMBER_PADDING,      // no_member_padding vs no_pad vs pack
-  TEMPLATING,          // no_template vs template
-  LIKELYHOOD,          // equivocal vs likely vs unlikely
-  SUPPORT_STATUS,      // no_support_status vs supported vs depreciated vs experimental
-  ADDRESSING,          // no_addressing vs unstable_address vs stable_address
-  VARIADICNESS,        // no_variadic vs variadic
-  CONSTRAINT,          // no_constrain vs constrain
-  WEIGHTING,           // default_weight vs weight
+  ANCHORING,          // no_anchor vs anchor
+  VISIBILITY,         // transparent vs opaque
+  SCOPING,            // here vs outside
+  AVAILABILITY,       // local vs global
+  ACCESSIBILITY,      // private vs public
+  PARTIAL_MUTABILITY, // no_partial_mutability vs no_partial_mutate vs
+                      // partial_mutate
+  EXPORTING,          // no_export vs export
+  RUNTIME,            // no_runtime vs static vs dynamic
+  CAPTURING,          // no_capture vs capture
+  LINKAGE,            // no_linkage vs linked vs inline
+  MANGLING,           // implicit_mangle vs explicit_mangle
+  MEMBER_PADDING,     // no_member_padding vs pad vs pack
+  TEMPLATING,         // no_template vs template
+  LIKELYHOOD,         // equivocal vs likely vs unlikely
+  SUPPORT_STATUS,     // no_support_status vs supported vs depreciated vs
+                      // experimental
+  ADDRESSING,         // no_addressing vs unstable_address vs stable_address
+  VARIADICNESS,       // no_variadic vs variadic
+  CONSTRAINT,         // no_constrain vs constrain
+  WEIGHTING,          // default_weight vs weight
 
   // TYPE ATTRIBUTE TYPES
-  VARIABILITY,      // no_var vs var vs prtially_var
+  VARIABILITY,      // no_var vs var vs partially_var
   VOLATILITY,       // no_volatile vs volatile
   ATOMICITY,        // no_atomic vs atomic
   NULL_TERMINATION, // no_null_terminate vs null_terminate
@@ -973,82 +984,118 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "assume";
 
   // EXPRESSION ATTRIBUTES
+  case K::NO_ANCHORING:
+    return "no_anchoring";
   case K::NO_ANCHOR:
-    return "no_label";
+    return "no_anchor";
   case K::ANCHOR:
     return "anchor";
-  case K::OPAQUE:
-    return "opaque";
+  case K::NO_VISIBILITY:
+    return "no_visibility";
   case K::TRANSPARENT:
     return "transparent";
-  case K::OUTSIDE_SCOPE:
-    return "outside_scope";
-  case K::INSIDE_SCOPE:
-    return "inside_scope";
+  case K::OPAQUE:
+    return "opaque";
+  case K::NO_SCOPING:
+    return "no_scoping";
+  case K::HERE:
+    return "here";
+  case K::OUTSIDE:
+    return "outside";
+  case K::NO_AVAILABILITY:
+    return "no_availability";
   case K::LOCAL:
     return "local";
   case K::GLOBAL:
     return "global";
+  case K::NO_ACCESSIBILITY:
+    return "no_accessibility";
+  case K::INTERNAL:
+    return "internal";
+  case K::EXPORT:
+    return "export";
   case K::PRIVATE:
     return "private";
   case K::PUBLIC:
     return "public";
+  case K::NO_PARTIAL_MUTABILITY:
+    return "no_partial_mutability";
   case K::NO_PARTIAL_MUTATE:
     return "no_partial_mutate";
   case K::PARTIAL_MUTATE:
     return "partial_mutate";
-  case K::EXPORT:
-    return "export";
-  case K::NO_EXPORT:
-    return "no_export";
-  case K::STATIC:
-    return "static";
+  case K::NO_RUNTIME:
+    return "no_runtime";
   case K::DYNAMIC:
     return "dynamic";
-  case K::CAPTURE:
-    return "capture";
+  case K::STATIC:
+    return "static";
+  case K::NO_CAPTURING:
+    return "no_capturing";
   case K::NO_CAPTURE:
     return "no_capture";
+  case K::CAPTURE:
+    return "capture";
+  case K::NO_LINKAGE:
+    return "no_linkage";
+  case K::LINKED:
+    return "linked";
   case K::INLINE:
     return "inline";
-  case K::NO_INLINE:
-    return "no_inline";
-  case K::EXPLICIT_MANGLE:
-    return "explicit_mangle";
+  case K::NO_MANGLING:
+    return "no_mangling";
   case K::IMPLICIT_MANGLE:
     return "implicit_mangle";
+  case K::EXPLICIT_MANGLE:
+    return "explicit_mangle";
+  case K::NO_MEMBER_PADDING:
+    return "no_member_padding";
+  case K::PAD:
+    return "pad";
   case K::PACK:
     return "pack";
-  case K::NO_PACK:
-    return "no_pack";
-  case K::TEMPLATE:
-    return "template";
+  case K::NO_TEMPLATING:
+    return "no_templating";
   case K::NO_TEMPLATE:
     return "no_template";
+  case K::TEMPLATE:
+    return "template";
+  case K::NO_LIKELYHOOD:
+    return "no_likelyhood";
+  case K::EQUIVOCAL:
+    return "equivocal";
   case K::LIKELY:
     return "likely";
   case K::UNLIKELY:
     return "unlikely";
-  case K::EQUIVOCAL:
-    return "equivocal";
+  case K::NO_SUPPORT_STATUS:
+    return "no_support_status";
   case K::SUPPORTED:
     return "supported";
   case K::DEPRECIATED:
     return "depreciated";
   case K::EXPERIMENTAL:
     return "experimental";
-  case K::STABLE_ADDRESS:
-    return "stable_address";
+  case K::NO_ADDRESSING:
+    return "no_addressing";
   case K::UNSTABLE_ADDRESS:
     return "unstable_address";
-  case K::NO_VARIADIC:
-    return "no_variadic";
+  case K::STABLE_ADDRESS:
+    return "stable_address";
+  case K::NO_VARIADICNESS:
+    return "no_variadicness";
+  case K::UNVARIADIC:
+    return "unvariadic";
   case K::VARIADIC:
     return "variadic";
-  case K::NO_CONSTRAIN:
-    return "no_constrain";
+  case K::NO_CONSTRAINT:
+    return "no_constraint";
+  case K::UNSCONSTRAIN:
+    return "unconstrain";
   case K::CONSTRAIN:
     return "constrain";
+  case K::NO_WEIGHTING:
+    return "no_weighting";
   case K::DEFAULT_WEIGHT:
     return "default_weight";
   case K::WEIGHT:
@@ -1093,28 +1140,28 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "availability";
   case K::ACCESSIBILITY:
     return "accessibility";
-  case K::PROPERTY_MUTABILITY:
-    return "property_mutability";
+  case K::PARTIAL_MUTABILITY:
+    return "partial_mutability";
   case K::EXPORTING:
     return "exporting";
-  case K::GENERATION_TIME:
-    return "generation_time";
+  case K::RUNTIME:
+    return "runtime";
   case K::CAPTURING:
     return "capturing";
-  case K::INLINING:
-    return "inlining";
+  case K::LINKAGE:
+    return "linkage";
   case K::MANGLING:
     return "mangling";
-  case K::PACKING:
-    return "packing";
+  case K::MEMBER_PADDING:
+    return "member_padding";
   case K::TEMPLATING:
     return "templating";
   case K::LIKELYHOOD:
     return "likelyhood";
-  case K::SUPPORT:
-    return "support";
-  case K::ADDRESS_STABILITY:
-    return "address_stability";
+  case K::SUPPORT_STATUS:
+    return "support_status";
+  case K::ADDRESSING:
+    return "addressing";
   case K::VARIADICNESS:
     return "variadicness";
   case K::CONSTRAINT:
@@ -1839,65 +1886,91 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // EXPRESSION ATTRIBUTES
+  case K::NO_ANCHORING:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ANCHOR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ANCHOR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::OPAQUE:
+  case K::NO_VISIBILITY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::TRANSPARENT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::OUTSIDE_SCOPE:
+  case K::OPAQUE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::INSIDE_SCOPE:
+  case K::NO_SCOPING:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::HERE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::OUTSIDE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_AVAILABILITY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LOCAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::GLOBAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_ACCESSIBILITY:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::INTERNAL:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EXPORT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PRIVATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PUBLIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_PARTIAL_MUTABILITY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EXPORT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_EXPORT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::STATIC:
+  case K::NO_RUNTIME:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::DYNAMIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::CAPTURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT |
-           KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::STATIC:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_CAPTURING:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_CAPTURE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::CAPTURE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_LINKAGE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::LINKED:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_INLINE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EXPLICIT_MANGLE:
+  case K::NO_MANGLING:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::IMPLICIT_MANGLE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EXPLICIT_MANGLE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_MEMBER_PADDING:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::PAD:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_PACK:
+  case K::NO_TEMPLATING:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_TEMPLATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::TEMPLATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT |
-           KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::NO_TEMPLATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_LIKELYHOOD:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::EQUIVOCAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LIKELY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNLIKELY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EQUIVOCAL:
+  case K::NO_SUPPORT_STATUS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::SUPPORTED:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -1905,17 +1978,25 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPERIMENTAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::STABLE_ADDRESS:
+  case K::NO_ADDRESSING:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNSTABLE_ADDRESS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_VARIADIC:
+  case K::STABLE_ADDRESS:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_VARIADICNESS:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::UNVARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_CONSTRAIN:
+  case K::NO_CONSTRAINT:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::UNSCONSTRAIN:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::CONSTRAIN:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_WEIGHTING:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::DEFAULT_WEIGHT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -1924,31 +2005,31 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VAR:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARTIALLY_VAR:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_VOLATILE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VOLATILE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ATOMIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ATOMIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NULL_TERMINATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_NULL_TERMINATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_REQUIRE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::REQUIRE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ENSURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ENSURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
   case K::ANCHORING:
@@ -1961,27 +2042,27 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ACCESSIBILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PROPERTY_MUTABILITY:
+  case K::PARTIAL_MUTABILITY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::EXPORTING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::GENERATION_TIME:
+  case K::RUNTIME:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CAPTURING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INLINING:
+  case K::LINKAGE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::MANGLING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PACKING:
+  case K::MEMBER_PADDING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::TEMPLATING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::LIKELYHOOD:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SUPPORT:
+  case K::SUPPORT_STATUS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ADDRESS_STABILITY:
+  case K::ADDRESSING:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VARIADICNESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2725,47 +2806,82 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 
 enum class ExpressionAttribute : std::uint_fast8_t {
   NONE,
-  TRANSPARENT,
-  OPAQUE,
-  INSIDE_SCOPE,
-  OUTSIDE_SCOPE,
-  LOCAL,
-  GLOBAL,
-  PRIVATE,
-  PUBLIC,
-  NO_PARTIAL_MUTATE,
-  PARTIAL_MUTATE,
-  NO_EXPORT,
-  EXPORT,
-  DYNAMIC,
-  STATIC,
-  NO_CAPTURE,
-  CAPTURE,
-  NO_INLINE,
-  INLINE,
-  IMPLICIT_MANGLE,
-  EXPLICIT_MANGLE,
-  NO_PACK,
-  PACK,
+// anchoring
+  NO_ANCHORING,
   NO_ANCHOR,
   ANCHOR,
+  // visibility
+  NO_VISIBILITY,
+  TRANSPARENT,
+  OPAQUE,
+  // scoping
+  NO_SCOPING,
+  HERE,
+  OUTSIDE,
+  // availability
+  NO_AVAILABILITY,
+  LOCAL,
+  GLOBAL,
+  // accessibility
+  NO_ACCESSIBILITY,
+  INTERNAL,
+  EXPORT,
+  PRIVATE,
+  PUBLIC,
+  // partial_mutability
+  NO_PARTIAL_MUTABILITY,
+  NO_PARTIAL_MUTATE,
+  PARTIAL_MUTATE,
+  // runtime
+  NO_RUNTIME,
+  DYNAMIC,
+  STATIC,
+  // capturing
+  NO_CAPTURING,
+  NO_CAPTURE,
+  CAPTURE,
+  // linkage
+  NO_LINKAGE,
+  LINKED,
+  INLINE,
+  // mangling
+  NO_MANGLING,
+  IMPLICIT_MANGLE,
+  EXPLICIT_MANGLE,
+  // padding
+  NO_MEMBER_PADDING,
+  PAD,
+  PACK,
+  // templating
+  NO_TEMPLATING,
   NO_TEMPLATE,
   TEMPLATE,
+  // likelyhood
+  NO_LIKELYHOOD,
   EQUIVOCAL,
   LIKELY,
   UNLIKELY,
+  // support status
+  NO_SUPPORT_STATUS,
   SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
+  // addressing
+  NO_ADDRESSING,
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  NO_VARIADIC,
+  // variadicness
+  NO_VARIADICNESS,
+  UNVARIADIC,
   VARIADIC,
-  NO_CONSTRAIN,
+  // constraint
+  NO_CONSTRAINT,
+  UNSCONSTRAIN,
   CONSTRAIN,
+  // weighting
+  NO_WEIGHTING,
   DEFAULT_WEIGHT,
-  WEIGHT,
-  LAST
+  WEIGHT
 };
 
 [[nodiscard]] inline llvm::StringRef

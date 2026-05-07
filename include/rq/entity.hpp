@@ -161,7 +161,7 @@ enum class Opcode {
   SY_CLASS_POLYMORPH,
   SY_ENUMERATION_POLYMORPH,
   SY_INTERFACE_POLYMORPH,
-  SY_GLOBAL_COMPILETIME_VARIABLE_POLYMORPH,
+  SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
 
   // SYMBOL TABLES
   SY_TOP,
@@ -192,8 +192,8 @@ enum class Opcode {
   SY_INTERFACE,
 
   // GLOBAL VARIABLE => global declaration => symbol table
-  SY_GLOBAL_RUNTIME_VARIABLE,
-  SY_GLOBAL_COMPILETIME_VARIABLE,
+  SY_GLOBAL_DYNAMIC_VARIABLE,
+  SY_GLOBAL_STATIC_VARIABLE,
 
   // RANGERS => global declaration => symbol table
   SY_FORWARD_RANGER,
@@ -213,7 +213,7 @@ enum class Opcode {
   SY_CLASS_TEMPLATE,
   SY_ENUMERATION_TEMPLATE,
   SY_INTERFACE_TEMPLATE,
-  SY_GLOBAL_COMPILETIME_VARIABLE_TEMPLATE,
+  SY_GLOBAL_STATIC_VARIABLE_TEMPLATE,
   SY_FORWARD_RANGER_TEMPLATE,
   SY_BACKWARD_RANGER_TEMPLATE,
   SY_FUNCTION_TEMPLATE,
@@ -455,7 +455,7 @@ struct Entity;
       struct ClassPolymorph;
       struct EnumerationPolymorph;
       struct InterfacePolymorph;
-      struct GlobalCompiletimeVariablePolymorph;
+      struct GlobalStaticVariablePolymorph;
     struct SymbolTable;
       struct Top;
       struct LocalTable;
@@ -482,8 +482,8 @@ struct Entity;
         struct Enumerator;
         struct Interface;
         struct GlobalVariable;
-          struct GlobalRuntimeVariable;
-          struct GlobalCompiletimeVariable;
+          struct GlobalDynamicVariable;
+          struct GlobalStaticVariable;
         struct Ranger;
           struct ForwardRanger;
           struct BackwardRanger;
@@ -498,7 +498,7 @@ struct Entity;
           struct ClassTemplate;
           struct EnumerationTemplate;
           struct InterfaceTemplate;
-          struct GlobalCompiletimeVariableTemplate;
+          struct GlobalStaticVariableTemplate;
           struct ForwardRangerTemplate;
           struct BackwardRangerTemplate;
           struct FunctionTemplate;
@@ -1999,22 +1999,22 @@ struct InterfacePolymorph final : public rq::Polymorph {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalRuntimeVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalRuntimeVariablePolymorph;
+struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalDynamicVariablePolymorph;
 
-  rq::BumpPtrList<rq::GlobalRuntimeVariable> _global_runtime_variable_list{};
+  rq::BumpPtrList<rq::GlobalDynamicVariable> _global_dynamic_variable_list{};
 
-  explicit RQ_ALWAYS_INLINE GlobalRuntimeVariablePolymorph();
+  explicit RQ_ALWAYS_INLINE GlobalDynamicVariablePolymorph();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalCompiletimeVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalCompiletimeVariablePolymorph;
+struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalStaticVariablePolymorph;
 
-  rq::BumpPtrList<rq::GlobalCompiletimeVariable> _global_compiletime_variable_list{};
+  rq::BumpPtrList<rq::GlobalStaticVariable> _global_static_variable_list{};
 
-  explicit RQ_ALWAYS_INLINE GlobalCompiletimeVariablePolymorph();
+  explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2281,20 +2281,20 @@ struct GlobalVariable : public rq::GlobalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalRuntimeVariable final : public rq::GlobalVariable {
-  using Self = rq::GlobalRuntimeVariable;
+struct GlobalDynamicVariable final : public rq::GlobalVariable {
+  using Self = rq::GlobalDynamicVariable;
 
-  explicit RQ_ALWAYS_INLINE GlobalRuntimeVariable();
+  explicit RQ_ALWAYS_INLINE GlobalDynamicVariable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalCompiletimeVariable final : public rq::GlobalVariable {
-  using Self = rq::GlobalCompiletimeVariable;
+struct GlobalStaticVariable final : public rq::GlobalVariable {
+  using Self = rq::GlobalStaticVariable;
 
   rq::Constant *_value_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE GlobalCompiletimeVariable();
+  explicit RQ_ALWAYS_INLINE GlobalStaticVariable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2467,18 +2467,18 @@ struct InterfaceTemplate final : public rq::Template {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalRuntimeVariableTemplate final : public rq::Template {
-  using Self = rq::GlobalRuntimeVariableTemplate;
+struct GlobalDynamicVariableTemplate final : public rq::Template {
+  using Self = rq::GlobalDynamicVariableTemplate;
 
-  explicit RQ_ALWAYS_INLINE GlobalRuntimeVariableTemplate();
+  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplate();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalCompiletimeVariableTemplate final : public rq::Template {
-  using Self = rq::GlobalCompiletimeVariableTemplate;
+struct GlobalStaticVariableTemplate final : public rq::Template {
+  using Self = rq::GlobalStaticVariableTemplate;
 
-  explicit RQ_ALWAYS_INLINE GlobalCompiletimeVariableTemplate();
+  explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplate();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
