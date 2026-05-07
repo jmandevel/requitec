@@ -289,63 +289,69 @@ enum class Keyword : std::uint32_t {
 
   // EXPRESSION ATTRIBUTES
   // anchoring
-  NO_ANCHOR, // default
+  NO_ANCHOR,
   ANCHOR,
   // visibility
-  TRANSPARENT, // default
+  TRANSPARENT,
   OPAQUE,
-  // scope_location
-  INSIDE_SCOPE, // default
-  OUTSIDE_SCOPE,
+  // scoping
+  HERE, 
+  OUTSIDE,
   // availability
-  LOCAL, // default
+  LOCAL,
   GLOBAL,
   // accessibility
-  PRIVATE, // default
-  PUBLIC,
-  // property mutability
-  NO_PARTIAL_MUTATE, // default
-  PARTIAL_MUTATE,
-  // exporting
-  NO_EXPORT, // default
+  INTERNAL,
   EXPORT,
-  // generation_time
-  DYNAMIC, // default
+  PRIVATE,
+  PUBLIC,
+  // partial mutability
+  NO_PARTIAL_MUTATE,
+  PARTIAL_MUTATE,
+  // evaluation
+  LAZY,
+  // TODO: add EAGER
+  DYNAMIC,
   STATIC,
   // capturing
-  NO_CAPTURE, // default
+  NO_CAPTURE,
   CAPTURE,
-  // inlining
-  NO_INLINE, // default
+  // linkage
+  NO_LINKAGE,
+  LINKED,
   INLINE,
   // mangling
-  IMPLICIT_MANGLE, // default
+  NO_MANGLING,
+  IMPLICIT_MANGLE,
   EXPLICIT_MANGLE,
-  // packing
-  NO_PACK, // default
+  // padding
+  NO_MEMBER_PADDING,
+  PAD,
   PACK,
   // templating
-  NO_TEMPLATE, // default
+  NO_TEMPLATE,
   TEMPLATE,
   // likelyhood
-  EQUIVOCAL, // default
+  NO_LIKELYHOOD,
+  EQUIVOCAL,
   LIKELY,
   UNLIKELY,
   // support
-  SUPPORTED, // default
+  SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  // address_stability
-  UNSTABLE_ADDRESS, // default
+  // addressing
+  NO_ADDRESSING,
+  UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
   // varaidicness
-  NO_VARIADIC, // default
+  NO_VARIADIC,
   VARIADIC,
   // constraint
-  NO_CONSTRAIN, // default
+  NO_CONSTRAIN,
   CONSTRAIN,
   // weighting
-  DEFAULT_WEIGHT, // default
+  NO_WEIGHT,
   WEIGHT,
 
   // TYPE ATTRIBUTES
@@ -372,20 +378,20 @@ enum class Keyword : std::uint32_t {
   // EXPRESSION ATTRIBUTE TYPES
   ANCHORING,           // no_anchor vs anchor
   VISIBILITY,          // transparent vs opaque
-  SCOPING,             // inside_scope vs outside_scope
+  SCOPING,             // here vs outside
   AVAILABILITY,        // local vs global
   ACCESSIBILITY,       // private vs public
-  PROPERTY_MUTABILITY, // no_partial_mutate vs partial_mutate
+  PARTIAL_MUTABILITY,  // no_partial_mutate vs partial_mutate
   EXPORTING,           // no_export vs export
-  GENERATION_TIME,     // dynamic vs static
+  EVALUATION,          // lazy vs dynamic vs static
   CAPTURING,           // no_capture vs capture
-  INLINING,            // no_inline vs inline
+  LINKAGE,             // no_linkage vs linked vs inline
   MANGLING,            // implicit_mangle vs explicit_mangle
-  PACKING,             // no_pack vs pack
+  MEMBER_PADDING,      // no_member_padding vs no_pad vs pack
   TEMPLATING,          // no_template vs template
   LIKELYHOOD,          // equivocal vs likely vs unlikely
   SUPPORT,             // supported vs depreciated vs experimental
-  ADDRESS_STABILITY,   // unstable_address vs stable_address
+  ADDRESSING,          // no_addressing vs unstable_address vs stable_address
   VARIADICNESS,        // no_variadic vs variadic
   CONSTRAINT,          // no_constrain vs constrain
   WEIGHTING,           // default_weight vs weight

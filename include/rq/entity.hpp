@@ -161,7 +161,7 @@ enum class Opcode {
   SY_CLASS_POLYMORPH,
   SY_ENUMERATION_POLYMORPH,
   SY_INTERFACE_POLYMORPH,
-  SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
+  SY_GLOBAL_COMPILETIME_VARIABLE_POLYMORPH,
 
   // SYMBOL TABLES
   SY_TOP,
@@ -192,8 +192,8 @@ enum class Opcode {
   SY_INTERFACE,
 
   // GLOBAL VARIABLE => global declaration => symbol table
-  SY_GLOBAL_DYNAMIC_VARIABLE,
-  SY_GLOBAL_STATIC_VARIABLE,
+  SY_GLOBAL_RUNTIME_VARIABLE,
+  SY_GLOBAL_COMPILETIME_VARIABLE,
 
   // RANGERS => global declaration => symbol table
   SY_FORWARD_RANGER,
@@ -213,7 +213,7 @@ enum class Opcode {
   SY_CLASS_TEMPLATE,
   SY_ENUMERATION_TEMPLATE,
   SY_INTERFACE_TEMPLATE,
-  SY_GLOBAL_STATIC_VARIABLE_TEMPLATE,
+  SY_GLOBAL_COMPILETIME_VARIABLE_TEMPLATE,
   SY_FORWARD_RANGER_TEMPLATE,
   SY_BACKWARD_RANGER_TEMPLATE,
   SY_FUNCTION_TEMPLATE,
@@ -282,36 +282,6 @@ enum class OpcodeFlags : std::uint64_t {
   SY_IS_BINARY_TYPE = rq::getBit(33),
   SY_IS_BFLOAT_TYPE = rq::getBit(34),
   SY_IS_CODEUNIT_TYPE = rq::getBit(35),
-
-  // EXPRESSION ATTRIBUTES
-  // SY_HAS_ANCHORING, LOCAL_TABLE
-  SY_HAS_VISIBILITY = rq::getBit(37),
-  SY_HAS_SCOPE_LOCATION = rq::getBit(38),
-  // SY_HAS_AVAILABILITY = SY_GLOBAL_VARIABLE | SY_LOCAL_VARIABLE
-  SY_HAS_ACCESSIBILITY_IF_MEMBER = rq::getBit(39),
-  // SY_HAS_PROPERTY_MUTABILITY, DYNAMIC PARAMETER
-  SY_HAS_EXPORTING_IF_NOT_MEMBER = rq::getBit(40),
-  // SY_HAS_GENERATION_TIME, SY_GLOBAL_VARIABLE | SY_LOCAL_VARIABLE |
-  // SY_LOCAL_TABLE
-  SY_HAS_CAPTURING = rq::getBit(41),
-  // SY_HAS_INLINING, PROCEDURES
-  SY_HAS_MANGLING = rq::getBit(42),
-  // SY_HAS_PACKING, CLASS
-  SY_HAS_TEMPLATING = rq::getBit(42),
-  SY_HAS_LIKELYHOOD = rq::getBit(42),
-  SY_HAS_SUPPORT = rq::getBit(42),
-  // SY_HAS_ADDRESS_STABILITY, CLASS
-  // SY_HAS_VARIADICNESS, DYNAMIC_PARAMETER
-  // SY_HAS_CONTRAINT, TEMPLATES
-  // SY_HAS_WEIGHTING, TEMPLATES
-
-  // TYPE ATTRIBUTES
-  SY_HAS_VARIABILITY = rq::getBit(43),
-  SY_HAS_VOLATILITY = rq::getBit(44),
-  SY_HAS_ATOMICITY = rq::getBit(45),
-  SY_HAS_NULL_TERMINATE = rq::getBit(46)
-  // SY_HAS_PRECONDITION, SIGNATURE
-  // SY_HAS_POSTCONDITION, SIGNATURE
 };
 
 template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
@@ -367,33 +337,6 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::Opcode opcode);
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAccessibilityIfMember(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPropertyMutability(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExportingIfNotMember(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangling(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPacking(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplating(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikelyhood(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupport(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressStability(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadicness(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraint(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeighting(rq::Opcode opcode);
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariability(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatility(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminate(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrecondition(rq::Opcode opcode);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostcondition(rq::Opcode opcode);
 
 // clang-format off
 struct Entity;
@@ -510,7 +453,7 @@ struct Entity;
       struct ClassPolymorph;
       struct EnumerationPolymorph;
       struct InterfacePolymorph;
-      struct GlobalStaticVariablePolymorph;
+      struct GlobalCompiletimeVariablePolymorph;
     struct SymbolTable;
       struct Top;
       struct LocalTable;
@@ -537,8 +480,8 @@ struct Entity;
         struct Enumerator;
         struct Interface;
         struct GlobalVariable;
-          struct GlobalDynamicVariable;
-          struct GlobalStaticVariable;
+          struct GlobalRuntimeVariable;
+          struct GlobalCompiletimeVariable;
         struct Ranger;
           struct ForwardRanger;
           struct BackwardRanger;
@@ -553,7 +496,7 @@ struct Entity;
           struct ClassTemplate;
           struct EnumerationTemplate;
           struct InterfaceTemplate;
-          struct GlobalStaticVariableTemplate;
+          struct GlobalCompiletimeVariableTemplate;
           struct ForwardRangerTemplate;
           struct BackwardRangerTemplate;
           struct FunctionTemplate;
@@ -607,33 +550,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAnchoring() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVisibility() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAccessibilityIfMember() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasScopeLocation() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAvailability() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPropertyMutability() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExportingIfNotMember() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGenerationTime() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCapturing() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInlining() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMangling() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPacking() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplating() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLikelyhood() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSupport() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAddressStability() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariadicness() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasConstraint() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeighting() const;
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVariability() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasVolatility() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAtomicity() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNullTerminate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPrecondition() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostcondition() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2080,22 +1996,22 @@ struct InterfacePolymorph final : public rq::Polymorph {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalDynamicVariablePolymorph;
+struct GlobalRuntimeVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalRuntimeVariablePolymorph;
 
-  rq::BumpPtrList<rq::GlobalDynamicVariable> _global_dynamic_variable_list{};
+  rq::BumpPtrList<rq::GlobalRuntimeVariable> _global_runtime_variable_list{};
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariablePolymorph();
+  explicit RQ_ALWAYS_INLINE GlobalRuntimeVariablePolymorph();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalStaticVariablePolymorph;
+struct GlobalCompiletimeVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalCompiletimeVariablePolymorph;
 
-  rq::BumpPtrList<rq::GlobalStaticVariable> _global_static_variable_list{};
+  rq::BumpPtrList<rq::GlobalCompiletimeVariable> _global_compiletime_variable_list{};
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
+  explicit RQ_ALWAYS_INLINE GlobalCompiletimeVariablePolymorph();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2362,20 +2278,20 @@ struct GlobalVariable : public rq::GlobalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalDynamicVariable final : public rq::GlobalVariable {
-  using Self = rq::GlobalDynamicVariable;
+struct GlobalRuntimeVariable final : public rq::GlobalVariable {
+  using Self = rq::GlobalRuntimeVariable;
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariable();
+  explicit RQ_ALWAYS_INLINE GlobalRuntimeVariable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalStaticVariable final : public rq::GlobalVariable {
-  using Self = rq::GlobalStaticVariable;
+struct GlobalCompiletimeVariable final : public rq::GlobalVariable {
+  using Self = rq::GlobalCompiletimeVariable;
 
   rq::Constant *_value_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariable();
+  explicit RQ_ALWAYS_INLINE GlobalCompiletimeVariable();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
@@ -2548,18 +2464,18 @@ struct InterfaceTemplate final : public rq::Template {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalDynamicVariableTemplate final : public rq::Template {
-  using Self = rq::GlobalDynamicVariableTemplate;
+struct GlobalRuntimeVariableTemplate final : public rq::Template {
+  using Self = rq::GlobalRuntimeVariableTemplate;
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplate();
+  explicit RQ_ALWAYS_INLINE GlobalRuntimeVariableTemplate();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
 
-struct GlobalStaticVariableTemplate final : public rq::Template {
-  using Self = rq::GlobalStaticVariableTemplate;
+struct GlobalCompiletimeVariableTemplate final : public rq::Template {
+  using Self = rq::GlobalCompiletimeVariableTemplate;
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplate();
+  explicit RQ_ALWAYS_INLINE GlobalCompiletimeVariableTemplate();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
