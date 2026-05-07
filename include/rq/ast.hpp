@@ -301,6 +301,7 @@ enum class Keyword : std::uint32_t {
   LOCAL,
   GLOBAL,
   // accessibility
+  NO_ACCESSIBILITY,
   INTERNAL,
   EXPORT,
   PRIVATE,
@@ -310,7 +311,7 @@ enum class Keyword : std::uint32_t {
   PARTIAL_MUTATE,
   // evaluation
   LAZY,
-  // TODO: add EAGER
+  EAGER,
   DYNAMIC,
   STATIC,
   // capturing
@@ -337,6 +338,7 @@ enum class Keyword : std::uint32_t {
   LIKELY,
   UNLIKELY,
   // support
+  NO_SUPPORT_STATUS,
   SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
@@ -383,14 +385,14 @@ enum class Keyword : std::uint32_t {
   ACCESSIBILITY,       // private vs public
   PARTIAL_MUTABILITY,  // no_partial_mutate vs partial_mutate
   EXPORTING,           // no_export vs export
-  EVALUATION,          // lazy vs dynamic vs static
+  EVALUATION,          // lazy vs eager vs dynamic vs static
   CAPTURING,           // no_capture vs capture
   LINKAGE,             // no_linkage vs linked vs inline
   MANGLING,            // implicit_mangle vs explicit_mangle
   MEMBER_PADDING,      // no_member_padding vs no_pad vs pack
   TEMPLATING,          // no_template vs template
   LIKELYHOOD,          // equivocal vs likely vs unlikely
-  SUPPORT,             // supported vs depreciated vs experimental
+  SUPPORT_STATUS,      // no_support_status vs supported vs depreciated vs experimental
   ADDRESSING,          // no_addressing vs unstable_address vs stable_address
   VARIADICNESS,        // no_variadic vs variadic
   CONSTRAINT,          // no_constrain vs constrain

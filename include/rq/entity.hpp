@@ -282,6 +282,7 @@ enum class OpcodeFlags : std::uint64_t {
   SY_IS_BINARY_TYPE = rq::getBit(33),
   SY_IS_BFLOAT_TYPE = rq::getBit(34),
   SY_IS_CODEUNIT_TYPE = rq::getBit(35),
+  SY_HAS_EXPRESSION_ATTRIBUTES = rq::getBit(36)
 };
 
 template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
@@ -337,6 +338,7 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes(rq::Opcode opcode);
 
 // clang-format off
 struct Entity;
@@ -550,6 +552,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity);
 };
