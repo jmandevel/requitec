@@ -927,7 +927,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
-  case K::NO_PARTIAL_MUTATE:
+  case K::NO_PARTIAL_MUTABILITY:
     [[fallthrough]];
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
@@ -939,7 +939,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::STATIC:
     [[fallthrough]];
-  case K::NO_CAPTURE:
+  case K::NO_CAPTURING:
     [[fallthrough]];
   case K::CAPTURE:
     [[fallthrough]];
@@ -955,7 +955,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PACK:
     [[fallthrough]];
-  case K::NO_TEMPLATE:
+  case K::NO_TEMPLATING:
     [[fallthrough]];
   case K::TEMPLATE:
     [[fallthrough]];
@@ -975,35 +975,35 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::STABLE_ADDRESS:
     [[fallthrough]];
-  case K::NO_VARIADIC:
+  case K::NO_VARIADICNESS:
     [[fallthrough]];
   case K::VARIADIC:
     [[fallthrough]];
 
   // TYPE ATTRIBUTES
-  case K::NO_VAR:
+  case K::CONST:
     [[fallthrough]];
   case K::VAR:
     [[fallthrough]];
   case K::PARTIALLY_VAR:
     [[fallthrough]];
-  case K::NO_VOLATILE:
+  case K::NO_VOLATILITY:
     [[fallthrough]];
   case K::VOLATILE:
     [[fallthrough]];
-  case K::NO_ATOMIC:
+  case K::NO_ATOMICITY:
     [[fallthrough]];
   case K::ATOMIC:
     [[fallthrough]];
-  case K::NO_NULL_TERMINATE:
+  case K::NO_NULL_TERMINATION:
     [[fallthrough]];
   case K::NULL_TERMINATE:
     [[fallthrough]];
-  case K::NO_REQUIRE:
+  case K::NO_PRECONDITION:
     [[fallthrough]];
   case K::REQUIRE:
     [[fallthrough]];
-  case K::NO_ENSURE:
+  case K::NO_POSTCONDITION:
     [[fallthrough]];
   case K::ENSURE:
     [[fallthrough]];

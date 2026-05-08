@@ -472,8 +472,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_public;
     case EA::PROTECTED:
       return this->acquired._ea_protected;
-    case EA::NO_PARTIAL_MUTATE:
-      return this->acquired._ea_no_partial_mutate;
+    case EA::NO_PARTIAL_MUTABILITY:
+      return this->acquired._ea_no_partial_mutability;
     case EA::PARTIAL_MUTATE:
       return this->acquired._ea_partial_mutate;
     case EA::NO_EXPORT:
@@ -484,8 +484,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_dynamic;
     case EA::STATIC:
       return this->acquired._ea_static;
-    case EA::NO_CAPTURE:
-      return this->acquired._ea_no_capture;
+    case EA::NO_CAPTURING:
+      return this->acquired._ea_no_capturing;
     case EA::CAPTURE:
       return this->acquired._ea_capture;
     case EA::LAZY:
@@ -524,8 +524,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_pack;
     case EA::LABEL:
       return this->acquired._ea_label;
-    case EA::NO_TEMPLATE:
-      return this->acquired._ea_no_template;
+    case EA::NO_TEMPLATING:
+      return this->acquired._ea_no_templating;
     case EA::TEMPLATE:
       return this->acquired._ea_template;
     case EA::SPECIALIZE:
@@ -575,20 +575,20 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ta_var;
     case TA::PARTIALLY_VAR:
       return this->acquired._ta_partially_var;
-    case TA::NO_VOLATILE:
-      return this->acquired._ta_no_volatile;
+    case TA::NO_VOLATILITY:
+      return this->acquired._ta_no_volatility;
     case TA::VOLATILE:
       return this->acquired._ta_volatile;
     case TA::DETERMINATE:
       return this->acquired._ta_determinate;
     case TA::INDETERMINATE:
       return this->acquired._ta_indeterminate;
-    case TA::NO_ATOMIC:
-      return this->acquired._ta_no_atomic;
+    case TA::NO_ATOMICITY:
+      return this->acquired._ta_no_atomicity;
     case TA::ATOMIC:
       return this->acquired._ta_atomic;
-    case TA::NO_NULL_TERMINATE:
-      return this->acquired._ta_no_null_terminate;
+    case TA::NO_NULL_TERMINATION:
+      return this->acquired._ta_no_null_termination;
     case TA::NULL_TERMINATE:
       return this->acquired._ta_null_terminate;
     }
