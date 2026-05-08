@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 namespace rq {
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode) {
@@ -282,10 +284,10 @@ namespace rq {
            OF::SY_PARAMETER | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // PARAMETER LISTS
-  case O::SY_SIGNATURE:
+  case O::SY_SIGNATURE_TYPE:
     return OF::SYMBOL | OF::SY_PARAMETER_LIST | OF::SY_IS_TYPE;
   case O::SY_LAYOUT:
-    return OF::SYMBOL | OF::SY_PARAMETER_LIST | OF::SY_IS_TYPE;
+    return OF::SYMBOL | OF::SY_PARAMETER_LIST;
 
   // PLACEMENTS
   case O::SY_PLACEMENT:
@@ -645,7 +647,7 @@ getIsStandardPrimitiveType(rq::Opcode opcode) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_EXPRESSION_ATTRIBUTES
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_EXPRESSION_ATTRIBUTES);
 }
 
 RQ_ALWAYS_INLINE Entity::Entity(rq::Opcode opcode) : _opcode(opcode) {}
@@ -658,7 +660,8 @@ RQ_ALWAYS_INLINE Entity::Entity(rq::Opcode opcode) : _opcode(opcode) {}
   return rq::getFlags(this->getOpcode());
 }
 
-[[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity) {
+[[nodiscard]] inline bool Entity::classof(const rq::Entity *entity_ptr) {
+  std::ignore = entity_ptr;
   return true;
 }
 
