@@ -917,7 +917,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INSIDE_SCOPE:
     [[fallthrough]];
-  case K::OUTSIDE_SCOPE:
+  case K::FLANK_SCOPE:
     [[fallthrough]];
   case K::LOCAL:
     [[fallthrough]];
@@ -927,7 +927,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
-  case K::NO_PARTIAL_MUTABILITY:
+  case K::NO_PARTIAL_MUTATE:
     [[fallthrough]];
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
@@ -939,7 +939,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::STATIC:
     [[fallthrough]];
-  case K::NO_CAPTURING:
+  case K::NO_CAPTURE:
     [[fallthrough]];
   case K::CAPTURE:
     [[fallthrough]];
@@ -959,8 +959,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::TEMPLATE:
     [[fallthrough]];
-  case K::EQUIVOCAL:
-    [[fallthrough]];
   case K::LIKELY:
     [[fallthrough]];
   case K::UNLIKELY:
@@ -971,9 +969,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXPERIMENTAL:
     [[fallthrough]];
-  case K::UNSTABLE_ADDRESS:
+  case K::UNNO_STABLE_ADDRESS:
     [[fallthrough]];
-  case K::STABLE_ADDRESS:
+  case K::NO_STABLE_ADDRESS:
     [[fallthrough]];
   case K::NO_VARIADICNESS:
     [[fallthrough]];
@@ -1009,15 +1007,15 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHORING:
+  case K::ANCHOR:
     [[fallthrough]];
   case K::VISIBILITY:
     [[fallthrough]];
-  case K::SCOPING:
+  case K::FLANK:
     [[fallthrough]];
-  case K::AVAILABILITY:
+  case K::GLOBAL:
     [[fallthrough]];
-  case K::ACCESSIBILITY:
+  case K::ACCESS:
     [[fallthrough]];
   case K::PROPERTY_MUTABILITY:
     [[fallthrough]];
@@ -1025,17 +1023,17 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::GENERATION_TIME:
     [[fallthrough]];
-  case K::CAPTURING:
+  case K::CAPTURE:
     [[fallthrough]];
   case K::INLINING:
     [[fallthrough]];
-  case K::MANGLING:
+  case K::MANGLE:
     [[fallthrough]];
   case K::PACKING:
     [[fallthrough]];
   case K::TEMPLATING:
     [[fallthrough]];
-  case K::LIKELYHOOD:
+  case K::TREND:
     [[fallthrough]];
   case K::SUPPORT:
     [[fallthrough]];

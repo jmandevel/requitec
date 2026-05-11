@@ -1051,21 +1051,21 @@ void Context::logErrorFailedToImportModule(const rq::Expression &expression,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorOutsideNotInFrame(
-    const rq::Expression &outside_expression) {
+void Context::logErrorFlankNotInFrame(
+    const rq::Expression &flank_expression) {
   this->logMessage(
-      outside_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+      flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
       llvm::Twine(
-          "outside attribute refeers to symbol table that is not in frame"),
-      {outside_expression.getLlvmSourceRange()}, {});
+          "flank attribute refeers to symbol table that is not in frame"),
+      {flank_expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorOutsideNotAncestor(
-    const rq::Expression &outside_expression) {
+void Context::logErrorFlankNotAncestor(
+    const rq::Expression &flank_expression) {
   this->logMessage(
-      outside_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("outside attribute refeers to symbol table is not ancestor"),
-      {outside_expression.getLlvmSourceRange()}, {});
+      flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+      llvm::Twine("flank attribute refeers to symbol table is not ancestor"),
+      {flank_expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNumeric(const rq::Expression &expression,

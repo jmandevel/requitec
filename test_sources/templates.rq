@@ -1,21 +1,21 @@
 [import "std"];
 
 [template]::{> Type:[symbol] <}
-[constrain]::(Type.[is_float_type])
+[constraint]::(Type.[is_float_type])
 [weight]::1
 [function printType, ( var:Type <)[void],
     ..std.print(line="Its a float");
 ];
 
 [template]::{> Type:[symbol] <}
-[constrain]::(Type.[is_integer_type])
+[constraint]::(Type.[is_integer_type])
 [weight]::1
 [function printType, ( var:Type <)[void],
     ..std.print(line="Its an integer");
 ];
 
 [template]::{> Type:[symbol] <}
-[constrain]::(Type.[is_type])
+[constraint]::(Type.[is_type])
 [function printType, ( var:Type <)[void],
     ..std.print(line="Its something");
 ];

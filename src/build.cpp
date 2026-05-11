@@ -26,7 +26,7 @@ void LlvmIrBuilder::buildProcedure(rq::Procedure &procedure) {
     llvm::FunctionType *llvm_function_type_ptr = llvm::FunctionType::get(
         this->getContext().getLlvmIrBuilder().getInt32Ty(), false);
     llvm::Function *llvm_function_ptr = llvm::Function::Create(
-        llvm_function_type_ptr, llvm::Function::ExternalLinkage, "main",
+        llvm_function_type_ptr, llvm::Function::ExternalInline, "main",
         this->getContext().getLlvmModule());
     llvm::BasicBlock *llvm_block_ptr = llvm::BasicBlock::Create(
         this->getContext().getLlvmContext(), "entry", llvm_function_ptr);

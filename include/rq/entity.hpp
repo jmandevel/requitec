@@ -48,19 +48,19 @@ enum class Opcode {
   SY_NO_RETURN_TYPE,
 
   // EXPRESSION ATTRIBUTES
-  SY_ANCHORING_TYPE,
+  SY_ANCHOR_TYPE,
   SY_VISIBILITY_TYPE,
-  SY_SCOPING_TYPE,
-  SY_AVAILABILITY_TYPE,
+  SY_FLANK_TYPE,
+  SY_GLOBAL_TYPE,
   SY_PROPERTY_MUTABILITY_TYPE,
   SY_EXPORTING_TYPE,
   SY_GENERATION_TIME_TYPE,
-  SY_CAPTURING_TYPE,
+  SY_CAPTURE_TYPE,
   SY_INLINING_TYPE,
-  SY_MANGLING_TYPE,
+  SY_MANGLE_TYPE,
   SY_PACKING_TYPE,
   SY_TEMPLATING_TYPE,
-  SY_LIKELYHOOD_TYPE,
+  SY_TREND_TYPE,
   SY_SUPPORT_TYPE,
   SY_ADDRESS_STABILITY_TYPE,
   SY_VARIADICNESS_TYPE,
@@ -122,9 +122,6 @@ enum class Opcode {
   // IMPORTS
   SY_IMPORT,
 
-  // TUPLE TYPE
-  SY_TUPLE_TYPE,
-
   // JUXTAPOSITIONAL LIST
   SY_JUXTAPOSITIONAL_LIST_TYPE,
 
@@ -174,9 +171,7 @@ enum class Opcode {
   SY_ELSE_IF,
   SY_ELSE,
   SY_MATCH,
-  SY_INLINE_MATCH,
   SY_SWITCH,
-  SY_INLINE_SWITCH,
   SY_CASE,
   SY_WITH,
   SY_DEFAULT,
@@ -185,7 +180,6 @@ enum class Opcode {
   SY_SPIN,
   SY_WEAVE,
   SY_SCOPE,
-  SY_INLINE_SCOPE,
 
   // GLOBAL DECLARATION => symbol table
   SY_NAMESPACE,
@@ -290,7 +284,10 @@ enum class OpcodeFlags : std::uint64_t {
 
 template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode);
+[[nodiscard]] inline rq::OpcodeFlags getFlags(rq::Opcode opcode);
+
+[[nodiscard]] inline rq::ExpressionFlags getDefaultExpressionFlags(rq::Opcode opcode, rq::Opcode containing_opcode);
+[[nodiscard]] inline rq::ExpressionFlags getValidExpressionFlags(rq::Opcode opcode, rq::Opcode containing_opcode);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstant(rq::Opcode opcode);
@@ -370,20 +367,20 @@ struct Entity;
           struct VoidType;
           struct NoReturnType;
       struct ExpressionAttributeType;
-        struct AnchoringType;
+        struct AnchorType;
         struct VisibilityType;
-        struct ScopingType;
-        struct AvailabilityType;
+        struct FlankType;
+        struct GlobalType;
         struct PropertyMutabilityType;
         struct ExportingType;
         struct GenerationTimeType;
-        struct CapturingType;
+        struct CaptureType;
         struct EvaluationTimeType;
         struct InliningType;
-        struct ManglingType;
+        struct MangleType;
         struct PackingType;
         struct TemplatingType;
-        struct LikelyhoodType;
+        struct TrendType;
         struct SupportType;
         struct AddressStabilityType;
         struct VariadicnessType;
@@ -431,7 +428,6 @@ struct Entity;
         struct InferenceCountArraySubtype;
     struct Module;
     struct Import;
-    struct TupleType;
     struct JuxtapositionalListType;
     struct ArithmeticSequenceType;
       struct ArithmeticIntervalType;
@@ -443,7 +439,6 @@ struct Entity;
       struct LocalVariable;
         struct LocalDynamicVariable;
         struct LocalStaticVariable;
-        struct Element;
         struct Parameter;
           struct StaticParameter;
           struct DynamicParameter;
@@ -467,9 +462,7 @@ struct Entity;
         struct ElseIfTable;
         struct ElseTable;
         struct MatchTable;
-        struct InlineMatchTable;
         struct SwitchTable;
-        struct InlineSwitchTable;
         struct CaseTable;
         struct WithTable;
         struct DefaultTable;
@@ -478,7 +471,6 @@ struct Entity;
         struct SpinTable;
         struct WeaveTable;
         struct ScopeTable;
-        struct InlineScopeTable;
       struct GlobalDeclaration;
         struct Namespace;
         struct ClassType;
@@ -747,10 +739,10 @@ struct ExpressionAttributeType : public rq::SimpleSymbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct AnchoringType final : public rq::ExpressionAttributeType {
-  using Self = rq::AnchoringType;
+struct AnchorType final : public rq::ExpressionAttributeType {
+  using Self = rq::AnchorType;
 
-  explicit RQ_ALWAYS_INLINE AnchoringType();
+  explicit RQ_ALWAYS_INLINE AnchorType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -763,18 +755,18 @@ struct VisibilityType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ScopingType final : public rq::ExpressionAttributeType {
-  using Self = rq::ScopingType;
+struct FlankType final : public rq::ExpressionAttributeType {
+  using Self = rq::FlankType;
 
-  explicit RQ_ALWAYS_INLINE ScopingType();
+  explicit RQ_ALWAYS_INLINE FlankType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct AvailabilityType final : public rq::ExpressionAttributeType {
-  using Self = rq::AvailabilityType;
+struct GlobalType final : public rq::ExpressionAttributeType {
+  using Self = rq::GlobalType;
 
-  explicit RQ_ALWAYS_INLINE AvailabilityType();
+  explicit RQ_ALWAYS_INLINE GlobalType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -803,10 +795,10 @@ struct GenerationTimeType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct CapturingType final : public rq::ExpressionAttributeType {
-  using Self = rq::CapturingType;
+struct CaptureType final : public rq::ExpressionAttributeType {
+  using Self = rq::CaptureType;
 
-  explicit RQ_ALWAYS_INLINE CapturingType();
+  explicit RQ_ALWAYS_INLINE CaptureType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -827,10 +819,10 @@ struct InliningType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ManglingType final : public rq::ExpressionAttributeType {
-  using Self = rq::ManglingType;
+struct MangleType final : public rq::ExpressionAttributeType {
+  using Self = rq::MangleType;
 
-  explicit RQ_ALWAYS_INLINE ManglingType();
+  explicit RQ_ALWAYS_INLINE MangleType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -851,10 +843,10 @@ struct TemplatingType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct LikelyhoodType final : public rq::ExpressionAttributeType {
-  using Self = rq::LikelyhoodType;
+struct TrendType final : public rq::ExpressionAttributeType {
+  using Self = rq::TrendType;
 
-  explicit RQ_ALWAYS_INLINE LikelyhoodType();
+  explicit RQ_ALWAYS_INLINE TrendType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1317,116 +1309,7 @@ struct Import final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ElementInfo final {
-  llvm::StringRef name;
-  rq::SymbolConstant *type_ptr;
-};
-
-struct TupleTypeFactory final {
-  using Self = rq::TupleTypeFactory;
-
-  llvm::SmallVector<rq::ElementInfo> _elements{};
-  llvm::SmallPtrSet<rq::SymbolConstant*> _unamed_element_types{};
-
-  TupleTypeFactory() = default;
-
-  [[nodiscard]] inline bool addElement(llvm::StringRef name, rq::SymbolConstant& type);
-};
-
-struct ElementIterator final {
-  using Self = rq::ElementIterator;
-  using value_type = rq::Element;
-  using reference = rq::Element &;
-  using pointer = rq::Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Element *_element_ptr{nullptr};
-
-  ElementIterator() = default;
-  explicit ElementIterator(rq::Element *element_ptr);
-  ElementIterator(const Self &) = default;
-  ElementIterator(Self &&) = default;
-  ~ElementIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Element &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Element *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct ConstElementIterator final {
-  using Self = rq::ConstElementIterator;
-  using value_type = const rq::Element;
-  using reference = const rq::Element &;
-  using pointer = rq::Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::Element *_element_ptr{nullptr};
-
-  ConstElementIterator() = default;
-  explicit ConstElementIterator(const rq::Element *element_ptr);
-  ConstElementIterator(const Self &) = default;
-  ConstElementIterator(Self &&) = default;
-  ~ConstElementIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Element *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct Element final : public llvm::FoldingSetNodeID {
-  using Self = rq::Element;
-
-  llvm::StringRef _name_ptr;
-  rq::Element* _next_element_ptr;
-  rq::SymbolConstant *_type_ptr;
-
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
-};
-
-struct TupleType final : public rq::Symbol, public llvm::FoldingSetNodeID {
-  using Self = rq::TupleType;
-
-  unsigned _element_count;
-  unsigned _named_element_count;
-  rq::Element *_first_element_ptr;
-
-  explicit RQ_ALWAYS_INLINE TupleType(rq::TupleTypeFactory &factory);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getElementCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getNamedElementCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getUnamedElementCount() const;
-  [[nodiscard]] inline rq::Element *
-  getElementOfType(const rq::SymbolConstant &type);
-  [[nodiscard]] inline rq::Element *getElementOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ElementIterator, rq::ElementIterator,
-                            std::ranges::subrange_kind::unsized>
-      getElementSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstElementIterator, rq::ConstElementIterator,
-                            std::ranges::subrange_kind::unsized>
-      getElementSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
-};
-
-struct JuxtapositionalListType final : public rq::Symbol, public llvm::FoldingSetNodeID  {
+struct JuxtapositionalListType final : public rq::Symbol, llvm::FoldingSetNode  {
   using Self = rq::JuxtapositionalListType;
 
   llvm::ArrayRef<rq::SymbolConstant *> _children_ptrs;
@@ -1442,7 +1325,7 @@ struct JuxtapositionalListType final : public rq::Symbol, public llvm::FoldingSe
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct ArithmeticSequence : public rq::Symbol, public llvm::FoldingSetNodeID {
+struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequence;
 
   rq::SymbolConstant *_child_ptr;
@@ -1603,7 +1486,7 @@ enum class ParameterFlags : std::uint8_t {
 
   POSITIONAL = rq::getBit(0),
   NAMED = rq::getBit(1),
-  // UNSETABLE - not POSITIONAL and NAMED
+  UNSETTABLE_NONE_MASK = POSITIONAL | NAMED
 };
 
 template <> struct is_flags<rq::ParameterFlags> final : std::true_type {};
@@ -1757,16 +1640,16 @@ struct ParameterList : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SignatureType final : public rq::ParameterList {
+struct SignatureType final : public rq::ParameterList, public llvm::FoldingSetNode {
   using Self = rq::SignatureType;
 
-  rq::SymbolConstant *_return_type_ptr{nullptr};
-  rq::SymbolConstant *_reciever_type_ptr{nullptr};
-  const rq::Expression *_precondition_expression_ptr{nullptr};
-  const rq::Expression *_postcondition_expression_ptr{nullptr};
+  rq::SymbolConstant *_return_type_ptr;
+  rq::SymbolConstant *_reciever_type_ptr;
+  const rq::Expression *_precondition_expression_ptr;
+  const rq::Expression *_postcondition_expression_ptr;
 
   explicit RQ_ALWAYS_INLINE
-  SignatureType(rq::BumpPtrAllocator &allocator, rq::ParameterListFactory &factory,
+  SignatureType(rq::ParameterListFactory &factory,
             rq::SymbolConstant &return_type, rq::SymbolConstant &reciever_type,
             const rq::Expression &precondition_expression,
             const rq::Expression &postcondition_expression);
@@ -1780,9 +1663,11 @@ struct SignatureType final : public rq::ParameterList {
   getPostconditionExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct Layout final : public rq::ParameterList, public llvm::FoldingSetNodeID {
+struct Layout final : public rq::ParameterList, public llvm::FoldingSetNode {
   using Self = rq::Layout;
 
   explicit RQ_ALWAYS_INLINE Layout();
@@ -1792,7 +1677,7 @@ struct Layout final : public rq::ParameterList, public llvm::FoldingSetNodeID {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct Placement final : public rq::Symbol, public llvm::FoldingSetNodeID {
+struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::Placement;
 
   rq::Procedure *_procedure_ptr;
@@ -1806,7 +1691,7 @@ struct Placement final : public rq::Symbol, public llvm::FoldingSetNodeID {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct CompositionComponent final : public llvm::FoldingSetNodeID {
+struct CompositionComponent final : llvm::FoldingSetNode {
 
   rq::Interface* _interface_ptr;
 };
@@ -1815,7 +1700,7 @@ struct CompositionFactory final {
 
 };
 
-struct Composition final : public rq::Symbol, public llvm::FoldingSetNodeID {
+struct Composition final : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::Composition;
 
   rq::CompositionComponent* _first_component_ptr;
@@ -2149,25 +2034,11 @@ struct MatchTable final : public rq::LocalTable {
                                        rq::ExpressionFlags flags);
 };
 
-struct InlineMatchTable final : public rq::LocalTable {
-  using Self = rq::InlineMatchTable;
-
-  explicit RQ_ALWAYS_INLINE InlineMatchTable(rq::Expression &expression,
-                                             rq::ExpressionFlags flags);
-};
-
 struct SwitchTable final : public rq::LocalTable {
   using Self = rq::SwitchTable;
 
   explicit RQ_ALWAYS_INLINE SwitchTable(rq::Expression &expression,
                                         rq::ExpressionFlags flags);
-};
-
-struct InlineSwitchTable final : public rq::LocalTable {
-  using Self = rq::InlineSwitchTable;
-
-  explicit RQ_ALWAYS_INLINE InlineSwitchTable(rq::Expression &expression,
-                                              rq::ExpressionFlags flags);
 };
 
 struct CaseTable final : public rq::LocalTable {
@@ -2224,15 +2095,6 @@ struct ScopeTable final : public rq::LocalTable {
 
   explicit RQ_ALWAYS_INLINE ScopeTable(rq::Expression &expression,
                                        rq::ExpressionFlags flags);
-};
-
-struct InlineScopeTable final : public rq::LocalTable {
-  using Self = rq::InlineScopeTable;
-
-  explicit RQ_ALWAYS_INLINE InlineScopeTable(rq::Expression &expression,
-                                             rq::SymbolTable &containing_table);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct GlobalDeclaration : public rq::SymbolTable {

@@ -3,6 +3,8 @@
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/DenseMap.h>
+#include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/SMLoc.h>
 
@@ -242,9 +244,7 @@ enum class Keyword : std::uint32_t {
   ELSE_IF,
   ELSE,
   MATCH,
-  INLINE_MATCH,
   SWITCH,
-  INLINE_SWITCH,
   CASE,
   WITH,
   DEFAULT,
@@ -253,9 +253,7 @@ enum class Keyword : std::uint32_t {
   SPIN,
   WEAVE,
   SCOPE,
-  INLINE_SCOPE,
   BLOCK,
-  INLINE_BLOCK,
 
   // RANGES
   RANGE,
@@ -288,127 +286,112 @@ enum class Keyword : std::uint32_t {
   ASSUME,
 
   // EXPRESSION ATTRIBUTES
-  // anchoring
-  NO_ANCHORING,
+  // anchor_type
+  NO_ANCHOR,
   ANCHOR,
-  // visibility
-  NO_VISIBILITY,
-  TRANSPARENT,
+  // opaque_type
+  NO_OPAQUE,
   OPAQUE,
-  // scoping
-  NO_SCOPING,
-  HERE,
-  OUTSIDE,
-  // availability
-  NO_AVAILABILITY,
-  LOCAL,
+  // flank_type
+  NO_FLANK,
+  FLANK,
+  // global_type
+  NO_GLOBAL,
   GLOBAL,
-  // accessibility
-  NO_ACCESSIBILITY,
-  INTERNAL,
+  // access_type
+  NO_ACCESS,
   EXPORT,
-  PRIVATE,
   PUBLIC,
-  // partial_mutability
-  NO_PARTIAL_MUTABILITY,
+  // partial_mutate_type
+  NO_PARTIAL_MUTATE,
   PARTIAL_MUTATE,
-  // runtime
-  NO_RUNTIME,
-  DYNAMIC,
+  // static_type
+  NO_STATIC,
   STATIC,
-  // capturing
-  NO_CAPTURING,
+  // capture_type
+  NO_CAPTURE,
   CAPTURE,
-  // linkage
-  NO_LINKAGE,
-  LINKED,
+  // inline_type
+  NO_INLINE,
   INLINE,
-  // mangling
-  NO_MANGLING,
-  IMPLICIT_MANGLE,
-  EXPLICIT_MANGLE,
-  // padding
-  NO_PADDING,
-  PAD,
+  // mangle_type
+  NO_MANGLE,
+  MANGLE,
+  // pack_type
+  NO_PACK,
   PACK,
-  // templating
-  NO_TEMPLATING,
-  TEMPLATE,
-  // likelyhood
-  NO_LIKELYHOOD,
-  EQUIVOCAL,
+  // branch_trend_type
+  NO_BRANCH_TREND,
   LIKELY,
   UNLIKELY,
-  // support_status
-  NO_SUPPORT_STATUS,
-  SUPPORTED,
-  DEPRECIATED,
+  // depreciate_type
+  NO_DEPRECIATE,
+  DEPRECIATE,
   EXPERIMENTAL,
-  // addressing
-  NO_ADDRESSING,
-  UNSTABLE_ADDRESS,
+  // address_stability_type
+  NO_STABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadicness
-  NO_VARIADICNESS,
-  VARIADIC,  
-  // constraint
+  // variadic_type
+  NO_VARIADIC,
+  VARIADIC,
+  // template_type
+  NO_TEMPLATE,
+  TEMPLATE,
+  // constraint_type
   NO_CONSTRAINT,
-  CONSTRAIN,
-  // weighting
-  NO_WEIGHTING,
-  DEFAULT_WEIGHT,
+  CONSTRAINT,
+  // weight_type
+  NO_WEIGHT,
   WEIGHT,
 
   // TYPE ATTRIBUTES
-  // variability
-  CONST, // default
+  // var_type
+  NO_VAR,
   VAR,
-  PARTIALLY_VAR,
-  // volatility
-  NO_VOLATILITY, // default
+  PARTIAL_VAR,
+  // volatile_type
+  NO_VOLATILE,
   VOLATILE,
-  // atomicity
-  NO_ATOMICITY, // default
+  // atomic_type
+  NO_ATOMIC,
   ATOMIC,
-  // null_termination
-  NO_NULL_TERMINATION, // default
+  // null_terminate_type
+  NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  // precondition
-  NO_PRECONDITION,
+  // require_type
+  NO_REQUIRE,
   REQUIRE,
-  // postcondition
-  NO_POSTCONDITION,
+  // ensure_type
+  NO_ENSURE,
   ENSURE,
 
   // EXPRESSION ATTRIBUTE TYPES
-  ANCHORING,          // no_anchoring vs anchor
-  VISIBILITY,         // no_visibility vs transparent vs opaque
-  SCOPING,            // here vs outside
-  AVAILABILITY,       // local vs global
-  ACCESSIBILITY,      // internal vs export vs private vs public
-  PARTIAL_MUTABILITY, // no_partial_mutability vs no_partial_mutability vs
-                      // partial_mutate
-  RUNTIME,            // no_runtime vs static vs dynamic
-  CAPTURING,          // no_capturing vs capture
-  LINKAGE,            // no_linkage vs linked vs inline
-  MANGLING,           // implicit_mangle vs explicit_mangle
-  PADDING,            // no_padding vs pad vs pack
-  TEMPLATING,         // no_templating vs template
-  LIKELYHOOD,         // equivocal vs likely vs unlikely
-  SUPPORT_STATUS,     // no_support_status vs supported vs depreciated vs
-                      // experimental
-  ADDRESSING,         // no_addressing vs unstable_address vs stable_address
-  VARIADICNESS,       // no_variadicness vs variadic
-  CONSTRAINT,         // no_constraint vs constrain
-  WEIGHTING,          // default_weight vs weight
+  ANCHOR_TYPE,         // no_anchor vs anchor
+  OPAQUE_TYPE,         // no_opaque vs opaque
+  FLANK_TYPE,          // no_flank vs flank
+  GLOBAL_TYPE,         // no_global vs global
+  ACCESS_TYPE,         // no_access vs export vs public
+  PARTIAL_MUTATE_TYPE, // no_partial_mutate vs partial_mutate
+  STATIC_TYPE,         // no_static vs static
+  CAPTURE_TYPE,        // no_capture vs capture
+  INLINE_TYPE,         // no_inline vs inline
+  MANGLE_TYPE,         // no_mangle vs mangle
+  PACK_TYPE,           // no_pack vs pack
+  BRANCH_TREND_TYPE,   // no_branch_trend vs likely vs unlikely
+  DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
+  STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
+  VARIADIC_TYPE,       // no_variadic vs variadic
+  TEMPLATE_TYPE,       // no_template vs template
+  CONSTRAINT_TYPE,     // no_constraint vs constraint
+  WEIGHT_TYPE,         // no_weight vs weight
 
   // TYPE ATTRIBUTE TYPES
-  VARIABILITY,      // const vs var vs partially_var
-  VOLATILITY,       // no_volatility vs volatile
-  ATOMICITY,        // no_atomicity vs atomic
-  NULL_TERMINATION, // no_null_termination vs null_terminate
-  PRECONDITION,     // no_precondition vs require
-  POSTCONDITION,    // no_postcondition vs ensure
+  VAR_TYPE,            // no_var vs var vs partial_var
+  VOLATILE_TYPE,       // no_volatile vs volatile
+  ATOMIC_TYPE,         // no_atomic vs atomic
+  NULL_TERMINATE_TYPE, // no_null_terminate vs null_terminate
+  REQUIRE_TYPE,        // no_require vs require
+  ENSURE_TYPE,         // no_ensure vs ensure
 
   // MACROS
   QUOTE,
@@ -893,12 +876,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "else";
   case K::MATCH:
     return "match";
-  case K::INLINE_MATCH:
-    return "inline_match";
   case K::SWITCH:
     return "switch";
-  case K::INLINE_SWITCH:
-    return "inline_switch";
   case K::CASE:
     return "case";
   case K::WITH:
@@ -915,12 +894,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weave";
   case K::SCOPE:
     return "scope";
-  case K::INLINE_SCOPE:
-    return "inline_scope";
   case K::BLOCK:
     return "block";
-  case K::INLINE_BLOCK:
-    return "inline_block";
 
   // RANGES
   case K::RANGE:
@@ -977,190 +952,164 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "assume";
 
   // EXPRESSION ATTRIBUTES
-  case K::NO_ANCHORING:
-    return "no_anchoring";
+  case K::NO_ANCHOR:
+    return "no_anchor";
   case K::ANCHOR:
     return "anchor";
-  case K::NO_VISIBILITY:
-    return "no_visibility";
-  case K::TRANSPARENT:
-    return "transparent";
+  case K::NO_OPAQUE:
+    return "no_opaque";
   case K::OPAQUE:
     return "opaque";
-  case K::NO_SCOPING:
-    return "no_scoping";
-  case K::HERE:
-    return "here";
-  case K::OUTSIDE:
-    return "outside";
-  case K::NO_AVAILABILITY:
-    return "no_availability";
-  case K::LOCAL:
-    return "local";
+  case K::NO_FLANK:
+    return "no_flank";
+  case K::FLANK:
+    return "flank";
+  case K::NO_GLOBAL:
+    return "no_global";
   case K::GLOBAL:
     return "global";
-  case K::NO_ACCESSIBILITY:
-    return "no_accessibility";
-  case K::INTERNAL:
-    return "internal";
+  case K::NO_ACCESS:
+    return "no_access";
   case K::EXPORT:
     return "export";
-  case K::PRIVATE:
-    return "private";
   case K::PUBLIC:
     return "public";
-  case K::NO_PARTIAL_MUTABILITY:
-    return "no_partial_mutability";
+  case K::NO_PARTIAL_MUTATE:
+    return "no_partial_mutate";
   case K::PARTIAL_MUTATE:
     return "partial_mutate";
-  case K::NO_RUNTIME:
-    return "no_runtime";
-  case K::DYNAMIC:
-    return "dynamic";
+  case K::NO_STATIC:
+    return "no_static";
   case K::STATIC:
     return "static";
-  case K::NO_CAPTURING:
-    return "no_capturing";
+  case K::NO_CAPTURE:
+    return "no_capture";
   case K::CAPTURE:
     return "capture";
-  case K::NO_LINKAGE:
-    return "no_linkage";
-  case K::LINKED:
-    return "linked";
+  case K::NO_INLINE:
+    return "no_inline";
   case K::INLINE:
     return "inline";
-  case K::NO_MANGLING:
-    return "no_mangling";
-  case K::IMPLICIT_MANGLE:
-    return "implicit_mangle";
-  case K::EXPLICIT_MANGLE:
-    return "explicit_mangle";
-  case K::NO_PADDING:
-    return "no_padding";
-  case K::PAD:
-    return "pad";
+  case K::NO_MANGLE:
+    return "no_mangle";
+  case K::MANGLE:
+    return "mangle";
+  case K::NO_PACK:
+    return "no_pack";
   case K::PACK:
     return "pack";
-  case K::NO_TEMPLATING:
-    return "no_templating";
-  case K::TEMPLATE:
-    return "template";
-  case K::NO_LIKELYHOOD:
-    return "no_likelyhood";
-  case K::EQUIVOCAL:
-    return "equivocal";
+  case K::NO_BRANCH_TREND:
+    return "no_branch_trend";
   case K::LIKELY:
     return "likely";
   case K::UNLIKELY:
     return "unlikely";
-  case K::NO_SUPPORT_STATUS:
-    return "no_support_status";
-  case K::SUPPORTED:
-    return "supported";
-  case K::DEPRECIATED:
-    return "depreciated";
+  case K::NO_DEPRECIATE:
+    return "no_depreciate";
+  case K::DEPRECIATE:
+    return "depreciate";
   case K::EXPERIMENTAL:
     return "experimental";
-  case K::NO_ADDRESSING:
-    return "no_addressing";
-  case K::UNSTABLE_ADDRESS:
-    return "unstable_address";
+  case K::NO_STABLE_ADDRESS:
+    return "no_stable_address";
   case K::STABLE_ADDRESS:
     return "stable_address";
-  case K::NO_VARIADICNESS:
-    return "no_variadicness";
+  case K::NO_VARIADIC:
+    return "no_variadic";
   case K::VARIADIC:
     return "variadic";
+  case K::NO_TEMPLATE:
+    return "no_template";
+  case K::TEMPLATE:
+    return "template";
   case K::NO_CONSTRAINT:
     return "no_constraint";
-  case K::CONSTRAIN:
-    return "constrain";
-  case K::NO_WEIGHTING:
-    return "no_weighting";
-  case K::DEFAULT_WEIGHT:
-    return "default_weight";
+  case K::CONSTRAINT:
+    return "constraint";
+  case K::NO_WEIGHT:
+    return "no_weight";
   case K::WEIGHT:
     return "weight";
 
   // TYPE ATTRIBUTES
-  case K::CONST:
-    return "const";
+  case K::NO_VAR:
+    return "no_var";
   case K::VAR:
     return "var";
-  case K::PARTIALLY_VAR:
-    return "partially_var";
-  case K::NO_VOLATILITY:
-    return "no_volatility";
+  case K::PARTIAL_VAR:
+    return "partial_var";
+  case K::NO_VOLATILE:
+    return "no_volatile";
   case K::VOLATILE:
     return "volatile";
-  case K::NO_ATOMICITY:
-    return "no_atomicity";
+  case K::NO_ATOMIC:
+    return "no_atomic";
   case K::ATOMIC:
     return "atomic";
-  case K::NO_NULL_TERMINATION:
-    return "no_null_termination";
+  case K::NO_NULL_TERMINATE:
+    return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
-  case K::NO_PRECONDITION:
-    return "no_precondition";
+  case K::NO_REQUIRE:
+    return "no_require";
   case K::REQUIRE:
     return "require";
-  case K::NO_POSTCONDITION:
-    return "no_postcondition";
+  case K::NO_ENSURE:
+    return "no_ensure";
   case K::ENSURE:
     return "ensure";
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHORING:
-    return "anchoring";
-  case K::VISIBILITY:
-    return "visibility";
-  case K::SCOPING:
-    return "scoping";
-  case K::AVAILABILITY:
-    return "availability";
-  case K::ACCESSIBILITY:
-    return "accessibility";
-  case K::PARTIAL_MUTABILITY:
-    return "partial_mutability";
-  case K::RUNTIME:
-    return "runtime";
-  case K::CAPTURING:
-    return "capturing";
-  case K::LINKAGE:
-    return "linkage";
-  case K::MANGLING:
-    return "mangling";
-  case K::PADDING:
-    return "padding";
-  case K::TEMPLATING:
-    return "templating";
-  case K::LIKELYHOOD:
-    return "likelyhood";
-  case K::SUPPORT_STATUS:
-    return "support_status";
-  case K::ADDRESSING:
-    return "addressing";
-  case K::VARIADICNESS:
-    return "variadicness";
-  case K::CONSTRAINT:
-    return "constraint";
-  case K::WEIGHTING:
-    return "weighting";
+  case K::ANCHOR_TYPE:
+    return "anchor_type";
+  case K::OPAQUE_TYPE:
+    return "opaque_type";
+  case K::FLANK_TYPE:
+    return "flank_type";
+  case K::GLOBAL_TYPE:
+    return "global_type";
+  case K::ACCESS_TYPE:
+    return "access_type";
+  case K::PARTIAL_MUTATE_TYPE:
+    return "partial_mutate_type";
+  case K::STATIC_TYPE:
+    return "static_type";
+  case K::CAPTURE_TYPE:
+    return "capture_type";
+  case K::INLINE_TYPE:
+    return "inline_type";
+  case K::MANGLE_TYPE:
+    return "mangle_type";
+  case K::PACK_TYPE:
+    return "pack_type";
+  case K::BRANCH_TREND_TYPE:
+    return "branch_trend_type";
+  case K::DEPRECIATE_TYPE:
+    return "depreciate_type";
+  case K::STABLE_ADDRESS_TYPE:
+    return "stable_address_type";
+  case K::VARIADIC_TYPE:
+    return "variadic_type";
+  case K::TEMPLATE_TYPE:
+    return "template_type";
+  case K::CONSTRAINT_TYPE:
+    return "constraint_type";
+  case K::WEIGHT_TYPE:
+    return "weight_type";
 
   // TYPE ATTRIBUTE TYPES
-  case K::VARIABILITY:
-    return "variability";
-  case K::VOLATILITY:
-    return "volatility";
-  case K::ATOMICITY:
-    return "atomicity";
-  case K::NULL_TERMINATION:
-    return "null_termination";
-  case K::PRECONDITION:
-    return "precondition";
-  case K::POSTCONDITION:
-    return "postcondition";
+  case K::VAR_TYPE:
+    return "var_type";
+  case K::VOLATILE_TYPE:
+    return "volatile_type";
+  case K::ATOMIC_TYPE:
+    return "atomic_type";
+  case K::NULL_TERMINATE_TYPE:
+    return "null_terminate_type";
+  case K::REQUIRE_TYPE:
+    return "require_type";
+  case K::ENSURE_TYPE:
+    return "ensure_type";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1776,13 +1725,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::ELSE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::FINISHING_CHAINLINK;
   case K::MATCH:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::INLINE_MATCH:
-    return KF::STATEMENT_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::SWITCH:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::INLINE_SWITCH:
-    return KF::STATEMENT_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::CASE:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
            KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
@@ -1802,13 +1747,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::CONTINUING_CHAINLINK |
            KF::FINISHING_CHAINLINK;
   case K::SCOPE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
-  case K::INLINE_SCOPE:
-    return KF::STATEMENT_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::BLOCK:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::INLINE_BLOCK:
-    return KF::STATEMENT_BRANCHES | KF::RVALUE;
+    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
 
   // RANGES
   case K::RANGE:
@@ -1865,189 +1806,163 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // EXPRESSION ATTRIBUTES
-  case K::NO_ANCHORING:
+  case K::NO_ANCHOR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ANCHOR:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_VISIBILITY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::TRANSPARENT:
+  case K::NO_OPAQUE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::OPAQUE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_SCOPING:
+  case K::NO_FLANK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::HERE:
+  case K::FLANK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::OUTSIDE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_AVAILABILITY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::LOCAL:
+  case K::NO_GLOBAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::GLOBAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_ACCESSIBILITY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::INTERNAL:
+  case K::NO_ACCESS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPORT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PRIVATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PUBLIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_PARTIAL_MUTABILITY:
+  case K::NO_PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARTIAL_MUTATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_RUNTIME:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::DYNAMIC:
+  case K::NO_STATIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STATIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_CAPTURING:
+  case K::NO_CAPTURE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::CAPTURE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_LINKAGE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::LINKED:
+  case K::NO_INLINE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_MANGLING:
+  case K::NO_MANGLE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::IMPLICIT_MANGLE:
+  case K::MANGLE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EXPLICIT_MANGLE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_PADDING:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PAD:
+  case K::NO_PACK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_TEMPLATING:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::TEMPLATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_LIKELYHOOD:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::EQUIVOCAL:
+  case K::NO_BRANCH_TREND:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LIKELY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNLIKELY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_SUPPORT_STATUS:
+  case K::NO_DEPRECIATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::SUPPORTED:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::DEPRECIATED:
+  case K::DEPRECIATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPERIMENTAL:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_ADDRESSING:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::UNSTABLE_ADDRESS:
+  case K::NO_STABLE_ADDRESS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STABLE_ADDRESS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_VARIADICNESS:
+  case K::NO_VARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_TEMPLATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::TEMPLATE:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_CONSTRAINT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::CONSTRAIN:
+  case K::CONSTRAINT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_WEIGHTING:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::DEFAULT_WEIGHT:
+  case K::NO_WEIGHT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::WEIGHT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
-  case K::CONST:
+  case K::NO_VAR:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VAR:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::PARTIALLY_VAR:
+  case K::PARTIAL_VAR:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_VOLATILITY:
+  case K::NO_VOLATILE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VOLATILE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_ATOMICITY:
+  case K::NO_ATOMIC:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ATOMIC:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_NULL_TERMINATE:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NULL_TERMINATE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_NULL_TERMINATION:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_PRECONDITION:
+  case K::NO_REQUIRE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::REQUIRE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_POSTCONDITION:
+  case K::NO_ENSURE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ENSURE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHORING:
+  case K::ANCHOR_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::VISIBILITY:
+  case K::OPAQUE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SCOPING:
+  case K::FLANK_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::AVAILABILITY:
+  case K::GLOBAL_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ACCESSIBILITY:
+  case K::ACCESS_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PARTIAL_MUTABILITY:
+  case K::PARTIAL_MUTATE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::RUNTIME:
+  case K::STATIC_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CAPTURING:
+  case K::CAPTURE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::LINKAGE:
+  case K::INLINE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::MANGLING:
+  case K::MANGLE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PADDING:
+  case K::PACK_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::TEMPLATING:
+  case K::BRANCH_TREND_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::LIKELYHOOD:
+  case K::DEPRECIATE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::SUPPORT_STATUS:
+  case K::STABLE_ADDRESS_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ADDRESSING:
+  case K::VARIADIC_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::VARIADICNESS:
+  case K::TEMPLATE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CONSTRAINT:
+  case K::CONSTRAINT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::WEIGHTING:
+  case K::WEIGHT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
-  case K::VARIABILITY:
+  case K::VAR_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::VOLATILITY:
+  case K::VOLATILE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ATOMICITY:
+  case K::ATOMIC_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::NULL_TERMINATION:
+  case K::NULL_TERMINATE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PRECONDITION:
+  case K::REQUIRE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::POSTCONDITION:
+  case K::ENSURE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // EXPRESSIONS
@@ -2771,75 +2686,62 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 
 enum class ExpressionAttribute : std::uint_fast8_t {
   NONE,
-  // anchoring
-  NO_ANCHORING,
+  // anchor_type
+  NO_ANCHOR,
   ANCHOR,
-  // visibility
-  NO_VISIBILITY,
-  TRANSPARENT,
+  // opaque_type
+  NO_OPAQUE,
   OPAQUE,
-  // scoping
-  NO_SCOPING,
-  HERE,
-  OUTSIDE,
-  // availability
-  NO_AVAILABILITY,
-  LOCAL,
+  // flank_type
+  NO_FLANK,
+  FLANK,
+  // global_type
+  NO_GLOBAL,
   GLOBAL,
-  // accessibility
-  NO_ACCESSIBILITY,
-  INTERNAL,
+  // access_type
+  NO_ACCESS,
   EXPORT,
-  PRIVATE,
   PUBLIC,
-  // partial_mutability
-  NO_PARTIAL_MUTABILITY,
+  // partial_mutate_type
+  NO_PARTIAL_MUTATE,
   PARTIAL_MUTATE,
-  // runtime
-  NO_RUNTIME,
-  DYNAMIC,
+  // static_type
+  NO_STATIC,
   STATIC,
-  // capturing
-  NO_CAPTURING,
+  // capture_type
+  NO_CAPTURE,
   CAPTURE,
-  // linkage
-  NO_LINKAGE,
-  LINKED,
+  // inline_type
+  NO_INLINE,
   INLINE,
-  // mangling
-  NO_MANGLING,
-  IMPLICIT_MANGLE,
-  EXPLICIT_MANGLE,
-  // padding
-  NO_PADDING,
-  PAD,
+  // mangle_type
+  NO_MANGLE,
+  MANGLE,
+  // pack_type
+  NO_PACK,
   PACK,
-  // templating
-  NO_TEMPLATING,
-  TEMPLATE,
-  // likelyhood
-  NO_LIKELYHOOD,
-  EQUIVOCAL,
+  // branch_trend_type
+  NO_BRANCH_TREND,
   LIKELY,
   UNLIKELY,
-  // support status
-  NO_SUPPORT_STATUS,
-  SUPPORTED,
-  DEPRECIATED,
+  // depreciate_type
+  NO_DEPRECIATE,
+  DEPRECIATE,
   EXPERIMENTAL,
-  // addressing
-  NO_ADDRESSING,
-  UNSTABLE_ADDRESS,
+  // address_stability_type
+  NO_STABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadicness
-  NO_VARIADICNESS,
+  // variadic_type
+  NO_VARIADIC,
   VARIADIC,
-  // constraint
+  // template_type
+  NO_TEMPLATE,
+  TEMPLATE,
+  // constraint_type
   NO_CONSTRAINT,
-  CONSTRAIN,
-  // weighting
-  NO_WEIGHTING,
-  DEFAULT_WEIGHT,
+  CONSTRAINT,
+  // weight_type
+  NO_WEIGHT,
   WEIGHT
 };
 
@@ -2850,108 +2752,82 @@ getName(rq::ExpressionAttribute attribute) {
   switch (attribute) {
   case EA::NONE:
     return "none";
-  case EA::NO_ANCHORING:
-    return "no_anchoring";
+  case EA::NO_ANCHOR:
+    return "no_anchor";
   case EA::ANCHOR:
     return "anchor";
-  case EA::NO_VISIBILITY:
-    return "no_visibility";
-  case EA::TRANSPARENT:
-    return "transparent";
+  case EA::NO_OPAQUE:
+    return "no_opaque";
   case EA::OPAQUE:
     return "opaque";
-  case EA::NO_SCOPING:
-    return "no_scoping";
-  case EA::HERE:
-    return "here";
-  case EA::OUTSIDE:
-    return "outside";
-  case EA::NO_AVAILABILITY:
-    return "no_availability";
-  case EA::LOCAL:
-    return "local";
+  case EA::NO_FLANK:
+    return "no_flank";
+  case EA::FLANK:
+    return "flank";
+  case EA::NO_GLOBAL:
+    return "no_global";
   case EA::GLOBAL:
     return "global";
-  case EA::NO_ACCESSIBILITY:
-    return "no_accessibility";
-  case EA::INTERNAL:
-    return "internal";
+  case EA::NO_ACCESS:
+    return "no_access";
   case EA::EXPORT:
     return "export";
-  case EA::PRIVATE:
-    return "private";
   case EA::PUBLIC:
     return "public";
-  case EA::NO_PARTIAL_MUTABILITY:
-    return "no_partial_mutability";
+  case EA::NO_PARTIAL_MUTATE:
+    return "no_partial_mutate";
   case EA::PARTIAL_MUTATE:
     return "partial_mutate";
-  case EA::NO_RUNTIME:
-    return "no_runtime";
-  case EA::DYNAMIC:
-    return "dynamic";
+  case EA::NO_STATIC:
+    return "no_static";
   case EA::STATIC:
     return "static";
-  case EA::NO_CAPTURING:
-    return "no_capturing";
+  case EA::NO_CAPTURE:
+    return "no_capture";
   case EA::CAPTURE:
     return "capture";
-  case EA::NO_LINKAGE:
-    return "no_linkage";
-  case EA::LINKED:
-    return "linked";
+  case EA::NO_INLINE:
+    return "no_inline";
   case EA::INLINE:
     return "inline";
-  case EA::NO_MANGLING:
-    return "no_mangling";
-  case EA::IMPLICIT_MANGLE:
-    return "implicit_mangle";
-  case EA::EXPLICIT_MANGLE:
-    return "explicit_mangle";
-  case EA::NO_PADDING:
-    return "no_padding";
-  case EA::PAD:
-    return "pad";
+  case EA::NO_MANGLE:
+    return "no_mangle";
+  case EA::MANGLE:
+    return "mangle";
+  case EA::NO_PACK:
+    return "no_pack";
   case EA::PACK:
     return "pack";
-  case EA::NO_TEMPLATING:
-    return "no_templating";
-  case EA::TEMPLATE:
-    return "template";
-  case EA::NO_LIKELYHOOD:
-    return "no_likelyhood";
-  case EA::EQUIVOCAL:
-    return "equivocal";
+  case EA::NO_BRANCH_TREND:
+    return "no_branch_trend";
   case EA::LIKELY:
     return "likely";
   case EA::UNLIKELY:
     return "unlikely";
-  case EA::NO_SUPPORT_STATUS:
-    return "no_support_status";
-  case EA::SUPPORTED:
-    return "supported";
-  case EA::DEPRECIATED:
-    return "depreciated";
+  case EA::NO_DEPRECIATE:
+    return "no_depreciate";
+  case EA::DEPRECIATE:
+    return "depreciate";
   case EA::EXPERIMENTAL:
     return "experimental";
-  case EA::NO_ADDRESSING:
-    return "no_addressing";
-  case EA::UNSTABLE_ADDRESS:
-    return "unstable_address";
+  case EA::NO_STABLE_ADDRESS:
+    return "no_stable_address";
   case EA::STABLE_ADDRESS:
     return "stable_address";
-  case EA::NO_VARIADICNESS:
-    return "no_variadicness";
+  case EA::NO_VARIADIC:
+    return "no_variadic";
   case EA::VARIADIC:
     return "variadic";
+  case EA::NO_TEMPLATE:
+    return "no_template";
+  case EA::TEMPLATE:
+    return "template";
   case EA::NO_CONSTRAINT:
     return "no_constraint";
-  case EA::CONSTRAIN:
-    return "constrain";
-  case EA::NO_WEIGHTING:
-    return "no_weighting";
-  case EA::DEFAULT_WEIGHT:
-    return "default_weight";
+  case EA::CONSTRAINT:
+    return "constraint";
+  case EA::NO_WEIGHT:
+    return "no_weight";
   case EA::WEIGHT:
     return "weight";
   }
@@ -2964,108 +2840,80 @@ getExpressionAttribute(rq::Keyword keyword) {
   using K = Keyword;
   using EA = ExpressionAttribute;
   switch (keyword) {
-  case K::NO_ANCHORING:
-    return EA::NO_ANCHORING;
+  case K::NO_ANCHOR:
+    return EA::NO_ANCHOR;
   case K::ANCHOR:
     return EA::ANCHOR;
-  case K::NO_VISIBILITY:
-    return EA::NO_VISIBILITY;
-  case K::TRANSPARENT:
-    return EA::TRANSPARENT;
-  case K::OPAQUE:
+  case K::NO_OPAQUE:
     return EA::OPAQUE;
-  case K::NO_SCOPING:
-    return EA::NO_SCOPING;
-  case K::HERE:
-    return EA::HERE;
-  case K::OUTSIDE:
-    return EA::OUTSIDE;
-  case K::NO_AVAILABILITY:
-    return EA::NO_AVAILABILITY;
-  case K::LOCAL:
-    return EA::LOCAL;
+  case K::NO_FLANK:
+    return EA::NO_FLANK;
+  case K::FLANK:
+    return EA::FLANK;
+  case K::NO_GLOBAL:
+    return EA::NO_GLOBAL;
   case K::GLOBAL:
     return EA::GLOBAL;
-  case K::NO_ACCESSIBILITY:
-    return EA::NO_ACCESSIBILITY;
-  case K::INTERNAL:
-    return EA::INTERNAL;
+  case K::NO_ACCESS:
+    return EA::NO_ACCESS;
   case K::EXPORT:
     return EA::EXPORT;
-  case K::PRIVATE:
-    return EA::PRIVATE;
   case K::PUBLIC:
     return EA::PUBLIC;
-  case K::NO_PARTIAL_MUTABILITY:
-    return EA::NO_PARTIAL_MUTABILITY;
+  case K::NO_PARTIAL_MUTATE:
+    return EA::NO_PARTIAL_MUTATE;
   case K::PARTIAL_MUTATE:
     return EA::PARTIAL_MUTATE;
-  case K::NO_RUNTIME:
-    return EA::NO_RUNTIME;
-  case K::DYNAMIC:
-    return EA::DYNAMIC;
+  case K::NO_STATIC:
+    return EA::NO_STATIC;
   case K::STATIC:
     return EA::STATIC;
-  case K::NO_CAPTURING:
-    return EA::NO_CAPTURING;
+  case K::NO_CAPTURE:
+    return EA::NO_CAPTURE;
   case K::CAPTURE:
     return EA::CAPTURE;
-  case K::NO_LINKAGE:
-    return EA::NO_LINKAGE;
-  case K::LINKED:
-    return EA::LINKED;
+  case K::NO_INLINE:
+    return EA::NO_INLINE;
   case K::INLINE:
     return EA::INLINE;
-  case K::NO_MANGLING:
-    return EA::NO_MANGLING;
-  case K::IMPLICIT_MANGLE:
-    return EA::IMPLICIT_MANGLE;
-  case K::EXPLICIT_MANGLE:
-    return EA::EXPLICIT_MANGLE;
-  case K::NO_PADDING:
-    return EA::NO_PADDING;
-  case K::PAD:
-    return EA::PAD;
+  case K::NO_MANGLE:
+    return EA::NO_MANGLE;
+  case K::MANGLE:
+    return EA::MANGLE;
+  case K::NO_PACK:
+    return EA::NO_PACK;
   case K::PACK:
     return EA::PACK;
-  case K::NO_TEMPLATING:
-    return EA::NO_TEMPLATING;
-  case K::TEMPLATE:
-    return EA::TEMPLATE;
-  case K::NO_LIKELYHOOD:
-    return EA::NO_LIKELYHOOD;
-  case K::EQUIVOCAL:
-    return EA::EQUIVOCAL;
+  case K::NO_BRANCH_TREND:
+    return EA::NO_BRANCH_TREND;
   case K::LIKELY:
     return EA::LIKELY;
   case K::UNLIKELY:
     return EA::UNLIKELY;
-  case K::NO_SUPPORT_STATUS:
-    return EA::NO_SUPPORT_STATUS;
-  case K::SUPPORTED:
-    return EA::SUPPORTED;
-  case K::DEPRECIATED:
-    return EA::DEPRECIATED;
+  case K::NO_DEPRECIATE:
+    return EA::NO_DEPRECIATE;
+  case K::DEPRECIATE:
+    return EA::DEPRECIATE;
   case K::EXPERIMENTAL:
     return EA::EXPERIMENTAL;
-  case K::NO_ADDRESSING:
-    return EA::NO_ADDRESSING;
-  case K::UNSTABLE_ADDRESS:
-    return EA::UNSTABLE_ADDRESS;
+  case K::NO_STABLE_ADDRESS:
+    return EA::NO_STABLE_ADDRESS;
   case K::STABLE_ADDRESS:
     return EA::STABLE_ADDRESS;
-  case K::NO_VARIADICNESS:
-    return EA::NO_VARIADICNESS;
+  case K::NO_VARIADIC:
+    return EA::NO_VARIADIC;
   case K::VARIADIC:
     return EA::VARIADIC;
+  case K::NO_TEMPLATE:
+    return EA::NO_TEMPLATE;
+  case K::TEMPLATE:
+    return EA::TEMPLATE;
   case K::NO_CONSTRAINT:
     return EA::NO_CONSTRAINT;
-  case K::CONSTRAIN:
-    return EA::CONSTRAIN;
-  case K::NO_WEIGHTING:
-    return EA::NO_WEIGHTING;
-  case K::DEFAULT_WEIGHT:
-    return EA::DEFAULT_WEIGHT;
+  case K::CONSTRAINT:
+    return EA::CONSTRAINT;
+  case K::NO_WEIGHT:
+    return EA::NO_WEIGHT;
   case K::WEIGHT:
     return EA::WEIGHT;
   default:
@@ -3074,97 +2922,65 @@ getExpressionAttribute(rq::Keyword keyword) {
   return EA::NONE;
 }
 
-enum class ExpressionFlags : std::uint64_t {
+enum class ExpressionFlags : std::uint_fast32_t {
   NONE = 0,
 
-  NO_ANCHORING = rq::getBit(0),
-  ANCHOR = rq::getBit(1),
-  ANCHORING_MASK = NO_ANCHORING | ANCHOR,
+  ANCHOR = rq::getBit(0),
+  ANCHOR_MASK = ANCHOR,
 
-  NO_VISIBILITY = rq::getBit(2),
-  TRANSPARENT = rq::getBit(3),
-  OPAQUE = rq::getBit(4),
-  VISIBILITY_MASK = NO_VISIBILITY | TRANSPARENT | OPAQUE,
+  OPAQUE = rq::getBit(1),
+  OPAQUE_MASK = OPAQUE,
 
-  NO_SCOPING = rq::getBit(5),
-  HERE = rq::getBit(6),
-  OUTSIDE = rq::getBit(7),
-  SCOPING_MASK = NO_SCOPING | HERE | OUTSIDE,
+  FLANK = rq::getBit(2),
+  FLANK_MASK = FLANK,
 
-  NO_AVAILABILITY = rq::getBit(8),
-  LOCAL = rq::getBit(9),
-  GLOBAL = rq::getBit(10),
-  AVAILABILITY_MASK = NO_AVAILABILITY | LOCAL | GLOBAL,
+  GLOBAL = rq::getBit(3),
+  GLOBAL_MASK = GLOBAL,
 
-  NO_ACCESSIBILITY = rq::getBit(11),
-  INTERNAL = rq::getBit(12),
-  EXPORT = rq::getBit(13),
-  PRIVATE = rq::getBit(14),
-  PUBLIC = rq::getBit(15),
-  ACCESSIBILITY_MASK = NO_ACCESSIBILITY | INTERNAL | EXPORT | PRIVATE | PUBLIC,
+  EXPORT = rq::getBit(4),
+  PUBLIC = rq::getBit(5),
+  ACCESS_MASK = EXPORT | PUBLIC,
 
-  NO_PARTIAL_MUTABILITY = rq::getBit(16),
-  PARTIAL_MUTATE = rq::getBit(17),
-  PARTIAL_MUTABILITY_MASK = NO_PARTIAL_MUTABILITY | PARTIAL_MUTATE,
+  PARTIAL_MUTATE = rq::getBit(6),
+  PARTIAL_MUTATE_MASK = PARTIAL_MUTATE,
 
-  NO_RUNTIME = rq::getBit(18),
-  DYNAMIC = rq::getBit(19),
-  STATIC = rq::getBit(20),
-  RUNTIME_MASK = NO_RUNTIME | DYNAMIC | STATIC,
+  STATIC = rq::getBit(6),
+  STATIC_MASK = STATIC,
 
-  NO_CAPTURING = rq::getBit(21),
-  CAPTURE = rq::getBit(22),
-  CAPTURING_MASK = NO_CAPTURING | CAPTURE,
+  CAPTURE = rq::getBit(7),
+  CAPTURE_MASK = CAPTURE,
 
-  NO_LINKAGE = rq::getBit(23),
-  LINKED = rq::getBit(24),
-  INLINE = rq::getBit(25),
-  LINKAGE_MASK = NO_LINKAGE | LINKED | INLINE,
+  INLINE = rq::getBit(8),
+  INLINE_MASK = INLINE,
 
-  NO_MANGLING = rq::getBit(26),
-  IMPLICIT_MANGLE = rq::getBit(27),
-  EXPLICIT_MANGLE = rq::getBit(28),
-  MANGLING_MASK = NO_MANGLING | IMPLICIT_MANGLE | EXPLICIT_MANGLE,
+  MANGLE = rq::getBit(9),
+  MANGLE_MASK = MANGLE,
 
-  NO_PADDING = rq::getBit(29),
-  PAD = rq::getBit(30),
-  PACK = rq::getBit(31),
-  PADDING_MASK = NO_PADDING | PAD | PACK,
+  PACK = rq::getBit(10),
+  PACK_MASK = PACK,
 
-  NO_TEMPLATING = rq::getBit(32),
-  TEMPLATE = rq::getBit(33),
-  TEMPLATING_MASK = NO_TEMPLATING | TEMPLATE,
+  LIKELY = rq::getBit(11),
+  UNLIKELY = rq::getBit(12),
+  BRANCH_TREND_MASK = LIKELY | UNLIKELY,
 
-  NO_LIKELYHOOD = rq::getBit(34),
-  EQUIVOCAL = rq::getBit(35),
-  LIKELY = rq::getBit(36),
-  UNLIKELY = rq::getBit(37),
-  LIKELYHOOD_MASK = NO_LIKELYHOOD | EQUIVOCAL | LIKELY | UNLIKELY,
+  DEPRECIATE = rq::getBit(13),
+  EXPERIMENTAL = rq::getBit(14),
+  DEPRECIATE_MASK = DEPRECIATE | EXPERIMENTAL,
 
-  NO_SUPPORT_STATUS = rq::getBit(38),
-  SUPPORTED = rq::getBit(39),
-  DEPRECIATED = rq::getBit(40),
-  EXPERIMENTAL = rq::getBit(41),
-  SUPPORT_STATUS_MASK =
-      NO_SUPPORT_STATUS | SUPPORTED | DEPRECIATED | EXPERIMENTAL,
+  STABLE_ADDRESS = rq::getBit(15),
+  STABLE_ADDRESS_MASK = STABLE_ADDRESS,
 
-  NO_ADDRESSING = rq::getBit(42),
-  UNSTABLE_ADDRESS = rq::getBit(43),
-  STABLE_ADDRESS = rq::getBit(44),
-  ADDRESSING_MASK = NO_ADDRESSING | UNSTABLE_ADDRESS | STABLE_ADDRESS,
+  VARIADIC = rq::getBit(16),
+  VARIADIC_MASK = VARIADIC,
 
-  NO_VARIADICNESS = rq::getBit(45),
-  VARIADIC = rq::getBit(46),
-  VARIADICNESS_MASK = NO_VARIADICNESS | VARIADIC,
+  TEMPLATE = rq::getBit(17),
+  TEMPLATE_MASK = TEMPLATE,
 
-  NO_CONSTRAINT = rq::getBit(47),
-  CONSTRAIN = rq::getBit(48),
-  CONSTRAINT_MASK = NO_CONSTRAINT | CONSTRAIN,
+  CONSTRAINT = rq::getBit(18),
+  CONSTRAINT_MASK = CONSTRAINT,
 
-  NO_WEIGHTING = rq::getBit(49),
-  DEFAULT_WEIGHT = rq::getBit(50),
-  WEIGHT = rq::getBit(51),
-  WEIGHTING_MASK = NO_WEIGHTING | DEFAULT_WEIGHT | WEIGHT
+  WEIGHT = rq::getBit(19),
+  WEIGHT_MASK = WEIGHT
 };
 
 template <> struct is_flags<rq::ExpressionFlags> : std::true_type {};
@@ -3176,178 +2992,152 @@ getFlags(rq::ExpressionAttribute attribute) {
   using EF = ExpressionFlags;
   switch (attribute) {
   case EA::NONE:
-    break;
-  case EA::NO_ANCHORING:
-    return EF::NO_ANCHORING;
+    return EF::NONE;
+  case EA::NO_ANCHOR:
+    return EF::NONE;
   case EA::ANCHOR:
     return EF::ANCHOR;
-  case EA::NO_VISIBILITY:
-    return EF::NO_VISIBILITY;
-  case EA::TRANSPARENT:
-    return EF::TRANSPARENT;
+  case EA::NO_OPAQUE:
+    return EF::NONE;
   case EA::OPAQUE:
     return EF::OPAQUE;
-  case EA::NO_SCOPING:
-    return EF::NO_SCOPING;
-  case EA::HERE:
-    return EF::HERE;
-  case EA::OUTSIDE:
-    return EF::HERE;
-  case EA::NO_AVAILABILITY:
-    return EF::NO_AVAILABILITY;
-  case EA::LOCAL:
-    return EF::LOCAL;
+  case EA::NO_FLANK:
+    return EF::NONE;
+  case EA::FLANK:
+    return EF::FLANK;
+  case EA::NO_GLOBAL:
+    return EF::NONE;
   case EA::GLOBAL:
     return EF::GLOBAL;
-  case EA::NO_ACCESSIBILITY:
-    return EF::NO_ACCESSIBILITY;
-  case EA::INTERNAL:
-    return EF::INTERNAL;
+  case EA::NO_ACCESS:
+    return EF::NONE;
   case EA::EXPORT:
     return EF::EXPORT;
-  case EA::PRIVATE:
-    return EF::PRIVATE;
   case EA::PUBLIC:
     return EF::PUBLIC;
-  case EA::NO_PARTIAL_MUTABILITY:
-    return EF::NO_PARTIAL_MUTABILITY;
+  case EA::NO_PARTIAL_MUTATE:
+    return EF::NONE;
   case EA::PARTIAL_MUTATE:
     return EF::PARTIAL_MUTATE;
-  case EA::NO_RUNTIME:
-    return EF::NO_RUNTIME;
-  case EA::DYNAMIC:
-    return EF::DYNAMIC;
+  case EA::NO_STATIC:
+    return EF::NONE;
   case EA::STATIC:
     return EF::STATIC;
-  case EA::NO_CAPTURING:
-    return EF::NO_CAPTURING;
+  case EA::NO_CAPTURE:
+    return EF::NONE;
   case EA::CAPTURE:
     return EF::CAPTURE;
-  case EA::NO_LINKAGE:
-    return EF::NO_LINKAGE;
-  case EA::LINKED:
-    return EF::LINKED;
+  case EA::NO_INLINE:
+    return EF::NONE;
   case EA::INLINE:
     return EF::INLINE;
-  case EA::NO_MANGLING:
-    return EF::NO_MANGLING;
-  case EA::IMPLICIT_MANGLE:
-    return EF::IMPLICIT_MANGLE;
-  case EA::EXPLICIT_MANGLE:
-    return EF::EXPLICIT_MANGLE;
-  case EA::NO_PADDING:
-    return EF::NO_PADDING;
-  case EA::PAD:
-    return EF::PAD;
+  case EA::NO_MANGLE:
+    return EF::NONE;
+  case EA::MANGLE:
+    return EF::MANGLE;
+  case EA::NO_PACK:
+    return EF::NONE;
   case EA::PACK:
     return EF::PACK;
-  case EA::NO_TEMPLATING:
-    return EF::NO_TEMPLATING;
-  case EA::TEMPLATE:
-    return EF::TEMPLATE;
-  case EA::NO_LIKELYHOOD:
-    return EF::NO_LIKELYHOOD;
-  case EA::EQUIVOCAL:
-    return EF::EQUIVOCAL;
+  case EA::NO_BRANCH_TREND:
+    return EF::NONE;
   case EA::LIKELY:
     return EF::LIKELY;
   case EA::UNLIKELY:
     return EF::UNLIKELY;
-  case EA::NO_SUPPORT_STATUS:
-    return EF::NO_SUPPORT_STATUS;
-  case EA::SUPPORTED:
-    return EF::SUPPORTED;
-  case EA::DEPRECIATED:
-    return EF::DEPRECIATED;
+  case EA::NO_DEPRECIATE:
+    return EF::NONE;
+  case EA::DEPRECIATE:
+    return EF::DEPRECIATE;
   case EA::EXPERIMENTAL:
     return EF::EXPERIMENTAL;
-  case EA::NO_ADDRESSING:
-    return EF::NO_ADDRESSING;
-  case EA::UNSTABLE_ADDRESS:
-    return EF::UNSTABLE_ADDRESS;
+  case EA::NO_STABLE_ADDRESS:
+    return EF::NONE;
   case EA::STABLE_ADDRESS:
     return EF::STABLE_ADDRESS;
-  case EA::NO_VARIADICNESS:
-    return EF::NO_VARIADICNESS;
+  case EA::NO_VARIADIC:
+    return EF::NONE;
   case EA::VARIADIC:
     return EF::VARIADIC;
+  case EA::NO_TEMPLATE:
+    return EF::NONE;
+  case EA::TEMPLATE:
+    return EF::TEMPLATE;
   case EA::NO_CONSTRAINT:
-    return EF::NO_CONSTRAINT;
-  case EA::CONSTRAIN:
-    return EF::CONSTRAIN;
-  case EA::NO_WEIGHTING:
-    return EF::NO_WEIGHTING;
-  case EA::DEFAULT_WEIGHT:
-    return EF::DEFAULT_WEIGHT;
+    return EF::NONE;
+  case EA::CONSTRAINT:
+    return EF::CONSTRAINT;
+  case EA::NO_WEIGHT:
+    return EF::NONE;
   case EA::WEIGHT:
     return EF::WEIGHT;
   }
   return EF::NONE;
 }
 
-enum class ExpressionAttributeKind {
+enum class ExpressionAttributeKind : std::uint_fast8_t {
   NONE,
-  ANCHORING,
-  VISIBILITY,
-  SCOPING,
-  AVAILABILITY,
-  ACCESSIBILITY,
-  PARTIAL_MUTABILITY,
-  RUNTIME,
-  CAPTURING,
-  LINKAGE,
-  MANGLING,
-  PADDING,
-  TEMPLATING,
-  LIKELYHOOD,
-  SUPPORT_STATUS,
-  ADDRESSING,
-  VARIADICNESS,
-  CONSTRAINT,
-  WEIGHTING
+  ANCHOR_TYPE,         // no_anchor vs anchor
+  OPAQUE_TYPE,         // no_opaque vs opaque
+  FLANK_TYPE,          // no_flank vs flank
+  GLOBAL_TYPE,         // no_global vs global
+  ACCESS_TYPE,         // no_access vs export vs public
+  PARTIAL_MUTATE_TYPE, // no_partial_mutate vs partial_mutate
+  STATIC_TYPE,         // no_static vs static
+  CAPTURE_TYPE,        // no_capture vs capture
+  INLINE_TYPE,         // no_inline vs inline
+  MANGLE_TYPE,         // no_mangle vs mangle
+  PACK_TYPE,           // no_pack vs pack
+  BRANCH_TREND_TYPE,   // no_branch_trend vs likely vs unlikely
+  DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
+  STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
+  VARIADIC_TYPE,       // no_variadic vs variadic
+  TEMPLATE_TYPE,       // no_template vs template
+  CONSTRAINT_TYPE,     // no_constraint vs constraint
+  WEIGHT_TYPE,         // no_weight vs weight
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
   using EAK = rq::ExpressionAttributeKind;
   switch (kind) {
   case EAK::NONE:
-    return "none";
-  case EAK::ANCHORING:
-    return "anchoring";
-  case EAK::VISIBILITY:
-    return "visibility";
-  case EAK::SCOPING:
-    return "scoping";
-  case EAK::AVAILABILITY:
-    return "availability";
-  case EAK::ACCESSIBILITY:
-    return "accessibility";
-  case EAK::PARTIAL_MUTABILITY:
-    return "partial_mutability";
-  case EAK::RUNTIME:
-    return "runtime";
-  case EAK::CAPTURING:
-    return "capturing";
-  case EAK::LINKAGE:
-    return "linkage";
-  case EAK::MANGLING:
-    return "mangling";
-  case EAK::PADDING:
-    return "padding";
-  case EAK::TEMPLATING:
-    return "templating";
-  case EAK::LIKELYHOOD:
-    return "likelyhood";
-  case EAK::SUPPORT_STATUS:
-    return "support_status";
-  case EAK::ADDRESSING:
-    return "addressing";
-  case EAK::VARIADICNESS:
-    return "variadicness";
-  case EAK::CONSTRAINT:
-    return "constraint";
-  case EAK::WEIGHTING:
-    return "weighting";
+    break;
+  case EAK::ANCHOR_TYPE:
+    return "anchor_type";
+  case EAK::OPAQUE_TYPE:
+    return "opaque_type";
+  case EAK::FLANK_TYPE:
+    return "flang_type";
+  case EAK::GLOBAL_TYPE:
+    return "global_type";
+  case EAK::ACCESS_TYPE:
+    return "access_type";
+  case EAK::PARTIAL_MUTATE_TYPE:
+    return "partial_mutate_type";
+  case EAK::STATIC_TYPE:
+    return "static_type";
+  case EAK::CAPTURE_TYPE:
+    return "capture_type";
+  case EAK::INLINE_TYPE:
+    return "inline_type";
+  case EAK::MANGLE_TYPE:
+    return "mangle_type";
+  case EAK::PACK_TYPE:
+    return "pack_type";
+  case EAK::BRANCH_TREND_TYPE:
+    return "branch_trend_type";
+  case EAK::DEPRECIATE_TYPE:
+    return "depreciate_type";
+  case EAK::STABLE_ADDRESS_TYPE:
+    return "stable_address_type";
+  case EAK::VARIADIC_TYPE:
+    return "variadic_type";
+  case EAK::TEMPLATE_TYPE:
+    return "template_type";
+  case EAK::CONSTRAINT_TYPE:
+    return "constraint_type";
+  case EAK::WEIGHT_TYPE:
+    return "weight_type";
   }
   RQ_UNREACHABLE();
 }
@@ -3359,128 +3149,140 @@ getKind(rq::ExpressionAttribute attribute) {
   switch (attribute) {
   case EA::NONE:
     return EAK::NONE;
-  case EA::NO_ANCHORING:
+  case EA::NO_ANCHOR:
     [[fallthrough]];
   case EA::ANCHOR:
-    return EAK::ANCHORING;
-  case EA::NO_VISIBILITY:
-    [[fallthrough]];
-  case EA::TRANSPARENT:
+    return EAK::ANCHOR_TYPE;
+  case EA::NO_OPAQUE:
     [[fallthrough]];
   case EA::OPAQUE:
-    return EAK::VISIBILITY;
-  case EA::NO_SCOPING:
+    return EAK::OPAQUE_TYPE;
+  case EA::NO_FLANK:
     [[fallthrough]];
-  case EA::HERE:
-    [[fallthrough]];
-  case EA::OUTSIDE:
-    return EAK::SCOPING;
-  case EA::NO_AVAILABILITY:
-    [[fallthrough]];
-  case EA::LOCAL:
+  case EA::FLANK:
+    return EAK::FLANK_TYPE;
+  case EA::NO_GLOBAL:
     [[fallthrough]];
   case EA::GLOBAL:
-    return EAK::AVAILABILITY;
-  case EA::NO_ACCESSIBILITY:
-    [[fallthrough]];
-  case EA::INTERNAL:
+    return EAK::GLOBAL_TYPE;
+  case EA::NO_ACCESS:
     [[fallthrough]];
   case EA::EXPORT:
     [[fallthrough]];
-  case EA::PRIVATE:
-    [[fallthrough]];
   case EA::PUBLIC:
-    return EAK::ACCESSIBILITY;
-  case EA::NO_PARTIAL_MUTABILITY:
+    return EAK::ACCESS_TYPE;
+  case EA::NO_PARTIAL_MUTATE:
     [[fallthrough]];
   case EA::PARTIAL_MUTATE:
-    return EAK::PARTIAL_MUTABILITY;
-  case EA::NO_RUNTIME:
-    [[fallthrough]];
-  case EA::DYNAMIC:
+    return EAK::PARTIAL_MUTATE_TYPE;
+  case EA::NO_STATIC:
     [[fallthrough]];
   case EA::STATIC:
-    return EAK::RUNTIME;
-  case EA::NO_CAPTURING:
+    return EAK::STATIC_TYPE;
+  case EA::NO_CAPTURE:
     [[fallthrough]];
   case EA::CAPTURE:
-    return EAK::CAPTURING;
-  case EA::NO_LINKAGE:
-    [[fallthrough]];
-  case EA::LINKED:
+    return EAK::CAPTURE_TYPE;
+  case EA::NO_INLINE:
     [[fallthrough]];
   case EA::INLINE:
-    return EAK::LINKAGE;
-  case EA::NO_MANGLING:
+    return EAK::INLINE_TYPE;
+  case EA::NO_MANGLE:
     [[fallthrough]];
-  case EA::IMPLICIT_MANGLE:
-    [[fallthrough]];
-  case EA::EXPLICIT_MANGLE:
-    return EAK::MANGLING;
-  case EA::NO_PADDING:
-    [[fallthrough]];
-  case EA::PAD:
+  case EA::MANGLE:
+    return EAK::MANGLE_TYPE;
+  case EA::NO_PACK:
     [[fallthrough]];
   case EA::PACK:
-    return EAK::PADDING;
-  case EA::NO_TEMPLATING:
-    [[fallthrough]];
-  case EA::TEMPLATE:
-    return EAK::TEMPLATING;
-  case EA::NO_LIKELYHOOD:
-    [[fallthrough]];
-  case EA::EQUIVOCAL:
+    return EAK::PACK_TYPE;
+  case EA::NO_BRANCH_TREND:
     [[fallthrough]];
   case EA::LIKELY:
     [[fallthrough]];
   case EA::UNLIKELY:
-    return EAK::LIKELYHOOD;
-  case EA::NO_SUPPORT_STATUS:
+    return EAK::BRANCH_TREND_TYPE;
+  case EA::NO_DEPRECIATE:
     [[fallthrough]];
-  case EA::SUPPORTED:
-    [[fallthrough]];
-  case EA::DEPRECIATED:
+  case EA::DEPRECIATE:
     [[fallthrough]];
   case EA::EXPERIMENTAL:
-    return EAK::SUPPORT_STATUS;
-  case EA::NO_ADDRESSING:
-    [[fallthrough]];
-  case EA::UNSTABLE_ADDRESS:
+    return EAK::DEPRECIATE_TYPE;
+  case EA::NO_STABLE_ADDRESS:
     [[fallthrough]];
   case EA::STABLE_ADDRESS:
-    return EAK::ADDRESSING;
-  case EA::NO_VARIADICNESS:
+    return EAK::STABLE_ADDRESS_TYPE;
+  case EA::NO_VARIADIC:
     [[fallthrough]];
   case EA::VARIADIC:
-    return EAK::VARIADICNESS;
+    return EAK::VARIADIC_TYPE;
+  case EA::NO_TEMPLATE:
+    [[fallthrough]];
+  case EA::TEMPLATE:
+    return EAK::TEMPLATE_TYPE;
   case EA::NO_CONSTRAINT:
     [[fallthrough]];
-  case EA::CONSTRAIN:
-    return EAK::CONSTRAINT;
-  case EA::NO_WEIGHTING:
-    [[fallthrough]];
-  case EA::DEFAULT_WEIGHT:
+  case EA::CONSTRAINT:
+    return EAK::CONSTRAINT_TYPE;
+  case EA::NO_WEIGHT:
     [[fallthrough]];
   case EA::WEIGHT:
-    return EAK::WEIGHTING;
+    return EAK::WEIGHT_TYPE;
   }
   RQ_UNREACHABLE();
 }
 
+struct ExpressionFlagsFactory final {
+  using Self = rq::ExpressionFlagsFactory;
+  using ExpressionList = llvm::SmallVector<const rq::Expression *, 1>;
+  using PtrMap =
+      llvm::SmallDenseMap<rq::ExpressionAttributeKind, ExpressionList>;
+
+  rq::ExpressionFlags _flags{};
+  PtrMap _ptr_map{};
+
+  ExpressionFlagsFactory() = default;
+  ExpressionFlagsFactory(const Self &) = delete;
+  ExpressionFlagsFactory(Self &&) = delete;
+  ~ExpressionFlagsFactory() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
+    return this->_ptr_map;
+  }
+  inline void addFlag(rq::ExpressionAttribute attribute,
+                      const rq::Expression *expression_ptr) {
+    const rq::ExpressionFlags flag = rq::getFlags(attribute);
+    this->_flags |= flag;
+    const rq::ExpressionAttributeKind kind = rq::getKind(attribute);
+    auto it = this->_ptr_map.find(kind);
+    if (it == this->_ptr_map.end()) {
+      ExpressionList list;
+      list.push_back(expression_ptr);
+      this->_ptr_map.emplace_or_assign(kind, std::move(list));
+    } else {
+      it->getSecond().push_back(expression_ptr);
+    }
+  }
+};
+
 enum class TypeAttribute : std::uint_fast8_t {
   NONE,
-  CONST,
+  NO_VAR,
   VAR,
-  PARTIALLY_VAR,
-  NO_VOLATILITY,
+  PARTIAL_VAR,
+  NO_VOLATILE,
   VOLATILE,
-  NO_ATOMICITY,
+  NO_ATOMIC,
   ATOMIC,
-  NO_NULL_TERMINATION,
+  NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  NO_PRECONDITION,
+  NO_REQUIRE,
   REQUIRE,
-  NO_POSTCONDITION,
+  NO_ENSURE,
   ENSURE
 };
 
@@ -3490,30 +3292,30 @@ enum class TypeAttribute : std::uint_fast8_t {
   switch (attribute) {
   case TA::NONE:
     return "none";
-  case TA::CONST:
-    return "const";
+  case TA::NO_VAR:
+    return "no_var";
   case TA::VAR:
     return "var";
-  case TA::PARTIALLY_VAR:
-    return "partially_var";
-  case TA::NO_VOLATILITY:
-    return "no_volatility";
+  case TA::PARTIAL_VAR:
+    return "partial_var";
+  case TA::NO_VOLATILE:
+    return "no_volatile";
   case TA::VOLATILE:
     return "volatile";
-  case TA::NO_ATOMICITY:
-    return "no_atomicity";
+  case TA::NO_ATOMIC:
+    return "no_atomic";
   case TA::ATOMIC:
     return "atomic";
-  case TA::NO_NULL_TERMINATION:
-    return "no_null_termination";
+  case TA::NO_NULL_TERMINATE:
+    return "no_null_terminate";
   case TA::NULL_TERMINATE:
     return "null_terminate";
-  case TA::NO_PRECONDITION:
-    return "no_precondition";
+  case TA::NO_REQUIRE:
+    return "no_require";
   case TA::REQUIRE:
     return "require";
-  case TA::NO_POSTCONDITION:
-    return "no_postcondition";
+  case TA::NO_ENSURE:
+    return "no_ensure";
   case TA::ENSURE:
     return "ensure";
   }
@@ -3525,90 +3327,108 @@ enum class TypeAttribute : std::uint_fast8_t {
   using K = Keyword;
   using TA = TypeAttribute;
   switch (keyword) {
-  case K::CONST:
-    return TA::CONST;
+  case K::NO_VAR:
+    return TA::NO_VAR;
+  case K::VAR:
+    return TA::VAR;
+  case K::PARTIAL_VAR:
+    return TA::PARTIAL_VAR;
+  case K::NO_VOLATILE:
+    return TA::NO_VOLATILE;
+  case K::VOLATILE:
+    return TA::VOLATILE;
+  case K::NO_ATOMIC:
+    return TA::NO_ATOMIC;
+  case K::ATOMIC:
+    return TA::ATOMIC;
+  case K::NO_NULL_TERMINATE:
+    return TA::NO_NULL_TERMINATE;
+  case K::NULL_TERMINATE:
+    return TA::NULL_TERMINATE;
+  case K::NO_REQUIRE:
+    return TA::NO_REQUIRE;
+  case K::REQUIRE:
+    return TA::REQUIRE;
+  case K::NO_ENSURE:
+    return TA::NO_ENSURE;
+  case K::ENSURE:
+    return TA::ENSURE;
   default:
     break;
   }
   return TA::NONE;
 }
 
-enum class TypeFlags : std::uint64_t {
+enum class TypeFlags : std::uint_fast8_t {
   NONE = 0,
-  
-  CONST = rq::getBit(0),
-  VAR = rq::getBit(1),
-  PARTIALLY_VAR = rq::getBit(2),
-  VARIABILITY_MASK = CONST | VAR | PARTIALLY_VAR,
 
-  NO_VOLATILITY = rq::getBit(3),
-  VOLATILE = rq::getBit(4),
-  VOLATILITY_MASK = NO_VOLATILITY | VOLATILE,
+  VAR = rq::getBit(0),
+  PARTIAL_VAR = rq::getBit(1),
+  VAR_MASK = VAR | PARTIAL_VAR,
 
-  NO_ATOMICITY = rq::getBit(5),
-  ATOMIC = rq::getBit(6),
-  ATOMICITY_MASK = NO_ATOMICITY | ATOMIC,
+  VOLATILE = rq::getBit(2),
+  VOLATILE_MASK = VOLATILE,
 
-  NO_NULL_TERMINATION = rq::getBit(7),
-  NULL_TERMINATE = rq::getBit(8),
-  NULL_TERMINATION_MASK = NO_NULL_TERMINATION | NULL_TERMINATE,
+  ATOMIC = rq::getBit(3),
+  ATOMIC_MASK = ATOMIC,
 
-  NO_PRECONDITION = rq::getBit(9),
-  REQUIRE = rq::getBit(10),
-  PRECONDITION_MASK = NO_PRECONDITION | REQUIRE,
+  NULL_TERMINATE = rq::getBit(4),
+  NULL_TERMINATE_MASK = NULL_TERMINATE,
 
-  NO_POSTCONDITION = rq::getBit(11),
-  ENSURE = rq::getBit(12),
-  POSTCONDITION_MASK = NO_POSTCONDITION | ENSURE
+  REQUIRE = rq::getBit(5),
+  REQUIRE_MASK = REQUIRE,
+
+  ENSURE = rq::getBit(6),
+  ENSURE_MASK = ENSURE
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
 
-[[nodiscard]] inline rq::TypeFlags getTypeFlags(rq::TypeAttribute attribute) {
+[[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
   using namespace rq;
   using TA = TypeAttribute;
   using TF = TypeFlags;
   switch (attribute) {
   case TA::NONE:
     return TF::NONE;
-  case TA::CONST:
-    return TF::CONST;
+  case TA::NO_VAR:
+    return TF::NONE;
   case TA::VAR:
     return TF::VAR;
-  case TA::PARTIALLY_VAR:
+  case TA::PARTIAL_VAR:
+    return TF::PARTIAL_VAR;
+  case TA::NO_VOLATILE:
     return TF::NONE;
-  case TA::NO_VOLATILITY:
-    return TF::NO_VOLATILITY;
   case TA::VOLATILE:
     return TF::VOLATILE;
-  case TA::NO_ATOMICITY:
-    return TF::NO_ATOMICITY;
+  case TA::NO_ATOMIC:
+    return TF::NONE;
   case TA::ATOMIC:
     return TF::ATOMIC;
-  case TA::NO_NULL_TERMINATION:
-    return TF::NO_NULL_TERMINATION;
+  case TA::NO_NULL_TERMINATE:
+    return TF::NONE;
   case TA::NULL_TERMINATE:
     return TF::NULL_TERMINATE;
-  case TA::NO_PRECONDITION:
-    return TF::NO_PRECONDITION;
+  case TA::NO_REQUIRE:
+    return TF::NONE;
   case TA::REQUIRE:
     return TF::REQUIRE;
-  case TA::NO_POSTCONDITION:
-    return TF::NO_POSTCONDITION;
+  case TA::NO_ENSURE:
+    return TF::NONE;
   case TA::ENSURE:
     return TF::ENSURE;
   }
   RQ_UNREACHABLE();
 }
 
-enum class TypeAttributeKind {
+enum class TypeAttributeKind : std::uint_fast8_t {
   NONE,
-  VARIABILITY,
-  VOLATILITY,
-  ATOMICITY,
-  NULL_TERMINATION,
-  PRECONDITION,
-  POSTCONDITION
+  VAR_TYPE,
+  VOLATILE_TYPE,
+  ATOMIC_TYPE,
+  NULL_TERMINATE_TYPE,
+  REQUIRE_TYPE,
+  ENSURE_TYPE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttributeKind kind) {
@@ -3616,18 +3436,18 @@ enum class TypeAttributeKind {
   switch (kind) {
   case TAK::NONE:
     return "none";
-  case TAK::VARIABILITY:
-    return "variability";
-  case TAK::VOLATILITY:
-    return "volatility";
-  case TAK::ATOMICITY:
-    return "atomicity";
-  case TAK::NULL_TERMINATION:
-    return "null_termination";
-  case TAK::PRECONDITION:
-    return "precondition";
-  case TAK::POSTCONDITION:
-    return "postcondition";
+  case TAK::VAR_TYPE:
+    return "var_type";
+  case TAK::VOLATILE_TYPE:
+    return "volatile_type";
+  case TAK::ATOMIC_TYPE:
+    return "atomic_type";
+  case TAK::NULL_TERMINATE_TYPE:
+    return "null_terminate_type";
+  case TAK::REQUIRE_TYPE:
+    return "require_type";
+  case TAK::ENSURE_TYPE:
+    return "ensure_type";
   }
   RQ_UNREACHABLE();
 }
@@ -3639,35 +3459,73 @@ getKind(rq::TypeAttribute attribute) {
   switch (attribute) {
   case TA::NONE:
     return TAK::NONE;
-  case TA::CONST:
+  case TA::NO_VAR:
     [[fallthrough]];
   case TA::VAR:
     [[fallthrough]];
-  case TA::PARTIALLY_VAR:
-    return TAK::VARIABILITY;
-  case TA::NO_VOLATILITY:
+  case TA::PARTIAL_VAR:
+    return TAK::VAR_TYPE;
+  case TA::NO_VOLATILE:
     [[fallthrough]];
   case TA::VOLATILE:
-    return TAK::VOLATILITY;
-  case TA::NO_ATOMICITY:
+    return TAK::VOLATILE_TYPE;
+  case TA::NO_ATOMIC:
     [[fallthrough]];
   case TA::ATOMIC:
-    return TAK::ATOMICITY;
-  case TA::NO_NULL_TERMINATION:
+    return TAK::ATOMIC_TYPE;
+  case TA::NO_NULL_TERMINATE:
     [[fallthrough]];
   case TA::NULL_TERMINATE:
-    return TAK::NULL_TERMINATION;
-  case TA::NO_PRECONDITION:
+    return TAK::NULL_TERMINATE_TYPE;
+  case TA::NO_REQUIRE:
     [[fallthrough]];
   case TA::REQUIRE:
-    return TAK::PRECONDITION;
-  case TA::NO_POSTCONDITION:
+    return TAK::REQUIRE_TYPE;
+  case TA::NO_ENSURE:
     [[fallthrough]];
   case TA::ENSURE:
-    return TAK::POSTCONDITION;
+    return TAK::ENSURE_TYPE;
   }
   RQ_UNREACHABLE();
 }
+
+struct TypeFlagsFactory final {
+  using Self = rq::TypeFlagsFactory;
+  using ExpressionList = llvm::SmallVector<const rq::Expression *, 1>;
+  using PtrMap =
+      llvm::SmallDenseMap<rq::TypeAttributeKind, ExpressionList>;
+
+  rq::TypeFlags _flags{};
+  PtrMap _ptr_map{};
+
+  TypeFlagsFactory() = default;
+  TypeFlagsFactory(const Self &) = delete;
+  TypeFlagsFactory(Self &&) = delete;
+  ~TypeFlagsFactory() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
+    return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
+    return this->_ptr_map;
+  }
+  inline void addFlag(rq::TypeAttribute attribute,
+                      const rq::Expression *expression_ptr) {
+    const rq::TypeFlags flag = rq::getFlags(attribute);
+    this->_flags |= flag;
+    const rq::TypeAttributeKind kind = rq::getKind(attribute);
+    auto it = this->_ptr_map.find(kind);
+    if (it == this->_ptr_map.end()) {
+      ExpressionList list;
+      list.push_back(expression_ptr);
+      this->_ptr_map.emplace_or_assign(kind, std::move(list));
+    } else {
+      it->getSecond().push_back(expression_ptr);
+    }
+  }
+};
 
 enum class ArithmeticSequenceStep : std::uint_fast8_t {
   NONE,
@@ -3874,9 +3732,9 @@ struct ConstExpressionIterator final {
 
 enum class ExpressionNextFlags : std::uint8_t {
   NONE = 0,
-  // NOTE: a "chain-link" expression is a statement that is linked to the next
-  // and not seperated with semicolons. Used in things like if->else_if->else
-  // chains.
+  // NOTE: a "chain-link" expression is a statement that is linked to the
+  // next and not seperated with semicolons. Used in things like
+  // if->else_if->else chains.
   CHAINLINK = rq::getBit(0),
   // NOTE: a "header" expression is one that terminates with a comma in a
   // semicolon terminating context (usually before all statements)

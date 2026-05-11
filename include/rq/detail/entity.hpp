@@ -4,7 +4,7 @@
 
 namespace rq {
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getFlags(rq::Opcode opcode) {
+[[nodiscard]] inline rq::OpcodeFlags getFlags(rq::Opcode opcode) {
   using O = rq::Opcode;
   using OF = rq::OpcodeFlags;
   switch (opcode) {
@@ -66,16 +66,16 @@ namespace rq {
            OF::SY_CONTEXTUAL_TYPE | OF::SY_IS_TYPE;
 
   // EXPRESSION ATTRIBUTES
-  case O::SY_ANCHORING_TYPE:
+  case O::SY_ANCHOR_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_VISIBILITY_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_SCOPING_TYPE:
+  case O::SY_FLANK_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_AVAILABILITY_TYPE:
+  case O::SY_GLOBAL_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_PROPERTY_MUTABILITY_TYPE:
@@ -87,13 +87,13 @@ namespace rq {
   case O::SY_GENERATION_TIME_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_CAPTURING_TYPE:
+  case O::SY_CAPTURE_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_INLINING_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_MANGLING_TYPE:
+  case O::SY_MANGLE_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_PACKING_TYPE:
@@ -102,7 +102,7 @@ namespace rq {
   case O::SY_TEMPLATING_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_LIKELYHOOD_TYPE:
+  case O::SY_TREND_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_SUPPORT_TYPE:
@@ -245,11 +245,7 @@ namespace rq {
 
   // IMPORTS
   case O::SY_IMPORT:
-    return OF::SYMBOL;
-
-  // TUPLE TYPE
-  case O::SY_TUPLE_TYPE:
-    return OF::SYMBOL | OF::SY_IS_TYPE;
+    return OF::SYMBOL | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // JUXTAPOSITIONAL LIST
   case O::SY_JUXTAPOSITIONAL_LIST_TYPE:
@@ -271,9 +267,11 @@ namespace rq {
 
   // LOCAL VARIABLES
   case O::SY_LOCAL_DYNAMIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_LOCAL_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // PARAMETERS => local variable
   case O::SY_STATIC_PARAMETER:
@@ -321,37 +319,53 @@ namespace rq {
 
   // LOCAL TABLES
   case O::SY_IF:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ELSE_IF:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ELSE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_MATCH:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_INLINE_MATCH:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_SWITCH:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_INLINE_SWITCH:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_CASE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_WITH:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_DEFAULT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FOR:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_WHILE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_SPIN:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_WEAVE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_SCOPE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_INLINE_SCOPE:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // GLOBAL DECLARATION => symbol table
   case O::SY_NAMESPACE:
@@ -365,7 +379,8 @@ namespace rq {
   case O::SY_ENUMERATOR:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE;
   case O::SY_INTERFACE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // GLOBAL VARIABLE => global declaration => symbol table
   case O::SY_GLOBAL_DYNAMIC_VARIABLE:
@@ -385,7 +400,8 @@ namespace rq {
 
   // DESTRUCTOR =>  global declaration => symbol table
   case O::SY_DESTRUCTOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // PROCEDURES => global declaration => symbol table
   case O::SY_ENTRY:
@@ -406,25 +422,35 @@ namespace rq {
 
   // TEMPLATES
   case O::SY_CLASS_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_INTERFACE_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FORWARD_RANGER_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_BACKWARD_RANGER_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FUNCTION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_METHOD_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_EXTENSION_FUNCTION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_EXTENSION_METHOD_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   case O::CT_INTEGER:
     return OF::CONSTANT;
@@ -444,6 +470,486 @@ namespace rq {
     return OF::CONSTANT;
   case O::CT_TYPE_ATTRIBUTE:
     return OF::CONSTANT;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::ExpressionFlags
+getDefaultExpressionFlags(rq::Opcode opcode, rq::Opcode containing_opcode) {
+  RQ_ASSERT(rq::getHasExpressionAttributes(opcode), "has no attributes");
+  using O = rq::Opcode;
+  using EF = rq::ExpressionFlags;
+  if (containing_opcode == O::SY_CLASS) {
+    switch (opcode) {
+    case O::SY_IMPORT:
+      break;
+    case O::SY_LOCAL_DYNAMIC_VARIABLE:
+
+    case O::SY_LOCAL_STATIC_VARIABLE:
+
+    case O::SY_STATIC_PARAMETER:
+      break;
+    case O::SY_DYNAMIC_PARAMETER:
+      break;
+    case O::SY_IF:
+
+    case O::SY_ELSE_IF:
+
+    case O::SY_ELSE:
+
+    case O::SY_MATCH:
+
+    case O::SY_INLINE_MATCH:
+
+    case O::SY_SWITCH:
+
+    case O::SY_INLINE_SWITCH:
+
+    case O::SY_CASE:
+
+    case O::SY_WITH:
+
+    case O::SY_DEFAULT:
+
+    case O::SY_FOR:
+
+    case O::SY_WHILE:
+
+    case O::SY_SPIN:
+
+    case O::SY_WEAVE:
+
+    case O::SY_SCOPE:
+
+    case O::SY_INLINE_SCOPE:
+
+    case O::SY_CLASS:
+      break;
+    case O::SY_ENUMERATION:
+      break;
+    case O::SY_INTERFACE:
+      break;
+    case O::SY_GLOBAL_DYNAMIC_VARIABLE:
+
+    case O::SY_GLOBAL_STATIC_VARIABLE:
+
+    case O::SY_FORWARD_RANGER:
+
+    case O::SY_BACKWARD_RANGER:
+
+    case O::SY_DESTRUCTOR:
+
+    case O::SY_ENTRY:
+      break;
+    case O::SY_FUNCTION:
+
+    case O::SY_METHOD:
+
+    case O::SY_EXTENSION_FUNCTION:
+
+    case O::SY_EXTENSION_METHOD:
+
+    case O::SY_CLASS_TEMPLATE:
+      break;
+    case O::SY_ENUMERATION_TEMPLATE:
+      break;
+    case O::SY_INTERFACE_TEMPLATE:
+      break;
+    case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
+
+    case O::SY_FORWARD_RANGER_TEMPLATE:
+
+    case O::SY_BACKWARD_RANGER_TEMPLATE:
+
+    case O::SY_FUNCTION_TEMPLATE:
+
+    case O::SY_METHOD_TEMPLATE:
+
+    case O::SY_EXTENSION_FUNCTION_TEMPLATE:
+
+    case O::SY_EXTENSION_METHOD_TEMPLATE:
+
+    default:
+      break;
+    }
+    RQ_UNREACHABLE();
+  }
+  switch (opcode) {
+  case O::SY_IMPORT:
+
+  case O::SY_LOCAL_DYNAMIC_VARIABLE:
+
+  case O::SY_LOCAL_STATIC_VARIABLE:
+
+  case O::SY_STATIC_PARAMETER:
+
+  case O::SY_DYNAMIC_PARAMETER:
+
+  case O::SY_IF:
+
+  case O::SY_ELSE_IF:
+
+  case O::SY_ELSE:
+
+  case O::SY_MATCH:
+
+  case O::SY_INLINE_MATCH:
+
+  case O::SY_SWITCH:
+
+  case O::SY_INLINE_SWITCH:
+
+  case O::SY_CASE:
+
+  case O::SY_WITH:
+
+  case O::SY_DEFAULT:
+
+  case O::SY_FOR:
+
+  case O::SY_WHILE:
+
+  case O::SY_SPIN:
+
+  case O::SY_WEAVE:
+
+  case O::SY_SCOPE:
+
+  case O::SY_INLINE_SCOPE:
+
+  case O::SY_CLASS:
+
+  case O::SY_ENUMERATION:
+
+  case O::SY_INTERFACE:
+
+  case O::SY_GLOBAL_DYNAMIC_VARIABLE:
+
+  case O::SY_GLOBAL_STATIC_VARIABLE:
+
+  case O::SY_FORWARD_RANGER:
+
+  case O::SY_BACKWARD_RANGER:
+
+  case O::SY_DESTRUCTOR:
+
+  case O::SY_ENTRY:
+
+  case O::SY_FUNCTION:
+
+  case O::SY_METHOD:
+
+  case O::SY_EXTENSION_FUNCTION:
+
+  case O::SY_EXTENSION_METHOD:
+
+  case O::SY_CLASS_TEMPLATE:
+
+  case O::SY_ENUMERATION_TEMPLATE:
+
+  case O::SY_INTERFACE_TEMPLATE:
+
+  case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
+
+  case O::SY_FORWARD_RANGER_TEMPLATE:
+
+  case O::SY_BACKWARD_RANGER_TEMPLATE:
+
+  case O::SY_FUNCTION_TEMPLATE:
+
+  case O::SY_METHOD_TEMPLATE:
+
+  case O::SY_EXTENSION_FUNCTION_TEMPLATE:
+
+  case O::SY_EXTENSION_METHOD_TEMPLATE:
+
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::ExpressionFlags
+getValidExpressionFlags(rq::Opcode opcode, rq::Opcode containing_opcode) {
+  RQ_ASSERT(rq::getHasExpressionAttributes(opcode), "has no attributes");
+  using O = rq::Opcode;
+  using EF = rq::ExpressionFlags;
+  if (containing_opcode == O::SY_CLASS) {
+    switch (opcode) {
+    case O::SY_IMPORT:
+      break;
+    case O::SY_LOCAL_DYNAMIC_VARIABLE:
+      return EF::NO_ANCHOR | EF::NO_OPAQUE | EF::HERE | EF::FLANK |
+             EF::LOCAL | EF::NO_ACCESS | EF::NO_PARTIAL_MUTATE |
+             EF::DYNAMIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_VARIADICNESS | EF::NO_TEMPLATING |
+             EF::NO_CONSTRAINT | EF::NO_WEIGHTING;
+    case O::SY_LOCAL_STATIC_VARIABLE:
+      return EF::NO_ANCHOR | EF::NO_OPAQUE | EF::HERE | EF::FLANK |
+             EF::LOCAL | EF::NO_ACCESS | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_VARIADICNESS | EF::NO_TEMPLATING |
+             EF::NO_CONSTRAINT | EF::NO_WEIGHTING;
+    case O::SY_STATIC_PARAMETER:
+      break;
+    case O::SY_DYNAMIC_PARAMETER:
+      break;
+    case O::SY_IF:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::LIKELY | EF::UNLIKELY |
+             EF::NO_SUPPORT_STATUS | EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING |
+             EF::NO_CONSTRAINT | EF::NO_WEIGHTING;
+    case O::SY_ELSE_IF:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::LIKELY | EF::UNLIKELY |
+             EF::NO_SUPPORT_STATUS | EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING |
+             EF::NO_CONSTRAINT | EF::NO_WEIGHTING;
+    case O::SY_ELSE:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::LIKELY | EF::UNLIKELY |
+             EF::NO_SUPPORT_STATUS | EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING |
+             EF::NO_CONSTRAINT | EF::NO_WEIGHTING;
+    case O::SY_MATCH:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_INLINE_MATCH:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_SWITCH:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_INLINE_SWITCH:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_CASE:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_WITH:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_DEFAULT:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_FOR:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_WHILE:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_SPIN:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_WEAVE:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_SCOPE:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_INLINE_SCOPE:
+      return EF::NO_ANCHOR | EF::ANCHOR | EF::NO_OPAQUE |
+             EF::NO_FLANK | EF::NO_GLOBAL | EF::NO_PARTIAL_MUTATE |
+             EF::STATIC | EF::NO_CAPTURE | EF::NO_INLINE | EF::NO_MANGLE |
+             EF::NO_PACK | EF::NO_TREND | EF::NO_SUPPORT_STATUS |
+             EF::NO_STABLE_ADDRESS | EF::NO_TEMPLATING | EF::NO_CONSTRAINT |
+             EF::NO_WEIGHTING;
+    case O::SY_CLASS:
+      break;
+    case O::SY_ENUMERATION:
+      break;
+    case O::SY_INTERFACE:
+      break;
+    case O::SY_GLOBAL_DYNAMIC_VARIABLE:
+
+    case O::SY_GLOBAL_STATIC_VARIABLE:
+
+    case O::SY_FORWARD_RANGER:
+
+    case O::SY_BACKWARD_RANGER:
+
+    case O::SY_DESTRUCTOR:
+
+    case O::SY_ENTRY:
+      break;
+    case O::SY_FUNCTION:
+
+    case O::SY_METHOD:
+
+    case O::SY_EXTENSION_FUNCTION:
+
+    case O::SY_EXTENSION_METHOD:
+
+    case O::SY_CLASS_TEMPLATE:
+      break;
+    case O::SY_ENUMERATION_TEMPLATE:
+      break;
+    case O::SY_INTERFACE_TEMPLATE:
+      break;
+    case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
+
+    case O::SY_FORWARD_RANGER_TEMPLATE:
+
+    case O::SY_BACKWARD_RANGER_TEMPLATE:
+
+    case O::SY_FUNCTION_TEMPLATE:
+
+    case O::SY_METHOD_TEMPLATE:
+
+    case O::SY_EXTENSION_FUNCTION_TEMPLATE:
+
+    case O::SY_EXTENSION_METHOD_TEMPLATE:
+
+    default:
+      break;
+    }
+    RQ_UNREACHABLE();
+  }
+  switch (opcode) {
+  case O::SY_IMPORT:
+
+  case O::SY_LOCAL_DYNAMIC_VARIABLE:
+
+  case O::SY_LOCAL_STATIC_VARIABLE:
+
+  case O::SY_STATIC_PARAMETER:
+
+  case O::SY_DYNAMIC_PARAMETER:
+
+  case O::SY_IF:
+
+  case O::SY_ELSE_IF:
+
+  case O::SY_ELSE:
+
+  case O::SY_MATCH:
+
+  case O::SY_INLINE_MATCH:
+
+  case O::SY_SWITCH:
+
+  case O::SY_INLINE_SWITCH:
+
+  case O::SY_CASE:
+
+  case O::SY_WITH:
+
+  case O::SY_DEFAULT:
+
+  case O::SY_FOR:
+
+  case O::SY_WHILE:
+
+  case O::SY_SPIN:
+
+  case O::SY_WEAVE:
+
+  case O::SY_SCOPE:
+
+  case O::SY_INLINE_SCOPE:
+
+  case O::SY_CLASS:
+
+  case O::SY_ENUMERATION:
+
+  case O::SY_INTERFACE:
+
+  case O::SY_GLOBAL_DYNAMIC_VARIABLE:
+
+  case O::SY_GLOBAL_STATIC_VARIABLE:
+
+  case O::SY_FORWARD_RANGER:
+
+  case O::SY_BACKWARD_RANGER:
+
+  case O::SY_DESTRUCTOR:
+
+  case O::SY_ENTRY:
+
+  case O::SY_FUNCTION:
+
+  case O::SY_METHOD:
+
+  case O::SY_EXTENSION_FUNCTION:
+
+  case O::SY_EXTENSION_METHOD:
+
+  case O::SY_CLASS_TEMPLATE:
+
+  case O::SY_ENUMERATION_TEMPLATE:
+
+  case O::SY_INTERFACE_TEMPLATE:
+
+  case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
+
+  case O::SY_FORWARD_RANGER_TEMPLATE:
+
+  case O::SY_BACKWARD_RANGER_TEMPLATE:
+
+  case O::SY_FUNCTION_TEMPLATE:
+
+  case O::SY_METHOD_TEMPLATE:
+
+  case O::SY_EXTENSION_FUNCTION_TEMPLATE:
+
+  case O::SY_EXTENSION_METHOD_TEMPLATE:
+
+  default:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -644,7 +1150,8 @@ getIsStandardPrimitiveType(rq::Opcode opcode) {
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_IS_CODEUNIT_TYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes(rq::Opcode opcode) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getHasExpressionAttributes(rq::Opcode opcode) {
   RQ_ASSERT_SYMBOL(opcode);
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_HAS_EXPRESSION_ATTRIBUTES);

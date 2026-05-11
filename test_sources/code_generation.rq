@@ -4,7 +4,7 @@
 [for 0.<=10, num:=[value],
     [static]
     varname :\[var]= ..std.format(text="VAR" +> num);
-    [outside_scope]::Loop[global][capture]::{num:=num}
+    [flank]::Loop[global][capture]::{num:=num}
     varname.[identify] :\[var]= num;
 ];
 

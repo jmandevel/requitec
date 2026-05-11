@@ -1,4 +1,4 @@
-[opaque][explicit_mangle]::printf
+[opaque][mangle]::printf
 [function [no_name], (> format:?\[no_var][char], [variadic] vargs:[variadic_arguments]<)[void],];
 
 [entry

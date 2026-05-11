@@ -5,7 +5,7 @@
         [public] data:10#[fast_signed_integer 32]=[initialize_array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     <},
 
-    [template]::{> variability:[variability] <}
+    [template]::{> variability:[var_type] <}
     [forward_ranger $\variability, $\variability[fast_signed_integer 32],
         [for [this].data, value:=[value].\variability[borrow], index:=[index],
             [range_over 
@@ -21,7 +21,7 @@
         [public] data:10#[fast_signed_integer 32]=[initialize_array 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     <},
 
-    [template]::{> variability:[variability] <}
+    [template]::{> variability:[var_type] <}
     [backward_ranger $\variability, $\variability[fast_signed_integer 32],
         [for [this].data, value:=[value].\variability[borrow], index:=[index],
             [range_over 

@@ -1,22 +1,22 @@
 
 
-[opaque][explicit_mangle]::malloc
+[opaque][mangle]::malloc
 [function 
     [no_name], // has no name so must use mangled name from c table
     (size:[unsigned_address]<)?\[var][void],
 ];
 
-[opaque][explicit_mangle]::free
+[opaque][mangle]::free
 [function [no_name], (ptr:?\var[void]<)[void],];
 
 [template]::{Type:[symbol]<}
-[constrain]::(Type.[is_type])
+[constraint]::(Type.[is_type])
 [class UniquePtr,
     { [private] ptr:?\[var]Type <},
 
     [public][inline]
     [template]::{Placement:[symbol]<}
-    [constrain]::Placement.[is_placement_type Type]
+    [constraint]::Placement.[is_placement_type Type]
     [function create, 
         (placement:Placement<)\[var]UniquePtr{Type},
 
@@ -35,7 +35,7 @@
 
 ];
 
-[stable_address]
+[no_stable_address]
 [class MyClass,
     { val:[single] <}
 

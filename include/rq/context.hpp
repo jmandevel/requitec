@@ -261,8 +261,8 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorUnableToEvaluateUtf8Cstr(const rq::Expression &expression);
   void logErrorFailedToImportModule(const rq::Expression &expression,
                                     llvm::StringRef path);
-  void logErrorOutsideNotInFrame(const rq::Expression &outside_expression);
-  void logErrorOutsideNotAncestor(const rq::Expression &outside_expression);
+  void logErrorFlankNotInFrame(const rq::Expression &flank_expression);
+  void logErrorFlankNotAncestor(const rq::Expression &flank_expression);
   void logErrorNumeric(const rq::Expression &expression,
                        rq::NumericResultCode code);
   void logErrorNameCollision(const rq::Expression &expression);
@@ -404,14 +404,14 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Visibility &acquireVisibility() {
     return this->acquired._visibility;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Scoping &acquireScoping() {
-    return this->acquired._scoping;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Flank &acquireFlank() {
+    return this->acquired._flank;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Availability &acquireAvailability() {
-    return this->acquired._availability;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Global &acquireGlobal() {
+    return this->acquired._global;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Accessibility &acquireAccessibility() {
-    return this->acquired._accessibility;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Access &acquireAccess() {
+    return this->acquired._access;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PropertyMutability &
   acquirePropertyMutability() {
@@ -423,8 +423,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Runtime &acquireRuntime() {
     return this->acquired._runtime;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Capturing &acquireCapturing() {
-    return this->acquired._capturing;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Capture &acquireCapture() {
+    return this->acquired._capture;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationTime &acquireEvaluationTime() {
     return this->acquired._evaluation_time;
@@ -445,8 +445,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Inlining &acquireInlining() {
     return this->acquired._inlining;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Mangling &acquireMangling() {
-    return this->acquired._mangling;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Mangle &acquireMangle() {
+    return this->acquired._mangle;
   }
   [[nodiscard]] inline rq::ExpressionAttributeConstant &
   acquireExpressionAttributeConstant(rq::ExpressionAttribute attribute) {
@@ -460,8 +460,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_opaque;
     case EA::INSIDE_SCOPE:
       return this->acquired._ea_inside_scope;
-    case EA::OUTSIDE_SCOPE:
-      return this->acquired._ea_outside_scope;
+    case EA::FLANK_SCOPE:
+      return this->acquired._ea_flank_scope;
     case EA::LOCAL:
       return this->acquired._ea_local;
     case EA::GLOBAL:
@@ -472,8 +472,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_public;
     case EA::PROTECTED:
       return this->acquired._ea_protected;
-    case EA::NO_PARTIAL_MUTABILITY:
-      return this->acquired._ea_no_partial_mutability;
+    case EA::NO_PARTIAL_MUTATE:
+      return this->acquired._ea_no_partial_mutate;
     case EA::PARTIAL_MUTATE:
       return this->acquired._ea_partial_mutate;
     case EA::NO_EXPORT:
@@ -484,8 +484,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_dynamic;
     case EA::STATIC:
       return this->acquired._ea_static;
-    case EA::NO_CAPTURING:
-      return this->acquired._ea_no_capturing;
+    case EA::NO_CAPTURE:
+      return this->acquired._ea_no_capture;
     case EA::CAPTURE:
       return this->acquired._ea_capture;
     case EA::LAZY:
@@ -546,10 +546,10 @@ struct Context final : public rq::BumpPtrAllocator {
       return this->acquired._ea_no_copy;
     case EA::MAY_COPY:
       return this->acquired._ea_may_copy;
-    case EA::UNSTABLE_ADDRESS:
-      return this->acquired._ea_unstable_address;
-    case EA::STABLE_ADDRESS:
-      return this->acquired._ea_stable_address;
+    case EA::UNNO_STABLE_ADDRESS:
+      return this->acquired._ea_unno_stable_address;
+    case EA::NO_STABLE_ADDRESS:
+      return this->acquired._ea_no_stable_address;
     case EA::EXPLICIT_DROP:
       return this->acquired._ea_explicit_drop;
     case EA::IMPLICIT_DROP:

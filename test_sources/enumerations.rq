@@ -18,7 +18,7 @@
         ];
     ];
     value :=
-        [inline_match fruit,
+        [match fruit,
             [with APPLE, apple:=[value], 
                 [out] := apple;
             ][with ORANGE, orange:=[value],

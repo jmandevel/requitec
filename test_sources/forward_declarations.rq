@@ -1,4 +1,4 @@
-[opaque][explicit_mangle]::myForwardedAdd
+[opaque][mangle]::myForwardedAdd
 [function myForwardedAdd, (> a:[single], b:[single] <)[single],];
 
 // you have to write the signature again, and it has to be identical
