@@ -57,10 +57,10 @@
     cat := ..Cat();
     rat := ..Rat();
 
-    dog.[compose ..Speak].speak();
-    dog.[compose ..Greet].greet();
-    cat.[compose ..Speak].speak();
-    cat.[compose ..Greet].greet();
+    dog->..Speak.speak();
+    dog->..Greet.greet();
+    cat->..Speak.speak();
+    cat->..Greet.greet();
 
     ..speakAndGreet(animal=dog.[compose ..Speak, ..Greet]);
     ..speakAndGreet(animal=cat.[compose ..Speak, ..Greet]);
@@ -69,7 +69,7 @@
     [result] := 0;
 ];
 
-[function speakAndGreet, (> animal:$[composition ..Speak, ..Greet] <)[void],
-    animal.[compose ..Speak].speak();
-    animal.[compose ..Greet].greet();
+[function speakAndGreet, (> animal:[composition ..Speak, ..Greet] <)[void],
+    animal->..Speak.speak();
+    animal->..Greet.greet();
 ];

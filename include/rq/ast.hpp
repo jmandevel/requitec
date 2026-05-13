@@ -138,7 +138,7 @@ enum class Keyword : std::uint32_t {
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
-  NAMED_PARAMETERS_BEGIN,
+  NONPOSITIONAL_PARAMETERS_BEGIN,
   LOCKED_PARAMETERS_BEGIN,
 
   // BRACES
@@ -158,11 +158,9 @@ enum class Keyword : std::uint32_t {
   ENTRY,
   FUNCTION,
   METHOD,
-  EXTENSION_FUNCTION,
   EXTENSION_METHOD,
   IMPLEMENT_FUNCTION,
   IMPLEMENT_METHOD,
-  IMPLEMENT_EXTENSION_FUNCTION,
   IMPLEMENT_EXTENSION_METHOD,
   USE_FUNCTION,
   USE_METHOD,
@@ -696,8 +694,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
     return "_positional_parameters_end";
-  case K::NAMED_PARAMETERS_BEGIN:
-    return "_named_parameters_begin";
+  case K::NONPOSITIONAL_PARAMETERS_BEGIN:
+    return "_nonpositional_parameters_begin";
   case K::LOCKED_PARAMETERS_BEGIN:
     return "_locked_parameters_begin";
 
@@ -732,16 +730,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "function";
   case K::METHOD:
     return "method";
-  case K::EXTENSION_FUNCTION:
-    return "extension_function";
   case K::EXTENSION_METHOD:
     return "extension_method";
   case K::IMPLEMENT_FUNCTION:
     return "implement_function";
   case K::IMPLEMENT_METHOD:
     return "implement_method";
-  case K::IMPLEMENT_EXTENSION_FUNCTION:
-    return "implement_extension_function";
   case K::IMPLEMENT_EXTENSION_METHOD:
     return "implement_extension_method";
   case K::USE_FUNCTION:
@@ -1545,7 +1539,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
     return KF::PARAMETER;
-  case K::NAMED_PARAMETERS_BEGIN:
+  case K::NONPOSITIONAL_PARAMETERS_BEGIN:
     return KF::PARAMETER;
   case K::LOCKED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
@@ -1581,15 +1575,11 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::EXTENSION_FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::EXTENSION_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::IMPLEMENT_EXTENSION_FUNCTION:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
   case K::IMPLEMENT_EXTENSION_METHOD:
     return KF::STATEMENT_BRANCHES | KF::STATEMENT;
@@ -2158,7 +2148,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsParameterMarkKeyword(rq::Keyword keyword) {
-  return keyword == rq::Keyword::NAMED_PARAMETERS_BEGIN ||
+  return keyword == rq::Keyword::NONPOSITIONAL_PARAMETERS_BEGIN ||
          keyword == rq::Keyword::POSITIONAL_PARAMETERS_END ||
          keyword == rq::Keyword::LOCKED_PARAMETERS_BEGIN;
 }
@@ -2728,7 +2718,7 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   NO_DEPRECIATE,
   DEPRECIATE,
   EXPERIMENTAL,
-  // address_stability_type
+  // stable_address_type
   NO_STABLE_ADDRESS,
   STABLE_ADDRESS,
   // variadic_type
@@ -3492,8 +3482,7 @@ getKind(rq::TypeAttribute attribute) {
 struct TypeFlagsFactory final {
   using Self = rq::TypeFlagsFactory;
   using ExpressionList = llvm::SmallVector<const rq::Expression *, 1>;
-  using PtrMap =
-      llvm::SmallDenseMap<rq::TypeAttributeKind, ExpressionList>;
+  using PtrMap = llvm::SmallDenseMap<rq::TypeAttributeKind, ExpressionList>;
 
   rq::TypeFlags _flags{};
   PtrMap _ptr_map{};

@@ -465,52 +465,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::METHOD:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
-  case K::EXTENSION_FUNCTION: {
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       3);
-      is_ok = false;
-      break;
-    }
-    rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateHeaderBranch(S::NAME, branch0)) {
-      is_ok = false;
-    }
-    if (!branch0.getHasNext()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       3);
-      is_ok = false;
-      break;
-    }
-    rq::Expression &branch1 = branch0.getNext();
-    if (!this->situateHeaderBranch(S::RVALUE, branch1)) {
-      is_ok = false;
-    }
-    if (!branch0.getHasNext()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       3);
-      is_ok = false;
-      break;
-    }
-    rq::Expression &branch2 = branch1.getNext();
-    if (!this->situateHeaderBranch(S::RVALUE, branch2)) {
-      is_ok = false;
-    }
-    for (rq::Expression &branch : branch2.getNextSubrange()) {
-      if (!this->situateStatementBranch(branch)) {
-        is_ok = false;
-      }
-    }
-    break;
-  }
   case K::EXTENSION_METHOD:
     is_ok = this->situateNamedMemberProcedure(situation, expression);
     break;
   case K::IMPLEMENT_FUNCTION:
     [[fallthrough]];
   case K::IMPLEMENT_METHOD:
-    [[fallthrough]];
-  case K::IMPLEMENT_EXTENSION_FUNCTION:
     [[fallthrough]];
   case K::IMPLEMENT_EXTENSION_METHOD:
     is_ok = this->situateFirstAndSecondHeaderNaryStatementBranches(

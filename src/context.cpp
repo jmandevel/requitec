@@ -587,11 +587,6 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
     json.emitString("name", method.getName());
     rq::emitModuleMemberSymbol(context, json, method);
   } break;
-  case rq::Opcode::SY_EXTENSION_FUNCTION: {
-    const auto &extension_function = llvm::cast<rq::ExtensionFunction>(symbol);
-    json.emitString("name", extension_function.getName());
-    rq::emitModuleMemberSymbol(context, json, extension_function);
-  } break;
   case rq::Opcode::SY_EXTENSION_METHOD: {
     const auto &extension_method = llvm::cast<rq::ExtensionMethod>(symbol);
     json.emitString("name", extension_method.getName());
