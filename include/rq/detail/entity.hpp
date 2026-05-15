@@ -179,9 +179,6 @@ namespace rq {
   case O::SY_UNSIGNED_ADDRESS_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL | OF::SY_PLATFORM_PRIMITIVE_TYPE |
            OF::SY_IS_TYPE | OF::SY_IS_UNSIGNED_TYPE | OF::SY_IS_INTEGER_TYPE;
-  case O::SY_CHAR_TYPE:
-    return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL | OF::SY_PLATFORM_PRIMITIVE_TYPE |
-           OF::SY_IS_TYPE | OF::SY_IS_CODEUNIT_TYPE;
 
   // STANDARD PRIMITIVE TYPE
   case O::SY_BINARY16_TYPE:
@@ -237,7 +234,7 @@ namespace rq {
   case O::SY_FAT_POINTER_SUBTYPE:
     return OF::SYMBOL | OF::SY_SUBTYPE | OF::SY_UNCOUNTED_SUBTYPE |
            OF::SY_IS_TYPE;
-  case O::SY_INFERENCE_TYPE_COUNT_ARRAY_SUBTYPE:
+  case O::SY_INFERENCE_COUNT_ARRAY_SUBTYPE:
     return OF::SYMBOL | OF::SY_SUBTYPE | OF::SY_UNCOUNTED_SUBTYPE |
            OF::SY_IS_TYPE;
 
@@ -250,7 +247,7 @@ namespace rq {
     return OF::SYMBOL | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // JUXTAPOSITIONAL LIST
-  case O::SY_JUXTAPOSITIONAL_LIST_TYPE:
+  case O::SY_CONCATINATED_LIST_TYPE:
     return OF::SYMBOL | OF::SY_IS_TYPE;
 
   // ARITHMETIC SEQUENCES
@@ -1270,7 +1267,7 @@ ExpressionType::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE PlatformPrimitiveType::PlatformPrimitiveType(rq::Opcode opcode)
     : SimpleSymbol(opcode) {
-  RQ_ASSERT(rq::getIsPlatformPrimitiveTypej(opcode),
+  RQ_ASSERT(rq::getIsPlatformPrimitiveType(opcode),
             "not platform primitive type");
 }
 
@@ -1302,6 +1299,692 @@ RQ_ALWAYS_INLINE SingleType::SingleType()
 [[nodiscard]] inline bool SingleType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_SINGLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE DoubleType::DoubleType()
+    : PlatformPrimitiveType(rq::Opcode::SY_DOUBLE_TYPE) {}
+
+[[nodiscard]] inline bool DoubleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_DOUBLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE QuadrupleType::QuadrupleType()
+    : PlatformPrimitiveType(rq::Opcode::SY_QUADRUPLE_TYPE) {}
+
+[[nodiscard]] inline bool QuadrupleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_QUADRUPLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE SignedIntegerType::SignedIntegerType()
+    : PlatformPrimitiveType(rq::Opcode::SY_QUADRUPLE_TYPE) {}
+
+[[nodiscard]] inline bool
+SignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_QUADRUPLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE UnsignedIntegerType::UnsignedIntegerType()
+    : PlatformPrimitiveType(rq::Opcode::SY_QUADRUPLE_TYPE) {}
+
+[[nodiscard]] inline bool
+UnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_QUADRUPLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE SignedAddressType::SignedAddressType()
+    : PlatformPrimitiveType(rq::Opcode::SY_QUADRUPLE_TYPE) {}
+
+[[nodiscard]] inline bool
+SignedAddressType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_QUADRUPLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE UnsignedAddressType::UnsignedAddressType()
+    : PlatformPrimitiveType(rq::Opcode::SY_UNSIGNED_ADDRESS_TYPE) {}
+
+[[nodiscard]] inline bool
+UnsignedAddressType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_UNSIGNED_ADDRESS_TYPE;
+}
+
+RQ_ALWAYS_INLINE StandardPrimitiveType::StandardPrimitiveType(rq::Opcode opcode)
+    : SimpleSymbol(opcode) {
+  RQ_ASSERT(rq::getIsStandardPrimitiveType(opcode), "not standard primitive");
+}
+
+[[nodiscard]] inline bool
+StandardPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsStandardPrimitiveType(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE Binary16Type::Binary16Type()
+    : StandardPrimitiveType(rq::Opcode::SY_BINARY16_TYPE) {}
+
+[[nodiscard]] inline bool Binary16Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BINARY16_TYPE;
+}
+
+RQ_ALWAYS_INLINE Binary32Type::Binary32Type()
+    : StandardPrimitiveType(rq::Opcode::SY_BINARY32_TYPE) {}
+
+[[nodiscard]] inline bool Binary32Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BINARY32_TYPE;
+}
+
+RQ_ALWAYS_INLINE Binary64Type::Binary64Type()
+    : StandardPrimitiveType(rq::Opcode::SY_BINARY64_TYPE) {}
+
+[[nodiscard]] inline bool Binary64Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BINARY64_TYPE;
+}
+
+RQ_ALWAYS_INLINE Binary128Type::Binary128Type()
+    : StandardPrimitiveType(rq::Opcode::SY_BINARY128_TYPE) {}
+
+[[nodiscard]] inline bool Binary128Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BINARY64_TYPE;
+}
+
+RQ_ALWAYS_INLINE Bfloat16Type::Bfloat16Type()
+    : StandardPrimitiveType(rq::Opcode::SY_BFLOAT16_TYPE) {}
+
+[[nodiscard]] inline bool Bfloat16Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BFLOAT16_TYPE;
+}
+
+RQ_ALWAYS_INLINE AsciiType::AsciiType()
+    : StandardPrimitiveType(rq::Opcode::SY_ASCII_TYPE) {}
+
+[[nodiscard]] inline bool AsciiType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ASCII_TYPE;
+}
+
+RQ_ALWAYS_INLINE Utf8Type::Utf8Type()
+    : StandardPrimitiveType(rq::Opcode::SY_UTF8_TYPE) {}
+
+[[nodiscard]] inline bool Utf8Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_UTF8_TYPE;
+}
+
+RQ_ALWAYS_INLINE VariadicArgumentsType::VariadicArgumentsType()
+    : SimpleSymbol(rq::Opcode::SY_VARIADIC_ARGUMENTS_TYPE) {}
+
+[[nodiscard]] inline bool
+VariadicArgumentsType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_VARIADIC_ARGUMENTS_TYPE;
+}
+
+RQ_ALWAYS_INLINE
+ScaledPrimitiveType::ScaledPrimitiveType(rq::Opcode opcode,
+                                         rq::ScaledIntegerKind kind,
+                                         const rq::IntegerConstant &scalar,
+                                         std::uint64_t synonym_id)
+    : Symbol(opcode), _kind(kind), _scalar_ptr(&scalar),
+      _synonym_id(synonym_id) {
+  RQ_ASSERT(rq::getIsScaledPrimitive(opcode), "not scaled primitive");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledIntegerKind
+ScaledPrimitiveType::getKind() const {
+  return this->_kind;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &
+ScaledPrimitiveType::getScalar() const {
+  return rq::dereferencePtr(this->_scalar_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t
+ScaledPrimitiveType::getSynonymId() const {
+  return this->_synonym_id;
+}
+
+[[nodiscard]] inline bool
+ScaledPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsScaledPrimitive(entity.getOpcode());
+}
+
+inline void ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileScaledPrimitiveType(id, this->getKind(), this->getScalar(),
+                                 this->getSynonymId());
+}
+
+inline void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
+                                       rq::ScaledIntegerKind kind,
+                                       const rq::IntegerConstant &scalar,
+                                       std::uint64_t synonum_id) {
+  id.AddInteger(rq::getUnderlying(kind));
+  id.AddPointer(&scalar);
+  id.AddInteger(synonum_id);
+}
+
+RQ_ALWAYS_INLINE
+ScaledSignedIntegerType::ScaledSignedIntegerType(
+    rq::ScaledIntegerKind kind, const rq::IntegerConstant &scalar,
+    std::uint64_t synonym_id)
+    : ScaledPrimitiveType(rq::Opcode::SY_SCALED_SIGNED_INTEGER_TYPE, kind,
+                          scalar, synonym_id) {}
+
+[[nodiscard]] inline bool
+ScaledSignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SCALED_SIGNED_INTEGER_TYPE;
+}
+
+RQ_ALWAYS_INLINE
+ScaledUnsignedIntegerType::ScaledUnsignedIntegerType(
+    rq::ScaledIntegerKind kind, const rq::IntegerConstant &scalar,
+    std::uint64_t synonym_id)
+    : ScaledPrimitiveType(rq::Opcode::SY_SCALED_UNSIGNED_INTEGER_TYPE, kind,
+                          scalar, synonym_id) {}
+
+[[nodiscard]] inline bool
+ScaledUnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SCALED_UNSIGNED_INTEGER_TYPE;
+}
+
+RQ_ALWAYS_INLINE Subtype::Subtype(rq::Opcode opcode, rq::SymbolConstant &child)
+    : Symbol(opcode), _child_ptr(&child) {
+  RQ_ASSERT(rq::getIsSubtype(opcode), "not subtype");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+Subtype::getChild() const {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &Subtype::getChild() {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] inline bool Subtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsSubtype(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(rq::SymbolConstant &child,
+                                            const rq::IntegerConstant &count)
+    : Subtype(rq::Opcode::SY_ARRAY_SUBTYPE, child), _count_ptr(&count) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &
+ArraySubtype::getCount() const {
+  return rq::dereferencePtr(this->_count_ptr);
+}
+
+[[nodiscard]] inline bool ArraySubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ARRAY_SUBTYPE;
+}
+
+inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileArraySubtype(id, this->getChild(), this->getCount());
+}
+
+inline void profileArraySubtype(llvm::FoldingSetNodeID &id,
+                                const rq::SymbolConstant &child,
+                                const rq::IntegerConstant &count) {
+  id.AddPointer(&child);
+  id.AddPointer(&count);
+}
+
+RQ_ALWAYS_INLINE UncountedSubtype::UncountedSubtype(rq::Opcode opcode,
+                                                    rq::SymbolConstant &child)
+    : Subtype(opcode, child) {
+  RQ_ASSERT(rq::getIsUncountedSubtype(opcode), "not uncounted subtype");
+}
+
+[[nodiscard]] inline bool
+UncountedSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsUncountedSubtype(entity.getOpcode());
+}
+
+inline void UncountedSubtype::Profile(llvm::FoldingSetNodeID &id) const {
+  return rq::profileUncountedSubtype(id, this->getChild());
+}
+
+inline void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+                                    const rq::SymbolConstant &child) {
+  id.AddPointer(&child);
+}
+
+RQ_ALWAYS_INLINE ReferenceSubtype::ReferenceSubtype(rq::SymbolConstant &child)
+    : UncountedSubtype(rq::Opcode::SY_REFERENCE_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool
+ReferenceSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_REFERENCE_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE PointerSubtype::PointerSubtype(rq::SymbolConstant &child)
+    : UncountedSubtype(rq::Opcode::SY_POINTER_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool
+PointerSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_POINTER_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE FatPointerSubtype::FatPointerSubtype(rq::SymbolConstant &child)
+    : UncountedSubtype(rq::Opcode::SY_FAT_POINTER_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool
+FatPointerSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_FAT_POINTER_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE InferenceCountArraySubtype::InferenceCountArraySubtype(
+    rq::SymbolConstant &child)
+    : UncountedSubtype(rq::Opcode::SY_INFERENCE_COUNT_ARRAY_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool
+InferenceCountArraySubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_INFERENCE_COUNT_ARRAY_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE ModuleFactory::ModuleFactory(rq::ModuleKind kind)
+    : _module_kind(kind) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind ModuleFactory::getKind() const {
+  return this->_module_kind;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool ModuleFactory::getHasExpression() const {
+  return this->_expression_ptr != nullptr;
+}
+
+void ModuleFactory::setExpression(rq::Expression &expression) {
+  rq::assignSingleValue(this->_expression_ptr, &expression);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+ModuleFactory::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &ModuleFactory::getExpression() {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+RQ_ALWAYS_INLINE void ModuleFactory::setPath(llvm::StringRef path) {
+  RQ_ASSERT(this->_path.empty(), "path already set");
+  this->_path = path;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef ModuleFactory::getPath() const {
+  RQ_ASSERT(this->_path.empty(), "path not set");
+  return this->_path;
+}
+
+RQ_ALWAYS_INLINE void ModuleFactory::setBuffer(llvm::MemoryBufferRef &&buffer) {
+  this->_buffer = std::move(buffer);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &
+ModuleFactory::getBuffer() const {
+  return this->_buffer;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::MemoryBufferRef &
+ModuleFactory::getBuffer() {
+  return this->_buffer;
+}
+
+RQ_ALWAYS_INLINE Module::Module(rq::ModuleFactory &factory)
+    : Symbol(rq::Opcode::SY_MODULE), _module_kind(factory.getKind()),
+      _expression_ptr(&factory.getExpression()), _path(factory.getPath()),
+      _buffer(factory.getBuffer()) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind Module::getModuleKind() const {
+  return this->_module_kind;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getPath() const {
+  return this->_path;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getSourceText() const {
+  return this->_buffer.getBuffer();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Module::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &
+Module::getBuffer() const {
+  return this->_buffer;
+}
+
+[[nodiscard]] inline bool Module::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_MODULE;
+}
+
+RQ_ALWAYS_INLINE Import::Import(rq::ExpressionFlags flags,
+                                const rq::Expression &expression,
+                                rq::Module &imported)
+    : Symbol(rq::Opcode::SY_IMPORT), _expression_flags(flags),
+      _expression_ptr(&expression), _imported_ptr(&imported) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
+Import::getExpressionFlags() const {
+  return this->_expression_flags;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &Import::getModule() const {
+  return rq::dereferencePtr(this->_imported_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module &Import::getModule() {
+  return rq::dereferencePtr(this->_imported_ptr);
+}
+
+[[nodiscard]] inline bool Import::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_IMPORT;
+}
+
+RQ_ALWAYS_INLINE
+ConcatenatedList::ConcatenatedList(
+    llvm::ArrayRef<rq::SymbolConstant *> children_ptrs)
+    : Symbol(rq::Opcode::SY_CONCATINATED_LIST_TYPE),
+      _children_ptrs(children_ptrs) {}
+
+[[nodiscard]] llvm::ArrayRef<const rq::SymbolConstant *>
+ConcatenatedList::getChildren() const {
+  return this->_children_ptrs;
+}
+
+[[nodiscard]] llvm::ArrayRef<rq::SymbolConstant *>
+ConcatenatedList::getChildren() {
+  return this->_children_ptrs;
+}
+
+[[nodiscard]] inline bool
+ConcatenatedList::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_CONCATINATED_LIST_TYPE;
+}
+
+inline void ConcatenatedList::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileConcatenatedList(id, this->getChildren());
+}
+
+inline void profileConcatenatedList(
+    llvm::FoldingSetNodeID &id,
+    llvm::ArrayRef<const rq::SymbolConstant *> children_ptrs) {
+  id.AddInteger(children_ptrs.size());
+  for (const rq::SymbolConstant *child_ptr : children_ptrs) {
+    const rq::SymbolConstant &child = rq::dereferencePtr(child_ptr);
+    id.AddPointer(&child);
+  }
+}
+
+RQ_ALWAYS_INLINE
+ArithmeticSequence::ArithmeticSequence(
+    rq::Opcode opcode, rq::SymbolConstant &child,
+    rq::ArithmeticSequenceCondition condition, rq::ArithmeticSequenceStep step)
+    : Symbol(opcode), _child_ptr(&child), _condition(condition), _step(step) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+ArithmeticSequence::getChild() const {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
+ArithmeticSequence::getChild() {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
+ArithmeticSequence::getCondition() const {
+  return this->_condition;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep
+ArithmeticSequence::getStep() const {
+  return this->_step;
+}
+
+[[nodiscard]] inline bool
+ArithmeticSequence::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsArithmeticSequence(entity.getOpcode());
+}
+
+inline void ArithmeticSequence::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileArithmeticSequence(id, this->getOpcode(), this->getChild(),
+                                this->getCondition(), this->getStep());
+}
+
+inline void profileArithmeticSequence(llvm::FoldingSetNodeID &id,
+                                      rq::Opcode opcode,
+                                      const rq::SymbolConstant &child,
+                                      rq::ArithmeticSequenceCondition condition,
+                                      rq::ArithmeticSequenceStep step) {
+  id.AddInteger(rq::getUnderlying(opcode));
+  id.AddPointer(&child);
+  id.AddInteger(rq::getUnderlying(condition));
+  id.AddInteger(rq::getUnderlying(step));
+}
+
+RQ_ALWAYS_INLINE
+ArithmeticInterval::ArithmeticInterval(
+    rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition)
+    : ArithmeticSequence(rq::Opcode::SY_ARITHMETIC_INTERVAL, child, condition,
+                         rq::ArithmeticSequenceStep::NONE) {
+  RQ_ASSERT(condition != rq::ArithmeticSequenceCondition::NONE,
+            "condition is none");
+}
+
+[[nodiscard]] inline bool
+ArithmeticInterval::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ARITHMETIC_INTERVAL;
+}
+
+RQ_ALWAYS_INLINE
+InfiniteArithmeticSequence::InfiniteArithmeticSequence(
+    rq::SymbolConstant &child, rq::ArithmeticSequenceStep step)
+    : ArithmeticSequence(rq::Opcode::SY_INFINITE_ARITHMETIC_SEQUENCE, child,
+                         rq::ArithmeticSequenceCondition::NONE, step) {
+  RQ_ASSERT(step != rq::ArithmeticSequenceStep::NONE, "step is none");
+}
+
+[[nodiscard]] inline bool
+InfiniteArithmeticSequence::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_INFINITE_ARITHMETIC_SEQUENCE;
+}
+
+RQ_ALWAYS_INLINE
+FiniteArithmeticSequence::FiniteArithmeticSequence(
+    rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
+    rq::ArithmeticSequenceStep step)
+    : ArithmeticSequence(rq::Opcode::SY_INFINITE_ARITHMETIC_SEQUENCE, child,
+                         condition, step) {
+  RQ_ASSERT(condition != rq::ArithmeticSequenceCondition::NONE,
+            "condition is none");
+  RQ_ASSERT(step != rq::ArithmeticSequenceStep::NONE, "step is none");
+}
+
+[[nodiscard]] inline bool
+FiniteArithmeticSequence::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_INFINITE_ARITHMETIC_SEQUENCE;
+}
+
+RQ_ALWAYS_INLINE
+LocalDeclaration::LocalDeclaration(rq::Opcode opcode, llvm::StringRef name,
+                                   const rq::Expression &name_expression,
+                                   rq::SymbolTable &containing_table)
+    : Symbol(opcode), _name(name), _name_expression_ptr(&name_expression),
+      _containing_table_ptr(&containing_table) {
+  RQ_ASSERT(rq::getIsLocalDeclaration(opcode), "not local declaration");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+LocalDeclaration::getName() const {
+  return this->_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+LocalDeclaration::getNameExpression() const {
+  return rq::dereferencePtr(this->_name_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+LocalDeclaration::getContainingTable() const {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
+LocalDeclaration::getContainingTable() {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] inline bool
+LocalDeclaration::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsLocalDeclaration(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE
+Label::Label(llvm::StringRef name, const rq::Expression &name_expression,
+             rq::SymbolTable &containing_table, rq::Instruction &instruction)
+    : LocalDeclaration(rq::Opcode::SY_LABEL, name, name_expression,
+                       containing_table),
+      _target_instruction_ptr(&instruction) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
+Label::getTargetInstruction() const {
+  return rq::dereferencePtr(this->_target_instruction_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &Label::getTargetInstruction() {
+  return rq::dereferencePtr(this->_target_instruction_ptr);
+}
+
+[[nodiscard]] inline bool Label::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_LABEL;
+}
+
+RQ_ALWAYS_INLINE Anchor::Anchor(llvm::StringRef name,
+                                const rq::Expression &name_expression,
+                                rq::SymbolTable &containing_table,
+                                rq::LocalStatement &local_table)
+    : LocalDeclaration(rq::Opcode::SY_ANCHOR, name, name_expression,
+                       containing_table),
+      _local_table_ptr(&local_table) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LocalStatement &
+Anchor::getLocalStatement() const {
+  return rq::dereferencePtr(this->_local_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStatement &Anchor::getLocalStatement() {
+  return rq::dereferencePtr(this->_local_table_ptr);
+}
+
+[[nodiscard]] inline bool Anchor::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ANCHOR;
+}
+
+RQ_ALWAYS_INLINE
+LocalVariable::LocalVariable(rq::Opcode opcode, llvm::StringRef name,
+                             const rq::Expression &name_expression,
+                             rq::SymbolTable &containing_table,
+                             rq::ExpressionFlags flags)
+    : LocalDeclaration(opcode, name, name_expression, containing_table),
+      _expression_flags(flags) {
+  RQ_ASSERT(rq::getIsLocalVariable(opcode), "not local variable");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
+LocalVariable::getExpressionFlags() const {
+  return this->_expression_flags;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool LocalVariable::getHasType() const {
+  return this->_type_ptr != nullptr;
+}
+
+RQ_ALWAYS_INLINE void LocalVariable::setType(rq::SymbolConstant &type) {
+  rq::assignSingleValue(this->_type_ptr, &type);
+}
+
+RQ_ALWAYS_INLINE void LocalVariable::replaceType(rq::SymbolConstant &type) {
+  rq::replaceValue(this->_type_ptr, &type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+LocalVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &LocalVariable::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] inline bool LocalVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsLocalVariable(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
+    llvm::StringRef name, const rq::Expression &name_expression,
+    rq::SymbolTable &containing_table, rq::ExpressionFlags flags)
+    : LocalVariable(rq::Opcode::SY_LOCAL_DYNAMIC_VARIABLE, name,
+                    name_expression, containing_table, flags) {}
+
+[[nodiscard]] inline bool
+LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_LOCAL_DYNAMIC_VARIABLE;
+}
+
+RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
+    llvm::StringRef name, const rq::Expression &name_expression,
+    rq::SymbolTable &containing_table, rq::ExpressionFlags flags)
+    : LocalVariable(rq::Opcode::SY_LOCAL_STATIC_VARIABLE, name, name_expression,
+                    containing_table, flags) {}
+
+[[nodiscard]] const rq::SymbolicValue &LocalStaticVariable::getValue() const {
+  return this->_value;
+}
+
+[[nodiscard]] rq::SymbolicValue &LocalStaticVariable::getValue() {
+  return this->_value;
+}
+
+[[nodiscard]] inline bool
+LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_LOCAL_STATIC_VARIABLE;
 }
 
 } // namespace rq

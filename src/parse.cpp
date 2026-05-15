@@ -193,24 +193,7 @@ bool TokenRanger::getIsToken(rq::TokenKind kind) const {
 //  This is (mostly) a recursive descent parser.
 
 rq::Expression *RequiteParser::parseExpressions() {
-  rq::ForestFactory factory;
-  while (!this->getRanger().getIsDone()) {
-    rq::Expression &next = this->parseAscribableExpression();
-    factory.appendTree(next);
-    if (this->getRanger().getIsDone()) {
-      this->getContext().logErrorExpectedSemicolonSeparator(next);
-      this->setNotOk();
-      break;
-    }
-    const rq::Token after_token = this->getRanger().getToken();
-    this->getRanger().incrementToken(1);
-    if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
-      this->getContext().logErrorUnexpectedToken(after_token);
-      this->setNotOk();
-    } else if (after_token.getKind() != rq::TokenKind::SEMICOLON_SEPARATOR) {
-      next.setIsChainLink();
-    }
-  }
+  std::ignore = this->parseBranches(rq::TokenKind::NONE);
   return factory.getExpressionPtr();
 }
 
@@ -780,8 +763,8 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       call.setKeyword(rq::Keyword::CALL);
       call.setBranch(callee);
       call.setSource(callee, post_token);
-      std::ignore = this->parseValueBranches(
-          call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
+      std::ignore =
+          this->parseBranches(call, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
       precedence_factory.setOnlyRecent(call);
       previous_horned = true;
       continue;
@@ -794,8 +777,8 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       instantiation.setKeyword(rq::Keyword::INSTANTIATE_TEMPLATE);
       instantiation.setBranch(target);
       instantiation.setSource(target, post_token);
-      std::ignore = this->parseValueBranches(
-          instantiation, rq::TokenKind::RIGHT_BRACE_GROUPING);
+      std::ignore = this->parseBranches(instantiation,
+                                        rq::TokenKind::RIGHT_BRACE_GROUPING);
       precedence_factory.setOnlyRecent(instantiation);
       previous_horned = true;
       continue;
@@ -841,16 +824,11 @@ rq::Expression &RequiteParser::parsePrecedence0() {
   return error;
 }
 
-[[nodiscard]] bool RequiteParser::parseValueBranches(rq::Expression &expression,
-                                                     rq::TokenKind end) {
-  RQ_ASSERT(expression.getHasValueBranches(),
-            "expression must have value branches");
-  rq::TreeFactory factory;
-  factory.startTree(expression);
+[[nodiscard]] rq::ParseBranchesResult RequiteParser::parseBranches(rq::TokenKind end) {
+  rq::ForestFactory factory;
   const rq::Token first_token = this->getRanger().getToken();
   if (first_token.getKind() == end) {
     this->getRanger().incrementToken(1);
-    factory.finishExpression(first_token);
     return false;
   }
   bool parameter_mark_found = false;
@@ -861,7 +839,7 @@ rq::Expression &RequiteParser::parsePrecedence0() {
       parameter_mark_found = true;
       rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
-      mark.setKeyword(rq::Keyword::NAMED_PARAMETERS_BEGIN);
+      mark.setKeyword(rq::Keyword::NONPOSITIONAL_PARAMETERS_BEGIN);
       factory.appendBranch(mark);
     } else if (next_token.getKind() == rq::TokenKind::PIPE_OPERATOR) {
       this->getRanger().incrementToken(1);
@@ -870,41 +848,29 @@ rq::Expression &RequiteParser::parsePrecedence0() {
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::LOCKED_PARAMETERS_BEGIN);
       factory.appendBranch(mark);
+    } else if (next_token.getKind() == end) {
+      this->getRanger().incrementToken(1);
+      factory.finishExpression(next_token);
+      return parameter_mark_found;
     }
     rq::Expression &branch = this->parseAscribableExpression();
     factory.appendBranch(branch);
     const rq::Token after_token = this->getRanger().getToken();
-    if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+    if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
+    }
+    const rq::Token next_after = this->getRanger().getToken();
+    if (next_after.getIsSeparator()) {
       this->getRanger().incrementToken(1);
+    }
+    if (next_after.getKind() == end ||
+        next_after.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+      branch.setIsHeader();
       continue;
-    } else if (after_token.getKind() == end) {
-      this->getRanger().incrementToken(1);
-      factory.finishExpression(after_token);
-      return parameter_mark_found;
-    } else if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
-      this->getRanger().incrementToken(1);
-      parameter_mark_found = true;
-      rq::Expression &mark = this->getContext().acquireExpression();
-      mark.setSource(next_token);
-      mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
-      factory.appendBranch(mark);
-      const rq::Token next_after = this->getRanger().getToken();
-      if (next_after.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
-        this->getRanger().incrementToken(1);
-        continue;
-      } else if (next_after.getKind() == end) {
-        this->getRanger().incrementToken(1);
-        factory.finishExpression(next_after);
-        return parameter_mark_found;
-      }
-      this->getContext().logErrorExpectedCommaSeparator(branch);
-      this->setNotOk();
-    } else {
-      this->getRanger().incrementToken(1);
-      this->getContext().logErrorExpectedCommaSeparator(branch);
-      this->setNotOk();
+    } else if (next_after.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
       continue;
     }
+    branch.setIsChainLink();
+    continue;
   }
   RQ_UNREACHABLE();
 }
@@ -941,39 +907,9 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   const rq::Keyword keyword = this->parseKeyword();
   expression.setKeyword(keyword);
   expression.setSource(left_token);
-  if (!expression.getHasStatementBranches()) {
-    std::ignore = this->parseValueBranches(
-        expression, rq::TokenKind::RIGHT_BRACKET_GROUPING);
-    return expression;
-  }
-  rq::TreeFactory factory;
-  factory.startTree(expression);
-  while (true) {
-    const rq::Token next_token = this->getRanger().getToken();
-    if (next_token.getKind() == rq::TokenKind::RIGHT_BRACKET_GROUPING) {
-      this->getRanger().incrementToken(1);
-      factory.finishExpression(next_token);
-      return expression;
-    } else if (next_token.getKind() == rq::TokenKind::TRAILER_SEPARATOR) {
-      this->parseTrailer(expression, keyword_ranger);
-      const rq::Token last_token = this->getRanger().getToken();
-      factory.finishExpression(last_token);
-      this->getRanger().incrementToken(1);
-      return expression;
-    }
-    rq::Expression &branch = this->parseAscribableExpression();
-    factory.appendBranch(branch);
-    const rq::Token after_token = this->getRanger().getToken();
-    if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
-      this->getRanger().incrementToken(1);
-      branch.setIsHeader();
-    } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
-      this->getRanger().incrementToken(1);
-    } else {
-      branch.setIsChainLink();
-    }
-  }
-  RQ_UNREACHABLE();
+  std::ignore =
+      this->parseBranches(expression, rq::TokenKind::RIGHT_BRACKET_GROUPING);
+  return expression;
 }
 
 rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
@@ -983,7 +919,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
   const bool parameter_mark_found =
-      this->parseValueBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
+      this->parseBranches(brace, rq::TokenKind::RIGHT_BRACE_GROUPING);
   if (parameter_mark_found) {
     brace.changeKeyword(rq::Keyword::INSTANTIATE_LAYOUT);
   }
@@ -1025,7 +961,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   parenthesis.setKeyword(rq::Keyword::UNSITUATED_PARENTHESIS_GROUP);
   parenthesis.setSource(first_token);
   this->getRanger().incrementToken(1);
-  const bool has_parameter_marks = this->parseValueBranches(
+  const bool has_parameter_marks = this->parseBranches(
       parenthesis, rq::TokenKind::RIGHT_PARENTHESIS_GROUPING);
   if (has_parameter_marks || !parenthesis.getHasBranch()) {
     parenthesis.changeKeyword(rq::Keyword::INSTANTIATE_SIGNATURE);

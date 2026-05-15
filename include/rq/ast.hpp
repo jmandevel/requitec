@@ -225,7 +225,6 @@ enum class Keyword : std::uint32_t {
   UNSIGNED_INDEX,
   SIGNED_ADDRESS,
   UNSIGNED_ADDRESS,
-  CHAR,
   ASCII,
   UTF8,
 
@@ -271,10 +270,8 @@ enum class Keyword : std::uint32_t {
   // TABLE GRAPH
   IMPORT,
   NAMESPACE,
-  C,
   TOP,
   LABEL,
-  NO_NAME,
 
   // HINTS
   DEBUG_BREAK,
@@ -840,8 +837,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "signed_address";
   case K::UNSIGNED_ADDRESS:
     return "unsigned_address";
-  case K::CHAR:
-    return "char";
   case K::ASCII:
     return "ascii";
   case K::UTF8:
@@ -924,14 +919,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "import";
   case K::NAMESPACE:
     return "namespace";
-  case K::C:
-    return "c";
   case K::TOP:
     return "_top";
   case K::LABEL:
     return "label";
-  case K::NO_NAME:
-    return "no_name";
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -1299,26 +1290,25 @@ enum class KeywordFlags : std::uint32_t {
   UNQUOTED_RIGHT = rq::getBit(3),
   INTERNAL = rq::getBit(4),
   UNIVERSALIZABLE = rq::getBit(5),
-  STATEMENT_BRANCHES = rq::getBit(6),
-  STARTING_CHAINLINK = rq::getBit(7),
-  CONTINUING_CHAINLINK = rq::getBit(8),
-  FINISHING_CHAINLINK = rq::getBit(9),
-  EXPANSION = rq::getBit(10),
+  STARTING_CHAINLINK = rq::getBit(6),
+  CONTINUING_CHAINLINK = rq::getBit(7),
+  FINISHING_CHAINLINK = rq::getBit(8),
+  EXPANSION = rq::getBit(9),
   // TOP
-  STATEMENT = rq::getBit(11),
-  RVALUE = rq::getBit(12),
-  LVALUE = rq::getBit(14),
-  REFLECTION = rq::getBit(15),
-  ARGUMENT = rq::getBit(16),
-  PARAMETER = rq::getBit(17),
-  BINDING = rq::getBit(18),
-  NAME = rq::getBit(19),
-  NAMESPACE = rq::getBit(20),
-  ASCRIPTION = rq::getBit(21),
-  EXPRESSION_ATTRIBUTE = rq::getBit(22),
-  TYPE_ATTRIBUTE = rq::getBit(23),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
+  STATEMENT = rq::getBit(10),
+  RVALUE = rq::getBit(11),
+  LVALUE = rq::getBit(12),
+  REFLECTION = rq::getBit(13),
+  ARGUMENT = rq::getBit(14),
+  PARAMETER = rq::getBit(15),
+  BINDING = rq::getBit(16),
+  NAME = rq::getBit(17),
+  NAMESPACE = rq::getBit(18),
+  ASCRIPTION = rq::getBit(19),
+  EXPRESSION_ATTRIBUTE = rq::getBit(20),
+  TYPE_ATTRIBUTE = rq::getBit(21),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(22),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(23),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
@@ -1564,29 +1554,29 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
   case K::FORWARD_RANGER:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::BACKWARD_RANGER:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::DESTRUCTOR:
-    return KF::STATEMENT | KF::STATEMENT_BRANCHES;
+    return KF::STATEMENT;
   case K::ENTRY:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::EXTENSION_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::IMPLEMENT_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::IMPLEMENT_EXTENSION_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::USE_FUNCTION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::USE_METHOD:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1604,13 +1594,13 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // DECLARED TYPES
   case K::CLASS:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::ENUMERATION:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::INTERFACE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
   case K::IMPLEMENT_INTERFACE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
+    return KF::STATEMENT;
 
   // VALUES
   case K::INITIALIZE_ARRAY:
@@ -1685,8 +1675,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_ADDRESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CHAR:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCII:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UTF8:
@@ -1708,38 +1696,36 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
 
   // SCOPES
   case K::IF:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
+    return KF::STATEMENT | KF::STARTING_CHAINLINK;
   case K::ELSE_IF:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::CONTINUING_CHAINLINK |
-           KF::FINISHING_CHAINLINK;
+    return KF::STATEMENT | KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::ELSE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::FINISHING_CHAINLINK;
+    return KF::STATEMENT | KF::FINISHING_CHAINLINK;
   case K::MATCH:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
+    return KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::SWITCH:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
+    return KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::CASE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
-  case K::WITH:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
-  case K::DEFAULT:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK |
-           KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
-  case K::FOR:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::WHILE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT;
-  case K::SPIN:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::STARTING_CHAINLINK;
-  case K::WEAVE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::CONTINUING_CHAINLINK |
+    return KF::STATEMENT | KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
            KF::FINISHING_CHAINLINK;
+  case K::WITH:
+    return KF::STATEMENT | KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
+           KF::FINISHING_CHAINLINK;
+  case K::DEFAULT:
+    return KF::STATEMENT | KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
+           KF::FINISHING_CHAINLINK;
+  case K::FOR:
+    return KF::STATEMENT;
+  case K::WHILE:
+    return KF::STATEMENT;
+  case K::SPIN:
+    return KF::STATEMENT | KF::STARTING_CHAINLINK;
+  case K::WEAVE:
+    return KF::STATEMENT | KF::CONTINUING_CHAINLINK | KF::FINISHING_CHAINLINK;
   case K::SCOPE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
+    return KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::BLOCK:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
+    return KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
 
   // RANGES
   case K::RANGE:
@@ -1773,15 +1759,11 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::IMPORT:
     return KF::STATEMENT;
   case K::NAMESPACE:
-    return KF::STATEMENT_BRANCHES | KF::STATEMENT | KF::RVALUE;
-  case K::C:
-    return KF::RVALUE;
+    return KF::STATEMENT | KF::RVALUE;
   case K::TOP:
-    return KF::STATEMENT_BRANCHES | KF::NONE; // TOP
+    return KF::NONE; // TOP
   case K::LABEL:
     return KF::STATEMENT;
-  case K::NO_NAME:
-    return KF::NAME;
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -2189,17 +2171,6 @@ getSituatedAscribeKeyword(rq::Keyword keyword) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInternal(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::INTERNAL);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasStatementBranches(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasValueBranches(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasNone(flags, rq::KeywordFlags::STATEMENT_BRANCHES);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable(rq::Keyword keyword) {
@@ -3806,12 +3777,6 @@ struct Expression final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInternal() const {
     return rq::getIsInternal(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasStatementBranches() const {
-    return rq::getHasStatementBranches(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasValueBranches() const {
-    return rq::getHasValueBranches(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
     return rq::getSituatedAscribeKeyword(this->getKeyword());

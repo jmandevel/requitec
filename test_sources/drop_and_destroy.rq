@@ -1,6 +1,6 @@
 [import "std"];
 
-[class WithoutDestructor,];
+[class WithoutDestructor];
 
 [class WithDestructor,
     [destructor

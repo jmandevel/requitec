@@ -402,7 +402,7 @@ bool Situator::situateTree(rq::Situation situation,
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
     [[fallthrough]];
-  case K::NAMED_PARAMETERS_BEGIN:
+  case K::NONPOSITIONAL_PARAMETERS_BEGIN:
     [[fallthrough]];
   case K::LOCKED_PARAMETERS_BEGIN:
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -652,8 +652,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED_ADDRESS:
     [[fallthrough]];
-  case K::CHAR:
-    [[fallthrough]];
   case K::ASCII:
     [[fallthrough]];
   case K::UTF8:
@@ -692,11 +690,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::MATCH:
     [[fallthrough]];
-  case K::INLINE_MATCH:
-    [[fallthrough]];
   case K::SWITCH:
-    [[fallthrough]];
-  case K::INLINE_SWITCH:
     is_ok = this->situateFirstHeaderNaryStatementBranches(situation, expression,
                                                           S::RVALUE);
     break;
@@ -729,11 +723,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::SCOPE:
     [[fallthrough]];
-  case K::INLINE_SCOPE:
-    [[fallthrough]];
   case K::BLOCK:
-    [[fallthrough]];
-  case K::INLINE_BLOCK:
     is_ok = this->situateNaryValueBranches(situation, expression, 0, situation);
     break;
 
@@ -840,14 +830,8 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::C:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
   case K::TOP:
     is_ok = this->situateNaryStatementBranches(expression);
-    break;
-  case K::NO_NAME:
-    is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
   // HINTS
@@ -1275,8 +1259,8 @@ bool Situator::situateTree(rq::Situation situation,
 
 bool Situator::situateValueBranch(rq::Situation branch_situation,
                                   rq::Expression &branch) {
-  if (branch.getIsHeader()) {
-    this->getContext().logErrorUnexpectedHeaderExpression(branch);
+  if (!branch.getIsHeader()) {
+    this->getContext().logErrorExpectedHeaderExpression(branch);
     return false;
   }
   if (branch.getIsChainLink()) {
@@ -1565,7 +1549,7 @@ bool Situator::situateNaryFromFirstParameterBranches(
       is_ok = false;
     }
     switch (parameter.getKeyword()) {
-    case rq::Keyword::NAMED_PARAMETERS_BEGIN:
+    case rq::Keyword::NONPOSITIONAL_PARAMETERS_BEGIN:
       if (!parameter.getHasNext()) {
         is_ok = false;
         this->getContext().logErrorNamedBeginIsLast(expression);

@@ -6,9 +6,9 @@
     ];
 ];
 
-[class Dog,];
+[class Dog];
 
-[class Cat,];
+[class Cat];
 
 [class Rat,
     [method squeak, ()[void]=>,

@@ -1,13 +1,10 @@
 
 
 [opaque][mangle]::malloc
-[function 
-    [no_name], // has no name so must use mangled name from c table
-    (size:[unsigned_address]<)?\[var][void],
-];
+[function malloc, (size:[unsigned_address]<)?\[var][void]];
 
 [opaque][mangle]::free
-[function [no_name], (ptr:?\var[void]<)[void],];
+[function free, (ptr:?\var[void]<)[void]];
 
 [template]::{Type:[symbol]<}
 [constraint]::(Type.[is_type])
@@ -20,7 +17,7 @@
     [function create, 
         (placement:Placement<)\[var]UniquePtr{Type},
 
-        ptr := [c].malloc(Type.[byte_size]).[cast ?\[var]Type];
+        ptr := ..malloc(Type.[byte_size]).[cast ?\[var]Type];
         [result] := UniquePtr{Type}(
                 ptr=ptr
             );   
@@ -29,7 +26,7 @@
 
     [destructor         
         [this].ptr.[content].[inplace_destroy];
-        [c].free([this].ptr);
+        ..free([this].ptr);
         [this].[drop];
     ];
 

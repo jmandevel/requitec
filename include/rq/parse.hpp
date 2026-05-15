@@ -229,6 +229,26 @@ struct PrecedenceFactory final {
   }
 };
 
+struct ParseBranchesResult final {
+  rq::Expression* _first_ptr;
+  bool _found_parameter_mark;
+
+  RQ_ALWAYS_INLINE ParseBranchesResult(rq::Expression* first_ptr, bool found_parameter_mark)
+    : _first_ptr(first_ptr), _found_parameter_mark(found_parameter_mark) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasFirstBranch() const {
+    return this->_first_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getFirstBranch() const {
+    return rq::dereferencePtr(this->_first_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression& getFirstBranch() {
+    return rq::dereferencePtr(this->_first_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundParameterMark() const {
+    return this->_found_parameter_mark;
+  }
+};
+
 struct RequiteParser final {
   using Self = rq::RequiteParser;
 
@@ -280,8 +300,7 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence2(bool is_type_ascribed);
   [[nodiscard]] rq::Expression &parsePrecedence1(bool is_type_ascribed);
   [[nodiscard]] rq::Expression &parsePrecedence0();
-  [[nodiscard]] bool parseValueBranches(rq::Expression &expression,
-                                        rq::TokenKind end);
+  [[nodiscard]] rq::ParseBranchesResult parseBranches(rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
   [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
   [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
