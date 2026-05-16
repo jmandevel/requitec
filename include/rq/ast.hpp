@@ -148,6 +148,7 @@ enum class Keyword : std::uint32_t {
   POSITIONAL_PARAMETERS_END,
   NONPOSITIONAL_PARAMETERS_BEGIN,
   LOCKED_PARAMETERS_BEGIN,
+  NONAME,
 
   // BRACES
   INSTANTIATE_TUPLE,
@@ -720,6 +721,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_nonpositional_parameters_begin";
   case K::LOCKED_PARAMETERS_BEGIN:
     return "_locked_parameters_begin";
+  case K::NONAME:
+    return "noname";
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
@@ -1576,7 +1579,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
   case K::LOCKED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
-
+  case K::NONAME:
+    return KF::NAME;
+  
   // BRACES
   case K::INSTANTIATE_TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
