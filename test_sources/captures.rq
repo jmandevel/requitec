@@ -5,9 +5,8 @@
 ];
 
 // Note that the {} enclosing value passed as capture value has no parameter marks!
-// This is a special value called a "capture tuple" that can only be passed to a capture.
-// All members of capture tuple must be constant.
-// the compiler enforces that capture tuples can have only up to one unamed property for any given type.
+// This is a tuple value. All members of capture tuple must be constant.
+// the compiler enforces that tuples can have only up to one unamed property for any given type.
 // if this rule is not followed, this results in a compiler error.
 [global][capture]::{ [public] Foo() }
 var0 := 1;

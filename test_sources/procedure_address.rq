@@ -31,7 +31,17 @@
     // procedure pointers can be written explicitly
     // note that there is no need to specify names for parameters that are only positional and never named
     // note that parameters that can be named must have name specified
+    // the actual order of the parameters does matter!
     other_ptr :?([single], positional_and_named:[single], named:[single], locked:[single])[void]= ..myFunction.[procedure_address];
+
+    // you can use signature_cast reflection to cast to different ptr type
+    // arguments must be in the same order
+    remix_ptr :?(> a:[single], b:[single], c:[single], d:[single])[void]= ..myFunction.[procedure_address].[signature_cast];
+
+    // you can make positional passing order different than the underlying order by using [position] attribute
+    // note that any arguments with [variadic] attribute are always in the last position even if no position is specified
+    // for the following, a is positional_and_named, b is positional, c is locked, and d is named
+    reordered_ptr :?([position]::1 a:[single], [position]::0 b:[single], [position]::3 c:[single], [position]::2 d:[single]<)[void]= ..myFunction.[procedure_address].[signature_cast];
 
     [result] := 0;  
 ];

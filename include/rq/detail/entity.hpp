@@ -1181,6 +1181,22 @@ RQ_ALWAYS_INLINE WeightType::WeightType()
   return entity.getOpcode() == rq::Opcode::SY_WEIGHT_TYPE;
 }
 
+RQ_ALWAYS_INLINE RequireType::RequireType()
+    : ExpressionAttributeType(rq::Opcode::SY_REQUIRE_TYPE) {}
+
+[[nodiscard]] inline bool RequireType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_REQUIRE_TYPE;
+}
+
+RQ_ALWAYS_INLINE EnsureType::EnsureType()
+    : ExpressionAttributeType(rq::Opcode::SY_ENSURE_TYPE) {}
+
+[[nodiscard]] inline bool EnsureType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ENSURE_TYPE;
+}
+
 RQ_ALWAYS_INLINE TypeAttributeType::TypeAttributeType(rq::Opcode opcode)
     : SimpleSymbol(opcode) {}
 
@@ -1221,22 +1237,6 @@ RQ_ALWAYS_INLINE NullTerminateType::NullTerminateType()
 NullTerminateType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_NULL_TERMINATE_TYPE;
-}
-
-RQ_ALWAYS_INLINE RequireType::RequireType()
-    : TypeAttributeType(rq::Opcode::SY_REQUIRE_TYPE) {}
-
-[[nodiscard]] inline bool RequireType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getOpcode() == rq::Opcode::SY_REQUIRE_TYPE;
-}
-
-RQ_ALWAYS_INLINE EnsureType::EnsureType()
-    : TypeAttributeType(rq::Opcode::SY_ENSURE_TYPE) {}
-
-[[nodiscard]] inline bool EnsureType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getOpcode() == rq::Opcode::SY_ENSURE_TYPE;
 }
 
 RQ_ALWAYS_INLINE ReflectiveType::ReflectiveType(rq::Opcode opcode)

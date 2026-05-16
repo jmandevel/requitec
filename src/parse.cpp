@@ -921,7 +921,7 @@ rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
 rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const rq::Token first_token = this->getRanger().getToken();
   rq::Expression &brace = this->getContext().acquireExpression();
-  brace.setKeyword(rq::Keyword::INSTANTIATE_CAPTURE_TUPLE);
+  brace.setKeyword(rq::Keyword::INSTANTIATE_TUPLE);
   brace.setSource(first_token);
   this->getRanger().incrementToken(1);
   const bool parameter_mark_found =

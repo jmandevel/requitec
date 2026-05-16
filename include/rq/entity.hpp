@@ -63,14 +63,14 @@ enum class Opcode {
   SY_TEMPLATE_TYPE,
   SY_CONSTRAINT_TYPE,
   SY_WEIGHT_TYPE,
-
+  SY_REQUIRE_TYPE,
+  SY_ENSURE_TYPE,
+  
   // TYPE ATTRIBUTES
   SY_VAR_TYPE,
   SY_VOLATILE_TYPE,
   SY_ATOMIC_TYPE,
   SY_NULL_TERMINATE_TYPE,
-  SY_REQUIRE_TYPE,
-  SY_ENSURE_TYPE,
 
   // REFLECTIVE
   SY_SYMBOL_TYPE,
@@ -144,10 +144,21 @@ enum class Opcode {
   SY_SIGNATURE,
   SY_LAYOUT,
 
-  // ARGUMENT LISTS
-  SY_SIGNATURE_TYPE,
-  SY_LAYOUT_TYPE,
+  // TUPLE PARAMETERS
+  SY_TUPLE_PARAMETER,
 
+  // TUPLES
+  SY_TUPLE_TYPE,
+
+  // FUNCTION TYPE PARAMETERS
+  SY_SIGNATURE_TYPE_PARAMETER,
+
+  // FUNCTION TYPES
+  SY_SIGNATURE_TYPE,
+  
+  // SIGNATURE TYPE
+  SY_SIGNATURE_TYPE,
+  
   // PLACEMENTS
   SY_PLACEMENT,
 
@@ -381,13 +392,13 @@ struct Entity;
         struct DepreciateType;
         struct StableAddressType;
         struct VariadicType;
+        struct RequireType;
+        struct EnsureType;
       struct TypeAttributeType;
         struct VarType;
         struct VolatileType;
         struct AtomicType;
-        struct NullTerminateTyp;
-        struct RequireType;
-        struct EnsureType;
+        struct NullTerminateType;
       struct ReflectiveType;
         struct SymbolType;
         struct ExpressionType;
@@ -867,6 +878,22 @@ struct WeightType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct RequireType final : public rq::ExpressionAttributeType {
+  using Self = rq::RequireType;
+
+  explicit RQ_ALWAYS_INLINE RequireType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct EnsureType final : public rq::ExpressionAttributeType {
+  using Self = rq::EnsureType;
+
+  explicit RQ_ALWAYS_INLINE EnsureType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct TypeAttributeType : public rq::SimpleSymbol {
   using Self = rq::TypeAttributeType;
 
@@ -903,22 +930,6 @@ struct NullTerminateType final : public rq::TypeAttributeType {
   using Self = rq::NullTerminateType;
 
   explicit RQ_ALWAYS_INLINE NullTerminateType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct RequireType final : public rq::TypeAttributeType {
-  using Self = rq::RequireType;
-
-  explicit RQ_ALWAYS_INLINE RequireType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct EnsureType final : public rq::TypeAttributeType {
-  using Self = rq::EnsureType;
-
-  explicit RQ_ALWAYS_INLINE EnsureType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

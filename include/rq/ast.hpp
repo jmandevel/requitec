@@ -91,6 +91,8 @@ enum class Keyword : std::uint32_t {
   CAST_OF,
   BITWISE_CAST,
   BITWISE_CAST_OF,
+  SIGNATURE_CAST,
+  SIGNATURE_CAST_OF,
 
   // BITWISE
   BITWISE_OR,
@@ -148,7 +150,7 @@ enum class Keyword : std::uint32_t {
   LOCKED_PARAMETERS_BEGIN,
 
   // BRACES
-  INSTANTIATE_CAPTURE_TUPLE,
+  INSTANTIATE_TUPLE,
   INSTANTIATE_LAYOUT,
   INSTANTIATE_TEMPLATE,
 
@@ -334,6 +336,9 @@ enum class Keyword : std::uint32_t {
   // variadic_type
   NO_VARIADIC,
   VARIADIC,
+  // position_type
+  NO_POSITION,
+  POSITION,
   // template_type
   NO_TEMPLATE,
   TEMPLATE,
@@ -381,6 +386,7 @@ enum class Keyword : std::uint32_t {
   DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
   STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
   VARIADIC_TYPE,       // no_variadic vs variadic
+  POSITION_TYPE,       // no_position vs position
   TEMPLATE_TYPE,       // no_template vs template
   CONSTRAINT_TYPE,     // no_constraint vs constraint
   WEIGHT_TYPE,         // no_weight vs weight
@@ -608,6 +614,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "bitwise_cast";
   case K::BITWISE_CAST_OF:
     return "_bitwise_cast_of";
+  case K::SIGNATURE_CAST:
+    return "signature_cast";
+  case K::SIGNATURE_CAST_OF:
+    return "_signature_cast_of";
 
   // BITWISE
   case K::BITWISE_OR:
@@ -712,8 +722,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_locked_parameters_begin";
 
   // BRACES
-  case K::INSTANTIATE_CAPTURE_TUPLE:
-    return "_instantiate_capture_tuple";
+  case K::INSTANTIATE_TUPLE:
+    return "_instantiate_tuple";
   case K::INSTANTIATE_LAYOUT:
     return "_instantiate_layout";
   case K::INSTANTIATE_TEMPLATE:
@@ -1454,6 +1464,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::BITWISE_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::SIGNATURE_CAST:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::SIGNATURE_CAST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
 
   // BITWISE
   case K::BITWISE_OR:
@@ -1558,7 +1572,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
 
   // BRACES
-  case K::INSTANTIATE_CAPTURE_TUPLE:
+  case K::INSTANTIATE_TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::INSTANTIATE_LAYOUT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2390,6 +2404,8 @@ getDescription(rq::Situation situation) {
     return K::CAST_OF;
   case K::BITWISE_CAST:
     return K::BITWISE_CAST_OF;
+  case K::SIGNATURE_CAST:
+    return K::SIGNATURE_CAST_OF;
   // MEMORY
   case K::CONTENT:
     return K::CONTENT_OF;
