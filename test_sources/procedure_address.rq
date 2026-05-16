@@ -1,0 +1,37 @@
+[function myFunction, ( 
+        positional:[single]=0.0,
+        >positional_and_named:[single]=0.0<,
+        named:[single]=0.0,
+        |locked:[single]=0.0
+    )[void],
+    [result] := positional + positional_and_named + named + locked;
+];
+
+[entry
+    // calling directly from ..myFunction
+    // default values are used
+    // locked parameters cannot be set
+    // parameter marks apply
+    a := ..myFunction();
+    b := ..myFunction(1.0);
+    b := ..myFunction(1.0, 2.0);
+    c := ..myFunction(1.0, positional_and_named);
+    d := ..myFunction(1.0, named=2.0);
+    e := ..myFunction(1.0, named=2.0, positional_and_named=3.0)
+    f := ..myFunction(1.0, 2.0, named=3.0);
+    g := ..myFunction(1.0, positional_and_named=2.0, named=3.0)
+
+    // call from a pointer to ..myFunction
+    ptr := ..myFunction.[procedure_address];
+    // default values are forgotten
+    // locked parameters are unlocked
+    // positional and name passing rules still respected
+    h := ptr(1.0, 2.0, named=3.0, locked=4.0);
+
+    // procedure pointers can be written explicitly
+    // note that there is no need to specify names for parameters that are only positional and never named
+    // note that parameters that can be named must have name specified
+    other_ptr :?([single], positional_and_named:[single], named:[single], locked:[single])[void]= ..myFunction.[procedure_address];
+
+    [result] := 0;  
+];

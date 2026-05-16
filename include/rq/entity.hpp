@@ -141,8 +141,12 @@ enum class Opcode {
   SY_SIGNATURE_PARAMETER,
 
   // PARAMETER LISTS
-  SY_SIGNATURE_TYPE,
+  SY_SIGNATURE,
   SY_LAYOUT,
+
+  // ARGUMENT LISTS
+  SY_SIGNATURE_TYPE,
+  SY_LAYOUT_TYPE,
 
   // PLACEMENTS
   SY_PLACEMENT,
@@ -435,8 +439,11 @@ struct Entity;
           struct LayoutParameter;
           struct SignatureParameter;
     struct ParameterList;
-      struct SignatureType;
+      struct Signature;
       struct Layout;
+    struct ArgumentList;
+      struct SignatureType;
+      struct LayoutType;
     struct Placement;
     struct Composition;
     struct Synonym;
@@ -1663,15 +1670,17 @@ struct ConstParameterIterator final {
 struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
-  unsigned _parameter_count{0};
-  unsigned _positional_parameter_count{0};
-  unsigned _nonpositional_parameter_count{0};
-  unsigned _locked_parameter_count{0};
+  unsigned _parameter_count;
+  unsigned _positional_parameter_count;
+  unsigned _nonpositional_parameter_count;
+  unsigned _locked_parameter_count;
   rq::Parameter *_first_parameter_ptr;
 
-  explicit inline ParameterList(rq::Opcode opcode,
-                                rq::ParameterListFactory &factory,
-                                rq::BumpPtrAllocator &allocator);
+  explicit inline ParameterList(rq::Opcode opcode, unsigned parameter_count,
+                                unsigned positional_parameter_count,
+                                unsigned nonpositional_parameter_count,
+                                unsigned locked_parameter_count,
+                                rq::Parameter *first_parameter_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
@@ -1754,43 +1763,72 @@ struct ConstSignatureParameterIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
-struct SignatureType final : public rq::ParameterList,
-                             public llvm::FoldingSetNode {
-  using Self = rq::SignatureType;
+struct Signature final : public rq::ParameterList {
+  using Self = rq::Signature;
 
   rq::SymbolConstant *_return_type_ptr;
   rq::SymbolConstant *_reciever_type_ptr;
-  const rq::Expression *_precondition_expression_ptr;
-  const rq::Expression *_postcondition_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE
-  SignatureType(rq::ParameterListFactory &factory,
-                rq::SymbolConstant &return_type,
-                rq::SymbolConstant &reciever_type,
-                const rq::Expression &precondition_expression,
-                const rq::Expression &postcondition_expression);
+  explicit RQ_ALWAYS_INLINE Signature(unsigned parameter_count,
+                                      unsigned positional_parameter_count,
+                                      unsigned nonpositional_parameter_count,
+                                      unsigned locked_parameter_count,
+                                      rq::Parameter *first_parameter_ptr,
+                                      rq::SymbolConstant &return_type,
+                                      rq::SymbolConstant *reciever_type_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getReturnType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getReturnType();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPreconditionExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPostconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRecieverType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+  getRecieverType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getRecieverType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Layout final : public rq::ParameterList {
+  using Self = rq::Layout;
+
+  explicit RQ_ALWAYS_INLINE Layout(unsigned parameter_count,
+                                   unsigned positional_parameter_count,
+                                   unsigned nonpositional_parameter_count,
+                                   unsigned locked_parameter_count,
+                                   rq::Parameter *first_parameter_ptr);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Argument final : public llvm::FoldingSetNode {
+  using Self = rq::Argument;
+
+  llvm::StringRef name;
+  bool _is_variadic : 1;
+  rq::SymbolConstant *_type_ptr;
+
+  explicit RQ_ALWAYS_INLINE Argument(llvm::StringRef name, bool is_variadic, rq::SymbolConstant& type);
+  
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositionPassable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypePassable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamePassable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct Layout final : public rq::ParameterList, public llvm::FoldingSetNode {
-  using Self = rq::Layout;
+struct ArgumentList : public rq::Symbol {};
 
-  explicit RQ_ALWAYS_INLINE Layout();
+struct SignatureType final : rq::ArgumentList, public llvm::FoldingSetNode {
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+    inline void Profile(llvm::FoldingSetNodeID &id) const;
+};
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+struct LayoutList final : rq::ArgumentList, public llvm::FoldingSetNode {
+
+    inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
@@ -2375,19 +2413,27 @@ struct Destructor final : public rq::GlobalDeclaration {
 struct Procedure : public rq::GlobalDeclaration {
   using Self = rq::Procedure;
 
-  rq::SignatureType *_signature_ptr{nullptr};
+  rq::Signature *_signature_ptr{nullptr};
   rq::Instruction *_instruction_ptr{nullptr};
+  const rq::Expression *precondition_expression_ptr;
+  const rq::Expression *postcondition_expression_ptr;
 
   explicit RQ_ALWAYS_INLINE Procedure(rq::Opcode opcode);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSignature() const;
-  RQ_ALWAYS_INLINE void setSignature(rq::SignatureType &signature);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType &getSignature() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType &getSignature();
+  RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature &getSignature() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature &getSignature();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const;
   RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPreconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getPreconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getPostconditionExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

@@ -409,7 +409,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // BRACES
-  case K::INSTANTIATE_TUPLE:
+  case K::INSTANTIATE_CAPTURE_TUPLE:
     if (situation == S::RVALUE && !expression.getHasBranch()) {
       expression.changeKeyword(K::INSTANTIATE_LAYOUT);
       is_ok = true;

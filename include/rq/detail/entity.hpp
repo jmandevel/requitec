@@ -281,8 +281,8 @@ namespace rq {
            OF::SY_PARAMETER | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // PARAMETER LISTS
-  case O::SY_SIGNATURE_TYPE:
-    return OF::SYMBOL | OF::SY_PARAMETER_LIST | OF::SY_IS_TYPE;
+  case O::SY_SIGNATURE:
+    return OF::SYMBOL | OF::SY_PARAMETER_LIST;
   case O::SY_LAYOUT:
     return OF::SYMBOL | OF::SY_PARAMETER_LIST;
 
@@ -2163,6 +2163,7 @@ ParameterListFactory::getHostingTable() {
     return false;
   }
   this->_state &= ~(rq::ParameterFlags::LOCKED_NONE_MASK);
+  return true;
 }
 
 RQ_ALWAYS_INLINE void ParameterListFactory::addParameter(
@@ -2260,41 +2261,16 @@ ConstParameterIterator::operator->() const {
   return this->_parameter_ptr != nullptr;
 }
 
-inline ParameterList::ParameterList(rq::Opcode opcode,
-                                    rq::ParameterListFactory &factory,
-                                    rq::BumpPtrAllocator &allocator)
-    : Symbol(opcode) {
-  RQ_ASSERT(rq::getIsParameterList(opcode), "not parameter list");
-  rq::Opcode parameter_opcode = (opcode == rq::Opcode::SY_LAYOUT)
-                                    ? rq::Opcode::SY_LAYOUT_PARAMETER
-                                    : rq::Opcode::SY_SIGNATURE_PARAMETER;
-  rq::Parameter *previous_ptr = nullptr;
-  for (rq::ParameterInfo &info : factory._infos) {
-    rq::Parameter &parameter = allocator.allocateValue<rq::Parameter>(
-        parameter_opcode, info.getName(), info.getNameExpressionPtr(),
-        factory.getContainingTable(), factory.getHostingTable(),
-        info.getExpressionFlags(), info.getParameterFlags(),
-        info.getTypeExpression(), info.getDefaultValueExpressionPtr());
-    this->_parameter_count++;
-    if (parameter.getIsPositional()) {
-      this->_positional_parameter_count++;
-    }
-    if (parameter.getIsNonpositional()) {
-      this->_nonpositional_parameter_count++;
-    }
-    if (parameter.getIsLocked()) {
-      this->_locked_parameter_count++;
-    }
-    if (this->_first_parameter_ptr == nullptr) {
-      this->_first_parameter_ptr = &parameter;
-    }
-    if (previous_ptr != nullptr) {
-      rq::Parameter &previous = rq::dereferencePtr(previous_ptr);
-      previous.setNext(parameter);
-    }
-    previous_ptr = &parameter;
-  }
-}
+inline ParameterList::ParameterList(rq::Opcode opcode, unsigned parameter_count,
+                                    unsigned positional_parameter_count,
+                                    unsigned nonpositional_parameter_count,
+                                    unsigned locked_parameter_count,
+                                    rq::Parameter *first_parameter_ptr)
+    : Symbol(opcode), _parameter_count(parameter_count),
+      _positional_parameter_count(positional_parameter_count),
+      _nonpositional_parameter_count(nonpositional_parameter_count),
+      _locked_parameter_count(locked_parameter_count),
+      _first_parameter_ptr(first_parameter_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned
 ParameterList::getParameterCount() const {
@@ -2454,6 +2430,60 @@ ConstSignatureParameterIterator::operator->() const {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 ConstSignatureParameterIterator::getIsDone() const {
   return this->_parameter_ptr != nullptr;
+}
+
+RQ_ALWAYS_INLINE Signature::Signature(unsigned parameter_count,
+                                      unsigned positional_parameter_count,
+                                      unsigned nonpositional_parameter_count,
+                                      unsigned locked_parameter_count,
+                                      rq::Parameter *first_parameter_ptr,
+                                      rq::SymbolConstant &return_type,
+                                      rq::SymbolConstant *reciever_type_ptr)
+    : ParameterList(rq::Opcode::SY_SIGNATURE, parameter_count,
+                    positional_parameter_count, nonpositional_parameter_count,
+                    locked_parameter_count, first_parameter_ptr),
+      _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+Signature::getReturnType() const {
+  return rq::dereferencePtr(this->_return_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &Signature::getReturnType() {
+  return rq::dereferencePtr(this->_return_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Signature::getHasRecieverType() const {
+  return this->_reciever_type_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+Signature::getRecieverType() const {
+  return rq::dereferencePtr(this->_reciever_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
+Signature::getRecieverType() {
+  return rq::dereferencePtr(this->_reciever_type_ptr);
+}
+
+[[nodiscard]] inline bool Signature::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SIGNATURE;
+}
+
+RQ_ALWAYS_INLINE Layout::Layout(unsigned parameter_count,
+                                unsigned positional_parameter_count,
+                                unsigned nonpositional_parameter_count,
+                                unsigned locked_parameter_count,
+                                rq::Parameter *first_parameter_ptr)
+    : ParameterList(rq::Opcode::SY_LAYOUT, parameter_count,
+                    positional_parameter_count, nonpositional_parameter_count,
+                    locked_parameter_count, first_parameter_ptr) {}
+
+[[nodiscard]] inline bool Layout::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_LAYOUT;
 }
 
 } // namespace rq

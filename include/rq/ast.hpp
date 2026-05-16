@@ -108,6 +108,8 @@ enum class Keyword : std::uint32_t {
   CONTENT_OF,
   ADDRESS,
   ADDRESS_OF,
+  PROCEDURE_ADDRESS,
+  PROCEDURE_ADDRESS_OF,
   BORROW,
   BORROW_OF,
   DATA_ADDRESS,
@@ -146,7 +148,7 @@ enum class Keyword : std::uint32_t {
   LOCKED_PARAMETERS_BEGIN,
 
   // BRACES
-  INSTANTIATE_TUPLE,
+  INSTANTIATE_CAPTURE_TUPLE,
   INSTANTIATE_LAYOUT,
   INSTANTIATE_TEMPLATE,
 
@@ -341,6 +343,12 @@ enum class Keyword : std::uint32_t {
   // weight_type
   NO_WEIGHT,
   WEIGHT,
+  // require_type
+  NO_REQUIRE,
+  REQUIRE,
+  // ensure_type
+  NO_ENSURE,
+  ENSURE,
 
   // TYPE ATTRIBUTES
   // var_type
@@ -356,12 +364,6 @@ enum class Keyword : std::uint32_t {
   // null_terminate_type
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  // require_type
-  NO_REQUIRE,
-  REQUIRE,
-  // ensure_type
-  NO_ENSURE,
-  ENSURE,
 
   // EXPRESSION ATTRIBUTE TYPES
   ANCHOR_TYPE,         // no_anchor vs anchor
@@ -382,14 +384,14 @@ enum class Keyword : std::uint32_t {
   TEMPLATE_TYPE,       // no_template vs template
   CONSTRAINT_TYPE,     // no_constraint vs constraint
   WEIGHT_TYPE,         // no_weight vs weight
+  REQUIRE_TYPE,        // no_require vs require
+  ENSURE_TYPE,         // no_ensure vs ensure
 
   // TYPE ATTRIBUTE TYPES
   VAR_TYPE,            // no_var vs var vs partial_var
   VOLATILE_TYPE,       // no_volatile vs volatile
   ATOMIC_TYPE,         // no_atomic vs atomic
   NULL_TERMINATE_TYPE, // no_null_terminate vs null_terminate
-  REQUIRE_TYPE,        // no_require vs require
-  ENSURE_TYPE,         // no_ensure vs ensure
 
   // MACROS
   QUOTE,
@@ -636,6 +638,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "address";
   case K::ADDRESS_OF:
     return "_address_of";
+  case K::PROCEDURE_ADDRESS:
+    return "procedure_address";
+  case K::PROCEDURE_ADDRESS_OF:
+    return "_procedure_address_of";
   case K::BORROW:
     return "borrow";
   case K::BORROW_OF:
@@ -706,8 +712,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_locked_parameters_begin";
 
   // BRACES
-  case K::INSTANTIATE_TUPLE:
-    return "_instantiate_tuple";
+  case K::INSTANTIATE_CAPTURE_TUPLE:
+    return "_instantiate_capture_tuple";
   case K::INSTANTIATE_LAYOUT:
     return "_instantiate_layout";
   case K::INSTANTIATE_TEMPLATE:
@@ -1022,6 +1028,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_weight";
   case K::WEIGHT:
     return "weight";
+  case K::NO_REQUIRE:
+    return "no_require";
+  case K::REQUIRE:
+    return "require";
+  case K::NO_ENSURE:
+    return "no_ensure";
+  case K::ENSURE:
+    return "ensure";
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
@@ -1042,14 +1056,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
-  case K::NO_REQUIRE:
-    return "no_require";
-  case K::REQUIRE:
-    return "require";
-  case K::NO_ENSURE:
-    return "no_ensure";
-  case K::ENSURE:
-    return "ensure";
 
   // EXPRESSION ATTRIBUTE TYPES
   case K::ANCHOR_TYPE:
@@ -1088,6 +1094,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "constraint_type";
   case K::WEIGHT_TYPE:
     return "weight_type";
+  case K::REQUIRE_TYPE:
+    return "require_type";
+  case K::ENSURE_TYPE:
+    return "ensure_type";
 
   // TYPE ATTRIBUTE TYPES
   case K::VAR_TYPE:
@@ -1098,10 +1108,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "atomic_type";
   case K::NULL_TERMINATE_TYPE:
     return "null_terminate_type";
-  case K::REQUIRE_TYPE:
-    return "require_type";
-  case K::ENSURE_TYPE:
-    return "ensure_type";
 
   // EXPRESSIONS
   case K::QUOTE:
@@ -1478,6 +1484,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::PROCEDURE_ADDRESS:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::PROCEDURE_ADDRESS_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::BORROW:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::BORROW_OF:
@@ -1548,7 +1558,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::PARAMETER;
 
   // BRACES
-  case K::INSTANTIATE_TUPLE:
+  case K::INSTANTIATE_CAPTURE_TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::INSTANTIATE_LAYOUT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1702,7 +1712,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::VARIADIC_ARGUMENTS:
+  case K::VARIADIC_ARGUMENTS_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES
@@ -1867,6 +1877,14 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::WEIGHT:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_REQUIRE:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::REQUIRE:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_ENSURE:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::ENSURE:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
@@ -1886,14 +1904,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NO_NULL_TERMINATE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NULL_TERMINATE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_REQUIRE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::REQUIRE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_ENSURE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::ENSURE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
@@ -1933,6 +1943,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::WEIGHT_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::REQUIRE_TYPE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::ENSURE_TYPE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
   case K::VAR_TYPE:
@@ -1942,10 +1956,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::ATOMIC_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NULL_TERMINATE_TYPE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::REQUIRE_TYPE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ENSURE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // EXPRESSIONS
@@ -2385,6 +2395,8 @@ getDescription(rq::Situation situation) {
     return K::CONTENT_OF;
   case K::ADDRESS:
     return K::ADDRESS_OF;
+  case K::PROCEDURE_ADDRESS:
+    return K::PROCEDURE_ADDRESS_OF;
   case K::BORROW:
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
@@ -2714,7 +2726,13 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   CONSTRAINT,
   // weight_type
   NO_WEIGHT,
-  WEIGHT
+  WEIGHT,
+  // require_type
+  NO_REQUIRE,
+  REQUIRE,
+  // ensure_type
+  NO_ENSURE,
+  ENSURE
 };
 
 [[nodiscard]] inline llvm::StringRef
@@ -2802,6 +2820,14 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_weight";
   case EA::WEIGHT:
     return "weight";
+  case EA::NO_REQUIRE:
+    return "no_require";
+  case EA::REQUIRE:
+    return "require";
+  case EA::NO_ENSURE:
+    return "no_ensure";
+  case EA::ENSURE:
+    return "ensure";
   }
   RQ_UNREACHABLE();
 }
@@ -2952,7 +2978,13 @@ enum class ExpressionFlags : std::uint_fast32_t {
   CONSTRAINT_MASK = CONSTRAINT,
 
   WEIGHT = rq::getBit(19),
-  WEIGHT_MASK = WEIGHT
+  WEIGHT_MASK = WEIGHT,
+
+  REQUIRE = rq::getBit(20),
+  REQUIRE_MASK = REQUIRE,
+
+  ENSURE = rq::getBit(21),
+  ENSURE_MASK = ENSURE
 };
 
 template <> struct is_flags<rq::ExpressionFlags> : std::true_type {};
@@ -3043,6 +3075,14 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::WEIGHT:
     return EF::WEIGHT;
+  case EA::NO_REQUIRE:
+    return EF::NONE;
+  case EA::REQUIRE:
+    return EF::REQUIRE;
+  case EA::NO_ENSURE:
+    return EF::NONE;
+  case EA::ENSURE:
+    return EF::ENSURE;
   }
   return EF::NONE;
 }
@@ -3067,6 +3107,8 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   TEMPLATE_TYPE,       // no_template vs template
   CONSTRAINT_TYPE,     // no_constraint vs constraint
   WEIGHT_TYPE,         // no_weight vs weight
+  REQUIRE_TYPE,        // no_require vs require
+  ENSURE_TYPE          // no_ensure vs ensure
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
@@ -3110,6 +3152,10 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
     return "constraint_type";
   case EAK::WEIGHT_TYPE:
     return "weight_type";
+  case EAK::REQUIRE_TYPE:
+    return "require_type";
+  case EAK::ENSURE_TYPE:
+    return "ensure_type";
   }
   RQ_UNREACHABLE();
 }
@@ -3199,6 +3245,14 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::WEIGHT:
     return EAK::WEIGHT_TYPE;
+  case EA::NO_REQUIRE:
+    [[fallthrough]];
+  case EA::REQUIRE:
+    return EAK::REQUIRE_TYPE;
+  case EA::NO_ENSURE:
+    [[fallthrough]];
+  case EA::ENSURE:
+    return EAK::ENSURE_TYPE;
   }
   RQ_UNREACHABLE();
 }
@@ -3251,11 +3305,7 @@ enum class TypeAttribute : std::uint_fast8_t {
   NO_ATOMIC,
   ATOMIC,
   NO_NULL_TERMINATE,
-  NULL_TERMINATE,
-  NO_REQUIRE,
-  REQUIRE,
-  NO_ENSURE,
-  ENSURE
+  NULL_TERMINATE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
@@ -3282,14 +3332,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return "no_null_terminate";
   case TA::NULL_TERMINATE:
     return "null_terminate";
-  case TA::NO_REQUIRE:
-    return "no_require";
-  case TA::REQUIRE:
-    return "require";
-  case TA::NO_ENSURE:
-    return "no_ensure";
-  case TA::ENSURE:
-    return "ensure";
   }
   RQ_UNREACHABLE();
 }
@@ -3317,14 +3359,6 @@ enum class TypeAttribute : std::uint_fast8_t {
     return TA::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
     return TA::NULL_TERMINATE;
-  case K::NO_REQUIRE:
-    return TA::NO_REQUIRE;
-  case K::REQUIRE:
-    return TA::REQUIRE;
-  case K::NO_ENSURE:
-    return TA::NO_ENSURE;
-  case K::ENSURE:
-    return TA::ENSURE;
   default:
     break;
   }
@@ -3346,12 +3380,6 @@ enum class TypeFlags : std::uint_fast8_t {
 
   NULL_TERMINATE = rq::getBit(4),
   NULL_TERMINATE_MASK = NULL_TERMINATE,
-
-  REQUIRE = rq::getBit(5),
-  REQUIRE_MASK = REQUIRE,
-
-  ENSURE = rq::getBit(6),
-  ENSURE_MASK = ENSURE
 };
 
 template <> struct is_flags<TypeFlags> : std::true_type {};
@@ -3381,14 +3409,6 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
     return TF::NONE;
   case TA::NULL_TERMINATE:
     return TF::NULL_TERMINATE;
-  case TA::NO_REQUIRE:
-    return TF::NONE;
-  case TA::REQUIRE:
-    return TF::REQUIRE;
-  case TA::NO_ENSURE:
-    return TF::NONE;
-  case TA::ENSURE:
-    return TF::ENSURE;
   }
   RQ_UNREACHABLE();
 }
@@ -3398,9 +3418,7 @@ enum class TypeAttributeKind : std::uint_fast8_t {
   VAR_TYPE,
   VOLATILE_TYPE,
   ATOMIC_TYPE,
-  NULL_TERMINATE_TYPE,
-  REQUIRE_TYPE,
-  ENSURE_TYPE
+  NULL_TERMINATE_TYPE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttributeKind kind) {
@@ -3416,10 +3434,6 @@ enum class TypeAttributeKind : std::uint_fast8_t {
     return "atomic_type";
   case TAK::NULL_TERMINATE_TYPE:
     return "null_terminate_type";
-  case TAK::REQUIRE_TYPE:
-    return "require_type";
-  case TAK::ENSURE_TYPE:
-    return "ensure_type";
   }
   RQ_UNREACHABLE();
 }
@@ -3449,14 +3463,6 @@ getKind(rq::TypeAttribute attribute) {
     [[fallthrough]];
   case TA::NULL_TERMINATE:
     return TAK::NULL_TERMINATE_TYPE;
-  case TA::NO_REQUIRE:
-    [[fallthrough]];
-  case TA::REQUIRE:
-    return TAK::REQUIRE_TYPE;
-  case TA::NO_ENSURE:
-    [[fallthrough]];
-  case TA::ENSURE:
-    return TAK::ENSURE_TYPE;
   }
   RQ_UNREACHABLE();
 }
