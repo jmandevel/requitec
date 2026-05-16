@@ -18,15 +18,16 @@
         // see captures.rq for more example usage of this feature
     ];
 
-    // parser knows its a tuple type when it sees {} with parameter marks.
+    // parser knows {} is a "layout" when it finds parameter marks between the braces.
     // see parameter_marks.rq
-    // tuple types are unlike layouts because cannot have default values for parameters. also cannot have locked parameters.
-    // layouts are written same way as tuple types, but they are written directly in class or as template attribute value.
-    // remember: "tuple type" != "layout". this is even though they are written almost the same way. where they are written matters.
-    // layouts are NOT a type, but tuple types are.
-    // see object.rq and templates.rq
+    // layouts are symbols that can be turned into a "tuple type" using .[type] reflection.
+    // when a layout is turned into a tuple type, all default values are forgotten and locked parameters are unlocked.
+    // layouts are symbols used to define layout of a class or template.
+    // think of tuple types like a "subset" of layouts that have less features.
+    // layouts are symbols that can be reflected upon, but they are NOT types. Tuple types are types that can be bound to a variable.
+    // see object.rq and templates.rq for examples of layouts.
 
-    [static]TupleType := {> x:\[var][single], y:\[var][single], z:\[var][single] <};
+    [static]TupleType := {> x:\[var][single], y:\[var][single], z:\[var][single] <}.[type];
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.

@@ -17,9 +17,9 @@
     b := ..myFunction(1.0, 2.0);
     c := ..myFunction(1.0, positional_and_named);
     d := ..myFunction(1.0, named=2.0);
-    e := ..myFunction(1.0, named=2.0, positional_and_named=3.0)
+    e := ..myFunction(1.0, named=2.0, positional_and_named=3.0);
     f := ..myFunction(1.0, 2.0, named=3.0);
-    g := ..myFunction(1.0, positional_and_named=2.0, named=3.0)
+    g := ..myFunction(1.0, positional_and_named=2.0, named=3.0);
 
     // call from a pointer to ..myFunction
     ptr := ..myFunction.[procedure_address];
@@ -29,19 +29,48 @@
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
 
     // procedure pointers can be written explicitly
+    // signatures are symbols, but they are not types!
+    // need to convert to a signature_type with .[type] reflection.
     // note that there is no need to specify names for parameters that are only positional and never named
     // note that parameters that can be named must have name specified
     // the actual order of the parameters does matter!
-    other_ptr :?([single], positional_and_named:[single], named:[single], locked:[single])[void]= ..myFunction.[procedure_address];
+
+    [static] Signature := ([single], positional_and_named:[single], named:[single], locked:[single])[void];
+    [static] SignatureType := Signature.[type];
+
+    // .[procedure_address] returns a function pointer. Note need to make the SignatureType a pointer with ?
+    other_ptr :?SignatureType ..myFunction.[procedure_address];
 
     // you can use signature_cast reflection to cast to different ptr type
     // arguments must be in the same order
-    remix_ptr :?(> a:[single], b:[single], c:[single], d:[single])[void]= ..myFunction.[procedure_address].[signature_cast];
+    [static] RemixType :=
+        (
+            (
+               > 
+               a:[single],
+               b:[single],
+               c:[single],
+               d:[single]
+            )[void]
+        ).[type];
+    
+    remix_ptr :?RemixType= ..myFunction.[procedure_address].[signature_cast];
 
     // you can make positional passing order different than the underlying order by using [location] attribute
     // note that any arguments with [variadic] attribute are always in the last position even if no position is specified
     // for the following, a is positional_and_named, b is positional, c is locked, and d is named
-    reordered_ptr :?([location]::1 a:[single], [location]::0 b:[single], [location]::3 c:[single], [location]::2 d:[single]<)[void]= ..myFunction.[procedure_address].[signature_cast];
+    [static] ReorderType := 
+        (
+            (
+                [location]::1 a:[single],
+                [location]::0 b:[single],
+                [location]::3 c:[single],
+                [location]::2 d:[single]
+                <
+            )[void]
+        ).[type];
+    
+    reordered_ptr :?ReorderType= ..myFunction.[procedure_address].[signature_cast];
 
     [result] := 0;  
 ];
