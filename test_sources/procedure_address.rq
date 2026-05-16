@@ -30,18 +30,18 @@
 
     // procedure pointers can be written explicitly
     // signatures are symbols, but they are not types!
-    // need to convert to a signature_type with .[type] reflection.
+    // need to convert to a procedure_type with .[type] reflection.
     // note that there is no need to specify names for parameters that are only positional and never named
     // note that parameters that can be named must have name specified
     // the actual order of the parameters does matter!
 
     [static] Signature := ([single], positional_and_named:[single], named:[single], locked:[single])[void];
-    [static] SignatureType := Signature.[type];
+    [static] ProcedureType := Signature.[type];
 
-    // .[procedure_address] returns a function pointer. Note need to make the SignatureType a pointer with ?
-    other_ptr :?SignatureType ..myFunction.[procedure_address];
+    // .[procedure_address] returns a function pointer. Note need to make the ProcedureType a pointer with ?
+    other_ptr :?ProcedureType ..myFunction.[procedure_address];
 
-    // you can use signature_cast reflection to cast to different ptr type
+    // you can use procedure_cast reflection to cast to different ptr type
     // arguments must be in the same order
     [static] RemixType :=
         (
@@ -54,10 +54,10 @@
             )[void]
         ).[type];
     
-    remix_ptr :?RemixType= ..myFunction.[procedure_address].[signature_cast];
+    remix_ptr :?RemixType= ..myFunction.[procedure_address].[procedure_cast];
 
     // you can make positional passing order different than the underlying order by using [location] attribute
-    // note that any arguments with [variadic] attribute are always in the last position even if no position is specified
+    // note that any arguments with [variadic] attribute are always in the last location even if no location is specified
     // for the following, a is positional_and_named, b is positional, c is locked, and d is named
     [static] ReorderType := 
         (
@@ -70,7 +70,7 @@
             )[void]
         ).[type];
     
-    reordered_ptr :?ReorderType= ..myFunction.[procedure_address].[signature_cast];
+    reordered_ptr :?ReorderType= ..myFunction.[procedure_address].[procedure_cast];
 
     [result] := 0;  
 ];

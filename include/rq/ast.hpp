@@ -91,8 +91,8 @@ enum class Keyword : std::uint32_t {
   CAST_OF,
   BITWISE_CAST,
   BITWISE_CAST_OF,
-  SIGNATURE_CAST,
-  SIGNATURE_CAST_OF,
+  PROCEDURE_CAST,
+  PROCEDURE_CAST_OF,
 
   // BITWISE
   BITWISE_OR,
@@ -614,10 +614,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "bitwise_cast";
   case K::BITWISE_CAST_OF:
     return "_bitwise_cast_of";
-  case K::SIGNATURE_CAST:
-    return "signature_cast";
-  case K::SIGNATURE_CAST_OF:
-    return "_signature_cast_of";
+  case K::PROCEDURE_CAST:
+    return "procedure_cast";
+  case K::PROCEDURE_CAST_OF:
+    return "_procedure_cast_of";
 
   // BITWISE
   case K::BITWISE_OR:
@@ -1470,9 +1470,9 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::BITWISE_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::SIGNATURE_CAST:
+  case K::PROCEDURE_CAST:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::SIGNATURE_CAST_OF:
+  case K::PROCEDURE_CAST_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   // BITWISE
@@ -2416,8 +2416,8 @@ getDescription(rq::Situation situation) {
     return K::CAST_OF;
   case K::BITWISE_CAST:
     return K::BITWISE_CAST_OF;
-  case K::SIGNATURE_CAST:
-    return K::SIGNATURE_CAST_OF;
+  case K::PROCEDURE_CAST:
+    return K::PROCEDURE_CAST_OF;
   // MEMORY
   case K::CONTENT:
     return K::CONTENT_OF;

@@ -9,7 +9,6 @@
     ];
 ];
 
-
 [entry
     a := ..WithoutDestructor();
     b := ..WithoutDestructor();
