@@ -387,15 +387,15 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // SUBTYPE
-  case K::ARRAY:
+  case K::INSTANTIATE_ARRAY:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::REFERENCE:
+  case K::INSTANTIATE_REFERENCE:
     [[fallthrough]];
-  case K::POINTER:
+  case K::INSTANTIATE_POINTER:
     [[fallthrough]];
-  case K::FAT_POINTER:
+  case K::INSTANTIATE_FAT_POINTER:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
@@ -420,9 +420,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::INSTANTIATE_LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
-    break;
-  case K::INITIALIZE_CONCATENATED_STRING:
-    is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
   case K::INSTANTIATE_TEMPLATE:
     is_ok = this->situateNaryDifferentFirstValueBranches(
@@ -572,7 +569,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // VALUES
-  case K::INITIALIZE_ARRAY:
+  case K::ARRAY:
     is_ok = this->situateNaryValueBranches(situation, expression, 0, S::RVALUE);
     break;
   case K::NULL_:
@@ -659,7 +656,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // VARIADIC ARGUMENTS
-  case K::VARIADIC_ARGUMENTS:
+  case K::VARIADIC_ARGUMENTS_TYPE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::FIRST_VARIADIC_ARGUMENT:
@@ -674,7 +671,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::INITIALIZE_VARIADIC_ARGUMENTS:
+  case K::VARIADIC_ARGUMENTS_TYPE:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
 

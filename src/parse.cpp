@@ -531,10 +531,16 @@ rq::Expression &RequiteParser::parsePrecedence4() {
       precedence_factory.parseNary(token, rq::Keyword::SUBTRACT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
+    case rq::TokenKind::APPEND_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token,
+                                   rq::Keyword::APPEND);
+      precedence_factory.setRecent(this->parsePrecedence3());
+      continue;
     case rq::TokenKind::CONCATENATE_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token,
-                                   rq::Keyword::INITIALIZE_CONCATENATED_STRING);
+                                   rq::Keyword::CONCATENATE);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     default:
@@ -672,7 +678,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::ARRAY);
+        precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_ARRAY);
         continue;
       }
       case rq::TokenKind::DOUBLE_DOT_OPERATOR:
@@ -681,15 +687,15 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         continue;
       case rq::TokenKind::AT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::FAT_POINTER);
+        precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_FAT_POINTER);
         continue;
       case rq::TokenKind::DOLLAR_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::REFERENCE);
+        precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_REFERENCE);
         continue;
       case rq::TokenKind::WHAT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::POINTER);
+        precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_POINTER);
         continue;
       default:
         break;
@@ -730,7 +736,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       }
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token, rq::Keyword::ARRAY);
+      precedence_factory.parseOuterBinary(post_token, rq::Keyword::INSTANTIATE_ARRAY);
       continue;
     case rq::TokenKind::ARROW_OPERATOR:
       if (is_type_ascribed) {

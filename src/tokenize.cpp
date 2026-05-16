@@ -121,12 +121,18 @@ void Tokenizer::_tokenizeSourceText() {
                                   T::RIGHT_PARENTHESIS_GROUPING, 1);
       continue;
     case '*':
-      this->tokenizeLengthToken(T::STAR_OPERATOR, 1);
+      switch (this->getRanger().getChar(1)) {
+      case '>':
+        this->tokenizeLengthToken(T::CONCATENATE_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeLengthToken(T::STAR_OPERATOR, 1);
+      }
       continue;
     case '+':
       switch (this->getRanger().getChar(1)) {
       case '>':
-        this->tokenizeLengthToken(T::CONCATENATE_OPERATOR, 2);
+        this->tokenizeLengthToken(T::APPEND_OPERATOR, 2);
         break;
       default:
         this->tokenizeLengthToken(T::PLUS_OPERATOR, 1);

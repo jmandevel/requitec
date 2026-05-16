@@ -41,7 +41,8 @@ enum class TokenKind : std::uint_fast8_t {
   DOUBLE_EQUAL_OPERATOR,                  // ==
   ARROW_OPERATOR,                         // ->
   THICK_ARROW_OPERATOR,                   // =>
-  CONCATENATE_OPERATOR,                   // +>
+  CONCATENATE_OPERATOR,                   // *>
+  APPEND_OPERATOR,                        // +>
   DOT_OPERATOR,                           // .
   DOUBLE_DOT_OPERATOR,                    // ..
   DOT_PLUS_OPERATOR,                      // .+

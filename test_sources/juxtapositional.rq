@@ -2,7 +2,9 @@
 
 [template]::{> List:[symbol] <}
 [function printList, (> list:List <)[void],
+    ..std.print(line="begin!");
     [spin list,
+        ..std.print(line="weave!");
         [weave [value].[type].[is_string_type], str:=[value],
             ..std.print(line="found string: " +> substr);
         ][weave [value].[type].[is_integer_type], int:=[value],
@@ -13,6 +15,7 @@
             ..std.print(line="found something else: " +> any.[borrow]);
         ];
     ];
+    ..std.print(line="end!");
 ];
 
 [entry
@@ -21,6 +24,13 @@
         3.14.[as [single]] +>
         0.[as[fast_signed_integer 32]] +>
         [true]);
+
+    ..printList(
+        "this" *> 
+        "is" *>
+        "one" *>
+        "string" *>
+        "literal");
 
     [result] := 0;
 ];

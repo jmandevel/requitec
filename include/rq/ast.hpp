@@ -70,6 +70,10 @@ enum class Keyword : std::uint32_t {
   IDENTIFY_OF,
   FORK,
 
+  // JUXTAPOSITIONAL
+  CONCATENATE,
+  APPEND,
+
   // ARITHMETIC
   ADD,
   SUBTRACT,
@@ -131,10 +135,10 @@ enum class Keyword : std::uint32_t {
   INPLACE_INITIALIZE_OF,
 
   // SUBTYPE
-  ARRAY,
-  REFERENCE,
-  POINTER,
-  FAT_POINTER,
+  INSTANTIATE_ARRAY,
+  INSTANTIATE_REFERENCE,
+  INSTANTIATE_POINTER,
+  INSTANTIATE_FAT_POINTER,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -144,7 +148,6 @@ enum class Keyword : std::uint32_t {
   // BRACES
   INSTANTIATE_TUPLE,
   INSTANTIATE_LAYOUT,
-  INITIALIZE_CONCATENATED_STRING,
   INSTANTIATE_TEMPLATE,
 
   // PROCEDURES
@@ -180,7 +183,7 @@ enum class Keyword : std::uint32_t {
   IMPLEMENT_INTERFACE,
 
   // VALUES
-  INITIALIZE_ARRAY,
+  ARRAY,
   NULL_,
   TRUE,
   FALSE,
@@ -229,12 +232,12 @@ enum class Keyword : std::uint32_t {
   UTF8,
 
   // VARIADIC ARGUMENTS
-  VARIADIC_ARGUMENTS,
+  VARIADIC_ARGUMENTS_TYPE,
   FIRST_VARIADIC_ARGUMENT,
   FIRST_VARIADIC_ARGUMENT_OF,
   NEXT_VARIADIC_ARGUMENT,
   NEXT_VARIADIC_ARGUMENT_OF,
-  INITIALIZE_VARIADIC_ARGUMENTS,
+  VARIADIC_ARGUMENTS,
 
   // SCOPES
   IF,
@@ -566,6 +569,12 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::FORK:
     return "_fork";
 
+  // JUXTAPOSITIONAL
+  case K::CONCATENATE:
+    return "_concatenate";
+  case K::APPEND:
+    return "_append";
+
   // ARITHMETIC
   case K::ADD:
     return "_add";
@@ -679,13 +688,13 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_inplace_initialize_of";
 
   // SUBTYPE
-  case K::ARRAY:
+  case K::INSTANTIATE_ARRAY:
     return "_array";
-  case K::REFERENCE:
+  case K::INSTANTIATE_REFERENCE:
     return "_reference";
-  case K::POINTER:
+  case K::INSTANTIATE_POINTER:
     return "_pointer";
-  case K::FAT_POINTER:
+  case K::INSTANTIATE_FAT_POINTER:
     return "_fat_pointer";
 
   // PARAMETER RULES
@@ -701,8 +710,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_tuple";
   case K::INSTANTIATE_LAYOUT:
     return "_instantiate_layout";
-  case K::INITIALIZE_CONCATENATED_STRING:
-    return "_initialize_concatenated_string";
   case K::INSTANTIATE_TEMPLATE:
     return "_instantiate_template";
 
@@ -765,8 +772,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "implement_interface";
 
   // VALUES
-  case K::INITIALIZE_ARRAY:
-    return "initialize_array";
+  case K::ARRAY:
+    return "array";
   case K::NULL_:
     return "null";
   case K::TRUE:
@@ -843,8 +850,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "utf8";
 
   // VARIADIC ARGUMENTS
-  case K::VARIADIC_ARGUMENTS:
-    return "variadic_arguments";
+  case K::VARIADIC_ARGUMENTS_TYPE:
+    return "variadic_arguments_type";
   case K::FIRST_VARIADIC_ARGUMENT:
     return "first_variadic_argument";
   case K::FIRST_VARIADIC_ARGUMENT_OF:
@@ -853,8 +860,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "next_variadic_argument";
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return "_next_variadic_argument_of";
-  case K::INITIALIZE_VARIADIC_ARGUMENTS:
-    return "initialize_variadic_arguments";
+  case K::VARIADIC_ARGUMENTS:
+    return "variadic_arguments_type";
 
   // SCOPES
   case K::IF:
@@ -1404,6 +1411,12 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::FORK:
     return KF::RVALUE;
 
+  // JUXTAPOSITIONAL
+  case K::CONCATENATE:
+    return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
+  case K::APPEND:
+    return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
+
   // ARITHMETIC
   case K::ADD:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
@@ -1517,13 +1530,13 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // SUBTYPE
-  case K::ARRAY:
+  case K::INSTANTIATE_ARRAY:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::REFERENCE:
+  case K::INSTANTIATE_REFERENCE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::POINTER:
+  case K::INSTANTIATE_POINTER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::FAT_POINTER:
+  case K::INSTANTIATE_FAT_POINTER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // PARAMETER RULES
@@ -1539,8 +1552,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::INSTANTIATE_LAYOUT:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INITIALIZE_CONCATENATED_STRING:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::INSTANTIATE_TEMPLATE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
@@ -1603,7 +1614,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
 
   // VALUES
-  case K::INITIALIZE_ARRAY:
+  case K::ARRAY:
     return KF::RVALUE | KF::ARGUMENT;
   case K::NULL_:
     return KF::RVALUE | KF::ARGUMENT;
@@ -1691,7 +1702,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::INITIALIZE_VARIADIC_ARGUMENTS:
+  case K::VARIADIC_ARGUMENTS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // SCOPES

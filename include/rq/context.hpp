@@ -317,7 +317,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArguments &
   acquireVariadicArguments() {
-    return this->acquired._variadic_arguments;
+    return this->acquired._variadic_arguments_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Boolean &acquireBoolean() {
     return this->acquired._boolean;

@@ -2,7 +2,7 @@
 
 [class MyClass,
     {> 
-        [public] data:10#[fast_signed_integer 32]=[initialize_array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        [public] data:10#[fast_signed_integer 32]=[array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     <},
 
     [template]::{> variability:[var_type] <}
@@ -18,7 +18,7 @@
 
 [class MyReverseClass,
     {> 
-        [public] data:10#[fast_signed_integer 32]=[initialize_array 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        [public] data:10#[fast_signed_integer 32]=[array 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     <},
 
     [template]::{> variability:[var_type] <}
@@ -61,7 +61,7 @@
     ];
 
     // array element range
-    [for [initialize_array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[borrow], value:=[value],     
+    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[borrow], value:=[value],     
         ..std.print(line="value is " +> value);
     ];
 
