@@ -60,6 +60,7 @@ enum class Opcode {
   SY_DEPRECIATE_TYPE,
   SY_STABLE_ADDRESS_TYPE,
   SY_VARIADIC_TYPE,
+  SY_LOCATION_TYPE,
   SY_TEMPLATE_TYPE,
   SY_CONSTRAINT_TYPE,
   SY_WEIGHT_TYPE,
@@ -145,18 +146,15 @@ enum class Opcode {
   SY_LAYOUT,
 
   // TUPLE PARAMETERS
-  SY_TUPLE_PARAMETER,
+  SY_TUPLE_TYPE_ARGUMENT,
 
   // TUPLES
   SY_TUPLE_TYPE,
 
   // FUNCTION TYPE PARAMETERS
-  SY_SIGNATURE_TYPE_PARAMETER,
+  SY_SIGNATURE_ARGUMENT,
 
   // FUNCTION TYPES
-  SY_SIGNATURE_TYPE,
-  
-  // SIGNATURE TYPE
   SY_SIGNATURE_TYPE,
   
   // PLACEMENTS
@@ -392,6 +390,7 @@ struct Entity;
         struct DepreciateType;
         struct StableAddressType;
         struct VariadicType;
+        struct LocationType;
         struct RequireType;
         struct EnsureType;
       struct TypeAttributeType;
@@ -850,6 +849,14 @@ struct VariadicType final : public rq::ExpressionAttributeType {
   using Self = rq::VariadicType;
 
   explicit RQ_ALWAYS_INLINE VariadicType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct LocationType final : public rq::ExpressionAttributeType {
+  using Self = rq::LocationType;
+
+  explicit RQ_ALWAYS_INLINE LocationType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

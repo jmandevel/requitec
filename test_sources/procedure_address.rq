@@ -38,10 +38,10 @@
     // arguments must be in the same order
     remix_ptr :?(> a:[single], b:[single], c:[single], d:[single])[void]= ..myFunction.[procedure_address].[signature_cast];
 
-    // you can make positional passing order different than the underlying order by using [position] attribute
+    // you can make positional passing order different than the underlying order by using [location] attribute
     // note that any arguments with [variadic] attribute are always in the last position even if no position is specified
     // for the following, a is positional_and_named, b is positional, c is locked, and d is named
-    reordered_ptr :?([position]::1 a:[single], [position]::0 b:[single], [position]::3 c:[single], [position]::2 d:[single]<)[void]= ..myFunction.[procedure_address].[signature_cast];
+    reordered_ptr :?([location]::1 a:[single], [location]::0 b:[single], [location]::3 c:[single], [location]::2 d:[single]<)[void]= ..myFunction.[procedure_address].[signature_cast];
 
     [result] := 0;  
 ];

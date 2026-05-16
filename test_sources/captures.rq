@@ -6,18 +6,18 @@
 
 // Note that the {} enclosing value passed as capture value has no parameter marks!
 // This is a tuple value. All members of capture tuple must be constant.
-// the compiler enforces that tuples can have only up to one unamed property for any given type.
+// the compiler enforces that tuples can have only up to one [noname] for any given type.
 // if this rule is not followed, this results in a compiler error.
-[global][capture]::{ [public] Foo() }
+[global][capture]::{ [public] [noname]:=Foo() }
 var0 := 1;
 
-[capture]::{ [public] name="Bob", [public] age=25 }
+[capture]::{ [public] name:="Bob", [public] age:=25 }
 var1 := 0;
 
 [entry
     [static]
-    [if ..var0.[symbol].[capture].[has Foo],
-        ..std.print(line=..var0.[symbol].[capture].[get Foo].string);    
+    [if ..var0.[symbol].[capture].[type].[has ...Foo],
+        ..std.print(line=..var0.[symbol].[capture].[get ...Foo].string);    
     ];
 
     ..std.print(line=

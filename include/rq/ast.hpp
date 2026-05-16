@@ -336,9 +336,9 @@ enum class Keyword : std::uint32_t {
   // variadic_type
   NO_VARIADIC,
   VARIADIC,
-  // position_type
-  NO_POSITION,
-  POSITION,
+  // location_type
+  NO_LOCATION,
+  LOCATION,
   // template_type
   NO_TEMPLATE,
   TEMPLATE,
@@ -386,7 +386,7 @@ enum class Keyword : std::uint32_t {
   DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
   STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
   VARIADIC_TYPE,       // no_variadic vs variadic
-  POSITION_TYPE,       // no_position vs position
+  LOCATION_TYPE,       // no_location vs location
   TEMPLATE_TYPE,       // no_template vs template
   CONSTRAINT_TYPE,     // no_constraint vs constraint
   WEIGHT_TYPE,         // no_weight vs weight
@@ -1026,6 +1026,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_variadic";
   case K::VARIADIC:
     return "variadic";
+  case K::NO_LOCATION:
+    return "no_location";
+  case K::LOCATION:
+    return "location";
   case K::NO_TEMPLATE:
     return "no_template";
   case K::TEMPLATE:
@@ -1098,6 +1102,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "stable_address_type";
   case K::VARIADIC_TYPE:
     return "variadic_type";
+  case K::LOCATION_TYPE:
+    return "location_type";
   case K::TEMPLATE_TYPE:
     return "template_type";
   case K::CONSTRAINT_TYPE:
@@ -1879,6 +1885,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VARIADIC:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_LOCATION:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::LOCATION:
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_TEMPLATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::TEMPLATE:
@@ -1950,6 +1960,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::STABLE_ADDRESS_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VARIADIC_TYPE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::LOCATION_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::TEMPLATE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2734,6 +2746,9 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   // variadic_type
   NO_VARIADIC,
   VARIADIC,
+  // location_type
+  NO_LOCATION,
+  LOCATION,
   // template_type
   NO_TEMPLATE,
   TEMPLATE,
@@ -2824,6 +2839,10 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_variadic";
   case EA::VARIADIC:
     return "variadic";
+  case EA::NO_LOCATION:
+    return "no_location";
+  case EA::LOCATION:
+    return "location";
   case EA::NO_TEMPLATE:
     return "no_template";
   case EA::TEMPLATE:
@@ -2918,6 +2937,10 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::NO_VARIADIC;
   case K::VARIADIC:
     return EA::VARIADIC;
+  case K::NO_LOCATION:
+    return EA::NO_LOCATION;
+  case K::LOCATION:
+    return EA::LOCATION;
   case K::NO_TEMPLATE:
     return EA::NO_TEMPLATE;
   case K::TEMPLATE:
@@ -2987,19 +3010,22 @@ enum class ExpressionFlags : std::uint_fast32_t {
   VARIADIC = rq::getBit(16),
   VARIADIC_MASK = VARIADIC,
 
-  TEMPLATE = rq::getBit(17),
+  LOCATION = rq::getBit(17),
+  LOCATION_MASK = LOCATION,
+
+  TEMPLATE = rq::getBit(18),
   TEMPLATE_MASK = TEMPLATE,
 
-  CONSTRAINT = rq::getBit(18),
+  CONSTRAINT = rq::getBit(19),
   CONSTRAINT_MASK = CONSTRAINT,
 
-  WEIGHT = rq::getBit(19),
+  WEIGHT = rq::getBit(20),
   WEIGHT_MASK = WEIGHT,
 
-  REQUIRE = rq::getBit(20),
+  REQUIRE = rq::getBit(21),
   REQUIRE_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(21),
+  ENSURE = rq::getBit(22),
   ENSURE_MASK = ENSURE
 };
 
@@ -3079,6 +3105,10 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::VARIADIC:
     return EF::VARIADIC;
+  case EA::NO_LOCATION:
+    return EF::NONE;
+  case EA::LOCATION:
+    return EF::LOCATION;
   case EA::NO_TEMPLATE:
     return EF::NONE;
   case EA::TEMPLATE:
@@ -3120,6 +3150,7 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
   STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
   VARIADIC_TYPE,       // no_variadic vs variadic
+  LOCATION_TYPE,       // no_location vs location
   TEMPLATE_TYPE,       // no_template vs template
   CONSTRAINT_TYPE,     // no_constraint vs constraint
   WEIGHT_TYPE,         // no_weight vs weight
@@ -3162,6 +3193,8 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
     return "stable_address_type";
   case EAK::VARIADIC_TYPE:
     return "variadic_type";
+  case EAK::LOCATION_TYPE:
+    return "location_type";
   case EAK::TEMPLATE_TYPE:
     return "template_type";
   case EAK::CONSTRAINT_TYPE:
@@ -3249,6 +3282,10 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::VARIADIC:
     return EAK::VARIADIC_TYPE;
+  case EA::NO_LOCATION:
+    [[fallthrough]];
+  case EA::LOCATION:
+    return EAK::LOCATION_TYPE;
   case EA::NO_TEMPLATE:
     [[fallthrough]];
   case EA::TEMPLATE:

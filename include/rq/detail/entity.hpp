@@ -107,6 +107,9 @@ namespace rq {
   case O::SY_VARIADIC_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
+  case O::SY_LOCATION_TYPE:
+    return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
+           OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_TEMPLATE_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
@@ -1150,6 +1153,14 @@ StableAddressType::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE VariadicType::VariadicType()
     : ExpressionAttributeType(rq::Opcode::SY_VARIADIC_TYPE) {}
+
+[[nodiscard]] inline bool LocationType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_LOCATION_TYPE;
+}
+
+RQ_ALWAYS_INLINE LocationType::LocationType()
+    : ExpressionAttributeType(rq::Opcode::SY_LOCATION_TYPE) {}
 
 [[nodiscard]] inline bool VariadicType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);

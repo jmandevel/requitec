@@ -1,0 +1,36 @@
+[import "std"];
+
+[entry
+    // for tuple with inferenced type, all parameters of type are nonpositional
+    // nonpositional parameters are either name-keyed if name is specified, or type-keyed if name is noname
+    // can only be one type-keyed parameter of any given type. this is enforced at compile time.
+    // notice that each parameter has a binding with colon. 
+    // the binding is required when tuple type is inferenced to specify type attributes per element.
+    inferenced := { named:\[var]="I'm name-keyed", [noname]:\[var]="I'm type-keyed" };
+
+    // can determine if tuple has type-keyed value at compile time with .[has] reflection
+    [static]
+    [if inferenced.[type].[has @[utf8]],
+        // can get the value with .[get] reflection
+        // errors with .[get] are caught at compile time, so this is very safe.
+        type_keyed_text := inferenced.[get @[utf8]];
+        ..std.print(line=type_keyed_text);
+        // see captures.rq for more example usage of this feature
+    ];
+
+    // parser knows its a tuple type when it sees {} with parameter marks.
+    // see parameter_marks.rq
+    // tuple types are unlike layouts because cannot have default values for parameters. also cannot have locked parameters.
+    // layouts are written same way as tuple types, but they are written directly in class or as template attribute value.
+    // remember: "tuple type" != "layout". this is even though they are written almost the same way. where they are written matters.
+    // layouts are NOT a type, but tuple types are.
+    // see object.rq and templates.rq
+
+    [static]TupleType := {> x:\[var][single], y:\[var][single], z:\[var][single] <};
+
+    // explicitly typed tuples must not be created with bindings per element using colon.
+    // this is unlike how they are written when the type is inferenced.
+    explicit :TupleType= { 0, 1, w=2, z=3 };
+
+    [result] := 0;    
+];
