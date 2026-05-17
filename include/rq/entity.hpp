@@ -137,19 +137,19 @@ enum class Opcode {
   SY_LOCAL_DYNAMIC_VARIABLE,
   SY_LOCAL_STATIC_VARIABLE,
 
-  // PARAMETERS => local variable
-  SY_LAYOUT_PARAMETER,
+  // SYMBOL PARAMETERS
   SY_SIGNATURE_PARAMETER,
+  SY_LAYOUT_PARAMETER,
 
-  // PARAMETER LISTS
+  // TYPE PARAMETERS
+  SY_TUPLE_PARAMETER,
+  SY_PROCEDURE_PARAMETER,
+
+  // SYMBOL PARAMETER LISTS
   SY_SIGNATURE,
   SY_LAYOUT,
 
-  // ARGUMENTS
-  SY_TUPLE_ARGUMENT,
-  SY_PROCEDURE_ARGUMENT,
-
-  // ARGUMENT LISTS
+  // TYPE PARAMETER LISTS
   SY_TUPLE_TYPE,
   SY_PROCEDURE_TYPE,
 
@@ -263,28 +263,30 @@ enum class OpcodeFlags : std::uint64_t {
   SY_ARITHMETIC_SEQUENCE = rq::getBit(15),
   SY_LOCAL_DECLARATION = rq::getBit(16),
   SY_LOCAL_VARIABLE = rq::getBit(17),
-  SY_PARAMETER = rq::getBit(18),
-  SY_PARAMETER_LIST = rq::getBit(19),
-  SY_POLYMORPH = rq::getBit(20),
-  SY_SYMBOL_TYPE_TABLE = rq::getBit(21),
-  SY_LOCAL_STATEMENT = rq::getBit(22),
-  SY_GLOBAL_DECLARATION = rq::getBit(23),
-  SY_GLOBAL_VARIABLE = rq::getBit(24),
-  SY_RANGER = rq::getBit(25),
-  SY_PROCEDURE = rq::getBit(26),
-  SY_TEMPLATE = rq::getBit(27),
+  SY_SYMBOL_PARAMETER = rq::getBit(18),
+  SY_SYMBOL_PARAMETER_LIST = rq::getBit(19),
+  SY_TYPE_PARAMETER = rq::getBit(20),
+  SY_TYPE_PARAMETER_LIST = rq::getBit(21),
+  SY_POLYMORPH = rq::getBit(22),
+  SY_SYMBOL_TYPE_TABLE = rq::getBit(23),
+  SY_LOCAL_STATEMENT = rq::getBit(24),
+  SY_GLOBAL_DECLARATION = rq::getBit(25),
+  SY_GLOBAL_VARIABLE = rq::getBit(26),
+  SY_RANGER = rq::getBit(27),
+  SY_PROCEDURE = rq::getBit(28),
+  SY_TEMPLATE = rq::getBit(29),
 
   // SYMBOL DETAILS
-  SY_IS_TYPE = rq::getBit(28),
-  SY_IS_SIGNED_TYPE = rq::getBit(29),
-  SY_IS_UNSIGNED_TYPE = rq::getBit(30),
-  SY_IS_INTEGER_TYPE = rq::getBit(31),
-  SY_IS_FLOAT_TYPE = rq::getBit(32),
-  SY_IS_BINARY_TYPE = rq::getBit(33),
-  SY_IS_BFLOAT_TYPE = rq::getBit(34),
-  SY_IS_CODEUNIT_TYPE = rq::getBit(35),
-  SY_HAS_EXPRESSION_ATTRIBUTES = rq::getBit(36),
-  SY_LOCAL_TABLE = rq::getBit(37)
+  SY_IS_TYPE = rq::getBit(30),
+  SY_IS_SIGNED_TYPE = rq::getBit(31),
+  SY_IS_UNSIGNED_TYPE = rq::getBit(32),
+  SY_IS_INTEGER_TYPE = rq::getBit(33),
+  SY_IS_FLOAT_TYPE = rq::getBit(34),
+  SY_IS_BINARY_TYPE = rq::getBit(35),
+  SY_IS_BFLOAT_TYPE = rq::getBit(36),
+  SY_IS_CODEUNIT_TYPE = rq::getBit(37),
+  SY_HAS_EXPRESSION_ATTRIBUTES = rq::getBit(38),
+  SY_LOCAL_TABLE = rq::getBit(39)
 };
 
 template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
@@ -325,7 +327,11 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolParameter(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeParameter(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolParameterList(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeParameterList(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStatement(rq::Opcode opcode);
@@ -441,15 +447,20 @@ struct Entity;
       struct LocalVariable;
         struct LocalDynamicVariable;
         struct LocalStaticVariable;
-        struct Parameter;
-          struct LayoutParameter;
-          struct SignatureParameter;
+    struct Parameter;
+      struct SymbolParameter;
+        struct SignatureParameter;
+        struct LayoutParameter;
+      struct TypeParameter;
+        struct ProcedureParameter;
+        struct TupleParameter;
     struct ParameterList;
-      struct Signature;
-      struct Layout;
-    struct ArgumentList;
-      struct SignatureType;
-      struct LayoutType;
+      struct SymbolParameterList;
+        struct Signature;
+        struct Layout;
+      struct TypeParameterList;
+        struct TupleType;
+        struct ProcedureType;
     struct Placement;
     struct Composition;
     struct Synonym;
@@ -531,6 +542,8 @@ struct Entity {
   ~Entity() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeFlags getOpcodeFlags() const;
 
@@ -1509,136 +1522,178 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-enum class ParameterFlags : std::uint8_t {
-  NONE = 0,
-
-  POSITIONAL = rq::getBit(0),
-  NONPOSITIONAL = rq::getBit(1),
-  LOCKED_NONE_MASK = POSITIONAL | NONPOSITIONAL
-};
-
-template <> struct is_flags<rq::ParameterFlags> final : std::true_type {};
-
-struct Parameter : public rq::LocalVariable {
+struct Parameter : public rq::Symbol {
   using Self = rq::Parameter;
 
-  rq::Parameter *_next_parameter_ptr{nullptr};
-  rq::ParameterFlags _parameter_flags;
+  rq::Parameter *_next_ptr;
+  llvm::StringRef _name;
+  rq::SymbolConstant *_type_ptr;
+
+  explicit Parameter(rq::Opcode opcode, rq::Parameter *next_ptr,
+                     llvm::StringRef name, rq::SymbolConstant &type);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNextParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &getNextParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &getNextParameter();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SymbolParameter : public rq::Parameter {
+  using Self = rq::SymbolParameter;
+
+  bool _is_positional : 1;
+  bool _is_nonpositional : 1;
+  bool _is_locked : 1;
+  rq::ExpressionFlags _expression_flags;
+  rq::SymbolTable *_containing_table_ptr;
+  rq::SymbolTable *_hosting_table_ptr;
+  const rq::Expression *_expression_ptr;
+  const rq::Expression *_name_expression_ptr;
   const rq::Expression *_type_expression_ptr;
   const rq::Expression *_default_value_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE
-  Parameter(rq::Opcode opcode, llvm::StringRef name,
-            const rq::Expression *name_expression_ptr,
-            rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-            rq::ExpressionFlags expression_flags,
-            rq::ParameterFlags parameter_flags,
-            const rq::Expression &type_expression,
-            const rq::Expression *default_value_expression_ptr);
+  explicit RQ_ALWAYS_INLINE SymbolParameter(
+      rq::Opcode opcode, rq::SymbolParameter *next_ptr, llvm::StringRef name,
+      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
+      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
+      bool is_positional, bool is_nonpositional, bool is_locked,
+      const rq::Expression &expression, const rq::Expression &name_expression,
+      const rq::Expression &type_expression,
+      const rq::Expression *default_value_expression_ptr);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const;
-  RQ_ALWAYS_INLINE void setNext(rq::Parameter &next);
+  [[nodiscard]] const rq::SymbolParameter &getNextSymbolParameter() const;
+  [[nodiscard]] rq::SymbolParameter &getNextSymbolParameter();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHostingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getNameExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getTypeExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefaultValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasDefaultValueExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getDefaultValueExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct LayoutParameter final : public rq::Parameter {
-  using Self = rq::LayoutParameter;
-
-  explicit RQ_ALWAYS_INLINE LayoutParameter(
-      llvm::StringRef name, const rq::Expression *name_expression_ptr,
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      rq::ExpressionFlags expression_flags, rq::ParameterFlags parameter_flags,
-      const rq::Expression &type_expression,
-      const rq::Expression *default_value_expression_ptr);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SignatureParameter final : public rq::Parameter {
+struct SignatureParameter final : public rq::SymbolParameter {
   using Self = rq::SignatureParameter;
 
   explicit RQ_ALWAYS_INLINE SignatureParameter(
-      llvm::StringRef name, const rq::Expression *name_expression_ptr,
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      rq::ExpressionFlags expression_flags, rq::ParameterFlags parameter_flags,
+      rq::SymbolParameter *next_ptr, llvm::StringRef name,
+      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
+      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
+      bool is_positional, bool is_nonpositional, bool is_locked,
+      const rq::Expression &expression, const rq::Expression &name_expression,
       const rq::Expression &type_expression,
       const rq::Expression *default_value_expression_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
+  getNextSignatureParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &
+  getNextSignatureParameter();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ParameterInfo final {
-  using Self = rq::ParameterInfo;
+struct LayoutParameter final : public rq::SymbolParameter {
+  using Self = rq::LayoutParameter;
 
-  llvm::StringRef _name;
-  const rq::Expression *_name_expression_ptr;
-  rq::ExpressionFlags _expression_flags;
-  rq::ParameterFlags _parameter_flags;
-  const rq::Expression *_type_expression_ptr;
-  const rq::Expression *_default_value_expression_ptr;
+  explicit RQ_ALWAYS_INLINE LayoutParameter(
+      rq::SymbolParameter *next_ptr, llvm::StringRef name,
+      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
+      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
+      bool is_positional, bool is_nonpositional, bool is_locked,
+      const rq::Expression &expression, const rq::Expression &name_expression,
+      const rq::Expression &type_expression,
+      const rq::Expression *default_value_expression_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
+  getNextLayoutParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &getNextLayoutParameter();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
+  using Self = rq::TypeParameter;
+
+  unsigned _location;
+  bool _is_positional : 1;
 
   explicit RQ_ALWAYS_INLINE
-  ParameterInfo(llvm::StringRef name, const rq::Expression *name_expression_ptr,
-                rq::ExpressionFlags expression_flags,
-                rq::ParameterFlags parameter_flags,
-                const rq::Expression &type_expression,
-                const rq::Expression *default_value_expression_ptr);
+  TypeParameter(rq::Opcode opcode, rq::TypeParameter *next_ptr,
+                llvm::StringRef name, rq::SymbolConstant &type,
+                unsigned location, bool is_positional);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getNameExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ParameterFlags getParameterFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getTypeExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getDefaultValueExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter &
+  getNextTypeParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter &getNextTypeParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLocation() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositionPassable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypePassable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamePassable() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct ParameterListFactory final {
-  using Self = ParameterListFactory;
+inline void profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                                 llvm::StringRef name,
+                                 const rq::SymbolConstant &type,
+                                 unsigned location, bool is_positional);
 
-  rq::SymbolTable *_containing_table_ptr;
-  rq::SymbolTable *_hosting_table_ptr;
-  rq::ParameterFlags _state{rq::ParameterFlags::POSITIONAL};
-  llvm::SmallVector<rq::ParameterInfo> _infos;
+struct ProcedureParameter final : public rq::TypeParameter {
+  using Self = rq::TupleParameter;
 
-  explicit ParameterListFactory(rq::SymbolTable &containing_table,
-                                rq::SymbolTable &hosting_table);
+  explicit RQ_ALWAYS_INLINE ProcedureParameter(rq::TypeParameter *next_ptr,
+                                               llvm::StringRef name,
+                                               rq::SymbolConstant &type,
+                                               unsigned location);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
-  [[nodiscard]] inline bool markPositionalEnd();
-  [[nodiscard]] inline bool markNonpositionalBegin();
-  [[nodiscard]] inline bool markLockedBegin();
-  RQ_ALWAYS_INLINE void
-  addParameter(llvm::StringRef name, const rq::Expression *name_expression_ptr,
-               rq::ExpressionFlags expression_flags,
-               const rq::Expression &type_expression,
-               const rq::Expression *default_value_expression_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct TupleParameter final : public rq::TypeParameter {
+  using Self = rq::TupleParameter;
+
+  explicit RQ_ALWAYS_INLINE TupleParameter(rq::TypeParameter *next_ptr,
+                                           llvm::StringRef name,
+                                           rq::SymbolConstant &type,
+                                           unsigned location,
+                                           bool is_positional);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+template <typename ElementParam = rq::Parameter>
 struct ParameterIterator final {
-  using Self = rq::ParameterIterator;
-  using value_type = rq::Parameter;
-  using reference = rq::Parameter &;
-  using pointer = rq::Parameter *;
+  using Element = ElementParam;
+  using Self = rq::ParameterIterator<Element>;
+  using value_type = Element;
+  using reference = Element &;
+  using pointer = Element *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  rq::Parameter *_parameter_ptr{nullptr};
+  Element *_parameter_ptr{nullptr};
 
   ParameterIterator() = default;
-  explicit ParameterIterator(rq::Parameter *parameter_ptr);
+  explicit RQ_ALWAYS_INLINE ParameterIterator(Element *parameter_ptr);
   ParameterIterator(const Self &) = default;
   ParameterIterator(Self &&) = default;
   ~ParameterIterator() = default;
@@ -1648,25 +1703,28 @@ struct ParameterIterator final {
   RQ_ALWAYS_INLINE Self operator++(int);
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE Element &operator*();
+  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE Element *operator->();
+  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
+template <typename ElementParam = rq::Parameter>
 struct ConstParameterIterator final {
-  using Self = rq::ConstParameterIterator;
-  using value_type = const rq::Parameter;
-  using reference = const rq::Parameter &;
-  using pointer = rq::Parameter *;
+  using Element = ElementParam;
+  using Self = rq::ConstParameterIterator<Element>;
+  using value_type = const Element;
+  using reference = const Element &;
+  using pointer = Element *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  const rq::Parameter *_parameter_ptr{nullptr};
+  const Element *_parameter_ptr{nullptr};
 
   ConstParameterIterator() = default;
-  explicit ConstParameterIterator(const rq::Parameter *parameter_ptr);
+  explicit RQ_ALWAYS_INLINE
+  ConstParameterIterator(const Element *parameter_ptr);
   ConstParameterIterator(const Self &) = default;
   ConstParameterIterator(Self &&) = default;
   ~ConstParameterIterator() = default;
@@ -1676,108 +1734,154 @@ struct ConstParameterIterator final {
   RQ_ALWAYS_INLINE Self operator++(int);
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
-  unsigned _parameter_count;
-  unsigned _positional_parameter_count;
-  unsigned _nonpositional_parameter_count;
-  unsigned _locked_parameter_count;
   rq::Parameter *_first_parameter_ptr;
 
-  explicit inline ParameterList(rq::Opcode opcode, unsigned parameter_count,
-                                unsigned positional_parameter_count,
-                                unsigned nonpositional_parameter_count,
-                                unsigned locked_parameter_count,
-                                rq::Parameter *first_parameter_ptr);
+  explicit RQ_ALWAYS_INLINE ParameterList(rq::Opcode opcode,
+                                          rq::Parameter &first_parameter);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned
-  getNonpositionalParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLockedParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasFirstParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &getFirstParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &getFirstParameter();
+  [[nodiscard]] inline const rq::Parameter *
   getParameterPtrOfName(llvm::StringRef name) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *
+  [[nodiscard]] inline rq::Parameter *
   getParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] inline const rq::Parameter *
+  getParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] inline rq::Parameter *
+  getParamterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator, rq::ParameterIterator,
+      std::ranges::subrange<rq::ParameterIterator<rq::Parameter>,
+                            rq::ParameterIterator<rq::Parameter>,
                             std::ranges::subrange_kind::unsized>
       getParameterSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator,
-                            rq::ConstParameterIterator,
+      std::ranges::subrange<rq::ConstParameterIterator<rq::Parameter>,
+                            rq::ConstParameterIterator<rq::Parameter>,
                             std::ranges::subrange_kind::unsized>
       getParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SignatureParameterIterator final {
-  using Self = rq::SignatureParameterIterator;
-  using value_type = rq::SignatureParameter;
-  using reference = rq::SignatureParameter &;
-  using pointer = rq::SignatureParameter *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+struct SymbolParameterInfo final {
+  using Self = rq::SymbolParameterInfo;
 
-  rq::SignatureParameter *_parameter_ptr{nullptr};
+  llvm::StringRef _name;
+  rq::SymbolConstant *_type_ptr;
+  const rq::Expression *_name_expression_ptr;
+  rq::ExpressionFlags _expression_flags;
+  bool _is_positional : 1;
+  bool _is_nonpositional : 1;
+  bool _is_locked : 1;
+  const rq::Expression *_type_expression_ptr;
+  const rq::Expression *_default_value_expression_ptr;
 
-  SignatureParameterIterator() = default;
-  explicit SignatureParameterIterator(rq::SignatureParameter *parameter_ptr);
-  SignatureParameterIterator(const Self &) = default;
-  SignatureParameterIterator(Self &&) = default;
-  ~SignatureParameterIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
-  operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
-  operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+  explicit RQ_ALWAYS_INLINE
+  SymbolParameterInfo(llvm::StringRef name, rq::SymbolConstant &type,
+                      const rq::Expression *name_expression_ptr,
+                      rq::ExpressionFlags expression_flags, bool is_positional,
+                      bool is_nonpositional, bool is_locked,
+                      const rq::Expression &type_expression,
+                      const rq::Expression *default_value_expression_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getNameExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getTypeExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getDefaultValueExpressionPtr() const;
 };
 
-struct ConstSignatureParameterIterator final {
-  using Self = rq::ConstSignatureParameterIterator;
-  using value_type = const rq::SignatureParameter;
-  using reference = const rq::SignatureParameter &;
-  using pointer = rq::SignatureParameter *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+struct SymbolParameterListFactory final {
+  using Self = SymbolParameterListFactory;
 
-  const rq::SignatureParameter *_parameter_ptr{nullptr};
+  rq::SymbolTable *_containing_table_ptr;
+  rq::SymbolTable *_hosting_table_ptr;
+  bool _is_positional : 1 {true};
+  bool _is_nonpositional : 1 {false};
+  bool _is_locked : 1 {false};
+  llvm::SmallVector<rq::SymbolParameterInfo> _infos{};
 
-  ConstSignatureParameterIterator() = default;
-  explicit ConstSignatureParameterIterator(
-      const rq::SignatureParameter *parameter_ptr);
-  ConstSignatureParameterIterator(const Self &) = default;
-  ConstSignatureParameterIterator(Self &&) = default;
-  ~ConstSignatureParameterIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
-  operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
-  operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+  explicit SymbolParameterListFactory(rq::SymbolTable &containing_table,
+                                      rq::SymbolTable &hosting_table);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
+  RQ_ALWAYS_INLINE void markPositionalEnd();
+  RQ_ALWAYS_INLINE void markNonpositionalBegin();
+  RQ_ALWAYS_INLINE void markLockedBegin();
+  RQ_ALWAYS_INLINE void
+  addParameter(llvm::StringRef name, const rq::Expression *name_expression_ptr,
+               rq::ExpressionFlags expression_flags,
+               const rq::Expression &type_expression,
+               const rq::Expression *default_value_expression_ptr);
 };
 
-struct Signature final : public rq::ParameterList {
+struct SymbolParameterList : public rq::ParameterList {
+  using Self = rq::SymbolParameterList;
+
+  unsigned _parameter_count;
+  unsigned _positional_parameter_count;
+  unsigned _nonpositional_parameter_count;
+  unsigned _locked_parameter_count;
+
+  explicit inline SymbolParameterList(rq::Opcode opcode,
+                                      unsigned parameter_count,
+                                      unsigned positional_parameter_count,
+                                      unsigned nonpositional_parameter_count,
+                                      unsigned locked_parameter_count,
+                                      rq::SymbolParameter *first_parameter_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned
+  getNonpositionalParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLockedParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter &
+  getFirstSymbolParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter &getFirstSymbolParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
+  getSymbolParameterPtrOfName(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
+  getSymbolParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
+  getSymbolParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
+  getSymbolParameterPtrOfType(const rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator<rq::SymbolParameter>,
+                            rq::ParameterIterator<rq::SymbolParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getSymbolParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator<rq::SymbolParameter>,
+                            rq::ConstParameterIterator<rq::SymbolParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getSymbolParameterSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Signature final : public rq::SymbolParameterList {
   using Self = rq::Signature;
 
   rq::SymbolConstant *_return_type_ptr;
@@ -1785,14 +1889,13 @@ struct Signature final : public rq::ParameterList {
   const rq::Expression *_precondition_expression_ptr;
   const rq::Expression *_postcondition_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE
-  Signature(unsigned parameter_count, unsigned positional_parameter_count,
-            unsigned nonpositional_parameter_count,
-            unsigned locked_parameter_count, rq::Parameter *first_parameter_ptr,
-            rq::SymbolConstant &return_type,
-            rq::SymbolConstant *reciever_type_ptr,
-            const rq::Expression *precondition_expression_ptr,
-            const rq::Expression *postcondition_expression_ptr);
+  explicit RQ_ALWAYS_INLINE Signature(
+      unsigned parameter_count, unsigned positional_parameter_count,
+      unsigned nonpositional_parameter_count, unsigned locked_parameter_count,
+      rq::SymbolParameter *first_parameter_ptr, rq::SymbolConstant &return_type,
+      rq::SymbolConstant *reciever_type_ptr,
+      const rq::Expression *precondition_expression_ptr,
+      const rq::Expression *postcondition_expression_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getReturnType() const;
@@ -1807,54 +1910,152 @@ struct Signature final : public rq::ParameterList {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostconditionExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getPostconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
+  getFirstSignatureParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &
+  getFirstSignatureParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
+  getSignatureParameterPtrOfName(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
+  getSignatureParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
+  getSignatureParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
+  getSignatureParameterPtrOfType(const rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator<rq::SignatureParameter>,
+                            rq::ParameterIterator<rq::SignatureParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getSignatureParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator<rq::SignatureParameter>,
+                            rq::ConstParameterIterator<rq::SignatureParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getSignatureParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Layout final : public rq::ParameterList {
+struct Layout final : public rq::SymbolParameterList {
   using Self = rq::Layout;
 
   explicit RQ_ALWAYS_INLINE Layout(unsigned parameter_count,
                                    unsigned positional_parameter_count,
                                    unsigned nonpositional_parameter_count,
                                    unsigned locked_parameter_count,
-                                   rq::Parameter *first_parameter_ptr);
+                                   rq::SymbolParameter *first_parameter_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
+  getFirstLayoutParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &getFirstLayoutParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
+  getLayoutParameterPtrOfName(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
+  getLayoutParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
+  getLayoutParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
+  getLayoutParameterPtrOfType(const rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator<rq::LayoutParameter>,
+                            rq::ParameterIterator<rq::LayoutParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getLayoutParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator<rq::LayoutParameter>,
+                            rq::ConstParameterIterator<rq::LayoutParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getLayoutParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-enum class ArgumentFlags final {
+struct TypeParameterList : public rq::ParameterList {
+  using Self = rq::TypeParameterList;
 
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter &
+  getFirstTypeParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter &getFirstTypeParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
+  getTypeParameterPtrOfName(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
+  getTypeParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
+  getTypeParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
+  getTypeParameterPtrOfType(const rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
+                            rq::ParameterIterator<rq::TypeParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getTypeParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator<rq::TypeParameter>,
+                            rq::ConstParameterIterator<rq::TypeParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getTypeParameterSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Argument final : public rq::Symbol, public llvm::FoldingSetNode {
-  using Self = rq::Argument;
+struct ProcedureType final : rq::TypeParameterList,
+                             public llvm::FoldingSetNode {
+  using Self = rq::ProcedureType;
 
-  llvm::StringRef name;
-  bool _is_variadic : 1;
-  rq::SymbolConstant *_type_ptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
+  getFirstProcedureParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
+  getFirstProcedureParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
+  getProcedureParameterPtrOfName(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
+  getProcedureParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
+  getProcedureParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
+  getProcedureParameterPtrOfType(const rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
+                            rq::ParameterIterator<rq::ProcedureParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getProcedureParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator<rq::ProcedureParameter>,
+                            rq::ConstParameterIterator<rq::ProcedureParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getProcedureParameterSubrange() const;
 
-  explicit RQ_ALWAYS_INLINE Argument(llvm::StringRef name, bool is_variadic,
-                                     rq::SymbolConstant &type);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositionPassable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypePassable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamePassable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct ArgumentList : public rq::Symbol {};
+struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
+  using Self = rq::TupleType;
 
-struct SignatureType final : rq::ArgumentList, public llvm::FoldingSetNode {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter &
+  getFirstTupleParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &getFirstTupleParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
+  getTupleParameterPtrOfName(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
+  getTupleParameterPtrOfName(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
+  getTupleParameterPtrOfType(const rq::SymbolConstant &type) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
+  getTupleParameterPtrOfType(const rq::SymbolConstant &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
+                            rq::ParameterIterator<rq::TupleParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getTupleParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstParameterIterator<rq::TupleParameter>,
+                            rq::ConstParameterIterator<rq::TupleParameter>,
+                            std::ranges::subrange_kind::unsized>
+      getTupleParameterSubrange() const;
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
-};
-
-struct LayoutList final : rq::ArgumentList, public llvm::FoldingSetNode {
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };

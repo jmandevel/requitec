@@ -35,7 +35,7 @@
     // note that parameters that can be named must have name specified
     // the actual order of the parameters does matter!
 
-    [static] Signature := ([single], positional_and_named:[single], named:[single], locked:[single])[void];
+    [static] Signature := ([single],> positional_and_named:[single]<, named:[single],| locked:[single])[void];
     [static] ProcedureType := Signature.[type];
 
     // .[procedure_address] returns a function pointer. Note need to make the ProcedureType a pointer with ?

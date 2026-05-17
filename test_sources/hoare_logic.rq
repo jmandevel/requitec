@@ -1,4 +1,5 @@
-[template]::{| Type:[type_constraint] }
+[template]::{| Type:[symbol] }
+[contraint]::(Type.[is_numeric_type])
 [function divideSquare, 
     [require]::(b != 0)
     [ensure]::([result] >= 0)
