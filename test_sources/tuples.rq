@@ -27,8 +27,7 @@
     // layouts are symbols that can be reflected upon, but they are NOT types. Tuple types are types that can be bound to a variable.
     // see object.rq and templates.rq for examples of layouts.
 
-    [static] Layout := {> x:\[var][single], y:\[var][single], z:\[var][single] <};
-    [static] TupleType := Layout.[type];
+    [static]TupleType := {> x:\[var][single], y:\[var][single], z:\[var][single] <}.[type];
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.

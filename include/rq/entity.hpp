@@ -66,7 +66,7 @@ enum class Opcode {
   SY_WEIGHT_TYPE,
   SY_REQUIRE_TYPE,
   SY_ENSURE_TYPE,
-  
+
   // TYPE ATTRIBUTES
   SY_VAR_TYPE,
   SY_VOLATILE_TYPE,
@@ -145,18 +145,14 @@ enum class Opcode {
   SY_SIGNATURE,
   SY_LAYOUT,
 
-  // TUPLE PARAMETERS
-  SY_TUPLE_TYPE_ARGUMENT,
-
-  // TUPLES
-  SY_TUPLE_TYPE,
-
-  // FUNCTION TYPE PARAMETERS
+  // ARGUMENTS
+  SY_TUPLE_ARGUMENT,
   SY_PROCEDURE_ARGUMENT,
 
-  // FUNCTION TYPES
+  // ARGUMENT LISTS
+  SY_TUPLE_TYPE,
   SY_PROCEDURE_TYPE,
-  
+
   // PLACEMENTS
   SY_PLACEMENT,
 
@@ -1786,14 +1782,17 @@ struct Signature final : public rq::ParameterList {
 
   rq::SymbolConstant *_return_type_ptr;
   rq::SymbolConstant *_reciever_type_ptr;
+  const rq::Expression *_precondition_expression_ptr;
+  const rq::Expression *_postcondition_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE Signature(unsigned parameter_count,
-                                      unsigned positional_parameter_count,
-                                      unsigned nonpositional_parameter_count,
-                                      unsigned locked_parameter_count,
-                                      rq::Parameter *first_parameter_ptr,
-                                      rq::SymbolConstant &return_type,
-                                      rq::SymbolConstant *reciever_type_ptr);
+  explicit RQ_ALWAYS_INLINE
+  Signature(unsigned parameter_count, unsigned positional_parameter_count,
+            unsigned nonpositional_parameter_count,
+            unsigned locked_parameter_count, rq::Parameter *first_parameter_ptr,
+            rq::SymbolConstant &return_type,
+            rq::SymbolConstant *reciever_type_ptr,
+            const rq::Expression *precondition_expression_ptr,
+            const rq::Expression *postcondition_expression_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getReturnType() const;
@@ -1802,6 +1801,12 @@ struct Signature final : public rq::ParameterList {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getRecieverType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getRecieverType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPreconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getPreconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostconditionExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getPostconditionExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1818,15 +1823,20 @@ struct Layout final : public rq::ParameterList {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Argument final : public llvm::FoldingSetNode {
+enum class ArgumentFlags final {
+
+};
+
+struct Argument final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::Argument;
 
   llvm::StringRef name;
   bool _is_variadic : 1;
   rq::SymbolConstant *_type_ptr;
 
-  explicit RQ_ALWAYS_INLINE Argument(llvm::StringRef name, bool is_variadic, rq::SymbolConstant& type);
-  
+  explicit RQ_ALWAYS_INLINE Argument(llvm::StringRef name, bool is_variadic,
+                                     rq::SymbolConstant &type);
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositionPassable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypePassable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamePassable() const;
@@ -1841,12 +1851,12 @@ struct ArgumentList : public rq::Symbol {};
 
 struct SignatureType final : rq::ArgumentList, public llvm::FoldingSetNode {
 
-    inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct LayoutList final : rq::ArgumentList, public llvm::FoldingSetNode {
 
-    inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
@@ -2433,8 +2443,6 @@ struct Procedure : public rq::GlobalDeclaration {
 
   rq::Signature *_signature_ptr{nullptr};
   rq::Instruction *_instruction_ptr{nullptr};
-  const rq::Expression *precondition_expression_ptr;
-  const rq::Expression *postcondition_expression_ptr;
 
   explicit RQ_ALWAYS_INLINE Procedure(rq::Opcode opcode);
 
@@ -2446,12 +2454,6 @@ struct Procedure : public rq::GlobalDeclaration {
   RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstruction() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPreconditionExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPreconditionExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasPostconditionExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getPostconditionExpression() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

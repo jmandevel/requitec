@@ -289,6 +289,12 @@ namespace rq {
   case O::SY_LAYOUT:
     return OF::SYMBOL | OF::SY_PARAMETER_LIST;
 
+  // ARGUMENTS 
+  case O::SY_TUPLE_ARGUMENT:
+    return OF::SYMBOL | OF::SY_ARGUMENT;
+  case O::SY_PROCEDURE_ARGUMENT:
+    return OF::SYMBOL | OF::SY_ARGUMENT
+
   // PLACEMENTS
   case O::SY_PLACEMENT:
     return OF::SYMBOL | OF::SY_IS_TYPE;
@@ -2443,17 +2449,19 @@ ConstSignatureParameterIterator::getIsDone() const {
   return this->_parameter_ptr != nullptr;
 }
 
-RQ_ALWAYS_INLINE Signature::Signature(unsigned parameter_count,
-                                      unsigned positional_parameter_count,
-                                      unsigned nonpositional_parameter_count,
-                                      unsigned locked_parameter_count,
-                                      rq::Parameter *first_parameter_ptr,
-                                      rq::SymbolConstant &return_type,
-                                      rq::SymbolConstant *reciever_type_ptr)
+RQ_ALWAYS_INLINE Signature::Signature(
+    unsigned parameter_count, unsigned positional_parameter_count,
+    unsigned nonpositional_parameter_count, unsigned locked_parameter_count,
+    rq::Parameter *first_parameter_ptr, rq::SymbolConstant &return_type,
+    rq::SymbolConstant *reciever_type_ptr,
+    const rq::Expression *precondition_expression_ptr,
+    const rq::Expression *postcondition_expression_ptr)
     : ParameterList(rq::Opcode::SY_SIGNATURE, parameter_count,
                     positional_parameter_count, nonpositional_parameter_count,
                     locked_parameter_count, first_parameter_ptr),
-      _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr) {}
+      _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr),
+      _precondition_expression_ptr(precondition_expression_ptr),
+      _postcondition_expression_ptr(postcondition_expression_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
 Signature::getReturnType() const {
@@ -2476,6 +2484,25 @@ Signature::getRecieverType() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
 Signature::getRecieverType() {
   return rq::dereferencePtr(this->_reciever_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Signature::getHasPreconditionExpression() const {
+  return this->_precondition_expression_ptr == nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Signature::getPreconditionExpression() const {
+  return rq::dereferencePtr(this->_precondition_expression_ptr);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Signature::getHasPostconditionExpression() const {
+  return this->_postcondition_expression_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Signature::getPostconditionExpression() const {
+  return rq::dereferencePtr(this->_postcondition_expression_ptr);
 }
 
 [[nodiscard]] inline bool Signature::classof(const rq::Entity *entity_ptr) {

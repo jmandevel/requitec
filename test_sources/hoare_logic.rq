@@ -1,7 +1,8 @@
 [template]::{| Type:[type_constraint] }
-[require]::(b != 0)
-[ensure]::([result] >= 0)
-[function divideSquare, ( a:Type, b:Type <)Type,
+[function divideSquare, 
+    [require]::(b != 0)
+    [ensure]::([result] >= 0)
+    ( a:Type, b:Type <)Type,
     divide_result := a / b;
     square := divide_result * divide_result;
     [result] := square;
