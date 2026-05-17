@@ -1745,7 +1745,7 @@ struct ParameterList : public rq::Symbol {
   rq::Parameter *_first_parameter_ptr;
 
   explicit RQ_ALWAYS_INLINE ParameterList(rq::Opcode opcode,
-                                          rq::Parameter &first_parameter);
+                                          rq::Parameter *first_parameter_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasFirstParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &getFirstParameter() const;
@@ -1757,7 +1757,7 @@ struct ParameterList : public rq::Symbol {
   [[nodiscard]] inline const rq::Parameter *
   getParameterPtrOfType(const rq::SymbolConstant &type) const;
   [[nodiscard]] inline rq::Parameter *
-  getParamterPtrOfType(const rq::SymbolConstant &type);
+  getParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::Parameter>,
                             rq::ParameterIterator<rq::Parameter>,
@@ -1844,12 +1844,10 @@ struct SymbolParameterList : public rq::ParameterList {
   unsigned _nonpositional_parameter_count;
   unsigned _locked_parameter_count;
 
-  explicit inline SymbolParameterList(rq::Opcode opcode,
-                                      unsigned parameter_count,
-                                      unsigned positional_parameter_count,
-                                      unsigned nonpositional_parameter_count,
-                                      unsigned locked_parameter_count,
-                                      rq::SymbolParameter *first_parameter_ptr);
+  explicit RQ_ALWAYS_INLINE SymbolParameterList(
+      rq::Opcode opcode, rq::SymbolParameter *first_parameter_ptr,
+      unsigned parameter_count, unsigned positional_parameter_count,
+      unsigned nonpositional_parameter_count, unsigned locked_parameter_count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
@@ -1889,10 +1887,10 @@ struct Signature final : public rq::SymbolParameterList {
   const rq::Expression *_precondition_expression_ptr;
   const rq::Expression *_postcondition_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE Signature(
+  explicit RQ_ALWAYS_INLINE Signature(rq::SignatureParameter *first_parameter_ptr,
       unsigned parameter_count, unsigned positional_parameter_count,
       unsigned nonpositional_parameter_count, unsigned locked_parameter_count,
-      rq::SymbolParameter *first_parameter_ptr, rq::SymbolConstant &return_type,
+       rq::SymbolConstant &return_type,
       rq::SymbolConstant *reciever_type_ptr,
       const rq::Expression *precondition_expression_ptr,
       const rq::Expression *postcondition_expression_ptr);
@@ -1939,11 +1937,10 @@ struct Signature final : public rq::SymbolParameterList {
 struct Layout final : public rq::SymbolParameterList {
   using Self = rq::Layout;
 
-  explicit RQ_ALWAYS_INLINE Layout(unsigned parameter_count,
+  explicit RQ_ALWAYS_INLINE Layout( rq::SymbolParameter *first_parameter_ptr, unsigned parameter_count,
                                    unsigned positional_parameter_count,
                                    unsigned nonpositional_parameter_count,
-                                   unsigned locked_parameter_count,
-                                   rq::SymbolParameter *first_parameter_ptr);
+                                   unsigned locked_parameter_count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
   getFirstLayoutParameter() const;
