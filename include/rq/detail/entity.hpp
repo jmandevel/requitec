@@ -316,43 +316,43 @@ namespace rq {
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE;
 
   // LOCAL STATEMENTS
-  case O::SY_IF:
+  case O::SY_IF_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_ELSE_IF:
+  case O::SY_ELSE_IF_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_ELSE:
+  case O::SY_ELSE_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_MATCH:
+  case O::SY_MATCH_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_SWITCH:
+  case O::SY_SWITCH_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_CASE:
+  case O::SY_CASE_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_WITH:
+  case O::SY_WITH_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_DEFAULT:
+  case O::SY_DEFAULT_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_FOR:
+  case O::SY_FOR_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_WHILE:
+  case O::SY_WHILE_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_SPIN:
+  case O::SY_SPIN_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_WEAVE:
+  case O::SY_WEAVE_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
-  case O::SY_SCOPE:
+  case O::SY_SCOPE_STATEMENT:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
@@ -495,31 +495,31 @@ getValidExpressionFlags(rq::Opcode opcode) {
     return EF::VARIADIC | EF::LOCATION;
   case O::SY_SIGNATURE:
     return EF::ENSURE | EF::REQUIRE;
-  case O::SY_IF:
+  case O::SY_IF_STATEMENT:
     return EF::ANCHOR | EF::STATIC | EF::LIKELY | EF::UNLIKELY;
-  case O::SY_ELSE_IF:
+  case O::SY_ELSE_IF_STATEMENT:
     return EF::ANCHOR | EF::STATIC | EF::LIKELY | EF::UNLIKELY;
-  case O::SY_ELSE:
+  case O::SY_ELSE_STATEMENT:
     return EF::ANCHOR | EF::STATIC | EF::LIKELY | EF::UNLIKELY;
-  case O::SY_MATCH:
+  case O::SY_MATCH_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_SWITCH:
+  case O::SY_SWITCH_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_CASE:
+  case O::SY_CASE_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_WITH:
+  case O::SY_WITH_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_DEFAULT:
+  case O::SY_DEFAULT_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_FOR:
+  case O::SY_FOR_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_WHILE:
+  case O::SY_WHILE_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_SPIN:
+  case O::SY_SPIN_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_WEAVE:
+  case O::SY_WEAVE_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_SCOPE:
+  case O::SY_SCOPE_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
   case O::SY_CLASS:
     return EF::OPAQUE | EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
@@ -3179,7 +3179,7 @@ RQ_ALWAYS_INLINE SymbolTable::SymbolTable(rq::Opcode opcode,
   RQ_ASSERT(rq::getIsSymbolTable(opcode), "not symbol table");
 }
 
-RQ_ALWAYS_INLINE void SymbolTable::release() {
+inline void SymbolTable::release() {
   for (auto &kvp : this->_named_member_map) {
     for (rq::Symbol &symbol : kvp.second) {
       if (llvm::isa<rq::SymbolTable>(symbol)) {
@@ -3194,6 +3194,7 @@ RQ_ALWAYS_INLINE void SymbolTable::release() {
       table.release();
     }
   }
+  std::destroy_at(&this->_named_member_map);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool SymbolTable::getHasContainingTable() const {
@@ -3244,6 +3245,38 @@ SymbolTable::getUnamedMemberList() {
 [[nodiscard]] inline bool SymbolTable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsSymbolTable(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::Opcode::SY_TOP, nullptr) {}
+
+[[nodiscard]] inline bool Top::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_TOP;
+}
+
+RQ_ALWAYS_INLINE LocalStatement::LocalStatement(
+    rq::Opcode opcode, rq::SymbolTable &containing_table,
+    rq::Expression &expression, rq::ExpressionFlags flags)
+    : SymbolTable(opcode, &containing_table), _expression_ptr(&expression),
+      _flags(flags) {
+  RQ_ASSERT(rq::getIsLocalStatement(opcode), "not local statement");
+}
+
+[[nodiscard]] inline bool
+LocalStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsLocalStatement(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE IfStatement::IfStatement(rq::SymbolTable &containing_table,
+                                          rq::Expression &expression,
+                                          rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_IF_STATEMENT, containing_table, expression,
+                     flags) {}
+
+[[nodiscard]] inline bool IfStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_IF_STATEMENT;
 }
 
 } // namespace rq

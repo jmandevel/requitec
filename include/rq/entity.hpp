@@ -167,19 +167,19 @@ enum class Opcode {
   SY_TOP,
 
   // LOCAL STATEMENTS => symbol table
-  SY_IF,
-  SY_ELSE_IF,
-  SY_ELSE,
-  SY_MATCH,
-  SY_SWITCH,
-  SY_CASE,
-  SY_WITH,
-  SY_DEFAULT,
-  SY_FOR,
-  SY_WHILE,
-  SY_SPIN,
-  SY_WEAVE,
-  SY_SCOPE,
+  SY_IF_STATEMENT,
+  SY_ELSE_IF_STATEMENT,
+  SY_ELSE_STATEMENT,
+  SY_MATCH_STATEMENT,
+  SY_SWITCH_STATEMENT,
+  SY_CASE_STATEMENT,
+  SY_WITH_STATEMENT,
+  SY_DEFAULT_STATEMENT,
+  SY_FOR_STATEMENT,
+  SY_WHILE_STATEMENT,
+  SY_SPIN_STATEMENT,
+  SY_WEAVE_STATEMENT,
+  SY_SCOPE_STATEMENT,
 
   // GLOBAL DECLARATION => symbol table
   SY_NAMESPACE,
@@ -475,19 +475,19 @@ struct Entity;
     struct SymbolTable;
       struct Top;
       struct LocalStatement;
-        struct IfTable;
-        struct ElseIfTable;
-        struct ElseTable;
-        struct MatchTable;
-        struct SwitchTable;
-        struct CaseTable;
-        struct WithTable;
-        struct DefaultTable;
-        struct ForTable;
-        struct WhileTable;
-        struct SpinTable;
-        struct WeaveTable;
-        struct ScopeTable;
+        struct IfStatement;
+        struct ElseIfStatement;
+        struct ElseStatement;
+        struct MatchStatement;
+        struct SwitchStatement;
+        struct CaseStatement;
+        struct WithStatement;
+        struct DefaultStatement;
+        struct ForStatement;
+        struct WhileStatement;
+        struct SpinStatement;
+        struct WeaveStatement;
+        struct ScopeStatement;
       struct GlobalDeclaration;
         struct Namespace;
         struct ClassType;
@@ -2115,21 +2115,22 @@ struct SymbolTable : public rq::Symbol {
   explicit RQ_ALWAYS_INLINE SymbolTable(rq::Opcode opcode,
                                         rq::SymbolTable *containing_table_ptr);
 
-  RQ_ALWAYS_INLINE void release();
+  inline void release();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
   getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
-  inline void addNamedMember(rq::BumpPtrAllocator &allocator, llvm::StringRef name, rq::Symbol &symbol);
+  inline void addNamedMember(rq::BumpPtrAllocator &allocator,
+                             llvm::StringRef name, rq::Symbol &symbol);
   RQ_ALWAYS_INLINE void addUnamedMember(rq::BumpPtrAllocator &allocator,
                                         rq::Symbol &symbol);
   [[nodiscard]] RQ_ALWAYS_INLINE const
       llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> &
       getNamedMemberMap() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstBumpPtrListRef<rq::Symbol> getUnamedMemberList() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::BumpPtrListRef<rq::Symbol> getUnamedMemberList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstBumpPtrListRef<rq::Symbol>
+  getUnamedMemberList() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
+  getUnamedMemberList();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2149,101 +2150,141 @@ struct LocalStatement : public rq::SymbolTable {
   rq::ExpressionFlags _flags;
 
   explicit RQ_ALWAYS_INLINE LocalStatement(rq::Opcode opcode,
+                                           rq::SymbolTable &containing_table,
                                            rq::Expression &expression,
                                            rq::ExpressionFlags flags);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct IfTable final : public rq::LocalStatement {
-  using Self = rq::IfTable;
+struct IfStatement final : public rq::LocalStatement {
+  using Self = rq::IfStatement;
 
-  explicit RQ_ALWAYS_INLINE IfTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE IfStatement(rq::SymbolTable &containing_table,
+                                    rq::Expression &expression,
                                     rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ElseIfTable final : public rq::LocalStatement {
-  using Self = rq::ElseIfTable;
+struct ElseIfStatement final : public rq::LocalStatement {
+  using Self = rq::ElseIfStatement;
 
-  explicit RQ_ALWAYS_INLINE ElseIfTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE ElseIfStatement(rq::SymbolTable &containing_table,
+                                        rq::Expression &expression,
                                         rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ElseTable final : public rq::LocalStatement {
-  using Self = rq::ElseTable;
+struct ElseStatement final : public rq::LocalStatement {
+  using Self = rq::ElseStatement;
 
-  explicit RQ_ALWAYS_INLINE ElseTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE ElseStatement(rq::SymbolTable &containing_table,
+                                      rq::Expression &expression,
                                       rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct MatchTable final : public rq::LocalStatement {
-  using Self = rq::MatchTable;
+struct MatchStatement final : public rq::LocalStatement {
+  using Self = rq::MatchStatement;
 
-  explicit RQ_ALWAYS_INLINE MatchTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE MatchStatement(rq::SymbolTable &containing_table,
+                                       rq::Expression &expression,
                                        rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SwitchTable final : public rq::LocalStatement {
-  using Self = rq::SwitchTable;
+struct SwitchStatement final : public rq::LocalStatement {
+  using Self = rq::SwitchStatement;
 
-  explicit RQ_ALWAYS_INLINE SwitchTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE SwitchStatement(rq::SymbolTable &containing_table,
+                                        rq::Expression &expression,
                                         rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct CaseTable final : public rq::LocalStatement {
-  using Self = rq::CaseTable;
+struct CaseStatement final : public rq::LocalStatement {
+  using Self = rq::CaseStatement;
 
-  explicit RQ_ALWAYS_INLINE CaseTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE CaseStatement(rq::SymbolTable &containing_table,
+                                      rq::Expression &expression,
                                       rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct WithTable final : public rq::LocalStatement {
-  using Self = rq::WithTable;
+struct WithStatement final : public rq::LocalStatement {
+  using Self = rq::WithStatement;
 
-  explicit RQ_ALWAYS_INLINE WithTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE WithStatement(rq::SymbolTable &containing_table,
+                                      rq::Expression &expression,
                                       rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct DefaultTable final : public rq::LocalStatement {
-  using Self = rq::DefaultTable;
+struct DefaultStatement final : public rq::LocalStatement {
+  using Self = rq::DefaultStatement;
 
-  explicit RQ_ALWAYS_INLINE DefaultTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE DefaultStatement(rq::SymbolTable &containing_table,
+                                         rq::Expression &expression,
                                          rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ForTable final : public rq::LocalStatement {
-  using Self = rq::ForTable;
+struct ForStatement final : public rq::LocalStatement {
+  using Self = rq::ForStatement;
 
-  explicit RQ_ALWAYS_INLINE ForTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE ForStatement(rq::SymbolTable &containing_table,
+                                     rq::Expression &expression,
                                      rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct WhileTable final : public rq::LocalStatement {
-  using Self = rq::WhileTable;
+struct WhileStatement final : public rq::LocalStatement {
+  using Self = rq::WhileStatement;
 
-  explicit RQ_ALWAYS_INLINE WhileTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE WhileStatement(rq::SymbolTable &containing_table,
+                                       rq::Expression &expression,
                                        rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SpinTable final : public rq::LocalStatement {
-  using Self = rq::SpinTable;
+struct SpinStatement final : public rq::LocalStatement {
+  using Self = rq::SpinStatement;
 
-  explicit RQ_ALWAYS_INLINE SpinTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE SpinStatement(rq::SymbolTable &containing_table,
+                                      rq::Expression &expression,
                                       rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct WeaveTable final : public rq::LocalStatement {
-  using Self = rq::WeaveTable;
+struct WeaveStatement final : public rq::LocalStatement {
+  using Self = rq::WeaveStatement;
 
-  explicit RQ_ALWAYS_INLINE WeaveTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE WeaveStatement(rq::SymbolTable &containing_table,
+                                       rq::Expression &expression,
                                        rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ScopeTable final : public rq::LocalStatement {
-  using Self = rq::ScopeTable;
+struct ScopeStatement final : public rq::LocalStatement {
+  using Self = rq::ScopeStatement;
 
-  explicit RQ_ALWAYS_INLINE ScopeTable(rq::Expression &expression,
+  explicit RQ_ALWAYS_INLINE ScopeStatement(rq::SymbolTable &containing_table,
+                                       rq::Expression &expression,
                                        rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct GlobalDeclaration : public rq::SymbolTable {
