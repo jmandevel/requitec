@@ -300,15 +300,15 @@ namespace rq {
     return OF::SYMBOL | OF::SY_TYPE_PARAMETER_LIST | OF::SY_IS_TYPE;
 
     // PLACEMENTS
-  case O::SY_PLACEMENT:
+  case O::SY_PLACEMENT_TYPE:
     return OF::SYMBOL | OF::SY_IS_TYPE;
 
   // COMPOSITIONS
-  case O::SY_COMPOSITION:
+  case O::SY_COMPOSITION_TYPE:
     return OF::SYMBOL | OF::SY_IS_TYPE;
 
   // SYNONYMS
-  case O::SY_SYNONYM:
+  case O::SY_SYNONYM_TYPE:
     return OF::SYMBOL | OF::SY_IS_TYPE;
 
   // POLYMORPHS
@@ -902,7 +902,8 @@ inline void SimpleSymbol::Profile(llvm::FoldingSetNodeID &id) const {
   rq::profileSimpleSymbol(id, this->getOpcode());
 }
 
-inline void profileSimpleSymbol(llvm::FoldingSetNodeID &id, rq::Opcode opcode) {
+RQ_ALWAYS_INLINE void profileSimpleSymbol(llvm::FoldingSetNodeID &id,
+                                          rq::Opcode opcode) {
   id.AddInteger(rq::getUnderlying(opcode));
 }
 
@@ -1504,7 +1505,7 @@ ScaledPrimitiveType::getScalar() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t
-ScaledPrimitiveType::getSynonymId() const {
+ScaledPrimitiveType::getSynonymTypeId() const {
   return this->_synonym_id;
 }
 
@@ -1516,13 +1517,12 @@ ScaledPrimitiveType::classof(const rq::Entity *entity_ptr) {
 
 inline void ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &id) const {
   rq::profileScaledPrimitiveType(id, this->getKind(), this->getScalar(),
-                                 this->getSynonymId());
+                                 this->getSynonymTypeId());
 }
 
-inline void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
-                                       rq::ScaledIntegerKind kind,
-                                       const rq::IntegerConstant &scalar,
-                                       std::uint64_t synonum_id) {
+RQ_ALWAYS_INLINE void profileScaledPrimitiveType(
+    llvm::FoldingSetNodeID &id, rq::ScaledIntegerKind kind,
+    const rq::IntegerConstant &scalar, std::uint64_t synonum_id) {
   id.AddInteger(rq::getUnderlying(kind));
   id.AddPointer(&scalar);
   id.AddInteger(synonum_id);
@@ -1591,9 +1591,9 @@ inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &id) const {
   rq::profileArraySubtype(id, this->getChild(), this->getCount());
 }
 
-inline void profileArraySubtype(llvm::FoldingSetNodeID &id,
-                                const rq::SymbolConstant &child,
-                                const rq::IntegerConstant &count) {
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &id,
+                                          const rq::SymbolConstant &child,
+                                          const rq::IntegerConstant &count) {
   id.AddPointer(&child);
   id.AddPointer(&count);
 }
@@ -1614,8 +1614,8 @@ inline void UncountedSubtype::Profile(llvm::FoldingSetNodeID &id) const {
   return rq::profileUncountedSubtype(id, this->getChild());
 }
 
-inline void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
-                                    const rq::SymbolConstant &child) {
+RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+                                              const rq::SymbolConstant &child) {
   id.AddPointer(&child);
 }
 
@@ -1819,11 +1819,11 @@ inline void ArithmeticSequence::Profile(llvm::FoldingSetNodeID &id) const {
                                 this->getCondition(), this->getStep());
 }
 
-inline void profileArithmeticSequence(llvm::FoldingSetNodeID &id,
-                                      rq::Opcode opcode,
-                                      const rq::SymbolConstant &child,
-                                      rq::ArithmeticSequenceCondition condition,
-                                      rq::ArithmeticSequenceStep step) {
+RQ_ALWAYS_INLINE void
+profileArithmeticSequence(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                          const rq::SymbolConstant &child,
+                          rq::ArithmeticSequenceCondition condition,
+                          rq::ArithmeticSequenceStep step) {
   id.AddInteger(rq::getUnderlying(opcode));
   id.AddPointer(&child);
   id.AddInteger(rq::getUnderlying(condition));
@@ -2283,10 +2283,10 @@ inline void TypeParameter::Profile(llvm::FoldingSetNodeID &id) const {
                            this->getIsPositional());
 }
 
-inline void profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
-                                 llvm::StringRef name,
-                                 const rq::SymbolConstant &type,
-                                 unsigned location, bool is_positional) {
+RQ_ALWAYS_INLINE void
+profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                     llvm::StringRef name, const rq::SymbolConstant &type,
+                     unsigned location, bool is_positional) {
   id.AddInteger(rq::getUnderlying(opcode));
   id.AddString(name);
   id.AddPointer(&type);
@@ -2391,7 +2391,8 @@ RQ_ALWAYS_INLINE ConstParameterIterator<Element>::ConstParameterIterator(
 template <typename Element>
 RQ_ALWAYS_INLINE rq::ConstParameterIterator<Element> &
 ConstParameterIterator<Element>::operator++() {
-  this->_parameter_ptr = rq::dereferencePtr(this->_parameter_ptr)._next_ptr;
+  this->_parameter_ptr =
+      llvm::cast<Element>(rq::dereferencePtr(this->_parameter_ptr)._next_ptr);
   return *this;
 }
 
@@ -2399,7 +2400,8 @@ template <typename Element>
 RQ_ALWAYS_INLINE rq::ConstParameterIterator<Element>
 ConstParameterIterator<Element>::operator++(int) {
   rq::ConstParameterIterator<Element> temp = *this;
-  temp._parameter_ptr = rq::dereferencePtr(this->_parameter_ptr)._next_ptr;
+  temp._parameter_ptr =
+      llvm::cast<Element>(rq::dereferencePtr(this->_parameter_ptr)._next_ptr);
   return temp;
 }
 
@@ -2435,8 +2437,14 @@ ConstParameterIterator<Element>::getIsDone() const {
 
 RQ_ALWAYS_INLINE
 ParameterList::ParameterList(rq::Opcode opcode,
-                             rq::Parameter *first_parameter_ptr)
-    : Symbol(opcode), _first_parameter_ptr(first_parameter_ptr) {}
+                             rq::Parameter *first_parameter_ptr,
+                             unsigned parameter_count,
+                             unsigned positional_parameter_count,
+                             unsigned nonpositional_parameter_count)
+    : Symbol(opcode), _first_parameter_ptr(first_parameter_ptr),
+      _parameter_count(parameter_count),
+      _positional_parameter_count(positional_parameter_count),
+      _nonpositional_parameter_count(nonpositional_parameter_count) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 ParameterList::getHasFirstParameter() const {
@@ -2453,6 +2461,21 @@ ParameterList::getFirstParameter() {
   return rq::dereferencePtr(this->_first_parameter_ptr);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned
+ParameterList::getParameterCount() const {
+  return this->_parameter_count;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned
+ParameterList::getPositionalParameterCount() const {
+  return this->_positional_parameter_count;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned
+ParameterList::getNonpositionalParameterCount() const {
+  return this->_nonpositional_parameter_count;
+}
+
 [[nodiscard]] inline const rq::Parameter *
 ParameterList::getParameterPtrOfName(llvm::StringRef name) const {
   for (const rq::Parameter &parameter : this->getParameterSubrange()) {
@@ -2467,26 +2490,6 @@ ParameterList::getParameterPtrOfName(llvm::StringRef name) const {
 ParameterList::getParameterPtrOfName(llvm::StringRef name) {
   for (rq::Parameter &parameter : this->getParameterSubrange()) {
     if (parameter.getName() == name) {
-      return &parameter;
-    }
-  }
-  return nullptr;
-}
-
-[[nodiscard]] inline const rq::Parameter *
-ParameterList::getParameterPtrOfType(const rq::SymbolConstant &type) const {
-  for (const rq::Parameter &parameter : this->getParameterSubrange()) {
-    if (parameter.getType() == type) {
-      return &parameter;
-    }
-  }
-  return nullptr;
-}
-
-[[nodiscard]] inline rq::Parameter *
-ParameterList::getParameterPtrOfType(const rq::SymbolConstant &type) {
-  for (rq::Parameter &parameter : this->getParameterSubrange()) {
-    if (parameter.getType() == type) {
       return &parameter;
     }
   }
@@ -2645,25 +2648,10 @@ RQ_ALWAYS_INLINE SymbolParameterList::SymbolParameterList(
     rq::Opcode opcode, rq::SymbolParameter *first_parameter_ptr,
     unsigned parameter_count, unsigned positional_parameter_count,
     unsigned nonpositional_parameter_count, unsigned locked_parameter_count)
-    : ParameterList(opcode, first_parameter_ptr),
-      _parameter_count(parameter_count),
-      _positional_parameter_count(positional_parameter_count),
-      _nonpositional_parameter_count(nonpositional_parameter_count),
-      _locked_parameter_count(locked_parameter_count) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE unsigned
-SymbolParameterList::getParameterCount() const {
-  return this->_parameter_count;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE unsigned
-SymbolParameterList::getPositionalParameterCount() const {
-  return this->_positional_parameter_count;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE unsigned
-SymbolParameterList::getNonpositionalParameterCount() const {
-  return this->_nonpositional_parameter_count;
+    : ParameterList(opcode, first_parameter_ptr, parameter_count,
+                    positional_parameter_count, nonpositional_parameter_count),
+      _locked_parameter_count(locked_parameter_count) {
+  RQ_ASSERT(rq::getIsSymbolParameterList(opcode), "not symbol parameter list");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned
@@ -2689,18 +2677,6 @@ SymbolParameterList::getSymbolParameterPtrOfName(llvm::StringRef name) const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
 SymbolParameterList::getSymbolParameterPtrOfName(llvm::StringRef name) {
   return llvm::cast<rq::SymbolParameter>(this->getParameterPtrOfName(name));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
-SymbolParameterList::getSymbolParameterPtrOfType(
-    const rq::SymbolConstant &type) const {
-  return llvm::cast<rq::SymbolParameter>(this->getParameterPtrOfType(type));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
-SymbolParameterList::getSymbolParameterPtrOfType(
-    const rq::SymbolConstant &type) {
-  return llvm::cast<rq::SymbolParameter>(this->getParameterPtrOfType(type));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
@@ -2812,17 +2788,6 @@ Signature::getSignatureParameterPtrOfName(llvm::StringRef name) {
   return llvm::cast<rq::SignatureParameter>(this->getParameterPtrOfName(name));
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
-Signature::getSignatureParameterPtrOfType(
-    const rq::SymbolConstant &type) const {
-  return llvm::cast<rq::SignatureParameter>(this->getParameterPtrOfType(type));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
-Signature::getSignatureParameterPtrOfType(const rq::SymbolConstant &type) {
-  return llvm::cast<rq::SignatureParameter>(this->getParameterPtrOfType(type));
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE
     std::ranges::subrange<rq::ParameterIterator<rq::SignatureParameter>,
                           rq::ParameterIterator<rq::SignatureParameter>,
@@ -2885,16 +2850,6 @@ Layout::getLayoutParameterPtrOfName(llvm::StringRef name) {
   return llvm::cast<rq::LayoutParameter>(this->getParameterPtrOfName(name));
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
-Layout::getLayoutParameterPtrOfType(const rq::SymbolConstant &type) const {
-  return llvm::cast<rq::LayoutParameter>(this->getParameterPtrOfType(type));
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
-Layout::getLayoutParameterPtrOfType(const rq::SymbolConstant &type) {
-  return llvm::cast<rq::LayoutParameter>(this->getParameterPtrOfType(type));
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE
     std::ranges::subrange<rq::ParameterIterator<rq::LayoutParameter>,
                           rq::ParameterIterator<rq::LayoutParameter>,
@@ -2924,6 +2879,380 @@ Layout::getLayoutParameterPtrOfType(const rq::SymbolConstant &type) {
 [[nodiscard]] inline bool Layout::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_LAYOUT;
+}
+
+RQ_ALWAYS_INLINE
+TypeParameterList::TypeParameterList(rq::Opcode opcode,
+                                     rq::TypeParameter *first_parameter_ptr,
+                                     unsigned parameter_count,
+                                     unsigned positional_parameter_count,
+                                     unsigned nonpositional_parameter_count)
+    : ParameterList(opcode, first_parameter_ptr, parameter_count,
+                    positional_parameter_count, nonpositional_parameter_count) {
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter &
+TypeParameterList::getFirstTypeParameter() const {
+  return llvm::cast<rq::TypeParameter>(this->getFirstParameter());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter &
+TypeParameterList::getFirstTypeParameter() {
+  return llvm::cast<rq::TypeParameter>(this->getFirstParameter());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
+TypeParameterList::getTypeParameterPtrOfName(llvm::StringRef name) const {
+  return llvm::cast<rq::TypeParameter>(this->getParameterPtrOfName(name));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
+TypeParameterList::getTypeParameterPtrOfName(llvm::StringRef name) {
+  return llvm::cast<rq::TypeParameter>(this->getParameterPtrOfName(name));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
+                          rq::ParameterIterator<rq::TypeParameter>,
+                          std::ranges::subrange_kind::unsized>
+    TypeParameterList::getTypeParameterSubrange() {
+  return std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
+                               rq::ParameterIterator<rq::TypeParameter>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ParameterIterator<rq::TypeParameter>(
+          llvm::cast<rq::TypeParameter>(this->_first_parameter_ptr)),
+      rq::ParameterIterator<rq::TypeParameter>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstParameterIterator<rq::TypeParameter>,
+                          rq::ConstParameterIterator<rq::TypeParameter>,
+                          std::ranges::subrange_kind::unsized>
+    TypeParameterList::getTypeParameterSubrange() const {
+  return std::ranges::subrange<rq::ConstParameterIterator<rq::TypeParameter>,
+                               rq::ConstParameterIterator<rq::TypeParameter>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstParameterIterator<rq::TypeParameter>(
+          llvm::cast<rq::TypeParameter>(this->_first_parameter_ptr)),
+      rq::ConstParameterIterator<rq::TypeParameter>());
+}
+
+[[nodiscard]] inline bool
+TypeParameterList::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsTypeParameterList(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE
+ProcedureType::ProcedureType(rq::TypeParameter *first_parameter_ptr,
+                             unsigned parameter_count,
+                             unsigned positional_parameter_count,
+                             unsigned nonpositional_parameter_count,
+                             rq::SymbolConstant &return_type,
+                             rq::SymbolConstant *reciever_type_ptr)
+    : TypeParameterList(rq::Opcode::SY_PROCEDURE_TYPE, first_parameter_ptr,
+                        parameter_count, positional_parameter_count,
+                        nonpositional_parameter_count),
+      _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
+ProcedureType::getFirstProcedureParameter() const {
+  return llvm::cast<rq::ProcedureParameter>(this->getFirstParameter());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
+ProcedureType::getFirstProcedureParameter() {
+  return llvm::cast<rq::ProcedureParameter>(this->getFirstParameter());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
+ProcedureType::getProcedureParameterPtrOfName(llvm::StringRef name) const {
+  return llvm::cast<rq::ProcedureParameter>(this->getParameterPtrOfName(name));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
+ProcedureType::getProcedureParameterPtrOfName(llvm::StringRef name) {
+  return llvm::cast<rq::ProcedureParameter>(this->getParameterPtrOfName(name));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
+                          rq::ParameterIterator<rq::ProcedureParameter>,
+                          std::ranges::subrange_kind::unsized>
+    ProcedureType::getProcedureParameterSubrange() {
+  return std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
+                               rq::ParameterIterator<rq::ProcedureParameter>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ParameterIterator<rq::ProcedureParameter>(
+          llvm::cast<rq::ProcedureParameter>(this->_first_parameter_ptr)),
+      rq::ParameterIterator<rq::ProcedureParameter>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstParameterIterator<rq::ProcedureParameter>,
+                          rq::ConstParameterIterator<rq::ProcedureParameter>,
+                          std::ranges::subrange_kind::unsized>
+    ProcedureType::getProcedureParameterSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstParameterIterator<rq::ProcedureParameter>,
+      rq::ConstParameterIterator<rq::ProcedureParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::ConstParameterIterator<rq::ProcedureParameter>(
+          llvm::cast<rq::ProcedureParameter>(this->_first_parameter_ptr)),
+      rq::ConstParameterIterator<rq::ProcedureParameter>());
+}
+
+[[nodiscard]] inline bool ProcedureType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_PROCEDURE_TYPE;
+}
+
+inline void
+ProcedureType::Profile(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                       const rq::ProcedureParameter *first_parameter_ptr,
+                       const rq::SymbolConstant &return_type,
+                       const rq::SymbolConstant *reciever_type_ptr) const {
+  id.AddInteger(rq::getUnderlying(opcode));
+  id.AddPointer(first_parameter_ptr);
+  id.AddPointer(&return_type);
+  id.AddPointer(reciever_type_ptr);
+}
+
+inline void
+profileProcedureType(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                     const rq::ProcedureParameter *first_parameter_ptr,
+                     const rq::SymbolConstant &return_type,
+                     const rq::SymbolConstant *reciever_type_ptr) {
+  id.AddInteger(rq::getUnderlying(opcode));
+  id.AddPointer(first_parameter_ptr);
+  id.AddPointer(&return_type);
+  id.AddPointer(reciever_type_ptr);
+}
+
+RQ_ALWAYS_INLINE TupleType::TupleType(rq::TypeParameter *first_parameter_ptr,
+                                      unsigned parameter_count,
+                                      unsigned positional_parameter_count,
+                                      unsigned nonpositional_parameter_count,
+                                      unsigned type_keyed_parameter_count)
+    : TypeParameterList(rq::Opcode::SY_TUPLE_TYPE, first_parameter_ptr,
+                        parameter_count, positional_parameter_count,
+                        nonpositional_parameter_count),
+      _type_keyed_parameter_count(type_keyed_parameter_count) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned
+TupleType::getNameKeyedParameterCount() const {
+  return this->getNonpositionalParameterCount() -
+         this->getTypeKeyedParameterCount();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned
+TupleType::getTypeKeyedParameterCount() const {
+  return this->_type_keyed_parameter_count;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter &
+TupleType::getFirstTupleParameter() const {
+  return llvm::cast<rq::TupleParameter>(this->getFirstParameter());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
+TupleType::getFirstTupleParameter() {
+  return llvm::cast<rq::TupleParameter>(this->getFirstParameter());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
+TupleType::getTupleParameterPtrOfName(llvm::StringRef name) const {
+  return llvm::cast<rq::TupleParameter>(this->getParameterPtrOfName(name));
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
+TupleType::getTupleParameterPtrOfName(llvm::StringRef name) {
+  return llvm::cast<rq::TupleParameter>(this->getParameterPtrOfName(name));
+}
+
+[[nodiscard]] inline const rq::TupleParameter *
+TupleType::getTupleParameterPtrOfType(const rq::SymbolConstant &type) const {
+  for (const rq::TupleParameter &parameter :
+       this->getTupleParameterSubrange()) {
+    if (!parameter.getName().empty()) {
+      continue;
+    }
+    if (parameter.getType() == type) {
+      return &parameter;
+    }
+  }
+  return nullptr;
+}
+
+[[nodiscard]] inline rq::TupleParameter *
+TupleType::getTupleParameterPtrOfType(const rq::SymbolConstant &type) {
+  for (rq::TupleParameter &parameter : this->getTupleParameterSubrange()) {
+    if (!parameter.getName().empty()) {
+      continue;
+    }
+    if (parameter.getType() == type) {
+      return &parameter;
+    }
+  }
+  return nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
+                          rq::ParameterIterator<rq::TupleParameter>,
+                          std::ranges::subrange_kind::unsized>
+    TupleType::getTupleParameterSubrange() {
+  return std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
+                               rq::ParameterIterator<rq::TupleParameter>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ParameterIterator<rq::TupleParameter>(
+          llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr)),
+      rq::ParameterIterator<rq::TupleParameter>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstParameterIterator<rq::TupleParameter>,
+                          rq::ConstParameterIterator<rq::TupleParameter>,
+                          std::ranges::subrange_kind::unsized>
+    TupleType::getTupleParameterSubrange() const {
+  return std::ranges::subrange<rq::ConstParameterIterator<rq::TupleParameter>,
+                               rq::ConstParameterIterator<rq::TupleParameter>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstParameterIterator<rq::TupleParameter>(
+          llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr)),
+      rq::ConstParameterIterator<rq::TupleParameter>());
+}
+
+[[nodiscard]] inline bool TupleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_TUPLE_TYPE;
+}
+
+inline void TupleType::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileTupleType(
+      id, llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr));
+}
+
+RQ_ALWAYS_INLINE void
+profileTupleType(llvm::FoldingSetNodeID &id,
+                 const rq::TupleParameter *first_parameter_ptr) {
+  id.AddPointer(first_parameter_ptr);
+}
+
+RQ_ALWAYS_INLINE Placement::Placement(rq::Procedure &procedure)
+    : Symbol(rq::Opcode::SY_PLACEMENT_TYPE), _procedure_ptr(&procedure) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &
+Placement::getProcedure() const {
+  return rq::dereferencePtr(this->_procedure_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &Placement::getProcedure() {
+  return rq::dereferencePtr(this->_procedure_ptr);
+}
+
+[[nodiscard]] inline bool Placement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_PLACEMENT_TYPE;
+}
+
+inline void Placement::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profilePlacement(id, this->getProcedure());
+}
+
+RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &id,
+                                       const rq::Procedure &procedure) {
+  id.AddPointer(&procedure);
+}
+
+RQ_ALWAYS_INLINE
+CompositionComponent::CompositionComponent(rq::Interface &interface,
+                                           rq::CompositionComponent *next_ptr)
+    : _interface_ptr(&interface), _next_component_ptr(next_ptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
+CompositionComponent::getInterface() const {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &
+CompositionComponent::getInterface() {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+CompositionComponent::getHasNextComponent() const {
+  return this->_next_component_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
+CompositionComponent::getNextComponent() const {
+  return rq::dereferencePtr(this->_next_component_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &
+CompositionComponent::getNextComponent() {
+  return rq::dereferencePtr(this->_next_component_ptr);
+}
+
+inline void CompositionComponent::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileCompositionComponent(id, this->getInterface(),
+                                  this->_next_component_ptr);
+}
+
+RQ_ALWAYS_INLINE void profileCompositionComponent(
+    llvm::FoldingSetNodeID &id, const rq::Interface &interface,
+    const rq::CompositionComponent *next_component_ptr) {
+  id.AddPointer(&interface);
+  id.AddPointer(next_component_ptr);
+}
+
+RQ_ALWAYS_INLINE
+CompositionType::CompositionType(rq::CompositionComponent &first_component)
+    : Symbol(rq::Opcode::SY_COMPOSITION_TYPE),
+      _first_component_ptr(&first_component) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
+CompositionType::getFirstComponent() const {
+  return rq::dereferencePtr(this->_first_component_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &
+CompositionType::getFirstComponent() {
+  return rq::dereferencePtr(this->_first_component_ptr);
+}
+
+[[nodiscard]] inline bool
+CompositionType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_COMPOSITION_TYPE;
+}
+
+inline void CompositionType::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileComposition(id, this->getFirstComponent());
+}
+
+inline void
+profileComposition(llvm::FoldingSetNodeID &id,
+                   const rq::CompositionComponent &first_component) {
+  id.AddPointer(&first_component);
+}
+
+RQ_ALWAYS_INLINE SynonymType::SynonymType(rq::Symbol &original)
+    : Symbol(rq::Opcode::SY_SYNONYM_TYPE), _original_ptr(&original) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &
+SynonymType::getOriginal() const {
+  return rq::dereferencePtr(this->_original_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &SynonymType::getOriginal() {
+  return rq::dereferencePtr(this->_original_ptr);
+}
+
+[[nodiscard]] inline bool SynonymType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SYNONYM_TYPE;
 }
 
 } // namespace rq

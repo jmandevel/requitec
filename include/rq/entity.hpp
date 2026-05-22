@@ -154,13 +154,13 @@ enum class Opcode {
   SY_PROCEDURE_TYPE,
 
   // PLACEMENTS
-  SY_PLACEMENT,
+  SY_PLACEMENT_TYPE,
 
   // COMPOSITIONS
-  SY_COMPOSITION,
+  SY_COMPOSITION_TYPE,
 
   // SYNONYMS
-  SY_SYNONYM,
+  SY_SYNONYM_TYPE,
 
   // POLYMORPHS
   SY_RANGER_POLYMORPH,
@@ -462,8 +462,8 @@ struct Entity;
         struct TupleType;
         struct ProcedureType;
     struct Placement;
-    struct Composition;
-    struct Synonym;
+    struct CompositionType;
+    struct SynonymType;
     struct Polymorph;
       struct RangerPolymorph;
       struct ProcedurePolymorph;
@@ -580,7 +580,7 @@ struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileSimpleSymbol(llvm::FoldingSetNodeID &id, rq::Opcode opcode);
+RQ_ALWAYS_INLINE void profileSimpleSymbol(llvm::FoldingSetNodeID &id, rq::Opcode opcode);
 
 struct LiteralType : public rq::SimpleSymbol {
   using Self = rq::LiteralType;
@@ -1157,14 +1157,14 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
                       std::uint64_t synonym_id);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledIntegerKind getKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getScalar() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getSynonymId() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getSynonymTypeId() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
                                        rq::ScaledIntegerKind kind,
                                        const rq::IntegerConstant &scalar,
                                        std::uint64_t synonum_id);
@@ -1219,7 +1219,7 @@ struct ArraySubtype final : public rq::Subtype, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileArraySubtype(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &id,
                                 const rq::SymbolConstant &child,
                                 const rq::IntegerConstant &count);
 
@@ -1234,7 +1234,7 @@ struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
                                     const rq::SymbolConstant &child);
 
 struct ReferenceSubtype final : public rq::UncountedSubtype {
@@ -1349,7 +1349,7 @@ struct ConcatenatedList final : public rq::Symbol, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileConcatenatedList(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileConcatenatedList(llvm::FoldingSetNodeID &id,
                                     const rq::ConcatenatedListItem &first_item);
 
 struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
@@ -1375,7 +1375,7 @@ struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileArithmeticSequence(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileArithmeticSequence(llvm::FoldingSetNodeID &id,
                                       rq::Opcode opcode,
                                       const rq::SymbolConstant &child,
                                       rq::ArithmeticSequenceCondition condition,
@@ -1652,7 +1652,7 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-inline void profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+RQ_ALWAYS_INLINE void profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
                                  llvm::StringRef name,
                                  const rq::SymbolConstant &type,
                                  unsigned location, bool is_positional);
@@ -1743,21 +1743,26 @@ struct ParameterList : public rq::Symbol {
   using Self = rq::ParameterList;
 
   rq::Parameter *_first_parameter_ptr;
+  unsigned _parameter_count;
+  unsigned _positional_parameter_count;
+  unsigned _nonpositional_parameter_count;
 
-  explicit RQ_ALWAYS_INLINE ParameterList(rq::Opcode opcode,
-                                          rq::Parameter *first_parameter_ptr);
+  explicit RQ_ALWAYS_INLINE
+  ParameterList(rq::Opcode opcode, rq::Parameter *first_parameter_ptr,
+                unsigned parameter_count, unsigned positional_parameter_count,
+                unsigned nonpositional_parameter_count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasFirstParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &getFirstParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &getFirstParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned
+  getNonpositionalParameterCount() const;
   [[nodiscard]] inline const rq::Parameter *
   getParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] inline rq::Parameter *
   getParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] inline const rq::Parameter *
-  getParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] inline rq::Parameter *
-  getParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::Parameter>,
                             rq::ParameterIterator<rq::Parameter>,
@@ -1839,9 +1844,6 @@ struct SymbolParameterListFactory final {
 struct SymbolParameterList : public rq::ParameterList {
   using Self = rq::SymbolParameterList;
 
-  unsigned _parameter_count;
-  unsigned _positional_parameter_count;
-  unsigned _nonpositional_parameter_count;
   unsigned _locked_parameter_count;
 
   explicit RQ_ALWAYS_INLINE SymbolParameterList(
@@ -1849,10 +1851,6 @@ struct SymbolParameterList : public rq::ParameterList {
       unsigned parameter_count, unsigned positional_parameter_count,
       unsigned nonpositional_parameter_count, unsigned locked_parameter_count);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned
-  getNonpositionalParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLockedParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter &
   getFirstSymbolParameter() const;
@@ -1861,10 +1859,6 @@ struct SymbolParameterList : public rq::ParameterList {
   getSymbolParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
   getSymbolParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
-  getSymbolParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
-  getSymbolParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::SymbolParameter>,
                             rq::ParameterIterator<rq::SymbolParameter>,
@@ -1887,13 +1881,14 @@ struct Signature final : public rq::SymbolParameterList {
   const rq::Expression *_precondition_expression_ptr;
   const rq::Expression *_postcondition_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE Signature(rq::SignatureParameter *first_parameter_ptr,
-      unsigned parameter_count, unsigned positional_parameter_count,
-      unsigned nonpositional_parameter_count, unsigned locked_parameter_count,
-       rq::SymbolConstant &return_type,
-      rq::SymbolConstant *reciever_type_ptr,
-      const rq::Expression *precondition_expression_ptr,
-      const rq::Expression *postcondition_expression_ptr);
+  explicit RQ_ALWAYS_INLINE
+  Signature(rq::SignatureParameter *first_parameter_ptr,
+            unsigned parameter_count, unsigned positional_parameter_count,
+            unsigned nonpositional_parameter_count,
+            unsigned locked_parameter_count, rq::SymbolConstant &return_type,
+            rq::SymbolConstant *reciever_type_ptr,
+            const rq::Expression *precondition_expression_ptr,
+            const rq::Expression *postcondition_expression_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
   getReturnType() const;
@@ -1916,10 +1911,6 @@ struct Signature final : public rq::SymbolParameterList {
   getSignatureParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
   getSignatureParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
-  getSignatureParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
-  getSignatureParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::SignatureParameter>,
                             rq::ParameterIterator<rq::SignatureParameter>,
@@ -1937,7 +1928,8 @@ struct Signature final : public rq::SymbolParameterList {
 struct Layout final : public rq::SymbolParameterList {
   using Self = rq::Layout;
 
-  explicit RQ_ALWAYS_INLINE Layout( rq::SymbolParameter *first_parameter_ptr, unsigned parameter_count,
+  explicit RQ_ALWAYS_INLINE Layout(rq::SymbolParameter *first_parameter_ptr,
+                                   unsigned parameter_count,
                                    unsigned positional_parameter_count,
                                    unsigned nonpositional_parameter_count,
                                    unsigned locked_parameter_count);
@@ -1949,10 +1941,6 @@ struct Layout final : public rq::SymbolParameterList {
   getLayoutParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
   getLayoutParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
-  getLayoutParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
-  getLayoutParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::LayoutParameter>,
                             rq::ParameterIterator<rq::LayoutParameter>,
@@ -1970,6 +1958,11 @@ struct Layout final : public rq::SymbolParameterList {
 struct TypeParameterList : public rq::ParameterList {
   using Self = rq::TypeParameterList;
 
+  explicit RQ_ALWAYS_INLINE
+  TypeParameterList(rq::Opcode opcode, rq::TypeParameter *first_parameter_ptr,
+                    unsigned parameter_count,
+                    unsigned positional_parameter_count,
+                    unsigned nonpositional_parameter_count);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter &
   getFirstTypeParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter &getFirstTypeParameter();
@@ -1977,10 +1970,6 @@ struct TypeParameterList : public rq::ParameterList {
   getTypeParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
   getTypeParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
-  getTypeParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
-  getTypeParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
                             rq::ParameterIterator<rq::TypeParameter>,
@@ -1999,6 +1988,15 @@ struct ProcedureType final : rq::TypeParameterList,
                              public llvm::FoldingSetNode {
   using Self = rq::ProcedureType;
 
+  rq::SymbolConstant *_return_type_ptr;
+  rq::SymbolConstant *_reciever_type_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  ProcedureType(rq::TypeParameter *first_parameter_ptr,
+                unsigned parameter_count, unsigned positional_parameter_count,
+                unsigned nonpositional_parameter_count,
+                rq::SymbolConstant &return_type,
+                rq::SymbolConstant *reciever_type_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
   getFirstProcedureParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
@@ -2007,10 +2005,6 @@ struct ProcedureType final : rq::TypeParameterList,
   getProcedureParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
   getProcedureParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
-  getProcedureParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
-  getProcedureParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
                             rq::ParameterIterator<rq::ProcedureParameter>,
@@ -2024,12 +2018,30 @@ struct ProcedureType final : rq::TypeParameterList,
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                      const rq::ProcedureParameter *first_parameter_ptr,
+                      const rq::SymbolConstant &return_type,
+                      const rq::SymbolConstant *reciever_type_ptr) const;
 };
+
+inline void
+profileProcedureType(llvm::FoldingSetNodeID &id,
+                     const rq::ProcedureParameter *first_parameter_ptr,
+                     const rq::SymbolConstant &return_type,
+                     const rq::SymbolConstant *reciever_type_ptr);
 
 struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
   using Self = rq::TupleType;
 
+  unsigned _type_keyed_parameter_count;
+
+  explicit RQ_ALWAYS_INLINE TupleType(rq::TypeParameter *first_parameter_ptr,
+                                      unsigned parameter_count,
+                                      unsigned positional_parameter_count,
+                                      unsigned nonpositional_parameter_count,
+                                      unsigned type_keyed_parameter_count);
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getNameKeyedParameterCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getTypeKeyedParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter &
   getFirstTupleParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &getFirstTupleParameter();
@@ -2037,9 +2049,9 @@ struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
   getTupleParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
   getTupleParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
+  [[nodiscard]] inline const rq::TupleParameter *
   getTupleParameterPtrOfType(const rq::SymbolConstant &type) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
+  [[nodiscard]] inline rq::TupleParameter *
   getTupleParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
@@ -2057,6 +2069,9 @@ struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
+RQ_ALWAYS_INLINE void profileTupleType(llvm::FoldingSetNodeID &id,
+                             const rq::TupleParameter *first_parameter_ptr);
+
 struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::Placement;
 
@@ -2071,32 +2086,62 @@ struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
+RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &id,
+                             const rq::Procedure &procedure);
+
+// TODO composition factory
+
 struct CompositionComponent final : llvm::FoldingSetNode {
+  using Self = rq::CompositionComponent;
 
   rq::Interface *_interface_ptr;
-};
-
-struct CompositionFactory final {};
-
-struct Composition final : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::Composition;
-
-  rq::CompositionComponent *_first_component_ptr;
+  rq::CompositionComponent *_next_component_ptr;
 
   explicit RQ_ALWAYS_INLINE
-  Composition(rq::CompositionComponent *first_component_ptr);
+  CompositionComponent(rq::Interface &interface,
+                       rq::CompositionComponent *next_ptr);
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &getInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &getInterface();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNextComponent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
+  getNextComponent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &getNextComponent();
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-struct Synonym final : public rq::SimpleSymbol {
-  using Self = rq::Synonym;
+inline void
+profileCompositionComponent(llvm::FoldingSetNodeID &id,
+                            const rq::Interface &interface,
+                            const rq::CompositionComponent *next_component_ptr);
+
+struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
+  using Self = rq::CompositionType;
+
+  rq::CompositionComponent *_first_component_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  CompositionType(rq::CompositionComponent &first_component);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
+  getFirstComponent() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &getFirstComponent();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
+};
+
+RQ_ALWAYS_INLINE void profileComposition(llvm::FoldingSetNodeID &id,
+                               const rq::CompositionComponent &first_component);
+
+struct SynonymType final : public rq::Symbol {
+  using Self = rq::SynonymType;
 
   rq::Symbol *_original_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Synonym(rq::Symbol &original);
+  explicit RQ_ALWAYS_INLINE SynonymType(rq::Symbol &original);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal();
