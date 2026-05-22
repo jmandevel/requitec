@@ -2,6 +2,7 @@
 
 #include <rq/ast.hpp>
 #include <rq/bump_ptr_list.hpp>
+#include <rq/next_iterator.hpp>
 #include <rq/see.hpp>
 #include <rq/utility.hpp>
 
@@ -162,14 +163,6 @@ enum class Opcode {
   // SYNONYMS
   SY_SYNONYM_TYPE,
 
-  // POLYMORPHS
-  SY_RANGER_POLYMORPH,
-  SY_PROCEDURE_POLYMORPH,
-  SY_CLASS_POLYMORPH,
-  SY_ENUMERATION_POLYMORPH,
-  SY_INTERFACE_POLYMORPH,
-  SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
-
   // SYMBOL TABLES
   SY_TOP,
 
@@ -223,6 +216,14 @@ enum class Opcode {
   SY_METHOD_TEMPLATE,
   SY_EXTENSION_METHOD_TEMPLATE,
 
+  // POLYMORPHS
+  SY_RANGER_POLYMORPH,
+  SY_PROCEDURE_POLYMORPH,
+  SY_CLASS_POLYMORPH,
+  SY_ENUMERATION_POLYMORPH,
+  SY_INTERFACE_POLYMORPH,
+  SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
+
   CT_INTEGER,
   CT_FLOAT,
   CT_EXPRESSION,
@@ -267,14 +268,14 @@ enum class OpcodeFlags : std::uint64_t {
   SY_SYMBOL_PARAMETER_LIST = rq::getBit(19),
   SY_TYPE_PARAMETER = rq::getBit(20),
   SY_TYPE_PARAMETER_LIST = rq::getBit(21),
-  SY_POLYMORPH = rq::getBit(22),
-  SY_SYMBOL_TYPE_TABLE = rq::getBit(23),
-  SY_LOCAL_STATEMENT = rq::getBit(24),
-  SY_GLOBAL_DECLARATION = rq::getBit(25),
-  SY_GLOBAL_VARIABLE = rq::getBit(26),
-  SY_RANGER = rq::getBit(27),
-  SY_PROCEDURE = rq::getBit(28),
-  SY_TEMPLATE = rq::getBit(29),
+  SY_SYMBOL_TYPE_TABLE = rq::getBit(22),
+  SY_LOCAL_STATEMENT = rq::getBit(23),
+  SY_GLOBAL_DECLARATION = rq::getBit(24),
+  SY_GLOBAL_VARIABLE = rq::getBit(25),
+  SY_RANGER = rq::getBit(26),
+  SY_PROCEDURE = rq::getBit(27),
+  SY_TEMPLATE = rq::getBit(28),
+  SY_POLYMORPH = rq::getBit(29),
 
   // SYMBOL DETAILS
   SY_IS_TYPE = rq::getBit(30),
@@ -580,7 +581,8 @@ struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileSimpleSymbol(llvm::FoldingSetNodeID &id, rq::Opcode opcode);
+RQ_ALWAYS_INLINE void profileSimpleSymbol(llvm::FoldingSetNodeID &id,
+                                          rq::Opcode opcode);
 
 struct LiteralType : public rq::SimpleSymbol {
   using Self = rq::LiteralType;
@@ -1164,10 +1166,9 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
-                                       rq::ScaledIntegerKind kind,
-                                       const rq::IntegerConstant &scalar,
-                                       std::uint64_t synonum_id);
+RQ_ALWAYS_INLINE void profileScaledPrimitiveType(
+    llvm::FoldingSetNodeID &id, rq::ScaledIntegerKind kind,
+    const rq::IntegerConstant &scalar, std::uint64_t synonum_id);
 
 struct ScaledSignedIntegerType final : public rq::ScaledPrimitiveType {
   using Self = rq::ScaledSignedIntegerType;
@@ -1220,8 +1221,8 @@ struct ArraySubtype final : public rq::Subtype, public llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &id,
-                                const rq::SymbolConstant &child,
-                                const rq::IntegerConstant &count);
+                                          const rq::SymbolConstant &child,
+                                          const rq::IntegerConstant &count);
 
 struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
   using Self = rq::UncountedSubtype;
@@ -1235,7 +1236,7 @@ struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
-                                    const rq::SymbolConstant &child);
+                                              const rq::SymbolConstant &child);
 
 struct ReferenceSubtype final : public rq::UncountedSubtype {
   using Self = rq::ReferenceSubtype;
@@ -1349,8 +1350,9 @@ struct ConcatenatedList final : public rq::Symbol, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileConcatenatedList(llvm::FoldingSetNodeID &id,
-                                    const rq::ConcatenatedListItem &first_item);
+RQ_ALWAYS_INLINE void
+profileConcatenatedList(llvm::FoldingSetNodeID &id,
+                        const rq::ConcatenatedListItem &first_item);
 
 struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequence;
@@ -1375,11 +1377,11 @@ struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileArithmeticSequence(llvm::FoldingSetNodeID &id,
-                                      rq::Opcode opcode,
-                                      const rq::SymbolConstant &child,
-                                      rq::ArithmeticSequenceCondition condition,
-                                      rq::ArithmeticSequenceStep step);
+RQ_ALWAYS_INLINE void
+profileArithmeticSequence(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                          const rq::SymbolConstant &child,
+                          rq::ArithmeticSequenceCondition condition,
+                          rq::ArithmeticSequenceStep step);
 
 struct ArithmeticInterval final : public rq::ArithmeticSequence {
   using Self = rq::ArithmeticInterval;
@@ -1652,10 +1654,10 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
-                                 llvm::StringRef name,
-                                 const rq::SymbolConstant &type,
-                                 unsigned location, bool is_positional);
+RQ_ALWAYS_INLINE void
+profileTypeParameter(llvm::FoldingSetNodeID &id, rq::Opcode opcode,
+                     llvm::StringRef name, const rq::SymbolConstant &type,
+                     unsigned location, bool is_positional);
 
 struct ProcedureParameter final : public rq::TypeParameter {
   using Self = rq::TupleParameter;
@@ -1678,65 +1680,6 @@ struct TupleParameter final : public rq::TypeParameter {
                                            bool is_positional);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-template <typename ElementParam = rq::Parameter>
-struct ParameterIterator final {
-  using Element = ElementParam;
-  using Self = rq::ParameterIterator<Element>;
-  using value_type = Element;
-  using reference = Element &;
-  using pointer = Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  Element *_parameter_ptr{nullptr};
-
-  ParameterIterator() = default;
-  explicit RQ_ALWAYS_INLINE ParameterIterator(Element *parameter_ptr);
-  ParameterIterator(const Self &) = default;
-  ParameterIterator(Self &&) = default;
-  ~ParameterIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE Element &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE Element *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-template <typename ElementParam = rq::Parameter>
-struct ConstParameterIterator final {
-  using Element = ElementParam;
-  using Self = rq::ConstParameterIterator<Element>;
-  using value_type = const Element;
-  using reference = const Element &;
-  using pointer = Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const Element *_parameter_ptr{nullptr};
-
-  ConstParameterIterator() = default;
-  explicit RQ_ALWAYS_INLINE
-  ConstParameterIterator(const Element *parameter_ptr);
-  ConstParameterIterator(const Self &) = default;
-  ConstParameterIterator(Self &&) = default;
-  ~ConstParameterIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
 struct ParameterList : public rq::Symbol {
@@ -1764,13 +1707,13 @@ struct ParameterList : public rq::Symbol {
   [[nodiscard]] inline rq::Parameter *
   getParameterPtrOfName(llvm::StringRef name);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::Parameter>,
-                            rq::ParameterIterator<rq::Parameter>,
+      std::ranges::subrange<rq::NextIterator<rq::Parameter>,
+                            rq::NextIterator<rq::Parameter>,
                             std::ranges::subrange_kind::unsized>
       getParameterSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::Parameter>,
-                            rq::ConstParameterIterator<rq::Parameter>,
+      std::ranges::subrange<rq::ConstNextIterator<rq::Parameter>,
+                            rq::ConstNextIterator<rq::Parameter>,
                             std::ranges::subrange_kind::unsized>
       getParameterSubrange() const;
 
@@ -1859,16 +1802,16 @@ struct SymbolParameterList : public rq::ParameterList {
   getSymbolParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
   getSymbolParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::SymbolParameter>,
-                            rq::ParameterIterator<rq::SymbolParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getSymbolParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::SymbolParameter>,
-                            rq::ConstParameterIterator<rq::SymbolParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getSymbolParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::SymbolParameter>,
+      rq::NextIterator<rq::Parameter, rq::SymbolParameter>,
+      std::ranges::subrange_kind::unsized>
+  getSymbolParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>,
+      std::ranges::subrange_kind::unsized>
+  getSymbolParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1911,16 +1854,16 @@ struct Signature final : public rq::SymbolParameterList {
   getSignatureParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
   getSignatureParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::SignatureParameter>,
-                            rq::ParameterIterator<rq::SignatureParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getSignatureParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::SignatureParameter>,
-                            rq::ConstParameterIterator<rq::SignatureParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getSignatureParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::SignatureParameter>,
+      rq::NextIterator<rq::Parameter, rq::SignatureParameter>,
+      std::ranges::subrange_kind::unsized>
+  getSignatureParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>,
+      std::ranges::subrange_kind::unsized>
+  getSignatureParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1941,16 +1884,16 @@ struct Layout final : public rq::SymbolParameterList {
   getLayoutParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
   getLayoutParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::LayoutParameter>,
-                            rq::ParameterIterator<rq::LayoutParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getLayoutParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::LayoutParameter>,
-                            rq::ConstParameterIterator<rq::LayoutParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getLayoutParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::LayoutParameter>,
+      rq::NextIterator<rq::Parameter, rq::LayoutParameter>,
+      std::ranges::subrange_kind::unsized>
+  getLayoutParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>,
+      std::ranges::subrange_kind::unsized>
+  getLayoutParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1971,15 +1914,15 @@ struct TypeParameterList : public rq::ParameterList {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
   getTypeParameterPtrOfName(llvm::StringRef name);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
-                            rq::ParameterIterator<rq::TypeParameter>,
+      std::ranges::subrange<rq::NextIterator<rq::Parameter, rq::TypeParameter>,
+                            rq::NextIterator<rq::Parameter, rq::TypeParameter>,
                             std::ranges::subrange_kind::unsized>
       getTypeParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::TypeParameter>,
-                            rq::ConstParameterIterator<rq::TypeParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getTypeParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>,
+      std::ranges::subrange_kind::unsized>
+  getTypeParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2005,16 +1948,16 @@ struct ProcedureType final : rq::TypeParameterList,
   getProcedureParameterPtrOfName(llvm::StringRef name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
   getProcedureParameterPtrOfName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
-                            rq::ParameterIterator<rq::ProcedureParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getProcedureParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::ProcedureParameter>,
-                            rq::ConstParameterIterator<rq::ProcedureParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getProcedureParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::ProcedureParameter>,
+      rq::NextIterator<rq::Parameter, rq::ProcedureParameter>,
+      std::ranges::subrange_kind::unsized>
+  getProcedureParameterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>,
+      std::ranges::subrange_kind::unsized>
+  getProcedureParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -2054,23 +1997,24 @@ struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
   [[nodiscard]] inline rq::TupleParameter *
   getTupleParameterPtrOfType(const rq::SymbolConstant &type);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
-                            rq::ParameterIterator<rq::TupleParameter>,
+      std::ranges::subrange<rq::NextIterator<rq::Parameter, rq::TupleParameter>,
+                            rq::NextIterator<rq::Parameter, rq::TupleParameter>,
                             std::ranges::subrange_kind::unsized>
       getTupleParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstParameterIterator<rq::TupleParameter>,
-                            rq::ConstParameterIterator<rq::TupleParameter>,
-                            std::ranges::subrange_kind::unsized>
-      getTupleParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>,
+      std::ranges::subrange_kind::unsized>
+  getTupleParameterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileTupleType(llvm::FoldingSetNodeID &id,
-                             const rq::TupleParameter *first_parameter_ptr);
+RQ_ALWAYS_INLINE void
+profileTupleType(llvm::FoldingSetNodeID &id,
+                 const rq::TupleParameter *first_parameter_ptr);
 
 struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::Placement;
@@ -2087,7 +2031,7 @@ struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &id,
-                             const rq::Procedure &procedure);
+                                       const rq::Procedure &procedure);
 
 // TODO composition factory
 
@@ -2095,7 +2039,7 @@ struct CompositionComponent final : llvm::FoldingSetNode {
   using Self = rq::CompositionComponent;
 
   rq::Interface *_interface_ptr;
-  rq::CompositionComponent *_next_component_ptr;
+  rq::CompositionComponent *_next_ptr;
 
   explicit RQ_ALWAYS_INLINE
   CompositionComponent(rq::Interface &interface,
@@ -2127,14 +2071,25 @@ struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
   getFirstComponent() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &getFirstComponent();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::CompositionComponent>,
+                            rq::NextIterator<rq::CompositionComponent>,
+                            std::ranges::subrange_kind::unsized>
+      getComponentSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstNextIterator<rq::CompositionComponent>,
+                            rq::ConstNextIterator<rq::CompositionComponent>,
+                            std::ranges::subrange_kind::unsized>
+      getComponentSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
-RQ_ALWAYS_INLINE void profileComposition(llvm::FoldingSetNodeID &id,
-                               const rq::CompositionComponent &first_component);
+RQ_ALWAYS_INLINE void
+profileComposition(llvm::FoldingSetNodeID &id,
+                   const rq::CompositionComponent &first_component);
 
 struct SynonymType final : public rq::Symbol {
   using Self = rq::SynonymType;
@@ -2145,229 +2100,6 @@ struct SynonymType final : public rq::Symbol {
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct TemplateIterator final {
-  using Self = rq::TemplateIterator;
-  using value_type = rq::Template;
-  using reference = rq::Template &;
-  using pointer = rq::Template *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Template *_template_ptr{nullptr};
-
-  TemplateIterator() = default;
-  explicit TemplateIterator(rq::Template *template_ptr);
-  TemplateIterator(const Self &) = default;
-  TemplateIterator(Self &&) = default;
-  ~TemplateIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct ConstTemplateIterator final {
-  using Self = rq::ConstTemplateIterator;
-  using value_type = const rq::Template;
-  using reference = const rq::Template &;
-  using pointer = rq::Template *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::Template *_template_ptr{nullptr};
-
-  ConstTemplateIterator() = default;
-  explicit ConstTemplateIterator(const rq::Template *template_ptr);
-  ConstTemplateIterator(const Self &) = default;
-  ConstTemplateIterator(Self &&) = default;
-  ~ConstTemplateIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct Weight final {
-  using Self = rq::Weight;
-
-  rq::Weight *_next_lower_ptr{nullptr};
-  const rq::IntegerConstant *_weight{nullptr};
-  rq::Template *_first_template{nullptr};
-
-  explicit Weight() = default;
-  Weight(const Self &) = delete;
-  Weight(Self &&) = delete;
-  ~Weight() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getWeight() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::TemplateIterator, rq::TemplateIterator,
-                            std::ranges::subrange_kind::unsized>
-      getTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstTemplateIterator,
-                            rq::ConstTemplateIterator,
-                            std::ranges::subrange_kind::unsized>
-      getTemplateSubrange() const;
-};
-
-struct WeightIterator final {
-  using Self = rq::WeightIterator;
-  using value_type = rq::Weight;
-  using reference = rq::Weight &;
-  using pointer = rq::Weight *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Template *_template_ptr{nullptr};
-
-  WeightIterator() = default;
-  explicit WeightIterator(rq::Template *template_ptr);
-  WeightIterator(const Self &) = default;
-  WeightIterator(Self &&) = default;
-  ~WeightIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Weight &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Weight *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct ConstWeightIterator final {
-  using Self = rq::ConstWeightIterator;
-  using value_type = const rq::Weight;
-  using reference = const rq::Weight &;
-  using pointer = rq::Weight *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::Template *_template_ptr{nullptr};
-
-  ConstWeightIterator() = default;
-  explicit ConstWeightIterator(const rq::Template *template_ptr);
-  ConstWeightIterator(const Self &) = default;
-  ConstWeightIterator(Self &&) = default;
-  ~ConstWeightIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Weight *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct Polymorph : public rq::Symbol {
-  using Self = rq::Polymorph;
-
-  rq::Weight *_highest_weight_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Polymorph(rq::Opcode opcode);
-  void _addTemplate(rq::Template &template_);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::WeightIterator, rq::WeightIterator,
-                            std::ranges::subrange_kind::unsized>
-      getWeightSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstWeightIterator, rq::ConstWeightIterator,
-                            std::ranges::subrange_kind::unsized>
-      getWeightSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct RangerPolymorph final : public rq::Polymorph {
-  using Self = rq::RangerPolymorph;
-
-  rq::Ranger *_first_ranger_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE RangerPolymorph();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ProcedurePolymorph final : public rq::Polymorph {
-  using Self = rq::ProcedurePolymorph;
-
-  rq::Procedure *_first_procedure_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE ProcedurePolymorph();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ClassPolymorph final : public rq::Polymorph {
-  using Self = rq::ClassPolymorph;
-
-  rq::BumpPtrList<rq::ClassType> _class_list{};
-
-  explicit RQ_ALWAYS_INLINE ClassPolymorph();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct EnumerationPolymorph final : public rq::Polymorph {
-  using Self = rq::EnumerationPolymorph;
-
-  rq::BumpPtrList<rq::EnumerationType> _enumerator_list{};
-
-  explicit RQ_ALWAYS_INLINE EnumerationPolymorph();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct InterfacePolymorph final : public rq::Polymorph {
-  using Self = rq::InterfacePolymorph;
-
-  rq::BumpPtrList<rq::Interface> _interface_list{};
-
-  explicit RQ_ALWAYS_INLINE InterfacePolymorph();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalDynamicVariablePolymorph;
-
-  rq::BumpPtrList<rq::GlobalDynamicVariable> _global_dynamic_variable_list{};
-
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariablePolymorph();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalStaticVariablePolymorph;
-
-  rq::BumpPtrList<rq::GlobalStaticVariable> _global_static_variable_list{};
-
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2388,22 +2120,16 @@ struct SymbolTable : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
   getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
-  inline void addNamedMember(llvm::StringRef name, rq::Symbol &symbol);
+  inline void addNamedMember(rq::BumpPtrAllocator &allocator, llvm::StringRef name, rq::Symbol &symbol);
   RQ_ALWAYS_INLINE void addUnamedMember(rq::BumpPtrAllocator &allocator,
                                         rq::Symbol &symbol);
   [[nodiscard]] RQ_ALWAYS_INLINE const
       llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> &
       getNamedMemberMap() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Symbol>,
-                            rq::ConstBumpPtrListIterator<rq::Symbol>,
-                            std::ranges::subrange_kind::unsized>
-      getUnamedSymbolsRange() const;
+      rq::ConstBumpPtrListRef<rq::Symbol> getUnamedMemberList() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::BumpPtrListIterator<rq::Symbol>,
-                            rq::BumpPtrListIterator<rq::Symbol>,
-                            std::ranges::subrange_kind::unsized>
-      getUnamedSymbolsRange();
+      rq::BumpPtrListRef<rq::Symbol> getUnamedMemberList();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2744,7 +2470,7 @@ struct ExtensionMethod final : public rq::Procedure {
 struct Template : public rq::SymbolTable {
   using Self = rq::Template;
 
-  rq::Template *_next_template_ptr{nullptr};
+  rq::Template *_next_ptr{nullptr};
   rq::Layout *_template_layout{nullptr};
   const rq::Expression *_constraint_expression_ptr{nullptr};
 
@@ -2855,6 +2581,124 @@ struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
   explicit RQ_ALWAYS_INLINE Constant(rq::Opcode opcode);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Weight final {
+  using Self = rq::Weight;
+
+  rq::Weight *_next_ptr{nullptr};
+  const rq::IntegerConstant *_weight{nullptr};
+  rq::Template *_first_template{nullptr};
+
+  explicit Weight() = default;
+  Weight(const Self &) = delete;
+  Weight(Self &&) = delete;
+  ~Weight() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getWeight() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Template>,
+                            rq::NextIterator<rq::Template>,
+                            std::ranges::subrange_kind::unsized>
+      getTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstNextIterator<rq::Template>,
+                            rq::ConstNextIterator<rq::Template>,
+                            std::ranges::subrange_kind::unsized>
+      getTemplateSubrange() const;
+};
+
+struct Polymorph : public rq::Symbol {
+  using Self = rq::Polymorph;
+
+  rq::Weight *_highest_weight_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Polymorph(rq::Opcode opcode);
+  void _addTemplate(rq::Template &template_);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Weight>,
+                            rq::NextIterator<rq::Weight>,
+                            std::ranges::subrange_kind::unsized>
+      getWeightSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstNextIterator<rq::Weight>,
+                            rq::ConstNextIterator<rq::Weight>,
+                            std::ranges::subrange_kind::unsized>
+      getWeightSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct RangerPolymorph final : public rq::Polymorph {
+  using Self = rq::RangerPolymorph;
+
+  rq::Ranger *_first_ranger_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE RangerPolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ProcedurePolymorph final : public rq::Polymorph {
+  using Self = rq::ProcedurePolymorph;
+
+  rq::Procedure *_first_procedure_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE ProcedurePolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ClassPolymorph final : public rq::Polymorph {
+  using Self = rq::ClassPolymorph;
+
+  rq::BumpPtrList<rq::ClassType> _class_list{};
+
+  explicit RQ_ALWAYS_INLINE ClassPolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct EnumerationPolymorph final : public rq::Polymorph {
+  using Self = rq::EnumerationPolymorph;
+
+  rq::BumpPtrList<rq::EnumerationType> _enumerator_list{};
+
+  explicit RQ_ALWAYS_INLINE EnumerationPolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct InterfacePolymorph final : public rq::Polymorph {
+  using Self = rq::InterfacePolymorph;
+
+  rq::BumpPtrList<rq::Interface> _interface_list{};
+
+  explicit RQ_ALWAYS_INLINE InterfacePolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalDynamicVariablePolymorph;
+
+  rq::BumpPtrList<rq::GlobalDynamicVariable> _global_dynamic_variable_list{};
+
+  explicit RQ_ALWAYS_INLINE GlobalDynamicVariablePolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalStaticVariablePolymorph;
+
+  rq::BumpPtrList<rq::GlobalStaticVariable> _global_static_variable_list{};
+
+  explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

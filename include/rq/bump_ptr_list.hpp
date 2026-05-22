@@ -46,6 +46,7 @@ template <typename ItemParam> struct BumpPtrList final {
   llvm::PointerUnion<Item *, Node *> _ptr_union{nullptr};
 
   BumpPtrList() = default;
+  BumpPtrList(Item& item) : _ptr_union(&item) {}
   ~BumpPtrList() = default;
   BumpPtrList(const Self &) = delete;
   BumpPtrList(Self &&) = default;
@@ -249,7 +250,7 @@ template <typename ItemParam> struct BumpPtrListIterator final {
   Ref _list;
 
   RQ_ALWAYS_INLINE BumpPtrListIterator() = default;
-  RQ_ALWAYS_INLINE explicit BumpPtrListIterator(Ref &list) : _list(list) {}
+  RQ_ALWAYS_INLINE explicit BumpPtrListIterator(const Ref &list) : _list(list) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (llvm::isa<Item *>(this->_list._ptr_union)) {
       this->_list._ptr_union = nullptr;

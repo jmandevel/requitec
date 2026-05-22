@@ -311,20 +311,6 @@ namespace rq {
   case O::SY_SYNONYM_TYPE:
     return OF::SYMBOL | OF::SY_IS_TYPE;
 
-  // POLYMORPHS
-  case O::SY_RANGER_POLYMORPH:
-    return OF::SYMBOL | OF::SY_POLYMORPH;
-  case O::SY_PROCEDURE_POLYMORPH:
-    return OF::SYMBOL | OF::SY_POLYMORPH;
-  case O::SY_CLASS_POLYMORPH:
-    return OF::SYMBOL | OF::SY_POLYMORPH;
-  case O::SY_ENUMERATION_POLYMORPH:
-    return OF::SYMBOL | OF::SY_POLYMORPH;
-  case O::SY_INTERFACE_POLYMORPH:
-    return OF::SYMBOL | OF::SY_POLYMORPH;
-  case O::SY_GLOBAL_STATIC_VARIABLE_POLYMORPH:
-    return OF::SYMBOL | OF::SY_POLYMORPH;
-
   // SYMBOL TABLES
   case O::SY_TOP:
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE;
@@ -454,6 +440,20 @@ namespace rq {
   case O::SY_EXTENSION_METHOD_TEMPLATE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+
+  // POLYMORPHS
+  case O::SY_RANGER_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_PROCEDURE_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_CLASS_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_ENUMERATION_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_INTERFACE_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_GLOBAL_STATIC_VARIABLE_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
 
   case O::CT_INTEGER:
     return OF::CONSTANT;
@@ -2319,122 +2319,6 @@ TupleParameter::classof(const rq::Entity *entity_ptr) {
   return entity.getOpcode() == rq::Opcode::SY_TUPLE_PARAMETER;
 }
 
-template <typename Element>
-RQ_ALWAYS_INLINE
-ParameterIterator<Element>::ParameterIterator(Element *parameter_ptr)
-    : _parameter_ptr(parameter_ptr) {}
-
-template <typename Element>
-RQ_ALWAYS_INLINE rq::ParameterIterator<Element> &
-ParameterIterator<Element>::operator++() {
-  this->_parameter_ptr =
-      llvm::cast<Element>(rq::dereferencePtr(this->_parameter_ptr)._next_ptr);
-  return *this;
-}
-
-template <typename Element>
-RQ_ALWAYS_INLINE rq::ParameterIterator<Element>
-ParameterIterator<Element>::operator++(int) {
-  rq::ParameterIterator<Element> temp = *this;
-  this->_parameter_ptr =
-      llvm::cast<Element>(rq::dereferencePtr(this->_parameter_ptr)._next_ptr);
-  return temp;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ParameterIterator<Element>::operator==(const Self &it) const {
-  return this->_parameter_ptr == it._parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ParameterIterator<Element>::operator!=(const Self &it) const {
-  return this->_parameter_ptr != it._parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE Element &
-ParameterIterator<Element>::operator*() {
-  return rq::dereferencePtr(this->_parameter_ptr);
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE const Element &
-ParameterIterator<Element>::operator*() const {
-  return rq::dereferencePtr(this->_parameter_ptr);
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE Element *
-ParameterIterator<Element>::operator->() {
-  return this->_parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE const Element *
-ParameterIterator<Element>::operator->() const {
-  return this->_parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ParameterIterator<Element>::getIsDone() const {
-  return this->_parameter_ptr == nullptr;
-}
-
-template <typename Element>
-RQ_ALWAYS_INLINE ConstParameterIterator<Element>::ConstParameterIterator(
-    const Element *parameter_ptr)
-    : _parameter_ptr(parameter_ptr) {}
-
-template <typename Element>
-RQ_ALWAYS_INLINE rq::ConstParameterIterator<Element> &
-ConstParameterIterator<Element>::operator++() {
-  this->_parameter_ptr =
-      llvm::cast<Element>(rq::dereferencePtr(this->_parameter_ptr)._next_ptr);
-  return *this;
-}
-
-template <typename Element>
-RQ_ALWAYS_INLINE rq::ConstParameterIterator<Element>
-ConstParameterIterator<Element>::operator++(int) {
-  rq::ConstParameterIterator<Element> temp = *this;
-  temp._parameter_ptr =
-      llvm::cast<Element>(rq::dereferencePtr(this->_parameter_ptr)._next_ptr);
-  return temp;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstParameterIterator<Element>::operator==(const Self &it) const {
-  return this->_parameter_ptr == it._parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstParameterIterator<Element>::operator!=(const Self &it) const {
-  return this->_parameter_ptr != it._parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE const Element &
-ConstParameterIterator<Element>::operator*() const {
-  return rq::dereferencePtr(this->_parameter_ptr);
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE const Element *
-ConstParameterIterator<Element>::operator->() const {
-  return this->_parameter_ptr;
-}
-
-template <typename Element>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstParameterIterator<Element>::getIsDone() const {
-  return this->_parameter_ptr == nullptr;
-}
-
 RQ_ALWAYS_INLINE
 ParameterList::ParameterList(rq::Opcode opcode,
                              rq::Parameter *first_parameter_ptr,
@@ -2497,27 +2381,27 @@ ParameterList::getParameterPtrOfName(llvm::StringRef name) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::Parameter>,
-                          rq::ParameterIterator<rq::Parameter>,
+    std::ranges::subrange<rq::NextIterator<rq::Parameter>,
+                          rq::NextIterator<rq::Parameter>,
                           std::ranges::subrange_kind::unsized>
     ParameterList::getParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::Parameter>,
-                               rq::ParameterIterator<rq::Parameter>,
+  return std::ranges::subrange<rq::NextIterator<rq::Parameter>,
+                               rq::NextIterator<rq::Parameter>,
                                std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::Parameter>(this->_first_parameter_ptr),
-      rq::ParameterIterator<rq::Parameter>());
+      rq::NextIterator<rq::Parameter>(this->_first_parameter_ptr),
+      rq::NextIterator<rq::Parameter>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::Parameter>,
-                          rq::ConstParameterIterator<rq::Parameter>,
+    std::ranges::subrange<rq::ConstNextIterator<rq::Parameter>,
+                          rq::ConstNextIterator<rq::Parameter>,
                           std::ranges::subrange_kind::unsized>
     ParameterList::getParameterSubrange() const {
-  return std::ranges::subrange<rq::ConstParameterIterator<rq::Parameter>,
-                               rq::ConstParameterIterator<rq::Parameter>,
+  return std::ranges::subrange<rq::ConstNextIterator<rq::Parameter>,
+                               rq::ConstNextIterator<rq::Parameter>,
                                std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::Parameter>(this->_first_parameter_ptr),
-      rq::ConstParameterIterator<rq::Parameter>());
+      rq::ConstNextIterator<rq::Parameter>(this->_first_parameter_ptr),
+      rq::ConstNextIterator<rq::Parameter>());
 }
 
 [[nodiscard]] inline bool ParameterList::classof(const rq::Entity *entity_ptr) {
@@ -2680,29 +2564,31 @@ SymbolParameterList::getSymbolParameterPtrOfName(llvm::StringRef name) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::SymbolParameter>,
-                          rq::ParameterIterator<rq::SymbolParameter>,
+    std::ranges::subrange<rq::NextIterator<rq::Parameter, rq::SymbolParameter>,
+                          rq::NextIterator<rq::Parameter, rq::SymbolParameter>,
                           std::ranges::subrange_kind::unsized>
     SymbolParameterList::getSymbolParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::SymbolParameter>,
-                               rq::ParameterIterator<rq::SymbolParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::SymbolParameter>(
+  return std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::SymbolParameter>,
+      rq::NextIterator<rq::Parameter, rq::SymbolParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Parameter, rq::SymbolParameter>(
           llvm::cast<rq::SymbolParameter>(this->_first_parameter_ptr)),
-      rq::ParameterIterator<rq::SymbolParameter>());
+      rq::NextIterator<rq::Parameter, rq::SymbolParameter>());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::SymbolParameter>,
-                          rq::ConstParameterIterator<rq::SymbolParameter>,
-                          std::ranges::subrange_kind::unsized>
-    SymbolParameterList::getSymbolParameterSubrange() const {
-  return std::ranges::subrange<rq::ConstParameterIterator<rq::SymbolParameter>,
-                               rq::ConstParameterIterator<rq::SymbolParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::SymbolParameter>(
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>,
+    rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>,
+    std::ranges::subrange_kind::unsized>
+SymbolParameterList::getSymbolParameterSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>(
           llvm::cast<rq::SymbolParameter>(this->_first_parameter_ptr)),
-      rq::ConstParameterIterator<rq::SymbolParameter>());
+      rq::ConstNextIterator<rq::Parameter, rq::SymbolParameter>());
 }
 
 [[nodiscard]] inline bool
@@ -2788,31 +2674,32 @@ Signature::getSignatureParameterPtrOfName(llvm::StringRef name) {
   return llvm::cast<rq::SignatureParameter>(this->getParameterPtrOfName(name));
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::SignatureParameter>,
-                          rq::ParameterIterator<rq::SignatureParameter>,
-                          std::ranges::subrange_kind::unsized>
-    Signature::getSignatureParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::SignatureParameter>,
-                               rq::ParameterIterator<rq::SignatureParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::SignatureParameter>(
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::NextIterator<rq::Parameter, rq::SignatureParameter>,
+    rq::NextIterator<rq::Parameter, rq::SignatureParameter>,
+    std::ranges::subrange_kind::unsized>
+Signature::getSignatureParameterSubrange() {
+  return std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::SignatureParameter>,
+      rq::NextIterator<rq::Parameter, rq::SignatureParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Parameter, rq::SignatureParameter>(
           llvm::cast<rq::SignatureParameter>(this->_first_parameter_ptr)),
-      rq::ParameterIterator<rq::SignatureParameter>());
+      rq::NextIterator<rq::Parameter, rq::SignatureParameter>());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::SignatureParameter>,
-                          rq::ConstParameterIterator<rq::SignatureParameter>,
-                          std::ranges::subrange_kind::unsized>
-    Signature::getSignatureParameterSubrange() const {
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>,
+    rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>,
+    std::ranges::subrange_kind::unsized>
+Signature::getSignatureParameterSubrange() const {
   return std::ranges::subrange<
-      rq::ConstParameterIterator<rq::SignatureParameter>,
-      rq::ConstParameterIterator<rq::SignatureParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>,
       std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::SignatureParameter>(
+      rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>(
           llvm::cast<rq::SignatureParameter>(this->_first_parameter_ptr)),
-      rq::ConstParameterIterator<rq::SignatureParameter>());
+      rq::ConstNextIterator<rq::Parameter, rq::SignatureParameter>());
 }
 
 [[nodiscard]] inline bool Signature::classof(const rq::Entity *entity_ptr) {
@@ -2851,29 +2738,31 @@ Layout::getLayoutParameterPtrOfName(llvm::StringRef name) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::LayoutParameter>,
-                          rq::ParameterIterator<rq::LayoutParameter>,
+    std::ranges::subrange<rq::NextIterator<rq::Parameter, rq::LayoutParameter>,
+                          rq::NextIterator<rq::Parameter, rq::LayoutParameter>,
                           std::ranges::subrange_kind::unsized>
     Layout::getLayoutParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::LayoutParameter>,
-                               rq::ParameterIterator<rq::LayoutParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::LayoutParameter>(
+  return std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::LayoutParameter>,
+      rq::NextIterator<rq::Parameter, rq::LayoutParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Parameter, rq::LayoutParameter>(
           llvm::cast<rq::LayoutParameter>(this->_first_parameter_ptr)),
-      rq::ParameterIterator<rq::LayoutParameter>());
+      rq::NextIterator<rq::Parameter, rq::LayoutParameter>());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::LayoutParameter>,
-                          rq::ConstParameterIterator<rq::LayoutParameter>,
-                          std::ranges::subrange_kind::unsized>
-    Layout::getLayoutParameterSubrange() const {
-  return std::ranges::subrange<rq::ConstParameterIterator<rq::LayoutParameter>,
-                               rq::ConstParameterIterator<rq::LayoutParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::LayoutParameter>(
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>,
+    rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>,
+    std::ranges::subrange_kind::unsized>
+Layout::getLayoutParameterSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>(
           llvm::cast<rq::LayoutParameter>(this->_first_parameter_ptr)),
-      rq::ConstParameterIterator<rq::LayoutParameter>());
+      rq::ConstNextIterator<rq::Parameter, rq::LayoutParameter>());
 }
 
 [[nodiscard]] inline bool Layout::classof(const rq::Entity *entity_ptr) {
@@ -2912,29 +2801,31 @@ TypeParameterList::getTypeParameterPtrOfName(llvm::StringRef name) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
-                          rq::ParameterIterator<rq::TypeParameter>,
+    std::ranges::subrange<rq::NextIterator<rq::Parameter, rq::TypeParameter>,
+                          rq::NextIterator<rq::Parameter, rq::TypeParameter>,
                           std::ranges::subrange_kind::unsized>
     TypeParameterList::getTypeParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::TypeParameter>,
-                               rq::ParameterIterator<rq::TypeParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::TypeParameter>(
+  return std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::TypeParameter>,
+      rq::NextIterator<rq::Parameter, rq::TypeParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Parameter, rq::TypeParameter>(
           llvm::cast<rq::TypeParameter>(this->_first_parameter_ptr)),
-      rq::ParameterIterator<rq::TypeParameter>());
+      rq::NextIterator<rq::Parameter, rq::TypeParameter>());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::TypeParameter>,
-                          rq::ConstParameterIterator<rq::TypeParameter>,
-                          std::ranges::subrange_kind::unsized>
-    TypeParameterList::getTypeParameterSubrange() const {
-  return std::ranges::subrange<rq::ConstParameterIterator<rq::TypeParameter>,
-                               rq::ConstParameterIterator<rq::TypeParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::TypeParameter>(
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>,
+    rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>,
+    std::ranges::subrange_kind::unsized>
+TypeParameterList::getTypeParameterSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>(
           llvm::cast<rq::TypeParameter>(this->_first_parameter_ptr)),
-      rq::ConstParameterIterator<rq::TypeParameter>());
+      rq::ConstNextIterator<rq::Parameter, rq::TypeParameter>());
 }
 
 [[nodiscard]] inline bool
@@ -2975,31 +2866,32 @@ ProcedureType::getProcedureParameterPtrOfName(llvm::StringRef name) {
   return llvm::cast<rq::ProcedureParameter>(this->getParameterPtrOfName(name));
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
-                          rq::ParameterIterator<rq::ProcedureParameter>,
-                          std::ranges::subrange_kind::unsized>
-    ProcedureType::getProcedureParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::ProcedureParameter>,
-                               rq::ParameterIterator<rq::ProcedureParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::ProcedureParameter>(
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::NextIterator<rq::Parameter, rq::ProcedureParameter>,
+    rq::NextIterator<rq::Parameter, rq::ProcedureParameter>,
+    std::ranges::subrange_kind::unsized>
+ProcedureType::getProcedureParameterSubrange() {
+  return std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::ProcedureParameter>,
+      rq::NextIterator<rq::Parameter, rq::ProcedureParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Parameter, rq::ProcedureParameter>(
           llvm::cast<rq::ProcedureParameter>(this->_first_parameter_ptr)),
-      rq::ParameterIterator<rq::ProcedureParameter>());
+      rq::NextIterator<rq::Parameter, rq::ProcedureParameter>());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::ProcedureParameter>,
-                          rq::ConstParameterIterator<rq::ProcedureParameter>,
-                          std::ranges::subrange_kind::unsized>
-    ProcedureType::getProcedureParameterSubrange() const {
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>,
+    rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>,
+    std::ranges::subrange_kind::unsized>
+ProcedureType::getProcedureParameterSubrange() const {
   return std::ranges::subrange<
-      rq::ConstParameterIterator<rq::ProcedureParameter>,
-      rq::ConstParameterIterator<rq::ProcedureParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>,
       std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::ProcedureParameter>(
+      rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>(
           llvm::cast<rq::ProcedureParameter>(this->_first_parameter_ptr)),
-      rq::ConstParameterIterator<rq::ProcedureParameter>());
+      rq::ConstNextIterator<rq::Parameter, rq::ProcedureParameter>());
 }
 
 [[nodiscard]] inline bool ProcedureType::classof(const rq::Entity *entity_ptr) {
@@ -3098,29 +2990,31 @@ TupleType::getTupleParameterPtrOfType(const rq::SymbolConstant &type) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
-                          rq::ParameterIterator<rq::TupleParameter>,
+    std::ranges::subrange<rq::NextIterator<rq::Parameter, rq::TupleParameter>,
+                          rq::NextIterator<rq::Parameter, rq::TupleParameter>,
                           std::ranges::subrange_kind::unsized>
     TupleType::getTupleParameterSubrange() {
-  return std::ranges::subrange<rq::ParameterIterator<rq::TupleParameter>,
-                               rq::ParameterIterator<rq::TupleParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ParameterIterator<rq::TupleParameter>(
+  return std::ranges::subrange<
+      rq::NextIterator<rq::Parameter, rq::TupleParameter>,
+      rq::NextIterator<rq::Parameter, rq::TupleParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Parameter, rq::TupleParameter>(
           llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr)),
-      rq::ParameterIterator<rq::TupleParameter>());
+      rq::NextIterator<rq::Parameter, rq::TupleParameter>());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstParameterIterator<rq::TupleParameter>,
-                          rq::ConstParameterIterator<rq::TupleParameter>,
-                          std::ranges::subrange_kind::unsized>
-    TupleType::getTupleParameterSubrange() const {
-  return std::ranges::subrange<rq::ConstParameterIterator<rq::TupleParameter>,
-                               rq::ConstParameterIterator<rq::TupleParameter>,
-                               std::ranges::subrange_kind::unsized>(
-      rq::ConstParameterIterator<rq::TupleParameter>(
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>,
+    rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>,
+    std::ranges::subrange_kind::unsized>
+TupleType::getTupleParameterSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>,
+      rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>,
+      std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>(
           llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr)),
-      rq::ConstParameterIterator<rq::TupleParameter>());
+      rq::ConstNextIterator<rq::Parameter, rq::TupleParameter>());
 }
 
 [[nodiscard]] inline bool TupleType::classof(const rq::Entity *entity_ptr) {
@@ -3168,7 +3062,7 @@ RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &id,
 RQ_ALWAYS_INLINE
 CompositionComponent::CompositionComponent(rq::Interface &interface,
                                            rq::CompositionComponent *next_ptr)
-    : _interface_ptr(&interface), _next_component_ptr(next_ptr) {}
+    : _interface_ptr(&interface), _next_ptr(next_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
 CompositionComponent::getInterface() const {
@@ -3182,22 +3076,21 @@ CompositionComponent::getInterface() {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 CompositionComponent::getHasNextComponent() const {
-  return this->_next_component_ptr != nullptr;
+  return this->_next_ptr != nullptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
 CompositionComponent::getNextComponent() const {
-  return rq::dereferencePtr(this->_next_component_ptr);
+  return rq::dereferencePtr(this->_next_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &
 CompositionComponent::getNextComponent() {
-  return rq::dereferencePtr(this->_next_component_ptr);
+  return rq::dereferencePtr(this->_next_ptr);
 }
 
 inline void CompositionComponent::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileCompositionComponent(id, this->getInterface(),
-                                  this->_next_component_ptr);
+  rq::profileCompositionComponent(id, this->getInterface(), this->_next_ptr);
 }
 
 RQ_ALWAYS_INLINE void profileCompositionComponent(
@@ -3220,6 +3113,31 @@ CompositionType::getFirstComponent() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &
 CompositionType::getFirstComponent() {
   return rq::dereferencePtr(this->_first_component_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::NextIterator<rq::CompositionComponent>,
+                          rq::NextIterator<rq::CompositionComponent>,
+                          std::ranges::subrange_kind::unsized>
+    CompositionType::getComponentSubrange() {
+  return std::ranges::subrange<rq::NextIterator<rq::CompositionComponent>,
+                               rq::NextIterator<rq::CompositionComponent>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::CompositionComponent>(this->_first_component_ptr),
+      rq::NextIterator<rq::CompositionComponent>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstNextIterator<rq::CompositionComponent>,
+                          rq::ConstNextIterator<rq::CompositionComponent>,
+                          std::ranges::subrange_kind::unsized>
+    CompositionType::getComponentSubrange() const {
+  return std::ranges::subrange<rq::ConstNextIterator<rq::CompositionComponent>,
+                               rq::ConstNextIterator<rq::CompositionComponent>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::CompositionComponent>(
+          this->_first_component_ptr),
+      rq::ConstNextIterator<rq::CompositionComponent>());
 }
 
 [[nodiscard]] inline bool
@@ -3253,6 +3171,79 @@ SynonymType::getOriginal() const {
 [[nodiscard]] inline bool SynonymType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_SYNONYM_TYPE;
+}
+
+RQ_ALWAYS_INLINE SymbolTable::SymbolTable(rq::Opcode opcode,
+                                          rq::SymbolTable *containing_table_ptr)
+    : Symbol(opcode), _containing_table_ptr(containing_table_ptr) {
+  RQ_ASSERT(rq::getIsSymbolTable(opcode), "not symbol table");
+}
+
+RQ_ALWAYS_INLINE void SymbolTable::release() {
+  for (auto &kvp : this->_named_member_map) {
+    for (rq::Symbol &symbol : kvp.second) {
+      if (llvm::isa<rq::SymbolTable>(symbol)) {
+        rq::SymbolTable &table = llvm::cast<rq::SymbolTable>(symbol);
+        table.release();
+      }
+    }
+  }
+  for (rq::Symbol &symbol : this->_unamed_member_list) {
+    if (llvm::isa<rq::SymbolTable>(symbol)) {
+      rq::SymbolTable &table = llvm::cast<rq::SymbolTable>(symbol);
+      table.release();
+    }
+  }
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool SymbolTable::getHasContainingTable() const {
+  return this->_containing_table_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+SymbolTable::getContainingTable() const {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
+inline void SymbolTable::addNamedMember(rq::BumpPtrAllocator &allocator,
+                                        llvm::StringRef name,
+                                        rq::Symbol &symbol) {
+  llvm::DenseMapIterator<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> it =
+      this->_named_member_map.find(name);
+  if (it == this->_named_member_map.end()) {
+    this->_named_member_map.emplace_or_assign(name, symbol);
+    return;
+  }
+  rq::BumpPtrList<rq::Symbol> &list = it->getSecond();
+  list.insertFront(allocator, symbol);
+}
+
+RQ_ALWAYS_INLINE void
+SymbolTable::addUnamedMember(rq::BumpPtrAllocator &allocator,
+                             rq::Symbol &symbol) {
+  this->_unamed_member_list.insertFront(allocator, symbol);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const
+    llvm::DenseMap<llvm::StringRef, rq::BumpPtrList<rq::Symbol>> &
+    SymbolTable::getNamedMemberMap() const {
+  return this->_named_member_map;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstBumpPtrListRef<rq::Symbol>
+SymbolTable::getUnamedMemberList() const {
+  return rq::ConstBumpPtrListRef<rq::Symbol>(this->_unamed_member_list);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
+SymbolTable::getUnamedMemberList() {
+  return this->_unamed_member_list;
+}
+
+[[nodiscard]] inline bool SymbolTable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsSymbolTable(entity.getOpcode());
 }
 
 } // namespace rq
