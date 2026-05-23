@@ -356,90 +356,98 @@ namespace rq {
     return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
-  // GLOBAL DECLARATION => symbol table
+  // NAMED TABLES
   case O::SY_NAMESPACE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE;
+    return OF::SYMBOL | OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TYPE_TABLE;
+
+  // GLOBAL DECLARATION
   case O::SY_CLASS:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_IS_TYPE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_IS_TYPE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATION:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_IS_TYPE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_IS_TYPE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE;
   case O::SY_INTERFACE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+
+  // GLOBAL VARIABLE
+  case O::SY_GLOBAL_DYNAMIC_VARIABLE:
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_GLOBAL_VARIABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+  case O::SY_GLOBAL_STATIC_VARIABLE:
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_GLOBAL_VARIABLE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
-  // GLOBAL VARIABLE => global declaration => symbol table
-  case O::SY_GLOBAL_DYNAMIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_GLOBAL_VARIABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
-  case O::SY_GLOBAL_STATIC_VARIABLE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_GLOBAL_VARIABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
-
-  // RANGERS => global declaration => symbol table
+  // RANGERS
   case O::SY_FORWARD_RANGER:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_RANGER | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_RANGER |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_BACKWARD_RANGER:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_RANGER | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
-
-  // DESTRUCTOR =>  global declaration => symbol table
-  case O::SY_DESTRUCTOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_RANGER |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
-  // PROCEDURES => global declaration => symbol table
+  // DESTRUCTOR
+  case O::SY_DESTRUCTOR:
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
+           OF::SY_LOCAL_TABLE;
+
+  // PROCEDURES
   case O::SY_ENTRY:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_FUNCTION:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_METHOD:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_SYMBOL_TYPE_TABLE |
-           OF::SY_PROCEDURE | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
   // TEMPLATES
   case O::SY_CLASS_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_INTERFACE_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FORWARD_RANGER_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_BACKWARD_RANGER_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FUNCTION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_METHOD_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_EXTENSION_METHOD_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_TEMPLATE |
-           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
+           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // POLYMORPHS
   case O::SY_RANGER_POLYMORPH:
@@ -733,6 +741,11 @@ getIsSymbolParameterList(rq::Opcode opcode) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStatement(rq::Opcode opcode) {
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_LOCAL_STATEMENT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::Opcode opcode) {
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_NAMED_TABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclaration(rq::Opcode opcode) {
@@ -1663,21 +1676,18 @@ RQ_ALWAYS_INLINE ModuleFactory::ModuleFactory(rq::ModuleKind kind)
   return this->_module_kind;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool ModuleFactory::getHasExpression() const {
-  return this->_expression_ptr != nullptr;
-}
-
 void ModuleFactory::setExpression(rq::Expression &expression) {
   rq::assignSingleValue(this->_expression_ptr, &expression);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-ModuleFactory::getExpression() const {
-  return rq::dereferencePtr(this->_expression_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+ModuleFactory::getExpressionPtr() const {
+  return this->_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &ModuleFactory::getExpression() {
-  return rq::dereferencePtr(this->_expression_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+ModuleFactory::getExpressionPtr() {
+  return this->_expression_ptr;
 }
 
 RQ_ALWAYS_INLINE void ModuleFactory::setPath(llvm::StringRef path) {
@@ -1706,8 +1716,10 @@ ModuleFactory::getBuffer() {
 
 RQ_ALWAYS_INLINE Module::Module(rq::ModuleFactory &factory)
     : Symbol(rq::Opcode::SY_MODULE), _module_kind(factory.getKind()),
-      _expression_ptr(&factory.getExpression()), _path(factory.getPath()),
-      _buffer(factory.getBuffer()) {}
+      _expression_ptr(factory.getExpressionPtr()), _path(factory.getPath()),
+      _buffer(factory.getBuffer()) {
+  RQ_ASSERT(factory.getExpressionPtr() != nullptr, "expression not set");
+}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind Module::getModuleKind() const {
   return this->_module_kind;
@@ -1894,14 +1906,9 @@ LocalDeclaration::getName() const {
   return this->_name;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-LocalDeclaration::getHasNameExpression() const {
-  return this->_name_expression_ptr != nullptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-LocalDeclaration::getNameExpression() const {
-  return rq::dereferencePtr(this->_name_expression_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+LocalDeclaration::getNameExpressionPtr() const {
+  return this->_name_expression_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
@@ -1990,10 +1997,6 @@ LocalVariable::getExpressionFlags() const {
   return this->_expression_flags;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool LocalVariable::getHasType() const {
-  return this->_type_ptr != nullptr;
-}
-
 RQ_ALWAYS_INLINE void LocalVariable::setType(rq::SymbolConstant &type) {
   rq::assignSingleValue(this->_type_ptr, &type);
 }
@@ -2002,13 +2005,13 @@ RQ_ALWAYS_INLINE void LocalVariable::replaceType(rq::SymbolConstant &type) {
   rq::replaceValue(this->_type_ptr, &type);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
-LocalVariable::getType() const {
-  return rq::dereferencePtr(this->_type_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+LocalVariable::getTypePtr() const {
+  return this->_type_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &LocalVariable::getType() {
-  return rq::dereferencePtr(this->_type_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *LocalVariable::getTypePtr() {
+  return this->_type_ptr;
 }
 
 [[nodiscard]] inline bool LocalVariable::classof(const rq::Entity *entity_ptr) {
@@ -2067,17 +2070,13 @@ Parameter::getType() const {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Parameter::getHasNextParameter() const {
-  return this->_next_ptr != nullptr;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *
+Parameter::getNextParameterPtr() const {
+  return this->_next_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &
-Parameter::getNextParameter() const {
-  return rq::dereferencePtr(this->_next_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &Parameter::getNextParameter() {
-  return rq::dereferencePtr(this->_next_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *Parameter::getNextParameterPtr() {
+  return this->_next_ptr;
 }
 
 [[nodiscard]] inline bool Parameter::classof(const rq::Entity *entity_ptr) {
@@ -2105,13 +2104,13 @@ SymbolParameter::SymbolParameter(
   RQ_ASSERT(rq::getIsSymbolParameter(opcode), "not symbol parameter");
 }
 
-[[nodiscard]] const rq::SymbolParameter &
-SymbolParameter::getNextSymbolParameter() const {
-  return llvm::cast<rq::SymbolParameter>(this->getNextParameter());
+[[nodiscard]] const rq::SymbolParameter *
+SymbolParameter::getNextSymbolParameterPtr() const {
+  return llvm::cast<rq::SymbolParameter>(this->getNextParameterPtr());
 }
 
-[[nodiscard]] rq::SymbolParameter &SymbolParameter::getNextSymbolParameter() {
-  return llvm::cast<rq::SymbolParameter>(this->getNextParameter());
+[[nodiscard]] rq::SymbolParameter *SymbolParameter::getNextSymbolParameterPtr() {
+  return llvm::cast<rq::SymbolParameter>(this->getNextParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool SymbolParameter::getIsPositional() const {
@@ -2162,14 +2161,9 @@ SymbolParameter::getTypeExpression() const {
   return rq::dereferencePtr(this->_type_expression_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SymbolParameter::getHasDefaultValueExpression() const {
-  return this->_default_value_expression_ptr != nullptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-SymbolParameter::getDefaultValueExpression() const {
-  return rq::dereferencePtr(this->_default_value_expression_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+SymbolParameter::getDefaultValueExpressionPtr() const {
+  return this->_default_value_expression_ptr;
 }
 
 [[nodiscard]] inline bool
@@ -2192,14 +2186,14 @@ RQ_ALWAYS_INLINE SignatureParameter::SignatureParameter(
                       name_expression, type_expression,
                       default_value_expression_ptr) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
-SignatureParameter::getNextSignatureParameter() const {
-  return llvm::cast<rq::SignatureParameter>(this->getNextParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
+SignatureParameter::getNextSignatureParameterPtr() const {
+  return llvm::cast<rq::SignatureParameter>(this->getNextParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &
-SignatureParameter::getNextSignatureParameter() {
-  return llvm::cast<rq::SignatureParameter>(this->getNextParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
+SignatureParameter::getNextSignatureParameterPtr() {
+  return llvm::cast<rq::SignatureParameter>(this->getNextParameterPtr());
 }
 
 [[nodiscard]] inline bool
@@ -2222,14 +2216,14 @@ RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
                       name_expression, type_expression,
                       default_value_expression_ptr) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
-LayoutParameter::getNextLayoutParameter() const {
-  return llvm::cast<rq::LayoutParameter>(this->getNextParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
+LayoutParameter::getNextLayoutParameterPtr() const {
+  return llvm::cast<rq::LayoutParameter>(this->getNextParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &
-LayoutParameter::getNextLayoutParameter() {
-  return llvm::cast<rq::LayoutParameter>(this->getNextParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
+LayoutParameter::getNextLayoutParameterPtr() {
+  return llvm::cast<rq::LayoutParameter>(this->getNextParameterPtr());
 }
 
 [[nodiscard]] inline bool
@@ -2330,19 +2324,14 @@ ParameterList::ParameterList(rq::Opcode opcode,
       _positional_parameter_count(positional_parameter_count),
       _nonpositional_parameter_count(nonpositional_parameter_count) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ParameterList::getHasFirstParameter() const {
-  return this->_first_parameter_ptr != nullptr;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *
+ParameterList::getFirstParameterPtr() const {
+  return this->_first_parameter_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &
-ParameterList::getFirstParameter() const {
-  return rq::dereferencePtr(this->_first_parameter_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &
-ParameterList::getFirstParameter() {
-  return rq::dereferencePtr(this->_first_parameter_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *
+ParameterList::getFirstParameterPtr() {
+  return this->_first_parameter_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned
@@ -2543,14 +2532,14 @@ SymbolParameterList::getLockedParameterCount() const {
   return this->_locked_parameter_count;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter &
-SymbolParameterList::getFirstSymbolParameter() const {
-  return llvm::cast<rq::SymbolParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
+SymbolParameterList::getFirstSymbolParameterPtr() const {
+  return llvm::cast<rq::SymbolParameter>(this->getFirstParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter &
-SymbolParameterList::getFirstSymbolParameter() {
-  return llvm::cast<rq::SymbolParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
+SymbolParameterList::getFirstSymbolParameterPtr() {
+  return llvm::cast<rq::SymbolParameter>(this->getFirstParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
@@ -2621,47 +2610,34 @@ Signature::getReturnType() const {
   return rq::dereferencePtr(this->_return_type_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Signature::getHasRecieverType() const {
-  return this->_reciever_type_ptr != nullptr;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+Signature::getRecieverTypePtr() const {
+  return this->_reciever_type_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
-Signature::getRecieverType() const {
-  return rq::dereferencePtr(this->_reciever_type_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *
+Signature::getRecieverTypePtr() {
+  return this->_reciever_type_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
-Signature::getRecieverType() {
-  return rq::dereferencePtr(this->_reciever_type_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Signature::getPreconditionExpressionPtr() const {
+  return this->_precondition_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Signature::getHasPreconditionExpression() const {
-  return this->_precondition_expression_ptr != nullptr;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Signature::getPostconditionExpressionPtr() const {
+  return this->_postcondition_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-Signature::getPreconditionExpression() const {
-  return rq::dereferencePtr(this->_precondition_expression_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
+Signature::getFirstSignatureParameterPtr() const {
+  return llvm::cast<rq::SignatureParameter>(this->getFirstParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Signature::getHasPostconditionExpression() const {
-  return this->_postcondition_expression_ptr != nullptr;
-}
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-Signature::getPostconditionExpression() const {
-  return rq::dereferencePtr(this->_postcondition_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
-Signature::getFirstSignatureParameter() const {
-  return llvm::cast<rq::SignatureParameter>(this->getFirstParameter());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &
-Signature::getFirstSignatureParameter() {
-  return llvm::cast<rq::SignatureParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
+Signature::getFirstSignatureParameterPtr() {
+  return llvm::cast<rq::SignatureParameter>(this->getFirstParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
@@ -2717,14 +2693,14 @@ RQ_ALWAYS_INLINE Layout::Layout(rq::SymbolParameter *first_parameter_ptr,
                           nonpositional_parameter_count,
                           locked_parameter_count) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
-Layout::getFirstLayoutParameter() const {
-  return llvm::cast<rq::LayoutParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
+Layout::getFirstLayoutParameterPtr() const {
+  return llvm::cast<rq::LayoutParameter>(this->getFirstParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &
-Layout::getFirstLayoutParameter() {
-  return llvm::cast<rq::LayoutParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
+Layout::getFirstLayoutParameterPtr() {
+  return llvm::cast<rq::LayoutParameter>(this->getFirstParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
@@ -2780,14 +2756,14 @@ TypeParameterList::TypeParameterList(rq::Opcode opcode,
                     positional_parameter_count, nonpositional_parameter_count) {
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter &
-TypeParameterList::getFirstTypeParameter() const {
-  return llvm::cast<rq::TypeParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
+TypeParameterList::getFirstTypeParameterPtr() const {
+  return llvm::cast<rq::TypeParameter>(this->getFirstParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter &
-TypeParameterList::getFirstTypeParameter() {
-  return llvm::cast<rq::TypeParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
+TypeParameterList::getFirstTypeParameterPtr() {
+  return llvm::cast<rq::TypeParameter>(this->getFirstParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
@@ -2846,14 +2822,14 @@ ProcedureType::ProcedureType(rq::TypeParameter *first_parameter_ptr,
                         nonpositional_parameter_count),
       _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
-ProcedureType::getFirstProcedureParameter() const {
-  return llvm::cast<rq::ProcedureParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
+ProcedureType::getFirstProcedureParameterPtr() const {
+  return llvm::cast<rq::ProcedureParameter>(this->getFirstParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
-ProcedureType::getFirstProcedureParameter() {
-  return llvm::cast<rq::ProcedureParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
+ProcedureType::getFirstProcedureParameterPtr() {
+  return llvm::cast<rq::ProcedureParameter>(this->getFirstParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
@@ -2942,14 +2918,14 @@ TupleType::getTypeKeyedParameterCount() const {
   return this->_type_keyed_parameter_count;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter &
-TupleType::getFirstTupleParameter() const {
-  return llvm::cast<rq::TupleParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
+TupleType::getFirstTupleParameterPtr() const {
+  return llvm::cast<rq::TupleParameter>(this->getFirstParameterPtr());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
-TupleType::getFirstTupleParameter() {
-  return llvm::cast<rq::TupleParameter>(this->getFirstParameter());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
+TupleType::getFirstTupleParameterPtr() {
+  return llvm::cast<rq::TupleParameter>(this->getFirstParameterPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
@@ -3074,19 +3050,14 @@ CompositionComponent::getInterface() {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-CompositionComponent::getHasNextComponent() const {
-  return this->_next_ptr != nullptr;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent *
+CompositionComponent::getNextComponentPtr() const {
+  return this->_next_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
-CompositionComponent::getNextComponent() const {
-  return rq::dereferencePtr(this->_next_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &
-CompositionComponent::getNextComponent() {
-  return rq::dereferencePtr(this->_next_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent *
+CompositionComponent::getNextComponentPtr() {
+  return this->_next_ptr;
 }
 
 inline void CompositionComponent::Profile(llvm::FoldingSetNodeID &id) const {
@@ -3197,16 +3168,15 @@ inline void SymbolTable::release() {
   std::destroy_at(&this->_named_member_map);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool SymbolTable::getHasContainingTable() const {
-  return this->_containing_table_ptr != nullptr;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+SymbolTable::getContainingTablePtr() const {
+  return this->_containing_table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-SymbolTable::getContainingTable() const {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *SymbolTable::getContainingTablePtr() {
+  return this->_containing_table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
 inline void SymbolTable::addNamedMember(rq::BumpPtrAllocator &allocator,
                                         llvm::StringRef name,
                                         rq::Symbol &symbol) {
@@ -3277,6 +3247,225 @@ RQ_ALWAYS_INLINE IfStatement::IfStatement(rq::SymbolTable &containing_table,
 [[nodiscard]] inline bool IfStatement::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_IF_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+ElseIfStatement::ElseIfStatement(rq::SymbolTable &containing_table,
+                                 rq::Expression &expression,
+                                 rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_ELSE_IF_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+ElseIfStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ELSE_IF_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+ElseStatement::ElseStatement(rq::SymbolTable &containing_table,
+                             rq::Expression &expression,
+                             rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_ELSE_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool ElseStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ELSE_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+MatchStatement::MatchStatement(rq::SymbolTable &containing_table,
+                               rq::Expression &expression,
+                               rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_MATCH_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+MatchStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_MATCH_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+SwitchStatement::SwitchStatement(rq::SymbolTable &containing_table,
+                                 rq::Expression &expression,
+                                 rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_SWITCH_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+SwitchStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SWITCH_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+CaseStatement::CaseStatement(rq::SymbolTable &containing_table,
+                             rq::Expression &expression,
+                             rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_CASE_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool CaseStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_CASE_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+WithStatement::WithStatement(rq::SymbolTable &containing_table,
+                             rq::Expression &expression,
+                             rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_WITH_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool WithStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_WITH_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+DefaultStatement::DefaultStatement(rq::SymbolTable &containing_table,
+                                   rq::Expression &expression,
+                                   rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_DEFAULT_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+DefaultStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_DEFAULT_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+ForStatement::ForStatement(rq::SymbolTable &containing_table,
+                           rq::Expression &expression,
+                           rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_FOR_STATEMENT, containing_table, expression,
+                     flags) {}
+
+[[nodiscard]] inline bool ForStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_FOR_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+WhileStatement::WhileStatement(rq::SymbolTable &containing_table,
+                               rq::Expression &expression,
+                               rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_WHILE_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+WhileStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_WHILE_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+SpinStatement::SpinStatement(rq::SymbolTable &containing_table,
+                             rq::Expression &expression,
+                             rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_SPIN_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool SpinStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SPIN_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+WeaveStatement::WeaveStatement(rq::SymbolTable &containing_table,
+                               rq::Expression &expression,
+                               rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_WEAVE_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+WeaveStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_WEAVE_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE
+ScopeStatement::ScopeStatement(rq::SymbolTable &containing_table,
+                               rq::Expression &expression,
+                               rq::ExpressionFlags flags)
+    : LocalStatement(rq::Opcode::SY_SCOPE_STATEMENT, containing_table,
+                     expression, flags) {}
+
+[[nodiscard]] inline bool
+ScopeStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_SCOPE_STATEMENT;
+}
+
+RQ_ALWAYS_INLINE NamedTable::NamedTable(rq::Opcode opcode,
+                                        rq::SymbolTable &containing_table,
+                                        llvm::StringRef name)
+    : SymbolTable(opcode, &containing_table), _name(name) {
+  RQ_ASSERT(rq::getIsNamedTable(opcode), "not named table");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef NamedTable::getName() const {
+  return this->_name;
+}
+
+RQ_ALWAYS_INLINE void NamedTable::setMangledName(llvm::StringRef mangled_name) {
+  RQ_ASSERT(this->_mangled_name.empty(), "mangled name already set");
+  this->_mangled_name = mangled_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+NamedTable::getMangledName() const {
+  return this->_mangled_name;
+}
+
+[[nodiscard]] inline bool NamedTable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsNamedTable(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE
+GlobalDeclaration::GlobalDeclaration(
+    rq::Opcode opcode, rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression *name_expression_ptr, rq::ExpressionFlags flags)
+    : NamedTable(opcode, containing_table, name),
+      _hosting_table_ptr(&hosting_table), _expression_ptr(&expression),
+      _name_expression_ptr(name_expression_ptr), _flags(flags) {
+  RQ_ASSERT(rq::getIsGlobalDeclaration(opcode), "not global declaration");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+GlobalDeclaration::getHostingTable() const {
+  return rq::dereferencePtr(this->_hosting_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
+GlobalDeclaration::getHostingTable() {
+  return rq::dereferencePtr(this->_hosting_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+GlobalDeclaration::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+GlobalDeclaration::getNameExpressionPtr() const {
+  return this->_name_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
+GlobalDeclaration::getExpressionFlags() {
+  return this->_flags;
+}
+
+[[nodiscard]] inline bool
+GlobalDeclaration::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsGlobalDeclaration(entity.getOpcode());
 }
 
 } // namespace rq
