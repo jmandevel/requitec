@@ -68,9 +68,6 @@ namespace rq {
   case O::SY_OPAQUE_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
-  case O::SY_FLANK_TYPE:
-    return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
-           OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
   case O::SY_GLOBAL_TYPE:
     return OF::SYMBOL | OF::SY_SIMPLE_SYMBOL |
            OF::SY_EXPRESSION_TYPE_ATTRIBUTE_TYPE | OF::SY_IS_TYPE;
@@ -361,11 +358,11 @@ namespace rq {
     return OF::SYMBOL | OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TYPE_TABLE;
 
   // GLOBAL DECLARATION
-  case O::SY_CLASS:
+  case O::SY_CLASS_TYPE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
            OF::SY_SYMBOL_TYPE_TABLE | OF::SY_IS_TYPE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
-  case O::SY_ENUMERATION:
+  case O::SY_ENUMERATION_TYPE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
            OF::SY_SYMBOL_TYPE_TABLE | OF::SY_IS_TYPE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
@@ -492,12 +489,7 @@ getValidExpressionFlags(rq::Opcode opcode) {
   using EF = rq::ExpressionFlags;
   switch (opcode) {
   case O::SY_IMPORT:
-    return EF::FLANK | EF::EXPORT;
-  case O::SY_LOCAL_DYNAMIC_VARIABLE:
-    return EF::FLANK;
-  case O::SY_LOCAL_STATIC_VARIABLE:
-    return EF::FLANK | EF::STATIC;
-  case O::SY_LAYOUT_PARAMETER:
+    return EF::EXPORT;
     return EF::PUBLIC | EF::PARTIAL_MUTATE | EF::LOCATION;
   case O::SY_SIGNATURE_PARAMETER:
     return EF::VARIADIC | EF::LOCATION;
@@ -529,66 +521,66 @@ getValidExpressionFlags(rq::Opcode opcode) {
     return EF::ANCHOR | EF::STATIC;
   case O::SY_SCOPE_STATEMENT:
     return EF::ANCHOR | EF::STATIC;
-  case O::SY_CLASS:
-    return EF::OPAQUE | EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
+  case O::SY_CLASS_TYPE:
+    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
            EF::PACK | EF::DEPRECIATE | EF::EXPERIMENTAL | EF::STABLE_ADDRESS;
-  case O::SY_ENUMERATION:
-    return EF::OPAQUE | EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
+  case O::SY_ENUMERATION_TYPE:
+    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
            EF::DEPRECIATE | EF::EXPERIMENTAL;
   case O::SY_INTERFACE:
-    return EF::OPAQUE | EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
+    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE |
            EF::DEPRECIATE | EF::EXPERIMENTAL;
   case O::SY_GLOBAL_DYNAMIC_VARIABLE:
-    return EF::OPAQUE | EF::FLANK | EF::GLOBAL | EF::EXPORT | EF::CAPTURE |
+    return EF::OPAQUE | EF::GLOBAL | EF::EXPORT | EF::CAPTURE |
            EF::DEPRECIATE | EF::EXPERIMENTAL;
   case O::SY_GLOBAL_STATIC_VARIABLE:
-    return EF::FLANK | EF::GLOBAL | EF::EXPORT | EF::STATIC | EF::CAPTURE |
+    return EF::GLOBAL | EF::EXPORT | EF::STATIC | EF::CAPTURE |
            EF::DEPRECIATE | EF::EXPERIMENTAL;
   case O::SY_FORWARD_RANGER:
-    return EF::FLANK | EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
   case O::SY_BACKWARD_RANGER:
-    return EF::FLANK | EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
   case O::SY_DESTRUCTOR:
-    return EF::FLANK | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
+    return EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
   case O::SY_ENTRY:
-    return EF::FLANK | EF::CAPTURE | EF::MANGLE;
+    return EF::CAPTURE | EF::MANGLE;
   case O::SY_FUNCTION:
-    return EF::OPAQUE | EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::INLINE |
+    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::INLINE |
            EF::MANGLE;
   case O::SY_METHOD:
-    return EF::OPAQUE | EF::FLANK | EF::PUBLIC | EF::CAPTURE | EF::INLINE |
+    return EF::OPAQUE | EF::PUBLIC | EF::CAPTURE | EF::INLINE |
            EF::MANGLE;
   case O::SY_EXTENSION_METHOD:
-    return EF::OPAQUE | EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::INLINE |
+    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::INLINE |
            EF::MANGLE;
   case O::SY_CLASS_TEMPLATE:
-    return EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::PACK | EF::DEPRECIATE |
+    return EF::EXPORT | EF::CAPTURE | EF::PACK | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_ENUMERATION_TEMPLATE:
-    return EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_INTERFACE_TEMPLATE:
-    return EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_FORWARD_RANGER_TEMPLATE:
-    return EF::FLANK | EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_BACKWARD_RANGER_TEMPLATE:
-    return EF::FLANK | EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
+    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_FUNCTION_TEMPLATE:
-    return EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
+    return EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_METHOD_TEMPLATE:
-    return EF::FLANK | EF::PUBLIC | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
+    return EF::PUBLIC | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case O::SY_EXTENSION_METHOD_TEMPLATE:
-    return EF::FLANK | EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
+    return EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   default:
     break;
@@ -1106,14 +1098,6 @@ RQ_ALWAYS_INLINE OpaqueType::OpaqueType()
 [[nodiscard]] inline bool OpaqueType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_OPAQUE_TYPE;
-}
-
-RQ_ALWAYS_INLINE FlankType::FlankType()
-    : ExpressionAttributeType(rq::Opcode::SY_FLANK_TYPE) {}
-
-[[nodiscard]] inline bool FlankType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getOpcode() == rq::Opcode::SY_FLANK_TYPE;
 }
 
 RQ_ALWAYS_INLINE GlobalType::GlobalType()
@@ -2109,7 +2093,8 @@ SymbolParameter::getNextSymbolParameterPtr() const {
   return llvm::cast<rq::SymbolParameter>(this->getNextParameterPtr());
 }
 
-[[nodiscard]] rq::SymbolParameter *SymbolParameter::getNextSymbolParameterPtr() {
+[[nodiscard]] rq::SymbolParameter *
+SymbolParameter::getNextSymbolParameterPtr() {
   return llvm::cast<rq::SymbolParameter>(this->getNextParameterPtr());
 }
 
@@ -3173,7 +3158,8 @@ SymbolTable::getContainingTablePtr() const {
   return this->_containing_table_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *SymbolTable::getContainingTablePtr() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *
+SymbolTable::getContainingTablePtr() {
   return this->_containing_table_ptr;
 }
 
@@ -3467,5 +3453,39 @@ GlobalDeclaration::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsGlobalDeclaration(entity.getOpcode());
 }
+
+RQ_ALWAYS_INLINE
+ClassType::ClassType(rq::SymbolTable &containing_table, llvm::StringRef name,
+                     rq::SymbolTable &hosting_table,
+                     const rq::Expression &expression,
+                     const rq::Expression &name_expression,
+                     rq::ExpressionFlags flags)
+    : GlobalDeclaration(rq::Opcode::SY_CLASS_TYPE, containing_table, name,
+                        hosting_table, expression, &name_expression, flags) {}
+
+[[nodiscard]] inline bool ClassType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_CLASS_TYPE;
+}
+
+RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags)
+    : GlobalDeclaration(rq::Opcode::SY_ENUMERATION_TYPE, containing_table, name,
+                        hosting_table, expression, &name_expression, flags) {}
+
+[[nodiscard]] inline bool
+EnumerationType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ENSURE_TYPE;
+}
+
+RQ_ALWAYS_INLINE
+ Enumerator::Enumerator(rq::SymbolTable &containing_table, llvm::StringRef name,
+             rq::SymbolTable &hosting_table, const rq::Expression &expression,
+             const rq::Expression &name_expression, rq::ExpressionFlags flags) : GlobalDeclaration(rq::Opcode::SY_ENUMERATOR, )
+
+ [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
 } // namespace rq

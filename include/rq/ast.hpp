@@ -211,6 +211,7 @@ enum class Keyword : std::uint32_t {
 
   // BUILTIN TYPES
   INFERENCE,
+  EXPRESSION,
   VOID,
   NO_RETURN,
   BOOLEAN,
@@ -399,24 +400,6 @@ enum class Keyword : std::uint32_t {
   VOLATILE_TYPE,       // no_volatile vs volatile
   ATOMIC_TYPE,         // no_atomic vs atomic
   NULL_TERMINATE_TYPE, // no_null_terminate vs null_terminate
-
-  // MACROS
-  QUOTE,
-  EXPRESSION,
-  EXPAND,
-  EXPAND_STATEMENT,
-  EXPAND_LVALUE,
-  EXPAND_RVALUE,
-  EXPAND_REFLECTION,
-  EXPAND_ARGUMENT,
-  EXPAND_PARAMETER,
-  EXPAND_BINDING,
-  EXPAND_NAME,
-  EXPAND_NAMESPACE,
-  EXPAND_ASCRIPTION,
-  EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION,
-  EXPAND_TYPE_ATTRIBUTE_INSTANTIATION,
-  EXPAND_ARITHMETIC_SEQUENCE_STAGE,
 
   // REFLECTIONS
   REFLECT,
@@ -819,6 +802,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // BUILTIN TYPES
   case K::INFERENCE:
     return "_inference";
+  case K::EXPRESSION:
+    return "expression";
   case K::VOID:
     return "void";
   case K::NO_RETURN:
@@ -1128,40 +1113,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::NULL_TERMINATE_TYPE:
     return "null_terminate_type";
 
-  // EXPRESSIONS
-  case K::QUOTE:
-    return "quote";
-  case K::EXPRESSION:
-    return "expression";
-  case K::EXPAND:
-    return "expand";
-  case K::EXPAND_STATEMENT:
-    return "_expand_statement";
-  case K::EXPAND_LVALUE:
-    return "_expand_lvalue";
-  case K::EXPAND_RVALUE:
-    return "_expand_rvalue";
-  case K::EXPAND_REFLECTION:
-    return "_expand_reflection";
-  case K::EXPAND_ARGUMENT:
-    return "_expand_argument";
-  case K::EXPAND_PARAMETER:
-    return "_expand_parameter";
-  case K::EXPAND_BINDING:
-    return "_expand_binding";
-  case K::EXPAND_NAME:
-    return "_expand_name";
-  case K::EXPAND_NAMESPACE:
-    return "_expand_namespace";
-  case K::EXPAND_ASCRIPTION:
-    return "_expand_ascription";
-  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    return "_expand_expression_attribute_instantiation";
-  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
-    return "_expand_type_attribute_instantiation";
-  case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
-    return "_expand_arithmetic_sequence_stage";
-
   // REFLECTIONS
   case K::REFLECT:
     return "_reflect";
@@ -1325,22 +1276,21 @@ enum class KeywordFlags : std::uint32_t {
   STARTING_CHAINLINK = rq::getBit(6),
   CONTINUING_CHAINLINK = rq::getBit(7),
   FINISHING_CHAINLINK = rq::getBit(8),
-  EXPANSION = rq::getBit(9),
   // TOP
-  STATEMENT = rq::getBit(10),
-  RVALUE = rq::getBit(11),
-  LVALUE = rq::getBit(12),
-  REFLECTION = rq::getBit(13),
-  ARGUMENT = rq::getBit(14),
-  PARAMETER = rq::getBit(15),
-  BINDING = rq::getBit(16),
-  NAME = rq::getBit(17),
-  NAMESPACE = rq::getBit(18),
-  ASCRIPTION = rq::getBit(19),
-  EXPRESSION_ATTRIBUTE = rq::getBit(20),
-  TYPE_ATTRIBUTE = rq::getBit(21),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(22),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(23),
+  STATEMENT = rq::getBit(9),
+  RVALUE = rq::getBit(10),
+  LVALUE = rq::getBit(11),
+  REFLECTION = rq::getBit(12),
+  ARGUMENT = rq::getBit(13),
+  PARAMETER = rq::getBit(14),
+  BINDING = rq::getBit(15),
+  NAME = rq::getBit(16),
+  NAMESPACE = rq::getBit(17),
+  ASCRIPTION = rq::getBit(18),
+  EXPRESSION_ATTRIBUTE = rq::getBit(19),
+  TYPE_ATTRIBUTE = rq::getBit(20),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(21),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(22),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
@@ -1677,6 +1627,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // BUILTIN TYPES
   case K::INFERENCE:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::EXPRESSION:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;;
   case K::VOID:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NO_RETURN:
@@ -1989,41 +1941,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NULL_TERMINATE_TYPE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
-  // EXPRESSIONS
-  case K::QUOTE:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::EXPRESSION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::EXPAND:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::EXPAND_STATEMENT:
-    return KF::STATEMENT | KF::EXPANSION;
-  case K::EXPAND_LVALUE:
-    return KF::LVALUE | KF::EXPANSION;
-  case K::EXPAND_RVALUE:
-    return KF::RVALUE | KF::EXPANSION;
-  case K::EXPAND_REFLECTION:
-    return KF::REFLECTION | KF::EXPANSION;
-  case K::EXPAND_ARGUMENT:
-    return KF::ARGUMENT | KF::EXPANSION;
-  case K::EXPAND_PARAMETER:
-    return KF::PARAMETER | KF::EXPANSION;
-  case K::EXPAND_BINDING:
-    return KF::BINDING | KF::EXPANSION;
-  case K::EXPAND_NAME:
-    return KF::NAME | KF::EXPANSION;
-  case K::EXPAND_NAMESPACE:
-    return KF::NAMESPACE | KF::EXPANSION;
-  case K::EXPAND_ASCRIPTION:
-    return KF::ASCRIPTION | KF::EXPANSION;
-  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    return KF::EXPANSION;
-  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
-    return KF::EXPANSION;
-  case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
-    return KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
-           KF::EXPANSION;
-
   // REFLECTIONS
   case K::REFLECT:
     return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE |
@@ -2255,11 +2172,6 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::FINISHING_CHAINLINK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion(rq::Keyword keyword) {
-  const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::EXPANSION);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::TYPE_ATTRIBUTE);
@@ -2328,84 +2240,7 @@ getDescription(rq::Situation situation) {
   return "error expression";
 }
 
-[[nodiscard]] inline rq::Keyword getExpandOfSituation(rq::Situation situation) {
-  using namespace rq;
-  using K = Keyword;
-  using S = Situation;
-  switch (situation) {
-  case S::NONE:
-    break;
-  case S::TOP:
-    break;
-  case S::STATEMENT:
-    return K::EXPAND_STATEMENT;
-  case S::LVALUE:
-    return K::EXPAND_LVALUE;
-  case S::RVALUE:
-    return K::EXPAND_RVALUE;
-  case S::REFLECTION:
-    return K::EXPAND_REFLECTION;
-  case S::ARGUMENT:
-    return K::EXPAND_ARGUMENT;
-  case S::PARAMETER:
-    return K::EXPAND_PARAMETER;
-  case S::BINDING:
-    return K::EXPAND_BINDING;
-  case S::NAME:
-    return K::EXPAND_NAME;
-  case S::NAMESPACE:
-    return K::EXPAND_NAME;
-  case S::ASCRIPTION:
-    return K::EXPAND_ASCRIPTION;
-  case S::EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    return K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION;
-  case S::TYPE_ATTRIBUTE_INSTANTIATION:
-    return K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION;
-  case S::ARITHMETIC_SEQUENCE_STAGE:
-    return K::EXPAND_ARITHMETIC_SEQUENCE_STAGE;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::Situation getSituationOfExpand(rq::Keyword keyword) {
-  using namespace rq;
-  using K = Keyword;
-  using S = Situation;
-  switch (keyword) {
-  case K::EXPAND_STATEMENT:
-    return S::STATEMENT;
-  case K::EXPAND_LVALUE:
-    return S::LVALUE;
-  case K::EXPAND_RVALUE:
-    return S::RVALUE;
-  case K::EXPAND_REFLECTION:
-    return S::REFLECTION;
-  case K::EXPAND_ARGUMENT:
-    return S::ARGUMENT;
-  case K::EXPAND_PARAMETER:
-    return S::PARAMETER;
-  case K::EXPAND_BINDING:
-    return S::BINDING;
-  case K::EXPAND_NAME:
-    return S::NAME;
-  case K::EXPAND_NAMESPACE:
-    return S::NAMESPACE;
-  case K::EXPAND_ASCRIPTION:
-    return S::ASCRIPTION;
-  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    return S::EXPRESSION_ATTRIBUTE_INSTANTIATION;
-  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
-    return S::TYPE_ATTRIBUTE_INSTANTIATION;
-  case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
-    return S::ARITHMETIC_SEQUENCE_STAGE;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::Keyword getUniversalized(rq::Keyword keyword,
-                                                  rq::Situation situation) {
+[[nodiscard]] inline rq::Keyword getUniversalized(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
@@ -2455,9 +2290,6 @@ getDescription(rq::Situation situation) {
     return K::FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
-  // EXPANSIONS
-  case K::EXPAND:
-    return rq::getExpandOfSituation(situation);
   // REFLECTIONS
   case K::IGNORE:
     return K::IGNORE_OF;
@@ -2709,9 +2541,6 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   // opaque_type
   NO_OPAQUE,
   OPAQUE,
-  // flank_type
-  NO_FLANK,
-  FLANK,
   // global_type
   NO_GLOBAL,
   GLOBAL,
@@ -2786,10 +2615,6 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_opaque";
   case EA::OPAQUE:
     return "opaque";
-  case EA::NO_FLANK:
-    return "no_flank";
-  case EA::FLANK:
-    return "flank";
   case EA::NO_GLOBAL:
     return "no_global";
   case EA::GLOBAL:
@@ -2884,10 +2709,6 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::ANCHOR;
   case K::NO_OPAQUE:
     return EA::OPAQUE;
-  case K::NO_FLANK:
-    return EA::NO_FLANK;
-  case K::FLANK:
-    return EA::FLANK;
   case K::NO_GLOBAL:
     return EA::NO_GLOBAL;
   case K::GLOBAL:
@@ -2973,17 +2794,14 @@ enum class ExpressionFlags : std::uint_fast32_t {
   OPAQUE = rq::getBit(1),
   OPAQUE_MASK = OPAQUE,
 
-  FLANK = rq::getBit(2),
-  FLANK_MASK = FLANK,
-
-  GLOBAL = rq::getBit(3),
+  GLOBAL = rq::getBit(2),
   GLOBAL_MASK = GLOBAL,
 
-  EXPORT = rq::getBit(4),
-  PUBLIC = rq::getBit(5),
+  EXPORT = rq::getBit(3),
+  PUBLIC = rq::getBit(4),
   ACCESS_MASK = EXPORT | PUBLIC,
 
-  PARTIAL_MUTATE = rq::getBit(6),
+  PARTIAL_MUTATE = rq::getBit(5),
   PARTIAL_MUTATE_MASK = PARTIAL_MUTATE,
 
   STATIC = rq::getBit(6),
@@ -3052,10 +2870,6 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::OPAQUE:
     return EF::OPAQUE;
-  case EA::NO_FLANK:
-    return EF::NONE;
-  case EA::FLANK:
-    return EF::FLANK;
   case EA::NO_GLOBAL:
     return EF::NONE;
   case EA::GLOBAL:
@@ -3142,7 +2956,6 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   NONE,
   ANCHOR_TYPE,         // no_anchor vs anchor
   OPAQUE_TYPE,         // no_opaque vs opaque
-  FLANK_TYPE,          // no_flank vs flank
   GLOBAL_TYPE,         // no_global vs global
   ACCESS_TYPE,         // no_access vs export vs public
   PARTIAL_MUTATE_TYPE, // no_partial_mutate vs partial_mutate
@@ -3172,8 +2985,6 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
     return "anchor_type";
   case EAK::OPAQUE_TYPE:
     return "opaque_type";
-  case EAK::FLANK_TYPE:
-    return "flang_type";
   case EAK::GLOBAL_TYPE:
     return "global_type";
   case EAK::ACCESS_TYPE:
@@ -3229,10 +3040,6 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::OPAQUE:
     return EAK::OPAQUE_TYPE;
-  case EA::NO_FLANK:
-    [[fallthrough]];
-  case EA::FLANK:
-    return EAK::FLANK_TYPE;
   case EA::NO_GLOBAL:
     [[fallthrough]];
   case EA::GLOBAL:
@@ -3871,9 +3678,6 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
     return rq::getCanBeFinishingChainLink(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpansion() const {
-    return rq::getIsExpansion(this->getKeyword());
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute() const {
     return rq::getIsTypeAttribute(this->getKeyword());
   }
@@ -3881,8 +3685,8 @@ struct Expression final {
     return rq::getIsExpressionAttribute(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
-  getUniversalized(rq::Situation situation) const {
-    return rq::getUniversalized(this->getKeyword(), situation);
+  getUniversalized() const {
+    return rq::getUniversalized(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
     return rq::getIsUniversalizable(this->getKeyword());

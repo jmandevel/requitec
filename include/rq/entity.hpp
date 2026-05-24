@@ -48,7 +48,6 @@ enum class Opcode {
   // EXPRESSION ATTRIBUTES
   SY_ANCHOR_TYPE,
   SY_OPAQUE_TYPE,
-  SY_FLANK_TYPE,
   SY_GLOBAL_TYPE,
   SY_ACCESS_TYPE,
   SY_PARTIAL_MUTATE_TYPE,
@@ -185,8 +184,8 @@ enum class Opcode {
   SY_NAMESPACE,
 
   // GLOBAL DECLARATION => named table
-  SY_CLASS,
-  SY_ENUMERATION,
+  SY_CLASS_TYPE,
+  SY_ENUMERATION_TYPE,
   SY_ENUMERATOR,
   SY_INTERFACE,
 
@@ -382,8 +381,7 @@ struct Entity;
           struct NoReturnType;
       struct ExpressionAttributeType;
         struct AnchorType;
-        struct OpaquteType;
-        struct FlankType;
+        struct OpaqueType;
         struct GlobalType;
         struct AccessType;
         struct PartialMutateType;
@@ -762,14 +760,6 @@ struct OpaqueType final : public rq::ExpressionAttributeType {
   using Self = rq::OpaqueType;
 
   explicit RQ_ALWAYS_INLINE OpaqueType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct FlankType final : public rq::ExpressionAttributeType {
-  using Self = rq::FlankType;
-
-  explicit RQ_ALWAYS_INLINE FlankType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2715,14 +2705,6 @@ struct ExtensionMethodTemplate final : public rq::Template {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Constant : public rq::Entity {
-  using Self = rq::Constant;
-
-  explicit RQ_ALWAYS_INLINE Constant(rq::Opcode opcode);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
 struct Weight final {
   using Self = rq::Weight;
 
@@ -2730,7 +2712,7 @@ struct Weight final {
   const rq::IntegerConstant *_weight{nullptr};
   rq::Template *_first_template{nullptr};
 
-  explicit Weight() = default;
+  explicit RQ_ALWAYS_INLINE Weight(unsigned value);
   Weight(const Self &) = delete;
   Weight(Self &&) = delete;
   ~Weight() = default;
@@ -2837,6 +2819,14 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
   rq::BumpPtrList<rq::GlobalStaticVariable> _global_static_variable_list{};
 
   explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Constant : public rq::Entity {
+  using Self = rq::Constant;
+
+  explicit RQ_ALWAYS_INLINE Constant(rq::Opcode opcode);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

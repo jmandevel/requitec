@@ -598,6 +598,8 @@ bool Situator::situateTree(rq::Situation situation,
   // BUILTIN TYPES
   case K::INFERENCE:
     [[fallthrough]];
+  case K::EXPRESSION:
+    [[fallthrough]];
   case K::VOID:
     [[fallthrough]];
   case K::NO_RETURN:
@@ -671,7 +673,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::VARIADIC_ARGUMENTS_TYPE:
+  case K::VARIADIC_ARGUMENTS:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
 
@@ -852,19 +854,21 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::ANCHOR:
     [[fallthrough]];
-  case K::TRANSPARENT:
+  case K::NO_OPAQUE:
     [[fallthrough]];
   case K::OPAQUE:
     [[fallthrough]];
-  case K::INSIDE_SCOPE:
+  case K::NO_FLANK:
     [[fallthrough]];
-  case K::FLANK_SCOPE:
+  case K::FLANK:
     [[fallthrough]];
-  case K::LOCAL:
+  case K::NO_GLOBAL:
     [[fallthrough]];
   case K::GLOBAL:
     [[fallthrough]];
-  case K::PRIVATE:
+  case K::NO_ACCESS:
+    [[fallthrough]];
+  case K::EXPORT:
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
@@ -872,13 +876,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
-  case K::NO_EXPORT:
-    [[fallthrough]];
-  case K::EXPORT:
-    [[fallthrough]];
-  case K::DYNAMIC:
-    [[fallthrough]];
-  case K::STATIC:
+  case K::NO_STATIC:
     [[fallthrough]];
   case K::NO_CAPTURE:
     [[fallthrough]];
@@ -888,157 +886,133 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INLINE:
     [[fallthrough]];
-  case K::IMPLICIT_MANGLE:
+  case K::NO_MANGLE:
     [[fallthrough]];
-  case K::EXPLICIT_MANGLE:
+  case K::MANGLE:
     [[fallthrough]];
   case K::NO_PACK:
     [[fallthrough]];
   case K::PACK:
     [[fallthrough]];
-  case K::NO_TEMPLATING:
-    [[fallthrough]];
-  case K::TEMPLATE:
+  case K::NO_BRANCH_TREND:
     [[fallthrough]];
   case K::LIKELY:
     [[fallthrough]];
   case K::UNLIKELY:
     [[fallthrough]];
-  case K::SUPPORTED:
+  case K::NO_DEPRECIATE:
     [[fallthrough]];
-  case K::DEPRECIATED:
+  case K::DEPRECIATE:
     [[fallthrough]];
   case K::EXPERIMENTAL:
     [[fallthrough]];
-  case K::UNNO_STABLE_ADDRESS:
-    [[fallthrough]];
   case K::NO_STABLE_ADDRESS:
     [[fallthrough]];
-  case K::NO_VARIADICNESS:
+  case K::STABLE_ADDRESS:
+    [[fallthrough]];
+  case K::NO_VARIADIC:
     [[fallthrough]];
   case K::VARIADIC:
     [[fallthrough]];
-
-  // TYPE ATTRIBUTES
-  case K::CONST:
+  case K::NO_LOCATION:
     [[fallthrough]];
-  case K::VAR:
+  case K::LOCATION:
     [[fallthrough]];
-  case K::PARTIALLY_VAR:
+  case K::NO_TEMPLATE:
     [[fallthrough]];
-  case K::NO_VOLATILITY:
+  case K::TEMPLATE:
     [[fallthrough]];
-  case K::VOLATILE:
+  case K::NO_CONSTRAINT:
     [[fallthrough]];
-  case K::NO_ATOMICITY:
+  case K::CONSTRAINT:
     [[fallthrough]];
-  case K::ATOMIC:
+  case K::NO_WEIGHT:
     [[fallthrough]];
-  case K::NO_NULL_TERMINATION:
-    [[fallthrough]];
-  case K::NULL_TERMINATE:
-    [[fallthrough]];
-  case K::NO_PRECONDITION:
+  case K::NO_REQUIRE:
     [[fallthrough]];
   case K::REQUIRE:
     [[fallthrough]];
-  case K::NO_POSTCONDITION:
+  case K::NO_ENSURE:
     [[fallthrough]];
   case K::ENSURE:
     [[fallthrough]];
 
+  // TYPE ATTRIBUTES
+  case K::NO_VAR:
+    [[fallthrough]];
+  case K::VAR:
+    [[fallthrough]];
+  case K::PARTIAL_VAR:
+    [[fallthrough]];
+  case K::NO_VOLATILE:
+    [[fallthrough]];
+  case K::VOLATILE:
+    [[fallthrough]];
+  case K::NO_ATOMIC:
+    [[fallthrough]];
+  case K::ATOMIC:
+    [[fallthrough]];
+  case K::NO_NULL_TERMINATE:
+    [[fallthrough]];
+  case K::NULL_TERMINATE:
+    [[fallthrough]];
+
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHOR:
+  case K::ANCHOR_TYPE:
     [[fallthrough]];
-  case K::VISIBILITY:
+  case K::OPAQUE_TYPE:
     [[fallthrough]];
-  case K::FLANK:
+  case K::FLANK_TYPE:
     [[fallthrough]];
-  case K::GLOBAL:
+  case K::GLOBAL_TYPE:
     [[fallthrough]];
-  case K::ACCESS:
+  case K::ACCESS_TYPE:
     [[fallthrough]];
-  case K::PROPERTY_MUTABILITY:
+  case K::PARTIAL_MUTATE_TYPE:
     [[fallthrough]];
-  case K::EXPORTING:
+  case K::STATIC_TYPE:
     [[fallthrough]];
-  case K::GENERATION_TIME:
+  case K::CAPTURE_TYPE:
     [[fallthrough]];
-  case K::CAPTURE:
+  case K::INLINE_TYPE:
     [[fallthrough]];
-  case K::INLINING:
+  case K::MANGLE_TYPE:
     [[fallthrough]];
-  case K::MANGLE:
+  case K::PACK_TYPE:
     [[fallthrough]];
-  case K::PACKING:
+  case K::BRANCH_TREND_TYPE:
     [[fallthrough]];
-  case K::TEMPLATING:
+  case K::DEPRECIATE_TYPE:
     [[fallthrough]];
-  case K::TREND:
+  case K::STABLE_ADDRESS_TYPE:
     [[fallthrough]];
-  case K::SUPPORT:
+  case K::VARIADIC_TYPE:
     [[fallthrough]];
-  case K::ADDRESS_STABILITY:
+  case K::LOCATION_TYPE:
     [[fallthrough]];
-  case K::VARIADICNESS:
+  case K::TEMPLATE_TYPE:
+    [[fallthrough]];
+  case K::CONSTRAINT_TYPE:
+    [[fallthrough]];
+  case K::WEIGHT_TYPE:
+    [[fallthrough]];
+  case K::REQUIRE_TYPE:
+    [[fallthrough]];
+  case K::ENSURE_TYPE:
     [[fallthrough]];
 
-  // TYPE ATTRIBUTE TYPES
-  case K::VARIABILITY:
+    // TYPE ATTRIBUTE TYPES
+  case K::VAR_TYPE:
     [[fallthrough]];
-  case K::VOLATILITY:
+  case K::VOLATILE_TYPE:
     [[fallthrough]];
-  case K::ATOMICITY:
+  case K::ATOMIC_TYPE:
     [[fallthrough]];
-  case K::NULL_TERMINATION:
-    [[fallthrough]];
-  case K::PRECONDITION:
-    [[fallthrough]];
-  case K::POSTCONDITION:
+  case K::NULL_TERMINATE_TYPE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 
-  // NODES
-  case K::QUOTE:
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       1);
-      is_ok = false;
-    }
-    break;
-  case K::EXPRESSION:
-    [[fallthrough]];
-  case K::EXPAND:
-    is_ok = this->situateNullaryExpression(situation, expression);
-    break;
-  case K::EXPAND_STATEMENT:
-    [[fallthrough]];
-  case K::EXPAND_LVALUE:
-    [[fallthrough]];
-  case K::EXPAND_RVALUE:
-    [[fallthrough]];
-  case K::EXPAND_REFLECTION:
-    [[fallthrough]];
-  case K::EXPAND_ARGUMENT:
-    [[fallthrough]];
-  case K::EXPAND_PARAMETER:
-    [[fallthrough]];
-  case K::EXPAND_BINDING:
-    [[fallthrough]];
-  case K::EXPAND_NAME:
-    [[fallthrough]];
-  case K::EXPAND_NAMESPACE:
-    [[fallthrough]];
-  case K::EXPAND_ASCRIPTION:
-    [[fallthrough]];
-  case K::EXPAND_EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    [[fallthrough]];
-  case K::EXPAND_TYPE_ATTRIBUTE_INSTANTIATION:
-    [[fallthrough]];
-  case K::EXPAND_ARITHMETIC_SEQUENCE_STAGE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-
-  // REFLECTIONS
+    // REFLECTIONS
   case K::REFLECT: {
     if (situation == S::NAMESPACE) {
       is_ok = this->situateNaryValueBranches(situation, expression, 2,
@@ -1089,7 +1063,7 @@ bool Situator::situateTree(rq::Situation situation,
           continue;
         }
         const rq::Keyword universalized =
-            next_branch.getUniversalized(situation);
+            next_branch.getUniversalized();
         next_branch.changeKeyword(universalized);
         inner.setNext(next_branch.replaceBranchPtr(inner));
         inner_ptr = &next;
@@ -1098,7 +1072,7 @@ bool Situator::situateTree(rq::Situation situation,
       if (!next.getIsUniversalizable()) {
         continue;
       }
-      const rq::Keyword universalized = next.getUniversalized(situation);
+      const rq::Keyword universalized = next.getUniversalized();
       next.changeKeyword(universalized);
       inner.setNext(next.replaceBranchPtr(inner));
       inner_ptr = &next;

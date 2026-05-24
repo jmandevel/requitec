@@ -1,6 +1,0 @@
-[entry
-    [static] keyword := "byte_size";
-    [static] rvalue := [quote [signed_integer].[keyword.[identify]]];
-    keyword.[identify] := rvalue.[expand];
-    [result] := byte_size.[cast];
-];
