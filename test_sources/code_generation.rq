@@ -1,15 +1,14 @@
 [import "std"];
 
-[static][anchor]::Loop
-[for 0.<=10, num:=[value],
+[anchor]::A
+[static][for 0.<=10, num:=[value],
     [static] varname :..std.String= ..std.format(text="VAR" +> num);
-    [global][capture]::{num:=num}[flank]::Loop
+    [flank]::A[global][capture]::{num:=num}
     varname.getSlice().[identify] :[signed_integer]= num;
 ];
 
 [entry
-    [static]
-    [for 0.<=10, num:=[value],
+    [static][for 0.<=10, num:=[value],
         [static] varname :..std.String= ..std.format(text="VAR" +> num);
         ..std.print(line=varname.getSlice().[bake_slice] +> " is " +> ..(varname.getSlice().[identify]) +> "!");  
     ];
