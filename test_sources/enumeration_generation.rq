@@ -9,7 +9,7 @@
 ];
 
 [entry
-	my_fruit := ..Fruit.MY_FRUIT69;
+	my_fruit := ..Fruit.MY_FRUIT42;
 	
 	[result] := my_fruit.[cast];
 ];
