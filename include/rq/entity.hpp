@@ -1783,13 +1783,16 @@ struct SymbolParameterListFactory final {
 struct SymbolParameterList : public rq::ParameterList {
   using Self = rq::SymbolParameterList;
 
+  const rq::Expression *_expression_ptr;
   unsigned _locked_parameter_count;
 
   explicit RQ_ALWAYS_INLINE SymbolParameterList(
       rq::Opcode opcode, rq::SymbolParameter *first_parameter_ptr,
       unsigned parameter_count, unsigned positional_parameter_count,
-      unsigned nonpositional_parameter_count, unsigned locked_parameter_count);
+      unsigned nonpositional_parameter_count, const rq::Expression &expression,
+      unsigned locked_parameter_count);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLockedParameterCount() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
   getFirstSymbolParameterPtr() const;
@@ -1825,7 +1828,8 @@ struct Signature final : public rq::SymbolParameterList {
   Signature(rq::SignatureParameter *first_parameter_ptr,
             unsigned parameter_count, unsigned positional_parameter_count,
             unsigned nonpositional_parameter_count,
-            unsigned locked_parameter_count, rq::SymbolConstant &return_type,
+            const rq::Expression &expression, unsigned locked_parameter_count,
+            rq::SymbolConstant &return_type,
             rq::SymbolConstant *reciever_type_ptr,
             const rq::Expression *precondition_expression_ptr,
             const rq::Expression *postcondition_expression_ptr);
@@ -1869,6 +1873,7 @@ struct Layout final : public rq::SymbolParameterList {
                                    unsigned parameter_count,
                                    unsigned positional_parameter_count,
                                    unsigned nonpositional_parameter_count,
+                                   const rq::Expression &expression,
                                    unsigned locked_parameter_count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
@@ -2568,7 +2573,8 @@ struct Procedure : public rq::Callable {
   Procedure(rq::Opcode opcode, rq::SymbolTable &containing_table,
             llvm::StringRef name, rq::SymbolTable &hosting_table,
             const rq::Expression &expression,
-            const rq::Expression *name_expression_ptr, rq::ExpressionFlags flags,
+            const rq::Expression *name_expression_ptr,
+            rq::ExpressionFlags flags,
             const rq::Expression &signature_expression);
 
   RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
@@ -2619,21 +2625,29 @@ struct ExtensionMethod final : public rq::Procedure {
 struct Template : public rq::GlobalDeclaration {
   using Self = rq::Template;
 
+  const rq::Expression *_layout_expression_ptr;
+  rq::Layout *_layout_ptr{nullptr};
   rq::Template *_next_ptr{nullptr};
-  rq::Layout *_template_layout{nullptr};
   const rq::Expression *_constraint_expression_ptr;
+  const rq::Expression *_weight_expression_ptr;
+  unsigned _weight;
 
   explicit RQ_ALWAYS_INLINE
   Template(rq::Opcode opcode, rq::SymbolTable &containing_table,
            llvm::StringRef name, rq::SymbolTable &hosting_table,
            const rq::Expression &expression,
            const rq::Expression &name_expression, rq::ExpressionFlags flags,
-           const rq::Expression *constraint_expression_ptr);
+           const rq::Expression &layout_expression,
+           const rq::Expression *constraint_expression_ptr,
+           const rq::Expression *weight_expression_ptr, unsigned weight);
 
+  [[nodiscard]] const rq::Expression &getLayoutExpression() const;
   RQ_ALWAYS_INLINE void setLayout(rq::Layout &layout);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout *getLayoutPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout *getLayoutPtr();
   [[nodiscard]] const rq::Expression *getConstraintExpressionPtr() const;
+  [[nodiscard]] const rq::Expression *getWeightExpressionPtr() const;
+  [[nodiscard]] unsigned getWeight() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

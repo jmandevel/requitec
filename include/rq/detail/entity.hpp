@@ -2519,11 +2519,18 @@ RQ_ALWAYS_INLINE void SymbolParameterListFactory::addParameter(
 RQ_ALWAYS_INLINE SymbolParameterList::SymbolParameterList(
     rq::Opcode opcode, rq::SymbolParameter *first_parameter_ptr,
     unsigned parameter_count, unsigned positional_parameter_count,
-    unsigned nonpositional_parameter_count, unsigned locked_parameter_count)
+    unsigned nonpositional_parameter_count, const rq::Expression &expression,
+    unsigned locked_parameter_count)
     : ParameterList(opcode, first_parameter_ptr, parameter_count,
                     positional_parameter_count, nonpositional_parameter_count),
+      _expression_ptr(&expression),
       _locked_parameter_count(locked_parameter_count) {
   RQ_ASSERT(rq::getIsSymbolParameterList(opcode), "not symbol parameter list");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+SymbolParameterList::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned
@@ -2588,13 +2595,13 @@ SymbolParameterList::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE Signature::Signature(
     rq::SignatureParameter *first_parameter_ptr, unsigned parameter_count,
     unsigned positional_parameter_count, unsigned nonpositional_parameter_count,
-    unsigned locked_parameter_count, rq::SymbolConstant &return_type,
-    rq::SymbolConstant *reciever_type_ptr,
+    const rq::Expression &expression, unsigned locked_parameter_count,
+    rq::SymbolConstant &return_type, rq::SymbolConstant *reciever_type_ptr,
     const rq::Expression *precondition_expression_ptr,
     const rq::Expression *postcondition_expression_ptr)
     : SymbolParameterList(rq::Opcode::SY_SIGNATURE, first_parameter_ptr,
                           parameter_count, positional_parameter_count,
-                          nonpositional_parameter_count,
+                          nonpositional_parameter_count, expression,
                           locked_parameter_count),
       _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr),
       _precondition_expression_ptr(precondition_expression_ptr),
@@ -2686,10 +2693,11 @@ RQ_ALWAYS_INLINE Layout::Layout(rq::SymbolParameter *first_parameter_ptr,
                                 unsigned parameter_count,
                                 unsigned positional_parameter_count,
                                 unsigned nonpositional_parameter_count,
+                                const rq::Expression &expression,
                                 unsigned locked_parameter_count)
     : SymbolParameterList(rq::Opcode::SY_LAYOUT, first_parameter_ptr,
                           parameter_count, positional_parameter_count,
-                          nonpositional_parameter_count,
+                          nonpositional_parameter_count, expression,
                           locked_parameter_count) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
@@ -3884,6 +3892,54 @@ RQ_ALWAYS_INLINE ExtensionMethod::ExtensionMethod(
 ExtensionMethod::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_EXTENSION_METHOD;
+}
+
+RQ_ALWAYS_INLINE Template::Template(
+    rq::Opcode opcode, rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : GlobalDeclaration(opcode, containing_table, name, hosting_table,
+                        expression, &name_expression, flags),
+      _layout_expression_ptr(&layout_expression),
+      _constraint_expression_ptr(constraint_expression_ptr),
+      _weight_expression_ptr(weight_expression_ptr), _weight(weight) {
+  RQ_ASSERT(rq::getIsTemplate(opcode), "not template");
+}
+
+[[nodiscard]] const rq::Expression &Template::getLayoutExpression() const {
+  return rq::dereferencePtr(this->_layout_expression_ptr);
+}
+
+RQ_ALWAYS_INLINE void Template::setLayout(rq::Layout &layout) {
+  rq::assignSingleValue(this->_layout_ptr, &layout);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout *
+Template::getLayoutPtr() const {
+  return this->_layout_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Layout *Template::getLayoutPtr() {
+  return this->_layout_ptr;
+}
+
+[[nodiscard]] const rq::Expression *
+Template::getConstraintExpressionPtr() const {
+  return this->_constraint_expression_ptr;
+}
+
+[[nodiscard]] const rq::Expression *Template::getWeightExpressionPtr() const {
+  return this->_weight_expression_ptr;
+}
+
+[[nodiscard]] unsigned Template::getWeight() const { return this->_weight; }
+
+[[nodiscard]] inline bool Template::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsTemplate(entity.getOpcode());
 }
 
 } // namespace rq
