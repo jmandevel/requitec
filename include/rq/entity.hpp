@@ -195,13 +195,13 @@ enum class Opcode {
 
   // CALLABLE => global declaration => named table => symbol table
   SY_DESTRUCTOR,
+  SY_ENTRY,
 
   // RANGERS => callable => global declaration => named table => symbol table
   SY_FORWARD_RANGER,
   SY_BACKWARD_RANGER,
 
   // PROCEDURES => callatble => global declaration => symbol table
-  SY_ENTRY,
   SY_FUNCTION,
   SY_METHOD,
   SY_EXTENSION_METHOD,
@@ -269,27 +269,28 @@ enum class OpcodeFlags : std::uint64_t {
   SY_SYMBOL_PARAMETER_LIST = rq::getBit(19),
   SY_TYPE_PARAMETER = rq::getBit(20),
   SY_TYPE_PARAMETER_LIST = rq::getBit(21),
-  SY_SYMBOL_TYPE_TABLE = rq::getBit(22),
+  SY_SYMBOL_TABLE = rq::getBit(22),
   SY_LOCAL_STATEMENT = rq::getBit(23),
   SY_NAMED_TABLE = rq::getBit(24),
   SY_GLOBAL_DECLARATION = rq::getBit(25),
   SY_GLOBAL_VARIABLE = rq::getBit(26),
-  SY_RANGER = rq::getBit(27),
-  SY_PROCEDURE = rq::getBit(28),
-  SY_TEMPLATE = rq::getBit(29),
-  SY_POLYMORPH = rq::getBit(30),
+  SY_CALLABLE = rq::getBit(27),
+  SY_RANGER = rq::getBit(28),
+  SY_PROCEDURE = rq::getBit(29),
+  SY_TEMPLATE = rq::getBit(30),
+  SY_POLYMORPH = rq::getBit(31),
 
   // SYMBOL DETAILS
-  SY_IS_TYPE = rq::getBit(31),
-  SY_IS_SIGNED_TYPE = rq::getBit(32),
-  SY_IS_UNSIGNED_TYPE = rq::getBit(33),
-  SY_IS_INTEGER_TYPE = rq::getBit(34),
-  SY_IS_FLOAT_TYPE = rq::getBit(35),
-  SY_IS_BINARY_TYPE = rq::getBit(36),
-  SY_IS_BFLOAT_TYPE = rq::getBit(37),
-  SY_IS_CODEUNIT_TYPE = rq::getBit(38),
-  SY_HAS_EXPRESSION_ATTRIBUTES = rq::getBit(39),
-  SY_LOCAL_TABLE = rq::getBit(40)
+  SY_IS_TYPE = rq::getBit(32),
+  SY_IS_SIGNED_TYPE = rq::getBit(33),
+  SY_IS_UNSIGNED_TYPE = rq::getBit(34),
+  SY_IS_INTEGER_TYPE = rq::getBit(35),
+  SY_IS_FLOAT_TYPE = rq::getBit(36),
+  SY_IS_BINARY_TYPE = rq::getBit(37),
+  SY_IS_BFLOAT_TYPE = rq::getBit(38),
+  SY_IS_CODEUNIT_TYPE = rq::getBit(39),
+  SY_HAS_EXPRESSION_ATTRIBUTES = rq::getBit(40),
+  SY_LOCAL_TABLE = rq::getBit(41)
 };
 
 template <> struct is_flags<rq::OpcodeFlags> final : std::true_type {};
@@ -341,6 +342,7 @@ getIsStandardPrimitiveType(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::Opcode opocde);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclaration(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariable(rq::Opcode opcode);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCallable(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::Opcode opcode);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::Opcode opcode);
@@ -496,11 +498,11 @@ struct Entity;
            struct GlobalStaticVariable;
          struct Callable;
           struct Destructor;
+          struct Entry;
           struct Ranger;
            struct ForwardRanger;
            struct BackwardRanger;
           struct Procedure;
-           struct Entry;
            struct Function;
            struct Method;
            struct ExtensionMethod;
@@ -2320,9 +2322,10 @@ struct GlobalDeclaration : public rq::NamedTable {
                     const rq::Expression &expression,
                     const rq::Expression *name_expression_ptr,
                     rq::ExpressionFlags flags);
-  
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHostingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
@@ -2461,11 +2464,13 @@ struct Callable : public rq::GlobalDeclaration {
 
   rq::Instruction *_instruction_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE
-  Callable(rq::Opcode opcode, rq::SymbolTable &containing_table,
-           llvm::StringRef name, rq::SymbolTable &hosting_table,
-           const rq::Expression &expression,
-           const rq::Expression *name_expression_ptr, rq::ExpressionFlags flag);
+  explicit RQ_ALWAYS_INLINE Callable(rq::Opcode opcode,
+                                     rq::SymbolTable &containing_table,
+                                     llvm::StringRef name,
+                                     rq::SymbolTable &hosting_table,
+                                     const rq::Expression &expression,
+                                     const rq::Expression *name_expression_ptr,
+                                     rq::ExpressionFlags flags);
 
   RQ_ALWAYS_INLINE void setInstruction(rq::Instruction &instruction);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
@@ -2481,8 +2486,18 @@ struct Destructor final : public rq::Callable {
   explicit RQ_ALWAYS_INLINE Destructor(rq::SymbolTable &containing_table,
                                        rq::SymbolTable &hosting_table,
                                        const rq::Expression &expression,
-                                       const rq::Expression &name_expression,
                                        rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Entry final : public rq::Callable {
+  using Self = rq::Entry;
+
+  explicit RQ_ALWAYS_INLINE Entry(rq::SymbolTable &containing_table,
+                                  rq::SymbolTable &hosting_table,
+                                  const rq::Expression &expression,
+                                  rq::ExpressionFlags flags);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2490,26 +2505,29 @@ struct Destructor final : public rq::Callable {
 struct Ranger : public rq::Callable {
   using Self = rq::Ranger;
 
-  const rq::Expression *_reciever_expression_ptr;
-  rq::SymbolConstant *_reciever_ptr;
-  const rq::Expression *_element_expression_ptr;
-  rq::SymbolConstant *_element_ptr{nullptr};
+  const rq::Expression *_reciever_type_expression_ptr;
+  rq::SymbolConstant *_reciever_type_ptr{nullptr};
+  const rq::Expression *_element_type_expression_ptr;
+  rq::SymbolConstant *_element_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
   Ranger(rq::Opcode opcode, rq::SymbolTable &containing_table,
          rq::SymbolTable &hosting_table, const rq::Expression &expression,
-         rq::ExpressionFlags flags, const rq::Expression &reciever_expression,
-         const rq::Expression &element_expression);
+         rq::ExpressionFlags flags,
+         const rq::Expression &reciever_type_expression,
+         const rq::Expression &element_type_expression);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getRecieverExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getRecieverTypeExpression() const;
+  RQ_ALWAYS_INLINE void setRecieverType(rq::SymbolConstant &reciever_type);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
-  getRecieverPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getRecieverPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getElementExpressionPtr() const;
-  [[nodiscard]] const rq::SymbolConstant *getElementPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getElementPtr();
+  getRecieverTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getRecieverTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getElementTypeExpression() const;
+  RQ_ALWAYS_INLINE void setElementType(rq::SymbolConstant &element);
+  [[nodiscard]] const rq::SymbolConstant *getElementTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getElementTypePtr();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2517,10 +2535,12 @@ struct Ranger : public rq::Callable {
 struct ForwardRanger final : public rq::Ranger {
   using Self = rq::ForwardRanger;
 
-  explicit RQ_ALWAYS_INLINE ForwardRanger(rq::SymbolTable &containing_table,
-                                          rq::SymbolTable &hosting_table,
-                                          const rq::Expression &expression,
-                                          rq::ExpressionFlags flags);
+  explicit RQ_ALWAYS_INLINE
+  ForwardRanger(rq::SymbolTable &containing_table,
+                rq::SymbolTable &hosting_table,
+                const rq::Expression &expression, rq::ExpressionFlags flags,
+                const rq::Expression &reciever_type_expression,
+                const rq::Expression &element_type_expression);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2528,10 +2548,12 @@ struct ForwardRanger final : public rq::Ranger {
 struct BackwardRanger final : public rq::Ranger {
   using Self = rq::BackwardRanger;
 
-  explicit RQ_ALWAYS_INLINE BackwardRanger(rq::SymbolTable &containing_table,
-                                           rq::SymbolTable &hosting_table,
-                                           const rq::Expression &expression,
-                                           rq::ExpressionFlags flags);
+  explicit RQ_ALWAYS_INLINE
+  BackwardRanger(rq::SymbolTable &containing_table,
+                 rq::SymbolTable &hosting_table,
+                 const rq::Expression &expression, rq::ExpressionFlags flags,
+                 const rq::Expression &reciever_type_expression,
+                 const rq::Expression &element_type_expression);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2546,27 +2568,14 @@ struct Procedure : public rq::Callable {
   Procedure(rq::Opcode opcode, rq::SymbolTable &containing_table,
             llvm::StringRef name, rq::SymbolTable &hosting_table,
             const rq::Expression &expression,
-            const rq::Expression *name_expression_ptr,
-            const rq::Expression &signature_expression,
-            rq::ExpressionFlags flag);
+            const rq::Expression *name_expression_ptr, rq::ExpressionFlags flags,
+            const rq::Expression &signature_expression);
 
   RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getSignatureExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getSignatureExpression();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Entry final : public rq::Procedure {
-  using Self = rq::Entry;
-
-  explicit RQ_ALWAYS_INLINE Entry(rq::SymbolTable &containing_table,
-                                  rq::SymbolTable &hosting_table,
-                                  const rq::Expression &expression,
-                                  rq::ExpressionFlags flag);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2577,7 +2586,8 @@ struct Function final : public rq::Procedure {
   explicit RQ_ALWAYS_INLINE
   Function(rq::SymbolTable &containing_table, llvm::StringRef name,
            rq::SymbolTable &hosting_table, const rq::Expression &expression,
-           const rq::Expression &name_expression, rq::ExpressionFlags flag);
+           const rq::Expression &name_expression, rq::ExpressionFlags flags,
+           const rq::Expression &signature_expression);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2588,7 +2598,8 @@ struct Method final : public rq::Procedure {
   explicit RQ_ALWAYS_INLINE
   Method(rq::SymbolTable &containing_table, llvm::StringRef name,
          rq::SymbolTable &hosting_table, const rq::Expression &expression,
-         const rq::Expression &name_expression, rq::ExpressionFlags flag);
+         const rq::Expression &name_expression, rq::ExpressionFlags flags,
+         const rq::Expression &signature_expression);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2599,7 +2610,8 @@ struct ExtensionMethod final : public rq::Procedure {
   explicit RQ_ALWAYS_INLINE ExtensionMethod(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag);
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &signature_expression);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2615,7 +2627,7 @@ struct Template : public rq::GlobalDeclaration {
   Template(rq::Opcode opcode, rq::SymbolTable &containing_table,
            llvm::StringRef name, rq::SymbolTable &hosting_table,
            const rq::Expression &expression,
-           const rq::Expression &name_expression, rq::ExpressionFlags flag,
+           const rq::Expression &name_expression, rq::ExpressionFlags flags,
            const rq::Expression *constraint_expression_ptr);
 
   RQ_ALWAYS_INLINE void setLayout(rq::Layout &layout);
@@ -2632,7 +2644,7 @@ struct ClassTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE ClassTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression *name_expression_ptr, rq::ExpressionFlags flag,
+      const rq::Expression *name_expression_ptr, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2644,7 +2656,7 @@ struct EnumerationTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE EnumerationTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2656,7 +2668,7 @@ struct InterfaceTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE InterfaceTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2668,7 +2680,7 @@ struct GlobalDynamicVariableTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2680,7 +2692,7 @@ struct GlobalStaticVariableTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2691,7 +2703,7 @@ struct ForwardRangerTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE ForwardRangerTemplate(
       rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      const rq::Expression &expression, rq::ExpressionFlags flag,
+      const rq::Expression &expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2702,7 +2714,7 @@ struct BackwardRangerTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE BackwardRangerTemplate(
       rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      const rq::Expression &expression, rq::ExpressionFlags flag,
+      const rq::Expression &expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2714,7 +2726,7 @@ struct FunctionTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE FunctionTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2726,7 +2738,7 @@ struct MethodTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE MethodTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression &name_expression, rq::ExpressionFlags flag,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression *constraint_expression_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);

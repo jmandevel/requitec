@@ -310,141 +310,150 @@ namespace rq {
 
   // SYMBOL TABLES
   case O::SY_TOP:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE;
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE;
 
   // LOCAL STATEMENTS
   case O::SY_IF_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_ELSE_IF_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_ELSE_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_MATCH_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_SWITCH_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_CASE_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_WITH_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_DEFAULT_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_FOR_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_WHILE_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_SPIN_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_WEAVE_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_SCOPE_STATEMENT:
-    return OF::SYMBOL | OF::SY_SYMBOL_TYPE_TABLE | OF::SY_LOCAL_STATEMENT |
+    return OF::SYMBOL | OF::SY_SYMBOL_TABLE | OF::SY_LOCAL_STATEMENT |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
   // NAMED TABLES
   case O::SY_NAMESPACE:
-    return OF::SYMBOL | OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TYPE_TABLE;
+    return OF::SYMBOL | OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TABLE;
 
   // GLOBAL DECLARATION
   case O::SY_CLASS_TYPE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_IS_TYPE |
+           OF::SY_SYMBOL_TABLE | OF::SY_IS_TYPE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATION_TYPE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_IS_TYPE |
+           OF::SY_SYMBOL_TABLE | OF::SY_IS_TYPE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATOR:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE;
+           OF::SY_SYMBOL_TABLE;
   case O::SY_INTERFACE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+           OF::SY_SYMBOL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // GLOBAL VARIABLE
   case O::SY_GLOBAL_DYNAMIC_VARIABLE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_GLOBAL_VARIABLE |
+           OF::SY_SYMBOL_TABLE | OF::SY_GLOBAL_VARIABLE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_GLOBAL_STATIC_VARIABLE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_GLOBAL_VARIABLE |
+           OF::SY_SYMBOL_TABLE | OF::SY_GLOBAL_VARIABLE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // RANGERS
   case O::SY_FORWARD_RANGER:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_RANGER |
+           OF::SY_SYMBOL_TABLE | OF::SY_RANGER |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_BACKWARD_RANGER:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_RANGER |
+           OF::SY_SYMBOL_TABLE | OF::SY_RANGER |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
-  // DESTRUCTOR
+  // CALLABLE
   case O::SY_DESTRUCTOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES |
-           OF::SY_LOCAL_TABLE;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
   // PROCEDURES
   case O::SY_ENTRY:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TABLE | OF::SY_PROCEDURE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_FUNCTION:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+    return OF::SY_SYMBOL_TABLE | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TABLE | OF::SY_PROCEDURE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_METHOD:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TABLE | OF::SY_PROCEDURE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
   case O::SY_EXTENSION_METHOD:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TYPE_TABLE | OF::SY_PROCEDURE |
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_SYMBOL_TABLE | OF::SY_PROCEDURE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES | OF::SY_LOCAL_TABLE;
 
   // TEMPLATES
   case O::SY_CLASS_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_ENUMERATION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_INTERFACE_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FORWARD_RANGER_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_BACKWARD_RANGER_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_FUNCTION_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_METHOD_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_EXTENSION_METHOD_TEMPLATE:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_TEMPLATE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // POLYMORPHS
   case O::SY_RANGER_POLYMORPH:
@@ -722,7 +731,7 @@ getIsSymbolParameterList(rq::Opcode opcode) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::Opcode opcode) {
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
-  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SYMBOL_TYPE_TABLE);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_SYMBOL_TABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStatement(rq::Opcode opcode) {
@@ -743,6 +752,11 @@ getIsSymbolParameterList(rq::Opcode opcode) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariable(rq::Opcode opcode) {
   const rq::OpcodeFlags flags = rq::getFlags(opcode);
   return rq::getHasAll(flags, rq::OpcodeFlags::SY_GLOBAL_VARIABLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCallable(rq::Opcode opcode) {
+  const rq::OpcodeFlags flags = rq::getFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeFlags::SY_CALLABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::Opcode opcode) {
@@ -3625,6 +3639,251 @@ GlobalDynamicVariable::getInitialValuePtr() {
 GlobalDynamicVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_GLOBAL_DYNAMIC_VARIABLE;
+}
+
+RQ_ALWAYS_INLINE GlobalStaticVariable::GlobalStaticVariable(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &initial_value_expression)
+    : GlobalVariable(rq::Opcode::SY_GLOBAL_STATIC_VARIABLE, containing_table,
+                     name, hosting_table, expression, name_expression, flags,
+                     initial_value_expression) {}
+
+RQ_ALWAYS_INLINE void GlobalStaticVariable::setValue(rq::Constant &constant) {
+  rq::assignSingleValue(this->_value_ptr, &constant);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant *
+GlobalStaticVariable::getValuePtr() const {
+  return this->_value_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Constant *
+GlobalStaticVariable::getValuePtr() {
+  return this->_value_ptr;
+}
+
+[[nodiscard]] inline bool
+GlobalStaticVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_GLOBAL_STATIC_VARIABLE;
+}
+
+RQ_ALWAYS_INLINE
+Callable::Callable(rq::Opcode opcode, rq::SymbolTable &containing_table,
+                   llvm::StringRef name, rq::SymbolTable &hosting_table,
+                   const rq::Expression &expression,
+                   const rq::Expression *name_expression_ptr,
+                   rq::ExpressionFlags flag)
+    : GlobalDeclaration(opcode, containing_table, name, hosting_table,
+                        expression, name_expression_ptr, flag) {
+  RQ_ASSERT(rq::getIsCallable(opcode), "not callable");
+}
+
+RQ_ALWAYS_INLINE void Callable::setInstruction(rq::Instruction &instruction) {
+  rq::assignSingleValue(this->_instruction_ptr, &instruction);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
+Callable::getInstructionPtr() const {
+  return this->_instruction_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *Callable::getInstructionPtr() {
+  return this->_instruction_ptr;
+}
+
+[[nodiscard]] inline bool Callable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsCallable(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE Destructor::Destructor(rq::SymbolTable &containing_table,
+                                        rq::SymbolTable &hosting_table,
+                                        const rq::Expression &expression,
+                                        rq::ExpressionFlags flags)
+    : Callable(rq::Opcode::SY_DESTRUCTOR, containing_table, {}, hosting_table,
+               expression, nullptr, flags) {}
+
+[[nodiscard]] inline bool Destructor::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_DESTRUCTOR;
+}
+
+RQ_ALWAYS_INLINE
+Entry::Entry(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+             const rq::Expression &expression, rq::ExpressionFlags flags)
+    : Callable(rq::Opcode::SY_ENTRY, containing_table, {}, hosting_table,
+               expression, nullptr, flags) {}
+
+[[nodiscard]] inline bool Entry::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ENTRY;
+}
+
+RQ_ALWAYS_INLINE
+Ranger::Ranger(rq::Opcode opcode, rq::SymbolTable &containing_table,
+               rq::SymbolTable &hosting_table, const rq::Expression &expression,
+               rq::ExpressionFlags flags,
+               const rq::Expression &reciever_type_expression,
+               const rq::Expression &element_type_expression)
+    : Callable(opcode, containing_table, {}, hosting_table, expression, nullptr,
+               flags),
+      _reciever_type_expression_ptr(&reciever_type_expression),
+      _element_type_expression_ptr(&element_type_expression) {
+  RQ_ASSERT(rq::getIsRanger(opcode), "not ranger");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Ranger::getRecieverTypeExpression() const {
+  return rq::dereferencePtr(this->_reciever_type_expression_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+Ranger::setRecieverType(rq::SymbolConstant &reciever_type) {
+  rq::assignSingleValue(this->_reciever_type_ptr, &reciever_type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+Ranger::getRecieverTypePtr() const {
+  return this->_reciever_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *
+Ranger::getRecieverTypePtr() {
+  return this->_reciever_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Ranger::getElementTypeExpression() const {
+  return rq::dereferencePtr(this->_element_type_expression_ptr);
+}
+
+RQ_ALWAYS_INLINE void Ranger::setElementType(rq::SymbolConstant &element) {
+  rq::assignSingleValue(this->_element_type_ptr, &element);
+}
+
+[[nodiscard]] const rq::SymbolConstant *Ranger::getElementTypePtr() const {
+  return this->_element_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *Ranger::getElementTypePtr() {
+  return this->_element_type_ptr;
+}
+
+[[nodiscard]] inline bool Ranger::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsRanger(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE ForwardRanger::ForwardRanger(
+    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+    const rq::Expression &expression, rq::ExpressionFlags flags,
+    const rq::Expression &reciever_type_expression,
+    const rq::Expression &element_type_expression)
+    : Ranger(rq::Opcode::SY_FORWARD_RANGER, containing_table, hosting_table,
+             expression, flags, reciever_type_expression,
+             element_type_expression) {}
+
+[[nodiscard]] inline bool ForwardRanger::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_FORWARD_RANGER;
+}
+
+RQ_ALWAYS_INLINE BackwardRanger::BackwardRanger(
+    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+    const rq::Expression &expression, rq::ExpressionFlags flags,
+    const rq::Expression &reciever_type_expression,
+    const rq::Expression &element_type_expression)
+    : Ranger(rq::Opcode::SY_BACKWARD_RANGER, containing_table, hosting_table,
+             expression, flags, reciever_type_expression,
+             element_type_expression) {}
+
+[[nodiscard]] inline bool
+BackwardRanger::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BACKWARD_RANGER;
+}
+
+RQ_ALWAYS_INLINE
+Procedure::Procedure(rq::Opcode opcode, rq::SymbolTable &containing_table,
+                     llvm::StringRef name, rq::SymbolTable &hosting_table,
+                     const rq::Expression &expression,
+                     const rq::Expression *name_expression_ptr,
+                     rq::ExpressionFlags flag,
+                     const rq::Expression &signature_expression)
+    : Callable(opcode, containing_table, name, hosting_table, expression,
+               name_expression_ptr, flag),
+      _signature_expression_ptr(&signature_expression) {
+  RQ_ASSERT(rq::getIsProcedure(opcode), "not procedure");
+}
+
+RQ_ALWAYS_INLINE
+void Procedure::setSignature(rq::Signature &signature) {
+  rq::assignSingleValue(this->_signature_ptr, &signature);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *
+Procedure::getSignaturePtr() const {
+  return this->_signature_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *Procedure::getSignaturePtr() {
+  return this->_signature_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Procedure::getSignatureExpression() const {
+  return rq::dereferencePtr(this->_signature_expression_ptr);
+}
+
+[[nodiscard]] inline bool Procedure::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsProcedure(entity.getOpcode());
+}
+
+RQ_ALWAYS_INLINE
+Function::Function(rq::SymbolTable &containing_table, llvm::StringRef name,
+                   rq::SymbolTable &hosting_table,
+                   const rq::Expression &expression,
+                   const rq::Expression &name_expression,
+                   rq::ExpressionFlags flags,
+                   const rq::Expression &signature_expression)
+    : Procedure(rq::Opcode::SY_FUNCTION, containing_table, name, hosting_table,
+                expression, &name_expression, flags, signature_expression) {}
+
+[[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_FUNCTION;
+}
+
+RQ_ALWAYS_INLINE
+Method::Method(rq::SymbolTable &containing_table, llvm::StringRef name,
+               rq::SymbolTable &hosting_table, const rq::Expression &expression,
+               const rq::Expression &name_expression, rq::ExpressionFlags flags,
+               const rq::Expression &signature_expression)
+    : Procedure(rq::Opcode::SY_METHOD, containing_table, name, hosting_table,
+                expression, &name_expression, flags, signature_expression) {}
+
+[[nodiscard]] inline bool Method::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_METHOD;
+}
+
+RQ_ALWAYS_INLINE ExtensionMethod::ExtensionMethod(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &signature_expression)
+    : Procedure(rq::Opcode::SY_EXTENSION_METHOD, containing_table, name,
+                hosting_table, expression, &name_expression, flags,
+                signature_expression) {}
+
+[[nodiscard]] inline bool
+ExtensionMethod::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_EXTENSION_METHOD;
 }
 
 } // namespace rq
