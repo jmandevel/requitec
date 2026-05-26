@@ -1,0 +1,11 @@
+[template]::{ Type:[symbol] <}
+[constraint]::(Type.[is_type])
+[function asSigned, 
+    [static] Signed : = [signed_integer Type.[byte_size]];
+    ( var:Type <)Signed,
+    [result] := var.[bitwise_cast Signed];
+];
+
+[entry
+    [result] := ..asSigned{[single]}(3.14);
+];

@@ -11,6 +11,6 @@
 [entry
 	my_fruit := ..Fruit.MY_FRUIT42;
 	
-	[result] := my_fruit.[cast];
+	[result] := my_fruit.[cast [signed_integer 32]];
 ];
 

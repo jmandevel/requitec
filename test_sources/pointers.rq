@@ -11,5 +11,5 @@
 
     var_ptr = [null];
 
-    [result] := var_copy.[cast];
+    [result] := var_copy.[cast [signed_integer 32]];
 ];

@@ -2658,8 +2658,10 @@ struct ClassTemplate final : public rq::Template {
   explicit RQ_ALWAYS_INLINE ClassTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
-      const rq::Expression *name_expression_ptr, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2671,7 +2673,9 @@ struct EnumerationTemplate final : public rq::Template {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2683,7 +2687,9 @@ struct InterfaceTemplate final : public rq::Template {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2695,7 +2701,9 @@ struct GlobalDynamicVariableTemplate final : public rq::Template {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2707,7 +2715,9 @@ struct GlobalStaticVariableTemplate final : public rq::Template {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2716,9 +2726,12 @@ struct ForwardRangerTemplate final : public rq::Template {
   using Self = rq::ForwardRangerTemplate;
 
   explicit RQ_ALWAYS_INLINE ForwardRangerTemplate(
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      const rq::Expression &expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      rq::SymbolTable &containing_table, llvm::StringRef name,
+      rq::SymbolTable &hosting_table, const rq::Expression &expression,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2727,9 +2740,12 @@ struct BackwardRangerTemplate final : public rq::Template {
   using Self = rq::BackwardRangerTemplate;
 
   explicit RQ_ALWAYS_INLINE BackwardRangerTemplate(
-      rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-      const rq::Expression &expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      rq::SymbolTable &containing_table, llvm::StringRef name,
+      rq::SymbolTable &hosting_table, const rq::Expression &expression,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2741,7 +2757,9 @@ struct FunctionTemplate final : public rq::Template {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2753,7 +2771,9 @@ struct MethodTemplate final : public rq::Template {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
-      const rq::Expression *constraint_expression_ptr);
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2761,7 +2781,13 @@ struct MethodTemplate final : public rq::Template {
 struct ExtensionMethodTemplate final : public rq::Template {
   using Self = rq::ExtensionMethodTemplate;
 
-  explicit RQ_ALWAYS_INLINE ExtensionMethodTemplate();
+  explicit RQ_ALWAYS_INLINE ExtensionMethodTemplate(
+      rq::SymbolTable &containing_table, llvm::StringRef name,
+      rq::SymbolTable &hosting_table, const rq::Expression &expression,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
