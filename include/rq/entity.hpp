@@ -2792,20 +2792,20 @@ struct ExtensionMethodTemplate final : public rq::Template {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Weight final {
-  using Self = rq::Weight;
+struct WeightLevel final {
+  using Self = rq::WeightLevel;
 
-  rq::Weight *_next_ptr{nullptr};
-  const rq::IntegerConstant *_weight{nullptr};
-  rq::Template *_first_template{nullptr};
+  unsigned _weight;
+  rq::WeightLevel *_next_ptr{nullptr};
+  rq::Template *_first_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Weight(unsigned value);
-  Weight(const Self &) = delete;
-  Weight(Self &&) = delete;
-  ~Weight() = default;
+  explicit RQ_ALWAYS_INLINE WeightLevel(unsigned weight);
+  WeightLevel(const Self &) = delete;
+  WeightLevel(Self &&) = delete;
+  ~WeightLevel() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::IntegerConstant &getWeight() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getWeight() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Template>,
                             rq::NextIterator<rq::Template>,
@@ -2821,19 +2821,19 @@ struct Weight final {
 struct Polymorph : public rq::Symbol {
   using Self = rq::Polymorph;
 
-  rq::Weight *_highest_weight_ptr{nullptr};
+  rq::WeightLevel *_highest_weight_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Polymorph(rq::Opcode opcode);
-  void _addTemplate(rq::Template &template_);
-
+  
+  inline void addTemplate(rq::BumpPtrAllocator& allocator, rq::Template &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::NextIterator<rq::Weight>,
-                            rq::NextIterator<rq::Weight>,
+      std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
+                            rq::NextIterator<rq::WeightLevel>,
                             std::ranges::subrange_kind::unsized>
       getWeightSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstNextIterator<rq::Weight>,
-                            rq::ConstNextIterator<rq::Weight>,
+      std::ranges::subrange<rq::ConstNextIterator<rq::WeightLevel>,
+                            rq::ConstNextIterator<rq::WeightLevel>,
                             std::ranges::subrange_kind::unsized>
       getWeightSubrange() const;
 

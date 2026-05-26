@@ -3942,4 +3942,283 @@ Template::getConstraintExpressionPtr() const {
   return rq::getIsTemplate(entity.getOpcode());
 }
 
+RQ_ALWAYS_INLINE ClassTemplate::ClassTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_CLASS_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool ClassTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_CLASS_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE EnumerationTemplate::EnumerationTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_ENUMERATION_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+EnumerationTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ENUMERATION_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE InterfaceTemplate::InterfaceTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_INTERFACE_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+InterfaceTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_INTERFACE_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE GlobalDynamicVariableTemplate::GlobalDynamicVariableTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_GLOBAL_DYNAMIC_VARIABLE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+GlobalDynamicVariableTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_GLOBAL_DYNAMIC_VARIABLE;
+}
+
+RQ_ALWAYS_INLINE GlobalStaticVariableTemplate::GlobalStaticVariableTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_GLOBAL_STATIC_VARIABLE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+GlobalStaticVariableTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_GLOBAL_STATIC_VARIABLE;
+}
+
+RQ_ALWAYS_INLINE ForwardRangerTemplate::ForwardRangerTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_FORWARD_RANGER_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+ForwardRangerTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_FORWARD_RANGER_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE BackwardRangerTemplate::BackwardRangerTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_BACKWARD_RANGER_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+BackwardRangerTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_BACKWARD_RANGER_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE FunctionTemplate::FunctionTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_FUNCTION_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+FunctionTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_FUNCTION_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE MethodTemplate::MethodTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_METHOD_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+MethodTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_METHOD_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE ExtensionMethodTemplate::ExtensionMethodTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(rq::Opcode::SY_EXTENSION_METHOD_TEMPLATE, containing_table, name,
+               hosting_table, expression, name_expression, flags,
+               layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
+
+[[nodiscard]] inline bool
+ExtensionMethodTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_EXTENSION_METHOD_TEMPLATE;
+}
+
+RQ_ALWAYS_INLINE WeightLevel::WeightLevel(unsigned weight) : _weight(weight) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned WeightLevel::getWeight() const {
+  return this->_weight;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::NextIterator<rq::Template>,
+                          rq::NextIterator<rq::Template>,
+                          std::ranges::subrange_kind::unsized>
+    WeightLevel::getTemplateSubrange() {
+  return std::ranges::subrange<rq::NextIterator<rq::Template>,
+                               rq::NextIterator<rq::Template>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Template>(this->_first_ptr),
+      rq::NextIterator<rq::Template>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstNextIterator<rq::Template>,
+                          rq::ConstNextIterator<rq::Template>,
+                          std::ranges::subrange_kind::unsized>
+    WeightLevel::getTemplateSubrange() const {
+  return std::ranges::subrange<rq::ConstNextIterator<rq::Template>,
+                               rq::ConstNextIterator<rq::Template>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::Template>(this->_first_ptr),
+      rq::ConstNextIterator<rq::Template>());
+}
+
+RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::Opcode opcode) : Symbol(opcode) {
+  RQ_ASSERT(rq::getIsPolymorph(opcode), "not polymorph");
+}
+
+inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
+                                   rq::Template &template_) {
+  rq::WeightLevel *prev_level_ptr = nullptr;
+  for (rq::WeightLevel &level : this->getWeightSubrange()) {
+    if (level.getWeight() < template_.getWeight()) {
+      rq::WeightLevel &new_level =
+          allocator.allocateValue<rq::WeightLevel>(template_.getWeight());
+      new_level._first_ptr = &template_;
+      if (prev_level_ptr == nullptr) {
+        new_level._next_ptr = this->_highest_weight_ptr;
+        this->_highest_weight_ptr = &new_level;
+        return;
+      }
+      rq::WeightLevel &prev_level = rq::dereferencePtr(prev_level_ptr);
+      new_level._next_ptr = prev_level._next_ptr;
+      prev_level._next_ptr = &new_level;
+      return;
+    } else if (level.getWeight() == template_.getWeight()) {
+      template_._next_ptr = level._first_ptr;
+      level._first_ptr = &template_;
+      return;
+    }
+    prev_level_ptr = &level;
+  }
+  rq::WeightLevel &new_level =
+      allocator.allocateValue<rq::WeightLevel>(template_.getWeight());
+  new_level._first_ptr = &template_;
+  if (prev_level_ptr == nullptr) {
+    new_level._next_ptr = this->_highest_weight_ptr;
+    this->_highest_weight_ptr = &new_level;
+    return;
+  }
+  rq::WeightLevel &prev_level = rq::dereferencePtr(prev_level_ptr);
+  new_level._next_ptr = prev_level._next_ptr;
+  prev_level._next_ptr = &new_level;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
+                          rq::NextIterator<rq::WeightLevel>,
+                          std::ranges::subrange_kind::unsized>
+    Polymorph::getWeightSubrange() {
+  return std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
+                               rq::NextIterator<rq::WeightLevel>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::WeightLevel>(this->_highest_weight_ptr),
+      rq::NextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstNextIterator<rq::WeightLevel>,
+                          rq::ConstNextIterator<rq::WeightLevel>,
+                          std::ranges::subrange_kind::unsized>
+    Polymorph::getWeightSubrange() const {
+  return std::ranges::subrange<rq::ConstNextIterator<rq::WeightLevel>,
+                               rq::ConstNextIterator<rq::WeightLevel>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::WeightLevel>(this->_highest_weight_ptr),
+      rq::ConstNextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] inline bool Polymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsPolymorph(entity.getOpcode());
+}
+
 } // namespace rq
