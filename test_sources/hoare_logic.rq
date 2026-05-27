@@ -1,4 +1,4 @@
-[template]::{| Type:[symbol] }
+[template]::{ Type:[symbol] <}
 [contraint]::(Type.[is_numeric_type])
 [function divideSquare, 
     [require]::(b != 0)
@@ -10,7 +10,7 @@
 ];
 
 [entry
-    a := ..divideSquare(6, 2);
+    a := ..divideSquare{[signed_integer]}(6, 2);
     
     [result] := 0;
 ];
