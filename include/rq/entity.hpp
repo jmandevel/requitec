@@ -136,6 +136,7 @@ enum class Opcode {
   // LOCAL VARIABLES => local declaration
   SY_LOCAL_DYNAMIC_VARIABLE,
   SY_LOCAL_STATIC_VARIABLE,
+  SY_ENUMERATOR,
 
   // SYMBOL PARAMETERS
   SY_SIGNATURE_PARAMETER,
@@ -186,7 +187,6 @@ enum class Opcode {
   // GLOBAL DECLARATION => named table
   SY_CLASS_TYPE,
   SY_ENUMERATION_TYPE,
-  SY_ENUMERATOR,
   SY_INTERFACE,
 
   // GLOBAL VARIABLE => global declaration => named table => symbol table
@@ -210,6 +210,7 @@ enum class Opcode {
   SY_CLASS_TEMPLATE,
   SY_ENUMERATION_TEMPLATE,
   SY_INTERFACE_TEMPLATE,
+  SY_GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
   SY_GLOBAL_STATIC_VARIABLE_TEMPLATE,
   SY_FORWARD_RANGER_TEMPLATE,
   SY_BACKWARD_RANGER_TEMPLATE,
@@ -223,6 +224,7 @@ enum class Opcode {
   SY_CLASS_POLYMORPH,
   SY_ENUMERATION_POLYMORPH,
   SY_INTERFACE_POLYMORPH,
+  SY_GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   SY_GLOBAL_STATIC_VARIABLE_POLYMORPH,
 
   CT_INTEGER,
@@ -453,6 +455,7 @@ struct Entity;
       struct LocalVariable;
         struct LocalDynamicVariable;
         struct LocalStaticVariable;
+        struct Enumerator;
     struct Parameter;
       struct SymbolParameter;
         struct SignatureParameter;
@@ -467,7 +470,7 @@ struct Entity;
       struct TypeParameterList;
         struct TupleType;
         struct ProcedureType;
-    struct Placement;
+    struct PlacementType;
     struct CompositionType;
     struct SynonymType;
     struct SymbolTable;
@@ -491,7 +494,6 @@ struct Entity;
         struct GlobalDeclaration;
           struct ClassType;
           struct EnumerationType;
-          struct Enumerator;
           struct Interface;
           struct GlobalVariable;
            struct GlobalDynamicVariable;
@@ -1520,6 +1522,24 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Enumerator final : public rq::LocalVariable {
+  using Self = rq::Enumerator;
+
+  const rq::Expression *_default_value_expression_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  Enumerator(llvm::StringRef name, const rq::Expression &name_expression,
+             rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+             rq::ExpressionFlags flags,
+             rq::Expression *default_value_expression_ptr);
+
+  [[nodiscard]] const rq::Expression *getDefaultValueExpressionPtr() const;
+  [[nodiscard]] const rq::EnumerationType &getEnumerationType() const;
+  [[nodiscard]] rq::EnumerationType &getEnumerationType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct Parameter : public rq::Symbol {
   using Self = rq::Parameter;
 
@@ -2017,12 +2037,12 @@ RQ_ALWAYS_INLINE void
 profileTupleType(llvm::FoldingSetNodeID &id,
                  const rq::TupleParameter *first_parameter_ptr);
 
-struct Placement final : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::Placement;
+struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
+  using Self = rq::PlacementType;
 
   rq::Procedure *_procedure_ptr;
 
-  explicit RQ_ALWAYS_INLINE Placement(rq::Procedure &procedure);
+  explicit RQ_ALWAYS_INLINE PlacementType(rq::Procedure &procedure);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &getProcedure() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &getProcedure();
 
@@ -2365,31 +2385,6 @@ struct EnumerationType final : public rq::GlobalDeclaration {
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Enumerator final : public rq::GlobalDeclaration {
-  using Self = rq::Enumerator;
-
-  const rq::Expression *_type_expression_ptr;
-  const rq::Expression *_default_value_expression_ptr;
-  rq::SymbolConstant *_type_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE
-  Enumerator(rq::SymbolTable &containing_table, llvm::StringRef name,
-             rq::SymbolTable &hosting_table, const rq::Expression &expression,
-             const rq::Expression &name_expression, rq::ExpressionFlags flags,
-             const rq::Expression *type_expression_ptr,
-             const rq::Expression *default_value_expression_ptr);
-
-  [[nodiscard]] const rq::Expression *getTypeExpressionPtr() const;
-  [[nodiscard]] const rq::Expression *getDefaultValueExpressionPtr() const;
-  void setType(rq::SymbolConstant &type);
-  [[nodiscard]] const rq::SymbolConstant *getTypePtr() const;
-  [[nodiscard]] rq::SymbolConstant *getTypePtr();
-  [[nodiscard]] const rq::EnumerationType &getEnumerationType() const;
-  [[nodiscard]] rq::EnumerationType &getEnumerationType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2824,8 +2819,9 @@ struct Polymorph : public rq::Symbol {
   rq::WeightLevel *_highest_weight_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Polymorph(rq::Opcode opcode);
-  
-  inline void addTemplate(rq::BumpPtrAllocator& allocator, rq::Template &template_);
+
+  inline void addTemplate(rq::BumpPtrAllocator &allocator,
+                          rq::Template &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
                             rq::NextIterator<rq::WeightLevel>,

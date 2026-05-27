@@ -271,6 +271,9 @@ namespace rq {
   case O::SY_LOCAL_STATIC_VARIABLE:
     return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+  case O::SY_ENUMERATOR:
+    return OF::SYMBOL | OF::SY_LOCAL_DECLARATION | OF::SY_LOCAL_VARIABLE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
 
   // SYMBOL PARAMETERS
   case O::SY_SIGNATURE_PARAMETER:
@@ -366,9 +369,6 @@ namespace rq {
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
            OF::SY_SYMBOL_TABLE | OF::SY_IS_TYPE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
-  case O::SY_ENUMERATOR:
-    return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
-           OF::SY_SYMBOL_TABLE;
   case O::SY_INTERFACE:
     return OF::SYMBOL | OF::SY_GLOBAL_DECLARATION | OF::SY_NAMED_TABLE |
            OF::SY_SYMBOL_TABLE | OF::SY_HAS_EXPRESSION_ATTRIBUTES;
@@ -430,6 +430,10 @@ namespace rq {
     return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
            OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
            OF::SY_HAS_EXPRESSION_ATTRIBUTES;
+  case O::SY_GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
+    return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
+           OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
+           OF::SY_HAS_EXPRESSION_ATTRIBUTES;
   case O::SY_GLOBAL_STATIC_VARIABLE_TEMPLATE:
     return OF::SYMBOL | OF::SY_CALLABLE | OF::SY_GLOBAL_DECLARATION |
            OF::SY_NAMED_TABLE | OF::SY_TEMPLATE |
@@ -465,6 +469,8 @@ namespace rq {
   case O::SY_ENUMERATION_POLYMORPH:
     return OF::SYMBOL | OF::SY_POLYMORPH;
   case O::SY_INTERFACE_POLYMORPH:
+    return OF::SYMBOL | OF::SY_POLYMORPH;
+  case O::SY_GLOBAL_DYNAMIC_VARIABLE_POLYMORPH:
     return OF::SYMBOL | OF::SY_POLYMORPH;
   case O::SY_GLOBAL_STATIC_VARIABLE_POLYMORPH:
     return OF::SYMBOL | OF::SY_POLYMORPH;
@@ -2051,6 +2057,34 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
   return entity.getOpcode() == rq::Opcode::SY_LOCAL_STATIC_VARIABLE;
 }
 
+RQ_ALWAYS_INLINE
+Enumerator::Enumerator(llvm::StringRef name,
+                       const rq::Expression &name_expression,
+                       rq::SymbolTable &containing_table,
+                       rq::SymbolTable &hosting_table,
+                       rq::ExpressionFlags flags,
+                       rq::Expression *default_value_expression_ptr)
+    : LocalVariable(rq::Opcode::SY_ENUMERATOR, name, &name_expression,
+                    containing_table, hosting_table, flags),
+      _default_value_expression_ptr(default_value_expression_ptr) {
+  RQ_ASSERT(llvm::isa<rq::EnumerationType>(containing_table),
+            "enumerator not member of enumeration type");
+}
+
+[[nodiscard]] const rq::Expression *
+Enumerator::getDefaultValueExpressionPtr() const {
+  return this->_default_value_expression_ptr;
+}
+
+[[nodiscard]] const rq::EnumerationType &
+Enumerator::getEnumerationType() const {
+  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
+}
+
+[[nodiscard]] rq::EnumerationType &Enumerator::getEnumerationType() {
+  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
+}
+
 Parameter::Parameter(rq::Opcode opcode, rq::Parameter *next_ptr,
                      llvm::StringRef name, rq::SymbolConstant &type)
     : Symbol(opcode), _next_ptr(next_ptr), _name(name), _type_ptr(&type) {}
@@ -3016,24 +3050,24 @@ profileTupleType(llvm::FoldingSetNodeID &id,
   id.AddPointer(first_parameter_ptr);
 }
 
-RQ_ALWAYS_INLINE Placement::Placement(rq::Procedure &procedure)
+RQ_ALWAYS_INLINE PlacementType::PlacementType(rq::Procedure &procedure)
     : Symbol(rq::Opcode::SY_PLACEMENT_TYPE), _procedure_ptr(&procedure) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &
-Placement::getProcedure() const {
+PlacementType::getProcedure() const {
   return rq::dereferencePtr(this->_procedure_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &Placement::getProcedure() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &PlacementType::getProcedure() {
   return rq::dereferencePtr(this->_procedure_ptr);
 }
 
-[[nodiscard]] inline bool Placement::classof(const rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool PlacementType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_PLACEMENT_TYPE;
 }
 
-inline void Placement::Profile(llvm::FoldingSetNodeID &id) const {
+inline void PlacementType::Profile(llvm::FoldingSetNodeID &id) const {
   rq::profilePlacement(id, this->getProcedure());
 }
 
@@ -3518,54 +3552,6 @@ RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
 EnumerationType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getOpcode() == rq::Opcode::SY_ENSURE_TYPE;
-}
-
-RQ_ALWAYS_INLINE
-Enumerator::Enumerator(rq::SymbolTable &containing_table, llvm::StringRef name,
-                       rq::SymbolTable &hosting_table,
-                       const rq::Expression &expression,
-                       const rq::Expression &name_expression,
-                       rq::ExpressionFlags flags,
-                       const rq::Expression *type_expression_ptr,
-                       const rq::Expression *default_value_expression_ptr)
-    : GlobalDeclaration(rq::Opcode::SY_ENUMERATOR, containing_table, name,
-                        hosting_table, expression, &name_expression, flags),
-      _type_expression_ptr(type_expression_ptr),
-      _default_value_expression_ptr(default_value_expression_ptr) {}
-
-[[nodiscard]] const rq::Expression *Enumerator::getTypeExpressionPtr() const {
-  return this->_type_expression_ptr;
-}
-
-[[nodiscard]] const rq::Expression *
-Enumerator::getDefaultValueExpressionPtr() const {
-  return this->_default_value_expression_ptr;
-}
-
-void Enumerator::setType(rq::SymbolConstant &type) {
-  rq::assignSingleValue(this->_type_ptr, &type);
-}
-
-[[nodiscard]] const rq::SymbolConstant *Enumerator::getTypePtr() const {
-  return this->_type_ptr;
-}
-
-[[nodiscard]] rq::SymbolConstant *Enumerator::getTypePtr() {
-  return this->_type_ptr;
-}
-
-[[nodiscard]] const rq::EnumerationType &
-Enumerator::getEnumerationType() const {
-  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
-}
-
-[[nodiscard]] rq::EnumerationType &Enumerator::getEnumerationType() {
-  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
-}
-
-[[nodiscard]] inline bool classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getOpcode() == rq::Opcode::SY_ENUMERATOR;
 }
 
 RQ_ALWAYS_INLINE
