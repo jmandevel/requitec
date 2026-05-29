@@ -2851,6 +2851,8 @@ struct ForwardRangerPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE ForwardRangerPolymorph();
 
+  inline void addForwardRanger(rq::ForwardRanger &forward_ranger);
+
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Ranger, rq::ForwardRanger>,
                             rq::NextIterator<rq::Ranger, rq::ForwardRanger>,
@@ -2882,6 +2884,8 @@ struct BackwardRangerPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE BackwardRangerPolymorph();
 
+  inline void addBackwardRanger(rq::BackwardRanger& backward_ranger);
+
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Ranger, rq::BackwardRanger>,
                             rq::NextIterator<rq::Ranger, rq::BackwardRanger>,
@@ -2892,16 +2896,6 @@ struct BackwardRangerPolymorph final : public rq::Polymorph {
       rq::ConstNextIterator<rq::Ranger, rq::BackwardRanger>,
       std::ranges::subrange_kind::unsized>
   getBackwardRangerSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::BackwardRangerTemplate>,
-      rq::NextIterator<rq::Template, rq::BackwardRangerTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getBackwardRangerTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::BackwardRangerTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::BackwardRangerTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getBackwardRangerTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2913,6 +2907,8 @@ struct FunctionPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE FunctionPolymorph();
 
+  inline void addFunction(rq::Function& function);
+
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Procedure, rq::Function>,
                             rq::NextIterator<rq::Procedure, rq::Function>,
@@ -2923,16 +2919,6 @@ struct FunctionPolymorph final : public rq::Polymorph {
                             rq::ConstNextIterator<rq::Procedure, rq::Function>,
                             std::ranges::subrange_kind::unsized>
       getFunctionSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::FunctionTemplate>,
-      rq::NextIterator<rq::Template, rq::FunctionTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getFunctionTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::FunctionTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::FunctionTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getFunctionTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2944,6 +2930,8 @@ struct MethodPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE MethodPolymorph();
 
+  inline void addMethod(rq::Method& method);
+
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Procedure, rq::Method>,
                             rq::NextIterator<rq::Procedure, rq::Method>,
@@ -2954,16 +2942,6 @@ struct MethodPolymorph final : public rq::Polymorph {
                             rq::ConstNextIterator<rq::Procedure, rq::Method>,
                             std::ranges::subrange_kind::unsized>
       getMethodSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::NextIterator<rq::Template, rq::MethodTemplate>,
-                            rq::NextIterator<rq::Template, rq::MethodTemplate>,
-                            std::ranges::subrange_kind::unsized>
-      getMethodTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::MethodTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::MethodTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getMethodTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2975,6 +2953,8 @@ struct ExtensionMethodPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE ExtensionMethodPolymorph();
 
+  inline void addExtensionMethod(rq::ExtensionMethod& extension_method);
+
   [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
       rq::NextIterator<rq::Procedure, rq::ExtensionMethod>,
       rq::NextIterator<rq::Procedure, rq::ExtensionMethod>,
@@ -2985,16 +2965,6 @@ struct ExtensionMethodPolymorph final : public rq::Polymorph {
       rq::ConstNextIterator<rq::Procedure, rq::ExtensionMethod>,
       std::ranges::subrange_kind::unsized>
   getExtensionMethodSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::ExtensionMethodTemplate>,
-      rq::NextIterator<rq::Template, rq::ExtensionMethodTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getExtensionMethodTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::ExtensionMethodTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::ExtensionMethodTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getExtensionMethodTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -3006,8 +2976,10 @@ struct ClassPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE ClassPolymorph();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoNontemplate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMoreThanOneNontemplate() const;
+  inline void addClassType(rq::BumpPtrAllocator& allocator, rq::ClassType& class_type);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasClassType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleClassType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassType &getClassType();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassType &getClassType() const;
 
@@ -3021,16 +2993,6 @@ struct ClassPolymorph final : public rq::Polymorph {
                             rq::ConstBumpPtrListIterator<rq::ClassType>,
                             std::ranges::subrange_kind::unsized>
       getClassTypeSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::ExtensionMethodTemplate>,
-      rq::NextIterator<rq::Template, rq::ExtensionMethodTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getClassTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getClassTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -3042,8 +3004,10 @@ struct EnumerationPolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE EnumerationPolymorph();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoNontemplate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMoreThanOneNontemplate() const;
+  inline void addEnumerationType(rq::BumpPtrAllocator& allocator, rq::EnumerationType& type);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEnumerationType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleEnumerationType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &getEnumerationType();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
   getEnumerationType() const;
@@ -3058,16 +3022,6 @@ struct EnumerationPolymorph final : public rq::Polymorph {
                             rq::ConstBumpPtrListIterator<rq::EnumerationType>,
                             std::ranges::subrange_kind::unsized>
       getEnumerationTypeSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::EnumerationTemplate>,
-      rq::NextIterator<rq::Template, rq::EnumerationTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getEnumerationTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::EnumerationTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::EnumerationTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getEnumerationTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -3079,8 +3033,10 @@ struct InterfacePolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE InterfacePolymorph();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoNontemplate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMoreThanOneNontemplate() const;
+  inline void addInterface(rq::BumpPtrAllocator& allocator, rq::Interface& interface);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleInterface() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &getInterface();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &getInterface() const;
 
@@ -3094,16 +3050,6 @@ struct InterfacePolymorph final : public rq::Polymorph {
                             rq::ConstBumpPtrListIterator<rq::Interface>,
                             std::ranges::subrange_kind::unsized>
       getInterfaceSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::InterfaceTemplate>,
-      rq::NextIterator<rq::Template, rq::InterfaceTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getInterfaceTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getInterfaceTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -3115,8 +3061,10 @@ struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE GlobalDynamicVariablePolymorph();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoNontemplate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMoreThanOneNontemplate() const;
+  inline void addGlobalDynamicVariable(rq::BumpPtrAllocator& allocator, rq::GlobalDynamicVariable &variable);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobalDynamicVariable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleGlobalDynamicVariable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariable &
   getGlobalDynamicVariable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariable &
@@ -3132,16 +3080,6 @@ struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
       rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
       std::ranges::subrange_kind::unsized>
   getGlobalDynamicVariableSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>,
-      rq::NextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getGlobalDynamicVariableTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getGlobalDynamicVariableTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -3153,8 +3091,10 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
 
   explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNoNontemplate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMoreThanOneNontemplate() const;
+  inline void addGlobalStaticVariable(rq::BumpPtrAllocator& allocator, rq::GlobalStaticVariable &variable);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasGlobalStaticVariable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleGlobalStaticVariable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariable &
   getGlobalStaticVariable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariable &
@@ -3170,16 +3110,6 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
       rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
       std::ranges::subrange_kind::unsized>
   getGlobalStaticVariableSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::NextIterator<rq::Template, rq::GlobalStaticVariableTemplate>,
-      rq::NextIterator<rq::Template, rq::GlobalStaticVariableTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getGlobalStaticVariableTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-      rq::ConstNextIterator<rq::Template, rq::GlobalStaticVariableTemplate>,
-      rq::ConstNextIterator<rq::Template, rq::GlobalStaticVariableTemplate>,
-      std::ranges::subrange_kind::unsized>
-  getGlobalStaticVariableTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -3192,7 +3122,7 @@ struct Constant : public rq::Entity {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct IntegerConstant final : public rq::Constant {
+struct IntegerConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::IntegerConstant;
 
   bool _is_platform_specific : 1;
@@ -3207,7 +3137,9 @@ struct IntegerConstant final : public rq::Constant {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct FloatConstant final : public rq::Constant {
+inline void profileIntegerConstant(llvm::FoldingSetNodeID& id, bool is_platform_specific, const llvm::APInt& data);
+
+struct FloatConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::FloatConstant;
 
   bool _is_platform_specific : 1;

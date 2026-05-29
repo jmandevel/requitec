@@ -4213,4 +4213,304 @@ inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
   return rq::getIsPolymorph(entity.getOpcode());
 }
 
+RQ_ALWAYS_INLINE ClassPolymorph::ClassPolymorph()
+    : Polymorph(rq::Opcode::SY_CLASS_POLYMORPH) {}
+
+inline void ClassPolymorph::addClassType(rq::BumpPtrAllocator &allocator,
+                                         rq::ClassType &class_type) {
+  this->_class_type_list.insertFront(allocator, class_type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool ClassPolymorph::getHasClassType() const {
+  return this->_class_type_list.getHasHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ClassPolymorph::getHasMultipleClassType() const {
+  return this->_class_type_list.getHasTail();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ClassType &ClassPolymorph::getClassType() {
+  RQ_ASSERT(!this->getHasMultipleClassType(), "more than one");
+  return this->_class_type_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassType &
+ClassPolymorph::getClassType() const {
+  RQ_ASSERT(!this->getHasMultipleClassType(), "more than one");
+  return this->_class_type_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::BumpPtrListIterator<rq::ClassType>,
+                          rq::BumpPtrListIterator<rq::ClassType>,
+                          std::ranges::subrange_kind::unsized>
+    ClassPolymorph::getClassTypeSubrange() {
+  return std::ranges::subrange<rq::BumpPtrListIterator<rq::ClassType>,
+                               rq::BumpPtrListIterator<rq::ClassType>,
+                               std::ranges::subrange_kind::unsized>(
+      this->_class_type_list.begin(), this->_class_type_list.end());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::ClassType>,
+                          rq::ConstBumpPtrListIterator<rq::ClassType>,
+                          std::ranges::subrange_kind::unsized>
+    ClassPolymorph::getClassTypeSubrange() const {
+  return std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::ClassType>,
+                               rq::ConstBumpPtrListIterator<rq::ClassType>,
+                               std::ranges::subrange_kind::unsized>(
+      this->_class_type_list.cbegin(), this->_class_type_list.cend());
+}
+
+[[nodiscard]] inline bool
+ClassPolymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_CLASS_POLYMORPH;
+}
+
+RQ_ALWAYS_INLINE EnumerationPolymorph::EnumerationPolymorph()
+    : Polymorph(rq::Opcode::SY_ENUMERATION_POLYMORPH) {}
+
+inline void
+EnumerationPolymorph::addEnumerationType(rq::BumpPtrAllocator &allocator,
+                                         rq::EnumerationType &type) {
+  this->_enumeration_type_list.insertFront(allocator, type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+EnumerationPolymorph::getHasEnumerationType() const {
+  return this->_enumeration_type_list.getHasHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+EnumerationPolymorph::getHasMultipleEnumerationType() const {
+  return this->_enumeration_type_list.getHasTail();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &
+EnumerationPolymorph::getEnumerationType() {
+  RQ_ASSERT(!this->getHasMultipleEnumerationType(), "more than one");
+  return this->_enumeration_type_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
+EnumerationPolymorph::getEnumerationType() const {
+  RQ_ASSERT(!this->getHasMultipleEnumerationType(), "more than one");
+  return this->_enumeration_type_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
+                          rq::BumpPtrListIterator<rq::EnumerationType>,
+                          std::ranges::subrange_kind::unsized>
+    EnumerationPolymorph::getEnumerationTypeSubrange() {
+  return std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
+                               rq::BumpPtrListIterator<rq::EnumerationType>,
+                               std::ranges::subrange_kind::unsized>(
+      this->_enumeration_type_list.begin(), this->_enumeration_type_list.end());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+                          rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+                          std::ranges::subrange_kind::unsized>
+    EnumerationPolymorph::getEnumerationTypeSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+      rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+      std::ranges::subrange_kind::unsized>(this->_enumeration_type_list.begin(),
+                                           this->_enumeration_type_list.end());
+}
+
+[[nodiscard]] inline bool
+EnumerationPolymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_ENUMERATION_POLYMORPH;
+}
+
+RQ_ALWAYS_INLINE InterfacePolymorph::InterfacePolymorph()
+    : Polymorph(rq::Opcode::SY_INTERFACE_POLYMORPH) {}
+
+inline void InterfacePolymorph::addInterface(rq::BumpPtrAllocator &allocator,
+                                             rq::Interface &interface) {
+  this->_interface_list.insertFront(allocator, interface);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InterfacePolymorph::getHasInterface() const {
+  return this->_interface_list.getHasHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+InterfacePolymorph::getHasMultipleInterface() const {
+  return this->_interface_list.getHasTail();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &
+InterfacePolymorph::getInterface() {
+  RQ_ASSERT(!this->getHasMultipleInterface(), "more than one");
+  return this->_interface_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
+InterfacePolymorph::getInterface() const {
+  RQ_ASSERT(!this->getHasMultipleInterface(), "more than one");
+  return this->_interface_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::BumpPtrListIterator<rq::Interface>,
+                          rq::BumpPtrListIterator<rq::Interface>,
+                          std::ranges::subrange_kind::unsized>
+    InterfacePolymorph::getInterfaceSubrange() {
+  return std::ranges::subrange<rq::BumpPtrListIterator<rq::Interface>,
+                               rq::BumpPtrListIterator<rq::Interface>,
+                               std::ranges::subrange_kind::unsized>(
+      this->_interface_list.begin(), this->_interface_list.end());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Interface>,
+                          rq::ConstBumpPtrListIterator<rq::Interface>,
+                          std::ranges::subrange_kind::unsized>
+    InterfacePolymorph::getInterfaceSubrange() const {
+  return std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Interface>,
+                               rq::ConstBumpPtrListIterator<rq::Interface>,
+                               std::ranges::subrange_kind::unsized>(
+      this->_interface_list.cbegin(), this->_interface_list.cend());
+}
+
+[[nodiscard]] inline bool
+InterfacePolymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_INTERFACE_POLYMORPH;
+}
+
+RQ_ALWAYS_INLINE
+GlobalDynamicVariablePolymorph::GlobalDynamicVariablePolymorph()
+    : Polymorph(rq::Opcode::SY_GLOBAL_DYNAMIC_VARIABLE_POLYMORPH) {}
+
+inline void GlobalDynamicVariablePolymorph::addGlobalDynamicVariable(
+    rq::BumpPtrAllocator &allocator, rq::GlobalDynamicVariable &variable) {
+  this->_global_dynamic_variable_list.insertFront(allocator, variable);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+GlobalDynamicVariablePolymorph::getHasGlobalDynamicVariable() const {
+  return this->_global_dynamic_variable_list.getHasHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+GlobalDynamicVariablePolymorph::getHasMultipleGlobalDynamicVariable() const {
+  return this->_global_dynamic_variable_list.getHasTail();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariable &
+GlobalDynamicVariablePolymorph::getGlobalDynamicVariable() {
+  RQ_ASSERT(!this->getHasMultipleGlobalDynamicVariable(), "more than one");
+  return this->_global_dynamic_variable_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariable &
+GlobalDynamicVariablePolymorph::getGlobalDynamicVariable() const {
+  RQ_ASSERT(!this->getHasMultipleGlobalDynamicVariable(), "more than one");
+  return this->_global_dynamic_variable_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
+                          rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
+                          std::ranges::subrange_kind::unsized>
+    GlobalDynamicVariablePolymorph::getGlobalDynamicVariableSubrange() {
+  return std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
+      rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
+      std::ranges::subrange_kind::unsized>(
+      this->_global_dynamic_variable_list.begin(),
+      this->_global_dynamic_variable_list.end());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
+    rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
+    std::ranges::subrange_kind::unsized>
+GlobalDynamicVariablePolymorph::getGlobalDynamicVariableSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
+      rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
+      std::ranges::subrange_kind::unsized>(
+      this->_global_dynamic_variable_list.cbegin(),
+      this->_global_dynamic_variable_list.cend());
+}
+
+[[nodiscard]] inline bool
+GlobalDynamicVariablePolymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_GLOBAL_DYNAMIC_VARIABLE_POLYMORPH;
+}
+
+RQ_ALWAYS_INLINE
+GlobalStaticVariablePolymorph::GlobalStaticVariablePolymorph()
+    : Polymorph(rq::Opcode::SY_GLOBAL_STATIC_VARIABLE_POLYMORPH) {}
+
+inline void GlobalStaticVariablePolymorph::addGlobalStaticVariable(
+    rq::BumpPtrAllocator &allocator, rq::GlobalStaticVariable &variable) {
+  this->_global_static_variable_list.insertFront(allocator, variable);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+GlobalStaticVariablePolymorph::getHasGlobalStaticVariable() const {
+  return this->_global_static_variable_list.getHasHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+GlobalStaticVariablePolymorph::getHasMultipleGlobalStaticVariable() const {
+  return this->_global_static_variable_list.getHasTail();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariable &
+GlobalStaticVariablePolymorph::getGlobalStaticVariable() {
+  RQ_ASSERT(!this->getHasMultipleGlobalStaticVariable(), "more than one");
+  return this->_global_static_variable_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariable &
+GlobalStaticVariablePolymorph::getGlobalStaticVariable() const {
+  RQ_ASSERT(!this->getHasMultipleGlobalStaticVariable(), "more than one");
+  return this->_global_static_variable_list.getHead();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
+                          rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
+                          std::ranges::subrange_kind::unsized>
+    GlobalStaticVariablePolymorph::getGlobalStaticVariableSubrange() {
+  return std::ranges::subrange<
+      rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
+      rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
+      std::ranges::subrange_kind::unsized>(
+      this->_global_static_variable_list.begin(),
+      this->_global_static_variable_list.end());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+    rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
+    rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
+    std::ranges::subrange_kind::unsized>
+GlobalStaticVariablePolymorph::getGlobalStaticVariableSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
+      rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
+      std::ranges::subrange_kind::unsized>(
+      this->_global_static_variable_list.cbegin(),
+      this->_global_static_variable_list.cend());
+}
+
+[[nodiscard]] inline bool
+GlobalStaticVariablePolymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getOpcode() == rq::Opcode::SY_GLOBAL_STATIC_VARIABLE_POLYMORPH;
+}
+
 } // namespace rq
