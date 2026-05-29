@@ -11,51 +11,51 @@ enum class TokenKind : std::uint_fast8_t {
   NONE,
 
   // OPERATORS
-  HASH_OPERATOR,                          // #
-  GREATER_OPERATOR,                       // >
-  DOUBLE_GREATER_OPERATOR,                // >>
-  GREATER_EQUAL_OPERATOR,                 // >=
-  LESS_OPERATOR,                          // <
-  DOUBLE_LESS_OPERATOR,                   // <<
-  LESS_EQUAL_OPERATOR,                    // <=
-  BANG_EQUAL_OPERATOR,                    // !=
-  BANG_OPERATOR,                          // !
-  WHAT_OPERATOR,                          // ?
-  COLON_OPERATOR,                         // :
-  DOUBLE_COLON_OPERATOR,                  // ::
-  PLUS_OPERATOR,                          // +
-  DASH_OPERATOR,                          // -
-  STAR_OPERATOR,                          // *
-  SLASH_OPERATOR,                         // /
-  PERCENT_OPERATOR,                       // %
-  BACKSLASH_OPERATOR,                     // \    .
-  CAROT_OPERATOR,                         // ^
-  PIPE_OPERATOR,                          // |
-  TILDE_OPERATOR,                         // ~
-  AMPERSAND_OPERATOR,                     // &
-  DOWN_ARROW_OPERATOR,                    // \/
-  UP_ARROW_OPERATOR,                      // /\   .
-  AT_OPERATOR,                            // @
-  DOLLAR_OPERATOR,                        // $
-  EQUAL_OPERATOR,                         // =
-  DOUBLE_EQUAL_OPERATOR,                  // ==
-  ARROW_OPERATOR,                         // ->
-  THICK_ARROW_OPERATOR,                   // =>
-  CONCATENATE_OPERATOR,                   // *>
-  APPEND_OPERATOR,                        // +>
-  DOT_OPERATOR,                           // .
-  DOUBLE_DOT_OPERATOR,                    // ..
-  DOT_PLUS_OPERATOR,                      // .+
-  DOT_DASH_OPERATOR,                      // .-
-  DOT_STAR_OPERATOR,                      // .*
-  DOT_SLASH_OPERATOR,                     // ./
-  DOT_PERCENT_OPERATOR,                   // .%
-  DOT_LESS_OPERATOR,                      // .<
-  DOT_LESS_EQUAL_OPERATOR,                // .<=
-  DOT_GREATER_OPERATOR,                   // .>
-  DOT_GREATER_EQUAL_OPERATOR,             // .>=
-  DOT_DOUBLE_EQUAL_OPERATOR,              // .==
-  DOT_BANG_EQUAL_OPERATOR,                // .!=
+  HASH_OPERATOR,              // #
+  GREATER_OPERATOR,           // >
+  DOUBLE_GREATER_OPERATOR,    // >>
+  GREATER_EQUAL_OPERATOR,     // >=
+  LESS_OPERATOR,              // <
+  DOUBLE_LESS_OPERATOR,       // <<
+  LESS_EQUAL_OPERATOR,        // <=
+  BANG_EQUAL_OPERATOR,        // !=
+  BANG_OPERATOR,              // !
+  WHAT_OPERATOR,              // ?
+  COLON_OPERATOR,             // :
+  DOUBLE_COLON_OPERATOR,      // ::
+  PLUS_OPERATOR,              // +
+  DASH_OPERATOR,              // -
+  STAR_OPERATOR,              // *
+  SLASH_OPERATOR,             // /
+  PERCENT_OPERATOR,           // %
+  BACKSLASH_OPERATOR,         // \    .
+  CAROT_OPERATOR,             // ^
+  PIPE_OPERATOR,              // |
+  TILDE_OPERATOR,             // ~
+  AMPERSAND_OPERATOR,         // &
+  DOWN_ARROW_OPERATOR,        // \/
+  UP_ARROW_OPERATOR,          // /\   .
+  AT_OPERATOR,                // @
+  DOLLAR_OPERATOR,            // $
+  EQUAL_OPERATOR,             // =
+  DOUBLE_EQUAL_OPERATOR,      // ==
+  ARROW_OPERATOR,             // ->
+  THICK_ARROW_OPERATOR,       // =>
+  CONCATENATE_OPERATOR,       // +>
+  APPEND_OPERATOR,            // *>
+  DOT_OPERATOR,               // .
+  DOUBLE_DOT_OPERATOR,        // ..
+  DOT_PLUS_OPERATOR,          // .+
+  DOT_DASH_OPERATOR,          // .-
+  DOT_STAR_OPERATOR,          // .*
+  DOT_SLASH_OPERATOR,         // ./
+  DOT_PERCENT_OPERATOR,       // .%
+  DOT_LESS_OPERATOR,          // .<
+  DOT_LESS_EQUAL_OPERATOR,    // .<=
+  DOT_GREATER_OPERATOR,       // .>
+  DOT_GREATER_EQUAL_OPERATOR, // .>=
+  DOT_DOUBLE_EQUAL_OPERATOR,  // .==
+  DOT_BANG_EQUAL_OPERATOR,    // .!=
 
   // SEPARATOR SYMBOLS
   TRAILER_SEPARATOR,   // %%
@@ -172,6 +172,8 @@ getName(rq::TokenKind kind) {
     return "arrow_operator";
   case T::THICK_ARROW_OPERATOR:
     return "thick_arrow_operator";
+  case T::APPEND_OPERATOR:
+    return "append_operator";
   case T::CONCATENATE_OPERATOR:
     return "concatenate_operator";
   case T::DOT_OPERATOR:
@@ -331,6 +333,8 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::THICK_ARROW_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
+  case T::APPEND_OPERATOR:
+    return TF::OPERATOR;
   case T::CONCATENATE_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
@@ -621,13 +625,7 @@ struct Token final {
   }
 };
 
-enum class GroupingKind {
-  NONE,
-  BRACKET,
-  DOUBLE_BRACKET,
-  BRACE,
-  PARENTHESIS
-};
+enum class GroupingKind { NONE, BRACKET, DOUBLE_BRACKET, BRACE, PARENTHESIS };
 
 inline llvm::StringRef getDescription(rq::GroupingKind kind) {
   using namespace rq;

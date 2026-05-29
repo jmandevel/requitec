@@ -1,6 +1,7 @@
 #pragma once
 
-#include <rq/entity.hpp>
+#include <rq/symbols.hpp>
+#include <rq/codeunits.hpp>
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
@@ -10,18 +11,18 @@
 
 namespace rq {
 
-inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::Opcode kind) {
+inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::SymbolKind kind) {
   using namespace rq;
   switch (kind) {
-  case rq::Opcode::SY_BFLOAT16_TYPE:
+  case rq::SymbolKind::BFLOAT16_TYPE:
     return llvm::APFloat::BFloat();
-  case rq::Opcode::SY_BINARY16_TYPE:
+  case rq::SymbolKind::BINARY16_TYPE:
     return llvm::APFloat::IEEEhalf();
-  case rq::Opcode::SY_BINARY32_TYPE:
+  case rq::SymbolKind::BINARY32_TYPE:
     return llvm::APFloat::IEEEsingle();
-  case rq::Opcode::SY_BINARY64_TYPE:
+  case rq::SymbolKind::BINARY64_TYPE:
     return llvm::APFloat::IEEEdouble();
-  case rq::Opcode::SY_BINARY128_TYPE:
+  case rq::SymbolKind::BINARY128_TYPE:
     return llvm::APFloat::IEEEquad();
   default:
     break;
@@ -259,7 +260,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
 
 [[nodiscard]] inline rq::NumericResultCode
 getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
-                rq::Opcode semantics) {
+                rq::SymbolKind semantics) {
   llvm::SmallString<16> buffer;
   rq::NumericResultCode result = rq::cleanFloatText(text, buffer);
   if (result != rq::NumericResultCode::OK) {

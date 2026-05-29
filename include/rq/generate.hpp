@@ -15,41 +15,6 @@ struct Expression;
 struct Table;
 struct Instruction;
 
-template <rq::Opcode OPCODE_PARAM> struct InstructionFactory final {
-  static constexpr rq::Opcode OPCODE = OPCODE_PARAM;
-  using Self = rq::InstructionFactory<OPCODE>;
-
-  rq::Instruction *_instruction_ptr{nullptr};
-  rq::BinaryInstruction *_last_exec_ptr{nullptr};
-
-  InstructionFactory() = default;
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasInstruction() const {
-    return this->_instruction_ptr != nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstruction() {
-    return rq::dereferencePtr(this->_instruction_ptr);
-  }
-  inline void addInstruction(rq::Context &context, rq::Instruction &instruction) {
-    if (this->_instruction_ptr == nullptr) {
-      this->_instruction_ptr = &instruction;
-      return;
-    }
-    rq::Instruction &previous_instruction =
-        rq::dereferencePtr(this->_instruction_ptr);
-    rq::BinaryInstruction &new_exec = context.acquireBinaryInstruction(OPCODE);
-    new_exec.setAddress1(instruction);
-    if (this->_last_exec_ptr == nullptr) {
-      new_exec.setAddress0(previous_instruction);
-      this->_instruction_ptr = &new_exec;
-      this->_last_exec_ptr = &new_exec;
-      return;
-    }
-    rq::BinaryInstruction &last_exec = rq::dereferencePtr(this->_last_exec_ptr);
-    new_exec.setAddress0(last_exec.replaceAddress1(new_exec));
-  }
-};
-
 struct Generator final {
   using Self = rq::Generator;
 
@@ -91,12 +56,12 @@ struct Generator final {
   [[nodiscard]] rq::Table &
   determineContainingTable(const rq::Expression &unascribed,
                            rq::Table &hosting_table, rq::Module &module);
-  [[nodiscard]] const rq::TypeConstant *
+  [[nodiscard]] const rq::SymbolConstant *
   inferenceType(const rq::Expression &expression,
                 rq::Table &hosting_table, rq::Module &module);
   [[nodiscard]] bool implementProcedure(rq::Procedure &procedure);
-  [[nodiscard]] bool implementGlobal(rq::Global &global);
-  [[nodiscard]] bool implementGlobalStatic(rq::GlobalStatic &global_static);
+  [[nodiscard]] bool implementGlobal(rq::GlobalDynamicVariable &global);
+  [[nodiscard]] bool implementGlobalStatic(rq::GlobalStaticVariable &global_static);
 };
 
 } // namespace rq

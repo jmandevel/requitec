@@ -14,7 +14,7 @@ struct TokenRanger final {
   const rq::Token *_it;
   const rq::Token *_end;
 
-  TokenRanger(llvm::Instantiate_ArrayRef<rq::Token> tokens)
+  TokenRanger(llvm::ArrayRef<rq::Token> tokens)
       : _it(tokens.begin()), _end(tokens.end()) {}
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
     return this->_it >= this->_end;
@@ -256,7 +256,7 @@ struct RequiteParser final {
   rq::TokenRanger _token_ranger;
   bool _is_ok = true;
 
-  RequiteParser(rq::Context &context, llvm::Instantiate_ArrayRef<rq::Token> tokens)
+  RequiteParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
       : _context_ref(context), _token_ranger(tokens) {}
   RequiteParser(const Self &) = delete;
   RequiteParser(Self &&) = delete;
