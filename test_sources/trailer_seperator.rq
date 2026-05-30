@@ -2,4 +2,4 @@
 
 
 
-%%namespace my_table.sub_table,];
+%%namespace my_table.sub_table,]; // TODO fix this in parser

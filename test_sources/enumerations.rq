@@ -22,9 +22,9 @@
             [with APPLE, apple:=[value], 
                 [out] := apple;
             ][with ORANGE, orange:=[value],
-                [out] := orange.[lossy_integer_cast];
+                [out] := orange.[cast [signed_integer]];
             ][with GRAPE, grape:=[value],
-                [out] := grape.[lossy_float_cast];
+                [out] := grape.[cast [signed_integer]];
             ];
         ];
 

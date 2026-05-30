@@ -5,12 +5,10 @@
     ..std.print(line="begin!");
     [spin list,
         ..std.print(line="weave!");
-        [weave [value].[type].[is_string_type], str:=[value],
-            ..std.print(line="found string: " +> substr);
-        ][weave [value].[type].[is_integer_type], int:=[value],
+        [weave [value].[type].[is_integer_type], int:=[value],
             ..std.print(line="found integer: " +> int);    
         ][weave [value].[type].[is_float_type], float:=[value],
-            ..std.print(line="found float: +> float);
+            ..std.print(line="found float: " +> float);
         ][weave [true], any:=[value],
             ..std.print(line="found something else: " +> any.[borrow]);
         ];

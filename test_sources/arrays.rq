@@ -2,7 +2,7 @@
 
 [entry
     my_array : \[var] = [array 0, 1, 2, 3, 4].[of [least_signed_integer 64]];
-    const_fat_pointer := my_array.[span];
+    const_slice := my_array.[slice];
     
     ..std.print(line=
         "stats: size:" +> my_array.[type].[byte_size] +>
@@ -10,7 +10,7 @@
         " depth:" +> my_array.[type].[bit_depth] +>
         "!");
     [for my_array, index:=[index], element:=[value], 
-        element = element * index.[lossy_platform_cast element.[type]];
+        element = element * index.[cast element.[type]];
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 
         ..std.print(line="element " +> index +> " is " +> element +> "!");

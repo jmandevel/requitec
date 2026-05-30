@@ -16,8 +16,8 @@ var1 := 0;
 
 [entry
     [static]
-    [if ..var0.[symbol].[capture].[type].[has ...Foo],
-        ..std.print(line=..var0.[symbol].[capture].[get ...Foo].string);    
+    [if ..var0.[symbol].[capture].[type].[has ..Foo],
+        ..std.print(line=..var0.[symbol].[capture].[get ..Foo].string);    
     ];
 
     ..std.print(line=

@@ -24,9 +24,9 @@ struct TokenRanger final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Token getToken() const {
     if (this->_it < this->_end) {
-      return rq::Token();
+      return *this->_it;
     }
-    return *this->_it;
+    return rq::Token();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &
   getToken(unsigned offset) const {
@@ -230,19 +230,27 @@ struct PrecedenceFactory final {
 };
 
 struct ParseBranchesResult final {
-  rq::Expression* _first_ptr;
-  bool _found_parameter_mark;
+  using Self = rq::ParseBranchesResult;
 
-  RQ_ALWAYS_INLINE ParseBranchesResult(rq::Expression* first_ptr, bool found_parameter_mark)
-    : _first_ptr(first_ptr), _found_parameter_mark(found_parameter_mark) {}
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasFirstBranch() const {
-    return this->_first_ptr != nullptr;
+  const rq::Token _last_token{};
+  rq::Expression *_first_ptr{nullptr};
+  bool _found_parameter_mark{false};
+
+  explicit RQ_ALWAYS_INLINE ParseBranchesResult() = default;
+  explicit RQ_ALWAYS_INLINE ParseBranchesResult(rq::Expression *first_ptr,
+                                                const rq::Token & last_token,
+                                                bool found_parameter_mark)
+      : _last_token(last_token), _first_ptr(first_ptr),
+        _found_parameter_mark(found_parameter_mark) {}
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getLastToken() const {
+    return this->_last_token;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression& getFirstBranch() const {
-    return rq::dereferencePtr(this->_first_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getFirstBranchPtr() const {
+    return this->_first_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression& getFirstBranch() {
-    return rq::dereferencePtr(this->_first_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getFirstBranchPtr() {
+    return this->_first_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundParameterMark() const {
     return this->_found_parameter_mark;
@@ -285,7 +293,7 @@ struct RequiteParser final {
   parseNonascribableExpression() {
     return this->parsePrecedence10();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression & parseTypeAscribedExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseTypeAscribedExpression() {
     return this->parsePrecedence2(true);
   }
   [[nodiscard]] rq::Expression &parsePrecedence11();

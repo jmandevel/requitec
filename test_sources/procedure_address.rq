@@ -39,7 +39,7 @@
     [static] ProcedureType := Signature.[type];
 
     // .[procedure_address] returns a function pointer. Note need to make the ProcedureType a pointer with ?
-    other_ptr :?ProcedureType ..myFunction.[procedure_address];
+    other_ptr :?ProcedureType= ..myFunction.[procedure_address];
 
     // you can use procedure_cast reflection to cast to different ptr type
     // arguments must be in the same order

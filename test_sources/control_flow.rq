@@ -5,7 +5,7 @@
 
     [anchor]::MyWhile
     [while [true],
-        [result] += 1;
+        [result] = [result] + 1;
         [if [result] == 10,
             [break MyWhile];
         ];
@@ -13,9 +13,9 @@
 
     [anchor]::MyWhile
     [while [true],
-        [result] += 1;
+        [result] = [result] + 1;
         [if [result] == 12,
-            [result] += 2;
+            [result] = [result] + 2;
             [continue MyWhile];
         ][else_if [result] == 20,
             [break MyWhile];

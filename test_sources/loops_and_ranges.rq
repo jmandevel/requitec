@@ -74,7 +74,7 @@
     // backward ranger range
     reverse_class := ..MyReverseClass();
     [for reverse_class.[borrow].[reverse], value:=[value],
-        ..std.print(line="value is +> value);
+        ..std.print(line="value is " +> value);
     ];
 
     [if (0.<10)->..std.getContains(5),

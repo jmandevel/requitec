@@ -110,6 +110,8 @@ enum class Keyword : std::uint32_t {
   CONTENT_OF,
   ADDRESS,
   ADDRESS_OF,
+  SLICE,
+  SLICE_OF,
   PROCEDURE_ADDRESS,
   PROCEDURE_ADDRESS_OF,
   BORROW,
@@ -142,7 +144,7 @@ enum class Keyword : std::uint32_t {
   INSTANTIATE_ARRAY,
   INSTANTIATE_REFERENCE,
   INSTANTIATE_POINTER,
-  INSTANTIATE_FAT_POINTER,
+  INSTANTIATE_SLICE,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -159,6 +161,7 @@ enum class Keyword : std::uint32_t {
   NAMED_ARGUMENT,
   INSTANTIATE_SIGNATURE,
   PLACEMENT,
+  COMPOSITION,
   DEFAULT_VALUE_PARAMETER,
   FORWARD_RANGER,
   BACKWARD_RANGER,
@@ -234,6 +237,7 @@ enum class Keyword : std::uint32_t {
   UNSIGNED_INDEX,
   SIGNED_ADDRESS,
   UNSIGNED_ADDRESS,
+  CHAR,
   ASCII,
   UTF8,
 
@@ -629,6 +633,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "address";
   case K::ADDRESS_OF:
     return "_address_of";
+  case K::SLICE:
+    return "slice";
+  case K::SLICE_OF:
+    return "_slice_of";
   case K::PROCEDURE_ADDRESS:
     return "procedure_address";
   case K::PROCEDURE_ADDRESS_OF:
@@ -686,13 +694,13 @@ static constexpr std::size_t KEYWORD_COUNT =
 
   // SUBTYPE
   case K::INSTANTIATE_ARRAY:
-    return "_array";
+    return "_instantiate_array";
   case K::INSTANTIATE_REFERENCE:
-    return "_reference";
+    return "_instantiate_reference";
   case K::INSTANTIATE_POINTER:
-    return "_pointer";
-  case K::INSTANTIATE_FAT_POINTER:
-    return "_fat_pointer";
+    return "_instantiate_pointer";
+  case K::INSTANTIATE_SLICE:
+    return "_instantiate_slice";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -719,6 +727,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_signature";
   case K::PLACEMENT:
     return "placement";
+  case K::COMPOSITION:
+    return "composition";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
   case K::FORWARD_RANGER:
@@ -845,6 +855,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "signed_address";
   case K::UNSIGNED_ADDRESS:
     return "unsigned_address";
+  case K::CHAR:
+    return "char";
   case K::ASCII:
     return "ascii";
   case K::UTF8:
@@ -862,7 +874,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return "_next_variadic_argument_of";
   case K::VARIADIC_ARGUMENTS:
-    return "variadic_arguments_type";
+    return "variadic_arguments";
 
   // SCOPES
   case K::IF:
@@ -1329,7 +1341,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
   case K::UNSITUATED_ASCRIBE_EXPRESSION:
-    return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
+    return KF::STATEMENT | KF::RVALUE | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -1449,6 +1461,10 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::SLICE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::SLICE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::PROCEDURE_ADDRESS:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::PROCEDURE_ADDRESS_OF:
@@ -1511,7 +1527,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INSTANTIATE_POINTER:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INSTANTIATE_FAT_POINTER:
+  case K::INSTANTIATE_SLICE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // PARAMETER RULES
@@ -1522,8 +1538,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::LOCKED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
   case K::NONAME:
-    return KF::NAME;
-  
+    return KF::NAME | KF::LVALUE;
+
   // BRACES
   case K::INSTANTIATE_TUPLE:
     return KF::RVALUE | KF::ARGUMENT;
@@ -1538,6 +1554,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INSTANTIATE_SIGNATURE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::PLACEMENT:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::COMPOSITION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
@@ -1620,7 +1638,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::INFERENCE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXPRESSION:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;;
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+    ;
   case K::VOID:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NO_RETURN:
@@ -1664,6 +1683,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::SIGNED_ADDRESS:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::UNSIGNED_ADDRESS:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::CHAR:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ASCII:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -1801,7 +1822,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   case K::NO_CAPTURE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::CAPTURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT |
+           KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::NO_INLINE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
@@ -2249,6 +2271,8 @@ getDescription(rq::Situation situation) {
     return K::CONTENT_OF;
   case K::ADDRESS:
     return K::ADDRESS_OF;
+  case K::SLICE:
+    return K::SLICE_OF;
   case K::PROCEDURE_ADDRESS:
     return K::PROCEDURE_ADDRESS_OF;
   case K::BORROW:
@@ -2261,6 +2285,10 @@ getDescription(rq::Situation situation) {
     return K::MOVE_OF;
   case K::TAKE:
     return K::TAKE_OF;
+  case K::EMPLACE:
+    return K::EMPLACE_OF;
+  case K::INVOKE:
+    return K::INVOKE_OF;
   case K::COMPOSE:
     return K::COMPOSE_OF;
   case K::DESTROY:
@@ -3564,13 +3592,12 @@ struct ConstExpressionIterator final {
 
 enum class ExpressionNextFlags : std::uint8_t {
   NONE = 0,
-  // NOTE: a "chain-link" expression is a statement that is linked to the
-  // next and not seperated with semicolons. Used in things like
-  // if->else_if->else chains.
+  // NOTE: a "chain-link" expression has an expression after it, but no
+  // seperator between Used in things like if->else_if->else chains. only occurs
+  // for expressions with certain keywords.
   CHAINLINK = rq::getBit(0),
-  // NOTE: a "header" expression is one that terminates with a comma in a
-  // semicolon terminating context (usually before all statements)
-  HEADER = rq::getBit(1)
+  // NOTE: a "header" expression is one that terminates with a semicolon
+  STATEMENT = rq::getBit(1)
 };
 
 template <> struct is_flags<ExpressionNextFlags> : std::true_type {};
@@ -3674,8 +3701,7 @@ struct Expression final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttribute() const {
     return rq::getIsExpressionAttribute(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword
-  getUniversalized() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
     return rq::getUniversalized(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
@@ -3764,12 +3790,12 @@ struct Expression final {
   RQ_ALWAYS_INLINE void setHasSituatorError() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatement() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::HEADER);
+                         rq::ExpressionNextFlags::STATEMENT);
   }
-  void RQ_ALWAYS_INLINE setIsHeader() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::HEADER);
+  void RQ_ALWAYS_INLINE setIsStatement() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::STATEMENT);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),

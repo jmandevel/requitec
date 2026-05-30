@@ -14,345 +14,347 @@ namespace rq {
 
   // LITERALS
   case S::INTEGER_LITERAL_TYPE:
-    return "INTEGER_LITERAL_TYPE";
+    return "IntegerLiteralType";
   case S::FLOAT_LITERAL_TYPE:
-    return "FLOAT_LITERAL_TYPE";
+    return "FloatLiteralType";
   case S::STRING_LITERAL_TYPE:
-    return "STRING_LITERAL_TYPE";
+    return "StringLiteralType";
   case S::CODEUNIT_LITERAL_TYPE:
-    return "CODEUNIT_LITERAL_TYPE";
+    return "CodeunitLiteralType";
 
   // CONTEXTUAL VALUE
   case S::OUT:
-    return "OUT";
+    return "Out";
   case S::THIS:
-    return "THIS";
+    return "This";
   case S::RESULT:
-    return "RESULT";
+    return "Result";
   case S::VALUE:
-    return "VALUE";
+    return "Value";
   case S::INDEX:
-    return "INDEX";
+    return "Index";
   case S::DISCRIMINANT:
-    return "DISCRIMINANT";
+    return "Discriminant";
   case S::COMMAND_LINE_ARGUMENTS:
-    return "COMMAND_LINE_ARGUMENTS";
+    return "CommandLineArguments";
   case S::CALLSITE:
-    return "CALLSITE";
+    return "Callsite";
 
   // CONTEXTUAL TYPE
   case S::INFERENCE_TYPE:
-    return "INFERENCE_TYPE";
+    return "InferenceType";
   case S::VOID_TYPE:
-    return "VOID_TYPE";
+    return "VoidType";
   case S::NO_RETURN_TYPE:
-    return "NO_RETURN_TYPE";
+    return "NoReturnType";
 
   // EXPRESSION ATTRIBUTES
   case S::ANCHOR_TYPE:
-    return "ANCHOR_TYPE";
+    return "AnchorType";
   case S::OPAQUE_TYPE:
-    return "OPAQUE_TYPE";
+    return "OpaqueType";
   case S::GLOBAL_TYPE:
-    return "GLOBAL_TYPE";
+    return "GlobalType";
   case S::ACCESS_TYPE:
-    return "ACCESS_TYPE";
+    return "AccessType";
   case S::PARTIAL_MUTATE_TYPE:
-    return "PARTIAL_MUTATE_TYPE";
+    return "PartialMutateType";
   case S::STATIC_TYPE:
-    return "STATIC_TYPE";
+    return "StaticType";
   case S::CAPTURE_TYPE:
-    return "CAPTURE_TYPE";
+    return "CaptureType";
   case S::INLINE_TYPE:
-    return "INLINE_TYPE";
+    return "InlineType";
   case S::MANGLE_TYPE:
-    return "MANGLE_TYPE";
+    return "MangleType";
   case S::PACK_TYPE:
-    return "PACK_TYPE";
+    return "PackType";
   case S::BRANCH_TREND_TYPE:
-    return "BRANCH_TREND_TYPE";
+    return "BranchTrendType";
   case S::DEPRECIATE_TYPE:
-    return "DEPRECIATE_TYPE";
+    return "DepreciateType";
   case S::STABLE_ADDRESS_TYPE:
-    return "STABLE_ADDRESS_TYPE";
+    return "StableAddressType";
   case S::VARIADIC_TYPE:
-    return "VARIADIC_TYPE";
+    return "VariadicType";
   case S::LOCATION_TYPE:
-    return "LOCATION_TYPE";
+    return "LocationType";
   case S::TEMPLATE_TYPE:
-    return "TEMPLATE_TYPE";
+    return "TemplateType";
   case S::CONSTRAINT_TYPE:
-    return "CONSTRAINT_TYPE";
+    return "ConstraintType";
   case S::WEIGHT_TYPE:
-    return "WEIGHT_TYPE";
+    return "WeightType";
   case S::REQUIRE_TYPE:
-    return "REQUIRE_TYPE";
+    return "RequireType";
   case S::ENSURE_TYPE:
-    return "ENSURE_TYPE";
+    return "EnsureType";
 
   // TYPE ATTRIBUTES
   case S::VAR_TYPE:
-    return "VAR_TYPE";
+    return "VarType";
   case S::VOLATILE_TYPE:
-    return "VOLATILE_TYPE";
+    return "VolatileType";
   case S::ATOMIC_TYPE:
-    return "ATOMIC_TYPE";
+    return "AtomicType";
   case S::NULL_TERMINATE_TYPE:
-    return "NULL_TERMINATE_TYPE";
+    return "NullTerminateType";
 
   // REFLECTIVE
   case S::SYMBOL_TYPE:
-    return "SYMBOL_TYPE";
+    return "SymbolType";
   case S::EXPRESSION_TYPE:
-    return "EXPRESSION_TYPE";
+    return "ExpressionType";
 
   // PLATFORM PRIMITIVE
   case S::BOOLEAN_TYPE:
-    return "BOOLEAN_TYPE";
+    return "BooleanType";
   case S::HALF_TYPE:
-    return "HALF_TYPE";
+    return "HalfType";
   case S::SINGLE_TYPE:
-    return "SINGLE_TYPE";
+    return "SingleType";
   case S::DOUBLE_TYPE:
-    return "DOUBLE_TYPE";
+    return "DoubleType";
   case S::QUADRUPLE_TYPE:
-    return "QUADRUPLE_TYPE";
+    return "QuadrupleType";
   case S::SIGNED_INTEGER_TYPE:
-    return "SIGNED_INTEGER_TYPE";
+    return "SignedIntegerType";
   case S::UNSIGNED_INTEGER_TYPE:
-    return "UNSIGNED_INTEGER_TYPE";
+    return "UnsignedIntegerType";
   case S::SIGNED_INDEX_TYPE:
-    return "SIGNED_INDEX_TYPE";
+    return "SignedIndexType";
   case S::UNSIGNED_INDEX_TYPE:
-    return "UNSIGNED_INDEX_TYPE";
+    return "UnsignedIndexType";
   case S::SIGNED_ADDRESS_TYPE:
-    return "SIGNED_ADDRESS_TYPE";
+    return "SignedAddressType";
   case S::UNSIGNED_ADDRESS_TYPE:
-    return "UNSIGNED_ADDRESS_TYPE";
+    return "UnsignedAddressType";
+  case S::CHAR_TYPE:
+    return "CharType";
 
   // STANDARD PRIMITIVE
   case S::BINARY16_TYPE:
-    return "BINARY16_TYPE";
+    return "Binary16Type";
   case S::BINARY32_TYPE:
-    return "BINARY32_TYPE";
+    return "Binary32Type";
   case S::BINARY64_TYPE:
-    return "BINARY64_TYPE";
+    return "Binary64Type";
   case S::BINARY128_TYPE:
-    return "BINARY128_TYPE";
+    return "Binary128Type";
   case S::BFLOAT16_TYPE:
-    return "BFLOAT16_TYPE";
+    return "Bfloat16Type";
   case S::ASCII_TYPE:
-    return "ASCII_TYPE";
+    return "AsciiType";
   case S::UTF8_TYPE:
-    return "UTF8_TYPE";
+    return "Utf8Type";
 
   // VARIADIC ARGUMENTS
-  case S::VARIADIC_ARGUMENTS_TYPE_TYPE:
-    return "VARIADIC_ARGUMENTS_TYPE_TYPE";
+  case S::VARIADIC_ARGUMENTS_TYPE:
+    return "VariadicArgumentsType";
 
   // SCALED PRIMITIVES
   case S::SCALED_SIGNED_INTEGER_TYPE:
-    return "SCALED_SIGNED_INTEGER_TYPE";
+    return "ScaledIntegerType";
   case S::SCALED_UNSIGNED_INTEGER_TYPE:
-    return "SCALED_UNSIGNED_INTEGER_TYPE";
+    return "ScaledUnsignedIntegerType";
 
   // SUBTYPES
   case S::ARRAY_SUBTYPE:
-    return "ARRAY_SUBTYPE";
+    return "ArraySubtype";
 
   // UNCOUNTED SUBTYPES => SUBTYPES
   case S::REFERENCE_SUBTYPE:
-    return "REFERENCE_SUBTYPE";
+    return "ReferenceSubtype";
   case S::POINTER_SUBTYPE:
-    return "POINTER_SUBTYPE";
-  case S::FAT_POINTER_SUBTYPE:
-    return "FAT_POINTER_SUBTYPE";
+    return "PointerSubtype";
+  case S::SLICE_SUBTYPE:
+    return "SliceSubtype";
   case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
-    return "INFERENCE_COUNT_ARRAY_SUBTYPE";
+    return "InferenceCountArraySubtype";
 
   // MODULES
   case S::MODULE:
-    return "MODULE";
+    return "Module";
 
   // IMPORTS
   case S::IMPORT:
-    return "IMPORT";
+    return "Import";
 
   // JUXTAPOSITIONAL LIST
-  case S::CONCATINATED_LIST_TYPE:
-    return "CONCATINATED_LIST_TYPE";
+  case S::JUXTAPOSITIONAL_LIST_TYPE:
+    return "JuxtapositionalListType";
 
   // ARITHMETIC SEQUENCES
   case S::ARITHMETIC_INTERVAL:
-    return "ARITHMETIC_INTERVAL";
+    return "ArithmeticInterval";
   case S::INFINITE_ARITHMETIC_SEQUENCE:
-    return "INFINITE_ARITHMETIC_SEQUENCE";
+    return "InfiniteArithmeticSequence";
   case S::FINITE_ARITHMETIC_SEQUENCE:
-    return "FINITE_ARITHMETIC_SEQUENCE";
+    return "FiniteArithmeticSequence";
 
   // LOCAL DECLARATIONS
   case S::LABEL:
-    return "LABEL";
+    return "Label";
   case S::ANCHOR:
-    return "ANCHOR";
+    return "Anchor";
 
   // LOCAL VARIABLES => local declaration
   case S::LOCAL_DYNAMIC_VARIABLE:
-    return "LOCAL_DYNAMIC_VARIABLE";
+    return "LocalDynamicVariable";
   case S::LOCAL_STATIC_VARIABLE:
-    return "LOCAL_STATIC_VARIABLE";
+    return "LocalStaticVariable";
   case S::ENUMERATOR:
-    return "ENUMERATOR";
+    return "Enumerator";
 
   // SYMBOL PARAMETERS
   case S::SIGNATURE_PARAMETER:
-    return "SIGNATURE_PARAMETER";
+    return "SignatureParameter";
   case S::LAYOUT_PARAMETER:
-    return "LAYOUT_PARAMETER";
+    return "LayoutParameter";
 
   // TYPE PARAMETERS
   case S::TUPLE_PARAMETER:
-    return "TUPLE_PARAMETER";
+    return "TupleParameter";
   case S::PROCEDURE_PARAMETER:
-    return "PROCEDURE_PARAMETER";
+    return "ProcedureParameter";
 
   // SYMBOL PARAMETER LISTS
   case S::SIGNATURE:
-    return "SIGNATURE";
+    return "Signature";
   case S::LAYOUT:
-    return "LAYOUT";
+    return "Layout";
 
   // TYPE PARAMETER LISTS
   case S::TUPLE_TYPE:
-    return "TUPLE_TYPE";
+    return "TupleType";
   case S::PROCEDURE_TYPE:
-    return "PROCEDURE_TYPE";
+    return "ProcedureType";
 
   // PLACEMENTS
   case S::PLACEMENT_TYPE:
-    return "PLACEMENT_TYPE";
+    return "PlacementType";
 
   // COMPOSITIONS
   case S::COMPOSITION_TYPE:
-    return "COMPOSITION_TYPE";
+    return "CompositionType";
 
   // SYNONYMS
   case S::SYNONYM_TYPE:
-    return "SYNONYM_TYPE";
+    return "SynonymType";
 
   // SYMBOL TABLES
   case S::TOP:
-    return "TOP";
+    return "Top";
 
   // LOCAL STATEMENTS
   case S::IF_STATEMENT:
-    return "IF_STATEMENT";
+    return "IfStatement";
   case S::ELSE_IF_STATEMENT:
-    return "ELSE_IF_STATEMENT";
+    return "ElseIfStatement";
   case S::ELSE_STATEMENT:
-    return "ELSE_STATEMENT";
+    return "ElseStatement";
   case S::MATCH_STATEMENT:
-    return "MATCH_STATEMENT";
+    return "MatchStatement";
   case S::SWITCH_STATEMENT:
-    return "SWITCH_STATEMENT";
+    return "SwitchStatement";
   case S::CASE_STATEMENT:
-    return "CASE_STATEMENT";
+    return "CaseStatement";
   case S::WITH_STATEMENT:
-    return "WITH_STATEMENT";
+    return "WithStatement";
   case S::DEFAULT_STATEMENT:
-    return "DEFAULT_STATEMENT";
+    return "DefaultStatement";
   case S::FOR_STATEMENT:
-    return "FOR_STATEMENT";
+    return "ForStatement";
   case S::WHILE_STATEMENT:
-    return "WHILE_STATEMENT";
+    return "WhileStatement";
   case S::SPIN_STATEMENT:
-    return "SPIN_STATEMENT";
+    return "SpinStatement";
   case S::WEAVE_STATEMENT:
-    return "WEAVE_STATEMENT";
+    return "WeaveStatement";
   case S::SCOPE_STATEMENT:
-    return "SCOPE_STATEMENT";
+    return "ScopeStatement";
 
   // NAMED TABLE
   case S::NAMESPACE:
-    return "NAMESPACE";
+    return "Namespace";
 
   // GLOBAL DECLARATION
   case S::CLASS_TYPE:
-    return "CLASS_TYPE";
+    return "ClassType";
   case S::ENUMERATION_TYPE:
-    return "ENUMERATION_TYPE";
+    return "EnumerationType";
   case S::INTERFACE:
-    return "INTERFACE";
+    return "Interface";
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
-    return "GLOBAL_DYNAMIC_VARIABLE";
+    return "GlobalDynamicVariable";
   case S::GLOBAL_STATIC_VARIABLE:
-    return "GLOBAL_STATIC_VARIABLE";
+    return "GlobalStaticVariable";
 
   // CALLABLE
   case S::DESTRUCTOR:
-    return "DESTRUCTOR";
+    return "Destructor";
   case S::ENTRY:
-    return "ENTRY";
+    return "Entry";
 
   // RANGERS
   case S::FORWARD_RANGER:
-    return "FORWARD_RANGER";
+    return "ForwardRanger";
   case S::BACKWARD_RANGER:
-    return "BACKWARD_RANGER";
+    return "BackwardRanger";
 
   // PROCEDURES
   case S::FUNCTION:
-    return "FUNCTION";
+    return "Function";
   case S::METHOD:
-    return "METHOD";
+    return "Method";
   case S::EXTENSION_METHOD:
-    return "EXTENSION_METHOD";
+    return "ExtensionMethod";
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
-    return "CLASS_TEMPLATE";
+    return "ClassTemplate";
   case S::ENUMERATION_TEMPLATE:
-    return "ENUMERATION_TEMPLATE";
+    return "EnumerationTemplate";
   case S::INTERFACE_TEMPLATE:
-    return "INTERFACE_TEMPLATE";
+    return "InterfaceTemplate";
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
-    return "GLOBAL_DYNAMIC_VARIABLE_TEMPLATE";
+    return "GlobalDynamicVariableTemplate";
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return "GLOBAL_STATIC_VARIABLE_TEMPLATE";
+    return "GlobalStaticVariableTemplate";
   case S::FORWARD_RANGER_TEMPLATE:
-    return "FORWARD_RANGER_TEMPLATE";
+    return "ForwardRangerTemplate";
   case S::BACKWARD_RANGER_TEMPLATE:
-    return "BACKWARD_RANGER_TEMPLATE";
+    return "BackwardRangerTemplate";
   case S::FUNCTION_TEMPLATE:
-    return "FUNCTION_TEMPLATE";
+    return "FunctionTemplate";
   case S::METHOD_TEMPLATE:
-    return "METHOD_TEMPLATE";
+    return "MethodTemplate";
   case S::EXTENSION_METHOD_TEMPLATE:
-    return "EXTENSION_METHOD_TEMPLATE";
+    return "ExtensionMethodTemplate";
 
   // POLYMORPHS
   case S::FORWARD_RANGER_POLYMORPH:
-    return "FORWARD_RANGER_POLYMORPH";
+    return "ForwardRangerPolymorph";
   case S::BACKWARD_RANGER_POLYMORPH:
-    return "BACKWARD_RANGER_POLYMORPH";
+    return "BackwardRangerPolymorph";
   case S::FUNCTION_POLYMORPH:
-    return "FUNCTION_POLYMORPH";
+    return "FunctionPolymorph";
   case S::METHOD_POLYMORPH:
-    return "METHOD_POLYMORPH";
+    return "MethodPolymorph";
   case S::EXTENSION_METHOD_POLYMORPH:
-    return "EXTENSION_METHOD_POLYMORPH";
+    return "ExtensionMethodPolymorph";
   case S::CLASS_POLYMORPH:
-    return "CLASS_POLYMORPH";
+    return "ClassPolymorph";
   case S::ENUMERATION_POLYMORPH:
-    return "ENUMERATION_POLYMORPH";
+    return "EnumerationPolymorph";
   case S::INTERFACE_POLYMORPH:
-    return "INTERFACE_POLYMORPH";
+    return "InterfacePolymorph";
   case S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH:
-    return "GLOBAL_DYNAMIC_VARIABLE_POLYMORPH";
+    return "GlobalDynamicVariablePolymorph";
   case S::GLOBAL_STATIC_VARIABLE_POLYMORPH:
-    return "GLOBAL_STATIC_VARIABLE_POLYMORPH";
+    return "GlobalStaticVariablePolymorph";
   }
   RQ_UNREACHABLE();
 }
@@ -494,6 +496,9 @@ namespace rq {
   case S::UNSIGNED_ADDRESS_TYPE:
     return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
            SF::IS_UNSIGNED_TYPE | SF::IS_INTEGER_TYPE;
+  case S::CHAR_TYPE:
+    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
+           SF::IS_CODEUNIT_TYPE;
 
   // STANDARD PRIMITIVE TYPE
   case S::BINARY16_TYPE:
@@ -519,7 +524,7 @@ namespace rq {
            SF::IS_CODEUNIT_TYPE;
 
   // VARIADIC ARGUMENTS
-  case S::VARIADIC_ARGUMENTS_TYPE_TYPE:
+  case S::VARIADIC_ARGUMENTS_TYPE:
     return SF::SIMPLE_SYMBOL | SF::IS_TYPE;
 
   // SCALED PRIMITIVES
@@ -539,7 +544,7 @@ namespace rq {
     return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
   case S::POINTER_SUBTYPE:
     return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
-  case S::FAT_POINTER_SUBTYPE:
+  case S::SLICE_SUBTYPE:
     return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
   case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
     return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
@@ -553,7 +558,7 @@ namespace rq {
     return SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // JUXTAPOSITIONAL LIST
-  case S::CONCATINATED_LIST_TYPE:
+  case S::JUXTAPOSITIONAL_LIST_TYPE:
     return SF::IS_TYPE;
 
   // ARITHMETIC SEQUENCES
@@ -1140,6 +1145,33 @@ Symbol::getDerivedExpressionFlags() const {
   return {};
 }
 
+[[nodiscard]] inline const rq::Expression *
+Symbol::getDerivedExpressionPtr() const {
+  if (llvm::isa<rq::Module>(*this)) {
+    const rq::Module &module = llvm::cast<rq::Module>(*this);
+    return &module.getExpression();
+  }
+  if (llvm::isa<rq::Import>(*this)) {
+    const rq::Import &import = llvm::cast<rq::Import>(*this);
+    return &import.getExpression();
+  }
+  if (llvm::isa<rq::SymbolParameter>(*this)) {
+    const rq::SymbolParameter &parameter =
+        llvm::cast<rq::SymbolParameter>(*this);
+    return &parameter.getExpression();
+  }
+  if (llvm::isa<rq::SymbolParameterList>(*this)) {
+    const rq::SymbolParameterList &list =
+        llvm::cast<rq::SymbolParameterList>(*this);
+    return &list.getExpression();
+  }
+  if (llvm::isa<rq::LocalStatement>(*this)) {
+    const rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
+    return &statement.getExpression();
+  }
+  return nullptr;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
   return rq::getIsType(this->getKind());
 }
@@ -1698,6 +1730,14 @@ UnsignedAddressType::classof(const rq::Symbol *symbol_ptr) {
   return symbol.getKind() == rq::SymbolKind::UNSIGNED_ADDRESS_TYPE;
 }
 
+RQ_ALWAYS_INLINE CharType::CharType()
+    : PlatformPrimitiveType(rq::SymbolKind::CHAR_TYPE) {}
+
+[[nodiscard]] inline bool CharType::classof(const rq::Symbol *symbol_ptr) {
+  const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
+  return symbol.getKind() == rq::SymbolKind::CHAR_TYPE;
+}
+
 RQ_ALWAYS_INLINE
 StandardPrimitiveType::StandardPrimitiveType(rq::SymbolKind kind)
     : SimpleSymbol(kind) {
@@ -1767,12 +1807,12 @@ RQ_ALWAYS_INLINE Utf8Type::Utf8Type()
 }
 
 RQ_ALWAYS_INLINE VariadicArgumentsType::VariadicArgumentsType()
-    : SimpleSymbol(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE_TYPE) {}
+    : SimpleSymbol(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE) {}
 
 [[nodiscard]] inline bool
 VariadicArgumentsType::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-  return symbol.getKind() == rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE_TYPE;
+  return symbol.getKind() == rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE;
 }
 
 RQ_ALWAYS_INLINE
@@ -1928,13 +1968,12 @@ PointerSubtype::classof(const rq::Symbol *symbol_ptr) {
   return symbol.getKind() == rq::SymbolKind::POINTER_SUBTYPE;
 }
 
-RQ_ALWAYS_INLINE FatPointerSubtype::FatPointerSubtype(rq::SymbolConstant &child)
-    : UncountedSubtype(rq::SymbolKind::FAT_POINTER_SUBTYPE, child) {}
+RQ_ALWAYS_INLINE SliceSubtype::SliceSubtype(rq::SymbolConstant &child)
+    : UncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child) {}
 
-[[nodiscard]] inline bool
-FatPointerSubtype::classof(const rq::Symbol *symbol_ptr) {
+[[nodiscard]] inline bool SliceSubtype::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-  return symbol.getKind() == rq::SymbolKind::FAT_POINTER_SUBTYPE;
+  return symbol.getKind() == rq::SymbolKind::SLICE_SUBTYPE;
 }
 
 RQ_ALWAYS_INLINE InferenceCountArraySubtype::InferenceCountArraySubtype(
@@ -1964,7 +2003,8 @@ ModuleFactory::ModuleFactory(rq::ModuleKind kind, llvm::StringRef path,
   return this->_module_kind;
 }
 
-void ModuleFactory::setOrChangeExpression(rq::Expression *expression_ptr) {
+RQ_ALWAYS_INLINE void
+ModuleFactory::setOrChangeExpression(rq::Expression *expression_ptr) {
   this->_expression_ptr = expression_ptr;
 }
 
@@ -2032,6 +2072,11 @@ RQ_ALWAYS_INLINE Import::Import(rq::ExpressionFlags flags,
     : Symbol(rq::SymbolKind::IMPORT), _expression_flags(flags),
       _expression_ptr(&expression), _imported_ptr(&imported) {}
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Import::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
 Import::getExpressionFlags() const {
   return this->_expression_flags;
@@ -2051,25 +2096,26 @@ Import::getExpressionFlags() const {
 }
 
 RQ_ALWAYS_INLINE
-ConcatenatedList::ConcatenatedList(rq::ConcatenatedListItem &first_item)
-    : Symbol(rq::SymbolKind::CONCATINATED_LIST_TYPE),
+JuxtapositionalList::JuxtapositionalList(
+    rq::JuxtapositionalListItem &first_item)
+    : Symbol(rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE),
       _first_item_ptr(&first_item) {}
 
 [[nodiscard]] inline bool
-ConcatenatedList::classof(const rq::Symbol *symbol_ptr) {
+JuxtapositionalList::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-  return symbol.getKind() == rq::SymbolKind::CONCATINATED_LIST_TYPE;
+  return symbol.getKind() == rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE;
 }
 
-inline void ConcatenatedList::Profile(llvm::FoldingSetNodeID &id) const {
-  const rq::ConcatenatedListItem &first_item =
+inline void JuxtapositionalList::Profile(llvm::FoldingSetNodeID &id) const {
+  const rq::JuxtapositionalListItem &first_item =
       rq::dereferencePtr(this->_first_item_ptr);
-  rq::profileConcatenatedList(id, first_item);
+  rq::profileJuxtapositionalList(id, first_item);
 }
 
 inline void
-profileConcatenatedList(llvm::FoldingSetNodeID &id,
-                        const rq::ConcatenatedListItem &first_item) {
+profileJuxtapositionalList(llvm::FoldingSetNodeID &id,
+                           const rq::JuxtapositionalListItem &first_item) {
   id.AddPointer(&first_item);
 }
 
@@ -2317,11 +2363,13 @@ RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
     : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name,
                     &name_expression, containing_table, hosting_table, flags) {}
 
-[[nodiscard]] const rq::SymbolicValue &LocalStaticVariable::getValue() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicValue &
+LocalStaticVariable::getValue() const {
   return this->_value;
 }
 
-[[nodiscard]] rq::SymbolicValue &LocalStaticVariable::getValue() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicValue &
+LocalStaticVariable::getValue() {
   return this->_value;
 }
 
@@ -2345,20 +2393,22 @@ Enumerator::Enumerator(llvm::StringRef name,
             "enumerator not member of enumeration type");
 }
 
-[[nodiscard]] const rq::Expression *
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
 Enumerator::getDefaultValueExpressionPtr() const {
   return this->_default_value_expression_ptr;
 }
 
-[[nodiscard]] const rq::EnumerationType &
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
 Enumerator::getEnumerationType() const {
   return llvm::cast<rq::EnumerationType>(this->getContainingTable());
 }
 
-[[nodiscard]] rq::EnumerationType &Enumerator::getEnumerationType() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &
+Enumerator::getEnumerationType() {
   return llvm::cast<rq::EnumerationType>(this->getContainingTable());
 }
 
+RQ_ALWAYS_INLINE
 Parameter::Parameter(rq::SymbolKind kind, rq::Parameter *next_ptr,
                      llvm::StringRef name, rq::SymbolConstant &type)
     : Symbol(kind), _next_ptr(next_ptr), _name(name), _type_ptr(&type) {}
@@ -2410,16 +2460,17 @@ SymbolParameter::SymbolParameter(
   RQ_ASSERT(rq::getIsSymbolParameter(kind), "not symbol parameter");
 }
 
-[[nodiscard]] rq::ExpressionFlags SymbolParameter::getExpressionFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
+SymbolParameter::getExpressionFlags() const {
   return this->_expression_flags;
 }
 
-[[nodiscard]] const rq::SymbolParameter *
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
 SymbolParameter::getNextSymbolParameterPtr() const {
   return llvm::cast<rq::SymbolParameter>(this->getNextParameterPtr());
 }
 
-[[nodiscard]] rq::SymbolParameter *
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
 SymbolParameter::getNextSymbolParameterPtr() {
   return llvm::cast<rq::SymbolParameter>(this->getNextParameterPtr());
 }
@@ -2707,125 +2758,6 @@ ParameterList::getParameterPtrOfName(llvm::StringRef name) {
 [[nodiscard]] inline bool ParameterList::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
   return rq::getIsParameterList(symbol.getKind());
-}
-
-RQ_ALWAYS_INLINE
-SymbolParameterInfo::SymbolParameterInfo(
-    llvm::StringRef name, rq::SymbolConstant &type,
-    const rq::Expression *name_expression_ptr,
-    rq::ExpressionFlags expression_flags, bool is_positional,
-    bool is_nonpositional, bool is_locked,
-    const rq::Expression &type_expression,
-    const rq::Expression *default_value_expression_ptr)
-    : _name(name), _type_ptr(&type), _name_expression_ptr(name_expression_ptr),
-      _expression_flags(expression_flags), _is_positional(is_positional),
-      _is_nonpositional(is_nonpositional), _is_locked(is_locked),
-      _type_expression_ptr(&type_expression),
-      _default_value_expression_ptr(default_value_expression_ptr) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
-SymbolParameterInfo::getName() const {
-  return this->_name;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
-SymbolParameterInfo::getType() const {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
-SymbolParameterInfo::getType() {
-  return rq::dereferencePtr(this->_type_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-SymbolParameterInfo::getNameExpressionPtr() const {
-  return this->_name_expression_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-SymbolParameterInfo::getExpressionFlags() const {
-  return this->_expression_flags;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SymbolParameterInfo::getIsPositional() const {
-  return this->_is_positional;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SymbolParameterInfo::getIsNonpositional() const {
-  return this->_is_nonpositional;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool SymbolParameterInfo::getIsLocked() const {
-  return this->_is_locked;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-SymbolParameterInfo::getTypeExpression() const {
-  return rq::dereferencePtr(this->_type_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-SymbolParameterInfo::getDefaultValueExpressionPtr() const {
-  return this->_default_value_expression_ptr;
-}
-
-SymbolParameterListFactory::SymbolParameterListFactory(
-    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table)
-    : _containing_table_ptr(&containing_table),
-      _hosting_table_ptr(&hosting_table) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-SymbolParameterListFactory::getContainingTable() {
-  return rq::dereferencePtr(this->_containing_table_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-SymbolParameterListFactory::getHostingTable() {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SymbolParameterListFactory::getIsPositional() const {
-  return this->_is_positional;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SymbolParameterListFactory::getIsNonpositional() const {
-  return this->_is_nonpositional;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SymbolParameterListFactory::getIsLocked() const {
-  return this->_is_locked;
-}
-
-RQ_ALWAYS_INLINE void SymbolParameterListFactory::markPositionalEnd() {
-  RQ_ASSERT(this->_is_positional, "already not positional");
-  this->_is_positional = false;
-}
-
-RQ_ALWAYS_INLINE void SymbolParameterListFactory::markNonpositionalBegin() {
-  RQ_ASSERT(!this->_is_nonpositional, "already nonpositional");
-  this->_is_positional = false;
-}
-
-RQ_ALWAYS_INLINE void SymbolParameterListFactory::markLockedBegin() {
-  RQ_ASSERT(!this->_is_positional, "locking positional parameter");
-  RQ_ASSERT(!this->_is_locked, "already locked");
-  this->_is_positional = false;
-}
-
-RQ_ALWAYS_INLINE void SymbolParameterListFactory::addParameter(
-    llvm::StringRef name, const rq::Expression *name_expression_ptr,
-    rq::ExpressionFlags expression_flags, const rq::Expression &type_expression,
-    const rq::Expression *default_value_expression_ptr) {
-  this->_infos.emplace_back(name, name_expression_ptr, expression_flags,
-                            this->getIsPositional(), this->getIsNonpositional(),
-                            this->getIsLocked(), type_expression,
-                            default_value_expression_ptr);
 }
 
 RQ_ALWAYS_INLINE SymbolParameterList::SymbolParameterList(
@@ -3552,6 +3484,11 @@ RQ_ALWAYS_INLINE LocalStatement::LocalStatement(
   RQ_ASSERT(rq::getIsLocalStatement(kind), "not local statement");
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+LocalStatement::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
 [[nodiscard]] rq::ExpressionFlags LocalStatement::getExpressionFlags() const {
   return this->_expression_flags;
 }
@@ -4045,7 +3982,8 @@ RQ_ALWAYS_INLINE void Ranger::setElementType(rq::SymbolConstant &element) {
   rq::assignSingleValue(this->_element_type_ptr, &element);
 }
 
-[[nodiscard]] const rq::SymbolConstant *Ranger::getElementTypePtr() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+Ranger::getElementTypePtr() const {
   return this->_element_type_ptr;
 }
 
@@ -4182,7 +4120,8 @@ RQ_ALWAYS_INLINE Template::Template(
   RQ_ASSERT(rq::getIsTemplate(kind), "not template");
 }
 
-[[nodiscard]] const rq::Expression &Template::getLayoutExpression() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Template::getLayoutExpression() const {
   return rq::dereferencePtr(this->_layout_expression_ptr);
 }
 
@@ -4199,16 +4138,19 @@ Template::getLayoutPtr() const {
   return this->_layout_ptr;
 }
 
-[[nodiscard]] const rq::Expression *
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
 Template::getConstraintExpressionPtr() const {
   return this->_constraint_expression_ptr;
 }
 
-[[nodiscard]] const rq::Expression *Template::getWeightExpressionPtr() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Template::getWeightExpressionPtr() const {
   return this->_weight_expression_ptr;
 }
 
-[[nodiscard]] unsigned Template::getWeight() const { return this->_weight; }
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned Template::getWeight() const {
+  return this->_weight;
+}
 
 [[nodiscard]] inline bool Template::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);

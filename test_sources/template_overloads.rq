@@ -1,7 +1,7 @@
 [template]::{ Type:[symbol] <}
 [constraint]::(Type.[is_type])
 [function asSigned, 
-    [static] Signed : = [signed_integer Type.[byte_size]];
+    [static] Signed : = [signed_integer Type.[byte_size]]; // this wont situate correctly yet!
     ( var:Type <)Signed,
     [result] := var.[bitwise_cast Signed];
 ];

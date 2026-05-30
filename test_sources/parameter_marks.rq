@@ -16,7 +16,7 @@
 
 [function namedOrPositional, (> arg0:[binary32], arg1:[binary32]<)[void],];
 
-[function nonSettable (| a:=0, b:=1 )[void],];
+[function nonSettable, (| a:=0, b:=1 )[void],];
 
 // a must be positional
 // b can be either named or positional

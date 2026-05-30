@@ -160,34 +160,38 @@ bool Context::loadSourceModule() {
   if (!this->validateSourceText(factory)) {
     return false;
   }
-  if (!this->tokenizeSourceText(factory)) {
-    return false;
-  }
+  const bool tokens_ok = this->tokenizeSourceText(factory);
   if (rq::getEmitMode() == rq::EMIT_TOKENS) {
     if (!this->emitTokens(rq::getOutputFilePath(), factory.getTokens())) {
       return false;
     }
-    return true;
+    return tokens_ok;
   }
-  this->initializeKeywordMap();
-  if (!this->parseRequite(factory)) {
+  if (!tokens_ok) {
     return false;
   }
+  this->initializeKeywordMap();
+  const bool parsed_ok = this->parseRequite(factory);
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
     if (!this->emitRequite(rq::getOutputFilePath(),
                            factory.getExpressionPtr())) {
       return false;
     }
-    return true;
+    return parsed_ok;
   }
-  if (!this->situateModule(factory)) {
+  if (!parsed_ok) {
     return false;
   }
+  const bool situated_ok = this->situateModule(factory);
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
     if (!this->emitRequite(rq::getOutputFilePath(),
                            factory.getExpressionPtr())) {
       return false;
     }
+    return situated_ok;
+  }
+  if (!situated_ok) {
+    return false;
   }
   rq::Module &source_module =
       this->allocateValue<rq::Module>(std::move(factory));
@@ -316,7 +320,7 @@ bool Context::run() {
     }
     return true;
   }
-  RQ_UNREACHABLE();
+  return true;
 }
 
 bool Context::parseRequite(rq::ModuleFactory &factory) {
@@ -340,7 +344,7 @@ bool Context::generateSourceModule() {
 
 bool Context::buildLlvmIr() {
   rq::LlvmIrBuilder builder(*this);
-  builder.buildLlvmIr();
+  // builder.buildLlvmIr();
   return builder.getIsOk();
 }
 
@@ -428,16 +432,16 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << '\n';
     for (const rq::Expression &branch : top.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
-      if (branch.getIsHeader()) {
-        if (branch.getHasNext()) {
-          fout << "\n";
-        } else {
-          fout << ",\n";
-        }
+      if (branch.getIsStatement()) {
+        fout << ";\n";
       } else if (branch.getIsChainLink()) {
         fout << "\n";
       } else {
-        fout << ";\n";
+        if (branch.getHasNext()) {
+          fout << ",\n";
+        } else {
+          fout << "\n";
+        }
       }
     }
     rq::emitIndent(fout, indent);
@@ -459,12 +463,16 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
   const rq::Expression &top = rq::dereferencePtr(top_ptr);
   for (const rq::Expression &branch : top.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
-    if (branch.getIsHeader()) {
-      fout << ",\n";
+    if (branch.getIsStatement()) {
+      fout << ";\n";
     } else if (branch.getIsChainLink()) {
       fout << "\n";
     } else {
-      fout << ";\n";
+      if (branch.getHasNext()) {
+        fout << ",\n";
+      } else {
+        fout << "\n";
+      }
     }
   }
   fout.close();
@@ -474,79 +482,80 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol);
 
-static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
-                         const rq::Expression &expression) {
-  if (!expression.getHasSourceText()) {
-    json.emitNull("location");
-  } else if (expression.getSourceTextLength() == 0) {
-    rq::SourceLocation location =
-        context.getSourceLocation(expression.getLlvmSourceBegin());
-    json.beginObject("location");
-    json.emitString("file", location.file);
-    json.emit("line", location.line);
-    json.emit("column", location.column);
-    json.endObject();
-  } else {
-    rq::SourceRange range = context.getSourceRange(expression);
-    json.beginObject("location");
-    json.beginObject("start");
-    json.emitString("file", range.start.file);
-    json.emit("line", range.start.line);
-    json.emit("column", range.start.column);
-    json.endObject();
-    json.beginObject("end");
-    json.emitString("file", range.end.file);
-    json.emit("line", range.end.line);
-    json.emit("column", range.end.column);
-    json.endObject();
-    json.endObject();
-  }
-}
+// static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
+//                          const rq::Expression &expression) {
+//   if (!expression.getHasSourceText()) {
+//     json.emitNull("location");
+//   } else if (expression.getSourceTextLength() == 0) {
+//     rq::SourceLocation location =
+//         context.getSourceLocation(expression.getLlvmSourceBegin());
+//     json.beginObject("location");
+//     json.emitString("file", location.file);
+//     json.emit("line", location.line);
+//     json.emit("column", location.column);
+//     json.endObject();
+//   } else {
+//     rq::SourceRange range = context.getSourceRange(expression);
+//     json.beginObject("location");
+//     json.beginObject("start");
+//     json.emitString("file", range.start.file);
+//     json.emit("line", range.start.line);
+//     json.emit("column", range.start.column);
+//     json.endObject();
+//     json.beginObject("end");
+//     json.emitString("file", range.end.file);
+//     json.emit("line", range.end.line);
+//     json.emit("column", range.end.column);
+//     json.endObject();
+//     json.endObject();
+//   }
+// }
 
-static void emitAttributes(rq::JsonEmitter &json, const rq::Symbol &symbol) {
-  json.beginArray("attributes");
-  using EA = rq::ExpressionAttribute;
-  using EF = rq::ExpressionFlags;
-  EF flags = symbol.getDerivedExpressionFlags();
-  for (unsigned attribute_i = static_cast<unsigned>(EA::NONE) + 1;
-       attribute_i < static_cast<unsigned>(EA::LAST); attribute_i++) {
-    EA attribute = static_cast<EA>(attribute_i);
-    EF attribute_flags = rq::getFlags(attribute);
-    if (rq::getHasAll(flags, attribute_flags)) {
-      json.emitString(rq::getName(attribute));
-    }
-  }
-  json.endArray();
-}
+// static void emitAttributes(rq::JsonEmitter &json, const rq::Symbol &symbol) {
+//   json.beginArray("attributes");
+//   using EA = rq::ExpressionAttribute;
+//   using EF = rq::ExpressionFlags;
+//   EF flags = symbol.getDerivedExpressionFlags();
+//   for (unsigned attribute_i = static_cast<unsigned>(EA::NONE) + 1;
+//        attribute_i < static_cast<unsigned>(EA::LAST); attribute_i++) {
+//     EA attribute = static_cast<EA>(attribute_i);
+//     EF attribute_flags = rq::getFlags(attribute);
+//     if (rq::getHasAll(flags, attribute_flags)) {
+//       json.emitString(rq::getName(attribute));
+//     }
+//   }
+//   json.endArray();
+// }
 
-template <typename SymbolType>
-static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
-                                   const SymbolType &symbol) {
-  json.emitString("module", symbol.getContainingModule().getPath());
-  rq::emitAttributes(json, symbol);
-  rq::emitLocation(context, json, symbol.getExpression());
-}
+// template <typename SymbolType>
+// static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter
+// &json,
+//                                    const SymbolType &symbol) {
+//   json.emitString("module", symbol.getContainingModule().getPath());
+//   rq::emitAttributes(json, symbol);
+//   rq::emitLocation(context, json, symbol.getExpression());
+// }
 
-static void emiSymboltTable(rq::Context &context, rq::JsonEmitter &json,
-                            const rq::SymbolTable &table) {
-  json.beginArray("named");
-  for (const auto &[name, list] : table.getNamedMemberMap()) {
-    json.beginObject();
-    json.emitString("name", name);
-    json.beginArray("symbols");
-    for (const rq::Symbol &symbol : list) {
-      rq::emitSymbol(context, json, symbol);
-    }
-    json.endArray();
-    json.endObject();
-  }
-  json.endArray();
-  json.beginArray("unnamed");
-  for (const rq::Symbol &symbol : table.getUnamedMemberList()) {
-    rq::emitSymbol(context, json, symbol);
-  }
-  json.endArray();
-}
+// static void emiSymboltTable(rq::Context &context, rq::JsonEmitter &json,
+//                             const rq::SymbolTable &table) {
+//   json.beginArray("named");
+//   for (const auto &[name, list] : table.getNamedMemberMap()) {
+//     json.beginObject();
+//     json.emitString("name", name);
+//     json.beginArray("symbols");
+//     for (const rq::Symbol &symbol : list) {
+//       rq::emitSymbol(context, json, symbol);
+//     }
+//     json.endArray();
+//     json.endObject();
+//   }
+//   json.endArray();
+//   json.beginArray("unnamed");
+//   for (const rq::Symbol &symbol : table.getUnamedMemberList()) {
+//     rq::emitSymbol(context, json, symbol);
+//   }
+//   json.endArray();
+// }
 
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol) {
@@ -800,13 +809,13 @@ void Context::logErrorMustHaveParameterMark(rq::Situation situation,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorPositionalEndIsFirst(const rq::Expression &mark) {
+void Context::logErrorIsFirst(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(mark.getName()) + " is first",
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNamedBeginIsLast(const rq::Expression &mark) {
+void Context::logErrorIsLast(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(mark.getName()) + " is last",
                    {mark.getLlvmSourceRange()}, {});
@@ -852,12 +861,27 @@ void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
                    {attribute.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNamedBeginAfterPositionalEnd(
+void Context::logErrorNonpositionalBeginAfterPositionalEnd(
     const rq::Expression &named_begin) {
   this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "named begin after positional end",
+                   "nonpositional begin after positional end",
                    {named_begin.getLlvmSourceRange()}, {});
 }
+
+void Context::logErrorNonpositionalBeginAfterLockedBegin(
+    const rq::Expression &named_begin) {
+  this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "nonpositional begin after locked begin",
+                   {named_begin.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorPositionalEndAfterLockedBegin(
+    const rq::Expression &named_begin) {
+  this->logMessage(named_begin.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "positional end after locked begin",
+                   {named_begin.getLlvmSourceRange()}, {});
+}
+
 
 void Context::logErrorNotExactBranchCount(rq::Situation situation,
                                           const rq::Expression &expression,

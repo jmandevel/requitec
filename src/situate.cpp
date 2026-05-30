@@ -113,8 +113,8 @@ bool Situator::situateTree(rq::Situation situation,
       expression.changeKeyword(K::NAMED_ARGUMENT);
     } break;
     case S::PARAMETER: {
-      if (this->situateBinaryValueBranches(situation, expression, S::BINDING,
-                                           S::RVALUE)) {
+      if (!this->situateBinaryValueBranches(situation, expression, S::BINDING,
+                                            S::RVALUE)) {
         is_ok = false;
         break;
       }
@@ -354,6 +354,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ADDRESS_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
+  case K::SLICE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::SLICE_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::PROCEDURE_ADDRESS:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
@@ -408,10 +414,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::COMPOSE:
-    is_ok = this->situateNullaryExpression(situation, expression);
+    is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
   case K::COMPOSE_OF:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    is_ok = this->situateNaryValueBranches(situation, expression, 2, S::RVALUE);
     break;
   case K::DESTROY:
     is_ok = this->situateNullaryExpression(situation, expression);
@@ -448,7 +454,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INSTANTIATE_POINTER:
     [[fallthrough]];
-  case K::INSTANTIATE_FAT_POINTER:
+  case K::INSTANTIATE_SLICE:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
@@ -492,6 +498,9 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::PLACEMENT:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::COMPOSITION:
+    is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
   case K::DEFAULT_VALUE_PARAMETER:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::BINDING,
@@ -549,10 +558,11 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::GOTO:
-    [[fallthrough]];
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::RANGE_OVER:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
-                                             S::RVALUE);
+                                            S::RVALUE);
     break;
 
   // DECLARED TYPES
@@ -569,7 +579,7 @@ bool Situator::situateTree(rq::Situation situation,
     }
     bool found_layout_header = false;
     for (rq::Expression &branch : branch0.getNextSubrange()) {
-      if (branch.getIsHeader()) {
+      if (!branch.getIsStatement()) {
         if (found_layout_header) {
           this->getContext().logErrorUnexpectedHeaderExpression(branch);
           is_ok = false;
@@ -602,12 +612,12 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch1 = branch0.getNext();
-    if (branch1.getIsHeader()) {
-      if (!this->situateHeaderBranch(S::RVALUE, branch1)) {
+    if (branch1.getIsStatement()) {
+      if (!this->situateStatementBranch(branch1)) {
         is_ok = false;
       }
     } else {
-      if (!this->situateStatementBranch(branch1)) {
+      if (!this->situateHeaderBranch(S::RVALUE, branch1)) {
         is_ok = false;
       }
     }
@@ -710,6 +720,8 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::UNSIGNED_ADDRESS:
     [[fallthrough]];
+  case K::CHAR:
+    [[fallthrough]];
   case K::ASCII:
     [[fallthrough]];
   case K::UTF8:
@@ -744,7 +756,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                           S::RVALUE);
     break;
   case K::ELSE:
-    is_ok = this->situateNaryValueBranches(situation, expression, 0, situation);
+    is_ok = this->situateNaryStatementBranches(expression);
     break;
   case K::MATCH:
     [[fallthrough]];
@@ -782,7 +794,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SCOPE:
     [[fallthrough]];
   case K::BLOCK:
-    is_ok = this->situateNaryValueBranches(situation, expression, 0, situation);
+    is_ok = this->situateNaryStatementBranches(expression);
     break;
 
   // RANGES
@@ -861,8 +873,6 @@ bool Situator::situateTree(rq::Situation situation,
       rq::Expression *body_ptr = path.popNextPtr();
       this->getContext().discardExpression(expression.replaceBranch(branch));
       rq::Expression &branch_next = branch.popNext();
-      branch.setIsHeader();
-      branch_next.setIsHeader();
       rq::Expression &nested_namespace = this->getContext().acquireExpression();
       nested_namespace.setIsInserted();
       nested_namespace.setSource(expression);
@@ -876,7 +886,6 @@ bool Situator::situateTree(rq::Situation situation,
           break;
         }
         rq::Expression &path_next = branch.popNext();
-        path_next.setIsHeader();
         rq::Expression &next_namespace = this->getContext().acquireExpression();
         next_namespace.setIsInserted();
         next_namespace.setSource(expression);
@@ -1370,7 +1379,7 @@ bool Situator::situateTree(rq::Situation situation,
 
 bool Situator::situateValueBranch(rq::Situation branch_situation,
                                   rq::Expression &branch) {
-  if (!branch.getIsHeader()) {
+  if (branch.getIsStatement()) {
     this->getContext().logErrorExpectedHeaderExpression(branch);
     return false;
   }
@@ -1387,7 +1396,7 @@ bool Situator::situateValueBranch(rq::Situation branch_situation,
 
 bool Situator::situateHeaderBranch(rq::Situation branch_situation,
                                    rq::Expression &branch) {
-  if (!branch.getIsHeader()) {
+  if (branch.getIsStatement()) {
     this->getContext().logErrorExpectedHeaderExpression(branch);
     return false;
   }
@@ -1403,7 +1412,7 @@ bool Situator::situateHeaderBranch(rq::Situation branch_situation,
 }
 
 bool Situator::situateStatementBranch(rq::Expression &branch) {
-  if (branch.getIsHeader()) {
+  if (!branch.getIsChainLink() && !branch.getIsStatement()) {
     this->getContext().logErrorUnexpectedHeaderExpression(branch);
     return false;
   }
@@ -1686,8 +1695,9 @@ bool Situator::situateNaryFromFirstParameterBranches(
     rq::Situation situation, rq::Expression &expression,
     rq::Expression &first_parameter) {
   bool is_ok = true;
-  bool found_named = false;
+  bool found_nonpositional = false;
   bool found_positional = false;
+  bool found_locked = false;
   for (rq::Expression &parameter : first_parameter.getInclusiveNextSubrange()) {
     if (!this->situateValueBranch(rq::Situation::PARAMETER, parameter)) {
       is_ok = false;
@@ -1696,35 +1706,57 @@ bool Situator::situateNaryFromFirstParameterBranches(
     case rq::Keyword::NONPOSITIONAL_PARAMETERS_BEGIN:
       if (!parameter.getHasNext()) {
         is_ok = false;
-        this->getContext().logErrorNamedBeginIsLast(expression);
+        this->getContext().logErrorIsLast(parameter);
       }
-      if (found_named) {
+      if (found_nonpositional) {
         this->getContext().logErrorDuplicateParameterMark(parameter);
         is_ok = false;
       } else {
-        found_named = true;
+        found_nonpositional = true;
       }
       if (found_positional) {
         is_ok = false;
-        this->getContext().logErrorNamedBeginAfterPositionalEnd(parameter);
+        this->getContext().logErrorNonpositionalBeginAfterPositionalEnd(
+            parameter);
+      }
+      if (found_locked) {
+        is_ok = false;
+        this->getContext().logErrorNonpositionalBeginAfterLockedBegin(
+            parameter);
       }
       break;
     case rq::Keyword::POSITIONAL_PARAMETERS_END:
       if (parameter == first_parameter) {
-        this->getContext().logErrorPositionalEndIsFirst(parameter);
+        this->getContext().logErrorIsFirst(parameter);
       }
       if (found_positional) {
+        is_ok = false;
+        this->getContext().logErrorDuplicateParameterMark(parameter);
+      } else {
+        found_positional = true;
+      }
+      if (found_locked) {
+        is_ok = false;
+        this->getContext().logErrorPositionalEndAfterLockedBegin(parameter);
+      }
+      break;
+    case rq::Keyword::LOCKED_PARAMETERS_BEGIN:
+      if (!parameter.getHasNext()) {
+        is_ok = false;
+        this->getContext().logErrorIsLast(parameter);
+      }
+      if (found_locked) {
         this->getContext().logErrorDuplicateParameterMark(parameter);
         is_ok = false;
       } else {
-        found_positional = true;
+        found_locked = true;
       }
       break;
     default:
       break;
     }
   }
-  if (!found_named && !found_positional) {
+  if (!found_nonpositional && !found_positional && !found_locked) {
     this->getContext().logErrorMustHaveParameterMark(situation, expression);
     is_ok = false;
   }
@@ -1807,7 +1839,7 @@ bool Situator::situateNaryDifferentFirstHeaderNaryStatementBranches(
   }
   bool found_statement = false;
   for (rq::Expression &branch : branch0.getNextSubrange()) {
-    if (branch.getIsHeader()) {
+    if (!branch.getIsStatement()) {
       if (found_statement) {
         this->getContext().logErrorUnexpectedHeaderExpression(branch);
         is_ok = false;

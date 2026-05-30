@@ -2,8 +2,8 @@
 
 #include <rq/utility.hpp>
 
-#include <llvm/ADT/APInt.h>
 #include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/APInt.h>
 
 namespace rq {
 
@@ -18,8 +18,12 @@ struct Constant {
 
   explicit RQ_ALWAYS_INLINE Constant(rq::ConstantKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self&) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self&) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
+    return this == &rhs;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
+    return this != &rhs;
+  }
 
   [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
 };

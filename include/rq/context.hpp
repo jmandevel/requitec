@@ -221,15 +221,17 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustHaveParameterMark(rq::Situation situation,
                                      const rq::Expression &expression);
-  void logErrorPositionalEndIsFirst(const rq::Expression &mark);
-  void logErrorNamedBeginIsLast(const rq::Expression &mark);
+  void logErrorIsFirst(const rq::Expression &mark);
+  void logErrorIsLast(const rq::Expression &mark);
   void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
   void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
   void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
   void logErrorDuplicateParameterMark(const rq::Expression &mark);
   void logErrorDuplicateAttribute(const rq::Expression &attribute);
-  void logErrorNamedBeginAfterPositionalEnd(const rq::Expression &named_begin);
+  void logErrorNonpositionalBeginAfterPositionalEnd(const rq::Expression &named_begin);
+  void logErrorNonpositionalBeginAfterLockedBegin(const rq::Expression &named_begin);
+  void logErrorPositionalEndAfterLockedBegin(const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
