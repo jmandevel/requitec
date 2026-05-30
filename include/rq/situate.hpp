@@ -47,6 +47,10 @@ struct Situator final {
   [[nodiscard]] bool situateBinaryValueBranches(
       rq::Situation situation, rq::Expression &expression,
       rq::Situation branch0_situation, rq::Situation branch1_situation);
+  [[nodiscard]] bool situateTernaryValueBranches(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Situation branch0_situation, rq::Situation branch1_situation,
+      rq::Situation branch2_situation);
   [[nodiscard]] bool situateNaryValueBranches(rq::Situation situation,
                                               rq::Expression &expression,
                                               unsigned minimum_branch_count,

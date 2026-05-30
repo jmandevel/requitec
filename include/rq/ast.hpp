@@ -442,9 +442,6 @@ enum class Keyword : std::uint32_t {
   SYNONYM,
   SYNONYM_OF,
   CAPTURE_OF,
-  TEMPLATE_OF,
-  IS_OK,
-  IS_OK_OF,
   AS_EXTENSION,
   AS_EXTENSION_OF,
   REVERSE,
@@ -1190,11 +1187,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_synonym_of";
   case K::CAPTURE_OF:
     return "_capture_of";
-  case K::TEMPLATE_OF:
-    return "_template_of";
-  case K::IS_OK:
-    return "is_ok";
-  case K::IS_OK_OF:
     return "_is_ok_of";
   case K::AS_EXTENSION:
     return "_as_extension";
@@ -2022,12 +2014,6 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::CAPTURE_OF:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::TEMPLATE_OF:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::IS_OK:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_OK_OF:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::AS_EXTENSION:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::AS_EXTENSION_OF:
@@ -2327,10 +2313,6 @@ getDescription(rq::Situation situation) {
     return K::SYNONYM_OF;
   case K::CAPTURE:
     return K::CAPTURE_OF;
-  case K::TEMPLATE:
-    return K::TEMPLATE_OF;
-  case K::IS_OK:
-    return K::IS_OK_OF;
   case K::AS_EXTENSION:
     return K::AS_EXTENSION_OF;
   case K::REVERSE:
@@ -3124,6 +3106,8 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::ENSURE:
     return EAK::ENSURE_TYPE;
+  case EA::LAST:
+    break;
   }
   RQ_UNREACHABLE();
 }
