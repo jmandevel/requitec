@@ -9,8 +9,352 @@ namespace rq {
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind) {
   using S = rq::SymbolKind;
   switch (kind) {
-    
+  case S::NONE:
+    return "NONE";
+
+  // LITERALS
+  case S::INTEGER_LITERAL_TYPE:
+    return "INTEGER_LITERAL_TYPE";
+  case S::FLOAT_LITERAL_TYPE:
+    return "FLOAT_LITERAL_TYPE";
+  case S::STRING_LITERAL_TYPE:
+    return "STRING_LITERAL_TYPE";
+  case S::CODEUNIT_LITERAL_TYPE:
+    return "CODEUNIT_LITERAL_TYPE";
+
+  // CONTEXTUAL VALUE
+  case S::OUT:
+    return "OUT";
+  case S::THIS:
+    return "THIS";
+  case S::RESULT:
+    return "RESULT";
+  case S::VALUE:
+    return "VALUE";
+  case S::INDEX:
+    return "INDEX";
+  case S::DISCRIMINANT:
+    return "DISCRIMINANT";
+  case S::COMMAND_LINE_ARGUMENTS:
+    return "COMMAND_LINE_ARGUMENTS";
+  case S::CALLSITE:
+    return "CALLSITE";
+
+  // CONTEXTUAL TYPE
+  case S::INFERENCE_TYPE:
+    return "INFERENCE_TYPE";
+  case S::VOID_TYPE:
+    return "VOID_TYPE";
+  case S::NO_RETURN_TYPE:
+    return "NO_RETURN_TYPE";
+
+  // EXPRESSION ATTRIBUTES
+  case S::ANCHOR_TYPE:
+    return "ANCHOR_TYPE";
+  case S::OPAQUE_TYPE:
+    return "OPAQUE_TYPE";
+  case S::GLOBAL_TYPE:
+    return "GLOBAL_TYPE";
+  case S::ACCESS_TYPE:
+    return "ACCESS_TYPE";
+  case S::PARTIAL_MUTATE_TYPE:
+    return "PARTIAL_MUTATE_TYPE";
+  case S::STATIC_TYPE:
+    return "STATIC_TYPE";
+  case S::CAPTURE_TYPE:
+    return "CAPTURE_TYPE";
+  case S::INLINE_TYPE:
+    return "INLINE_TYPE";
+  case S::MANGLE_TYPE:
+    return "MANGLE_TYPE";
+  case S::PACK_TYPE:
+    return "PACK_TYPE";
+  case S::BRANCH_TREND_TYPE:
+    return "BRANCH_TREND_TYPE";
+  case S::DEPRECIATE_TYPE:
+    return "DEPRECIATE_TYPE";
+  case S::STABLE_ADDRESS_TYPE:
+    return "STABLE_ADDRESS_TYPE";
+  case S::VARIADIC_TYPE:
+    return "VARIADIC_TYPE";
+  case S::LOCATION_TYPE:
+    return "LOCATION_TYPE";
+  case S::TEMPLATE_TYPE:
+    return "TEMPLATE_TYPE";
+  case S::CONSTRAINT_TYPE:
+    return "CONSTRAINT_TYPE";
+  case S::WEIGHT_TYPE:
+    return "WEIGHT_TYPE";
+  case S::REQUIRE_TYPE:
+    return "REQUIRE_TYPE";
+  case S::ENSURE_TYPE:
+    return "ENSURE_TYPE";
+
+  // TYPE ATTRIBUTES
+  case S::VAR_TYPE:
+    return "VAR_TYPE";
+  case S::VOLATILE_TYPE:
+    return "VOLATILE_TYPE";
+  case S::ATOMIC_TYPE:
+    return "ATOMIC_TYPE";
+  case S::NULL_TERMINATE_TYPE:
+    return "NULL_TERMINATE_TYPE";
+
+  // REFLECTIVE
+  case S::SYMBOL_TYPE:
+    return "SYMBOL_TYPE";
+  case S::EXPRESSION_TYPE:
+    return "EXPRESSION_TYPE";
+
+  // PLATFORM PRIMITIVE
+  case S::BOOLEAN_TYPE:
+    return "BOOLEAN_TYPE";
+  case S::HALF_TYPE:
+    return "HALF_TYPE";
+  case S::SINGLE_TYPE:
+    return "SINGLE_TYPE";
+  case S::DOUBLE_TYPE:
+    return "DOUBLE_TYPE";
+  case S::QUADRUPLE_TYPE:
+    return "QUADRUPLE_TYPE";
+  case S::SIGNED_INTEGER_TYPE:
+    return "SIGNED_INTEGER_TYPE";
+  case S::UNSIGNED_INTEGER_TYPE:
+    return "UNSIGNED_INTEGER_TYPE";
+  case S::SIGNED_INDEX_TYPE:
+    return "SIGNED_INDEX_TYPE";
+  case S::UNSIGNED_INDEX_TYPE:
+    return "UNSIGNED_INDEX_TYPE";
+  case S::SIGNED_ADDRESS_TYPE:
+    return "SIGNED_ADDRESS_TYPE";
+  case S::UNSIGNED_ADDRESS_TYPE:
+    return "UNSIGNED_ADDRESS_TYPE";
+
+  // STANDARD PRIMITIVE
+  case S::BINARY16_TYPE:
+    return "BINARY16_TYPE";
+  case S::BINARY32_TYPE:
+    return "BINARY32_TYPE";
+  case S::BINARY64_TYPE:
+    return "BINARY64_TYPE";
+  case S::BINARY128_TYPE:
+    return "BINARY128_TYPE";
+  case S::BFLOAT16_TYPE:
+    return "BFLOAT16_TYPE";
+  case S::ASCII_TYPE:
+    return "ASCII_TYPE";
+  case S::UTF8_TYPE:
+    return "UTF8_TYPE";
+
+  // VARIADIC ARGUMENTS
+  case S::VARIADIC_ARGUMENTS_TYPE_TYPE:
+    return "VARIADIC_ARGUMENTS_TYPE_TYPE";
+
+  // SCALED PRIMITIVES
+  case S::SCALED_SIGNED_INTEGER_TYPE:
+    return "SCALED_SIGNED_INTEGER_TYPE";
+  case S::SCALED_UNSIGNED_INTEGER_TYPE:
+    return "SCALED_UNSIGNED_INTEGER_TYPE";
+
+  // SUBTYPES
+  case S::ARRAY_SUBTYPE:
+    return "ARRAY_SUBTYPE";
+
+  // UNCOUNTED SUBTYPES => SUBTYPES
+  case S::REFERENCE_SUBTYPE:
+    return "REFERENCE_SUBTYPE";
+  case S::POINTER_SUBTYPE:
+    return "POINTER_SUBTYPE";
+  case S::FAT_POINTER_SUBTYPE:
+    return "FAT_POINTER_SUBTYPE";
+  case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
+    return "INFERENCE_COUNT_ARRAY_SUBTYPE";
+
+  // MODULES
+  case S::MODULE:
+    return "MODULE";
+
+  // IMPORTS
+  case S::IMPORT:
+    return "IMPORT";
+
+  // JUXTAPOSITIONAL LIST
+  case S::CONCATINATED_LIST_TYPE:
+    return "CONCATINATED_LIST_TYPE";
+
+  // ARITHMETIC SEQUENCES
+  case S::ARITHMETIC_INTERVAL:
+    return "ARITHMETIC_INTERVAL";
+  case S::INFINITE_ARITHMETIC_SEQUENCE:
+    return "INFINITE_ARITHMETIC_SEQUENCE";
+  case S::FINITE_ARITHMETIC_SEQUENCE:
+    return "FINITE_ARITHMETIC_SEQUENCE";
+
+  // LOCAL DECLARATIONS
+  case S::LABEL:
+    return "LABEL";
+  case S::ANCHOR:
+    return "ANCHOR";
+
+  // LOCAL VARIABLES => local declaration
+  case S::LOCAL_DYNAMIC_VARIABLE:
+    return "LOCAL_DYNAMIC_VARIABLE";
+  case S::LOCAL_STATIC_VARIABLE:
+    return "LOCAL_STATIC_VARIABLE";
+  case S::ENUMERATOR:
+    return "ENUMERATOR";
+
+  // SYMBOL PARAMETERS
+  case S::SIGNATURE_PARAMETER:
+    return "SIGNATURE_PARAMETER";
+  case S::LAYOUT_PARAMETER:
+    return "LAYOUT_PARAMETER";
+
+  // TYPE PARAMETERS
+  case S::TUPLE_PARAMETER:
+    return "TUPLE_PARAMETER";
+  case S::PROCEDURE_PARAMETER:
+    return "PROCEDURE_PARAMETER";
+
+  // SYMBOL PARAMETER LISTS
+  case S::SIGNATURE:
+    return "SIGNATURE";
+  case S::LAYOUT:
+    return "LAYOUT";
+
+  // TYPE PARAMETER LISTS
+  case S::TUPLE_TYPE:
+    return "TUPLE_TYPE";
+  case S::PROCEDURE_TYPE:
+    return "PROCEDURE_TYPE";
+
+  // PLACEMENTS
+  case S::PLACEMENT_TYPE:
+    return "PLACEMENT_TYPE";
+
+  // COMPOSITIONS
+  case S::COMPOSITION_TYPE:
+    return "COMPOSITION_TYPE";
+
+  // SYNONYMS
+  case S::SYNONYM_TYPE:
+    return "SYNONYM_TYPE";
+
+  // SYMBOL TABLES
+  case S::TOP:
+    return "TOP";
+
+  // LOCAL STATEMENTS
+  case S::IF_STATEMENT:
+    return "IF_STATEMENT";
+  case S::ELSE_IF_STATEMENT:
+    return "ELSE_IF_STATEMENT";
+  case S::ELSE_STATEMENT:
+    return "ELSE_STATEMENT";
+  case S::MATCH_STATEMENT:
+    return "MATCH_STATEMENT";
+  case S::SWITCH_STATEMENT:
+    return "SWITCH_STATEMENT";
+  case S::CASE_STATEMENT:
+    return "CASE_STATEMENT";
+  case S::WITH_STATEMENT:
+    return "WITH_STATEMENT";
+  case S::DEFAULT_STATEMENT:
+    return "DEFAULT_STATEMENT";
+  case S::FOR_STATEMENT:
+    return "FOR_STATEMENT";
+  case S::WHILE_STATEMENT:
+    return "WHILE_STATEMENT";
+  case S::SPIN_STATEMENT:
+    return "SPIN_STATEMENT";
+  case S::WEAVE_STATEMENT:
+    return "WEAVE_STATEMENT";
+  case S::SCOPE_STATEMENT:
+    return "SCOPE_STATEMENT";
+
+  // NAMED TABLE
+  case S::NAMESPACE:
+    return "NAMESPACE";
+
+  // GLOBAL DECLARATION
+  case S::CLASS_TYPE:
+    return "CLASS_TYPE";
+  case S::ENUMERATION_TYPE:
+    return "ENUMERATION_TYPE";
+  case S::INTERFACE:
+    return "INTERFACE";
+
+  // GLOBAL VARIABLE
+  case S::GLOBAL_DYNAMIC_VARIABLE:
+    return "GLOBAL_DYNAMIC_VARIABLE";
+  case S::GLOBAL_STATIC_VARIABLE:
+    return "GLOBAL_STATIC_VARIABLE";
+
+  // CALLABLE
+  case S::DESTRUCTOR:
+    return "DESTRUCTOR";
+  case S::ENTRY:
+    return "ENTRY";
+
+  // RANGERS
+  case S::FORWARD_RANGER:
+    return "FORWARD_RANGER";
+  case S::BACKWARD_RANGER:
+    return "BACKWARD_RANGER";
+
+  // PROCEDURES
+  case S::FUNCTION:
+    return "FUNCTION";
+  case S::METHOD:
+    return "METHOD";
+  case S::EXTENSION_METHOD:
+    return "EXTENSION_METHOD";
+
+  // TEMPLATES
+  case S::CLASS_TEMPLATE:
+    return "CLASS_TEMPLATE";
+  case S::ENUMERATION_TEMPLATE:
+    return "ENUMERATION_TEMPLATE";
+  case S::INTERFACE_TEMPLATE:
+    return "INTERFACE_TEMPLATE";
+  case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
+    return "GLOBAL_DYNAMIC_VARIABLE_TEMPLATE";
+  case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
+    return "GLOBAL_STATIC_VARIABLE_TEMPLATE";
+  case S::FORWARD_RANGER_TEMPLATE:
+    return "FORWARD_RANGER_TEMPLATE";
+  case S::BACKWARD_RANGER_TEMPLATE:
+    return "BACKWARD_RANGER_TEMPLATE";
+  case S::FUNCTION_TEMPLATE:
+    return "FUNCTION_TEMPLATE";
+  case S::METHOD_TEMPLATE:
+    return "METHOD_TEMPLATE";
+  case S::EXTENSION_METHOD_TEMPLATE:
+    return "EXTENSION_METHOD_TEMPLATE";
+
+  // POLYMORPHS
+  case S::FORWARD_RANGER_POLYMORPH:
+    return "FORWARD_RANGER_POLYMORPH";
+  case S::BACKWARD_RANGER_POLYMORPH:
+    return "BACKWARD_RANGER_POLYMORPH";
+  case S::FUNCTION_POLYMORPH:
+    return "FUNCTION_POLYMORPH";
+  case S::METHOD_POLYMORPH:
+    return "METHOD_POLYMORPH";
+  case S::EXTENSION_METHOD_POLYMORPH:
+    return "EXTENSION_METHOD_POLYMORPH";
+  case S::CLASS_POLYMORPH:
+    return "CLASS_POLYMORPH";
+  case S::ENUMERATION_POLYMORPH:
+    return "ENUMERATION_POLYMORPH";
+  case S::INTERFACE_POLYMORPH:
+    return "INTERFACE_POLYMORPH";
+  case S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH:
+    return "GLOBAL_DYNAMIC_VARIABLE_POLYMORPH";
+  case S::GLOBAL_STATIC_VARIABLE_POLYMORPH:
+    return "GLOBAL_STATIC_VARIABLE_POLYMORPH";
   }
+  RQ_UNREACHABLE();
 }
 
 [[nodiscard]] inline rq::SymbolFlags getFlags(rq::SymbolKind kind) {
@@ -1634,7 +1978,7 @@ ModuleFactory::getExpressionPtr() {
   return this->_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef `y::getPath() const {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef ModuleFactory::getPath() const {
   return this->_path;
 }
 
