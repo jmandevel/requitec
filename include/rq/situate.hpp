@@ -27,8 +27,7 @@ struct Situator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return this->_context_ref.get();
   }
-  [[nodiscard]] rq::Expression &makeModuleTop(rq::Module &module);
-  [[nodiscard]] bool situateModule(rq::Module &module);
+  [[nodiscard]] rq::Expression* situateModule(rq::Expression *top_ptr);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
   [[nodiscard]] bool situateValueBranch(rq::Situation branch_situation,

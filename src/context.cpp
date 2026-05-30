@@ -28,11 +28,11 @@
 
 namespace rq {
 
-bool Context::validateSourceText(const rq::Module &module) {
+bool Context::validateSourceText(const rq::ModuleFactory &factory) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
   llvm::SMLoc extended_char_start;
-  for (const char &c : module.getSourceText()) {
+  for (const char &c : factory.getBuffer()) {
     if (!rq::getIsValid(c)) {
       this->logErrorInvalidUtf8Codeunit(llvm::SMLoc::getFromPointer(&c), c);
       is_ok = false;
@@ -59,16 +59,15 @@ bool Context::validateSourceText(const rq::Module &module) {
   return is_ok;
 }
 
-bool Context::tokenizeSourceText(const rq::Module &module,
-                                 std::vector<rq::Token> &tokens) {
-  rq::Tokenizer tokenizer(*this, module.getSourceText(), tokens);
+bool Context::tokenizeSourceText(rq::ModuleFactory &factory) {
+  rq::Tokenizer tokenizer(*this, factory.getBuffer(), factory.getTokens());
   const bool is_ok = tokenizer.tokenizeSourceText();
   return is_ok;
 }
 
 void Context::initializeKeywordMap() {
   RQ_ASSERT(this->_keyword_map.empty(), "keyword map not empty");
-  for (std::underlying_type_t<rq::Opcode> keyword_i = 0;
+  for (std::underlying_type_t<rq::Keyword> keyword_i = 0;
        keyword_i <= rq::KEYWORD_COUNT; keyword_i++) {
     const rq::Keyword keyword = static_cast<rq::Keyword>(keyword_i);
     std::string_view name = rq::getName(keyword);
@@ -91,8 +90,7 @@ rq::SourceLocation Context::getSourceLocation(llvm::SMLoc llvm_location) {
 
 rq::Keyword Context::getKeyword(llvm::Twine name) {
   llvm::SmallString<64> buffer;
-  llvm::StringMapIterator<rq::Keyword> it =
-      this->_keyword_map.find(name.toStringRef(buffer));
+  auto it = this->_keyword_map.find(name.toStringRef(buffer));
   if (it == this->_keyword_map.end()) {
     return rq::Keyword::NONE;
   }
@@ -157,12 +155,43 @@ bool Context::loadSourceModule() {
     return false;
   }
   llvm::StringRef final_path = this->saveString(input_path);
-  rq::Module &source_module = this->allocateAcquiredValue<rq::Module>(
-      rq::ModuleKind::SOURCE, final_path, std::move(buffer_eo.get()),
-      this->getTop());
-  rq::assignSingleValue(this->_source_module_ptr, &source_module);
-  this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
-      input_path, &this->getSourceModule()));
+  rq::ModuleFactory factory(rq::ModuleKind::SOURCE, final_path,
+                            buffer_eo.get().getBuffer());
+  if (!this->validateSourceText(factory)) {
+    return false;
+  }
+  if (!this->tokenizeSourceText(factory)) {
+    return false;
+  }
+  if (rq::getEmitMode() == rq::EMIT_TOKENS) {
+    if (!this->emitTokens(rq::getOutputFilePath(), factory.getTokens())) {
+      return false;
+    }
+    return true;
+  }
+  this->initializeKeywordMap();
+  if (!this->parseRequite(factory)) {
+    return false;
+  }
+  if (rq::getEmitMode() == rq::EMIT_PARSED) {
+    if (!this->emitRequite(rq::getOutputFilePath(),
+                           factory.getExpressionPtr())) {
+      return false;
+    }
+    return true;
+  }
+  if (!this->situateModule(factory)) {
+    return false;
+  }
+  if (rq::getEmitMode() == rq::EMIT_SITUATED) {
+    if (!this->emitRequite(rq::getOutputFilePath(),
+                           factory.getExpressionPtr())) {
+      return false;
+    }
+  }
+  rq::Module &source_module =
+      this->allocateValue<rq::Module>(std::move(factory));
+  this->_source_module_ptr = &source_module;
   return true;
 }
 
@@ -200,9 +229,22 @@ rq::Module *Context::loadImportModule(const rq::Expression &expression,
     return nullptr;
   }
   llvm::StringRef final_path = this->saveString(found_path);
-  rq::Module &import_module = this->allocateAcquiredValue<rq::Module>(
-      rq::ModuleKind::IMPORT, final_path, std::move(buffer_eo.get()),
-      this->getTop());
+  rq::ModuleFactory factory(rq::ModuleKind::IMPORT, final_path,
+                            buffer_eo.get().getBuffer());
+  if (!this->validateSourceText(factory)) {
+    return nullptr;
+  }
+  if (!this->tokenizeSourceText(factory)) {
+    return nullptr;
+  }
+  if (!this->parseRequite(factory)) {
+    return nullptr;
+  }
+  if (!this->situateModule(factory)) {
+    return nullptr;
+  }
+  rq::Module &import_module =
+      this->allocateValue<rq::Module>(std::move(factory));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -217,61 +259,28 @@ bool Context::initializeLlvm() {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmParser();
   llvm::InitializeNativeTargetAsmPrinter();
-  std::string target_triple = llvm::sys::getDefaultTargetTriple();
+  std::string triple_text = llvm::sys::getDefaultTargetTriple();
   std::string error;
+  llvm::Triple triple = llvm::Triple(triple_text);
   const llvm::Target *target_ptr =
-      llvm::TargetRegistry::lookupTarget(target_triple, error);
+      llvm::TargetRegistry::lookupTarget(triple, error);
   if (target_ptr == nullptr) {
-    this->logErrorFailedToFindLlvmTarget(target_triple, error);
+    this->logErrorFailedToFindLlvmTarget(triple_text, error);
     return false;
   }
   llvm::TargetOptions options;
   this->_llvm_target_machine_ptr =
       rq::dereferencePtr(target_ptr)
-          .createTargetMachine(llvm::Triple(target_triple), "generic", "",
-                               options, llvm::Reloc::PIC_);
+          .createTargetMachine(triple, "generic", "", options,
+                               llvm::Reloc::PIC_);
   return true;
 }
 
 bool Context::run() {
-  {
-    rq::ModuleFactory factory = this->loadSourceModule();
-    if (!this->validateSourceText(factory)) {
-      return false;
-    }
-    {
-      std::vector<rq::Token> tokens = {};
-      if (!this->tokenizeSourceText(factory, tokens)) {
-        return false;
-      }
-      if (rq::getEmitMode() == rq::EMIT_TOKENS) {
-        if (!this->emitTokens(rq::getOutputFilePath(), tokens)) {
-          return false;
-        }
-        return true;
-      }
-      this->initializeKeywordMap();
-      if (!this->parseRequite(this->getSourceModule(), tokens)) {
-        return false;
-      }
-    }
-    if (rq::getEmitMode() == rq::EMIT_PARSED) {
-      if (!this->emitRequite(rq::getOutputFilePath(),
-                             this->getSourceModule().getSnippet())) {
-        return false;
-      }
-      return true;
-    }
-    if (!this->situateModule(factory)) {
-      return false;
-    }
-    this->acquireSourceModule(factory);
+  if (!this->loadSourceModule()) {
+    return false;
   }
-  if (rq::getEmitMode() == rq::EMIT_SITUATED) {
-    if (!this->emitRequite(rq::getOutputFilePath(),
-                           this->getSourceModule().getSnippet())) {
-      return false;
-    }
+  if (!this->getHasSourceModule()) {
     return true;
   }
   if (!this->initializeLlvm()) {
@@ -310,18 +319,22 @@ bool Context::run() {
   RQ_UNREACHABLE();
 }
 
-bool Context::parseRequite(rq::Module &module,
-                           const std::vector<rq::Token> &tokens) {
-  rq::RequiteParser parser(*this, tokens);
+bool Context::parseRequite(rq::ModuleFactory &factory) {
+  rq::RequiteParser parser(*this, factory.getTokens());
   rq::Expression *root_ptr = parser.parseExpressions();
-  module.getSnippet(root_ptr);
+  factory.setOrChangeExpression(root_ptr);
   return parser.getIsOk();
 }
 
-bool Context::situateModule(rq::Module &module) {
+bool Context::situateModule(rq::ModuleFactory &factory) {
   rq::Situator situator(*this);
-  const bool is_ok = situator.situateModule(module);
-  return is_ok;
+  rq::Expression *new_top_ptr =
+      situator.situateModule(factory.getExpressionPtr());
+  if (new_top_ptr == nullptr) {
+    return false;
+  }
+  factory.setOrChangeExpression(new_top_ptr);
+  return true;
 }
 
 bool Context::generateSourceModule() {
@@ -420,22 +433,16 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << '\n';
     for (const rq::Expression &branch : top.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
-      if (top.getHasStatementBranches()) {
-        if (branch.getIsHeader()) {
-          fout << ",\n";
-        } else if (branch.getIsChainLink()) {
-          fout << "\n";
-        } else {
-          fout << ";\n";
-        }
-      } else if (top.getHasValueBranches()) {
+      if (branch.getIsHeader()) {
         if (branch.getHasNext()) {
-          fout << ",\n";
-        } else {
           fout << "\n";
+        } else {
+          fout << ",\n";
         }
+      } else if (branch.getIsChainLink()) {
+        fout << "\n";
       } else {
-        RQ_UNREACHABLE();
+        fout << ";\n";
       }
     }
     rq::emitIndent(fout, indent);
@@ -443,13 +450,18 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   fout << "]";
 }
 
-bool Context::emitRequite(llvm::StringRef path, const rq::Expression &top) {
+bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
   std::error_code ec;
   llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
   if (ec) {
     this->logErrorFailedToOpenOutputFile(path, ec);
     return false;
   }
+  if (top_ptr == nullptr) {
+    fout.close();
+    return true;
+  }
+  const rq::Expression &top = rq::dereferencePtr(top_ptr);
   for (const rq::Expression &branch : top.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
     if (branch.getIsHeader()) {
@@ -496,14 +508,16 @@ static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
   }
 }
 
-static void emitAttributes(rq::JsonEmitter &json,
-                           const rq::InitialExpressionFlags &symbol) {
+static void emitAttributes(rq::JsonEmitter &json, const rq::Symbol &symbol) {
   json.beginArray("attributes");
   using EA = rq::ExpressionAttribute;
+  using EF = rq::ExpressionFlags;
+  EF flags = symbol.getDerivedExpressionFlags();
   for (unsigned attribute_i = static_cast<unsigned>(EA::NONE) + 1;
        attribute_i < static_cast<unsigned>(EA::LAST); attribute_i++) {
     EA attribute = static_cast<EA>(attribute_i);
-    if (symbol.getHasAttribute(attribute)) {
+    EF attribute_flags = rq::getFlags(attribute);
+    if (rq::getHasAll(flags, attribute_flags)) {
       json.emitString(rq::getName(attribute));
     }
   }
@@ -518,10 +532,10 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
   rq::emitLocation(context, json, symbol.getExpression());
 }
 
-static void emitTable(rq::Context &context, rq::JsonEmitter &json,
-                      const rq::Table &table) {
+static void emiSymboltTable(rq::Context &context, rq::JsonEmitter &json,
+                      const rq::SymbolTable &table) {
   json.beginArray("named");
-  for (const auto &[name, list] : table.getNamedListsSubrange()) {
+  for (const auto &[name, list] : table.getNamedMemberMap()) {
     json.beginObject();
     json.emitString("name", name);
     json.beginArray("symbols");
@@ -533,7 +547,7 @@ static void emitTable(rq::Context &context, rq::JsonEmitter &json,
   }
   json.endArray();
   json.beginArray("unnamed");
-  for (const rq::Symbol &symbol : table.getUnamedSymbolsListRef()) {
+  for (const rq::Symbol &symbol : table.getUnamedMemberList()) {
     rq::emitSymbol(context, json, symbol);
   }
   json.endArray();
@@ -542,63 +556,9 @@ static void emitTable(rq::Context &context, rq::JsonEmitter &json,
 static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
                        const rq::Symbol &symbol) {
   json.beginObject();
-  json.emitString("kind", rq::getName(symbol.getOpcode()));
-  switch (symbol.getOpcode()) {
-  case rq::Opcode::SY_IMPORT: {
-    const auto &import = llvm::cast<rq::Import>(symbol);
-    rq::emitModuleMemberSymbol(context, json, import);
-  } break;
-  case rq::Opcode::SY_LOCAL: {
-    const auto &variable = llvm::cast<rq::Local>(symbol);
-    json.emitString("name", variable.getName());
-    rq::emitModuleMemberSymbol(context, json, variable);
-  } break;
-  case rq::Opcode::SY_GLOBAL: {
-    const auto &variable = llvm::cast<rq::Global>(symbol);
-    json.emitString("name", variable.getName());
-    rq::emitModuleMemberSymbol(context, json, variable);
-  } break;
-  case rq::Opcode::SY_NAMESPACE: {
-    const auto &namespace_ = llvm::cast<rq::Namespace>(symbol);
-    json.emitString("name", namespace_.getName());
-    rq::emitTable(context, json, namespace_);
-  } break;
-  case rq::Opcode::SY_CLASS: {
-    const auto &class_ = llvm::cast<rq::Class>(symbol);
-    json.emitString("name", class_.getName());
-    rq::emitModuleMemberSymbol(context, json, class_);
-  } break;
-  case rq::Opcode::SY_ENUMERATION: {
-    const auto &enumeration = llvm::cast<rq::Enumeration>(symbol);
-    json.emitString("name", enumeration.getName());
-    rq::emitModuleMemberSymbol(context, json, enumeration);
-  } break;
-  case rq::Opcode::SY_ENTRY: {
-    const auto &entry = llvm::cast<rq::Entry>(symbol);
-    rq::emitModuleMemberSymbol(context, json, entry);
-  } break;
-  case rq::Opcode::SY_FUNCTION: {
-    const auto &function = llvm::cast<rq::Function>(symbol);
-    json.emitString("name", function.getName());
-    rq::emitModuleMemberSymbol(context, json, function);
-  } break;
-  case rq::Opcode::SY_METHOD: {
-    const auto &method = llvm::cast<rq::Method>(symbol);
-    json.emitString("name", method.getName());
-    rq::emitModuleMemberSymbol(context, json, method);
-  } break;
-  case rq::Opcode::SY_EXTENSION_METHOD: {
-    const auto &extension_method = llvm::cast<rq::ExtensionMethod>(symbol);
-    json.emitString("name", extension_method.getName());
-    rq::emitModuleMemberSymbol(context, json, extension_method);
-  } break;
-  case rq::Opcode::SY_TOP: {
-    const auto &top = llvm::cast<rq::Top>(symbol);
-    rq::emitTable(context, json, top);
-  } break;
-  default:
-    RQ_TODO_IMPLEMENTATION();
-  }
+  json.emitString("kind", rq::getName(symbol.getKind()));
+  std::ignore = context;
+  RQ_TODO_IMPLEMENTATION();
   json.endObject();
 }
 
@@ -1046,8 +1006,7 @@ void Context::logErrorFailedToImportModule(const rq::Expression &expression,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorFlankNotInFrame(
-    const rq::Expression &flank_expression) {
+void Context::logErrorFlankNotInFrame(const rq::Expression &flank_expression) {
   this->logMessage(
       flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
       llvm::Twine(
@@ -1055,8 +1014,7 @@ void Context::logErrorFlankNotInFrame(
       {flank_expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorFlankNotAncestor(
-    const rq::Expression &flank_expression) {
+void Context::logErrorFlankNotAncestor(const rq::Expression &flank_expression) {
   this->logMessage(
       flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
       llvm::Twine("flank attribute refeers to symbol table is not ancestor"),

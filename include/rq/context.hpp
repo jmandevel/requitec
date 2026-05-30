@@ -2,8 +2,8 @@
 
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/see.hpp>
-#include <rq/utility.hpp>
 #include <rq/symbols.hpp>
+#include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringMap.h>
@@ -137,9 +137,6 @@ struct Context final : public rq::BumpPtrAllocator {
   getLlvmIrBuilder() const {
     return rq::dereferenceUptr(this->_llvm_ir_builder_uptr);
   }
-  [[nodiscard]] bool validateSourceText(const rq::Module &module);
-  [[nodiscard]] bool tokenizeSourceText(const rq::Module &module,
-                                        std::vector<rq::Token> &tokens);
   void initializeKeywordMap();
   [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
@@ -154,15 +151,16 @@ struct Context final : public rq::BumpPtrAllocator {
                                              llvm::StringRef import_string);
   [[nodiscard]] bool initializeLlvm();
   [[nodiscard]] bool run();
-  [[nodiscard]] bool parseRequite(rq::Module &module,
-                                  const std::vector<rq::Token> &tokens);
-  [[nodiscard]] bool situateModule(rq::Module &module);
+  [[nodiscard]] bool validateSourceText(const rq::ModuleFactory &factory);
+  [[nodiscard]] bool tokenizeSourceText(rq::ModuleFactory &factory);
+  [[nodiscard]] bool parseRequite(rq::ModuleFactory &factory);
+  [[nodiscard]] bool situateModule(rq::ModuleFactory &factory);
   [[nodiscard]] bool generateSourceModule();
   [[nodiscard]] bool buildLlvmIr();
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
-                                 const rq::Expression &top);
+                                 const rq::Expression *top_ptr);
   [[nodiscard]] bool emitSymbol(llvm::StringRef path, const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);

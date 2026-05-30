@@ -2597,7 +2597,9 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   REQUIRE,
   // ensure_type
   NO_ENSURE,
-  ENSURE
+  ENSURE,
+
+  LAST
 };
 
 [[nodiscard]] inline llvm::StringRef
@@ -2693,6 +2695,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_ensure";
   case EA::ENSURE:
     return "ensure";
+  case EA::LAST:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -4127,8 +4131,6 @@ struct Expression final {
         rq::ConstExpressionIterator());
   }
 };
-
-template <> struct is_acquired<rq::Expression> final : std::true_type {};
 
 rq::ExpressionIterator &ExpressionIterator::operator++() {
   this->_expression_ptr =

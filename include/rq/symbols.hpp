@@ -1,11 +1,12 @@
 #pragma once
 
-#include <rq/entity.hpp>
 #include <rq/ast.hpp>
 #include <rq/bump_ptr_list.hpp>
+#include <rq/entity.hpp>
 #include <rq/next_iterator.hpp>
 #include <rq/see.hpp>
 #include <rq/utility.hpp>
+#include <rq/tokens.hpp>
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
@@ -19,6 +20,7 @@
 #include <llvm/Support/MemoryBufferRef.h>
 
 #include <ranges>
+#include <vector>
 
 namespace rq {
 
@@ -309,14 +311,16 @@ getIsStandardPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledPrimitive(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUncountedSubtype(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequence(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsArithmeticSequence(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolParameter(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeParameter(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolParameterList(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsSymbolParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind);
@@ -515,18 +519,19 @@ struct Symbol {
   rq::SymbolKind _kind;
 
   explicit RQ_ALWAYS_INLINE Symbol(rq::SymbolKind kind);
-  
-  Symbol(const Self&) = delete;
-  Symbol(Self&&) = delete;
-  ~Symbol() = default;
-  Self& operator=(Self&) = delete;
-  Self& operator=(Self&&) = delete;
 
-  [[nodiscard]] bool operator==(const Self&) const;
-  [[nodiscard]] bool operator!=(const Self&) const;
+  Symbol(const Self &) = delete;
+  Symbol(Self &&) = delete;
+  ~Symbol() = default;
+  Self &operator=(Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  [[nodiscard]] bool operator==(const Self &) const;
+  [[nodiscard]] bool operator!=(const Self &) const;
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolFlags getFlags() const;
+  [[nodiscard]] inline rq::ExpressionFlags getDerivedExpressionFlags() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType() const;
@@ -539,7 +544,7 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
@@ -547,7 +552,7 @@ struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
 
   explicit RQ_ALWAYS_INLINE SimpleSymbol(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -560,7 +565,7 @@ struct LiteralType : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE LiteralType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct IntegerLiteralType final : public rq::LiteralType {
@@ -568,7 +573,7 @@ struct IntegerLiteralType final : public rq::LiteralType {
 
   explicit RQ_ALWAYS_INLINE IntegerLiteralType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct FloatLiteralType final : public rq::LiteralType {
@@ -576,7 +581,7 @@ struct FloatLiteralType final : public rq::LiteralType {
 
   explicit RQ_ALWAYS_INLINE FloatLiteralType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct StringLiteralType final : public rq::LiteralType {
@@ -584,7 +589,7 @@ struct StringLiteralType final : public rq::LiteralType {
 
   explicit RQ_ALWAYS_INLINE StringLiteralType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct CodeunitLiteralType final : public rq::LiteralType {
@@ -592,7 +597,7 @@ struct CodeunitLiteralType final : public rq::LiteralType {
 
   explicit RQ_ALWAYS_INLINE CodeunitLiteralType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Contextual : public rq::SimpleSymbol {
@@ -600,7 +605,7 @@ struct Contextual : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE Contextual(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ContextualValue : public rq::Contextual {
@@ -608,7 +613,7 @@ struct ContextualValue : public rq::Contextual {
 
   explicit RQ_ALWAYS_INLINE ContextualValue(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct OutValue final : public rq::ContextualValue {
@@ -616,7 +621,7 @@ struct OutValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE OutValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ThisValue final : public rq::ContextualValue {
@@ -624,7 +629,7 @@ struct ThisValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE ThisValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ResultValue final : public rq::ContextualValue {
@@ -632,7 +637,7 @@ struct ResultValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE ResultValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ValueValue final : public rq::ContextualValue {
@@ -640,7 +645,7 @@ struct ValueValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE ValueValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct IndexValue final : public rq::ContextualValue {
@@ -648,7 +653,7 @@ struct IndexValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE IndexValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct DiscriminantValue final : public rq::ContextualValue {
@@ -656,7 +661,7 @@ struct DiscriminantValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE DiscriminantValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct CommandLineArgumentsValue final : public rq::ContextualValue {
@@ -664,7 +669,7 @@ struct CommandLineArgumentsValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE CommandLineArgumentsValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct CallsiteValue final : public rq::ContextualValue {
@@ -672,7 +677,7 @@ struct CallsiteValue final : public rq::ContextualValue {
 
   explicit RQ_ALWAYS_INLINE CallsiteValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ContextualType : public rq::Contextual {
@@ -680,7 +685,7 @@ struct ContextualType : public rq::Contextual {
 
   explicit RQ_ALWAYS_INLINE ContextualType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct InferenceType final : public rq::ContextualType {
@@ -688,7 +693,7 @@ struct InferenceType final : public rq::ContextualType {
 
   explicit RQ_ALWAYS_INLINE InferenceType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct VoidType final : public rq::ContextualType {
@@ -696,7 +701,7 @@ struct VoidType final : public rq::ContextualType {
 
   explicit RQ_ALWAYS_INLINE VoidType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct NoReturnType final : public rq::ContextualType {
@@ -704,7 +709,7 @@ struct NoReturnType final : public rq::ContextualType {
 
   explicit RQ_ALWAYS_INLINE NoReturnType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ExpressionAttributeType : public rq::SimpleSymbol {
@@ -712,7 +717,7 @@ struct ExpressionAttributeType : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE ExpressionAttributeType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct AnchorType final : public rq::ExpressionAttributeType {
@@ -720,7 +725,7 @@ struct AnchorType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE AnchorType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct OpaqueType final : public rq::ExpressionAttributeType {
@@ -728,7 +733,7 @@ struct OpaqueType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE OpaqueType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalType final : public rq::ExpressionAttributeType {
@@ -736,7 +741,7 @@ struct GlobalType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE GlobalType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct AccessType final : public rq::ExpressionAttributeType {
@@ -744,7 +749,7 @@ struct AccessType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE AccessType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct PartialMutateType final : public rq::ExpressionAttributeType {
@@ -752,7 +757,7 @@ struct PartialMutateType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE PartialMutateType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct StaticType final : public rq::ExpressionAttributeType {
@@ -760,7 +765,7 @@ struct StaticType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE StaticType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct CaptureType final : public rq::ExpressionAttributeType {
@@ -768,7 +773,7 @@ struct CaptureType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE CaptureType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct InlineType final : public rq::ExpressionAttributeType {
@@ -776,7 +781,7 @@ struct InlineType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE InlineType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct MangleType final : public rq::ExpressionAttributeType {
@@ -784,7 +789,7 @@ struct MangleType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE MangleType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct PackType final : public rq::ExpressionAttributeType {
@@ -792,7 +797,7 @@ struct PackType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE PackType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct BranchTrendType final : public rq::ExpressionAttributeType {
@@ -800,7 +805,7 @@ struct BranchTrendType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE BranchTrendType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct DepreciateType final : public rq::ExpressionAttributeType {
@@ -808,7 +813,7 @@ struct DepreciateType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE DepreciateType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct StableAddressType final : public rq::ExpressionAttributeType {
@@ -816,7 +821,7 @@ struct StableAddressType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE StableAddressType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct VariadicType final : public rq::ExpressionAttributeType {
@@ -824,7 +829,7 @@ struct VariadicType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE VariadicType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LocationType final : public rq::ExpressionAttributeType {
@@ -832,7 +837,7 @@ struct LocationType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE LocationType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct TemplateType final : public rq::ExpressionAttributeType {
@@ -840,7 +845,7 @@ struct TemplateType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE TemplateType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ConstraintType final : public rq::ExpressionAttributeType {
@@ -848,7 +853,7 @@ struct ConstraintType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE ConstraintType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct WeightType final : public rq::ExpressionAttributeType {
@@ -856,7 +861,7 @@ struct WeightType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE WeightType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct RequireType final : public rq::ExpressionAttributeType {
@@ -864,7 +869,7 @@ struct RequireType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE RequireType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct EnsureType final : public rq::ExpressionAttributeType {
@@ -872,7 +877,7 @@ struct EnsureType final : public rq::ExpressionAttributeType {
 
   explicit RQ_ALWAYS_INLINE EnsureType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct TypeAttributeType : public rq::SimpleSymbol {
@@ -880,7 +885,7 @@ struct TypeAttributeType : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE TypeAttributeType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct VarType final : public rq::TypeAttributeType {
@@ -888,7 +893,7 @@ struct VarType final : public rq::TypeAttributeType {
 
   explicit RQ_ALWAYS_INLINE VarType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct VolatileType final : public rq::TypeAttributeType {
@@ -896,7 +901,7 @@ struct VolatileType final : public rq::TypeAttributeType {
 
   explicit RQ_ALWAYS_INLINE VolatileType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct AtomicType : public rq::TypeAttributeType {
@@ -904,7 +909,7 @@ struct AtomicType : public rq::TypeAttributeType {
 
   explicit RQ_ALWAYS_INLINE AtomicType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct NullTerminateType final : public rq::TypeAttributeType {
@@ -912,7 +917,7 @@ struct NullTerminateType final : public rq::TypeAttributeType {
 
   explicit RQ_ALWAYS_INLINE NullTerminateType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ReflectiveType : public rq::SimpleSymbol {
@@ -920,7 +925,7 @@ struct ReflectiveType : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE ReflectiveType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SymbolType final : public rq::ReflectiveType {
@@ -928,7 +933,7 @@ struct SymbolType final : public rq::ReflectiveType {
 
   explicit RQ_ALWAYS_INLINE SymbolType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ExpressionType final : public rq::ReflectiveType {
@@ -936,7 +941,7 @@ struct ExpressionType final : public rq::ReflectiveType {
 
   explicit RQ_ALWAYS_INLINE ExpressionType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct PlatformPrimitiveType : public rq::SimpleSymbol {
@@ -944,7 +949,7 @@ struct PlatformPrimitiveType : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE PlatformPrimitiveType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct BooleanType final : public rq::PlatformPrimitiveType {
@@ -952,7 +957,7 @@ struct BooleanType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE BooleanType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct HalfType final : public rq::PlatformPrimitiveType {
@@ -960,7 +965,7 @@ struct HalfType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE HalfType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SingleType final : public rq::PlatformPrimitiveType {
@@ -968,7 +973,7 @@ struct SingleType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE SingleType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct DoubleType final : public rq::PlatformPrimitiveType {
@@ -976,7 +981,7 @@ struct DoubleType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE DoubleType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct QuadrupleType final : public rq::PlatformPrimitiveType {
@@ -984,7 +989,7 @@ struct QuadrupleType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE QuadrupleType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SignedIntegerType final : public rq::PlatformPrimitiveType {
@@ -992,7 +997,7 @@ struct SignedIntegerType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE SignedIntegerType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct UnsignedIntegerType final : public rq::PlatformPrimitiveType {
@@ -1000,7 +1005,7 @@ struct UnsignedIntegerType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE UnsignedIntegerType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SignedIndexType final : public rq::PlatformPrimitiveType {
@@ -1008,7 +1013,7 @@ struct SignedIndexType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE SignedIndexType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct UnsignedIndexType final : public rq::PlatformPrimitiveType {
@@ -1016,7 +1021,7 @@ struct UnsignedIndexType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE UnsignedIndexType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SignedAddressType final : public rq::PlatformPrimitiveType {
@@ -1024,7 +1029,7 @@ struct SignedAddressType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE SignedAddressType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct UnsignedAddressType final : public rq::PlatformPrimitiveType {
@@ -1032,7 +1037,7 @@ struct UnsignedAddressType final : public rq::PlatformPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE UnsignedAddressType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct StandardPrimitiveType : rq::SimpleSymbol {
@@ -1040,7 +1045,7 @@ struct StandardPrimitiveType : rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE StandardPrimitiveType(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Binary16Type final : public rq::StandardPrimitiveType {
@@ -1048,7 +1053,7 @@ struct Binary16Type final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE Binary16Type();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Binary32Type final : public rq::StandardPrimitiveType {
@@ -1056,7 +1061,7 @@ struct Binary32Type final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE Binary32Type();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Binary64Type final : public rq::StandardPrimitiveType {
@@ -1064,7 +1069,7 @@ struct Binary64Type final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE Binary64Type();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Binary128Type final : public rq::StandardPrimitiveType {
@@ -1072,7 +1077,7 @@ struct Binary128Type final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE Binary128Type();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Bfloat16Type final : public rq::StandardPrimitiveType {
@@ -1080,7 +1085,7 @@ struct Bfloat16Type final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE Bfloat16Type();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct AsciiType final : public rq::StandardPrimitiveType {
@@ -1088,7 +1093,7 @@ struct AsciiType final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE AsciiType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Utf8Type final : public rq::StandardPrimitiveType {
@@ -1096,7 +1101,7 @@ struct Utf8Type final : public rq::StandardPrimitiveType {
 
   explicit RQ_ALWAYS_INLINE Utf8Type();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct VariadicArgumentsType final : public rq::SimpleSymbol {
@@ -1104,7 +1109,7 @@ struct VariadicArgumentsType final : public rq::SimpleSymbol {
 
   explicit RQ_ALWAYS_INLINE VariadicArgumentsType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 enum class ScaleKind { EXACT, FAST, LEAST };
@@ -1124,7 +1129,7 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getScale() const;
   [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getSynonymTypeId() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -1141,17 +1146,17 @@ struct ScaledSignedIntegerType final : public rq::ScaledPrimitiveType {
                                                     unsigned scale,
                                                     std::uint64_t synonym_id);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ScaledUnsignedIntegerType final : public rq::ScaledPrimitiveType {
   using Self = rq::ScaledUnsignedIntegerType;
 
-  explicit RQ_ALWAYS_INLINE
-  ScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
-                            std::uint64_t synonym_id);
+  explicit RQ_ALWAYS_INLINE ScaledUnsignedIntegerType(rq::ScaleKind kind,
+                                                      unsigned scale,
+                                                      std::uint64_t synonym_id);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Subtype : public rq::Symbol {
@@ -1164,7 +1169,7 @@ struct Subtype : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ArraySubtype final : public rq::Subtype, public llvm::FoldingSetNode {
@@ -1177,7 +1182,7 @@ struct ArraySubtype final : public rq::Subtype, public llvm::FoldingSetNode {
 
   [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getCount() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -1192,7 +1197,7 @@ struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
   explicit RQ_ALWAYS_INLINE UncountedSubtype(rq::SymbolKind kind,
                                              rq::SymbolConstant &child);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -1205,7 +1210,7 @@ struct ReferenceSubtype final : public rq::UncountedSubtype {
 
   explicit RQ_ALWAYS_INLINE ReferenceSubtype(rq::SymbolConstant &child);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct PointerSubtype final : public rq::UncountedSubtype {
@@ -1213,7 +1218,7 @@ struct PointerSubtype final : public rq::UncountedSubtype {
 
   explicit RQ_ALWAYS_INLINE PointerSubtype(rq::SymbolConstant &child);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct FatPointerSubtype final : public rq::UncountedSubtype {
@@ -1221,7 +1226,7 @@ struct FatPointerSubtype final : public rq::UncountedSubtype {
 
   explicit RQ_ALWAYS_INLINE FatPointerSubtype(rq::SymbolConstant &child);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct InferenceCountArraySubtype final : public rq::UncountedSubtype {
@@ -1230,32 +1235,36 @@ struct InferenceCountArraySubtype final : public rq::UncountedSubtype {
   explicit RQ_ALWAYS_INLINE
   InferenceCountArraySubtype(rq::SymbolConstant &child);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
-enum class ModuleKind : std::uint8_t { SOURCE, IMPORT };
+enum class ModuleKind : std::uint8_t { NONE, SOURCE, IMPORT };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind);
+
+constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
 struct ModuleFactory final {
   using Self = rq::ModuleFactory;
 
-  rq::ModuleKind _module_kind;
+  rq::ModuleKind _module_kind{rq::ModuleKind::NONE};
   rq::Expression *_expression_ptr{nullptr};
   llvm::StringRef _path{};
-  llvm::MemoryBufferRef _buffer{};
+  llvm::StringRef _buffer{};
+  std::vector<rq::Token> _tokens{};
 
-  explicit RQ_ALWAYS_INLINE ModuleFactory(rq::ModuleKind kind);
+  explicit RQ_ALWAYS_INLINE ModuleFactory() = default;
+  explicit RQ_ALWAYS_INLINE ModuleFactory(rq::ModuleKind kind, llvm::StringRef path, llvm::StringRef buffer);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const;
-  void setExpression(rq::Expression &expression);
+  void setOrChangeExpression(rq::Expression *expression_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
-  RQ_ALWAYS_INLINE void setPath(llvm::StringRef path);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
-  RQ_ALWAYS_INLINE void setBuffer(llvm::MemoryBufferRef &&buffer);
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &getBuffer() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::MemoryBufferRef &getBuffer();
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getBuffer() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Token> &getTokens();
+  [[nodiscard]] RQ_ALWAYS_INLINE const std::vector<rq::Token> &getTokens() const;
 };
 
 struct Module final : public rq::Symbol {
@@ -1264,17 +1273,16 @@ struct Module final : public rq::Symbol {
   rq::ModuleKind _module_kind;
   const rq::Expression *_expression_ptr;
   llvm::StringRef _path;
-  llvm::MemoryBufferRef _buffer;
+  llvm::StringRef _buffer;
 
-  explicit RQ_ALWAYS_INLINE Module(rq::ModuleFactory &factory);
+  explicit RQ_ALWAYS_INLINE Module(rq::ModuleFactory &&factory);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getBuffer() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &getBuffer() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Import final : public rq::Symbol {
@@ -1292,7 +1300,7 @@ struct Import final : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ConcatenatedListItem final : public llvm::FoldingSetNode {
@@ -1306,7 +1314,7 @@ struct ConcatenatedList final : public rq::Symbol, llvm::FoldingSetNode {
 
   explicit RQ_ALWAYS_INLINE
   ConcatenatedList(rq::ConcatenatedListItem &first_item);
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -1333,7 +1341,7 @@ struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
   getCondition() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -1351,7 +1359,7 @@ struct ArithmeticInterval final : public rq::ArithmeticSequence {
   ArithmeticInterval(rq::SymbolConstant &child,
                      rq::ArithmeticSequenceCondition condition);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct InfiniteArithmeticSequence final : public rq::ArithmeticSequence {
@@ -1361,7 +1369,7 @@ struct InfiniteArithmeticSequence final : public rq::ArithmeticSequence {
   InfiniteArithmeticSequence(rq::SymbolConstant &child,
                              rq::ArithmeticSequenceStep step);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
@@ -1372,7 +1380,7 @@ struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
                            rq::ArithmeticSequenceCondition condition,
                            rq::ArithmeticSequenceStep step);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LocalDeclaration : public rq::Symbol {
@@ -1398,7 +1406,7 @@ struct LocalDeclaration : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHostingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Label final : public rq::LocalDeclaration {
@@ -1415,7 +1423,7 @@ struct Label final : public rq::LocalDeclaration {
   getTargetInstruction() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getTargetInstruction();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Anchor final : public rq::LocalDeclaration {
@@ -1432,7 +1440,7 @@ struct Anchor final : public rq::LocalDeclaration {
   getLocalStatement() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStatement &getLocalStatement();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LocalVariable : public rq::LocalDeclaration {
@@ -1453,7 +1461,7 @@ struct LocalVariable : public rq::LocalDeclaration {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *getTypePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getTypePtr();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LocalDynamicVariable final : public rq::LocalVariable {
@@ -1464,7 +1472,7 @@ struct LocalDynamicVariable final : public rq::LocalVariable {
       rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
       rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LocalStaticVariable final : public rq::LocalVariable {
@@ -1480,7 +1488,7 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   [[nodiscard]] const rq::SymbolicValue &getValue() const;
   [[nodiscard]] rq::SymbolicValue &getValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Enumerator final : public rq::LocalVariable {
@@ -1498,7 +1506,7 @@ struct Enumerator final : public rq::LocalVariable {
   [[nodiscard]] const rq::EnumerationType &getEnumerationType() const;
   [[nodiscard]] rq::EnumerationType &getEnumerationType();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Parameter : public rq::Symbol {
@@ -1518,7 +1526,7 @@ struct Parameter : public rq::Symbol {
   getNextParameterPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *getNextParameterPtr();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SymbolParameter : public rq::Parameter {
@@ -1544,6 +1552,7 @@ struct SymbolParameter : public rq::Parameter {
       const rq::Expression &type_expression,
       const rq::Expression *default_value_expression_ptr);
 
+  [[nodiscard]] rq::ExpressionFlags getExpressionFlags() const;
   [[nodiscard]] const rq::SymbolParameter *getNextSymbolParameterPtr() const;
   [[nodiscard]] rq::SymbolParameter *getNextSymbolParameterPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
@@ -1562,7 +1571,7 @@ struct SymbolParameter : public rq::Parameter {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getDefaultValueExpressionPtr() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SignatureParameter final : public rq::SymbolParameter {
@@ -1582,7 +1591,7 @@ struct SignatureParameter final : public rq::SymbolParameter {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
   getNextSignatureParameterPtr();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LayoutParameter final : public rq::SymbolParameter {
@@ -1602,7 +1611,7 @@ struct LayoutParameter final : public rq::SymbolParameter {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
   getNextLayoutParameterPtr();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
@@ -1626,7 +1635,7 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypePassable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamePassable() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -1644,7 +1653,7 @@ struct ProcedureParameter final : public rq::TypeParameter {
                                                rq::SymbolConstant &type,
                                                unsigned location);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct TupleParameter final : public rq::TypeParameter {
@@ -1656,7 +1665,7 @@ struct TupleParameter final : public rq::TypeParameter {
                                            unsigned location,
                                            bool is_positional);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ParameterList : public rq::Symbol {
@@ -1694,7 +1703,7 @@ struct ParameterList : public rq::Symbol {
                             std::ranges::subrange_kind::unsized>
       getParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SymbolParameterInfo final {
@@ -1794,7 +1803,7 @@ struct SymbolParameterList : public rq::ParameterList {
       std::ranges::subrange_kind::unsized>
   getSymbolParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Signature final : public rq::SymbolParameterList {
@@ -1844,7 +1853,7 @@ struct Signature final : public rq::SymbolParameterList {
       std::ranges::subrange_kind::unsized>
   getSignatureParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Layout final : public rq::SymbolParameterList {
@@ -1876,7 +1885,7 @@ struct Layout final : public rq::SymbolParameterList {
       std::ranges::subrange_kind::unsized>
   getLayoutParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct TypeParameterList : public rq::ParameterList {
@@ -1905,7 +1914,7 @@ struct TypeParameterList : public rq::ParameterList {
       std::ranges::subrange_kind::unsized>
   getTypeParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ProcedureType final : rq::TypeParameterList,
@@ -1940,7 +1949,7 @@ struct ProcedureType final : rq::TypeParameterList,
       std::ranges::subrange_kind::unsized>
   getProcedureParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
                       const rq::ProcedureParameter *first_parameter_ptr,
@@ -1989,7 +1998,7 @@ struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
       std::ranges::subrange_kind::unsized>
   getTupleParameterSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -2007,7 +2016,7 @@ struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &getProcedure() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &getProcedure();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -2064,7 +2073,7 @@ struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
                             std::ranges::subrange_kind::unsized>
       getComponentSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
@@ -2083,7 +2092,7 @@ struct SynonymType final : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SymbolTable : public rq::Symbol {
@@ -2113,7 +2122,7 @@ struct SymbolTable : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
   getUnamedMemberList();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Top final : public rq::SymbolTable {
@@ -2121,21 +2130,23 @@ struct Top final : public rq::SymbolTable {
 
   explicit RQ_ALWAYS_INLINE Top();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct LocalStatement : public rq::SymbolTable {
   using Self = rq::LocalStatement;
 
   rq::Expression *_expression_ptr;
-  rq::ExpressionFlags _flags;
+  rq::ExpressionFlags _expression_flags;
 
   explicit RQ_ALWAYS_INLINE LocalStatement(rq::SymbolKind kind,
                                            rq::SymbolTable &containing_table,
                                            rq::Expression &expression,
                                            rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct IfStatement final : public rq::LocalStatement {
@@ -2145,7 +2156,7 @@ struct IfStatement final : public rq::LocalStatement {
                                         rq::Expression &expression,
                                         rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ElseIfStatement final : public rq::LocalStatement {
@@ -2155,7 +2166,7 @@ struct ElseIfStatement final : public rq::LocalStatement {
                                             rq::Expression &expression,
                                             rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ElseStatement final : public rq::LocalStatement {
@@ -2165,7 +2176,7 @@ struct ElseStatement final : public rq::LocalStatement {
                                           rq::Expression &expression,
                                           rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct MatchStatement final : public rq::LocalStatement {
@@ -2175,7 +2186,7 @@ struct MatchStatement final : public rq::LocalStatement {
                                            rq::Expression &expression,
                                            rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SwitchStatement final : public rq::LocalStatement {
@@ -2185,7 +2196,7 @@ struct SwitchStatement final : public rq::LocalStatement {
                                             rq::Expression &expression,
                                             rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct CaseStatement final : public rq::LocalStatement {
@@ -2195,7 +2206,7 @@ struct CaseStatement final : public rq::LocalStatement {
                                           rq::Expression &expression,
                                           rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct WithStatement final : public rq::LocalStatement {
@@ -2205,7 +2216,7 @@ struct WithStatement final : public rq::LocalStatement {
                                           rq::Expression &expression,
                                           rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct DefaultStatement final : public rq::LocalStatement {
@@ -2215,7 +2226,7 @@ struct DefaultStatement final : public rq::LocalStatement {
                                              rq::Expression &expression,
                                              rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ForStatement final : public rq::LocalStatement {
@@ -2225,7 +2236,7 @@ struct ForStatement final : public rq::LocalStatement {
                                          rq::Expression &expression,
                                          rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct WhileStatement final : public rq::LocalStatement {
@@ -2235,7 +2246,7 @@ struct WhileStatement final : public rq::LocalStatement {
                                            rq::Expression &expression,
                                            rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct SpinStatement final : public rq::LocalStatement {
@@ -2245,7 +2256,7 @@ struct SpinStatement final : public rq::LocalStatement {
                                           rq::Expression &expression,
                                           rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct WeaveStatement final : public rq::LocalStatement {
@@ -2255,7 +2266,7 @@ struct WeaveStatement final : public rq::LocalStatement {
                                            rq::Expression &expression,
                                            rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ScopeStatement final : public rq::LocalStatement {
@@ -2265,7 +2276,7 @@ struct ScopeStatement final : public rq::LocalStatement {
                                            rq::Expression &expression,
                                            rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct NamedTable : rq::SymbolTable {
@@ -2282,7 +2293,7 @@ struct NamedTable : rq::SymbolTable {
   RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Namespace final : public rq::NamedTable {
@@ -2291,7 +2302,7 @@ struct Namespace final : public rq::NamedTable {
   explicit RQ_ALWAYS_INLINE Namespace(rq::SymbolTable &containing_table,
                                       llvm::StringRef name);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalDeclaration : public rq::NamedTable {
@@ -2317,10 +2328,10 @@ struct GlobalDeclaration : public rq::NamedTable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getNameExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsMember() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ClassType final : public rq::GlobalDeclaration {
@@ -2333,7 +2344,7 @@ struct ClassType final : public rq::GlobalDeclaration {
             rq::SymbolTable &hosting_table, const rq::Expression &expression,
             const rq::Expression &name_expression, rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct EnumerationType final : public rq::GlobalDeclaration {
@@ -2347,7 +2358,7 @@ struct EnumerationType final : public rq::GlobalDeclaration {
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Interface final : public rq::GlobalDeclaration {
@@ -2358,7 +2369,7 @@ struct Interface final : public rq::GlobalDeclaration {
             rq::SymbolTable &hosting_table, const rq::Expression &expression,
             const rq::Expression &name_expression, rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalVariable : public rq::GlobalDeclaration {
@@ -2381,7 +2392,7 @@ struct GlobalVariable : public rq::GlobalDeclaration {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getInitialValueExpression() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalDynamicVariable final : public rq::GlobalVariable {
@@ -2399,7 +2410,7 @@ struct GlobalDynamicVariable final : public rq::GlobalVariable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getInitialValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getInitialValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalStaticVariable final : public rq::GlobalVariable {
@@ -2417,7 +2428,7 @@ struct GlobalStaticVariable final : public rq::GlobalVariable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Callable : public rq::GlobalDeclaration {
@@ -2438,7 +2449,7 @@ struct Callable : public rq::GlobalDeclaration {
   getInstructionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getInstructionPtr();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Destructor final : public rq::Callable {
@@ -2449,7 +2460,7 @@ struct Destructor final : public rq::Callable {
                                        const rq::Expression &expression,
                                        rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Entry final : public rq::Callable {
@@ -2460,7 +2471,7 @@ struct Entry final : public rq::Callable {
                                   const rq::Expression &expression,
                                   rq::ExpressionFlags flags);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Ranger : public rq::Callable {
@@ -2491,7 +2502,7 @@ struct Ranger : public rq::Callable {
   [[nodiscard]] const rq::SymbolConstant *getElementTypePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getElementTypePtr();
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ForwardRanger final : public rq::Ranger {
@@ -2504,7 +2515,7 @@ struct ForwardRanger final : public rq::Ranger {
                 const rq::Expression &reciever_type_expression,
                 const rq::Expression &element_type_expression);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct BackwardRanger final : public rq::Ranger {
@@ -2517,7 +2528,7 @@ struct BackwardRanger final : public rq::Ranger {
                  const rq::Expression &reciever_type_expression,
                  const rq::Expression &element_type_expression);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Procedure : public rq::Callable {
@@ -2541,7 +2552,7 @@ struct Procedure : public rq::Callable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getSignatureExpression() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Function final : public rq::Procedure {
@@ -2553,7 +2564,7 @@ struct Function final : public rq::Procedure {
            const rq::Expression &name_expression, rq::ExpressionFlags flags,
            const rq::Expression &signature_expression);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Method final : public rq::Procedure {
@@ -2565,7 +2576,7 @@ struct Method final : public rq::Procedure {
          const rq::Expression &name_expression, rq::ExpressionFlags flags,
          const rq::Expression &signature_expression);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ExtensionMethod final : public rq::Procedure {
@@ -2577,7 +2588,7 @@ struct ExtensionMethod final : public rq::Procedure {
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
       const rq::Expression &signature_expression);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct Template : public rq::GlobalDeclaration {
@@ -2607,7 +2618,7 @@ struct Template : public rq::GlobalDeclaration {
   [[nodiscard]] const rq::Expression *getWeightExpressionPtr() const;
   [[nodiscard]] unsigned getWeight() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ClassTemplate final : public rq::Template {
@@ -2621,7 +2632,7 @@ struct ClassTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct EnumerationTemplate final : public rq::Template {
@@ -2635,7 +2646,7 @@ struct EnumerationTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct InterfaceTemplate final : public rq::Template {
@@ -2649,7 +2660,7 @@ struct InterfaceTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalDynamicVariableTemplate final : public rq::Template {
@@ -2663,7 +2674,7 @@ struct GlobalDynamicVariableTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalStaticVariableTemplate final : public rq::Template {
@@ -2677,7 +2688,7 @@ struct GlobalStaticVariableTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ForwardRangerTemplate final : public rq::Template {
@@ -2691,7 +2702,7 @@ struct ForwardRangerTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct BackwardRangerTemplate final : public rq::Template {
@@ -2705,7 +2716,7 @@ struct BackwardRangerTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct FunctionTemplate final : public rq::Template {
@@ -2719,7 +2730,7 @@ struct FunctionTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct MethodTemplate final : public rq::Template {
@@ -2733,7 +2744,7 @@ struct MethodTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ExtensionMethodTemplate final : public rq::Template {
@@ -2747,7 +2758,7 @@ struct ExtensionMethodTemplate final : public rq::Template {
       const rq::Expression *constraint_expression_ptr,
       const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct WeightLevel final {
@@ -2796,7 +2807,7 @@ struct Polymorph : public rq::Symbol {
                             std::ranges::subrange_kind::unsized>
       getWeightSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ForwardRangerPolymorph final : public rq::Polymorph {
@@ -2829,7 +2840,7 @@ struct ForwardRangerPolymorph final : public rq::Polymorph {
       std::ranges::subrange_kind::unsized>
   getForwardRangerTemplateSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct BackwardRangerPolymorph final : public rq::Polymorph {
@@ -2852,7 +2863,7 @@ struct BackwardRangerPolymorph final : public rq::Polymorph {
       std::ranges::subrange_kind::unsized>
   getBackwardRangerSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct FunctionPolymorph final : public rq::Polymorph {
@@ -2875,7 +2886,7 @@ struct FunctionPolymorph final : public rq::Polymorph {
                             std::ranges::subrange_kind::unsized>
       getFunctionSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct MethodPolymorph final : public rq::Polymorph {
@@ -2898,7 +2909,7 @@ struct MethodPolymorph final : public rq::Polymorph {
                             std::ranges::subrange_kind::unsized>
       getMethodSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ExtensionMethodPolymorph final : public rq::Polymorph {
@@ -2921,7 +2932,7 @@ struct ExtensionMethodPolymorph final : public rq::Polymorph {
       std::ranges::subrange_kind::unsized>
   getExtensionMethodSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct ClassPolymorph final : public rq::Polymorph {
@@ -2950,7 +2961,7 @@ struct ClassPolymorph final : public rq::Polymorph {
                             std::ranges::subrange_kind::unsized>
       getClassTypeSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct EnumerationPolymorph final : public rq::Polymorph {
@@ -2980,7 +2991,7 @@ struct EnumerationPolymorph final : public rq::Polymorph {
                             std::ranges::subrange_kind::unsized>
       getEnumerationTypeSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct InterfacePolymorph final : public rq::Polymorph {
@@ -3009,7 +3020,7 @@ struct InterfacePolymorph final : public rq::Polymorph {
                             std::ranges::subrange_kind::unsized>
       getInterfaceSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
@@ -3041,7 +3052,7 @@ struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
       std::ranges::subrange_kind::unsized>
   getGlobalDynamicVariableSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
@@ -3073,7 +3084,7 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
       std::ranges::subrange_kind::unsized>
   getGlobalStaticVariableSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol* symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
 } // namespace rq

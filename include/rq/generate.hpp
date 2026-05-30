@@ -61,7 +61,6 @@ struct Generator final {
                 rq::Table &hosting_table, rq::Module &module);
   [[nodiscard]] bool implementProcedure(rq::Procedure &procedure);
   [[nodiscard]] bool implementGlobal(rq::GlobalDynamicVariable &global);
-  [[nodiscard]] bool implementGlobalStatic(rq::GlobalStaticVariable &global_static);
 };
 
 } // namespace rq

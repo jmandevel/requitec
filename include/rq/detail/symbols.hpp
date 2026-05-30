@@ -6,6 +6,13 @@
 
 namespace rq {
 
+[[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind) {
+  using S = rq::SymbolKind;
+  switch (kind) {
+    
+  }
+}
+
 [[nodiscard]] inline rq::SymbolFlags getFlags(rq::SymbolKind kind) {
   using S = rq::SymbolKind;
   using SF = rq::SymbolFlags;
@@ -760,6 +767,33 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind) : _kind(kind) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolFlags Symbol::getFlags() const {
   return rq::getFlags(this->getKind());
+}
+
+[[nodiscard]] inline rq::ExpressionFlags
+Symbol::getDerivedExpressionFlags() const {
+  if (llvm::isa<rq::Import>(*this)) {
+    const rq::Import &import = llvm::cast<rq::Import>(*this);
+    return import.getExpressionFlags();
+  }
+  if (llvm::isa<rq::LocalVariable>(*this)) {
+    const rq::LocalVariable &local = llvm::cast<rq::LocalVariable>(*this);
+    return local.getExpressionFlags();
+  }
+  if (llvm::isa<rq::SymbolParameter>(*this)) {
+    const rq::SymbolParameter &parameter =
+        llvm::cast<rq::SymbolParameter>(*this);
+    return parameter.getExpressionFlags();
+  }
+  if (llvm::isa<rq::LocalStatement>(*this)) {
+    const rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
+    return statement.getExpressionFlags();
+  }
+  if (llvm::isa<rq::GlobalDeclaration>(*this)) {
+    const rq::GlobalDeclaration &decl =
+        llvm::cast<rq::GlobalDeclaration>(*this);
+    return decl.getExpressionFlags();
+  }
+  return {};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
@@ -1569,15 +1603,25 @@ InferenceCountArraySubtype::classof(const rq::Symbol *symbol_ptr) {
   return symbol.getKind() == rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE;
 }
 
-RQ_ALWAYS_INLINE ModuleFactory::ModuleFactory(rq::ModuleKind kind)
-    : _module_kind(kind) {}
+RQ_ALWAYS_INLINE
+ModuleFactory::ModuleFactory(rq::ModuleKind kind, llvm::StringRef path,
+                             llvm::StringRef buffer)
+    : _module_kind(kind), _path(path), _buffer(buffer) {
+  RQ_ASSERT(kind != rq::ModuleKind::NONE, "none module kind");
+  RQ_ASSERT(!path.empty(), "empty path");
+  RQ_ASSERT(!buffer.empty(), "empty file buffer");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool ModuleFactory::getIsEmpty() const {
+  return this->_module_kind == rq::ModuleKind::NONE;
+}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind ModuleFactory::getKind() const {
   return this->_module_kind;
 }
 
-void ModuleFactory::setExpression(rq::Expression &expression) {
-  rq::assignSingleValue(this->_expression_ptr, &expression);
+void ModuleFactory::setOrChangeExpression(rq::Expression *expression_ptr) {
+  this->_expression_ptr = expression_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
@@ -1590,31 +1634,26 @@ ModuleFactory::getExpressionPtr() {
   return this->_expression_ptr;
 }
 
-RQ_ALWAYS_INLINE void ModuleFactory::setPath(llvm::StringRef path) {
-  RQ_ASSERT(this->_path.empty(), "path already set");
-  this->_path = path;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef ModuleFactory::getPath() const {
-  RQ_ASSERT(this->_path.empty(), "path not set");
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef `y::getPath() const {
   return this->_path;
 }
 
-RQ_ALWAYS_INLINE void ModuleFactory::setBuffer(llvm::MemoryBufferRef &&buffer) {
-  this->_buffer = std::move(buffer);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
 ModuleFactory::getBuffer() const {
   return this->_buffer;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::MemoryBufferRef &
-ModuleFactory::getBuffer() {
-  return this->_buffer;
+[[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Token> &
+ModuleFactory::getTokens() {
+  return this->_tokens;
 }
 
-RQ_ALWAYS_INLINE Module::Module(rq::ModuleFactory &factory)
+[[nodiscard]] RQ_ALWAYS_INLINE const std::vector<rq::Token> &
+ModuleFactory::getTokens() const {
+  return this->_tokens;
+}
+
+RQ_ALWAYS_INLINE Module::Module(rq::ModuleFactory &&factory)
     : Symbol(rq::SymbolKind::MODULE), _module_kind(factory.getKind()),
       _expression_ptr(factory.getExpressionPtr()), _path(factory.getPath()),
       _buffer(factory.getBuffer()) {
@@ -1625,22 +1664,17 @@ RQ_ALWAYS_INLINE Module::Module(rq::ModuleFactory &factory)
   return this->_module_kind;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getPath() const {
-  return this->_path;
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getBuffer() const {
+  return this->_buffer;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getSourceText() const {
-  return this->_buffer.getBuffer();
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getPath() const {
+  return this->_path;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
 Module::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const llvm::MemoryBufferRef &
-Module::getBuffer() const {
-  return this->_buffer;
 }
 
 [[nodiscard]] inline bool Module::classof(const rq::Symbol *symbol_ptr) {
@@ -2030,6 +2064,10 @@ SymbolParameter::SymbolParameter(
       _type_expression_ptr(&type_expression),
       _default_value_expression_ptr(default_value_expression_ptr) {
   RQ_ASSERT(rq::getIsSymbolParameter(kind), "not symbol parameter");
+}
+
+[[nodiscard]] rq::ExpressionFlags SymbolParameter::getExpressionFlags() const {
+  return this->_expression_flags;
 }
 
 [[nodiscard]] const rq::SymbolParameter *
@@ -3166,8 +3204,12 @@ RQ_ALWAYS_INLINE LocalStatement::LocalStatement(
     rq::SymbolKind kind, rq::SymbolTable &containing_table,
     rq::Expression &expression, rq::ExpressionFlags flags)
     : SymbolTable(kind, &containing_table), _expression_ptr(&expression),
-      _flags(flags) {
+      _expression_flags(flags) {
   RQ_ASSERT(rq::getIsLocalStatement(kind), "not local statement");
+}
+
+[[nodiscard]] rq::ExpressionFlags LocalStatement::getExpressionFlags() const {
+  return this->_expression_flags;
 }
 
 [[nodiscard]] inline bool
@@ -3409,7 +3451,7 @@ GlobalDeclaration::getNameExpressionPtr() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-GlobalDeclaration::getExpressionFlags() {
+GlobalDeclaration::getExpressionFlags() const {
   return this->_flags;
 }
 
@@ -3520,12 +3562,12 @@ GlobalDynamicVariable::setInitialValue(rq::Entity &&entity) {
   this->_initial_value = std::move(entity);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity&
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
 GlobalDynamicVariable::getInitialValue() const {
   return this->_initial_value;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity&
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
 GlobalDynamicVariable::getInitialValue() {
   return this->_initial_value;
 }
@@ -3550,13 +3592,12 @@ RQ_ALWAYS_INLINE void GlobalStaticVariable::setValue(rq::Entity &&value) {
   this->_value = std::move(value);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity&
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
 GlobalStaticVariable::getValue() const {
   return this->_value;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-GlobalStaticVariable::getValue() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &GlobalStaticVariable::getValue() {
   return this->_value;
 }
 
