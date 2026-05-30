@@ -2952,6 +2952,8 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::ENSURE:
     return EF::ENSURE;
+  case EA::LAST:
+    break;
   }
   return EF::NONE;
 }
