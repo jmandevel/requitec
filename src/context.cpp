@@ -328,13 +328,8 @@ bool Context::parseRequite(rq::ModuleFactory &factory) {
 
 bool Context::situateModule(rq::ModuleFactory &factory) {
   rq::Situator situator(*this);
-  rq::Expression *new_top_ptr =
-      situator.situateModule(factory.getExpressionPtr());
-  if (new_top_ptr == nullptr) {
-    return false;
-  }
-  factory.setOrChangeExpression(new_top_ptr);
-  return true;
+  const bool is_ok = situator.situateModule(factory);
+  return is_ok;
 }
 
 bool Context::generateSourceModule() {
@@ -533,7 +528,7 @@ static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter &json,
 }
 
 static void emiSymboltTable(rq::Context &context, rq::JsonEmitter &json,
-                      const rq::SymbolTable &table) {
+                            const rq::SymbolTable &table) {
   json.beginArray("named");
   for (const auto &[name, list] : table.getNamedMemberMap()) {
     json.beginObject();
@@ -1035,44 +1030,51 @@ void Context::logErrorNameCollision(const rq::Expression &expression) {
 }
 
 void Context::logInfoNameCollisionDeclaration(rq::Symbol &symbol) {
-  rq::DeclarationInfo info = symbol.getDeclarationInfo();
-  this->logMessage(info.getExpression().getLlvmSourceBegin(), rq::LogType::NOTE,
-                   llvm::Twine("name collision with ") + info.getOpcodeName(),
-                   info.getExpression().getLlvmSourceRange(), {});
+  const rq::Expression &decl_expression =
+      rq::dereferencePtr(symbol.getDerivedExpressionPtr());
+  this->logMessage(decl_expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   llvm::Twine("name collision with ") +
+                       rq::getName(symbol.getKind()),
+                   decl_expression.getLlvmSourceRange(), {});
 }
 
 void Context::logErrorInvalidValueSymbol(const rq::Expression &expression,
                                          rq::Symbol &symbol) {
-  rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("invalid value symbol of kind ") +
-                       info.getOpcodeName(),
+                       rq::getName(symbol.getKind()),
                    expression.getLlvmSourceRange(), {});
-  if (info.getHasExpression()) {
-    this->logMessage(info.getExpression().getLlvmSourceBegin(),
-                     rq::LogType::NOTE, "referencing symbol",
-                     expression.getLlvmSourceRange(), {});
+  const rq::Expression *decl_expression_ptr = symbol.getDerivedExpressionPtr();
+  if (decl_expression_ptr == nullptr) {
+    return;
   }
+  const rq::Expression &decl_expression =
+      rq::dereferencePtr(decl_expression_ptr);
+  this->logMessage(decl_expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   "referencing symbol", decl_expression.getLlvmSourceRange(),
+                   {});
 }
 
 void Context::logErrorIndeterminateVariableValue(
     const rq::Expression &expression, rq::Symbol &symbol) {
-  rq::DeclarationInfo info = symbol.getDeclarationInfo();
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("indeterminate variable value of kind ") +
-                       info.getOpcodeName(),
+                       rq::getName(symbol.getKind()),
                    expression.getLlvmSourceRange(), {});
-  if (info.getHasExpression()) {
-    this->logMessage(info.getExpression().getLlvmSourceBegin(),
-                     rq::LogType::NOTE, "referencing variable",
-                     expression.getLlvmSourceRange(), {});
+  const rq::Expression *decl_expression_ptr = symbol.getDerivedExpressionPtr();
+  if (decl_expression_ptr == nullptr) {
+    return;
   }
+  const rq::Expression &decl_expression =
+      rq::dereferencePtr(decl_expression_ptr);
+  this->logMessage(decl_expression.getLlvmSourceBegin(), rq::LogType::NOTE,
+                   "referencing variable", decl_expression.getLlvmSourceRange(),
+                   {});
 }
 
 rq::Expression &Context::acquireExpression() {
   if (this->acquired._first_unused_expression_ptr == nullptr) {
-    rq::Expression &new_expression =
-        this->allocateAcquiredValue<rq::Expression>();
+    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
@@ -1092,85 +1094,6 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
   new_expression._source_ptr_flags = expression._source_ptr_flags;
   new_expression._source_text_length = expression._source_text_length;
   return new_expression;
-}
-
-[[nodiscard]] rq::NullaryInstruction &
-Context::acquireNullaryInstruction(rq::Opcode opcode) {
-  if (this->acquired._first_unused_nullary_instruction_ptr == nullptr) {
-    rq::NullaryInstruction &new_ =
-        this->allocateAcquiredValue<rq::NullaryInstruction>(opcode);
-    return new_;
-  }
-  rq::NullaryInstruction &unused =
-      rq::dereferencePtr(this->acquired._first_unused_nullary_instruction_ptr);
-  this->acquired._first_unused_nullary_instruction_ptr =
-      std::bit_cast<rq::NullaryInstruction *>(unused._expression_ptr);
-  std::memset(&unused, 0, sizeof(rq::NullaryInstruction));
-  return unused;
-}
-
-void Context::discardInstruction(rq::NullaryInstruction &instruction) {
-  instruction._opcode = rq::Opcode::NONE;
-  instruction._expression_ptr = std::bit_cast<rq::Expression *>(
-      this->acquired._first_unused_nullary_instruction_ptr);
-  this->acquired._first_unused_nullary_instruction_ptr = &instruction;
-}
-
-[[nodiscard]] rq::UnaryInstruction &
-Context::acquireUnaryInstruction(rq::Opcode opcode) {
-  if (this->acquired._first_unused_unary_instruction_ptr == nullptr) {
-    rq::UnaryInstruction &new_ =
-        this->allocateAcquiredValue<rq::UnaryInstruction>(opcode);
-    return new_;
-  }
-  rq::UnaryInstruction &unused =
-      rq::dereferencePtr(this->acquired._first_unused_unary_instruction_ptr);
-  this->acquired._first_unused_unary_instruction_ptr =
-      std::bit_cast<rq::UnaryInstruction *>(unused._expression_ptr);
-  std::memset(&unused, 0, sizeof(rq::UnaryInstruction));
-  return unused;
-}
-
-void Context::discardInstruction(rq::UnaryInstruction &instruction) {
-  instruction._opcode = rq::Opcode::NONE;
-  instruction._expression_ptr = std::bit_cast<rq::Expression *>(
-      this->acquired._first_unused_unary_instruction_ptr);
-  this->acquired._first_unused_unary_instruction_ptr = &instruction;
-}
-
-[[nodiscard]] rq::BinaryInstruction &
-Context::acquireBinaryInstruction(rq::Opcode opcode) {
-  if (this->acquired._first_unused_binary_instruction_ptr == nullptr) {
-    rq::BinaryInstruction &new_ =
-        this->allocateAcquiredValue<rq::BinaryInstruction>(opcode);
-    return new_;
-  }
-  rq::BinaryInstruction &unused =
-      rq::dereferencePtr(this->acquired._first_unused_binary_instruction_ptr);
-  this->acquired._first_unused_binary_instruction_ptr =
-      std::bit_cast<rq::BinaryInstruction *>(unused._expression_ptr);
-  std::memset(&unused, 0, sizeof(rq::BinaryInstruction));
-  return unused;
-}
-
-void Context::discardInstruction(rq::BinaryInstruction &instruction) {
-  instruction._opcode = rq::Opcode::NONE;
-  instruction._expression_ptr = std::bit_cast<rq::Expression *>(
-      this->acquired._first_unused_binary_instruction_ptr);
-  this->acquired._first_unused_binary_instruction_ptr = &instruction;
-}
-
-[[nodiscard]] rq::TypeConstant &Context::acquireEntrySignature() {
-  // TODO add parameters
-  rq::ScaledSignedInteger &return_type_integer =
-      this->acquireScaledSignedInteger(32, rq::ScaledBuiltinFlags::FASTEST);
-  rq::TypeConstant &return_type =
-      this->acquireTypeConstant(return_type_integer, {});
-  rq::Signature &signature = this->allocateValue<rq::Signature>(
-      *this, 4, rq::ExpressionFlags{}, this->getSourceModule(), this->getTop());
-  signature.setReturnType(return_type);
-  rq::TypeConstant &signature_type = this->acquireTypeConstant(signature, {});
-  return signature_type;
 }
 
 } // namespace rq

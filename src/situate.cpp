@@ -10,27 +10,26 @@
 
 namespace rq {
 
-rq::Expression &Situator::makeModuleTop(rq::Module &module) {
-  rq::Expression &top = this->getContext().acquireExpression();
-  top.setIsInserted();
-  top.setSource(module);
-  top.setKeyword(rq::Keyword::TOP);
-  return top;
-}
-
-bool Situator::situateModule(rq::Module &module) {
-  if (!module.getHasExpression()) {
-    rq::Expression &top = this->makeModuleTop(module);
-    module.setExpression(top);
-    return true;
+bool Situator::situateModule(rq::ModuleFactory& factory) {
+  if (factory.getExpressionPtr() == nullptr) {
+    rq::Expression &top = this->getContext().acquireExpression();
+    top.setIsInserted();
+    top.setKeyword(rq::Keyword::TOP);
+    factory.setOrChangeExpression(&top);
   }
-  rq::Expression &first = module.getExpression();
+  rq::Expression &first = rq::dereferencePtr(factory.getExpressionPtr());
   if (first.getKeyword() != rq::Keyword::TOP) {
-    rq::Expression &top = this->makeModuleTop(module);
-    top.setBranch(module.replaceExpression(top));
+    rq::Expression &top = this->getContext().acquireExpression();
+    top.setIsInserted();
+    top.setKeyword(rq::Keyword::TOP);
+    top.setBranch(first);
+    factory.setOrChangeExpression(&top);
   }
-  rq::Expression &top = module.getExpression();
-  return this->situateTree(rq::Situation::TOP, top);
+  rq::Expression &top = rq::dereferencePtr(factory.getExpressionPtr());
+  if (! this->situateTree(rq::Situation::TOP, top)) {
+    return false;
+  }
+  return true;
 }
 
 bool Situator::situateTree(rq::Situation situation,
@@ -91,7 +90,7 @@ bool Situator::situateTree(rq::Situation situation,
     {
       bool found_error = false;
       for (rq::Expression &next : first.getNextSubrange()) {
-        if (!this->situateValueBranch(S::RVALUE, first)) {
+        if (!this->situateValueBranch(S::RVALUE, next)) {
           found_error = true;
           break;
         }

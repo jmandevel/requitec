@@ -532,6 +532,7 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolFlags getFlags() const;
   [[nodiscard]] inline rq::ExpressionFlags getDerivedExpressionFlags() const;
+  [[nodiscard]] inline const rq::Expression *getDerivedExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType() const;
