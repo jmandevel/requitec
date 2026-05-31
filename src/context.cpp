@@ -882,7 +882,6 @@ void Context::logErrorPositionalEndAfterLockedBegin(
                    {named_begin.getLlvmSourceRange()}, {});
 }
 
-
 void Context::logErrorNotExactBranchCount(rq::Situation situation,
                                           const rq::Expression &expression,
                                           unsigned count) {
@@ -1114,7 +1113,7 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));
   }
   new_expression._next_ptr_flags = expression._next_ptr_flags;
-  new_expression._keyword = expression._keyword;
+  new_expression._id = expression._id;
   new_expression._source_ptr_flags = expression._source_ptr_flags;
   new_expression._source_text_length = expression._source_text_length;
   return new_expression;

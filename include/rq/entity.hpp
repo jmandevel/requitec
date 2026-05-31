@@ -472,7 +472,7 @@ enum class Keyword : rq::EntityId {
 };
 
 
-enum class SymbolKind : rq::rq::EntityId {
+enum class SymbolKind : rq::EntityId {
   NONE,
 
   // LITERALS

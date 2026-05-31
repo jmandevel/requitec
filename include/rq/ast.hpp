@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rq/entity.hpp>
 #include <rq/bump_ptr_allocator.hpp>
+#include <rq/entity.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/DenseMap.h>
@@ -879,7 +879,8 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
   case K::UNSITUATED_ASCRIBE_EXPRESSION:
-    return KF::STATEMENT | KF::RVALUE | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
+    return KF::STATEMENT | KF::RVALUE | KF::PARAMETER | KF::ARGUMENT |
+           KF::ASCRIPTION;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -3151,10 +3152,9 @@ enum class ExpressionSourceFlags : std::uint8_t {
 
 template <> struct is_flags<ExpressionSourceFlags> : std::true_type {};
 
-struct Expression final {
+struct Expression final : public rq::Entity {
   using Self = rq::Expression;
 
-  rq::Keyword _keyword = rq::Keyword::NONE;
   rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextFlags>
       _next_ptr_flags{};
   rq::Expression *_branch_ptr{nullptr};
@@ -3162,7 +3162,7 @@ struct Expression final {
       _source_ptr_flags{};
   unsigned _source_text_length{0};
 
-  Expression() = default;
+  Expression() : Entity(rq::getUnderlying(rq::Keyword::NONE)) {}
   Expression(Self &) = delete;
   Expression(Self &&) = delete;
   Self &operator=(const Self &) = delete;
@@ -3175,27 +3175,27 @@ struct Expression final {
     return this != &rhs;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
-    return this->_keyword;
+    return static_cast<rq::Keyword>(this->getId());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
-    return rq::getName(this->_keyword);
+    return rq::getName(this->getKeyword());
   }
   RQ_ALWAYS_INLINE void clear() {
-    this->_keyword = rq::Keyword::NONE;
+    this->_id = rq::getUnderlying(rq::Keyword::NONE);
     this->_next_ptr_flags = {};
     this->_branch_ptr = nullptr;
     this->_source_ptr_flags = {};
     this->_source_text_length = 0;
   }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_keyword == rq::Keyword::NONE,
+    RQ_ASSERT(this->_id == rq::getUnderlying(rq::Keyword::NONE),
               "keyword must not already be set");
-    this->_keyword = keyword;
+    this->_id = rq::getUnderlying(keyword);
   }
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_keyword != rq::Keyword::NONE,
+    RQ_ASSERT(this->_id != rq::getUnderlying(rq::Keyword::NONE),
               "keyword must already be set");
-    this->_keyword = keyword;
+    this->_id = rq::getUnderlying(keyword);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterMark() const {
     return rq::getIsParameterMarkKeyword(this->getKeyword());
@@ -3679,6 +3679,12 @@ struct Expression final {
     return std::ranges::subrange(
         rq::ConstExpressionIterator(this->getBranchPtr()),
         rq::ConstExpressionIterator());
+  }
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
   }
 };
 
