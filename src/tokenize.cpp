@@ -97,13 +97,7 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::DOLLAR_OPERATOR, 1);
       continue;
     case '%':
-      switch (this->getRanger().getChar(1)) {
-      case '%':
-        this->tokenizeLengthToken(T::TRAILER_SEPARATOR, 2);
-        break;
-      default:
-        this->tokenizeLengthToken(T::PERCENT_OPERATOR, 1);
-      }
+      this->tokenizeLengthToken(T::PERCENT_OPERATOR, 1);
       continue;
     case '&':
       this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
@@ -340,15 +334,6 @@ void Tokenizer::_tokenizeSourceText() {
         break;
       case '=':
         this->tokenizeLengthToken(T::LESS_EQUAL_OPERATOR, 2);
-        break;
-      case ':':
-        switch (this->getRanger().getChar(2)) {
-        case '>':
-          this->tokenizeLengthToken(T::TRAILER_SEPARATOR, 3);
-          break;
-        default:
-          break;
-        }
         break;
       default:
         this->tokenizeLengthToken(T::LESS_OPERATOR, 1);

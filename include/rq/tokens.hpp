@@ -58,7 +58,6 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_BANG_EQUAL_OPERATOR,    // .!=
 
   // SEPARATOR SYMBOLS
-  TRAILER_SEPARATOR,   // %%
   SEMICOLON_SEPARATOR, // ;
   COMMA_SEPARATOR,     // ,
 
@@ -204,8 +203,6 @@ getName(rq::TokenKind kind) {
     return "dot_bang_equal_operator";
 
   // SEPARATOR SYMBOLS
-  case T::TRAILER_SEPARATOR:
-    return "trailer_separator";
   case T::SEMICOLON_SEPARATOR:
     return "semicolon_separator";
   case T::COMMA_SEPARATOR:
@@ -363,8 +360,6 @@ getFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOT_BANG_EQUAL_OPERATOR:
     return TF::OPERATOR;
-  case T::TRAILER_SEPARATOR:
-    return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
   case T::SEMICOLON_SEPARATOR:
     return TF::SEPARATOR | TF::INFERENCE_TERMINATOR;
   case T::COMMA_SEPARATOR:

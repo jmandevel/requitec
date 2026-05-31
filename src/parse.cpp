@@ -946,35 +946,6 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   return brace;
 }
 
-void RequiteParser::parseTrailer(rq::Expression &expression,
-                                 rq::TokenRanger &keyword_ranger) {
-  const rq::Token first_token = this->getRanger().getToken();
-  RQ_ASSERT(first_token.getKind() == rq::TokenKind::TRAILER_SEPARATOR,
-            "first token not trailer separator");
-  this->getRanger().incrementToken(1);
-  unsigned bracket_depth = 1;
-  while (!this->getRanger().getIsDone()) {
-    const rq::Token trailer_token = this->getRanger().getToken();
-    if (trailer_token.getKind() == rq::TokenKind::LEFT_BRACKET_GROUPING) {
-      bracket_depth++;
-    } else if (trailer_token.getKind() ==
-               rq::TokenKind::RIGHT_BRACKET_GROUPING) {
-      bracket_depth--;
-      if (bracket_depth == 0) {
-        return;
-      }
-    }
-    const rq::Token front_token = keyword_ranger.getToken();
-    if (trailer_token.getSourceText() != front_token.getSourceText()) {
-      this->getContext().logErrorTrailerTokenMismatch(trailer_token,
-                                                      front_token, expression);
-      this->setNotOk();
-    }
-    this->getRanger().incrementToken(1);
-    keyword_ranger.incrementToken(1);
-  }
-}
-
 rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const rq::Token first_token = this->getRanger().getToken();
   rq::Expression &parenthesis = this->getContext().acquireExpression();
