@@ -11,6 +11,8 @@ namespace rq {
 struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
+  unsigned _ref_count{0};
+
   explicit RQ_ALWAYS_INLINE Constant(rq::ConstantKind kind)
       : Entity(rq::getUnderlying(kind) + rq::CONSTANT_OFFSET) {}
 
@@ -28,7 +30,6 @@ struct Constant : public rq::Entity {
 struct IntegerConstant final : public rq::Constant {
   using Self = rq::IntegerConstant;
 
-  unsigned _ref_count{0};
   const llvm::APInt _data;
 
   explicit RQ_ALWAYS_INLINE IntegerConstant(rq::SymbolConstant &symbol,
@@ -47,7 +48,6 @@ inline void profileIntegerConstant(llvm::FoldingSetNodeID &id,
 struct FloatConstant final : public rq::Constant {
   using Self = rq::FloatConstant;
 
-  void *_symbol_constant_or_next_free_ptr;
   const llvm::APFloat _data;
 
   explicit RQ_ALWAYS_INLINE FloatConstant(rq::SymbolConstant &symbol,
@@ -82,7 +82,6 @@ struct SymbolConstant final : public rq::Constant {
 struct BooleanConstant final : public rq::Constant {
   using Self = rq::BooleanConstant;
 
-  bool _is_platform_specific : 1;
   bool _data : 1;
 
   explicit RQ_ALWAYS_INLINE BooleanConstant(bool data,
@@ -94,25 +93,10 @@ struct BooleanConstant final : public rq::Constant {
   [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
 };
 
-struct StringConstant final : public rq::Constant {
-  using Self = rq::StringConstant;
-
-  bool _is_platform_specific : 1;
-  llvm::StringRef _data;
-
-  explicit RQ_ALWAYS_INLINE StringConstant(llvm::StringRef data,
-                                           bool is_platform_specific);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getData() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
-};
-
 struct ArrayConstant final : public rq::Constant {
   using Self = rq::ArrayConstant;
 
-  llvm::ArrayRef<rq::Constant> _data;
+  std::vector<rq::Constant> _data;
 
   explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data,
                                           bool is_platform_specific);
