@@ -1,6 +1,6 @@
 [import "std"];
 
-[enum MyEnum, [fast_unsigned_integer 32],
+[enumeration MyEnum, [fast_unsigned_integer 32],
     APPLE  :[fast_unsigned_integer 32]  = 0;
     ORANGE :[fast_unsigned_integer 32] = 2;
     GRAPE  :[binary32] = 3;

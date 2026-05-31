@@ -597,7 +597,7 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::ENUM: {
+  case K::ENUMERATION: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        1);
@@ -659,7 +659,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::RESULT:
     [[fallthrough]];
-  case K::ARGS:
+  case K::COMMAND_LINE_ARGUMENTS:
     [[fallthrough]];
   case K::CALLSITE:
     [[fallthrough]];

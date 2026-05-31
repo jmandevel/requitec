@@ -311,8 +311,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // DECLARED TYPES
   case K::CLASS:
     return "class";
-  case K::ENUM:
-    return "enum";
+  case K::ENUMERATION:
+    return "enumeration";
   case K::INTERFACE:
     return "interface";
   case K::IMPLEMENT_INTERFACE:
@@ -339,8 +339,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "this";
   case K::RESULT:
     return "result";
-  case K::ARGS:
-    return "args";
+  case K::COMMAND_LINE_ARGUMENTS:
+    return "command_line_arguments";
   case K::CALLSITE:
     return "callsite";
 
@@ -1139,7 +1139,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // DECLARED TYPES
   case K::CLASS:
     return KF::STATEMENT;
-  case K::ENUM:
+  case K::ENUMERATION:
     return KF::STATEMENT;
   case K::INTERFACE:
     return KF::STATEMENT;
@@ -1167,7 +1167,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::ARGS:
+  case K::COMMAND_LINE_ARGUMENTS:
     return KF::RVALUE | KF::ARGUMENT;
   case K::CALLSITE:
     return KF::RVALUE;

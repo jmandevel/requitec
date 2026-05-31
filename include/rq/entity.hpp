@@ -177,7 +177,7 @@ enum class Keyword : rq::EntityId {
 
   // DECLARED TYPES
   CLASS,
-  ENUM,
+  ENUMERATION,
   INTERFACE,
   IMPLEMENT_INTERFACE,
 
@@ -199,7 +199,7 @@ enum class Keyword : rq::EntityId {
   // value returned from a function.
   RESULT,
   // retrieve command line arguments within main.
-  ARGS,
+  COMMAND_LINE_ARGUMENTS,
   // get information about location of function call
   CALLSITE,
 
@@ -488,7 +488,7 @@ enum class SymbolKind : rq::rq::EntityId {
   VALUE,
   INDEX,
   DISCRIMINANT,
-  ARGS,
+  COMMAND_LINE_ARGUMENTS,
   CALLSITE,
 
   // CONTEXTUAL TYPE
@@ -638,7 +638,7 @@ enum class SymbolKind : rq::rq::EntityId {
 
   // GLOBAL DECLARATION => named table
   CLASS_TYPE,
-  ENUM_TYPE,
+  ENUMERATION_TYPE,
   INTERFACE,
 
   // GLOBAL VARIABLE => global declaration => named table => symbol table
@@ -660,7 +660,7 @@ enum class SymbolKind : rq::rq::EntityId {
 
   // TEMPLATES
   CLASS_TEMPLATE,
-  ENUM_TEMPLATE,
+  ENUMERATION_TEMPLATE,
   INTERFACE_TEMPLATE,
   GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
   GLOBAL_STATIC_VARIABLE_TEMPLATE,
@@ -677,7 +677,7 @@ enum class SymbolKind : rq::rq::EntityId {
   METHOD_POLYMORPH,
   EXTENSION_METHOD_POLYMORPH,
   CLASS_POLYMORPH,
-  ENUM_POLYMORPH,
+  ENUMERATION_POLYMORPH,
   INTERFACE_POLYMORPH,
   GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   GLOBAL_STATIC_VARIABLE_POLYMORPH,
@@ -695,7 +695,7 @@ enum class ConstantKind : rq::EntityId {
     STRING,
     ARRAY,
     CLASS_INSTANCE,
-    ENUM_INSTANCE,
+    ENUMERATION_INSTANCE,
     EXPRESSION_ATTRIBUTE,
     TYPE_ATTRIBUTE,
 

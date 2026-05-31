@@ -35,7 +35,7 @@ namespace rq {
     return "Index";
   case S::DISCRIMINANT:
     return "Discriminant";
-  case S::ARGS:
+  case S::COMMAND_LINE_ARGUMENTS:
     return "CommandLineArguments";
   case S::CALLSITE:
     return "Callsite";
@@ -281,8 +281,8 @@ namespace rq {
   // GLOBAL DECLARATION
   case S::CLASS_TYPE:
     return "ClassType";
-  case S::ENUM_TYPE:
-    return "EnumType";
+  case S::ENUMERATION_TYPE:
+    return "EnumerationType";
   case S::INTERFACE:
     return "Interface";
 
@@ -315,8 +315,8 @@ namespace rq {
   // TEMPLATES
   case S::CLASS_TEMPLATE:
     return "ClassTemplate";
-  case S::ENUM_TEMPLATE:
-    return "EnumTemplate";
+  case S::ENUMERATION_TEMPLATE:
+    return "EnumerationTemplate";
   case S::INTERFACE_TEMPLATE:
     return "InterfaceTemplate";
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
@@ -347,8 +347,8 @@ namespace rq {
     return "ExtensionMethodPolymorph";
   case S::CLASS_POLYMORPH:
     return "ClassPolymorph";
-  case S::ENUM_POLYMORPH:
-    return "EnumPolymorph";
+  case S::ENUMERATION_POLYMORPH:
+    return "EnumerationPolymorph";
   case S::INTERFACE_POLYMORPH:
     return "InterfacePolymorph";
   case S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH:
@@ -389,7 +389,7 @@ namespace rq {
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
   case S::DISCRIMINANT:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::ARGS:
+  case S::COMMAND_LINE_ARGUMENTS:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
   case S::CALLSITE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
@@ -675,7 +675,7 @@ namespace rq {
   case S::CLASS_TYPE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
            SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
-  case S::ENUM_TYPE:
+  case S::ENUMERATION_TYPE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
            SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::INTERFACE:
@@ -725,7 +725,7 @@ namespace rq {
   case S::CLASS_TEMPLATE:
     return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
-  case S::ENUM_TEMPLATE:
+  case S::ENUMERATION_TEMPLATE:
     return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::INTERFACE_TEMPLATE:
@@ -766,7 +766,7 @@ namespace rq {
     return SF::POLYMORPH;
   case S::CLASS_POLYMORPH:
     return SF::POLYMORPH;
-  case S::ENUM_POLYMORPH:
+  case S::ENUMERATION_POLYMORPH:
     return SF::POLYMORPH;
   case S::INTERFACE_POLYMORPH:
     return SF::POLYMORPH;
@@ -820,7 +820,7 @@ getValidExpressionFlags(rq::SymbolKind kind) {
   case S::CLASS_TYPE:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::PACK |
            EF::DEPRECIATE | EF::EXPERIMENTAL | EF::STABLE_ADDRESS;
-  case S::ENUM_TYPE:
+  case S::ENUMERATION_TYPE:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
   case S::INTERFACE:
@@ -849,7 +849,7 @@ getValidExpressionFlags(rq::SymbolKind kind) {
   case S::CLASS_TEMPLATE:
     return EF::EXPORT | EF::CAPTURE | EF::PACK | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::ENUM_TEMPLATE:
+  case S::ENUMERATION_TEMPLATE:
     return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
            EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case S::INTERFACE_TEMPLATE:
@@ -1352,7 +1352,7 @@ DiscriminantValue::classof(const rq::Symbol *symbol_ptr) {
 }
 
 RQ_ALWAYS_INLINE CommandLineArgumentsValue::CommandLineArgumentsValue()
-    : ContextualValue(rq::SymbolKind::ARGS) {}
+    : ContextualValue(rq::SymbolKind::COMMAND_LINE_ARGUMENTS) {}
 
 [[nodiscard]] inline bool
 CommandLineArgumentsValue::classof(const rq::Symbol *symbol_ptr) {
@@ -2389,8 +2389,8 @@ Enumerator::Enumerator(llvm::StringRef name,
     : LocalVariable(rq::SymbolKind::ENUMERATOR, name, &name_expression,
                     containing_table, hosting_table, flags),
       _default_value_expression_ptr(default_value_expression_ptr) {
-  RQ_ASSERT(llvm::isa<rq::EnumType>(containing_table),
-            "enumerator not member of enum type");
+  RQ_ASSERT(llvm::isa<rq::EnumerationType>(containing_table),
+            "enumerator not member of enumeration type");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
@@ -2398,14 +2398,14 @@ Enumerator::getDefaultValueExpressionPtr() const {
   return this->_default_value_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumType &
-Enumerator::getEnumType() const {
-  return llvm::cast<rq::EnumType>(this->getContainingTable());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
+Enumerator::getEnumerationType() const {
+  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumType &
-Enumerator::getEnumType() {
-  return llvm::cast<rq::EnumType>(this->getContainingTable());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &
+Enumerator::getEnumerationType() {
+  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
 }
 
 RQ_ALWAYS_INLINE
@@ -3739,7 +3739,7 @@ GlobalDeclaration::getExpressionFlags() const {
 [[nodiscard]] RQ_ALWAYS_INLINE bool GlobalDeclaration::getIsMember() const {
   const rq::SymbolKind containing_kind = this->getContainingTable().getKind();
   return containing_kind == rq::SymbolKind::CLASS_TYPE ||
-         containing_kind == rq::SymbolKind::ENUM_TYPE ||
+         containing_kind == rq::SymbolKind::ENUMERATION_TYPE ||
          containing_kind == rq::SymbolKind::INTERFACE;
 }
 
@@ -3763,16 +3763,16 @@ ClassType::ClassType(rq::SymbolTable &containing_table, llvm::StringRef name,
   return symbol.getKind() == rq::SymbolKind::CLASS_TYPE;
 }
 
-RQ_ALWAYS_INLINE EnumType::EnumType(
+RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
     rq::SymbolTable &containing_table, llvm::StringRef name,
     rq::SymbolTable &hosting_table, const rq::Expression &expression,
     const rq::Expression &name_expression, rq::ExpressionFlags flags)
-    : GlobalDeclaration(rq::SymbolKind::ENUM_TYPE, containing_table,
+    : GlobalDeclaration(rq::SymbolKind::ENUMERATION_TYPE, containing_table,
                         name, hosting_table, expression, &name_expression,
                         flags) {}
 
 [[nodiscard]] inline bool
-EnumType::classof(const rq::Symbol *symbol_ptr) {
+EnumerationType::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
   return symbol.getKind() == rq::SymbolKind::ENSURE_TYPE;
 }
@@ -4174,22 +4174,22 @@ RQ_ALWAYS_INLINE ClassTemplate::ClassTemplate(
   return symbol.getKind() == rq::SymbolKind::CLASS_TEMPLATE;
 }
 
-RQ_ALWAYS_INLINE EnumTemplate::EnumTemplate(
+RQ_ALWAYS_INLINE EnumerationTemplate::EnumerationTemplate(
     rq::SymbolTable &containing_table, llvm::StringRef name,
     rq::SymbolTable &hosting_table, const rq::Expression &expression,
     const rq::Expression &name_expression, rq::ExpressionFlags flags,
     const rq::Expression &layout_expression,
     const rq::Expression *constraint_expression_ptr,
     const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::ENUM_TEMPLATE, containing_table, name,
+    : Template(rq::SymbolKind::ENUMERATION_TEMPLATE, containing_table, name,
                hosting_table, expression, name_expression, flags,
                layout_expression, constraint_expression_ptr,
                weight_expression_ptr, weight) {}
 
 [[nodiscard]] inline bool
-EnumTemplate::classof(const rq::Symbol *symbol_ptr) {
+EnumerationTemplate::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-  return symbol.getKind() == rq::SymbolKind::ENUM_TEMPLATE;
+  return symbol.getKind() == rq::SymbolKind::ENUMERATION_TEMPLATE;
 }
 
 RQ_ALWAYS_INLINE InterfaceTemplate::InterfaceTemplate(
@@ -4492,64 +4492,64 @@ ClassPolymorph::classof(const rq::Symbol *symbol_ptr) {
   return symbol.getKind() == rq::SymbolKind::CLASS_POLYMORPH;
 }
 
-RQ_ALWAYS_INLINE EnumPolymorph::EnumPolymorph()
-    : Polymorph(rq::SymbolKind::ENUM_POLYMORPH) {}
+RQ_ALWAYS_INLINE EnumerationPolymorph::EnumerationPolymorph()
+    : Polymorph(rq::SymbolKind::ENUMERATION_POLYMORPH) {}
 
 inline void
-EnumPolymorph::addEnumType(rq::BumpPtrAllocator &allocator,
-                                         rq::EnumType &type) {
-  this->_enum_type_list.insertFront(allocator, type);
+EnumerationPolymorph::addEnumerationType(rq::BumpPtrAllocator &allocator,
+                                         rq::EnumerationType &type) {
+  this->_enumeration_type_list.insertFront(allocator, type);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-EnumPolymorph::getHasEnumType() const {
-  return this->_enum_type_list.getHasHead();
+EnumerationPolymorph::getHasEnumerationType() const {
+  return this->_enumeration_type_list.getHasHead();
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-EnumPolymorph::getHasMultipleEnumType() const {
-  return this->_enum_type_list.getHasTail();
+EnumerationPolymorph::getHasMultipleEnumerationType() const {
+  return this->_enumeration_type_list.getHasTail();
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumType &
-EnumPolymorph::getEnumType() {
-  RQ_ASSERT(!this->getHasMultipleEnumType(), "more than one");
-  return this->_enum_type_list.getHead();
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &
+EnumerationPolymorph::getEnumerationType() {
+  RQ_ASSERT(!this->getHasMultipleEnumerationType(), "more than one");
+  return this->_enumeration_type_list.getHead();
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumType &
-EnumPolymorph::getEnumType() const {
-  RQ_ASSERT(!this->getHasMultipleEnumType(), "more than one");
-  return this->_enum_type_list.getHead();
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
+EnumerationPolymorph::getEnumerationType() const {
+  RQ_ASSERT(!this->getHasMultipleEnumerationType(), "more than one");
+  return this->_enumeration_type_list.getHead();
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumType>,
-                          rq::BumpPtrListIterator<rq::EnumType>,
+    std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
+                          rq::BumpPtrListIterator<rq::EnumerationType>,
                           std::ranges::subrange_kind::unsized>
-    EnumPolymorph::getEnumTypeSubrange() {
-  return std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumType>,
-                               rq::BumpPtrListIterator<rq::EnumType>,
+    EnumerationPolymorph::getEnumerationTypeSubrange() {
+  return std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
+                               rq::BumpPtrListIterator<rq::EnumerationType>,
                                std::ranges::subrange_kind::unsized>(
-      this->_enum_type_list.begin(), this->_enum_type_list.end());
+      this->_enumeration_type_list.begin(), this->_enumeration_type_list.end());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::EnumType>,
-                          rq::ConstBumpPtrListIterator<rq::EnumType>,
+    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+                          rq::ConstBumpPtrListIterator<rq::EnumerationType>,
                           std::ranges::subrange_kind::unsized>
-    EnumPolymorph::getEnumTypeSubrange() const {
+    EnumerationPolymorph::getEnumerationTypeSubrange() const {
   return std::ranges::subrange<
-      rq::ConstBumpPtrListIterator<rq::EnumType>,
-      rq::ConstBumpPtrListIterator<rq::EnumType>,
-      std::ranges::subrange_kind::unsized>(this->_enum_type_list.begin(),
-                                           this->_enum_type_list.end());
+      rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+      rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+      std::ranges::subrange_kind::unsized>(this->_enumeration_type_list.begin(),
+                                           this->_enumeration_type_list.end());
 }
 
 [[nodiscard]] inline bool
-EnumPolymorph::classof(const rq::Symbol *symbol_ptr) {
+EnumerationPolymorph::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-  return symbol.getKind() == rq::SymbolKind::ENUM_POLYMORPH;
+  return symbol.getKind() == rq::SymbolKind::ENUMERATION_POLYMORPH;
 }
 
 RQ_ALWAYS_INLINE InterfacePolymorph::InterfacePolymorph()
