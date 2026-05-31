@@ -266,7 +266,7 @@ struct Symbol;
       struct Namespace;
       struct GlobalDeclaration;
         struct ClassType;
-        struct EnumerationType;
+        struct EnumType;
         struct Interface;
         struct GlobalVariable;
           struct GlobalDynamicVariable;
@@ -283,7 +283,7 @@ struct Symbol;
           struct ExtensionMethod;
       struct Template;
           struct ClassTemplate;
-          struct EnumerationTemplate;
+          struct EnumTemplate;
           struct InterfaceTemplate;
           struct GlobalStaticVariableTemplate;
           struct ForwardRangerTemplate;
@@ -298,7 +298,7 @@ struct Symbol;
     struct MethodPolymorph;
     struct ExtensionMethodPolymorph;
     struct ClassPolymorph;
-    struct EnumerationPolymorph;
+    struct EnumPolymorph;
     struct InterfacePolymorph;
     struct GlobalStaticVariablePolymorph;
 // clang-format on
@@ -1305,9 +1305,9 @@ struct Enumerator final : public rq::LocalVariable {
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getDefaultValueExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
-  getEnumerationType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &getEnumerationType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumType &
+  getEnumType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumType &getEnumType();
 
   [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
@@ -2089,13 +2089,13 @@ struct ClassType final : public rq::GlobalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
-struct EnumerationType final : public rq::GlobalDeclaration {
-  using Self = rq::EnumerationType;
+struct EnumType final : public rq::GlobalDeclaration {
+  using Self = rq::EnumType;
 
   const rq::Expression *_underlying_expression_ptr{nullptr};
   rq::SymbolConstant *_underlying_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE EnumerationType(
+  explicit RQ_ALWAYS_INLINE EnumType(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags);
@@ -2377,10 +2377,10 @@ struct ClassTemplate final : public rq::Template {
   [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
-struct EnumerationTemplate final : public rq::Template {
-  using Self = rq::EnumerationTemplate;
+struct EnumTemplate final : public rq::Template {
+  using Self = rq::EnumTemplate;
 
-  explicit RQ_ALWAYS_INLINE EnumerationTemplate(
+  explicit RQ_ALWAYS_INLINE EnumTemplate(
       rq::SymbolTable &containing_table, llvm::StringRef name,
       rq::SymbolTable &hosting_table, const rq::Expression &expression,
       const rq::Expression &name_expression, rq::ExpressionFlags flags,
@@ -2706,32 +2706,32 @@ struct ClassPolymorph final : public rq::Polymorph {
   [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
-struct EnumerationPolymorph final : public rq::Polymorph {
-  using Self = rq::EnumerationPolymorph;
+struct EnumPolymorph final : public rq::Polymorph {
+  using Self = rq::EnumPolymorph;
 
-  rq::BumpPtrList<rq::EnumerationType> _enumeration_type_list{};
+  rq::BumpPtrList<rq::EnumType> _enum_type_list{};
 
-  explicit RQ_ALWAYS_INLINE EnumerationPolymorph();
+  explicit RQ_ALWAYS_INLINE EnumPolymorph();
 
-  inline void addEnumerationType(rq::BumpPtrAllocator &allocator,
-                                 rq::EnumerationType &type);
+  inline void addEnumType(rq::BumpPtrAllocator &allocator,
+                                 rq::EnumType &type);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEnumerationType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleEnumerationType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &getEnumerationType();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
-  getEnumerationType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasEnumType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleEnumType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumType &getEnumType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumType &
+  getEnumType() const;
 
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
-                            rq::BumpPtrListIterator<rq::EnumerationType>,
+      std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumType>,
+                            rq::BumpPtrListIterator<rq::EnumType>,
                             std::ranges::subrange_kind::unsized>
-      getEnumerationTypeSubrange();
+      getEnumTypeSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::EnumerationType>,
-                            rq::ConstBumpPtrListIterator<rq::EnumerationType>,
+      std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::EnumType>,
+                            rq::ConstBumpPtrListIterator<rq::EnumType>,
                             std::ranges::subrange_kind::unsized>
-      getEnumerationTypeSubrange() const;
+      getEnumTypeSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };

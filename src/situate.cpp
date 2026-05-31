@@ -597,7 +597,7 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
-  case K::ENUMERATION: {
+  case K::ENUM: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        1);

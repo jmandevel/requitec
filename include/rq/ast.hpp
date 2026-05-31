@@ -311,8 +311,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // DECLARED TYPES
   case K::CLASS:
     return "class";
-  case K::ENUMERATION:
-    return "enumeration";
+  case K::ENUM:
+    return "enum";
   case K::INTERFACE:
     return "interface";
   case K::IMPLEMENT_INTERFACE:
@@ -1139,7 +1139,7 @@ template <> struct is_flags<KeywordFlags> : std::true_type {};
   // DECLARED TYPES
   case K::CLASS:
     return KF::STATEMENT;
-  case K::ENUMERATION:
+  case K::ENUM:
     return KF::STATEMENT;
   case K::INTERFACE:
     return KF::STATEMENT;
