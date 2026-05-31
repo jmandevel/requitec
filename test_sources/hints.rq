@@ -1,4 +1,4 @@
-[entry
+[main
     // tell debugger to break here.
     [debug_break];
 

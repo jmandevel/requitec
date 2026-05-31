@@ -16,7 +16,7 @@
     ..std.print(line="end!");
 ];
 
-[entry
+[main
     ..printList(
         "hello" +>
         3.14.[as [single]] +>

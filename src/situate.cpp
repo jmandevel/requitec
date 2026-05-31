@@ -515,7 +515,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DESTRUCTOR:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
-  case K::ENTRY:
+  case K::MAIN:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
   case K::FUNCTION:
@@ -659,7 +659,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::RESULT:
     [[fallthrough]];
-  case K::COMMAND_LINE_ARGUMENTS:
+  case K::ARGS:
     [[fallthrough]];
   case K::CALLSITE:
     [[fallthrough]];

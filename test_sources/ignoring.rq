@@ -4,7 +4,7 @@
     [result] := 0;
 ];
 
-[entry
+[main
     // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
     ..nodiscard().[ignore]; 
 

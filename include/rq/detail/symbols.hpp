@@ -35,7 +35,7 @@ namespace rq {
     return "Index";
   case S::DISCRIMINANT:
     return "Discriminant";
-  case S::COMMAND_LINE_ARGUMENTS:
+  case S::ARGS:
     return "CommandLineArguments";
   case S::CALLSITE:
     return "Callsite";
@@ -295,8 +295,8 @@ namespace rq {
   // CALLABLE
   case S::DESTRUCTOR:
     return "Destructor";
-  case S::ENTRY:
-    return "Entry";
+  case S::MAIN:
+    return "Main";
 
   // RANGERS
   case S::FORWARD_RANGER:
@@ -389,7 +389,7 @@ namespace rq {
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
   case S::DISCRIMINANT:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::COMMAND_LINE_ARGUMENTS:
+  case S::ARGS:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
   case S::CALLSITE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
@@ -704,7 +704,7 @@ namespace rq {
            SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
 
   // PROCEDURES
-  case S::ENTRY:
+  case S::MAIN:
     return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
            SF::LOCAL_TABLE;
@@ -838,7 +838,7 @@ getValidExpressionFlags(rq::SymbolKind kind) {
     return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
   case S::DESTRUCTOR:
     return EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
-  case S::ENTRY:
+  case S::MAIN:
     return EF::CAPTURE | EF::MANGLE;
   case S::FUNCTION:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::MANGLE;
@@ -1100,7 +1100,8 @@ getHasExpressionAttributes(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::LOCAL_TABLE);
 }
 
-RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind) : _kind(kind) {}
+RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
+    : Entity(rq::getUnderlying(kind) + rq::SYMBOL_OFFSET) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::operator==(const Self &rhs) const {
   return this == &rhs;
@@ -1111,7 +1112,7 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind) : _kind(kind) {}
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind Symbol::getKind() const {
-  return this->_kind;
+  return static_cast<rq::SymbolKind>(this->getId() - rq::SYMBOL_OFFSET);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolFlags Symbol::getFlags() const {
@@ -1212,9 +1213,8 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsLocalTable(this->getKind());
 }
 
-[[nodiscard]] inline bool Symbol::classof(const rq::Symbol *symbol_ptr) {
-  RQ_ASSERT(symbol_ptr != nullptr, "null reference");
-  return true;
+[[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity
 }
 
 RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
@@ -1352,7 +1352,7 @@ DiscriminantValue::classof(const rq::Symbol *symbol_ptr) {
 }
 
 RQ_ALWAYS_INLINE CommandLineArgumentsValue::CommandLineArgumentsValue()
-    : ContextualValue(rq::SymbolKind::COMMAND_LINE_ARGUMENTS) {}
+    : ContextualValue(rq::SymbolKind::ARGS) {}
 
 [[nodiscard]] inline bool
 CommandLineArgumentsValue::classof(const rq::Symbol *symbol_ptr) {
@@ -3930,14 +3930,14 @@ RQ_ALWAYS_INLINE Destructor::Destructor(rq::SymbolTable &containing_table,
 }
 
 RQ_ALWAYS_INLINE
-Entry::Entry(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+Main::Main(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
              const rq::Expression &expression, rq::ExpressionFlags flags)
-    : Callable(rq::SymbolKind::ENTRY, containing_table, {}, hosting_table,
+    : Callable(rq::SymbolKind::MAIN, containing_table, {}, hosting_table,
                expression, nullptr, flags) {}
 
-[[nodiscard]] inline bool Entry::classof(const rq::Symbol *symbol_ptr) {
+[[nodiscard]] inline bool Main::classof(const rq::Symbol *symbol_ptr) {
   const rq::Symbol &symbol = rq::dereferencePtr(symbol_ptr);
-  return symbol.getKind() == rq::SymbolKind::ENTRY;
+  return symbol.getKind() == rq::SymbolKind::MAIN;
 }
 
 RQ_ALWAYS_INLINE

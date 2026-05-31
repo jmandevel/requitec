@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rq/entity.hpp>
 #include <rq/ast.hpp>
 #include <rq/bump_ptr_list.hpp>
 #include <rq/entity.hpp>
@@ -26,218 +27,6 @@ namespace rq {
 
 struct SymbolConstant;
 struct Instruction;
-
-enum class SymbolKind {
-  NONE,
-
-  // LITERALS
-  INTEGER_LITERAL_TYPE,
-  FLOAT_LITERAL_TYPE,
-  STRING_LITERAL_TYPE,
-  CODEUNIT_LITERAL_TYPE,
-
-  // CONTEXTUAL VALUE
-  OUT,
-  THIS,
-  RESULT,
-  VALUE,
-  INDEX,
-  DISCRIMINANT,
-  COMMAND_LINE_ARGUMENTS,
-  CALLSITE,
-
-  // CONTEXTUAL TYPE
-  INFERENCE_TYPE,
-  VOID_TYPE,
-  NO_RETURN_TYPE,
-
-  // EXPRESSION ATTRIBUTES
-  ANCHOR_TYPE,
-  OPAQUE_TYPE,
-  GLOBAL_TYPE,
-  ACCESS_TYPE,
-  PARTIAL_MUTATE_TYPE,
-  STATIC_TYPE,
-  CAPTURE_TYPE,
-  INLINE_TYPE,
-  MANGLE_TYPE,
-  PACK_TYPE,
-  BRANCH_TREND_TYPE,
-  DEPRECIATE_TYPE,
-  STABLE_ADDRESS_TYPE,
-  VARIADIC_TYPE,
-  LOCATION_TYPE,
-  TEMPLATE_TYPE,
-  CONSTRAINT_TYPE,
-  WEIGHT_TYPE,
-  REQUIRE_TYPE,
-  ENSURE_TYPE,
-
-  // TYPE ATTRIBUTES
-  VAR_TYPE,
-  VOLATILE_TYPE,
-  ATOMIC_TYPE,
-  NULL_TERMINATE_TYPE,
-
-  // REFLECTIVE
-  SYMBOL_TYPE,
-  EXPRESSION_TYPE,
-
-  // PLATFORM PRIMITIVE
-  BOOLEAN_TYPE,
-  HALF_TYPE,
-  SINGLE_TYPE,
-  DOUBLE_TYPE,
-  QUADRUPLE_TYPE,
-  SIGNED_INTEGER_TYPE,
-  UNSIGNED_INTEGER_TYPE,
-  SIGNED_INDEX_TYPE,
-  UNSIGNED_INDEX_TYPE,
-  SIGNED_ADDRESS_TYPE,
-  UNSIGNED_ADDRESS_TYPE,
-  CHAR_TYPE,
-
-  // STANDARD PRIMITIVE
-  BINARY16_TYPE,
-  BINARY32_TYPE,
-  BINARY64_TYPE,
-  BINARY128_TYPE,
-  BFLOAT16_TYPE,
-  ASCII_TYPE,
-  UTF8_TYPE,
-
-  // VARIADIC ARGUMENTS
-  VARIADIC_ARGUMENTS_TYPE,
-
-  // SCALED PRIMITIVES
-  SCALED_SIGNED_INTEGER_TYPE,
-  SCALED_UNSIGNED_INTEGER_TYPE,
-
-  // SUBTYPES
-  ARRAY_SUBTYPE,
-
-  // UNCOUNTED SUBTYPES => SUBTYPES
-  REFERENCE_SUBTYPE,
-  POINTER_SUBTYPE,
-  SLICE_SUBTYPE,
-  INFERENCE_COUNT_ARRAY_SUBTYPE,
-
-  // MODULES
-  MODULE,
-
-  // IMPORTS
-  IMPORT,
-
-  // JUXTAPOSITIONAL LIST
-  JUXTAPOSITIONAL_LIST_TYPE,
-
-  // ARITHMETIC SEQUENCES
-  ARITHMETIC_INTERVAL,
-  INFINITE_ARITHMETIC_SEQUENCE,
-  FINITE_ARITHMETIC_SEQUENCE,
-
-  // LOCAL DECLARATIONS
-  LABEL,
-  ANCHOR,
-
-  // LOCAL VARIABLES => local declaration
-  LOCAL_DYNAMIC_VARIABLE,
-  LOCAL_STATIC_VARIABLE,
-  ENUMERATOR,
-
-  // SYMBOL PARAMETERS
-  SIGNATURE_PARAMETER,
-  LAYOUT_PARAMETER,
-
-  // TYPE PARAMETERS
-  TUPLE_PARAMETER,
-  PROCEDURE_PARAMETER,
-
-  // SYMBOL PARAMETER LISTS
-  SIGNATURE,
-  LAYOUT,
-
-  // TYPE PARAMETER LISTS
-  TUPLE_TYPE,
-  PROCEDURE_TYPE,
-
-  // PLACEMENTS
-  PLACEMENT_TYPE,
-
-  // COMPOSITIONS
-  COMPOSITION_TYPE,
-
-  // SYNONYMS
-  SYNONYM_TYPE,
-
-  // SYMBOL TABLES
-  TOP,
-
-  // LOCAL STATEMENTS => symbol table
-  IF_STATEMENT,
-  ELSE_IF_STATEMENT,
-  ELSE_STATEMENT,
-  MATCH_STATEMENT,
-  SWITCH_STATEMENT,
-  CASE_STATEMENT,
-  WITH_STATEMENT,
-  DEFAULT_STATEMENT,
-  FOR_STATEMENT,
-  WHILE_STATEMENT,
-  SPIN_STATEMENT,
-  WEAVE_STATEMENT,
-  SCOPE_STATEMENT,
-
-  // NAMED TABLE
-  NAMESPACE,
-
-  // GLOBAL DECLARATION => named table
-  CLASS_TYPE,
-  ENUMERATION_TYPE,
-  INTERFACE,
-
-  // GLOBAL VARIABLE => global declaration => named table => symbol table
-  GLOBAL_DYNAMIC_VARIABLE,
-  GLOBAL_STATIC_VARIABLE,
-
-  // CALLABLE => global declaration => named table => symbol table
-  DESTRUCTOR,
-  ENTRY,
-
-  // RANGERS => callable => global declaration => named table => symbol table
-  FORWARD_RANGER,
-  BACKWARD_RANGER,
-
-  // PROCEDURES => callatble => global declaration => symbol table
-  FUNCTION,
-  METHOD,
-  EXTENSION_METHOD,
-
-  // TEMPLATES
-  CLASS_TEMPLATE,
-  ENUMERATION_TEMPLATE,
-  INTERFACE_TEMPLATE,
-  GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
-  GLOBAL_STATIC_VARIABLE_TEMPLATE,
-  FORWARD_RANGER_TEMPLATE,
-  BACKWARD_RANGER_TEMPLATE,
-  FUNCTION_TEMPLATE,
-  METHOD_TEMPLATE,
-  EXTENSION_METHOD_TEMPLATE,
-
-  // POLYMORPHS
-  FORWARD_RANGER_POLYMORPH,
-  BACKWARD_RANGER_POLYMORPH,
-  FUNCTION_POLYMORPH,
-  METHOD_POLYMORPH,
-  EXTENSION_METHOD_POLYMORPH,
-  CLASS_POLYMORPH,
-  ENUMERATION_POLYMORPH,
-  INTERFACE_POLYMORPH,
-  GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
-  GLOBAL_STATIC_VARIABLE_POLYMORPH,
-
-};
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind opcode);
 
@@ -484,7 +273,7 @@ struct Symbol;
           struct GlobalStaticVariable;
         struct Callable;
         struct Destructor;
-        struct Entry;
+        struct Main;
         struct Ranger;
           struct ForwardRanger;
           struct BackwardRanger;
@@ -514,10 +303,8 @@ struct Symbol;
     struct GlobalStaticVariablePolymorph;
 // clang-format on
 
-struct Symbol {
+struct Symbol : public rq::Entity {
   using Self = rq::Symbol;
-
-  rq::SymbolKind _kind;
 
   explicit RQ_ALWAYS_INLINE Symbol(rq::SymbolKind kind);
 
@@ -546,7 +333,7 @@ struct Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
@@ -2418,10 +2205,10 @@ struct Destructor final : public rq::Callable {
   [[nodiscard]] static inline bool classof(const rq::Symbol *symbol_ptr);
 };
 
-struct Entry final : public rq::Callable {
-  using Self = rq::Entry;
+struct Main final : public rq::Callable {
+  using Self = rq::Main;
 
-  explicit RQ_ALWAYS_INLINE Entry(rq::SymbolTable &containing_table,
+  explicit RQ_ALWAYS_INLINE Main(rq::SymbolTable &containing_table,
                                   rq::SymbolTable &hosting_table,
                                   const rq::Expression &expression,
                                   rq::ExpressionFlags flags);

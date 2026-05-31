@@ -1,4 +1,4 @@
-[entry
+[main
     // an array and its elements share variability
     arr :\[var]= [array 0, 1, 2, 3];
     arr.[at 1] = 2;

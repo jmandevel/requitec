@@ -41,7 +41,7 @@
     ];
 ];
 
-[entry
+[main
     uptr := ..UniquePtr{..NoAutoDrop}.create(
             ..MyClass(3.14).[emplace]
         );

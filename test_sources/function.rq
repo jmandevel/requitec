@@ -11,7 +11,7 @@
     [result] := a + b;
 ];
 
-[entry
+[main
     ..std.print(line="the return value is " +> ..myFunc(1, 2));
 
     [result] := 0;

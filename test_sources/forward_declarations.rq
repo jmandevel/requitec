@@ -6,7 +6,7 @@
     [result] := a + b;
 ];
 
-[entry
+[main
     ..std.print(
         "the result is " +>
         ..myForwardedAdd(

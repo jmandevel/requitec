@@ -7,7 +7,7 @@
     varname.getSlice().[identify] :[signed_integer]= num;
 ];
 
-[entry
+[main
     [static][for 0.<=10, num:=[value],
         [static] varname :..std.String= ..std.format(text="VAR" +> num);
         ..std.print(line=varname.getSlice() +> " is " +> ..(varname.getSlice().[identify]) +> "!");  

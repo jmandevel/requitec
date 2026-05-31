@@ -1,6 +1,6 @@
 [import "std"];
 
-[entry
+[main
   [label Restart];
   ..std.print(line="Hello!");
   [goto Restart];

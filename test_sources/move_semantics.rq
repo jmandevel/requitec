@@ -18,7 +18,7 @@
 
 ];
 
-[entry
+[main
   class :\[var]= ..MyClass();
   copy := class;
   reference := class.[borrow];

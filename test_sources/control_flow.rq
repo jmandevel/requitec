@@ -1,6 +1,6 @@
 [import "std"];
 
-[entry
+[main
     [result] :\[var]=0;
 
     [anchor]::MyWhile

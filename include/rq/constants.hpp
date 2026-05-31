@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rq/entity.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/APFloat.h>
@@ -7,31 +8,26 @@
 
 namespace rq {
 
-enum class ConstantKind {
-
-};
-
-struct Constant {
+struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
-  rq::ConstantKind _kind;
+  explicit RQ_ALWAYS_INLINE Constant(rq::ConstantKind kind)
+      : Entity(rq::getUnderlying(kind) + rq::CONSTANT_OFFSET) {}
 
-  explicit RQ_ALWAYS_INLINE Constant(rq::ConstantKind kind);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantKind getConstantKind() const {
+    return static_cast<rq::ConstantKind>(this->_id - rq::CONSTANT_OFFSET);
   }
 
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id >= rq::CONSTANT_OFFSET && id < rq::OPCODE_OFFSET;
+  }
 };
 
 struct IntegerConstant final : public rq::Constant {
   using Self = rq::IntegerConstant;
 
-  void *_symbol_constant_or_next_free_ptr;
   unsigned _ref_count{0};
   const llvm::APInt _data;
 

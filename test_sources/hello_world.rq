@@ -1,6 +1,6 @@
 [import "std"];
 
-[entry
+[main
     ..std.print(line="Hello, world!");
 
     [result] := 0;

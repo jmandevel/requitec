@@ -5,7 +5,7 @@
     <},
 ];
 
-[entry
+[main
     // no properties are var for constant values:
     constant := ..Partialable();
 

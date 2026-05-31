@@ -9,7 +9,7 @@
     ];
 ];
 
-[entry
+[main
     a := ..WithoutDestructor();
     b := ..WithoutDestructor();
     c := ..WithDestructor();

@@ -32,7 +32,7 @@
     ];
 ];
 
-[entry
+[main
 
     // all of these loops are equivalent
 

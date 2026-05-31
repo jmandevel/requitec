@@ -6,6 +6,6 @@
     [result] := var.[bitwise_cast Signed];
 ];
 
-[entry
+[main
     [result] := ..asSigned{[single]}(3.14);
 ];

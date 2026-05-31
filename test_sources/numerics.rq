@@ -1,4 +1,4 @@
-[entry
+[main
     // specify type in binding
     var0 :[signed_integer 32] =0;
 

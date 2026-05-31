@@ -1,4 +1,4 @@
-[entry
+[main
     // var single floating point number
     var :\[var][single]= 0;
 

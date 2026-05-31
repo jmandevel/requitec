@@ -9,7 +9,7 @@
     [result] := square;
 ];
 
-[entry
+[main
     a := ..divideSquare{[signed_integer]}(6, 2);
     
     [result] := 0;

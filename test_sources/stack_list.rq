@@ -9,7 +9,7 @@
     ];  
 ];
 
-[entry
+[main
     // create stack
     my_stack :\[var]= ..std.StackList{..MyClass}();
     

@@ -1,6 +1,6 @@
 [import "std"];
 
-[entry
+[main
     // for tuple with inferenced type, all parameters of type are nonpositional
     // nonpositional parameters are either name-keyed if name is specified, or type-keyed if name is noname
     // can only be one type-keyed parameter of any given type. this is enforced at compile time.

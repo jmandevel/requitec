@@ -19,7 +19,7 @@ namespace rq {
 //}
 //
 //void LlvmIrBuilder::buildProcedure(rq::Procedure &procedure) {
-//  if (!llvm::isa<rq::Entry>(procedure)) {
+//  if (!llvm::isa<rq::Main>(procedure)) {
 //    RQ_TODO_IMPLEMENTATION();
 //  }
 //  if (procedure.getHasInstruction()) {
@@ -29,7 +29,7 @@ namespace rq {
 //        llvm_function_type_ptr, llvm::Function::ExternalInline, "main",
 //        this->getContext().getLlvmModule());
 //    llvm::BasicBlock *llvm_block_ptr = llvm::BasicBlock::Create(
-//        this->getContext().getLlvmContext(), "entry", llvm_function_ptr);
+//        this->getContext().getLlvmContext(), "main", llvm_function_ptr);
 //    this->getContext().getLlvmIrBuilder().SetInsertPoint(llvm_block_ptr);
 //    rq::Instruction &instruction = procedure.getInstruction();
 //    rq::BinaryInstruction &binary_instruction =
