@@ -698,6 +698,8 @@ enum class ConstantKind : rq::EntityId {
 enum class Opcode : rq::EntityId {
     NONE,
 
+    // TODO
+
     LAST
 };
 
