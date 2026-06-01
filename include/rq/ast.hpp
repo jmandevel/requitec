@@ -840,7 +840,7 @@ enum class KeywordFlags : std::uint32_t {
 
 };
 
-template <> struct is_flags<KeywordFlags> : std::true_type {};
+template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
 [[nodiscard]] inline rq::KeywordFlags getFlags(rq::Keyword keyword) {
   using namespace rq;
