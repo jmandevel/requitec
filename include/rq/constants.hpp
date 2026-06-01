@@ -97,12 +97,13 @@ struct WordConstant final : public rq::Constant {
 struct ArrayConstant final : public rq::Constant {
   using Self = rq::ArrayConstant;
 
-  std::vector<rq::Constant> _data;
+  std::vector<rq::Constant *> _data;
 
-  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data)
+  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant *> data)
       : Constant(rq::ConstantKind::ARRAY), _data(data) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant> getData() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant *>
+  getData() const {
     return this->_data;
   }
 
