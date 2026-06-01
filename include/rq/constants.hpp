@@ -6,12 +6,12 @@
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
 
+#include <algorithm>
+
 namespace rq {
 
 struct Constant : public rq::Entity {
   using Self = rq::Constant;
-
-  unsigned _ref_count{0};
 
   explicit RQ_ALWAYS_INLINE Constant(rq::ConstantKind kind)
       : Entity(rq::getUnderlying(kind) + rq::CONSTANT_OFFSET) {}
@@ -27,39 +27,6 @@ struct Constant : public rq::Entity {
   }
 };
 
-struct IntegerConstant final : public rq::Constant {
-  using Self = rq::IntegerConstant;
-
-  const llvm::APInt _data;
-
-  explicit RQ_ALWAYS_INLINE IntegerConstant(rq::SymbolConstant &symbol,
-                                            llvm::APInt &&value);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getValue() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
-};
-
-inline void profileIntegerConstant(llvm::FoldingSetNodeID &id,
-                                   const llvm::APInt &data);
-
-struct FloatConstant final : public rq::Constant {
-  using Self = rq::FloatConstant;
-
-  const llvm::APFloat _data;
-
-  explicit RQ_ALWAYS_INLINE FloatConstant(rq::SymbolConstant &symbol,
-                                          llvm::APFloat &&value);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getValue() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
-};
-
 struct Symbol;
 enum class TypeFlags : std::uint_fast8_t;
 
@@ -70,27 +37,61 @@ struct SymbolConstant final : public rq::Constant {
   rq::TypeFlags _type_flags;
 
   explicit RQ_ALWAYS_INLINE SymbolConstant(rq::Symbol &symbol,
-                                           rq::TypeFlags flags);
+                                           rq::TypeFlags flags)
+      : Constant(rq::ConstantKind::SYMBOL), _symbol_ptr(&symbol),
+        _type_flags(flags) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
+    return rq::dereferencePtr(this->_symbol_ptr);
+  }
 
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
+    return rq::dereferencePtr(this->_symbol_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
+    return this->_type_flags;
+  }
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id ==
+           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
+  }
 };
 
-struct BooleanConstant final : public rq::Constant {
-  using Self = rq::BooleanConstant;
+[[nodiscard]] inline llvm::APInt canonicalize(const llvm::APInt &value) {
+  if (value.isZero()) {
+    return llvm::APInt(1, 0);
+  }
+  return value.zextOrTrunc(value.getActiveBits());
+}
 
-  bool _data : 1;
+[[nodiscard]] inline bool getIsCanonicalized(const llvm::APInt &value) {
+  const unsigned canonical_width = std::max(1u, value.getActiveBits());
+  return value.getBitWidth() == canonical_width;
+}
 
-  explicit RQ_ALWAYS_INLINE BooleanConstant(bool data,
-                                            bool is_platform_specific);
+struct WordConstant final : public rq::Constant {
+  using Self = rq::WordConstant;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformSpecific() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getData() const;
+  const llvm::APInt _value;
 
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
+  explicit RQ_ALWAYS_INLINE WordConstant(const llvm::APInt &value)
+      : Constant(rq::ConstantKind::WORD), _value(value) {
+    RQ_ASSERT(rq::getIsCanonicalized(value), "value not canonicalized");
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getValue() const {
+    return this->_value;
+  }
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id ==
+           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::WORD);
+  }
 };
 
 struct ArrayConstant final : public rq::Constant {
@@ -98,41 +99,19 @@ struct ArrayConstant final : public rq::Constant {
 
   std::vector<rq::Constant> _data;
 
-  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data,
-                                          bool is_platform_specific);
+  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant> data)
+      : Constant(rq::ConstantKind::ARRAY), _data(data) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant> getData() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant> getData() const {
+    return this->_data;
+  }
 
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
-};
-
-enum class ExpressionAttribute : std::uint_fast8_t;
-
-struct ExpressionAttributeConstant final : public rq::Constant {
-  using Self = rq::ExpressionAttributeConstant;
-
-  rq::ExpressionAttribute _attribute;
-
-  explicit RQ_ALWAYS_INLINE
-  ExpressionAttributeConstant(rq::ExpressionAttribute attribute);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttribute getAttribute() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
-};
-
-enum class TypeAttribute : std::uint_fast8_t;
-
-struct TypeAttributeConstant final : public rq::Constant {
-  using Self = rq::TypeAttributeConstant;
-
-  rq::TypeAttribute _attribute;
-
-  explicit RQ_ALWAYS_INLINE TypeAttributeConstant(rq::TypeAttribute attribute);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute getAttribute() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Constant *constant_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id ==
+           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::ARRAY);
+  }
 };
 
 } // namespace rq

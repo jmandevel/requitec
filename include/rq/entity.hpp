@@ -688,16 +688,9 @@ enum class SymbolKind : rq::EntityId {
 enum class ConstantKind : rq::EntityId {
     NONE,
 
-    INTEGER,
-    FLOAT,
     SYMBOL,
-    BOOLEAN,
-    STRING,
+    WORD,
     ARRAY,
-    CLASS_INSTANCE,
-    ENUMERATION_INSTANCE,
-    EXPRESSION_ATTRIBUTE,
-    TYPE_ATTRIBUTE,
 
     LAST
 };

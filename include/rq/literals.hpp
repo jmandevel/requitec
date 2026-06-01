@@ -7,7 +7,6 @@
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/StringRef.h>
 
-#include <algorithm>
 #include <cstdint>
 
 namespace rq {
@@ -271,19 +270,6 @@ getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
       rq::getLlvmFloatSemantics(semantics);
   ost_term = llvm::APFloat(llvm_semantics, buffer);
   return result;
-}
-
-[[nodiscard]] inline llvm::APInt canonicalize(const llvm::APInt &value) {
-  if (value.isZero()) {
-    return llvm::APInt(1, 0);
-  }
-
-  return value.zextOrTrunc(value.getActiveBits());
-}
-
-[[nodiscard]] inline bool getIsCononicalized(const llvm::APInt &value) {
-  const unsigned canonical_width = std::max(1u, value.getActiveBits());
-  return value.getBitWidth() == canonical_width;
 }
 
 } // namespace rq
