@@ -2004,7 +2004,7 @@ getCanBeTypeAttributeInstantiation(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
+getCanBeArithmeticSequenceTypeStage(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasSome(flags, rq::KeywordFlags::ARITHMETIC_SEQUENCE_CONDITION |
                                    rq::KeywordFlags::ARITHMETIC_SEQUENCE_STEP);
@@ -2054,7 +2054,7 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
   case rq::Situation::EXPRESSION_ATTRIBUTE_INSTANTIATION:
     return rq::getCanBeExpressionAttributeInstantiation(keyword);
   case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
-    return rq::getCanBeArithmeticSequenceStage(keyword);
+    return rq::getCanBeArithmeticSequenceTypeStage(keyword);
   }
   return false;
 }
@@ -3289,8 +3289,8 @@ struct Expression final : public rq::Entity {
   getCanBeTypeAttributeInstantiation() const {
     return rq::getCanBeTypeAttributeInstantiation(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
-    return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceTypeStage() const {
+    return rq::getCanBeArithmeticSequenceTypeStage(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeArithmeticSequenceCondition() const {

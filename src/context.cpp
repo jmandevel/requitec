@@ -193,8 +193,7 @@ bool Context::loadSourceModule() {
   if (!situated_ok) {
     return false;
   }
-  rq::Module &source_module =
-      this->allocateValue<rq::Module>(std::move(factory));
+  rq::Module &source_module = this->getModule(std::move(factory));
   this->_source_module_ptr = &source_module;
   return true;
 }
@@ -247,8 +246,7 @@ rq::Module *Context::loadImportModule(const rq::Expression &expression,
   if (!this->situateModule(factory)) {
     return nullptr;
   }
-  rq::Module &import_module =
-      this->allocateValue<rq::Module>(std::move(factory));
+  rq::Module &import_module = this->getModule(std::move(factory));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -1096,13 +1094,13 @@ void Context::logErrorIndeterminateVariableValue(
 }
 
 rq::Expression &Context::acquireExpression() {
-  if (this->acquired._first_unused_expression_ptr == nullptr) {
+  if (this->_free_expression_ptr == nullptr) {
     rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
-      rq::dereferencePtr(this->acquired._first_unused_expression_ptr);
-  this->acquired._first_unused_expression_ptr = unused_expression._branch_ptr;
+      rq::dereferencePtr(this->_free_expression_ptr);
+  this->_free_expression_ptr = unused_expression._branch_ptr;
   unused_expression._branch_ptr = nullptr;
   return unused_expression;
 }

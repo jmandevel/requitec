@@ -1,9 +1,8 @@
 #pragma once
 
-#include <rq/entity.hpp>
-#include <rq/expressions.hpp>
 #include <rq/bump_ptr_list.hpp>
 #include <rq/entity.hpp>
+#include <rq/expressions.hpp>
 #include <rq/next_iterator.hpp>
 #include <rq/see.hpp>
 #include <rq/tokens.hpp>
@@ -102,7 +101,7 @@ getIsStandardPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUncountedSubtype(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsArithmeticSequence(rq::SymbolKind kind);
+getIsArithmeticSequenceType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::SymbolKind kind);
@@ -217,10 +216,11 @@ struct Symbol;
       struct InferenceCountArraySubtype;
   struct Module;
   struct Import;
+  struct JuxtapositionalListItem;
   struct JuxtapositionalList;
   struct ArithmeticSequenceType;
     struct ArithmeticIntervalType;
-    struct InfiniteArithmeticSequenceType;
+    struct ArithmeticSequenceType;
     struct FiniteArithmeticSequenceType;
   struct LocalDeclaration;
     struct Label;
@@ -342,12 +342,7 @@ struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   explicit RQ_ALWAYS_INLINE SimpleSymbol(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
-
-RQ_ALWAYS_INLINE void profileSimpleSymbol(llvm::FoldingSetNodeID &id,
-                                          rq::SymbolKind kind);
 
 struct LiteralType : public rq::SimpleSymbol {
   using Self = rq::LiteralType;
@@ -932,7 +927,8 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
-                                                 rq::ScaleKind kind,
+                                                 rq::SymbolKind kind,
+                                                 rq::ScaleKind scale_kind,
                                                  unsigned scale,
                                                  std::uint64_t synonum_id);
 
@@ -1000,6 +996,7 @@ struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+                                              rq::SymbolKind kind,
                                               const rq::SymbolConstant &child);
 
 struct ReferenceSubtype final : public rq::UncountedSubtype {
@@ -1104,35 +1101,67 @@ struct Import final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct JuxtapositionalListItem final : public llvm::FoldingSetNode {
+struct JuxtapositionalListItem final : public rq::Symbol,
+                                       public llvm::FoldingSetNode {
   using Self = rq::JuxtapositionalListItem;
-};
 
-struct JuxtapositionalList final : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::JuxtapositionalList;
-
-  rq::JuxtapositionalListItem *_first_item_ptr;
+  rq::JuxtapositionalListItem *_next_ptr;
+  rq::SymbolConstant *_type_ptr;
 
   explicit RQ_ALWAYS_INLINE
-  JuxtapositionalList(rq::JuxtapositionalListItem &first_item);
+  JuxtapositionalListItem(rq::SymbolConstant &type,
+                          rq::JuxtapositionalListItem *next_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileJuxtapositionalList(llvm::FoldingSetNodeID &id,
+profileJuxtapositionalListItem(llvm::FoldingSetNodeID &id,
+                               const rq::SymbolConstant &type,
+                               const rq::JuxtapositionalListItem *next_ptr);
+
+struct JuxtapositionalListType final : public rq::Symbol, llvm::FoldingSetNode {
+  using Self = rq::JuxtapositionalList;
+
+  rq::JuxtapositionalListItem *_first_item_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  JuxtapositionalListType(rq::JuxtapositionalListItem &first_item);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::JuxtapositionalListItem>,
+                            rq::NextIterator<rq::JuxtapositionalListItem>,
+                            std::ranges::subrange_kind::unsized>
+      getJuxtapositionalListItemSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstNextIterator<rq::JuxtapositionalListItem>,
+                            rq::ConstNextIterator<rq::JuxtapositionalListItem>,
+                            std::ranges::subrange_kind::unsized>
+      getJuxtapositionalListItemSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &id) const;
+};
+
+RQ_ALWAYS_INLINE void
+profileJuxtapositionalListType(llvm::FoldingSetNodeID &id,
                            const rq::JuxtapositionalListItem &first_item);
 
-struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::ArithmeticSequence;
+struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
+  using Self = rq::ArithmeticSequenceType;
 
   rq::SymbolConstant *_child_ptr;
   rq::ArithmeticSequenceCondition _condition;
   rq::ArithmeticSequenceStep _step;
 
   explicit RQ_ALWAYS_INLINE
-  ArithmeticSequence(rq::SymbolKind kind, rq::SymbolConstant &child,
+  ArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
                      rq::ArithmeticSequenceCondition condition,
                      rq::ArithmeticSequenceStep step);
 
@@ -1148,36 +1177,36 @@ struct ArithmeticSequence : public rq::Symbol, llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void
-profileArithmeticSequence(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+profileArithmeticSequenceType(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
                           const rq::SymbolConstant &child,
                           rq::ArithmeticSequenceCondition condition,
                           rq::ArithmeticSequenceStep step);
 
-struct ArithmeticInterval final : public rq::ArithmeticSequence {
-  using Self = rq::ArithmeticInterval;
+struct ArithmeticIntervalType final : public rq::ArithmeticSequenceType {
+  using Self = rq::ArithmeticIntervalType;
 
   explicit RQ_ALWAYS_INLINE
-  ArithmeticInterval(rq::SymbolConstant &child,
+  ArithmeticIntervalType(rq::SymbolConstant &child,
                      rq::ArithmeticSequenceCondition condition);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct InfiniteArithmeticSequence final : public rq::ArithmeticSequence {
-  using Self = rq::InfiniteArithmeticSequence;
+struct InfiniteArithmeticSequenceType final : public rq::ArithmeticSequenceType {
+  using Self = rq::InfiniteArithmeticSequenceType;
 
   explicit RQ_ALWAYS_INLINE
-  InfiniteArithmeticSequence(rq::SymbolConstant &child,
+  InfiniteArithmeticSequenceType(rq::SymbolConstant &child,
                              rq::ArithmeticSequenceStep step);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct FiniteArithmeticSequence final : public rq::ArithmeticSequence {
-  using Self = rq::FiniteArithmeticSequence;
+struct FiniteArithmeticSequenceType final : public rq::ArithmeticSequenceType {
+  using Self = rq::FiniteArithmeticSequenceType;
 
   explicit RQ_ALWAYS_INLINE
-  FiniteArithmeticSequence(rq::SymbolConstant &child,
+  FiniteArithmeticSequenceType(rq::SymbolConstant &child,
                            rq::ArithmeticSequenceCondition condition,
                            rq::ArithmeticSequenceStep step);
 
@@ -1357,9 +1386,11 @@ struct SymbolParameter : public rq::Parameter {
       const rq::Expression &type_expression,
       const rq::Expression *default_value_expression_ptr);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE  rq::ExpressionFlags getExpressionFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::SymbolParameter *getNextSymbolParameterPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE  rq::SymbolParameter *getNextSymbolParameterPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
+  getNextSymbolParameterPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
+  getNextSymbolParameterPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
@@ -2209,9 +2240,9 @@ struct Main final : public rq::Callable {
   using Self = rq::Main;
 
   explicit RQ_ALWAYS_INLINE Main(rq::SymbolTable &containing_table,
-                                  rq::SymbolTable &hosting_table,
-                                  const rq::Expression &expression,
-                                  rq::ExpressionFlags flags);
+                                 rq::SymbolTable &hosting_table,
+                                 const rq::Expression &expression,
+                                 rq::ExpressionFlags flags);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2241,7 +2272,8 @@ struct Ranger : public rq::Callable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
   getElementTypeExpression() const;
   RQ_ALWAYS_INLINE void setElementType(rq::SymbolConstant &element);
-  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::SymbolConstant *getElementTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+  getElementTypePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getElementTypePtr();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2352,13 +2384,16 @@ struct Template : public rq::GlobalDeclaration {
            const rq::Expression *constraint_expression_ptr,
            const rq::Expression *weight_expression_ptr, unsigned weight);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::Expression &getLayoutExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getLayoutExpression() const;
   RQ_ALWAYS_INLINE void setLayout(rq::Layout &layout);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Layout *getLayoutPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout *getLayoutPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::Expression *getConstraintExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::Expression *getWeightExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE  unsigned getWeight() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getConstraintExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getWeightExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getWeight() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

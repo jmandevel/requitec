@@ -6,6 +6,7 @@
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/FoldingSet.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
@@ -76,10 +77,73 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::SymbolicExecutionEngine _see{};
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
-  struct {
-    rq::Expression *_first_unused_expression_ptr{nullptr};
-
-  } acquired;
+  rq::Expression *_free_expression_ptr{nullptr};
+  rq::IntegerLiteralType _integer_literal_type{};
+  rq::FloatLiteralType _float_literal_type{};
+  rq::StringLiteralType _string_literal_type{};
+  rq::CodeunitLiteralType _codeunit_literal_type{};
+  rq::OutValue _out_value{};
+  rq::ThisValue _this_value{};
+  rq::ResultValue _result_value{};
+  rq::IndexValue _index_value{};
+  rq::DiscriminantValue _discrimnant_value{};
+  rq::CommandLineArgumentsValue _command_line_arguments_value{};
+  rq::CallsiteValue _callsite_value{};
+  rq::InferenceType _inference_type{};
+  rq::VoidType _void_type{};
+  rq::NoReturnType _no_return_type{};
+  rq::AnchorType _anchor_type{};
+  rq::OpaqueType _opaque_type{};
+  rq::GlobalType _global_type{};
+  rq::AccessType _access_type{};
+  rq::PartialMutateType _partial_mutate_type{};
+  rq::StaticType _static_type{};
+  rq::CaptureType _capture_type{};
+  rq::InlineType _inline_type{};
+  rq::MangleType _mangle_type{};
+  rq::PackType _pack_type{};
+  rq::BranchTrendType _branch_trend_type{};
+  rq::DepreciateType _depreciate_type{};
+  rq::StableAddressType _stable_address_type{};
+  rq::VariadicType _variadic_type{};
+  rq::LocationType _location_type{};
+  rq::TemplateType _template_type{};
+  rq::ConstraintType _constraint_type{};
+  rq::WeightType _weight_type{};
+  rq::RequireType _require_type{};
+  rq::EnsureType _ensure_type{};
+  rq::VarType _var_type{};
+  rq::VolatileType _volatile_type{};
+  rq::AtomicType _atomic_type{};
+  rq::NullTerminateType _null_terminate_type{};
+  rq::SymbolType _symbol_type{};
+  rq::ExpressionType _expression_type{};
+  rq::BooleanType _boolean_type{};
+  rq::HalfType _half_type{};
+  rq::SingleType _single_type{};
+  rq::DoubleType _double_type{};
+  rq::QuadrupleType _quadruple_type{};
+  rq::SignedIntegerType _signed_integer_type{};
+  rq::UnsignedIntegerType _unsigned_integer_type{};
+  rq::SignedIndexType _signed_index_type{};
+  rq::UnsignedIndexType _unsigned_index_type{};
+  rq::SignedAddressType _signed_address_type{};
+  rq::UnsignedAddressType _unsigned_address_type{};
+  rq::CharType _char_type{};
+  rq::Binary16Type _binary16_type{};
+  rq::Binary32Type _binary32_type{};
+  rq::Binary64Type _binary64_type{};
+  rq::Binary128Type _binary128_type{};
+  rq::Bfloat16Type _bfloat16_type{};
+  rq::AsciiType _ascii_type{};
+  rq::Utf8Type _utf8_type{};
+  rq::VariadicArgumentsType _variadic_arguments_type{};
+  llvm::FoldingSet<rq::ScaledPrimitiveType> _scaled_primitive_types{};
+  llvm::FoldingSet<rq::ArraySubtype> _array_subtypes{};
+  llvm::FoldingSet<rq::UncountedSubtype> _uncounted_subtypes{};
+  llvm::FoldingSet<rq::JuxtapositionalListItem> _juxtapositional_list_items{};
+  llvm::FoldingSet<rq::JuxtapositionalListType> _juxtapositional_list_types{};
+  llvm::FoldingSet<rq::ArithmeticSequenceType> _arithmetic_sequence_types{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -229,8 +293,10 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
   void logErrorDuplicateParameterMark(const rq::Expression &mark);
   void logErrorDuplicateAttribute(const rq::Expression &attribute);
-  void logErrorNonpositionalBeginAfterPositionalEnd(const rq::Expression &named_begin);
-  void logErrorNonpositionalBeginAfterLockedBegin(const rq::Expression &named_begin);
+  void logErrorNonpositionalBeginAfterPositionalEnd(
+      const rq::Expression &named_begin);
+  void
+  logErrorNonpositionalBeginAfterLockedBegin(const rq::Expression &named_begin);
   void logErrorPositionalEndAfterLockedBegin(const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
@@ -277,10 +343,349 @@ struct Context final : public rq::BumpPtrAllocator {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
     expression.clear();
-    expression._branch_ptr = this->acquired._first_unused_expression_ptr;
-    this->acquired._first_unused_expression_ptr = &expression;
+    expression._branch_ptr = this->_free_expression_ptr;
+    this->_free_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteralType &
+  getIntegerLiteralType() {
+    return this->_integer_literal_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteralType &getFloatLiteralType() {
+    return this->_float_literal_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteralType &getStringLiteralType() {
+    return this->_string_literal_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteralType &
+  getCodeunitLiteralType() {
+    return this->_codeunit_literal_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OutValue &getOutValue() {
+    return this->_out_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThisValue &getThisValue() {
+    return this->_this_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResultValue &getResultValue() {
+    return this->_result_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IndexValue &getIndexValue() {
+    return this->_index_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &getDiscriminantValue() {
+    return this->_discrimnant_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CommandLineArgumentsValue &
+  getCommandLineArgumentsValue() {
+    return this->_command_line_arguments_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CallsiteValue &getCallsiteValue() {
+    return this->_callsite_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &getInferenceType() {
+    return this->_inference_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidType &getVoidType() {
+    return this->_void_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &getNoReturnType() {
+    return this->_no_return_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorType &getAnchorType() {
+    return this->_anchor_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueType &getOpaqueType() {
+    return this->_opaque_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalType &getGlobalType() {
+    return this->_global_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessType &getAccessType() {
+    return this->_access_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateType &getPartialMutateType() {
+    return this->_partial_mutate_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticType &getStaticType() {
+    return this->_static_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureType &getCaptureType() {
+    return this->_capture_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineType &getInlineType() {
+    return this->_inline_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleType &getMangleType() {
+    return this->_mangle_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackType &getPackType() {
+    return this->_pack_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendType &getBranchTrendType() {
+    return this->_branch_trend_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DepreciateType &getDepreciateType() {
+    return this->_depreciate_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressType &getStableAddressType() {
+    return this->_stable_address_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicType &getVariadicType() {
+    return this->_variadic_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationType &getLocationType() {
+    return this->_location_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateType &getTemplateType() {
+    return this->_template_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintType &getConstraintType() {
+    return this->_constraint_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightType &getWeightType() {
+    return this->_weight_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireType &getRequireType() {
+    return this->_require_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureType &getEnsureType() {
+    return this->_ensure_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarType &getVarType() {
+    return this->_var_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileType &getVolatileType() {
+    return this->_volatile_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicType &getAtomicType() {
+    return this->_atomic_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateType &getNullTerminateType() {
+    return this->_null_terminate_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &getSymbolType() {
+    return this->_symbol_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &getExpressionType() {
+    return this->_expression_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanType &getBooleanType() {
+    return this->_boolean_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfType &getHalfType() {
+    return this->_half_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleType &getSingleType() {
+    return this->_single_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleType &getDoubleType() {
+    return this->_double_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleType &getQuadrupleType() {
+    return this->_quadruple_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerType &getSignedIntegerType() {
+    return this->_signed_integer_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerType &
+  getUnsignedIntegerType() {
+    return this->_unsigned_integer_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIndexType &getSignedIndexType() {
+    return this->_signed_index_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIndexType &getUnsignedIndexType() {
+    return this->_unsigned_index_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedAddressType &getSignedAddressType() {
+    return this->_signed_address_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedAddressType &
+  getUnsignedAddressType() {
+    return this->_unsigned_address_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &getCharType() {
+    return this->_char_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Type &getBinary16Type() {
+    return this->_binary16_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Type &getBinary32Type() {
+    return this->_binary32_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Type &getBinary64Type() {
+    return this->_binary64_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Type &getBinary128Type() {
+    return this->_binary128_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Type &getBfloat16Type() {
+    return this->_bfloat16_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiType &getAsciiType() {
+    return this->_ascii_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &getUtf8Type() {
+    return this->_utf8_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsType &
+  getVariadicArgumentsType() {
+    return this->_variadic_arguments_type;
+  }
+  [[nodiscard]] inline rq::ScaledPrimitiveType &
+  getScaledPrimitiveType(rq::SymbolKind kind, rq::ScaleKind scale_kind,
+                         unsigned scale, std::uint64_t synonym_id) {
+    llvm::FoldingSetNodeID id;
+    rq::profileScaledPrimitiveType(id, kind, scale_kind, scale, synonym_id);
+    void *insert_pos;
+    rq::ScaledPrimitiveType *found_ptr =
+        this->_scaled_primitive_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::ScaledPrimitiveType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::ScaledPrimitiveType &created =
+        this->allocateValue<rq::ScaledPrimitiveType>(kind, scale_kind, scale,
+                                                     synonym_id);
+    this->_scaled_primitive_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedIntegerType &
+  getScaledSignedIntegerType(rq::ScaleKind kind, unsigned scale,
+                             std::uint64_t synonym_id) {
+    return llvm::cast<rq::ScaledSignedIntegerType>(this->getScaledPrimitiveType(
+        rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale, synonym_id));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedIntegerType &
+  getScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
+                               std::uint64_t synonym_id) {
+    return llvm::cast<rq::ScaledUnsignedIntegerType>(
+        this->getScaledPrimitiveType(
+            rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale,
+            synonym_id));
+  }
+  [[nodiscard]] inline rq::ArraySubtype &
+  getArraySubtype(rq::SymbolConstant &child, std::uint64_t count) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArraySubtype(id, child, count);
+    void *insert_pos;
+    rq::ArraySubtype *found_ptr =
+        this->_array_subtypes.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::ArraySubtype &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::ArraySubtype &created =
+        this->allocateValue<rq::ArraySubtype>(child, count);
+    this->_array_subtypes.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] inline rq::UncountedSubtype &
+  getUncountedSubtype(rq::SymbolKind kind, rq::SymbolConstant &child) {
+    llvm::FoldingSetNodeID id;
+    rq::profileUncountedSubtype(id, kind, child);
+    void *insert_pos;
+    rq::UncountedSubtype *found_ptr =
+        this->_uncounted_subtypes.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::UncountedSubtype &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::UncountedSubtype &created =
+        this->allocateValue<rq::UncountedSubtype>(kind, child);
+    this->_uncounted_subtypes.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSubtype &
+  getReferenceSubtype(rq::SymbolConstant &child) {
+    return llvm::cast<rq::ReferenceSubtype>(
+        this->getUncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSubtype &
+  getPointerSubtype(rq::SymbolConstant &child) {
+    return llvm::cast<rq::PointerSubtype>(
+        this->getUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SliceSubtype &
+  getSliceSubtype(rq::SymbolConstant &child) {
+    return llvm::cast<rq::SliceSubtype>(
+        this->getUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceCountArraySubtype &
+  getInferenceCountArraySubtype(rq::SymbolConstant &child) {
+    return llvm::cast<rq::InferenceCountArraySubtype>(this->getUncountedSubtype(
+        rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &
+  getModule(rq::ModuleFactory &&factory) {
+    return this->allocateValue<rq::Module>(std::move(factory));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Import &
+  getImport(rq::ExpressionFlags flags, const rq::Expression &expression,
+            rq::Module &imported) {
+    return this->allocateValue<rq::Import>(flags, expression, imported);
+  }
+  [[nodiscard]] inline rq::JuxtapositionalListType &
+  getJuxtapositionalListType(rq::JuxtapositionalListItem &first_item) {
+    llvm::FoldingSetNodeID id;
+    rq::profileJuxtapositionalListType(id, first_item);
+    void *insert_pos;
+    rq::JuxtapositionalListType *found_ptr =
+        this->_juxtapositional_list_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::JuxtapositionalListType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::JuxtapositionalListType &created =
+        this->allocateValue<rq::JuxtapositionalListType>(first_item);
+    this->_juxtapositional_list_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] inline rq::ArithmeticSequenceType &
+  getArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
+                            rq::ArithmeticSequenceCondition condition,
+                            rq::ArithmeticSequenceStep step) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArithmeticSequenceType(id, kind, child, condition, step);
+    void *insert_pos;
+    rq::ArithmeticSequenceType *found_ptr =
+        this->_arithmetic_sequence_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::ArithmeticSequenceType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::ArithmeticSequenceType &created =
+        this->allocateValue<rq::ArithmeticSequenceType>(kind, child, condition,
+                                                        step);
+    this->_arithmetic_sequence_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalType &
+  getArithmeticIntervalType(rq::SymbolConstant &child,
+                            rq::ArithmeticSequenceCondition condition) {
+    return llvm::cast<rq::ArithmeticIntervalType>(
+        this->getArithmeticSequenceType(
+            rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child, condition,
+            rq::ArithmeticSequenceStep::NONE));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticSequenceType &
+  getInfiniteArithmeticSequenceType(rq::SymbolConstant &child,
+                                    rq::ArithmeticSequenceStep step) {
+    return llvm::cast<rq::InfiniteArithmeticSequenceType>(
+        this->getArithmeticSequenceType(
+            rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE, child,
+            rq::ArithmeticSequenceCondition::NONE, step));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticSequenceType &
+  getFiniteArithmeticSequenceType(rq::SymbolConstant &child,
+                                  rq::ArithmeticSequenceStep step,
+                                  rq::ArithmeticSequenceCondition condition) {
+    return llvm::cast<rq::FiniteArithmeticSequenceType>(
+        this->getArithmeticSequenceType(
+            rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
+            step));
+  }
 };
 
 } // namespace rq

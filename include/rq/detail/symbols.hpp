@@ -181,16 +181,18 @@ namespace rq {
     return "Import";
 
   // JUXTAPOSITIONAL LIST
+  case S::JUXTAPOSITIONAL_LIST_ITEM:
+    return "JuxtapositionalListItem";
   case S::JUXTAPOSITIONAL_LIST_TYPE:
     return "JuxtapositionalListType";
 
   // ARITHMETIC SEQUENCES
-  case S::ARITHMETIC_INTERVAL:
-    return "ArithmeticInterval";
-  case S::INFINITE_ARITHMETIC_SEQUENCE:
-    return "InfiniteArithmeticSequence";
-  case S::FINITE_ARITHMETIC_SEQUENCE:
-    return "FiniteArithmeticSequence";
+  case S::ARITHMETIC_INTERVAL_TYPE:
+    return "ArithmeticIntervalType";
+  case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
+    return "InfiniteArithmeticSequenceType";
+  case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
+    return "FiniteArithmeticSequenceType";
 
   // LOCAL DECLARATIONS
   case S::LABEL:
@@ -560,15 +562,17 @@ namespace rq {
     return SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // JUXTAPOSITIONAL LIST
+  case S::JUXTAPOSITIONAL_LIST_ITEM:
+    return SF::NONE;
   case S::JUXTAPOSITIONAL_LIST_TYPE:
     return SF::IS_TYPE;
 
   // ARITHMETIC SEQUENCES
-  case S::ARITHMETIC_INTERVAL:
+  case S::ARITHMETIC_INTERVAL_TYPE:
     return SF::ARITHMETIC_SEQUENCE | SF::IS_TYPE;
-  case S::INFINITE_ARITHMETIC_SEQUENCE:
+  case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
     return SF::ARITHMETIC_SEQUENCE | SF::IS_TYPE;
-  case S::FINITE_ARITHMETIC_SEQUENCE:
+  case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
     return SF::ARITHMETIC_SEQUENCE | SF::IS_TYPE;
 
   // LOCAL DECLARATIONS
@@ -955,7 +959,7 @@ getIsStandardPrimitiveType(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsArithmeticSequence(rq::SymbolKind kind) {
+getIsArithmeticSequenceType(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::ARITHMETIC_SEQUENCE);
 }
@@ -1240,15 +1244,6 @@ RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-inline void SimpleSymbol::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileSimpleSymbol(id, this->getKind());
-}
-
-RQ_ALWAYS_INLINE void profileSimpleSymbol(llvm::FoldingSetNodeID &id,
-                                          rq::SymbolKind kind) {
-  id.AddInteger(rq::getUnderlying(kind));
-}
-
 RQ_ALWAYS_INLINE LiteralType::LiteralType(rq::SymbolKind kind)
     : SimpleSymbol(kind) {
   RQ_ASSERT(rq::getIsLiteralType(kind), "not literal type");
@@ -1427,6 +1422,16 @@ ContextualType::classof(const rq::Entity *entity_ptr) {
   const rq::EntityId id = entity.getId();
   return rq::getIsContextualType(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
+}
+
+RQ_ALWAYS_INLINE InferenceType::InferenceType()
+    : ContextualType(rq::SymbolKind::INFERENCE_TYPE) {}
+
+[[nodiscard]] inline bool InferenceType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id ==
+         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::INFERENCE_TYPE);
 }
 
 RQ_ALWAYS_INLINE VoidType::VoidType()
@@ -1870,6 +1875,28 @@ UnsignedAddressType::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE);
 }
 
+RQ_ALWAYS_INLINE SignedIndexType::SignedIndexType()
+    : PlatformPrimitiveType(rq::SymbolKind::SIGNED_INDEX_TYPE) {}
+
+[[nodiscard]] inline bool
+SignedIndexType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::SIGNED_INDEX_TYPE);
+}
+
+RQ_ALWAYS_INLINE UnsignedIndexType::UnsignedIndexType()
+    : PlatformPrimitiveType(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE) {}
+
+[[nodiscard]] inline bool
+UnsignedIndexType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE);
+}
+
 RQ_ALWAYS_INLINE CharType::CharType()
     : PlatformPrimitiveType(rq::SymbolKind::CHAR_TYPE) {}
 
@@ -2012,15 +2039,17 @@ ScaledPrimitiveType::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileScaledPrimitiveType(id, this->getScaleKind(), this->getScale(),
-                                 this->getSynonymTypeId());
+  rq::profileScaledPrimitiveType(id, this->getKind(), this->getScaleKind(),
+                                 this->getScale(), this->getSynonymTypeId());
 }
 
 RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
-                                                 rq::ScaleKind kind,
+                                                 rq::SymbolKind kind,
+                                                 rq::ScaleKind scale_kind,
                                                  unsigned scale,
                                                  std::uint64_t synonum_id) {
   id.AddInteger(rq::getUnderlying(kind));
+  id.AddInteger(rq::getUnderlying(scale_kind));
   id.AddInteger(scale);
   id.AddInteger(synonum_id);
 }
@@ -2125,11 +2154,13 @@ UncountedSubtype::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void UncountedSubtype::Profile(llvm::FoldingSetNodeID &id) const {
-  return rq::profileUncountedSubtype(id, this->getChild());
+  return rq::profileUncountedSubtype(id, this->getKind(), this->getChild());
 }
 
 RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+                                              rq::SymbolKind kind,
                                               const rq::SymbolConstant &child) {
+  id.AddInteger(rq::getUnderlying(kind));
   id.AddPointer(&child);
 }
 
@@ -2290,77 +2321,138 @@ Import::getExpressionFlags() const {
 }
 
 RQ_ALWAYS_INLINE
-JuxtapositionalList::JuxtapositionalList(
+JuxtapositionalListItem::JuxtapositionalListItem(
+    rq::SymbolConstant &type, rq::JuxtapositionalListItem *next_ptr)
+    : Symbol(rq::SymbolKind::JUXTAPOSITIONAL_LIST_ITEM), _next_ptr(next_ptr),
+      _type_ptr(&type) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+JuxtapositionalListItem::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
+JuxtapositionalListItem::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] inline bool
+JuxtapositionalListItem::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::JUXTAPOSITIONAL_LIST_ITEM);
+}
+
+inline void JuxtapositionalListItem::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileJuxtapositionalListItem(id, this->getType(), this->_next_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+profileJuxtapositionalListItem(llvm::FoldingSetNodeID &id,
+                               const rq::SymbolConstant &type,
+                               const rq::JuxtapositionalListItem *next_ptr) {
+  id.AddPointer(&type);
+  id.AddPointer(next_ptr);
+}
+
+RQ_ALWAYS_INLINE
+JuxtapositionalListType::JuxtapositionalListType(
     rq::JuxtapositionalListItem &first_item)
     : Symbol(rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE),
       _first_item_ptr(&first_item) {}
 
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::NextIterator<rq::JuxtapositionalListItem>,
+                          rq::NextIterator<rq::JuxtapositionalListItem>,
+                          std::ranges::subrange_kind::unsized>
+    JuxtapositionalListType::getJuxtapositionalListItemSubrange() {
+  return std::ranges::subrange<rq::NextIterator<rq::JuxtapositionalListItem>,
+                               rq::NextIterator<rq::JuxtapositionalListItem>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::JuxtapositionalListItem>(this->_first_item_ptr),
+      rq::NextIterator<rq::JuxtapositionalListItem>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstNextIterator<rq::JuxtapositionalListItem>,
+                          rq::ConstNextIterator<rq::JuxtapositionalListItem>,
+                          std::ranges::subrange_kind::unsized>
+    JuxtapositionalListType::getJuxtapositionalListItemSubrange() const {
+  return std::ranges::subrange<
+      rq::ConstNextIterator<rq::JuxtapositionalListItem>,
+      rq::ConstNextIterator<rq::JuxtapositionalListItem>,
+      std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::JuxtapositionalListItem>(this->_first_item_ptr),
+      rq::ConstNextIterator<rq::JuxtapositionalListItem>());
+}
+
 [[nodiscard]] inline bool
-JuxtapositionalList::classof(const rq::Entity *entity_ptr) {
+JuxtapositionalListType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
                    rq::getUnderlying(rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE);
 }
 
-inline void JuxtapositionalList::Profile(llvm::FoldingSetNodeID &id) const {
+inline void JuxtapositionalListType::Profile(llvm::FoldingSetNodeID &id) const {
   const rq::JuxtapositionalListItem &first_item =
       rq::dereferencePtr(this->_first_item_ptr);
-  rq::profileJuxtapositionalList(id, first_item);
+  rq::profileJuxtapositionalListType(id, first_item);
 }
 
 inline void
-profileJuxtapositionalList(llvm::FoldingSetNodeID &id,
-                           const rq::JuxtapositionalListItem &first_item) {
+profileJuxtapositionalListType(llvm::FoldingSetNodeID &id,
+                               const rq::JuxtapositionalListItem &first_item) {
   id.AddPointer(&first_item);
 }
 
-RQ_ALWAYS_INLINE ArithmeticSequence::ArithmeticSequence(
+RQ_ALWAYS_INLINE ArithmeticSequenceType::ArithmeticSequenceType(
     rq::SymbolKind kind, rq::SymbolConstant &child,
     rq::ArithmeticSequenceCondition condition, rq::ArithmeticSequenceStep step)
     : Symbol(kind), _child_ptr(&child), _condition(condition), _step(step) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
-ArithmeticSequence::getChild() const {
+ArithmeticSequenceType::getChild() const {
   return rq::dereferencePtr(this->_child_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
-ArithmeticSequence::getChild() {
+ArithmeticSequenceType::getChild() {
   return rq::dereferencePtr(this->_child_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
-ArithmeticSequence::getCondition() const {
+ArithmeticSequenceType::getCondition() const {
   return this->_condition;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep
-ArithmeticSequence::getStep() const {
+ArithmeticSequenceType::getStep() const {
   return this->_step;
 }
 
 [[nodiscard]] inline bool
-ArithmeticSequence::classof(const rq::Entity *entity_ptr) {
+ArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   if (!llvm::isa<rq::Symbol>(entity)) {
     return false;
   }
   const rq::EntityId id = entity.getId();
-  return rq::getIsArithmeticSequence(
+  return rq::getIsArithmeticSequenceType(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-inline void ArithmeticSequence::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileArithmeticSequence(id, this->getKind(), this->getChild(),
-                                this->getCondition(), this->getStep());
+inline void ArithmeticSequenceType::Profile(llvm::FoldingSetNodeID &id) const {
+  rq::profileArithmeticSequenceType(id, this->getKind(), this->getChild(),
+                                    this->getCondition(), this->getStep());
 }
 
 RQ_ALWAYS_INLINE void
-profileArithmeticSequence(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
-                          const rq::SymbolConstant &child,
-                          rq::ArithmeticSequenceCondition condition,
-                          rq::ArithmeticSequenceStep step) {
+profileArithmeticSequenceType(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+                              const rq::SymbolConstant &child,
+                              rq::ArithmeticSequenceCondition condition,
+                              rq::ArithmeticSequenceStep step) {
   id.AddInteger(rq::getUnderlying(kind));
   id.AddPointer(&child);
   id.AddInteger(rq::getUnderlying(condition));
@@ -2368,57 +2460,58 @@ profileArithmeticSequence(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
 }
 
 RQ_ALWAYS_INLINE
-ArithmeticInterval::ArithmeticInterval(
+ArithmeticIntervalType::ArithmeticIntervalType(
     rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition)
-    : ArithmeticSequence(rq::SymbolKind::ARITHMETIC_INTERVAL, child, condition,
-                         rq::ArithmeticSequenceStep::NONE) {
+    : ArithmeticSequenceType(rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child,
+                             condition, rq::ArithmeticSequenceStep::NONE) {
   RQ_ASSERT(condition != rq::ArithmeticSequenceCondition::NONE,
             "condition is none");
 }
 
 [[nodiscard]] inline bool
-ArithmeticInterval::classof(const rq::Entity *entity_ptr) {
+ArithmeticIntervalType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ARITHMETIC_INTERVAL);
+                   rq::getUnderlying(rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE);
 }
 
 RQ_ALWAYS_INLINE
-InfiniteArithmeticSequence::InfiniteArithmeticSequence(
+InfiniteArithmeticSequenceType::InfiniteArithmeticSequenceType(
     rq::SymbolConstant &child, rq::ArithmeticSequenceStep step)
-    : ArithmeticSequence(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE, child,
-                         rq::ArithmeticSequenceCondition::NONE, step) {
+    : ArithmeticSequenceType(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE,
+                             child, rq::ArithmeticSequenceCondition::NONE,
+                             step) {
   RQ_ASSERT(step != rq::ArithmeticSequenceStep::NONE, "step is none");
 }
 
 [[nodiscard]] inline bool
-InfiniteArithmeticSequence::classof(const rq::Entity *entity_ptr) {
+InfiniteArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET +
-             rq::getUnderlying(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE);
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(
+                       rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE);
 }
 
 RQ_ALWAYS_INLINE
-FiniteArithmeticSequence::FiniteArithmeticSequence(
+FiniteArithmeticSequenceType::FiniteArithmeticSequenceType(
     rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
     rq::ArithmeticSequenceStep step)
-    : ArithmeticSequence(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE, child,
-                         condition, step) {
+    : ArithmeticSequenceType(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE,
+                             child, condition, step) {
   RQ_ASSERT(condition != rq::ArithmeticSequenceCondition::NONE,
             "condition is none");
   RQ_ASSERT(step != rq::ArithmeticSequenceStep::NONE, "step is none");
 }
 
 [[nodiscard]] inline bool
-FiniteArithmeticSequence::classof(const rq::Entity *entity_ptr) {
+FiniteArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET +
-             rq::getUnderlying(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE);
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(
+                       rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE);
 }
 
 RQ_ALWAYS_INLINE
