@@ -923,10 +923,10 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &out_id,
                                                  rq::SymbolKind kind,
                                                  rq::ScaleKind scale_kind,
                                                  unsigned scale,
@@ -977,10 +977,10 @@ struct ArraySubtype final : public rq::Subtype, public llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &out_id,
                                           const rq::SymbolConstant &child,
                                           std::uint64_t count);
 
@@ -992,10 +992,10 @@ struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &out_id,
                                               rq::SymbolKind kind,
                                               const rq::SymbolConstant &child);
 
@@ -1117,11 +1117,11 @@ struct JuxtapositionalListItem final : public rq::Symbol,
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileJuxtapositionalListItem(llvm::FoldingSetNodeID &id,
+profileJuxtapositionalListItem(llvm::FoldingSetNodeID &out_id,
                                const rq::SymbolConstant &type,
                                const rq::JuxtapositionalListItem *next_ptr);
 
@@ -1146,11 +1146,11 @@ struct JuxtapositionalListType final : public rq::Symbol, llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileJuxtapositionalListType(llvm::FoldingSetNodeID &id,
+profileJuxtapositionalListType(llvm::FoldingSetNodeID &out_id,
                            const rq::JuxtapositionalListItem &first_item);
 
 struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
@@ -1173,11 +1173,11 @@ struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileArithmeticSequenceType(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+profileArithmeticSequenceType(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
                           const rq::SymbolConstant &child,
                           rq::ArithmeticSequenceCondition condition,
                           rq::ArithmeticSequenceStep step);
@@ -1473,11 +1473,11 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileTypeParameter(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+profileTypeParameter(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
                      llvm::StringRef name, const rq::SymbolConstant &type,
                      unsigned location, bool is_positional);
 
@@ -1723,14 +1723,14 @@ struct ProcedureType final : rq::TypeParameterList,
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+  inline void Profile(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
                       const rq::ProcedureParameter *first_parameter_ptr,
                       const rq::SymbolConstant &return_type,
                       const rq::SymbolConstant *reciever_type_ptr) const;
 };
 
 inline void
-profileProcedureType(llvm::FoldingSetNodeID &id,
+profileProcedureType(llvm::FoldingSetNodeID &out_id,
                      const rq::ProcedureParameter *first_parameter_ptr,
                      const rq::SymbolConstant &return_type,
                      const rq::SymbolConstant *reciever_type_ptr);
@@ -1772,11 +1772,11 @@ struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileTupleType(llvm::FoldingSetNodeID &id,
+profileTupleType(llvm::FoldingSetNodeID &out_id,
                  const rq::TupleParameter *first_parameter_ptr);
 
 struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
@@ -1790,10 +1790,10 @@ struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
-RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &out_id,
                                        const rq::Procedure &procedure);
 
 // TODO composition factory
@@ -1815,11 +1815,11 @@ struct CompositionComponent final : llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent *
   getNextComponentPtr();
 
-  inline void Profile(llvm::FoldingSetNodeID &id) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 inline void
-profileCompositionComponent(llvm::FoldingSetNodeID &id,
+profileCompositionComponent(llvm::FoldingSetNodeID &out_id,
                             const rq::Interface &interface,
                             const rq::CompositionComponent *next_component_ptr);
 
@@ -1847,11 +1847,11 @@ struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileComposition(llvm::FoldingSetNodeID &id,
+profileComposition(llvm::FoldingSetNodeID &out_id,
                    const rq::CompositionComponent &first_component);
 
 struct SynonymType final : public rq::Symbol {

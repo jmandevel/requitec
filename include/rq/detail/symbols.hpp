@@ -2038,20 +2038,20 @@ ScaledPrimitiveType::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-inline void ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileScaledPrimitiveType(id, this->getKind(), this->getScaleKind(),
+inline void ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileScaledPrimitiveType(out_id, this->getKind(), this->getScaleKind(),
                                  this->getScale(), this->getSynonymTypeId());
 }
 
-RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &out_id,
                                                  rq::SymbolKind kind,
                                                  rq::ScaleKind scale_kind,
                                                  unsigned scale,
                                                  std::uint64_t synonum_id) {
-  id.AddInteger(rq::getUnderlying(kind));
-  id.AddInteger(rq::getUnderlying(scale_kind));
-  id.AddInteger(scale);
-  id.AddInteger(synonum_id);
+  out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddInteger(rq::getUnderlying(scale_kind));
+  out_id.AddInteger(scale);
+  out_id.AddInteger(synonum_id);
 }
 
 RQ_ALWAYS_INLINE
@@ -2125,15 +2125,15 @@ RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(rq::SymbolConstant &child,
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ARRAY_SUBTYPE);
 }
 
-inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileArraySubtype(id, this->getChild(), this->getCount());
+inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileArraySubtype(out_id, this->getChild(), this->getCount());
 }
 
-RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &out_id,
                                           const rq::SymbolConstant &child,
                                           std::uint64_t count) {
-  id.AddPointer(&child);
-  id.AddInteger(count);
+  out_id.AddPointer(&child);
+  out_id.AddInteger(count);
 }
 
 RQ_ALWAYS_INLINE UncountedSubtype::UncountedSubtype(rq::SymbolKind kind,
@@ -2153,15 +2153,15 @@ UncountedSubtype::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-inline void UncountedSubtype::Profile(llvm::FoldingSetNodeID &id) const {
-  return rq::profileUncountedSubtype(id, this->getKind(), this->getChild());
+inline void UncountedSubtype::Profile(llvm::FoldingSetNodeID &out_id) const {
+  return rq::profileUncountedSubtype(out_id, this->getKind(), this->getChild());
 }
 
-RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &out_id,
                                               rq::SymbolKind kind,
                                               const rq::SymbolConstant &child) {
-  id.AddInteger(rq::getUnderlying(kind));
-  id.AddPointer(&child);
+  out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddPointer(&child);
 }
 
 RQ_ALWAYS_INLINE ReferenceSubtype::ReferenceSubtype(rq::SymbolConstant &child)
@@ -2344,16 +2344,17 @@ JuxtapositionalListItem::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::JUXTAPOSITIONAL_LIST_ITEM);
 }
 
-inline void JuxtapositionalListItem::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileJuxtapositionalListItem(id, this->getType(), this->_next_ptr);
+inline void
+JuxtapositionalListItem::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileJuxtapositionalListItem(out_id, this->getType(), this->_next_ptr);
 }
 
 RQ_ALWAYS_INLINE void
-profileJuxtapositionalListItem(llvm::FoldingSetNodeID &id,
+profileJuxtapositionalListItem(llvm::FoldingSetNodeID &out_id,
                                const rq::SymbolConstant &type,
                                const rq::JuxtapositionalListItem *next_ptr) {
-  id.AddPointer(&type);
-  id.AddPointer(next_ptr);
+  out_id.AddPointer(&type);
+  out_id.AddPointer(next_ptr);
 }
 
 RQ_ALWAYS_INLINE
@@ -2395,16 +2396,17 @@ JuxtapositionalListType::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE);
 }
 
-inline void JuxtapositionalListType::Profile(llvm::FoldingSetNodeID &id) const {
+inline void
+JuxtapositionalListType::Profile(llvm::FoldingSetNodeID &out_id) const {
   const rq::JuxtapositionalListItem &first_item =
       rq::dereferencePtr(this->_first_item_ptr);
-  rq::profileJuxtapositionalListType(id, first_item);
+  rq::profileJuxtapositionalListType(out_id, first_item);
 }
 
 inline void
-profileJuxtapositionalListType(llvm::FoldingSetNodeID &id,
+profileJuxtapositionalListType(llvm::FoldingSetNodeID &out_id,
                                const rq::JuxtapositionalListItem &first_item) {
-  id.AddPointer(&first_item);
+  out_id.AddPointer(&first_item);
 }
 
 RQ_ALWAYS_INLINE ArithmeticSequenceType::ArithmeticSequenceType(
@@ -2443,20 +2445,20 @@ ArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-inline void ArithmeticSequenceType::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileArithmeticSequenceType(id, this->getKind(), this->getChild(),
+inline void
+ArithmeticSequenceType::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileArithmeticSequenceType(out_id, this->getKind(), this->getChild(),
                                     this->getCondition(), this->getStep());
 }
 
-RQ_ALWAYS_INLINE void
-profileArithmeticSequenceType(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
-                              const rq::SymbolConstant &child,
-                              rq::ArithmeticSequenceCondition condition,
-                              rq::ArithmeticSequenceStep step) {
-  id.AddInteger(rq::getUnderlying(kind));
-  id.AddPointer(&child);
-  id.AddInteger(rq::getUnderlying(condition));
-  id.AddInteger(rq::getUnderlying(step));
+RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
+    llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
+    const rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
+    rq::ArithmeticSequenceStep step) {
+  out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddPointer(&child);
+  out_id.AddInteger(rq::getUnderlying(condition));
+  out_id.AddInteger(rq::getUnderlying(step));
 }
 
 RQ_ALWAYS_INLINE
@@ -2970,21 +2972,21 @@ TypeParameter::getIsPositionPassable() const {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-inline void TypeParameter::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileTypeParameter(id, this->getKind(), this->getName(),
+inline void TypeParameter::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileTypeParameter(out_id, this->getKind(), this->getName(),
                            this->getType(), this->getLocation(),
                            this->getIsPositional());
 }
 
 RQ_ALWAYS_INLINE void
-profileTypeParameter(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+profileTypeParameter(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
                      llvm::StringRef name, const rq::SymbolConstant &type,
                      unsigned location, bool is_positional) {
-  id.AddInteger(rq::getUnderlying(kind));
-  id.AddString(name);
-  id.AddPointer(&type);
-  id.AddInteger(location);
-  id.AddBoolean(is_positional);
+  out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddString(name);
+  out_id.AddPointer(&type);
+  out_id.AddInteger(location);
+  out_id.AddBoolean(is_positional);
 }
 
 RQ_ALWAYS_INLINE ProcedureParameter::ProcedureParameter(
@@ -3487,25 +3489,25 @@ ProcedureType::getProcedureParameterSubrange() const {
 }
 
 inline void
-ProcedureType::Profile(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+ProcedureType::Profile(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
                        const rq::ProcedureParameter *first_parameter_ptr,
                        const rq::SymbolConstant &return_type,
                        const rq::SymbolConstant *reciever_type_ptr) const {
-  id.AddInteger(rq::getUnderlying(kind));
-  id.AddPointer(first_parameter_ptr);
-  id.AddPointer(&return_type);
-  id.AddPointer(reciever_type_ptr);
+  out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddPointer(first_parameter_ptr);
+  out_id.AddPointer(&return_type);
+  out_id.AddPointer(reciever_type_ptr);
 }
 
 inline void
-profileProcedureType(llvm::FoldingSetNodeID &id, rq::SymbolKind kind,
+profileProcedureType(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
                      const rq::ProcedureParameter *first_parameter_ptr,
                      const rq::SymbolConstant &return_type,
                      const rq::SymbolConstant *reciever_type_ptr) {
-  id.AddInteger(rq::getUnderlying(kind));
-  id.AddPointer(first_parameter_ptr);
-  id.AddPointer(&return_type);
-  id.AddPointer(reciever_type_ptr);
+  out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddPointer(first_parameter_ptr);
+  out_id.AddPointer(&return_type);
+  out_id.AddPointer(reciever_type_ptr);
 }
 
 RQ_ALWAYS_INLINE TupleType::TupleType(rq::TypeParameter *first_parameter_ptr,
@@ -3611,15 +3613,15 @@ TupleType::getTupleParameterSubrange() const {
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::TUPLE_TYPE);
 }
 
-inline void TupleType::Profile(llvm::FoldingSetNodeID &id) const {
+inline void TupleType::Profile(llvm::FoldingSetNodeID &out_id) const {
   rq::profileTupleType(
-      id, llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr));
+      out_id, llvm::cast<rq::TupleParameter>(this->_first_parameter_ptr));
 }
 
 RQ_ALWAYS_INLINE void
-profileTupleType(llvm::FoldingSetNodeID &id,
+profileTupleType(llvm::FoldingSetNodeID &out_id,
                  const rq::TupleParameter *first_parameter_ptr) {
-  id.AddPointer(first_parameter_ptr);
+  out_id.AddPointer(first_parameter_ptr);
 }
 
 RQ_ALWAYS_INLINE PlacementType::PlacementType(rq::Procedure &procedure)
@@ -3641,13 +3643,13 @@ PlacementType::getProcedure() const {
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::PLACEMENT_TYPE);
 }
 
-inline void PlacementType::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profilePlacement(id, this->getProcedure());
+inline void PlacementType::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profilePlacement(out_id, this->getProcedure());
 }
 
-RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &id,
+RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &out_id,
                                        const rq::Procedure &procedure) {
-  id.AddPointer(&procedure);
+  out_id.AddPointer(&procedure);
 }
 
 RQ_ALWAYS_INLINE
@@ -3675,15 +3677,17 @@ CompositionComponent::getNextComponentPtr() {
   return this->_next_ptr;
 }
 
-inline void CompositionComponent::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileCompositionComponent(id, this->getInterface(), this->_next_ptr);
+inline void
+CompositionComponent::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileCompositionComponent(out_id, this->getInterface(),
+                                  this->_next_ptr);
 }
 
 RQ_ALWAYS_INLINE void profileCompositionComponent(
-    llvm::FoldingSetNodeID &id, const rq::Interface &interface,
+    llvm::FoldingSetNodeID &out_id, const rq::Interface &interface,
     const rq::CompositionComponent *next_component_ptr) {
-  id.AddPointer(&interface);
-  id.AddPointer(next_component_ptr);
+  out_id.AddPointer(&interface);
+  out_id.AddPointer(next_component_ptr);
 }
 
 RQ_ALWAYS_INLINE
@@ -3734,14 +3738,14 @@ CompositionType::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::COMPOSITION_TYPE);
 }
 
-inline void CompositionType::Profile(llvm::FoldingSetNodeID &id) const {
-  rq::profileComposition(id, this->getFirstComponent());
+inline void CompositionType::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileComposition(out_id, this->getFirstComponent());
 }
 
 inline void
-profileComposition(llvm::FoldingSetNodeID &id,
+profileComposition(llvm::FoldingSetNodeID &out_id,
                    const rq::CompositionComponent &first_component) {
-  id.AddPointer(&first_component);
+  out_id.AddPointer(&first_component);
 }
 
 RQ_ALWAYS_INLINE SynonymType::SynonymType(rq::Symbol &original)

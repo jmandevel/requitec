@@ -80,7 +80,7 @@ static constexpr unsigned MAX_BASE = 64;
 static constexpr unsigned MIN_UPPER_BASE = 36;
 
 [[nodiscard]] inline rq::NumericResultCode
-cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
+cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &out_clean) {
   bool found_decimal = false;
   for (const char c : text) {
     switch (c) {
@@ -89,7 +89,7 @@ cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
         return rq::NumericResultCode::ERROR_MULTIPLE_DECIMAL_POINT;
       }
       found_decimal = true;
-      ost_clean += c;
+      out_clean += c;
       break;
     case '_':
       break;
@@ -112,7 +112,7 @@ cleanFloatText(llvm::StringRef text, llvm::SmallString<16> &ost_clean) {
     case '8':
       [[fallthrough]];
     case '9':
-      ost_clean += c;
+      out_clean += c;
       break;
     default:
       return rq::NumericResultCode::ERROR_INVALID_DIGIT;
