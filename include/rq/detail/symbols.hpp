@@ -2937,6 +2937,16 @@ TypeParameter::TypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
   RQ_ASSERT(rq::getIsTypeParameter(kind), "not type parameter");
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
+TypeParameter::getNextTypeParameterPtr() const {
+  return llvm::cast<rq::TypeParameter>(this->getNextParameterPtr());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
+TypeParameter::getNextTypeParameterPtr() {
+  return llvm::cast<rq::TypeParameter>(this->getNextParameterPtr());
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned TypeParameter::getLocation() const {
   return this->_location;
 }
@@ -2973,16 +2983,18 @@ TypeParameter::getIsPositionPassable() const {
 }
 
 inline void TypeParameter::Profile(llvm::FoldingSetNodeID &out_id) const {
-  rq::profileTypeParameter(out_id, this->getKind(), this->getName(),
-                           this->getType(), this->getLocation(),
-                           this->getIsPositional());
+  rq::profileTypeParameter(
+      out_id, this->getKind(), this->getNextTypeParameterPtr(), this->getName(),
+      this->getType(), this->getLocation(), this->getIsPositional());
 }
 
 RQ_ALWAYS_INLINE void
 profileTypeParameter(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
-                     llvm::StringRef name, const rq::SymbolConstant &type,
-                     unsigned location, bool is_positional) {
+                     const rq::TypeParameter *next_ptr, llvm::StringRef name,
+                     const rq::SymbolConstant &type, unsigned location,
+                     bool is_positional) {
   out_id.AddInteger(rq::getUnderlying(kind));
+  out_id.AddPointer(next_ptr);
   out_id.AddString(name);
   out_id.AddPointer(&type);
   out_id.AddInteger(location);
@@ -3422,7 +3434,7 @@ TypeParameterList::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-ProcedureType::ProcedureType(rq::TypeParameter *first_parameter_ptr,
+ProcedureType::ProcedureType(rq::ProcedureParameter *first_parameter_ptr,
                              unsigned parameter_count,
                              unsigned positional_parameter_count,
                              unsigned nonpositional_parameter_count,
@@ -3432,6 +3444,26 @@ ProcedureType::ProcedureType(rq::TypeParameter *first_parameter_ptr,
                         parameter_count, positional_parameter_count,
                         nonpositional_parameter_count),
       _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+ProcedureType::getReturnType() const {
+  return rq::dereferencePtr(this->_return_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
+ProcedureType::getReturnType() {
+  return rq::dereferencePtr(this->_return_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+ProcedureType::getRecieverTypePtr() const {
+  return this->_reciever_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *
+ProcedureType::getRecieverTypePtr() {
+  return this->_reciever_type_ptr;
+}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
 ProcedureType::getFirstProcedureParameterPtr() const {
@@ -3488,29 +3520,22 @@ ProcedureType::getProcedureParameterSubrange() const {
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::PROCEDURE_TYPE);
 }
 
-inline void
-ProcedureType::Profile(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
-                       const rq::ProcedureParameter *first_parameter_ptr,
-                       const rq::SymbolConstant &return_type,
-                       const rq::SymbolConstant *reciever_type_ptr) const {
-  out_id.AddInteger(rq::getUnderlying(kind));
-  out_id.AddPointer(first_parameter_ptr);
-  out_id.AddPointer(&return_type);
-  out_id.AddPointer(reciever_type_ptr);
+inline void ProcedureType::Profile(llvm::FoldingSetNodeID &out_id) const {
+  rq::profileProcedureType(out_id, this->getFirstProcedureParameterPtr(),
+                           this->getReturnType(), this->getRecieverTypePtr());
 }
 
 inline void
-profileProcedureType(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
+profileProcedureType(llvm::FoldingSetNodeID &out_id,
                      const rq::ProcedureParameter *first_parameter_ptr,
                      const rq::SymbolConstant &return_type,
                      const rq::SymbolConstant *reciever_type_ptr) {
-  out_id.AddInteger(rq::getUnderlying(kind));
   out_id.AddPointer(first_parameter_ptr);
   out_id.AddPointer(&return_type);
   out_id.AddPointer(reciever_type_ptr);
 }
 
-RQ_ALWAYS_INLINE TupleType::TupleType(rq::TypeParameter *first_parameter_ptr,
+RQ_ALWAYS_INLINE TupleType::TupleType(rq::TupleParameter *first_parameter_ptr,
                                       unsigned parameter_count,
                                       unsigned positional_parameter_count,
                                       unsigned nonpositional_parameter_count,

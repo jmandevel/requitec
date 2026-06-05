@@ -144,6 +144,10 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::JuxtapositionalListItem> _juxtapositional_list_items{};
   llvm::FoldingSet<rq::JuxtapositionalListType> _juxtapositional_list_types{};
   llvm::FoldingSet<rq::ArithmeticSequenceType> _arithmetic_sequence_types{};
+  llvm::FoldingSet<rq::TypeParameter> _type_parameters{};
+  llvm::FoldingSet<rq::ProcedureType> _procedure_types{};
+  llvm::FoldingSet<rq::TupleType> _tuple_types{};
+  llvm::FoldingSet<rq::PlacementType> _placement_types{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -685,6 +689,188 @@ struct Context final : public rq::BumpPtrAllocator {
         this->getArithmeticSequenceType(
             rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
             step));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Label &
+  getLabel(llvm::StringRef name, const rq::Expression &name_expression,
+           rq::SymbolTable &containing_table, rq::Instruction &instruction) {
+    return this->allocateValue<rq::Label>(name, name_expression,
+                                          containing_table, instruction);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Anchor &
+  getAnchor(llvm::StringRef name, const rq::Expression &name_expression,
+            rq::SymbolTable &containing_table,
+            rq::LocalStatement &local_table) {
+    return this->allocateValue<rq::Anchor>(name, name_expression,
+                                           containing_table, local_table);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalDynamicVariable &
+  getLocalDynamicVariable(llvm::StringRef name,
+                          const rq::Expression &name_expression,
+                          rq::SymbolTable &containing_table,
+                          rq::SymbolTable &hosting_table,
+                          rq::ExpressionFlags flags) {
+    return this->allocateValue<rq::LocalDynamicVariable>(
+        name, name_expression, containing_table, hosting_table, flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStaticVariable &
+  getLocalStaticVariable(llvm::StringRef name,
+                         const rq::Expression &name_expression,
+                         rq::SymbolTable &containing_table,
+                         rq::SymbolTable &hosting_table,
+                         rq::ExpressionFlags flags) {
+    return this->allocateValue<rq::LocalStaticVariable>(
+        name, name_expression, containing_table, hosting_table, flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Enumerator &
+  getEnumerator(llvm::StringRef name, const rq::Expression &name_expression,
+                rq::SymbolTable &containing_table,
+                rq::SymbolTable &hosting_table, rq::ExpressionFlags flags,
+                rq::Expression *default_value_expression_ptr) {
+    return this->allocateValue<rq::Enumerator>(
+        name, name_expression, containing_table, hosting_table, flags,
+        default_value_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &getSignatureParameter(
+      rq::SymbolParameter *next_ptr, llvm::StringRef name,
+      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
+      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
+      bool is_positional, bool is_nonpositional, bool is_locked,
+      const rq::Expression &expression, const rq::Expression &name_expression,
+      const rq::Expression &type_expression,
+      const rq::Expression *default_value_expression_ptr) {
+    return this->allocateValue<rq::SignatureParameter>(
+        next_ptr, name, type, containing_table, hosting_table, expression_flags,
+        is_positional, is_nonpositional, is_locked, expression, name_expression,
+        type_expression, default_value_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &getLayoutParameter(
+      rq::SymbolParameter *next_ptr, llvm::StringRef name,
+      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
+      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
+      bool is_positional, bool is_nonpositional, bool is_locked,
+      const rq::Expression &expression, const rq::Expression &name_expression,
+      const rq::Expression &type_expression,
+      const rq::Expression *default_value_expression_ptr) {
+    return this->allocateValue<rq::LayoutParameter>(
+        next_ptr, name, type, containing_table, hosting_table, expression_flags,
+        is_positional, is_nonpositional, is_locked, expression, name_expression,
+        type_expression, default_value_expression_ptr);
+  }
+  [[nodiscard]] inline rq::TypeParameter &
+  getTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
+                   llvm::StringRef name, rq::SymbolConstant &type,
+                   unsigned location, bool is_positional) {
+    llvm::FoldingSetNodeID id;
+    rq::profileTypeParameter(id, kind, next_ptr, name, type, location,
+                             is_positional);
+    void *insert_pos;
+    rq::TypeParameter *found_ptr =
+        this->_type_parameters.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::TypeParameter &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::TypeParameter &created = this->allocateValue<rq::TypeParameter>(
+        kind, next_ptr, name, type, location, is_positional);
+    this->_type_parameters.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
+  getProcedureParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
+                        rq::SymbolConstant &type, unsigned location,
+                        bool is_positional) {
+    return llvm::cast<rq::ProcedureParameter>(
+        this->getTypeParameter(rq::SymbolKind::PROCEDURE_PARAMETER, next_ptr,
+                               name, type, location, is_positional));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
+  getTupleParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
+                    rq::SymbolConstant &type, unsigned location,
+                    bool is_positional) {
+    return llvm::cast<rq::TupleParameter>(
+        this->getTypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr, name,
+                               type, location, is_positional));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature &
+  getSignature(rq::SignatureParameter *first_parameter_ptr,
+               unsigned parameter_count, unsigned positional_parameter_count,
+               unsigned nonpositional_parameter_count,
+               const rq::Expression &expression,
+               unsigned locked_parameter_count, rq::SymbolConstant &return_type,
+               rq::SymbolConstant *reciever_type_ptr,
+               const rq::Expression *precondition_expression_ptr,
+               const rq::Expression *postcondition_expression_ptr) {
+    return this->allocateValue<rq::Signature>(
+        first_parameter_ptr, parameter_count, positional_parameter_count,
+        nonpositional_parameter_count, expression, locked_parameter_count,
+        return_type, reciever_type_ptr, precondition_expression_ptr,
+        postcondition_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &
+  getLayout(rq::SymbolParameter *first_parameter_ptr, unsigned parameter_count,
+            unsigned positional_parameter_count,
+            unsigned nonpositional_parameter_count,
+            const rq::Expression &expression, unsigned locked_parameter_count) {
+    return this->allocateValue<rq::Layout>(
+        first_parameter_ptr, parameter_count, positional_parameter_count,
+        nonpositional_parameter_count, expression, locked_parameter_count);
+  }
+  [[nodiscard]] inline rq::ProcedureType &getProcedureType(
+      rq::ProcedureParameter *first_parameter_ptr, unsigned parameter_count,
+      unsigned positional_parameter_count,
+      unsigned nonpositional_parameter_count, rq::SymbolConstant &return_type,
+      rq::SymbolConstant *reciever_type_ptr) {
+    llvm::FoldingSetNodeID id;
+    rq::profileProcedureType(id, first_parameter_ptr, return_type,
+                             reciever_type_ptr);
+    void *insert_pos;
+    rq::ProcedureType *found_ptr =
+        this->_procedure_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::ProcedureType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::ProcedureType &created = this->allocateValue<rq::ProcedureType>(
+        first_parameter_ptr, parameter_count, positional_parameter_count,
+        nonpositional_parameter_count, return_type, reciever_type_ptr);
+    this->_procedure_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] inline rq::TupleType &
+  getTupleType(rq::TupleParameter *first_parameter_ptr,
+               unsigned parameter_count, unsigned positional_parameter_count,
+               unsigned nonpositional_parameter_count,
+               unsigned type_keyed_parameter_count) {
+    llvm::FoldingSetNodeID id;
+    rq::profileTupleType(id, first_parameter_ptr);
+    void *insert_pos;
+    rq::TupleType *found_ptr =
+        this->_tuple_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::TupleType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::TupleType &created = this->allocateValue<rq::TupleType>(
+        first_parameter_ptr, parameter_count, positional_parameter_count,
+        nonpositional_parameter_count, type_keyed_parameter_count);
+    this->_tuple_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PlacementType &
+  getPlacementType(rq::Procedure &procedure) {
+    llvm::FoldingSetNodeID id;
+    rq::profilePlacement(id, procedure);
+    void *insert_pos;
+    rq::PlacementType *found_ptr =
+        this->_placement_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::PlacementType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::PlacementType &created =
+        this->allocateValue<rq::PlacementType>(procedure);
+    this->_placement_types.InsertNode(&created, insert_pos);
+    return created;
   }
 };
 

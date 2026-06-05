@@ -1151,7 +1151,7 @@ struct JuxtapositionalListType final : public rq::Symbol, llvm::FoldingSetNode {
 
 RQ_ALWAYS_INLINE void
 profileJuxtapositionalListType(llvm::FoldingSetNodeID &out_id,
-                           const rq::JuxtapositionalListItem &first_item);
+                               const rq::JuxtapositionalListItem &first_item);
 
 struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequenceType;
@@ -1162,8 +1162,8 @@ struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
 
   explicit RQ_ALWAYS_INLINE
   ArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
-                     rq::ArithmeticSequenceCondition condition,
-                     rq::ArithmeticSequenceStep step);
+                         rq::ArithmeticSequenceCondition condition,
+                         rq::ArithmeticSequenceStep step);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getChild();
@@ -1176,28 +1176,28 @@ struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
-RQ_ALWAYS_INLINE void
-profileArithmeticSequenceType(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
-                          const rq::SymbolConstant &child,
-                          rq::ArithmeticSequenceCondition condition,
-                          rq::ArithmeticSequenceStep step);
+RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
+    llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
+    const rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
+    rq::ArithmeticSequenceStep step);
 
 struct ArithmeticIntervalType final : public rq::ArithmeticSequenceType {
   using Self = rq::ArithmeticIntervalType;
 
   explicit RQ_ALWAYS_INLINE
   ArithmeticIntervalType(rq::SymbolConstant &child,
-                     rq::ArithmeticSequenceCondition condition);
+                         rq::ArithmeticSequenceCondition condition);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct InfiniteArithmeticSequenceType final : public rq::ArithmeticSequenceType {
+struct InfiniteArithmeticSequenceType final
+    : public rq::ArithmeticSequenceType {
   using Self = rq::InfiniteArithmeticSequenceType;
 
   explicit RQ_ALWAYS_INLINE
   InfiniteArithmeticSequenceType(rq::SymbolConstant &child,
-                             rq::ArithmeticSequenceStep step);
+                                 rq::ArithmeticSequenceStep step);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1207,8 +1207,8 @@ struct FiniteArithmeticSequenceType final : public rq::ArithmeticSequenceType {
 
   explicit RQ_ALWAYS_INLINE
   FiniteArithmeticSequenceType(rq::SymbolConstant &child,
-                           rq::ArithmeticSequenceCondition condition,
-                           rq::ArithmeticSequenceStep step);
+                               rq::ArithmeticSequenceCondition condition,
+                               rq::ArithmeticSequenceStep step);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1461,9 +1461,9 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
                 llvm::StringRef name, rq::SymbolConstant &type,
                 unsigned location, bool is_positional);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter &
-  getNextTypeParameter() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter &getNextTypeParameter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
+  getNextTypeParameterPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *getNextTypeParameterPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getLocation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
@@ -1478,8 +1478,9 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
 
 RQ_ALWAYS_INLINE void
 profileTypeParameter(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
-                     llvm::StringRef name, const rq::SymbolConstant &type,
-                     unsigned location, bool is_positional);
+                     const rq::TypeParameter *next_ptr, llvm::StringRef name,
+                     const rq::SymbolConstant &type, unsigned location,
+                     bool is_positional);
 
 struct ProcedureParameter final : public rq::TypeParameter {
   using Self = rq::TupleParameter;
@@ -1697,11 +1698,17 @@ struct ProcedureType final : rq::TypeParameterList,
   rq::SymbolConstant *_reciever_type_ptr;
 
   explicit RQ_ALWAYS_INLINE
-  ProcedureType(rq::TypeParameter *first_parameter_ptr,
+  ProcedureType(rq::ProcedureParameter *first_parameter_ptr,
                 unsigned parameter_count, unsigned positional_parameter_count,
                 unsigned nonpositional_parameter_count,
                 rq::SymbolConstant &return_type,
                 rq::SymbolConstant *reciever_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+  getReturnType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getReturnType();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+  getRecieverTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getRecieverTypePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
   getFirstProcedureParameterPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
@@ -1723,10 +1730,7 @@ struct ProcedureType final : rq::TypeParameterList,
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
-                      const rq::ProcedureParameter *first_parameter_ptr,
-                      const rq::SymbolConstant &return_type,
-                      const rq::SymbolConstant *reciever_type_ptr) const;
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const;
 };
 
 inline void
@@ -1740,7 +1744,7 @@ struct TupleType final : rq::TypeParameterList, public llvm::FoldingSetNode {
 
   unsigned _type_keyed_parameter_count;
 
-  explicit RQ_ALWAYS_INLINE TupleType(rq::TypeParameter *first_parameter_ptr,
+  explicit RQ_ALWAYS_INLINE TupleType(rq::TupleParameter *first_parameter_ptr,
                                       unsigned parameter_count,
                                       unsigned positional_parameter_count,
                                       unsigned nonpositional_parameter_count,
