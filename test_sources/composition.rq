@@ -1,6 +1,6 @@
 [import "std"];
 
-[interface Speak,
+[interface ISpeak,
     [method speak, ()[void]=>,
         ..std.print(line="I don't speak.");
     ];
@@ -16,39 +16,39 @@
     ];
 ];
 
-[implement_interface ..Dog, ..Speak,
+[adapter ASpeak, ..Dog, ..ISpeak,
     [method speak, ()[void]=>,
         ..std.print(line="Woof!");
     ];
 ];
 
-[implement_interface ..Cat, ..Speak,
+[adapter ASpeak, ..Cat, ..ISpeak,
     [method speak, ()[void]=>,
         ..std.print(line="Meow!");
     ];
 ];
 
-[implement_interface ..Rat, ..Speak,
+[adapter ASpeak, ..Rat, ..ISpeak,
     [use_method speak, ..Rat.squeak, ()[void]=>$];
 ];
 
-[interface Greet,
+[interface IGreet,
     [method greet, ()[void]=>,
         ..std.print(line="I don't greet.");
     ];
 ];
 
-[implement_interface ..Dog, ..Greet,
+[adapter AGreet, ..Dog, ..IGreet,
     [method greet, ()[void]=>,
         ..std.print(line="*wags tail*");
     ];
 ];
 
-[implement_interface ..Rat, ..Speak,
+[adapter ASpeak, ..Rat, ..ISpeak,
     [use_method speak, ..rat.squeak, ()[void]=>];
 ];
 
-[implement_interface ..Rat, ..Greet,
+[adapter AGreet, ..Rat, ..IGreet,
     [use_method greet, ..Rat.squeak, ()[void]=>];
 ];
 
@@ -57,19 +57,19 @@
     cat := ..Cat();
     rat := ..Rat();
 
-    dog->..Speak.speak();
-    dog->..Greet.greet();
-    cat->..Speak.speak();
-    cat->..Greet.greet();
+    dog.[adapt ..ASpeak].speak();
+    dog.[adapt ..AGreet].greet();
+    cat.[adapt ..ASpeak].speak();
+    cat.[adapt ..AGreet].greet();
 
-    ..speakAndGreet(animal=dog.[compose ..Speak, ..Greet]);
-    ..speakAndGreet(animal=cat.[compose ..Speak, ..Greet]);
-    ..speakAndGreet(animal=rat.[compose ..Speak, ..Greet]);
+    ..speakAndGreet(animal=dog.[compose ..ASpeak, ..AGreet]);
+    ..speakAndGreet(animal=cat.[compose ..ASpeak, ..AGreet]);
+    ..speakAndGreet(animal=rat.[compose ..ASpeak, ..AGreet]);
 
     [result] := 0;
 ];
 
-[function speakAndGreet, (> animal:[composition ..Speak, ..Greet] <)[void],
-    animal->..Speak.speak();
-    animal->..Greet.greet();
+[function speakAndGreet, (> animal:[composition ..ISpeak, ..IGreet] <)[void],
+    animal.[decompose ..ISpeak].speak();
+    animal.[decompose ..IGreet].greet();
 ];
