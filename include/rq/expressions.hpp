@@ -555,8 +555,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "likely";
   case K::UNLIKELY:
     return "unlikely";
-  case K::NO_DEPRECIATE:
-    return "no_depreciate";
+  case K::NO_SUPPORT_STATUS:
+    return "no_support_status";
   case K::DEPRECIATE:
     return "depreciate";
   case K::EXPERIMENTAL:
@@ -639,8 +639,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "pack_attribute";
   case K::BRANCH_TREND_ATTRIBUTE:
     return "branch_trend_attribute";
-  case K::DEPRECIATE_ATTRIBUTE:
-    return "depreciate_attribute";
+  case K::SUPPORT_STATUS_ATTRIBUTE:
+    return "support_status_attribute";
   case K::STABLE_ADDRESS_ATTRIBUTE:
     return "stable_address_attribute";
   case K::VARIADIC_ATTRIBUTE:
@@ -1397,7 +1397,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNLIKELY:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::NO_DEPRECIATE:
+  case K::NO_SUPPORT_STATUS:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::DEPRECIATE:
     return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -1481,7 +1481,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BRANCH_TREND_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::DEPRECIATE_ATTRIBUTE:
+  case K::SUPPORT_STATUS_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::STABLE_ADDRESS_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
@@ -2139,8 +2139,8 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   NO_BRANCH_TREND,
   LIKELY,
   UNLIKELY,
-  // depreciate_attribute
-  NO_DEPRECIATE,
+  // support_status_attribute
+  NO_SUPPORT_STATUS,
   DEPRECIATE,
   EXPERIMENTAL,
   // stable_address_attribute
@@ -2226,8 +2226,8 @@ getName(rq::ExpressionAttribute attribute) {
     return "likely";
   case EA::UNLIKELY:
     return "unlikely";
-  case EA::NO_DEPRECIATE:
-    return "no_depreciate";
+  case EA::NO_SUPPORT_STATUS:
+    return "no_support_status";
   case EA::DEPRECIATE:
     return "depreciate";
   case EA::EXPERIMENTAL:
@@ -2322,8 +2322,8 @@ getExpressionAttribute(rq::Keyword keyword) {
     return EA::LIKELY;
   case K::UNLIKELY:
     return EA::UNLIKELY;
-  case K::NO_DEPRECIATE:
-    return EA::NO_DEPRECIATE;
+  case K::NO_SUPPORT_STATUS:
+    return EA::NO_SUPPORT_STATUS;
   case K::DEPRECIATE:
     return EA::DEPRECIATE;
   case K::EXPERIMENTAL:
@@ -2483,7 +2483,7 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::LIKELY;
   case EA::UNLIKELY:
     return EF::UNLIKELY;
-  case EA::NO_DEPRECIATE:
+  case EA::NO_SUPPORT_STATUS:
     return EF::NONE;
   case EA::DEPRECIATE:
     return EF::DEPRECIATE;
@@ -2540,7 +2540,7 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   MANGLE_ATTRIBUTE,         // no_mangle vs mangle
   PACK_ATTRIBUTE,           // no_pack vs pack
   BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
-  DEPRECIATE_ATTRIBUTE,     // no_depreciate vs depreciate vs experimental
+  SUPPORT_STATUS_ATTRIBUTE,     // no_support_status vs depreciate vs experimental
   STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
   VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
   LOCATION_ATTRIBUTE,       // no_location vs location
@@ -2578,8 +2578,8 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
     return "pack_attribute";
   case EAK::BRANCH_TREND_ATTRIBUTE:
     return "branch_trend_attribute";
-  case EAK::DEPRECIATE_ATTRIBUTE:
-    return "depreciate_attribute";
+  case EAK::SUPPORT_STATUS_ATTRIBUTE:
+    return "support_status_attribute";
   case EAK::STABLE_ADDRESS_ATTRIBUTE:
     return "stable_address_attribute";
   case EAK::VARIADIC_ATTRIBUTE:
@@ -2655,12 +2655,12 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::UNLIKELY:
     return EAK::BRANCH_TREND_ATTRIBUTE;
-  case EA::NO_DEPRECIATE:
+  case EA::NO_SUPPORT_STATUS:
     [[fallthrough]];
   case EA::DEPRECIATE:
     [[fallthrough]];
   case EA::EXPERIMENTAL:
-    return EAK::DEPRECIATE_ATTRIBUTE;
+    return EAK::SUPPORT_STATUS_ATTRIBUTE;
   case EA::NO_STABLE_ADDRESS:
     [[fallthrough]];
   case EA::STABLE_ADDRESS:

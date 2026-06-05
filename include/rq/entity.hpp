@@ -327,8 +327,8 @@ enum class Keyword : rq::EntityId {
   NO_BRANCH_TREND,
   LIKELY,
   UNLIKELY,
-  // depreciate_attribute
-  NO_DEPRECIATE,
+  // support_status_attribute
+  NO_SUPPORT_STATUS,
   DEPRECIATE,
   EXPERIMENTAL,
   // address_stability_attribute
@@ -384,7 +384,7 @@ enum class Keyword : rq::EntityId {
   MANGLE_ATTRIBUTE,         // no_mangle vs mangle
   PACK_ATTRIBUTE,           // no_pack vs pack
   BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
-  DEPRECIATE_ATTRIBUTE,     // no_depreciate vs depreciate vs experimental
+  SUPPORT_STATUS_ATTRIBUTE,     // no_support_status vs depreciate vs experimental
   STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
   VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
   LOCATION_ATTRIBUTE,       // no_location vs location
@@ -512,7 +512,7 @@ enum class SymbolKind : rq::EntityId {
   MANGLE_ATTRIBUTE_TYPE,
   PACK_ATTRIBUTE_TYPE,
   BRANCH_TREND_ATTRIBUTE_TYPE,
-  DEPRECIATE_ATTRIBUTE_TYPE,
+  SUPPORT_STATUS_ATTRIBUTE_TYPE,
   STABLE_ADDRESS_ATTRIBUTE_TYPE,
   VARIADIC_ATTRIBUTE_TYPE,
   LOCATION_ATTRIBUTE_TYPE,

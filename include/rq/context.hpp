@@ -103,7 +103,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::MangleAttributeType _mangle_type{};
   rq::PackAttributeType _pack_type{};
   rq::BranchTrendAttributeType _branch_trend_type{};
-  rq::DepreciateAttributeType _depreciate_type{};
+  rq::SupportStatusAttributeType _depreciate_type{};
   rq::StableAddressAttributeType _stable_address_type{};
   rq::VariadicAttributeType _variadic_type{};
   rq::LocationAttributeType _location_type{};
@@ -431,7 +431,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendAttributeType &getBranchTrendAttributeType() {
     return this->_branch_trend_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DepreciateAttributeType &getDepreciateAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SupportStatusAttributeType &getSupportStatusAttributeType() {
     return this->_depreciate_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressAttributeType &getStableAddressAttributeType() {

@@ -71,8 +71,8 @@ namespace rq {
     return "PackAttributeType";
   case S::BRANCH_TREND_ATTRIBUTE_TYPE:
     return "BranchTrendAttributeType";
-  case S::DEPRECIATE_ATTRIBUTE_TYPE:
-    return "DepreciateAttributeType";
+  case S::SUPPORT_STATUS_ATTRIBUTE_TYPE:
+    return "SupportStatusAttributeType";
   case S::STABLE_ADDRESS_ATTRIBUTE_TYPE:
     return "StableAddressAttributeType";
   case S::VARIADIC_ATTRIBUTE_TYPE:
@@ -440,7 +440,7 @@ namespace rq {
     return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::BRANCH_TREND_ATTRIBUTE_TYPE:
     return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
-  case S::DEPRECIATE_ATTRIBUTE_TYPE:
+  case S::SUPPORT_STATUS_ATTRIBUTE_TYPE:
     return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::STABLE_ADDRESS_ATTRIBUTE_TYPE:
     return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
@@ -1606,15 +1606,15 @@ BranchTrendAttributeType::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE);
 }
 
-RQ_ALWAYS_INLINE DepreciateAttributeType::DepreciateAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::DEPRECIATE_ATTRIBUTE_TYPE) {}
+RQ_ALWAYS_INLINE SupportStatusAttributeType::SupportStatusAttributeType()
+    : ExpressionAttributeType(rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE) {}
 
 [[nodiscard]] inline bool
-DepreciateAttributeType::classof(const rq::Entity *entity_ptr) {
+SupportStatusAttributeType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::DEPRECIATE_ATTRIBUTE_TYPE);
+         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE);
 }
 
 RQ_ALWAYS_INLINE StableAddressAttributeType::StableAddressAttributeType()

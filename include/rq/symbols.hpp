@@ -169,7 +169,7 @@ struct Symbol;
       struct PackAttributeType;
       struct TemplateAttributeType;
       struct BranchTrendAttributeType;
-      struct DepreciateAttributeType;
+      struct SupportStatusAttributeType;
       struct StableAddressAttributeType;
       struct VariadicAttributeType;
       struct LocationAttributeType;
@@ -596,10 +596,10 @@ struct BranchTrendAttributeType final : public rq::ExpressionAttributeType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct DepreciateAttributeType final : public rq::ExpressionAttributeType {
-  using Self = rq::DepreciateAttributeType;
+struct SupportStatusAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::SupportStatusAttributeType;
 
-  explicit RQ_ALWAYS_INLINE DepreciateAttributeType();
+  explicit RQ_ALWAYS_INLINE SupportStatusAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
