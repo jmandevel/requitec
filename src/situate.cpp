@@ -1045,57 +1045,57 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHOR_TYPE:
+  case K::ANCHOR_ATTRIBUTE:
     [[fallthrough]];
-  case K::OPAQUE_TYPE:
+  case K::OPAQUE_ATTRIBUTE:
     [[fallthrough]];
-  case K::FLANK_TYPE:
+  case K::FLANK_ATTRIBUTE:
     [[fallthrough]];
-  case K::GLOBAL_TYPE:
+  case K::GLOBAL_ATTRIBUTE:
     [[fallthrough]];
-  case K::ACCESS_TYPE:
+  case K::ACCESS_ATTRIBUTE:
     [[fallthrough]];
-  case K::PARTIAL_MUTATE_TYPE:
+  case K::PARTIAL_MUTATE_ATTRIBUTE:
     [[fallthrough]];
-  case K::STATIC_TYPE:
+  case K::STATIC_ATTRIBUTE:
     [[fallthrough]];
-  case K::CAPTURE_TYPE:
+  case K::CAPTURE_ATTRIBUTE:
     [[fallthrough]];
-  case K::INLINE_TYPE:
+  case K::INLINE_ATTRIBUTE:
     [[fallthrough]];
-  case K::MANGLE_TYPE:
+  case K::MANGLE_ATTRIBUTE:
     [[fallthrough]];
-  case K::PACK_TYPE:
+  case K::PACK_ATTRIBUTE:
     [[fallthrough]];
-  case K::BRANCH_TREND_TYPE:
+  case K::BRANCH_TREND_ATTRIBUTE:
     [[fallthrough]];
-  case K::DEPRECIATE_TYPE:
+  case K::DEPRECIATE_ATTRIBUTE:
     [[fallthrough]];
-  case K::STABLE_ADDRESS_TYPE:
+  case K::STABLE_ADDRESS_ATTRIBUTE:
     [[fallthrough]];
-  case K::VARIADIC_TYPE:
+  case K::VARIADIC_ATTRIBUTE:
     [[fallthrough]];
-  case K::LOCATION_TYPE:
+  case K::LOCATION_ATTRIBUTE:
     [[fallthrough]];
-  case K::TEMPLATE_TYPE:
+  case K::TEMPLATE_ATTRIBUTE:
     [[fallthrough]];
-  case K::CONSTRAINT_TYPE:
+  case K::CONSTRAINT_ATTRIBUTE:
     [[fallthrough]];
-  case K::WEIGHT_TYPE:
+  case K::WEIGHT_ATTRIBUTE:
     [[fallthrough]];
-  case K::REQUIRE_TYPE:
+  case K::REQUIRE_ATTRIBUTE:
     [[fallthrough]];
-  case K::ENSURE_TYPE:
+  case K::ENSURE_ATTRIBUTE:
     [[fallthrough]];
 
     // TYPE ATTRIBUTE TYPES
-  case K::VAR_TYPE:
+  case K::VAR_ATTRIBUTE:
     [[fallthrough]];
-  case K::VOLATILE_TYPE:
+  case K::VOLATILE_ATTRIBUTE:
     [[fallthrough]];
-  case K::ATOMIC_TYPE:
+  case K::ATOMIC_ATTRIBUTE:
     [[fallthrough]];
-  case K::NULL_TERMINATE_TYPE:
+  case K::NULL_TERMINATE_ATTRIBUTE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
 

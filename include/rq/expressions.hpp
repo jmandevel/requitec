@@ -615,58 +615,58 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "null_terminate";
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHOR_TYPE:
-    return "anchor_type";
-  case K::OPAQUE_TYPE:
-    return "opaque_type";
-  case K::FLANK_TYPE:
-    return "flank_type";
-  case K::GLOBAL_TYPE:
-    return "global_type";
-  case K::ACCESS_TYPE:
-    return "access_type";
-  case K::PARTIAL_MUTATE_TYPE:
-    return "partial_mutate_type";
-  case K::STATIC_TYPE:
-    return "static_type";
-  case K::CAPTURE_TYPE:
-    return "capture_type";
-  case K::INLINE_TYPE:
-    return "inline_type";
-  case K::MANGLE_TYPE:
-    return "mangle_type";
-  case K::PACK_TYPE:
-    return "pack_type";
-  case K::BRANCH_TREND_TYPE:
-    return "branch_trend_type";
-  case K::DEPRECIATE_TYPE:
-    return "depreciate_type";
-  case K::STABLE_ADDRESS_TYPE:
-    return "stable_address_type";
-  case K::VARIADIC_TYPE:
-    return "variadic_type";
-  case K::LOCATION_TYPE:
-    return "location_type";
-  case K::TEMPLATE_TYPE:
-    return "template_type";
-  case K::CONSTRAINT_TYPE:
-    return "constraint_type";
-  case K::WEIGHT_TYPE:
-    return "weight_type";
-  case K::REQUIRE_TYPE:
-    return "require_type";
-  case K::ENSURE_TYPE:
-    return "ensure_type";
+  case K::ANCHOR_ATTRIBUTE:
+    return "anchor_attribute";
+  case K::OPAQUE_ATTRIBUTE:
+    return "opaque_attribute";
+  case K::FLANK_ATTRIBUTE:
+    return "flank_attribute";
+  case K::GLOBAL_ATTRIBUTE:
+    return "global_attribute";
+  case K::ACCESS_ATTRIBUTE:
+    return "access_attribute";
+  case K::PARTIAL_MUTATE_ATTRIBUTE:
+    return "partial_mutate_attribute";
+  case K::STATIC_ATTRIBUTE:
+    return "static_attribute";
+  case K::CAPTURE_ATTRIBUTE:
+    return "capture_attribute";
+  case K::INLINE_ATTRIBUTE:
+    return "inline_attribute";
+  case K::MANGLE_ATTRIBUTE:
+    return "mangle_attribute";
+  case K::PACK_ATTRIBUTE:
+    return "pack_attribute";
+  case K::BRANCH_TREND_ATTRIBUTE:
+    return "branch_trend_attribute";
+  case K::DEPRECIATE_ATTRIBUTE:
+    return "depreciate_attribute";
+  case K::STABLE_ADDRESS_ATTRIBUTE:
+    return "stable_address_attribute";
+  case K::VARIADIC_ATTRIBUTE:
+    return "variadic_attribute";
+  case K::LOCATION_ATTRIBUTE:
+    return "location_attribute";
+  case K::TEMPLATE_ATTRIBUTE:
+    return "template_attribute";
+  case K::CONSTRAINT_ATTRIBUTE:
+    return "constraint_attribute";
+  case K::WEIGHT_ATTRIBUTE:
+    return "weight_attribute";
+  case K::REQUIRE_ATTRIBUTE:
+    return "require_attribute";
+  case K::ENSURE_ATTRIBUTE:
+    return "ensure_attribute";
 
   // TYPE ATTRIBUTE TYPES
-  case K::VAR_TYPE:
-    return "var_type";
-  case K::VOLATILE_TYPE:
-    return "volatile_type";
-  case K::ATOMIC_TYPE:
-    return "atomic_type";
-  case K::NULL_TERMINATE_TYPE:
-    return "null_terminate_type";
+  case K::VAR_ATTRIBUTE:
+    return "var_attribute";
+  case K::VOLATILE_ATTRIBUTE:
+    return "volatile_attribute";
+  case K::ATOMIC_ATTRIBUTE:
+    return "atomic_attribute";
+  case K::NULL_TERMINATE_ATTRIBUTE:
+    return "null_terminate_attribute";
 
   // REFLECTIONS
   case K::REFLECT:
@@ -1457,57 +1457,57 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // EXPRESSION ATTRIBUTE TYPES
-  case K::ANCHOR_TYPE:
+  case K::ANCHOR_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::OPAQUE_TYPE:
+  case K::OPAQUE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::FLANK_TYPE:
+  case K::FLANK_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::GLOBAL_TYPE:
+  case K::GLOBAL_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ACCESS_TYPE:
+  case K::ACCESS_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PARTIAL_MUTATE_TYPE:
+  case K::PARTIAL_MUTATE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::STATIC_TYPE:
+  case K::STATIC_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CAPTURE_TYPE:
+  case K::CAPTURE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INLINE_TYPE:
+  case K::INLINE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::MANGLE_TYPE:
+  case K::MANGLE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::PACK_TYPE:
+  case K::PACK_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::BRANCH_TREND_TYPE:
+  case K::BRANCH_TREND_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::DEPRECIATE_TYPE:
+  case K::DEPRECIATE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::STABLE_ADDRESS_TYPE:
+  case K::STABLE_ADDRESS_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::VARIADIC_TYPE:
+  case K::VARIADIC_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::LOCATION_TYPE:
+  case K::LOCATION_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::TEMPLATE_TYPE:
+  case K::TEMPLATE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::CONSTRAINT_TYPE:
+  case K::CONSTRAINT_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::WEIGHT_TYPE:
+  case K::WEIGHT_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::REQUIRE_TYPE:
+  case K::REQUIRE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ENSURE_TYPE:
+  case K::ENSURE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
-  case K::VAR_TYPE:
+  case K::VAR_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::VOLATILE_TYPE:
+  case K::VOLATILE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::ATOMIC_TYPE:
+  case K::ATOMIC_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::NULL_TERMINATE_TYPE:
+  case K::NULL_TERMINATE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // REFLECTIONS
@@ -2104,67 +2104,67 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
 
 enum class ExpressionAttribute : std::uint_fast8_t {
   NONE,
-  // anchor_type
+  // anchor_attribute
   NO_ANCHOR,
   ANCHOR,
-  // opaque_type
+  // opaque_attribute
   NO_OPAQUE,
   OPAQUE,
-  // global_type
+  // global_attribute
   NO_GLOBAL,
   GLOBAL,
-  // access_type
+  // access_attribute
   NO_ACCESS,
   EXPORT,
   PUBLIC,
-  // partial_mutate_type
+  // partial_mutate_attribute
   NO_PARTIAL_MUTATE,
   PARTIAL_MUTATE,
-  // static_type
+  // static_attribute
   NO_STATIC,
   STATIC,
-  // capture_type
+  // capture_attribute
   NO_CAPTURE,
   CAPTURE,
-  // inline_type
+  // inline_attribute
   NO_INLINE,
   INLINE,
-  // mangle_type
+  // mangle_attribute
   NO_MANGLE,
   MANGLE,
-  // pack_type
+  // pack_attribute
   NO_PACK,
   PACK,
-  // branch_trend_type
+  // branch_trend_attribute
   NO_BRANCH_TREND,
   LIKELY,
   UNLIKELY,
-  // depreciate_type
+  // depreciate_attribute
   NO_DEPRECIATE,
   DEPRECIATE,
   EXPERIMENTAL,
-  // stable_address_type
+  // stable_address_attribute
   NO_STABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadic_type
+  // variadic_attribute
   NO_VARIADIC,
   VARIADIC,
-  // location_type
+  // location_attribute
   NO_LOCATION,
   LOCATION,
-  // template_type
+  // template_attribute
   NO_TEMPLATE,
   TEMPLATE,
-  // constraint_type
+  // constraint_attribute
   NO_CONSTRAINT,
   CONSTRAINT,
-  // weight_type
+  // weight_attribute
   NO_WEIGHT,
   WEIGHT,
-  // require_type
+  // require_attribute
   NO_REQUIRE,
   REQUIRE,
-  // ensure_type
+  // ensure_attribute
   NO_ENSURE,
   ENSURE,
 
@@ -2529,26 +2529,26 @@ getFlags(rq::ExpressionAttribute attribute) {
 
 enum class ExpressionAttributeKind : std::uint_fast8_t {
   NONE,
-  ANCHOR_TYPE,         // no_anchor vs anchor
-  OPAQUE_TYPE,         // no_opaque vs opaque
-  GLOBAL_TYPE,         // no_global vs global
-  ACCESS_TYPE,         // no_access vs export vs public
-  PARTIAL_MUTATE_TYPE, // no_partial_mutate vs partial_mutate
-  STATIC_TYPE,         // no_static vs static
-  CAPTURE_TYPE,        // no_capture vs capture
-  INLINE_TYPE,         // no_inline vs inline
-  MANGLE_TYPE,         // no_mangle vs mangle
-  PACK_TYPE,           // no_pack vs pack
-  BRANCH_TREND_TYPE,   // no_branch_trend vs likely vs unlikely
-  DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
-  STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
-  VARIADIC_TYPE,       // no_variadic vs variadic
-  LOCATION_TYPE,       // no_location vs location
-  TEMPLATE_TYPE,       // no_template vs template
-  CONSTRAINT_TYPE,     // no_constraint vs constraint
-  WEIGHT_TYPE,         // no_weight vs weight
-  REQUIRE_TYPE,        // no_require vs require
-  ENSURE_TYPE          // no_ensure vs ensure
+  ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
+  OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
+  GLOBAL_ATTRIBUTE,         // no_global vs global
+  ACCESS_ATTRIBUTE,         // no_access vs export vs public
+  PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
+  STATIC_ATTRIBUTE,         // no_static vs static
+  CAPTURE_ATTRIBUTE,        // no_capture vs capture
+  INLINE_ATTRIBUTE,         // no_inline vs inline
+  MANGLE_ATTRIBUTE,         // no_mangle vs mangle
+  PACK_ATTRIBUTE,           // no_pack vs pack
+  BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
+  DEPRECIATE_ATTRIBUTE,     // no_depreciate vs depreciate vs experimental
+  STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
+  VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
+  LOCATION_ATTRIBUTE,       // no_location vs location
+  TEMPLATE_ATTRIBUTE,       // no_template vs template
+  CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
+  WEIGHT_ATTRIBUTE,         // no_weight vs weight
+  REQUIRE_ATTRIBUTE,        // no_require vs require
+  ENSURE_ATTRIBUTE          // no_ensure vs ensure
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
@@ -2556,46 +2556,46 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   switch (kind) {
   case EAK::NONE:
     break;
-  case EAK::ANCHOR_TYPE:
-    return "anchor_type";
-  case EAK::OPAQUE_TYPE:
-    return "opaque_type";
-  case EAK::GLOBAL_TYPE:
-    return "global_type";
-  case EAK::ACCESS_TYPE:
-    return "access_type";
-  case EAK::PARTIAL_MUTATE_TYPE:
-    return "partial_mutate_type";
-  case EAK::STATIC_TYPE:
-    return "static_type";
-  case EAK::CAPTURE_TYPE:
-    return "capture_type";
-  case EAK::INLINE_TYPE:
-    return "inline_type";
-  case EAK::MANGLE_TYPE:
-    return "mangle_type";
-  case EAK::PACK_TYPE:
-    return "pack_type";
-  case EAK::BRANCH_TREND_TYPE:
-    return "branch_trend_type";
-  case EAK::DEPRECIATE_TYPE:
-    return "depreciate_type";
-  case EAK::STABLE_ADDRESS_TYPE:
-    return "stable_address_type";
-  case EAK::VARIADIC_TYPE:
-    return "variadic_type";
-  case EAK::LOCATION_TYPE:
-    return "location_type";
-  case EAK::TEMPLATE_TYPE:
-    return "template_type";
-  case EAK::CONSTRAINT_TYPE:
-    return "constraint_type";
-  case EAK::WEIGHT_TYPE:
-    return "weight_type";
-  case EAK::REQUIRE_TYPE:
-    return "require_type";
-  case EAK::ENSURE_TYPE:
-    return "ensure_type";
+  case EAK::ANCHOR_ATTRIBUTE:
+    return "anchor_attribute";
+  case EAK::OPAQUE_ATTRIBUTE:
+    return "opaque_attribute";
+  case EAK::GLOBAL_ATTRIBUTE:
+    return "global_attribute";
+  case EAK::ACCESS_ATTRIBUTE:
+    return "access_attribute";
+  case EAK::PARTIAL_MUTATE_ATTRIBUTE:
+    return "partial_mutate_attribute";
+  case EAK::STATIC_ATTRIBUTE:
+    return "static_attribute";
+  case EAK::CAPTURE_ATTRIBUTE:
+    return "capture_attribute";
+  case EAK::INLINE_ATTRIBUTE:
+    return "inline_attribute";
+  case EAK::MANGLE_ATTRIBUTE:
+    return "mangle_attribute";
+  case EAK::PACK_ATTRIBUTE:
+    return "pack_attribute";
+  case EAK::BRANCH_TREND_ATTRIBUTE:
+    return "branch_trend_attribute";
+  case EAK::DEPRECIATE_ATTRIBUTE:
+    return "depreciate_attribute";
+  case EAK::STABLE_ADDRESS_ATTRIBUTE:
+    return "stable_address_attribute";
+  case EAK::VARIADIC_ATTRIBUTE:
+    return "variadic_attribute";
+  case EAK::LOCATION_ATTRIBUTE:
+    return "location_attribute";
+  case EAK::TEMPLATE_ATTRIBUTE:
+    return "template_attribute";
+  case EAK::CONSTRAINT_ATTRIBUTE:
+    return "constraint_attribute";
+  case EAK::WEIGHT_ATTRIBUTE:
+    return "weight_attribute";
+  case EAK::REQUIRE_ATTRIBUTE:
+    return "require_attribute";
+  case EAK::ENSURE_ATTRIBUTE:
+    return "ensure_attribute";
   }
   RQ_UNREACHABLE();
 }
@@ -2610,89 +2610,89 @@ getKind(rq::ExpressionAttribute attribute) {
   case EA::NO_ANCHOR:
     [[fallthrough]];
   case EA::ANCHOR:
-    return EAK::ANCHOR_TYPE;
+    return EAK::ANCHOR_ATTRIBUTE;
   case EA::NO_OPAQUE:
     [[fallthrough]];
   case EA::OPAQUE:
-    return EAK::OPAQUE_TYPE;
+    return EAK::OPAQUE_ATTRIBUTE;
   case EA::NO_GLOBAL:
     [[fallthrough]];
   case EA::GLOBAL:
-    return EAK::GLOBAL_TYPE;
+    return EAK::GLOBAL_ATTRIBUTE;
   case EA::NO_ACCESS:
     [[fallthrough]];
   case EA::EXPORT:
     [[fallthrough]];
   case EA::PUBLIC:
-    return EAK::ACCESS_TYPE;
+    return EAK::ACCESS_ATTRIBUTE;
   case EA::NO_PARTIAL_MUTATE:
     [[fallthrough]];
   case EA::PARTIAL_MUTATE:
-    return EAK::PARTIAL_MUTATE_TYPE;
+    return EAK::PARTIAL_MUTATE_ATTRIBUTE;
   case EA::NO_STATIC:
     [[fallthrough]];
   case EA::STATIC:
-    return EAK::STATIC_TYPE;
+    return EAK::STATIC_ATTRIBUTE;
   case EA::NO_CAPTURE:
     [[fallthrough]];
   case EA::CAPTURE:
-    return EAK::CAPTURE_TYPE;
+    return EAK::CAPTURE_ATTRIBUTE;
   case EA::NO_INLINE:
     [[fallthrough]];
   case EA::INLINE:
-    return EAK::INLINE_TYPE;
+    return EAK::INLINE_ATTRIBUTE;
   case EA::NO_MANGLE:
     [[fallthrough]];
   case EA::MANGLE:
-    return EAK::MANGLE_TYPE;
+    return EAK::MANGLE_ATTRIBUTE;
   case EA::NO_PACK:
     [[fallthrough]];
   case EA::PACK:
-    return EAK::PACK_TYPE;
+    return EAK::PACK_ATTRIBUTE;
   case EA::NO_BRANCH_TREND:
     [[fallthrough]];
   case EA::LIKELY:
     [[fallthrough]];
   case EA::UNLIKELY:
-    return EAK::BRANCH_TREND_TYPE;
+    return EAK::BRANCH_TREND_ATTRIBUTE;
   case EA::NO_DEPRECIATE:
     [[fallthrough]];
   case EA::DEPRECIATE:
     [[fallthrough]];
   case EA::EXPERIMENTAL:
-    return EAK::DEPRECIATE_TYPE;
+    return EAK::DEPRECIATE_ATTRIBUTE;
   case EA::NO_STABLE_ADDRESS:
     [[fallthrough]];
   case EA::STABLE_ADDRESS:
-    return EAK::STABLE_ADDRESS_TYPE;
+    return EAK::STABLE_ADDRESS_ATTRIBUTE;
   case EA::NO_VARIADIC:
     [[fallthrough]];
   case EA::VARIADIC:
-    return EAK::VARIADIC_TYPE;
+    return EAK::VARIADIC_ATTRIBUTE;
   case EA::NO_LOCATION:
     [[fallthrough]];
   case EA::LOCATION:
-    return EAK::LOCATION_TYPE;
+    return EAK::LOCATION_ATTRIBUTE;
   case EA::NO_TEMPLATE:
     [[fallthrough]];
   case EA::TEMPLATE:
-    return EAK::TEMPLATE_TYPE;
+    return EAK::TEMPLATE_ATTRIBUTE;
   case EA::NO_CONSTRAINT:
     [[fallthrough]];
   case EA::CONSTRAINT:
-    return EAK::CONSTRAINT_TYPE;
+    return EAK::CONSTRAINT_ATTRIBUTE;
   case EA::NO_WEIGHT:
     [[fallthrough]];
   case EA::WEIGHT:
-    return EAK::WEIGHT_TYPE;
+    return EAK::WEIGHT_ATTRIBUTE;
   case EA::NO_REQUIRE:
     [[fallthrough]];
   case EA::REQUIRE:
-    return EAK::REQUIRE_TYPE;
+    return EAK::REQUIRE_ATTRIBUTE;
   case EA::NO_ENSURE:
     [[fallthrough]];
   case EA::ENSURE:
-    return EAK::ENSURE_TYPE;
+    return EAK::ENSURE_ATTRIBUTE;
   case EA::LAST:
     break;
   }
@@ -2857,10 +2857,10 @@ template <> struct is_flags<TypeFlags> : std::true_type {};
 
 enum class TypeAttributeKind : std::uint_fast8_t {
   NONE,
-  VAR_TYPE,
-  VOLATILE_TYPE,
-  ATOMIC_TYPE,
-  NULL_TERMINATE_TYPE
+  VAR_ATTRIBUTE,
+  VOLATILE_ATTRIBUTE,
+  ATOMIC_ATTRIBUTE,
+  NULL_TERMINATE_ATTRIBUTE
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::TypeAttributeKind kind) {
@@ -2868,14 +2868,14 @@ enum class TypeAttributeKind : std::uint_fast8_t {
   switch (kind) {
   case TAK::NONE:
     return "none";
-  case TAK::VAR_TYPE:
-    return "var_type";
-  case TAK::VOLATILE_TYPE:
-    return "volatile_type";
-  case TAK::ATOMIC_TYPE:
-    return "atomic_type";
-  case TAK::NULL_TERMINATE_TYPE:
-    return "null_terminate_type";
+  case TAK::VAR_ATTRIBUTE:
+    return "var_attribute";
+  case TAK::VOLATILE_ATTRIBUTE:
+    return "volatile_attribute";
+  case TAK::ATOMIC_ATTRIBUTE:
+    return "atomic_attribute";
+  case TAK::NULL_TERMINATE_ATTRIBUTE:
+    return "null_terminate_attribute";
   }
   RQ_UNREACHABLE();
 }
@@ -2892,19 +2892,19 @@ getKind(rq::TypeAttribute attribute) {
   case TA::VAR:
     [[fallthrough]];
   case TA::PARTIAL_VAR:
-    return TAK::VAR_TYPE;
+    return TAK::VAR_ATTRIBUTE;
   case TA::NO_VOLATILE:
     [[fallthrough]];
   case TA::VOLATILE:
-    return TAK::VOLATILE_TYPE;
+    return TAK::VOLATILE_ATTRIBUTE;
   case TA::NO_ATOMIC:
     [[fallthrough]];
   case TA::ATOMIC:
-    return TAK::ATOMIC_TYPE;
+    return TAK::ATOMIC_ATTRIBUTE;
   case TA::NO_NULL_TERMINATE:
     [[fallthrough]];
   case TA::NULL_TERMINATE:
-    return TAK::NULL_TERMINATE_TYPE;
+    return TAK::NULL_TERMINATE_ATTRIBUTE;
   }
   RQ_UNREACHABLE();
 }

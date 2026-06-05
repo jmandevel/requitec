@@ -38,7 +38,7 @@ enum class SymbolFlags : std::uint64_t {
   CONTEXTUAL = rq::getBit(4),
   CONTEXTUAL_VALUE = rq::getBit(5),
   CONTEXTUAL_TYPE = rq::getBit(6),
-  EXPRESSION_TYPE_ATTRIBUTE_TYPE = rq::getBit(7),
+  EXPRESSION_ATTRIBUTE_TYPE = rq::getBit(7),
   TYPE_ATTRIBUTE_TYPE = rq::getBit(8),
   REFLECTIVE_TYPE = rq::getBit(9),
   PLATFORM_PRIMITIVE_TYPE = rq::getBit(10),
@@ -157,29 +157,29 @@ struct Symbol;
         struct VoidType;
         struct NoReturnType;
     struct ExpressionAttributeType;
-      struct AnchorType;
-      struct OpaqueType;
-      struct GlobalType;
-      struct AccessType;
-      struct PartialMutateType;
-      struct StaticType;
-      struct CaptureType;
-      struct InlineType;
-      struct MangleType;
-      struct PackType;
-      struct TemplateType;
-      struct BranchTrendType;
-      struct DepreciateType;
-      struct StableAddressType;
-      struct VariadicType;
-      struct LocationType;
-      struct RequireType;
-      struct EnsureType;
+      struct AnchorAttributeType;
+      struct OpaqueAttributeType;
+      struct GlobalAttributeType;
+      struct AccessAttributeType;
+      struct PartialMutateAttributeType;
+      struct StaticAttributeType;
+      struct CaptureAttributeType;
+      struct InlineAttributeType;
+      struct MangleAttributeType;
+      struct PackAttributeType;
+      struct TemplateAttributeType;
+      struct BranchTrendAttributeType;
+      struct DepreciateAttributeType;
+      struct StableAddressAttributeType;
+      struct VariadicAttributeType;
+      struct LocationAttributeType;
+      struct RequireAttributeType;
+      struct EnsureAttributeType;
     struct TypeAttributeType;
-      struct VarType;
-      struct VolatileType;
-      struct AtomicType;
-      struct NullTerminateType;
+      struct VarAttributeType;
+      struct VolatileAttributeType;
+      struct AtomicAttributeType;
+      struct NullTerminateAttributeType;
     struct ReflectiveType;
       struct SymbolType;
       struct ExpressionType;
@@ -244,6 +244,7 @@ struct Symbol;
       struct TupleType;
       struct ProcedureType;
   struct PlacementType;
+  struct CompositionComponent;
   struct CompositionType;
   struct SynonymType;
   struct SymbolTable;
@@ -507,162 +508,162 @@ struct ExpressionAttributeType : public rq::SimpleSymbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct AnchorType final : public rq::ExpressionAttributeType {
-  using Self = rq::AnchorType;
+struct AnchorAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::AnchorAttributeType;
 
-  explicit RQ_ALWAYS_INLINE AnchorType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct OpaqueType final : public rq::ExpressionAttributeType {
-  using Self = rq::OpaqueType;
-
-  explicit RQ_ALWAYS_INLINE OpaqueType();
+  explicit RQ_ALWAYS_INLINE AnchorAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct GlobalType final : public rq::ExpressionAttributeType {
-  using Self = rq::GlobalType;
+struct OpaqueAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::OpaqueAttributeType;
 
-  explicit RQ_ALWAYS_INLINE GlobalType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AccessType final : public rq::ExpressionAttributeType {
-  using Self = rq::AccessType;
-
-  explicit RQ_ALWAYS_INLINE AccessType();
+  explicit RQ_ALWAYS_INLINE OpaqueAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct PartialMutateType final : public rq::ExpressionAttributeType {
-  using Self = rq::PartialMutateType;
+struct GlobalAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::GlobalAttributeType;
 
-  explicit RQ_ALWAYS_INLINE PartialMutateType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct StaticType final : public rq::ExpressionAttributeType {
-  using Self = rq::StaticType;
-
-  explicit RQ_ALWAYS_INLINE StaticType();
+  explicit RQ_ALWAYS_INLINE GlobalAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct CaptureType final : public rq::ExpressionAttributeType {
-  using Self = rq::CaptureType;
+struct AccessAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::AccessAttributeType;
 
-  explicit RQ_ALWAYS_INLINE CaptureType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct InlineType final : public rq::ExpressionAttributeType {
-  using Self = rq::InlineType;
-
-  explicit RQ_ALWAYS_INLINE InlineType();
+  explicit RQ_ALWAYS_INLINE AccessAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct MangleType final : public rq::ExpressionAttributeType {
-  using Self = rq::MangleType;
+struct PartialMutateAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::PartialMutateAttributeType;
 
-  explicit RQ_ALWAYS_INLINE MangleType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct PackType final : public rq::ExpressionAttributeType {
-  using Self = rq::PackType;
-
-  explicit RQ_ALWAYS_INLINE PackType();
+  explicit RQ_ALWAYS_INLINE PartialMutateAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct BranchTrendType final : public rq::ExpressionAttributeType {
-  using Self = rq::BranchTrendType;
+struct StaticAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::StaticAttributeType;
 
-  explicit RQ_ALWAYS_INLINE BranchTrendType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct DepreciateType final : public rq::ExpressionAttributeType {
-  using Self = rq::DepreciateType;
-
-  explicit RQ_ALWAYS_INLINE DepreciateType();
+  explicit RQ_ALWAYS_INLINE StaticAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct StableAddressType final : public rq::ExpressionAttributeType {
-  using Self = rq::StableAddressType;
+struct CaptureAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::CaptureAttributeType;
 
-  explicit RQ_ALWAYS_INLINE StableAddressType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct VariadicType final : public rq::ExpressionAttributeType {
-  using Self = rq::VariadicType;
-
-  explicit RQ_ALWAYS_INLINE VariadicType();
+  explicit RQ_ALWAYS_INLINE CaptureAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct LocationType final : public rq::ExpressionAttributeType {
-  using Self = rq::LocationType;
+struct InlineAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::InlineAttributeType;
 
-  explicit RQ_ALWAYS_INLINE LocationType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct TemplateType final : public rq::ExpressionAttributeType {
-  using Self = rq::TemplateType;
-
-  explicit RQ_ALWAYS_INLINE TemplateType();
+  explicit RQ_ALWAYS_INLINE InlineAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ConstraintType final : public rq::ExpressionAttributeType {
-  using Self = rq::ConstraintType;
+struct MangleAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::MangleAttributeType;
 
-  explicit RQ_ALWAYS_INLINE ConstraintType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct WeightType final : public rq::ExpressionAttributeType {
-  using Self = rq::WeightType;
-
-  explicit RQ_ALWAYS_INLINE WeightType();
+  explicit RQ_ALWAYS_INLINE MangleAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct RequireType final : public rq::ExpressionAttributeType {
-  using Self = rq::RequireType;
+struct PackAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::PackAttributeType;
 
-  explicit RQ_ALWAYS_INLINE RequireType();
+  explicit RQ_ALWAYS_INLINE PackAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct EnsureType final : public rq::ExpressionAttributeType {
-  using Self = rq::EnsureType;
+struct BranchTrendAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::BranchTrendAttributeType;
 
-  explicit RQ_ALWAYS_INLINE EnsureType();
+  explicit RQ_ALWAYS_INLINE BranchTrendAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct DepreciateAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::DepreciateAttributeType;
+
+  explicit RQ_ALWAYS_INLINE DepreciateAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct StableAddressAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::StableAddressAttributeType;
+
+  explicit RQ_ALWAYS_INLINE StableAddressAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VariadicAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::VariadicAttributeType;
+
+  explicit RQ_ALWAYS_INLINE VariadicAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct LocationAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::LocationAttributeType;
+
+  explicit RQ_ALWAYS_INLINE LocationAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct TemplateAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::TemplateAttributeType;
+
+  explicit RQ_ALWAYS_INLINE TemplateAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ConstraintAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::ConstraintAttributeType;
+
+  explicit RQ_ALWAYS_INLINE ConstraintAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct WeightAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::WeightAttributeType;
+
+  explicit RQ_ALWAYS_INLINE WeightAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct RequireAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::RequireAttributeType;
+
+  explicit RQ_ALWAYS_INLINE RequireAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct EnsureAttributeType final : public rq::ExpressionAttributeType {
+  using Self = rq::EnsureAttributeType;
+
+  explicit RQ_ALWAYS_INLINE EnsureAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -675,34 +676,34 @@ struct TypeAttributeType : public rq::SimpleSymbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct VarType final : public rq::TypeAttributeType {
-  using Self = rq::VarType;
+struct VarAttributeType final : public rq::TypeAttributeType {
+  using Self = rq::VarAttributeType;
 
-  explicit RQ_ALWAYS_INLINE VarType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct VolatileType final : public rq::TypeAttributeType {
-  using Self = rq::VolatileType;
-
-  explicit RQ_ALWAYS_INLINE VolatileType();
+  explicit RQ_ALWAYS_INLINE VarAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct AtomicType : public rq::TypeAttributeType {
-  using Self = rq::AtomicType;
+struct VolatileAttributeType final : public rq::TypeAttributeType {
+  using Self = rq::VolatileAttributeType;
 
-  explicit RQ_ALWAYS_INLINE AtomicType();
+  explicit RQ_ALWAYS_INLINE VolatileAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct NullTerminateType final : public rq::TypeAttributeType {
-  using Self = rq::NullTerminateType;
+struct AtomicAttributeType : public rq::TypeAttributeType {
+  using Self = rq::AtomicAttributeType;
 
-  explicit RQ_ALWAYS_INLINE NullTerminateType();
+  explicit RQ_ALWAYS_INLINE AtomicAttributeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct NullTerminateAttributeType final : public rq::TypeAttributeType {
+  using Self = rq::NullTerminateAttributeType;
+
+  explicit RQ_ALWAYS_INLINE NullTerminateAttributeType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1854,7 +1855,7 @@ struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void
-profileComposition(llvm::FoldingSetNodeID &out_id,
+profileCompositionType(llvm::FoldingSetNodeID &out_id,
                    const rq::CompositionComponent &first_component);
 
 struct SynonymType final : public rq::Symbol {
@@ -2837,7 +2838,7 @@ struct InterfacePolymorph final : public rq::Polymorph {
 struct AdapterPolymorph final : public rq::Polymorph {
   using Self = rq::AdapterPolymorph;
 
-  rq::BumpPtrList<rq::Adapter> _adpater_list{};
+  rq::BumpPtrList<rq::Adapter> _adapter_list{};
 
   explicit RQ_ALWAYS_INLINE AdapterPolymorph();
 

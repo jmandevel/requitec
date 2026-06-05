@@ -289,116 +289,116 @@ enum class Keyword : rq::EntityId {
   ASSUME,
 
   // EXPRESSION ATTRIBUTES
-  // anchor_type
+  // anchor_attribute
   NO_ANCHOR,
   ANCHOR,
-  // opaque_type
+  // 
   NO_OPAQUE,
   OPAQUE,
-  // flank_type
+  // flank_attribute
   NO_FLANK,
   FLANK,
-  // global_type
+  // global_attribute
   NO_GLOBAL,
   GLOBAL,
-  // access_type
+  // access_attribute
   NO_ACCESS,
   EXPORT,
   PUBLIC,
-  // partial_mutate_type
+  // partial_mutate_attribute
   NO_PARTIAL_MUTATE,
   PARTIAL_MUTATE,
-  // static_type
+  // static_attribute
   NO_STATIC,
   STATIC,
-  // capture_type
+  // capture_attribute
   NO_CAPTURE,
   CAPTURE,
-  // inline_type
+  // inline_attribute
   NO_INLINE,
   INLINE,
-  // mangle_type
+  // mangle_attribute
   NO_MANGLE,
   MANGLE,
-  // pack_type
+  // pack_attribute
   NO_PACK,
   PACK,
-  // branch_trend_type
+  // branch_trend_attribute
   NO_BRANCH_TREND,
   LIKELY,
   UNLIKELY,
-  // depreciate_type
+  // depreciate_attribute
   NO_DEPRECIATE,
   DEPRECIATE,
   EXPERIMENTAL,
-  // address_stability_type
+  // address_stability_attribute
   NO_STABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadic_type
+  // variadic_attribute
   NO_VARIADIC,
   VARIADIC,
-  // location_type
+  // location_attribute
   NO_LOCATION,
   LOCATION,
-  // template_type
+  // template_attribute
   NO_TEMPLATE,
   TEMPLATE,
-  // constraint_type
+  // constraint_attribute
   NO_CONSTRAINT,
   CONSTRAINT,
-  // weight_type
+  // weight_attribute
   NO_WEIGHT,
   WEIGHT,
-  // require_type
+  // require_attribute
   NO_REQUIRE,
   REQUIRE,
-  // ensure_type
+  // ensure_attribute
   NO_ENSURE,
   ENSURE,
 
   // TYPE ATTRIBUTES
-  // var_type
+  // var_attribute
   NO_VAR,
   VAR,
   PARTIAL_VAR,
-  // volatile_type
+  // volatile_attribute
   NO_VOLATILE,
   VOLATILE,
-  // atomic_type
+  // atomic_attribute
   NO_ATOMIC,
   ATOMIC,
-  // null_terminate_type
+  // null_terminate_attribute
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
 
   // EXPRESSION ATTRIBUTE TYPES
-  ANCHOR_TYPE,         // no_anchor vs anchor
-  OPAQUE_TYPE,         // no_opaque vs opaque
-  FLANK_TYPE,          // no_flank vs flank
-  GLOBAL_TYPE,         // no_global vs global
-  ACCESS_TYPE,         // no_access vs export vs public
-  PARTIAL_MUTATE_TYPE, // no_partial_mutate vs partial_mutate
-  STATIC_TYPE,         // no_static vs static
-  CAPTURE_TYPE,        // no_capture vs capture
-  INLINE_TYPE,         // no_inline vs inline
-  MANGLE_TYPE,         // no_mangle vs mangle
-  PACK_TYPE,           // no_pack vs pack
-  BRANCH_TREND_TYPE,   // no_branch_trend vs likely vs unlikely
-  DEPRECIATE_TYPE,     // no_depreciate vs depreciate vs experimental
-  STABLE_ADDRESS_TYPE, // no_stable_address vs stable_address
-  VARIADIC_TYPE,       // no_variadic vs variadic
-  LOCATION_TYPE,       // no_location vs location
-  TEMPLATE_TYPE,       // no_template vs template
-  CONSTRAINT_TYPE,     // no_constraint vs constraint
-  WEIGHT_TYPE,         // no_weight vs weight
-  REQUIRE_TYPE,        // no_require vs require
-  ENSURE_TYPE,         // no_ensure vs ensure
+  ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
+  OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
+  FLANK_ATTRIBUTE,          // no_flank vs flank
+  GLOBAL_ATTRIBUTE,         // no_global vs global
+  ACCESS_ATTRIBUTE,         // no_access vs export vs public
+  PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
+  STATIC_ATTRIBUTE,         // no_static vs static
+  CAPTURE_ATTRIBUTE,        // no_capture vs capture
+  INLINE_ATTRIBUTE,         // no_inline vs inline
+  MANGLE_ATTRIBUTE,         // no_mangle vs mangle
+  PACK_ATTRIBUTE,           // no_pack vs pack
+  BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
+  DEPRECIATE_ATTRIBUTE,     // no_depreciate vs depreciate vs experimental
+  STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
+  VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
+  LOCATION_ATTRIBUTE,       // no_location vs location
+  TEMPLATE_ATTRIBUTE,       // no_template vs template
+  CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
+  WEIGHT_ATTRIBUTE,         // no_weight vs weight
+  REQUIRE_ATTRIBUTE,        // no_require vs require
+  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
 
   // TYPE ATTRIBUTE TYPES
-  VAR_TYPE,            // no_var vs var vs partial_var
-  VOLATILE_TYPE,       // no_volatile vs volatile
-  ATOMIC_TYPE,         // no_atomic vs atomic
-  NULL_TERMINATE_TYPE, // no_null_terminate vs null_terminate
+  VAR_ATTRIBUTE,            // no_var vs var vs partial_var
+  VOLATILE_ATTRIBUTE,       // no_volatile vs volatile
+  ATOMIC_ATTRIBUTE,         // no_atomic vs atomic
+  NULL_TERMINATE_ATTRIBUTE, // no_null_terminate vs null_terminate
 
   // REFLECTIONS
   REFLECT,
@@ -501,32 +501,32 @@ enum class SymbolKind : rq::EntityId {
   NO_RETURN_TYPE,
 
   // EXPRESSION ATTRIBUTES
-  ANCHOR_TYPE,
-  OPAQUE_TYPE,
-  GLOBAL_TYPE,
-  ACCESS_TYPE,
-  PARTIAL_MUTATE_TYPE,
-  STATIC_TYPE,
-  CAPTURE_TYPE,
-  INLINE_TYPE,
-  MANGLE_TYPE,
-  PACK_TYPE,
-  BRANCH_TREND_TYPE,
-  DEPRECIATE_TYPE,
-  STABLE_ADDRESS_TYPE,
-  VARIADIC_TYPE,
-  LOCATION_TYPE,
-  TEMPLATE_TYPE,
-  CONSTRAINT_TYPE,
-  WEIGHT_TYPE,
-  REQUIRE_TYPE,
-  ENSURE_TYPE,
+  ANCHOR_ATTRIBUTE_TYPE,
+  OPAQUE_ATTRIBUTE_TYPE,
+  GLOBAL_ATTRIBUTE_TYPE,
+  ACCESS_ATTRIBUTE_TYPE,
+  PARTIAL_MUTATE_ATTRIBUTE_TYPE,
+  STATIC_ATTRIBUTE_TYPE,
+  CAPTURE_ATTRIBUTE_TYPE,
+  INLINE_ATTRIBUTE_TYPE,
+  MANGLE_ATTRIBUTE_TYPE,
+  PACK_ATTRIBUTE_TYPE,
+  BRANCH_TREND_ATTRIBUTE_TYPE,
+  DEPRECIATE_ATTRIBUTE_TYPE,
+  STABLE_ADDRESS_ATTRIBUTE_TYPE,
+  VARIADIC_ATTRIBUTE_TYPE,
+  LOCATION_ATTRIBUTE_TYPE,
+  TEMPLATE_ATTRIBUTE_TYPE,
+  CONSTRAINT_ATTRIBUTE_TYPE,
+  WEIGHT_ATTRIBUTE_TYPE,
+  REQUIRE_ATTRIBUTE_TYPE,
+  ENSURE_ATTRIBUTE_TYPE,
 
   // TYPE ATTRIBUTES
-  VAR_TYPE,
-  VOLATILE_TYPE,
-  ATOMIC_TYPE,
-  NULL_TERMINATE_TYPE,
+  VAR_ATTRIBUTE_TYPE,
+  VOLATILE_ATTRIBUTE_TYPE,
+  ATOMIC_ATTRIBUTE_TYPE,
+  NULL_TERMINATE_ATTRIBUTE_TYPE,
 
   // REFLECTIVE
   SYMBOL_TYPE,

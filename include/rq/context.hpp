@@ -92,30 +92,30 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::InferenceType _inference_type{};
   rq::VoidType _void_type{};
   rq::NoReturnType _no_return_type{};
-  rq::AnchorType _anchor_type{};
-  rq::OpaqueType _opaque_type{};
-  rq::GlobalType _global_type{};
-  rq::AccessType _access_type{};
-  rq::PartialMutateType _partial_mutate_type{};
-  rq::StaticType _static_type{};
-  rq::CaptureType _capture_type{};
-  rq::InlineType _inline_type{};
-  rq::MangleType _mangle_type{};
-  rq::PackType _pack_type{};
-  rq::BranchTrendType _branch_trend_type{};
-  rq::DepreciateType _depreciate_type{};
-  rq::StableAddressType _stable_address_type{};
-  rq::VariadicType _variadic_type{};
-  rq::LocationType _location_type{};
-  rq::TemplateType _template_type{};
-  rq::ConstraintType _constraint_type{};
-  rq::WeightType _weight_type{};
-  rq::RequireType _require_type{};
-  rq::EnsureType _ensure_type{};
-  rq::VarType _var_type{};
-  rq::VolatileType _volatile_type{};
-  rq::AtomicType _atomic_type{};
-  rq::NullTerminateType _null_terminate_type{};
+  rq::AnchorAttributeType _anchor_type{};
+  rq::OpaqueAttributeType _opaque_type{};
+  rq::GlobalAttributeType _global_type{};
+  rq::AccessAttributeType _access_type{};
+  rq::PartialMutateAttributeType _partial_mutate_type{};
+  rq::StaticAttributeType _static_type{};
+  rq::CaptureAttributeType _capture_type{};
+  rq::InlineAttributeType _inline_type{};
+  rq::MangleAttributeType _mangle_type{};
+  rq::PackAttributeType _pack_type{};
+  rq::BranchTrendAttributeType _branch_trend_type{};
+  rq::DepreciateAttributeType _depreciate_type{};
+  rq::StableAddressAttributeType _stable_address_type{};
+  rq::VariadicAttributeType _variadic_type{};
+  rq::LocationAttributeType _location_type{};
+  rq::TemplateAttributeType _template_type{};
+  rq::ConstraintAttributeType _constraint_type{};
+  rq::WeightAttributeType _weight_type{};
+  rq::RequireAttributeType _require_type{};
+  rq::EnsureAttributeType _ensure_type{};
+  rq::VarAttributeType _var_type{};
+  rq::VolatileAttributeType _volatile_type{};
+  rq::AtomicAttributeType _atomic_type{};
+  rq::NullTerminateAttributeType _null_terminate_type{};
   rq::SymbolType _symbol_type{};
   rq::ExpressionType _expression_type{};
   rq::BooleanType _boolean_type{};
@@ -149,6 +149,7 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::TupleType> _tuple_types{};
   llvm::FoldingSet<rq::PlacementType> _placement_types{};
   llvm::FoldingSet<rq::CompositionComponent> _composition_components{};
+  llvm::FoldingSet<rq::CompositionType> _composition_types{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -397,76 +398,76 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &getNoReturnType() {
     return this->_no_return_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorType &getAnchorType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &getAnchorType() {
     return this->_anchor_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueType &getOpaqueType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &getOpaqueType() {
     return this->_opaque_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalType &getGlobalType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &getGlobalType() {
     return this->_global_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessType &getAccessType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessAttributeType &getAccessType() {
     return this->_access_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateType &getPartialMutateType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateAttributeType &getPartialMutateAttributeType() {
     return this->_partial_mutate_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticType &getStaticType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &getStaticAttributeType() {
     return this->_static_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureType &getCaptureType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &getCaptureAttributeType() {
     return this->_capture_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineType &getInlineType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineAttributeType &getInlineAttributeType() {
     return this->_inline_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleType &getMangleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleAttributeType &getMangleAttributeType() {
     return this->_mangle_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackType &getPackType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackAttributeType &getPackAttributeType() {
     return this->_pack_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendType &getBranchTrendType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendAttributeType &getBranchTrendAttributeType() {
     return this->_branch_trend_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DepreciateType &getDepreciateType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DepreciateAttributeType &getDepreciateAttributeType() {
     return this->_depreciate_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressType &getStableAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressAttributeType &getStableAddressAttributeType() {
     return this->_stable_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicType &getVariadicType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicAttributeType &getVariadicAttributeType() {
     return this->_variadic_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationType &getLocationType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationAttributeType &getLocationAttributeType() {
     return this->_location_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateType &getTemplateType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateAttributeType &getTemplateAttributeType() {
     return this->_template_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintType &getConstraintType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintAttributeType &getConstraintAttributeType() {
     return this->_constraint_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightType &getWeightType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &getWeightAttributeType() {
     return this->_weight_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireType &getRequireType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &getRequireAttributeType() {
     return this->_require_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureType &getEnsureType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureAttributeType &getEnsureAttributeType() {
     return this->_ensure_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarType &getVarType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarAttributeType &getVarAttributeType() {
     return this->_var_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileType &getVolatileType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileAttributeType &getVolatileAttributeType() {
     return this->_volatile_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicType &getAtomicType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicAttributeType &getAtomicAttributeType() {
     return this->_atomic_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateType &getNullTerminateType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateAttributeType &getNullTerminateAttributeType() {
     return this->_null_terminate_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &getSymbolType() {
@@ -888,6 +889,46 @@ struct Context final : public rq::BumpPtrAllocator {
         this->allocateValue<rq::CompositionComponent>(next_ptr);
     this->_composition_components.InsertNode(&created, insert_pos);
     return created;
+  }
+  [[nodiscard]] inline rq::CompositionType &
+  getCompositionType(rq::CompositionComponent &first_component) {
+    llvm::FoldingSetNodeID id;
+    rq::profileCompositionType(id, first_component);
+    void *insert_pos;
+    rq::CompositionType *found_ptr =
+        this->_composition_types.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::CompositionType &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::CompositionType &created =
+        this->allocateValue<rq::CompositionType>(first_component);
+    this->_composition_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SynonymType &
+  getSynonym(rq::Symbol &original) {
+    RQ_ASSERT(!llvm::isa<rq::ScaledPrimitiveType>(original),
+              "scaled primitive type synonym is uniqued by uid");
+    return this->allocateValue<rq::SynonymType>(original);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IfStatement &
+  getIfStatement(rq::SymbolTable &containing_table, rq::Expression &expression,
+                 rq::ExpressionFlags flags) {
+    return this->allocateValue<rq::IfStatement>(containing_table, expression,
+                                                flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseIfStatement &
+  getElseIfStatement(rq::SymbolTable &containing_table,
+                     rq::Expression &expression, rq::ExpressionFlags flags) {
+    return this->allocateValue<rq::ElseIfStatement>(containing_table,
+                                                    expression, flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseStatement &
+  getElseStatement(rq::SymbolTable &containing_table,
+                   rq::Expression &expression, rq::ExpressionFlags flags) {
+    return this->allocateValue<rq::ElseStatement>(containing_table, expression,
+                                                  flags);
   }
 };
 
