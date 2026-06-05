@@ -268,6 +268,7 @@ struct Symbol;
         struct ClassType;
         struct EnumerationType;
         struct Interface;
+        struct Adapter;
         struct GlobalVariable;
           struct GlobalDynamicVariable;
           struct GlobalStaticVariable;
@@ -285,6 +286,7 @@ struct Symbol;
           struct ClassTemplate;
           struct EnumerationTemplate;
           struct InterfaceTemplate;
+          struct AdapterTemplate;
           struct GlobalStaticVariableTemplate;
           struct ForwardRangerTemplate;
           struct BackwardRangerTemplate;
@@ -300,6 +302,7 @@ struct Symbol;
     struct ClassPolymorph;
     struct EnumerationPolymorph;
     struct InterfacePolymorph;
+    struct AdapterPolymorph;
     struct GlobalStaticVariablePolymorph;
 // clang-format on
 
@@ -1802,18 +1805,15 @@ RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &out_id,
 
 // TODO composition factory
 
-struct CompositionComponent final : llvm::FoldingSetNode {
+struct CompositionComponent final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::CompositionComponent;
 
-  rq::Interface *_interface_ptr;
   rq::CompositionComponent *_next_ptr;
 
   explicit RQ_ALWAYS_INLINE
-  CompositionComponent(rq::Interface &interface,
+  CompositionComponent(
                        rq::CompositionComponent *next_ptr);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &getInterface() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &getInterface();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent *
   getNextComponentPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent *
@@ -1824,7 +1824,6 @@ struct CompositionComponent final : llvm::FoldingSetNode {
 
 inline void
 profileCompositionComponent(llvm::FoldingSetNodeID &out_id,
-                            const rq::Interface &interface,
                             const rq::CompositionComponent *next_component_ptr);
 
 struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
@@ -2149,6 +2148,22 @@ struct Interface final : public rq::GlobalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Adapter final : public rq::GlobalDeclaration {
+  using Self = rq::Adapter;
+
+  rq::Interface* _interface_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  Adapter(rq::SymbolTable &containing_table, llvm::StringRef name,
+            rq::SymbolTable &hosting_table, const rq::Expression &expression,
+            const rq::Expression &name_expression, rq::ExpressionFlags flags, rq::Interface& interface);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface& getInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Interface& getInterface();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct GlobalVariable : public rq::GlobalDeclaration {
   using Self = rq::GlobalVariable;
 
@@ -2443,6 +2458,21 @@ struct InterfaceTemplate final : public rq::Template {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
+
+struct AdapterTemplate final : public rq::Template {
+  using Self = rq::AdapterTemplate;
+
+  explicit RQ_ALWAYS_INLINE AdapterTemplate(
+      rq::SymbolTable &containing_table, llvm::StringRef name,
+      rq::SymbolTable &hosting_table, const rq::Expression &expression,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 
 struct GlobalDynamicVariableTemplate final : public rq::Template {
   using Self = rq::GlobalDynamicVariableTemplate;
@@ -2800,6 +2830,35 @@ struct InterfacePolymorph final : public rq::Polymorph {
                             rq::ConstBumpPtrListIterator<rq::Interface>,
                             std::ranges::subrange_kind::unsized>
       getInterfaceSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct AdapterPolymorph final : public rq::Polymorph {
+  using Self = rq::AdapterPolymorph;
+
+  rq::BumpPtrList<rq::Adapter> _adpater_list{};
+
+  explicit RQ_ALWAYS_INLINE AdapterPolymorph();
+
+  inline void addAdapter(rq::BumpPtrAllocator &allocator,
+                           rq::Adapter &adapter);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAdapter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleAdapter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Adapter &getAdapter();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Adapter &getAdapter() const;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::BumpPtrListIterator<rq::Adapter>,
+                            rq::BumpPtrListIterator<rq::Adapter>,
+                            std::ranges::subrange_kind::unsized>
+      getAdapterSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Adapter>,
+                            rq::ConstBumpPtrListIterator<rq::Adapter>,
+                            std::ranges::subrange_kind::unsized>
+      getAdapterSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

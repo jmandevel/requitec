@@ -237,6 +237,8 @@ namespace rq {
     return "PlacementType";
 
   // COMPOSITIONS
+  case S::COMPOSITION_COMPONENT:
+    return "CompositionComponent";
   case S::COMPOSITION_TYPE:
     return "CompositionType";
 
@@ -287,6 +289,8 @@ namespace rq {
     return "EnumerationType";
   case S::INTERFACE:
     return "Interface";
+  case S::ADAPTER:
+    return "Adapter";
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
@@ -321,6 +325,8 @@ namespace rq {
     return "EnumerationTemplate";
   case S::INTERFACE_TEMPLATE:
     return "InterfaceTemplate";
+  case S::ADAPTER_TEMPLATE:
+    return "AdapterTemplate";
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
     return "GlobalDynamicVariableTemplate";
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
@@ -353,6 +359,8 @@ namespace rq {
     return "EnumerationPolymorph";
   case S::INTERFACE_POLYMORPH:
     return "InterfacePolymorph";
+  case S::ADAPTER_POLYMORPH:
+    return "AdapterPolymorph";
   case S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH:
     return "GlobalDynamicVariablePolymorph";
   case S::GLOBAL_STATIC_VARIABLE_POLYMORPH:
@@ -621,6 +629,8 @@ namespace rq {
     return SF::IS_TYPE;
 
   // COMPOSITIONS
+  case S::COMPOSITION_COMPONENT:
+    return SF::NONE;
   case S::COMPOSITION_TYPE:
     return SF::IS_TYPE;
 
@@ -687,6 +697,9 @@ namespace rq {
   case S::INTERFACE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
+  case S::ADAPTER:
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
@@ -737,6 +750,9 @@ namespace rq {
   case S::INTERFACE_TEMPLATE:
     return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+  case S::ADAPTER_TEMPLATE:
+    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
     return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
@@ -773,6 +789,8 @@ namespace rq {
   case S::CLASS_POLYMORPH:
     return SF::POLYMORPH;
   case S::ENUMERATION_POLYMORPH:
+    return SF::POLYMORPH;
+  case S::ADAPTER_POLYMORPH:
     return SF::POLYMORPH;
   case S::INTERFACE_POLYMORPH:
     return SF::POLYMORPH;
@@ -835,6 +853,9 @@ getValidExpressionFlags(rq::SymbolKind kind) {
   case S::INTERFACE:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
+  case S::ADAPTER:
+    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
+           EF::EXPERIMENTAL;
   case S::GLOBAL_DYNAMIC_VARIABLE:
     return EF::OPAQUE | EF::GLOBAL | EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
@@ -862,6 +883,9 @@ getValidExpressionFlags(rq::SymbolKind kind) {
     return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
            EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case S::INTERFACE_TEMPLATE:
+    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
+           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
+  case S::ADAPTER_TEMPLATE:
     return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
            EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
@@ -3678,19 +3702,8 @@ RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &out_id,
 }
 
 RQ_ALWAYS_INLINE
-CompositionComponent::CompositionComponent(rq::Interface &interface,
-                                           rq::CompositionComponent *next_ptr)
-    : _interface_ptr(&interface), _next_ptr(next_ptr) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
-CompositionComponent::getInterface() const {
-  return rq::dereferencePtr(this->_interface_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &
-CompositionComponent::getInterface() {
-  return rq::dereferencePtr(this->_interface_ptr);
-}
+CompositionComponent::CompositionComponent(rq::CompositionComponent *next_ptr)
+    : Symbol(rq::SymbolKind::COMPOSITION_COMPONENT), _next_ptr(next_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent *
 CompositionComponent::getNextComponentPtr() const {
@@ -3704,14 +3717,12 @@ CompositionComponent::getNextComponentPtr() {
 
 inline void
 CompositionComponent::Profile(llvm::FoldingSetNodeID &out_id) const {
-  rq::profileCompositionComponent(out_id, this->getInterface(),
-                                  this->_next_ptr);
+  rq::profileCompositionComponent(out_id, this->_next_ptr);
 }
 
 RQ_ALWAYS_INLINE void profileCompositionComponent(
-    llvm::FoldingSetNodeID &out_id, const rq::Interface &interface,
+    llvm::FoldingSetNodeID &out_id,
     const rq::CompositionComponent *next_component_ptr) {
-  out_id.AddPointer(&interface);
   out_id.AddPointer(next_component_ptr);
 }
 

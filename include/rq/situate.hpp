@@ -83,12 +83,16 @@ struct Situator final {
                                         rq::Expression &first_parameter);
   [[nodiscard]] bool situateNaryStatementBranches(rq::Expression &expression);
   [[nodiscard]] bool
-  situateFirstHeaderNaryStatementBranches(rq::Situation situation,
-                                          rq::Expression &expression,
-                                          rq::Situation branch0_situation);
-  [[nodiscard]] bool situateFirstAndSecondHeaderNaryStatementBranches(
+  situateOneHeaderNaryStatementBranches(rq::Situation situation,
+                                        rq::Expression &expression,
+                                        rq::Situation branch0_situation);
+  [[nodiscard]] bool situateTwoHeaderNaryStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       rq::Situation branch0_situation, rq::Situation branch1_situation);
+  [[nodiscard]] bool situateThreeHeaderNaryStatementBranches(
+      rq::Situation situation, rq::Expression &expression,
+      rq::Situation branch0_situation, rq::Situation branch1_situation,
+      rq::Situation branch2_situation);
   [[nodiscard]] bool situateNaryDifferentFirstHeaderNaryStatementBranches(
       rq::Situation situation, rq::Expression &expression,
       rq::Situation header0_situation, rq::Situation headern_situation);

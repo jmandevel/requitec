@@ -148,6 +148,7 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::ProcedureType> _procedure_types{};
   llvm::FoldingSet<rq::TupleType> _tuple_types{};
   llvm::FoldingSet<rq::PlacementType> _placement_types{};
+  llvm::FoldingSet<rq::CompositionComponent> _composition_components{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -870,6 +871,22 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::PlacementType &created =
         this->allocateValue<rq::PlacementType>(procedure);
     this->_placement_types.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] inline rq::CompositionComponent &
+  getCompositionComponent(rq::CompositionComponent *next_ptr) {
+    llvm::FoldingSetNodeID id;
+    rq::profileCompositionComponent(id, next_ptr);
+    void *insert_pos;
+    rq::CompositionComponent *found_ptr =
+        this->_composition_components.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::CompositionComponent &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::CompositionComponent &created =
+        this->allocateValue<rq::CompositionComponent>(next_ptr);
+    this->_composition_components.InsertNode(&created, insert_pos);
     return created;
   }
 };

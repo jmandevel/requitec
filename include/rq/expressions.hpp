@@ -213,6 +213,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "compose";
   case K::COMPOSE_OF:
     return "_compose_of";
+  case K::DECOMPOSE:
+    return "decompose";
+  case K::DECOMPOSE_OF:
+    return "_decompose_of";
+  case K::ADAPT:
+    return "adapt";
+  case K::ADAPT_OF:
+    return "_adapt_of";
   case K::DESTROY:
     return "destroy";
   case K::DESTROY_OF:
@@ -315,8 +323,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "enumeration";
   case K::INTERFACE:
     return "interface";
-  case K::IMPLEMENT_INTERFACE:
-    return "implement_interface";
+  case K::ADAPTER:
+    return "adapter";
 
   // VALUES
   case K::ARRAY:
@@ -1042,6 +1050,14 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::COMPOSE_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::DECOMPOSE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::DECOMPOSE_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::ADAPT:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::ADAPT_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::DESTROY:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DESTROY_OF:
@@ -1144,7 +1160,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
   case K::INTERFACE:
     return KF::STATEMENT;
-  case K::IMPLEMENT_INTERFACE:
+  case K::ADAPTER:
     return KF::STATEMENT;
 
   // VALUES
@@ -1830,6 +1846,10 @@ getDescription(rq::Situation situation) {
     return K::INVOKE_OF;
   case K::COMPOSE:
     return K::COMPOSE_OF;
+  case K::DECOMPOSE:
+    return K::DECOMPOSE_OF;
+  case K::ADAPT:
+    return K::ADAPT_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
   case K::DROP:
