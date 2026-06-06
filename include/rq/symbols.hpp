@@ -154,9 +154,11 @@ struct Symbol;
   struct Module;
   struct Import;
   struct WeightLevel;
+    template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedWeightLevel;
   struct JuxtapositionalListItem;
   struct JuxtapositionalList;
   struct ArithmeticSequenceType;
+    template<rq::SymbolKind KIND_PARAM> struct DerivedArithmeticSequenceType;
   struct LocalDeclaration;
     struct Label;
     struct Anchor;
@@ -614,6 +616,26 @@ RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
     llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
     const rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
     rq::ArithmeticSequenceStep step);
+
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedArithmeticSequenceType final : public rq::ArithmeticSequenceType {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedArithmeticSequenceType<KIND>;
+
+  explicit RQ_ALWAYS_INLINE
+  DerivedArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
+                                rq::ArithmeticSequenceCondition condition,
+                                rq::ArithmeticSequenceStep step);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ArithmeticIntervalType =
+    rq::DerivedArithmeticSequenceType<rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE>;
+using InfiniteArithmeticSequenceType = rq::DerivedArithmeticSequenceType<
+    rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE>;
+using FiniteArithmeticSequenceType = rq::DerivedArithmeticSequenceType<
+    rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE>;
 
 struct LocalDeclaration : public rq::Symbol {
   using Self = rq::LocalDeclaration;

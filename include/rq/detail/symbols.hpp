@@ -1750,6 +1750,21 @@ RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
   out_id.AddInteger(rq::getUnderlying(step));
 }
 
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE
+DerivedArithmeticSequenceType<KIND_PARAM>::DerivedArithmeticSequenceType(
+    rq::SymbolKind kind, rq::SymbolConstant &child,
+    rq::ArithmeticSequenceCondition condition, rq::ArithmeticSequenceStep step)
+    : ArithmeticSequenceType(kind, child, condition, step) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool DerivedArithmeticSequenceType<KIND_PARAM>::classof(
+    const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
 RQ_ALWAYS_INLINE
 LocalDeclaration::LocalDeclaration(rq::SymbolKind kind, llvm::StringRef name,
                                    const rq::Expression *name_expression_ptr,

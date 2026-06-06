@@ -681,27 +681,30 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_arithmetic_sequence_types.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalType &
   getArithmeticIntervalType(rq::SymbolConstant &child,
                             rq::ArithmeticSequenceCondition condition) {
-    return this->getArithmeticSequenceType(
-        rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child, condition,
-        rq::ArithmeticSequenceStep::NONE);
+    return llvm::cast<rq::ArithmeticIntervalType>(
+        this->getArithmeticSequenceType(
+            rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child, condition,
+            rq::ArithmeticSequenceStep::NONE));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticSequenceType &
   getInfiniteArithmeticSequenceType(rq::SymbolConstant &child,
                                     rq::ArithmeticSequenceStep step) {
-    return this->getArithmeticSequenceType(
-        rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE, child,
-        rq::ArithmeticSequenceCondition::NONE, step);
+    return llvm::cast<rq::InfiniteArithmeticSequenceType>(
+        this->getArithmeticSequenceType(
+            rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE, child,
+            rq::ArithmeticSequenceCondition::NONE, step));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticSequenceType &
   getFiniteArithmeticSequenceType(rq::SymbolConstant &child,
                                   rq::ArithmeticSequenceStep step,
                                   rq::ArithmeticSequenceCondition condition) {
-    return this->getArithmeticSequenceType(
-        rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
-        step);
+    return llvm::cast<rq::FiniteArithmeticSequenceType>(
+        this->getArithmeticSequenceType(
+            rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
+            step));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Label &
   getLabel(llvm::StringRef name, const rq::Expression &name_expression,
