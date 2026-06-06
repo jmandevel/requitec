@@ -78,66 +78,76 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
   rq::Expression *_free_expression_ptr{nullptr};
-  rq::IntegerLiteralType _integer_literal_type{};
-  rq::FloatLiteralType _float_literal_type{};
-  rq::StringLiteralType _string_literal_type{};
-  rq::CodeunitLiteralType _codeunit_literal_type{};
-  rq::OutValue _out_value{};
-  rq::ThisValue _this_value{};
-  rq::ResultValue _result_value{};
-  rq::IndexValue _index_value{};
-  rq::DiscriminantValue _discrimnant_value{};
-  rq::CommandLineArgumentsValue _command_line_arguments_value{};
-  rq::CallsiteValue _callsite_value{};
-  rq::InferenceType _inference_type{};
-  rq::VoidType _void_type{};
-  rq::NoReturnType _no_return_type{};
-  rq::AnchorAttributeType _anchor_type{};
-  rq::OpaqueAttributeType _opaque_type{};
-  rq::GlobalAttributeType _global_type{};
-  rq::AccessAttributeType _access_type{};
-  rq::PartialMutateAttributeType _partial_mutate_type{};
-  rq::StaticAttributeType _static_type{};
-  rq::CaptureAttributeType _capture_type{};
-  rq::InlineAttributeType _inline_type{};
-  rq::MangleAttributeType _mangle_type{};
-  rq::PackAttributeType _pack_type{};
-  rq::BranchTrendAttributeType _branch_trend_type{};
-  rq::SupportStatusAttributeType _depreciate_type{};
-  rq::StableAddressAttributeType _stable_address_type{};
-  rq::VariadicAttributeType _variadic_type{};
-  rq::LocationAttributeType _location_type{};
-  rq::TemplateAttributeType _template_type{};
-  rq::ConstraintAttributeType _constraint_type{};
-  rq::WeightAttributeType _weight_type{};
-  rq::RequireAttributeType _require_type{};
-  rq::EnsureAttributeType _ensure_type{};
-  rq::VarAttributeType _var_type{};
-  rq::VolatileAttributeType _volatile_type{};
-  rq::AtomicAttributeType _atomic_type{};
-  rq::NullTerminateAttributeType _null_terminate_type{};
-  rq::SymbolType _symbol_type{};
-  rq::ExpressionType _expression_type{};
-  rq::BooleanType _boolean_type{};
-  rq::HalfType _half_type{};
-  rq::SingleType _single_type{};
-  rq::DoubleType _double_type{};
-  rq::QuadrupleType _quadruple_type{};
-  rq::SignedIntegerType _signed_integer_type{};
-  rq::UnsignedIntegerType _unsigned_integer_type{};
-  rq::SignedIndexType _signed_index_type{};
-  rq::UnsignedIndexType _unsigned_index_type{};
-  rq::SignedAddressType _signed_address_type{};
-  rq::UnsignedAddressType _unsigned_address_type{};
-  rq::CharType _char_type{};
-  rq::Binary16Type _binary16_type{};
-  rq::Binary32Type _binary32_type{};
-  rq::Binary64Type _binary64_type{};
-  rq::Binary128Type _binary128_type{};
-  rq::Bfloat16Type _bfloat16_type{};
-  rq::AsciiType _ascii_type{};
-  rq::Utf8Type _utf8_type{};
-  rq::VariadicArgumentsType _variadic_arguments_type{};
+  rq::SimpleSymbol _integer_literal_type{rq::SymbolKind::INTEGER_LITERAL_TYPE};
+  rq::SimpleSymbol _float_literal_type{rq::SymbolKind::FLOAT_LITERAL_TYPE};
+  rq::SimpleSymbol _string_literal_type{rq::SymbolKind::STRING_LITERAL_TYPE};
+  rq::SimpleSymbol _codeunit_literal_type{
+      rq::SymbolKind::CODEUNIT_LITERAL_TYPE};
+  rq::SimpleSymbol _out_value{rq::SymbolKind::OUT};
+  rq::SimpleSymbol _this_value{rq::SymbolKind::THIS};
+  rq::SimpleSymbol _result_value{rq::SymbolKind::RESULT};
+  rq::SimpleSymbol _index_value{rq::SymbolKind::INDEX};
+  rq::SimpleSymbol _discrimnant_value{rq::SymbolKind::DISCRIMINANT};
+  rq::SimpleSymbol _command_line_arguments_value{
+      rq::SymbolKind::COMMAND_LINE_ARGUMENTS};
+  rq::SimpleSymbol _callsite_value{rq::SymbolKind::CALLSITE};
+  rq::SimpleSymbol _inference_type{rq::SymbolKind::INFERENCE_TYPE};
+  rq::SimpleSymbol _void_type{rq::SymbolKind::VOID_TYPE};
+  rq::SimpleSymbol _no_return_type{rq::SymbolKind::NO_RETURN_TYPE};
+  rq::SimpleSymbol _anchor_type{rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _opaque_type{rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _global_type{rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _access_type{rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _partial_mutate_type{
+      rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _static_type{rq::SymbolKind::STATIC_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _capture_type{rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _inline_type{rq::SymbolKind::INLINE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _mangle_type{rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _pack_type{rq::SymbolKind::PACK_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _branch_trend_type{
+      rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _depreciate_type{
+      rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _stable_address_type{
+      rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _variadic_type{rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _location_type{rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _template_type{rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _constraint_type{rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _weight_type{rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _require_type{rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _ensure_type{rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _var_type{rq::SymbolKind::VAR_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _volatile_type{rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _atomic_type{rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _null_terminate_type{
+      rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE};
+  rq::SimpleSymbol _symbol_type{rq::SymbolKind::SYMBOL_TYPE};
+  rq::SimpleSymbol _expression_type{rq::SymbolKind::EXPRESSION_TYPE};
+  rq::SimpleSymbol _boolean_type{rq::SymbolKind::BOOLEAN_TYPE};
+  rq::SimpleSymbol _half_type{rq::SymbolKind::HALF_TYPE};
+  rq::SimpleSymbol _single_type{rq::SymbolKind::SINGLE_TYPE};
+  rq::SimpleSymbol _double_type{rq::SymbolKind::DOUBLE_TYPE};
+  rq::SimpleSymbol _quadruple_type{rq::SymbolKind::QUADRUPLE_TYPE};
+  rq::SimpleSymbol _signed_integer_type{rq::SymbolKind::SIGNED_INTEGER_TYPE};
+  rq::SimpleSymbol _unsigned_integer_type{
+      rq::SymbolKind::UNSIGNED_INTEGER_TYPE};
+  rq::SimpleSymbol _signed_index_type{rq::SymbolKind::SIGNED_INDEX_TYPE};
+  rq::SimpleSymbol _unsigned_index_type{rq::SymbolKind::UNSIGNED_INDEX_TYPE};
+  rq::SimpleSymbol _signed_address_type{rq::SymbolKind::SIGNED_ADDRESS_TYPE};
+  rq::SimpleSymbol _unsigned_address_type{
+      rq::SymbolKind::UNSIGNED_ADDRESS_TYPE};
+  rq::SimpleSymbol _char_type{rq::SymbolKind::CHAR_TYPE};
+  rq::SimpleSymbol _binary16_type{rq::SymbolKind::BINARY16_TYPE};
+  rq::SimpleSymbol _binary32_type{rq::SymbolKind::BINARY32_TYPE};
+  rq::SimpleSymbol _binary64_type{rq::SymbolKind::BINARY64_TYPE};
+  rq::SimpleSymbol _binary128_type{rq::SymbolKind::BINARY128_TYPE};
+  rq::SimpleSymbol _bfloat16_type{rq::SymbolKind::BFLOAT16_TYPE};
+  rq::SimpleSymbol _ascii_type{rq::SymbolKind::ASCII_TYPE};
+  rq::SimpleSymbol _utf8_type{rq::SymbolKind::UTF8_TYPE};
+  rq::SimpleSymbol _variadic_arguments_type{
+      rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE};
   llvm::FoldingSet<rq::ScaledPrimitiveType> _scaled_primitive_types{};
   llvm::FoldingSet<rq::ArraySubtype> _array_subtypes{};
   llvm::FoldingSet<rq::UncountedSubtype> _uncounted_subtypes{};
@@ -353,190 +363,191 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_free_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteralType &
-  getIntegerLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getIntegerLiteralType() {
     return this->_integer_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteralType &getFloatLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getFloatLiteralType() {
     return this->_float_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteralType &getStringLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getStringLiteralType() {
     return this->_string_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteralType &
-  getCodeunitLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCodeunitLiteralType() {
     return this->_codeunit_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OutValue &getOutValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getOutValue() {
     return this->_out_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThisValue &getThisValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getThisValue() {
     return this->_this_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResultValue &getResultValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getResultValue() {
     return this->_result_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IndexValue &getIndexValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getIndexValue() {
     return this->_index_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &getDiscriminantValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getDiscriminantValue() {
     return this->_discrimnant_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CommandLineArgumentsValue &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
   getCommandLineArgumentsValue() {
     return this->_command_line_arguments_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CallsiteValue &getCallsiteValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCallsiteValue() {
     return this->_callsite_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &getInferenceType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getInferenceType() {
     return this->_inference_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidType &getVoidType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVoidType() {
     return this->_void_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &getNoReturnType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getNoReturnType() {
     return this->_no_return_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &getAnchorType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAnchorType() {
     return this->_anchor_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &getOpaqueType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getOpaqueType() {
     return this->_opaque_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &getGlobalType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getGlobalType() {
     return this->_global_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessAttributeType &getAccessType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAccessType() {
     return this->_access_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateAttributeType &getPartialMutateAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  getPartialMutateAttributeType() {
     return this->_partial_mutate_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &getStaticAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getStaticAttributeType() {
     return this->_static_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &getCaptureAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCaptureAttributeType() {
     return this->_capture_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineAttributeType &getInlineAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getInlineAttributeType() {
     return this->_inline_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleAttributeType &getMangleAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getMangleAttributeType() {
     return this->_mangle_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackAttributeType &getPackAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getPackAttributeType() {
     return this->_pack_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendAttributeType &getBranchTrendAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  getBranchTrendAttributeType() {
     return this->_branch_trend_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SupportStatusAttributeType &getSupportStatusAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  getSupportStatusAttributeType() {
     return this->_depreciate_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressAttributeType &getStableAddressAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  getStableAddressAttributeType() {
     return this->_stable_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicAttributeType &getVariadicAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVariadicAttributeType() {
     return this->_variadic_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationAttributeType &getLocationAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getLocationAttributeType() {
     return this->_location_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateAttributeType &getTemplateAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getTemplateAttributeType() {
     return this->_template_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintAttributeType &getConstraintAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  getConstraintAttributeType() {
     return this->_constraint_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &getWeightAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getWeightAttributeType() {
     return this->_weight_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &getRequireAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getRequireAttributeType() {
     return this->_require_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureAttributeType &getEnsureAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getEnsureAttributeType() {
     return this->_ensure_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarAttributeType &getVarAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVarAttributeType() {
     return this->_var_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileAttributeType &getVolatileAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVolatileAttributeType() {
     return this->_volatile_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicAttributeType &getAtomicAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAtomicAttributeType() {
     return this->_atomic_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateAttributeType &getNullTerminateAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  getNullTerminateAttributeType() {
     return this->_null_terminate_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &getSymbolType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSymbolType() {
     return this->_symbol_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &getExpressionType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getExpressionType() {
     return this->_expression_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanType &getBooleanType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBooleanType() {
     return this->_boolean_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfType &getHalfType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getHalfType() {
     return this->_half_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleType &getSingleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSingleType() {
     return this->_single_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleType &getDoubleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getDoubleType() {
     return this->_double_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleType &getQuadrupleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getQuadrupleType() {
     return this->_quadruple_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerType &getSignedIntegerType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSignedIntegerType() {
     return this->_signed_integer_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerType &
-  getUnsignedIntegerType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUnsignedIntegerType() {
     return this->_unsigned_integer_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIndexType &getSignedIndexType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSignedIndexType() {
     return this->_signed_index_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIndexType &getUnsignedIndexType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUnsignedIndexType() {
     return this->_unsigned_index_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedAddressType &getSignedAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSignedAddressType() {
     return this->_signed_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedAddressType &
-  getUnsignedAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUnsignedAddressType() {
     return this->_unsigned_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &getCharType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCharType() {
     return this->_char_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Type &getBinary16Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary16Type() {
     return this->_binary16_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Type &getBinary32Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary32Type() {
     return this->_binary32_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Type &getBinary64Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary64Type() {
     return this->_binary64_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Type &getBinary128Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary128Type() {
     return this->_binary128_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Type &getBfloat16Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBfloat16Type() {
     return this->_bfloat16_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiType &getAsciiType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAsciiType() {
     return this->_ascii_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &getUtf8Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUtf8Type() {
     return this->_utf8_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsType &
-  getVariadicArgumentsType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVariadicArgumentsType() {
     return this->_variadic_arguments_type;
   }
   [[nodiscard]] inline rq::ScaledPrimitiveType &
@@ -557,19 +568,17 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_scaled_primitive_types.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedIntegerType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledPrimitiveType &
   getScaledSignedIntegerType(rq::ScaleKind kind, unsigned scale,
                              std::uint64_t synonym_id) {
-    return llvm::cast<rq::ScaledSignedIntegerType>(this->getScaledPrimitiveType(
-        rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale, synonym_id));
+    return this->getScaledPrimitiveType(
+        rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale, synonym_id);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedIntegerType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledPrimitiveType &
   getScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
                                std::uint64_t synonym_id) {
-    return llvm::cast<rq::ScaledUnsignedIntegerType>(
-        this->getScaledPrimitiveType(
-            rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale,
-            synonym_id));
+    return this->getScaledPrimitiveType(
+        rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale, synonym_id);
   }
   [[nodiscard]] inline rq::ArraySubtype &
   getArraySubtype(rq::SymbolConstant &child, std::uint64_t count) {
@@ -603,25 +612,22 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_uncounted_subtypes.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
   getReferenceSubtype(rq::SymbolConstant &child) {
-    return llvm::cast<rq::ReferenceSubtype>(
-        this->getUncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child));
+    return this->getUncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
   getPointerSubtype(rq::SymbolConstant &child) {
-    return llvm::cast<rq::PointerSubtype>(
-        this->getUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child));
+    return this->getUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SliceSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
   getSliceSubtype(rq::SymbolConstant &child) {
-    return llvm::cast<rq::SliceSubtype>(
-        this->getUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child));
+    return this->getUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceCountArraySubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
   getInferenceCountArraySubtype(rq::SymbolConstant &child) {
-    return llvm::cast<rq::InferenceCountArraySubtype>(this->getUncountedSubtype(
-        rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child));
+    return this->getUncountedSubtype(
+        rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &
   getModule(rq::ModuleFactory &&factory) {
@@ -667,30 +673,27 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_arithmetic_sequence_types.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceType &
   getArithmeticIntervalType(rq::SymbolConstant &child,
                             rq::ArithmeticSequenceCondition condition) {
-    return llvm::cast<rq::ArithmeticIntervalType>(
-        this->getArithmeticSequenceType(
-            rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child, condition,
-            rq::ArithmeticSequenceStep::NONE));
+    return this->getArithmeticSequenceType(
+        rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child, condition,
+        rq::ArithmeticSequenceStep::NONE);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticSequenceType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceType &
   getInfiniteArithmeticSequenceType(rq::SymbolConstant &child,
                                     rq::ArithmeticSequenceStep step) {
-    return llvm::cast<rq::InfiniteArithmeticSequenceType>(
-        this->getArithmeticSequenceType(
-            rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE, child,
-            rq::ArithmeticSequenceCondition::NONE, step));
+    return this->getArithmeticSequenceType(
+        rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE, child,
+        rq::ArithmeticSequenceCondition::NONE, step);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticSequenceType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceType &
   getFiniteArithmeticSequenceType(rq::SymbolConstant &child,
                                   rq::ArithmeticSequenceStep step,
                                   rq::ArithmeticSequenceCondition condition) {
-    return llvm::cast<rq::FiniteArithmeticSequenceType>(
-        this->getArithmeticSequenceType(
-            rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
-            step));
+    return this->getArithmeticSequenceType(
+        rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
+        step);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Label &
   getLabel(llvm::StringRef name, const rq::Expression &name_expression,
@@ -722,15 +725,6 @@ struct Context final : public rq::BumpPtrAllocator {
                          rq::ExpressionFlags flags) {
     return this->allocateValue<rq::LocalStaticVariable>(
         name, name_expression, containing_table, hosting_table, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Enumerator &
-  getEnumerator(llvm::StringRef name, const rq::Expression &name_expression,
-                rq::SymbolTable &containing_table,
-                rq::SymbolTable &hosting_table, rq::ExpressionFlags flags,
-                rq::Expression *default_value_expression_ptr) {
-    return this->allocateValue<rq::Enumerator>(
-        name, name_expression, containing_table, hosting_table, flags,
-        default_value_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &getSignatureParameter(
       rq::SymbolParameter *next_ptr, llvm::StringRef name,
@@ -912,23 +906,23 @@ struct Context final : public rq::BumpPtrAllocator {
               "scaled primitive type synonym is uniqued by uid");
     return this->allocateValue<rq::SynonymType>(original);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IfStatement &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStatement &
   getIfStatement(rq::SymbolTable &containing_table, rq::Expression &expression,
                  rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::IfStatement>(containing_table, expression,
-                                                flags);
+    return this->allocateValue<rq::LocalStatement>(
+        rq::SymbolKind::IF_STATEMENT, containing_table, expression, flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseIfStatement &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStatement &
   getElseIfStatement(rq::SymbolTable &containing_table,
                      rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ElseIfStatement>(containing_table,
-                                                    expression, flags);
+    return this->allocateValue<rq::LocalStatement>(
+        rq::SymbolKind::ELSE_IF_STATEMENT, containing_table, expression, flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseStatement &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStatement &
   getElseStatement(rq::SymbolTable &containing_table,
                    rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ElseStatement>(containing_table, expression,
-                                                  flags);
+    return this->allocateValue<rq::LocalStatement>(
+        rq::SymbolKind::ELSE_STATEMENT, containing_table, expression, flags);
   }
 };
 

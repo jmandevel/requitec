@@ -292,7 +292,7 @@ enum class Keyword : rq::EntityId {
   // anchor_attribute
   NO_ANCHOR,
   ANCHOR,
-  // 
+  //
   NO_OPAQUE,
   OPAQUE,
   // flank_attribute
@@ -384,7 +384,7 @@ enum class Keyword : rq::EntityId {
   MANGLE_ATTRIBUTE,         // no_mangle vs mangle
   PACK_ATTRIBUTE,           // no_pack vs pack
   BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
-  SUPPORT_STATUS_ATTRIBUTE,     // no_support_status vs depreciate vs experimental
+  SUPPORT_STATUS_ATTRIBUTE, // no_support_status vs depreciate vs experimental
   STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
   VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
   LOCATION_ATTRIBUTE,       // no_location vs location
@@ -474,7 +474,6 @@ enum class Keyword : rq::EntityId {
 
   LAST
 };
-
 
 enum class SymbolKind : rq::EntityId {
   NONE,
@@ -577,6 +576,19 @@ enum class SymbolKind : rq::EntityId {
   // IMPORTS
   IMPORT,
 
+  // WEIGHTS
+  CLASS_WEIGHT_LEVEL,
+  ENUMERATION_WEIGHT_LEVEL,
+  INTERFACE_WEIGHT_LEVEL,
+  ADAPTER_WEIGHT_LEVEL,
+  GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL,
+  GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL,
+  FORWARD_RANGER_WEIGHT_LEVEL,
+  BACKWARD_RANGER_WEIGHT_LEVEL,
+  FUNCTION_WEIGHT_LEVEL,
+  METHOD_WEIGHT_LEVEL,
+  EXTENSION_METHOD_WEIGHT_LEVEL,
+
   // JUXTAPOSITIONAL LIST
   JUXTAPOSITIONAL_LIST_ITEM,
   JUXTAPOSITIONAL_LIST_TYPE,
@@ -593,6 +605,7 @@ enum class SymbolKind : rq::EntityId {
   // LOCAL VARIABLES => local declaration
   LOCAL_DYNAMIC_VARIABLE,
   LOCAL_STATIC_VARIABLE,
+  TEMPLATE_ARGUMENT,
   ENUMERATOR,
 
   // SYMBOL PARAMETERS
@@ -642,7 +655,11 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // GLOBAL DECLARATION => named table
+  // GLOBAL DECLARATION => named table => symbol table
+  DESTRUCTOR,
+  MAIN,
+
+  // POLYMORPH ITEM => global declaration => named table => symbol table`
   CLASS_TYPE,
   ENUMERATION_TYPE,
   INTERFACE,
@@ -651,10 +668,6 @@ enum class SymbolKind : rq::EntityId {
   // GLOBAL VARIABLE => global declaration => named table => symbol table
   GLOBAL_DYNAMIC_VARIABLE,
   GLOBAL_STATIC_VARIABLE,
-
-  // CALLABLE => global declaration => named table => symbol table
-  DESTRUCTOR,
-  MAIN,
 
   // RANGERS => callable => global declaration => named table => symbol table
   FORWARD_RANGER,
@@ -695,42 +708,44 @@ enum class SymbolKind : rq::EntityId {
 };
 
 enum class ConstantKind : rq::EntityId {
-    NONE,
+  NONE,
 
-    SYMBOL,
-    WORD,
-    ARRAY,
+  SYMBOL,
+  WORD,
+  ARRAY,
 
-    LAST
+  LAST
 };
 
 enum class Opcode : rq::EntityId {
-    NONE,
+  NONE,
 
-    // TODO
+  // TODO
 
-    LAST
+  LAST
 };
 
 constexpr rq::EntityId KEYWORD_OFFSET = 0;
 
 constexpr rq::EntityId SYMBOL_OFFSET = rq::getUnderlying(rq::Keyword::LAST);
 
-constexpr rq::EntityId CONSTANT_OFFSET =  rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::LAST);
+constexpr rq::EntityId CONSTANT_OFFSET =
+    rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::LAST);
 
-constexpr rq::EntityId OPCODE_OFFSET = rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::LAST);
+constexpr rq::EntityId OPCODE_OFFSET =
+    rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::LAST);
 
 struct Entity {
-    using Self = rq::Entity;
+  using Self = rq::Entity;
 
-    rq::EntityId _id;
+  rq::EntityId _id;
 
-    explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {}
-    Entity(const Self&) = delete;
-    Entity(Self&&) = delete;
-    ~Entity() = default;
-    Self& operator=(const Self&) = delete;
-    Self& operator=(Self&&) = delete;
+  explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {}
+  Entity(const Self &) = delete;
+  Entity(Self &&) = delete;
+  ~Entity() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this == &rhs;
@@ -739,26 +754,26 @@ struct Entity {
     return this != &rhs;
   }
 
-    [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityId getId() const {
-        return this->_id;
-    }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EntityId getId() const {
+    return this->_id;
+  }
 
-    [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
-        return this->_id < rq::getUnderlying(rq::Keyword::LAST);
-    }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
+    return this->_id < rq::getUnderlying(rq::Keyword::LAST);
+  }
 
-    [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
-        return this->_id >= rq::SYMBOL_OFFSET && this->_id < rq::CONSTANT_OFFSET;
-    }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
+    return this->_id >= rq::SYMBOL_OFFSET && this->_id < rq::CONSTANT_OFFSET;
+  }
 
-    [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-        return this->_id >= rq::OPCODE_OFFSET;
-    }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
+    return this->_id >= rq::OPCODE_OFFSET;
+  }
 
-      [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
-        RQ_ASSERT(entity_ptr != nullptr, "nullptr entity");
-        return true;
-      }
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    RQ_ASSERT(entity_ptr != nullptr, "nullptr entity");
+    return true;
+  }
 };
 
-}
+} // namespace rq

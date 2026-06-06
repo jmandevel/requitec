@@ -180,6 +180,30 @@ namespace rq {
   case S::IMPORT:
     return "Import";
 
+  // WEIGHTS
+  case S::CLASS_WEIGHT_LEVEL:
+    return "ClassWeightLevel";
+  case S::ENUMERATION_WEIGHT_LEVEL:
+    return "EnumerationWeightLevel";
+  case S::INTERFACE_WEIGHT_LEVEL:
+    return "InterfaceWeightLevel";
+  case S::ADAPTER_WEIGHT_LEVEL:
+    return "AdapterWeightLevel";
+  case S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL:
+    return "GlobalDynamicVariableWeightLevel";
+  case S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL:
+    return "GlobalStaticVariableWeightLevel";
+  case S::FORWARD_RANGER_WEIGHT_LEVEL:
+    return "ForwardRangerWeightLevel";
+  case S::BACKWARD_RANGER_WEIGHT_LEVEL:
+    return "BackwardRangerWeightLevel";
+  case S::FUNCTION_WEIGHT_LEVEL:
+    return "FunctionWeightLevel";
+  case S::METHOD_WEIGHT_LEVEL:
+    return "MethodWeightLevel";
+  case S::EXTENSION_METHOD_WEIGHT_LEVEL:
+    return "ExtensionMethodWeightLevel";
+
   // JUXTAPOSITIONAL LIST
   case S::JUXTAPOSITIONAL_LIST_ITEM:
     return "JuxtapositionalListItem";
@@ -205,6 +229,8 @@ namespace rq {
     return "LocalDynamicVariable";
   case S::LOCAL_STATIC_VARIABLE:
     return "LocalStaticVariable";
+  case S::TEMPLATE_ARGUMENT:
+    return "TemplateArgument";
   case S::ENUMERATOR:
     return "Enumerator";
 
@@ -569,6 +595,30 @@ namespace rq {
   case S::IMPORT:
     return SF::HAS_EXPRESSION_ATTRIBUTES;
 
+  // WEIGHTS
+  case S::CLASS_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::ENUMERATION_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::INTERFACE_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::ADAPTER_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::FORWARD_RANGER_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::BACKWARD_RANGER_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::FUNCTION_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::METHOD_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+  case S::EXTENSION_METHOD_WEIGHT_LEVEL:
+    return SF::WEIGHT_LEVEL;
+
   // JUXTAPOSITIONAL LIST
   case S::JUXTAPOSITIONAL_LIST_ITEM:
     return SF::NONE;
@@ -594,6 +644,9 @@ namespace rq {
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::LOCAL_STATIC_VARIABLE:
+    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
+  case S::TEMPLATE_ARGUMENT:
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ENUMERATOR:
@@ -688,92 +741,95 @@ namespace rq {
     return SF::NAMED_TABLE | SF::SYMBOL_TABLE;
 
   // GLOBAL DECLARATION
+  case S::DESTRUCTOR:
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
+           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+  case S::MAIN:
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
+           SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+
+  // POLYMORPH ITEM
   case S::CLASS_TYPE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ENUMERATION_TYPE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::INTERFACE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ADAPTER:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::GLOBAL_VARIABLE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::GLOBAL_STATIC_VARIABLE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::GLOBAL_VARIABLE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // RANGERS
   case S::FORWARD_RANGER:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::LOCAL_TABLE;
   case S::BACKWARD_RANGER:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
-
-  // CALLABLE
-  case S::DESTRUCTOR:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::LOCAL_TABLE;
 
   // PROCEDURES
-  case S::MAIN:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+  case S::FUNCTION:
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
            SF::LOCAL_TABLE;
-  case S::FUNCTION:
-    return SF::SYMBOL_TABLE | SF::CALLABLE | SF::GLOBAL_DECLARATION |
-           SF::NAMED_TABLE | SF::SYMBOL_TABLE | SF::PROCEDURE |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
   case S::METHOD:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
            SF::LOCAL_TABLE;
   case S::EXTENSION_METHOD:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
            SF::LOCAL_TABLE;
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ENUMERATION_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::INTERFACE_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ADAPTER_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::FORWARD_RANGER_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::BACKWARD_RANGER_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::FUNCTION_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::METHOD_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::EXTENSION_METHOD_TEMPLATE:
-    return SF::CALLABLE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::TEMPLATE | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
+           SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // POLYMORPHS
   case S::FORWARD_RANGER_POLYMORPH:
@@ -977,6 +1033,11 @@ getIsStandardPrimitiveType(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::SUBTYPE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::WEIGHT_LEVEL);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUncountedSubtype(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::UNCOUNTED_SUBTYPE);
@@ -1052,6 +1113,11 @@ getIsTypeParameterList(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::NAMED_TABLE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstance(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::INSTANCE);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsGlobalDeclaration(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
@@ -1061,11 +1127,6 @@ getIsGlobalDeclaration(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariable(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::GLOBAL_VARIABLE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCallable(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::CALLABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::SymbolKind kind) {
@@ -1268,765 +1329,6 @@ RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-RQ_ALWAYS_INLINE LiteralType::LiteralType(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {
-  RQ_ASSERT(rq::getIsLiteralType(kind), "not literal type");
-}
-
-[[nodiscard]] inline bool LiteralType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsLiteralType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE IntegerLiteralType::IntegerLiteralType()
-    : LiteralType(rq::SymbolKind::INTEGER_LITERAL_TYPE) {}
-
-[[nodiscard]] inline bool
-IntegerLiteralType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::INTEGER_LITERAL_TYPE);
-}
-
-RQ_ALWAYS_INLINE FloatLiteralType::FloatLiteralType()
-    : LiteralType(rq::SymbolKind::FLOAT_LITERAL_TYPE) {}
-
-[[nodiscard]] inline bool
-FloatLiteralType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::FLOAT_LITERAL_TYPE);
-}
-
-RQ_ALWAYS_INLINE StringLiteralType::StringLiteralType()
-    : LiteralType(rq::SymbolKind::STRING_LITERAL_TYPE) {}
-
-[[nodiscard]] inline bool
-StringLiteralType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::STRING_LITERAL_TYPE);
-}
-
-RQ_ALWAYS_INLINE CodeunitLiteralType::CodeunitLiteralType()
-    : LiteralType(rq::SymbolKind::CODEUNIT_LITERAL_TYPE) {}
-
-[[nodiscard]] inline bool
-CodeunitLiteralType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::CODEUNIT_LITERAL_TYPE);
-}
-
-RQ_ALWAYS_INLINE Contextual::Contextual(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {
-  RQ_ASSERT(rq::getIsContextual(kind), "not contextual");
-}
-
-[[nodiscard]] inline bool Contextual::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsContextual(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE ContextualValue::ContextualValue(rq::SymbolKind kind)
-    : Contextual(kind) {
-  RQ_ASSERT(rq::getIsContextualValue(kind), "not contextual value");
-}
-
-[[nodiscard]] inline bool
-ContextualValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsContextualValue(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE OutValue::OutValue() : ContextualValue(rq::SymbolKind::OUT) {}
-
-[[nodiscard]] inline bool OutValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::OUT);
-}
-
-RQ_ALWAYS_INLINE ThisValue::ThisValue()
-    : ContextualValue(rq::SymbolKind::THIS) {}
-
-[[nodiscard]] inline bool ThisValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::THIS);
-}
-
-RQ_ALWAYS_INLINE ResultValue::ResultValue()
-    : ContextualValue(rq::SymbolKind::RESULT) {}
-
-[[nodiscard]] inline bool ResultValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::RESULT);
-}
-
-RQ_ALWAYS_INLINE ValueValue::ValueValue()
-    : ContextualValue(rq::SymbolKind::VALUE) {}
-
-[[nodiscard]] inline bool ValueValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::VALUE);
-}
-
-RQ_ALWAYS_INLINE IndexValue::IndexValue()
-    : ContextualValue(rq::SymbolKind::INDEX) {}
-
-[[nodiscard]] inline bool IndexValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::INDEX);
-}
-
-RQ_ALWAYS_INLINE DiscriminantValue::DiscriminantValue()
-    : ContextualValue(rq::SymbolKind::DISCRIMINANT) {}
-
-[[nodiscard]] inline bool
-DiscriminantValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::DISCRIMINANT);
-}
-
-RQ_ALWAYS_INLINE CommandLineArgumentsValue::CommandLineArgumentsValue()
-    : ContextualValue(rq::SymbolKind::COMMAND_LINE_ARGUMENTS) {}
-
-[[nodiscard]] inline bool
-CommandLineArgumentsValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::OUT);
-}
-
-RQ_ALWAYS_INLINE CallsiteValue::CallsiteValue()
-    : ContextualValue(rq::SymbolKind::CALLSITE) {}
-
-[[nodiscard]] inline bool CallsiteValue::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CALLSITE);
-}
-
-RQ_ALWAYS_INLINE ContextualType::ContextualType(rq::SymbolKind kind)
-    : Contextual(kind) {
-  RQ_ASSERT(rq::getIsContextualType(kind), "not contextual type");
-}
-
-[[nodiscard]] inline bool
-ContextualType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsContextualType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE InferenceType::InferenceType()
-    : ContextualType(rq::SymbolKind::INFERENCE_TYPE) {}
-
-[[nodiscard]] inline bool InferenceType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::INFERENCE_TYPE);
-}
-
-RQ_ALWAYS_INLINE VoidType::VoidType()
-    : ContextualType(rq::SymbolKind::VOID_TYPE) {}
-
-[[nodiscard]] inline bool VoidType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::VOID_TYPE);
-}
-
-RQ_ALWAYS_INLINE NoReturnType::NoReturnType()
-    : ContextualType(rq::SymbolKind::NO_RETURN_TYPE) {}
-
-[[nodiscard]] inline bool NoReturnType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::NO_RETURN_TYPE);
-}
-
-RQ_ALWAYS_INLINE
-ExpressionAttributeType::ExpressionAttributeType(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {
-  RQ_ASSERT(rq::getIsExpressionAttributeType(kind),
-            "not expression attribute type");
-}
-
-[[nodiscard]] inline bool
-ExpressionAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsExpressionAttributeType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE AnchorAttributeType::AnchorAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool AnchorAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE OpaqueAttributeType::OpaqueAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool OpaqueAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE GlobalAttributeType::GlobalAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool GlobalAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE AccessAttributeType::AccessAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool AccessAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE PartialMutateAttributeType::PartialMutateAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool
-PartialMutateAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE StaticAttributeType::StaticAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::STATIC_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool StaticAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::STATIC_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE CaptureAttributeType::CaptureAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool CaptureAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE InlineAttributeType::InlineAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::INLINE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool InlineAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::INLINE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE MangleAttributeType::MangleAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool MangleAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE PackAttributeType::PackAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::PACK_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool PackAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::PACK_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE BranchTrendAttributeType::BranchTrendAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool
-BranchTrendAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE SupportStatusAttributeType::SupportStatusAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool
-SupportStatusAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE StableAddressAttributeType::StableAddressAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool
-StableAddressAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE VariadicAttributeType::VariadicAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool VariadicAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE LocationAttributeType::LocationAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool LocationAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE TemplateAttributeType::TemplateAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool TemplateAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE ConstraintAttributeType::ConstraintAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool
-ConstraintAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE WeightAttributeType::WeightAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool WeightAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE RequireAttributeType::RequireAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool RequireAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE EnsureAttributeType::EnsureAttributeType()
-    : ExpressionAttributeType(rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool EnsureAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE TypeAttributeType::TypeAttributeType(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {}
-
-[[nodiscard]] inline bool
-TypeAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsTypeAttributeType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE VarAttributeType::VarAttributeType()
-    : TypeAttributeType(rq::SymbolKind::VAR_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool VarAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::VAR_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE VolatileAttributeType::VolatileAttributeType()
-    : TypeAttributeType(rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool VolatileAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE AtomicAttributeType::AtomicAttributeType()
-    : TypeAttributeType(rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool AtomicAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE NullTerminateAttributeType::NullTerminateAttributeType()
-    : TypeAttributeType(rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE) {}
-
-[[nodiscard]] inline bool
-NullTerminateAttributeType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE);
-}
-
-RQ_ALWAYS_INLINE ReflectiveType::ReflectiveType(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {}
-
-[[nodiscard]] inline bool
-ReflectiveType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsReflectiveType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE SymbolType::SymbolType()
-    : ReflectiveType(rq::SymbolKind::SYMBOL_TYPE) {}
-
-[[nodiscard]] inline bool SymbolType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SYMBOL_TYPE);
-}
-
-RQ_ALWAYS_INLINE ExpressionType::ExpressionType()
-    : ReflectiveType(rq::SymbolKind::EXPRESSION_TYPE) {}
-
-[[nodiscard]] inline bool
-ExpressionType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::EXPRESSION_TYPE);
-}
-
-RQ_ALWAYS_INLINE
-PlatformPrimitiveType::PlatformPrimitiveType(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {
-  RQ_ASSERT(rq::getIsPlatformPrimitiveType(kind),
-            "not platform primitive type");
-}
-
-[[nodiscard]] inline bool
-PlatformPrimitiveType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsPlatformPrimitiveType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE BooleanType::BooleanType()
-    : PlatformPrimitiveType(rq::SymbolKind::BOOLEAN_TYPE) {}
-
-[[nodiscard]] inline bool BooleanType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BOOLEAN_TYPE);
-}
-
-RQ_ALWAYS_INLINE HalfType::HalfType()
-    : PlatformPrimitiveType(rq::SymbolKind::HALF_TYPE) {}
-
-[[nodiscard]] inline bool HalfType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::HALF_TYPE);
-}
-
-RQ_ALWAYS_INLINE SingleType::SingleType()
-    : PlatformPrimitiveType(rq::SymbolKind::SINGLE_TYPE) {}
-
-[[nodiscard]] inline bool SingleType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SINGLE_TYPE);
-}
-
-RQ_ALWAYS_INLINE DoubleType::DoubleType()
-    : PlatformPrimitiveType(rq::SymbolKind::DOUBLE_TYPE) {}
-
-[[nodiscard]] inline bool DoubleType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::DOUBLE_TYPE);
-}
-
-RQ_ALWAYS_INLINE QuadrupleType::QuadrupleType()
-    : PlatformPrimitiveType(rq::SymbolKind::QUADRUPLE_TYPE) {}
-
-[[nodiscard]] inline bool QuadrupleType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::QUADRUPLE_TYPE);
-}
-
-RQ_ALWAYS_INLINE SignedIntegerType::SignedIntegerType()
-    : PlatformPrimitiveType(rq::SymbolKind::QUADRUPLE_TYPE) {}
-
-[[nodiscard]] inline bool
-SignedIntegerType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::QUADRUPLE_TYPE);
-}
-
-RQ_ALWAYS_INLINE UnsignedIntegerType::UnsignedIntegerType()
-    : PlatformPrimitiveType(rq::SymbolKind::QUADRUPLE_TYPE) {}
-
-[[nodiscard]] inline bool
-UnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::QUADRUPLE_TYPE);
-}
-
-RQ_ALWAYS_INLINE SignedAddressType::SignedAddressType()
-    : PlatformPrimitiveType(rq::SymbolKind::QUADRUPLE_TYPE) {}
-
-[[nodiscard]] inline bool
-SignedAddressType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::QUADRUPLE_TYPE);
-}
-
-RQ_ALWAYS_INLINE UnsignedAddressType::UnsignedAddressType()
-    : PlatformPrimitiveType(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE) {}
-
-[[nodiscard]] inline bool
-UnsignedAddressType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE);
-}
-
-RQ_ALWAYS_INLINE SignedIndexType::SignedIndexType()
-    : PlatformPrimitiveType(rq::SymbolKind::SIGNED_INDEX_TYPE) {}
-
-[[nodiscard]] inline bool
-SignedIndexType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::SIGNED_INDEX_TYPE);
-}
-
-RQ_ALWAYS_INLINE UnsignedIndexType::UnsignedIndexType()
-    : PlatformPrimitiveType(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE) {}
-
-[[nodiscard]] inline bool
-UnsignedIndexType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::UNSIGNED_ADDRESS_TYPE);
-}
-
-RQ_ALWAYS_INLINE CharType::CharType()
-    : PlatformPrimitiveType(rq::SymbolKind::CHAR_TYPE) {}
-
-[[nodiscard]] inline bool CharType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CHAR_TYPE);
-}
-
-RQ_ALWAYS_INLINE
-StandardPrimitiveType::StandardPrimitiveType(rq::SymbolKind kind)
-    : SimpleSymbol(kind) {
-  RQ_ASSERT(rq::getIsStandardPrimitiveType(kind), "not standard primitive");
-}
-
-[[nodiscard]] inline bool
-StandardPrimitiveType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsStandardPrimitiveType(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE Binary16Type::Binary16Type()
-    : StandardPrimitiveType(rq::SymbolKind::BINARY16_TYPE) {}
-
-[[nodiscard]] inline bool Binary16Type::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BINARY16_TYPE);
-}
-
-RQ_ALWAYS_INLINE Binary32Type::Binary32Type()
-    : StandardPrimitiveType(rq::SymbolKind::BINARY32_TYPE) {}
-
-[[nodiscard]] inline bool Binary32Type::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BINARY32_TYPE);
-}
-
-RQ_ALWAYS_INLINE Binary64Type::Binary64Type()
-    : StandardPrimitiveType(rq::SymbolKind::BINARY64_TYPE) {}
-
-[[nodiscard]] inline bool Binary64Type::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BINARY64_TYPE);
-}
-
-RQ_ALWAYS_INLINE Binary128Type::Binary128Type()
-    : StandardPrimitiveType(rq::SymbolKind::BINARY128_TYPE) {}
-
-[[nodiscard]] inline bool Binary128Type::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BINARY64_TYPE);
-}
-
-RQ_ALWAYS_INLINE Bfloat16Type::Bfloat16Type()
-    : StandardPrimitiveType(rq::SymbolKind::BFLOAT16_TYPE) {}
-
-[[nodiscard]] inline bool Bfloat16Type::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BFLOAT16_TYPE);
-}
-
-RQ_ALWAYS_INLINE AsciiType::AsciiType()
-    : StandardPrimitiveType(rq::SymbolKind::ASCII_TYPE) {}
-
-[[nodiscard]] inline bool AsciiType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ASCII_TYPE);
-}
-
-RQ_ALWAYS_INLINE Utf8Type::Utf8Type()
-    : StandardPrimitiveType(rq::SymbolKind::UTF8_TYPE) {}
-
-[[nodiscard]] inline bool Utf8Type::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::UTF8_TYPE);
-}
-
-RQ_ALWAYS_INLINE VariadicArgumentsType::VariadicArgumentsType()
-    : SimpleSymbol(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE) {}
-
-[[nodiscard]] inline bool
-VariadicArgumentsType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE);
-}
-
 RQ_ALWAYS_INLINE
 ScaledPrimitiveType::ScaledPrimitiveType(rq::SymbolKind kind,
                                          rq::ScaleKind scale_kind,
@@ -2076,38 +1378,6 @@ RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &out_id,
   out_id.AddInteger(rq::getUnderlying(scale_kind));
   out_id.AddInteger(scale);
   out_id.AddInteger(synonum_id);
-}
-
-RQ_ALWAYS_INLINE
-ScaledSignedIntegerType::ScaledSignedIntegerType(rq::ScaleKind kind,
-                                                 unsigned scale,
-                                                 std::uint64_t synonym_id)
-    : ScaledPrimitiveType(rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind,
-                          scale, synonym_id) {}
-
-[[nodiscard]] inline bool
-ScaledSignedIntegerType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET +
-             rq::getUnderlying(rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE);
-}
-
-RQ_ALWAYS_INLINE
-ScaledUnsignedIntegerType::ScaledUnsignedIntegerType(rq::ScaleKind kind,
-                                                     unsigned scale,
-                                                     std::uint64_t synonym_id)
-    : ScaledPrimitiveType(rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind,
-                          scale, synonym_id) {}
-
-[[nodiscard]] inline bool
-ScaledUnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET +
-             rq::getUnderlying(rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE);
 }
 
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
@@ -2186,51 +1456,6 @@ RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &out_id,
                                               const rq::SymbolConstant &child) {
   out_id.AddInteger(rq::getUnderlying(kind));
   out_id.AddPointer(&child);
-}
-
-RQ_ALWAYS_INLINE ReferenceSubtype::ReferenceSubtype(rq::SymbolConstant &child)
-    : UncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child) {}
-
-[[nodiscard]] inline bool
-ReferenceSubtype::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::REFERENCE_SUBTYPE);
-}
-
-RQ_ALWAYS_INLINE PointerSubtype::PointerSubtype(rq::SymbolConstant &child)
-    : UncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child) {}
-
-[[nodiscard]] inline bool
-PointerSubtype::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::POINTER_SUBTYPE);
-}
-
-RQ_ALWAYS_INLINE SliceSubtype::SliceSubtype(rq::SymbolConstant &child)
-    : UncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child) {}
-
-[[nodiscard]] inline bool SliceSubtype::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SLICE_SUBTYPE);
-}
-
-RQ_ALWAYS_INLINE InferenceCountArraySubtype::InferenceCountArraySubtype(
-    rq::SymbolConstant &child)
-    : UncountedSubtype(rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child) {}
-
-[[nodiscard]] inline bool
-InferenceCountArraySubtype::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET +
-             rq::getUnderlying(rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE);
 }
 
 RQ_ALWAYS_INLINE
@@ -2486,61 +1711,6 @@ RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
 }
 
 RQ_ALWAYS_INLINE
-ArithmeticIntervalType::ArithmeticIntervalType(
-    rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition)
-    : ArithmeticSequenceType(rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child,
-                             condition, rq::ArithmeticSequenceStep::NONE) {
-  RQ_ASSERT(condition != rq::ArithmeticSequenceCondition::NONE,
-            "condition is none");
-}
-
-[[nodiscard]] inline bool
-ArithmeticIntervalType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE);
-}
-
-RQ_ALWAYS_INLINE
-InfiniteArithmeticSequenceType::InfiniteArithmeticSequenceType(
-    rq::SymbolConstant &child, rq::ArithmeticSequenceStep step)
-    : ArithmeticSequenceType(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE,
-                             child, rq::ArithmeticSequenceCondition::NONE,
-                             step) {
-  RQ_ASSERT(step != rq::ArithmeticSequenceStep::NONE, "step is none");
-}
-
-[[nodiscard]] inline bool
-InfiniteArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(
-                       rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE);
-}
-
-RQ_ALWAYS_INLINE
-FiniteArithmeticSequenceType::FiniteArithmeticSequenceType(
-    rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
-    rq::ArithmeticSequenceStep step)
-    : ArithmeticSequenceType(rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE,
-                             child, condition, step) {
-  RQ_ASSERT(condition != rq::ArithmeticSequenceCondition::NONE,
-            "condition is none");
-  RQ_ASSERT(step != rq::ArithmeticSequenceStep::NONE, "step is none");
-}
-
-[[nodiscard]] inline bool
-FiniteArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(
-                       rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE);
-}
-
-RQ_ALWAYS_INLINE
 LocalDeclaration::LocalDeclaration(rq::SymbolKind kind, llvm::StringRef name,
                                    const rq::Expression *name_expression_ptr,
                                    rq::SymbolTable &containing_table,
@@ -2721,35 +1891,6 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
                    rq::getUnderlying(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
-}
-
-RQ_ALWAYS_INLINE
-Enumerator::Enumerator(llvm::StringRef name,
-                       const rq::Expression &name_expression,
-                       rq::SymbolTable &containing_table,
-                       rq::SymbolTable &hosting_table,
-                       rq::ExpressionFlags flags,
-                       rq::Expression *default_value_expression_ptr)
-    : LocalVariable(rq::SymbolKind::ENUMERATOR, name, &name_expression,
-                    containing_table, hosting_table, flags),
-      _default_value_expression_ptr(default_value_expression_ptr) {
-  RQ_ASSERT(llvm::isa<rq::EnumerationType>(containing_table),
-            "enumerator not member of enumeration type");
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-Enumerator::getDefaultValueExpressionPtr() const {
-  return this->_default_value_expression_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
-Enumerator::getEnumerationType() const {
-  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &
-Enumerator::getEnumerationType() {
-  return llvm::cast<rq::EnumerationType>(this->getContainingTable());
 }
 
 RQ_ALWAYS_INLINE
@@ -3780,7 +2921,7 @@ inline void CompositionType::Profile(llvm::FoldingSetNodeID &out_id) const {
 
 inline void
 profileCompositionType(llvm::FoldingSetNodeID &out_id,
-                   const rq::CompositionComponent &first_component) {
+                       const rq::CompositionComponent &first_component) {
   out_id.AddPointer(&first_component);
 }
 
@@ -3918,194 +3059,6 @@ LocalStatement::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-RQ_ALWAYS_INLINE IfStatement::IfStatement(rq::SymbolTable &containing_table,
-                                          rq::Expression &expression,
-                                          rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::IF_STATEMENT, containing_table, expression,
-                     flags) {}
-
-[[nodiscard]] inline bool IfStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::IF_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-ElseIfStatement::ElseIfStatement(rq::SymbolTable &containing_table,
-                                 rq::Expression &expression,
-                                 rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::ELSE_IF_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-ElseIfStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ELSE_IF_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-ElseStatement::ElseStatement(rq::SymbolTable &containing_table,
-                             rq::Expression &expression,
-                             rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::ELSE_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool ElseStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ELSE_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-MatchStatement::MatchStatement(rq::SymbolTable &containing_table,
-                               rq::Expression &expression,
-                               rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::MATCH_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-MatchStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MATCH_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-SwitchStatement::SwitchStatement(rq::SymbolTable &containing_table,
-                                 rq::Expression &expression,
-                                 rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::SWITCH_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-SwitchStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::SWITCH_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-CaseStatement::CaseStatement(rq::SymbolTable &containing_table,
-                             rq::Expression &expression,
-                             rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::CASE_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool CaseStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CASE_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-WithStatement::WithStatement(rq::SymbolTable &containing_table,
-                             rq::Expression &expression,
-                             rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::WITH_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool WithStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::WITH_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-DefaultStatement::DefaultStatement(rq::SymbolTable &containing_table,
-                                   rq::Expression &expression,
-                                   rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::DEFAULT_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-DefaultStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::DEFAULT_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-ForStatement::ForStatement(rq::SymbolTable &containing_table,
-                           rq::Expression &expression,
-                           rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::FOR_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool ForStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::FOR_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-WhileStatement::WhileStatement(rq::SymbolTable &containing_table,
-                               rq::Expression &expression,
-                               rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::WHILE_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-WhileStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::WHILE_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-SpinStatement::SpinStatement(rq::SymbolTable &containing_table,
-                             rq::Expression &expression,
-                             rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::SPIN_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool SpinStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SPIN_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-WeaveStatement::WeaveStatement(rq::SymbolTable &containing_table,
-                               rq::Expression &expression,
-                               rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::WEAVE_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-WeaveStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::WEAVE_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE
-ScopeStatement::ScopeStatement(rq::SymbolTable &containing_table,
-                               rq::Expression &expression,
-                               rq::ExpressionFlags flags)
-    : LocalStatement(rq::SymbolKind::SCOPE_STATEMENT, containing_table,
-                     expression, flags) {}
-
-[[nodiscard]] inline bool
-ScopeStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::SCOPE_STATEMENT);
-}
-
 RQ_ALWAYS_INLINE NamedTable::NamedTable(rq::SymbolKind kind,
                                         rq::SymbolTable &containing_table,
                                         llvm::StringRef name)
@@ -4204,14 +3157,95 @@ GlobalDeclaration::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
+RQ_ALWAYS_INLINE Destructor::Destructor(rq::SymbolTable &containing_table,
+                                        rq::SymbolTable &hosting_table,
+                                        const rq::Expression &expression,
+                                        rq::ExpressionFlags flags)
+    : GlobalDeclaration(rq::SymbolKind::DESTRUCTOR, containing_table, {},
+                        hosting_table, expression, nullptr, flags) {}
+
+[[nodiscard]] inline bool Destructor::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id ==
+         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::DESTRUCTOR);
+}
+
+RQ_ALWAYS_INLINE
+Main::Main(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+           const rq::Expression &expression, rq::ExpressionFlags flags)
+    : GlobalDeclaration(rq::SymbolKind::DESTRUCTOR, containing_table, {},
+                        hosting_table, expression, nullptr, flags) {}
+
+[[nodiscard]] inline bool Main::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MAIN);
+}
+
+RQ_ALWAYS_INLINE
+Instance::Instance(rq::SymbolKind kind, rq::SymbolTable &containing_table,
+                   llvm::StringRef name, rq::SymbolTable &hosting_table,
+                   const rq::Expression &expression,
+                   const rq::Expression *name_expression_ptr,
+                   rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+                   rq::Template *template_ptr,
+                   rq::TemplateArgument *first_argument_ptr)
+    : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
+                        name_expression_ptr, flags),
+      _polymorph_ptr(&polymorph), _template_ptr(template_ptr),
+      _first_argument_ptr(first_argument_ptr) {
+  RQ_ASSERT(rq::getIsInstance(kind), "not instance");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph &
+Instance::getPolymorph() const {
+  return rq::dereferencePtr(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph &Instance::getPolymorph() {
+  return rq::dereferencePtr(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *
+Instance::getTemplatePtr() const {
+  return this->_template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Template *Instance::getTemplatePtr() {
+  return this->_template_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::TemplateArgument *
+Instance::getFirstTemplateArgumentPtr() const {
+  return this->_first_argument_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateArgument *
+Instance::getFirstTemplateArgumentPtr() {
+  return this->_first_argument_ptr;
+}
+
+[[nodiscard]] inline bool Instance::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  if (!llvm::isa<rq::Symbol>(entity)) {
+    return false;
+  }
+  const rq::EntityId id = entity.getId();
+  return rq::getIsInstance(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
+}
+
 RQ_ALWAYS_INLINE
 ClassType::ClassType(rq::SymbolTable &containing_table, llvm::StringRef name,
                      rq::SymbolTable &hosting_table,
                      const rq::Expression &expression,
                      const rq::Expression &name_expression,
-                     rq::ExpressionFlags flags)
-    : GlobalDeclaration(rq::SymbolKind::CLASS_TYPE, containing_table, name,
-                        hosting_table, expression, &name_expression, flags) {}
+                     rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+                     rq::Template *template_ptr,
+                     rq::TemplateArgument *first_argument_ptr)
+    : Instance(rq::SymbolKind::CLASS_TYPE, containing_table, name,
+               hosting_table, expression, &name_expression, flags, polymorph,
+               template_ptr, first_argument_ptr) {}
 
 [[nodiscard]] inline bool ClassType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -4223,17 +3257,19 @@ ClassType::ClassType(rq::SymbolTable &containing_table, llvm::StringRef name,
 RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
     rq::SymbolTable &containing_table, llvm::StringRef name,
     rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags)
-    : GlobalDeclaration(rq::SymbolKind::ENUMERATION_TYPE, containing_table,
-                        name, hosting_table, expression, &name_expression,
-                        flags) {}
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    rq::Polymorph &polymorph, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr)
+    : Instance(rq::SymbolKind::ENUMERATION_TYPE, containing_table, name,
+               hosting_table, expression, &name_expression, flags, polymorph,
+               template_ptr, first_argument_ptr) {}
 
 [[nodiscard]] inline bool
 EnumerationType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ENUMERATION_TYPE);
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::ENUMERATION_TYPE);
 }
 
 RQ_ALWAYS_INLINE
@@ -4241,9 +3277,12 @@ Interface::Interface(rq::SymbolTable &containing_table, llvm::StringRef name,
                      rq::SymbolTable &hosting_table,
                      const rq::Expression &expression,
                      const rq::Expression &name_expression,
-                     rq::ExpressionFlags flags)
-    : GlobalDeclaration(rq::SymbolKind::INTERFACE, containing_table, name,
-                        hosting_table, expression, &name_expression, flags) {}
+                     rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+                     rq::Template *template_ptr,
+                     rq::TemplateArgument *first_argument_ptr)
+    : Instance(rq::SymbolKind::INTERFACE, containing_table, name, hosting_table,
+               expression, &name_expression, flags, polymorph, template_ptr,
+               first_argument_ptr) {}
 
 [[nodiscard]] inline bool Interface::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -4256,18 +3295,20 @@ Adapter::Adapter(rq::SymbolTable &containing_table, llvm::StringRef name,
                  rq::SymbolTable &hosting_table,
                  const rq::Expression &expression,
                  const rq::Expression &name_expression,
-                 rq::ExpressionFlags flags, rq::Interface &interface)
-    : GlobalDeclaration(rq::SymbolKind::ADAPTER, containing_table, name,
-                        hosting_table, expression, &name_expression, flags),
-      _interface_ptr(&interface) {}
+                 rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+                 rq::Template *template_ptr,
+                 rq::TemplateArgument *first_argument_ptr)
+    : Instance(rq::SymbolKind::ADAPTER, containing_table, name, hosting_table,
+               expression, &name_expression, flags, polymorph, template_ptr,
+               first_argument_ptr) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
-Adapter::getInterface() const {
-  return rq::dereferencePtr(this->_interface_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface *
+Adapter::getInterfacePtr() const {
+  return this->_interface_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &Adapter::getInterface() {
-  return rq::dereferencePtr(this->_interface_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface *Adapter::getInterfacePtr() {
+  return this->_interface_ptr;
 }
 
 [[nodiscard]] inline bool Adapter::classof(const rq::Entity *entity_ptr) {
@@ -4281,10 +3322,13 @@ GlobalVariable::GlobalVariable(
     rq::SymbolKind kind, rq::SymbolTable &containing_table,
     llvm::StringRef name, rq::SymbolTable &hosting_table,
     const rq::Expression &expression, const rq::Expression &name_expression,
-    rq::ExpressionFlags flags, const rq::Expression &initial_value_expression)
-    : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
-                        &name_expression, flags),
-      _initial_value_expression_ptr(&initial_value_expression) {
+    rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
+    const rq::Expression *initial_value_expression_ptr)
+    : Instance(kind, containing_table, name, hosting_table, expression,
+               &name_expression, flags, polymorph, template_ptr,
+               first_argument_ptr),
+      _initial_value_expression_ptr(initial_value_expression_ptr) {
   RQ_ASSERT(rq::getIsGlobalVariable(kind), "not global variable");
 }
 
@@ -4322,10 +3366,13 @@ RQ_ALWAYS_INLINE GlobalDynamicVariable::GlobalDynamicVariable(
     rq::SymbolTable &containing_table, llvm::StringRef name,
     rq::SymbolTable &hosting_table, const rq::Expression &expression,
     const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    rq::Polymorph &polymorph, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr,
     const rq::Expression &initial_value_expression)
     : GlobalVariable(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE, containing_table,
                      name, hosting_table, expression, name_expression, flags,
-                     initial_value_expression) {}
+                     polymorph, template_ptr, first_argument_ptr,
+                     &initial_value_expression) {}
 
 RQ_ALWAYS_INLINE void
 GlobalDynamicVariable::setInitialValue(rq::Entity &entity) {
@@ -4354,10 +3401,13 @@ RQ_ALWAYS_INLINE GlobalStaticVariable::GlobalStaticVariable(
     rq::SymbolTable &containing_table, llvm::StringRef name,
     rq::SymbolTable &hosting_table, const rq::Expression &expression,
     const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    rq::Polymorph &polymorph, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr,
     const rq::Expression &initial_value_expression)
     : GlobalVariable(rq::SymbolKind::GLOBAL_STATIC_VARIABLE, containing_table,
                      name, hosting_table, expression, name_expression, flags,
-                     initial_value_expression) {}
+                     polymorph, template_ptr, first_argument_ptr,
+                     &initial_value_expression) {}
 
 RQ_ALWAYS_INLINE void GlobalStaticVariable::setValue(rq::Entity &value) {
   rq::assignSingleValue(this->_value_ptr, &value);
@@ -4381,72 +3431,17 @@ GlobalStaticVariable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-Callable::Callable(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-                   llvm::StringRef name, rq::SymbolTable &hosting_table,
-                   const rq::Expression &expression,
-                   const rq::Expression *name_expression_ptr,
-                   rq::ExpressionFlags flag)
-    : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
-                        name_expression_ptr, flag) {
-  RQ_ASSERT(rq::getIsCallable(kind), "not callable");
-}
-
-RQ_ALWAYS_INLINE void Callable::setInstruction(rq::Instruction &instruction) {
-  rq::assignSingleValue(this->_instruction_ptr, &instruction);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
-Callable::getInstructionPtr() const {
-  return this->_instruction_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *Callable::getInstructionPtr() {
-  return this->_instruction_ptr;
-}
-
-[[nodiscard]] inline bool Callable::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsCallable(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE Destructor::Destructor(rq::SymbolTable &containing_table,
-                                        rq::SymbolTable &hosting_table,
-                                        const rq::Expression &expression,
-                                        rq::ExpressionFlags flags)
-    : Callable(rq::SymbolKind::DESTRUCTOR, containing_table, {}, hosting_table,
-               expression, nullptr, flags) {}
-
-[[nodiscard]] inline bool Destructor::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::DESTRUCTOR);
-}
-
-RQ_ALWAYS_INLINE
-Main::Main(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-           const rq::Expression &expression, rq::ExpressionFlags flags)
-    : Callable(rq::SymbolKind::MAIN, containing_table, {}, hosting_table,
-               expression, nullptr, flags) {}
-
-[[nodiscard]] inline bool Main::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MAIN);
-}
-
-RQ_ALWAYS_INLINE
 Ranger::Ranger(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-               rq::SymbolTable &hosting_table, const rq::Expression &expression,
-               rq::ExpressionFlags flags,
+               llvm::StringRef name, rq::SymbolTable &hosting_table,
+               const rq::Expression &expression,
+               const rq::Expression &name_expression, rq::ExpressionFlags flags,
+               rq::Polymorph &polymorph, rq::Template *template_ptr,
+               rq::TemplateArgument *first_argument_ptr,
                const rq::Expression &reciever_type_expression,
                const rq::Expression &element_type_expression)
-    : Callable(kind, containing_table, {}, hosting_table, expression, nullptr,
-               flags),
+    : Instance(kind, containing_table, name, hosting_table, expression,
+               &name_expression, flags, polymorph, template_ptr,
+               first_argument_ptr),
       _reciever_type_expression_ptr(&reciever_type_expression),
       _element_type_expression_ptr(&element_type_expression) {
   RQ_ASSERT(rq::getIsRanger(kind), "not ranger");
@@ -4499,48 +3494,18 @@ Ranger::getElementTypePtr() const {
   return rq::getIsRanger(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-RQ_ALWAYS_INLINE ForwardRanger::ForwardRanger(
-    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-    const rq::Expression &expression, rq::ExpressionFlags flags,
-    const rq::Expression &reciever_type_expression,
-    const rq::Expression &element_type_expression)
-    : Ranger(rq::SymbolKind::FORWARD_RANGER, containing_table, hosting_table,
-             expression, flags, reciever_type_expression,
-             element_type_expression) {}
-
-[[nodiscard]] inline bool ForwardRanger::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::FORWARD_RANGER);
-}
-
-RQ_ALWAYS_INLINE BackwardRanger::BackwardRanger(
-    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-    const rq::Expression &expression, rq::ExpressionFlags flags,
-    const rq::Expression &reciever_type_expression,
-    const rq::Expression &element_type_expression)
-    : Ranger(rq::SymbolKind::BACKWARD_RANGER, containing_table, hosting_table,
-             expression, flags, reciever_type_expression,
-             element_type_expression) {}
-
-[[nodiscard]] inline bool
-BackwardRanger::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BACKWARD_RANGER);
-}
-
 RQ_ALWAYS_INLINE
 Procedure::Procedure(rq::SymbolKind kind, rq::SymbolTable &containing_table,
                      llvm::StringRef name, rq::SymbolTable &hosting_table,
                      const rq::Expression &expression,
-                     const rq::Expression *name_expression_ptr,
-                     rq::ExpressionFlags flag,
+                     const rq::Expression &name_expression,
+                     rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+                     rq::Template *template_ptr,
+                     rq::TemplateArgument *first_argument_ptr,
                      const rq::Expression &signature_expression)
-    : Callable(kind, containing_table, name, hosting_table, expression,
-               name_expression_ptr, flag),
+    : Instance(kind, containing_table, name, hosting_table, expression,
+               &name_expression, flags, polymorph, template_ptr,
+               first_argument_ptr),
       _signature_expression_ptr(&signature_expression) {
   RQ_ASSERT(rq::getIsProcedure(kind), "not procedure");
 }
@@ -4572,53 +3537,6 @@ Procedure::getSignatureExpression() const {
   const rq::EntityId id = entity.getId();
   return rq::getIsProcedure(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE
-Function::Function(rq::SymbolTable &containing_table, llvm::StringRef name,
-                   rq::SymbolTable &hosting_table,
-                   const rq::Expression &expression,
-                   const rq::Expression &name_expression,
-                   rq::ExpressionFlags flags,
-                   const rq::Expression &signature_expression)
-    : Procedure(rq::SymbolKind::FUNCTION, containing_table, name, hosting_table,
-                expression, &name_expression, flags, signature_expression) {}
-
-[[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::FUNCTION);
-}
-
-RQ_ALWAYS_INLINE
-Method::Method(rq::SymbolTable &containing_table, llvm::StringRef name,
-               rq::SymbolTable &hosting_table, const rq::Expression &expression,
-               const rq::Expression &name_expression, rq::ExpressionFlags flags,
-               const rq::Expression &signature_expression)
-    : Procedure(rq::SymbolKind::METHOD, containing_table, name, hosting_table,
-                expression, &name_expression, flags, signature_expression) {}
-
-[[nodiscard]] inline bool Method::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::METHOD);
-}
-
-RQ_ALWAYS_INLINE ExtensionMethod::ExtensionMethod(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &signature_expression)
-    : Procedure(rq::SymbolKind::EXTENSION_METHOD, containing_table, name,
-                hosting_table, expression, &name_expression, flags,
-                signature_expression) {}
-
-[[nodiscard]] inline bool
-ExtensionMethod::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::EXTENSION_METHOD);
 }
 
 RQ_ALWAYS_INLINE Template::Template(
@@ -4677,225 +3595,11 @@ Template::getWeightExpressionPtr() const {
   return rq::getIsTemplate(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-RQ_ALWAYS_INLINE ClassTemplate::ClassTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::CLASS_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool ClassTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CLASS_TEMPLATE);
+RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
+                                          rq::Polymorph &polymorph)
+    : Symbol(kind), _weight(weight), _polymorph_ptr(&polymorph) {
+  RQ_ASSERT(rq::getIsWeightLevel(kind), "not weight level");
 }
-
-RQ_ALWAYS_INLINE EnumerationTemplate::EnumerationTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::ENUMERATION_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-EnumerationTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ENUMERATION_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE InterfaceTemplate::InterfaceTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::INTERFACE_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-InterfaceTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::INTERFACE_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE AdapterTemplate::AdapterTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::ADAPTER_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool AdapterTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ADAPTER_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE GlobalDynamicVariableTemplate::GlobalDynamicVariableTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-GlobalDynamicVariableTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE);
-}
-
-RQ_ALWAYS_INLINE GlobalStaticVariableTemplate::GlobalStaticVariableTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::GLOBAL_STATIC_VARIABLE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-GlobalStaticVariableTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::GLOBAL_STATIC_VARIABLE);
-}
-
-RQ_ALWAYS_INLINE ForwardRangerTemplate::ForwardRangerTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::FORWARD_RANGER_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-ForwardRangerTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::FORWARD_RANGER_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE BackwardRangerTemplate::BackwardRangerTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::BACKWARD_RANGER_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-BackwardRangerTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::BACKWARD_RANGER_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE FunctionTemplate::FunctionTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::FUNCTION_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-FunctionTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::FUNCTION_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE MethodTemplate::MethodTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::METHOD_TEMPLATE, containing_table, name,
-               hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-MethodTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::METHOD_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE ExtensionMethodTemplate::ExtensionMethodTemplate(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, const rq::Expression &expression,
-    const rq::Expression &name_expression, rq::ExpressionFlags flags,
-    const rq::Expression &layout_expression,
-    const rq::Expression *constraint_expression_ptr,
-    const rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(rq::SymbolKind::EXTENSION_METHOD_TEMPLATE, containing_table,
-               name, hosting_table, expression, name_expression, flags,
-               layout_expression, constraint_expression_ptr,
-               weight_expression_ptr, weight) {}
-
-[[nodiscard]] inline bool
-ExtensionMethodTemplate::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::EXTENSION_METHOD_TEMPLATE);
-}
-
-RQ_ALWAYS_INLINE WeightLevel::WeightLevel(unsigned weight) : _weight(weight) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned WeightLevel::getWeight() const {
   return this->_weight;
@@ -4929,42 +3633,42 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
   RQ_ASSERT(rq::getIsPolymorph(kind), "not polymorph");
 }
 
-inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
-                                   rq::Template &template_) {
-  rq::WeightLevel *prev_level_ptr = nullptr;
-  for (rq::WeightLevel &level : this->getWeightSubrange()) {
-    if (level.getWeight() < template_.getWeight()) {
-      rq::WeightLevel &new_level =
-          allocator.allocateValue<rq::WeightLevel>(template_.getWeight());
-      new_level._first_ptr = &template_;
-      if (prev_level_ptr == nullptr) {
-        new_level._next_ptr = this->_highest_weight_ptr;
-        this->_highest_weight_ptr = &new_level;
-        return;
-      }
-      rq::WeightLevel &prev_level = rq::dereferencePtr(prev_level_ptr);
-      new_level._next_ptr = prev_level._next_ptr;
-      prev_level._next_ptr = &new_level;
-      return;
-    } else if (level.getWeight() == template_.getWeight()) {
-      template_._next_ptr = level._first_ptr;
-      level._first_ptr = &template_;
-      return;
-    }
-    prev_level_ptr = &level;
-  }
-  rq::WeightLevel &new_level =
-      allocator.allocateValue<rq::WeightLevel>(template_.getWeight());
-  new_level._first_ptr = &template_;
-  if (prev_level_ptr == nullptr) {
-    new_level._next_ptr = this->_highest_weight_ptr;
-    this->_highest_weight_ptr = &new_level;
-    return;
-  }
-  rq::WeightLevel &prev_level = rq::dereferencePtr(prev_level_ptr);
-  new_level._next_ptr = prev_level._next_ptr;
-  prev_level._next_ptr = &new_level;
-}
+// inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
+//                                    rq::Template &template_) {
+// rq::WeightLevel *prev_level_ptr = nullptr;
+// for (rq::WeightLevel &level : this->getWeightSubrange()) {
+//   if (level.getWeight() < template_.getWeight()) {
+//     rq::WeightLevel &new_level = allocator.allocateValue<rq::WeightLevel>(
+//         template_.getWeight(), *this);
+//     new_level._first_ptr = &template_;
+//     if (prev_level_ptr == nullptr) {
+//       new_level._next_ptr = this->_highest_weight_ptr;
+//       this->_highest_weight_ptr = &new_level;
+//       return;
+//     }
+//     rq::WeightLevel &prev_level = rq::dereferencePtr(prev_level_ptr);
+//     new_level._next_ptr = prev_level._next_ptr;
+//     prev_level._next_ptr = &new_level;
+//     return;
+//   } else if (level.getWeight() == template_.getWeight()) {
+//     template_._next_ptr = level._first_ptr;
+//     level._first_ptr = &template_;
+//     return;
+//   }
+//   prev_level_ptr = &level;
+// }
+// rq::WeightLevel &new_level =
+//     allocator.allocateValue<rq::WeightLevel>(template_.getWeight());
+// new_level._first_ptr = &template_;
+// if (prev_level_ptr == nullptr) {
+//   new_level._next_ptr = this->_highest_weight_ptr;
+//   this->_highest_weight_ptr = &new_level;
+//   return;
+// }
+// rq::WeightLevel &prev_level = rq::dereferencePtr(prev_level_ptr);
+// new_level._next_ptr = prev_level._next_ptr;
+// prev_level._next_ptr = &new_level;
+//}
 
 [[nodiscard]] RQ_ALWAYS_INLINE
     std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
@@ -4998,376 +3702,6 @@ inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
   const rq::EntityId id = entity.getId();
   return rq::getIsPolymorph(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-RQ_ALWAYS_INLINE ClassPolymorph::ClassPolymorph()
-    : Polymorph(rq::SymbolKind::CLASS_POLYMORPH) {}
-
-inline void ClassPolymorph::addClassType(rq::BumpPtrAllocator &allocator,
-                                         rq::ClassType &class_type) {
-  this->_class_type_list.insertFront(allocator, class_type);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool ClassPolymorph::getHasClassType() const {
-  return this->_class_type_list.getHasHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-ClassPolymorph::getHasMultipleClassType() const {
-  return this->_class_type_list.getHasTail();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ClassType &ClassPolymorph::getClassType() {
-  RQ_ASSERT(!this->getHasMultipleClassType(), "more than one");
-  return this->_class_type_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassType &
-ClassPolymorph::getClassType() const {
-  RQ_ASSERT(!this->getHasMultipleClassType(), "more than one");
-  return this->_class_type_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::ClassType>,
-                          rq::BumpPtrListIterator<rq::ClassType>,
-                          std::ranges::subrange_kind::unsized>
-    ClassPolymorph::getClassTypeSubrange() {
-  return std::ranges::subrange<rq::BumpPtrListIterator<rq::ClassType>,
-                               rq::BumpPtrListIterator<rq::ClassType>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_class_type_list.begin(), this->_class_type_list.end());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::ClassType>,
-                          rq::ConstBumpPtrListIterator<rq::ClassType>,
-                          std::ranges::subrange_kind::unsized>
-    ClassPolymorph::getClassTypeSubrange() const {
-  return std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::ClassType>,
-                               rq::ConstBumpPtrListIterator<rq::ClassType>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_class_type_list.cbegin(), this->_class_type_list.cend());
-}
-
-[[nodiscard]] inline bool
-ClassPolymorph::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CLASS_POLYMORPH);
-}
-
-RQ_ALWAYS_INLINE EnumerationPolymorph::EnumerationPolymorph()
-    : Polymorph(rq::SymbolKind::ENUMERATION_POLYMORPH) {}
-
-inline void
-EnumerationPolymorph::addEnumerationType(rq::BumpPtrAllocator &allocator,
-                                         rq::EnumerationType &type) {
-  this->_enumeration_type_list.insertFront(allocator, type);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-EnumerationPolymorph::getHasEnumerationType() const {
-  return this->_enumeration_type_list.getHasHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-EnumerationPolymorph::getHasMultipleEnumerationType() const {
-  return this->_enumeration_type_list.getHasTail();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumerationType &
-EnumerationPolymorph::getEnumerationType() {
-  RQ_ASSERT(!this->getHasMultipleEnumerationType(), "more than one");
-  return this->_enumeration_type_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumerationType &
-EnumerationPolymorph::getEnumerationType() const {
-  RQ_ASSERT(!this->getHasMultipleEnumerationType(), "more than one");
-  return this->_enumeration_type_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
-                          rq::BumpPtrListIterator<rq::EnumerationType>,
-                          std::ranges::subrange_kind::unsized>
-    EnumerationPolymorph::getEnumerationTypeSubrange() {
-  return std::ranges::subrange<rq::BumpPtrListIterator<rq::EnumerationType>,
-                               rq::BumpPtrListIterator<rq::EnumerationType>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_enumeration_type_list.begin(), this->_enumeration_type_list.end());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::EnumerationType>,
-                          rq::ConstBumpPtrListIterator<rq::EnumerationType>,
-                          std::ranges::subrange_kind::unsized>
-    EnumerationPolymorph::getEnumerationTypeSubrange() const {
-  return std::ranges::subrange<
-      rq::ConstBumpPtrListIterator<rq::EnumerationType>,
-      rq::ConstBumpPtrListIterator<rq::EnumerationType>,
-      std::ranges::subrange_kind::unsized>(this->_enumeration_type_list.begin(),
-                                           this->_enumeration_type_list.end());
-}
-
-[[nodiscard]] inline bool
-EnumerationPolymorph::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ENUMERATION_POLYMORPH);
-}
-
-RQ_ALWAYS_INLINE InterfacePolymorph::InterfacePolymorph()
-    : Polymorph(rq::SymbolKind::INTERFACE_POLYMORPH) {}
-
-inline void InterfacePolymorph::addInterface(rq::BumpPtrAllocator &allocator,
-                                             rq::Interface &interface) {
-  this->_interface_list.insertFront(allocator, interface);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-InterfacePolymorph::getHasInterface() const {
-  return this->_interface_list.getHasHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-InterfacePolymorph::getHasMultipleInterface() const {
-  return this->_interface_list.getHasTail();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &
-InterfacePolymorph::getInterface() {
-  RQ_ASSERT(!this->getHasMultipleInterface(), "more than one");
-  return this->_interface_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
-InterfacePolymorph::getInterface() const {
-  RQ_ASSERT(!this->getHasMultipleInterface(), "more than one");
-  return this->_interface_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::Interface>,
-                          rq::BumpPtrListIterator<rq::Interface>,
-                          std::ranges::subrange_kind::unsized>
-    InterfacePolymorph::getInterfaceSubrange() {
-  return std::ranges::subrange<rq::BumpPtrListIterator<rq::Interface>,
-                               rq::BumpPtrListIterator<rq::Interface>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_interface_list.begin(), this->_interface_list.end());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Interface>,
-                          rq::ConstBumpPtrListIterator<rq::Interface>,
-                          std::ranges::subrange_kind::unsized>
-    InterfacePolymorph::getInterfaceSubrange() const {
-  return std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Interface>,
-                               rq::ConstBumpPtrListIterator<rq::Interface>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_interface_list.cbegin(), this->_interface_list.cend());
-}
-
-[[nodiscard]] inline bool
-InterfacePolymorph::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::INTERFACE_POLYMORPH);
-}
-
-RQ_ALWAYS_INLINE AdapterPolymorph::AdapterPolymorph()
-    : Polymorph(rq::SymbolKind::ADAPTER_POLYMORPH) {}
-
-inline void AdapterPolymorph::addAdapter(rq::BumpPtrAllocator &allocator,
-                                         rq::Adapter &adapter) {
-  this->_adapter_list.insertFront(allocator, adapter);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool AdapterPolymorph::getHasAdapter() const {
-  return this->_adapter_list.getHasHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-AdapterPolymorph::getHasMultipleAdapter() const {
-  return this->_adapter_list.getHasTail();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Adapter &AdapterPolymorph::getAdapter() {
-  RQ_ASSERT(!this->getHasMultipleAdapter(), "more than one");
-  return this->_adapter_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Adapter &
-AdapterPolymorph::getAdapter() const {
-  RQ_ASSERT(!this->getHasMultipleAdapter(), "more than one");
-  return this->_adapter_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::Adapter>,
-                          rq::BumpPtrListIterator<rq::Adapter>,
-                          std::ranges::subrange_kind::unsized>
-    AdapterPolymorph::getAdapterSubrange() {
-  return std::ranges::subrange<rq::BumpPtrListIterator<rq::Adapter>,
-                               rq::BumpPtrListIterator<rq::Adapter>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_adapter_list.begin(), this->_adapter_list.end());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Adapter>,
-                          rq::ConstBumpPtrListIterator<rq::Adapter>,
-                          std::ranges::subrange_kind::unsized>
-    AdapterPolymorph::getAdapterSubrange() const {
-  return std::ranges::subrange<rq::ConstBumpPtrListIterator<rq::Adapter>,
-                               rq::ConstBumpPtrListIterator<rq::Adapter>,
-                               std::ranges::subrange_kind::unsized>(
-      this->_adapter_list.cbegin(), this->_adapter_list.cend());
-}
-
-[[nodiscard]] inline bool
-AdapterPolymorph::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ADAPTER_POLYMORPH);
-}
-
-RQ_ALWAYS_INLINE
-GlobalDynamicVariablePolymorph::GlobalDynamicVariablePolymorph()
-    : Polymorph(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH) {}
-
-inline void GlobalDynamicVariablePolymorph::addGlobalDynamicVariable(
-    rq::BumpPtrAllocator &allocator, rq::GlobalDynamicVariable &variable) {
-  this->_global_dynamic_variable_list.insertFront(allocator, variable);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-GlobalDynamicVariablePolymorph::getHasGlobalDynamicVariable() const {
-  return this->_global_dynamic_variable_list.getHasHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-GlobalDynamicVariablePolymorph::getHasMultipleGlobalDynamicVariable() const {
-  return this->_global_dynamic_variable_list.getHasTail();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariable &
-GlobalDynamicVariablePolymorph::getGlobalDynamicVariable() {
-  RQ_ASSERT(!this->getHasMultipleGlobalDynamicVariable(), "more than one");
-  return this->_global_dynamic_variable_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariable &
-GlobalDynamicVariablePolymorph::getGlobalDynamicVariable() const {
-  RQ_ASSERT(!this->getHasMultipleGlobalDynamicVariable(), "more than one");
-  return this->_global_dynamic_variable_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
-                          rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
-                          std::ranges::subrange_kind::unsized>
-    GlobalDynamicVariablePolymorph::getGlobalDynamicVariableSubrange() {
-  return std::ranges::subrange<
-      rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
-      rq::BumpPtrListIterator<rq::GlobalDynamicVariable>,
-      std::ranges::subrange_kind::unsized>(
-      this->_global_dynamic_variable_list.begin(),
-      this->_global_dynamic_variable_list.end());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-    rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
-    rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
-    std::ranges::subrange_kind::unsized>
-GlobalDynamicVariablePolymorph::getGlobalDynamicVariableSubrange() const {
-  return std::ranges::subrange<
-      rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
-      rq::ConstBumpPtrListIterator<rq::GlobalDynamicVariable>,
-      std::ranges::subrange_kind::unsized>(
-      this->_global_dynamic_variable_list.cbegin(),
-      this->_global_dynamic_variable_list.cend());
-}
-
-[[nodiscard]] inline bool
-GlobalDynamicVariablePolymorph::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(
-                       rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH);
-}
-
-RQ_ALWAYS_INLINE
-GlobalStaticVariablePolymorph::GlobalStaticVariablePolymorph()
-    : Polymorph(rq::SymbolKind::GLOBAL_STATIC_VARIABLE_POLYMORPH) {}
-
-inline void GlobalStaticVariablePolymorph::addGlobalStaticVariable(
-    rq::BumpPtrAllocator &allocator, rq::GlobalStaticVariable &variable) {
-  this->_global_static_variable_list.insertFront(allocator, variable);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-GlobalStaticVariablePolymorph::getHasGlobalStaticVariable() const {
-  return this->_global_static_variable_list.getHasHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-GlobalStaticVariablePolymorph::getHasMultipleGlobalStaticVariable() const {
-  return this->_global_static_variable_list.getHasTail();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariable &
-GlobalStaticVariablePolymorph::getGlobalStaticVariable() {
-  RQ_ASSERT(!this->getHasMultipleGlobalStaticVariable(), "more than one");
-  return this->_global_static_variable_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariable &
-GlobalStaticVariablePolymorph::getGlobalStaticVariable() const {
-  RQ_ASSERT(!this->getHasMultipleGlobalStaticVariable(), "more than one");
-  return this->_global_static_variable_list.getHead();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
-                          rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
-                          std::ranges::subrange_kind::unsized>
-    GlobalStaticVariablePolymorph::getGlobalStaticVariableSubrange() {
-  return std::ranges::subrange<
-      rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
-      rq::BumpPtrListIterator<rq::GlobalStaticVariable>,
-      std::ranges::subrange_kind::unsized>(
-      this->_global_static_variable_list.begin(),
-      this->_global_static_variable_list.end());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
-    rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
-    rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
-    std::ranges::subrange_kind::unsized>
-GlobalStaticVariablePolymorph::getGlobalStaticVariableSubrange() const {
-  return std::ranges::subrange<
-      rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
-      rq::ConstBumpPtrListIterator<rq::GlobalStaticVariable>,
-      std::ranges::subrange_kind::unsized>(
-      this->_global_static_variable_list.cbegin(),
-      this->_global_static_variable_list.cend());
-}
-
-[[nodiscard]] inline bool
-GlobalStaticVariablePolymorph::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(
-                       rq::SymbolKind::GLOBAL_STATIC_VARIABLE_POLYMORPH);
 }
 
 } // namespace rq
