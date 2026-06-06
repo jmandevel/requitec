@@ -659,21 +659,21 @@ enum class SymbolKind : rq::EntityId {
   DESTRUCTOR,
   MAIN,
 
-  // POLYMORPH ITEM => global declaration => named table => symbol table`
+  // INSTANCES => global declaration => named table => symbol table`
   CLASS_TYPE,
   ENUMERATION_TYPE,
   INTERFACE,
   ADAPTER,
 
-  // GLOBAL VARIABLE => global declaration => named table => symbol table
+  // GLOBAL VARIABLE => instance => global declaration => named table => symbol table
   GLOBAL_DYNAMIC_VARIABLE,
   GLOBAL_STATIC_VARIABLE,
 
-  // RANGERS => callable => global declaration => named table => symbol table
+  // RANGERS => instance => global declaration => named table => symbol table
   FORWARD_RANGER,
   BACKWARD_RANGER,
 
-  // PROCEDURES => callatble => global declaration => symbol table
+  // PROCEDURES => instance => global declaration => symbol table
   FUNCTION,
   METHOD,
   EXTENSION_METHOD,
