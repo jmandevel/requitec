@@ -23,22 +23,22 @@ namespace rq {
     return "CodeunitLiteralType";
 
   // CONTEXTUAL VALUE
-  case S::OUT:
-    return "Out";
-  case S::THIS:
-    return "This";
-  case S::RESULT:
-    return "Result";
-  case S::VALUE:
-    return "Value";
-  case S::INDEX:
-    return "Index";
-  case S::DISCRIMINANT:
-    return "Discriminant";
-  case S::COMMAND_LINE_ARGUMENTS:
-    return "CommandLineArguments";
-  case S::CALLSITE:
-    return "Callsite";
+  case S::OUT_VALUE:
+    return "OutValue";
+  case S::THIS_VALUE:
+    return "ThisValue";
+  case S::RESULT_VALUE:
+    return "ResultValue";
+  case S::VALUE_VALUE:
+    return "ValueValue";
+  case S::INDEX_VALUE:
+    return "IndexValue";
+  case S::DISCRIMINANT_VALUE:
+    return "DiscriminantValue";
+  case S::COMMAND_LINE_ARGUMENTS_VALUE:
+    return "CommandLineArgumentsValue";
+  case S::CALLSITE_VALUE:
+    return "CallsiteValue";
 
   // CONTEXTUAL TYPE
   case S::INFERENCE_TYPE:
@@ -415,21 +415,21 @@ namespace rq {
     return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_CODEUNIT_TYPE;
 
   // CONTEXTUAL VALUE
-  case S::OUT:
+  case S::OUT_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::THIS:
+  case S::THIS_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::RESULT:
+  case S::RESULT_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::VALUE:
+  case S::VALUE_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::INDEX:
+  case S::INDEX_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::DISCRIMINANT:
+  case S::DISCRIMINANT_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::COMMAND_LINE_ARGUMENTS:
+  case S::COMMAND_LINE_ARGUMENTS_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::CALLSITE:
+  case S::CALLSITE_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
 
   // CONTEXTUAL TYPE

@@ -83,14 +83,14 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::SimpleSymbol _string_literal_type{rq::SymbolKind::STRING_LITERAL_TYPE};
   rq::SimpleSymbol _codeunit_literal_type{
       rq::SymbolKind::CODEUNIT_LITERAL_TYPE};
-  rq::SimpleSymbol _out_value{rq::SymbolKind::OUT};
-  rq::SimpleSymbol _this_value{rq::SymbolKind::THIS};
-  rq::SimpleSymbol _result_value{rq::SymbolKind::RESULT};
-  rq::SimpleSymbol _index_value{rq::SymbolKind::INDEX};
-  rq::SimpleSymbol _discrimnant_value{rq::SymbolKind::DISCRIMINANT};
+  rq::SimpleSymbol _out_value{rq::SymbolKind::OUT_VALUE};
+  rq::SimpleSymbol _this_value{rq::SymbolKind::THIS_VALUE};
+  rq::SimpleSymbol _result_value{rq::SymbolKind::RESULT_VALUE};
+  rq::SimpleSymbol _index_value{rq::SymbolKind::INDEX_VALUE};
+  rq::SimpleSymbol _discrimnant_value{rq::SymbolKind::DISCRIMINANT_VALUE};
   rq::SimpleSymbol _command_line_arguments_value{
-      rq::SymbolKind::COMMAND_LINE_ARGUMENTS};
-  rq::SimpleSymbol _callsite_value{rq::SymbolKind::CALLSITE};
+      rq::SymbolKind::COMMAND_LINE_ARGUMENTS_VALUE};
+  rq::SimpleSymbol _callsite_value{rq::SymbolKind::CALLSITE_VALUE};
   rq::SimpleSymbol _inference_type{rq::SymbolKind::INFERENCE_TYPE};
   rq::SimpleSymbol _void_type{rq::SymbolKind::VOID_TYPE};
   rq::SimpleSymbol _no_return_type{rq::SymbolKind::NO_RETURN_TYPE};

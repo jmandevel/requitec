@@ -1423,11 +1423,11 @@ struct Procedure : public rq::Instance {
 
   explicit RQ_ALWAYS_INLINE
   Procedure(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-         llvm::StringRef name, rq::SymbolTable &hosting_table,
-         const rq::Expression &expression,
-         const rq::Expression &name_expression, rq::ExpressionFlags flags,
-         rq::Polymorph &polymorph, rq::Template *template_ptr,
-         rq::TemplateArgument *first_argument_ptr,
+            llvm::StringRef name, rq::SymbolTable &hosting_table,
+            const rq::Expression &expression,
+            const rq::Expression &name_expression, rq::ExpressionFlags flags,
+            rq::Polymorph &polymorph, rq::Template *template_ptr,
+            rq::TemplateArgument *first_argument_ptr,
             const rq::Expression &signature_expression);
 
   RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
