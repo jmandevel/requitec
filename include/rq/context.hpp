@@ -78,76 +78,66 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
   rq::Expression *_free_expression_ptr{nullptr};
-  rq::SimpleSymbol _integer_literal_type{rq::SymbolKind::INTEGER_LITERAL_TYPE};
-  rq::SimpleSymbol _float_literal_type{rq::SymbolKind::FLOAT_LITERAL_TYPE};
-  rq::SimpleSymbol _string_literal_type{rq::SymbolKind::STRING_LITERAL_TYPE};
-  rq::SimpleSymbol _codeunit_literal_type{
-      rq::SymbolKind::CODEUNIT_LITERAL_TYPE};
-  rq::SimpleSymbol _out_value{rq::SymbolKind::OUT_VALUE};
-  rq::SimpleSymbol _this_value{rq::SymbolKind::THIS_VALUE};
-  rq::SimpleSymbol _result_value{rq::SymbolKind::RESULT_VALUE};
-  rq::SimpleSymbol _index_value{rq::SymbolKind::INDEX_VALUE};
-  rq::SimpleSymbol _discrimnant_value{rq::SymbolKind::DISCRIMINANT_VALUE};
-  rq::SimpleSymbol _command_line_arguments_value{
-      rq::SymbolKind::COMMAND_LINE_ARGUMENTS_VALUE};
-  rq::SimpleSymbol _callsite_value{rq::SymbolKind::CALLSITE_VALUE};
-  rq::SimpleSymbol _inference_type{rq::SymbolKind::INFERENCE_TYPE};
-  rq::SimpleSymbol _void_type{rq::SymbolKind::VOID_TYPE};
-  rq::SimpleSymbol _no_return_type{rq::SymbolKind::NO_RETURN_TYPE};
-  rq::SimpleSymbol _anchor_type{rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _opaque_type{rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _global_type{rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _access_type{rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _partial_mutate_type{
-      rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _static_type{rq::SymbolKind::STATIC_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _capture_type{rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _inline_type{rq::SymbolKind::INLINE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _mangle_type{rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _pack_type{rq::SymbolKind::PACK_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _branch_trend_type{
-      rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _depreciate_type{
-      rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _stable_address_type{
-      rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _variadic_type{rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _location_type{rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _template_type{rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _constraint_type{rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _weight_type{rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _require_type{rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _ensure_type{rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _var_type{rq::SymbolKind::VAR_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _volatile_type{rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _atomic_type{rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _null_terminate_type{
-      rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE};
-  rq::SimpleSymbol _symbol_type{rq::SymbolKind::SYMBOL_TYPE};
-  rq::SimpleSymbol _expression_type{rq::SymbolKind::EXPRESSION_TYPE};
-  rq::SimpleSymbol _boolean_type{rq::SymbolKind::BOOLEAN_TYPE};
-  rq::SimpleSymbol _half_type{rq::SymbolKind::HALF_TYPE};
-  rq::SimpleSymbol _single_type{rq::SymbolKind::SINGLE_TYPE};
-  rq::SimpleSymbol _double_type{rq::SymbolKind::DOUBLE_TYPE};
-  rq::SimpleSymbol _quadruple_type{rq::SymbolKind::QUADRUPLE_TYPE};
-  rq::SimpleSymbol _signed_integer_type{rq::SymbolKind::SIGNED_INTEGER_TYPE};
-  rq::SimpleSymbol _unsigned_integer_type{
-      rq::SymbolKind::UNSIGNED_INTEGER_TYPE};
-  rq::SimpleSymbol _signed_index_type{rq::SymbolKind::SIGNED_INDEX_TYPE};
-  rq::SimpleSymbol _unsigned_index_type{rq::SymbolKind::UNSIGNED_INDEX_TYPE};
-  rq::SimpleSymbol _signed_address_type{rq::SymbolKind::SIGNED_ADDRESS_TYPE};
-  rq::SimpleSymbol _unsigned_address_type{
-      rq::SymbolKind::UNSIGNED_ADDRESS_TYPE};
-  rq::SimpleSymbol _char_type{rq::SymbolKind::CHAR_TYPE};
-  rq::SimpleSymbol _binary16_type{rq::SymbolKind::BINARY16_TYPE};
-  rq::SimpleSymbol _binary32_type{rq::SymbolKind::BINARY32_TYPE};
-  rq::SimpleSymbol _binary64_type{rq::SymbolKind::BINARY64_TYPE};
-  rq::SimpleSymbol _binary128_type{rq::SymbolKind::BINARY128_TYPE};
-  rq::SimpleSymbol _bfloat16_type{rq::SymbolKind::BFLOAT16_TYPE};
-  rq::SimpleSymbol _ascii_type{rq::SymbolKind::ASCII_TYPE};
-  rq::SimpleSymbol _utf8_type{rq::SymbolKind::UTF8_TYPE};
-  rq::SimpleSymbol _variadic_arguments_type{
-      rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE};
+  rq::IntegerLiteral _integer_literal_type{};
+  rq::FloatLiteral _float_literal_type{};
+  rq::StringLiteral _string_literal_type{};
+  rq::CodeunitLiteral _codeunit_literal_type{};
+  rq::OutValue _out_value{};
+  rq::ThisValue _this_value{};
+  rq::ResultValue _result_value{};
+  rq::IndexValue _index_value{};
+  rq::DiscriminantValue _discrimnant_value{};
+  rq::CommandLineArgumentsValue _command_line_arguments_value{};
+  rq::CallsiteValue _callsite_value{};
+  rq::InferenceType _inference_type{};
+  rq::VoidType _void_type{};
+  rq::NoReturnType _no_return_type{};
+    rq::AnchorAttributeType _anchor_attribute_type{};
+    rq::OpaqueAttributeType _opaque_attribute_type{};
+    rq::GlobalAttributeType _global_attribute_type{};
+    rq::AccessAttributeType _access_attribute_type{};
+    rq::PartialMutateAttributeType _partial_mutate_attribute_type{};
+    rq::StaticAttributeType _static_attribute_type{};
+    rq::CaptureAttributeType _capture_attribute_type{};
+    rq::InlineAttributeType _inline_attribute_type{};
+    rq::MangleAttributeType _mangle_attribute_type{};
+    rq::PackAttributeType _pack_attribute_type{};
+    rq::BranchTrendAttributeType _branch_trend_attribute_type{};
+    rq::SupportStatusAttributeType _support_status_attribute_type{};
+    rq::StableAddressAttributeType _stable_address_attribute_type{};
+    rq::VariadicAttributeType _variadic_attribute_type{};
+    rq::LocationAttributeType _location_attribute_type{};
+    rq::TemplateAttributeType _template_attribute_type{};
+    rq::ConstraintAttributeType _constraint_attribute_type{};
+    rq::WeightAttributeType _weight_attribute_type{};
+    rq::RequireAttributeType _require_attribute_type{};
+    rq::EnsureAttributeType _ensure_attribute_type{};
+  rq::VarAttributeType _var_attribute_type{};
+  rq::VolatileAttributeType _volatile_attribute_type{};
+  rq::AtomicAttributeType _atomic_attribute_type{};
+  rq::NullTerminateAttributeType _null_terminate_attribute_type{};
+  rq::SymbolType _symbol_type{};
+  rq::ExpressionType _expression_type{};
+  rq::BooleanType _boolean_type{};
+  rq::HalfType _half_type{};
+  rq::SingleType _single_type{};
+  rq::DoubleType _double_type{};
+  rq::QuadrupleType _quadruple_type{};
+  rq::SignedIntegerType _signed_integer_type{};
+  rq::UnsignedIntegerType _unsigned_integer_type{};
+  rq::SignedIndexType _signed_index_type{};
+  rq::UnsignedIndexType _unsigned_index_type{};
+  rq::SignedAddressType _signed_address_type{};
+  rq::UnsignedAddressType _unsigned_address_type{};
+  rq::CharType _char_type{};
+  rq::Binary16Type _binary16_type{};
+  rq::Binary32Type _binary32_type{};
+  rq::Binary64Type _binary64_type{};
+  rq::Binary128Type _binary128_type{};
+  rq::Bfloat16Type _bfloat16_type{};
+  rq::AsciiType _ascii_type{};
+  rq::Utf8Type _utf8_type{};
+  rq::VariadicArgumentsType _variadic_arguments_type{};
   llvm::FoldingSet<rq::ScaledPrimitiveType> _scaled_primitive_types{};
   llvm::FoldingSet<rq::ArraySubtype> _array_subtypes{};
   llvm::FoldingSet<rq::UncountedSubtype> _uncounted_subtypes{};
@@ -363,191 +353,191 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_free_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getIntegerLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteral &getIntegerLiteralType() {
     return this->_integer_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getFloatLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteral &getFloatLiteralType() {
     return this->_float_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getStringLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteral &getStringLiteralType() {
     return this->_string_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCodeunitLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteral &getCodeunitLiteralType() {
     return this->_codeunit_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getOutValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OutValue &getOutValue() {
     return this->_out_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getThisValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThisValue &getThisValue() {
     return this->_this_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getResultValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResultValue &getResultValue() {
     return this->_result_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getIndexValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IndexValue &getIndexValue() {
     return this->_index_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getDiscriminantValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &getDiscriminantValue() {
     return this->_discrimnant_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
   getCommandLineArgumentsValue() {
     return this->_command_line_arguments_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCallsiteValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CallsiteValue &getCallsiteValue() {
     return this->_callsite_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getInferenceType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &getInferenceType() {
     return this->_inference_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVoidType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidType &getVoidType() {
     return this->_void_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getNoReturnType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &getNoReturnType() {
     return this->_no_return_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAnchorType() {
-    return this->_anchor_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &getAnchorType() {
+    return this->_anchor_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getOpaqueType() {
-    return this->_opaque_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &getOpaqueType() {
+    return this->_opaque_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getGlobalType() {
-    return this->_global_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &getGlobalType() {
+    return this->_global_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAccessType() {
-    return this->_access_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessAttributeType &getAccessType() {
+    return this->_access_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateAttributeType &
   getPartialMutateAttributeType() {
-    return this->_partial_mutate_type;
+    return this->_partial_mutate_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getStaticAttributeType() {
-    return this->_static_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &getStaticAttributeType() {
+    return this->_static_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCaptureAttributeType() {
-    return this->_capture_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &getCaptureAttributeType() {
+    return this->_capture_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getInlineAttributeType() {
-    return this->_inline_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineAttributeType &getInlineAttributeType() {
+    return this->_inline_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getMangleAttributeType() {
-    return this->_mangle_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleAttributeType &getMangleAttributeType() {
+    return this->_mangle_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getPackAttributeType() {
-    return this->_pack_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackAttributeType &getPackAttributeType() {
+    return this->_pack_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendAttributeType &
   getBranchTrendAttributeType() {
-    return this->_branch_trend_type;
+    return this->_branch_trend_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SupportStatusAttributeType &
   getSupportStatusAttributeType() {
-    return this->_depreciate_type;
+    return this->_support_status_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressAttributeType &
   getStableAddressAttributeType() {
-    return this->_stable_address_type;
+    return this->_stable_address_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVariadicAttributeType() {
-    return this->_variadic_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicAttributeType &getVariadicAttributeType() {
+    return this->_variadic_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getLocationAttributeType() {
-    return this->_location_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationAttributeType &getLocationAttributeType() {
+    return this->_location_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getTemplateAttributeType() {
-    return this->_template_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateAttributeType &getTemplateAttributeType() {
+    return this->_template_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintAttributeType &
   getConstraintAttributeType() {
-    return this->_constraint_type;
+    return this->_constraint_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getWeightAttributeType() {
-    return this->_weight_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &getWeightAttributeType() {
+    return this->_weight_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getRequireAttributeType() {
-    return this->_require_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &getRequireAttributeType() {
+    return this->_require_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getEnsureAttributeType() {
-    return this->_ensure_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureAttributeType &getEnsureAttributeType() {
+    return this->_ensure_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVarAttributeType() {
-    return this->_var_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarAttributeType &getVarAttributeType() {
+    return this->_var_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVolatileAttributeType() {
-    return this->_volatile_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileAttributeType &getVolatileAttributeType() {
+    return this->_volatile_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAtomicAttributeType() {
-    return this->_atomic_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicAttributeType &getAtomicAttributeType() {
+    return this->_atomic_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateAttributeType &
   getNullTerminateAttributeType() {
-    return this->_null_terminate_type;
+    return this->_null_terminate_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSymbolType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &getSymbolType() {
     return this->_symbol_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getExpressionType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &getExpressionType() {
     return this->_expression_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBooleanType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanType &getBooleanType() {
     return this->_boolean_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getHalfType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfType &getHalfType() {
     return this->_half_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSingleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleType &getSingleType() {
     return this->_single_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getDoubleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleType &getDoubleType() {
     return this->_double_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getQuadrupleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleType &getQuadrupleType() {
     return this->_quadruple_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSignedIntegerType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerType &getSignedIntegerType() {
     return this->_signed_integer_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUnsignedIntegerType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerType &getUnsignedIntegerType() {
     return this->_unsigned_integer_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSignedIndexType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIndexType &getSignedIndexType() {
     return this->_signed_index_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUnsignedIndexType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIndexType &getUnsignedIndexType() {
     return this->_unsigned_index_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getSignedAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedAddressType &getSignedAddressType() {
     return this->_signed_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUnsignedAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedAddressType &getUnsignedAddressType() {
     return this->_unsigned_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getCharType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &getCharType() {
     return this->_char_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary16Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Type &getBinary16Type() {
     return this->_binary16_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary32Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Type &getBinary32Type() {
     return this->_binary32_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary64Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Type &getBinary64Type() {
     return this->_binary64_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBinary128Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Type &getBinary128Type() {
     return this->_binary128_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getBfloat16Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Type &getBfloat16Type() {
     return this->_bfloat16_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getAsciiType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiType &getAsciiType() {
     return this->_ascii_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getUtf8Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &getUtf8Type() {
     return this->_utf8_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &getVariadicArgumentsType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsType &getVariadicArgumentsType() {
     return this->_variadic_arguments_type;
   }
   [[nodiscard]] inline rq::ScaledPrimitiveType &

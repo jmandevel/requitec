@@ -1329,6 +1329,18 @@ RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE DerivedSimpleSymbol<KIND_PARAM>::DerivedSimpleSymbol()
+    : SimpleSymbol(KIND_PARAM) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedSimpleSymbol<KIND_PARAM>::classof(const Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
 RQ_ALWAYS_INLINE
 ScaledPrimitiveType::ScaledPrimitiveType(rq::SymbolKind kind,
                                          rq::ScaleKind scale_kind,
