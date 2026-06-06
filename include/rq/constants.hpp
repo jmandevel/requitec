@@ -5,6 +5,7 @@
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
+#include <llvm/ADT/FoldingSet.h>
 
 #include <algorithm>
 
@@ -30,7 +31,13 @@ struct Constant : public rq::Entity {
 struct Symbol;
 enum class TypeFlags : std::uint_fast8_t;
 
-struct SymbolConstant final : public rq::Constant {
+inline void profileSymbolConstant(llvm::FoldingSetNodeID &out_id,
+                           const rq::Symbol &symbol, rq::TypeFlags flags) {
+  out_id.AddPointer(&symbol);
+  out_id.AddInteger(rq::getUnderlying(flags));
+}
+
+struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::SymbolConstant;
 
   rq::Symbol *_symbol_ptr;
@@ -58,6 +65,10 @@ struct SymbolConstant final : public rq::Constant {
     return id ==
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
   }
+
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const { 
+    rq::profileSymbolConstant(out_id, this->getSymbol(), this->getFlags());
+  }
 };
 
 [[nodiscard]] inline llvm::APInt canonicalize(const llvm::APInt &value) {
@@ -72,7 +83,11 @@ struct SymbolConstant final : public rq::Constant {
   return value.getBitWidth() == canonical_width;
 }
 
-struct WordConstant final : public rq::Constant {
+inline void profileWordConstant(llvm::FoldingSetNodeID &out_id, const llvm::APInt &value) {
+  value.Profile(out_id);
+}
+
+struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::WordConstant;
 
   const llvm::APInt _value;
@@ -92,9 +107,20 @@ struct WordConstant final : public rq::Constant {
     return id ==
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::WORD);
   }
+
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const { 
+    rq::profileWordConstant(out_id, this->_value);
+  }
 };
 
-struct ArrayConstant final : public rq::Constant {
+inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
+                 llvm::ArrayRef<rq::Constant *> data) {
+  for (const rq::Constant *constant_ptr : data) {
+    out_id.AddPointer(constant_ptr);
+  }
+}
+
+struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::ArrayConstant;
 
   std::vector<rq::Constant *> _data;
@@ -112,6 +138,10 @@ struct ArrayConstant final : public rq::Constant {
     const rq::EntityId id = entity.getId();
     return id ==
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::ARRAY);
+  }
+
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const { 
+    rq::profileArrayConstant(out_id, this->_data);
   }
 };
 
