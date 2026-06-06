@@ -92,26 +92,26 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::InferenceType _inference_type{};
   rq::VoidType _void_type{};
   rq::NoReturnType _no_return_type{};
-    rq::AnchorAttributeType _anchor_attribute_type{};
-    rq::OpaqueAttributeType _opaque_attribute_type{};
-    rq::GlobalAttributeType _global_attribute_type{};
-    rq::AccessAttributeType _access_attribute_type{};
-    rq::PartialMutateAttributeType _partial_mutate_attribute_type{};
-    rq::StaticAttributeType _static_attribute_type{};
-    rq::CaptureAttributeType _capture_attribute_type{};
-    rq::InlineAttributeType _inline_attribute_type{};
-    rq::MangleAttributeType _mangle_attribute_type{};
-    rq::PackAttributeType _pack_attribute_type{};
-    rq::BranchTrendAttributeType _branch_trend_attribute_type{};
-    rq::SupportStatusAttributeType _support_status_attribute_type{};
-    rq::StableAddressAttributeType _stable_address_attribute_type{};
-    rq::VariadicAttributeType _variadic_attribute_type{};
-    rq::LocationAttributeType _location_attribute_type{};
-    rq::TemplateAttributeType _template_attribute_type{};
-    rq::ConstraintAttributeType _constraint_attribute_type{};
-    rq::WeightAttributeType _weight_attribute_type{};
-    rq::RequireAttributeType _require_attribute_type{};
-    rq::EnsureAttributeType _ensure_attribute_type{};
+  rq::AnchorAttributeType _anchor_attribute_type{};
+  rq::OpaqueAttributeType _opaque_attribute_type{};
+  rq::GlobalAttributeType _global_attribute_type{};
+  rq::AccessAttributeType _access_attribute_type{};
+  rq::PartialMutateAttributeType _partial_mutate_attribute_type{};
+  rq::StaticAttributeType _static_attribute_type{};
+  rq::CaptureAttributeType _capture_attribute_type{};
+  rq::InlineAttributeType _inline_attribute_type{};
+  rq::MangleAttributeType _mangle_attribute_type{};
+  rq::PackAttributeType _pack_attribute_type{};
+  rq::BranchTrendAttributeType _branch_trend_attribute_type{};
+  rq::SupportStatusAttributeType _support_status_attribute_type{};
+  rq::StableAddressAttributeType _stable_address_attribute_type{};
+  rq::VariadicAttributeType _variadic_attribute_type{};
+  rq::LocationAttributeType _location_attribute_type{};
+  rq::TemplateAttributeType _template_attribute_type{};
+  rq::ConstraintAttributeType _constraint_attribute_type{};
+  rq::WeightAttributeType _weight_attribute_type{};
+  rq::RequireAttributeType _require_attribute_type{};
+  rq::EnsureAttributeType _ensure_attribute_type{};
   rq::VarAttributeType _var_attribute_type{};
   rq::VolatileAttributeType _volatile_attribute_type{};
   rq::AtomicAttributeType _atomic_attribute_type{};
@@ -412,16 +412,20 @@ struct Context final : public rq::BumpPtrAllocator {
   getPartialMutateAttributeType() {
     return this->_partial_mutate_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &getStaticAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &
+  getStaticAttributeType() {
     return this->_static_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &getCaptureAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &
+  getCaptureAttributeType() {
     return this->_capture_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineAttributeType &getInlineAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineAttributeType &
+  getInlineAttributeType() {
     return this->_inline_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleAttributeType &getMangleAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleAttributeType &
+  getMangleAttributeType() {
     return this->_mangle_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PackAttributeType &getPackAttributeType() {
@@ -439,35 +443,43 @@ struct Context final : public rq::BumpPtrAllocator {
   getStableAddressAttributeType() {
     return this->_stable_address_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicAttributeType &getVariadicAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicAttributeType &
+  getVariadicAttributeType() {
     return this->_variadic_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationAttributeType &getLocationAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationAttributeType &
+  getLocationAttributeType() {
     return this->_location_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateAttributeType &getTemplateAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateAttributeType &
+  getTemplateAttributeType() {
     return this->_template_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintAttributeType &
   getConstraintAttributeType() {
     return this->_constraint_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &getWeightAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &
+  getWeightAttributeType() {
     return this->_weight_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &getRequireAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &
+  getRequireAttributeType() {
     return this->_require_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureAttributeType &getEnsureAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureAttributeType &
+  getEnsureAttributeType() {
     return this->_ensure_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VarAttributeType &getVarAttributeType() {
     return this->_var_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileAttributeType &getVolatileAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileAttributeType &
+  getVolatileAttributeType() {
     return this->_volatile_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicAttributeType &getAtomicAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicAttributeType &
+  getAtomicAttributeType() {
     return this->_atomic_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateAttributeType &
@@ -498,7 +510,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerType &getSignedIntegerType() {
     return this->_signed_integer_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerType &getUnsignedIntegerType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerType &
+  getUnsignedIntegerType() {
     return this->_unsigned_integer_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIndexType &getSignedIndexType() {
@@ -510,7 +523,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedAddressType &getSignedAddressType() {
     return this->_signed_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedAddressType &getUnsignedAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedAddressType &
+  getUnsignedAddressType() {
     return this->_unsigned_address_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &getCharType() {
@@ -537,7 +551,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &getUtf8Type() {
     return this->_utf8_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsType &getVariadicArgumentsType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsType &
+  getVariadicArgumentsType() {
     return this->_variadic_arguments_type;
   }
   [[nodiscard]] inline rq::ScaledPrimitiveType &
