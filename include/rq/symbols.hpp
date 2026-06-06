@@ -146,6 +146,7 @@ struct Symbol;
   struct SimpleSymbol;
     template<rq::SymbolKind KIND_PARAM> struct DerivedSimpleSymbol;
   struct ScaledPrimitiveType;
+    template<rq::SymbolKind KIND_PARAM> struct DerivedScaledPrimitiveType;
   struct Subtype;
     struct ArraySubtype;
     struct UncountedSubtype;
@@ -267,98 +268,90 @@ using ResultValue = rq::DerivedSimpleSymbol<rq::SymbolKind::RESULT_VALUE>;
 using ValueValue = rq::DerivedSimpleSymbol<rq::SymbolKind::VALUE_VALUE>;
 using IndexValue = rq::DerivedSimpleSymbol<rq::SymbolKind::INDEX_VALUE>;
 using DiscriminantValue =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::DISCRIMINANT_VALUE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::DISCRIMINANT_VALUE>;
 using CommandLineArgumentsValue =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::COMMAND_LINE_ARGUMENTS_VALUE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::COMMAND_LINE_ARGUMENTS_VALUE>;
 using CallsiteValue = rq::DerivedSimpleSymbol<rq::SymbolKind::CALLSITE_VALUE>;
 using InferenceType = rq::DerivedSimpleSymbol<rq::SymbolKind::INFERENCE_TYPE>;
 using VoidType = rq::DerivedSimpleSymbol<rq::SymbolKind::VOID_TYPE>;
-using NoReturnType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::NO_RETURN_TYPE>;
+using NoReturnType = rq::DerivedSimpleSymbol<rq::SymbolKind::NO_RETURN_TYPE>;
 using AnchorAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE>;
 using OpaqueAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE>;
 using GlobalAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE>;
 using AccessAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE>;
 using PartialMutateAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE>;
 using StaticAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::STATIC_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::STATIC_ATTRIBUTE_TYPE>;
 using CaptureAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE>;
 using InlineAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::INLINE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::INLINE_ATTRIBUTE_TYPE>;
 using MangleAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE>;
 using PackAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::PACK_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::PACK_ATTRIBUTE_TYPE>;
 using BranchTrendAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE>;
 using SupportStatusAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE>;
 using StableAddressAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE>;
 using VariadicAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE>;
 using LocationAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE>;
 using TemplateAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE>;
 using ConstraintAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE>;
 using WeightAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE>;
 using RequireAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE>;
 using EnsureAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE>;
 using VarAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::VAR_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::VAR_ATTRIBUTE_TYPE>;
 using VolatileAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE>;
 using AtomicAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE>;
 using NullTerminateAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE>;
 using SymbolType = rq::DerivedSimpleSymbol<rq::SymbolKind::SYMBOL_TYPE>;
-using ExpressionType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::EXPRESSION_TYPE>;
+using ExpressionType = rq::DerivedSimpleSymbol<rq::SymbolKind::EXPRESSION_TYPE>;
 using BooleanType = rq::DerivedSimpleSymbol<rq::SymbolKind::BOOLEAN_TYPE>;
 using HalfType = rq::DerivedSimpleSymbol<rq::SymbolKind::HALF_TYPE>;
 using SingleType = rq::DerivedSimpleSymbol<rq::SymbolKind::SINGLE_TYPE>;
 using DoubleType = rq::DerivedSimpleSymbol<rq::SymbolKind::DOUBLE_TYPE>;
-using QuadrupleType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::QUADRUPLE_TYPE>;
+using QuadrupleType = rq::DerivedSimpleSymbol<rq::SymbolKind::QUADRUPLE_TYPE>;
 using SignedIntegerType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_INTEGER_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_INTEGER_TYPE>;
 using UnsignedIntegerType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_INTEGER_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_INTEGER_TYPE>;
 using SignedIndexType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_INDEX_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_INDEX_TYPE>;
 using UnsignedIndexType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_INDEX_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_INDEX_TYPE>;
 using SignedAddressType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_ADDRESS_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_ADDRESS_TYPE>;
 using UnsignedAddressType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_ADDRESS_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_ADDRESS_TYPE>;
 using CharType = rq::DerivedSimpleSymbol<rq::SymbolKind::CHAR_TYPE>;
-using Binary16Type =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY16_TYPE>;
-using Binary32Type =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY32_TYPE>;
-using Binary64Type =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY64_TYPE>;
-using Binary128Type =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY128_TYPE>;
-using Bfloat16Type =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::BFLOAT16_TYPE>;
+using Binary16Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY16_TYPE>;
+using Binary32Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY32_TYPE>;
+using Binary64Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY64_TYPE>;
+using Binary128Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY128_TYPE>;
+using Bfloat16Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BFLOAT16_TYPE>;
 using AsciiType = rq::DerivedSimpleSymbol<rq::SymbolKind::ASCII_TYPE>;
 using Utf8Type = rq::DerivedSimpleSymbol<rq::SymbolKind::UTF8_TYPE>;
 using VariadicArgumentsType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE>;
 
 enum class ScaleKind { EXACT, FAST, LEAST };
 
@@ -387,6 +380,23 @@ RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &out_id,
                                                  rq::ScaleKind scale_kind,
                                                  unsigned scale,
                                                  std::uint64_t synonum_id);
+
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedScaledPrimitiveType final : public rq::ScaledPrimitiveType {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedScaledPrimitiveType<KIND>;
+
+  explicit RQ_ALWAYS_INLINE
+  DerivedScaledPrimitiveType(rq::ScaleKind scale_kind, unsigned scale,
+                             std::uint64_t synonym_id);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ScaledSignedIntegerType =
+    rq::DerivedScaledPrimitiveType<rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE>;
+using ScaledUnsignedIntegerType = rq::DerivedScaledPrimitiveType<
+    rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE>;
 
 struct Subtype : public rq::Symbol {
   using Self = rq::Subtype;

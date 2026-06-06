@@ -573,17 +573,17 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_scaled_primitive_types.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledPrimitiveType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedIntegerType &
   getScaledSignedIntegerType(rq::ScaleKind kind, unsigned scale,
                              std::uint64_t synonym_id) {
-    return this->getScaledPrimitiveType(
-        rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale, synonym_id);
+    return llvm::cast<rq::ScaledSignedIntegerType>(this->getScaledPrimitiveType(
+        rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale, synonym_id));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledPrimitiveType &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedIntegerType &
   getScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
                                std::uint64_t synonym_id) {
-    return this->getScaledPrimitiveType(
-        rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale, synonym_id);
+    return llvm::cast<ScaledUnsignedIntegerType>(this->getScaledPrimitiveType(
+        rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale, synonym_id));
   }
   [[nodiscard]] inline rq::ArraySubtype &
   getArraySubtype(rq::SymbolConstant &child, std::uint64_t count) {

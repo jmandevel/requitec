@@ -1392,6 +1392,21 @@ RQ_ALWAYS_INLINE void profileScaledPrimitiveType(llvm::FoldingSetNodeID &out_id,
   out_id.AddInteger(synonum_id);
 }
 
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE
+DerivedScaledPrimitiveType<KIND_PARAM>::DerivedScaledPrimitiveType(
+    rq::ScaleKind scale_kind, unsigned scale,
+    std::uint64_t synonym_id)
+    : ScaledPrimitiveType(KIND_PARAM, scale_kind, scale, synonym_id) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedScaledPrimitiveType<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
                                   rq::SymbolConstant &child)
     : Symbol(kind), _child_ptr(&child) {
