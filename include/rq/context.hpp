@@ -617,22 +617,25 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_uncounted_subtypes.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSubtype &
   getReferenceSubtype(rq::SymbolConstant &child) {
-    return this->getUncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child);
+    return llvm::cast<rq::ReferenceSubtype>(
+        this->getUncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSubtype &
   getPointerSubtype(rq::SymbolConstant &child) {
-    return this->getUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child);
+    return llvm::cast<rq::PointerSubtype>(
+        this->getUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SliceSubtype &
   getSliceSubtype(rq::SymbolConstant &child) {
-    return this->getUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child);
+    return llvm::cast<rq::SliceSubtype>(
+        this->getUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UncountedSubtype &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceCountArraySubtype &
   getInferenceCountArraySubtype(rq::SymbolConstant &child) {
-    return this->getUncountedSubtype(
-        rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child);
+    return llvm::cast<rq::InferenceCountArraySubtype>(this->getUncountedSubtype(
+        rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &
   getModule(rq::ModuleFactory &&factory) {

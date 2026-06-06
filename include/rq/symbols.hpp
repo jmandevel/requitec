@@ -150,6 +150,7 @@ struct Symbol;
   struct Subtype;
     struct ArraySubtype;
     struct UncountedSubtype;
+      template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedSubtype;
   struct Module;
   struct Import;
   struct WeightLevel;
@@ -444,6 +445,26 @@ struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
 RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &out_id,
                                               rq::SymbolKind kind,
                                               const rq::SymbolConstant &child);
+
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedUncountableSubtype final : public rq::UncountedSubtype {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedUncountableSubtype<KIND>;
+
+  explicit RQ_ALWAYS_INLINE
+  DerivedUncountableSubtype(rq::SymbolKind kind, rq::SymbolConstant &child);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ReferenceSubtype =
+    rq::DerivedUncountableSubtype<rq::SymbolKind::REFERENCE_SUBTYPE>;
+using PointerSubtype =
+    rq::DerivedUncountableSubtype<rq::SymbolKind::POINTER_SUBTYPE>;
+using SliceSubtype =
+    rq::DerivedUncountableSubtype<rq::SymbolKind::SLICE_SUBTYPE>;
+using InferenceCountArraySubtype = rq::DerivedUncountableSubtype<
+    rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE>;
 
 enum class ModuleKind : std::uint8_t { NONE, SOURCE, IMPORT };
 
