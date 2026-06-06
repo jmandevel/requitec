@@ -1487,8 +1487,8 @@ RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &out_id,
 template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE
 DerivedUncountableSubtype<KIND_PARAM>::DerivedUncountableSubtype(
-    rq::SymbolKind kind, rq::SymbolConstant &child)
-    : UncountedSubtype(kind, child) {}
+    rq::SymbolConstant &child)
+    : UncountedSubtype(KIND_PARAM, child) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool
@@ -1753,9 +1753,9 @@ RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
 template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE
 DerivedArithmeticSequenceType<KIND_PARAM>::DerivedArithmeticSequenceType(
-    rq::SymbolKind kind, rq::SymbolConstant &child,
-    rq::ArithmeticSequenceCondition condition, rq::ArithmeticSequenceStep step)
-    : ArithmeticSequenceType(kind, child, condition, step) {}
+    rq::SymbolConstant &child, rq::ArithmeticSequenceCondition condition,
+    rq::ArithmeticSequenceStep step)
+    : ArithmeticSequenceType(KIND_PARAM, child, condition, step) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool DerivedArithmeticSequenceType<KIND_PARAM>::classof(
@@ -3114,6 +3114,20 @@ LocalStatement::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE DerivedLocalStatement<KIND_PARAM>::DerivedLocalStatement(
+    rq::SymbolTable &containing_table, rq::Expression &expression,
+    rq::ExpressionFlags flags)
+    : LocalStatement(KIND_PARAM, containing_table, expression, flags) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedLocalStatement<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
 RQ_ALWAYS_INLINE NamedTable::NamedTable(rq::SymbolKind kind,
                                         rq::SymbolTable &containing_table,
                                         llvm::StringRef name)
@@ -3143,6 +3157,16 @@ NamedTable::getMangledName() const {
   const rq::EntityId id = entity.getId();
   return rq::getIsNamedTable(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
+}
+
+RQ_ALWAYS_INLINE Namespace::Namespace(rq::SymbolTable &containing_table,
+                                      llvm::StringRef name)
+    : NamedTable(rq::SymbolKind::NAMESPACE, containing_table, name) {}
+
+[[nodiscard]] inline bool Namespace::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::NAMESPACE);
 }
 
 RQ_ALWAYS_INLINE
@@ -3487,16 +3511,14 @@ GlobalStaticVariable::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE
 Ranger::Ranger(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-               llvm::StringRef name, rq::SymbolTable &hosting_table,
-               const rq::Expression &expression,
-               const rq::Expression &name_expression, rq::ExpressionFlags flags,
-               rq::Polymorph &polymorph, rq::Template *template_ptr,
+               rq::SymbolTable &hosting_table, const rq::Expression &expression,
+               rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+               rq::Template *template_ptr,
                rq::TemplateArgument *first_argument_ptr,
                const rq::Expression &reciever_type_expression,
                const rq::Expression &element_type_expression)
-    : Instance(kind, containing_table, name, hosting_table, expression,
-               &name_expression, flags, polymorph, template_ptr,
-               first_argument_ptr),
+    : Instance(kind, containing_table, {}, hosting_table, expression, nullptr,
+               flags, polymorph, template_ptr, first_argument_ptr),
       _reciever_type_expression_ptr(&reciever_type_expression),
       _element_type_expression_ptr(&element_type_expression) {
   RQ_ASSERT(rq::getIsRanger(kind), "not ranger");
@@ -3549,6 +3571,26 @@ Ranger::getElementTypePtr() const {
   return rq::getIsRanger(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE DerivedRanger<KIND_PARAM>::DerivedRanger(
+    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
+    const rq::Expression &expression, rq::ExpressionFlags flags,
+    rq::Polymorph &polymorph, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr,
+    const rq::Expression &reciever_type_expression,
+    const rq::Expression &element_type_expression)
+    : Ranger(KIND_PARAM, containing_table, hosting_table, expression, flags,
+             polymorph, template_ptr, first_argument_ptr,
+             reciever_type_expression, element_type_expression) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedRanger<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
 RQ_ALWAYS_INLINE
 Procedure::Procedure(rq::SymbolKind kind, rq::SymbolTable &containing_table,
                      llvm::StringRef name, rq::SymbolTable &hosting_table,
@@ -3592,6 +3634,26 @@ Procedure::getSignatureExpression() const {
   const rq::EntityId id = entity.getId();
   return rq::getIsProcedure(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
+}
+
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE DerivedProcedure<KIND_PARAM>::DerivedProcedure(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    rq::Polymorph &polymorph, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr,
+    const rq::Expression &signature_expression)
+    : Procedure(KIND_PARAM, containing_table, name, hosting_table, expression,
+                name_expression, flags, polymorph, template_ptr,
+                first_argument_ptr, signature_expression) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedProcedure<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE Template::Template(
@@ -3650,6 +3712,26 @@ Template::getWeightExpressionPtr() const {
   return rq::getIsTemplate(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE DerivedTemplate<KIND_PARAM>::DerivedTemplate(
+    rq::SymbolTable &containing_table, llvm::StringRef name,
+    rq::SymbolTable &hosting_table, const rq::Expression &expression,
+    const rq::Expression &name_expression, rq::ExpressionFlags flags,
+    const rq::Expression &layout_expression,
+    const rq::Expression *constraint_expression_ptr,
+    const rq::Expression *weight_expression_ptr, unsigned weight)
+    : Template(KIND_PARAM, containing_table, name, hosting_table, expression,
+               name_expression, flags, layout_expression,
+               constraint_expression_ptr, weight_expression_ptr, weight) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedTemplate<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
 RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
                                           rq::Polymorph &polymorph)
     : Symbol(kind), _weight(weight), _polymorph_ptr(&polymorph) {
@@ -3684,7 +3766,22 @@ RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
       rq::ConstNextIterator<rq::Template>());
 }
 
-RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE
+DerivedWeightLevel<KIND_PARAM>::DerivedWeightLevel(unsigned weight,
+                                                   rq::Polymorph &polymorph)
+    : WeightLevel(KIND_PARAM, weight, polymorph) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedWeightLevel<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
+}
+
+RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, llvm::StringRef name)
+    : Symbol(kind), _name(name) {
   RQ_ASSERT(rq::getIsPolymorph(kind), "not polymorph");
 }
 
@@ -3729,7 +3826,7 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
     std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
                           rq::NextIterator<rq::WeightLevel>,
                           std::ranges::subrange_kind::unsized>
-    Polymorph::getWeightSubrange() {
+    Polymorph::getWeightLevelSubrange() {
   return std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
                                rq::NextIterator<rq::WeightLevel>,
                                std::ranges::subrange_kind::unsized>(
@@ -3741,7 +3838,7 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
     std::ranges::subrange<rq::ConstNextIterator<rq::WeightLevel>,
                           rq::ConstNextIterator<rq::WeightLevel>,
                           std::ranges::subrange_kind::unsized>
-    Polymorph::getWeightSubrange() const {
+    Polymorph::getWeightLevelSubrange() const {
   return std::ranges::subrange<rq::ConstNextIterator<rq::WeightLevel>,
                                rq::ConstNextIterator<rq::WeightLevel>,
                                std::ranges::subrange_kind::unsized>(
@@ -3757,6 +3854,19 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
   const rq::EntityId id = entity.getId();
   return rq::getIsPolymorph(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
+}
+
+template <rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE
+DerivedPolymorph<KIND_PARAM>::DerivedPolymorph(llvm::StringRef name)
+    : Polymorph(KIND_PARAM, name) {}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool
+DerivedPolymorph<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
 }
 
 } // namespace rq

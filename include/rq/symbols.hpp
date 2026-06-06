@@ -136,10 +136,240 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 getHasExpressionAttributes(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable(rq::SymbolKind kind);
 
-[[nodiscard]] constexpr rq::SymbolKind getInstanceKind(rq::SymbolKind kind);
-[[nodiscard]] constexpr rq::SymbolKind getWeightLevelKind(rq::SymbolKind kind);
-[[nodiscard]] constexpr rq::SymbolKind getTemplateKind(rq::SymbolKind kind);
-[[nodiscard]] constexpr rq::SymbolKind getPolymorphKind(rq::SymbolKind kind);
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] consteval rq::SymbolKind getInstanceKind() {
+  using S = rq::SymbolKind;
+  constexpr S KIND = KIND_PARAM;
+  if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
+                KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
+    return S::CLASS_TYPE;
+  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
+                       KIND == S::ENUMERATION_TEMPLATE ||
+                       KIND == S::ENUMERATION_POLYMORPH ||
+                       KIND == S::ENUMERATION_TYPE) {
+    return S::ENUMERATION_TYPE;
+  } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
+                       KIND == S::INTERFACE_TEMPLATE ||
+                       KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
+    return S::INTERFACE;
+  } else if constexpr (KIND == S::ADAPTER_WEIGHT_LEVEL ||
+                       KIND == S::ADAPTER_TEMPLATE ||
+                       KIND == S::ADAPTER_POLYMORPH || KIND == S::ADAPTER) {
+    return S::ADAPTER;
+  } else if constexpr (KIND == S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE) {
+    return S::GLOBAL_DYNAMIC_VARIABLE;
+  } else if constexpr (KIND == S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE) {
+    return S::GLOBAL_STATIC_VARIABLE;
+  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::FORWARD_RANGER_TEMPLATE ||
+                       KIND == S::FORWARD_RANGER_POLYMORPH ||
+                       KIND == S::FORWARD_RANGER) {
+    return S::FORWARD_RANGER;
+  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
+                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
+                       KIND == S::BACKWARD_RANGER) {
+    return S::BACKWARD_RANGER;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION;
+  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
+                       KIND == S::METHOD_TEMPLATE ||
+                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
+    return S::METHOD;
+  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
+                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
+                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
+                       KIND == S::EXTENSION_METHOD) {
+    return S::EXTENSION_METHOD;
+  } else {
+    static_assert(false);
+    return S::NONE;
+  }
+}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] consteval rq::SymbolKind getWeightLevelKind() {
+  using S = rq::SymbolKind;
+  constexpr S KIND = KIND_PARAM;
+  if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
+                KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
+    return S::CLASS_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
+                       KIND == S::ENUMERATION_TEMPLATE ||
+                       KIND == S::ENUMERATION_POLYMORPH ||
+                       KIND == S::ENUMERATION_TYPE) {
+    return S::ENUMERATION_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
+                       KIND == S::INTERFACE_TEMPLATE ||
+                       KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
+    return S::INTERFACE_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::ADAPTER_WEIGHT_LEVEL ||
+                       KIND == S::ADAPTER_TEMPLATE ||
+                       KIND == S::ADAPTER_POLYMORPH || KIND == S::ADAPTER) {
+    return S::ADAPTER_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE) {
+    return S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE) {
+    return S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::FORWARD_RANGER_TEMPLATE ||
+                       KIND == S::FORWARD_RANGER_POLYMORPH ||
+                       KIND == S::FORWARD_RANGER) {
+    return S::FORWARD_RANGER_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
+                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
+                       KIND == S::BACKWARD_RANGER) {
+    return S::BACKWARD_RANGER_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
+                       KIND == S::METHOD_TEMPLATE ||
+                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
+    return S::METHOD_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
+                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
+                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
+                       KIND == S::EXTENSION_METHOD) {
+    return S::EXTENSION_METHOD_WEIGHT_LEVEL;
+  } else {
+    static_assert(false);
+    return S::NONE;
+  }
+}
+
+template <rq::SymbolKind KIND_PARAM>
+[[nodiscard]] consteval rq::SymbolKind getTemplateKind() {
+  using S = rq::SymbolKind;
+  constexpr S KIND = KIND_PARAM;
+  if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
+                KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
+    return S::CLASS_TEMPLATE;
+  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
+                       KIND == S::ENUMERATION_TEMPLATE ||
+                       KIND == S::ENUMERATION_POLYMORPH ||
+                       KIND == S::ENUMERATION_TYPE) {
+    return S::ENUMERATION_TEMPLATE;
+  } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
+                       KIND == S::INTERFACE_TEMPLATE ||
+                       KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
+    return S::INTERFACE_TEMPLATE;
+  } else if constexpr (KIND == S::ADAPTER_WEIGHT_LEVEL ||
+                       KIND == S::ADAPTER_TEMPLATE ||
+                       KIND == S::ADAPTER_POLYMORPH || KIND == S::ADAPTER) {
+    return S::ADAPTER_TEMPLATE;
+  } else if constexpr (KIND == S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE) {
+    return S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE;
+  } else if constexpr (KIND == S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE) {
+    return S::GLOBAL_STATIC_VARIABLE_TEMPLATE;
+  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::FORWARD_RANGER_TEMPLATE ||
+                       KIND == S::FORWARD_RANGER_POLYMORPH ||
+                       KIND == S::FORWARD_RANGER) {
+    return S::FORWARD_RANGER_TEMPLATE;
+  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
+                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
+                       KIND == S::BACKWARD_RANGER) {
+    return S::BACKWARD_RANGER_TEMPLATE;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION_TEMPLATE;
+  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
+                       KIND == S::METHOD_TEMPLATE ||
+                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
+    return S::METHOD_TEMPLATE;
+  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
+                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
+                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
+                       KIND == S::EXTENSION_METHOD) {
+    return S::EXTENSION_METHOD_TEMPLATE;
+  } else {
+    static_assert(false);
+    return S::NONE;
+  }
+}
+
+template <rq::SymbolKind KIND>
+[[nodiscard]] consteval rq::SymbolKind getPolymorphKind() {
+  using S = rq::SymbolKind;
+  if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
+                KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
+    return S::CLASS_POLYMORPH;
+  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
+                       KIND == S::ENUMERATION_TEMPLATE ||
+                       KIND == S::ENUMERATION_POLYMORPH ||
+                       KIND == S::ENUMERATION_TYPE) {
+    return S::ENUMERATION_POLYMORPH;
+  } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
+                       KIND == S::INTERFACE_TEMPLATE ||
+                       KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
+    return S::INTERFACE_POLYMORPH;
+  } else if constexpr (KIND == S::ADAPTER_WEIGHT_LEVEL ||
+                       KIND == S::ADAPTER_TEMPLATE ||
+                       KIND == S::ADAPTER_POLYMORPH || KIND == S::ADAPTER) {
+    return S::ADAPTER_POLYMORPH;
+  } else if constexpr (KIND == S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_DYNAMIC_VARIABLE) {
+    return S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH;
+  } else if constexpr (KIND == S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_TEMPLATE ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
+                       KIND == S::GLOBAL_STATIC_VARIABLE) {
+    return S::GLOBAL_STATIC_VARIABLE_POLYMORPH;
+  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::FORWARD_RANGER_TEMPLATE ||
+                       KIND == S::FORWARD_RANGER_POLYMORPH ||
+                       KIND == S::FORWARD_RANGER) {
+    return S::FORWARD_RANGER_POLYMORPH;
+  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
+                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
+                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
+                       KIND == S::BACKWARD_RANGER) {
+    return S::BACKWARD_RANGER_POLYMORPH;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION_POLYMORPH;
+  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
+                       KIND == S::METHOD_TEMPLATE ||
+                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
+    return S::METHOD_POLYMORPH;
+  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
+                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
+                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
+                       KIND == S::EXTENSION_METHOD) {
+    return S::EXTENSION_METHOD_POLYMORPH;
+  } else {
+    static_assert(false);
+    return S::NONE;
+  }
+}
 
 // clang-format off
 struct Symbol;
@@ -188,7 +418,9 @@ struct Symbol;
   struct SymbolTable;
     struct Top;
     struct LocalStatement;
+      template<rq::SymbolKind KIND_PARAM> struct DerivedLocalStatement;
     struct NamedTable;
+      struct Namespace;
       struct GlobalDeclaration;
         struct Destructor;
         struct Main;
@@ -201,9 +433,13 @@ struct Symbol;
             struct GlobalDynamicVariable;
             struct GlobalStaticVariable;
           struct Ranger;
+            template<rq::SymbolKind KIND_PARAM> struct DerivedRanger;
           struct Procedure;
+            template<rq::SymbolKind KIND_PARAM> struct DerivedProcedure;
       struct Template;
+        template<rq::SymbolKind KIND_PARAM> struct DerivedTemplate;
   struct Polymorph;
+    template<rq::SymbolKind KIND_PARAM> struct DerivedPolymorph;
 // clang-format on
 
 struct Symbol : public rq::Entity {
@@ -454,7 +690,7 @@ struct DerivedUncountableSubtype final : public rq::UncountedSubtype {
   using Self = rq::DerivedUncountableSubtype<KIND>;
 
   explicit RQ_ALWAYS_INLINE
-  DerivedUncountableSubtype(rq::SymbolKind kind, rq::SymbolConstant &child);
+  DerivedUncountableSubtype(rq::SymbolConstant &child);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -623,7 +859,7 @@ struct DerivedArithmeticSequenceType final : public rq::ArithmeticSequenceType {
   using Self = rq::DerivedArithmeticSequenceType<KIND>;
 
   explicit RQ_ALWAYS_INLINE
-  DerivedArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
+  DerivedArithmeticSequenceType(rq::SymbolConstant &child,
                                 rq::ArithmeticSequenceCondition condition,
                                 rq::ArithmeticSequenceStep step);
 
@@ -1326,7 +1562,40 @@ struct LocalStatement : public rq::SymbolTable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct NamedTable : rq::SymbolTable {
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedLocalStatement final : public rq::LocalStatement {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedLocalStatement<KIND>;
+
+  explicit RQ_ALWAYS_INLINE
+  DerivedLocalStatement(rq::SymbolTable &containing_table,
+                        rq::Expression &expression, rq::ExpressionFlags flags);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using IfStatement = rq::DerivedLocalStatement<rq::SymbolKind::IF_STATEMENT>;
+using ElseIfStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::ELSE_IF_STATEMENT>;
+using ElseStatement = rq::DerivedLocalStatement<rq::SymbolKind::ELSE_STATEMENT>;
+using MatchStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::MATCH_STATEMENT>;
+using SwitchStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::SWITCH_STATEMENT>;
+using CaseStatement = rq::DerivedLocalStatement<rq::SymbolKind::CASE_STATEMENT>;
+using WithStatement = rq::DerivedLocalStatement<rq::SymbolKind::WITH_STATEMENT>;
+using DefaultStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::DEFAULT_STATEMENT>;
+using ForStatement = rq::DerivedLocalStatement<rq::SymbolKind::FOR_STATEMENT>;
+using WhileStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::WHILE_STATEMENT>;
+using SpinStatement = rq::DerivedLocalStatement<rq::SymbolKind::SPIN_STATEMENT>;
+using WeaveStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::WEAVE_STATEMENT>;
+using ScopeStatement =
+    rq::DerivedLocalStatement<rq::SymbolKind::SCOPE_STATEMENT>;
+
+struct NamedTable : public rq::SymbolTable {
   using Self = rq::NamedTable;
 
   llvm::StringRef _name;
@@ -1339,6 +1608,15 @@ struct NamedTable : rq::SymbolTable {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
   RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Namespace final : public rq::NamedTable {
+  using Self = rq::Namespace;
+
+  explicit RQ_ALWAYS_INLINE Namespace(rq::SymbolTable &containing_table,
+                                      llvm::StringRef name);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1562,11 +1840,9 @@ struct Ranger : public rq::Instance {
 
   explicit RQ_ALWAYS_INLINE
   Ranger(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-         llvm::StringRef name, rq::SymbolTable &hosting_table,
-         const rq::Expression &expression,
-         const rq::Expression &name_expression, rq::ExpressionFlags flags,
-         rq::Polymorph &polymorph, rq::Template *template_ptr,
-         rq::TemplateArgument *first_argument_ptr,
+         rq::SymbolTable &hosting_table, const rq::Expression &expression,
+         rq::ExpressionFlags flags, rq::Polymorph &polymorph,
+         rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
          const rq::Expression &reciever_type_expression,
          const rq::Expression &element_type_expression);
 
@@ -1585,6 +1861,26 @@ struct Ranger : public rq::Instance {
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
+
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedRanger final : public rq::Ranger {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedRanger<KIND>;
+
+  explicit RQ_ALWAYS_INLINE
+  DerivedRanger(rq::SymbolTable &containing_table,
+                rq::SymbolTable &hosting_table,
+                const rq::Expression &expression, rq::ExpressionFlags flags,
+                rq::Polymorph &polymorph, rq::Template *template_ptr,
+                rq::TemplateArgument *first_argument_ptr,
+                const rq::Expression &reciever_type_expression,
+                const rq::Expression &element_type_expression);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ForwardRanger = rq::DerivedRanger<rq::SymbolKind::FORWARD_RANGER>;
+using BackwardRanger = rq::DerivedRanger<rq::SymbolKind::BACKWARD_RANGER>;
 
 struct Procedure : public rq::Instance {
   using Self = rq::Procedure;
@@ -1610,12 +1906,86 @@ struct Procedure : public rq::Instance {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedProcedure final : public rq::Procedure {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = DerivedProcedure<KIND>;
+
+  explicit RQ_ALWAYS_INLINE DerivedProcedure(
+      rq::SymbolTable &containing_table, llvm::StringRef name,
+      rq::SymbolTable &hosting_table, const rq::Expression &expression,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      rq::Polymorph &polymorph, rq::Template *template_ptr,
+      rq::TemplateArgument *first_argument_ptr,
+      const rq::Expression &signature_expression);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using Function = rq::DerivedProcedure<rq::SymbolKind::FUNCTION>;
+using Method = rq::DerivedProcedure<rq::SymbolKind::METHOD>;
+using ExtensionMethod = rq::DerivedProcedure<rq::SymbolKind::EXTENSION_METHOD>;
+
+template <rq::SymbolKind KIND_PARAM> struct derived_instance final {
+  static_assert(false);
+};
+
+template <> struct derived_instance<rq::SymbolKind::CLASS_TYPE> final {
+  using Type = rq::ClassType;
+};
+
+template <> struct derived_instance<rq::SymbolKind::ENUMERATION_TYPE> final {
+  using Type = rq::EnumerationType;
+};
+
+template <> struct derived_instance<rq::SymbolKind::INTERFACE> final {
+  using Type = rq::Interface;
+};
+
+template <> struct derived_instance<rq::SymbolKind::ADAPTER> final {
+  using Type = rq::Adapter;
+};
+
+template <>
+struct derived_instance<rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE> final {
+  using Type = rq::GlobalDynamicVariable;
+};
+
+template <>
+struct derived_instance<rq::SymbolKind::GLOBAL_STATIC_VARIABLE> final {
+  using Type = rq::GlobalStaticVariable;
+};
+
+template <> struct derived_instance<rq::SymbolKind::FORWARD_RANGER> final {
+  using Type = rq::ForwardRanger;
+};
+
+template <> struct derived_instance<rq::SymbolKind::BACKWARD_RANGER> final {
+  using Type = rq::BackwardRanger;
+};
+
+template <> struct derived_instance<rq::SymbolKind::FUNCTION> final {
+  using Type = rq::Function;
+};
+
+template <> struct derived_instance<rq::SymbolKind::METHOD> final {
+  using Type = rq::Method;
+};
+
+template <> struct derived_instance<rq::SymbolKind::EXTENSION_METHOD> final {
+  using Type = rq::ExtensionMethod;
+};
+
+template <rq::SymbolKind KIND_PARAM>
+using DerivedInstance = rq::derived_instance<KIND_PARAM>::Type;
+
 struct Template : public rq::GlobalDeclaration {
   using Self = rq::Template;
 
   const rq::Expression *_layout_expression_ptr;
   rq::Layout *_layout_ptr{nullptr};
   rq::Template *_next_ptr{nullptr};
+  rq::Instance *_first_instance_ptr{nullptr};
   const rq::Expression *_constraint_expression_ptr;
   const rq::Expression *_weight_expression_ptr;
   unsigned _weight;
@@ -1640,10 +2010,66 @@ struct Template : public rq::GlobalDeclaration {
   getWeightExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getWeight() const;
 
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Instance>,
+                            rq::NextIterator<rq::Instance>,
+                            std::ranges::subrange_kind::unsized>
+      getInstanceSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstNextIterator<rq::Instance>,
+                            rq::ConstNextIterator<rq::Instance>,
+                            std::ranges::subrange_kind::unsized>
+      getInstanceSubrange() const;
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct WeightLevel final : rq::Symbol {
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedTemplate final : public rq::Template {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = DerivedTemplate<KIND>;
+  using DerivedInstance = rq::DerivedInstance<rq::getInstanceKind<KIND>()>;
+
+  explicit RQ_ALWAYS_INLINE DerivedTemplate(
+      rq::SymbolTable &containing_table, llvm::StringRef name,
+      rq::SymbolTable &hosting_table, const rq::Expression &expression,
+      const rq::Expression &name_expression, rq::ExpressionFlags flags,
+      const rq::Expression &layout_expression,
+      const rq::Expression *constraint_expression_ptr,
+      const rq::Expression *weight_expression_ptr, unsigned weight);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Instance, DerivedInstance>,
+                            rq::NextIterator<rq::Instance, DerivedInstance>,
+                            std::ranges::subrange_kind::unsized>
+      getDerivedInstanceSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Instance, DerivedInstance>,
+      rq::ConstNextIterator<rq::Instance, DerivedInstance>,
+      std::ranges::subrange_kind::unsized>
+  getDerivedInstanceSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ClassTemplate = rq::DerivedTemplate<rq::SymbolKind::CLASS_TEMPLATE>;
+using EnumerationTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::ENUMERATION_TEMPLATE>;
+using InterfaceTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::INTERFACE_TEMPLATE>;
+using AdapterTemplate = rq::DerivedTemplate<rq::SymbolKind::ADAPTER_TEMPLATE>;
+using GlobalDynamicVariableTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE>;
+using ForwardRangerTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::FORWARD_RANGER_TEMPLATE>;
+using BackwardRangerTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::BACKWARD_RANGER_TEMPLATE>;
+using FunctionTemplate = rq::DerivedTemplate<rq::SymbolKind::FUNCTION_TEMPLATE>;
+using MethodTemplate = rq::DerivedTemplate<rq::SymbolKind::METHOD_TEMPLATE>;
+using ExtensionMethodTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::EXTENSION_METHOD_TEMPLATE>;
+
+struct WeightLevel : rq::Symbol {
   using Self = rq::WeightLevel;
 
   unsigned _weight;
@@ -1668,16 +2094,62 @@ struct WeightLevel final : rq::Symbol {
       getTemplateSubrange() const;
 };
 
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedWeightLevel final : public rq::WeightLevel {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedWeightLevel<KIND>;
+  using DerivedTemplate = rq::DerivedTemplate<rq::getTemplateKind<KIND>()>;
+
+  explicit RQ_ALWAYS_INLINE DerivedWeightLevel(unsigned weight,
+                                               rq::Polymorph &polymorph);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Template, DerivedTemplate>,
+                            rq::NextIterator<rq::Template, DerivedTemplate>,
+                            std::ranges::subrange_kind::unsized>
+      getDerivedTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Template, DerivedTemplate>,
+      rq::ConstNextIterator<rq::Template, DerivedTemplate>,
+      std::ranges::subrange_kind::unsized>
+  getDerivedTemplateSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ClassWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::CLASS_WEIGHT_LEVEL>;
+using EnumerationWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::ENUMERATION_WEIGHT_LEVEL>;
+using InterfaceWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::INTERFACE_WEIGHT_LEVEL>;
+using AdapterWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::ADAPTER_WEIGHT_LEVEL>;
+using GlobalDynamicVariableWeightLevel = rq::DerivedWeightLevel<
+    rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL>;
+using ForwardRangerWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::FORWARD_RANGER_WEIGHT_LEVEL>;
+using BackwardRangerWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::BACKWARD_RANGER>;
+using FunctionWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::FUNCTION_WEIGHT_LEVEL>;
+using MethodWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::METHOD_WEIGHT_LEVEL>;
+using ExtensionMethodWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::EXTENSION_METHOD_WEIGHT_LEVEL>;
+
 struct Polymorph : public rq::Symbol {
   using Self = rq::Polymorph;
 
+  llvm::StringRef _name;
   rq::Instance *_first_instance_ptr{nullptr};
   rq::WeightLevel *_highest_weight_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind,
+                                      llvm::StringRef name);
 
-  inline void addTemplate(rq::BumpPtrAllocator &allocator,
-                          rq::Template &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Instance>,
                             rq::NextIterator<rq::Instance>,
@@ -1692,15 +2164,74 @@ struct Polymorph : public rq::Symbol {
       std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
                             rq::NextIterator<rq::WeightLevel>,
                             std::ranges::subrange_kind::unsized>
-      getWeightSubrange();
+      getWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ConstNextIterator<rq::WeightLevel>,
                             rq::ConstNextIterator<rq::WeightLevel>,
                             std::ranges::subrange_kind::unsized>
-      getWeightSubrange() const;
+      getWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
+
+template <rq::SymbolKind KIND_PARAM>
+struct DerivedPolymorph final : public rq::Polymorph {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::DerivedPolymorph<KIND>;
+  using DerivedInstance = rq::DerivedInstance<rq::getInstanceKind<KIND>()>;
+  using DerivedWeightLevel =
+      rq::DerivedWeightLevel<rq::getWeightLevelKind<KIND>()>;
+  using DerivedTemplate = rq::DerivedTemplate<rq::getTemplateKind<KIND>()>;
+
+  explicit RQ_ALWAYS_INLINE DerivedPolymorph(llvm::StringRef name);
+
+  inline void addDerivedTemplate(rq::BumpPtrAllocator &allocator,
+                                 DerivedTemplate &template_);
+  inline void addDerivedInstance(DerivedInstance &instance);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Instance, DerivedInstance>,
+                            rq::NextIterator<rq::Instance, DerivedInstance>,
+                            std::ranges::subrange_kind::unsized>
+      getDerivedInstanceSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::Instance, DerivedInstance>,
+      rq::ConstNextIterator<rq::Instance, DerivedInstance>,
+      std::ranges::subrange_kind::unsized>
+  getDerivedInstanceSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::NextIterator<rq::WeightLevel, DerivedWeightLevel>,
+      rq::NextIterator<rq::WeightLevel, DerivedWeightLevel>,
+      std::ranges::subrange_kind::unsized>
+  getDerivedWeightLevelSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::ranges::subrange<
+      rq::ConstNextIterator<rq::WeightLevel, DerivedWeightLevel>,
+      rq::ConstNextIterator<rq::WeightLevel, DerivedWeightLevel>,
+      std::ranges::subrange_kind::unsized>
+  getDerivedWeightLevelSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+using ForwardRangerPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::FORWARD_RANGER_POLYMORPH>;
+using BackwardRangerPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::BACKWARD_RANGER_POLYMORPH>;
+using FunctionPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::FUNCTION_POLYMORPH>;
+using MethodPolymorph = rq::DerivedPolymorph<rq::SymbolKind::METHOD_POLYMORPH>;
+using ExtensionMethodPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::EXTENSION_METHOD_POLYMORPH>;
+using ClassPolymorph = rq::DerivedPolymorph<rq::SymbolKind::CLASS_POLYMORPH>;
+using EnumerationPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::ENUMERATION_POLYMORPH>;
+using InterfacePolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::INTERFACE_POLYMORPH>;
+using AdapterPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::ADAPTER_POLYMORPH>;
+using GlobalDynamicVariablePolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH>;
+using GlobalStaticVariablePolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::GLOBAL_STATIC_VARIABLE_POLYMORPH>;
 
 } // namespace rq
 
