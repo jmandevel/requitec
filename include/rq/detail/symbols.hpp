@@ -1265,6 +1265,10 @@ Symbol::getDerivedExpressionPtr() const {
     const rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
     return &statement.getExpression();
   }
+  if (llvm::isa<rq::GlobalDeclaration>(*this)) {
+    const rq::GlobalDeclaration &decl = llvm::cast<rq::GlobalDeclaration>(*this);
+    return &decl.getExpression();
+  }
   return nullptr;
 }
 
