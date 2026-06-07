@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rq/entity.hpp>
+#include <rq/expressions.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/APFloat.h>
@@ -8,6 +9,7 @@
 #include <llvm/ADT/FoldingSet.h>
 
 #include <algorithm>
+#include <bit>
 
 namespace rq {
 
@@ -32,7 +34,8 @@ struct Symbol;
 enum class TypeFlags : std::uint_fast8_t;
 
 inline void profileSymbolConstant(llvm::FoldingSetNodeID &out_id,
-                           const rq::Symbol &symbol, rq::TypeFlags flags) {
+                                  const rq::Symbol &symbol,
+                                  rq::TypeFlags flags) {
   out_id.AddPointer(&symbol);
   out_id.AddInteger(rq::getUnderlying(flags));
 }
@@ -66,7 +69,7 @@ struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) const { 
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
     rq::profileSymbolConstant(out_id, this->getSymbol(), this->getFlags());
   }
 };
@@ -83,9 +86,13 @@ struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
   return value.getBitWidth() == canonical_width;
 }
 
-inline void profileWordConstant(llvm::FoldingSetNodeID &out_id, const llvm::APInt &value) {
+inline void profileWordConstant(llvm::FoldingSetNodeID &out_id,
+                                const llvm::APInt &value) {
   value.Profile(out_id);
 }
+
+template <typename From, typename To>
+concept BitCastable = requires(From value) { std::bit_cast<To>(value); };
 
 struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::WordConstant;
@@ -101,6 +108,29 @@ struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
     return this->_value;
   }
 
+  template <typename TypeParam>
+  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam getAs() const {
+    using Type = TypeParam;
+    static_assert(!std::same_as<Type, float> && !std::same_as<Type, double> &&
+                      !std::same_as<Type, long double>,
+                  "platform float type");
+    RQ_ASSERT(this->_value.getBitWidth() <= sizeof(Type), "too big");
+    Type value;
+    if constexpr (sizeof(Type) <= sizeof(std::uint64_t) &&
+                  std::unsigned_integral<Type>) {
+      value = static_cast<Type>(this->_value.getZExtValue());
+    } else if constexpr (sizeof(Type) <= sizeof(std::int64_t) &&
+                         std::integral<Type>) {
+      value = static_cast<Type>(this->_value.getSExtValue());
+    } else if constexpr (rq::BitCastable<std::uint64_t, Type>) {
+      value = std::bit_cast<Type>(this->_value.getZExtValue());
+    } else {
+      std::memset(&value, 0, sizeof(Type));
+      std::memcpy(&value, this->_value.getRawData(), sizeof(Type));
+    }
+    return value;
+  }
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
@@ -108,13 +138,13 @@ struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::WORD);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) const { 
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
     rq::profileWordConstant(out_id, this->_value);
   }
 };
 
 inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
-                 llvm::ArrayRef<rq::Constant *> data) {
+                                 llvm::ArrayRef<rq::Constant *> data) {
   for (const rq::Constant *constant_ptr : data) {
     out_id.AddPointer(constant_ptr);
   }
@@ -140,7 +170,7 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::ARRAY);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) const { 
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
     rq::profileArrayConstant(out_id, this->_data);
   }
 };
