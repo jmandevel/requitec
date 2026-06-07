@@ -1010,7 +1010,6 @@ struct SymbolParameter : public rq::Parameter {
   bool _is_nonpositional : 1;
   bool _is_locked : 1;
   rq::ExpressionFlags _expression_flags;
-  rq::SymbolTable *_containing_table_ptr;
   rq::SymbolTable *_hosting_table_ptr;
   const rq::Expression *_expression_ptr;
   const rq::Expression *_name_expression_ptr;
@@ -1019,10 +1018,10 @@ struct SymbolParameter : public rq::Parameter {
 
   explicit RQ_ALWAYS_INLINE SymbolParameter(
       rq::SymbolKind kind, rq::SymbolParameter *next_ptr, llvm::StringRef name,
-      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-      bool is_positional, bool is_nonpositional, bool is_locked,
-      const rq::Expression &expression, const rq::Expression &name_expression,
+      rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+      rq::ExpressionFlags expression_flags, bool is_positional,
+      bool is_nonpositional, bool is_locked, const rq::Expression &expression,
+      const rq::Expression &name_expression,
       const rq::Expression &type_expression,
       const rq::Expression *default_value_expression_ptr);
 
@@ -1034,9 +1033,6 @@ struct SymbolParameter : public rq::Parameter {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNonpositional() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocked() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-  getContainingTable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHostingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHostingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
@@ -1053,14 +1049,15 @@ struct SymbolParameter : public rq::Parameter {
 struct SignatureParameter final : public rq::SymbolParameter {
   using Self = rq::SignatureParameter;
 
-  explicit RQ_ALWAYS_INLINE SignatureParameter(
-      rq::SymbolParameter *next_ptr, llvm::StringRef name,
-      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-      bool is_positional, bool is_nonpositional, bool is_locked,
-      const rq::Expression &expression, const rq::Expression &name_expression,
-      const rq::Expression &type_expression,
-      const rq::Expression *default_value_expression_ptr);
+  explicit RQ_ALWAYS_INLINE
+  SignatureParameter(rq::SymbolParameter *next_ptr, llvm::StringRef name,
+                     rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+                     rq::ExpressionFlags expression_flags, bool is_positional,
+                     bool is_nonpositional, bool is_locked,
+                     const rq::Expression &expression,
+                     const rq::Expression &name_expression,
+                     const rq::Expression &type_expression,
+                     const rq::Expression *default_value_expression_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
   getNextSignatureParameterPtr() const;
@@ -1073,14 +1070,15 @@ struct SignatureParameter final : public rq::SymbolParameter {
 struct LayoutParameter final : public rq::SymbolParameter {
   using Self = rq::LayoutParameter;
 
-  explicit RQ_ALWAYS_INLINE LayoutParameter(
-      rq::SymbolParameter *next_ptr, llvm::StringRef name,
-      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-      bool is_positional, bool is_nonpositional, bool is_locked,
-      const rq::Expression &expression, const rq::Expression &name_expression,
-      const rq::Expression &type_expression,
-      const rq::Expression *default_value_expression_ptr);
+  explicit RQ_ALWAYS_INLINE
+  LayoutParameter(rq::SymbolParameter *next_ptr, llvm::StringRef name,
+                  rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+                  rq::ExpressionFlags expression_flags, bool is_positional,
+                  bool is_nonpositional, bool is_locked,
+                  const rq::Expression &expression,
+                  const rq::Expression &name_expression,
+                  const rq::Expression &type_expression,
+                  const rq::Expression *default_value_expression_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
   getNextLayoutParameterPtr() const;

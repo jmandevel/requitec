@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rq/bump_ptr_allocator.hpp>
+#include <rq/constants.hpp>
 #include <rq/see.hpp>
 #include <rq/symbols.hpp>
-#include <rq/constants.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -159,14 +159,14 @@ struct Context final : public rq::BumpPtrAllocator {
       : _executable_path(std::move(executable_path)) {}
   Context(const Self &) = delete;
   Context(Self &&) = delete;
-  inline ~Context() { 
-    this->_top.release(); 
+  inline ~Context() {
+    this->_top.release();
     for (auto &word : this->_word_constants) {
       std::destroy_at(&word);
     }
     for (auto &array : this->_array_constants) {
       std::destroy_at(&array);
-    }  
+    }
   }
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
@@ -751,28 +751,29 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &getSignatureParameter(
       rq::SymbolParameter *next_ptr, llvm::StringRef name,
-      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-      bool is_positional, bool is_nonpositional, bool is_locked,
-      const rq::Expression &expression, const rq::Expression &name_expression,
+      rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+      rq::ExpressionFlags expression_flags, bool is_positional,
+      bool is_nonpositional, bool is_locked, const rq::Expression &expression,
+      const rq::Expression &name_expression,
       const rq::Expression &type_expression,
       const rq::Expression *default_value_expression_ptr) {
     return this->allocateValue<rq::SignatureParameter>(
-        next_ptr, name, type, containing_table, hosting_table, expression_flags,
-        is_positional, is_nonpositional, is_locked, expression, name_expression,
+        next_ptr, name, type, hosting_table, expression_flags, is_positional,
+        is_nonpositional, is_locked, expression, name_expression,
         type_expression, default_value_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &getLayoutParameter(
-      rq::SymbolParameter *next_ptr, llvm::StringRef name,
-      rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-      rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-      bool is_positional, bool is_nonpositional, bool is_locked,
-      const rq::Expression &expression, const rq::Expression &name_expression,
-      const rq::Expression &type_expression,
-      const rq::Expression *default_value_expression_ptr) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &
+  getLayoutParameter(rq::SymbolParameter *next_ptr, llvm::StringRef name,
+                     rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+                     rq::ExpressionFlags expression_flags, bool is_positional,
+                     bool is_nonpositional, bool is_locked,
+                     const rq::Expression &expression,
+                     const rq::Expression &name_expression,
+                     const rq::Expression &type_expression,
+                     const rq::Expression *default_value_expression_ptr) {
     return this->allocateValue<rq::LayoutParameter>(
-        next_ptr, name, type, containing_table, hosting_table, expression_flags,
-        is_positional, is_nonpositional, is_locked, expression, name_expression,
+        next_ptr, name, type, hosting_table, expression_flags, is_positional,
+        is_nonpositional, is_locked, expression, name_expression,
         type_expression, default_value_expression_ptr);
   }
   [[nodiscard]] inline rq::TypeParameter &
@@ -1041,7 +1042,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::WordConstant &
-  getWordConstant(const llvm::APInt& value) {
+  getWordConstant(const llvm::APInt &value) {
     llvm::FoldingSetNodeID id;
     rq::profileWordConstant(id, value);
     void *insert_pos;
@@ -1051,13 +1052,12 @@ struct Context final : public rq::BumpPtrAllocator {
       rq::WordConstant &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::WordConstant &created =
-        this->allocateValue<rq::WordConstant>(value);
+    rq::WordConstant &created = this->allocateValue<rq::WordConstant>(value);
     this->_word_constants.InsertNode(&created, insert_pos);
     return created;
   }
   [[nodiscard]] inline rq::ArrayConstant &
-  getArrayConstant(llvm::ArrayRef<rq::Constant* > data) {
+  getArrayConstant(llvm::ArrayRef<rq::Constant *> data) {
     llvm::FoldingSetNodeID id;
     rq::profileArrayConstant(id, data);
     void *insert_pos;
@@ -1067,8 +1067,7 @@ struct Context final : public rq::BumpPtrAllocator {
       rq::ArrayConstant &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::ArrayConstant &created =
-        this->allocateValue<rq::ArrayConstant>(data);
+    rq::ArrayConstant &created = this->allocateValue<rq::ArrayConstant>(data);
     this->_array_constants.InsertNode(&created, insert_pos);
     return created;
   }

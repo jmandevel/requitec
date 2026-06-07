@@ -1988,18 +1988,16 @@ Parameter::getNextParameterPtr() const {
 RQ_ALWAYS_INLINE
 SymbolParameter::SymbolParameter(
     rq::SymbolKind kind, rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-    bool is_positional, bool is_nonpositional, bool is_locked,
-    const rq::Expression &expression, const rq::Expression &name_expression,
+    rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+    rq::ExpressionFlags expression_flags, bool is_positional,
+    bool is_nonpositional, bool is_locked, const rq::Expression &expression,
+    const rq::Expression &name_expression,
     const rq::Expression &type_expression,
     const rq::Expression *default_value_expression_ptr)
     : Parameter(kind, next_ptr, name, type), _is_positional(is_positional),
       _is_nonpositional(is_nonpositional), _is_locked(is_locked),
-      _expression_flags(expression_flags),
-      _containing_table_ptr(&containing_table),
-      _hosting_table_ptr(&hosting_table), _expression_ptr(&expression),
-      _name_expression_ptr(&name_expression),
+      _expression_flags(expression_flags), _hosting_table_ptr(&hosting_table),
+      _expression_ptr(&expression), _name_expression_ptr(&name_expression),
       _type_expression_ptr(&type_expression),
       _default_value_expression_ptr(default_value_expression_ptr) {
   RQ_ASSERT(rq::getIsSymbolParameter(kind), "not symbol parameter");
@@ -2031,16 +2029,6 @@ SymbolParameter::getIsNonpositional() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool SymbolParameter::getIsLocked() const {
   return this->_is_locked;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-SymbolParameter::getContainingTable() const {
-  return rq::dereferencePtr(this->_containing_table_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-SymbolParameter::getContainingTable() {
-  return rq::dereferencePtr(this->_containing_table_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
@@ -2086,17 +2074,16 @@ SymbolParameter::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE SignatureParameter::SignatureParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-    bool is_positional, bool is_nonpositional, bool is_locked,
-    const rq::Expression &expression, const rq::Expression &name_expression,
+    rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+    rq::ExpressionFlags expression_flags, bool is_positional,
+    bool is_nonpositional, bool is_locked, const rq::Expression &expression,
+    const rq::Expression &name_expression,
     const rq::Expression &type_expression,
     const rq::Expression *default_value_expression_ptr)
     : SymbolParameter(rq::SymbolKind::SIGNATURE_PARAMETER, next_ptr, name, type,
-                      containing_table, hosting_table, expression_flags,
-                      is_positional, is_nonpositional, is_locked, expression,
-                      name_expression, type_expression,
-                      default_value_expression_ptr) {}
+                      hosting_table, expression_flags, is_positional,
+                      is_nonpositional, is_locked, expression, name_expression,
+                      type_expression, default_value_expression_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
 SignatureParameter::getNextSignatureParameterPtr() const {
@@ -2118,17 +2105,16 @@ SignatureParameter::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::SymbolConstant &type, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::ExpressionFlags expression_flags,
-    bool is_positional, bool is_nonpositional, bool is_locked,
-    const rq::Expression &expression, const rq::Expression &name_expression,
+    rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
+    rq::ExpressionFlags expression_flags, bool is_positional,
+    bool is_nonpositional, bool is_locked, const rq::Expression &expression,
+    const rq::Expression &name_expression,
     const rq::Expression &type_expression,
     const rq::Expression *default_value_expression_ptr)
     : SymbolParameter(rq::SymbolKind::LAYOUT_PARAMETER, next_ptr, name, type,
-                      containing_table, hosting_table, expression_flags,
-                      is_positional, is_nonpositional, is_locked, expression,
-                      name_expression, type_expression,
-                      default_value_expression_ptr) {}
+                      hosting_table, expression_flags, is_positional,
+                      is_nonpositional, is_locked, expression, name_expression,
+                      type_expression, default_value_expression_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
 LayoutParameter::getNextLayoutParameterPtr() const {
