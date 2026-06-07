@@ -159,7 +159,15 @@ struct Context final : public rq::BumpPtrAllocator {
       : _executable_path(std::move(executable_path)) {}
   Context(const Self &) = delete;
   Context(Self &&) = delete;
-  inline ~Context() { this->_top.release(); }
+  inline ~Context() { 
+    this->_top.release(); 
+    for (auto &word : this->_word_constants) {
+      std::destroy_at(&word);
+    }
+    for (auto &array : this->_array_constants) {
+      std::destroy_at(&array);
+    }  
+  }
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
