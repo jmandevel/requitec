@@ -95,6 +95,7 @@ Evaluator::evaluateRvalue(rq::SymbolTable &table, rq::Module &module,
     rq::ExpressionAttribute attribute = attribute_wd.getAs<rq::ExpressionAttribute>();
     out_factory.addFlag(attribute, &branch_ex);
   }
+  RQ_UNREACHABLE();
 }
 
 } // namespace rq
