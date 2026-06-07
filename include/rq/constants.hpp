@@ -10,6 +10,8 @@
 
 #include <algorithm>
 #include <bit>
+#include <concepts>
+#include <type_traits>
 
 namespace rq {
 
@@ -122,7 +124,16 @@ struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
     } else if constexpr (sizeof(Type) <= sizeof(std::int64_t) &&
                          std::integral<Type>) {
       value = static_cast<Type>(this->_value.getSExtValue());
-    } else if constexpr (rq::BitCastable<std::uint64_t, Type>) {
+    } else if constexpr (sizeof(Type) <= sizeof(std::uint64_t) &&
+                         std::is_enum_v<Type> &&
+                         std::unsigned_integral<std::underlying_type_t<Type>>) {
+      value = static_cast<Type>(this->_value.getZExtValue());
+    } else if constexpr (sizeof(Type) <= sizeof(std::int64_t) &&
+                         std::is_enum_v<Type> &&
+                         std::integral<std::underlying_type_t<Type>>) {
+      value = static_cast<Type>(this->_value.getSExtValue());
+    } else if constexpr (sizeof(Type) <= sizeof(std::uint64_t) &&
+                         rq::BitCastable<std::uint64_t, Type>) {
       value = std::bit_cast<Type>(this->_value.getZExtValue());
     } else {
       std::memset(&value, 0, sizeof(Type));
