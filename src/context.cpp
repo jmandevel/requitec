@@ -2,7 +2,7 @@
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
 #include <rq/entity.hpp>
-#include <rq/generate.hpp>
+#include <rq/evaluate.hpp>
 #include <rq/json.hpp>
 #include <rq/literals.hpp>
 #include <rq/options.hpp>
@@ -288,7 +288,7 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->generateSourceModule()) {
+  if (!this->evaluateSourceModule()) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
@@ -334,10 +334,10 @@ bool Context::situateModule(rq::ModuleFactory &factory) {
   return is_ok;
 }
 
-bool Context::generateSourceModule() {
-  rq::Generator generator(*this);
-  generator.generateSourceModule();
-  return generator.getIsOk();
+bool Context::evaluateSourceModule() {
+  rq::Evaluator evaluator(*this);
+  evaluator.evaluateSourceModule();
+  return evaluator.getIsOk();
 }
 
 bool Context::buildLlvmIr() {
@@ -1091,6 +1091,12 @@ void Context::logErrorIndeterminateVariableValue(
   this->logMessage(decl_expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    "referencing variable", decl_expression.getLlvmSourceRange(),
                    {});
+}
+
+void Context::logErrorUnexpectedRvalueType(const Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "unexpected rvalue type",
+                   expression.getLlvmSourceRange(), {});
 }
 
 rq::Expression &Context::acquireExpression() {

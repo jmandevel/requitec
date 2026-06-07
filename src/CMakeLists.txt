@@ -2,7 +2,7 @@ target_sources(
     requite
     PRIVATE
         build.cpp
-        generate.cpp
+        evaluate.cpp
         context.cpp
         options.cpp
         parse.cpp

@@ -17,6 +17,7 @@ namespace rq {
 
 // Expression represents individual expressions in the AST. Each is identified
 // by a keyword.
+struct Expression;
 
 static constexpr std::size_t KEYWORD_COUNT =
     static_cast<std::size_t>(rq::Keyword::LAST) - 1;

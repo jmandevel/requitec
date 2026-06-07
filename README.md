@@ -40,7 +40,7 @@ Requite is a programming language that is designed to fill the same niche as C++
     * No exceptions
 3. Powerful features
     * Easy reflection
-    * Code generation
+    * Code evaluation
     * Compile-time code execution
     * Value-holding enumerations
     * Range based looping
@@ -62,7 +62,7 @@ The requitec front-end compiles source files in 6 stages.
 2. Tokenization - In the tokenization stage, raw source file text is seperated into a list of tokens that correlate to different lexemes.
 3. Parsing - In the parsing stage, the list of tokens emitted by the tokenizer are parsed into an Abstract-Syntax Tree (AST) structure that represents Requite code in a format that is efficient for the compiler to manipulate.
 4. Situation - In the situation stage, the compiler performs a pre-order traversal in order to do error checking and modification of the AST. This stage is important because it greatly simplifies later stages.
-5. Generation - In the generation stage, the compiler traverses the outermost scopes of Requite source files and builds symbol tables of global symbols. Symbols are lazily evaluated, and only the kind and name of each symbol is recorded at this stage unless more work is necessary to fully build out all tables. Then, all symbols in the source file are evaluated fully. When generating source files, Requite Intermediate Representation (RQIR) is built, which is used for symbolic execution. Symbols in imported source files are lazily evaluated.
+5. Evaluation - In the evaluation stage, the compiler traverses the outermost scopes of Requite source files and builds symbol tables of global symbols. Symbols are lazily evaluated, and only the kind and name of each symbol is recorded at this stage unless more work is necessary to fully build out all tables. Then, all symbols in the source file are evaluated fully. When generating source files, Requite Intermediate Representation (RQIR) is built, which is used for symbolic execution. Symbols in imported source files are lazily evaluated.
 6. IR Building - In the building stage, the symbol tables and RQIR are used to build LLVM Intermediate Representation (IR).
 
 ## How to Use

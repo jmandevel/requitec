@@ -237,7 +237,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool tokenizeSourceText(rq::ModuleFactory &factory);
   [[nodiscard]] bool parseRequite(rq::ModuleFactory &factory);
   [[nodiscard]] bool situateModule(rq::ModuleFactory &factory);
-  [[nodiscard]] bool generateSourceModule();
+  [[nodiscard]] bool evaluateSourceModule();
   [[nodiscard]] bool buildLlvmIr();
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
@@ -356,6 +356,7 @@ struct Context final : public rq::BumpPtrAllocator {
                                   rq::Symbol &symbol);
   void logErrorIndeterminateVariableValue(const rq::Expression &expression,
                                           rq::Symbol &symbol);
+  void logErrorUnexpectedRvalueType(const Expression& expression);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
