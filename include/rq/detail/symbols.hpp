@@ -1268,6 +1268,42 @@ Symbol::getDerivedExpressionPtr() const {
   return nullptr;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLiteralType() const {
+  return rq::getIsLiteralType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextual() const {
+  return rq::getIsContextual(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextualValue() const {
+  return rq::getIsContextualValue(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextualType() const {
+  return rq::getIsContextualType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsExpressionAttributeType() const {
+  return rq::getIsExpressionAttributeType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTypeAttributeType() const {
+  return rq::getIsTypeAttributeType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() const {
+  return rq::getIsReflectiveType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPlatformPrimitiveType() const {
+  return rq::getIsPlatformPrimitiveType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsStandardPrimitiveType() const {
+  return rq::getIsStandardPrimitiveType(this->getKind());
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
   return rq::getIsType(this->getKind());
 }

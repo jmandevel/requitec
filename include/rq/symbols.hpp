@@ -460,6 +460,15 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolFlags getFlags() const;
   [[nodiscard]] inline rq::ExpressionFlags getDerivedExpressionFlags() const;
   [[nodiscard]] inline const rq::Expression *getDerivedExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttributeType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttributeType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType() const;
