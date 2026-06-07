@@ -454,8 +454,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "block";
 
   // RANGES
-  case K::RANGE:
-    return "range";
   case K::ARITHMETIC_SEQUENCE:
     return "_arithmetic_sequence";
   case K::ARITHMETIC_SEQUENCE_CONDITION_LESS:
@@ -936,7 +934,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::IDENTIFY_OF:
     return KF::NAME | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::NAMESPACE;
   case K::FORK:
-    return KF::RVALUE;
+    return KF::NONE;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1195,7 +1193,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::EXPRESSION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-    ;
   case K::VOID:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::NO_RETURN:
@@ -1295,8 +1292,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
 
   // RANGES
-  case K::RANGE:
-    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ARITHMETIC_SEQUENCE:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ARITHMETIC_SEQUENCE_CONDITION_LESS:
