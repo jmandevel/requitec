@@ -573,8 +573,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::RANGE_OVER:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
-                                             S::RVALUE);
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
   // DECLARED TYPES
@@ -645,8 +644,8 @@ bool Situator::situateTree(rq::Situation situation,
                                                         S::NAME);
     break;
   case K::ADAPTER:
-    is_ok = this->situateThreeHeaderNaryStatementBranches(situation, expression,
-                                                          S::RVALUE, S::RVALUE, S::RVALUE);
+    is_ok = this->situateThreeHeaderNaryStatementBranches(
+        situation, expression, S::RVALUE, S::RVALUE, S::RVALUE);
     break;
 
   // VALUES
