@@ -356,7 +356,7 @@ struct Context final : public rq::BumpPtrAllocator {
                                   rq::Symbol &symbol);
   void logErrorIndeterminateVariableValue(const rq::Expression &expression,
                                           rq::Symbol &symbol);
-  void logErrorUnexpectedRvalueType(const Expression& expression);
+  void logErrorUnexpectedRvalueType(const Expression &expression);
   [[nodiscard]] rq::Expression &acquireExpression();
   inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
@@ -656,8 +656,8 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Import &
   getImport(rq::ExpressionFlags flags, const rq::Expression &expression,
-            rq::Module &imported) {
-    return this->allocateValue<rq::Import>(flags, expression, imported);
+            rq::Module &module, rq::Module &imported) {
+    return this->allocateValue<rq::Import>(flags, expression, module, imported);
   }
   [[nodiscard]] inline rq::JuxtapositionalListType &
   getJuxtapositionalListType(rq::JuxtapositionalListItem &first_item) {
@@ -719,64 +719,6 @@ struct Context final : public rq::BumpPtrAllocator {
             rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
             step));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Label &
-  getLabel(llvm::StringRef name, const rq::Expression &name_expression,
-           rq::SymbolTable &containing_table, rq::Instruction &instruction) {
-    return this->allocateValue<rq::Label>(name, name_expression,
-                                          containing_table, instruction);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Anchor &
-  getAnchor(llvm::StringRef name, const rq::Expression &name_expression,
-            rq::SymbolTable &containing_table,
-            rq::LocalStatement &local_table) {
-    return this->allocateValue<rq::Anchor>(name, name_expression,
-                                           containing_table, local_table);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalDynamicVariable &
-  getLocalDynamicVariable(llvm::StringRef name,
-                          const rq::Expression &name_expression,
-                          rq::SymbolTable &containing_table,
-                          rq::SymbolTable &hosting_table,
-                          rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::LocalDynamicVariable>(
-        name, name_expression, containing_table, hosting_table, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStaticVariable &
-  getLocalStaticVariable(llvm::StringRef name,
-                         const rq::Expression &name_expression,
-                         rq::SymbolTable &containing_table,
-                         rq::SymbolTable &hosting_table,
-                         rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::LocalStaticVariable>(
-        name, name_expression, containing_table, hosting_table, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &getSignatureParameter(
-      rq::SymbolParameter *next_ptr, llvm::StringRef name,
-      rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
-      rq::ExpressionFlags expression_flags, bool is_positional,
-      bool is_nonpositional, bool is_locked, const rq::Expression &expression,
-      const rq::Expression &name_expression,
-      const rq::Expression &type_expression,
-      const rq::Expression *default_value_expression_ptr) {
-    return this->allocateValue<rq::SignatureParameter>(
-        next_ptr, name, type, hosting_table, expression_flags, is_positional,
-        is_nonpositional, is_locked, expression, name_expression,
-        type_expression, default_value_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &
-  getLayoutParameter(rq::SymbolParameter *next_ptr, llvm::StringRef name,
-                     rq::SymbolConstant &type, rq::SymbolTable &hosting_table,
-                     rq::ExpressionFlags expression_flags, bool is_positional,
-                     bool is_nonpositional, bool is_locked,
-                     const rq::Expression &expression,
-                     const rq::Expression &name_expression,
-                     const rq::Expression &type_expression,
-                     const rq::Expression *default_value_expression_ptr) {
-    return this->allocateValue<rq::LayoutParameter>(
-        next_ptr, name, type, hosting_table, expression_flags, is_positional,
-        is_nonpositional, is_locked, expression, name_expression,
-        type_expression, default_value_expression_ptr);
-  }
   [[nodiscard]] inline rq::TypeParameter &
   getTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
                    llvm::StringRef name, rq::SymbolConstant &type,
@@ -811,30 +753,6 @@ struct Context final : public rq::BumpPtrAllocator {
     return llvm::cast<rq::TupleParameter>(
         this->getTypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr, name,
                                type, location, is_positional));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature &
-  getSignature(rq::SignatureParameter *first_parameter_ptr,
-               unsigned parameter_count, unsigned positional_parameter_count,
-               unsigned nonpositional_parameter_count,
-               const rq::Expression &expression,
-               unsigned locked_parameter_count, rq::SymbolConstant &return_type,
-               rq::SymbolConstant *reciever_type_ptr,
-               const rq::Expression *precondition_expression_ptr,
-               const rq::Expression *postcondition_expression_ptr) {
-    return this->allocateValue<rq::Signature>(
-        first_parameter_ptr, parameter_count, positional_parameter_count,
-        nonpositional_parameter_count, expression, locked_parameter_count,
-        return_type, reciever_type_ptr, precondition_expression_ptr,
-        postcondition_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Layout &
-  getLayout(rq::SymbolParameter *first_parameter_ptr, unsigned parameter_count,
-            unsigned positional_parameter_count,
-            unsigned nonpositional_parameter_count,
-            const rq::Expression &expression, unsigned locked_parameter_count) {
-    return this->allocateValue<rq::Layout>(
-        first_parameter_ptr, parameter_count, positional_parameter_count,
-        nonpositional_parameter_count, expression, locked_parameter_count);
   }
   [[nodiscard]] inline rq::ProcedureType &getProcedureType(
       rq::ProcedureParameter *first_parameter_ptr, unsigned parameter_count,
@@ -924,107 +842,6 @@ struct Context final : public rq::BumpPtrAllocator {
         this->allocateValue<rq::CompositionType>(first_component);
     this->_composition_types.InsertNode(&created, insert_pos);
     return created;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SynonymType &
-  getSynonym(rq::Symbol &original) {
-    RQ_ASSERT(!llvm::isa<rq::ScaledPrimitiveType>(original),
-              "scaled primitive type synonym is uniqued by uid");
-    return this->allocateValue<rq::SynonymType>(original);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IfStatement &
-  getIfStatement(rq::SymbolTable &containing_table, rq::Expression &expression,
-                 rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::IfStatement>(containing_table, expression,
-                                                flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseIfStatement &
-  getElseIfStatement(rq::SymbolTable &containing_table,
-                     rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ElseIfStatement>(containing_table,
-                                                    expression, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseStatement &
-  getElseStatement(rq::SymbolTable &containing_table,
-                   rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ElseStatement>(containing_table, expression,
-                                                  flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::MatchStatement &
-  getMatchStatement(rq::SymbolTable &containing_table,
-                    rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::MatchStatement>(containing_table, expression,
-                                                   flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SwitchStatement &
-  getSwitchStatement(rq::SymbolTable &containing_table,
-                     rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::SwitchStatement>(containing_table,
-                                                    expression, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaseStatement &
-  getCaseStatement(rq::SymbolTable &containing_table,
-                   rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::CaseStatement>(containing_table, expression,
-                                                  flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WithStatement &
-  getWithStatement(rq::SymbolTable &containing_table,
-                   rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::WithStatement>(containing_table, expression,
-                                                  flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DefaultStatement &
-  getDefaultStatement(rq::SymbolTable &containing_table,
-                      rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::DefaultStatement>(containing_table,
-                                                     expression, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ForStatement &
-  getForStatement(rq::SymbolTable &containing_table, rq::Expression &expression,
-                  rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ForStatement>(containing_table, expression,
-                                                 flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WhileStatement &
-  getWhileStatement(rq::SymbolTable &containing_table,
-                    rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::WhileStatement>(containing_table, expression,
-                                                   flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SpinStatement &
-  getSpinStatement(rq::SymbolTable &containing_table,
-                   rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::SpinStatement>(containing_table, expression,
-                                                  flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseStatement &
-  getWeaveStatement(rq::SymbolTable &containing_table,
-                    rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ElseStatement>(containing_table, expression,
-                                                  flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeStatement &
-  getScopeStatement(rq::SymbolTable &containing_table,
-                    rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::ScopeStatement>(containing_table, expression,
-                                                   flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Namespace &
-  getNamespace(rq::SymbolTable &containing_table, llvm::StringRef name) {
-    return this->allocateValue<rq::Namespace>(containing_table, name);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Destructor &
-  getDestructor(rq::SymbolTable &containing_table,
-                rq::SymbolTable &hosting_table,
-                const rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::Destructor>(containing_table, hosting_table,
-                                               expression, flags);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Main &
-  getMain(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-          const rq::Expression &expression, rq::ExpressionFlags flags) {
-    return this->allocateValue<rq::Main>(containing_table, hosting_table,
-                                         expression, flags);
   }
   [[nodiscard]] inline rq::SymbolConstant &
   getSymbolConstant(rq::Symbol &symbol, rq::TypeFlags flags) {
