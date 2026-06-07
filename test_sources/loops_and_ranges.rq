@@ -7,10 +7,9 @@
 
     [template]::{> variability:[var_attribute] <}
     [forward_ranger $\variability, $\variability[fast_signed_integer 32],
-        [for [this].data, value:=[value].\variability[borrow], index:=[index],
+        [for [this].data, value:=[value].\variability[borrow],
             [range_over 
-                value.\variability[borrow],
-                index
+                value.\variability[borrow]
             ];
         ];
     ];
@@ -23,10 +22,9 @@
 
     [template]::{> variability:[var_attribute] <}
     [backward_ranger $\variability, $\variability[fast_signed_integer 32],
-        [for [this].data, value:=[value].\variability[borrow], index:=[index],
+        [for [this].data, value:=[value].\variability[borrow],
             [range_over 
-                value.\variability[borrow],
-                index
+                value.\variability[borrow]
             ];
         ];
     ];
