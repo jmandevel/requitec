@@ -54,12 +54,12 @@ void Evaluator::infill(rq::Module &module) { std::ignore = module; }
   switch (rvalue_ex.getKeyword()) {
   case K::INTEGER_LITERAL: {
     rq::Symbol &type = this->getContext().getIntegerLiteralType();
-    rq::Value value = rq::Value(rvalue_ex);
+    rq::Entity &value = rvalue_ex;
     return rq::Rvalue(type, value);
   } break;
   case K::FLOAT_LITERAL: {
     rq::Symbol &type = this->getContext().getFloatLiteralType();
-    rq::Value value = rq::Value(rvalue_ex);
+    rq::Entity &value = rvalue_ex;
     return rq::Rvalue(type, value);
   }
   default:
@@ -80,7 +80,7 @@ void Evaluator::infill(rq::Module &module) { std::ignore = module; }
     }
     rq::Expression &attribute_ex = branch_ex.getBranch();
     rq::Rvalue rvalue = this->evaluateRvalue(table, module, attribute_ex);
-    if (!rvalue.getIsEmpty()) {
+    if (!rvalue.getIsOk()) {
       continue;
     }
     rq::Symbol &attribute_ty = rvalue.getType();
@@ -89,14 +89,10 @@ void Evaluator::infill(rq::Module &module) { std::ignore = module; }
       this->setNotOk();
       continue;
     }
-    rq::ExpressionAttribute attribute;
-    if (rvalue.getValue().getIsTemp()) {
-      RQ_TODO_IMPLEMENTATION();
-    } else {
-      rq::Entity &rvalue_et = rvalue.getValue().getEntity();
-      rq::WordConstant &attribute_wd = llvm::cast<rq::WordConstant>(rvalue_et);
-      attribute = attribute_wd.getAs<rq::ExpressionAttribute>();
-    }
+    rq::WordConstant &attribute_wd =
+        llvm::cast<rq::WordConstant>(rvalue.getValue());
+    rq::ExpressionAttribute attribute =
+        attribute_wd.getAs<rq::ExpressionAttribute>();
     out_factory.addFlag(attribute, &branch_ex);
   }
   RQ_UNREACHABLE();

@@ -20,13 +20,13 @@ struct Rvalue final {
   using Self = rq::Rvalue;
 
   rq::Symbol *_type_ptr{nullptr};
-  rq::Value _value{};
+  rq::Entity *_value_ptr{nullptr};
 
   explicit Rvalue() = default;
-  explicit Rvalue(rq::Symbol &type, const rq::Value &value)
-      : _type_ptr(&type), _value(value) {}
+  explicit Rvalue(rq::Symbol &type, rq::Entity &value)
+      : _type_ptr(&type), _value_ptr(&value) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const {
     return this->_type_ptr != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const {
@@ -35,10 +35,12 @@ struct Rvalue final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType() {
     return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value &getValue() const {
-    return this->_value;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const {
+    return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Value &getValue() { return this->_value; }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue() {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
 };
 
 struct Evaluator final {
