@@ -47,8 +47,7 @@ struct Evaluator final {
   void rundownScope(rq::SymbolTable& table, rq::Module& module, const rq::Expression& first_ex);
   void infill(rq::Module& module);
 
-  [[nodiscard]] rq::SymbolConstant *inferenceRvalue(rq::SymbolTable& table, rq::Module& module, const rq::Expression& rvalue_ex);
-  [[nodiscard]] rq::Entity* evaluateRvalue(rq::SymbolTable& table, rq::Module& module, const rq::Expression& rvalue_ex, rq::SymbolConstant& rvalue_ty);
+  [[nodiscard]] rq::Rvalue evaluateRvalue(rq::SymbolTable& table, rq::Module& module, const rq::Expression& rvalue_ex, rq::SymbolConstant* lvalue_sy_ptr);
   [[nodiscard]] const rq::Expression& evaluateExpressionAttributes(rq::ExpressionFlagsFactory& out_factory, rq::SymbolTable& table, rq::Module& module, const rq::Expression& outer_ex);
 };
 } // namespace rq

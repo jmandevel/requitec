@@ -43,23 +43,14 @@ void Evaluator::rundownScope(rq::SymbolTable &table, rq::Module &module,
 
 void Evaluator::infill(rq::Module &module) { std::ignore = module; }
 
-[[nodiscard]] rq::SymbolConstant *
-Evaluator::inferenceRvalue(rq::SymbolTable &table, rq::Module &module,
-                           const rq::Expression &rvalue_ex) {
-  std::ignore = table;
-  std::ignore = module;
-  std::ignore = rvalue_ex;
-  RQ_TODO_IMPLEMENTATION();
-}
-
-[[nodiscard]] rq::Entity *
+[[nodiscard]] rq::Rvalue
 Evaluator::evaluateRvalue(rq::SymbolTable &table, rq::Module &module,
                           const rq::Expression &rvalue_ex,
-                          rq::SymbolConstant &rvalue_ty) {
+                          rq::SymbolConstant *lvalue_sy_ptr) {
   std::ignore = table;
   std::ignore = module;
   std::ignore = rvalue_ex;
-  std::ignore = rvalue_ty;
+  std::ignore = lvalue_sy_ptr;
   RQ_TODO_IMPLEMENTATION();
 }
 
@@ -74,25 +65,21 @@ Evaluator::evaluateRvalue(rq::SymbolTable &table, rq::Module &module,
       return branch_ex;
     }
     const rq::Expression &attribute_ex = branch_ex.getBranch();
-    rq::SymbolConstant *attribute_ty_ptr =
-        this->inferenceRvalue(table, module, attribute_ex);
-    if (attribute_ty_ptr == nullptr) {
+    rq::Rvalue rvalue =
+        this->evaluateRvalue(table, module, attribute_ex, nullptr);
+    if (!rvalue.getIsOk()) {
       continue;
     }
-    rq::SymbolConstant &attribute_ty = rq::dereferencePtr(attribute_ty_ptr);
-    if (!attribute_ty.getSymbol().getIsExpressionAttributeType()) {
+    rq::Symbol &attribute_sy = rq::dereferencePtr(rvalue.getSymbol());
+    if (!attribute_sy.getIsExpressionAttributeType()) {
       this->getContext().logErrorUnexpectedRvalueType(attribute_ex);
       this->setNotOk();
       continue;
     }
-    rq::Entity *attribute_et_ptr =
-        this->evaluateRvalue(table, module, attribute_ex, attribute_ty);
-    if (attribute_et_ptr == nullptr) {
-      continue;
-    }
-    rq::Entity &attribute_et = rq::dereferencePtr(attribute_et_ptr);
-    rq::WordConstant &attribute_wd = llvm::cast<rq::WordConstant>(attribute_et);
-    rq::ExpressionAttribute attribute = attribute_wd.getAs<rq::ExpressionAttribute>();
+    rq::WordConstant &attribute_wd =
+        llvm::cast<rq::WordConstant>(rvalue.getValue());
+    rq::ExpressionAttribute attribute =
+        attribute_wd.getAs<rq::ExpressionAttribute>();
     out_factory.addFlag(attribute, &branch_ex);
   }
   RQ_UNREACHABLE();
