@@ -655,7 +655,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return this->allocateValue<rq::Module>(std::move(factory));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Import &
-  getImport(rq::ExpressionFlags flags, const rq::Expression &expression,
+  getImport(rq::ExpressionFlags flags, rq::Expression &expression,
             rq::Module &module, rq::Module &imported) {
     return this->allocateValue<rq::Import>(flags, expression, module, imported);
   }

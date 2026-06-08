@@ -20,21 +20,21 @@ void Evaluator::evaluateSourceModule() {
   this->infill(source);
 }
 void Evaluator::rundown(rq::Module &module) {
-  const rq::Expression &top_ex = module.getExpression();
+  rq::Expression &top_ex = module.getExpression();
   if (!top_ex.getHasBranch()) {
     return;
   }
-  const rq::Expression &first_ex = top_ex.getBranch();
+  rq::Expression &first_ex = top_ex.getBranch();
   this->rundownScope(this->getContext().getTop(), module, first_ex);
 }
 
 void Evaluator::rundownScope(rq::SymbolTable &table, rq::Module &module,
-                             const rq::Expression &first_ex) {
+                             rq::Expression &first_ex) {
   std::ignore = table;
   std::ignore = module;
-  for (const rq::Expression &outer_ex : first_ex.getInclusiveNextSubrange()) {
+  for (rq::Expression &outer_ex : first_ex.getInclusiveNextSubrange()) {
     rq::ExpressionFlagsFactory factory;
-    const rq::Expression &statement_ex =
+    rq::Expression &statement_ex =
         this->evaluateExpressionAttributes(factory, table, module, outer_ex);
     if (!this->getIsOk()) {
       return;
@@ -45,37 +45,41 @@ void Evaluator::rundownScope(rq::SymbolTable &table, rq::Module &module,
 
 void Evaluator::infill(rq::Module &module) { std::ignore = module; }
 
-[[nodiscard]] rq::Rvalue
-Evaluator::evaluateRvalue(rq::SymbolTable &table, rq::Module &module,
-                          const rq::Expression &rvalue_ex) {
+[[nodiscard]] rq::Rvalue Evaluator::evaluateRvalue(rq::SymbolTable &table,
+                                                   rq::Module &module,
+                                                   rq::Expression &rvalue_ex) {
+  std::ignore = table;
+  std::ignore = module;
   using K = rq::Keyword;
   switch (rvalue_ex.getKeyword()) {
   case K::INTEGER_LITERAL: {
     rq::Symbol &type = this->getContext().getIntegerLiteralType();
     rq::Entity &value = rvalue_ex;
-    return rq::Rvalue(type, rvalue_ex);
+    return rq::Rvalue(type, value);
   } break;
   case K::FLOAT_LITERAL: {
     rq::Symbol &type = this->getContext().getFloatLiteralType();
     rq::Entity &value = rvalue_ex;
-    return rq::Rvalue(type, rvalue_ex);
+    return rq::Rvalue(type, value);
   }
+  default:
+    RQ_TODO_IMPLEMENTATION();
   }
+  RQ_UNREACHABLE();
 }
 
-[[nodiscard]] const rq::Expression &Evaluator::evaluateExpressionAttributes(
+[[nodiscard]] rq::Expression &Evaluator::evaluateExpressionAttributes(
     rq::ExpressionFlagsFactory &out_factory, rq::SymbolTable &table,
-    rq::Module &module, const rq::Expression &outer_ex) {
+    rq::Module &module, rq::Expression &outer_ex) {
   if (outer_ex.getKeyword() != rq::Keyword::ASCRIBE_EXPRESSION) {
     return outer_ex;
   }
-  for (const rq::Expression &branch_ex : outer_ex.getBranchSubrange()) {
+  for (rq::Expression &branch_ex : outer_ex.getBranchSubrange()) {
     if (!branch_ex.getHasNext()) {
       return branch_ex;
     }
-    const rq::Expression &attribute_ex = branch_ex.getBranch();
-    rq::Rvalue rvalue =
-        this->evaluateRvalue(table, module, attribute_ex, nullptr);
+    rq::Expression &attribute_ex = branch_ex.getBranch();
+    rq::Rvalue rvalue = this->evaluateRvalue(table, module, attribute_ex);
     if (!rvalue.getIsOk()) {
       continue;
     }
