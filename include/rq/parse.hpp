@@ -45,14 +45,15 @@ struct TokenRanger final {
 
 struct Context;
 struct Module;
+struct FactoryExpression;
 struct Expression;
 struct Token;
 
 struct ForestFactory final {
   using Self = rq::ForestFactory;
 
-  rq::Expression *_expression_ptr = nullptr;
-  rq::Expression *_last_ptr = nullptr;
+  rq::FactoryExpression *_expression_ptr = nullptr;
+  rq::FactoryExpression *_last_ptr = nullptr;
 
   ForestFactory() = default;
   ForestFactory(const Self &) = default;
@@ -63,42 +64,42 @@ struct ForestFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
     return this->_expression_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void setExpression(rq::FactoryExpression &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *getExpressionPtr() {
     return this->_expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
   getExpressionPtr() const {
     return this->_expression_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
     return this->_last_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setLast(rq::Expression &last) {
+  RQ_ALWAYS_INLINE void setLast(rq::FactoryExpression &last) {
     this->_last_ptr = &last;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLast() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getLast() {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getLast() const {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  void appendTree(rq::Expression &tree);
+  void appendTree(rq::FactoryExpression &tree);
 };
 
 struct TreeFactory final {
   using Self = rq::TreeFactory;
 
-  rq::Expression *_expression_ptr = nullptr;
-  rq::Expression *_last_ptr = nullptr;
+  rq::FactoryExpression *_expression_ptr = nullptr;
+  rq::FactoryExpression *_last_ptr = nullptr;
 
   TreeFactory() = default;
   TreeFactory(const Self &) = default;
@@ -109,29 +110,29 @@ struct TreeFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
     return this->_expression_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void setExpression(rq::FactoryExpression &expression) {
     rq::assignSingleValue(this->_expression_ptr, &expression);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
     return this->_last_ptr != nullptr;
   }
-  RQ_ALWAYS_INLINE void setLast(rq::Expression &last) {
+  RQ_ALWAYS_INLINE void setLast(rq::FactoryExpression &last) {
     this->_last_ptr = &last;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLast() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getLast() {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getLast() const {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  void startTree(rq::Expression &top);
-  void appendBranch(rq::Expression &branch);
+  void startTree(rq::FactoryExpression &top);
+  void appendBranch(rq::FactoryExpression &branch);
   void finishExpression(const rq::Token &last_token);
 };
 
@@ -141,14 +142,14 @@ struct PrecedenceFactory final {
   // the context is used only for acquiring new expressions
   std::reference_wrapper<rq::Context> _context_ref;
   // the outermost expression that is returned at the end of the precedence
-  rq::Expression *_outer_ptr = nullptr;
+  rq::FactoryExpression *_outer_ptr = nullptr;
   // the current expression that is being filled with branches
-  rq::Expression *_expression_ptr = nullptr;
+  rq::FactoryExpression *_expression_ptr = nullptr;
   // the most recent parsed branch, which is not yet appended because it might
   // need to nest inside the next expression
-  rq::Expression *_recent_ptr = nullptr;
+  rq::FactoryExpression *_recent_ptr = nullptr;
   // the last branch that was appended to the expression
-  rq::Expression *_last_ptr = nullptr;
+  rq::FactoryExpression *_last_ptr = nullptr;
 
   PrecedenceFactory(rq::Context &context) : _context_ref(context) {}
   PrecedenceFactory(const Self &) = delete;
@@ -166,63 +167,63 @@ struct PrecedenceFactory final {
   void parseOuterBinary(const rq::Token &token, rq::Keyword keyword);
   void parseNary(const rq::Token &token, rq::Keyword keyword);
   void parseSequenceBranch(const rq::Token &token, rq::Keyword keyword,
-                           rq::Expression &rvalue);
-  void appendBranch(rq::Expression &branch);
+                           rq::FactoryExpression &rvalue);
+  void appendBranch(rq::FactoryExpression &branch);
   void appendNullaryAttribute(const rq::Token &token, rq::Keyword keyword);
-  void setRecent(rq::Expression &branch);
-  void setOnlyRecent(rq::Expression &branch);
+  void setRecent(rq::FactoryExpression &branch);
+  void setOnlyRecent(rq::FactoryExpression &branch);
   void appendRecent();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &popRecent() {
-    rq::Expression &recent = rq::dereferencePtr(this->_recent_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &popRecent() {
+    rq::FactoryExpression &recent = rq::dereferencePtr(this->_recent_ptr);
     this->_recent_ptr = nullptr;
     return recent;
   }
-  RQ_ALWAYS_INLINE void setOuterExpression(rq::Expression &expression) {
+  RQ_ALWAYS_INLINE void setOuterExpression(rq::FactoryExpression &expression) {
     this->_outer_ptr = &expression;
     this->_expression_ptr = &expression;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOuter() const {
     return this->_outer_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getOuter() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getOuter() {
     return rq::dereferencePtr(this->_outer_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
     return this->_expression_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getExpression() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getExpression() {
     return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasRecent() const {
     return this->_recent_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getRecent() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getRecent() const {
     return rq::dereferencePtr(this->_recent_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getRecent() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getRecent() {
     return rq::dereferencePtr(this->_recent_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
     return this->_last_ptr != nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getLast() const {
     return rq::dereferencePtr(this->_last_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLast() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getLast() {
     return rq::dereferencePtr(this->_last_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnary() const {
     return this->getHasOuter() && !this->getHasLast();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getUnary() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &getUnary() const {
     RQ_ASSERT(this->getHasUnary(),
               "previous operator in precedence was not unary");
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getUnary() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getUnary() {
     RQ_ASSERT(this->getHasUnary(),
               "previous operator in precedence was not unary");
     return rq::dereferencePtr(this->_expression_ptr);
@@ -233,11 +234,11 @@ struct ParseBranchesResult final {
   using Self = rq::ParseBranchesResult;
 
   const rq::Token _last_token{};
-  rq::Expression *_first_ptr{nullptr};
+  rq::FactoryExpression *_first_ptr{nullptr};
   bool _found_parameter_mark{false};
 
   explicit RQ_ALWAYS_INLINE ParseBranchesResult() = default;
-  explicit RQ_ALWAYS_INLINE ParseBranchesResult(rq::Expression *first_ptr,
+  explicit RQ_ALWAYS_INLINE ParseBranchesResult(rq::FactoryExpression *first_ptr,
                                                 const rq::Token & last_token,
                                                 bool found_parameter_mark)
       : _last_token(last_token), _first_ptr(first_ptr),
@@ -245,11 +246,11 @@ struct ParseBranchesResult final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Token &getLastToken() const {
     return this->_last_token;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
   getFirstBranchPtr() const {
     return this->_first_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getFirstBranchPtr() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *getFirstBranchPtr() {
     return this->_first_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundParameterMark() const {
@@ -285,35 +286,35 @@ struct RequiteParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TokenRanger &getRanger() {
     return this->_token_ranger;
   }
-  [[nodiscard]] rq::Expression *parseExpressions();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseAscribableExpression() {
+  [[nodiscard]] rq::FactoryExpression *parseExpressions();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &parseAscribableExpression() {
     return this->parsePrecedence11();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &
   parseNonascribableExpression() {
     return this->parsePrecedence10();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseTypeAscribedExpression() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &parseTypeAscribedExpression() {
     return this->parsePrecedence2(true);
   }
-  [[nodiscard]] rq::Expression &parsePrecedence11();
-  [[nodiscard]] rq::Expression &parsePrecedence10();
-  [[nodiscard]] rq::Expression &parsePrecedence9();
-  [[nodiscard]] rq::Expression &parsePrecedence8();
-  [[nodiscard]] rq::Expression &parsePrecedence7();
-  [[nodiscard]] rq::Expression &parsePrecedence6();
-  [[nodiscard]] rq::Expression &parsePrecedence5();
-  [[nodiscard]] rq::Expression &parsePrecedence4();
-  [[nodiscard]] rq::Expression &parsePrecedence3();
-  [[nodiscard]] rq::Expression &parsePrecedence2(bool is_type_ascribed);
-  [[nodiscard]] rq::Expression &parsePrecedence1(bool is_type_ascribed);
-  [[nodiscard]] rq::Expression &parsePrecedence0();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence11();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence10();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence9();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence8();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence7();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence6();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence5();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence4();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence3();
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence2(bool is_type_ascribed);
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence1(bool is_type_ascribed);
+  [[nodiscard]] rq::FactoryExpression &parsePrecedence0();
   [[nodiscard]] rq::ParseBranchesResult parseBranches(rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();
-  [[nodiscard]] rq::Expression &parseEnclosedBracketExpression();
-  [[nodiscard]] rq::Expression &parseEnclosedParenthesisExpression();
-  [[nodiscard]] rq::Expression &parseEnclosedBraceExpression();
-  [[nodiscard]] rq::Expression &parseLiteralOrMark(rq::Keyword keyword);
+  [[nodiscard]] rq::FactoryExpression &parseEnclosedBracketExpression();
+  [[nodiscard]] rq::FactoryExpression &parseEnclosedParenthesisExpression();
+  [[nodiscard]] rq::FactoryExpression &parseEnclosedBraceExpression();
+  [[nodiscard]] rq::FactoryExpression &parseLiteralOrMark(rq::Keyword keyword);
 };
 
 } // namespace rq

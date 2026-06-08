@@ -58,7 +58,8 @@ struct AssertException final : public std::logic_error {
 
 #if !defined(_NDEBUG)
 #define RQ_TODO_IMPLEMENTATION()                                               \
-  throw rq::AssertException("RQ_TODO_IMPLEMENTATION()", "not implemented yet");
+  throw rq::AssertException("RQ_TODO_IMPLEMENTATION()", "not implemented "     \
+                                                        "yet");
 #else
 #define RQ_NOT_IMPLEMENTED() std::unreachable()
 #endif
@@ -95,28 +96,28 @@ template <typename TypeParam>
   return *uptr;
 }
 
-template <typename TypeParam>
+template <typename DestParam, typename SrcParam>
 RQ_ALWAYS_INLINE void assignSingleValue(
-    TypeParam *&dest_ptr, TypeParam *src_ptr,
+    DestParam *&dest_ptr, SrcParam *src_ptr,
     std::source_location source_location = std::source_location::current()) {
   RQ_ASSERT_LOCATION(dest_ptr == nullptr, "single value reassignment",
                      source_location);
   dest_ptr = src_ptr;
 }
 
-template <typename TypeParam>
-RQ_ALWAYS_INLINE TypeParam &replaceValue(
-    TypeParam *&dest_ptr, TypeParam *src_ptr,
+template <typename DestParam, typename SrcParam>
+RQ_ALWAYS_INLINE DestParam &replaceValue(
+    DestParam *&dest_ptr, SrcParam *src_ptr,
     std::source_location source_location = std::source_location::current()) {
-  TypeParam &old = rq::dereferencePtr(dest_ptr, source_location);
+  DestParam &old = rq::dereferencePtr(dest_ptr, source_location);
   dest_ptr = src_ptr;
   return old;
 }
 
-template <typename TypeParam>
-RQ_ALWAYS_INLINE TypeParam *replaceValuPtr(TypeParam *&dest_ptr,
-                                           TypeParam *src_ptr) {
-  TypeParam *old_ptr = dest_ptr;
+template <typename DestParam, typename SrcParam>
+RQ_ALWAYS_INLINE DestParam *replaceValuPtr(DestParam *&dest_ptr,
+                                           SrcParam *src_ptr) {
+  DestParam *old_ptr = dest_ptr;
   dest_ptr = src_ptr;
   return old_ptr;
 }

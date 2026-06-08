@@ -1586,16 +1586,16 @@ ModuleFactory::ModuleFactory(rq::ModuleKind kind, llvm::StringRef path,
 }
 
 RQ_ALWAYS_INLINE void
-ModuleFactory::setOrChangeExpression(rq::Expression *expression_ptr) {
+ModuleFactory::setOrChangeExpression(rq::FactoryExpression *expression_ptr) {
   this->_expression_ptr = expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
 ModuleFactory::getExpressionPtr() const {
   return this->_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+[[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *
 ModuleFactory::getExpressionPtr() {
   return this->_expression_ptr;
 }
@@ -1621,8 +1621,8 @@ ModuleFactory::getTokens() const {
 
 RQ_ALWAYS_INLINE Module::Module(rq::ModuleFactory &&factory)
     : Symbol(rq::SymbolKind::MODULE), _module_kind(factory.getKind()),
-      _expression_ptr(factory.getExpressionPtr()), _path(factory.getPath()),
-      _buffer(factory.getBuffer()) {
+      _expression_ptr(llvm::cast<rq::Expression>(factory.getExpressionPtr())),
+      _path(factory.getPath()), _buffer(factory.getBuffer()) {
   RQ_ASSERT(factory.getExpressionPtr() != nullptr, "expression not set");
 }
 

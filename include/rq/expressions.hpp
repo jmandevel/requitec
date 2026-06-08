@@ -2536,7 +2536,7 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   MANGLE_ATTRIBUTE,         // no_mangle vs mangle
   PACK_ATTRIBUTE,           // no_pack vs pack
   BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
-  SUPPORT_STATUS_ATTRIBUTE,     // no_support_status vs depreciate vs experimental
+  SUPPORT_STATUS_ATTRIBUTE, // no_support_status vs depreciate vs experimental
   STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
   VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
   LOCATION_ATTRIBUTE,       // no_location vs location
@@ -3063,87 +3063,8 @@ template <typename SourceAParam, typename SourceBParam>
          last.getSourceTextLength();
 }
 
+struct FactoryExpression;
 struct Expression;
-
-struct ExpressionIterator final {
-  using Self = rq::ExpressionIterator;
-  using value_type = rq::Expression;
-  using reference = rq::Expression &;
-  using pointer = rq::Expression *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Expression *_expression_ptr = nullptr;
-
-  ExpressionIterator() = default;
-  explicit ExpressionIterator(rq::Expression *expression_ptr)
-      : _expression_ptr(expression_ptr) {}
-  ExpressionIterator(const Self &) = default;
-  ExpressionIterator(Self &&) = default;
-  ~ExpressionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_expression_ptr == it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_expression_ptr != it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &operator*() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *operator->() {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_expression_ptr == nullptr;
-  }
-};
-
-struct ConstExpressionIterator final {
-  using Self = rq::ConstExpressionIterator;
-  using value_type = const rq::Expression;
-  using reference = const rq::Expression &;
-  using pointer = rq::Expression *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::Expression *_expression_ptr = nullptr;
-
-  ConstExpressionIterator() = default;
-  explicit ConstExpressionIterator(const rq::Expression *expression_ptr)
-      : _expression_ptr(expression_ptr) {}
-  ConstExpressionIterator(const Self &) = default;
-  ConstExpressionIterator(Self &&) = default;
-  ~ConstExpressionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_expression_ptr == it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_expression_ptr != it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_expression_ptr == nullptr;
-  }
-};
 
 enum class ExpressionNextFlags : std::uint8_t {
   NONE = 0,
@@ -3168,50 +3089,22 @@ enum class ExpressionSourceFlags : std::uint8_t {
 
 template <> struct is_flags<ExpressionSourceFlags> : std::true_type {};
 
-struct Expression final : public rq::Entity {
-  using Self = rq::Expression;
+struct ExpressionBase : rq::Entity {
+  using Self = rq::ExpressionBase;
 
-  rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextFlags>
+  rq::PtrWithFlags<rq::ExpressionBase, 2, rq::ExpressionNextFlags>
       _next_ptr_flags{};
-  rq::Expression *_branch_ptr{nullptr};
+  rq::ExpressionBase *_branch_ptr{nullptr};
   rq::PtrWithFlags<const char, 2, rq::ExpressionSourceFlags>
       _source_ptr_flags{};
   unsigned _source_text_length{0};
 
-  Expression() : Entity(rq::getUnderlying(rq::Keyword::NONE)) {}
-  Expression(Self &) = delete;
-  Expression(Self &&) = delete;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  ~Expression() = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this == &rhs;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this != &rhs;
-  }
+  explicit ExpressionBase() : Entity(rq::getUnderlying(rq::Keyword::NONE)) {}
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
     return static_cast<rq::Keyword>(this->getId());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return rq::getName(this->getKeyword());
-  }
-  RQ_ALWAYS_INLINE void clear() {
-    this->_id = rq::getUnderlying(rq::Keyword::NONE);
-    this->_next_ptr_flags = {};
-    this->_branch_ptr = nullptr;
-    this->_source_ptr_flags = {};
-    this->_source_text_length = 0;
-  }
-  RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id == rq::getUnderlying(rq::Keyword::NONE),
-              "keyword must not already be set");
-    this->_id = rq::getUnderlying(keyword);
-  }
-  RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id != rq::getUnderlying(rq::Keyword::NONE),
-              "keyword must already be set");
-    this->_id = rq::getUnderlying(keyword);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterMark() const {
     return rq::getIsParameterMarkKeyword(this->getKeyword());
@@ -3305,7 +3198,8 @@ struct Expression final : public rq::Entity {
   getCanBeTypeAttributeInstantiation() const {
     return rq::getCanBeTypeAttributeInstantiation(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceTypeStage() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getCanBeArithmeticSequenceTypeStage() const {
     return rq::getCanBeArithmeticSequenceTypeStage(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -3334,30 +3228,15 @@ struct Expression final : public rq::Entity {
     return rq::getHasAll(this->_source_ptr_flags.getFlags(),
                          rq::ExpressionSourceFlags::INSERTED);
   }
-  RQ_ALWAYS_INLINE void setIsInserted() {
-    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::INSERTED);
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSituatorError() const {
     return rq::getHasAll(this->_source_ptr_flags.getFlags(),
                          rq::ExpressionSourceFlags::SITUATOR_ERROR);
-  }
-  RQ_ALWAYS_INLINE void setHasSituatorError() {
-    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatement() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
                          rq::ExpressionNextFlags::STATEMENT);
   }
-  void RQ_ALWAYS_INLINE setIsStatement() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::STATEMENT);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
-    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::CHAINLINK);
-  }
-  void RQ_ALWAYS_INLINE setIsChainLink() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::CHAINLINK);
-  }
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
     return this->_source_ptr_flags.getPtr() != nullptr;
   }
@@ -3381,6 +3260,146 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
     return llvm::SMRange(this->getLlvmSourceBegin(), this->getLlvmSourceEnd());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
+    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
+                         rq::ExpressionNextFlags::CHAINLINK);
+  }
+  RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
+    return this->getSourceTextPtr();
+  }
+  RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
+    return this->getSourceTextPtr() + this->getSourceTextLength();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const char *getEndSourceTextPtr() const {
+    if (this->getSourceTextLength() == 0) {
+      return this->getSourceTextPtr();
+    }
+    return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
+  }
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    std::ignore = entity_ptr;
+    return false;
+  }
+};
+
+struct FactoryExpressionIterator final {
+  using Self = rq::FactoryExpressionIterator;
+  using value_type = rq::FactoryExpression;
+  using reference = rq::FactoryExpression &;
+  using pointer = rq::FactoryExpression *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::FactoryExpression *_expression_ptr = nullptr;
+
+  FactoryExpressionIterator() = default;
+  explicit FactoryExpressionIterator(rq::FactoryExpression *expression_ptr)
+      : _expression_ptr(expression_ptr) {}
+  FactoryExpressionIterator(const Self &) = default;
+  FactoryExpressionIterator(Self &&) = default;
+  ~FactoryExpressionIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_expression_ptr == it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_expression_ptr != it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &operator*() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &
+  operator*() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *operator->() {
+    return this->_expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
+  operator->() const {
+    return this->_expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_expression_ptr == nullptr;
+  }
+};
+
+struct ConstFactoryExpressionIterator final {
+  using Self = rq::ConstFactoryExpressionIterator;
+  using value_type = const rq::FactoryExpression;
+  using reference = const rq::FactoryExpression &;
+  using pointer = rq::FactoryExpression *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::FactoryExpression *_expression_ptr = nullptr;
+
+  ConstFactoryExpressionIterator() = default;
+  explicit ConstFactoryExpressionIterator(
+      const rq::FactoryExpression *expression_ptr)
+      : _expression_ptr(expression_ptr) {}
+  ConstFactoryExpressionIterator(const Self &) = default;
+  ConstFactoryExpressionIterator(Self &&) = default;
+  ~ConstFactoryExpressionIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_expression_ptr == it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_expression_ptr != it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &
+  operator*() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
+  operator->() const {
+    return this->_expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_expression_ptr == nullptr;
+  }
+};
+
+struct FactoryExpression final : public rq::ExpressionBase {
+  using Self = rq::FactoryExpression;
+
+  FactoryExpression() = default;
+  RQ_ALWAYS_INLINE void clear() {
+    this->_id = rq::getUnderlying(rq::Keyword::NONE);
+    this->_next_ptr_flags = {};
+    this->_branch_ptr = nullptr;
+    this->_source_ptr_flags = {};
+    this->_source_text_length = 0;
+  }
+  RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
+    RQ_ASSERT(this->_id == rq::getUnderlying(rq::Keyword::NONE),
+              "keyword must not already be set");
+    this->_id = rq::getUnderlying(keyword);
+  }
+  RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
+    RQ_ASSERT(this->_id != rq::getUnderlying(rq::Keyword::NONE),
+              "keyword must already be set");
+    this->_id = rq::getUnderlying(keyword);
+  }
+  RQ_ALWAYS_INLINE void setIsInserted() {
+    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::INSERTED);
+  }
+  RQ_ALWAYS_INLINE void setHasSituatorError() {
+    this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
+  }
+  void RQ_ALWAYS_INLINE setIsStatement() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::STATEMENT);
+  }
+  void RQ_ALWAYS_INLINE setIsChainLink() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::CHAINLINK);
   }
   RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
@@ -3410,18 +3429,6 @@ struct Expression final : public rq::Entity {
       this->_source_text_length = rq::getSourceLengthBetween(source, *this);
     }
   }
-  RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
-    return this->getSourceTextPtr();
-  }
-  RQ_ALWAYS_INLINE const char *getAfterSourceTextPtr() const {
-    return this->getSourceTextPtr() + this->getSourceTextLength();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const char *getEndSourceTextPtr() const {
-    if (this->getSourceTextLength() == 0) {
-      return this->getSourceTextPtr();
-    }
-    return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
-  }
   RQ_ALWAYS_INLINE void setSourceAt(const char *source_ptr) {
     rq::assignSingleValue(this->_source_ptr_flags.getPtr(), source_ptr);
   }
@@ -3438,27 +3445,412 @@ struct Expression final : public rq::Entity {
     this->setSourceAt(source.getEndSourceTextPtr());
   }
   // NOTE: no getBranchCount and getNextCount because bad performance!
-  RQ_ALWAYS_INLINE rq::Expression &getBranch() {
-    return rq::dereferencePtr(this->_branch_ptr);
+  RQ_ALWAYS_INLINE rq::FactoryExpression *getBranchPtr() {
+    return static_cast<rq::FactoryExpression *>(this->_branch_ptr);
   }
-  RQ_ALWAYS_INLINE const rq::Expression &getBranch() const {
-    return rq::dereferencePtr(this->_branch_ptr);
+  RQ_ALWAYS_INLINE const rq::FactoryExpression *getBranchPtr() const {
+    return static_cast<rq::FactoryExpression *>(this->_branch_ptr);
   }
-  RQ_ALWAYS_INLINE rq::Expression &getNext() {
-    return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
+  RQ_ALWAYS_INLINE rq::FactoryExpression *getNextPtr() {
+    return static_cast<rq::FactoryExpression *>(this->_next_ptr_flags.getPtr());
   }
-  RQ_ALWAYS_INLINE const rq::Expression &getNext() const {
-    return rq::dereferencePtr(this->_next_ptr_flags.getPtr());
+  RQ_ALWAYS_INLINE const rq::FactoryExpression *getNextPtr() const {
+    return static_cast<rq::FactoryExpression *>(this->_next_ptr_flags.getPtr());
   }
-  RQ_ALWAYS_INLINE rq::Expression *getBranchPtr() { return this->_branch_ptr; }
+  RQ_ALWAYS_INLINE rq::FactoryExpression &getBranch() {
+    return rq::dereferencePtr(this->getBranchPtr());
+  }
+  RQ_ALWAYS_INLINE const rq::FactoryExpression &getBranch() const {
+    return rq::dereferencePtr(this->getBranchPtr());
+  }
+  RQ_ALWAYS_INLINE rq::FactoryExpression &getNext() {
+    return rq::dereferencePtr(this->getNextPtr());
+  }
+  RQ_ALWAYS_INLINE const rq::FactoryExpression &getNext() const {
+    return rq::dereferencePtr(this->getNextPtr());
+  }
+  // TODO: get rid of the getLastNext and getLastBranch functions to avoid
+  // excessive pointer chasing
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getLastNext() {
+    rq::FactoryExpression *expression_ptr = this;
+    while (expression_ptr->getNextPtr() != nullptr) {
+      expression_ptr = expression_ptr->getNextPtr();
+    }
+    return rq::dereferencePtr(expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &
+  getLastNext() const {
+    const rq::FactoryExpression *expression_ptr = this;
+    while (expression_ptr->getNextPtr() != nullptr) {
+      expression_ptr = expression_ptr->getNextPtr();
+    }
+    return rq::dereferencePtr(expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &getLastBranch() {
+    RQ_ASSERT(this->getHasBranch(), "does not have branch");
+    rq::FactoryExpression *expression_ptr = this->getBranchPtr();
+    while (expression_ptr->getNextPtr() != nullptr) {
+      expression_ptr = expression_ptr->getNextPtr();
+    }
+    return rq::dereferencePtr(expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression &
+  getLastBranch() const {
+    RQ_ASSERT(this->getHasBranch(), "does not have branch");
+    const rq::FactoryExpression *expression_ptr = this->getBranchPtr();
+    while (expression_ptr->getNextPtr() != nullptr) {
+      expression_ptr = expression_ptr->getNextPtr();
+    }
+    return rq::dereferencePtr(expression_ptr);
+  }
+  RQ_ALWAYS_INLINE void setBranch(rq::FactoryExpression &branch) {
+    rq::assignSingleValue(this->_branch_ptr, &branch);
+  }
+  RQ_ALWAYS_INLINE void setNext(rq::FactoryExpression &next) {
+    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
+  }
+  RQ_ALWAYS_INLINE void setBranch(rq::FactoryExpression *branch_ptr) {
+    rq::assignSingleValue(this->_branch_ptr, branch_ptr);
+  }
+  RQ_ALWAYS_INLINE void setNext(rq::FactoryExpression *next_ptr) {
+    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), next_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &
+  replaceBranch(rq::FactoryExpression &branch) {
+    rq::FactoryExpression &replaced_branch = this->getBranch();
+    this->_branch_ptr = &branch;
+    return replaced_branch;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &
+  replaceNext(rq::FactoryExpression &next) {
+    rq::FactoryExpression &replaced_next = this->getNext();
+    this->_next_ptr_flags.setPtr(&next);
+    return replaced_next;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &
+  replaceBranch(rq::FactoryExpression *branch_ptr) {
+    rq::FactoryExpression &replaced_branch = this->getBranch();
+    this->_branch_ptr = branch_ptr;
+    return replaced_branch;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression &
+  replaceNext(rq::FactoryExpression *next_ptr) {
+    rq::FactoryExpression &replaced_next = this->getNext();
+    this->_next_ptr_flags.setPtr(next_ptr);
+    return replaced_next;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *
+  replaceBranchPtr(rq::FactoryExpression &branch) {
+    rq::FactoryExpression *replaced_branch = this->getBranchPtr();
+    this->_branch_ptr = &branch;
+    return replaced_branch;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *
+  replaceNextPtr(rq::FactoryExpression &next) {
+    rq::FactoryExpression *replaced_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(&next);
+    return replaced_next_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *
+  replaceBranchPtr(rq::FactoryExpression *branch_ptr) {
+    rq::FactoryExpression *replaced_branch = this->getBranchPtr();
+    this->_branch_ptr = branch_ptr;
+    return replaced_branch;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *
+  replaceNextPtr(rq::FactoryExpression *next_ptr) {
+    rq::FactoryExpression *replaced_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(next_ptr);
+    return replaced_next_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
+    return this->_branch_ptr != nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
+    return this->_next_ptr_flags.getPtr() != nullptr;
+  }
+  [[nodiscard]] inline rq::FactoryExpression &popBranch() {
+    RQ_ASSERT(this->_branch_ptr != nullptr, "does not have branch");
+    rq::FactoryExpression *old_branch_ptr = this->getBranchPtr();
+    this->_branch_ptr = nullptr;
+    return rq::dereferencePtr(old_branch_ptr);
+  }
+  [[nodiscard]] inline rq::FactoryExpression *popBranchPtr() {
+    rq::FactoryExpression *old_branch_ptr = this->getBranchPtr();
+    this->_branch_ptr = nullptr;
+    return old_branch_ptr;
+  }
+  [[nodiscard]] inline rq::FactoryExpression &popNext() {
+    RQ_ASSERT(this->getHasNext(), "does not have next");
+    rq::FactoryExpression *old_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(nullptr);
+    return rq::dereferencePtr(old_next_ptr);
+  }
+  [[nodiscard]] inline rq::FactoryExpression *popNextPtr() {
+    rq::FactoryExpression *old_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(nullptr);
+    return old_next_ptr;
+  }
+  [[nodiscard]] inline rq::FactoryExpression &
+  changeNext(rq::FactoryExpression &new_next) {
+    RQ_ASSERT(this->getHasNext(), "does not have next");
+    rq::FactoryExpression *old_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(&new_next);
+    return rq::dereferencePtr(old_next_ptr);
+  }
+  [[nodiscard]] inline rq::FactoryExpression &
+  changeNext(rq::FactoryExpression *new_next_ptr) {
+    RQ_ASSERT(this->getHasNext(), "does not have next");
+    rq::FactoryExpression *old_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(new_next_ptr);
+    return rq::dereferencePtr(old_next_ptr);
+  }
+  [[nodiscard]] inline rq::FactoryExpression *
+  changeNextPtr(rq::FactoryExpression &new_next) {
+    rq::FactoryExpression *old_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(&new_next);
+    return old_next_ptr;
+  }
+  [[nodiscard]] inline rq::FactoryExpression *
+  changeNextPtr(rq::FactoryExpression *new_next_ptr) {
+    rq::FactoryExpression *old_next_ptr = this->getNextPtr();
+    this->_next_ptr_flags.setPtr(new_next_ptr);
+    return old_next_ptr;
+  }
+  [[nodiscard]] inline rq::FactoryExpression &mergeAndPopBranch() {
+    rq::FactoryExpression &branch = this->popBranch();
+    if (this->getHasNext()) {
+      rq::FactoryExpression &branch_last_next = branch.getLastNext();
+      branch_last_next.setNext(this->popNext());
+    }
+    this->clear();
+    this->setKeyword(branch.getKeyword());
+    if (branch.getHasBranch()) {
+      this->setBranch(branch.popBranch());
+    }
+    if (branch.getHasNext()) {
+      this->setNext(branch.popNext());
+    }
+    this->setSource(branch);
+    branch.clear();
+    return branch;
+  }
+  [[nodiscard]] inline rq::FactoryExpression &mergeAndPopNext() {
+    rq::FactoryExpression &next = this->popNext();
+    RQ_ASSERT(!this->getHasBranch(), "has branch");
+    this->clear();
+    this->setKeyword(next.getKeyword());
+    if (next.getHasBranch()) {
+      this->setBranch(next.popBranch());
+    }
+    if (next.getHasNext()) {
+      this->setNext(next.popNext());
+    }
+    this->setSource(next);
+    next.clear();
+    return next;
+  }
+  [[nodiscard]] inline rq::FactoryExpression &getUnascribed() {
+    if (this->getCanBeAscription()) {
+      return this->getBranch().getUnascribed();
+    }
+    return *this;
+  }
+  [[nodiscard]] inline const rq::FactoryExpression &getUnascribed() const {
+    if (this->getCanBeAscription()) {
+      return this->getBranch().getUnascribed();
+    }
+    return *this;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::FactoryExpressionIterator,
+                            rq::FactoryExpressionIterator,
+                            std::ranges::subrange_kind::unsized>
+      getInclusiveNextSubrange() {
+    return std::ranges::subrange(rq::FactoryExpressionIterator(this),
+                                 rq::FactoryExpressionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstFactoryExpressionIterator,
+                            rq::ConstFactoryExpressionIterator,
+                            std::ranges::subrange_kind::unsized>
+      getInclusiveNextSubrange() const {
+    return std::ranges::subrange(rq::ConstFactoryExpressionIterator(this),
+                                 rq::ConstFactoryExpressionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::FactoryExpressionIterator,
+                            rq::FactoryExpressionIterator,
+                            std::ranges::subrange_kind::unsized>
+      getNextSubrange() {
+    return std::ranges::subrange(
+        rq::FactoryExpressionIterator(this->getNextPtr()),
+        rq::FactoryExpressionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstFactoryExpressionIterator,
+                            rq::ConstFactoryExpressionIterator,
+                            std::ranges::subrange_kind::unsized>
+      getNextSubrange() const {
+    return std::ranges::subrange(
+        rq::ConstFactoryExpressionIterator(this->getNextPtr()),
+        rq::ConstFactoryExpressionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::FactoryExpressionIterator,
+                            rq::FactoryExpressionIterator,
+                            std::ranges::subrange_kind::unsized>
+      getBranchSubrange() {
+    return std::ranges::subrange(
+        rq::FactoryExpressionIterator(this->getBranchPtr()),
+        rq::FactoryExpressionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstFactoryExpressionIterator,
+                            rq::ConstFactoryExpressionIterator,
+                            std::ranges::subrange_kind::unsized>
+      getBranchSubrange() const {
+    return std::ranges::subrange(
+        rq::ConstFactoryExpressionIterator(this->getBranchPtr()),
+        rq::ConstFactoryExpressionIterator());
+  }
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    std::ignore = entity_ptr;
+    return false;
+  }
+};
+
+rq::FactoryExpressionIterator &FactoryExpressionIterator::operator++() {
+  this->_expression_ptr =
+      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
+  return *this;
+}
+
+rq::FactoryExpressionIterator FactoryExpressionIterator::operator++(int) {
+  return ++*this;
+}
+
+rq::ConstFactoryExpressionIterator &
+ConstFactoryExpressionIterator::operator++() {
+  this->_expression_ptr =
+      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
+  return *this;
+}
+
+rq::ConstFactoryExpressionIterator
+ConstFactoryExpressionIterator::operator++(int) {
+  return ++*this;
+}
+
+struct ExpressionIterator final {
+  using Self = rq::ExpressionIterator;
+  using value_type = rq::Expression;
+  using reference = rq::Expression &;
+  using pointer = rq::Expression *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::Expression *_expression_ptr = nullptr;
+
+  ExpressionIterator() = default;
+  explicit ExpressionIterator(rq::Expression *expression_ptr)
+      : _expression_ptr(expression_ptr) {}
+  ExpressionIterator(const Self &) = default;
+  ExpressionIterator(Self &&) = default;
+  ~ExpressionIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_expression_ptr == it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_expression_ptr != it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &operator*() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *operator->() {
+    return this->_expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
+    return this->_expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_expression_ptr == nullptr;
+  }
+};
+
+struct ConstExpressionIterator final {
+  using Self = rq::ConstExpressionIterator;
+  using value_type = const rq::Expression;
+  using reference = const rq::Expression &;
+  using pointer = rq::Expression *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::Expression *_expression_ptr = nullptr;
+
+  ConstExpressionIterator() = default;
+  explicit ConstExpressionIterator(const rq::Expression *expression_ptr)
+      : _expression_ptr(expression_ptr) {}
+  ConstExpressionIterator(const Self &) = default;
+  ConstExpressionIterator(Self &&) = default;
+  ~ConstExpressionIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_expression_ptr == it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_expression_ptr != it._expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
+    return this->_expression_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_expression_ptr == nullptr;
+  }
+};
+
+struct Expression final : public rq::ExpressionBase {
+  using Self = rq::Expression;
+
+  Expression() = default;
+  // NOTE: no getBranchCount and getNextCount because bad performance!
+  RQ_ALWAYS_INLINE rq::Expression *getBranchPtr() {
+    return static_cast<rq::Expression *>(this->_branch_ptr);
+  }
   RQ_ALWAYS_INLINE const rq::Expression *getBranchPtr() const {
-    return this->_branch_ptr;
+    return static_cast<rq::Expression *>(this->_branch_ptr);
   }
   RQ_ALWAYS_INLINE rq::Expression *getNextPtr() {
-    return this->_next_ptr_flags.getPtr();
+    return static_cast<rq::Expression *>(this->_next_ptr_flags.getPtr());
   }
   RQ_ALWAYS_INLINE const rq::Expression *getNextPtr() const {
-    return this->_next_ptr_flags.getPtr();
+    return static_cast<rq::Expression *>(this->_next_ptr_flags.getPtr());
+  }
+  RQ_ALWAYS_INLINE rq::Expression &getBranch() {
+    return rq::dereferencePtr(this->getBranchPtr());
+  }
+  RQ_ALWAYS_INLINE const rq::Expression &getBranch() const {
+    return rq::dereferencePtr(this->getBranchPtr());
+  }
+  RQ_ALWAYS_INLINE rq::Expression &getNext() {
+    return rq::dereferencePtr(this->getNextPtr());
+  }
+  RQ_ALWAYS_INLINE const rq::Expression &getNext() const {
+    return rq::dereferencePtr(this->getNextPtr());
   }
   // TODO: get rid of the getLastNext and getLastBranch functions to avoid
   // excessive pointer chasing
@@ -3478,7 +3870,7 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLastBranch() {
     RQ_ASSERT(this->getHasBranch(), "does not have branch");
-    rq::Expression *expression_ptr = this->_branch_ptr;
+    rq::Expression *expression_ptr = this->getBranchPtr();
     while (expression_ptr->getNextPtr() != nullptr) {
       expression_ptr = expression_ptr->getNextPtr();
     }
@@ -3486,156 +3878,17 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLastBranch() const {
     RQ_ASSERT(this->getHasBranch(), "does not have branch");
-    rq::Expression *expression_ptr = this->_branch_ptr;
+    const rq::Expression *expression_ptr = this->getBranchPtr();
     while (expression_ptr->getNextPtr() != nullptr) {
       expression_ptr = expression_ptr->getNextPtr();
     }
     return rq::dereferencePtr(expression_ptr);
-  }
-  RQ_ALWAYS_INLINE void setBranch(rq::Expression &branch) {
-    rq::assignSingleValue(this->_branch_ptr, &branch);
-  }
-  RQ_ALWAYS_INLINE void setNext(rq::Expression &next) {
-    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
-  }
-  RQ_ALWAYS_INLINE void setBranch(rq::Expression *branch_ptr) {
-    rq::assignSingleValue(this->_branch_ptr, branch_ptr);
-  }
-  RQ_ALWAYS_INLINE void setNext(rq::Expression *next_ptr) {
-    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), next_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceBranch(rq::Expression &branch) {
-    rq::Expression &replaced_branch = this->getBranch();
-    this->_branch_ptr = &branch;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceNext(rq::Expression &next) {
-    rq::Expression &replaced_next = this->getNext();
-    this->_next_ptr_flags.setPtr(&next);
-    return replaced_next;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceBranch(rq::Expression *branch_ptr) {
-    rq::Expression &replaced_branch = this->getBranch();
-    this->_branch_ptr = branch_ptr;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-  replaceNext(rq::Expression *next_ptr) {
-    rq::Expression &replaced_next = this->getNext();
-    this->_next_ptr_flags.setPtr(next_ptr);
-    return replaced_next;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceBranchPtr(rq::Expression &branch) {
-    rq::Expression *replaced_branch = this->_branch_ptr;
-    this->_branch_ptr = &branch;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceNextPtr(rq::Expression &next) {
-    rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(&next);
-    return replaced_next_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceBranchPtr(rq::Expression *branch_ptr) {
-    rq::Expression *replaced_branch = this->_branch_ptr;
-    this->_branch_ptr = branch_ptr;
-    return replaced_branch;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  replaceNextPtr(rq::Expression *next_ptr) {
-    rq::Expression *replaced_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(next_ptr);
-    return replaced_next_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
     return this->_branch_ptr != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
     return this->_next_ptr_flags.getPtr() != nullptr;
-  }
-  [[nodiscard]] inline rq::Expression &popBranch() {
-    RQ_ASSERT(this->_branch_ptr != nullptr, "does not have branch");
-    rq::Expression *old_branch_ptr = this->_branch_ptr;
-    this->_branch_ptr = nullptr;
-    return rq::dereferencePtr(old_branch_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *popBranchPtr() {
-    rq::Expression *old_branch_ptr = this->_branch_ptr;
-    this->_branch_ptr = nullptr;
-    return old_branch_ptr;
-  }
-  [[nodiscard]] inline rq::Expression &popNext() {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(nullptr);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *popNextPtr() {
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(nullptr);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression &changeNext(rq::Expression &new_next) {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(&new_next);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression &
-  changeNext(rq::Expression *new_next_ptr) {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(new_next_ptr);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *changeNextPtr(rq::Expression &new_next) {
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(&new_next);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression *
-  changeNextPtr(rq::Expression *new_next_ptr) {
-    rq::Expression *old_next_ptr = this->_next_ptr_flags.getPtr();
-    this->_next_ptr_flags.setPtr(new_next_ptr);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression &mergeAndPopBranch() {
-    rq::Expression &branch = this->popBranch();
-    if (this->getHasNext()) {
-      rq::Expression &branch_last_next = branch.getLastNext();
-      branch_last_next.setNext(this->popNext());
-    }
-    this->clear();
-    this->setKeyword(branch.getKeyword());
-    if (branch.getHasBranch()) {
-      this->setBranch(branch.popBranch());
-    }
-    if (branch.getHasNext()) {
-      this->setNext(branch.popNext());
-    }
-    this->setSource(branch);
-    branch.clear();
-    return branch;
-  }
-  [[nodiscard]] inline rq::Expression &mergeAndPopNext() {
-    rq::Expression &next = this->popNext();
-    RQ_ASSERT(!this->getHasBranch(), "has branch");
-    this->clear();
-    this->setKeyword(next.getKeyword());
-    if (next.getHasBranch()) {
-      this->setBranch(next.popBranch());
-    }
-    if (next.getHasNext()) {
-      this->setNext(next.popNext());
-    }
-    this->setSource(next);
-    next.clear();
-    return next;
   }
   [[nodiscard]] inline rq::Expression &getUnascribed() {
     if (this->getCanBeAscription()) {
