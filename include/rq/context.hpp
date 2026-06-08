@@ -889,6 +889,13 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_array_constants.InsertNode(&created, insert_pos);
     return created;
   }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedIntegerType &
+  getDefaultIntegerType() {
+    rq::ScaledSignedIntegerType &type =
+        this->getScaledSignedIntegerType(rq::ScaleKind::FAST, 32, 0);
+    return type;
+  }
 };
 
 } // namespace rq
