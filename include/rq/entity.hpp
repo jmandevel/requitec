@@ -2,6 +2,10 @@
 
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/PointerUnion.h>
+
+#include <bit>
+#include <cstddef>
 #include <cstdint>
 
 namespace rq {
@@ -664,7 +668,8 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE,
   ADAPTER,
 
-  // GLOBAL VARIABLE => instance => global declaration => named table => symbol table
+  // GLOBAL VARIABLE => instance => global declaration => named table => symbol
+  // table
   GLOBAL_DYNAMIC_VARIABLE,
   GLOBAL_STATIC_VARIABLE,
 
@@ -772,6 +777,39 @@ struct Entity {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
     RQ_ASSERT(entity_ptr != nullptr, "nullptr entity");
     return true;
+  }
+};
+
+struct Value final {
+  using Self = rq::Value;
+
+  // TODO make this a tagged pointer
+  bool _is_temp : 1 = false;
+  rq::Entity *_data{nullptr};
+
+  explicit Value() = default;
+  explicit Value(rq::Entity &entity) : _is_temp(false), _data{&entity} {}
+  explicit Value(std::size_t temp_i)
+      : _is_temp(true), _data(std::bit_cast<rq::Entity *>(
+                            static_cast<std::uintptr_t>(temp_i))) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_is_temp == false && this->_data == nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemp() const {
+    return this->_is_temp;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
+    RQ_ASSERT(!this->getIsTemp(), "is temp");
+    return rq::dereferencePtr(this->_data);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
+    RQ_ASSERT(!this->getIsTemp(), "is temp");
+    return rq::dereferencePtr(this->_data);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getTempI() const {
+    RQ_ASSERT(this->getIsTemp(), "not temp");
+    return static_cast<std::size_t>(std::bit_cast<std::uintptr_t>(this->_data));
   }
 };
 
