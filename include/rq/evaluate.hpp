@@ -12,9 +12,26 @@ namespace rq {
 struct Context;
 struct Module;
 struct Expression;
-struct Table;
+struct SymbolTable;
 struct Instruction;
 struct ExpressionFlagsFactory;
+
+struct Rvalue final {
+  using Self = rq::Rvalue;
+
+  rq::Symbol *_type_ptr{nullptr};
+  rq::Entity *_value_ptr{nullptr};
+
+  explicit Rvalue() = default;
+  explicit Rvalue(rq::Symbol &type, rq::Entity &value)
+      : _type_ptr(&type), _value_ptr(&value) {}
+    
+    [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const;
+    [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const;
+    [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType();  
+    [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const;
+    [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue();  
+};
 
 struct Evaluator final {
   using Self = rq::Evaluator;
@@ -43,11 +60,17 @@ struct Evaluator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
   void evaluateSourceModule();
-  void rundown(rq::Module& module);
-  void rundownScope(rq::SymbolTable& table, rq::Module& module, const rq::Expression& first_ex);
-  void infill(rq::Module& module);
+  void rundown(rq::Module &module);
+  void rundownScope(rq::SymbolTable &table, rq::Module &module,
+                    const rq::Expression &first_ex);
+  void infill(rq::Module &module);
 
-  [[nodiscard]] rq::Rvalue evaluateRvalue(rq::SymbolTable& table, rq::Module& module, const rq::Expression& rvalue_ex, rq::SymbolConstant* lvalue_sy_ptr);
-  [[nodiscard]] const rq::Expression& evaluateExpressionAttributes(rq::ExpressionFlagsFactory& out_factory, rq::SymbolTable& table, rq::Module& module, const rq::Expression& outer_ex);
+  [[nodiscard]] rq::Rvalue evaluateRvalue(rq::SymbolTable &table,
+                                          rq::Module &module,
+                                          const rq::Expression &rvalue_ex);
+  [[nodiscard]] const rq::Expression &
+  evaluateExpressionAttributes(rq::ExpressionFlagsFactory &out_factory,
+                               rq::SymbolTable &table, rq::Module &module,
+                               const rq::Expression &outer_ex);
 };
 } // namespace rq

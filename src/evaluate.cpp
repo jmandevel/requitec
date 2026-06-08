@@ -1,6 +1,8 @@
 #include <rq/context.hpp>
 #include <rq/evaluate.hpp>
+#include <rq/expressions.hpp>
 #include <rq/literals.hpp>
+#include <rq/symbols.hpp>
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/SmallString.h>
@@ -45,13 +47,20 @@ void Evaluator::infill(rq::Module &module) { std::ignore = module; }
 
 [[nodiscard]] rq::Rvalue
 Evaluator::evaluateRvalue(rq::SymbolTable &table, rq::Module &module,
-                          const rq::Expression &rvalue_ex,
-                          rq::SymbolConstant *lvalue_sy_ptr) {
-  std::ignore = table;
-  std::ignore = module;
-  std::ignore = rvalue_ex;
-  std::ignore = lvalue_sy_ptr;
-  RQ_TODO_IMPLEMENTATION();
+                          const rq::Expression &rvalue_ex) {
+  using K = rq::Keyword;
+  switch (rvalue_ex.getKeyword()) {
+  case K::INTEGER_LITERAL: {
+    rq::Symbol &type = this->getContext().getIntegerLiteralType();
+    rq::Entity &value = rvalue_ex;
+    return rq::Rvalue(type, rvalue_ex);
+  } break;
+  case K::FLOAT_LITERAL: {
+    rq::Symbol &type = this->getContext().getFloatLiteralType();
+    rq::Entity &value = rvalue_ex;
+    return rq::Rvalue(type, rvalue_ex);
+  }
+  }
 }
 
 [[nodiscard]] const rq::Expression &Evaluator::evaluateExpressionAttributes(
@@ -70,8 +79,8 @@ Evaluator::evaluateRvalue(rq::SymbolTable &table, rq::Module &module,
     if (!rvalue.getIsOk()) {
       continue;
     }
-    rq::Symbol &attribute_sy = rq::dereferencePtr(rvalue.getSymbol());
-    if (!attribute_sy.getIsExpressionAttributeType()) {
+    rq::Symbol &attribute_ty = rvalue.getType();
+    if (!attribute_ty.getIsExpressionAttributeType()) {
       this->getContext().logErrorUnexpectedRvalueType(attribute_ex);
       this->setNotOk();
       continue;
