@@ -809,9 +809,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // RANGES
-  case K::RANGE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
   case K::ARITHMETIC_SEQUENCE: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
