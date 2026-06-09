@@ -3,7 +3,7 @@
 [main
     // the command line arguments are in a slice to null terminated pointer to char.
     // [args] is only usable within [main].
-    args :@\[null_terminated]?[char]= [args];
+    args :@?\[null_terminated][char]= [args];
 
     [for [args], arg:=[value], arg_i:=[index],
         ..std.print(line=

@@ -3,7 +3,7 @@
 // int main(int argc, char** argv);
 
 [mangle]::main
-[function [noname], ( argc:[signed_integer], argv:?\[null_terminated]?[char] <)[signed_integer],
-    args :@\[null_terminated]?[char]= argv.[slice argc];
+[function [noname], ( argc:[signed_integer], argv:??\[null_terminated][char] <)[signed_integer],
+    args :@?\[null_terminated][char]= argv.[slice argc];
     [result]  :[signed_integer]= [call_main args];
 ];
