@@ -6,7 +6,6 @@ target_sources(
         context.cpp
         options.cpp
         parse.cpp
-        see.cpp
         situate.cpp
         tokenize.cpp
 )

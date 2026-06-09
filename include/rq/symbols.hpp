@@ -1555,6 +1555,8 @@ struct SymbolTable : public rq::Symbol {
   getUnamedMemberList() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
   getUnamedMemberList();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::BumpPtrListRef<rq::Symbol> findNamedList(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol> findNamedList(llvm::StringRef name);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

@@ -13,22 +13,22 @@ namespace rq {
 
 void Evaluator::evaluateSourceModule() {
   rq::Module &source = this->getContext().getSourceModule();
-  this->rundown(source);
+  this->evaluateModule(source);
   if (!this->getIsOk()) {
     return;
   }
-  this->infill(source);
+  this->evaluateAllModuleSymbols(source);
 }
-void Evaluator::rundown(rq::Module &module) {
+void Evaluator::evaluateModule(rq::Module &module) {
   rq::Expression &top_ex = module.getExpression();
   if (!top_ex.getHasBranch()) {
     return;
   }
   rq::Expression &first_ex = top_ex.getBranch();
-  this->rundownScope(this->getContext().getTop(), module, first_ex);
+  this->evaluateGlobalScope(this->getContext().getTop(), module, first_ex);
 }
 
-void Evaluator::rundownScope(rq::SymbolTable &table, rq::Module &module,
+void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                              rq::Expression &first_ex) {
   std::ignore = table;
   std::ignore = module;
@@ -43,29 +43,15 @@ void Evaluator::rundownScope(rq::SymbolTable &table, rq::Module &module,
   }
 }
 
-void Evaluator::infill(rq::Module &module) { std::ignore = module; }
+void Evaluator::evaluateAllModuleSymbols(rq::Module &module) { std::ignore = module; }
 
 [[nodiscard]] rq::Rvalue Evaluator::evaluateRvalue(rq::SymbolTable &table,
                                                    rq::Module &module,
                                                    rq::Expression &rvalue_ex) {
   std::ignore = table;
   std::ignore = module;
-  using K = rq::Keyword;
-  switch (rvalue_ex.getKeyword()) {
-  case K::INTEGER_LITERAL: {
-    rq::Symbol &type = this->getContext().getIntegerLiteralType();
-    rq::Entity &value = rvalue_ex;
-    return rq::Rvalue(type, value);
-  } break;
-  case K::FLOAT_LITERAL: {
-    rq::Symbol &type = this->getContext().getFloatLiteralType();
-    rq::Entity &value = rvalue_ex;
-    return rq::Rvalue(type, value);
-  }
-  default:
-    RQ_TODO_IMPLEMENTATION();
-  }
-  RQ_UNREACHABLE();
+  std::ignore = rvalue_ex;
+  RQ_TODO_IMPLEMENTATION();
 }
 
 [[nodiscard]] rq::Expression &Evaluator::evaluateExpressionAttributes(

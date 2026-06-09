@@ -70,10 +70,10 @@ struct Evaluator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
   void evaluateSourceModule();
-  void rundown(rq::Module &module);
-  void rundownScope(rq::SymbolTable &table, rq::Module &module,
+  void evaluateModule(rq::Module &module);
+  void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                     rq::Expression &first_ex);
-  void infill(rq::Module &module);
+  void evaluateAllModuleSymbols(rq::Module &module);
 
   [[nodiscard]] rq::Rvalue evaluateRvalue(rq::SymbolTable &table,
                                           rq::Module &module,
