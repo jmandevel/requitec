@@ -693,74 +693,76 @@ namespace rq {
 
   // SYMBOL TABLES
   case S::TOP:
-    return SF::SYMBOL_TABLE;
+    return SF::SYMBOL_TABLE | SF::IS_FRAME;
 
   // LOCAL STATEMENTS
   case S::IF_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ELSE_IF_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::ELSE_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::MATCH_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::SWITCH_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::CASE_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::WITH_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::DEFAULT_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::FOR_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::WHILE_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::SPIN_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::WEAVE_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::SCOPE_STATEMENT:
     return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // NAMED TABLES
   case S::NAMESPACE:
-    return SF::NAMED_TABLE | SF::SYMBOL_TABLE;
+    return SF::NAMED_TABLE | SF::SYMBOL_TABLE | SF::IS_FRAME;
 
   // GLOBAL DECLARATION
   case S::DESTRUCTOR:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
   case S::MAIN:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::LOCAL_TABLE;
+           SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
 
   // POLYMORPH ITEM
   case S::CLASS_TYPE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::IS_FRAME;
   case S::ENUMERATION_TYPE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::IS_FRAME;
   case S::INTERFACE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
   case S::ADAPTER:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
@@ -776,25 +778,25 @@ namespace rq {
   case S::FORWARD_RANGER:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::LOCAL_TABLE;
+           SF::IS_FRAME;
   case S::BACKWARD_RANGER:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::LOCAL_TABLE;
+           SF::IS_FRAME;
 
   // PROCEDURES
   case S::FUNCTION:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::LOCAL_TABLE;
+           SF::IS_FRAME;
   case S::METHOD:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::LOCAL_TABLE;
+           SF::IS_FRAME;
   case S::EXTENSION_METHOD:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::LOCAL_TABLE;
+           SF::IS_FRAME;
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
@@ -1190,9 +1192,9 @@ getHasExpressionAttributes(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::HAS_EXPRESSION_ATTRIBUTES);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::LOCAL_TABLE);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_FRAME);
 }
 
 RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
@@ -1374,8 +1376,8 @@ Symbol::getIsExpressionAttributeType() const {
   return rq::getHasExpressionAttributes(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalTable() const {
-  return rq::getIsLocalTable(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrame() const {
+  return rq::getIsFrame(this->getKind());
 }
 
 [[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity_ptr) {
@@ -2015,12 +2017,12 @@ RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
     : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name,
                     containing_table, hosting_table, module, flags) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicValue &
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
 LocalStaticVariable::getValue() const {
   return this->_value;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicValue &
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Gendex<rq::StaticValue> &
 LocalStaticVariable::getValue() {
   return this->_value;
 }
@@ -3194,6 +3196,50 @@ SymbolTable::getUnamedMemberList() {
   return this->_unamed_member_list;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstBumpPtrListRef<rq::Symbol>
+SymbolTable::findNamedList(llvm::StringRef name) const {
+  for (const rq::SymbolTable &table : this->getInclusiveFrameSubrange()) {
+    const auto &map = table._named_member_map;
+    auto it = map.find(name);
+    if (it == map.end()) {
+      continue;
+    }
+    return rq::ConstBumpPtrListRef<rq::Symbol>(it->getSecond());
+  }
+  return rq::ConstBumpPtrListRef<rq::Symbol>();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
+SymbolTable::findNamedList(llvm::StringRef name) {
+  for (rq::SymbolTable &table : this->getInclusiveFrameSubrange()) {
+    auto &map = table._named_member_map;
+    auto it = map.find(name);
+    if (it == map.end()) {
+      continue;
+    }
+    return rq::BumpPtrListRef<rq::Symbol>(it->getSecond());
+  }
+  return rq::BumpPtrListRef<rq::Symbol>();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::FrameIterator, rq::FrameIterator,
+                          std::ranges::subrange_kind::unsized>
+    SymbolTable::getInclusiveFrameSubrange() {
+  return std::ranges::subrange<rq::FrameIterator, rq::FrameIterator,
+                               std::ranges::subrange_kind::unsized>(
+      rq::FrameIterator(this), rq::FrameIterator());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstFrameIterator, rq::ConstFrameIterator,
+                          std::ranges::subrange_kind::unsized>
+    SymbolTable::getInclusiveFrameSubrange() const {
+  return std::ranges::subrange<rq::ConstFrameIterator, rq::ConstFrameIterator,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstFrameIterator(this), rq::ConstFrameIterator());
+}
+
 [[nodiscard]] inline bool SymbolTable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   if (!llvm::isa<rq::Symbol>(entity)) {
@@ -3434,6 +3480,7 @@ Instance::Instance(rq::SymbolKind kind, rq::SymbolTable &containing_table,
       _polymorph_ptr(&polymorph), _template_ptr(template_ptr),
       _first_argument_ptr(first_argument_ptr) {
   RQ_ASSERT(rq::getIsInstance(kind), "not instance");
+  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph &
@@ -3833,6 +3880,7 @@ Template::Template(rq::SymbolKind kind, rq::SymbolTable &containing_table,
       _constraint_expression_ptr(constraint_expression_ptr),
       _weight_expression_ptr(weight_expression_ptr), _weight(weight) {
   RQ_ASSERT(rq::getIsTemplate(kind), "not template");
+  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
@@ -3911,13 +3959,33 @@ DerivedTemplate<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
-                                          rq::Polymorph &polymorph)
-    : Symbol(kind), _weight(weight), _polymorph_ptr(&polymorph) {
+                                          rq::Polymorph &polymorph,
+                                          rq::SymbolTable &containing_table)
+    : Symbol(kind), _weight(weight), _polymorph_ptr(&polymorph),
+      _containing_table_ptr(&containing_table) {
   RQ_ASSERT(rq::getIsWeightLevel(kind), "not weight level");
+  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned WeightLevel::getWeight() const {
   return this->_weight;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph &
+WeightLevel::getPolymorph() const {
+  return rq::dereferencePtr(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph &WeightLevel::getPolymorph() {
+  return rq::dereferencePtr(this->_polymorph_ptr);
+}
+
+[[nodiscard]] const rq::SymbolTable &WeightLevel::getContainingTable() const {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] rq::SymbolTable &WeightLevel::getContainingTable() {
+  return rq::dereferencePtr(this->_containing_table_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
@@ -3945,10 +4013,10 @@ RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
 }
 
 template <rq::SymbolKind KIND_PARAM>
-RQ_ALWAYS_INLINE
-DerivedWeightLevel<KIND_PARAM>::DerivedWeightLevel(unsigned weight,
-                                                   rq::Polymorph &polymorph)
-    : WeightLevel(KIND_PARAM, weight, polymorph) {}
+RQ_ALWAYS_INLINE DerivedWeightLevel<KIND_PARAM>::DerivedWeightLevel(
+    unsigned weight, rq::Polymorph &polymorph,
+    rq::SymbolTable &containing_table)
+    : WeightLevel(KIND_PARAM, weight, polymorph, containing_table) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool
@@ -3958,9 +4026,11 @@ DerivedWeightLevel<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
 }
 
-RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, llvm::StringRef name)
-    : Symbol(kind), _name(name) {
+RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, llvm::StringRef name,
+                                      rq::SymbolTable &containing_table)
+    : Symbol(kind), _name(name), _containing_table_ptr(&containing_table) {
   RQ_ASSERT(rq::getIsPolymorph(kind), "not polymorph");
+  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
 }
 
 // inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
@@ -4000,6 +4070,16 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, llvm::StringRef name)
 // prev_level._next_ptr = &new_level;
 //}
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+Polymorph::getContainingTable() const {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
+Polymorph::getContainingTable() {
+  return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE
     std::ranges::subrange<rq::NextIterator<rq::WeightLevel>,
                           rq::NextIterator<rq::WeightLevel>,
@@ -4035,9 +4115,9 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, llvm::StringRef name)
 }
 
 template <rq::SymbolKind KIND_PARAM>
-RQ_ALWAYS_INLINE
-DerivedPolymorph<KIND_PARAM>::DerivedPolymorph(llvm::StringRef name)
-    : Polymorph(KIND_PARAM, name) {}
+RQ_ALWAYS_INLINE DerivedPolymorph<KIND_PARAM>::DerivedPolymorph(
+    llvm::StringRef name, rq::SymbolTable &containing_table)
+    : Polymorph(KIND_PARAM, name, containing_table) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool

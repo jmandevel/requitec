@@ -4,7 +4,7 @@
 #include <rq/entity.hpp>
 #include <rq/expressions.hpp>
 #include <rq/next_iterator.hpp>
-#include <rq/see.hpp>
+#include <rq/static_value.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
 
@@ -75,7 +75,7 @@ enum class SymbolFlags : std::uint64_t {
   IS_BFLOAT_TYPE = rq::getBit(39),
   IS_CODEUNIT_TYPE = rq::getBit(40),
   HAS_EXPRESSION_ATTRIBUTES = rq::getBit(41),
-  LOCAL_TABLE = rq::getBit(42)
+  IS_FRAME = rq::getBit(42)
 };
 
 template <> struct is_flags<rq::SymbolFlags> final : std::true_type {};
@@ -134,7 +134,7 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasExpressionAttributes(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind);
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] consteval rq::SymbolKind getInstanceKind() {
@@ -480,7 +480,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -736,8 +736,10 @@ struct ModuleFactory final {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const;
-  RQ_ALWAYS_INLINE void setOrChangeExpression(rq::FactoryExpression *expression_ptr);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *getExpressionPtr() const;
+  RQ_ALWAYS_INLINE void
+  setOrChangeExpression(rq::FactoryExpression *expression_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
+  getExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *getExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getBuffer() const;
@@ -984,15 +986,16 @@ struct LocalDynamicVariable final : public rq::LocalVariable {
 struct LocalStaticVariable final : public rq::LocalVariable {
   using Self = rq::LocalStaticVariable;
 
-  rq::SymbolicValue _value{};
+  rq::Gendex<rq::StaticValue> _value{};
 
   explicit RQ_ALWAYS_INLINE
   LocalStaticVariable(llvm::StringRef name, rq::SymbolTable &containing_table,
                       rq::SymbolTable &hosting_table, rq::Module &module,
                       rq::ExpressionFlags flags);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicValue &getValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicValue &getValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
+  getValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Gendex<rq::StaticValue> &getValue();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1529,6 +1532,86 @@ struct SynonymType final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct FrameIterator final {
+  using Self = rq::FrameIterator;
+  using value_type = rq::SymbolTable;
+  using reference = rq::SymbolTable &;
+  using pointer = rq::SymbolTable *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  rq::SymbolTable *_symbol_table_ptr = nullptr;
+
+  FrameIterator() = default;
+  explicit FrameIterator(rq::SymbolTable *symbol_table_ptr)
+      : _symbol_table_ptr(symbol_table_ptr) {}
+  FrameIterator(const Self &) = default;
+  FrameIterator(Self &&) = default;
+  ~FrameIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_symbol_table_ptr == it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_symbol_table_ptr != it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*() {
+    return rq::dereferencePtr(this->_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
+    return rq::dereferencePtr(this->_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->() {
+    return this->_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
+    return this->_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_symbol_table_ptr == nullptr;
+  }
+};
+
+struct ConstFrameIterator final {
+  using Self = rq::ConstFrameIterator;
+  using value_type = const rq::SymbolTable;
+  using reference = const rq::SymbolTable &;
+  using pointer = rq::SymbolTable *;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::forward_iterator_tag;
+
+  const rq::SymbolTable *_symbol_table_ptr = nullptr;
+
+  ConstFrameIterator() = default;
+  explicit ConstFrameIterator(const rq::SymbolTable *symbol_table_ptr)
+      : _symbol_table_ptr(symbol_table_ptr) {}
+  ConstFrameIterator(const Self &) = default;
+  ConstFrameIterator(Self &&) = default;
+  ~ConstFrameIterator() = default;
+  Self &operator=(const Self &) = default;
+  Self &operator=(Self &&) = default;
+  RQ_ALWAYS_INLINE Self &operator++();
+  RQ_ALWAYS_INLINE Self operator++(int);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
+    return this->_symbol_table_ptr == it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
+    return this->_symbol_table_ptr != it._symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
+    return rq::dereferencePtr(this->_symbol_table_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
+    return this->_symbol_table_ptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
+    return this->_symbol_table_ptr == nullptr;
+  }
+};
+
 struct SymbolTable : public rq::Symbol {
   using Self = rq::SymbolTable;
 
@@ -1555,11 +1638,64 @@ struct SymbolTable : public rq::Symbol {
   getUnamedMemberList() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
   getUnamedMemberList();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::BumpPtrListRef<rq::Symbol> findNamedList(llvm::StringRef name) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol> findNamedList(llvm::StringRef name);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstBumpPtrListRef<rq::Symbol>
+  findNamedList(llvm::StringRef name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
+  findNamedList(llvm::StringRef name);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::FrameIterator, rq::FrameIterator,
+                            std::ranges::subrange_kind::unsized>
+      getInclusiveFrameSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstFrameIterator, rq::ConstFrameIterator,
+                            std::ranges::subrange_kind::unsized>
+      getInclusiveFrameSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
+
+rq::FrameIterator &FrameIterator::operator++() {
+  rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
+  if (table.getIsFrame()) {
+    this->_symbol_table_ptr = nullptr;
+  } else {
+    this->_symbol_table_ptr = table._containing_table_ptr;
+  }
+  return *this;
+}
+
+rq::FrameIterator FrameIterator::operator++(int) {
+  rq::FrameIterator temp = *this;
+  rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
+  if (table.getIsFrame()) {
+    this->_symbol_table_ptr = nullptr;
+  } else {
+    this->_symbol_table_ptr = table._containing_table_ptr;
+  }
+  return temp;
+}
+
+rq::ConstFrameIterator &ConstFrameIterator::operator++() {
+  const rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
+  if (table.getIsFrame()) {
+    this->_symbol_table_ptr = nullptr;
+  } else {
+    this->_symbol_table_ptr = table._containing_table_ptr;
+  }
+  return *this;
+}
+
+rq::ConstFrameIterator ConstFrameIterator::operator++(int) {
+  rq::ConstFrameIterator temp = *this;
+  const rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
+  if (table.getIsFrame()) {
+    this->_symbol_table_ptr = nullptr;
+  } else {
+    this->_symbol_table_ptr = table._containing_table_ptr;
+  }
+  return temp;
+}
 
 struct Top final : public rq::SymbolTable {
   using Self = rq::Top;
@@ -2116,15 +2252,18 @@ struct WeightLevel : rq::Symbol {
   using Self = rq::WeightLevel;
 
   unsigned _weight;
-  rq::Polymorph *_polymorph_ptr{nullptr};
+  rq::Polymorph *_polymorph_ptr;
   rq::WeightLevel *_next_ptr{nullptr};
   rq::Template *_first_ptr{nullptr};
+  rq::SymbolTable* _containing_table_ptr;
 
   explicit RQ_ALWAYS_INLINE WeightLevel(rq::SymbolKind kind, unsigned weight,
-                                        rq::Polymorph &polymorph);
+                                        rq::Polymorph &polymorph, rq::SymbolTable& containing_table);
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getWeight() const;
-  [[nodiscard]] const rq::Polymorph &getPolymorph() const;
-  [[nodiscard]] rq::Polymorph &getPolymorph();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph& getPolymorph() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph& getPolymorph();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Template>,
                             rq::NextIterator<rq::Template>,
@@ -2144,7 +2283,7 @@ struct DerivedWeightLevel final : public rq::WeightLevel {
   using DerivedTemplate = rq::DerivedTemplate<rq::getTemplateKind<KIND>()>;
 
   explicit RQ_ALWAYS_INLINE DerivedWeightLevel(unsigned weight,
-                                               rq::Polymorph &polymorph);
+                                               rq::Polymorph &polymorph, rq::SymbolTable& containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Template, DerivedTemplate>,
@@ -2187,11 +2326,14 @@ struct Polymorph : public rq::Symbol {
   llvm::StringRef _name;
   rq::Instance *_first_instance_ptr{nullptr};
   rq::WeightLevel *_highest_weight_ptr{nullptr};
+  rq::SymbolTable *_containing_table_ptr;
 
   explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind,
-                                      llvm::StringRef name);
+                                      llvm::StringRef name, rq::SymbolTable& containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
 
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Instance>,
@@ -2226,7 +2368,7 @@ struct DerivedPolymorph final : public rq::Polymorph {
       rq::DerivedWeightLevel<rq::getWeightLevelKind<KIND>()>;
   using DerivedTemplate = rq::DerivedTemplate<rq::getTemplateKind<KIND>()>;
 
-  explicit RQ_ALWAYS_INLINE DerivedPolymorph(llvm::StringRef name);
+  explicit RQ_ALWAYS_INLINE DerivedPolymorph(llvm::StringRef name, rq::SymbolTable& containing_table);
 
   inline void addDerivedTemplate(rq::BumpPtrAllocator &allocator,
                                  DerivedTemplate &template_);
