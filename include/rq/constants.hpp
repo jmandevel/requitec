@@ -164,7 +164,7 @@ inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
 struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::ArrayConstant;
 
-  std::vector<rq::Constant *> _data;
+  llvm::ArrayRef<rq::Constant *> _data;
 
   explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant *> data)
       : Constant(rq::ConstantKind::ARRAY), _data(data) {}

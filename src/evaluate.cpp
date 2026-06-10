@@ -29,7 +29,7 @@ void Evaluator::evaluateModule(rq::Module &module) {
 }
 
 void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
-                             rq::Expression &first_ex) {
+                                    rq::Expression &first_ex) {
   std::ignore = table;
   std::ignore = module;
   for (rq::Expression &outer_ex : first_ex.getInclusiveNextSubrange()) {
@@ -43,11 +43,77 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   }
 }
 
-void Evaluator::evaluateAllModuleSymbols(rq::Module &module) { std::ignore = module; }
+void Evaluator::evaluateAllModuleSymbols(rq::Module &module) {
+  std::ignore = module;
+}
 
-[[nodiscard]] rq::Rvalue Evaluator::evaluateRvalue(rq::SymbolTable &table,
-                                                   rq::Module &module,
-                                                   rq::Expression &rvalue_ex) {
+[[nodiscard]] rq::StaticRvalue
+Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
+                                rq::Expression &rvalue_ex) {
+  using K = rq::Keyword;
+  using S = rq::SymbolKind;
+  switch (rvalue_ex.getKeyword()) {
+  case K::INTEGER_LITERAL: {
+    rq::Symbol &type = this->getContext().getIntegerLiteralType();
+    rq::Entity &value = rvalue_ex;
+    return rq::StaticRvalue(type, value);
+  }
+  case K::FLOAT_LITERAL: {
+    rq::Symbol &type = this->getContext().getFloatLiteralType();
+    rq::Entity &value = rvalue_ex;
+    return rq::StaticRvalue(type, value);
+  }
+  case K::STRING_LITERAL: {
+    rq::Symbol &type = this->getContext().getStringLiteralType();
+    rq::Entity &value = rvalue_ex;
+    return rq::StaticRvalue(type, value);
+  }
+  case K::CODEUNIT_LITERAL: {
+    rq::Symbol &type = this->getContext().getCodeunitLiteralType();
+    rq::Entity &value = rvalue_ex;
+    return rq::StaticRvalue(type, value);
+  }
+  case K::IDENTIFIER_LITERAL: {
+    auto list = table.findNamedList(rvalue_ex.getSourceText());
+    if (list.getIsEmpty()) {
+      this->getContext().logErrorNotSymbol(rvalue_ex);
+      this->setNotOk();
+      return rq::StaticRvalue();
+    }
+    if (list.getHasTail()) {
+      this->getContext().logErrorNameCollision(rvalue_ex);
+      this->setNotOk();
+      return rq::StaticRvalue();
+    }
+    rq::Symbol &found_sy = list.getHead();
+    rq::Symbol *rvalue_sy_ptr = nullptr;
+    if (llvm::isa<rq::Polymorph>(found_sy)) {
+      rq::Polymorph &poly = llvm::cast<rq::Polymorph>(found_sy);
+      if (!poly.getHasSomeInstance()) {
+        this->getContext().logErrorNotSymbol(rvalue_ex);
+        this->setNotOk();
+        return rq::StaticRvalue();
+      }
+      if (poly.getHasCollision()) {
+        this->getContext().logErrorNameCollision(rvalue_ex);
+        this->setNotOk();
+        return rq::StaticRvalue();
+      }
+      rvalue_sy_ptr = &poly.getOnlyInstance();
+    } else {
+      rvalue_sy_ptr = &found_sy;
+    }
+    rq::Symbol &rvalue_sy = rq::dereferencePtr(rvalue_sy_ptr);
+    std::ignore = rvalue_sy;
+    //switch (rvalue_sy.getKind()) {
+    //}
+  }
+  case K::ADD: {
+
+    }
+    default: break;
+  }
+
   std::ignore = table;
   std::ignore = module;
   std::ignore = rvalue_ex;
@@ -65,7 +131,8 @@ void Evaluator::evaluateAllModuleSymbols(rq::Module &module) { std::ignore = mod
       return branch_ex;
     }
     rq::Expression &attribute_ex = branch_ex.getBranch();
-    rq::Rvalue rvalue = this->evaluateRvalue(table, module, attribute_ex);
+    rq::StaticRvalue rvalue =
+        this->evaluateStaticRvalue(table, module, attribute_ex);
     if (!rvalue.getIsOk()) {
       continue;
     }
@@ -75,8 +142,12 @@ void Evaluator::evaluateAllModuleSymbols(rq::Module &module) { std::ignore = mod
       this->setNotOk();
       continue;
     }
+    if (rvalue.getHasTemp()) {
+      rq::StaticValue &value = rvalue.getTemp();
+      rq::StaticInt =
+    }
     rq::WordConstant &attribute_wd =
-        llvm::cast<rq::WordConstant>(rvalue.getValue());
+        llvm::cast<rq::WordConstant>(rvalue.getEntity());
     rq::ExpressionAttribute attribute =
         attribute_wd.getAs<rq::ExpressionAttribute>();
     out_factory.addFlag(attribute, &branch_ex);

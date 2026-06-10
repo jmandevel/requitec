@@ -1,5 +1,7 @@
 #pragma once
 #include <rq/utility.hpp>
+#include <rq/static_value.hpp>
+#include <rq/generational_arena.hpp>
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
@@ -16,15 +18,18 @@ struct SymbolTable;
 struct Instruction;
 struct ExpressionFlagsFactory;
 
-struct Rvalue final {
-  using Self = rq::Rvalue;
+struct StaticRvalue final {
+  using Self = rq::StaticRvalue;
 
   rq::Symbol *_type_ptr{nullptr};
-  rq::Entity *_value_ptr{nullptr};
+  rq::Entity *_entity_ptr{nullptr};
+  rq::StaticValue _temp{};
 
-  explicit Rvalue() = default;
-  explicit Rvalue(rq::Symbol &type, rq::Entity &value)
-      : _type_ptr(&type), _value_ptr(&value) {}
+  explicit StaticRvalue() = default;
+  explicit StaticRvalue(rq::Symbol &type, rq::Entity &entity)
+      : _type_ptr(&type), _entity_ptr(&entity) {}
+  explicit StaticRvalue(rq::Symbol &type, rq::StaticValue &&temp)
+      : _type_ptr(&type), _temp(std::move(temp)) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const {
     return this->_type_ptr != nullptr;
@@ -35,17 +40,27 @@ struct Rvalue final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType() {
     return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const {
-    return rq::dereferencePtr(this->_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
+    return rq::dereferencePtr(this->_entity_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue() {
-    return rq::dereferencePtr(this->_type_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
+    return rq::dereferencePtr(this->_entity_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemp() const {
+    return this->_entity_ptr == nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue& getTemp() const {
+    return this->_temp;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue& getTemp() {
+    return this->_temp;
   }
 };
 
 struct Evaluator final {
   using Self = rq::Evaluator;
 
+  rq::GenerationalArena<rq::StaticValue> _static_values{};
   rq::Context *_context_ptr;
   bool _is_ok : 1 = true;
 
@@ -75,7 +90,7 @@ struct Evaluator final {
                     rq::Expression &first_ex);
   void evaluateAllModuleSymbols(rq::Module &module);
 
-  [[nodiscard]] rq::Rvalue evaluateRvalue(rq::SymbolTable &table,
+  [[nodiscard]] rq::StaticRvalue evaluateStaticRvalue(rq::SymbolTable &table,
                                           rq::Module &module,
                                           rq::Expression &rvalue_ex);
   [[nodiscard]] rq::Expression &

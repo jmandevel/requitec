@@ -2,7 +2,7 @@
 
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/constants.hpp>
-#include <rq/see.hpp>
+#include <rq/static_value.hpp>
 #include <rq/symbols.hpp>
 #include <rq/utility.hpp>
 
@@ -75,7 +75,6 @@ struct Context final : public rq::BumpPtrAllocator {
   std::unique_ptr<llvm::LLVMContext> _llvm_context_uptr;
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
-  rq::SymbolicExecutionEngine _see{};
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
   rq::FactoryExpression *_free_expression_ptr{nullptr};

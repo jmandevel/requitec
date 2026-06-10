@@ -2334,6 +2334,10 @@ struct Polymorph : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSomeInstance() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCollision() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instance& getOnlyInstance() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instance& getOnlyInstance();  
 
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Instance>,
