@@ -56,6 +56,12 @@ struct AssertException final : public std::logic_error {
 #define RQ_UNREACHABLE() std::unreachable()
 #endif
 
+#if !defined(_NDEBUG) 
+#define RQ_UNHANDLED_ERROR(reason) throw rq::AssertException("unhandled error", reason);
+#else
+#define RQ_UNHANDLED_ERROR() std::unreachable()
+#endif
+
 #if !defined(_NDEBUG)
 #define RQ_TODO_IMPLEMENTATION()                                               \
   throw rq::AssertException("RQ_TODO_IMPLEMENTATION()", "not implemented "     \
